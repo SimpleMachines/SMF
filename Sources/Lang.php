@@ -30,8 +30,9 @@ class Lang
 	private static $backcompat = array(
 		'func_names' => array(
 			'load' => 'loadLanguage',
-			'addDirs' => false,
 			'get' => 'getLanguages',
+			'censorText' => 'censorText',
+			'tokenTxtReplace' => 'tokenTxtReplace',
 			'sentenceList' => 'sentence_list',
 			'numberFormat' => 'comma_format',
 		),

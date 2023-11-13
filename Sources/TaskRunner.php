@@ -47,7 +47,7 @@ class TaskRunner
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'handleError' => false,
+			'calculateNextTrigger' => 'CalculateNextTrigger',
 		),
 	);
 

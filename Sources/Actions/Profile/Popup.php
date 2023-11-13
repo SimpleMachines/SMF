@@ -36,7 +36,6 @@ class Popup implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'profile_popup',
 		),
 	);

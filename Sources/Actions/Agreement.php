@@ -39,8 +39,9 @@ class Agreement implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Agreement',
+			'canRequireAgreement' => 'canRequireAgreement',
+			'canRequirePrivacyPolicy' => 'canRequirePrivacyPolicy',
 		),
 	);
 

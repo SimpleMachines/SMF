@@ -43,8 +43,12 @@ class Reports implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ReportsMain',
+			'boardReport' => 'BoardReport',
+			'boardPermissionsReport' => 'BoardPermissionsReport',
+			'memberGroupsReport' => 'MemberGroupsReport',
+			'groupPermissionsReport' => 'GroupPermissionsReport',
+			'staffReport' => 'StaffReport',
 		),
 	);
 

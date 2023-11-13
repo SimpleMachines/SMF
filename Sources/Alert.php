@@ -34,13 +34,6 @@ class Alert implements \ArrayAccess
 			'mark' => 'alert_mark',
 			'delete' => 'alert_delete',
 			'purge' => 'alert_purge',
-			'create' => false,
-			'createBatch' => false,
-			'load' => false,
-			'loadForMember' => false,
-			'markAll' => false,
-			'markWhere' => false,
-			'deleteWhere' => false,
 		),
 	);
 

@@ -44,8 +44,14 @@ class Warnings implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ViewWarnings',
+			'list_getWarningCount' => 'list_getWarningCount',
+			'list_getWarnings' => 'list_getWarnings',
+			'list_getWarningTemplateCount' => 'list_getWarningTemplateCount',
+			'list_getWarningTemplates' => 'list_getWarningTemplates',
+			'ViewWarningLog' => 'ViewWarningLog',
+			'ViewWarningTemplates' => 'ViewWarningTemplates',
+			'ModifyWarningTemplate' => 'ModifyWarningTemplate',
 		),
 	);
 

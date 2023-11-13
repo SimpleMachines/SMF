@@ -41,8 +41,9 @@ class Login2 implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Login2',
+			'checkAjax' => 'checkAjax',
+			'validatePasswordFlood' => 'validatePasswordFlood',
 		),
 	);
 

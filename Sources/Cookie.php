@@ -27,10 +27,10 @@ class Cookie
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'getCookie' => false,
+			'setLoginCookie' => 'setLoginCookie',
+			'setTFACookie' => 'setTFACookie',
 			'urlParts' => 'url_parts',
 			'encrypt' => 'hash_salt',
-			'setDefaults' => false,
 			'setcookie' => 'smf_setcookie',
 		),
 	);

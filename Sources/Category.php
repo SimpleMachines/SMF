@@ -37,15 +37,13 @@ class Category implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'init' => false,
 			'modify' => 'modifyCategory',
 			'create' => 'createCategory',
 			'delete' => 'deleteCategories',
 			'sort' => 'sortCategories',
+			'getTreeOrder' => 'getTreeOrder',
 			'getTree' => 'getBoardTree',
-			'setParsedDescriptions' => 'setCategoryParsedDescription',
-			'getParsedDescriptions' => 'getCategoriesParsedDescription',
+			'recursiveBoards' => 'recursiveBoards',
 		),
 		'prop_names' => array(
 			'loaded' => 'cat_tree',

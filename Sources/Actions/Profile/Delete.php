@@ -41,8 +41,8 @@ class Delete implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'deleteAccount',
+			'deleteAccount2' => 'deleteAccount2',
 		),
 	);
 

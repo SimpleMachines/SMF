@@ -43,8 +43,9 @@ class IssueWarning implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'call' => false,
+			'list_getUserWarnings' => 'list_getUserWarnings',
+			'list_getUserWarningCount' => 'list_getUserWarningCount',
+			'issueWarning' => 'issueWarning',
 		),
 	);
 

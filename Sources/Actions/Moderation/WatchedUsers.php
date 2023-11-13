@@ -42,8 +42,11 @@ class WatchedUsers implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ViewWatchedUsers',
+			'list_getWatchedUserCount' => 'list_getWatchedUserCount',
+			'list_getWatchedUsers' => 'list_getWatchedUsers',
+			'list_getWatchedUserPostsCount' => 'list_getWatchedUserPostsCount',
+			'list_getWatchedUserPosts' => 'list_getWatchedUserPosts',
 		),
 	);
 

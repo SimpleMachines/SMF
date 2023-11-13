@@ -39,8 +39,8 @@ class GroupMembership implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'groupMembership',
+			'groupMembership2' => 'groupMembership2',
 		),
 	);
 

@@ -35,7 +35,8 @@ class Profile extends User implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
+			'loadCustomFieldDefinitions' => 'loadCustomFieldDefinitions',
+			'validateSignature' => 'validateSignature',
 			'backcompat_profileLoadGroups' => 'profileLoadGroups',
 			'backcompat_loadProfileFields' => 'loadProfileFields',
 			'backcompat_loadCustomFields' => 'loadCustomFields',

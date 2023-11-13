@@ -46,8 +46,28 @@ class Calendar implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'CalendarMain',
+			'iCalDownload' => 'iCalDownload',
+			'CalendarPost' => 'CalendarPost',
+			'getBirthdayRange' => 'getBirthdayRange',
+			'getEventRange' => 'getEventRange',
+			'getHolidayRange' => 'getHolidayRange',
+			'canLinkEvent' => 'canLinkEvent',
+			'getTodayInfo' => 'getTodayInfo',
+			'getCalendarGrid' => 'getCalendarGrid',
+			'getCalendarWeek' => 'getCalendarWeek',
+			'getCalendarList' => 'getCalendarList',
+			'loadDatePicker' => 'loadDatePicker',
+			'loadTimePicker' => 'loadTimePicker',
+			'loadDatePair' => 'loadDatePair',
+			'cache_getOffsetIndependentEvents' => 'cache_getOffsetIndependentEvents',
+			'cache_getRecentEvents' => 'cache_getRecentEvents',
+			'validateEventPost' => 'validateEventPost',
+			'getEventPoster' => 'getEventPoster',
+			'list_getHolidays' => 'list_getHolidays',
+			'list_getNumHolidays' => 'list_getNumHolidays',
+			'removeHolidays' => 'removeHolidays',
+			'convertDateToEnglish' => 'convertDateToEnglish',
 		),
 	);
 

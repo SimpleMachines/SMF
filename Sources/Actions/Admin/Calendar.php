@@ -46,9 +46,9 @@ class Calendar implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageCalendar',
-			'getConfigVars' => false,
+			'modifyHolidays' => 'ModifyHolidays',
+			'editHoliday' => 'EditHoliday',
 		),
 	);
 

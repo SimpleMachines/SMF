@@ -51,8 +51,12 @@ class TopicSplit implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'SplitTopics',
+			'splitTopic' => 'splitTopic',
+			'splitIndex' => 'SplitIndex',
+			'splitExecute' => 'SplitExecute',
+			'splitSelectTopics' => 'SplitSelectTopics',
+			'SplitSelectionExecute' => 'SplitSelectionExecute',
 		),
 	);
 

@@ -40,9 +40,14 @@ class Mail implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageMail',
-			'getConfigVars' => false,
+			'list_getMailQueue' => 'list_getMailQueue',
+			'list_getMailQueueSize' => 'list_getMailQueueSize',
+			'timeSince' => 'timeSince',
+			'browseMailQueue' => 'BrowseMailQueue',
+			'clearMailQueue' => 'ClearMailQueue',
+			'modifyMailSettings' => 'ModifyMailSettings',
+			'testMailSend' => 'TestMailSend',
 		),
 	);
 

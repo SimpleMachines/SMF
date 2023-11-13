@@ -47,8 +47,8 @@ class TopicMove2 implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'MoveTopic2',
+			'moveTopicConcurrence' => 'moveTopicConcurrence',
 		),
 	);
 

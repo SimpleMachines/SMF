@@ -36,7 +36,6 @@ class AlertsPopup implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'alerts_popup',
 		),
 	);

@@ -51,9 +51,17 @@ class Smileys implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageSmileys',
-			'getConfigVars' => false,
+			'list_getSmileySets' => 'list_getSmileySets',
+			'list_getNumSmileySets' => 'list_getNumSmileySets',
+			'list_getSmileys' => 'list_getSmileys',
+			'list_getNumSmileys' => 'list_getNumSmileys',
+			'list_getMessageIcons' => 'list_getMessageIcons',
+			'addSmiley' => 'AddSmiley',
+			'editSmileys' => 'EditSmileys',
+			'editSmileyOrder' => 'EditSmileyOrder',
+			'installSmileySet' => 'InstallSmileySet',
+			'editMessageIcons' => 'EditMessageIcons',
 		),
 	);
 

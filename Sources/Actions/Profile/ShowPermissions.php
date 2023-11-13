@@ -39,8 +39,7 @@ class ShowPermissions implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'call' => false,
+			'showPermissions' => 'showPermissions',
 		),
 	);
 

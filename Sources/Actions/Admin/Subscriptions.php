@@ -45,13 +45,19 @@ class Subscriptions implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManagePaidSubscriptions',
-			'getConfigVars' => false,
 			'getSubs' => 'loadSubscriptions',
 			'add' => 'addSubscription',
 			'remove' => 'removeSubscription',
 			'reapply' => 'reapplySubscriptions',
+			'loadPaymentGateways' => 'loadPaymentGateways',
+			'list_getSubscribedUserCount' => 'list_getSubscribedUserCount',
+			'list_getSubscribedUsers' => 'list_getSubscribedUsers',
+			'viewSubscriptions' => 'ViewSubscriptions',
+			'viewSubscribedUsers' => 'ViewSubscribedUsers',
+			'modifySubscription' => 'ModifySubscription',
+			'modifyUserSubscription' => 'ModifyUserSubscription',
+			'modifySubscriptionSettings' => 'ModifySubscriptionSettings',
 		),
 	);
 

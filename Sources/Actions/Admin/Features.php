@@ -47,14 +47,18 @@ class Features implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ModifyFeatureSettings',
-			'basicConfigVars' => false,
-			'bbcConfigVars' => false,
-			'layoutConfigVars' => false,
-			'sigConfigVars' => false,
-			'likesConfigVars' => false,
-			'mentionsConfigVars' => false,
+			'list_getProfileFields' => 'list_getProfileFields',
+			'list_getProfileFieldSize' => 'list_getProfileFieldSize',
+			'modifyBasicSettings' => 'ModifyBasicSettings',
+			'modifyBBCSettings' => 'ModifyBBCSettings',
+			'modifyLayoutSettings' => 'ModifyLayoutSettings',
+			'modifySignatureSettings' => 'ModifySignatureSettings',
+			'showCustomProfiles' => 'ShowCustomProfiles',
+			'editCustomProfiles' => 'EditCustomProfiles',
+			'modifyLikesSettings' => 'ModifyLikesSettings',
+			'modifyMentionsSettings' => 'ModifyMentionsSettings',
+			'modifyAlertsSettings' => 'ModifyAlertsSettings',
 		),
 	);
 

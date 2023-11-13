@@ -35,9 +35,6 @@ class Attachment implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'loadByMsg' => false,
-			'loadByMember' => false,
 			'automanageCheckDirectory' => 'automanage_attachments_check_directory',
 			'automanageCreateDirectory' => 'automanage_attachments_create_directory',
 			'automanageBySpace' => 'automanage_attachments_by_space',
@@ -45,9 +42,15 @@ class Attachment implements \ArrayAccess
 			'check' => 'attachmentChecks',
 			'create' => 'createAttachment',
 			'assign' => 'assignAttachments',
-			'prepareByMsg' => 'prepareAttachsByMsg',
 			'approve' => 'ApproveAttachments',
 			'remove' => 'removeAttachments',
+			'parseAttachBBC' => 'parseAttachBBC',
+			'getAttachMsgInfo' => 'getAttachMsgInfo',
+			'loadAttachmentContext' => 'loadAttachmentContext',
+			'prepareByMsg' => 'prepareAttachsByMsg',
+			'createHash' => 'createHash',
+			'getFilePath' => 'getFilePath',
+			'getAttachmentFilename' => 'getAttachmentFilename',
 		),
 	);
 

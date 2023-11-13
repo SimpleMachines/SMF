@@ -45,8 +45,13 @@ class Members implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ViewMembers',
+			'list_getMembers' => 'list_getMembers',
+			'list_getNumMembers' => 'list_getNumMembers',
+			'viewMemberlist' => 'ViewMemberlist',
+			'adminApprove' => 'AdminApprove',
+			'membersAwaitingActivation' => 'MembersAwaitingActivation',
+			'searchMembers' => 'SearchMembers',
 		),
 	);
 

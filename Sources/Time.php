@@ -27,13 +27,11 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
+			'create' => 'create',
 			'strftime' => 'smf_strftime',
 			'gmstrftime' => 'smf_gmstrftime',
 			'getDateOrTimeFormat' => 'get_date_or_time_format',
-			'getDateFormat' => false,
-			'getTimeFormat' => false,
-			'getShortDateFormat' => false,
-			'getShortTimeFormat' => false,
+			'timeformat' => 'timeformat',
 			'forumTime' => 'forum_time',
 		),
 	);

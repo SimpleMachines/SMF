@@ -27,6 +27,24 @@ class Logging
 {
 	use BackwardCompatibility;
 
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+			'writeLog' => 'writeLog',
+			'logAction' => 'logAction',
+			'logActions' => 'logActions',
+			'updateStats' => 'updateStats',
+			'trackStats' => 'trackStats',
+			'trackStatsUsersOnline' => 'trackStatsUsersOnline',
+			'getMembersOnlineStats' => 'getMembersOnlineStats',
+			'displayDebug' => 'displayDebug',
+		),
+	);
+
 	/***********************
 	 * Public static methods
 	 ***********************/

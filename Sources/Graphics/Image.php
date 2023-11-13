@@ -44,10 +44,18 @@ class Image
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
+			'getImageTypes' => 'getImageTypes',
+			'getSupportedFormats' => 'getSupportedFormats',
 			'checkMemory' => 'imageMemoryCheck',
-			'makeThumbnail' => 'createThumbnail',
 			'getSizeExternal' => 'url_image_size',
 			'gifOutputAsPng' => 'gif_outputAsPng',
+			'getSvgSize' => 'getSvgSize',
+			'makeThumbnail' => 'createThumbnail',
+			'reencodeImage' => 'reencodeImage',
+			'checkImageContents' => 'checkImageContents',
+			'checkSvgContents' => 'checkSvgContents',
+			'resizeImageFile' => 'resizeImageFile',
+			'resizeImage' => 'resizeImage',
 		),
 	);
 

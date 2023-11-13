@@ -47,8 +47,15 @@ class ACP implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'AdminMain',
+			'prepareDBSettingContext' => 'prepareDBSettingContext',
+			'saveSettings' => 'saveSettings',
+			'saveDBSettings' => 'saveDBSettings',
+			'getServerVersions' => 'getServerVersions',
+			'getFileVersions' => 'getFileVersions',
+			'updateAdminPreferences' => 'updateAdminPreferences',
+			'emailAdmins' => 'emailAdmins',
+			'adminLogin' => 'adminLogin',
 		),
 	);
 

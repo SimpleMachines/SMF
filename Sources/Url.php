@@ -34,9 +34,16 @@ class Url implements \Stringable
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = array(
-		'func_underscores' => true,
 		'func_names' => array(
-			'create' => false,
+			'setTldRegex' => 'set_tld_regex',
+			'parseIri' => 'parse_iri',
+			'validateIri' => 'validate_iri',
+			'sanitizeIri' => 'sanitize_iri',
+			'normalizeIri' => 'normalize_iri',
+			'iriToUrl' => 'iri_to_url',
+			'urlToIri' => 'url_to_iri',
+			'getProxiedUrl' => 'get_proxied_url',
+			'sslCertFound' => 'ssl_cert_found',
 		),
 	);
 

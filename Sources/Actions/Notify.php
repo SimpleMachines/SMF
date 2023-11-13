@@ -42,6 +42,11 @@ abstract class Notify
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
+			'getNotifyPrefs' => 'getNotifyPrefs',
+			'setNotifyPrefs' => 'setNotifyPrefs',
+			'deleteNotifyPrefs' => 'deleteNotifyPrefs',
+			'getMemberWithToken' => 'getMemberWithToken',
+			'createUnsubscribeToken' => 'createUnsubscribeToken',
 		),
 	);
 

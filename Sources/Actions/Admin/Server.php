@@ -92,15 +92,18 @@ class Server implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ModifySettings',
-			'generalConfigVars' => false,
-			'databaseConfigVars' => false,
-			'cookieConfigVars' => false,
-			'securityConfigVars' => false,
-			'cacheConfigVars' => false,
-			'exportConfigVars' => false,
-			'loadBalancingConfigVars' => false,
+			'getLoadAverageDisabled' => 'getLoadAverageDisabled',
+			'prepareServerSettingsContext' => 'prepareServerSettingsContext',
+			'checkSettingsFileWriteSafe' => 'checkSettingsFileWriteSafe',
+			'modifyGeneralSettings' => 'ModifyGeneralSettings',
+			'modifyDatabaseSettings' => 'ModifyDatabaseSettings',
+			'modifyCookieSettings' => 'ModifyCookieSettings',
+			'modifyGeneralSecuritySettings' => 'ModifyGeneralSecuritySettings',
+			'modifyCacheSettings' => 'ModifyCacheSettings',
+			'modifyExportSettings' => 'ModifyExportSettings',
+			'modifyLoadBalancingSettings' => 'ModifyLoadBalancingSettings',
+			'showPHPinfoSettings' => 'ShowPHPinfoSettings',
 		),
 	);
 

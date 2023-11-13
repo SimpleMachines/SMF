@@ -42,11 +42,10 @@ class Posts implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManagePostSettings',
-			'postConfigVars' => false,
-			'topicConfigVars' => false,
-			'draftConfigVars' => false,
+			'modifyPostSettings' => 'ModifyPostSettings',
+			'modifyTopicSettings' => 'ModifyTopicSettings',
+			'modifyDraftSettings' => 'ModifyDraftSettings',
 		),
 	);
 

@@ -46,9 +46,15 @@ class Languages implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageLanguages',
-			'getConfigVars' => false,
+			'list_getLanguagesList' => 'list_getLanguagesList',
+			'list_getNumLanguages' => 'list_getNumLanguages',
+			'list_getLanguages' => 'list_getLanguages',
+			'modifyLanguages' => 'ModifyLanguages',
+			'addLanguage' => 'AddLanguage',
+			'modifyLanguageSettings' => 'ModifyLanguageSettings',
+			'downloadLanguage' => 'DownloadLanguage',
+			'modifyLanguage' => 'ModifyLanguage',
 		),
 	);
 

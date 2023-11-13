@@ -42,6 +42,8 @@ class Rule implements \ArrayAccess
 		'func_names' => array(
 			'load' => 'loadRules',
 			'apply' => 'applyRules',
+			'delete' => 'delete',
+			'manage' => 'manage',
 		),
 	);
 

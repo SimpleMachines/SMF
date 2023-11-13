@@ -38,9 +38,7 @@ class SearchResult extends \SMF\Msg
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'get' => false,
-			'getNumResults' => false,
-			'setBoardsCan' => false,
+			'highlight' => 'highlight',
 		),
 	);
 

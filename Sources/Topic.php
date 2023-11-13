@@ -36,11 +36,12 @@ class Topic implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'lock' => 'LockTopic',
+			'sticky' => 'Sticky',
 			'approve' => 'approveTopics',
 			'move' => 'moveTopics',
 			'remove' => 'removeTopics',
+			'prepareLikesContext' => 'prepareLikesContext',
 		),
 		'prop_names' => array(
 			'topic_id' => 'topic',

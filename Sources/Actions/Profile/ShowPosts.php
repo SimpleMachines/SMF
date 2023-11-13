@@ -48,8 +48,13 @@ class ShowPosts implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'call' => false,
+			'list_getUnwatched' => 'list_getUnwatched',
+			'list_getNumUnwatched' => 'list_getNumUnwatched',
+			'list_getAttachments' => 'list_getAttachments',
+			'list_getNumAttachments' => 'list_getNumAttachments',
+			'showPosts' => 'showPosts',
+			'showUnwatched' => 'showUnwatched',
+			'showAttachments' => 'showAttachments',
 		),
 	);
 

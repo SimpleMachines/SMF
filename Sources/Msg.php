@@ -36,12 +36,20 @@ class Msg implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'get' => false,
+			'preparsecode' => 'preparsecode',
+			'un_preparsecode' => 'un_preparsecode',
+			'fixTags' => 'fixTags',
+			'fixTag' => 'fixTag',
+			'spellCheck' => 'SpellCheck',
 			'create' => 'createPost',
 			'modify' => 'modifyPost',
 			'approve' => 'approvePosts',
+			'clearApprovalAlerts' => 'clearApprovalAlerts',
+			'updateLastMessages' => 'updateLastMessages',
 			'remove' => 'removeMessage',
+			'spell_init' => 'spell_init',
+			'spell_check' => 'spell_check',
+			'spell_suggest' => 'spell_suggest',
 		),
 	);
 

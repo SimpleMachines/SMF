@@ -45,9 +45,24 @@ class Permissions implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ModifyPermissions',
-			'getConfigVars' => false,
+			'getPermissions' => 'getPermissions',
+			'setPermissionLevel' => 'setPermissionLevel',
+			'init_inline_permissions' => 'init_inline_permissions',
+			'theme_inline_permissions' => 'theme_inline_permissions',
+			'save_inline_permissions' => 'save_inline_permissions',
+			'loadPermissionProfiles' => 'loadPermissionProfiles',
+			'updateChildPermissions' => 'updateChildPermissions',
+			'loadIllegalPermissions' => 'loadIllegalPermissions',
+			'buildHidden' => 'buildHidden',
+			'permissionIndex' => 'PermissionIndex',
+			'permissionByBoard' => 'PermissionByBoard',
+			'modifyMembergroup' => 'ModifyMembergroup',
+			'modifyMembergroup2' => 'ModifyMembergroup2',
+			'setQuickGroups' => 'SetQuickGroups',
+			'modifyPostModeration' => 'ModifyPostModeration',
+			'editPermissionProfiles' => 'EditPermissionProfiles',
+			'generalPermissionSettings' => 'GeneralPermissionSettings',
 		),
 	);
 

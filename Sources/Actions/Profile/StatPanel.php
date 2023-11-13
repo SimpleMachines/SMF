@@ -40,8 +40,7 @@ class StatPanel implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'call' => false,
+			'statPanel' => 'statPanel',
 		),
 	);
 

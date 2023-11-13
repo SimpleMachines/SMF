@@ -49,8 +49,13 @@ class Posts implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'PostModerationMain',
+			'approveAllData' => 'approveAllData',
+			'list_getUnapprovedAttachments' => 'list_getUnapprovedAttachments',
+			'list_getNumUnapprovedAttachments' => 'list_getNumUnapprovedAttachments',
+			'unapprovedPosts' => 'UnapprovedPosts',
+			'unapprovedAttachments' => 'UnapprovedAttachments',
+			'approveMessage' => 'ApproveMessage',
 		),
 	);
 

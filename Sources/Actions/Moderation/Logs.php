@@ -44,8 +44,9 @@ class Logs implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ViewModlog',
+			'list_getModLogEntryCount' => 'list_getModLogEntryCount',
+			'list_getModLogEntries' => 'list_getModLogEntries',
 		),
 	);
 

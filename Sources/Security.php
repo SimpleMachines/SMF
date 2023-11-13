@@ -32,6 +32,13 @@ class Security
 			'hashPassword' => 'hash_password',
 			'hashVerifyPassword' => 'hash_verify_password',
 			'hashBenchmark' => 'hash_benchmark',
+			'checkConfirm' => 'checkConfirm',
+			'checkSubmitOnce' => 'checkSubmitOnce',
+			'spamProtection' => 'spamProtection',
+			'secureDirectory' => 'secureDirectory',
+			'frameOptionsHeader' => 'frameOptionsHeader',
+			'corsPolicyHeader' => 'corsPolicyHeader',
+			'kickGuest' => 'KickGuest',
 		),
 	);
 

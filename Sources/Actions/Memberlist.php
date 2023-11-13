@@ -42,8 +42,9 @@ class Memberlist implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Memberlist',
+			'MLAll' => 'MLAll',
+			'MLSearch' => 'MLSearch',
 			'printRows' => 'printMemberListRows',
 			'getCustFields' => 'getCustFieldsMList',
 		),

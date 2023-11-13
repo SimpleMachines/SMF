@@ -59,13 +59,12 @@ class BBCodeParser
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = array(
-		'func_prefix' => 'bbcodeparser_',
 		'func_names' => array(
+			'getSigTags' => 'get_signature_allowed_bbc_tags',
 			'highlightPhpCode' => 'highlight_php_code',
 			'sanitizeMSCutPaste' => 'sanitizeMSCutPaste',
 			'backcompatParseBbc' => 'parse_bbc',
 			'backcompatParseSmileys' => 'parseSmileys',
-			'getSigTags' => 'get_signature_allowed_bbc_tags',
 		),
 	);
 
