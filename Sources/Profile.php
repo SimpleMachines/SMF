@@ -3055,7 +3055,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Move to its final name and location. Error on failure.
-		if (!$image->move($upload_dir . '/avatar_' . $this->id . '_' . time() . '.' . image_type_to_extension($image->type)))
+		if (!$image->move($upload_dir . '/avatar_' . $this->id . '_' . time() . image_type_to_extension($image->type)))
 		{
 			ErrorHandler::fatalLang('attach_timeout', 'critical');
 		}
