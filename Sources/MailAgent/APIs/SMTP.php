@@ -30,7 +30,7 @@ if (!defined('SMF'))
 class SMTP extends MailAgent implements MailAgentInterface
 {
 	private $sentAny = false;
-	public $UseTLS = false;
+	public $useTLS = false;
 	private $socket;
 
 	/**
@@ -128,7 +128,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			if ($this->serverParse('EHLO ' . $helo, null, $response) == '250')
 			{
 				// Are we using STARTTLS and does the server support STARTTLS?
-				if ($this->UseTLS && preg_match("~250( |-)STARTTLS~mi", $response))
+				if ($this->useTLS && preg_match("~250( |-)STARTTLS~mi", $response))
 				{
 					// Send STARTTLS to enable encryption
 					if (!$this->serverParse('STARTTLS', '220'))

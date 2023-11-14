@@ -77,6 +77,15 @@ interface MailAgentInterface
 	 * @return string the unique identifier for the current class implementation.
 	 */
 	public function getImplementationClassKeyName(): string;
+	
+	/**
+	 * Provides additional settings for the settings page.
+	 *
+	 * @access public
+	 * @param array $config_vars Current configuration settings, passed by reference.  Append to add more.
+	 * @return void
+	 */
+	public function agentSettings(array &$config_vars): void;
 }
 
 ?>

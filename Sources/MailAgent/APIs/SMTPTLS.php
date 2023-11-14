@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 class SMTPTLS extends SMTP implements MailAgentInterface
 {
-	public $UseTLS = true;
+	public $useTLS = true;
 }
 
 ?>
