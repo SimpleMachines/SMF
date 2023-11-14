@@ -28,7 +28,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\{SubsPackage, XmlArray};
 
 /**
  * This class concerns itself almost completely with theme administration.
