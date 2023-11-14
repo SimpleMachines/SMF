@@ -22,6 +22,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\MailAgent\MailAgent;
 use SMF\Menu;
 use SMF\Sapi;
 use SMF\Theme;
@@ -423,24 +424,37 @@ class Mail implements ActionInterface
 			$emails[$index] = $index;
 		}
 
+		$detectedApis = MailAgent::detect();
+		$apis_names = array();
+
+		foreach ($detectedApis as $class_name => $agent)
+		{
+			$class_name_txt_key = strtolower($agent->getImplementationClassKeyName());
+
+			$apis_names[$class_name] = isset(Lang::$txt[$class_name_txt_key . '_mailagent']) ?
+				Lang::$txt[$class_name_txt_key . '_mailagent'] : $class_name;
+		}
+
+		if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '')
+			Config::$modSettings['mail_type'] = MailAgent::APIS_DEFAULT;
+
 		$config_vars = [
 			// Mail queue stuff, this rocks ;)
 			['int', 'mail_limit', 'subtext' => Lang::$txt['zero_to_disable']],
 			['int', 'mail_quantity'],
 			'',
 
-			// SMTP stuff.
-			['select', 'mail_type', [Lang::$txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS']],
-			['text', 'smtp_host'],
-			['text', 'smtp_port'],
-			['text', 'smtp_username'],
-			['password', 'smtp_password'],
-			'',
-
 			['select', 'birthday_email', $emails, 'value' => ['subject' => $subject, 'body' => $body], 'javascript' => 'onchange="fetch_birthday_preview()"'],
 			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3],
 			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)],
+			'',
+
+			['select', 'mail_type', $apis_names],
 		];
+
+		foreach ($detectedApis as $class_name => $agent)
+			if (is_callable(array($agent, 'agentSettings')))
+				$agent->agentSettings($config_vars);
 
 		IntegrationHook::call('integrate_modify_mail_settings', [&$config_vars]);
 

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
-use Socket;
+use SMF\MailAgent\MailAgent;
 
 /**
  * Class for preparing and handling email messages.
@@ -198,46 +198,18 @@ class Mail
 			Config::updateModSettings(['mail_recent' => $new_queue_stat]);
 		}
 
-		// SMTP or sendmail?
-		if ($use_sendmail) {
-			$subject = strtr($subject, ["\r" => '', "\n" => '']);
-
-			if (!empty(Config::$modSettings['mail_strip_carriage'])) {
-				$message = strtr($message, ["\r" => '']);
-				$headers = strtr($headers, ["\r" => '']);
-			}
-
-			foreach ($to_array as $to) {
-				set_error_handler(
-					function ($errno, $errstr, $errfile, $errline) {
-						// error was suppressed with the @-operator
-						if (0 === error_reporting()) {
-							return false;
-						}
-
-						throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-					},
-				);
-
-				try {
-					if (!mail(strtr($to, ["\r" => '', "\n" => '']), $subject, $message, $headers)) {
-						ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
-						$mail_result = false;
-					}
-				} catch (\ErrorException $e) {
-					ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-					ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
-					$mail_result = false;
-				}
-				restore_error_handler();
-
-				// Wait, wait, I'm still sending here!
-				Sapi::setTimeLimit(300);
-				Sapi::resetTimeout();
-			}
-		} else {
-			$mail_result = $mail_result && self::sendSmtp($to_array, $subject, $message, $headers);
+		// Loadup the agent.
+		$agent = MailAgent::load();
+		if ($agent === false || !$agent->connect()) {
+			return false;
 		}
+
+		$mail_result = true;
+		foreach ($to_array as $to) {
+			$mail_result &= $agent->send($to, $subject, $message, $headers);
+		}
+
+		$agent->disconnect();
 
 		// Everything go smoothly?
 		return $mail_result;
