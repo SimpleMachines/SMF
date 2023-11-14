@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
+use SMF\Utils;
 
 if (!defined('SMF'))
 	die('No direct access...');
