@@ -206,7 +206,7 @@ class Mail
 
 		$mail_result = true;
 		foreach ($to_array as $to) {
-			$mail_result &= $agent->send($to, $subject, $message, $headers);
+			$mail_result = $mail_result && $agent->send($to, $subject, $message, $headers);
 		}
 
 		$agent->disconnect();
