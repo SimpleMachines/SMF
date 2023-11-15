@@ -13,18 +13,17 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\Security;
 use SMF\Theme;
+use SMF\TOTP\Auth as Tfa;
 use SMF\User;
 use SMF\Utils;
-use SMF\TOTP\Auth as Tfa;
 
 /**
  * Provides interface to set up two-factor authentication in SMF.
@@ -38,11 +37,11 @@ class TFASetup implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'tfasetup',
-		),
-	);
+		],
+	];
 
 	/*********************
 	 * Internal properties
@@ -77,33 +76,29 @@ class TFASetup implements ActionInterface
 	public function execute(): void
 	{
 		// Users have to do this for themselves, and can't do it again if they already did.
-		if (!User::$me->is_owner || !empty(User::$me->tfa_secret))
+		if (!User::$me->is_owner || !empty(User::$me->tfa_secret)) {
 			Utils::redirectexit('action=profile;area=account;u=' . Profile::$member->id);
+		}
 
 		// Load JS lib for QR
-		Theme::loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
+		Theme::loadJavaScriptFile('qrcode.js', ['force_current' => false, 'validate' => true]);
 
 		// Check to ensure we're forcing SSL for authentication.
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
-		{
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
 			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
 		// we do not want too much AJAX to confuse them.
-		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && !isset($_REQUEST['backup']) && !isset($_REQUEST['forced']))
-		{
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && !isset($_REQUEST['backup']) && !isset($_REQUEST['forced'])) {
 			Utils::$context['from_ajax'] = true;
-			Utils::$context['template_layers'] = array();
+			Utils::$context['template_layers'] = [];
 		}
 
 		// When the code is being sent, verify to make sure the user got it right
-		if (!empty($_REQUEST['save']) && !empty($_SESSION['tfa_secret']))
-		{
+		if (!empty($_REQUEST['save']) && !empty($_SESSION['tfa_secret'])) {
 			$this->validateAndSave();
-		}
-		else
-		{
+		} else {
 			$this->generate();
 		}
 
@@ -121,8 +116,9 @@ class TFASetup implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -144,8 +140,9 @@ class TFASetup implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 
 	/**
@@ -159,15 +156,14 @@ class TFASetup implements ActionInterface
 		$this->totp->setRange(1);
 		$valid_code = strlen($code) == $this->totp->getCodeLength() && $this->totp->validateCode($code);
 
-		if (empty(Utils::$context['password_auth_failed']) && $valid_code)
-		{
+		if (empty(Utils::$context['password_auth_failed']) && $valid_code) {
 			$backup = substr(sha1(Utils::randomInt()), 0, 16);
 			$backup_encrypted = Security::hashPassword(User::$me->username, $backup);
 
-			User::updateMemberData(Profile::$member->id, array(
+			User::updateMemberData(Profile::$member->id, [
 				'tfa_secret' => $_SESSION['tfa_secret'],
 				'tfa_backup' => $backup_encrypted,
-			));
+			]);
 
 			Cookie::setTFACookie(3153600, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
 
@@ -175,9 +171,7 @@ class TFASetup implements ActionInterface
 
 			Utils::$context['tfa_backup'] = $backup;
 			Utils::$context['sub_template'] = 'tfasetup_backup';
-		}
-		else
-		{
+		} else {
 			Utils::$context['tfa_secret'] = $_SESSION['tfa_secret'];
 			Utils::$context['tfa_error'] = !$valid_code;
 			Utils::$context['tfa_pass_value'] = $_POST['oldpasswrd'];
@@ -199,7 +193,8 @@ class TFASetup implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\TFASetup::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\TFASetup::exportStatic')) {
 	TFASetup::exportStatic();
+}
 
 ?>

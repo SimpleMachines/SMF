@@ -13,8 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 class_alias('SMF\\Graphics\\Gif\\ColorTable', '\\gif_color_table');
 class_alias('SMF\\Graphics\\Gif\\File', '\\gif_file');

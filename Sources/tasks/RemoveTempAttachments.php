@@ -31,27 +31,21 @@ class RemoveTempAttachments extends ScheduledTask
 	public function execute()
 	{
 		// We need to know where this thing is going.
-		if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array(Config::$modSettings['attachmentUploadDir']))
-			{
+		if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
+			if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
 				Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 			}
 
 			// Just use the current path for temp files.
 			$attach_dirs = Config::$modSettings['attachmentUploadDir'];
-		}
-		else
-		{
-			$attach_dirs = array(Config::$modSettings['attachmentUploadDir']);
+		} else {
+			$attach_dirs = [Config::$modSettings['attachmentUploadDir']];
 		}
 
-		foreach ($attach_dirs as $attach_dir)
-		{
+		foreach ($attach_dirs as $attach_dir) {
 			$dir = @opendir($attach_dir);
 
-			if (!$dir)
-			{
+			if (!$dir) {
 				Theme::loadEssential();
 				Lang::load('Post');
 
@@ -62,16 +56,16 @@ class RemoveTempAttachments extends ScheduledTask
 				return true;
 			}
 
-			while ($file = readdir($dir))
-			{
-				if ($file == '.' || $file == '..')
+			while ($file = readdir($dir)) {
+				if ($file == '.' || $file == '..') {
 					continue;
+				}
 
-				if (strpos($file, 'post_tmp_') !== false)
-				{
+				if (strpos($file, 'post_tmp_') !== false) {
 					// Temp file is more than 5 hours old!
-					if (filemtime($attach_dir . '/' . $file) < time() - 18000)
+					if (filemtime($attach_dir . '/' . $file) < time() - 18000) {
 						@unlink($attach_dir . '/' . $file);
+					}
 				}
 			}
 

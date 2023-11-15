@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;
@@ -33,11 +32,11 @@ class ForumProfile implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'forumProfile',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -62,8 +61,7 @@ class ForumProfile implements ActionInterface
 	{
 		Profile::$member->loadThemeOptions();
 
-		if (User::$me->allowedTo(array('profile_forum_own', 'profile_forum_any')))
-		{
+		if (User::$me->allowedTo(['profile_forum_own', 'profile_forum_any'])) {
 			Profile::$member->loadCustomFields('forumprofile');
 		}
 
@@ -72,18 +70,18 @@ class ForumProfile implements ActionInterface
 		Utils::$context['show_preview_button'] = true;
 
 		Profile::$member->setupContext(
-			array(
-				'avatar_choice', 
-			'hr', 
-				'personal_text', 
-			'hr',
-				'bday1', 
-				'usertitle', 
-				'signature', 
-			'hr',
-				'website_title', 
+			[
+				'avatar_choice',
+				'hr',
+				'personal_text',
+				'hr',
+				'bday1',
+				'usertitle',
+				'signature',
+				'hr',
+				'website_title',
 				'website_url',
-			),
+			],
 		);
 	}
 
@@ -98,8 +96,9 @@ class ForumProfile implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -121,13 +120,15 @@ class ForumProfile implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ForumProfile::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ForumProfile::exportStatic')) {
 	ForumProfile::exportStatic();
+}
 
 ?>

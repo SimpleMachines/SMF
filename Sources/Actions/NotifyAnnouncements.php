@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Lang;
 use SMF\Utils;
 
@@ -30,11 +29,11 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'AnnouncementsNotify',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -70,8 +69,9 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -109,8 +109,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 */
 	protected function saToMode()
 	{
-		if (!isset($_GET['mode']) && isset($_GET['sa']))
-		{
+		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : 0;
 			unset($_GET['sa']);
 		}
@@ -124,10 +123,11 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 		$this->saToMode();
 
 		// What do we do?  Better ask if they didn't say..
-		if (!isset($_GET['mode']))
+		if (!isset($_GET['mode'])) {
 			$this->ask();
-		else
+		} else {
 			$this->mode = $_GET['mode'];
+		}
 	}
 
 	/**
@@ -148,7 +148,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 		$this->alert_pref = $this->alert_pref & parent::PREF_EMAIL;
 
 		// Update their announcement notification preference.
-		parent::setNotifyPrefs((int) $this->member_info['id'], array('announcements' => $this->alert_pref));
+		parent::setNotifyPrefs((int) $this->member_info['id'], ['announcements' => $this->alert_pref]);
 
 		// Show a confirmation message.
 		Utils::$context['sub_template'] = 'notify_pref_changed';
@@ -165,7 +165,8 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\NotifyAnnouncements::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\NotifyAnnouncements::exportStatic')) {
 	NotifyAnnouncements::exportStatic();
+}
 
 ?>

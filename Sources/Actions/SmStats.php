@@ -13,11 +13,10 @@
 
 namespace SMF\Actions;
 
+use SMF\Actions\Admin\ACP;
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\User;
-use SMF\Actions\Admin\ACP;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.
@@ -31,11 +30,11 @@ class SmStats implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'SMStats',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -68,26 +67,29 @@ class SmStats implements ActionInterface
 	public function execute(): void
 	{
 		// First, is it disabled?
-		if (empty(Config::$modSettings['enable_sm_stats']) || empty(Config::$modSettings['sm_stats_key']))
+		if (empty(Config::$modSettings['enable_sm_stats']) || empty(Config::$modSettings['sm_stats_key'])) {
 			die();
+		}
 
 		// Are we saying who we are, and are we right? (OR an admin)
-		if (!User::$me->is_admin && (!isset($_GET['sid']) || $_GET['sid'] != Config::$modSettings['sm_stats_key']))
+		if (!User::$me->is_admin && (!isset($_GET['sid']) || $_GET['sid'] != Config::$modSettings['sm_stats_key'])) {
 			die();
+		}
 
 		// Verify the referer...
-		if (!User::$me->is_admin && (!isset($_SERVER['HTTP_REFERER']) || md5($_SERVER['HTTP_REFERER']) != '746cb59a1a0d5cf4bd240e5a67c73085'))
+		if (!User::$me->is_admin && (!isset($_SERVER['HTTP_REFERER']) || md5($_SERVER['HTTP_REFERER']) != '746cb59a1a0d5cf4bd240e5a67c73085')) {
 			die();
+		}
 
 		// Get some server versions.
-		$checkFor = array(
+		$checkFor = [
 			'php',
 			'db_server',
-		);
+		];
 		$serverVersions = ACP::getServerVersions($checkFor);
 
 		// Get the actual stats.
-		$stats_to_send = array(
+		$stats_to_send = [
 			'UID' => Config::$modSettings['sm_stats_key'],
 			'time_added' => time(),
 			'members' => Config::$modSettings['totalMembers'],
@@ -99,30 +101,28 @@ class SmStats implements ActionInterface
 			'database_version' => $serverVersions['db_server']['version'],
 			'smf_version' => SMF_FULL_VERSION,
 			'smfd_version' => Config::$modSettings['smfVersion'],
-		);
+		];
 
 		// Encode all the data, for security.
-		foreach ($stats_to_send as $k => $v)
+		foreach ($stats_to_send as $k => $v) {
 			$stats_to_send[$k] = urlencode($k) . '=' . urlencode($v);
+		}
 
 		// Turn this into the query string!
 		$stats_to_send = implode('&', $stats_to_send);
 
 		// If we're an admin, just plonk them out.
-		if (User::$me->is_admin)
-		{
+		if (User::$me->is_admin) {
 			echo $stats_to_send;
-		}
-		else
-		{
+		} else {
 			// Connect to the collection script.
 			$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
 
-			if (!$fp)
+			if (!$fp) {
 				$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+			}
 
-			if ($fp)
-			{
+			if ($fp) {
 				$length = strlen($stats_to_send);
 
 				$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
@@ -152,8 +152,9 @@ class SmStats implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -179,7 +180,8 @@ class SmStats implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\SmStats::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\SmStats::exportStatic')) {
 	SmStats::exportStatic();
+}
 
 ?>

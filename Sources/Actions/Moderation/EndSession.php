@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Moderation;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Utils;
 
 /**
@@ -31,11 +30,11 @@ class EndSession implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ModEndSession',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -62,10 +61,10 @@ class EndSession implements ActionInterface
 		unset($_SESSION['moderate_time']);
 
 		// Clean any moderator tokens as well.
-		foreach ($_SESSION['token'] as $key => $token)
-		{
-			if (strpos($key, '-mod') !== false)
+		foreach ($_SESSION['token'] as $key => $token) {
+			if (strpos($key, '-mod') !== false) {
 				unset($_SESSION['token'][$key]);
+			}
 		}
 
 		Utils::redirectexit();
@@ -82,8 +81,9 @@ class EndSession implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -109,7 +109,8 @@ class EndSession implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\EndSession::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\EndSession::exportStatic')) {
 	EndSession::exportStatic();
+}
 
 ?>

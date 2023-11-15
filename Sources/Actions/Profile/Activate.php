@@ -13,17 +13,14 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Logging;
 use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Activates an account.
@@ -37,11 +34,11 @@ class Activate implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'activateAccount',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -66,11 +63,9 @@ class Activate implements ActionInterface
 	{
 		User::$me->isAllowedTo('moderate_forum');
 
-		if (isset($_REQUEST['save']) && isset(Profile::$member->is_activated) && Profile::$member->is_activated != 1)
-		{
+		if (isset($_REQUEST['save'], Profile::$member->is_activated)   && Profile::$member->is_activated != 1) {
 			// If we are approving the deletion of an account, we do something special ;)
-			if (Profile::$member->is_activated == 4)
-			{
+			if (Profile::$member->is_activated == 4) {
 				User::delete(Utils::$context['id_member']);
 				Utils::redirectexit();
 			}
@@ -78,18 +73,17 @@ class Activate implements ActionInterface
 			$prev_is_activated = Profile::$member->is_activated;
 
 			// Let the integrations know of the activation.
-			IntegrationHook::call('integrate_activate', array(Profile::$member->username));
+			IntegrationHook::call('integrate_activate', [Profile::$member->username]);
 
 			// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
-			User::updateMemberData(Utils::$context['id_member'], array('is_activated' => Profile::$member->is_activated >= 10 ? 11 : 1, 'validation_code' => ''));
+			User::updateMemberData(Utils::$context['id_member'], ['is_activated' => Profile::$member->is_activated >= 10 ? 11 : 1, 'validation_code' => '']);
 
 			// Log what we did?
-			Logging::logAction('approve_member', array('member' => Profile::$member->id), 'admin');
+			Logging::logAction('approve_member', ['member' => Profile::$member->id], 'admin');
 
 			// If we are doing approval, update the stats for the member just in case.
-			if (in_array($prev_is_activated, array(3, 4, 5, 13, 14, 15)))
-			{
-				Config::updateModSettings(array('unapprovedMembers' => max(0, Config::$modSettings['unapprovedMembers'] - 1)));
+			if (in_array($prev_is_activated, [3, 4, 5, 13, 14, 15])) {
+				Config::updateModSettings(['unapprovedMembers' => max(0, Config::$modSettings['unapprovedMembers'] - 1)]);
 			}
 
 			// Make sure we update the stats too.
@@ -108,8 +102,9 @@ class Activate implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -131,13 +126,15 @@ class Activate implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Activate::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Activate::exportStatic')) {
 	Activate::exportStatic();
+}
 
 ?>

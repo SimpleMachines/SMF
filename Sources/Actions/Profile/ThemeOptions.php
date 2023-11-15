@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Profile;
@@ -35,11 +34,11 @@ class ThemeOptions implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'theme',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -70,23 +69,22 @@ class ThemeOptions implements ActionInterface
 
 		Profile::$member->loadThemeOptions();
 
-		if (User::$me->allowedTo(array('profile_extra_own', 'profile_extra_any')))
-		{
+		if (User::$me->allowedTo(['profile_extra_own', 'profile_extra_any'])) {
 			Profile::$member->loadCustomFields('theme');
 		}
 
 		Utils::$context['page_desc'] = Lang::$txt['theme_info'];
 
 		Profile::$member->setupContext(
-			array(
-				'id_theme', 
-				'smiley_set', 
-			'hr',
-				'time_format', 
-				'timezone', 
-			'hr',
+			[
+				'id_theme',
+				'smiley_set',
+				'hr',
+				'time_format',
+				'timezone',
+				'hr',
 				'theme_settings',
-			),
+			],
 		);
 	}
 
@@ -101,8 +99,9 @@ class ThemeOptions implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -124,13 +123,15 @@ class ThemeOptions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ThemeOptions::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ThemeOptions::exportStatic')) {
 	ThemeOptions::exportStatic();
+}
 
 ?>

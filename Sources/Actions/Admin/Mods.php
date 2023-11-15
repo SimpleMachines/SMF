@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -35,11 +34,11 @@ class Mods implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'modifyModSettings' => 'ModifyModSettings',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -62,9 +61,9 @@ class Mods implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'general' => 'general',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -93,10 +92,11 @@ class Mods implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['sub_action'] = $this->subaction;
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -110,23 +110,21 @@ class Mods implements ActionInterface
 		Utils::$context['settings_title'] = Lang::$txt['mods_cat_modifications_misc'];
 
 		// No removing this line, you dirty unwashed mod authors. :p
-		if (empty($config_vars))
-		{
+		if (empty($config_vars)) {
 			Utils::$context['settings_save_dont_show'] = true;
-			Utils::$context['settings_message'] = array(
+			Utils::$context['settings_message'] = [
 				'label' => Lang::$txt['modification_no_misc_settings'],
 				'tag' => 'div',
-				'class' => 'centertext'
-			);
+				'class' => 'centertext',
+			];
 		}
 		// Saving?
-		elseif (isset($_GET['save']))
-		{
+		elseif (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			$save_vars = $config_vars;
 
-			IntegrationHook::call('integrate_save_general_mod_settings', array(&$save_vars));
+			IntegrationHook::call('integrate_save_general_mod_settings', [&$save_vars]);
 
 			// This line is to help mod authors do a search/add after if you want to add something here. Keyword: FOOT TAPPING SUCKS!
 			ACP::saveDBSettings($save_vars);
@@ -153,8 +151,9 @@ class Mods implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -174,14 +173,14 @@ class Mods implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$config_vars = array(
+		$config_vars = [
 			// MOD AUTHORS: Please use the hook below to add your settings.
 			// But if you insist on editing this file, add your new settings
 			// UNDER this comment.
-		);
+		];
 
 		// MOD AUTHORS: This hook is the right way to add new settings.
-		IntegrationHook::call('integrate_general_mod_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_general_mod_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -194,8 +193,9 @@ class Mods implements ActionInterface
 	 */
 	public static function modifyModSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->execute();
@@ -216,26 +216,28 @@ class Mods implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
 
 		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['admin_modifications'],
 			'help' => 'modsettings',
 			'description' => Lang::$txt['modification_settings_desc'],
-			'tabs' => array(
-				'general' => array(
-				),
-			),
-		);
+			'tabs' => [
+				'general' => [
+				],
+			],
+		];
 
 		// Make it easier for mods to add new areas.
-		IntegrationHook::call('integrate_modify_modifications', array(&self::$subactions));
+		IntegrationHook::call('integrate_modify_modifications', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Mods::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Mods::exportStatic')) {
 	Mods::exportStatic();
+}
 
 ?>

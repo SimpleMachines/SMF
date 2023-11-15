@@ -20,15 +20,15 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Punycode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /*********************************************
  * SMF\Config::$backward_compatibility support
  *********************************************/
 
-if (!empty(SMF\Config::$backward_compatibility))
-{
+if (!empty(SMF\Config::$backward_compatibility)) {
 	/*
 	 * In SMF 2.x, there was a file named Subs.php that was always loaded early in
 	 * the startup process and that contained many utility functions. Everything
@@ -65,11 +65,9 @@ if (!empty(SMF\Config::$backward_compatibility))
  * a fatal error will be thrown and execution will halt. SMF expects the old
  * behaviour, so these no-op polyfills make sure that is what happens.
  */
-if (version_compare(PHP_VERSION, '8.0.0', '>='))
-{
+if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
 	// This is wrapped in a closure to keep the global namespace clean.
-	call_user_func(function()
-	{
+	call_user_func(function () {
 		/*
 		 * This array contains function names that meet the following conditions:
 		 *
@@ -81,22 +79,19 @@ if (version_compare(PHP_VERSION, '8.0.0', '>='))
 		 * 3. SMF can get by without them (as opposed to missing functions that
 		 *    really SHOULD cause execution to halt).
 		 */
-		$optional_funcs = array(
+		$optional_funcs = [
 			'set_time_limit',
-		);
+		];
 
-		foreach ($optional_funcs as $func)
-		{
-			if (!function_exists($func))
-			{
+		foreach ($optional_funcs as $func) {
+			if (!function_exists($func)) {
 				eval('function ' . $func . '() { trigger_error("' . $func . '() has been disabled", E_USER_WARNING); }');
 			}
 		}
 	});
 }
 
-if (!function_exists('smf_crc32'))
-{
+if (!function_exists('smf_crc32')) {
 	/**
 	 * Compatibility function.
 	 * crc32 doesn't work as expected on 64-bit functions - make our own.
@@ -109,8 +104,7 @@ if (!function_exists('smf_crc32'))
 	{
 		$crc = crc32($number);
 
-		if ($crc & 0x80000000)
-		{
+		if ($crc & 0x80000000) {
 			$crc ^= 0xffffffff;
 			$crc += 1;
 			$crc = -$crc;
@@ -124,8 +118,7 @@ if (!function_exists('smf_crc32'))
  * Polyfills, etc.
  *****************/
 
-if (!function_exists('mb_ord'))
-{
+if (!function_exists('mb_ord')) {
 	/**
 	 * Compatibility function.
 	 *
@@ -139,8 +132,9 @@ if (!function_exists('mb_ord'))
 	function mb_ord($string, $encoding = null)
 	{
 		// Must have a supported encoding.
-		if (($encoding = mb_ord_chr_encoding($encoding)) === false)
+		if (($encoding = mb_ord_chr_encoding($encoding)) === false) {
 			return false;
+		}
 
 		/* Alternative approach for certain encodings.
 		 *
@@ -159,26 +153,25 @@ if (!function_exists('mb_ord'))
 		 * false for ALL invalid byte sequences, but mb_ord() only returns false
 		 * for SOME invalid byte sequences.
 		 */
-		if (in_array($encoding, array('EUC-CN', 'EUC-KR', 'ISO-2022-KR')))
-		{
-			if (!function_exists('mb_encode_numericentity'))
+		if (in_array($encoding, ['EUC-CN', 'EUC-KR', 'ISO-2022-KR'])) {
+			if (!function_exists('mb_encode_numericentity')) {
 				return false;
+			}
 
-			$entity = mb_encode_numericentity($string, array(0x0,0x10FFFF,0x0,0xFFFFFF), $encoding);
+			$entity = mb_encode_numericentity($string, [0x0, 0x10FFFF, 0x0, 0xFFFFFF], $encoding);
 
-			if (strpos($entity, '&#') !== 0)
+			if (strpos($entity, '&#') !== 0) {
 				return false;
+			}
 
 			return (int) trim($entity, '&#;');
 		}
 
 		// Convert to UTF-8. Return false on failure.
-		if ($encoding !== 'UTF-8')
-		{
+		if ($encoding !== 'UTF-8') {
 			$temp = false;
 
-			if (function_exists('mb_convert_encoding'))
-			{
+			if (function_exists('mb_convert_encoding')) {
 				$mb_substitute_character = mb_substitute_character();
 				mb_substitute_character('none');
 
@@ -187,58 +180,52 @@ if (!function_exists('mb_ord'))
 				mb_substitute_character($mb_substitute_character);
 			}
 
-			if ($temp === false && function_exists('iconv'))
+			if ($temp === false && function_exists('iconv')) {
 				$temp = iconv($encoding, 'UTF-8', $string);
+			}
 
-			if ($temp === false)
+			if ($temp === false) {
 				return false;
+			}
 
 			$string = $temp;
 		}
 
-		if (strlen($string) === 1)
+		if (strlen($string) === 1) {
 			return ord($string);
+		}
 
 		// Get the values of the individual bytes.
 		$unpacked = unpack('C*', substr($string, 0, 4));
 
-		if ($unpacked === false)
-		{
+		if ($unpacked === false) {
 			$ord = 0;
-		}
-		elseif ($unpacked[1] >= 0xF0)
-		{
+		} elseif ($unpacked[1] >= 0xF0) {
 			$ord = ($unpacked[1] - 0xF0) << 18;
 			$ord += ($unpacked[2] - 0x80) << 12;
 			$ord += ($unpacked[3] - 0x80) << 6;
 			$ord += $unpacked[4] - 0x80;
-		}
-		elseif ($unpacked[1] >= 0xE0)
-		{
+		} elseif ($unpacked[1] >= 0xE0) {
 			$ord = ($unpacked[1] - 0xE0) << 12;
 			$ord += ($unpacked[2] - 0x80) << 6;
 			$ord += $unpacked[3] - 0x80;
-		}
-		elseif ($unpacked[1] >= 0xC0)
-		{
+		} elseif ($unpacked[1] >= 0xC0) {
 			$ord = ($unpacked[1] - 0xC0) << 6;
 			$ord += $unpacked[2] - 0x80;
-		}
-		else
-		{
+		} else {
 			$ord = $unpacked[1];
 		}
 
 		// Surrogate pairs are invalid in UTF-8.
-		if ($ord >= 0xD800 && $ord <= 0xDFFF)
+		if ($ord >= 0xD800 && $ord <= 0xDFFF) {
 			$ord = 0;
+		}
 
 		return $ord;
 	}
 }
 
-if (!function_exists('mb_chr'))
-{
+if (!function_exists('mb_chr')) {
 	/**
 	 * Compatibility function.
 	 *
@@ -252,26 +239,20 @@ if (!function_exists('mb_chr'))
 	function mb_chr($codepoint, $encoding = null)
 	{
 		// Must have a supported encoding.
-		if (($encoding = mb_ord_chr_encoding($encoding)) === false)
+		if (($encoding = mb_ord_chr_encoding($encoding)) === false) {
 			return false;
+		}
 
 		// 0x10FFFF is the highest defined code point as of Unicode 13.0.0
 		$codepoint %= 0x110000;
 
-		if ($codepoint < 0x80)
-		{
+		if ($codepoint < 0x80) {
 			$string = chr($codepoint);
-		}
-		elseif ($codepoint < 0x800)
-		{
+		} elseif ($codepoint < 0x800) {
 			$string = chr(0xC0 | $codepoint >> 6) . chr(0x80 | $codepoint & 0x3F);
-		}
-		elseif ($codepoint < 0x10000)
-		{
+		} elseif ($codepoint < 0x10000) {
 			$string = chr(0xE0 | $codepoint >> 12) . chr(0x80 | $codepoint >> 6 & 0x3F) . chr(0x80 | $codepoint & 0x3F);
-		}
-		else
-		{
+		} else {
 			$string = chr(0xF0 | $codepoint >> 18) . chr(0x80 | $codepoint >> 12 & 0x3F) . chr(0x80 | $codepoint >> 6 & 0x3F) . chr(0x80 | $codepoint & 0x3F);
 		}
 
@@ -279,12 +260,10 @@ if (!function_exists('mb_chr'))
 		// Note: native mb_chr() always returns a character in regular UTF-8
 		// when the encoding is set to one of the UTF-8-Mobile* encodings. If
 		// that behaviour changes in the future, add version checks here.
-		if (strpos($encoding, 'UTF-8') !== 0)
-		{
+		if (strpos($encoding, 'UTF-8') !== 0) {
 			$temp = false;
 
-			if (function_exists('mb_convert_encoding'))
-			{
+			if (function_exists('mb_convert_encoding')) {
 				$mb_substitute_character = mb_substitute_character();
 				mb_substitute_character('none');
 
@@ -293,11 +272,13 @@ if (!function_exists('mb_chr'))
 				mb_substitute_character($mb_substitute_character);
 			}
 
-			if ($temp === false && function_exists('iconv'))
+			if ($temp === false && function_exists('iconv')) {
 				$temp = iconv('UTF-8', $encoding, $string);
+			}
 
-			if ($temp === false)
+			if ($temp === false) {
 				return false;
+			}
 
 			$string = $temp;
 		}
@@ -319,26 +300,22 @@ if (!function_exists('mb_chr'))
  */
 function mb_ord_chr_encoding($encoding = null)
 {
-	if (is_null($encoding))
-	{
-		if (isset(Config::$modSettings['global_character_set']))
+	if (is_null($encoding)) {
+		if (isset(Config::$modSettings['global_character_set'])) {
 			$encoding = Config::$modSettings['global_character_set'];
-
-		elseif (isset(Lang::$txt['lang_character_set']))
+		} elseif (isset(Lang::$txt['lang_character_set'])) {
 			$encoding = Lang::$txt['lang_character_set'];
-
-		elseif (function_exists('mb_internal_encoding'))
+		} elseif (function_exists('mb_internal_encoding')) {
 			$encoding = mb_internal_encoding();
-
-		elseif (ini_get('default_charset') != false)
+		} elseif (ini_get('default_charset') != false) {
 			$encoding = ini_get('default_charset');
-
-		else
+		} else {
 			$encoding = 'UTF-8';
+		}
 	}
 
 	// Only some mb_string encodings are supported by mb_chr() and mb_ord().
-	$supported_encodings = array(
+	$supported_encodings = [
 		'8bit', 'UCS-4', 'UCS-4BE', 'UCS-4LE', 'UCS-2', 'UCS-2BE', 'UCS-2LE',
 		'UTF-32', 'UTF-32BE', 'UTF-32LE', 'UTF-16', 'UTF-16BE', 'UTF-16LE',
 		'UTF-8', 'ASCII', 'EUC-JP', 'SJIS', 'eucJP-win', 'EUC-JP-2004',
@@ -352,22 +329,23 @@ function mb_ord_chr_encoding($encoding = null)
 		'CP936', 'HZ', 'EUC-TW', 'BIG-5', 'CP950', 'EUC-KR', 'UHC',
 		'ISO-2022-KR', 'Windows-1251', 'CP866', 'KOI8-R', 'KOI8-U', 'ArmSCII-8',
 		'CP850', 'JIS-ms',
-	);
+	];
 
 	// Found it.
-	if (in_array($encoding, $supported_encodings))
+	if (in_array($encoding, $supported_encodings)) {
 		return $encoding;
+	}
 
 	// Gracefully handle aliases and incorrect lettercase.
 	$encoding_l = strtolower($encoding);
-	foreach ($supported_encodings as $possible_encoding)
-	{
-		$aliases = array_merge(array($possible_encoding), mb_encoding_aliases($possible_encoding));
 
-		foreach ($aliases as $alias)
-		{
-			if (strtolower($alias) === $encoding_l)
+	foreach ($supported_encodings as $possible_encoding) {
+		$aliases = array_merge([$possible_encoding], mb_encoding_aliases($possible_encoding));
+
+		foreach ($aliases as $alias) {
+			if (strtolower($alias) === $encoding_l) {
 				return $possible_encoding;
+			}
 		}
 	}
 
@@ -375,12 +353,11 @@ function mb_ord_chr_encoding($encoding = null)
 }
 
 // This is wrapped in a closure to keep the global namespace clean.
-call_user_func(function()
-{
+call_user_func(function () {
 	/**
 	 * IDNA_* constants used as flags for the idn_to_* functions.
 	 */
-	$idna_constants = array(
+	$idna_constants = [
 		'IDNA_DEFAULT' => 0,
 		'IDNA_ALLOW_UNASSIGNED' => 1,
 		'IDNA_USE_STD3_RULES' => 2,
@@ -390,17 +367,16 @@ call_user_func(function()
 		'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
 		'INTL_IDNA_VARIANT_2003' => 0,
 		'INTL_IDNA_VARIANT_UTS46' => 1,
-	);
+	];
 
-	foreach ($idna_constants as $name => $value)
-	{
-		if (!defined($name))
+	foreach ($idna_constants as $name => $value) {
+		if (!defined($name)) {
 			define($name, $value);
+		}
 	}
 });
 
-if (!function_exists('idn_to_ascii'))
-{
+if (!function_exists('idn_to_ascii')) {
 	/**
 	 * Compatibility function.
 	 *
@@ -421,20 +397,23 @@ if (!function_exists('idn_to_ascii'))
 	{
 		static $Punycode;
 
-		if (!is_object($Punycode))
+		if (!is_object($Punycode)) {
 			$Punycode = new Punycode();
+		}
 
-		if (method_exists($Punycode, 'useStd3'))
+		if (method_exists($Punycode, 'useStd3')) {
 			$Punycode->useStd3($flags === ($flags | IDNA_USE_STD3_RULES));
-		if (method_exists($Punycode, 'useNonTransitional'))
+		}
+
+		if (method_exists($Punycode, 'useNonTransitional')) {
 			$Punycode->useNonTransitional($flags === ($flags | IDNA_NONTRANSITIONAL_TO_ASCII));
+		}
 
 		return $Punycode->encode($domain);
 	}
 }
 
-if (!function_exists('idn_to_utf8'))
-{
+if (!function_exists('idn_to_utf8')) {
 	/**
 	 * Compatibility function.
 	 *
@@ -455,8 +434,9 @@ if (!function_exists('idn_to_utf8'))
 	{
 		static $Punycode;
 
-		if (!is_object($Punycode))
+		if (!is_object($Punycode)) {
 			$Punycode = new Punycode();
+		}
 
 		$Punycode->useStd3($flags === ($flags | IDNA_USE_STD3_RULES));
 		$Punycode->useNonTransitional($flags === ($flags | IDNA_NONTRANSITIONAL_TO_UNICODE));
@@ -467,8 +447,7 @@ if (!function_exists('idn_to_utf8'))
 
 // Based on code by "examplehash at user dot com".
 // https://www.php.net/manual/en/function.hash-equals.php#125034
-if (!function_exists('hash_equals'))
-{
+if (!function_exists('hash_equals')) {
 	/**
 	 * A compatibility function for when PHP's "hash_equals" function isn't available
 	 * @param string $known_string A known hash
@@ -484,8 +463,8 @@ if (!function_exists('hash_equals'))
 		$sy = strlen($known_string);
 		$uy = strlen($user_string);
 		$result = $sy - $uy;
-		for ($ux = 0; $ux < $uy; $ux++)
-		{
+
+		for ($ux = 0; $ux < $uy; $ux++) {
 			$result |= ord($user_string[$ux]) ^ ord($known_string[$sx]);
 			$sx = ($sx + 1) % $sy;
 		}

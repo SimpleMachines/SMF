@@ -29,15 +29,16 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Board implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'load' => 'loadBoard',
 			'markRead' => 'MarkRead',
 			'markBoardsRead' => 'markBoardsRead',
@@ -53,13 +54,13 @@ class Board implements \ArrayAccess
 			'isChildOf' => 'isChildOf',
 			'getParents' => 'getBoardParents',
 			'queryData' => 'queryData',
-		),
-		'prop_names' => array(
+		],
+		'prop_names' => [
 			'board_id' => 'board',
 			'info' => 'board_info',
 			'loaded' => 'boards',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -99,28 +100,28 @@ class Board implements \ArrayAccess
 	 *
 	 * Info about individual members allowed to moderate this board.
 	 */
-	public array $moderators = array();
+	public array $moderators = [];
 
 	/**
 	 * @var array
 	 *
 	 * Info about member groups allowed to moderate this board.
 	 */
-	public array $moderator_groups = array();
+	public array $moderator_groups = [];
 
 	/**
 	 * @var array
 	 *
 	 * Info about member groups allowed to access this board.
 	 */
-	public array $member_groups = array();
+	public array $member_groups = [];
 
 	/**
 	 * @var array
 	 *
 	 * Info about member groups forbidden from accessing this board.
 	 */
-	public array $deny_groups = array();
+	public array $deny_groups = [];
 
 	/**
 	 * @var int
@@ -163,7 +164,7 @@ class Board implements \ArrayAccess
 	 *
 	 * All of this board's ancestor boards.
 	 */
-	public array $parent_boards = array();
+	public array $parent_boards = [];
 
 	/**
 	 * @var int
@@ -198,7 +199,7 @@ class Board implements \ArrayAccess
 	 *
 	 * Boards that are children of this board.
 	 */
-	public array $children = array();
+	public array $children = [];
 
 	/**
 	 * @var int
@@ -275,21 +276,21 @@ class Board implements \ArrayAccess
 	 *
 	 * HTML anchor links for this board's children.
 	 */
-	public array $link_children = array();
+	public array $link_children = [];
 
 	/**
 	 * @var array
 	 *
 	 * HTML anchor links for this board's moderators.
 	 */
-	public array $link_moderators = array();
+	public array $link_moderators = [];
 
 	/**
 	 * @var array
 	 *
 	 * HTML anchor links for this board's moderator groups.
 	 */
-	public array $link_moderator_groups = array();
+	public array $link_moderator_groups = [];
 
 	/**
 	 * @var int
@@ -311,7 +312,7 @@ class Board implements \ArrayAccess
 	 *
 	 * Info about the latest post in this board.
 	 */
-	public array $last_post = array();
+	public array $last_post = [];
 
 	/**
 	 * @var bool
@@ -354,7 +355,7 @@ class Board implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/*********************
 	 * Internal properties
@@ -368,7 +369,7 @@ class Board implements \ArrayAccess
 	 * means any groups that have the manage_boards permission that aren't
 	 * in the board's list of allowed groups.
 	 */
-	protected array $overridden_access_groups = array();
+	protected array $overridden_access_groups = [];
 
 	/**
 	 * @var array
@@ -378,14 +379,14 @@ class Board implements \ArrayAccess
 	 * groups that have the manage_boards permission that are in the board's
 	 * list of denied groups.
 	 */
-	protected array $overridden_deny_groups = array();
+	protected array $overridden_deny_groups = [];
 
 	/**
 	 * @var array
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_board' => 'id',
 		'board_name' => 'name',
 		'board_description' => 'description',
@@ -411,7 +412,7 @@ class Board implements \ArrayAccess
 
 		// Initial exclamation mark means inverse of the property.
 		'is_read' => '!new',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -422,9 +423,9 @@ class Board implements \ArrayAccess
 	 *
 	 * Properties that should be cached in different situations.
 	 */
-	protected static array $cache_props = array(
+	protected static array $cache_props = [
 		// When caching Board::$info
-		'info' => array(
+		'info' => [
 			'id',
 			'cat',
 			'name',
@@ -450,15 +451,15 @@ class Board implements \ArrayAccess
 			'count_posts',
 			'cur_topic_approved',
 			'cur_topic_starter',
-		),
-	);
+		],
+	];
 
 	/**
 	 * @var array
 	 *
 	 * Holds parsed versions of board descriptions.
 	 */
-	protected static array $parsed_descriptions = array();
+	protected static array $parsed_descriptions = [];
 
 	/****************
 	 * Public methods
@@ -472,39 +473,35 @@ class Board implements \ArrayAccess
 	 */
 	public function __set(string $prop, $value): void
 	{
-		if (in_array($this->prop_aliases[$prop] ?? $prop, array('member_groups', 'deny_groups')))
-		{
-			if (!is_array($value))
+		if (in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
+			if (!is_array($value)) {
 				$value = explode(',', $value);
+			}
 
 			$value = array_map('intval', array_filter($value, 'strlen'));
 
 			// Special handling for access for board manager groups.
-			if (!empty(Config::$modSettings['board_manager_groups']) && in_array($this->prop_aliases[$prop] ?? $prop, array('member_groups', 'deny_groups')) && is_array($value))
-			{
+			if (!empty(Config::$modSettings['board_manager_groups']) && in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups']) && is_array($value)) {
 				$board_manager_groups = array_map('intval', array_filter(explode(',', Config::$modSettings['board_manager_groups']), 'strlen'));
 
-				if (($this->prop_aliases[$prop] ?? $prop) === 'deny_groups')
-				{
+				if (($this->prop_aliases[$prop] ?? $prop) === 'deny_groups') {
 					$this->overridden_deny_groups = array_intersect($board_manager_groups, $value);
 					$value = array_diff($value, $board_manager_groups);
-				}
-				else
-				{
+				} else {
 					$this->overridden_access_groups = array_diff($board_manager_groups, $value);
 					$value = array_merge($board_manager_groups, $value);
 				}
 			}
 
-			$value = array_unique(array_diff($value, array(1)));
+			$value = array_unique(array_diff($value, [1]));
 
 			sort($value);
 		}
 
 		// Special handling for the category.
-		if (($this->prop_aliases[$prop] ?? null) === 'cat[id]')
-		{
+		if (($this->prop_aliases[$prop] ?? null) === 'cat[id]') {
 			$this->cat = Category::init($value);
+
 			return;
 		}
 
@@ -516,21 +513,20 @@ class Board implements \ArrayAccess
 	 *
 	 * @param array $boardOptions An array of options related to the board.
 	 */
-	public function save(array $boardOptions = array()): void
+	public function save(array $boardOptions = []): void
 	{
 		User::$me->isAllowedTo('manage_boards');
 
 		// Undo any overrides of the group access values.
-		$access_groups = array_unique(array_diff($this->member_groups, $this->overridden_access_groups, array(1)));
-		$deny_groups = array_unique(array_diff(array_merge($this->deny_groups, $this->overridden_deny_groups), array(1)));
+		$access_groups = array_unique(array_diff($this->member_groups, $this->overridden_access_groups, [1]));
+		$deny_groups = array_unique(array_diff(array_merge($this->deny_groups, $this->overridden_deny_groups), [1]));
 
 		sort($access_groups);
 		sort($deny_groups);
 
 		// Saving a new board.
-		if (empty($this->id))
-		{
-			$columns = array(
+		if (empty($this->id)) {
+			$columns = [
 				'id_cat' => 'int',
 				'child_level' => 'int',
 				'id_parent' => 'int',
@@ -550,9 +546,9 @@ class Board implements \ArrayAccess
 				'unapproved_topics' => 'int',
 				'redirect' => 'string-255',
 				'deny_member_groups' => 'string-255',
-			);
+			];
 
-			$params = array(
+			$params = [
 				$this->cat['id'],
 				$this->child_level,
 				$this->parent,
@@ -572,22 +568,22 @@ class Board implements \ArrayAccess
 				$this->unapproved_topics,
 				$this->redirect,
 				implode(',', $deny_groups),
-			);
+			];
 
-			$this->id = Db::$db->insert('',
+			$this->id = Db::$db->insert(
+				'',
 				'{db_prefix}boards',
 				$columns,
 				$params,
-				array('id_board'),
-				1
+				['id_board'],
+				1,
 			);
 
 			self::$loaded[$this->id] = $this;
 		}
 		// Updating an existing board.
-		else
-		{
-			$set = array(
+		else {
+			$set = [
 				'id_cat = {int:id_cat}',
 				'child_level = {int:child_level}',
 				'id_parent = {int:id_parent}',
@@ -607,9 +603,9 @@ class Board implements \ArrayAccess
 				'unapproved_topics = {int:unapproved_topics}',
 				'redirect = {string:redirect}',
 				'deny_member_groups = {string:deny_groups}',
-			);
+			];
 
-			$params = array(
+			$params = [
 				'id' => $this->id,
 				'id_cat' => $this->cat['id'],
 				'child_level' => $this->child_level,
@@ -630,90 +626,101 @@ class Board implements \ArrayAccess
 				'unapproved_topics' => $this->unapproved_topics,
 				'redirect' => $this->redirect,
 				'deny_groups' => implode(',', $deny_groups),
-			);
+			];
 
 			// Do any hooks want to add or adjust anything?
-			IntegrationHook::call('integrate_modify_board', array($this->id, $boardOptions, &$set, &$params));
+			IntegrationHook::call('integrate_modify_board', [$this->id, $boardOptions, &$set, &$params]);
 
-			Db::$db->query('', '
+			Db::$db->query(
+				'',
+				'
 				UPDATE {db_prefix}boards
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_board = {int:id}',
-				$params
+				$params,
 			);
 		}
 
 		// Before we add new access_groups or deny_groups, remove all of the old entries.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:this_board}',
-			array(
+			[
 				'this_board' => $this->id,
-			)
+			],
 		);
 
-		$inserts = array();
+		$inserts = [];
 
-		foreach ($access_groups as $id_group)
-			$inserts[] = array($id_group, $this->id, 0);
+		foreach ($access_groups as $id_group) {
+			$inserts[] = [$id_group, $this->id, 0];
+		}
 
-		foreach ($deny_groups as $id_group)
-			$inserts[] = array($id_group, $this->id, 1);
+		foreach ($deny_groups as $id_group) {
+			$inserts[] = [$id_group, $this->id, 1];
+		}
 
-		if ($inserts != array())
-		{
-			Db::$db->insert('insert',
+		if ($inserts != []) {
+			Db::$db->insert(
+				'insert',
 				'{db_prefix}board_permissions_view',
-				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				['id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'],
 				$inserts,
-				array('id_group', 'id_board', 'deny')
+				['id_group', 'id_board', 'deny'],
 			);
 		}
 
 		// Reset current moderators for this board - if there are any!
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}moderators
 			WHERE id_board = {int:this_board}',
-			array(
+			[
 				'this_board' => $this->id,
-			)
+			],
 		);
 
-		if (!empty($this->moderators))
-		{
-			Db::$db->insert('insert',
+		if (!empty($this->moderators)) {
+			Db::$db->insert(
+				'insert',
 				'{db_prefix}moderators',
-				array('id_board' => 'int', 'id_member' => 'int'),
-				array_map(fn($mod) => array($this->id, $mod['id']), $this->moderators),
-				array('id_board', 'id_member')
+				['id_board' => 'int', 'id_member' => 'int'],
+				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderators),
+				['id_board', 'id_member'],
 			);
 		}
 
 		// Reset current moderator groups for this board - if there are any!
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board = {int:this_board}',
-			array(
+			[
 				'this_board' => $this->id,
-			)
+			],
 		);
 
-		if (!empty($this->moderator_groups))
-		{
-			Db::$db->insert('insert',
+		if (!empty($this->moderator_groups)) {
+			Db::$db->insert(
+				'insert',
 				'{db_prefix}moderator_groups',
-				array('id_board' => 'int', 'id_group' => 'int'),
-				array_map(fn($mod) => array($this->id, $mod['id']), $this->moderator_groups),
-				array('id_board', 'id_group')
+				['id_board' => 'int', 'id_group' => 'int'],
+				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderator_groups),
+				['id_board', 'id_group'],
 			);
 		}
 
 		// If we were moving boards, ensure that the order is correct.
-		if (isset($boardOptions['move_to']))
+		if (isset($boardOptions['move_to'])) {
 			self::reorder();
+		}
 
 		// The caches might now be wrong.
-		Config::updateModSettings(array('settings_updated' => time()));
+		Config::updateModSettings(['settings_updated' => time()]);
 		CacheApi::clean('data');
 	}
 
@@ -739,47 +746,44 @@ class Board implements \ArrayAccess
 		?int $target_category = null,
 		?int $target_board = null,
 		bool $first_child = false,
-		bool $save = true
-	): array
-	{
+		bool $save = true,
+	): array {
 		// Do we have what we need?
-		switch ($move_to)
-		{
+		switch ($move_to) {
 			case 'top':
 			case 'bottom':
-				if (!isset($target_category))
-				{
+				if (!isset($target_category)) {
 					Lang::load('Errors');
 					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
 				}
+
 				break;
 
 			default:
-				if (!isset($target_board))
-				{
+				if (!isset($target_board)) {
 					Lang::load('Errors');
 					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
 				}
+
 				break;
 		}
 
 		// IDs of all boards that were affected by this move.
-		$affected_boards = array($this->id);
+		$affected_boards = [$this->id];
 
 		// Ensure everything is loaded.
-		if ((isset($target_category) && !isset(Category::$loaded[$target_category])) || (isset($target_board) && !isset(self::$loaded[$target_board])))
-		{
+		if ((isset($target_category) && !isset(Category::$loaded[$target_category])) || (isset($target_board) && !isset(self::$loaded[$target_board]))) {
 			Category::getTree();
 		}
 
 		// Where are we moving this board to?
-		switch ($move_to)
-		{
+		switch ($move_to) {
 			case 'top':
 				$id_cat = $target_category;
 				$child_level = 0;
 				$id_parent = 0;
 				$after = Category::$loaded[$id_cat]->last_board_order;
+
 				break;
 
 			case 'bottom':
@@ -788,8 +792,9 @@ class Board implements \ArrayAccess
 				$id_parent = 0;
 				$after = 0;
 
-				foreach (Category::$loaded[$id_cat]->children as $id_board => $dummy)
+				foreach (Category::$loaded[$id_cat]->children as $id_board => $dummy) {
 					$after = max($after, self::$loaded[$id_board]->order);
+				}
 
 				break;
 
@@ -799,22 +804,19 @@ class Board implements \ArrayAccess
 				$id_parent = $target_board;
 
 				// People can be creative, in many ways...
-				if (self::isChildOf($id_parent, $this->id))
-				{
+				if (self::isChildOf($id_parent, $this->id)) {
 					ErrorHandler::fatalLang('mboards_parent_own_child_error', false);
-				}
-				elseif ($id_parent == $this->id)
-				{
+				} elseif ($id_parent == $this->id) {
 					ErrorHandler::fatalLang('mboards_board_own_child_error', false);
 				}
 
 				$after = self::$loaded[$target_board]->order;
 
 				// Check if there are already children and (if so) get the max board order.
-				if (!empty(self::$loaded[$id_parent]->children) && empty($first_child))
-				{
-					foreach (self::$loaded[$id_parent]->children as $childBoard_id => $dummy)
+				if (!empty(self::$loaded[$id_parent]->children) && empty($first_child)) {
+					foreach (self::$loaded[$id_parent]->children as $childBoard_id => $dummy) {
 						$after = max($after, self::$loaded[$childBoard_id]->order);
+					}
 				}
 
 				break;
@@ -825,41 +827,41 @@ class Board implements \ArrayAccess
 				$child_level = self::$loaded[$target_board]->child_level;
 				$id_parent = self::$loaded[$target_board]->parent;
 				$after = self::$loaded[$target_board]->order - ($move_to == 'before' ? 1 : 0);
+
 				break;
 
 			default:
 				Lang::load('Errors');
 				trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+
 				break;
 		}
 
 		// Get a list of children of this board.
-		$child_list = array();
+		$child_list = [];
 		Category::recursiveBoards($child_list, $this);
 
 		// See if there are changes that affect children.
-		foreach ($child_list as $child_id)
-		{
-			if ($child_level != $this->child_level)
-			{
+		foreach ($child_list as $child_id) {
+			if ($child_level != $this->child_level) {
 				self::$loaded[$child_id]->child_level += ($child_level - $this->child_level);
 				$affected_boards[] = $child_id;
 			}
 
-			if ($id_cat != self::$loaded[$child_id]->category)
-			{
+			if ($id_cat != self::$loaded[$child_id]->category) {
 				self::$loaded[$child_id]->category = $id_cat;
 				$affected_boards[] = $child_id;
 			}
 		}
 
-		foreach (self::$loaded as $board)
-		{
-			if ($board->order <= $after)
+		foreach (self::$loaded as $board) {
+			if ($board->order <= $after) {
 				continue;
+			}
 
-			if ($board->id === $this->id)
+			if ($board->id === $this->id) {
 				continue;
+			}
 
 			$board->order += (1 + count($child_list));
 			$affected_boards[] = $board->id;
@@ -872,10 +874,10 @@ class Board implements \ArrayAccess
 		$this->order = $after + 1;
 
 		// Are we saving the changes?
-		if ($save)
-		{
-			foreach ($affected_boards as $board_id)
+		if ($save) {
+			foreach ($affected_boards as $board_id) {
 				self::$loaded[$board_id]->save();
+			}
 		}
 
 		return $affected_boards;
@@ -886,29 +888,28 @@ class Board implements \ArrayAccess
 	 */
 	public function parseDescription(): void
 	{
-		if (empty($this->description))
+		if (empty($this->description)) {
 			return;
+		}
 
 		// Save the unparsed description in case we need it later.
-		if (!isset($this->custom['unparsed_description']))
+		if (!isset($this->custom['unparsed_description'])) {
 			$this->custom['unparsed_description'] = $this->description;
+		}
 
-		if (!empty(CacheApi::$enable))
-		{
-			if (empty(self::$parsed_descriptions))
-				self::$parsed_descriptions = CacheApi::get('parsed_boards_descriptions', 864000) ?? array();
+		if (!empty(CacheApi::$enable)) {
+			if (empty(self::$parsed_descriptions)) {
+				self::$parsed_descriptions = CacheApi::get('parsed_boards_descriptions', 864000) ?? [];
+			}
 
-			if (!isset(self::$parsed_descriptions[$this->id]))
-			{
+			if (!isset(self::$parsed_descriptions[$this->id])) {
 				self::$parsed_descriptions[$this->id] = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
 
 				CacheApi::put('parsed_boards_descriptions', self::$parsed_descriptions, 864000);
 			}
 
 			$this->description = self::$parsed_descriptions[$this->id];
-		}
-		else
-		{
+		} else {
 			$this->description = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
 		}
 	}
@@ -918,8 +919,9 @@ class Board implements \ArrayAccess
 	 */
 	public function unparseDescription(): void
 	{
-		if (isset($this->custom['unparsed_description']))
+		if (isset($this->custom['unparsed_description'])) {
 			$this->description = $this->custom['unparsed_description'];
+		}
 	}
 
 	/***********************
@@ -935,52 +937,44 @@ class Board implements \ArrayAccess
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded boards.
 	 */
-	public static function load(array|int $ids = array(), array $query_customizations = array()): array
+	public static function load(array|int $ids = [], array $query_customizations = []): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		$ids = array_unique(array_map('intval', (array) $ids));
 
-		if (empty($query_customizations))
-		{
-			if (empty($ids))
-			{
+		if (empty($query_customizations)) {
+			if (empty($ids)) {
 				$loaded[] = self::init();
-			}
-			else
-			{
-				foreach ($ids as $id)
+			} else {
+				foreach ($ids as $id) {
 					$loaded[] = self::init($id);
+				}
 			}
 
 			return $loaded;
 		}
 
-		$selects = $query_customizations['selects'] ?? array('b.*');
-		$joins = $query_customizations['joins'] ?? array();
-		$where = $query_customizations['where'] ?? array();
-		$order = $query_customizations['order'] ?? array();
-		$group = $query_customizations['group'] ?? array();
+		$selects = $query_customizations['selects'] ?? ['b.*'];
+		$joins = $query_customizations['joins'] ?? [];
+		$where = $query_customizations['where'] ?? [];
+		$order = $query_customizations['order'] ?? [];
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
-		$params = $query_customizations['params'] ?? array();
+		$params = $query_customizations['params'] ?? [];
 
-		if ($ids !== array())
-		{
+		if ($ids !== []) {
 			$where[] = 'b.id_board IN ({array_int:ids})';
 			$params['ids'] = $ids;
 		}
 
-		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row)
-		{
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$row['id_board'] = (int) $row['id_board'];
 
-			if (isset(self::$loaded[$row['id_board']]))
-			{
+			if (isset(self::$loaded[$row['id_board']])) {
 				self::$loaded[$row['id_board']]->set($row);
 				$loaded[] = self::$loaded[$row['id_board']];
-			}
-			else
-			{
+			} else {
 				$loaded[] = self::init($row['id_board'], $row);
 			}
 		}
@@ -1011,18 +1005,16 @@ class Board implements \ArrayAccess
 	 *    is not null.
 	 * @return object|null An instance of this class, or null on error.
 	 */
-	public static function init(?int $id = null, array $props = array()): object|null
+	public static function init(?int $id = null, array $props = []): ?object
 	{
 		// This should already have been set, but just in case...
-		if (!isset(self::$board_id))
+		if (!isset(self::$board_id)) {
 			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
-
-		if (!isset(self::$loaded[$id]))
-		{
-			new self($id, $props);
 		}
-		else
-		{
+
+		if (!isset(self::$loaded[$id])) {
+			new self($id, $props);
+		} else {
 			self::$loaded[$id]->set($props);
 		}
 
@@ -1039,146 +1031,147 @@ class Board implements \ArrayAccess
 
 		User::$me->checkSession('get');
 
-		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all')
-		{
+		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all') {
 			// Find all the boards this user can see.
-			$boards = array();
+			$boards = [];
 
-			$result = Db::$db->query('', '
+			$result = Db::$db->query(
+				'',
+				'
 				SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}',
-				array(
-				)
+				[
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($result))
-			{
+
+			while ($row = Db::$db->fetch_assoc($result)) {
 				$boards[] = $row['id_board'];
 			}
 			Db::$db->free_result($result);
 
-			if (!empty($boards))
+			if (!empty($boards)) {
 				self::markBoardsRead($boards, isset($_REQUEST['unread']));
+			}
 
 			$_SESSION['id_msg_last_visit'] = Config::$modSettings['maxMsgID'];
 
-			if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false)
-			{
+			if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false) {
 				Utils::redirectexit('action=unread');
 			}
 
-			if (isset($_SESSION['topicseen_cache']))
-				$_SESSION['topicseen_cache'] = array();
+			if (isset($_SESSION['topicseen_cache'])) {
+				$_SESSION['topicseen_cache'] = [];
+			}
 
 			Utils::redirectexit();
-		}
-		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies')
-		{
+		} elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies') {
 			// Make sure all the topics are integers!
 			$topics = array_map('intval', explode('-', $_REQUEST['topics']));
 
-			$logged_topics = array();
+			$logged_topics = [];
 
-			$request = Db::$db->query('', '
+			$request = Db::$db->query(
+				'',
+				'
 				SELECT id_topic, unwatched
 				FROM {db_prefix}log_topics
 				WHERE id_topic IN ({array_int:selected_topics})
 					AND id_member = {int:current_user}',
-				array(
+				[
 					'selected_topics' => $topics,
 					'current_user' => User::$me->id,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$logged_topics[$row['id_topic']] = $row['unwatched'];
 			}
 			Db::$db->free_result($request);
 
-			$markRead = array();
+			$markRead = [];
 
-			foreach ($topics as $id_topic)
-			{
-				$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, (isset($logged_topics[Topic::$topic_id]) ? $logged_topics[Topic::$topic_id] : 0));
+			foreach ($topics as $id_topic) {
+				$markRead[] = [Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, ($logged_topics[Topic::$topic_id] ?? 0)];
 			}
 
-			Db::$db->insert('replace',
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}log_topics',
-				array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
+				['id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'],
 				$markRead,
-				array('id_member', 'id_topic')
+				['id_member', 'id_topic'],
 			);
 
-			if (isset($_SESSION['topicseen_cache']))
-				$_SESSION['topicseen_cache'] = array();
+			if (isset($_SESSION['topicseen_cache'])) {
+				$_SESSION['topicseen_cache'] = [];
+			}
 
 			Utils::redirectexit('action=unreadreplies');
 		}
 		// Special case: mark a topic unread!
-		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic')
-		{
+		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic') {
 			// First, let's figure out what the latest message is.
-			$result = Db::$db->query('', '
+			$result = Db::$db->query(
+				'',
+				'
 				SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 				FROM {db_prefix}topics as t
 					LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				WHERE t.id_topic = {int:current_topic}',
-				array(
+				[
 					'current_topic' => Topic::$topic_id,
 					'current_member' => User::$me->id,
-				)
+				],
 			);
 			$topicinfo = Db::$db->fetch_assoc($result);
 			Db::$db->free_result($result);
 
-			if (!empty($_GET['t']))
-			{
+			if (!empty($_GET['t'])) {
 				// If they read the whole topic, go back to the beginning.
-				if ($_GET['t'] >= $topicinfo['id_last_msg'])
-				{
+				if ($_GET['t'] >= $topicinfo['id_last_msg']) {
 					$earlyMsg = 0;
 				}
 				// If they want to mark the whole thing read, same.
-				elseif ($_GET['t'] <= $topicinfo['id_first_msg'])
-				{
+				elseif ($_GET['t'] <= $topicinfo['id_first_msg']) {
 					$earlyMsg = 0;
 				}
 				// Otherwise, get the latest message before the named one.
-				else
-				{
-					$result = Db::$db->query('', '
+				else {
+					$result = Db::$db->query(
+						'',
+						'
 						SELECT MAX(id_msg)
 						FROM {db_prefix}messages
 						WHERE id_topic = {int:current_topic}
 							AND id_msg >= {int:id_first_msg}
 							AND id_msg < {int:topic_msg_id}',
-						array(
+						[
 							'current_topic' => Topic::$topic_id,
 							'topic_msg_id' => (int) $_GET['t'],
 							'id_first_msg' => $topicinfo['id_first_msg'],
-						)
+						],
 					);
 					list($earlyMsg) = Db::$db->fetch_row($result);
 					Db::$db->free_result($result);
 				}
 			}
 			// Marking read from first page?  That's the whole topic.
-			elseif ($_REQUEST['start'] == 0)
-			{
+			elseif ($_REQUEST['start'] == 0) {
 				$earlyMsg = 0;
-			}
-			else
-			{
-				$result = Db::$db->query('', '
+			} else {
+				$result = Db::$db->query(
+					'',
+					'
 					SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
 					ORDER BY id_msg
 					LIMIT {int:start}, 1',
-					array(
+					[
 						'current_topic' => Topic::$topic_id,
 						'start' => (int) $_REQUEST['start'],
-					)
+					],
 				);
 				list($earlyMsg) = Db::$db->fetch_row($result);
 				Db::$db->free_result($result);
@@ -1187,155 +1180,152 @@ class Board implements \ArrayAccess
 			}
 
 			// Blam, unread!
-			Db::$db->insert('replace',
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}log_topics',
-				array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
-				array($earlyMsg, User::$me->id, Topic::$topic_id, $topicinfo['unwatched']),
-				array('id_member', 'id_topic')
+				['id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'],
+				[$earlyMsg, User::$me->id, Topic::$topic_id, $topicinfo['unwatched']],
+				['id_member', 'id_topic'],
 			);
 
 			Utils::redirectexit('board=' . self::$info->id . '.0');
-		}
-		else
-		{
-			$categories = array();
-			$boards = array();
+		} else {
+			$categories = [];
+			$boards = [];
 
-			if (isset($_REQUEST['c']))
-			{
+			if (isset($_REQUEST['c'])) {
 				$_REQUEST['c'] = explode(',', $_REQUEST['c']);
 
-				foreach ($_REQUEST['c'] as $c)
+				foreach ($_REQUEST['c'] as $c) {
 					$categories[] = (int) $c;
+				}
 			}
 
-			if (isset($_REQUEST['boards']))
-			{
+			if (isset($_REQUEST['boards'])) {
 				$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
 
-				foreach ($_REQUEST['boards'] as $b)
+				foreach ($_REQUEST['boards'] as $b) {
 					$boards[] = (int) $b;
+				}
 			}
 
-			if (!empty(self::$info->id))
+			if (!empty(self::$info->id)) {
 				$boards[] = (int) self::$info->id;
+			}
 
-			if (isset($_REQUEST['children']) && !empty($boards))
-			{
+			if (isset($_REQUEST['children']) && !empty($boards)) {
 				// They want to mark the entire tree starting with the boards specified
 				// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
-				$request = Db::$db->query('', '
+				$request = Db::$db->query(
+					'',
+					'
 					SELECT b.id_board, b.id_parent
 					FROM {db_prefix}boards AS b
 					WHERE {query_see_board}
 						AND b.child_level > {int:no_parents}
 						AND b.id_board NOT IN ({array_int:board_list})
 					ORDER BY child_level ASC',
-					array(
+					[
 						'no_parents' => 0,
 						'board_list' => $boards,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					if (in_array($row['id_parent'], $boards))
+
+				while ($row = Db::$db->fetch_assoc($request)) {
+					if (in_array($row['id_parent'], $boards)) {
 						$boards[] = $row['id_board'];
+					}
 				}
 				Db::$db->free_result($request);
 			}
 
-			$clauses = array();
-			$clauseParameters = array();
+			$clauses = [];
+			$clauseParameters = [];
 
-			if (!empty($categories))
-			{
+			if (!empty($categories)) {
 				$clauses[] = 'id_cat IN ({array_int:category_list})';
 				$clauseParameters['category_list'] = $categories;
 			}
 
-			if (!empty($boards))
-			{
+			if (!empty($boards)) {
 				$clauses[] = 'id_board IN ({array_int:board_list})';
 				$clauseParameters['board_list'] = $boards;
 			}
 
-			if (empty($clauses))
+			if (empty($clauses)) {
 				Utils::redirectexit();
+			}
 
-			$boards = array();
+			$boards = [];
 
-			$request = Db::$db->query('', '
+			$request = Db::$db->query(
+				'',
+				'
 				SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
 					AND b.' . implode(' OR b.', $clauses),
-				array_merge($clauseParameters, array(
-				))
+				array_merge($clauseParameters, [
+				]),
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 			}
 			Db::$db->free_result($request);
 
-			if (empty($boards))
+			if (empty($boards)) {
 				Utils::redirectexit();
+			}
 
 			self::markBoardsRead($boards, isset($_REQUEST['unread']));
 
-			foreach ($boards as $b)
-			{
-				if (isset($_SESSION['topicseen_cache'][$b]))
-					$_SESSION['topicseen_cache'][$b] = array();
+			foreach ($boards as $b) {
+				if (isset($_SESSION['topicseen_cache'][$b])) {
+					$_SESSION['topicseen_cache'][$b] = [];
+				}
 			}
 
-			if (!isset($_REQUEST['unread']))
-			{
+			if (!isset($_REQUEST['unread'])) {
 				// Find all the boards this user can see.
-				$result = Db::$db->query('', '
+				$result = Db::$db->query(
+					'',
+					'
 					SELECT b.id_board
 					FROM {db_prefix}boards AS b
 					WHERE b.id_parent IN ({array_int:parent_list})
 						AND {query_see_board}',
-					array(
+					[
 						'parent_list' => $boards,
-					)
+					],
 				);
-				if (Db::$db->num_rows($result) > 0)
-				{
-					$logBoardInserts = array();
 
-					while ($row = Db::$db->fetch_assoc($result))
-					{
-						$logBoardInserts[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $row['id_board']);
+				if (Db::$db->num_rows($result) > 0) {
+					$logBoardInserts = [];
+
+					while ($row = Db::$db->fetch_assoc($result)) {
+						$logBoardInserts[] = [Config::$modSettings['maxMsgID'], User::$me->id, $row['id_board']];
 					}
 
-					Db::$db->insert('replace',
+					Db::$db->insert(
+						'replace',
 						'{db_prefix}log_boards',
-						array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+						['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
 						$logBoardInserts,
-						array('id_member', 'id_board')
+						['id_member', 'id_board'],
 					);
 				}
 				Db::$db->free_result($result);
 
-				if (empty(self::$info->id))
-				{
+				if (empty(self::$info->id)) {
 					Utils::redirectexit();
-				}
-				else
-				{
+				} else {
 					Utils::redirectexit('board=' . self::$info->id . '.0');
 				}
-			}
-			else
-			{
-				if (empty(self::$info->parent))
-				{
+			} else {
+				if (empty(self::$info->parent)) {
 					Utils::redirectexit();
-				}
-				else
-				{
+				} else {
 					Utils::redirectexit('board=' . self::$info->parent . '.0');
 				}
 			}
@@ -1351,67 +1341,68 @@ class Board implements \ArrayAccess
 	public static function markBoardsRead(int|array $boards, bool $unread = false): void
 	{
 		// Force $boards to be an array.
-		if (!is_array($boards))
-		{
-			$boards = array($boards);
-		}
-		else
-		{
+		if (!is_array($boards)) {
+			$boards = [$boards];
+		} else {
 			$boards = array_unique($boards);
 		}
 
 		// No boards, nothing to mark as read.
-		if (empty($boards))
+		if (empty($boards)) {
 			return;
+		}
 
 		// Allow the user to mark a board as unread.
-		if ($unread)
-		{
+		if ($unread) {
 			// Clear out all the places where this lovely info is stored.
 			// @todo Maybe not log_mark_read?
-			Db::$db->query('', '
+			Db::$db->query(
+				'',
+				'
 				DELETE FROM {db_prefix}log_mark_read
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:current_member}',
-				array(
+				[
 					'current_member' => User::$me->id,
 					'board_list' => $boards,
-				)
+				],
 			);
 
-			Db::$db->query('', '
+			Db::$db->query(
+				'',
+				'
 				DELETE FROM {db_prefix}log_boards
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:current_member}',
-				array(
+				[
 					'current_member' => User::$me->id,
 					'board_list' => $boards,
-				)
+				],
 			);
 		}
 		// Otherwise mark the board as read.
-		else
-		{
-			$markRead = array();
+		else {
+			$markRead = [];
 
-			foreach ($boards as $board)
-			{
-				$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $board);
+			foreach ($boards as $board) {
+				$markRead[] = [Config::$modSettings['maxMsgID'], User::$me->id, $board];
 			}
 
 			// Update log_mark_read and log_boards.
-			Db::$db->insert('replace',
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}log_mark_read',
-				array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+				['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
 				$markRead,
-				array('id_board', 'id_member')
+				['id_board', 'id_member'],
 			);
 
-			Db::$db->insert('replace',
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}log_boards',
-				array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+				['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
 				$markRead,
-				array('id_board', 'id_member')
+				['id_board', 'id_member'],
 			);
 		}
 
@@ -1419,23 +1410,28 @@ class Board implements \ArrayAccess
 		// @todo look at this...
 		// The call to markBoardsRead() in Display() used to be simply
 		// marking log_boards (the previous query only)
-		$result = Db::$db->query('', '
+		$result = Db::$db->query(
+			'',
+			'
 			SELECT MIN(id_topic)
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:current_member}',
-			array(
+			[
 				'current_member' => User::$me->id,
-			)
+			],
 		);
 		list($lowest_topic) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
 
-		if (empty($lowest_topic))
+		if (empty($lowest_topic)) {
 			return;
+		}
 
 		// @todo SLOW This query seems to eat it sometimes.
-		$topics = array();
-		$result = Db::$db->query('', '
+		$topics = [];
+		$result = Db::$db->query(
+			'',
+			'
 			SELECT lt.id_topic
 			FROM {db_prefix}log_topics AS lt
 				INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
@@ -1443,28 +1439,29 @@ class Board implements \ArrayAccess
 			WHERE lt.id_member = {int:current_member}
 				AND lt.id_topic >= {int:lowest_topic}
 				AND lt.unwatched != 1',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'board_list' => $boards,
 				'lowest_topic' => $lowest_topic,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($result))
-		{
+
+		while ($row = Db::$db->fetch_assoc($result)) {
 			$topics[] = $row['id_topic'];
 		}
 		Db::$db->free_result($result);
 
-		if (!empty($topics))
-		{
-			Db::$db->query('', '
+		if (!empty($topics)) {
+			Db::$db->query(
+				'',
+				'
 				DELETE FROM {db_prefix}log_topics
 				WHERE id_member = {int:current_member}
 					AND id_topic IN ({array_int:topic_list})',
-				array(
+				[
 					'current_member' => User::$me->id,
 					'topic_list' => $topics,
-				)
+				],
 			);
 		}
 	}
@@ -1480,23 +1477,24 @@ class Board implements \ArrayAccess
 	public static function getMsgMemberID(int $messageID): int
 	{
 		// Find the topic and make sure the member still exists.
-		$result = Db::$db->query('', '
+		$result = Db::$db->query(
+			'',
+			'
 			SELECT COALESCE(mem.id_member, 0)
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_msg = {int:selected_message}
 			LIMIT 1',
-			array(
+			[
 				'selected_message' => (int) $messageID,
-			)
+			],
 		);
-		if (Db::$db->num_rows($result) > 0)
-		{
+
+		if (Db::$db->num_rows($result) > 0) {
 			list($memberID) = Db::$db->fetch_row($result);
 		}
 		// The message doesn't even exist.
-		else
-		{
+		else {
 			$memberID = 0;
 		}
 		Db::$db->free_result($result);
@@ -1525,98 +1523,96 @@ class Board implements \ArrayAccess
 			)
 			|| (
 				isset($boardOptions['target_category'])
-				&& !isset(Category::$loaded[$boardOptions['target_category']]))
-		)
-		{
+				&& !isset(Category::$loaded[$boardOptions['target_category']])
+			)
+		) {
 			ErrorHandler::fatalLang('no_board');
 		}
 
-		IntegrationHook::call('integrate_pre_modify_board', array($board_id, &$boardOptions));
+		IntegrationHook::call('integrate_pre_modify_board', [$board_id, &$boardOptions]);
 
 		$board = self::$loaded[$board_id];
 
 		// In case the board has to be moved.
-		if (isset($boardOptions['move_to']))
-		{
+		if (isset($boardOptions['move_to'])) {
 			$moved_boards = $board->move($boardOptions['move_to'], $boardOptions['target_category'] ?? null, $boardOptions['target_board'] ?? null, !empty($boardOptions['move_first_child']), false);
 		}
 
 		// Set moderators of this board.
-		if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
-		{
+		if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string'])) {
 			// Validate and get the IDs of the new moderators.
 			// $boardOptions['moderator_string'] is only set if the admin has JavaScript disabled.
-			if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '')
-			{
-				if (empty($boardOptions['moderators']))
-					$boardOptions['moderators'] = array();
+			if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '') {
+				if (empty($boardOptions['moderators'])) {
+					$boardOptions['moderators'] = [];
+				}
 
 				// Divvy out the usernames, remove extra space.
-				$moderator_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_string'], ENT_QUOTES), array('&quot;' => '"'));
+				$moderator_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_string'], ENT_QUOTES), ['&quot;' => '"']);
 
 				preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
 
 				$moderators = array_filter(array_map('trim', array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)))), 'strlen');
 
 				// Find all the id_member's for the member_name's in the list.
-				if (!empty($moderators))
-				{
-					foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator)
+				if (!empty($moderators)) {
+					foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator) {
 						$boardOptions['moderators'][] = $moderator->id;
+					}
 				}
 			}
 
 			// Validate and get the IDs of the new moderator groups.
 			// $boardOptions['moderator_group_string'] is only set if the admin has JavaScript disabled.
-			if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '')
-			{
-				if (empty($boardOptions['moderator_groups']))
-					$boardOptions['moderator_groups'] = array();
+			if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '') {
+				if (empty($boardOptions['moderator_groups'])) {
+					$boardOptions['moderator_groups'] = [];
+				}
 
 				// Divvy out the group names, remove extra space.
-				$moderator_group_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_group_string'], ENT_QUOTES), array('&quot;' => '"'));
+				$moderator_group_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_group_string'], ENT_QUOTES), ['&quot;' => '"']);
 
 				preg_match_all('~"([^"]+)"~', $moderator_group_string, $matches);
 
 				$moderator_groups = array_filter(array_map('trim', array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_group_string)))), 'strlen');
 
-			 	// Find all the id_group's for all the group names in the list
+				// Find all the id_group's for all the group names in the list
 				// But skip any invalid ones (invisible/post groups/Administrator/Moderator)
-				if (!empty($moderator_groups))
-				{
-					$query_customizations = array(
-						'where' => array(
+				if (!empty($moderator_groups)) {
+					$query_customizations = [
+						'where' => [
 							'group_name IN ({array_string:moderator_group_list})',
 							'hidden = {int:visible}',
 							'min_posts = {int:negative_one}',
 							'id_group NOT IN ({array_int:invalid_groups})',
-						),
-						'params' => array(
+						],
+						'params' => [
 							'visible' => Group::VISIBLE,
 							'negative_one' => -1,
-							'invalid_groups' => array(Group::ADMIN, Group::MOD),
+							'invalid_groups' => [Group::ADMIN, Group::MOD],
 							'moderator_group_list' => $moderator_groups,
-						),
+						],
 						'limit' => count($moderator_groups),
-					);
+					];
 
-					foreach (Group::load(array(), $query_customizations) as $group)
+					foreach (Group::load([], $query_customizations) as $group) {
 						$boardOptions['moderator_groups'][] = $group->id;
+					}
 				}
 			}
 
-			if (isset($boardOptions['moderators']))
-			{
-				if (!is_array($boardOptions['moderators']))
+			if (isset($boardOptions['moderators'])) {
+				if (!is_array($boardOptions['moderators'])) {
 					$boardOptions['moderators'] = array_filter(explode(',', $boardOptions['moderators']), 'strlen');
+				}
 
 				$boardOptions['moderators'] = array_unique(array_map('intval', $boardOptions['moderators']));
 			}
 
-			if (isset($boardOptions['moderator_groups']))
-			{
-				if (!is_array($boardOptions['moderator_groups']))
+			if (isset($boardOptions['moderator_groups'])) {
+				if (!is_array($boardOptions['moderator_groups'])) {
 					$boardOptions['moderator_groups'] = array_filter(explode(',', $boardOptions['moderator_groups']), 'strlen');
+				}
 
 				$boardOptions['moderator_groups'] = array_unique(array_map('intval', $boardOptions['moderator_groups']));
 			}
@@ -1646,15 +1642,16 @@ class Board implements \ArrayAccess
 		$board->save($boardOptions);
 
 		// If we moved any boards, save their changes too.
-		if (!empty($moved_boards))
-		{
-			foreach (array_diff($moved_boards, array($board->id)) as $moved)
+		if (!empty($moved_boards)) {
+			foreach (array_diff($moved_boards, [$board->id]) as $moved) {
 				self::$loaded[$moved]->save();
+			}
 		}
 
 		// Log the changes unless told otherwise.
-		if (empty($boardOptions['dont_log']))
-			Logging::logAction('edit_board', array('board' => $this->id), 'admin');
+		if (empty($boardOptions['dont_log'])) {
+			Logging::logAction('edit_board', ['board' => $this->id], 'admin');
+		}
 	}
 
 	/**
@@ -1670,65 +1667,63 @@ class Board implements \ArrayAccess
 	public static function create(array $boardOptions): int
 	{
 		// Trigger an error if one of the required values is not set.
-		if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
-		{
+		if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category'])) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['create_board_missing_options'], E_USER_ERROR);
 		}
 
-		if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
-		{
+		if (in_array($boardOptions['move_to'], ['child', 'before', 'after']) && !isset($boardOptions['target_board'])) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['move_board_no_target'], E_USER_ERROR);
 		}
 
 		// Set every optional value to its default value.
-		$boardOptions += array(
+		$boardOptions += [
 			'posts_count' => true,
 			'override_theme' => false,
 			'board_theme' => 0,
-			'access_groups' => array(),
+			'access_groups' => [],
 			'board_description' => '',
 			'profile' => 1,
 			'moderators' => '',
 			'inherit_permissions' => true,
 			'dont_log' => true,
-		);
+		];
 
 		// This used to be done via a direct query, which is why these look like
 		// arrays that would be passed to our database API. We keep them this
 		// way now merely in order to maintain the signature of the hook.
-		$board_columns = array(
+		$board_columns = [
 			'id_cat' => 'int',
 			'name' => 'string-255',
 			'description' => 'string',
 			'board_order' => 'int',
 			'member_groups' => 'string',
 			'redirect' => 'string',
-		);
+		];
 
-		$board_parameters = array(
+		$board_parameters = [
 			$boardOptions['target_category'],
 			$boardOptions['board_name'],
 			'',
 			0,
 			'',
 			'',
-		);
+		];
 
-		IntegrationHook::call('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
+		IntegrationHook::call('integrate_create_board', [&$boardOptions, &$board_columns, &$board_parameters]);
 
 		// Make a new instance and save it.
 		$board = new self(0, array_combine(array_keys($board_columns), $board_parameters));
 		$board->save();
 
 		// Uh-oh...
-		if (empty($board->id))
+		if (empty($board->id)) {
 			return 0;
+		}
 
 		// Do we want the parent permissions to be inherited?
-		if ($boardOptions['inherit_permissions'] && !empty($board->parent))
-		{
+		if ($boardOptions['inherit_permissions'] && !empty($board->parent)) {
 			self::load($board->parent);
 			$boardOptions['profile'] = self::$loaded[$board->parent]->profile;
 			unset($boardOptions['inherit_permissions']);
@@ -1738,7 +1733,7 @@ class Board implements \ArrayAccess
 		self::modify($board->id, $boardOptions);
 
 		// Created it.
-		Logging::logAction('add_board', array('board' => $board->id), 'admin');
+		Logging::logAction('add_board', ['board' => $board->id], 'admin');
 
 		// Here you are, a new board, ready to be spammed.
 		return $board->id;
@@ -1756,63 +1751,58 @@ class Board implements \ArrayAccess
 	 * @param array $boards_to_remove The boards to remove
 	 * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
 	 */
-	public static function delete(array $boards_to_remove, int $moveChildrenTo = null): void
+	public static function delete(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
 		// No boards to delete? Return!
-		if (empty($boards_to_remove))
+		if (empty($boards_to_remove)) {
 			return;
+		}
 
 		Category::getTree();
 
-		IntegrationHook::call('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
+		IntegrationHook::call('integrate_delete_board', [$boards_to_remove, &$moveChildrenTo]);
 
 		// If $moveChildrenTo is set to null, include the children in the removal.
-		if ($moveChildrenTo === null)
-		{
+		if ($moveChildrenTo === null) {
 			// Get a list of the child boards that will also be removed.
-			$child_boards_to_remove = array();
+			$child_boards_to_remove = [];
 
-			foreach ($boards_to_remove as $board_to_remove)
-			{
+			foreach ($boards_to_remove as $board_to_remove) {
 				Category::recursiveBoards($child_boards_to_remove, self::$loaded[$board_to_remove]);
 			}
 
 			// Merge the children with their parents.
-			if (!empty($child_boards_to_remove))
-			{
+			if (!empty($child_boards_to_remove)) {
 				$boards_to_remove = array_unique(array_merge($boards_to_remove, $child_boards_to_remove));
 			}
 		}
 		// Move the children to a safe home.
-		else
-		{
-			foreach ($boards_to_remove as $id_board)
-			{
+		else {
+			foreach ($boards_to_remove as $id_board) {
 				// @todo Separate category?
-				if ($moveChildrenTo === 0)
-				{
+				if ($moveChildrenTo === 0) {
 					self::fixChildren($id_board, 0, 0);
-				}
-				else
-				{
+				} else {
 					self::fixChildren($id_board, self::$loaded[$moveChildrenTo]->child_level + 1, $moveChildrenTo);
 				}
 			}
 		}
 
 		// Delete ALL topics in the selected boards (done first so topics can't be marooned.)
-		$topics = array();
+		$topics = [];
 
-		$request = Db::$db->query('', '
+		$request = Db::$db->query(
+			'',
+			'
 			SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$topics[] = $row['id_topic'];
 		}
 		Db::$db->free_result($request);
@@ -1820,101 +1810,118 @@ class Board implements \ArrayAccess
 		Topic::remove($topics, false);
 
 		// Delete the board's logs.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}log_notify
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Delete this board's moderators.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}moderators
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Delete this board's moderator groups.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Delete any extra events in the calendar.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}calendar
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Delete any message icons that only appear on these boards.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}message_icons
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Delete the boards.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Delete permissions
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board IN ({array_int:boards_to_remove})',
-			array(
+			[
 				'boards_to_remove' => $boards_to_remove,
-			)
+			],
 		);
 
 		// Latest message/topic might not be there anymore.
 		Logging::updateStats('message');
 		Logging::updateStats('topic');
-		Config::updateModSettings(array(
+		Config::updateModSettings([
 			'calendar_updated' => time(),
-		));
+		]);
 
 		// Plus reset the cache to stop people getting odd results.
-		Config::updateModSettings(array('settings_updated' => time()));
+		Config::updateModSettings(['settings_updated' => time()]);
 
 		// Clean the cache as well.
 		CacheApi::clean('data');
 
 		// Let's do some serious logging.
-		foreach ($boards_to_remove as $id_board)
-		{
-			Logging::logAction('delete_board', array('boardname' => self::$loaded[$id_board]->name), 'admin');
+		foreach ($boards_to_remove as $id_board) {
+			Logging::logAction('delete_board', ['boardname' => self::$loaded[$id_board]->name], 'admin');
 		}
 
 		self::reorder();
@@ -1931,20 +1938,19 @@ class Board implements \ArrayAccess
 		// Set the board order for each category.
 		$board_order = 0;
 
-		foreach (Category::$loaded as $cat_id => $dummy)
-		{
-			foreach (Category::$boardList[$cat_id] as $board_id)
-			{
-				if (self::$loaded[$board_id]->order != ++$board_order)
-				{
-					Db::$db->query('', '
+		foreach (Category::$loaded as $cat_id => $dummy) {
+			foreach (Category::$boardList[$cat_id] as $board_id) {
+				if (self::$loaded[$board_id]->order != ++$board_order) {
+					Db::$db->query(
+						'',
+						'
 						UPDATE {db_prefix}boards
 						SET board_order = {int:new_order}
 						WHERE id_board = {int:selected_board}',
-						array(
+						[
 							'new_order' => $board_order,
 							'selected_board' => $board_id,
-						)
+						],
 					);
 				}
 			}
@@ -1965,37 +1971,42 @@ class Board implements \ArrayAccess
 	public static function fixChildren(int $parent, int $newLevel, int $newParent): void
 	{
 		// Grab all children of $parent...
-		$children = array();
+		$children = [];
 
-		$result = Db::$db->query('', '
+		$result = Db::$db->query(
+			'',
+			'
 			SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_parent = {int:parent_board}',
-			array(
+			[
 				'parent_board' => $parent,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($result))
-		{
+
+		while ($row = Db::$db->fetch_assoc($result)) {
 			$children[] = $row['id_board'];
 		}
 		Db::$db->free_result($result);
 
 		// ...and set it to a new parent and child_level.
-		Db::$db->query('', '
+		Db::$db->query(
+			'',
+			'
 			UPDATE {db_prefix}boards
 			SET id_parent = {int:new_parent}, child_level = {int:new_child_level}
 			WHERE id_parent = {int:parent_board}',
-			array(
+			[
 				'new_parent' => $newParent,
 				'new_child_level' => $newLevel,
 				'parent_board' => $parent,
-			)
+			],
 		);
 
 		// Recursively fix the children of the children.
-		foreach ($children as $child)
+		foreach ($children as $child) {
 			self::fixChildren($child, $newLevel + 1, $child);
+		}
 	}
 
 	/**
@@ -2007,18 +2018,17 @@ class Board implements \ArrayAccess
 	{
 		$tree = Category::getTreeOrder();
 
-		$ordered = array();
+		$ordered = [];
 
-		foreach ($tree['boards'] as $board)
-		{
-			if (!empty($boards[$board]))
-			{
+		foreach ($tree['boards'] as $board) {
+			if (!empty($boards[$board])) {
 				$ordered[$board] = $boards[$board];
 
-				if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
+				if (is_array($ordered[$board]) && !empty($ordered[$board]['children'])) {
 					self::sort($ordered[$board]['children']);
-				elseif (is_object($ordered[$board]) && !empty($ordered[$board]->children))
+				} elseif (is_object($ordered[$board]) && !empty($ordered[$board]->children)) {
 					Board::sort($ordered[$board]->children);
+				}
 			}
 		}
 
@@ -2033,42 +2043,46 @@ class Board implements \ArrayAccess
 	 */
 	public static function getModerators(array $boards): array
 	{
-		if (empty($boards))
-			return array();
+		if (empty($boards)) {
+			return [];
+		}
 
-		$moderators = array();
+		$moderators = [];
 
-		$request = Db::$db->query('', '
+		$request = Db::$db->query(
+			'',
+			'
 			SELECT mem.id_member, mem.real_name, mo.id_board
 			FROM {db_prefix}moderators AS mo
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
 			WHERE mo.id_board IN ({array_int:boards})',
-			array(
+			[
 				'boards' => $boards,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$row['id_board'] = (int) $row['id_board'];
 			$row['id_member'] = (int) $row['id_member'];
 
-			if (empty($moderators[$row['id_board']]))
-				$moderators[$row['id_board']] = array();
+			if (empty($moderators[$row['id_board']])) {
+				$moderators[$row['id_board']] = [];
+			}
 
-			$moderators[$row['id_board']][$row['id_member']] = array(
+			$moderators[$row['id_board']][$row['id_member']] = [
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
 				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
 		// We might as well update the data in any loaded boards.
-		foreach (self::$loaded as $board)
-		{
-			if (isset($moderators[$board->id]))
+		foreach (self::$loaded as $board) {
+			if (isset($moderators[$board->id])) {
 				$board->moderators = $moderators[$board->id];
+			}
 		}
 
 		return $moderators;
@@ -2082,41 +2096,45 @@ class Board implements \ArrayAccess
 	 */
 	public static function getModeratorGroups(array $boards): array
 	{
-		if (empty($boards))
-			return array();
+		if (empty($boards)) {
+			return [];
+		}
 
-		$groups = array();
+		$groups = [];
 
-		$request = Db::$db->query('', '
+		$request = Db::$db->query(
+			'',
+			'
 			SELECT mg.id_group, mg.group_name, bg.id_board
 			FROM {db_prefix}moderator_groups AS bg
 				INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
 			WHERE bg.id_board IN ({array_int:boards})',
-			array(
+			[
 				'boards' => $boards,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$row['id_board'] = (int) $row['id_board'];
 			$row['id_group'] = (int) $row['id_group'];
 
-			if (empty($groups[$row['id_board']]))
-				$groups[$row['id_board']] = array();
+			if (empty($groups[$row['id_board']])) {
+				$groups[$row['id_board']] = [];
+			}
 
-			$groups[$row['id_board']][$row['id_group']] = array(
+			$groups[$row['id_board']][$row['id_group']] = [
 				'id' => $row['id_group'],
 				'name' => $row['group_name'],
 				'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
 				'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '">' . $row['group_name'] . '</a>',
-			);
+			];
 		}
 
 		// We might as well update the data in any loaded boards.
-		foreach (self::$loaded as $board)
-		{
-			if (isset($groups[$board->id]))
+		foreach (self::$loaded as $board) {
+			if (isset($groups[$board->id])) {
 				$board->moderator_groups = $groups[$board->id];
+			}
 		}
 
 		return $groups;
@@ -2132,11 +2150,13 @@ class Board implements \ArrayAccess
 	 */
 	public static function isChildOf($child, $parent): bool
 	{
-		if (empty(self::$loaded[$child]->parent))
+		if (empty(self::$loaded[$child]->parent)) {
 			return false;
+		}
 
-		if (self::$loaded[$child]->parent == $parent)
+		if (self::$loaded[$child]->parent == $parent) {
 			return true;
+		}
 
 		return self::isChildOf(self::$loaded[$child]->parent, $parent);
 	}
@@ -2152,36 +2172,32 @@ class Board implements \ArrayAccess
 	public static function getParents(int $id_parent): array
 	{
 		// First check if we have this cached already.
-		if (($boards = CacheApi::get('board_parents-' . $id_parent, 480)) === null)
-		{
-			$boards = array();
+		if (($boards = CacheApi::get('board_parents-' . $id_parent, 480)) === null) {
+			$boards = [];
 			$original_parent = $id_parent;
 
 			// Loop while the parent is non-zero.
-			while ($id_parent != 0)
-			{
-				$selects = array(
+			while ($id_parent != 0) {
+				$selects = [
 					'b.id_parent', 'b.name', 'b.id_board', 'b.child_level',
 					'b.member_groups', 'b.deny_member_groups',
-				);
-				$params = array('board_parent' => $id_parent);
-				$joins = array();
-				$where = array('b.id_board = {int:board_parent}');
-				$order = array();
+				];
+				$params = ['board_parent' => $id_parent];
+				$joins = [];
+				$where = ['b.id_board = {int:board_parent}'];
+				$order = [];
 
-				foreach (self::queryData($selects, $params, $joins, $where, $order) as $row)
-				{
-					if (!isset($boards[$row['id_board']]))
-					{
+				foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
+					if (!isset($boards[$row['id_board']])) {
 						$id_parent = $row['id_parent'];
-						$boards[$row['id_board']] = array(
+						$boards[$row['id_board']] = [
 							'url' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 							'name' => $row['name'],
 							'child_level' => $row['child_level'],
 							'parent' => $row['id_parent'],
 							'groups' => explode(',', $row['member_groups']),
 							'deny_groups' => explode(',', $row['deny_member_groups']),
-						);
+						];
 					}
 				}
 			}
@@ -2189,10 +2205,11 @@ class Board implements \ArrayAccess
 			CacheApi::put('board_parents-' . $original_parent, $boards, 480);
 		}
 
-		$loaded_boards = array();
+		$loaded_boards = [];
 
-		foreach ($boards as $id => $props)
+		foreach ($boards as $id => $props) {
 			$loaded_boards[] = self::init($id, $props);
+		}
 
 		return $loaded_boards;
 	}
@@ -2215,17 +2232,16 @@ class Board implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	public static function queryData(array $selects, array $params = array(), array $joins = array(), array $where = array(), array $order = array(), int $limit = 0)
+	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], int $limit = 0)
 	{
 		// If we only want some child boards, use a CTE query for improved performance.
-		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support())
-		{
+		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
 			// Ensure we include all the necessary fields for the CTE query.
-			preg_match_all('/\bb\.(\w+)/', implode(', ', $selects), $matches);
+			preg_match_all('/\\bb\\.(\\w+)/', implode(', ', $selects), $matches);
 
 			$cte_fields = array_unique(array_merge(
 				$matches[1],
-				array(
+				[
 					'child_level',
 					'id_board',
 					'name',
@@ -2240,34 +2256,33 @@ class Board implements \ArrayAccess
 					'id_cat',
 					'id_last_msg',
 					'board_order',
-				)
+				],
 			));
 
 			$cte_selects = array_map(
-				function ($field)
-				{
+				function ($field) {
 					return 'b.' . $field;
 				},
-				$cte_fields
+				$cte_fields,
 			);
 
-			$cte_where1 = array('b.id_board = {int:id_parent}');
-			$cte_where2 = array();
+			$cte_where1 = ['b.id_board = {int:id_parent}'];
+			$cte_where2 = [];
 
-			if (in_array('{query_see_board}', $where))
-			{
+			if (in_array('{query_see_board}', $where)) {
 				array_unshift($cte_where1, '{query_see_board}');
 				$cte_where2[] = '{query_see_board}';
-				$where = array_diff($where, array('{query_see_board}'));
+				$where = array_diff($where, ['{query_see_board}']);
 			}
 
-			if (in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where))
-			{
+			if (in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where)) {
 				$cte_where2[] = 'b.child_level BETWEEN {int:child_level} AND {int:max_child_level}';
-				$where = array_diff($where, array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}'));
+				$where = array_diff($where, ['b.child_level BETWEEN {int:child_level} AND {int:max_child_level}']);
 			}
 
-			$request = Db::$db->query('', '
+			$request = Db::$db->query(
+				'',
+				'
 				WITH RECURSIVE
 					boards_cte (' . implode(', ', $cte_fields) . ')
 				AS
@@ -2288,12 +2303,12 @@ class Board implements \ArrayAccess
 				WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
 				ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
 				LIMIT ' . $limit : ''),
-				$params
+				$params,
 			);
-		}
-		else
-		{
-			$request = Db::$db->query('', '
+		} else {
+			$request = Db::$db->query(
+				'',
+				'
 				SELECT
 					' . implode(', ', $selects) . '
 				FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
@@ -2301,13 +2316,12 @@ class Board implements \ArrayAccess
 				WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
 				ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
 				LIMIT ' . $limit : ''),
-				$params
+				$params,
 			);
 
 		}
 
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+		while ($row = Db::$db->fetch_assoc($request)) {
 			yield $row;
 		}
 		Db::$db->free_result($request);
@@ -2341,50 +2355,51 @@ class Board implements \ArrayAccess
 	 * @param array $props Properties to set for this board. Only used when $id
 	 *    is not null.
 	 */
-	protected function __construct(?int $id = null, array $props = array())
+	protected function __construct(?int $id = null, array $props = [])
 	{
 		// This should already have been set, but just in case...
-		if (!isset(self::$board_id))
+		if (!isset(self::$board_id)) {
 			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
+		}
 
 		// No ID given, so load current board.
-		if (!isset($id) || (!empty($id) && $id === self::$board_id))
-		{
+		if (!isset($id) || (!empty($id) && $id === self::$board_id)) {
 			// Only do this once.
-			if (!isset(self::$info))
-			{
+			if (!isset(self::$info)) {
 				// Assume they are not a moderator.
-				if (isset(User::$me))
+				if (isset(User::$me)) {
 					User::$me->is_mod = false;
+				}
 
 				// Start the linktree off empty..
-				Utils::$context['linktree'] = array();
+				Utils::$context['linktree'] = [];
 
 				// Have they by chance specified a message id but nothing else?
-				if (empty($_REQUEST['action']) && empty(Topic::$topic_id) && empty(self::$board_id) && !empty($_REQUEST['msg']))
-				{
+				if (empty($_REQUEST['action']) && empty(Topic::$topic_id) && empty(self::$board_id) && !empty($_REQUEST['msg'])) {
 					$this->redirectFromMsg();
 				}
 
 				// Load this board only if it is specified.
-				if (empty(self::$board_id) && empty(Topic::$topic_id))
+				if (empty(self::$board_id) && empty(Topic::$topic_id)) {
 					return;
+				}
 
 				// Load this board's info into the object properties.
 				$this->loadBoardInfo();
 
-				if (empty($this->id))
+				if (empty($this->id)) {
 					return;
+				}
 
 				// At this point, we know that self::$board_id won't change.
 				self::$loaded[self::$board_id] = $this;
 				self::$info = $this;
 
-				if (!empty(Topic::$topic_id))
+				if (!empty(Topic::$topic_id)) {
 					$_GET['board'] = (int) self::$board_id;
+				}
 
-				if (!empty(self::$board_id))
-				{
+				if (!empty(self::$board_id)) {
 					User::setModerators();
 					$this->checkAccess();
 					$this->buildLinkTree();
@@ -2395,27 +2410,25 @@ class Board implements \ArrayAccess
 				Utils::$context['current_board'] = self::$board_id;
 
 				// No posting in redirection boards!
-				if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($this->redirect))
-				{
+				if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($this->redirect)) {
 					$this->error = 'post_in_redirect';
 				}
 
 				$this->blockOnError();
 			}
-		}
-		else
-		{
+		} else {
 			// No props provided, so get the standard ones.
-			if ($id > 0 && empty($props))
-			{
-				$request = Db::$db->query('', '
+			if ($id > 0 && empty($props)) {
+				$request = Db::$db->query(
+					'',
+					'
 					SELECT *
 					FROM {db_prefix}boards
 					WHERE id_board = {int:id}
 					LIMIT 1',
-					array(
+					[
 						'id' => $id,
-					)
+					],
 				);
 				$props = Db::$db->fetch_all($request);
 				Db::$db->free_result($request);
@@ -2427,14 +2440,12 @@ class Board implements \ArrayAccess
 		}
 
 		// Add this board as a child of its parent.
-		if (!empty($this->parent))
-		{
+		if (!empty($this->parent)) {
 			self::init($this->parent)->children[$this->id] = $this;
 		}
 
 		// Plug this board into its category.
-		if (!empty($this->cat) && $this->child_level == 0)
-		{
+		if (!empty($this->cat) && $this->child_level == 0) {
 			$this->cat->children[$this->id] = $this;
 		}
 	}
@@ -2450,21 +2461,21 @@ class Board implements \ArrayAccess
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Looking through the message table can be slow, so try using the cache first.
-		if ((Topic::$topic_id = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null)
-		{
-			$request = Db::$db->query('', '
+		if ((Topic::$topic_id = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null) {
+			$request = Db::$db->query(
+				'',
+				'
 				SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
 				LIMIT 1',
-				array(
+				[
 					'id_msg' => $_REQUEST['msg'],
-				)
+				],
 			);
 
 			// So did it find anything?
-			if (Db::$db->num_rows($request))
-			{
+			if (Db::$db->num_rows($request)) {
 				list(Topic::$topic_id) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
 
@@ -2474,19 +2485,17 @@ class Board implements \ArrayAccess
 		}
 
 		// Remember redirection is the key to avoiding fallout from your bosses.
-		if (!empty(Topic::$topic_id))
-		{
+		if (!empty(Topic::$topic_id)) {
 			$redirect_url = 'topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'];
 
-			if (($other_get_params = array_diff(array_keys($_GET), array('msg'))) !== array())
+			if (($other_get_params = array_diff(array_keys($_GET), ['msg'])) !== []) {
 				$redirect_url .= ';' . implode(';', $other_get_params);
+			}
 
 			$redirect_url .= '#msg' . $_REQUEST['msg'];
 
 			Utils::redirectexit($redirect_url);
-		}
-		else
-		{
+		} else {
 			User::$me->loadPermissions();
 			Theme::load();
 			ErrorHandler::fatalLang('topic_gone', false);
@@ -2501,31 +2510,26 @@ class Board implements \ArrayAccess
 	protected function loadBoardInfo(): void
 	{
 		// First, try the cache.
-		if (!empty(CacheApi::$enable) && (empty(Topic::$topic_id) || CacheApi::$enable >= 3))
-		{
-			if (!empty(Topic::$topic_id))
-			{
+		if (!empty(CacheApi::$enable) && (empty(Topic::$topic_id) || CacheApi::$enable >= 3)) {
+			if (!empty(Topic::$topic_id)) {
 				$temp = CacheApi::get('topic_board-' . Topic::$topic_id, 120);
-			}
-			else
-			{
+			} else {
 				$temp = CacheApi::get('board-' . self::$board_id, 120);
 			}
 
-			if (!empty($temp))
-			{
-				foreach ($temp as $key => $value)
+			if (!empty($temp)) {
+				foreach ($temp as $key => $value) {
 					$this->{$key} = $value;
+				}
 
 				self::$board_id = $this->id;
 			}
 		}
 
 		// Cache gave us nothing, so query the database.
-		if (empty($this->id))
-		{
+		if (empty($this->id)) {
 			// Set up all the query components.
-			$selects = array(
+			$selects = [
 				'b.id_board', 'b.id_cat', 'b.name', 'b.description',
 				'b.child_level', 'b.id_parent', 'b.board_order', 'b.redirect',
 				'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
@@ -2534,25 +2538,24 @@ class Board implements \ArrayAccess
 				'b.unapproved_posts', 'b.unapproved_topics', 'c.name AS cat_name',
 				'COALESCE(mg.id_group, 0) AS id_moderator_group', 'mg.group_name',
 				'COALESCE(mem.id_member, 0) AS id_moderator', 'mem.real_name',
-			);
+			];
 
-			$params = array(
+			$params = [
 				'board_link' => self::$board_id,
-			);
+			];
 
-			$joins = array(
+			$joins = [
 				'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
 				'LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = {raw:board_link})',
 				'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)',
 				'LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})',
 				'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)',
-			);
+			];
 
-			$where = array('b.id_board = {raw:board_link}');
-			$order = array();
+			$where = ['b.id_board = {raw:board_link}'];
+			$order = [];
 
-			if (!empty(Topic::$topic_id))
-			{
+			if (!empty(Topic::$topic_id)) {
 				$selects[] = 't.approved';
 				$selects[] = 't.id_member_started';
 
@@ -2563,7 +2566,7 @@ class Board implements \ArrayAccess
 			}
 
 			// Do any mods want to add some custom stuff to the query?
-			IntegrationHook::call('integrate_load_board', array(&$selects, &$params, &$joins, &$where, &$order));
+			IntegrationHook::call('integrate_load_board', [&$selects, &$params, &$joins, &$where, &$order]);
 
 			$selects = array_unique($selects);
 			$params = array_unique($params);
@@ -2572,24 +2575,23 @@ class Board implements \ArrayAccess
 			$order = array_unique($order);
 
 			// Run the query and iterate over the returned rows.
-			foreach (self::queryData($selects, $params, $joins, $where, $order) as $row)
-			{
+			foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
 				$row['id_board'] = (int) $row['id_board'];
 
 				// The query as currently constructed will return multiple rows if
 				// there are multiple moderators and/or moderator groups. To avoid
 				// redundancy, we only set the rest of the data the first time.
-				if (!isset($this->id))
-				{
+				if (!isset($this->id)) {
 					// Set the current board.
-					if (!empty($row['id_board']))
+					if (!empty($row['id_board'])) {
 						self::$board_id = $row['id_board'];
+					}
 
-					$props = array(
+					$props = [
 						'id' => $row['id_board'],
-						'moderators' => array(),
-						'moderator_groups' => array(),
-						'cat' => Category::init($row['id_cat'], array('name' => $row['cat_name'])),
+						'moderators' => [],
+						'moderator_groups' => [],
+						'cat' => Category::init($row['id_cat'], ['name' => $row['cat_name']]),
 						'name' => $row['name'],
 						'description' => $row['description'],
 						'num_topics' => (int) $row['num_topics'],
@@ -2609,59 +2611,56 @@ class Board implements \ArrayAccess
 						'cur_topic_starter' => empty(Topic::$topic_id) ? 0 : $row['id_member_started'],
 
 						// Load the membergroups allowed, and check permissions.
-						'member_groups' => $row['member_groups'] == '' ? array() : array_filter(explode(',', $row['member_groups']), 'strlen'),
-						'deny_groups' => $row['deny_member_groups'] == '' ? array() : array_filter(explode(',', $row['deny_member_groups']), 'strlen'),
-					);
+						'member_groups' => $row['member_groups'] == '' ? [] : array_filter(explode(',', $row['member_groups']), 'strlen'),
+						'deny_groups' => $row['deny_member_groups'] == '' ? [] : array_filter(explode(',', $row['deny_member_groups']), 'strlen'),
+					];
 
-					IntegrationHook::call('integrate_board_info', array(&$props, $row));
+					IntegrationHook::call('integrate_board_info', [&$props, $row]);
 				}
 
 				// This row included an individual moderator.
-				if (!empty($row['id_moderator']))
-				{
+				if (!empty($row['id_moderator'])) {
 					$row['id_moderator'] = (int) $row['id_moderator'];
 
-					$props['moderators'][$row['id_moderator']] = array(
+					$props['moderators'][$row['id_moderator']] = [
 						'id' => $row['id_moderator'],
 						'name' => $row['real_name'],
 						'href' => Config::$scripturl . '?action=profile;u=' . $row['id_moderator'],
-						'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
-					);
+						'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>',
+					];
 				}
 
 				// This row included a moderator group.
-				if (!empty($row['id_moderator_group']))
-				{
+				if (!empty($row['id_moderator_group'])) {
 					$row['id_moderator_group'] = (int) $row['id_moderator_group'];
 
-					$props['moderator_groups'][$row['id_moderator_group']] = array(
+					$props['moderator_groups'][$row['id_moderator_group']] = [
 						'id' => $row['id_moderator_group'],
 						'name' => $row['group_name'],
 						'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
-						'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
-					);
+						'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>',
+					];
 				}
 
 				// Set the properties.
 				$this->set($props);
 			}
 
-			if (!empty($this->id) && !empty(CacheApi::$enable) && (empty(Topic::$topic_id) || CacheApi::$enable >= 3))
-			{
+			if (!empty($this->id) && !empty(CacheApi::$enable) && (empty(Topic::$topic_id) || CacheApi::$enable >= 3)) {
 				$to_cache = array_intersect_key((array) $this, array_flip(self::$cache_props['info']));
 
-				if (!empty(Topic::$topic_id))
+				if (!empty(Topic::$topic_id)) {
 					CacheApi::put('topic_board-' . Topic::$topic_id, $to_cache, 120);
+				}
 
 				CacheApi::put('board-' . self::$board_id, $to_cache, 120);
 			}
 		}
 
 		// No board? Then the topic is invalid, there are no moderators, etc.
-		if (empty($this->id))
-		{
-			$this->moderators = array();
-			$this->moderator_groups = array();
+		if (empty($this->id)) {
+			$this->moderators = [];
+			$this->moderator_groups = [];
 			$this->error = 'exist';
 			Topic::$topic_id = null;
 			self::$board_id = 0;
@@ -2677,19 +2676,20 @@ class Board implements \ArrayAccess
 			&& $this->unapproved_topics > 0
 			&& Config::$modSettings['postmod_active']
 			&& !User::$me->allowedTo('approve_posts')
-		)
-		{
-			$request = Db::$db->query('', '
+		) {
+			$request = Db::$db->query(
+				'',
+				'
 				SELECT COUNT(*)
 				FROM {db_prefix}topics
 				WHERE id_member_started = {int:id_member}
 					AND approved = {int:unapproved}
 					AND id_board = {int:board}',
-				array(
+				[
 					'id_member' => User::$me->id,
 					'unapproved' => 0,
 					'board' => self::$board_id,
-				)
+				],
 			);
 
 			list($this->unapproved_user_topics) = Db::$db->fetch_row($request);
@@ -2701,15 +2701,13 @@ class Board implements \ArrayAccess
 	 */
 	protected function checkAccess(): void
 	{
-		if (User::$me->is_admin)
+		if (User::$me->is_admin) {
 			return;
-
-		if (count(array_intersect(User::$me->groups, $this->member_groups)) == 0)
-		{
-			$this->error = 'access';
 		}
-		elseif (!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect(User::$me->groups, $this->deny_groups)) != 0)
-		{
+
+		if (count(array_intersect(User::$me->groups, $this->member_groups)) == 0) {
+			$this->error = 'access';
+		} elseif (!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect(User::$me->groups, $this->deny_groups)) != 0) {
 			$this->error = 'access';
 		}
 	}
@@ -2722,15 +2720,15 @@ class Board implements \ArrayAccess
 		// Build up the linktree.
 		Utils::$context['linktree'] = array_merge(
 			Utils::$context['linktree'],
-			array(array(
+			[[
 				'url' => Config::$scripturl . '#c' . $this->cat['id'],
-				'name' => $this->cat['name']
-			)),
+				'name' => $this->cat['name'],
+			]],
 			array_reverse($this->parent_boards),
-			array(array(
+			[[
 				'url' => Config::$scripturl . '?board=' . $this->id . '.0',
-				'name' => $this->name
-			))
+				'name' => $this->name,
+			]],
 		);
 	}
 
@@ -2740,8 +2738,7 @@ class Board implements \ArrayAccess
 	protected function blockOnError(): void
 	{
 		// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
-		if (!empty($this->error) && (!empty(Config::$modSettings['deny_boards_access']) || $this->error != 'access' || !User::$me->is_mod))
-		{
+		if (!empty($this->error) && (!empty(Config::$modSettings['deny_boards_access']) || $this->error != 'access' || !User::$me->is_mod)) {
 			// The permissions and theme need loading, just to make sure everything goes smoothly.
 			User::$me->loadPermissions();
 			Theme::load();
@@ -2750,32 +2747,28 @@ class Board implements \ArrayAccess
 			$_GET['topic'] = '';
 
 			// The linktree should not give the game away mate!
-			Utils::$context['linktree'] = array(
-				array(
+			Utils::$context['linktree'] = [
+				[
 					'url' => Config::$scripturl,
-					'name' => Utils::$context['forum_name_html_safe']
-				)
-			);
+					'name' => Utils::$context['forum_name_html_safe'],
+				],
+			];
 
 			// If it's a prefetching agent or we're requesting an attachment.
-			if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach'))
-			{
+			if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach')) {
 				ob_end_clean();
 				Utils::sendHttpStatus(403);
+
 				die;
 			}
-			elseif ($this->error == 'post_in_redirect')
-			{
+
+			if ($this->error == 'post_in_redirect') {
 				// Slightly different error message here...
 				ErrorHandler::fatalLang('cannot_post_redirect', false);
-			}
-			elseif (User::$me->is_guest)
-			{
+			} elseif (User::$me->is_guest) {
 				Lang::load('Errors');
 				User::$me->kickIfGuest(Lang::$txt['topic_gone']);
-			}
-			else
-			{
+			} else {
 				ErrorHandler::fatalLang('topic_gone', false);
 			}
 		}
@@ -2783,7 +2776,8 @@ class Board implements \ArrayAccess
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Board::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Board::exportStatic')) {
 	Board::exportStatic();
+}
 
 ?>

@@ -25,15 +25,15 @@ class Cookie
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'setLoginCookie' => 'setLoginCookie',
 			'setTFACookie' => 'setTFACookie',
 			'urlParts' => 'url_parts',
 			'encrypt' => 'hash_salt',
 			'setcookie' => 'smf_setcookie',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -41,7 +41,7 @@ class Cookie
 
 	/**
 	 * @var string
-	 * 
+	 *
 	 * The name of the cookie.
 	 */
 	public string $name;
@@ -57,7 +57,7 @@ class Cookie
 
 	/**
 	 * @var int
-	 * 
+	 *
 	 * The member this cookie is for.
 	 *
 	 * Only normally used for login and TFA cookies.
@@ -77,14 +77,14 @@ class Cookie
 
 	/**
 	 * @var int
-	 * 
+	 *
 	 * UNIX timestamp of the expiry date of the cookie.
 	 */
 	public int $expires;
 
 	/**
 	 * @var string
-	 * 
+	 *
 	 * The domain of the site where the cookie is used.
 	 * This is normally the domain name of the forum's site.
 	 */
@@ -92,7 +92,7 @@ class Cookie
 
 	/**
 	 * @var string
-	 * 
+	 *
 	 * The path to the part of the site where the cookie is used.
 	 * This is normally the URL path to the forum.
 	 */
@@ -145,7 +145,7 @@ class Cookie
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param string $name Name of the cookie.
 	 * @param mixed $custom_data Data to include in the cookie.
 	 * @param int $expires When the cookie expires.
@@ -162,25 +162,23 @@ class Cookie
 	 *    If not set, determined by Config::$modSettings['samesiteCookies'].
 	 */
 	public function __construct(
-		string $name = null,
+		?string $name = null,
 		mixed $custom_data = null,
 		?int $expires = null,
 		?string $domain = null,
 		?string $path = null,
 		?bool $secure = null,
 		?bool $httponly = null,
-		?string $samesite = null
-	)
-	{
+		?string $samesite = null,
+	) {
 		self::setDefaults();
 
 		$this->name = $name ?? Config::$cookiename;
 
-		$this->custom_data = $custom_data ?? array();
+		$this->custom_data = $custom_data ?? [];
 
 		// Special case for the login and TFA cookies.
-		if (in_array($this->name, array(Config::$cookiename, Config::$cookiename . '_tfa')))
-		{
+		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$this->member = $this->custom_data[0] ?? User::$me->id;
 			$this->hash = $this->custom_data[1] ?? self::encrypt(User::$me->passwd, User::$me->password_salt);
 
@@ -188,27 +186,28 @@ class Cookie
 			$domain = $domain ?? $this->custom_data[3] ?? null;
 			$path = $path ?? $this->custom_data[4] ?? null;
 
-			for ($i = 0; $i <= 4; $i++)
+			for ($i = 0; $i <= 4; $i++) {
 				unset($this->custom_data[$i]);
+			}
 		}
 
 		$this->expires = $expires ?? time() + 60 * Config::$modSettings['cookieTime'];
 		$this->domain = $domain ?? self::$default_domain;
 		$this->path = $path ?? self::$default_path;
 		$this->secure = $secure ?? !empty(Config::$modSettings['secureCookies']);
-		$this->httponly = $httponly ?? !empty(Config::$modSettings['httponlyCookies']);;
+		$this->httponly = $httponly ?? !empty(Config::$modSettings['httponlyCookies']);
 		$this->samesite = $samesite ?? !empty(Config::$modSettings['samesiteCookies']) ? Config::$modSettings['samesiteCookies'] : 'lax';
 
 		// Allow mods to add custom info to the cookie
-		$data = $this->name !== Config::$cookiename ? array() : array(
+		$data = $this->name !== Config::$cookiename ? [] : [
 			$this->member,
 			$this->hash,
 			$this->expires,
 			$this->domain,
 			$this->path,
-		);
+		];
 
-		IntegrationHook::call('integrate_cookie_data', array($data, &$this->custom_data));
+		IntegrationHook::call('integrate_cookie_data', [$data, &$this->custom_data]);
 	}
 
 	/**
@@ -216,41 +215,36 @@ class Cookie
 	 */
 	public function set()
 	{
-		if (in_array($this->name, array(Config::$cookiename, Config::$cookiename . '_tfa')))
-		{
-			$data = array(
+		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
+			$data = [
 				$this->member,
 				$this->hash,
 				$this->expires,
 				$this->domain,
 				$this->path,
-			);
+			];
 
 			$data = array_merge($data, (array) $this->custom_data);
 
 			$value = Utils::jsonEncode($data, JSON_FORCE_OBJECT);
-		}
-		elseif (!is_scalar($this->custom_data))
-		{
+		} elseif (!is_scalar($this->custom_data)) {
 			$value = Utils::jsonEncode($this->custom_data, JSON_FORCE_OBJECT);
-		}
-		else
-		{
+		} else {
 			$value = $this->custom_data;
 		}
 
 		// MOD AUTHORS: This hook just informs you about the cookie. If you want
 		// to change the cookie data, use integrate_cookie_data instead.
-		IntegrationHook::call('integrate_cookie', array($this->name, $value, $this->expires, $this->path, $this->domain, $this->secure, $this->httponly, $this->samesite));
+		IntegrationHook::call('integrate_cookie', [$this->name, $value, $this->expires, $this->path, $this->domain, $this->secure, $this->httponly, $this->samesite]);
 
-		return setcookie($this->name, $value, array(
+		return setcookie($this->name, $value, [
 			'expires' 	=> $this->expires,
 			'path'		=> $this->path,
 			'domain' 	=> $this->domain,
 			'secure'	=> $this->secure,
 			'httponly'	=> $this->httponly,
 			'samesite'	=> $this->samesite,
-		));
+		]);
 	}
 
 	/***********************
@@ -265,41 +259,37 @@ class Cookie
 	 * @return object|null An instance of this class for the cookie, or null
 	 *    if no cookie with that name was sent by the client.
 	 */
-	public static function getCookie(string $name): object|null
+	public static function getCookie(string $name): ?object
 	{
-		if (!isset($_COOKIE[$name]))
+		if (!isset($_COOKIE[$name])) {
 			return null;
+		}
 
 		// Special case for the login cookie.
-		if ($name === Config::$cookiename)
-		{
+		if ($name === Config::$cookiename) {
 			// First check for JSON-format cookie
-			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name]))
-			{
+			if (preg_match('~^{"0":\\d+,"1":"[0-9a-f]*","2":\\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name])) {
 				$data = Utils::jsonDecode($_COOKIE[$name], true);
 			}
 			// Legacy format (for recent upgrades from SMF 2.0.x)
-			elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$name]))
-			{
+			elseif (preg_match('~^a:[34]:\\{i:0;i:\\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\\d+;(i:3;i:\\d;)?~', $_COOKIE[$name])) {
 				$data = Utils::safeUnserialize($_COOKIE[$name]);
 
-				list(,,, $state) = $data;
+				list(, , , $state) = $data;
 
 				$cookie_state = (empty(Config::$modSettings['localCookies']) ? 0 : 1) | (empty(Config::$modSettings['globalCookies']) ? 0 : 2);
 
 				// Maybe we need to temporarily pretend to be using local cookies
-				if ($cookie_state == 0 && $state == 1)
-				{
+				if ($cookie_state == 0 && $state == 1) {
 					list($data[3], $data[4]) = self::urlParts(true, false);
-				}
-				else
-				{
+				} else {
 					list($data[3], $data[4]) = self::urlParts($state & 1 > 0, $state & 2 > 0);
 				}
 			}
 
-			if (!isset($data))
+			if (!isset($data)) {
 				return null;
+			}
 
 			$member = (int) ($data[0] ?? 0);
 			$hash = (string) ($data[1] ?? '');
@@ -307,15 +297,16 @@ class Cookie
 			$domain = $data[3] ?? null;
 			$path = $data[4] ?? null;
 
-			return new self($name, array($member, $hash), $expires, $domain, $path);
+			return new self($name, [$member, $hash], $expires, $domain, $path);
 		}
+
 		// Special case for the TFA cookie.
-		elseif ($name === Config::$cookiename . '_tfa')
-		{
+		if ($name === Config::$cookiename . '_tfa') {
 			$data = Utils::jsonDecode($_COOKIE[$name], true);
 
-			if (json_last_error() !== JSON_ERROR_NONE)
+			if (json_last_error() !== JSON_ERROR_NONE) {
 				return null;
+			}
 
 			$member = (int) ($data[0] ?? 0);
 			$hash = (string) ($data[1] ?? '');
@@ -323,18 +314,19 @@ class Cookie
 			$domain = (string) ($data[3] ?? '');
 			$path = (string) ($data[4] ?? '');
 
-			return new self($name, array($member, $hash), $expires, $domain, $path);
+			return new self($name, [$member, $hash], $expires, $domain, $path);
 		}
 		// Other cookies.
-		else
-		{
-			$data = Utils::jsonDecode($_COOKIE[$name], true, false);
 
-			if (json_last_error() !== JSON_ERROR_NONE)
-				$data = $_COOKIE[$name];
 
-			return new self($name, $data);
+		$data = Utils::jsonDecode($_COOKIE[$name], true, false);
+
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			$data = $_COOKIE[$name];
 		}
+
+		return new self($name, $data);
+
 	}
 
 	/**
@@ -366,44 +358,41 @@ class Cookie
 		$old_cookie = self::getCookie(Config::$cookiename);
 
 		// Out with the old, in with the new!
-		if (($old_cookie->domain ?? self::$default_domain) != self::$default_domain || ($old_cookie->path ?? self::$default_path) != self::$default_path)
-		{
+		if (($old_cookie->domain ?? self::$default_domain) != self::$default_domain || ($old_cookie->path ?? self::$default_path) != self::$default_path) {
 			$old_domain = $old_cookie->domain;
 			$old_path = $old_cookie->path;
 
-			$cookie = new self(Config::$cookiename, array(0, ''), 0, $old_domain, $old_path);
+			$cookie = new self(Config::$cookiename, [0, ''], 0, $old_domain, $old_path);
 			$cookie->set();
 		}
 
 		// Set the cookie, $_COOKIE, and session variable.
-		$cookie = new self(Config::$cookiename, array($id, $password), $expires);
+		$cookie = new self(Config::$cookiename, [$id, $password], $expires);
 		$cookie->set();
 
 		// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-		if (empty($id) && !empty(Config::$modSettings['globalCookies']))
-		{
+		if (empty($id) && !empty(Config::$modSettings['globalCookies'])) {
 			$cookie->domain = '';
 			$cookie->set();
 			$cookie->domain = self::$default_domain;
 		}
 
 		// Any alias URLs?  This is mainly for use with frames, etc.
-		if (!empty(Config::$modSettings['forum_alias_urls']))
-		{
+		if (!empty(Config::$modSettings['forum_alias_urls'])) {
 			$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
 
 			$temp = Config::$boardurl;
 
-			foreach ($aliases as $alias)
-			{
+			foreach ($aliases as $alias) {
 				// Fake the Config::$boardurl so we can set a different cookie.
-				$alias = strtr(trim($alias), array('http://' => '', 'https://' => ''));
+				$alias = strtr(trim($alias), ['http://' => '', 'https://' => '']);
 				Config::$boardurl = 'http://' . $alias;
 
 				list($domain, $path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 
-				if ($domain == '')
+				if ($domain == '') {
 					$domain = strtok($alias, '/');
+				}
 
 				$alias_cookie = clone $cookie;
 				$alias_cookie->data[3] = $alias_cookie->domain = $domain;
@@ -415,22 +404,21 @@ class Cookie
 		}
 
 		$_COOKIE[Config::$cookiename] = Utils::jsonEncode(
-			array(
+			[
 				$cookie->member,
 				$cookie->hash,
 				$cookie->expires,
 				$cookie->domain,
 				$cookie->path,
-			),
-			JSON_FORCE_OBJECT
+			],
+			JSON_FORCE_OBJECT,
 		);
 
 		// Make sure the user logs in with a new session ID.
-		if (($_SESSION['login_' . Config::$cookiename] ?? null) !== $_COOKIE[Config::$cookiename])
-		{
+		if (($_SESSION['login_' . Config::$cookiename] ?? null) !== $_COOKIE[Config::$cookiename]) {
 			// Backup and remove the old session.
 			$oldSessionData = $_SESSION;
-			$_SESSION = array();
+			$_SESSION = [];
 			session_destroy();
 
 			// Recreate and restore the new session.
@@ -459,26 +447,25 @@ class Cookie
 		$expires = ($cookie_length >= 0 ? time() + $cookie_length : 1);
 
 		// Set the cookie, $_COOKIE, and session variable.
-		$cookie = new self(Config::$cookiename . '_tfa', array($id, $secret), $expires);
+		$cookie = new self(Config::$cookiename . '_tfa', [$id, $secret], $expires);
 		$cookie->set();
 
 		// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-		if (empty($id) && !empty(Config::$modSettings['globalCookies']))
-		{
+		if (empty($id) && !empty(Config::$modSettings['globalCookies'])) {
 			$cookie->domain = '';
 			$cookie->set();
 			$cookie->domain = self::$default_domain;
 		}
 
 		$_COOKIE[Config::$cookiename . '_tfa'] = Utils::jsonEncode(
-			array(
+			[
 				$cookie->member,
 				$cookie->hash,
 				$cookie->expires,
 				$cookie->domain,
 				$cookie->path,
-			),
-			JSON_FORCE_OBJECT
+			],
+			JSON_FORCE_OBJECT,
 		);
 	}
 
@@ -506,27 +493,23 @@ class Cookie
 
 		// Manually specified the global domain.
 		// @todo Why doesn't this check whether $global is true?
-		if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false)
-		{
+		if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false) {
 			$host = Config::$modSettings['globalCookiesDomain'];
 		}
 		// Globalize cookies across domains? (filter out IP-addresses)
-		elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1)
-		{
+		elseif ($global && preg_match('~^\\d{1,3}(\\.\\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\\.]+\\.)?([^\\.]{2,}\\..+)\\z~i', $host, $parts) == 1) {
 			$host = '.' . $parts[1];
 		}
 		// We shouldn't use a host at all if both options are off.
-		elseif (!$local && !$global)
-		{
+		elseif (!$local && !$global) {
 			$host = '';
 		}
 		// The host also shouldn't be set if there aren't any dots in it.
-		elseif (!isset($host) || strpos($host, '.') === false)
-		{
+		elseif (!isset($host) || strpos($host, '.') === false) {
 			$host = '';
 		}
 
-		return array($host, $path . '/');
+		return [$host, $path . '/'];
 	}
 
 	/**
@@ -552,8 +535,9 @@ class Cookie
 	 */
 	public static function setDefaults(): void
 	{
-		if (isset(self::$default_domain, self::$default_path))
+		if (isset(self::$default_domain, self::$default_path)) {
 			return;
+		}
 
 		list(self::$default_domain, self::$default_path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 	}
@@ -561,7 +545,7 @@ class Cookie
 	/**
 	 * Backward compatibility wrapper for the set() method.
 	 */
-	public static function setcookie(string $name, string $value = '', int $expires = 0, string $path = '', string $domain = '', bool $secure = null, bool $httponly = true, string $samesite = null): void
+	public static function setcookie(string $name, string $value = '', int $expires = 0, string $path = '', string $domain = '', ?bool $secure = null, bool $httponly = true, ?string $samesite = null): void
 	{
 		$data = Utils::jsonDecode($value);
 
@@ -572,7 +556,8 @@ class Cookie
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Cookie::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Cookie::exportStatic')) {
 	Cookie::exportStatic();
+}
 
 ?>

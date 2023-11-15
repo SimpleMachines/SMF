@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -35,11 +34,11 @@ class Warnings implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'modifyWarningSettings' => 'ModifyWarningSettings',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -68,40 +67,37 @@ class Warnings implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Cannot use moderation if post moderation is not enabled.
-		if (!Config::$modSettings['postmod_active'])
+		if (!Config::$modSettings['postmod_active']) {
 			unset($config_vars['moderate']);
+		}
 
 		// Saving?
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			// Make sure these don't have an effect.
-			if (!$currently_enabled && empty($_POST['warning_enable']))
-			{
+			if (!$currently_enabled && empty($_POST['warning_enable'])) {
 				$_POST['warning_watch'] = 0;
 				$_POST['warning_moderate'] = 0;
 				$_POST['warning_mute'] = 0;
 			}
 			// If it was disabled and we're enabling it now, set some sane defaults.
-			elseif (!$currently_enabled && !empty($_POST['warning_enable']))
-			{
+			elseif (!$currently_enabled && !empty($_POST['warning_enable'])) {
 				// Need to add these, these weren't there before...
-				$vars = array(
+				$vars = [
 					'warning_watch' => 10,
 					'warning_mute' => 60,
-				);
-				if (Config::$modSettings['postmod_active'])
-					$vars['warning_moderate'] = 35;
+				];
 
-				foreach ($vars as $var => $value)
-				{
-					$config_vars[] = array('int', $var);
+				if (Config::$modSettings['postmod_active']) {
+					$vars['warning_moderate'] = 35;
+				}
+
+				foreach ($vars as $var => $value) {
+					$config_vars[] = ['int', $var];
 					$_POST[$var] = $value;
 				}
-			}
-			else
-			{
+			} else {
 				$_POST['warning_watch'] = min($_POST['warning_watch'], 100);
 				$_POST['warning_moderate'] = Config::$modSettings['postmod_active'] ? min($_POST['warning_moderate'], 100) : 0;
 				$_POST['warning_mute'] = min($_POST['warning_mute'], 100);
@@ -114,10 +110,10 @@ class Warnings implements ActionInterface
 			// Fix the warning setting array!
 			$_POST['warning_settings'] = (!empty($_POST['warning_enable']) ? 1 : 0) . ',' . min(100, $_POST['user_limit']) . ',' . min(100, $_POST['warning_decrement']);
 			$save_vars = $config_vars;
-			$save_vars[] = array('text', 'warning_settings');
+			$save_vars[] = ['text', 'warning_settings'];
 			unset($save_vars['enable'], $save_vars['rem1'], $save_vars['rem2']);
 
-			IntegrationHook::call('integrate_save_warning_settings', array(&$save_vars));
+			IntegrationHook::call('integrate_save_warning_settings', [&$save_vars]);
 
 			ACP::saveDBSettings($save_vars);
 			$_SESSION['adm-save'] = true;
@@ -132,11 +128,11 @@ class Warnings implements ActionInterface
 		Utils::$context['settings_title'] = Lang::$txt['warnings'];
 		Utils::$context['page_title'] = Lang::$txt['warnings'];
 
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['warnings'],
 			'help' => '',
 			'description' => Lang::$txt['warnings_desc'],
-		);
+		];
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -152,8 +148,9 @@ class Warnings implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -179,46 +176,45 @@ class Warnings implements ActionInterface
 		// We need the existing ones for this
 		list($currently_enabled, Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
 
-		$config_vars = array(
+		$config_vars = [
 			// Warning system?
-			'enable' => array('check', 'warning_enable'),
-		);
+			'enable' => ['check', 'warning_enable'],
+		];
 
-		if (!empty(Config::$modSettings['warning_settings']) && $currently_enabled)
-		{
-			$config_vars += array(
+		if (!empty(Config::$modSettings['warning_settings']) && $currently_enabled) {
+			$config_vars += [
 				'',
-				array(
+				[
 					'int',
 					'warning_watch',
-					'subtext' => Lang::$txt['setting_warning_watch_note'] . ' ' . Lang::$txt['zero_to_disable']
-				),
-				'moderate' => array(
+					'subtext' => Lang::$txt['setting_warning_watch_note'] . ' ' . Lang::$txt['zero_to_disable'],
+				],
+				'moderate' => [
 					'int',
 					'warning_moderate',
-					'subtext' => Lang::$txt['setting_warning_moderate_note'] . ' ' . Lang::$txt['zero_to_disable']
-				),
-				array(
+					'subtext' => Lang::$txt['setting_warning_moderate_note'] . ' ' . Lang::$txt['zero_to_disable'],
+				],
+				[
 					'int',
 					'warning_mute',
-					'subtext' => Lang::$txt['setting_warning_mute_note'] . ' ' . Lang::$txt['zero_to_disable']
-				),
-				'rem1' => array(
+					'subtext' => Lang::$txt['setting_warning_mute_note'] . ' ' . Lang::$txt['zero_to_disable'],
+				],
+				'rem1' => [
 					'int',
 					'user_limit',
-					'subtext' => Lang::$txt['setting_user_limit_note']
-				),
-				'rem2' => array(
+					'subtext' => Lang::$txt['setting_user_limit_note'],
+				],
+				'rem2' => [
 					'int',
 					'warning_decrement',
-					'subtext' => Lang::$txt['setting_warning_decrement_note'] . ' ' . Lang::$txt['zero_to_disable']
-				),
-				array('permissions', 'view_warning_any'),
-				array('permissions', 'view_warning_own'),
-			);
+					'subtext' => Lang::$txt['setting_warning_decrement_note'] . ' ' . Lang::$txt['zero_to_disable'],
+				],
+				['permissions', 'view_warning_any'],
+				['permissions', 'view_warning_own'],
+			];
 		}
 
-		IntegrationHook::call('integrate_warning_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_warning_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -231,8 +227,9 @@ class Warnings implements ActionInterface
 	 */
 	public static function modifyWarningSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->execute();
@@ -247,12 +244,13 @@ class Warnings implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		
+
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Warnings::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Warnings::exportStatic')) {
 	Warnings::exportStatic();
+}
 
 ?>

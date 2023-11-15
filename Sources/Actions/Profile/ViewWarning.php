@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
@@ -36,11 +35,11 @@ class ViewWarning implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'viewWarning' => 'viewWarning',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -69,90 +68,89 @@ class ViewWarning implements ActionInterface
 			&& !User::$me->allowedTo('view_warning_any')
 			&& !User::$me->allowedTo('issue_warning')
 			&& !User::$me->allowedTo('moderate_forum')
-		)
-		{
+		) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Let's use a generic list to get all the current warnings, and use the issue warnings grab-a-granny thing.
-		$list_options = array(
+		$list_options = [
 			'id' => 'view_warnings',
 			'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
 			'base_href' => Config::$scripturl . '?action=profile;area=viewwarning;sa=user;u=' . Profile::$member->id,
 			'default_sort_col' => 'log_time',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __NAMESPACE__ . '\\IssueWarning::list_getUserWarnings',
-				'params' => array(),
-			),
-			'get_count' => array(
+				'params' => [],
+			],
+			'get_count' => [
 				'function' => __NAMESPACE__ . '\\IssueWarning::list_getUserWarningCount',
-				'params' => array(),
-			),
-			'columns' => array(
-				'log_time' => array(
-					'header' => array(
+				'params' => [],
+			],
+			'columns' => [
+				'log_time' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_time'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'time',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'lc.log_time DESC',
 						'reverse' => 'lc.log_time',
-					),
-				),
-				'reason' => array(
-					'header' => array(
+					],
+				],
+				'reason' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_reason'],
 						'style' => 'width: 50%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'reason',
-					),
-				),
-				'level' => array(
-					'header' => array(
+					],
+				],
+				'level' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_level'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'counter',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'lc.counter DESC',
 						'reverse' => 'lc.counter',
-					),
-				),
-			),
-			'additional_rows' => array(
-				array(
+					],
+				],
+			],
+			'additional_rows' => [
+				[
 					'position' => 'after_title',
 					'value' => Lang::$txt['profile_viewwarning_desc'],
 					'class' => 'smalltext',
 					'style' => 'padding: 2ex;',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		// Create the list for viewing.
 		new ItemList($list_options);
 
 		// Create some common text bits for the template.
-		Utils::$context['level_effects'] = array(
+		Utils::$context['level_effects'] = [
 			0 => '',
 			Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_own_watched'],
 			Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_own_moderated'],
 			Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_own_muted'],
-		);
+		];
 
 		// Figure out which warning level this member is at.
 		Utils::$context['current_level'] = 0;
 
-		foreach (Utils::$context['level_effects'] as $limit => $dummy)
-		{
-			if (Utils::$context['member']['warning'] >= $limit)
+		foreach (Utils::$context['level_effects'] as $limit => $dummy) {
+			if (Utils::$context['member']['warning'] >= $limit) {
 				Utils::$context['current_level'] = $limit;
+			}
 		}
 	}
 
@@ -167,8 +165,9 @@ class ViewWarning implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -205,8 +204,9 @@ class ViewWarning implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 
 		// Make sure things which are disabled stay disabled.
 		Config::$modSettings['warning_watch'] = !empty(Config::$modSettings['warning_watch']) ? Config::$modSettings['warning_watch'] : 110;
@@ -218,7 +218,8 @@ class ViewWarning implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ViewWarning::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ViewWarning::exportStatic')) {
 	ViewWarning::exportStatic();
+}
 
 ?>

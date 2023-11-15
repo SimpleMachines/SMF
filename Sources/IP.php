@@ -27,8 +27,8 @@ class IP implements \Stringable
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'ip2range' => 'ip2range',
 			'range2ip' => 'range2ip',
 			'isValidIP' => 'isValidIP',
@@ -37,8 +37,8 @@ class IP implements \Stringable
 			'inet_ptod' => 'inet_ptod',
 			'inet_dtop' => 'inet_dtop',
 			'expandIPv6' => 'expandIPv6',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -47,7 +47,7 @@ class IP implements \Stringable
 	/**
 	 * IP addresses of some well known public DNS servers.
 	 */
-	const DNS_SERVERS = array(
+	public const DNS_SERVERS = [
 		// Google
 		'8.8.8.8',
 		'8.8.4.4',
@@ -57,7 +57,7 @@ class IP implements \Stringable
 		// CloudFare
 		'1.1.1.1',
 		'1.0.0.1',
-	);
+	];
 
 	/*********************
 	 * Internal properties
@@ -85,25 +85,22 @@ class IP implements \Stringable
 	 * Constructor.
 	 *
 	 * If the passed string is not a valid IP address, it will be set to ''.
-	 * 
+	 *
 	 * @param ?string $ip The IP address in either string or binary form.
 	 */
 	public function __construct(?string $ip)
 	{
 		// Is it in a valid IPv4 string?
-		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
-		{
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
 			$this->ip = $ip;
 		}
 		// Is it in a valid IPv6 string?
-		elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
-		{
+		elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
 			// Pack and unpack to ensure it is in standard form.
 			$this->ip = inet_ntop(inet_pton($ip));
 		}
 		// It's either in binary form or it's invalid.
-		else
-		{
+		else {
 			$this->ip = (string) @inet_ntop($ip);
 		}
 	}
@@ -143,8 +140,9 @@ class IP implements \Stringable
 	public function expand(): string
 	{
 		// IPv6.
-		if ($this->isValid(FILTER_FLAG_IPV6))
+		if ($this->isValid(FILTER_FLAG_IPV6)) {
 			return implode(':', str_split($this->toHex(), 4));
+		}
 
 		// IPv4.
 		return $this->ip;
@@ -171,17 +169,19 @@ class IP implements \Stringable
 	public function getHost(int $timeout = 1000): string
 	{
 		// Can't get a host for an invalid address.
-		if (!$this->isValid())
+		if (!$this->isValid()) {
 			return $this->ip;
+		}
 
 		// Avoid unnecessary repetition.
-		if (isset($this->host))
+		if (isset($this->host)) {
 			return $this->host;
+		}
 
 		// Is it cached?
-		if (($host = CacheApi::get('hostlookup-' . $this->ip, 600)) !== null)
-		{
+		if (($host = CacheApi::get('hostlookup-' . $this->ip, 600)) !== null) {
 			$this->host = $host;
+
 			return $this->host;
 		}
 
@@ -189,20 +189,24 @@ class IP implements \Stringable
 		$timeout = max(0, $timeout);
 
 		// If we don't need to set a timeout, use PHP's native function.
-		if (empty($timeout))
+		if (empty($timeout)) {
 			$host = \gethostbyaddr($this->ip);
+		}
 
 		// Try asking the operating system to look it up for us.
-		if (empty($host))
+		if (empty($host)) {
 			$host = $this->hostLookup($timeout);
+		}
 
 		// Try looking it up ourselves.
-		if (empty($host))
+		if (empty($host)) {
 			$host = $this->getHostByAddr($timeout);
+		}
 
 		// If all attempts failed, use the IP address.
-		if (empty($host))
+		if (empty($host)) {
 			$host = $this->ip;
+		}
 
 		// Set it.
 		$this->host = $host;
@@ -280,8 +284,9 @@ class IP implements \Stringable
 	public static function ip2range($addr): array
 	{
 		// Pretend that 'unknown' is 255.255.255.255, since that can't be an IP anyway.
-		if ($addr == 'unknown')
+		if ($addr == 'unknown') {
 			$addr = '255.255.255.255';
+		}
 
 		$mode = (preg_match('/:/', $addr) ? ':' : '.');
 		$max = ($mode == ':' ? 'ffff' : '255');
@@ -289,92 +294,85 @@ class IP implements \Stringable
 
 		$max_parts = ($mode === ':' ? 8 : 4);
 
-		$range = array(array(), array());
+		$range = [[], []];
 
 		// No range.
-		if (strpos($addr, '-') === false)
-		{
+		if (strpos($addr, '-') === false) {
 			$range[0] = $range[1] = explode($mode, $addr);
 
-			foreach ($range[0] as &$octet)
-				$octet = strtr($octet, array('*' => $min));
+			foreach ($range[0] as &$octet) {
+				$octet = strtr($octet, ['*' => $min]);
+			}
 
-			foreach ($range[1] as &$octet)
-				$octet = strtr($octet, array('*' => $max));
+			foreach ($range[1] as &$octet) {
+				$octet = strtr($octet, ['*' => $max]);
+			}
 		}
 		// A range.
-		else
-		{
+		else {
 			// It works best to split on the range marker and then figure out the parts.
 			list($range[0], $range[1]) = explode('-', $addr);
 
-			$valid_low = filter_var(strtr($range[0], array('*' => $min)), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
-			$valid_high = filter_var(strtr($range[1], array('*' => $max)), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+			$valid_low = filter_var(strtr($range[0], ['*' => $min]), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+			$valid_high = filter_var(strtr($range[1], ['*' => $max]), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
 
 			// Range marker is between two valid IP addresses.
-			if ($valid_low && $valid_high)
-			{
-				$range[0] = explode($mode, strtr($range[0], array('*' => $min)));
-				$range[1] = explode($mode, strtr($range[1], array('*' => $max)));
+			if ($valid_low && $valid_high) {
+				$range[0] = explode($mode, strtr($range[0], ['*' => $min]));
+				$range[1] = explode($mode, strtr($range[1], ['*' => $max]));
 			}
 			// One or the other is a fragment.
-			else
-			{
-				$range = array(
-					$valid_low ? explode($mode, strtr($range[0], array('*' => $min))) : array(),
-					$valid_high ? explode($mode, strtr($range[1], array('*' => $max))) : array(),
-				);
+			else {
+				$range = [
+					$valid_low ? explode($mode, strtr($range[0], ['*' => $min])) : [],
+					$valid_high ? explode($mode, strtr($range[1], ['*' => $max])) : [],
+				];
 
 				$octets = explode($mode, $addr);
 
-				foreach ($octets as $key => $octet)
-				{
-					if (strpos($octet, '-') === false)
-					{
-						if (!$valid_low)
+				foreach ($octets as $key => $octet) {
+					if (strpos($octet, '-') === false) {
+						if (!$valid_low) {
 							$range[0][] = $octet;
+						}
 
-						if (!$valid_high)
+						if (!$valid_high) {
 							$range[1][] = $octet;
-					}
-					else
-					{
+						}
+					} else {
 						$ranged = explode('-', $octet);
 
 						// Special handling for '1.2.3.*-5.6.7.8'
-						if ($ranged[0] === '*')
-						{
+						if ($ranged[0] === '*') {
 							$ranged[0] = $min;
 							$range[0][] = $min;
 
-							if (!$valid_high)
-								$range[1] = array($ranged[1]);
+							if (!$valid_high) {
+								$range[1] = [$ranged[1]];
+							}
 
-							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && count($range[0]) < count($octets))
-							{
+							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && count($range[0]) < count($octets)) {
 								$range[0][] = $min;
 							}
 
 							$valid_low = true;
-						}
-						else
-						{
-							if (!$valid_low)
+						} else {
+							if (!$valid_low) {
 								$range[0][] = $ranged[0];
+							}
 						}
 
 						// Special handling for '1.2.3.4-*.6.7.8'
-						if ($ranged[1] === '*')
-						{
+						if ($ranged[1] === '*') {
 							$ranged[1] = $max;
 
-							if (!$valid_high)
+							if (!$valid_high) {
 								$range[1][] = $max;
-						}
-						else
-						{
-							if (!$valid_high)
+							}
+						} else {
+							if (!$valid_high) {
 								$range[1][] = $ranged[1];
+							}
 						}
 					}
 				}
@@ -382,41 +380,38 @@ class IP implements \Stringable
 		}
 
 		// Finalize the strings.
-		foreach (array(0, 1) as $key)
-		{
+		foreach ([0, 1] as $key) {
 			// If it's too long, shorten it.
-			if (count($range[$key]) > $max_parts)
+			if (count($range[$key]) > $max_parts) {
 				$range[$key] = array_slice($range[$key], 0, $max_parts);
+			}
 
 			// If they're still too short, pad them out.
-			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && count($range[$key]) < $max_parts)
-			{
-				if (in_array('*', $range[$key]))
-				{
-					$range[$key] = explode($mode, preg_replace('/\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
-				}
-				else
-				{
+			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && count($range[$key]) < $max_parts) {
+				if (in_array('*', $range[$key])) {
+					$range[$key] = explode($mode, preg_replace('/\\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
+				} else {
 					$range[$key][] = '*';
 				}
 			}
 
 			// Convert to string and replace the wildcards.
-			$range[$key] = strtr(implode($mode, $range[$key]), array('*' => $key === 0 ? $min : $max));
+			$range[$key] = strtr(implode($mode, $range[$key]), ['*' => $key === 0 ? $min : $max]);
 		}
 
 		// Make sure the low one really is lower than the high one.
-		usort($range, fn($a, $b) => inet_pton($a) <=> inet_pton($b));
+		usort($range, fn ($a, $b) => inet_pton($a) <=> inet_pton($b));
 
 		// Return instances of this class, not just plain strings.
 		$low = new self($range[0]);
 		$high = new self($range[1]);
 
 		// Final validity check, just in case.
-		if (!$low->isValid() || !$high->isValid())
-			return array('low' => new self('255.255.255.255'), 'high' => new self('255.255.255.255'));
+		if (!$low->isValid() || !$high->isValid()) {
+			return ['low' => new self('255.255.255.255'), 'high' => new self('255.255.255.255')];
+		}
 
-		return array('low' => $low, 'high' => $high);
+		return ['low' => $low, 'high' => $high];
 	}
 
 	/**
@@ -432,11 +427,13 @@ class IP implements \Stringable
 		$low = new IP($low);
 		$high = new IP($high);
 
-		if ($low == '255.255.255.255')
+		if ($low == '255.255.255.255') {
 			return 'unknown';
+		}
 
-		if ($low == $high)
+		if ($low == $high) {
 			return $low;
+		}
 
 		return $low . '-' . $high;
 	}
@@ -450,6 +447,7 @@ class IP implements \Stringable
 	public static function isValidIP(string $ip): string
 	{
 		$ip = new self($ip);
+
 		return $ip->isValid();
 	}
 
@@ -464,6 +462,7 @@ class IP implements \Stringable
 	public static function isValidIPv6(string $ip): string
 	{
 		$ip = new self($ip);
+
 		return $ip->isValid(FILTER_FLAG_IPV6);
 	}
 
@@ -476,6 +475,7 @@ class IP implements \Stringable
 	public static function hostFromIp(string $ip): string
 	{
 		$ip = new self($ip);
+
 		return $ip->getHost(0);
 	}
 
@@ -488,6 +488,7 @@ class IP implements \Stringable
 	public static function inet_ptod(string $ip): string
 	{
 		$ip = new self($ip);
+
 		return $ip->toBinary();
 	}
 
@@ -515,8 +516,9 @@ class IP implements \Stringable
 	{
 		$ip = new self($ip);
 
-		if ($return_bool_if_invalid && !$ip->isValid(FILTER_FLAG_IPV6))
+		if ($return_bool_if_invalid && !$ip->isValid(FILTER_FLAG_IPV6)) {
 			return false;
+		}
 
 		return $ip->expand();
 	}
@@ -535,58 +537,48 @@ class IP implements \Stringable
 	 */
 	protected function hostLookup(int $timeout = 1000): string
 	{
-		if (!function_exists('shell_exec'))
+		if (!function_exists('shell_exec')) {
 			return '';
+		}
 
 		// Macs can use dscacheutil, host, or nslookup, but this is the recommended one.
-		if (Utils::$context['server']['is_mac'])
-		{
+		if (Utils::$context['server']['is_mac']) {
 			$test = (string) @shell_exec('dscacheutil -q host -a ' . ($this->isValid(FILTER_FLAG_IPV6) ? 'ipv6_address' : 'ip_address') . ' ' . @escapeshellarg($this->ip));
 
-			if (preg_match('~name:\s+([^\s]+)~i', $test, $match))
+			if (preg_match('~name:\\s+([^\\s]+)~i', $test, $match)) {
 				$host = $match[1];
+			}
 		}
 
 		// Try the Unix/Linux host command, perhaps?
-		if (!isset($host) && !Utils::$context['server']['is_windows'])
-		{
-			if (!isset(Config::$modSettings['host_to_dis']))
-			{
+		if (!isset($host) && !Utils::$context['server']['is_windows']) {
+			if (!isset(Config::$modSettings['host_to_dis'])) {
 				$test = (string) @shell_exec('host -W ' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
-			}
-			else
-			{
+			} else {
 				$test = (string) @shell_exec('host ' . @escapeshellarg($this->ip));
 			}
 
 			// Did host say it didn't find anything?
-			if (strpos($test, 'not found') !== false)
-			{
+			if (strpos($test, 'not found') !== false) {
 				$host = '';
 			}
 			// Invalid server option?
-			elseif ((strpos($test, 'invalid option') || strpos($test, 'Invalid query name 1')) && !isset(Config::$modSettings['host_to_dis']))
-			{
-				Config::updateModSettings(array('host_to_dis' => 1));
+			elseif ((strpos($test, 'invalid option') || strpos($test, 'Invalid query name 1')) && !isset(Config::$modSettings['host_to_dis'])) {
+				Config::updateModSettings(['host_to_dis' => 1]);
 			}
 			// Maybe it found something, after all?
-			elseif (preg_match('~\s([^\s]+?)\.\s~', $test, $match))
-			{
+			elseif (preg_match('~\\s([^\\s]+?)\\.\\s~', $test, $match)) {
 				$host = $match[1];
 			}
 		}
 
 		// This is nslookup; available on Windows and Macs.
-		if (!isset($host) && (Utils::$context['server']['is_windows'] || Utils::$context['server']['is_mac']))
-		{
+		if (!isset($host) && (Utils::$context['server']['is_windows'] || Utils::$context['server']['is_mac'])) {
 			$test = (string) @shell_exec('nslookup -timeout=' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($ip));
 
-			if (strpos($test, 'Non-existent domain') !== false)
-			{
+			if (strpos($test, 'Non-existent domain') !== false) {
 				$host = '';
-			}
-			elseif (preg_match('~Name\s*(?:=|:)\s+([^\s]+)~i', $test, $match))
-			{
+			} elseif (preg_match('~Name\\s*(?:=|:)\\s+([^\\s]+)~i', $test, $match)) {
 				$host = $match[1];
 			}
 		}
@@ -612,8 +604,7 @@ class IP implements \Stringable
 
 		// Submit the query to an external DNS server.
 		// If it fails, try another server.
-		do
-		{
+		do {
 			$handle = @fsockopen('udp://' . self::DNS_SERVERS[$attempt], 53);
 
 			$sent = @fwrite($handle, $query);
@@ -623,15 +614,15 @@ class IP implements \Stringable
 			$type = $response == '' ? false : @unpack('s', substr($response, $sent + 2));
 
 			@fclose($handle);
-		}
-		while (($type == false || $type[1] != 0x0C00) && isset(self::DNS_SERVERS[++$attempt]));
+		} while (($type == false || $type[1] != 0x0C00) && isset(self::DNS_SERVERS[++$attempt]));
 
 		// All attempts failed.
-		if ($type == false || $type[1] != 0x0C00)
+		if ($type == false || $type[1] != 0x0C00) {
 			return $this->ip;
+		}
 
 		// Set up our variables.
-		$host = array();
+		$host = [];
 		$len = 0;
 
 		// Set our pointer at the beginning of the host name.
@@ -639,22 +630,21 @@ class IP implements \Stringable
 		$position = $sent + 12;
 
 		// Reconstruct host name.
-		do
-		{
+		do {
 			// Get segment size.
 			$len = unpack('c', substr($response, $position));
 
 			// This is a null terminated string, so length 0 = finished.
-			if ($len[1] == 0)
+			if ($len[1] == 0) {
 				return implode('.', $host);
+			}
 
 			// Add segment to our host.
 			$host[] = substr($response, $position + 1, $len[1]);
 
 			// Move pointer on to the next segment.
 			$position += $len[1] + 1;
-		}
-		while ($len != 0);
+		} while ($len != 0);
 
 		// If we get here, something went wrong.
 		return $this->ip;
@@ -668,13 +658,10 @@ class IP implements \Stringable
 	protected function getReverseDnsQuery(): string
 	{
 		// Is this an IPv6 address?
-		if ($this->isValid(FILTER_FLAG_IPV6))
-		{
-			$parts = array_merge(str_split(strrev($this->toHex())), array('ip6', 'arpa'));
-		}
-		else
-		{
-			$parts = array_merge(array_reverse(explode('.', $this->ip)), array('in-addr', 'arpa'));
+		if ($this->isValid(FILTER_FLAG_IPV6)) {
+			$parts = array_merge(str_split(strrev($this->toHex())), ['ip6', 'arpa']);
+		} else {
+			$parts = array_merge(array_reverse(explode('.', $this->ip)), ['in-addr', 'arpa']);
 		}
 
 		// Random transaction number (for routers, etc., to get the reply back)
@@ -684,8 +671,9 @@ class IP implements \Stringable
 		$query .= "\1\0\0\1\0\0\0\0\0\0";
 
 		// The interesting stuff.
-		foreach ($parts as $part)
+		foreach ($parts as $part) {
 			$query .= chr(strlen($part)) . $part;
+		}
 
 		// And the final bit of the request.
 		$query .= "\0\0\x0C\0\1";
@@ -695,7 +683,8 @@ class IP implements \Stringable
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\IP::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\IP::exportStatic')) {
 	IP::exportStatic();
+}
 
 ?>

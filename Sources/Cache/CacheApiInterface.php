@@ -13,8 +13,9 @@
 
 namespace SMF\Cache;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 
 interface CacheApiInterface
@@ -22,7 +23,6 @@ interface CacheApiInterface
 	/**
 	 * Checks whether we can use the cache method performed by this API.
 	 *
-	 * @access public
 	 * @param bool $test Test if this is supported or enabled.
 	 * @return bool Whether or not the cache is supported
 	 */
@@ -31,7 +31,6 @@ interface CacheApiInterface
 	/**
 	 * Connects to the cache method. This defines our $key. If this fails, we return false, otherwise we return true.
 	 *
-	 * @access public
 	 * @return bool Whether or not the cache method was connected to.
 	 */
 	public function connect();
@@ -39,7 +38,6 @@ interface CacheApiInterface
 	/**
 	 * Retrieves an item from the cache.
 	 *
-	 * @access public
 	 * @param string $key The key to use, the prefix is applied to the key name.
 	 * @param int    $ttl Overrides the default TTL. Not really used anymore,
 	 *                    but is kept for backwards compatibility.
@@ -52,7 +50,6 @@ interface CacheApiInterface
 	 * Stores a value, regardless of whether or not the key already exists (in
 	 * which case it will overwrite the existing value for that key).
 	 *
-	 * @access public
 	 * @param string $key   The key to use, the prefix is applied to the key name.
 	 * @param mixed  $value The data we wish to save. Use null to delete.
 	 * @param int    $ttl   How long (in seconds) the data should be cached for.
@@ -73,7 +70,6 @@ interface CacheApiInterface
 	/**
 	 * Gets the class identifier of the current caching API implementation.
 	 *
-	 * @access public
 	 * @return string the unique identifier for the current class implementation.
 	 */
 	public function getImplementationClassKeyName();

@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -32,11 +31,11 @@ class ExportDownload implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'download_export_file',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -115,66 +114,66 @@ class ExportDownload implements ActionInterface
 		$formats = Export::getFormats();
 
 		// No access in strict maintenance mode.
-		if (!empty(Config::$maintenance) && Config::$maintenance == 2)
-		{
+		if (!empty(Config::$maintenance) && Config::$maintenance == 2) {
 			Utils::sendHttpStatus(404);
+
 			exit;
 		}
 
 		// We can't give them anything without these.
-		if (empty($_GET['t']) || empty($_GET['format']) || !isset($formats[$_GET['format']]))
-		{
+		if (empty($_GET['t']) || empty($_GET['format']) || !isset($formats[$_GET['format']])) {
 			Utils::sendHttpStatus(400);
+
 			exit;
 		}
 
 		// Make sure they gave the correct authentication token.
 		// We use these tokens so the user can download without logging in, as required by the GDPR.
-		if ($_GET['t'] !== $this->dltoken)
-		{
+		if ($_GET['t'] !== $this->dltoken) {
 			Utils::sendHttpStatus(403);
+
 			exit;
 		}
 
 		// Obviously we can't give what we don't have.
-		if (empty(Config::$modSettings['export_dir']) || !file_exists($this->path))
-		{
+		if (empty(Config::$modSettings['export_dir']) || !file_exists($this->path)) {
 			Utils::sendHttpStatus(404);
+
 			exit;
 		}
 
-		$file = array(
+		$file = [
 			'path' => $this->path,
 			'filename' => $this->buildFilename(),
 			'mtime' => filemtime($this->path),
 			'size' => filesize($this->path),
 			'mime_type' => $formats[$_GET['format']]['mime'],
-		);
+		];
 
-		$file['etag'] = md5(implode(' ', array($file['filename'], $file['size'], $file['mtime'])));
+		$file['etag'] = md5(implode(' ', [$file['filename'], $file['size'], $file['mtime']]));
 
 		// If it hasn't been modified since the last time it was retrieved, there's no need to serve it again.
-		if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
-		{
+		if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 			list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-			if (strtotime($modified_since) >= $file['mtime'])
-			{
+
+			if (strtotime($modified_since) >= $file['mtime']) {
 				ob_end_clean();
 				header_remove('content-encoding');
 
 				// Answer the question - no, it hasn't been modified ;).
 				Utils::sendHttpStatus(304);
+
 				exit;
 			}
 		}
 
 		// Check whether the ETag was sent back, and cache based on that...
-		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false)
-		{
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false) {
 			ob_end_clean();
 			header_remove('content-encoding');
 
 			Utils::sendHttpStatus(304);
+
 			exit;
 		}
 
@@ -193,8 +192,9 @@ class ExportDownload implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -236,18 +236,17 @@ class ExportDownload implements ActionInterface
 	 */
 	protected function buildFilename(): string
 	{
-		$datatypes = file_exists($this->progressfile) ? array_keys(Utils::jsonDecode(file_get_contents($this->progressfile), true)) : array('profile');
+		$datatypes = file_exists($this->progressfile) ? array_keys(Utils::jsonDecode(file_get_contents($this->progressfile), true)) : ['profile'];
 
 		$included_desc = array_map(
-			function ($datatype)
-			{
+			function ($datatype) {
 				return Lang::$txt[$datatype];
 			},
-			$datatypes
+			$datatypes,
 		);
 
-		$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
-		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('_', $dlfilename)))));
+		$dlfilename = array_merge([Utils::$context['forum_name'], Utils::$context['member']['username']], $included_desc);
+		$dlfilename = preg_replace('/[^\\p{L}\\p{M}\\p{N}_]+/u', '-', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('_', $dlfilename)))));
 
 		$suffix = ($this->part > 1 || file_exists($this->export_dir_slash . '2_' . $this->idhash . '.' . $this->extension)) ? '_' . $this->part : '';
 
@@ -256,7 +255,8 @@ class ExportDownload implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ExportDownload::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ExportDownload::exportStatic')) {
 	ExportDownload::exportStatic();
+}
 
 ?>

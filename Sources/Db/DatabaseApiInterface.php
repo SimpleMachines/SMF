@@ -27,7 +27,7 @@ interface DatabaseApiInterface
 	 * @param resource $connection = null The connection to use (null to use $db_connection)
 	 * @return resource|bool Returns a query result resource (for SELECT queries), true (for UPDATE queries) or false if the query failed.
 	 */
-	public function query($identifier, $db_string, $db_values = array(), $connection = null);
+	public function query($identifier, $db_string, $db_values = [], $connection = null);
 
 	/**
 	 * Prepares a query string for execution, but does not perform the query.
@@ -72,8 +72,8 @@ interface DatabaseApiInterface
 	 * Gets the ID of the most recently inserted row.
 	 *
 	 * @param string $table The table (only used for Postgres).
-	 * @param string $field = null The specific field (not used here).
 	 * @param resource $connection = null The connection (if null, $db_connection is used).
+	 * @param string $field = null The specific field (not used here).
 	 * @return int The ID of the most recently inserted row.
 	 */
 	public function insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null);
@@ -99,8 +99,8 @@ interface DatabaseApiInterface
 	/**
 	 * Adjusts the result pointer to an arbitrary row in a query result.
 	 *
-	 * @param resource $request A query result resource.
 	 * @param int $offset The row offset.
+	 * @param resource $request A query result resource.
 	 * @return bool True on success, or false on failuer.
 	 */
 	public function data_seek($result, int $offset);
@@ -117,8 +117,8 @@ interface DatabaseApiInterface
 	 * Escapes special characters in a string for use in an SQL statement,
 	 * taking into account the current character set of the connection.
 	 *
-	 * @param string The unescaped string.
 	 * @param resource $connection = null The connection to use (null to use $db_connection).
+	 * @param string The unescaped string.
 	 * @return string The escaped string.
 	 */
 	public function escape_string(string $string, $connection = null);
@@ -210,7 +210,6 @@ interface DatabaseApiInterface
 	 * id_member, log_time, ip, url, message, session, error_type, file, line, backtrace
 	 *
 	 * @param array Information about the error.
-	 * @return void
 	 */
 	public function error_insert($error_array);
 
@@ -220,7 +219,7 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $field name
 	 * @param array $array_values Field values sequenced in array via order priority. Must cast to int.
-	 * @param boolean $desc default false
+	 * @param bool $desc default false
 	 * @return string case field when ... then ... end
 	 */
 	public function custom_order($field, $array_values, $desc = false);
@@ -228,14 +227,14 @@ interface DatabaseApiInterface
 	/**
 	 * Function which return the information if the database supports native replace inserts
 	 *
-	 * @return boolean true or false
+	 * @return bool true or false
 	 */
 	public function native_replace();
 
 	/**
 	 * Function which return the information if the database supports cte with recursive
 	 *
-	 * @return boolean true or false
+	 * @return bool true or false
 	 */
 	public function cte_support();
 
@@ -287,8 +286,8 @@ interface DatabaseApiInterface
 	 * This function lists all tables in the database.
 	 * The listing could be filtered according to $filter.
 	 *
-	 * @param string|boolean $db string The database name or false to use the current DB
-	 * @param string|boolean $filter String to filter by or false to list all tables
+	 * @param string|bool $db string The database name or false to use the current DB
+	 * @param string|bool $filter String to filter by or false to list all tables
 	 * @return array An array of table names
 	 */
 	public function list_tables($db = false, $filter = false);
@@ -310,7 +309,7 @@ interface DatabaseApiInterface
 	/**
 	 * Figures out if persistent connection is allowed
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function allow_persistent();
 
@@ -327,13 +326,13 @@ interface DatabaseApiInterface
 	 * @param resource $connection The current DB connection resource
 	 * @return resource The query result resource from $this->query()
 	 */
-	public function search_query($identifier, $db_string, $db_values = array(), $connection = null);
+	public function search_query($identifier, $db_string, $db_values = [], $connection = null);
 
 	/**
 	 * This function will tell you whether this database type supports this search type.
 	 *
 	 * @param string $search_type The search type.
-	 * @return boolean Whether or not the specified search type is supported by this db system
+	 * @return bool Whether or not the specified search type is supported by this db system
 	 */
 	public function search_support($search_type);
 
@@ -363,9 +362,9 @@ interface DatabaseApiInterface
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the column exists. If 'update', column is updated.
 	 * @param string $error
-	 * @return boolean Whether or not the operation was successful
+	 * @return bool Whether or not the operation was successful
 	 */
-	public function add_column($table_name, $column_info, $parameters = array(), $if_exists = 'update', $error = 'fatal');
+	public function add_column($table_name, $column_info, $parameters = [], $if_exists = 'update', $error = 'fatal');
 
 	/**
 	 * Add an index.
@@ -375,16 +374,16 @@ interface DatabaseApiInterface
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the index exists. If 'update', the definition will be updated.
 	 * @param string $error
-	 * @return boolean Whether or not the operation was successful
+	 * @return bool Whether or not the operation was successful
 	 */
-	public function add_index($table_name, $index_info, $parameters = array(), $if_exists = 'update', $error = 'fatal');
+	public function add_index($table_name, $index_info, $parameters = [], $if_exists = 'update', $error = 'fatal');
 
 	/**
 	 * Get the schema formatted name for a type.
 	 *
 	 * @param string $type_name The data type (int, varchar, smallint, etc.)
 	 * @param int $type_size The size (8, 255, etc.)
-	 * @param boolean $reverse
+	 * @param bool $reverse
 	 * @return array An array containing the appropriate type and size for this DB type
 	 */
 	public function calculate_type($type_name, $type_size = null, $reverse = false);
@@ -432,9 +431,9 @@ interface DatabaseApiInterface
 	 * @param array $parameters Extra parameters. Currently only 'engine', the desired MySQL storage engine, is used.
 	 * @param string $if_exists What to do if the table exists.
 	 * @param string $error
-	 * @return boolean Whether or not the operation was successful
+	 * @return bool Whether or not the operation was successful
 	 */
-	public function create_table($table_name, $columns, $indexes = array(), $parameters = array(), $if_exists = 'ignore', $error = 'fatal');
+	public function create_table($table_name, $columns, $indexes = [], $parameters = [], $if_exists = 'ignore', $error = 'fatal');
 
 	/**
 	 * Drop a table.
@@ -442,9 +441,9 @@ interface DatabaseApiInterface
 	 * @param string $table_name The name of the table to drop
 	 * @param array $parameters Not used at the moment
 	 * @param string $error
-	 * @return boolean Whether or not the operation was successful
+	 * @return bool Whether or not the operation was successful
 	 */
-	public function drop_table($table_name, $parameters = array(), $error = 'fatal');
+	public function drop_table($table_name, $parameters = [], $error = 'fatal');
 
 	/**
 	 * Get table structure.
@@ -462,7 +461,7 @@ interface DatabaseApiInterface
 	 * @param array $parameters Not used?
 	 * @return array An array of column names or detailed column info, depending on $detail
 	 */
-	public function list_columns($table_name, $detail = false, $parameters = array());
+	public function list_columns($table_name, $detail = false, $parameters = []);
 
 	/**
 	 * Get index information.
@@ -472,7 +471,7 @@ interface DatabaseApiInterface
 	 * @param array $parameters Not used?
 	 * @return array An array of index names or a detailed array of index info, depending on $detail
 	 */
-	public function list_indexes($table_name, $detail = false, $parameters = array());
+	public function list_indexes($table_name, $detail = false, $parameters = []);
 
 	/**
 	 * Removes a column.
@@ -481,9 +480,9 @@ interface DatabaseApiInterface
 	 * @param string $column_name The name of the column to drop
 	 * @param array $parameters Not used?
 	 * @param string $error
-	 * @return boolean Whether or not the operation was successful
+	 * @return bool Whether or not the operation was successful
 	 */
-	public function remove_column($table_name, $column_name, $parameters = array(), $error = 'fatal');
+	public function remove_column($table_name, $column_name, $parameters = [], $error = 'fatal');
 
 	/**
 	 * Remove an index.
@@ -492,9 +491,9 @@ interface DatabaseApiInterface
 	 * @param string $index_name The name of the index to remove
 	 * @param array $parameters Not used?
 	 * @param string $error
-	 * @return boolean Whether or not the operation was successful
+	 * @return bool Whether or not the operation was successful
 	 */
-	public function remove_index($table_name, $index_name, $parameters = array(), $error = 'fatal');
+	public function remove_index($table_name, $index_name, $parameters = [], $error = 'fatal');
 }
 
 ?>
