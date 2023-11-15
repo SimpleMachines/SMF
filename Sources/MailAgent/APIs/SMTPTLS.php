@@ -16,16 +16,16 @@ namespace SMF\MailAgent\APIs;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Our Cache API class
- *
- * @package CacheAPI
+ * Sends mail via SMTP using TLS
  */
 class SMTPTLS extends SMTP implements MailAgentInterface
 {
+	/**
+	 * @var bool
+	 *
+	 * Enabled in this class and used in the parent class to enable TLS connections.
+	 */
 	public $useTLS = true;
 }
 

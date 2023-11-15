@@ -22,8 +22,25 @@ use SMF\Utils;
 
 abstract class MailAgent
 {
+	/**
+	 * @var string
+	 *
+	 * The directory containing our Agents we can use.
+	 */
 	const APIS_FOLDER = __DIR__ . '/APIs';
+
+	/**
+	 * @var string
+	 *
+	 * The root namespace used by all our Agents.
+	 */
 	const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
+
+	/**
+	 * @var string
+	 *
+	 * Default Agent to use or to fallback to if the agent selected is not supported or configured correctly.
+	 */
 	const APIS_DEFAULT = 'SendMail';
 
 	/**************************
@@ -44,7 +61,7 @@ abstract class MailAgent
 	 *
 	 * The loaded agent, or false on failure.
 	 */
-	public static $loadedApi;
+	public static $loaded_api;
 
 	/**********************
 	 * Protected properties
@@ -179,8 +196,7 @@ abstract class MailAgent
 		if ($position = strrpos($class_name, '\\'))
 			return substr($class_name, $position + 1);
 
-		else
-			return $class_name;
+		return $class_name;
 	}
 
 	/***********************
@@ -189,7 +205,7 @@ abstract class MailAgent
 
 	/**
 	 * Try to load up a supported agent method.
-	 * This is saved in $loadedApi if we are not overriding it.
+	 * This is saved in $loaded_api if we are not overriding it.
 	 *
 	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
@@ -205,15 +221,20 @@ abstract class MailAgent
 
 			// Handle some other options.
 			if (self::$agent === '1')
+			{
 				self::$agent = 'SMTP';
+			}
 			elseif (self::$agent === '2')
-				self::$agent = 'SMTPTLS';	
+			{
+				self::$agent = 'SMTPTLS';
+			}
 		}
 
-		if (is_object(self::$loadedApi))
-			return self::$loadedApi;
-		elseif (is_null(self::$loadedApi))
-			self::$loadedApi = false;
+		if (is_object(self::$loaded_api))
+			return self::$loaded_api;
+		
+		if (is_null(self::$loaded_api))
+			self::$loaded_api = false;
 
 		// What agent we are going to try.
 		$agent_class_name = !empty(self::$agent) ? self::$agent : self::APIS_DEFAULT;
@@ -255,7 +276,7 @@ abstract class MailAgent
 	 */
 	final public static function detect()
 	{
-		$loadedApis = array();
+		$loaded_apis = array();
 
 		$api_classes = new \GlobIterator(self::APIS_FOLDER . '/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
@@ -278,12 +299,12 @@ abstract class MailAgent
 			if (!$agent_api->isSupported(true))
 				continue;
 
-			$loadedApis[$class_name] = $agent_api;
+			$loaded_apis[$class_name] = $agent_api;
 		}
 
-		IntegrationHook::call('integrate_load_mail_agents', array(&$loadedApis));
+		IntegrationHook::call('integrate_load_mail_agents', array(&$loaded_apis));
 
-		return $loadedApis;
+		return $loaded_apis;
 	}
 }
 

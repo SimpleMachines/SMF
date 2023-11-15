@@ -19,13 +19,8 @@ use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Our Cache API class
- *
- * @package CacheAPI
+ * Sends mail via SendMail
  */
 class SendMail extends MailAgent implements MailAgentInterface
 {

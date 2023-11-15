@@ -13,10 +13,6 @@
 
 namespace SMF\MailAgent;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
-
 interface MailAgentInterface
 {
 	/**

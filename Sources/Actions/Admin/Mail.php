@@ -424,10 +424,10 @@ class Mail implements ActionInterface
 			$emails[$index] = $index;
 		}
 
-		$detectedApis = MailAgent::detect();
+		$detected_apis = MailAgent::detect();
 		$apis_names = array();
 
-		foreach ($detectedApis as $class_name => $agent)
+		foreach ($detected_apis as $class_name => $agent)
 		{
 			$class_name_txt_key = strtolower($agent->getImplementationClassKeyName());
 
@@ -452,7 +452,7 @@ class Mail implements ActionInterface
 			['select', 'mail_type', $apis_names],
 		];
 
-		foreach ($detectedApis as $class_name => $agent)
+		foreach ($detected_apis as $class_name => $agent)
 			if (is_callable(array($agent, 'agentSettings')))
 				$agent->agentSettings($config_vars);
 

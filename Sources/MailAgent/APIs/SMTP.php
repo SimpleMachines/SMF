@@ -19,18 +19,30 @@ use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Our Cache API class
- *
- * @package CacheAPI
+ * Sends mail via SMTP
  */
 class SMTP extends MailAgent implements MailAgentInterface
 {
+	/**
+	 * @var bool
+	 *
+	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
+	 */
 	private $sentAny = false;
+
+	/**
+	 * @var bool
+	 *
+	 * When enabled, sends mail using TLS.  This is set in another class that inherits this class.
+	 */
 	public $useTLS = false;
+
+	/**
+	 * @var resource
+	 *
+	 * A file pointer containing the active connection to the SMTP server.
+	 */
 	private $socket;
 
 	/**
@@ -54,8 +66,6 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	public function connect(): bool
 	{
-		static $helo;
-
 		Config::$modSettings['smtp_host'] = trim(Config::$modSettings['smtp_host']);
 
 		// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
@@ -66,10 +76,14 @@ class SMTP extends MailAgent implements MailAgentInterface
 			{
 				// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
 				if (substr(Config::$modSettings['smtp_host'], 0, 6) != 'ssl://')
+				{
 					Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
+				}
 
 				if ($this->socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3))
+				{
 					ErrorHandler::log(Lang::$txt['smtp_port_ssl']);
+				}
 			}
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
@@ -87,40 +101,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			return false;
 		}
 
-		// Try to determine the server's fully qualified domain name
-		// Can't rely on $_SERVER['SERVER_NAME'] because it can be spoofed on Apache
-		if (empty($helo))
-		{
-			// See if we can get the domain name from the host itself
-			if (function_exists('gethostname'))
-				$helo = gethostname();
-			elseif (function_exists('php_uname'))
-				$helo = php_uname('n');
-
-			// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
-			if (
-				empty($helo)
-				|| strpos($helo, '.') === false
-				|| substr_compare($helo, '.local', -6) === 0
-				|| (
-					!empty(Config::$modSettings['tld_regex'])
-					&& !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)
-				)
-			)
-			{
-				$url = new Url(Config::$boardurl);
-				$helo = $url->host;
-			}
-
-			// This is one of those situations where 'www.' is undesirable
-			if (strpos($helo, 'www.') === 0)
-				$helo = substr($helo, 4);
-
-			if (!function_exists('idn_to_ascii'))
-				require_once(Config::$sourcedir . '/Subs-Compat.php');
-
-			$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-		}
+		$helo = getHostname();
 
 		if (Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '')
 		{
@@ -146,6 +127,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 
 					if (!@stream_socket_enable_crypto($this->socket, true, $crypto_method))
 						return false;
+
 					// Send the EHLO command again
 					if (!$this->serverParse('EHLO ' . $helo, null) == '250')
 						return false;
@@ -153,21 +135,24 @@ class SMTP extends MailAgent implements MailAgentInterface
 
 				if (!$this->serverParse('AUTH LOGIN', '334'))
 					return false;
+
 				// Send the username and password, encoded.
 				if (!$this->serverParse(base64_encode(Config::$modSettings['smtp_username']), '334'))
 					return false;
+
 				// The password is already encoded ;)
 				if (!$this->serverParse(Config::$modSettings['smtp_password'], '235'))
 					return false;
 			}
 			elseif (!$this->serverParse('HELO ' . $helo, '250'))
+			{
 				return false;
+			}
 		}
-		else
+		// Just say "helo".
+		else if (!$this->serverParse('HELO ' . $helo, '250'))
 		{
-			// Just say "helo".
-			if (!$this->serverParse('HELO ' . $helo, '250'))
-				return false;
+			return false;
 		}
 
 		return true;
@@ -193,13 +178,18 @@ class SMTP extends MailAgent implements MailAgentInterface
 		// From, to, and then start the data...
 		if (!self::serverParse('MAIL FROM: <' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . '>', '250'))
 			return false;
+
 		if (!self::serverParse('RCPT TO: <' . $to . '>', '250'))
 			return false;
+
 		if (!self::serverParse('DATA', '354'))
 			return false;
+
 		fputs($this->socket, 'Subject: ' . $subject . "\r\n");
+
 		if (strlen($to) > 0)
 			fputs($this->socket, 'To: <' . $to . '>' . "\r\n");
+
 		fputs($this->socket, $headers . "\r\n\r\n");
 		fputs($this->socket, $message . "\r\n");
 
@@ -248,12 +238,11 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 * @internal
 	 *
 	 * @param string $message The message to send
-	 * @param resource $this->socket Socket to send on
 	 * @param string $code The expected response code
 	 * @param string $response The response from the SMTP server
-	 * @return bool Whether it responded as such.
+	 * @return bool|string Whether it responded as such.
 	 */
-	public function serverParse($message, $code, &$response = null): bool|string
+	private function serverParse(string $message, string $code, string &$response = null): bool|string
 	{
 		if ($message !== null)
 			fputs($this->socket, $message . "\r\n");
@@ -293,6 +282,59 @@ class SMTP extends MailAgent implements MailAgentInterface
 		}
 
 		return true;
+	}
+
+	/**
+	 * Try to determine the server's fully qualified domain name.
+	 * Can't rely on $_SERVER['SERVER_NAME'] because it can be
+	 * spoofed on Apache
+	 *
+	 * @internal
+	 *
+	 * @return string hostname of the server.
+	 */
+	private function getHostname(): string
+	{
+		static $helo;
+
+		if (!empty($helo))
+			return $helo;
+
+		// See if we can get the domain name from the host itself
+		if (function_exists('gethostname'))
+		{
+			$helo = gethostname();
+		}
+		elseif (function_exists('php_uname'))
+		{
+			$helo = php_uname('n');
+		}
+
+		// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
+		if (
+			empty($helo)
+			|| strpos($helo, '.') === false
+			|| substr_compare($helo, '.local', -6) === 0
+			|| (
+				!empty(Config::$modSettings['tld_regex'])
+				&& !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)
+			)
+		)
+		{
+			$url = new Url(Config::$boardurl);
+			$helo = $url->host;
+		}
+
+		// This is one of those situations where 'www.' is undesirable
+		if (strpos($helo, 'www.') === 0)
+			$helo = substr($helo, 4);
+
+		if (!function_exists('idn_to_ascii'))
+			require_once(Config::$sourcedir . '/Subs-Compat.php');
+
+		$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+
+		return $helo;
 	}
 }
 
