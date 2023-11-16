@@ -84,8 +84,7 @@ class Session implements \SessionHandlerInterface
 		// Look for it in the database.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT data
+			'SELECT data
 			FROM {db_prefix}sessions
 			WHERE session_id = {string:session_id}
 			LIMIT 1',
@@ -151,8 +150,7 @@ class Session implements \SessionHandlerInterface
 		// Just delete the row...
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}sessions
+			'DELETE FROM {db_prefix}sessions
 			WHERE session_id = {string:session_id}',
 			[
 				'session_id' => $session_id,
@@ -179,8 +177,7 @@ class Session implements \SessionHandlerInterface
 		// Clean up after yerself ;).
 		$session_update = Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}sessions
+			'DELETE FROM {db_prefix}sessions
 			WHERE last_update < {int:last_update}',
 			[
 				'last_update' => time() - $max_lifetime,

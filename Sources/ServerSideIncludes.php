@@ -502,8 +502,7 @@ class ServerSideIncludes
 		// Find all the posts. Newer ones will have higher IDs.
 		$request = Db::$db->query(
 			'substring',
-			'
-			SELECT
+			'SELECT
 				m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
 				COALESCE(lt.id_msg, lmr.id_msg, 0) >= m.id_msg_modified AS is_read,
@@ -653,8 +652,7 @@ class ServerSideIncludes
 		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 		$request = Db::$db->query(
 			'substring',
-			'
-			SELECT
+			'SELECT
 				t.id_topic, b.id_board, b.name AS board_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -691,8 +689,7 @@ class ServerSideIncludes
 		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 		$request = Db::$db->query(
 			'substring',
-			'
-			SELECT
+			'SELECT
 				ml.poster_time, mf.subject, mf.id_topic, ml.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color, t.id_last_msg,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
 				COALESCE(lt.id_msg, lmr.id_msg, 0) >= ml.id_msg_modified AS is_read,
@@ -817,8 +814,7 @@ class ServerSideIncludes
 		// Find the latest poster.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, posts
+			'SELECT id_member, real_name, posts
 			FROM {db_prefix}members
 			ORDER BY posts DESC
 			LIMIT ' . $topNumber,
@@ -874,8 +870,7 @@ class ServerSideIncludes
 		// Find boards with lots of posts.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				b.name, b.num_topics, b.num_posts, b.id_board,' . (!User::$me->is_guest ? ' 1 AS is_read' : '
 				(COALESCE(lb.id_msg, 0) >= b.id_last_msg) AS is_read') . '
 			FROM {db_prefix}boards AS b
@@ -952,8 +947,7 @@ class ServerSideIncludes
 			// @todo Why don't we use {query(_wanna)_see_board}?
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic
+				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_' . ($type != 'replies' ? 'views' : 'replies') . ' != 0' . (Config::$modSettings['postmod_active'] ? '
 					AND approved = {int:is_approved}' : '') . '
@@ -976,8 +970,7 @@ class ServerSideIncludes
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.subject, m.id_topic, t.num_views, t.num_replies
+			'SELECT m.subject, m.id_topic, t.num_views, t.num_replies
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -1245,8 +1238,7 @@ class ServerSideIncludes
 		// Fetch the members in question.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . $query_where . '
 			ORDER BY ' . $query_order . '
@@ -1337,8 +1329,7 @@ class ServerSideIncludes
 
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}boards',
 			[
 			],
@@ -1348,8 +1339,7 @@ class ServerSideIncludes
 
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}categories',
 			[
 			],
@@ -1734,8 +1724,7 @@ class ServerSideIncludes
 		// Check if they have already voted, or voting is locked.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				p.id_poll, p.voting_locked, p.expire_time, p.max_votes, p.guest_vote,
 				t.id_topic,
 				COALESCE(lp.id_choice, -1) AS selected
@@ -1801,8 +1790,7 @@ class ServerSideIncludes
 		);
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}poll_choices
+			'UPDATE {db_prefix}poll_choices
 			SET votes = votes + 1
 			WHERE id_poll = {int:current_poll}
 				AND id_choice IN ({array_int:option_list})',
@@ -2107,8 +2095,7 @@ class ServerSideIncludes
 		// Make sure guests can see this board.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board
+			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE ' . ($board === null ? '' : 'id_board = {int:current_board}
 				AND ') . 'FIND_IN_SET(-1, member_groups) != 0
@@ -2141,8 +2128,7 @@ class ServerSideIncludes
 		// Find the post ids.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_first_msg
+			'SELECT t.id_first_msg
 			FROM {db_prefix}topics as t
 				LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
 			WHERE t.id_board = {int:current_board}' . (Config::$modSettings['postmod_active'] ? '
@@ -2169,8 +2155,7 @@ class ServerSideIncludes
 		// Find the posts.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				m.icon, m.subject, m.body, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
 				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
 			FROM {db_prefix}topics AS t
@@ -2350,8 +2335,7 @@ class ServerSideIncludes
 		// Find all events which are happening in the near future that the member can see.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
 				cal.start_time, cal.end_time, cal.timezone, cal.location,
 				cal.id_board, t.id_first_msg, t.approved
@@ -2466,8 +2450,7 @@ class ServerSideIncludes
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT passwd, member_name, is_activated
+			'SELECT passwd, member_name, is_activated
 			FROM {db_prefix}members
 			WHERE ' . ($is_username ? 'member_name' : 'id_member') . ' = {string:id}
 			LIMIT 1',
@@ -2511,8 +2494,7 @@ class ServerSideIncludes
 		// Lets build the query.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				att.id_attach, att.id_msg, att.filename, COALESCE(att.size, 0) AS filesize, att.downloads, mem.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_topic, m.subject, t.id_board, m.poster_time,
 				att.width, att.height' . (empty(Config::$modSettings['attachmentShowImages']) || empty(Config::$modSettings['attachmentThumbnails']) ? '' : ', COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '

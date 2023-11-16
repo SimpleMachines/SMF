@@ -81,8 +81,7 @@ class RequestMembers implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT real_name
+			'SELECT real_name
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '

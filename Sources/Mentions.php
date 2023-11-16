@@ -45,8 +45,7 @@ class Mentions
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
+			'SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
 				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
 			FROM {db_prefix}mentions AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_mentioned)
@@ -128,8 +127,7 @@ class Mentions
 		if (!empty($members_to_remove)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}mentions
+				'DELETE FROM {db_prefix}mentions
 				WHERE content_type = {string:type}
 					AND content_id = {int:id}
 					AND id_mentioned IN ({array_int:members})',
@@ -205,8 +203,7 @@ class Mentions
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name
+			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:ids})
 				OR real_name IN ({array_string:names})
@@ -435,8 +432,7 @@ class Mentions
 		// Get the messages
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
+			'SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE id_msg IN ({array_int:msgs})

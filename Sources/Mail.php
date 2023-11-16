@@ -304,8 +304,7 @@ class Mail
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}settings
+				'UPDATE {db_prefix}settings
 				SET value = {string:nextSendTime}
 				WHERE variable = {literal:mail_next_send}
 					AND value = {string:no_outstanding}',
@@ -395,8 +394,7 @@ class Mail
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}settings
+				'UPDATE {db_prefix}settings
 				SET value = {string:next_mail_send}
 				WHERE variable = {literal:mail_next_send}
 					AND value = {string:last_send}',
@@ -441,8 +439,7 @@ class Mail
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
+			'SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 			FROM {db_prefix}mail_queue
 			ORDER BY priority ASC, id_mail ASC
 			LIMIT {int:limit}',
@@ -472,8 +469,7 @@ class Mail
 		if (!empty($ids)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}mail_queue
+				'DELETE FROM {db_prefix}mail_queue
 				WHERE id_mail IN ({array_int:mail_list})',
 				[
 					'mail_list' => $ids,
@@ -486,8 +482,7 @@ class Mail
 			// Only update the setting if no-one else has beaten us to it.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}settings
+				'UPDATE {db_prefix}settings
 				SET value = {string:no_send}
 				WHERE variable = {literal:mail_next_send}
 					AND value = {string:last_mail_send}',
@@ -576,8 +571,7 @@ class Mail
 			if (Config::$modSettings['mail_failed_attempts'] > 5) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}settings
+					'UPDATE {db_prefix}settings
 					SET value = {string:next_mail_send}
 					WHERE variable = {literal:mail_next_send}
 						AND value = {string:last_send}',
@@ -613,8 +607,7 @@ class Mail
 		if (!empty(Config::$modSettings['mail_failed_attempts'])) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}settings
+				'UPDATE {db_prefix}settings
 				SET value = {string:zero}
 				WHERE variable = {string:mail_failed_attempts}',
 				[
@@ -1030,8 +1023,7 @@ class Mail
 		// Get the subject and body...
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
+			'SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
@@ -1098,8 +1090,7 @@ class Mail
 			// Get the new user's name....
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT real_name
+				'SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
 				LIMIT 1',

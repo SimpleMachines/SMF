@@ -118,8 +118,7 @@ class PaidSubs implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_sublog, id_subscribe, start_time, end_time, status, payments_pending, pending_details
+			'SELECT id_sublog, id_subscribe, start_time, end_time, status, payments_pending, pending_details
 			FROM {db_prefix}log_subscribed
 			WHERE id_member = {int:selected_member}',
 			[
@@ -177,8 +176,7 @@ class PaidSubs implements ActionInterface
 
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}log_subscribed
+						'UPDATE {db_prefix}log_subscribed
 						SET payments_pending = payments_pending + 1, pending_details = {string:pending_details}
 						WHERE id_sublog = {int:current_subscription_id}
 							AND id_member = {int:selected_member}',
@@ -295,8 +293,7 @@ class PaidSubs implements ActionInterface
 
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}log_subscribed
+						'UPDATE {db_prefix}log_subscribed
 						SET payments_pending = {int:pending_count}, pending_details = {string:pending_details}
 						WHERE id_sublog = {int:current_subscription_item}
 							AND id_member = {int:selected_member}',

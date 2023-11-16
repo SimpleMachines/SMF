@@ -332,8 +332,7 @@ class Draft
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_drafts
+			'DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft IN ({array_int:drafts})' . ($check ? '
 				AND id_member = {int:id_member}' : ''),
 			[
@@ -368,8 +367,7 @@ class Draft
 		// Load the drafts this user has available.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT subject, poster_time, id_board, id_topic, id_draft
+			'SELECT subject, poster_time, id_board, id_topic, id_draft
 			FROM {db_prefix}user_drafts
 			WHERE id_member = {int:id_member}' . (!empty($topic) ? '
 				AND id_topic = {int:id_topic}' : '') . '
@@ -426,8 +424,7 @@ class Draft
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}user_drafts
+				'DELETE FROM {db_prefix}user_drafts
 				WHERE id_draft = {int:id_draft}
 					AND id_member = {int:id_member}
 					AND type = {int:draft_type}',
@@ -450,8 +447,7 @@ class Draft
 		// @todo .. should we just let them see their drafts even if they have lost board access ?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}user_drafts AS ud
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 			WHERE id_member = {int:id_member}
@@ -487,8 +483,7 @@ class Draft
 		//           access to the board or if the topic moves to a board they can not see?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				b.id_board, b.name AS bname,
 				ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
 			FROM {db_prefix}user_drafts AS ud
@@ -603,8 +598,7 @@ class Draft
 		// Fetch this draft's info from the database.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT *
+			'SELECT *
 			FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}' . ($check ? '
 				AND id_member = {int:id_member}' : '') . '
@@ -714,8 +708,7 @@ class Draft
 		if (!empty($this->id)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}user_drafts
+				'UPDATE {db_prefix}user_drafts
 				SET
 					id_topic = {int:id_topic},
 					id_board = {int:id_board},

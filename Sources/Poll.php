@@ -609,8 +609,7 @@ class Poll implements \ArrayAccess
 			if (!empty($this->topic)) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}topics
+					'UPDATE {db_prefix}topics
 					SET id_poll = {int:id_poll}
 					WHERE id_topic = {int:id_topic}',
 					[
@@ -657,8 +656,7 @@ class Poll implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}polls
+				'UPDATE {db_prefix}polls
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_poll = {int:id_poll}',
 				$params,
@@ -696,8 +694,7 @@ class Poll implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}polls
+			'UPDATE {db_prefix}polls
 			SET num_guest_voters = {int:no_votes}, reset_poll = {int:time}
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -709,8 +706,7 @@ class Poll implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}poll_choices
+			'UPDATE {db_prefix}poll_choices
 			SET votes = {int:no_votes}
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -721,8 +717,7 @@ class Poll implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_polls
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}',
 			[
 				'id_poll' => $this->id,
@@ -1009,8 +1004,7 @@ class Poll implements \ArrayAccess
 				// Delete off the log.
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_polls
+					'DELETE FROM {db_prefix}log_polls
 					WHERE id_member = {int:current_member}
 						AND id_poll = {int:id_poll}',
 					[
@@ -1383,8 +1377,7 @@ class Poll implements \ArrayAccess
 		// Remove all user logs for this poll.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_polls
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}',
 			[
 				'id_poll' => $poll->id,
@@ -1394,8 +1387,7 @@ class Poll implements \ArrayAccess
 		// Remove all poll choices.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}poll_choices
+			'DELETE FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:id_poll}',
 			[
 				'id_poll' => $poll->id,
@@ -1405,8 +1397,7 @@ class Poll implements \ArrayAccess
 		// Remove the poll itself.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}polls
+			'DELETE FROM {db_prefix}polls
 			WHERE id_poll = {int:id_poll}',
 			[
 				'id_poll' => $poll->id,
@@ -1416,8 +1407,7 @@ class Poll implements \ArrayAccess
 		// Finally set the topic's poll ID back to 0.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_poll = {int:no_poll}
 			WHERE id_topic = {int:current_topic}',
 			[
@@ -1566,8 +1556,7 @@ class Poll implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT ' . (implode(', ', $this->selects)) . '
+			'SELECT ' . (implode(', ', $this->selects)) . '
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
 			WHERE (' . (implode(")\n\t\t\t\tAND (", $this->where)) . ')
@@ -1624,8 +1613,7 @@ class Poll implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, id_choice
+			'SELECT id_member, id_choice
 			FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
 				AND id_member != {int:guest}',
@@ -1788,8 +1776,7 @@ class Poll implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT MAX(p.id_poll)
+			'SELECT MAX(p.id_poll)
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
 			WHERE (' . (implode(")\n\t\t\t\tAND (", $this->where)) . ')
@@ -1823,8 +1810,7 @@ class Poll implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lp.id_poll, COUNT(*) AS num_votes
+			'SELECT lp.id_poll, COUNT(*) AS num_votes
 			FROM {db_prefix}log_polls AS lp
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
 			WHERE (' . (implode(")\n\t\t\t\tAND (", $this->where)) . ')

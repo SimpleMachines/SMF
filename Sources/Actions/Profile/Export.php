@@ -167,8 +167,7 @@ class Export implements ActionInterface
 			if (isset($_POST['delete'], $_POST['format'])   && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}background_tasks
+					'DELETE FROM {db_prefix}background_tasks
 					WHERE task_class = {string:class}
 						AND task_data LIKE {string:details}',
 					[
@@ -523,8 +522,7 @@ class Export implements ActionInterface
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT m.id_msg
+						'SELECT m.id_msg
 						FROM {db_prefix}messages as m
 							INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 						WHERE id_member = {int:uid}
@@ -568,8 +566,7 @@ class Export implements ActionInterface
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT COUNT(*)
+						'SELECT COUNT(*)
 						FROM {db_prefix}personal_messages AS pm
 							INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
 						WHERE (pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
@@ -593,8 +590,7 @@ class Export implements ActionInterface
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT pm.id_pm
+						'SELECT pm.id_pm
 						FROM {db_prefix}personal_messages AS pm
 							INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
 						WHERE (pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})

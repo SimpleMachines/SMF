@@ -364,8 +364,7 @@ class Category implements \ArrayAccess
 			// Grab the categories sorted by cat_order.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_cat, cat_order
+				'SELECT id_cat, cat_order
 				FROM {db_prefix}categories
 				ORDER BY cat_order',
 				[
@@ -390,8 +389,7 @@ class Category implements \ArrayAccess
 				if ($index != $cat_order[$cat]) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}categories
+						'UPDATE {db_prefix}categories
 						SET cat_order = {int:new_order}
 						WHERE id_cat = {int:current_category}',
 						[
@@ -433,8 +431,7 @@ class Category implements \ArrayAccess
 		if (!empty($catUpdates)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}categories
+				'UPDATE {db_prefix}categories
 				SET
 					' . implode(',
 					', $catUpdates) . '
@@ -538,8 +535,7 @@ class Category implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board
+				'SELECT id_board
 				FROM {db_prefix}boards
 				WHERE id_cat IN ({array_int:category_list})',
 				[
@@ -565,8 +561,7 @@ class Category implements \ArrayAccess
 		else {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET id_cat = {int:new_parent_cat}
 				WHERE id_cat IN ({array_int:category_list})',
 				[
@@ -579,8 +574,7 @@ class Category implements \ArrayAccess
 		// Do the deletion of the category itself
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}categories
+			'DELETE FROM {db_prefix}categories
 			WHERE id_cat IN ({array_int:category_list})',
 			[
 				'category_list' => $categories,
@@ -642,8 +636,7 @@ class Category implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT b.id_board, b.id_cat
+			'SELECT b.id_board, b.id_cat
 			FROM {db_prefix}categories AS c
 				JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
 			ORDER BY c.cat_order, b.board_order',
@@ -743,8 +736,7 @@ class Category implements \ArrayAccess
 					if (Board::$loaded[$row['id_parent']]->child_level != $row['child_level'] - 1) {
 						Db::$db->query(
 							'',
-							'
-							UPDATE {db_prefix}boards
+							'UPDATE {db_prefix}boards
 							SET child_level = {int:new_child_level}
 							WHERE id_board = {int:selected_board}',
 							[
@@ -817,8 +809,7 @@ class Category implements \ArrayAccess
 		if (empty($props)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT *
+				'SELECT *
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id}
 				LIMIT 1',

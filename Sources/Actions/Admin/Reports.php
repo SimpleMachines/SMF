@@ -222,8 +222,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mods.id_board, mods.id_member, mem.real_name
+			'SELECT mods.id_board, mods.id_member, mem.real_name
 			FROM {db_prefix}moderators AS mods
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)',
 			[
@@ -240,8 +239,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT modgs.id_board, modgs.id_group, memg.group_name
+			'SELECT modgs.id_board, modgs.id_group, memg.group_name
 			FROM {db_prefix}moderator_groups AS modgs
 				INNER JOIN {db_prefix}membergroups AS memg ON (memg.id_group = modgs.id_group)',
 			[
@@ -258,8 +256,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, group_name, online_color
+			'SELECT id_group, group_name, online_color
 			FROM {db_prefix}membergroups',
 			[
 			],
@@ -296,8 +293,7 @@ class Reports implements ActionInterface
 		// Go through each board!
 		$request = Db::$db->query(
 			'order_by_board_order',
-			'
-			SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
+			'SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
 				b.redirect, c.name AS cat_name, COALESCE(par.name, {string:text_none}) AS parent_name, COALESCE(th.value, {string:text_none}) AS theme_name
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -417,8 +413,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, name, id_profile
+			'SELECT id_board, name, id_profile
 			FROM {db_prefix}boards
 			WHERE ' . $board_clause . '
 			ORDER BY id_board',
@@ -442,8 +437,7 @@ class Reports implements ActionInterface
 		// Limit it to any boards and/or groups we're looking at
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, id_group
+			'SELECT id_board, id_group
 			FROM {db_prefix}moderator_groups
 			WHERE ' . $board_clause . ' AND ' . $group_clause,
 			[
@@ -464,8 +458,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, group_name
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE ' . $group_clause . '
 				AND id_group != {int:admin_group}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
@@ -506,8 +499,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_profile, id_group, add_deny, permission
+			'SELECT id_profile, id_group, add_deny, permission
 			FROM {db_prefix}board_permissions
 			WHERE id_profile IN ({array_int:profile_list})
 				AND ' . $group_clause . (empty(Config::$modSettings['permission_enable_deny']) ? '
@@ -609,8 +601,7 @@ class Reports implements ActionInterface
 		// Fetch all the board names.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, name, member_groups, id_profile, deny_member_groups
+			'SELECT id_board, name, member_groups, id_profile, deny_member_groups
 			FROM {db_prefix}boards',
 			[
 			],
@@ -714,8 +705,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, group_name
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE ' . $clause . '
 				AND id_group != {int:admin_group}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
@@ -769,8 +759,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, add_deny, permission
+			'SELECT id_group, add_deny, permission
 			FROM {db_prefix}permissions
 			WHERE ' . $clause . (empty(Config::$modSettings['permission_enable_deny']) ? '
 				AND add_deny = {int:not_denied}' : '') . '
@@ -827,8 +816,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, name
+			'SELECT id_board, name
 			FROM {db_prefix}boards',
 			[
 			],
@@ -845,8 +833,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mods.id_board, mods.id_member
+			'SELECT mods.id_board, mods.id_member
 			FROM {db_prefix}moderators AS mods',
 			[
 			],
@@ -861,8 +848,7 @@ class Reports implements ActionInterface
 		// Get any additional boards they can moderate through group-based board moderation
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member, modgs.id_board
+			'SELECT mem.id_member, modgs.id_board
 			FROM {db_prefix}members AS mem
 				INNER JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group = mem.id_group OR FIND_IN_SET(modgs.id_group, mem.additional_groups) != 0)',
 			[
@@ -901,8 +887,7 @@ class Reports implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, group_name, online_color
+			'SELECT id_group, group_name, online_color
 			FROM {db_prefix}membergroups',
 			[
 			],
@@ -927,8 +912,7 @@ class Reports implements ActionInterface
 		// Get each member!
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, id_group, posts, last_login
+			'SELECT id_member, real_name, id_group, posts, last_login
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:staff_list})
 			ORDER BY real_name',

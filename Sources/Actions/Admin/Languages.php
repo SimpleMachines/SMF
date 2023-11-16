@@ -709,8 +709,7 @@ class Languages implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme != {int:default_theme}
 				AND id_member = {int:no_member}
@@ -857,8 +856,7 @@ class Languages implements ActionInterface
 			// Members can no longer use this language.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}members
+				'UPDATE {db_prefix}members
 				SET lngfile = {empty}
 				WHERE lngfile = {string:current_language}',
 				[
@@ -1608,8 +1606,7 @@ class Languages implements ActionInterface
 		// Work out how many people are using each language.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lngfile, COUNT(*) AS num_users
+			'SELECT lngfile, COUNT(*) AS num_users
 			FROM {db_prefix}members
 			GROUP BY lngfile',
 			[

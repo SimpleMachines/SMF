@@ -45,8 +45,7 @@ class SendDigests extends ScheduledTask
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
+			'SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 				mem.lngfile, mem.id_member
 			FROM {db_prefix}log_notify AS ln
 				JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
@@ -88,8 +87,7 @@ class SendDigests extends ScheduledTask
 		// Just get the board names.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, name
+			'SELECT id_board, name
 			FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:board_list})',
 			[
@@ -111,8 +109,7 @@ class SendDigests extends ScheduledTask
 		$types = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
+			'SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
 				b.name AS board_name
 			FROM {db_prefix}log_digest AS ld
 				JOIN {db_prefix}topics AS t ON (t.id_topic = ld.id_topic
@@ -320,8 +317,7 @@ class SendDigests extends ScheduledTask
 		if ($is_weekly) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_digest
+				'DELETE FROM {db_prefix}log_digest
 				WHERE daily != {int:not_daily}',
 				[
 					'not_daily' => 0,
@@ -330,8 +326,7 @@ class SendDigests extends ScheduledTask
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_digest
+				'UPDATE {db_prefix}log_digest
 				SET daily = {int:daily_value}
 				WHERE daily = {int:not_daily}',
 				[
@@ -343,8 +338,7 @@ class SendDigests extends ScheduledTask
 			// Clear any only weekly ones, and stop us from sending daily again.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_digest
+				'DELETE FROM {db_prefix}log_digest
 				WHERE daily = {int:daily_value}',
 				[
 					'daily_value' => 2,
@@ -353,8 +347,7 @@ class SendDigests extends ScheduledTask
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_digest
+				'UPDATE {db_prefix}log_digest
 				SET daily = {int:both_value}
 				WHERE daily = {int:no_value}',
 				[
@@ -368,8 +361,7 @@ class SendDigests extends ScheduledTask
 		if (!empty($members_sent)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_notify
+				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE id_member IN ({array_int:member_list})',
 				[

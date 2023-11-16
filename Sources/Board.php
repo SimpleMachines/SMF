@@ -633,8 +633,7 @@ class Board implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_board = {int:id}',
 				$params,
@@ -644,8 +643,7 @@ class Board implements \ArrayAccess
 		// Before we add new access_groups or deny_groups, remove all of the old entries.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}board_permissions_view
+			'DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:this_board}',
 			[
 				'this_board' => $this->id,
@@ -675,8 +673,7 @@ class Board implements \ArrayAccess
 		// Reset current moderators for this board - if there are any!
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}moderators
+			'DELETE FROM {db_prefix}moderators
 			WHERE id_board = {int:this_board}',
 			[
 				'this_board' => $this->id,
@@ -696,8 +693,7 @@ class Board implements \ArrayAccess
 		// Reset current moderator groups for this board - if there are any!
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}moderator_groups
+			'DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board = {int:this_board}',
 			[
 				'this_board' => $this->id,
@@ -1037,8 +1033,7 @@ class Board implements \ArrayAccess
 
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board
+				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}',
 				[
@@ -1073,8 +1068,7 @@ class Board implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, unwatched
+				'SELECT id_topic, unwatched
 				FROM {db_prefix}log_topics
 				WHERE id_topic IN ({array_int:selected_topics})
 					AND id_member = {int:current_user}',
@@ -1114,8 +1108,7 @@ class Board implements \ArrayAccess
 			// First, let's figure out what the latest message is.
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
+				'SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 				FROM {db_prefix}topics as t
 					LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				WHERE t.id_topic = {int:current_topic}',
@@ -1140,8 +1133,7 @@ class Board implements \ArrayAccess
 				else {
 					$result = Db::$db->query(
 						'',
-						'
-						SELECT MAX(id_msg)
+						'SELECT MAX(id_msg)
 						FROM {db_prefix}messages
 						WHERE id_topic = {int:current_topic}
 							AND id_msg >= {int:id_first_msg}
@@ -1162,8 +1154,7 @@ class Board implements \ArrayAccess
 			} else {
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT id_msg
+					'SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
 					ORDER BY id_msg
@@ -1218,8 +1209,7 @@ class Board implements \ArrayAccess
 				// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT b.id_board, b.id_parent
+					'SELECT b.id_board, b.id_parent
 					FROM {db_prefix}boards AS b
 					WHERE {query_see_board}
 						AND b.child_level > {int:no_parents}
@@ -1260,8 +1250,7 @@ class Board implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board
+				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
 					AND b.' . implode(' OR b.', $clauses),
@@ -1290,8 +1279,7 @@ class Board implements \ArrayAccess
 				// Find all the boards this user can see.
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT b.id_board
+					'SELECT b.id_board
 					FROM {db_prefix}boards AS b
 					WHERE b.id_parent IN ({array_int:parent_list})
 						AND {query_see_board}',
@@ -1358,8 +1346,7 @@ class Board implements \ArrayAccess
 			// @todo Maybe not log_mark_read?
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_mark_read
+				'DELETE FROM {db_prefix}log_mark_read
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:current_member}',
 				[
@@ -1370,8 +1357,7 @@ class Board implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_boards
+				'DELETE FROM {db_prefix}log_boards
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:current_member}',
 				[
@@ -1412,8 +1398,7 @@ class Board implements \ArrayAccess
 		// marking log_boards (the previous query only)
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT MIN(id_topic)
+			'SELECT MIN(id_topic)
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:current_member}',
 			[
@@ -1431,8 +1416,7 @@ class Board implements \ArrayAccess
 		$topics = [];
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT lt.id_topic
+			'SELECT lt.id_topic
 			FROM {db_prefix}log_topics AS lt
 				INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
 					AND t.id_board IN ({array_int:board_list}))
@@ -1454,8 +1438,7 @@ class Board implements \ArrayAccess
 		if (!empty($topics)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_topics
+				'DELETE FROM {db_prefix}log_topics
 				WHERE id_member = {int:current_member}
 					AND id_topic IN ({array_int:topic_list})',
 				[
@@ -1479,8 +1462,7 @@ class Board implements \ArrayAccess
 		// Find the topic and make sure the member still exists.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COALESCE(mem.id_member, 0)
+			'SELECT COALESCE(mem.id_member, 0)
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_msg = {int:selected_message}
@@ -1793,8 +1775,7 @@ class Board implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_topic
+			'SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1812,8 +1793,7 @@ class Board implements \ArrayAccess
 		// Delete the board's logs.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_mark_read
+			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1822,8 +1802,7 @@ class Board implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_boards
+			'DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1832,8 +1811,7 @@ class Board implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_notify
+			'DELETE FROM {db_prefix}log_notify
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1843,8 +1821,7 @@ class Board implements \ArrayAccess
 		// Delete this board's moderators.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}moderators
+			'DELETE FROM {db_prefix}moderators
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1854,8 +1831,7 @@ class Board implements \ArrayAccess
 		// Delete this board's moderator groups.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}moderator_groups
+			'DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1865,8 +1841,7 @@ class Board implements \ArrayAccess
 		// Delete any extra events in the calendar.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}calendar
+			'DELETE FROM {db_prefix}calendar
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1876,8 +1851,7 @@ class Board implements \ArrayAccess
 		// Delete any message icons that only appear on these boards.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}message_icons
+			'DELETE FROM {db_prefix}message_icons
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1887,8 +1861,7 @@ class Board implements \ArrayAccess
 		// Delete the boards.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}boards
+			'DELETE FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1898,8 +1871,7 @@ class Board implements \ArrayAccess
 		// Delete permissions
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}board_permissions_view
+			'DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
 				'boards_to_remove' => $boards_to_remove,
@@ -1943,8 +1915,7 @@ class Board implements \ArrayAccess
 				if (self::$loaded[$board_id]->order != ++$board_order) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}boards
+						'UPDATE {db_prefix}boards
 						SET board_order = {int:new_order}
 						WHERE id_board = {int:selected_board}',
 						[
@@ -1975,8 +1946,7 @@ class Board implements \ArrayAccess
 
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT id_board
+			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_parent = {int:parent_board}',
 			[
@@ -1992,8 +1962,7 @@ class Board implements \ArrayAccess
 		// ...and set it to a new parent and child_level.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET id_parent = {int:new_parent}, child_level = {int:new_child_level}
 			WHERE id_parent = {int:parent_board}',
 			[
@@ -2051,8 +2020,7 @@ class Board implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member, mem.real_name, mo.id_board
+			'SELECT mem.id_member, mem.real_name, mo.id_board
 			FROM {db_prefix}moderators AS mo
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
 			WHERE mo.id_board IN ({array_int:boards})',
@@ -2104,8 +2072,7 @@ class Board implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mg.id_group, mg.group_name, bg.id_board
+			'SELECT mg.id_group, mg.group_name, bg.id_board
 			FROM {db_prefix}moderator_groups AS bg
 				INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
 			WHERE bg.id_board IN ({array_int:boards})',
@@ -2282,8 +2249,7 @@ class Board implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				WITH RECURSIVE
+				'WITH RECURSIVE
 					boards_cte (' . implode(', ', $cte_fields) . ')
 				AS
 				(
@@ -2308,8 +2274,7 @@ class Board implements \ArrayAccess
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					' . implode(', ', $selects) . '
 				FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
 					' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
@@ -2421,8 +2386,7 @@ class Board implements \ArrayAccess
 			if ($id > 0 && empty($props)) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT *
+					'SELECT *
 					FROM {db_prefix}boards
 					WHERE id_board = {int:id}
 					LIMIT 1',
@@ -2464,8 +2428,7 @@ class Board implements \ArrayAccess
 		if ((Topic::$topic_id = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic
+				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
 				LIMIT 1',
@@ -2679,8 +2642,7 @@ class Board implements \ArrayAccess
 		) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}topics
 				WHERE id_member_started = {int:id_member}
 					AND approved = {int:unapproved}

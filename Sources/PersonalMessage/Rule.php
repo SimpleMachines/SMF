@@ -205,8 +205,7 @@ class Rule implements \ArrayAccess
 		} else {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}pm_rules
+				'UPDATE {db_prefix}pm_rules
 				SET
 					rule_name = {string:rule_name},
 					criteria = {string:criteria},
@@ -248,8 +247,7 @@ class Rule implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				id_rule, rule_name, criteria, actions, delete_pm, is_or
 			FROM {db_prefix}pm_rules
 			WHERE id_member = {int:me}',
@@ -303,8 +301,7 @@ class Rule implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				pmr.id_pm, pm.id_member_from, pm.subject, pm.body, mem.id_group
 			FROM {db_prefix}pm_recipients AS pmr
 				INNER JOIN {db_prefix}personal_messages AS pm ON (pm.id_pm = pmr.id_pm)
@@ -393,8 +390,7 @@ class Rule implements \ArrayAccess
 				if (!empty(Theme::$current->options['pm_remove_inbox_label'])) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}pm_recipients
+						'UPDATE {db_prefix}pm_recipients
 						SET in_inbox = {int:in_inbox}
 						WHERE id_pm = {int:id_pm}
 							AND id_member = {int:me}',
@@ -439,8 +435,7 @@ class Rule implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}pm_rules
+			'DELETE FROM {db_prefix}pm_rules
 			WHERE id_rule IN ({array_int:delete_list})
 				AND id_member = {int:me}',
 			[
@@ -520,8 +515,7 @@ class Rule implements \ArrayAccess
 				if (!empty($members)) {
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_member, member_name
+						'SELECT id_member, member_name
 						FROM {db_prefix}members
 						WHERE id_member IN ({array_int:member_list})',
 						[
@@ -585,8 +579,7 @@ class Rule implements \ArrayAccess
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_member
+						'SELECT id_member
 						FROM {db_prefix}members
 						WHERE real_name = {string:member_name}
 							OR member_name = {string:member_name}',

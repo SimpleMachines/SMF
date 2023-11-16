@@ -184,8 +184,7 @@ class ViewQuery implements ActionInterface
 			if ($query_id == $q && $is_select_query) {
 				$result = Db::$db->query(
 					'',
-					'
-					EXPLAIN ' . (Db::$db->title === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
+					'EXPLAIN ' . (Db::$db->title === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
 					[
 					],
 				);

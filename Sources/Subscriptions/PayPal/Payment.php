@@ -272,8 +272,7 @@ class Payment
 		if ($_POST['txn_type'] == 'subscr_payment' && !empty($_POST['subscr_id'])) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_subscribed
+				'UPDATE {db_prefix}log_subscribed
 				SET vendor_ref = {string:vendor_ref}
 				WHERE id_sublog = {int:current_subscription}',
 				[
@@ -299,8 +298,7 @@ class Payment
 		// Do we have this in the database?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, id_subscribe
+			'SELECT id_member, id_subscribe
 			FROM {db_prefix}log_subscribed
 			WHERE vendor_ref = {string:vendor_ref}
 			LIMIT 1',
@@ -316,8 +314,7 @@ class Payment
 				Db::$db->free_result($request);
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT ls.id_member, ls.id_subscribe
+					'SELECT ls.id_member, ls.id_subscribe
 					FROM {db_prefix}log_subscribed AS ls
 						INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
 					WHERE mem.email_address = {string:payer_email}

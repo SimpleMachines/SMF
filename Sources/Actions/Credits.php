@@ -365,8 +365,7 @@ class Credits implements ActionInterface
 
 			$request = Db::$db->query(
 				'substring',
-				'
-				SELECT version, name, credits
+				'SELECT version, name, credits
 				FROM {db_prefix}log_packages
 				WHERE install_state = {int:installed_mods}
 					AND credits != {string:empty}

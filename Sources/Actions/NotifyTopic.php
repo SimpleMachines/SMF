@@ -140,8 +140,7 @@ class NotifyTopic extends Notify implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, id_topic, id_msg, unwatched
+			'SELECT id_member, id_topic, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:member}
 				AND {raw:column} = {int:id}',

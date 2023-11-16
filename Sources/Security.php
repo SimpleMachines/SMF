@@ -220,8 +220,7 @@ class Security
 		// Delete old entries...
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_floodcontrol
+			'DELETE FROM {db_prefix}log_floodcontrol
 			WHERE log_time < {int:log_time}
 				AND log_type = {string:log_type}',
 			[

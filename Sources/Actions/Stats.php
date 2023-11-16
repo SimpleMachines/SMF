@@ -136,8 +136,7 @@ class Stats implements ActionInterface
 		// Get averages...
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				SUM(posts) AS posts, SUM(topics) AS topics, SUM(registers) AS registers,
 				SUM(most_on) AS most_on, MIN(date) AS date, SUM(hits) AS hits
 			FROM {db_prefix}log_activity',
@@ -161,8 +160,7 @@ class Stats implements ActionInterface
 		// How many users are online now.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_online',
 			[
 			],
@@ -173,8 +171,7 @@ class Stats implements ActionInterface
 		// Statistics such as number of boards, categories, etc.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}boards AS b
 			WHERE b.redirect = {string:blank_redirect}',
 			[
@@ -186,8 +183,7 @@ class Stats implements ActionInterface
 
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}categories AS c',
 			[
 			],
@@ -216,8 +212,7 @@ class Stats implements ActionInterface
 			if ((Utils::$context['gender'] = CacheApi::get('stats_gender', 240)) == null) {
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT default_value
+					'SELECT default_value
 					FROM {db_prefix}custom_fields
 					WHERE col_name= {string:gender_var}',
 					[
@@ -230,8 +225,7 @@ class Stats implements ActionInterface
 
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT COUNT(*) AS total_members, value AS gender
+					'SELECT COUNT(*) AS total_members, value AS gender
 					FROM {db_prefix}members AS mem
 					INNER JOIN {db_prefix}themes AS t ON (
 						t.id_member = mem.id_member
@@ -265,8 +259,7 @@ class Stats implements ActionInterface
 		// Members online so far today.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT most_on
+			'SELECT most_on
 			FROM {db_prefix}log_activity
 			WHERE date = {date:today_date}
 			LIMIT 1',
@@ -282,8 +275,7 @@ class Stats implements ActionInterface
 		// Poster top 10.
 		$members_result = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, posts
+			'SELECT id_member, real_name, posts
 			FROM {db_prefix}members
 			WHERE posts > {int:no_posts}
 			ORDER BY posts DESC
@@ -318,8 +310,7 @@ class Stats implements ActionInterface
 		// Board top 10.
 		$boards_result = Db::$db->query(
 			'',
-			'
-			SELECT id_board, name, num_posts
+			'SELECT id_board, name, num_posts
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				AND b.id_board != {int:recycle_board}' : '') . '
@@ -358,8 +349,7 @@ class Stats implements ActionInterface
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic
+				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_replies != {int:no_replies}' . (Config::$modSettings['postmod_active'] ? '
 					AND approved = {int:is_approved}' : '') . '
@@ -383,8 +373,7 @@ class Stats implements ActionInterface
 		// Topic replies top 10.
 		$topic_reply_result = Db::$db->query(
 			'',
-			'
-			SELECT m.subject, t.num_replies, t.id_board, t.id_topic, b.name
+			'SELECT m.subject, t.num_replies, t.id_board, t.id_topic, b.name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -435,8 +424,7 @@ class Stats implements ActionInterface
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic
+				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_views != {int:no_views}
 				ORDER BY num_views DESC
@@ -458,8 +446,7 @@ class Stats implements ActionInterface
 		// Topic views top 10.
 		$topic_view_result = Db::$db->query(
 			'',
-			'
-			SELECT m.subject, t.num_views, t.id_board, t.id_topic, b.name
+			'SELECT m.subject, t.num_views, t.id_board, t.id_topic, b.name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -510,8 +497,7 @@ class Stats implements ActionInterface
 		if (($members = CacheApi::get('stats_top_starters', 360)) == null) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member_started, COUNT(*) AS hits
+				'SELECT id_member_started, COUNT(*) AS hits
 				FROM {db_prefix}topics' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				WHERE id_board != {int:recycle_board}' : '') . '
 				GROUP BY id_member_started
@@ -538,8 +524,7 @@ class Stats implements ActionInterface
 		// Topic poster top 10.
 		$members_result = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name
+			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:member_list})',
 			[
@@ -581,8 +566,7 @@ class Stats implements ActionInterface
 		$temp = CacheApi::get('stats_total_time_members', 600);
 		$members_result = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, total_time_logged_in
+			'SELECT id_member, real_name, total_time_logged_in
 			FROM {db_prefix}members
 			WHERE is_activated = {int:is_activated}' .
 			(!empty($temp) ? ' AND id_member IN ({array_int:member_list_cached})' : '') . '
@@ -651,8 +635,7 @@ class Stats implements ActionInterface
 			$max_liked_message = 1;
 			$liked_messages = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
+				'SELECT m.id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
 				FROM (
 					SELECT n.id_msg, n.subject, n.likes, n.id_board, n.id_topic
 					FROM {db_prefix}messages as n
@@ -698,8 +681,7 @@ class Stats implements ActionInterface
 			$max_liked_users = 1;
 			$liked_users = Db::$db->query(
 				'',
-				'
-				SELECT m.id_member AS liked_user, COUNT(l.content_id) AS count, mem.real_name
+				'SELECT m.id_member AS liked_user, COUNT(l.content_id) AS count, mem.real_name
 				FROM {db_prefix}user_likes AS l
 					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
 					INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
@@ -738,8 +720,7 @@ class Stats implements ActionInterface
 		// Activity by month.
 		$months_result = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				YEAR(date) AS stats_year, MONTH(date) AS stats_month, SUM(hits) AS hits, SUM(registers) AS registers, SUM(topics) AS topics, SUM(posts) AS posts, MAX(most_on) AS most_on, COUNT(*) AS num_days
 			FROM {db_prefix}log_activity
 			GROUP BY stats_year, stats_month',
@@ -891,8 +872,7 @@ class Stats implements ActionInterface
 		// Activity by day.
 		$days_result = Db::$db->query(
 			'',
-			'
-			SELECT YEAR(date) AS stats_year, MONTH(date) AS stats_month, DAYOFMONTH(date) AS stats_day, topics, posts, registers, most_on, hits
+			'SELECT YEAR(date) AS stats_year, MONTH(date) AS stats_month, DAYOFMONTH(date) AS stats_day, topics, posts, registers, most_on, hits
 			FROM {db_prefix}log_activity
 			WHERE ' . $condition_string . '
 			ORDER BY stats_day ASC',

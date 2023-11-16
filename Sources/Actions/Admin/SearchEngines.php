@@ -158,8 +158,7 @@ class SearchEngines implements ActionInterface
 			// Delete the entires.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_spider_stats
+				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE last_seen < {int:delete_period}',
 				[
 					'delete_period' => $deleteTime,
@@ -170,8 +169,7 @@ class SearchEngines implements ActionInterface
 		// Get the earliest and latest dates.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
+			'SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
 			FROM {db_prefix}log_spider_stats',
 			[
 			],
@@ -230,8 +228,7 @@ class SearchEngines implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}log_spider_stats
 				WHERE stat_date < {date:date_being_viewed}',
 				[
@@ -334,8 +331,7 @@ class SearchEngines implements ActionInterface
 				// Delete the entires.
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_spider_hits
+					'DELETE FROM {db_prefix}log_spider_hits
 					WHERE log_time < {int:delete_period}',
 					[
 						'delete_period' => $deleteTime,
@@ -345,8 +341,7 @@ class SearchEngines implements ActionInterface
 				// Deleting all of them
 				Db::$db->query(
 					'',
-					'
-					TRUNCATE TABLE {db_prefix}log_spider_hits',
+					'TRUNCATE TABLE {db_prefix}log_spider_hits',
 					[],
 				);
 			}
@@ -484,8 +479,7 @@ class SearchEngines implements ActionInterface
 			// Delete them all!
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}spiders
+				'DELETE FROM {db_prefix}spiders
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
 					'remove_list' => $_POST['remove'],
@@ -494,8 +488,7 @@ class SearchEngines implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_spider_hits
+				'DELETE FROM {db_prefix}log_spider_hits
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
 					'remove_list' => $_POST['remove'],
@@ -504,8 +497,7 @@ class SearchEngines implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_spider_stats
+				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
 					'remove_list' => $_POST['remove'],
@@ -521,8 +513,7 @@ class SearchEngines implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_spider, MAX(last_seen) AS last_seen_time
+			'SELECT id_spider, MAX(last_seen) AS last_seen_time
 			FROM {db_prefix}log_spider_stats
 			GROUP BY id_spider',
 			[],
@@ -648,8 +639,7 @@ class SearchEngines implements ActionInterface
 		// We need to load the groups for the spider group thingy.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, group_name
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:admin_group}
 				AND id_group != {int:moderator_group}',
@@ -738,8 +728,7 @@ class SearchEngines implements ActionInterface
 			if (Utils::$context['id_spider']) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}spiders
+					'UPDATE {db_prefix}spiders
 					SET spider_name = {string:spider_name}, user_agent = {string:spider_agent},
 						ip_info = {string:ip_info}
 					WHERE id_spider = {int:current_spider}',
@@ -782,8 +771,7 @@ class SearchEngines implements ActionInterface
 		if (Utils::$context['id_spider']) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_spider, spider_name, user_agent, ip_info
+				'SELECT id_spider, spider_name, user_agent, ip_info
 				FROM {db_prefix}spiders
 				WHERE id_spider = {int:current_spider}',
 				[
@@ -877,8 +865,7 @@ class SearchEngines implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
+			'SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
 			FROM {db_prefix}log_spider_hits
 			WHERE processed = {int:not_processed}
 			GROUP BY id_spider, MONTH(log_time), DAYOFMONTH(log_time)',
@@ -905,8 +892,7 @@ class SearchEngines implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_spider_stats
+				'UPDATE {db_prefix}log_spider_stats
 				SET page_hits = page_hits + {int:hits},
 					last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
 				WHERE id_spider = {int:current_spider}
@@ -938,8 +924,7 @@ class SearchEngines implements ActionInterface
 		// All processed.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_spider_hits
+			'UPDATE {db_prefix}log_spider_hits
 			SET processed = {int:is_processed}
 			WHERE processed = {int:not_processed}',
 			[
@@ -963,8 +948,7 @@ class SearchEngines implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_spider, spider_name, user_agent, ip_info
+			'SELECT id_spider, spider_name, user_agent, ip_info
 			FROM {db_prefix}spiders
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items}',
@@ -992,8 +976,7 @@ class SearchEngines implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS num_spiders
+			'SELECT COUNT(*) AS num_spiders
 			FROM {db_prefix}spiders',
 			[
 			],
@@ -1018,8 +1001,7 @@ class SearchEngines implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
+			'SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 			FROM {db_prefix}log_spider_hits AS sl
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
 			ORDER BY {raw:sort}
@@ -1048,8 +1030,7 @@ class SearchEngines implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS num_logs
+			'SELECT COUNT(*) AS num_logs
 			FROM {db_prefix}log_spider_hits',
 			[
 			],
@@ -1075,8 +1056,7 @@ class SearchEngines implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
+			'SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 			FROM {db_prefix}log_spider_stats AS ss
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
 			ORDER BY {raw:sort}
@@ -1106,8 +1086,7 @@ class SearchEngines implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS num_stats
+			'SELECT COUNT(*) AS num_stats
 			FROM {db_prefix}log_spider_stats',
 			[
 			],
@@ -1127,8 +1106,7 @@ class SearchEngines implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_spider, spider_name
+			'SELECT id_spider, spider_name
 			FROM {db_prefix}spiders',
 			[],
 		);

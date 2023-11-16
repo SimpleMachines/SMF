@@ -286,8 +286,7 @@ class Search
 		// @todo This doesn't support sent item searching yet.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT pm.id_pm, pm.id_member_from
+			'SELECT pm.id_pm, pm.id_member_from
 			FROM {db_prefix}pm_recipients AS pmr
 				INNER JOIN {db_prefix}personal_messages AS pm ON (pm.id_pm = pmr.id_pm)
 				' . $this->label_join . '
@@ -485,8 +484,7 @@ class Search
 		// @todo This doesn't support sent item searching.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . implode(' OR ', $where_clause),
 			$where_params,

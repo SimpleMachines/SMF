@@ -1274,8 +1274,7 @@ class Msg implements \ArrayAccess
 		} elseif (!empty($topicOptions['id']) && !isset($topicOptions['is_approved'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT approved
+				'SELECT approved
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:id_topic}
 				LIMIT 1',
@@ -1296,8 +1295,7 @@ class Msg implements \ArrayAccess
 			} elseif ($posterOptions['id'] != User::$me->id) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT member_name, email_address
+					'SELECT member_name, email_address
 					FROM {db_prefix}members
 					WHERE id_member = {int:id_member}
 					LIMIT 1',
@@ -1378,8 +1376,7 @@ class Msg implements \ArrayAccess
 		if (!empty($msgOptions['attachments'])) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}attachments
+				'UPDATE {db_prefix}attachments
 				SET id_msg = {int:id_msg}
 				WHERE id_attach IN ({array_int:attachment_list})',
 				[
@@ -1424,8 +1421,7 @@ class Msg implements \ArrayAccess
 				// We should delete the post that did work, though...
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}messages
+					'DELETE FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}',
 					[
 						'id_msg' => $msgOptions['id'],
@@ -1438,8 +1434,7 @@ class Msg implements \ArrayAccess
 			// Fix the message with the topic.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}messages
+				'UPDATE {db_prefix}messages
 				SET id_topic = {int:id_topic}
 				WHERE id_msg = {int:id_msg}',
 				[
@@ -1493,8 +1488,7 @@ class Msg implements \ArrayAccess
 			// Update the number of replies and the lock/sticky status.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET
 					' . implode(', ', $topics_columns) . '
 				WHERE id_topic = {int:id_topic}',
@@ -1509,8 +1503,7 @@ class Msg implements \ArrayAccess
 		// @todo Why not set id_msg_modified on the insert?
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_msg_modified = {int:id_msg}
 			WHERE id_msg = {int:id_msg}',
 			[
@@ -1522,8 +1515,7 @@ class Msg implements \ArrayAccess
 		if ($msgOptions['approved']) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET num_posts = num_posts + 1' . ($new_topic ? ', num_topics = num_topics + 1' : '') . '
 				WHERE id_board = {int:id_board}',
 				[
@@ -1533,8 +1525,7 @@ class Msg implements \ArrayAccess
 		} else {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET unapproved_posts = unapproved_posts + 1' . ($new_topic ? ', unapproved_topics = unapproved_topics + 1' : '') . '
 				WHERE id_board = {int:id_board}',
 				[
@@ -1577,8 +1568,7 @@ class Msg implements \ArrayAccess
 			if (!$new_topic) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}log_topics
+					'UPDATE {db_prefix}log_topics
 					SET id_msg = {int:id_msg}
 					WHERE id_member = {int:current_member}
 						AND id_topic = {int:id_topic}',
@@ -1724,8 +1714,7 @@ class Msg implements \ArrayAccess
 			if (!empty(Config::$modSettings['search_custom_index_config'])) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT body
+					'SELECT body
 					FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}',
 					[
@@ -1808,8 +1797,7 @@ class Msg implements \ArrayAccess
 		// Change the post.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET ' . implode(', ', $messages_columns) . '
 			WHERE id_msg = {int:id_msg}',
 			$update_parameters,
@@ -1819,8 +1807,7 @@ class Msg implements \ArrayAccess
 		if ($topicOptions['sticky_mode'] !== null || $topicOptions['lock_mode'] !== null || $topicOptions['poll'] !== null) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET
 					is_sticky = {raw:is_sticky},
 					locked = {raw:locked},
@@ -1840,8 +1827,7 @@ class Msg implements \ArrayAccess
 			// Since it's likely they *read* it before editing, let's try an UPDATE first.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_topics
+				'UPDATE {db_prefix}log_topics
 				SET id_msg = {int:id_msg}
 				WHERE id_member = {int:current_member}
 					AND id_topic = {int:id_topic}',
@@ -1901,8 +1887,7 @@ class Msg implements \ArrayAccess
 			// Only update the subject if this was the first message in the topic.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic
+				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE id_first_msg = {int:id_first_msg}
 				LIMIT 1',
@@ -1956,8 +1941,7 @@ class Msg implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
+			'SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
 				m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
 				t.approved AS topic_approved, b.count_posts
 			FROM {db_prefix}messages AS m
@@ -2061,8 +2045,7 @@ class Msg implements \ArrayAccess
 		// Now we have the differences make the changes, first the easy one.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET approved = {int:approved_state}
 			WHERE id_msg IN ({array_int:message_list})',
 			[
@@ -2075,8 +2058,7 @@ class Msg implements \ArrayAccess
 		if (!$approve) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, MAX(id_msg) AS id_last_msg
+				'SELECT id_topic, MAX(id_msg) AS id_last_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
 					AND approved = {int:approved}
@@ -2097,8 +2079,7 @@ class Msg implements \ArrayAccess
 		foreach ($topic_changes as $id => $changes) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET approved = {int:approved}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 					num_replies = num_replies + {int:num_replies}, id_last_msg = {int:id_last_msg}
 				WHERE id_topic = {int:id_topic}',
@@ -2116,8 +2097,7 @@ class Msg implements \ArrayAccess
 		foreach ($board_changes as $id => $changes) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET num_posts = num_posts + {int:num_posts}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 					num_topics = num_topics + {int:num_topics}, unapproved_topics = unapproved_topics + {int:unapproved_topics}
 				WHERE id_board = {int:id_board}',
@@ -2176,8 +2156,7 @@ class Msg implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}approval_queue
+				'DELETE FROM {db_prefix}approval_queue
 				WHERE id_msg IN ({array_int:message_list})
 					AND id_attach = {int:id_attach}',
 				[
@@ -2301,8 +2280,7 @@ class Msg implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board, MAX(id_last_msg) AS id_msg
+				'SELECT id_board, MAX(id_last_msg) AS id_msg
 				FROM {db_prefix}topics
 				WHERE id_board IN ({array_int:board_list})
 					AND approved = {int:approved}
@@ -2387,8 +2365,7 @@ class Msg implements \ArrayAccess
 		foreach ($parent_updates as $id_msg => $boards) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET id_msg_updated = {int:id_msg_updated}
 				WHERE id_board IN ({array_int:board_list})
 					AND id_msg_updated < {int:id_msg_updated}',
@@ -2402,8 +2379,7 @@ class Msg implements \ArrayAccess
 		foreach ($board_updates as $board_data) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET id_last_msg = {int:id_last_msg}, id_msg_updated = {int:id_msg_updated}
 				WHERE id_board IN ({array_int:board_list})',
 				[
@@ -2432,8 +2408,7 @@ class Msg implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				m.id_member, m.icon, m.poster_time, m.subject,' . (empty(Config::$modSettings['search_custom_index_config']) ? '' : ' m.body,') . '
 				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
 				t.id_member_started AS id_member_poster,
@@ -2565,8 +2540,7 @@ class Msg implements \ArrayAccess
 			// Find the last message, set it, and decrease the post count.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg, id_member
+				'SELECT id_msg, id_member
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:id_topic}
 					AND id_msg != {int:id_msg}
@@ -2582,8 +2556,7 @@ class Msg implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET
 					id_last_msg = {int:id_last_msg},
 					id_member_updated = {int:id_member_updated}' . (!Config::$modSettings['postmod_active'] || $row['approved'] ? ',
@@ -2603,8 +2576,7 @@ class Msg implements \ArrayAccess
 		else {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET ' . ($row['approved'] ? '
 					num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : '
 					unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
@@ -2626,8 +2598,7 @@ class Msg implements \ArrayAccess
 			// Check if the recycle board exists and if so get the read status.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
+				'SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 				WHERE b.id_board = {int:recycle_board}',
@@ -2646,8 +2617,7 @@ class Msg implements \ArrayAccess
 			// Is there an existing topic in the recycle board to group this post with?
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, id_first_msg, id_last_msg
+				'SELECT id_topic, id_first_msg, id_last_msg
 				FROM {db_prefix}topics
 				WHERE id_previous_topic = {int:id_previous_topic}
 					AND id_board = {int:recycle_board}',
@@ -2684,8 +2654,7 @@ class Msg implements \ArrayAccess
 			if ($topicID > 0) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}messages
+					'UPDATE {db_prefix}messages
 					SET
 						id_topic = {int:id_topic},
 						id_board = {int:recycle_board},
@@ -2702,8 +2671,7 @@ class Msg implements \ArrayAccess
 				// Take any reported posts with us...
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}log_reported
+					'UPDATE {db_prefix}log_reported
 					SET
 						id_topic = {int:id_topic},
 						id_board = {int:recycle_board}
@@ -2740,8 +2708,7 @@ class Msg implements \ArrayAccess
 				// Add one topic and post to the recycle bin board.
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}boards
+					'UPDATE {db_prefix}boards
 					SET
 						num_topics = num_topics + {int:num_topics_inc},
 						num_posts = num_posts + 1' .
@@ -2758,8 +2725,7 @@ class Msg implements \ArrayAccess
 				if (!empty($id_recycle_topic)) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}topics
+						'UPDATE {db_prefix}topics
 						SET num_replies = num_replies + 1' .
 							($message > $last_topic_msg ? ', id_last_msg = {int:id_merged_msg}' : '') .
 							($message < $first_topic_msg ? ', id_first_msg = {int:id_merged_msg}' : '') . '
@@ -2782,8 +2748,7 @@ class Msg implements \ArrayAccess
 			if (!$row['approved']) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}approval_queue
+					'DELETE FROM {db_prefix}approval_queue
 					WHERE id_msg = {int:id_msg}
 						AND id_attach = {int:id_attach}',
 					[
@@ -2796,8 +2761,7 @@ class Msg implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET ' . ($row['approved'] ? '
 				num_posts = CASE WHEN num_posts = {int:no_posts} THEN 0 ELSE num_posts - 1 END' : '
 				unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
@@ -2827,8 +2791,7 @@ class Msg implements \ArrayAccess
 			// Remove the message!
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}messages
+				'DELETE FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}',
 				[
 					'id_msg' => $message,
@@ -2843,8 +2806,7 @@ class Msg implements \ArrayAccess
 				if (!empty($words)) {
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}log_search_words
+						'DELETE FROM {db_prefix}log_search_words
 						WHERE id_word IN ({array_int:word_list})
 							AND id_msg = {int:id_msg}',
 						[
@@ -2884,8 +2846,7 @@ class Msg implements \ArrayAccess
 		// Close any moderation reports for this message.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_reported
+			'UPDATE {db_prefix}log_reported
 			SET closed = {int:is_closed}
 			WHERE id_msg = {int:id_msg}',
 			[
@@ -3063,8 +3024,7 @@ class Msg implements \ArrayAccess
 	{
 		self::$messages_request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}messages AS m' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '

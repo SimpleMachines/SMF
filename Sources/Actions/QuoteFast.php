@@ -71,8 +71,7 @@ class QuoteFast implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
+			'SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 				m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)

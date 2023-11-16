@@ -565,8 +565,7 @@ class Boards implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member, mem.real_name
+			'SELECT mem.id_member, mem.real_name
 			FROM {db_prefix}moderators AS mods
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
 			WHERE mods.id_board = {int:current_board}',
@@ -591,8 +590,7 @@ class Boards implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group
+			'SELECT id_group
 			FROM {db_prefix}moderator_groups
 			WHERE id_board = {int:current_board}',
 			[
@@ -616,8 +614,7 @@ class Boards implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme AS id, value AS name
+			'SELECT id_theme AS id, value AS name
 			FROM {db_prefix}themes
 			WHERE variable = {literal:name}
 				AND id_theme IN ({array_int:enable_themes})',
@@ -742,8 +739,7 @@ class Boards implements ActionInterface
 			if (!empty($_POST['boardid'])) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT redirect, num_posts, id_cat
+					'SELECT redirect, num_posts, id_cat
 					FROM {db_prefix}boards
 					WHERE id_board = {int:current_board}',
 					[
@@ -828,8 +824,7 @@ class Boards implements ActionInterface
 		// Select the stuff we need from the DB.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT CONCAT({string:post_id}, {string:feline_clause}, {string:subact})
+			'SELECT CONCAT({string:post_id}, {string:feline_clause}, {string:subact})
 			FROM {db_prefix}categories
 			LIMIT 1',
 			[
@@ -926,8 +921,7 @@ class Boards implements ActionInterface
 		// Load the boards list - for the recycle bin!
 		$request = Db::$db->query(
 			'order_by_board_order',
-			'
-			SELECT b.id_board, b.name AS board_name, c.name AS cat_name
+			'SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			WHERE redirect = {string:empty_string}',

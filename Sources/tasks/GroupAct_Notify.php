@@ -38,8 +38,7 @@ class GroupAct_Notify extends BackgroundTask
 		// Get the details of all the members concerned...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
+			'SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
 				mem.lngfile, mem.member_name,  mg.group_name, mg.hidden
 			FROM {db_prefix}log_group_requests AS lgr
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)

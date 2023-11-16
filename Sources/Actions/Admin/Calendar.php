@@ -250,8 +250,7 @@ class Calendar implements ActionInterface
 			if (isset($_REQUEST['delete'])) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}calendar_holidays
+					'DELETE FROM {db_prefix}calendar_holidays
 					WHERE id_holiday = {int:selected_holiday}',
 					[
 						'selected_holiday' => $_REQUEST['holiday'],
@@ -263,8 +262,7 @@ class Calendar implements ActionInterface
 				if (isset($_REQUEST['edit'])) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}calendar_holidays
+						'UPDATE {db_prefix}calendar_holidays
 						SET event_date = {date:holiday_date}, title = {string:holiday_title}
 						WHERE id_holiday = {int:selected_holiday}',
 						[
@@ -312,8 +310,7 @@ class Calendar implements ActionInterface
 		else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
+				'SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
 				FROM {db_prefix}calendar_holidays
 				WHERE id_holiday = {int:selected_holiday}
 				LIMIT 1',
@@ -414,8 +411,7 @@ class Calendar implements ActionInterface
 
 			$request = Db::$db->query(
 				'order_by_board_order',
-				'
-				SELECT b.id_board, b.name AS board_name, c.name AS cat_name
+				'SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
 				[

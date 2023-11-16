@@ -200,8 +200,7 @@ class BuddyIgnoreLists implements ActionInterface
 				// Now find out the id_member of the buddy.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE member_name IN ({array_string:new_buddies}) OR real_name IN ({array_string:new_buddies})
 					LIMIT {int:count_new_buddies}',
@@ -242,8 +241,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT col_name, field_name, field_desc, field_type, field_options, show_mlist, bbc, enclose
+			'SELECT col_name, field_name, field_desc, field_type, field_options, show_mlist, bbc, enclose
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
 				AND private < {int:private_level}',
@@ -269,8 +267,7 @@ class BuddyIgnoreLists implements ActionInterface
 		if (!empty($buddiesArray)) {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:buddy_list})
 				ORDER BY real_name
@@ -412,8 +409,7 @@ class BuddyIgnoreLists implements ActionInterface
 				// Now find out the id_member for the members in question.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE member_name IN ({array_string:new_entries}) OR real_name IN ({array_string:new_entries})
 					LIMIT {int:count_new_entries}',
@@ -450,8 +446,7 @@ class BuddyIgnoreLists implements ActionInterface
 		if (!empty($ignoreArray)) {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:ignore_list})
 				ORDER BY real_name

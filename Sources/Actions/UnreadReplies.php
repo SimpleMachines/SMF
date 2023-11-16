@@ -150,16 +150,14 @@ class UnreadReplies extends Unread
 	{
 		Db::$db->query(
 			'',
-			'
-			DROP TABLE IF EXISTS {db_prefix}topics_posted_in',
+			'DROP TABLE IF EXISTS {db_prefix}topics_posted_in',
 			[
 			],
 		);
 
 		Db::$db->query(
 			'',
-			'
-			DROP TABLE IF EXISTS {db_prefix}log_topics_posted_in',
+			'DROP TABLE IF EXISTS {db_prefix}log_topics_posted_in',
 			[
 			],
 		);
@@ -175,8 +173,7 @@ class UnreadReplies extends Unread
 		// The main benefit of this temporary table is not that it's faster; it's that it avoids locks later.
 		$this->have_temp_table = false !== Db::$db->query(
 			'',
-			'
-			CREATE TEMPORARY TABLE {db_prefix}topics_posted_in (
+			'CREATE TEMPORARY TABLE {db_prefix}topics_posted_in (
 				id_topic mediumint(8) unsigned NOT NULL default {string:string_zero},
 				id_board smallint(5) unsigned NOT NULL default {string:string_zero},
 				id_last_msg int(10) unsigned NOT NULL default {string:string_zero},
@@ -206,8 +203,7 @@ class UnreadReplies extends Unread
 		if ($this->have_temp_table) {
 			$this->have_temp_table = false !== Db::$db->query(
 				'',
-				'
-				CREATE TEMPORARY TABLE {db_prefix}log_topics_posted_in (
+				'CREATE TEMPORARY TABLE {db_prefix}log_topics_posted_in (
 					PRIMARY KEY (id_topic)
 				)
 				SELECT lt.id_topic, lt.id_msg
@@ -229,8 +225,7 @@ class UnreadReplies extends Unread
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}topics_posted_in AS pi
 				LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = pi.id_topic)
 			WHERE pi.' . $this->query_this_board . '
@@ -250,8 +245,7 @@ class UnreadReplies extends Unread
 		$topics = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_topic
+			'SELECT t.id_topic
 			FROM {db_prefix}topics_posted_in AS t
 				LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = t.id_topic)
 			WHERE t.' . $this->query_this_board . '
@@ -279,8 +273,7 @@ class UnreadReplies extends Unread
 
 		$this->topic_request = Db::$db->query(
 			'substring',
-			'
-			SELECT ' . implode(', ', $this->selects) . '
+			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_topic = t.id_topic AND ms.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -310,8 +303,7 @@ class UnreadReplies extends Unread
 	{
 		$request = Db::$db->query(
 			'unread_fetch_topic_count',
-			'
-			SELECT COUNT(DISTINCT t.id_topic), MIN(t.id_last_msg)
+			'SELECT COUNT(DISTINCT t.id_topic), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic)
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -342,8 +334,7 @@ class UnreadReplies extends Unread
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
+			'SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (strpos($_REQUEST['sort'], 'ms.') === false ? '' : '
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (strpos($_REQUEST['sort'], 'mems.') === false ? '' : '
@@ -382,8 +373,7 @@ class UnreadReplies extends Unread
 
 		$this->topic_request = Db::$db->query(
 			'substring',
-			'
-			SELECT ' . implode(', ', $this->selects) . '
+			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_topic = t.id_topic AND ms.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)

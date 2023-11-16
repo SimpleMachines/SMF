@@ -327,8 +327,7 @@ class Feed implements ActionInterface
 			if (count($_GET['c']) == 1) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT name
+					'SELECT name
 					FROM {db_prefix}categories
 					WHERE id_cat = {int:current_category}',
 					[
@@ -343,8 +342,7 @@ class Feed implements ActionInterface
 			$this->boards = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:current_category_list})
 					AND {query_see_board}',
@@ -382,8 +380,7 @@ class Feed implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board, b.num_posts, b.name
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
 					AND {query_see_board}
@@ -419,8 +416,7 @@ class Feed implements ActionInterface
 		} elseif (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT num_posts
+				'SELECT num_posts
 				FROM {db_prefix}boards AS b
 				WHERE id_board = {int:current_board}
 					AND {query_see_board}
@@ -585,8 +581,7 @@ class Feed implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, member_name, real_name, date_registered, last_login
+			'SELECT id_member, member_name, real_name, date_registered, last_login
 			FROM {db_prefix}members
 			ORDER BY id_member {raw:ascdesc}
 			LIMIT {int:limit}',
@@ -744,8 +739,7 @@ class Feed implements ActionInterface
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 					m.icon, t.id_topic, t.id_board, t.num_replies,
 					b.name AS bname,
@@ -1151,8 +1145,7 @@ class Feed implements ActionInterface
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg
+				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 					INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
@@ -1198,8 +1191,7 @@ class Feed implements ActionInterface
 		// Find the most recent posts this user can see.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 				b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
@@ -1929,8 +1921,7 @@ class Feed implements ActionInterface
 		$boardnames = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, name
+			'SELECT id_board, name
 			FROM {db_prefix}boards',
 			[],
 		);
@@ -1945,8 +1936,7 @@ class Feed implements ActionInterface
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COALESCE(real_name, member_name) AS poster_name
+				'SELECT COALESCE(real_name, member_name) AS poster_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:uid}',
 				[
@@ -1959,8 +1949,7 @@ class Feed implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 				m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
 				m.likes, m.approved, m.smileys_enabled
@@ -2402,8 +2391,7 @@ class Feed implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
+			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
 			FROM {db_prefix}personal_messages AS pm
 			INNER JOIN
 			(

@@ -185,8 +185,7 @@ class ReportToMod implements ActionInterface
 			// Check the message's ID - don't want anyone reporting a post they can't even see!
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg, m.id_member, t.id_member_started
+				'SELECT m.id_msg, m.id_member, t.id_member_started
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				WHERE m.id_msg = {int:id_msg}
@@ -215,8 +214,7 @@ class ReportToMod implements ActionInterface
 			// Check the user's ID
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name, member_name
+				'SELECT id_member, real_name, member_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:current_user}',
 				[
@@ -431,8 +429,7 @@ class ReportToMod implements ActionInterface
 		// Get the basic topic information, and make sure they can see it.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.id_topic, m.id_board, m.subject, m.body, m.id_member AS id_poster, m.poster_name, mem.real_name
+			'SELECT m.id_topic, m.id_board, m.subject, m.body, m.id_member AS id_poster, m.poster_name, mem.real_name
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 			WHERE m.id_msg = {int:id_msg}
@@ -452,8 +449,7 @@ class ReportToMod implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_report, ignore_all
+			'SELECT id_report, ignore_all
 			FROM {db_prefix}log_reported
 			WHERE id_msg = {int:id_msg}
 				AND (closed = {int:not_closed} OR ignore_all = {int:ignored})
@@ -480,8 +476,7 @@ class ReportToMod implements ActionInterface
 		if (!empty($id_report)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_reported
+				'UPDATE {db_prefix}log_reported
 				SET num_reports = num_reports + 1, time_updated = {int:current_time}
 				WHERE id_report = {int:id_report}',
 				[
@@ -568,8 +563,7 @@ class ReportToMod implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, member_name
+			'SELECT id_member, real_name, member_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
 			[
@@ -587,8 +581,7 @@ class ReportToMod implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_report, ignore_all
+			'SELECT id_report, ignore_all
 			FROM {db_prefix}log_reported
 			WHERE id_member = {int:id_member}
 				AND id_msg = {int:not_a_reported_post}
@@ -617,8 +610,7 @@ class ReportToMod implements ActionInterface
 		if (!empty($id_report)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_reported
+				'UPDATE {db_prefix}log_reported
 				SET num_reports = num_reports + 1, time_updated = {int:current_time}
 				WHERE id_report = {int:id_report}',
 				[

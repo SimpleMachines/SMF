@@ -235,8 +235,7 @@ class Search implements ActionInterface
 			if (Config::$db_type == 'postgresql') {
 				Db::$db->query(
 					'',
-					'
-					DROP INDEX IF EXISTS {db_prefix}messages_ftx',
+					'DROP INDEX IF EXISTS {db_prefix}messages_ftx',
 					[
 						'db_error_skip' => true,
 					],
@@ -246,8 +245,7 @@ class Search implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages
+					'CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages
 					USING gin(to_tsvector({string:language},body))',
 					[
 						'language' => $language_ftx,
@@ -257,8 +255,7 @@ class Search implements ActionInterface
 				// Make sure it's gone before creating it.
 				Db::$db->query(
 					'',
-					'
-					ALTER TABLE {db_prefix}messages
+					'ALTER TABLE {db_prefix}messages
 					DROP INDEX body',
 					[
 						'db_error_skip' => true,
@@ -267,8 +264,7 @@ class Search implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					ALTER TABLE {db_prefix}messages
+					'ALTER TABLE {db_prefix}messages
 					ADD FULLTEXT body (body)',
 					[
 					],
@@ -283,8 +279,7 @@ class Search implements ActionInterface
 			if (Config::$db_type == 'postgresql') {
 				Db::$db->query(
 					'',
-					'
-					DROP INDEX IF EXISTS {db_prefix}messages_ftx',
+					'DROP INDEX IF EXISTS {db_prefix}messages_ftx',
 					[
 						'db_error_skip' => true,
 					],
@@ -292,8 +287,7 @@ class Search implements ActionInterface
 			} else {
 				Db::$db->query(
 					'',
-					'
-					ALTER TABLE {db_prefix}messages
+					'ALTER TABLE {db_prefix}messages
 					DROP INDEX ' . implode(',
 					DROP INDEX ', Utils::$context['fulltext_index']),
 					[
@@ -364,8 +358,7 @@ class Search implements ActionInterface
 			if (preg_match('~^`(.+?)`\\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
-					'
-					SHOW TABLE STATUS
+					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
 					[
@@ -376,8 +369,7 @@ class Search implements ActionInterface
 			} else {
 				$request = Db::$db->query(
 					'',
-					'
-					SHOW TABLE STATUS
+					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
 						'table_name' => str_replace('_', '\\_', Db::$db->prefix) . 'messages',
@@ -398,8 +390,7 @@ class Search implements ActionInterface
 			if (preg_match('~^`(.+?)`\\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
-					'
-					SHOW TABLE STATUS
+					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
 					[
@@ -410,8 +401,7 @@ class Search implements ActionInterface
 			} else {
 				$request = Db::$db->query(
 					'',
-					'
-					SHOW TABLE STATUS
+					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
 						'table_name' => str_replace('_', '\\_', Db::$db->prefix) . 'log_search_words',
@@ -436,8 +426,7 @@ class Search implements ActionInterface
 			// PostGreSql has some hidden sizes.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					indexname,
 					pg_relation_size(quote_ident(t.tablename)::text) AS table_size,
 					pg_relation_size(quote_ident(indexrelname)::text) AS index_size
@@ -612,8 +601,7 @@ class Search implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg >= {int:starting_id} AS todo, COUNT(*) AS num_messages
+				'SELECT id_msg >= {int:starting_id} AS todo, COUNT(*) AS num_messages
 				FROM {db_prefix}messages
 				GROUP BY todo',
 				[
@@ -641,8 +629,7 @@ class Search implements ActionInterface
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_msg, body
+						'SELECT id_msg, body
 						FROM {db_prefix}messages
 						WHERE id_msg BETWEEN {int:starting_id} AND {int:ending_id}
 						LIMIT {int:limit}',
@@ -715,8 +702,7 @@ class Search implements ActionInterface
 				while (time() < $stop) {
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_word, COUNT(id_word) AS num_words
+						'SELECT id_word, COUNT(id_word) AS num_words
 						FROM {db_prefix}log_search_words
 						WHERE id_word BETWEEN {int:starting_id} AND {int:ending_id}
 						GROUP BY id_word
@@ -738,8 +724,7 @@ class Search implements ActionInterface
 					if (!empty($stop_words)) {
 						Db::$db->query(
 							'',
-							'
-							DELETE FROM {db_prefix}log_search_words
+							'DELETE FROM {db_prefix}log_search_words
 							WHERE id_word in ({array_int:stop_words})',
 							[
 								'stop_words' => $stop_words,
@@ -768,8 +753,7 @@ class Search implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}settings
+				'DELETE FROM {db_prefix}settings
 				WHERE variable = {string:search_custom_index_resume}',
 				[
 					'search_custom_index_resume' => 'search_custom_index_resume',
@@ -787,8 +771,7 @@ class Search implements ActionInterface
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					indexname
 				FROM pg_tables t
 					LEFT OUTER JOIN
@@ -814,8 +797,7 @@ class Search implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SHOW INDEX
+				'SHOW INDEX
 				FROM {db_prefix}messages',
 				[
 				],
@@ -837,8 +819,7 @@ class Search implements ActionInterface
 			if (preg_match('~^`(.+?)`\\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
-					'
-					SHOW TABLE STATUS
+					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
 					[
@@ -849,8 +830,7 @@ class Search implements ActionInterface
 			} else {
 				$request = Db::$db->query(
 					'',
-					'
-					SHOW TABLE STATUS
+					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
 						'table_name' => str_replace('_', '\\_', Db::$db->prefix) . 'messages',

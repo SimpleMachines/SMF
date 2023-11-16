@@ -346,8 +346,7 @@ class Event implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}calendar
+				'UPDATE {db_prefix}calendar
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_event = {int:id}',
 				$params,
@@ -1120,8 +1119,7 @@ class Event implements \ArrayAccess
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}calendar
+			'DELETE FROM {db_prefix}calendar
 			WHERE id_event = {int:id_event}',
 			[
 				'id_event' => $id,
@@ -1230,8 +1228,7 @@ class Event implements \ArrayAccess
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}calendar AS cal' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '

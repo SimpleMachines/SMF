@@ -36,8 +36,7 @@ class RemoveTopicRedirects extends ScheduledTask
 		// Find all of the old moved topic notices that were set to expire.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_topic
+			'SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE redirect_expires <= {int:redirect_expires}
 				AND redirect_expires <> 0',

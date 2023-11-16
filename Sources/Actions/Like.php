@@ -342,8 +342,7 @@ class Like implements ActionInterface
 			// while we're at it, because we need it later for other things.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_topic, m.id_member
+				'SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
 					AND m.id_msg = {int:msg}',
@@ -438,8 +437,7 @@ class Like implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_likes
+			'DELETE FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
@@ -556,8 +554,7 @@ class Like implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}',
@@ -591,8 +588,7 @@ class Like implements ActionInterface
 		// Do we already like this?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT content_id, content_type, id_member
+			'SELECT content_id, content_type, id_member
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
@@ -620,8 +616,7 @@ class Like implements ActionInterface
 		if ($this->type == 'msg') {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}messages
+				'UPDATE {db_prefix}messages
 				SET likes = {int:num_likes}
 				WHERE id_msg = {int:id_msg}',
 				[
@@ -677,8 +672,7 @@ class Like implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, like_time
+			'SELECT id_member, like_time
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}

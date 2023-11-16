@@ -265,8 +265,7 @@ class PackageManager
 		// Load up any custom themes we may want to install into...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE (id_theme = {int:default_theme} OR id_theme IN ({array_int:known_theme_list}))
 				AND variable IN ({string:name}, {string:theme_dir})',
@@ -310,8 +309,7 @@ class PackageManager
 		// See if it is installed?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT version, themes_installed, db_changes
+			'SELECT version, themes_installed, db_changes
 			FROM {db_prefix}log_packages
 			WHERE package_id = {string:current_package}
 				AND install_state != {int:not_installed}
@@ -636,8 +634,7 @@ class PackageManager
 					// See if this dependency is installed
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT version
+						'SELECT version
 						FROM {db_prefix}log_packages
 						WHERE package_id = {string:current_package}
 							AND install_state != {int:not_installed}
@@ -938,8 +935,7 @@ class PackageManager
 		// Now load up the paths of the themes that we need to know about.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme IN ({array_int:custom_themes})
 				AND variable IN ({string:name}, {string:theme_dir})',
@@ -1013,8 +1009,7 @@ class PackageManager
 		// Is it actually installed?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT version, themes_installed, db_changes
+			'SELECT version, themes_installed, db_changes
 			FROM {db_prefix}log_packages
 			WHERE package_id = {string:current_package}
 				AND install_state != {int:not_installed}
@@ -1214,8 +1209,7 @@ class PackageManager
 			// See if this is already installed, and change it's state as required.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT package_id, install_state, db_changes
+				'SELECT package_id, install_state, db_changes
 				FROM {db_prefix}log_packages
 				WHERE install_state != {int:not_installed}
 					AND package_id = {string:current_package}
@@ -1235,8 +1229,7 @@ class PackageManager
 				if (Utils::$context['uninstalling']) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}log_packages
+						'UPDATE {db_prefix}log_packages
 						SET install_state = {int:not_installed}, member_removed = {string:member_name},
 							id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
 						WHERE package_id = {string:package_id}
@@ -1260,8 +1253,7 @@ class PackageManager
 					// Mark the old version as uninstalled
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}log_packages
+						'UPDATE {db_prefix}log_packages
 						SET install_state = {int:not_installed}, member_removed = {string:member_name},
 							id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
 						WHERE package_id = {string:package_id}
@@ -1628,8 +1620,7 @@ class PackageManager
 
 		$get_versions = Db::$db->query(
 			'',
-			'
-			SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',
+			'SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',
 			[
 				'versionsfile' => 'latest-versions.txt',
 				'smf' => '/smf/',
@@ -1741,8 +1732,7 @@ class PackageManager
 		// Load up any custom themes we may want to install into...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE (id_theme = {int:default_theme} OR id_theme IN ({array_int:known_theme_list}))
 				AND variable IN ({string:name}, {string:theme_dir})',
@@ -1769,8 +1759,7 @@ class PackageManager
 				$old_themes = [];
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT themes_installed
+					'SELECT themes_installed
 					FROM {db_prefix}log_packages
 					WHERE id_install = {int:install_id}',
 					[
@@ -2018,8 +2007,7 @@ class PackageManager
 		// Load up any custom themes.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT value
+			'SELECT value
 			FROM {db_prefix}themes
 			WHERE id_theme > {int:default_theme_id}
 				AND id_member = {int:guest_id}
@@ -2397,8 +2385,7 @@ class PackageManager
 		// Load the list of servers.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_server, name, url
+			'SELECT id_server, name, url
 			FROM {db_prefix}package_servers',
 			[
 			],
@@ -2505,8 +2492,7 @@ class PackageManager
 			// Query the server list to find the current server.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT name, url
+				'SELECT name, url
 				FROM {db_prefix}package_servers
 				WHERE id_server = {int:current_server}
 				LIMIT 1',
@@ -2868,8 +2854,7 @@ class PackageManager
 			// Query the server table to find the requested server.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT name, url
+				'SELECT name, url
 				FROM {db_prefix}package_servers
 				WHERE id_server = {int:current_server}
 				LIMIT 1',
@@ -3100,8 +3085,7 @@ class PackageManager
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}package_servers
+			'DELETE FROM {db_prefix}package_servers
 			WHERE id_server = {int:current_server}',
 			[
 				'current_server' => (int) $_GET['server'],

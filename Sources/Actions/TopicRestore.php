@@ -87,8 +87,7 @@ class TopicRestore implements ActionInterface
 			// Get the id_previous_board and id_previous_topic.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_topic, m.id_msg, m.id_board, m.subject, m.id_member, t.id_previous_board, t.id_previous_topic,
+				'SELECT m.id_topic, m.id_msg, m.id_board, m.subject, m.id_member, t.id_previous_board, t.id_previous_topic,
 					t.id_first_msg, b.count_posts, COALESCE(pt.id_board, 0) AS possible_prev_board
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -152,8 +151,7 @@ class TopicRestore implements ActionInterface
 			if (!empty($previous_topics)) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT t.id_topic, t.id_board, m.subject
+					'SELECT t.id_topic, t.id_board, m.subject
 					FROM {db_prefix}topics AS t
 						INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 					WHERE t.id_topic IN ({array_int:previous_topics})',
@@ -210,8 +208,7 @@ class TopicRestore implements ActionInterface
 			// Lets get the data for these topics.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT t.id_topic, t.id_previous_board, t.id_board, t.id_first_msg, m.subject
+				'SELECT t.id_topic, t.id_previous_board, t.id_board, t.id_first_msg, m.subject
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				WHERE t.id_topic IN ({array_int:topics})',
@@ -234,8 +231,7 @@ class TopicRestore implements ActionInterface
 				// Lets see if the board that we are returning to has post count enabled.
 				$request2 = Db::$db->query(
 					'',
-					'
-					SELECT count_posts
+					'SELECT count_posts
 					FROM {db_prefix}boards
 					WHERE id_board = {int:board}',
 					[
@@ -249,8 +245,7 @@ class TopicRestore implements ActionInterface
 					// Lets get the members that need their post count restored.
 					$request2 = Db::$db->query(
 						'',
-						'
-						SELECT id_member, COUNT(*) AS post_count
+						'SELECT id_member, COUNT(*) AS post_count
 						FROM {db_prefix}messages
 						WHERE id_topic = {int:topic}
 							AND approved = {int:is_approved}
@@ -347,8 +342,7 @@ class TopicRestore implements ActionInterface
 		// Get the source information.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_board, t.id_first_msg, t.num_replies, t.unapproved_posts
+			'SELECT t.id_board, t.id_first_msg, t.num_replies, t.unapproved_posts
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE t.id_topic = {int:from_topic}',
@@ -362,8 +356,7 @@ class TopicRestore implements ActionInterface
 		// Get some target topic and board stats.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_board, t.id_first_msg, t.num_replies, t.unapproved_posts, b.count_posts
+			'SELECT t.id_board, t.id_first_msg, t.num_replies, t.unapproved_posts, b.count_posts
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE t.id_topic = {int:target_topic}',
@@ -379,8 +372,7 @@ class TopicRestore implements ActionInterface
 			// Lets get the members that need their post count restored.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_msg IN ({array_int:messages})
 					AND approved = {int:is_approved}',
@@ -398,8 +390,7 @@ class TopicRestore implements ActionInterface
 		// Time to move the messages.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET
 				id_topic = {int:target_topic},
 				id_board = {int:target_board}
@@ -419,8 +410,7 @@ class TopicRestore implements ActionInterface
 		];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT MIN(id_msg) AS id_first_msg, MAX(id_msg) AS id_last_msg, COUNT(*) AS message_count, approved
+			'SELECT MIN(id_msg) AS id_first_msg, MAX(id_msg) AS id_last_msg, COUNT(*) AS message_count, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:target_topic}
 			GROUP BY id_topic, approved
@@ -448,8 +438,7 @@ class TopicRestore implements ActionInterface
 		// We have a new post count for the board.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET
 				num_posts = num_posts + {int:diff_replies},
 				unapproved_posts = unapproved_posts + {int:diff_unapproved_posts}
@@ -464,8 +453,7 @@ class TopicRestore implements ActionInterface
 		// In some cases we merged the only post in a topic so the topic data is left behind in the topic table.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_topic
+			'SELECT id_topic
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:from_topic}',
 			[
@@ -492,8 +480,7 @@ class TopicRestore implements ActionInterface
 			];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT MIN(id_msg) AS id_first_msg, MAX(id_msg) AS id_last_msg, COUNT(*) AS message_count, approved, subject
+				'SELECT MIN(id_msg) AS id_first_msg, MAX(id_msg) AS id_last_msg, COUNT(*) AS message_count, approved, subject
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:from_topic}
 				GROUP BY id_topic, approved, subject
@@ -521,8 +508,7 @@ class TopicRestore implements ActionInterface
 			// Update the topic details for the source topic.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET
 					id_first_msg = {int:id_first_msg},
 					id_last_msg = {int:id_last_msg},
@@ -541,8 +527,7 @@ class TopicRestore implements ActionInterface
 			// We have a new post count for the source board.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET
 					num_posts = num_posts + {int:diff_replies},
 					unapproved_posts = unapproved_posts + {int:diff_unapproved_posts}
@@ -558,8 +543,7 @@ class TopicRestore implements ActionInterface
 		// Finally get around to updating the destination topic, now all indexes etc on the source are fixed.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET
 				id_first_msg = {int:id_first_msg},
 				id_last_msg = {int:id_last_msg},
@@ -593,8 +577,7 @@ class TopicRestore implements ActionInterface
 		if (!empty($cache_updates)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, subject
+				'SELECT id_topic, subject
 				FROM {db_prefix}messages
 				WHERE id_msg IN ({array_int:first_messages})',
 				[

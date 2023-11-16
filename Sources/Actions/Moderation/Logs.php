@@ -325,8 +325,7 @@ class Logs implements ActionInterface
 
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_actions AS lm
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lm.id_member)
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:reg_group_id} THEN mem.id_post_group ELSE mem.id_group END)
@@ -375,8 +374,7 @@ class Logs implements ActionInterface
 		// Here we have the query getting the log details.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				lm.id_action, lm.id_member, lm.ip, lm.log_time, lm.action, lm.id_board, lm.id_topic, lm.id_msg, lm.extra,
 				mem.real_name, mg.group_name
 			FROM {db_prefix}log_actions AS lm
@@ -512,8 +510,7 @@ class Logs implements ActionInterface
 		if (!empty($boards)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board, name
+				'SELECT id_board, name
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:board_list})
 				LIMIT {int:limit}',
@@ -541,8 +538,7 @@ class Logs implements ActionInterface
 		if (!empty($topics)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT ms.subject, t.id_topic
+				'SELECT ms.subject, t.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 				WHERE t.id_topic IN ({array_int:topic_list})
@@ -579,8 +575,7 @@ class Logs implements ActionInterface
 		if (!empty($messages)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg, subject
+				'SELECT id_msg, subject
 				FROM {db_prefix}messages
 				WHERE id_msg IN ({array_int:message_list})
 				LIMIT {int:limit}',
@@ -614,8 +609,7 @@ class Logs implements ActionInterface
 		if (!empty($members)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT real_name, id_member
+				'SELECT real_name, id_member
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
 				LIMIT {int:limit}',
@@ -792,8 +786,7 @@ class Logs implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_actions
+			'DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 			AND action NOT IN ({array_string:uneditable})',
 			[
@@ -817,8 +810,7 @@ class Logs implements ActionInterface
 		// No sneaky removing the 'cleared the log' entries.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_actions
+			'DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 				AND id_action IN ({array_string:delete_actions})
 				AND action NOT LIKE {string:clearlog}

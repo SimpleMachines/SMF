@@ -269,8 +269,7 @@ class ErrorHandler
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
 					'',
-					'
-					SELECT COUNT(*)
+					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
 					[],
 				);
@@ -532,8 +531,7 @@ class ErrorHandler
 		// First, we have to get the online log, because we need to break apart the serialized string.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT url
+			'SELECT url
 			FROM {db_prefix}log_online
 			WHERE session = {string:session}',
 			[
@@ -558,8 +556,7 @@ class ErrorHandler
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_online
+				'UPDATE {db_prefix}log_online
 				SET url = {string:url}
 				WHERE session = {string:session}',
 				[

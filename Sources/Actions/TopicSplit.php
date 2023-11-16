@@ -165,8 +165,7 @@ class TopicSplit implements ActionInterface
 		// Retrieve the subject and stuff of the specific topic/message.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.subject, t.num_replies, t.unapproved_posts, t.id_first_msg, t.approved
+			'SELECT m.subject, t.num_replies, t.unapproved_posts, t.id_first_msg, t.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 			WHERE m.id_msg = {int:split_at}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -247,8 +246,7 @@ class TopicSplit implements ActionInterface
 			// Fetch the message IDs of the topic that are at or after the message.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg
+				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
 					AND id_msg >= {int:split_at}',
@@ -335,8 +333,7 @@ class TopicSplit implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg
+				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 					AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -365,8 +362,7 @@ class TopicSplit implements ActionInterface
 			if (!empty($_SESSION['split_selection'][Topic::$topic_id])) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_msg
+					'SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
 						AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -409,8 +405,7 @@ class TopicSplit implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg
+				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
 					AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -431,8 +426,7 @@ class TopicSplit implements ActionInterface
 		// Get the number of messages (not) selected to be split.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT ' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
+			'SELECT ' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
 			FROM {db_prefix}messages AS m
 			WHERE m.id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
@@ -463,8 +457,7 @@ class TopicSplit implements ActionInterface
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
+			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
@@ -503,8 +496,7 @@ class TopicSplit implements ActionInterface
 			// Get the messages and stick them into an array.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled
+				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				WHERE m.id_topic = {int:current_topic}
@@ -655,8 +647,7 @@ class TopicSplit implements ActionInterface
 		// Get some board info.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, approved
+			'SELECT id_board, approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:id_topic}
 			LIMIT 1',
@@ -670,8 +661,7 @@ class TopicSplit implements ActionInterface
 		// Find the new first and last not in the list. (old topic)
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				MIN(m.id_msg) AS myid_first_msg, MAX(m.id_msg) AS myid_last_msg, COUNT(*) AS message_count, m.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:id_topic})
@@ -728,8 +718,7 @@ class TopicSplit implements ActionInterface
 		// Find the first and last in the list. (new topic)
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT MIN(id_msg) AS myid_first_msg, MAX(id_msg) AS myid_last_msg, COUNT(*) AS message_count, approved
+			'SELECT MIN(id_msg) AS myid_first_msg, MAX(id_msg) AS myid_last_msg, COUNT(*) AS message_count, approved
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:msg_list})
 				AND id_topic = {int:id_topic}
@@ -835,8 +824,7 @@ class TopicSplit implements ActionInterface
 		if ($new_subject != '') {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}messages
+				'UPDATE {db_prefix}messages
 				SET
 					id_topic = {int:id_topic},
 					subject = CASE WHEN id_msg = {int:split_first_msg} THEN {string:new_subject} ELSE {string:new_subject_replies} END
@@ -857,8 +845,7 @@ class TopicSplit implements ActionInterface
 		// Any associated reported posts better follow...
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_reported
+			'UPDATE {db_prefix}log_reported
 			SET id_topic = {int:id_topic}
 			WHERE id_msg IN ({array_int:split_msgs})',
 			[
@@ -870,8 +857,7 @@ class TopicSplit implements ActionInterface
 		// Mess with the old topic's first, last, and number of messages.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET
 				num_replies = {int:num_replies},
 				id_first_msg = {int:id_first_msg},
@@ -894,8 +880,7 @@ class TopicSplit implements ActionInterface
 		// Now, put the first/last message back to what they should be.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET
 				id_first_msg = {int:id_first_msg},
 				id_last_msg = {int:id_last_msg}
@@ -911,8 +896,7 @@ class TopicSplit implements ActionInterface
 		if (!$split2_approved) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}messages
+				'UPDATE {db_prefix}messages
 				SET approved = {int:approved}
 				WHERE id_msg = {int:id_msg}
 					AND id_topic = {int:id_topic}',
@@ -927,8 +911,7 @@ class TopicSplit implements ActionInterface
 		// The board has more topics now (Or more unapproved ones!).
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET ' . ($split2_approved ? '
 				num_topics = num_topics + 1' : '
 				unapproved_topics = unapproved_topics + 1') . '
@@ -942,8 +925,7 @@ class TopicSplit implements ActionInterface
 		// @todo This should really be chunked.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, id_msg, unwatched
+			'SELECT id_member, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic = {int:id_topic}',
 			[

@@ -265,8 +265,7 @@ class Tracking implements ActionInterface
 		if (Config::$modSettings['totalMessages'] > 50000 && Profile::$member->posts > 500) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT MAX(id_msg)
+				'SELECT MAX(id_msg)
 				FROM {db_prefix}messages AS m
 				WHERE m.id_member = {int:current_member}',
 				[
@@ -292,8 +291,7 @@ class Tracking implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT poster_ip
+			'SELECT poster_ip
 			FROM {db_prefix}messages
 			WHERE id_member = {int:current_member}
 			' . (isset($min_msg_member) ? '
@@ -320,8 +318,7 @@ class Tracking implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS error_count, ip
+			'SELECT COUNT(*) AS error_count, ip
 			FROM {db_prefix}log_errors
 			WHERE id_member = {int:current_member}
 			GROUP BY ip',
@@ -348,8 +345,7 @@ class Tracking implements ActionInterface
 			$message_members = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT DISTINCT mem.id_member
+				'SELECT DISTINCT mem.id_member
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				WHERE m.poster_ip IN ({array_inet:ip_list})
@@ -369,8 +365,7 @@ class Tracking implements ActionInterface
 			if (!empty($message_members)) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member, real_name
+					'SELECT id_member, real_name
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:message_members})',
 					[
@@ -387,8 +382,7 @@ class Tracking implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name
+				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member != {int:current_member}
 					AND member_ip IN ({array_inet:ip_list})',
@@ -423,8 +417,7 @@ class Tracking implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT col_name, field_name, bbc
+			'SELECT col_name, field_name, bbc
 			FROM {db_prefix}custom_fields',
 			[
 			],
@@ -687,8 +680,7 @@ class Tracking implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				le.log_time, le.ip, le.url, le.message, COALESCE(mem.id_member, 0) AS id_member,
 				COALESCE(mem.real_name, {string:guest_title}) AS display_name, mem.member_name
 			FROM {db_prefix}log_errors AS le
@@ -730,8 +722,7 @@ class Tracking implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_errors
 			WHERE ' . $where,
 			$where_vars,
@@ -758,8 +749,7 @@ class Tracking implements ActionInterface
 		// Get a list of error messages from this ip (range).
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				id_action, id_member, ip, log_time, action, extra
 			FROM {db_prefix}log_actions
 			WHERE id_log = {int:log_type}
@@ -818,8 +808,7 @@ class Tracking implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:applicators})',
@@ -852,8 +841,7 @@ class Tracking implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS edit_count
+			'SELECT COUNT(*) AS edit_count
 			FROM {db_prefix}log_actions
 			WHERE id_log = {int:log_type}
 				AND id_member = {int:owner}',
@@ -882,8 +870,7 @@ class Tracking implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				lgr.id_group, mg.group_name, mg.online_color, lgr.time_applied, lgr.reason, lgr.status,
 				ma.id_member AS id_member_acted, COALESCE(ma.member_name, lgr.member_name_acted) AS act_name, lgr.time_acted, lgr.act_reason
 			FROM {db_prefix}log_group_requests AS lgr
@@ -943,8 +930,7 @@ class Tracking implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS req_count
+			'SELECT COUNT(*) AS req_count
 			FROM {db_prefix}log_group_requests AS lgr
 			WHERE id_member = {int:memID}
 				AND ' . (User::$me->mod_cache['gq'] == '1=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']),
@@ -972,8 +958,7 @@ class Tracking implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT time, ip, ip2
+			'SELECT time, ip, ip2
 			FROM {db_prefix}member_logins
 			WHERE id_member = {int:id_member}
 			ORDER BY time DESC',
@@ -1006,8 +991,7 @@ class Tracking implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS message_count
+			'SELECT COUNT(*) AS message_count
 			FROM {db_prefix}member_logins
 			WHERE id_member = {int:id_member}',
 			[

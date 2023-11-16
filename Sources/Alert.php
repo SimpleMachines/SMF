@@ -559,8 +559,7 @@ class Alert implements \ArrayAccess
 		else {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}user_alerts
+				'UPDATE {db_prefix}user_alerts
 				SET
 					alert_time = {int:timestamp},
 					id_member = {int:member},
@@ -1008,8 +1007,7 @@ class Alert implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_alert IN ({array_int:to_mark})',
 			[
@@ -1047,8 +1045,7 @@ class Alert implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_member IN ({array_int:members})
 				AND {raw:condition}',
@@ -1127,8 +1124,7 @@ class Alert implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_alerts
+			'DELETE FROM {db_prefix}user_alerts
 			WHERE id_alert IN ({array_int:ids})',
 			[
 				'ids' => $ids,
@@ -1158,8 +1154,7 @@ class Alert implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_alerts
+			'DELETE FROM {db_prefix}user_alerts
 			WHERE is_read > 0
 				AND is_read < {int:before}' . ($memID > 0 ? '
 				AND id_member = {int:memID}' : ''),
@@ -1455,8 +1450,7 @@ class Alert implements \ArrayAccess
 		if ($simple) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg
+				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 				WHERE ' . self::$qb[$memID]['query_see_message_board'] . '
 					AND m.id_msg IN ({array_int:msgs})',
@@ -1467,8 +1461,7 @@ class Alert implements \ArrayAccess
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
+				'SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 				WHERE m.id_msg IN ({array_int:msgs})
@@ -1532,8 +1525,7 @@ class Alert implements \ArrayAccess
 		if ($simple) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT t.id_topic
+				'SELECT t.id_topic
 				FROM {db_prefix}topics AS t
 				WHERE ' . self::$qb[$memID]['query_see_topic_board'] . '
 					AND t.id_topic IN ({array_int:topics})',
@@ -1544,8 +1536,7 @@ class Alert implements \ArrayAccess
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
+				'SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 					INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -1609,8 +1600,7 @@ class Alert implements \ArrayAccess
 		if (!empty($deletes)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}user_alerts
+				'DELETE FROM {db_prefix}user_alerts
 				WHERE id_alert IN ({array_int:alerts})',
 				[
 					'alerts' => $deletes,
@@ -1623,8 +1613,7 @@ class Alert implements \ArrayAccess
 		if ($num_unread_deletes > 0) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}members
+				'UPDATE {db_prefix}members
 				SET alerts = GREATEST({int:unread_deletes}, alerts) - {int:unread_deletes}
 				WHERE id_member = {int:member}',
 				[
@@ -1657,8 +1646,7 @@ class Alert implements \ArrayAccess
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}user_alerts AS a' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '

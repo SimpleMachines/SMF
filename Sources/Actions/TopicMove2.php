@@ -91,8 +91,7 @@ class TopicMove2 implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member_started, id_first_msg, approved
+			'SELECT id_member_started, id_first_msg, approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
@@ -125,8 +124,7 @@ class TopicMove2 implements ActionInterface
 		// Make sure they can see the board they are trying to move to (and get whether posts count in the target board).
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT b.count_posts, b.name, m.subject
+			'SELECT b.count_posts, b.name, m.subject
 			FROM {db_prefix}boards AS b
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -176,8 +174,7 @@ class TopicMove2 implements ActionInterface
 
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}messages
+						'UPDATE {db_prefix}messages
 						SET subject = {string:subject}
 						WHERE id_topic = {int:current_topic}',
 						[
@@ -189,8 +186,7 @@ class TopicMove2 implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}messages
+					'UPDATE {db_prefix}messages
 					SET subject = {string:custom_subject}
 					WHERE id_msg = {int:id_first_msg}',
 					[
@@ -261,8 +257,7 @@ class TopicMove2 implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT count_posts
+			'SELECT count_posts
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
 			LIMIT 1',
@@ -278,8 +273,7 @@ class TopicMove2 implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
 					AND approved = {int:is_approved}',
@@ -377,8 +371,7 @@ class TopicMove2 implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-				SELECT m.subject, b.name
+			'SELECT m.subject, b.name
 				FROM {db_prefix}topics as t
 					LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 					LEFT JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)

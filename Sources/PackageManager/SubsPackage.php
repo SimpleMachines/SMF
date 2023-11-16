@@ -531,8 +531,7 @@ class SubsPackage
 		// Load the packages from the database - note this is ordered by install time to ensure latest package uninstalled first.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_install, package_id, filename, name, version, time_installed
+			'SELECT id_install, package_id, filename, name, version, time_installed
 			FROM {db_prefix}log_packages
 			WHERE install_state != {int:not_installed}
 			ORDER BY time_installed DESC',
@@ -2997,8 +2996,7 @@ class SubsPackage
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT value
+			'SELECT value
 			FROM {db_prefix}themes
 			WHERE id_member = {int:no_member}
 				AND variable = {string:theme_dir}',
@@ -3172,8 +3170,7 @@ class SubsPackage
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_server, name, validation_url, extra
+				'SELECT id_server, name, validation_url, extra
 				FROM {db_prefix}package_servers
 				WHERE validation_url != {string:empty}',
 				[

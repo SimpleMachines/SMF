@@ -1027,8 +1027,7 @@ class Permissions implements ActionInterface
 				foreach ($changes as $profile => $boards) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}boards
+						'UPDATE {db_prefix}boards
 						SET id_profile = {int:current_profile}
 						WHERE id_board IN ({array_int:board_list})',
 						[
@@ -1275,8 +1274,7 @@ class Permissions implements ActionInterface
 			if (empty(Config::$modSettings['permission_enable_deny'])) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}permissions
+					'DELETE FROM {db_prefix}permissions
 					WHERE add_deny = {int:denied}',
 					[
 						'denied' => 0,
@@ -1284,8 +1282,7 @@ class Permissions implements ActionInterface
 				);
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}board_permissions
+					'DELETE FROM {db_prefix}board_permissions
 					WHERE add_deny = {int:denied}',
 					[
 						'denied' => 0,
@@ -1300,8 +1297,7 @@ class Permissions implements ActionInterface
 
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_group
+					'SELECT id_group
 					FROM {db_prefix}membergroups
 					WHERE min_posts != {int:min_posts}',
 					[
@@ -1317,8 +1313,7 @@ class Permissions implements ActionInterface
 				// Remove'em.
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}permissions
+					'DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:post_group_list})',
 					[
 						'post_group_list' => $post_groups,
@@ -1327,8 +1322,7 @@ class Permissions implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}board_permissions
+					'DELETE FROM {db_prefix}board_permissions
 					WHERE id_group IN ({array_int:post_group_list})',
 					[
 						'post_group_list' => $post_groups,
@@ -1337,8 +1331,7 @@ class Permissions implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}membergroups
+					'UPDATE {db_prefix}membergroups
 					SET id_parent = {int:not_inherited}
 					WHERE id_parent IN ({array_int:post_group_list})',
 					[
@@ -1386,8 +1379,7 @@ class Permissions implements ActionInterface
 		// Work out what ones are in use.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_profile, COUNT(*) AS board_count
+			'SELECT id_profile, COUNT(*) AS board_count
 			FROM {db_prefix}boards
 			GROUP BY id_profile',
 			[
@@ -1520,8 +1512,7 @@ class Permissions implements ActionInterface
 				// Start by deleting all the permissions relevant.
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}board_permissions
+					'DELETE FROM {db_prefix}board_permissions
 					WHERE id_profile = {int:current_profile}
 						AND permission IN ({array_string:permissions})
 						AND id_group IN ({array_int:profile_group_list})',
@@ -1566,8 +1557,7 @@ class Permissions implements ActionInterface
 		// Now get all the permissions!
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, permission, add_deny
+			'SELECT id_group, permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_profile = {int:current_profile}
 				AND permission IN ({array_string:permissions})
@@ -1854,8 +1844,7 @@ class Permissions implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}permissions
+				'DELETE FROM {db_prefix}permissions
 				WHERE id_group = {int:current_group}
 				' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 				[
@@ -1865,8 +1854,7 @@ class Permissions implements ActionInterface
 			);
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}board_permissions
+				'DELETE FROM {db_prefix}board_permissions
 				WHERE id_group = {int:current_group}
 					AND id_profile = {int:default_profile}',
 				[
@@ -1913,8 +1901,7 @@ class Permissions implements ActionInterface
 			if (!empty($group_levels['global'][$level])) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}board_permissions
+					'DELETE FROM {db_prefix}board_permissions
 					WHERE id_group = {int:current_group}
 						AND id_profile = {int:current_profile}',
 					[
@@ -1946,8 +1933,7 @@ class Permissions implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}board_permissions
+				'DELETE FROM {db_prefix}board_permissions
 				WHERE id_profile = {int:current_profile}',
 				[
 					'current_profile' => $profile,
@@ -1961,8 +1947,7 @@ class Permissions implements ActionInterface
 			// Get all the groups...
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_group
+				'SELECT id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group > {int:moderator_group}
 				ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE {int:newbie_group} END, group_name',
@@ -2195,8 +2180,7 @@ class Permissions implements ActionInterface
 		// Remove the old permissions...
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}permissions
+			'DELETE FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:permissions})
 				' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 			[
@@ -2236,8 +2220,7 @@ class Permissions implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_profile, profile_name
+			'SELECT id_profile, profile_name
 			FROM {db_prefix}permission_profiles
 			ORDER BY id_profile',
 			[
@@ -2295,8 +2278,7 @@ class Permissions implements ActionInterface
 			$permissions = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_group, permission, add_deny
+				'SELECT id_group, permission, add_deny
 				FROM {db_prefix}permissions
 				WHERE id_group IN ({array_int:parent_list})',
 				[
@@ -2314,8 +2296,7 @@ class Permissions implements ActionInterface
 			if (!empty($child_groups)) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}permissions
+					'DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:child_groups})',
 					[
 						'child_groups' => $child_groups,
@@ -2343,8 +2324,7 @@ class Permissions implements ActionInterface
 			$permissions = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_profile, id_group, permission, add_deny
+				'SELECT id_profile, id_group, permission, add_deny
 				FROM {db_prefix}board_permissions
 				WHERE id_group IN ({array_int:parent_groups})
 					' . $profile_query,
@@ -2364,8 +2344,7 @@ class Permissions implements ActionInterface
 			if (!empty($child_groups)) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}board_permissions
+					'DELETE FROM {db_prefix}board_permissions
 					WHERE id_group IN ({array_int:child_groups})
 						' . $profile_query,
 					[
@@ -2654,8 +2633,7 @@ class Permissions implements ActionInterface
 			$target_perm = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT permission, add_deny
+				'SELECT permission, add_deny
 				FROM {db_prefix}permissions
 				WHERE id_group = {int:copy_from}',
 				[
@@ -2690,8 +2668,7 @@ class Permissions implements ActionInterface
 			// Delete the previous permissions...
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}permissions
+				'DELETE FROM {db_prefix}permissions
 				WHERE id_group IN ({array_int:group_list})
 					' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 				[
@@ -2718,8 +2695,7 @@ class Permissions implements ActionInterface
 		$target_perm = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT permission, add_deny
+			'SELECT permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_group = {int:copy_from}
 				AND id_profile = {int:current_profile}',
@@ -2750,8 +2726,7 @@ class Permissions implements ActionInterface
 		// Delete the previous global board permissions...
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}board_permissions
+			'DELETE FROM {db_prefix}board_permissions
 			WHERE id_group IN ({array_int:current_group_list})
 				AND id_profile = {int:current_profile}',
 			[
@@ -2797,8 +2772,7 @@ class Permissions implements ActionInterface
 			if ($scope == 'global') {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}permissions
+					'DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:current_group_list})
 						AND permission = {string:current_permission}
 						' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
@@ -2818,8 +2792,7 @@ class Permissions implements ActionInterface
 			} else {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}board_permissions
+					'DELETE FROM {db_prefix}board_permissions
 					WHERE id_group IN ({array_int:current_group_list})
 						AND id_profile = {int:current_profile}
 						AND permission = {string:current_permission}',
@@ -2908,8 +2881,7 @@ class Permissions implements ActionInterface
 			default:
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT group_name, id_parent
+					'SELECT group_name, id_parent
 					FROM {db_prefix}membergroups
 					WHERE id_group = {int:current_group}
 					LIMIT 1',
@@ -2945,8 +2917,7 @@ class Permissions implements ActionInterface
 			// For sanity just check they have no general permissions.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}permissions
+				'DELETE FROM {db_prefix}permissions
 				WHERE id_group = {int:moderator_group}',
 				[
 					'moderator_group' => 3,
@@ -2988,8 +2959,7 @@ class Permissions implements ActionInterface
 
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT permission, add_deny
+				'SELECT permission, add_deny
 				FROM {db_prefix}permissions
 				WHERE id_group = {int:current_group}',
 				[
@@ -3006,8 +2976,7 @@ class Permissions implements ActionInterface
 		// Fetch current board permissions...
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT permission, add_deny
+			'SELECT permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_group = {int:current_group}
 				AND id_profile = {int:current_profile}',
@@ -3094,8 +3063,7 @@ class Permissions implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_parent
+			'SELECT id_parent
 			FROM {db_prefix}membergroups
 			WHERE id_group = {int:current_group}
 			LIMIT 1',
@@ -3128,8 +3096,7 @@ class Permissions implements ActionInterface
 		// First, delete all the existing permissions for this group.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}permissions
+			'DELETE FROM {db_prefix}permissions
 			WHERE id_group = {int:current_group}
 			' . (empty($illegal_permissions) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 			[
@@ -3173,8 +3140,7 @@ class Permissions implements ActionInterface
 		// Again, we start by clearing all the permissions for this group.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}board_permissions
+			'DELETE FROM {db_prefix}board_permissions
 			WHERE id_group = {int:current_group}
 				AND id_profile = {int:current_profile}',
 			[
@@ -3239,8 +3205,7 @@ class Permissions implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, permission, add_deny
+			'SELECT id_group, permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_profile = {int:copy_from}',
 			[
@@ -3295,8 +3260,7 @@ class Permissions implements ActionInterface
 			if (trim($value) != '' && !in_array($id, self::PROFILE_PREDEFINED)) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}permission_profiles
+					'UPDATE {db_prefix}permission_profiles
 					SET profile_name = {string:profile_name}
 					WHERE id_profile = {int:current_profile}',
 					[
@@ -3334,8 +3298,7 @@ class Permissions implements ActionInterface
 		// Verify it's not in use...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board
+			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_profile IN ({array_int:profile_list})
 			LIMIT 1',
@@ -3352,8 +3315,7 @@ class Permissions implements ActionInterface
 		// Oh well, delete.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}permission_profiles
+			'DELETE FROM {db_prefix}permission_profiles
 			WHERE id_profile IN ({array_int:profile_list})',
 			[
 				'profile_list' => $profiles,
@@ -3512,8 +3474,7 @@ class Permissions implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group
+			'SELECT id_group
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:admin} AND id_group NOT IN (
 				SELECT DISTINCT id_group
@@ -3552,8 +3513,7 @@ class Permissions implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}permissions
+			'DELETE FROM {db_prefix}permissions
 			WHERE id_group IN ({array_int:current_group_list})
 				AND permission = {string:current_permission}
 				AND add_deny = {int:add}',

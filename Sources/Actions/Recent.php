@@ -192,8 +192,7 @@ class Recent implements ActionInterface
 		// Find it by the board - better to order by board than sort the entire messages table.
 		$request = Db::$db->query(
 			'substring',
-			'
-			SELECT m.poster_time, m.subject, m.id_topic, m.poster_name, SUBSTRING(m.body, 1, 385) AS body,
+			'SELECT m.poster_time, m.subject, m.id_topic, m.poster_name, SUBSTRING(m.body, 1, 385) AS body,
 				m.smileys_enabled
 			FROM {db_prefix}messages AS m' . (!empty(Config::$modSettings['postmod_active']) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
@@ -292,8 +291,7 @@ class Recent implements ActionInterface
 			$boards = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:category_list})
 					AND b.redirect = {string:empty}' . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
@@ -338,8 +336,7 @@ class Recent implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
 					AND b.redirect = {string:empty}
@@ -379,8 +376,7 @@ class Recent implements ActionInterface
 		elseif (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT num_posts, redirect
+				'SELECT num_posts, redirect
 				FROM {db_prefix}boards
 				WHERE id_board = {int:current_board}
 				LIMIT 1',
@@ -423,8 +419,7 @@ class Recent implements ActionInterface
 
 			$get_num_posts = Db::$db->query(
 				'',
-				'
-				SELECT COALESCE(SUM(b.num_posts), 0)
+				'SELECT COALESCE(SUM(b.num_posts), 0)
 				FROM {db_prefix}boards AS b
 				WHERE ' . $query_these_boards . '
 					AND b.redirect = {string:empty}',
@@ -445,8 +440,7 @@ class Recent implements ActionInterface
 		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT name
+				'SELECT name
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id_cat}
 				LIMIT 1',
@@ -479,8 +473,7 @@ class Recent implements ActionInterface
 				// @todo SLOW This query is really slow still, probably?
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT m.id_msg
+					'SELECT m.id_msg
 					FROM {db_prefix}messages AS m ' . (!empty(Config::$modSettings['postmod_active']) ? '
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 					WHERE ' . $this->query_this_board . (!empty(Config::$modSettings['postmod_active']) ? '

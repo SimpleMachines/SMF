@@ -1254,8 +1254,7 @@ class RepairBoards implements ActionInterface
 		// Check to see if a 'Salvage Category' exists, if not => insert one.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT id_cat
+			'SELECT id_cat
 			FROM {db_prefix}categories
 			WHERE name = {string:cat_name}
 			LIMIT 1',
@@ -1288,8 +1287,7 @@ class RepairBoards implements ActionInterface
 		// Check to see if a 'Salvage Board' exists. If not, insert one.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT id_board
+			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_cat = {int:id_cat}
 				AND name = {string:board_name}
@@ -1339,8 +1337,7 @@ class RepairBoards implements ActionInterface
 		// Make sure that no topics claim the first/last message as theirs.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_first_msg = 0
 			WHERE id_first_msg = {int:id_first_msg}',
 			[
@@ -1349,8 +1346,7 @@ class RepairBoards implements ActionInterface
 		);
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_last_msg = 0
 			WHERE id_last_msg = {int:id_last_msg}',
 			[
@@ -1386,8 +1382,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_topic = {int:newTopicID}, id_board = {int:board_id}
 			WHERE id_topic = {int:topic_id}',
 			[
@@ -1406,8 +1401,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}topics
+			'DELETE FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1416,8 +1410,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_topics
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1502,8 +1495,7 @@ class RepairBoards implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}messages
+				'UPDATE {db_prefix}messages
 				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 				WHERE id_msg = {int:newMessageID}',
 				[
@@ -1626,8 +1618,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 			WHERE id_msg = {int:newMessageID}',
 			[
@@ -1659,8 +1650,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_first_msg = {int:myid_first_msg},
 				id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
 				id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
@@ -1718,8 +1708,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET num_replies = {int:my_num_replies}
 			WHERE id_topic = {int:topic_id}',
 			[
@@ -1758,8 +1747,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET unapproved_posts = {int:my_unapproved_posts}
 			WHERE id_topic = {int:topic_id}',
 			[
@@ -1790,8 +1778,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_board = {int:newBoardID}
 			WHERE id_board = {int:board_id}',
 			[
@@ -1801,8 +1788,7 @@ class RepairBoards implements ActionInterface
 		);
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_board = {int:newBoardID}
 			WHERE id_board = {int:board_id}',
 			[
@@ -1821,8 +1807,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET id_cat = {int:salvage_category}
 			WHERE id_cat IN ({array_int:categories})',
 			[
@@ -1839,8 +1824,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_member = {int:guest_id}
 			WHERE id_msg IN ({array_int:msgs})',
 			[
@@ -1860,8 +1844,7 @@ class RepairBoards implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET id_parent = {int:salvage_board}, id_cat = {int:salvage_category}, child_level = 1
 			WHERE id_parent IN ({array_int:parents})',
 			[
@@ -1879,8 +1862,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_poll = 0
 			WHERE id_poll IN ({array_int:polls})',
 			[
@@ -1896,8 +1878,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}calendar
+			'UPDATE {db_prefix}calendar
 			SET id_topic = 0, id_board = 0
 			WHERE id_topic IN ({array_int:events})',
 			[
@@ -1913,8 +1894,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_topics
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1929,8 +1909,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_topics
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -1945,8 +1924,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_boards
+			'DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:boards})',
 			[
 				'boards' => $boards,
@@ -1961,8 +1939,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_boards
+			'DELETE FROM {db_prefix}log_boards
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -1977,8 +1954,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_mark_read
+			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:boards})',
 			[
 				'boards' => $boards,
@@ -1993,8 +1969,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_mark_read
+			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -2010,8 +1985,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}pm_recipients
+			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_pm IN ({array_int:pms})',
 			[
 				'pms' => $pms,
@@ -2026,8 +2000,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}pm_recipients
+			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -2043,8 +2016,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}personal_messages
+			'UPDATE {db_prefix}personal_messages
 			SET id_member_from = 0
 			WHERE id_pm IN ({array_int:guestMessages})',
 			[
@@ -2060,8 +2032,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_notify
+			'DELETE FROM {db_prefix}log_notify
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -2127,8 +2098,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_search_subjects
+			'DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic IN ({array_int:deleteTopics})',
 			[
 				'deleteTopics' => $deleteTopics,
@@ -2143,8 +2113,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_polls
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -2159,8 +2128,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_polls
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll IN ({array_int:polls})',
 			[
 				'polls' => $polls,
@@ -2175,8 +2143,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_reported
+			'DELETE FROM {db_prefix}log_reported
 			WHERE id_report IN ({array_int:reports})',
 			[
 				'reports' => $reports,
@@ -2191,8 +2158,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_reported_comments
+			'DELETE FROM {db_prefix}log_reported_comments
 			WHERE id_report IN ({array_int:reports})',
 			[
 				'reports' => $reports,
@@ -2207,8 +2173,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_group_requests
+			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $members,
@@ -2223,8 +2188,7 @@ class RepairBoards implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_group_requests
+			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_group IN ({array_int:groups})',
 			[
 				'groups' => $groups,

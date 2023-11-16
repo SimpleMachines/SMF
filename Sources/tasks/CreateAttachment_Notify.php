@@ -39,8 +39,7 @@ class CreateAttachment_Notify extends BackgroundTask
 		// Validate the attachment does exist and is the right approval state.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic, m.id_member, m.subject
+			'SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic, m.id_member, m.subject
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.id_attach = {int:attachment}
@@ -65,8 +64,7 @@ class CreateAttachment_Notify extends BackgroundTask
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, email_address, lngfile, real_name
+			'SELECT id_member, email_address, lngfile, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:members})',
 			[

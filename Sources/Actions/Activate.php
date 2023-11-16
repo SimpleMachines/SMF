@@ -110,8 +110,7 @@ class Activate implements ActionInterface
 		// Get the code from the database...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, validation_code, member_name, real_name, email_address, is_activated, passwd, lngfile
+			'SELECT id_member, validation_code, member_name, real_name, email_address, is_activated, passwd, lngfile
 			FROM {db_prefix}members' . (empty($_REQUEST['u']) ? '
 			WHERE member_name = {string:email_address} OR email_address = {string:email_address}' : '
 			WHERE id_member = {int:id_member}') . '
@@ -158,8 +157,7 @@ class Activate implements ActionInterface
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE email_address = {string:email_address}
 				LIMIT 1',

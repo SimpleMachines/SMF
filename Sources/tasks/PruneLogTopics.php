@@ -62,8 +62,7 @@ class PruneLogTopics extends ScheduledTask
 		// for users who haven't been around the longest...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lb.id_member, m.last_login
+			'SELECT lb.id_member, m.last_login
 				FROM {db_prefix}members m
 				INNER JOIN
 				(
@@ -123,8 +122,7 @@ class PruneLogTopics extends ScheduledTask
 			// Delete rows from log_boards.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_boards
+				'DELETE FROM {db_prefix}log_boards
 				WHERE id_member IN ({array_int:members})',
 				[
 					'members' => $purge_members,
@@ -133,8 +131,7 @@ class PruneLogTopics extends ScheduledTask
 			// Delete rows from log_mark_read.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_mark_read
+				'DELETE FROM {db_prefix}log_mark_read
 				WHERE id_member IN ({array_int:members})',
 				[
 					'members' => $purge_members,
@@ -144,8 +141,7 @@ class PruneLogTopics extends ScheduledTask
 			// Delete rows from log_topics.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_topics
+				'DELETE FROM {db_prefix}log_topics
 				WHERE id_member IN ({array_int:members})
 					AND unwatched = {int:unwatched}',
 				[
@@ -166,8 +162,7 @@ class PruneLogTopics extends ScheduledTask
 		// want one row each, and the ID of the last message read in each board.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
+			'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
 			FROM {db_prefix}topics t
 			INNER JOIN
 			(
@@ -197,8 +192,7 @@ class PruneLogTopics extends ScheduledTask
 		// Finally, delete this set's rows from log_topics.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_topics
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})
 				AND unwatched = {int:unwatched}',
 			[

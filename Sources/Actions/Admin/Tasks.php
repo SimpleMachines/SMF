@@ -136,8 +136,7 @@ class Tasks implements ActionInterface
 			// Do the update!
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}scheduled_tasks
+				'UPDATE {db_prefix}scheduled_tasks
 				SET disabled = CASE WHEN id_task IN ({array_int:id_task_enable}) THEN 0 ELSE 1 END',
 				[
 					'id_task_enable' => $enablers,
@@ -147,8 +146,7 @@ class Tasks implements ActionInterface
 			// Update the "allow_expire_redirect" setting...
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT disabled
+				'SELECT disabled
 				FROM {db_prefix}scheduled_tasks
 				WHERE task = {string:remove_redirect}',
 				[
@@ -346,8 +344,7 @@ class Tasks implements ActionInterface
 			// Do the update!
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}scheduled_tasks
+				'UPDATE {db_prefix}scheduled_tasks
 				SET disabled = {int:disabled}, time_offset = {int:time_offset}, time_unit = {string:time_unit},
 					time_regularity = {int:time_regularity}
 				WHERE id_task = {int:id_task}',
@@ -370,8 +367,7 @@ class Tasks implements ActionInterface
 		// Load the task, understand? Que? Que?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
+			'SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task = {int:id_task}',
 			[
@@ -418,8 +414,7 @@ class Tasks implements ActionInterface
 
 			Db::$db->query(
 				'truncate_table',
-				'
-				TRUNCATE {db_prefix}log_scheduled_tasks',
+				'TRUNCATE {db_prefix}log_scheduled_tasks',
 				[
 				],
 			);
@@ -599,8 +594,7 @@ class Tasks implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
+			'SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 			FROM {db_prefix}scheduled_tasks',
 			[
 			],
@@ -642,8 +636,7 @@ class Tasks implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
+			'SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
 			FROM {db_prefix}log_scheduled_tasks AS lst
 				INNER JOIN {db_prefix}scheduled_tasks AS st ON (st.id_task = lst.id_task)
 			ORDER BY {raw:sort}
@@ -677,8 +670,7 @@ class Tasks implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_scheduled_tasks',
 			[
 			],

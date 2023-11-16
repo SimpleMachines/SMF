@@ -196,8 +196,7 @@ class Summary implements ActionInterface
 			// So... are they banned?  Dying to know!
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post,
+				'SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post,
 					bg.cannot_login, bg.reason
 				FROM {db_prefix}ban_items AS bi
 					INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:time}))

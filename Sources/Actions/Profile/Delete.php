@@ -120,8 +120,7 @@ class Delete implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
 					AND id_member != {int:selected_member}
@@ -148,8 +147,7 @@ class Delete implements ActionInterface
 				$polls_to_update = [];
 				$get_voted_polls = Db::$db->query(
 					'',
-					'
-					SELECT DISTINCT id_poll
+					'SELECT DISTINCT id_poll
 					FROM {db_prefix}log_polls
 					WHERE id_member = {int:selected_member}',
 					[
@@ -166,8 +164,7 @@ class Delete implements ActionInterface
 				if (!empty($polls_to_update)) {
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}log_polls
+						'DELETE FROM {db_prefix}log_polls
 						WHERE id_member = {int:selected_member}',
 						[
 							'selected_member' => Profile::$member->id,
@@ -176,8 +173,7 @@ class Delete implements ActionInterface
 
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}polls
+						'UPDATE {db_prefix}polls
 						SET votes = votes - 1
 						WHERE id_poll IN ({array_int:polls_to_update})',
 						[
@@ -197,8 +193,7 @@ class Delete implements ActionInterface
 						// Fetch all topics started by this user.
 						$request = Db::$db->query(
 							'',
-							'
-							SELECT t.id_topic
+							'SELECT t.id_topic
 							FROM {db_prefix}topics AS t
 							WHERE t.id_member_started = {int:selected_member}' . $extra,
 							[
@@ -219,8 +214,7 @@ class Delete implements ActionInterface
 					// Now delete the remaining messages.
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT m.id_msg
+						'SELECT m.id_msg
 						FROM {db_prefix}messages AS m
 							INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic
 								AND t.id_first_msg != m.id_msg)

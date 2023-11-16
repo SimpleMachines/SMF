@@ -77,8 +77,7 @@ class MsgDelete implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_member_started, m.id_member, m.subject, m.poster_time, m.approved
+			'SELECT t.id_member_started, m.id_member, m.subject, m.poster_time, m.approved
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = {int:id_msg} AND m.id_topic = {int:current_topic})
 			WHERE t.id_topic = {int:current_topic}

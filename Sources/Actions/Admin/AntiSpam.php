@@ -87,8 +87,7 @@ class AntiSpam implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_question, lngfile, question, answers
+			'SELECT id_question, lngfile, question, answers
 			FROM {db_prefix}qanda',
 		);
 
@@ -257,8 +256,7 @@ class AntiSpam implements ActionInterface
 			if (!empty($changes['delete'])) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}qanda
+					'DELETE FROM {db_prefix}qanda
 					WHERE id_question IN ({array_int:questions})',
 					[
 						'questions' => $changes['delete'],
@@ -270,8 +268,7 @@ class AntiSpam implements ActionInterface
 				foreach ($changes['replace'] as $q_id => $question) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}qanda
+						'UPDATE {db_prefix}qanda
 						SET lngfile = {string:lngfile},
 							question = {string:question},
 							answers = {string:answers}

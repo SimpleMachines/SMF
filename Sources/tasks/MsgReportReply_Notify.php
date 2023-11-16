@@ -40,8 +40,7 @@ class MsgReportReply_Notify extends BackgroundTask
 		$possible_members = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}log_comments
 			WHERE id_notice = {int:report}
 				AND comment_type = {literal:reportc}
@@ -74,8 +73,7 @@ class MsgReportReply_Notify extends BackgroundTask
 		// Second, anyone assigned to be a moderator of this board directly.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}moderators
 			WHERE id_board = {int:current_board}',
 			[
@@ -91,8 +89,7 @@ class MsgReportReply_Notify extends BackgroundTask
 		// Thirdly, anyone assigned to be a moderator of this group as a group->board moderator.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member
+			'SELECT mem.id_member
 			FROM {db_prefix}members AS mem, {db_prefix}moderator_groups AS bm
 			WHERE bm.id_board = {int:current_board}
 				AND(
@@ -166,8 +163,7 @@ class MsgReportReply_Notify extends BackgroundTask
 			$emails = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, lngfile, email_address
+				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
 				[
@@ -187,8 +183,7 @@ class MsgReportReply_Notify extends BackgroundTask
 			// We don't bother cluttering up the tasks data for this, when it's really no bother to fetch it.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT lr.subject, lr.membername, lr.body
+				'SELECT lr.subject, lr.membername, lr.body
 				FROM {db_prefix}log_reported AS lr
 				WHERE id_report = {int:report}',
 				[

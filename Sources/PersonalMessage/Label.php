@@ -146,8 +146,7 @@ class Label implements \ArrayAccess
 			// First get the inbox counts
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT ' . implode(', ', $selects) . '
+				'SELECT ' . implode(', ', $selects) . '
 				FROM {db_prefix}pm_recipients
 				WHERE id_member = {int:me}
 					AND in_inbox = {int:in_inbox}
@@ -177,8 +176,7 @@ class Label implements \ArrayAccess
 			// Now load info about all the other labels
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT ' . implode(', ', $selects) . '
+				'SELECT ' . implode(', ', $selects) . '
 				FROM {db_prefix}pm_labels AS l
 					LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
 					LEFT JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pl.id_pm)
@@ -317,8 +315,7 @@ class Label implements \ArrayAccess
 				foreach ($label_updates as $id => $name) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}pm_labels
+						'UPDATE {db_prefix}pm_labels
 						SET name = {string:name}
 						WHERE id_label = {int:id_label}
 						AND id_member = {int:me}',
@@ -336,8 +333,7 @@ class Label implements \ArrayAccess
 				// First delete the labels
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}pm_labels
+					'DELETE FROM {db_prefix}pm_labels
 					WHERE id_label IN ({array_int:labels_to_delete})
 					AND id_member = {int:me}',
 					[
@@ -349,8 +345,7 @@ class Label implements \ArrayAccess
 				// Now remove the now-deleted labels from any PMs...
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}pm_labeled_messages
+					'DELETE FROM {db_prefix}pm_labeled_messages
 					WHERE id_label IN ({array_int:labels_to_delete})',
 					[
 						'labels_to_delete' => $labels_to_remove,
@@ -362,8 +357,7 @@ class Label implements \ArrayAccess
 
 				$get_stranded_pms = Db::$db->query(
 					'',
-					'
-					SELECT pmr.id_pm
+					'SELECT pmr.id_pm
 					FROM {db_prefix}pm_recipients AS pmr
 						LEFT JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_pm = pmr.id_pm)
 					WHERE pml.id_label IS NULL
@@ -388,8 +382,7 @@ class Label implements \ArrayAccess
 					Label::$loaded[-1]['messages'] += count($stranded_messages);
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}pm_recipients
+						'UPDATE {db_prefix}pm_recipients
 						SET in_inbox = {int:in_inbox}
 						WHERE id_pm IN ({array_int:stranded_messages})
 							AND id_member = {int:me}',
@@ -426,8 +419,7 @@ class Label implements \ArrayAccess
 					if (!empty(Rule::$loaded[$id]->actions)) {
 						Db::$db->query(
 							'',
-							'
-							UPDATE {db_prefix}pm_rules
+							'UPDATE {db_prefix}pm_rules
 							SET actions = {string:actions}
 							WHERE id_rule = {int:id_rule}
 								AND id_member = {int:me}',
@@ -445,8 +437,7 @@ class Label implements \ArrayAccess
 				if (!empty($rule_changes)) {
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}pm_rules
+						'DELETE FROM {db_prefix}pm_rules
 						WHERE id_rule IN ({array_int:rule_list})
 							AND id_member = {int:me}',
 						[

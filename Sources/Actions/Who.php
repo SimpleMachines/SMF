@@ -227,8 +227,7 @@ class Who implements ActionInterface
 		// Get the total amount of members online.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_online AS lo
 				LEFT JOIN {db_prefix}members AS mem ON (lo.id_member = mem.id_member)' . (!empty($conditions) ? '
 			WHERE ' . implode(' AND ', $conditions) : ''),
@@ -250,8 +249,7 @@ class Who implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				lo.log_time, lo.id_member, lo.url, lo.ip AS ip, mem.real_name,
 				lo.session, mg.online_color, COALESCE(mem.show_online, 1) AS show_online,
 				lo.id_spider
@@ -501,8 +499,7 @@ class Who implements ActionInterface
 
 					$result = Db::$db->query(
 						'',
-						'
-						SELECT m.id_topic, m.subject
+						'SELECT m.id_topic, m.subject
 						FROM {db_prefix}messages AS m
 							' . (Config::$modSettings['postmod_active'] ? 'INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.approved = {int:is_approved})' : '') . '
 						WHERE m.id_msg = {int:id_msg}
@@ -595,8 +592,7 @@ class Who implements ActionInterface
 		if (!empty($topic_ids)) {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT t.id_topic, m.subject
+				'SELECT t.id_topic, m.subject
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				WHERE {query_see_topic_board}
@@ -623,8 +619,7 @@ class Who implements ActionInterface
 		if (!empty($board_ids)) {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board, b.name
+				'SELECT b.id_board, b.name
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
 					AND b.id_board IN ({array_int:board_list})
@@ -651,8 +646,7 @@ class Who implements ActionInterface
 		if (!empty($profile_ids) && ($allow_view_any || $allow_view_own)) {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name
+				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
 				LIMIT ' . count($profile_ids),

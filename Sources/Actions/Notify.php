@@ -187,8 +187,7 @@ abstract class Notify
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, alert_pref, alert_value
+			'SELECT id_member, alert_pref, alert_value
 			FROM {db_prefix}user_alerts_prefs
 			WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
 				AND alert_pref IN ({array_string:prefs})' : ''),
@@ -259,8 +258,7 @@ abstract class Notify
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_alerts_prefs
+			'DELETE FROM {db_prefix}user_alerts_prefs
 			WHERE id_member = {int:member}
 				AND alert_pref IN ({array_string:prefs})',
 			[
@@ -289,8 +287,7 @@ abstract class Notify
 		// Get the user info we need
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member AS id, email_address AS email
+			'SELECT id_member AS id, email_address AS email
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
 			[
@@ -473,8 +470,7 @@ abstract class Notify
 		} else {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_notify
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:member}
 					AND {raw:column} = {int:id}',
 				[

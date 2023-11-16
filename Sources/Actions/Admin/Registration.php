@@ -182,8 +182,7 @@ class Registration implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT group_name, id_group
+				'SELECT group_name, id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group != {int:moderator_group}
 					AND min_posts = {int:min_posts}' . (User::$me->allowedTo('admin_forum') ? '' : '

@@ -190,8 +190,7 @@ class Posts implements ActionInterface
 			// Now for each message work out whether it's actually a topic, and what board it's on.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_msg, m.id_member, m.id_board, m.subject, t.id_topic, t.id_first_msg, t.id_member_started
+				'SELECT m.id_msg, m.id_member, m.id_board, m.subject, t.id_topic, t.id_first_msg, t.id_member_started
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				WHERE m.id_msg IN ({array_int:message_list})
@@ -289,8 +288,7 @@ class Posts implements ActionInterface
 		// How many unapproved posts are there?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_first_msg != m.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -307,8 +305,7 @@ class Posts implements ActionInterface
 		// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}topics AS m
 			WHERE m.approved = {int:not_approved}
 				AND {query_see_message_board}
@@ -351,8 +348,7 @@ class Posts implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
+			'SELECT m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.smileys_enabled,
 				t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
 			FROM {db_prefix}messages AS m
@@ -487,8 +483,7 @@ class Posts implements ActionInterface
 			// Confirm the attachments are eligible for changing!
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT a.id_attach
+				'SELECT a.id_attach
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 				WHERE a.id_attach IN ({array_int:attachments})
@@ -677,8 +672,7 @@ class Posts implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_member_started, t.id_first_msg, m.id_member, m.subject, m.approved
+			'SELECT t.id_member_started, t.id_first_msg, m.id_member, m.subject, m.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 			WHERE m.id_msg = {int:id_msg}
@@ -746,8 +740,7 @@ class Posts implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_msg
+			'SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE approved = {int:not_approved}',
 			[
@@ -769,8 +762,7 @@ class Posts implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_attach
+			'SELECT id_attach
 			FROM {db_prefix}attachments
 			WHERE approved = {int:not_approved}',
 			[
@@ -805,8 +797,7 @@ class Posts implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT a.id_attach, a.filename, a.size, m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
+			'SELECT a.id_attach, a.filename, a.size, m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 				t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
 			FROM {db_prefix}attachments AS a
@@ -880,8 +871,7 @@ class Posts implements ActionInterface
 		// How many unapproved attachments in total?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.approved = {int:not_approved}

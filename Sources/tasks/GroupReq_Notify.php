@@ -39,8 +39,7 @@ class GroupReq_Notify extends BackgroundTask
 		// Do we have any group moderators?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}group_moderators
 			WHERE id_group = {int:selected_group}',
 			[
@@ -101,8 +100,7 @@ class GroupReq_Notify extends BackgroundTask
 
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member, email_address, lngfile, member_name, mod_prefs
+					'SELECT id_member, email_address, lngfile, member_name, mod_prefs
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:moderator_list})
 					ORDER BY lngfile',

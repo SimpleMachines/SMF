@@ -550,8 +550,7 @@ class Post2 extends Post
 			if (isset($_REQUEST['deleteevent'])) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}calendar
+					'DELETE FROM {db_prefix}calendar
 					WHERE id_event = {int:id_event}',
 					[
 						'id_event' => $_REQUEST['eventid'],
@@ -577,8 +576,7 @@ class Post2 extends Post
 		if (!User::$me->is_guest && !empty(Board::$info->parent_boards)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_boards
+				'UPDATE {db_prefix}log_boards
 				SET id_msg = {int:id_msg}
 				WHERE id_member = {int:current_member}
 					AND id_board IN ({array_int:board_list})',
@@ -602,8 +600,7 @@ class Post2 extends Post
 		} elseif (!$newTopic) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_notify
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:current_member}
 					AND id_topic = {int:current_topic}',
 				[
@@ -631,8 +628,7 @@ class Post2 extends Post
 			// Mark the board as read.... because it might get confusing otherwise.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_boards
+				'UPDATE {db_prefix}log_boards
 				SET id_msg = {int:maxMsgID}
 				WHERE id_member = {int:current_member}
 					AND id_board = {int:current_board}',

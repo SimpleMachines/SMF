@@ -283,8 +283,7 @@ class Themes implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_theme, variable, value
+				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable IN ({string:name}, {string:theme_dir})
 					AND id_member = {int:no_member}',
@@ -310,8 +309,7 @@ class Themes implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_theme, COUNT(*) AS value
+				'SELECT id_theme, COUNT(*) AS value
 				FROM {db_prefix}themes
 				WHERE id_member = {int:guest_member}
 				GROUP BY id_theme',
@@ -330,8 +328,7 @@ class Themes implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT col_name
+				'SELECT col_name
 				FROM {db_prefix}custom_fields',
 				[
 				],
@@ -346,8 +343,7 @@ class Themes implements ActionInterface
 
 			$request = Db::$db->query(
 				'themes_count',
-				'
-				SELECT COUNT(DISTINCT id_member) AS value, id_theme
+				'SELECT COUNT(DISTINCT id_member) AS value, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member > {int:no_member}
 					' . $customFieldsQuery . '
@@ -412,8 +408,7 @@ class Themes implements ActionInterface
 				if (!empty($old_settings)) {
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}themes
+						'DELETE FROM {db_prefix}themes
 						WHERE id_theme != {int:default_theme}
 							AND id_member = {int:guest_member}
 							AND variable IN ({array_string:old_settings})',
@@ -458,8 +453,7 @@ class Themes implements ActionInterface
 					// Delete then insert for ease of database compatibility!
 					Db::$db->query(
 						'substring',
-						'
-						DELETE FROM {db_prefix}themes
+						'DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:default_theme}
 							AND id_member > {int:no_member}
 							AND variable = SUBSTRING({string:option}, 1, 255)',
@@ -472,8 +466,7 @@ class Themes implements ActionInterface
 
 					Db::$db->query(
 						'substring',
-						'
-						INSERT INTO {db_prefix}themes
+						'INSERT INTO {db_prefix}themes
 							(id_member, id_theme, variable, value)
 						SELECT id_member, 1, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
 						FROM {db_prefix}members',
@@ -487,8 +480,7 @@ class Themes implements ActionInterface
 				} elseif ($_POST['default_options_master'][$opt] == 2) {
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}themes
+						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:option_name}
 							AND id_member > {int:no_member}',
 						[
@@ -503,8 +495,7 @@ class Themes implements ActionInterface
 			if (!empty($old_settings)) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}themes
+					'DELETE FROM {db_prefix}themes
 					WHERE id_theme != {int:default_theme}
 						AND id_member > {int:no_member}
 						AND variable IN ({array_string:old_settings})',
@@ -525,8 +516,7 @@ class Themes implements ActionInterface
 					// Delete then insert for ease of database compatibility - again!
 					Db::$db->query(
 						'substring',
-						'
-						DELETE FROM {db_prefix}themes
+						'DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:current_theme}
 							AND id_member > {int:no_member}
 							AND variable = SUBSTRING({string:option}, 1, 255)',
@@ -539,8 +529,7 @@ class Themes implements ActionInterface
 
 					Db::$db->query(
 						'substring',
-						'
-						INSERT INTO {db_prefix}themes
+						'INSERT INTO {db_prefix}themes
 							(id_member, id_theme, variable, value)
 						SELECT id_member, {int:current_theme}, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
 						FROM {db_prefix}members',
@@ -553,8 +542,7 @@ class Themes implements ActionInterface
 				} elseif ($_POST['options_master'][$opt] == 2) {
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}themes
+						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:option}
 							AND id_member > {int:no_member}
 							AND id_theme = {int:current_theme}',
@@ -578,8 +566,7 @@ class Themes implements ActionInterface
 
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT col_name
+					'SELECT col_name
 					FROM {db_prefix}custom_fields',
 					[
 					],
@@ -595,8 +582,7 @@ class Themes implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}themes
+				'DELETE FROM {db_prefix}themes
 				WHERE id_member > {int:no_member}
 					AND id_theme = {int:current_theme}
 					' . $customFieldsQuery,
@@ -638,8 +624,7 @@ class Themes implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT variable, value
+				'SELECT variable, value
 				FROM {db_prefix}themes
 				WHERE id_theme IN (1, {int:current_theme})
 					AND id_member = {int:guest_member}',
@@ -1793,8 +1778,7 @@ class Themes implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme = ({int:id_theme})
 				AND id_member = {int:no_member}' . (!empty($variables) ? '
@@ -1861,8 +1845,7 @@ class Themes implements ActionInterface
 		// Perform the query as requested.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({array_string:theme_values})
 				AND id_theme IN ({array_string:query_where})
@@ -1928,8 +1911,7 @@ class Themes implements ActionInterface
 		// Perform the query as requested.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({array_string:theme_values})
 				AND id_member = {int:no_member}',
@@ -2071,8 +2053,7 @@ class Themes implements ActionInterface
 		if (!empty(Utils::$context['to_install']['version'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_theme
+				'SELECT id_theme
 				FROM {db_prefix}themes
 				WHERE id_member = {int:no_member}
 					AND variable = {literal:name}
@@ -2094,8 +2075,7 @@ class Themes implements ActionInterface
 					case 1: // Got a newer version, update the old entry.
 						Db::$db->query(
 							'',
-							'
-							UPDATE {db_prefix}themes
+							'UPDATE {db_prefix}themes
 							SET value = {string:new_value}
 							WHERE variable = {literal:version}
 								AND id_theme = {int:id_theme}',
@@ -2132,8 +2112,7 @@ class Themes implements ActionInterface
 				// Get the theme info first.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_theme
+					'SELECT id_theme
 					FROM {db_prefix}themes
 					WHERE id_member = {int:no_member}
 						AND (value LIKE {string:based_on} OR value LIKE {string:based_on_path})
@@ -2170,8 +2149,7 @@ class Themes implements ActionInterface
 		// Find the newest id_theme.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT MAX(id_theme)
+			'SELECT MAX(id_theme)
 			FROM {db_prefix}themes',
 			[
 			],
@@ -2228,8 +2206,7 @@ class Themes implements ActionInterface
 		// Remove it from the themes table.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}themes
+			'DELETE FROM {db_prefix}themes
 			WHERE id_theme = {int:current_theme}',
 			[
 				'current_theme' => $themeID,
@@ -2239,8 +2216,7 @@ class Themes implements ActionInterface
 		// Update users preferences.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}members
+			'UPDATE {db_prefix}members
 			SET id_theme = {int:default_theme}
 			WHERE id_theme = {int:current_theme}',
 			[
@@ -2252,8 +2228,7 @@ class Themes implements ActionInterface
 		// Some boards may have it as preferred theme.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET id_theme = {int:default_theme}
 			WHERE id_theme = {int:current_theme}',
 			[

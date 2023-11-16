@@ -132,8 +132,7 @@ class CreatePost_Notify extends BackgroundTask
 		// Find the people interested in receiving notifications for this topic
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
 				mem.id_group, mem.id_post_group, mem.additional_groups,
@@ -177,8 +176,7 @@ class CreatePost_Notify extends BackgroundTask
 			if (!isset($allowed_groups)) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT member_groups
+					'SELECT member_groups
 					FROM {db_prefix}boards
 					WHERE id_board = {int:board}',
 					[
@@ -230,8 +228,7 @@ class CreatePost_Notify extends BackgroundTask
 				if (!empty($this->_details['respawns'])) {
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT modified_time
+						'SELECT modified_time
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:msg}
 						LIMIT 1',
@@ -296,8 +293,7 @@ class CreatePost_Notify extends BackgroundTask
 		if (!empty($members_to_log)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_notify
+				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
 					AND id_member IN ({array_int:members})',
@@ -374,8 +370,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT content_action, id_member
+				'SELECT content_action, id_member
 				FROM {db_prefix}user_alerts
 				WHERE content_id = {int:msg_id}
 					AND content_type = {literal:msg}
@@ -395,8 +390,7 @@ class CreatePost_Notify extends BackgroundTask
 			if (!empty($old_alerts)) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT content_type, id_mentioned
+					'SELECT content_type, id_mentioned
 					FROM {db_prefix}mentions
 					WHERE content_id = {int:msg_id}
 						AND (content_type = {literal:quote} OR content_type = {literal:msg})',

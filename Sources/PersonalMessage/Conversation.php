@@ -87,8 +87,7 @@ class Conversation
 		// Find all the PMs in this conversation.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from, pm.deleted_by_sender,
+			'SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from, pm.deleted_by_sender,
 				pmr.id_member, pmr.bcc, pmr.deleted
 			FROM {db_prefix}personal_messages AS pm
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm AND pmr.id_member = {int:me})
@@ -195,8 +194,7 @@ class Conversation
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(DISTINCT pm.id_pm_head)
+			'SELECT COUNT(DISTINCT pm.id_pm_head)
 			FROM {db_prefix}personal_messages AS pm' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
 			WHERE (' . implode(') AND (', $where) . ')',
@@ -269,8 +267,7 @@ class Conversation
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
+			'SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
 			FROM {db_prefix}personal_messages AS pm' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
 			WHERE (' . implode(') AND (', $where) . ')

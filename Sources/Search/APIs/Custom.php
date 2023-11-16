@@ -312,8 +312,7 @@ class Custom extends SearchApi
 				$removed_words = array_merge($removed_words, $inserted_words);
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_search_words
+					'DELETE FROM {db_prefix}log_search_words
 					WHERE id_msg = {int:id_msg}
 						AND id_word IN ({array_int:removed_words})',
 					[

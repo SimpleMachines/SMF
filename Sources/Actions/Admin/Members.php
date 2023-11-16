@@ -1090,8 +1090,7 @@ class Members implements ActionInterface
 		// Get information on each of the members, things that are important to us, like email address...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, member_name, real_name, email_address, validation_code, lngfile
+			'SELECT id_member, member_name, real_name, email_address, validation_code, lngfile
 			FROM {db_prefix}members
 			WHERE is_activated = {int:activated_status}' . $condition . '
 			ORDER BY lngfile',
@@ -1131,8 +1130,7 @@ class Members implements ActionInterface
 			// Approve/activate this member.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}members
+				'UPDATE {db_prefix}members
 				SET validation_code = {string:blank_string}, is_activated = {int:is_activated}
 				WHERE is_activated = {int:activated_status}' . $condition,
 				[
@@ -1177,8 +1175,7 @@ class Members implements ActionInterface
 				// Set these members for activation - I know this includes two id_member checks but it's safer than bodging $condition ;).
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}members
+					'UPDATE {db_prefix}members
 					SET validation_code = {string:validation_code}, is_activated = {int:not_activated}
 					WHERE is_activated = {int:activated_status}
 						' . $condition . '
@@ -1330,8 +1327,7 @@ class Members implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.member_ip, mem.member_ip2, mem.last_login,
 				mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 			FROM {db_prefix}members AS mem
@@ -1378,8 +1374,7 @@ class Members implements ActionInterface
 		else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}members AS mem
 				WHERE ' . $where,
 				array_merge($where_params, [
@@ -1536,8 +1531,7 @@ class Members implements ActionInterface
 		// Get counts on every type of activation - for sections and filtering alike.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS total_members, is_activated
+			'SELECT COUNT(*) AS total_members, is_activated
 			FROM {db_prefix}members
 			WHERE is_activated != {int:is_activated}
 			GROUP BY is_activated',
@@ -1600,8 +1594,7 @@ class Members implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				id_member, member_name, email_address, member_ip, member_ip2, is_activated
 			FROM {db_prefix}members
 			WHERE member_ip IN ({array_inet:ips})
@@ -1640,8 +1633,7 @@ class Members implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				m.poster_ip, mem.id_member, mem.member_name, mem.email_address, mem.is_activated
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)

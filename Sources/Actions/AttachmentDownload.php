@@ -217,8 +217,7 @@ class AttachmentDownload implements ActionInterface
 		if (!$file->approved && Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts')) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
 				LIMIT 1',
@@ -291,8 +290,7 @@ class AttachmentDownload implements ActionInterface
 		if ($file->type != 3 && empty($this->showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment'])) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}attachments
+				'UPDATE {db_prefix}attachments
 				SET downloads = downloads + 1
 				WHERE id_attach = {int:id_attach}',
 				[

@@ -73,8 +73,7 @@ class IgnoreBoards implements ActionInterface
 
 		$request = Db::$db->query(
 			'order_by_board_order',
-			'
-			SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
+			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
 				' . (!empty(Profile::$member->data['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)

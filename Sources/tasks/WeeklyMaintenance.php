@@ -53,8 +53,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}settings
+			'DELETE FROM {db_prefix}settings
 			WHERE variable IN ({array_string:setting_list})
 				AND (value = {string:zero_value} OR value = {string:blank_value})',
 			[
@@ -71,8 +70,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}settings
+			'DELETE FROM {db_prefix}settings
 			WHERE variable IN ({array_string:setting_list})',
 			[
 				'setting_list' => $deleteAnywaySettings,
@@ -89,8 +87,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_errors
+					'DELETE FROM {db_prefix}log_errors
 					WHERE log_time < {int:log_time}',
 					[
 						'log_time' => $t,
@@ -104,8 +101,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_actions
+					'DELETE FROM {db_prefix}log_actions
 					WHERE log_time < {int:log_time}
 						AND id_log = {int:moderation_log}',
 					[
@@ -121,8 +117,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_banned
+					'DELETE FROM {db_prefix}log_banned
 					WHERE log_time < {int:log_time}',
 					[
 						'log_time' => $t,
@@ -140,8 +135,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT id_report
+					'SELECT id_report
 					FROM {db_prefix}log_reported
 					WHERE time_started < {int:time_started}
 						AND closed = {int:closed}
@@ -162,8 +156,7 @@ class WeeklyMaintenance extends ScheduledTask
 					// Now delete the reports...
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}log_reported
+						'DELETE FROM {db_prefix}log_reported
 						WHERE id_report IN ({array_int:report_list})',
 						[
 							'report_list' => $reports,
@@ -173,8 +166,7 @@ class WeeklyMaintenance extends ScheduledTask
 					// And delete the comments for those reports...
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}log_reported_comments
+						'DELETE FROM {db_prefix}log_reported_comments
 						WHERE id_report IN ({array_int:report_list})',
 						[
 							'report_list' => $reports,
@@ -189,8 +181,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_scheduled_tasks
+					'DELETE FROM {db_prefix}log_scheduled_tasks
 					WHERE time_run < {int:time_run}',
 					[
 						'time_run' => $t,
@@ -204,8 +195,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_spider_hits
+					'DELETE FROM {db_prefix}log_spider_hits
 					WHERE log_time < {int:log_time}',
 					[
 						'log_time' => $t,
@@ -217,8 +207,7 @@ class WeeklyMaintenance extends ScheduledTask
 		// Get rid of any paid subscriptions that were never actioned.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_subscribed
+			'DELETE FROM {db_prefix}log_subscribed
 			WHERE end_time = {int:no_end_time}
 				AND status = {int:not_active}
 				AND start_time < {int:start_time}
@@ -234,8 +223,7 @@ class WeeklyMaintenance extends ScheduledTask
 		// Some OS's don't seem to clean out their sessions.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}sessions
+			'DELETE FROM {db_prefix}sessions
 			WHERE last_update < {int:last_update}',
 			[
 				'last_update' => time() - 86400,

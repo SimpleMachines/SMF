@@ -1020,8 +1020,7 @@ class User implements \ArrayAccess
 			$removals = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT permission, add_deny
+				'SELECT permission, add_deny
 				FROM {db_prefix}permissions
 				WHERE id_group IN ({array_int:member_groups})
 					' . $spider_restrict,
@@ -1054,8 +1053,7 @@ class User implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT permission, add_deny
+				'SELECT permission, add_deny
 				FROM {db_prefix}board_permissions
 				WHERE (id_group IN ({array_int:member_groups})
 					' . $spider_restrict . ')
@@ -1371,8 +1369,7 @@ class User implements \ArrayAccess
 			if ($do_delete) {
 				Db::$db->query(
 					'delete_log_online_interval',
-					'
-					DELETE FROM {db_prefix}log_online
+					'DELETE FROM {db_prefix}log_online
 					WHERE log_time < {int:log_time}
 						AND session != {string:session}',
 					[
@@ -1387,8 +1384,7 @@ class User implements \ArrayAccess
 
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_online
+				'UPDATE {db_prefix}log_online
 				SET log_time = {int:log_time}, ip = {inet:ip}, url = {string:url}
 				WHERE session = {string:session}',
 				[
@@ -1412,8 +1408,7 @@ class User implements \ArrayAccess
 			if ($do_delete || !empty($this->id)) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_online
+					'DELETE FROM {db_prefix}log_online
 					WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty($this->id) ? ' OR ' : '') . (empty($this->id) ? '' : 'id_member = {int:current_member}'),
 					[
 						'current_member' => $this->id,
@@ -1488,8 +1483,7 @@ class User implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_group
+				'SELECT id_group
 				FROM {db_prefix}group_moderators
 				WHERE id_member = {int:current_member}',
 				[
@@ -1528,8 +1522,7 @@ class User implements \ArrayAccess
 		if (!$this->is_guest) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board
+				'SELECT id_board
 				FROM {db_prefix}moderators
 				WHERE id_member = {int:current_member}',
 				[
@@ -1545,8 +1538,7 @@ class User implements \ArrayAccess
 			// Can any of the groups they're in moderate any of the boards?
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board
+				'SELECT id_board
 				FROM {db_prefix}moderator_groups
 				WHERE id_group IN({array_int:groups})',
 				[
@@ -1748,8 +1740,7 @@ class User implements \ArrayAccess
 				// Store every type of ban that applies to you in your session.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
+					'SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
 						bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 					FROM {db_prefix}ban_items AS bi
 						INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
@@ -1830,8 +1821,7 @@ class User implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
+				'SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 				FROM {db_prefix}ban_items AS bi
 					INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 				WHERE bi.id_ban IN ({array_int:ban_list})
@@ -1866,8 +1856,7 @@ class User implements \ArrayAccess
 			if (!$this->is_guest) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_online
+					'DELETE FROM {db_prefix}log_online
 					WHERE id_member = {int:current_member}',
 					[
 						'current_member' => $this->id,
@@ -1906,8 +1895,7 @@ class User implements \ArrayAccess
 			// We don't wanna see you!
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_online
+				'DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
 				[
 					'current_member' => $this->id,
@@ -1978,8 +1966,7 @@ class User implements \ArrayAccess
 		if (!empty($ban_ids)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}ban_items
+				'UPDATE {db_prefix}ban_items
 				SET hits = hits + 1
 				WHERE id_ban IN ({array_int:ban_ids})',
 				[
@@ -2343,8 +2330,7 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT MIN(bp.add_deny) AS add_deny
+			'SELECT MIN(bp.add_deny) AS add_deny
 			FROM {db_prefix}boards AS b
 				INNER JOIN {db_prefix}board_permissions AS bp ON (bp.id_profile = b.id_profile)
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
@@ -2518,8 +2504,7 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
+			'SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
 			FROM {db_prefix}board_permissions AS bp
 				INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
@@ -2666,8 +2651,7 @@ class User implements \ArrayAccess
 		if (isset(Board::$info) && ($moderator_group_info = CacheApi::get('moderator_group_info', 480)) == null) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT group_name, online_color, icons
+				'SELECT group_name, online_color, icons
 				FROM {db_prefix}membergroups
 				WHERE id_group = {int:moderator_group}
 				LIMIT 1',
@@ -2762,8 +2746,7 @@ class User implements \ArrayAccess
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
+				'SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
 				FROM {db_prefix}members AS mem
 				WHERE mem.id_member = {int:id_member}
 				LIMIT 1',
@@ -2997,8 +2980,7 @@ class User implements \ArrayAccess
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT member_name
+						'SELECT member_name
 						FROM {db_prefix}members
 						WHERE ' . $condition,
 						$parameters,
@@ -3082,8 +3064,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}members
+			'UPDATE {db_prefix}members
 			SET' . substr($setString, 0, -1) . '
 			WHERE ' . $condition,
 			$parameters,
@@ -3140,8 +3121,7 @@ class User implements \ArrayAccess
 			// Look it up in the database.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT timezone
+				'SELECT timezone
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}',
 				[
@@ -3222,8 +3202,7 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
+			'SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})
 			LIMIT {int:limit}',
@@ -3284,8 +3263,7 @@ class User implements \ArrayAccess
 		// Make these peoples' posts guest posts.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_member = {int:guest_id}' . (!empty(Config::$modSettings['deleteMembersRemovesEmail']) ? ',
 				poster_email = {string:blank_email}' : '') . '
 			WHERE id_member IN ({array_int:users})',
@@ -3298,8 +3276,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}polls
+			'UPDATE {db_prefix}polls
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3311,8 +3288,7 @@ class User implements \ArrayAccess
 		// Make these peoples' posts guest first posts and last posts.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_member_started = {int:guest_id}
 			WHERE id_member_started IN ({array_int:users})',
 			[
@@ -3323,8 +3299,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_member_updated = {int:guest_id}
 			WHERE id_member_updated IN ({array_int:users})',
 			[
@@ -3335,8 +3310,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_actions
+			'UPDATE {db_prefix}log_actions
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3347,8 +3321,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_banned
+			'UPDATE {db_prefix}log_banned
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3359,8 +3332,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_errors
+			'UPDATE {db_prefix}log_errors
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3372,8 +3344,7 @@ class User implements \ArrayAccess
 		// Delete the member.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}members
+			'DELETE FROM {db_prefix}members
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3383,8 +3354,7 @@ class User implements \ArrayAccess
 		// Delete any drafts...
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_drafts
+			'DELETE FROM {db_prefix}user_drafts
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3394,8 +3364,7 @@ class User implements \ArrayAccess
 		// Delete anything they liked.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}user_likes
+			'DELETE FROM {db_prefix}user_likes
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3405,8 +3374,7 @@ class User implements \ArrayAccess
 		// Delete their mentions
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}mentions
+			'DELETE FROM {db_prefix}mentions
 			WHERE id_member IN ({array_int:members})',
 			[
 				'members' => $users,
@@ -3416,8 +3384,7 @@ class User implements \ArrayAccess
 		// Delete the logs...
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_actions
+			'DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:log_type}
 				AND id_member IN ({array_int:users})',
 			[
@@ -3428,8 +3395,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_boards
+			'DELETE FROM {db_prefix}log_boards
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3438,8 +3404,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_comments
+			'DELETE FROM {db_prefix}log_comments
 			WHERE id_recipient IN ({array_int:users})
 				AND comment_type = {string:warntpl}',
 			[
@@ -3450,8 +3415,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_group_requests
+			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3460,8 +3424,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_mark_read
+			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3470,8 +3433,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_notify
+			'DELETE FROM {db_prefix}log_notify
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3480,8 +3442,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_online
+			'DELETE FROM {db_prefix}log_online
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3490,8 +3451,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_subscribed
+			'DELETE FROM {db_prefix}log_subscribed
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3500,8 +3460,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_topics
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3512,8 +3471,7 @@ class User implements \ArrayAccess
 		// @todo Consider adding back in cookie protection.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_polls
+			'UPDATE {db_prefix}log_polls
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3527,8 +3485,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}personal_messages
+			'UPDATE {db_prefix}personal_messages
 			SET id_member_from = {int:guest_id}
 			WHERE id_member_from IN ({array_int:users})',
 			[
@@ -3540,8 +3497,7 @@ class User implements \ArrayAccess
 		// They no longer exist, so we don't know who it was sent to.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}pm_recipients
+			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3554,8 +3510,7 @@ class User implements \ArrayAccess
 		// It's over, no more moderation for you.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}moderators
+			'DELETE FROM {db_prefix}moderators
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3564,8 +3519,7 @@ class User implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}group_moderators
+			'DELETE FROM {db_prefix}group_moderators
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3575,8 +3529,7 @@ class User implements \ArrayAccess
 		// If you don't exist we can't ban you.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}ban_items
+			'DELETE FROM {db_prefix}ban_items
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3586,8 +3539,7 @@ class User implements \ArrayAccess
 		// Remove individual theme settings.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}themes
+			'DELETE FROM {db_prefix}themes
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,
@@ -3597,8 +3549,7 @@ class User implements \ArrayAccess
 		// These users are nobody's buddy nomore.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, pm_ignore_list, buddy_list
+			'SELECT id_member, pm_ignore_list, buddy_list
 			FROM {db_prefix}members
 			WHERE FIND_IN_SET({raw:pm_ignore_list}, pm_ignore_list) != 0 OR FIND_IN_SET({raw:buddy_list}, buddy_list) != 0',
 			[
@@ -3610,8 +3561,7 @@ class User implements \ArrayAccess
 		while ($row = Db::$db->fetch_assoc($request)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}members
+				'UPDATE {db_prefix}members
 				SET
 					pm_ignore_list = {string:pm_ignore_list},
 					buddy_list = {string:buddy_list}
@@ -3838,8 +3788,7 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
 				AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
@@ -3863,8 +3812,7 @@ class User implements \ArrayAccess
 		// Does name case insensitive match a member group name?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group
+			'SELECT id_group
 			FROM {db_prefix}membergroups
 			WHERE {raw:group_name} LIKE {string:check_name}
 			LIMIT 1',
@@ -3913,8 +3861,7 @@ class User implements \ArrayAccess
 		// ...and add to that the email address you're trying to register.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT bi.id_ban, bg.' . $restriction . ', bg.cannot_access, bg.reason
+			'SELECT bi.id_ban, bg.' . $restriction . ', bg.cannot_access, bg.reason
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 			WHERE {string:email} LIKE bi.email_address
@@ -4026,8 +3973,7 @@ class User implements \ArrayAccess
 		// Search by username, display name, and email address.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, member_name, real_name, email_address
+			'SELECT id_member, member_name, real_name, email_address
 			FROM {db_prefix}members
 			WHERE (' . $member_name_search . '
 				OR ' . $real_name_search . ' ' . $email_condition . ')
@@ -4084,8 +4030,7 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member
+			'SELECT mem.id_member
 			FROM {db_prefix}members AS mem' . ($include_moderators || $exclude_moderators ? '
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})' : '') . '
 			WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
@@ -4144,8 +4089,7 @@ class User implements \ArrayAccess
 		if (!isset($board_id)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_group, permission, add_deny
+				'SELECT id_group, permission, add_deny
 				FROM {db_prefix}permissions
 				WHERE permission IN ({array_string:permissions})',
 				[
@@ -4173,8 +4117,7 @@ class User implements \ArrayAccess
 			} elseif ($board_id !== 0) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_profile
+					'SELECT id_profile
 					FROM {db_prefix}boards
 					WHERE id_board = {int:id_board}
 					LIMIT 1',
@@ -4197,8 +4140,7 @@ class User implements \ArrayAccess
 		if (isset($profile_id)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_group, permission, add_deny
+				'SELECT id_group, permission, add_deny
 				FROM {db_prefix}board_permissions
 				WHERE permission IN ({array_string:permissions})
 					AND id_profile = {int:profile_id}',
@@ -4226,8 +4168,7 @@ class User implements \ArrayAccess
 				// Get the groups that can moderate this board
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_group
+					'SELECT id_group
 					FROM {db_prefix}moderator_groups
 					WHERE id_board = {int:board_id}',
 					[
@@ -4337,8 +4278,7 @@ class User implements \ArrayAccess
 			$date = Time::strftime('%Y-%m-%d', time());
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_spider_stats
+				'UPDATE {db_prefix}log_spider_stats
 				SET last_seen = {int:current_time}, page_hits = page_hits + 1
 				WHERE id_spider = {int:current_spider}
 					AND stat_date = {date:current_date}',
@@ -5030,8 +4970,7 @@ class User implements \ArrayAccess
 				// Find out if any group requires 2FA
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT COUNT(id_group) AS total
+					'SELECT COUNT(id_group) AS total
 					FROM {db_prefix}membergroups
 					WHERE tfa_required = {int:tfa_required}
 						AND id_group IN ({array_int:full_groups})',
@@ -5095,8 +5034,7 @@ class User implements \ArrayAccess
 			// Do a quick query to make sure this isn't a mistake.
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT poster_time
+				'SELECT poster_time
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
 				LIMIT 1',
@@ -5245,8 +5183,7 @@ class User implements \ArrayAccess
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_spider, user_agent, ip_info
+						'SELECT id_spider, user_agent, ip_info
 						FROM {db_prefix}spiders
 						ORDER BY LENGTH(user_agent) DESC',
 						[
@@ -5516,8 +5453,7 @@ class User implements \ArrayAccess
 			// Load the members' data.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT ' . implode(",\n\t\t\t\t\t", $select_columns) . '
+				'SELECT ' . implode(",\n\t\t\t\t\t", $select_columns) . '
 				FROM ' . implode("\n\t\t\t\t\t", $select_tables) . '
 				WHERE ' . $where . (count($users) > 1 ? '' : '
 				LIMIT 1'),
@@ -5618,8 +5554,7 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, id_theme, variable, value
+			'SELECT id_member, id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_member IN ({array_int:ids})',
 			[

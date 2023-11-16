@@ -427,8 +427,7 @@ class QuickModeration implements ActionInterface
 			// Find all topics...
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
+				'SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:action_topic_ids})
 				LIMIT {int:limit}',
@@ -499,8 +498,7 @@ class QuickModeration implements ActionInterface
 					$redirect_boards = [];
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_board
+						'SELECT id_board
 						FROM {db_prefix}boards
 						WHERE redirect != {string:blank_redirect}',
 						[
@@ -542,8 +540,7 @@ class QuickModeration implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_topic, unwatched
+			'SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
 				AND id_member = {int:current_user}',
@@ -584,8 +581,7 @@ class QuickModeration implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET is_sticky = CASE WHEN is_sticky = {int:is_sticky} THEN 0 ELSE 1 END
 			WHERE id_topic IN ({array_int:sticky_topic_ids})',
 			[
@@ -600,8 +596,7 @@ class QuickModeration implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_topic, id_board, is_sticky
+			'SELECT id_topic, id_board, is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:sticky_topic_ids})
 			LIMIT {int:limit}',
@@ -643,8 +638,7 @@ class QuickModeration implements ActionInterface
 
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, locked, id_board
+				'SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
 					AND id_member_started = {int:current_member}
@@ -670,8 +664,7 @@ class QuickModeration implements ActionInterface
 
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, locked, id_board
+				'SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
 				LIMIT {int:limit}',
@@ -693,8 +686,7 @@ class QuickModeration implements ActionInterface
 			// Alternate the locked value.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET locked = CASE WHEN locked = {int:is_locked} THEN ' . (User::$me->allowedTo('lock_any') ? '1' : '2') . ' ELSE 0 END
 				WHERE id_topic IN ({array_int:locked_topic_ids})',
 				[
@@ -735,8 +727,7 @@ class QuickModeration implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_topic, t.id_board, b.count_posts
+			'SELECT t.id_topic, t.id_board, b.count_posts
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 			WHERE t.id_topic IN ({array_int:move_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('move_any') ? '
@@ -782,8 +773,7 @@ class QuickModeration implements ActionInterface
 			$topicRecounts = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board, count_posts
+				'SELECT id_board, count_posts
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:move_boards})',
 				[
@@ -812,8 +802,7 @@ class QuickModeration implements ActionInterface
 				// Get all the members who have posted in the moved topics.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member, id_topic
+					'SELECT id_member, id_topic
 					FROM {db_prefix}messages
 					WHERE id_topic IN ({array_int:moved_topic_ids})',
 					[
@@ -873,8 +862,7 @@ class QuickModeration implements ActionInterface
 
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT id_topic, id_board
+			'SELECT id_topic, id_board
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('remove_any') ? '
 				AND id_member_started = {int:current_member}' : '') . '
@@ -926,8 +914,7 @@ class QuickModeration implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_topic, id_member_started
+			'SELECT id_topic, id_member_started
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:approve_topic_ids})
 				AND approved = {int:not_approved}

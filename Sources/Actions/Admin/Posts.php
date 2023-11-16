@@ -303,8 +303,7 @@ class Posts implements ActionInterface
 			// Also disable the scheduled task if we're not using it.
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}scheduled_tasks
+				'UPDATE {db_prefix}scheduled_tasks
 				SET disabled = {int:disabled}
 				WHERE task = {string:task}',
 				[

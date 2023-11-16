@@ -512,8 +512,7 @@ class Topic implements \ArrayAccess
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT content_id
+				'SELECT content_id
 				FROM {db_prefix}user_likes AS l
 					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
 				WHERE l.id_member = {int:current_user}
@@ -591,8 +590,7 @@ class Topic implements \ArrayAccess
 		// Find out who started the topic - in case User Topic Locking is enabled.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member_started, locked
+			'SELECT id_member_started, locked
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
@@ -639,8 +637,7 @@ class Topic implements \ArrayAccess
 		// Actually lock the topic in the database with the new value.
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET locked = {int:locked}
 			WHERE id_topic = {int:current_topic}',
 			[
@@ -686,8 +683,7 @@ class Topic implements \ArrayAccess
 		// Is this topic already stickied, or no?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT is_sticky
+			'SELECT is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
@@ -708,8 +704,7 @@ class Topic implements \ArrayAccess
 		// Toggle the sticky value.... pretty simple ;).
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET is_sticky = {int:is_sticky}
 			WHERE id_topic = {int:current_topic}',
 			[
@@ -752,8 +747,7 @@ class Topic implements \ArrayAccess
 		// Just get the messages to be approved and pass through...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_first_msg
+			'SELECT id_first_msg
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topic_list})
 				AND approved = {int:approve_type}',
@@ -813,8 +807,7 @@ class Topic implements \ArrayAccess
 		// Determine the source boards...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
+			'SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
 				SUM(num_replies) AS num_replies
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
@@ -856,8 +849,7 @@ class Topic implements \ArrayAccess
 		$SaveAServer = max(0, Config::$modSettings['maxMsgID'] - 50000);
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
+			'SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board
 					AND lmr.id_msg > t.id_first_msg AND lmr.id_msg > {int:protect_lmr_msg})
@@ -910,8 +902,7 @@ class Topic implements \ArrayAccess
 		foreach ($fromBoards as $stats) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET
 					num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
 					num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
@@ -933,8 +924,7 @@ class Topic implements \ArrayAccess
 		}
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}boards
+			'UPDATE {db_prefix}boards
 			SET
 				num_topics = num_topics + {int:total_topics},
 				num_posts = num_posts + {int:total_posts},' . ($isRecycleDest ? '
@@ -955,8 +945,7 @@ class Topic implements \ArrayAccess
 		// Move the topic.  Done.  :P
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}topics
+			'UPDATE {db_prefix}topics
 			SET id_board = {int:id_board}' . ($isRecycleDest ? ',
 				unapproved_posts = {int:no_unapproved}, approved = {int:is_approved}' : '') . '
 			WHERE id_topic IN ({array_int:topics})',
@@ -972,8 +961,7 @@ class Topic implements \ArrayAccess
 		if ($isRecycleDest && ($totalUnapprovedTopics || $totalUnapprovedPosts)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg
+				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})
 					AND approved = {int:not_approved}',
@@ -994,8 +982,7 @@ class Topic implements \ArrayAccess
 			if (!empty($approval_msgs)) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}approval_queue
+					'DELETE FROM {db_prefix}approval_queue
 					WHERE id_msg IN ({array_int:message_list})
 						AND id_attach = {int:id_attach}',
 					[
@@ -1008,8 +995,7 @@ class Topic implements \ArrayAccess
 			// Get all the current max and mins.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, id_first_msg, id_last_msg
+				'SELECT id_topic, id_first_msg, id_last_msg
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:topics})',
 				[
@@ -1029,8 +1015,7 @@ class Topic implements \ArrayAccess
 			// Check the MAX and MIN are correct.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg
+				'SELECT id_topic, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})
 				GROUP BY id_topic',
@@ -1044,8 +1029,7 @@ class Topic implements \ArrayAccess
 				if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max']) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}topics
+						'UPDATE {db_prefix}topics
 						SET id_first_msg = {int:first_msg}, id_last_msg = {int:last_msg}
 						WHERE id_topic = {int:selected_topic}',
 						[
@@ -1061,8 +1045,7 @@ class Topic implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}messages
+			'UPDATE {db_prefix}messages
 			SET id_board = {int:id_board}' . ($isRecycleDest ? ',approved = {int:is_approved}' : '') . '
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1073,8 +1056,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_reported
+			'UPDATE {db_prefix}log_reported
 			SET id_board = {int:id_board}
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1084,8 +1066,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}calendar
+			'UPDATE {db_prefix}calendar
 			SET id_board = {int:id_board}
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1097,8 +1078,7 @@ class Topic implements \ArrayAccess
 		// Mark target board as seen, if it was already marked as seen before.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
+			'SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 			WHERE b.id_board = {int:id_board}',
@@ -1169,8 +1149,7 @@ class Topic implements \ArrayAccess
 		if ($decreasePostCount) {
 			$requestMembers = Db::$db->query(
 				'',
-				'
-				SELECT m.id_member, COUNT(*) AS posts
+				'SELECT m.id_member, COUNT(*) AS posts
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 				WHERE m.id_topic IN ({array_int:topics})' . (!empty($recycle_board) ? '
@@ -1198,8 +1177,7 @@ class Topic implements \ArrayAccess
 		if (!empty($recycle_board) && !$ignoreRecycling) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, id_board, unapproved_posts, approved
+				'SELECT id_topic, id_board, unapproved_posts, approved
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:topics})
 					AND id_board != {int:recycle_board}
@@ -1225,8 +1203,7 @@ class Topic implements \ArrayAccess
 					// Set the id_previous_board for this topic - and make it not sticky.
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}topics
+						'UPDATE {db_prefix}topics
 						SET id_previous_board = {int:id_previous_board}, is_sticky = {int:not_sticky}
 						WHERE id_topic = {int:id_topic}',
 						[
@@ -1246,8 +1223,7 @@ class Topic implements \ArrayAccess
 
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}log_reported
+					'UPDATE {db_prefix}log_reported
 					SET closed = {int:is_closed}
 					WHERE id_topic IN ({array_int:recycle_topics})',
 					[
@@ -1284,8 +1260,7 @@ class Topic implements \ArrayAccess
 		// Find out how many posts we are deleting.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
+			'SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
 				SUM(num_replies) AS num_replies
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
@@ -1327,8 +1302,7 @@ class Topic implements \ArrayAccess
 
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}boards
+					'UPDATE {db_prefix}boards
 					SET
 						num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
 						num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
@@ -1348,8 +1322,7 @@ class Topic implements \ArrayAccess
 		// Remove Polls.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_poll
+			'SELECT id_poll
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 				AND id_poll > {int:no_poll}
@@ -1370,8 +1343,7 @@ class Topic implements \ArrayAccess
 		if (!empty($polls)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}polls
+				'DELETE FROM {db_prefix}polls
 				WHERE id_poll IN ({array_int:polls})',
 				[
 					'polls' => $polls,
@@ -1379,8 +1351,7 @@ class Topic implements \ArrayAccess
 			);
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}poll_choices
+				'DELETE FROM {db_prefix}poll_choices
 				WHERE id_poll IN ({array_int:polls})',
 				[
 					'polls' => $polls,
@@ -1388,8 +1359,7 @@ class Topic implements \ArrayAccess
 			);
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_polls
+				'DELETE FROM {db_prefix}log_polls
 				WHERE id_poll IN ({array_int:polls})',
 				[
 					'polls' => $polls,
@@ -1412,8 +1382,7 @@ class Topic implements \ArrayAccess
 			$messages = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_msg, body
+				'SELECT id_msg, body
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})',
 				[
@@ -1435,8 +1404,7 @@ class Topic implements \ArrayAccess
 			if (!empty($words) && !empty($messages)) {
 				Db::$db->query(
 					'',
-					'
-					DELETE FROM {db_prefix}log_search_words
+					'DELETE FROM {db_prefix}log_search_words
 					WHERE id_word IN ({array_int:word_list})
 						AND id_msg IN ({array_int:message_list})',
 					[
@@ -1450,8 +1418,7 @@ class Topic implements \ArrayAccess
 		// Delete anything related to the topic.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}messages
+			'DELETE FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1459,8 +1426,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}calendar
+			'DELETE FROM {db_prefix}calendar
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1468,8 +1434,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_topics
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1477,8 +1442,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_notify
+			'DELETE FROM {db_prefix}log_notify
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1486,8 +1450,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}topics
+			'DELETE FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1495,8 +1458,7 @@ class Topic implements \ArrayAccess
 		);
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_search_subjects
+			'DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic IN ({array_int:topics})',
 			[
 				'topics' => $topics,
@@ -1583,8 +1545,7 @@ class Topic implements \ArrayAccess
 		// Get all the important topic info.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				' . implode(', ', $topic_selects) . '
 			FROM {db_prefix}topics AS t
 				' . implode("\n\t\t\t\t", $topic_joins) . '
@@ -1613,8 +1574,7 @@ class Topic implements \ArrayAccess
 		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !User::$me->allowedTo('approve_posts')) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(id_member) AS my_unapproved_posts
+				'SELECT COUNT(id_member) AS my_unapproved_posts
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
 					AND id_member = {int:current_member}

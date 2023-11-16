@@ -141,8 +141,7 @@ class QuickModerationInTopic implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT subject
+			'SELECT subject
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:message}
 			LIMIT 1',
@@ -173,8 +172,7 @@ class QuickModerationInTopic implements ActionInterface
 		elseif (User::$me->allowedTo('delete_replies')) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member_started
+				'SELECT id_member_started
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:current_topic}
 				LIMIT 1',
@@ -198,8 +196,7 @@ class QuickModerationInTopic implements ActionInterface
 		// Allowed to remove which messages?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_msg, subject, id_member, poster_time
+			'SELECT id_msg, subject, id_member, poster_time
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:message_list})
 				AND id_topic = {int:current_topic}' . (!$allowed_all ? '
@@ -226,8 +223,7 @@ class QuickModerationInTopic implements ActionInterface
 		// Get the first message in the topic - because you can't delete that!
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_first_msg, id_last_msg
+			'SELECT id_first_msg, id_last_msg
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',

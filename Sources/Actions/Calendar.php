@@ -156,8 +156,7 @@ class Calendar implements ActionInterface
 			if ($evid > 0) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT start_date
+					'SELECT start_date
 					FROM {db_prefix}calendar
 					WHERE id_event = {int:event_id}',
 					[
@@ -735,8 +734,7 @@ class Calendar implements ActionInterface
 			// Collect all of the birthdays for this month.  I know, it's a painful query.
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
+				'SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
 				FROM {db_prefix}members
 				WHERE birthdate != {date:no_birthdate}
 					AND (
@@ -756,8 +754,7 @@ class Calendar implements ActionInterface
 		} else {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
+				'SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
 				FROM {db_prefix}members
 				WHERE birthdate != {date:no_birthdate}
 					AND (
@@ -861,8 +858,7 @@ class Calendar implements ActionInterface
 		// Find some holidays... ;).
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT event_date, YEAR(event_date) AS year, title
+			'SELECT event_date, YEAR(event_date) AS year, title
 			FROM {db_prefix}calendar_holidays
 			WHERE event_date BETWEEN {date:low_date} AND {date:high_date}
 				OR ' . $allyear_part,
@@ -920,8 +916,7 @@ class Calendar implements ActionInterface
 			// Not admin or a moderator of this board. You better be the owner - or else.
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_member_started
+				'SELECT id_member_started
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:current_topic}
 				LIMIT 1',
@@ -1735,8 +1730,7 @@ class Calendar implements ActionInterface
 		// A simple database query, how hard can that be?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}calendar
 			WHERE id_event = {int:id_event}
 			LIMIT 1',
@@ -1769,8 +1763,7 @@ class Calendar implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
+			'SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
 			FROM {db_prefix}calendar_holidays
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
@@ -1799,8 +1792,7 @@ class Calendar implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}calendar_holidays',
 			[
 			],
@@ -1820,8 +1812,7 @@ class Calendar implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}calendar_holidays
+			'DELETE FROM {db_prefix}calendar_holidays
 			WHERE id_holiday IN ({array_int:id_holiday})',
 			[
 				'id_holiday' => $holiday_ids,

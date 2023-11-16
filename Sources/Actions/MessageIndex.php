@@ -237,8 +237,7 @@ class MessageIndex implements ActionInterface
 
 		$request = Db::$db->query(
 			'order_by_board_order',
-			'
-			SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level, b.redirect
+			'SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level, b.redirect
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' . (empty($where) ? '' : '
 			WHERE ' . implode('
@@ -491,8 +490,7 @@ class MessageIndex implements ActionInterface
 		if (Board::$info->redirect) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET num_posts = num_posts + 1
 				WHERE id_board = {int:current_board}',
 				[
@@ -667,8 +665,7 @@ class MessageIndex implements ActionInterface
 
 		$result = Db::$db->query(
 			'substring',
-			'
-			SELECT
+			'SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_board, t.id_previous_board,
 				' . (User::$me->is_guest ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
 				' . ($enableParticipation ? ' COALESCE(( SELECT 1 FROM {db_prefix}messages AS parti WHERE t.id_topic = parti.id_topic and parti.id_member = {int:current_member} LIMIT 1) , 0) as is_posted_in,
@@ -749,8 +746,7 @@ class MessageIndex implements ActionInterface
 			if (!empty(Board::$info->parent_boards)) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}log_boards
+					'UPDATE {db_prefix}log_boards
 					SET id_msg = {int:id_msg}
 					WHERE id_member = {int:current_member}
 						AND id_board IN ({array_int:board_list})',
@@ -775,8 +771,7 @@ class MessageIndex implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_topic, id_board, sent
+				'SELECT id_topic, id_board, sent
 				FROM {db_prefix}log_notify
 				WHERE id_member = {int:current_member}
 					AND (' . (!empty(Utils::$context['topics']) ? 'id_topic IN ({array_int:topics}) OR ' : '') . 'id_board = {int:current_board})',
@@ -803,8 +798,7 @@ class MessageIndex implements ActionInterface
 			if (Utils::$context['is_marked_notify'] && !empty($board_sent)) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}log_notify
+					'UPDATE {db_prefix}log_notify
 					SET sent = {int:is_sent}
 					WHERE id_member = {int:current_member}
 						AND id_board = {int:current_board}',
@@ -838,8 +832,7 @@ class MessageIndex implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					lo.id_member, lo.log_time, mem.real_name, mem.member_name, mem.show_online,
 					mg.online_color, mg.id_group, mg.group_name
 				FROM {db_prefix}log_online AS lo

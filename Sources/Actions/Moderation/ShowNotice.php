@@ -66,8 +66,7 @@ class ShowNotice implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT body, subject
+			'SELECT body, subject
 			FROM {db_prefix}log_member_notices
 			WHERE id_notice = {int:id_notice}',
 			[

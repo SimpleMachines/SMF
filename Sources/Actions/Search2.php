@@ -420,8 +420,7 @@ class Search2 implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_member != {int:no_member}
 				AND id_msg IN ({array_int:message_list})

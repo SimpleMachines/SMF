@@ -468,8 +468,7 @@ class Notification implements ActionInterface
 			if (empty($member_groups['manage_membergroups']['allowed'])) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT COUNT(*)
+					'SELECT COUNT(*)
 					FROM {db_prefix}group_moderators
 					WHERE id_member = {int:memID}',
 					[
@@ -900,8 +899,7 @@ class Notification implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_notify AS ln' . (!Config::$modSettings['postmod_active'] && User::$me->query_see_board === '1=1' ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
 			WHERE ln.id_member = {int:selected_member}' . (User::$me->query_see_topic_board === '1=1' ? '' : '
@@ -936,8 +934,7 @@ class Notification implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 				t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 				ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
@@ -1007,8 +1004,7 @@ class Notification implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
+			'SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
@@ -1137,8 +1133,7 @@ class Notification implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_notify
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:selected_member}',
 				[
@@ -1159,8 +1154,7 @@ class Notification implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_notify
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:selected_member}',
 				[

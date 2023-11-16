@@ -109,8 +109,7 @@ class GroupMembership implements ActionInterface
 		// Get any pending join requests.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group
+			'SELECT id_group
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
 				AND status = {int:status_open}',
@@ -409,8 +408,7 @@ class GroupMembership implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
 				AND id_group = {int:selected_group}

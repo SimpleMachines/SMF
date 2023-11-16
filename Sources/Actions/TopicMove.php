@@ -78,8 +78,7 @@ class TopicMove implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_member_started, ms.subject, t.approved
+			'SELECT t.id_member_started, ms.subject, t.approved
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:current_topic}

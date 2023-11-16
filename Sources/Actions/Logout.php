@@ -115,8 +115,7 @@ class Logout extends Login2
 			// If you log out, you aren't online anymore :P.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_online
+				'DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
 				[
 					'current_member' => User::$me->id,

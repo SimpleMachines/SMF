@@ -420,8 +420,7 @@ class Server implements ActionInterface
 			if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode'])) {
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}membergroups
+					'UPDATE {db_prefix}membergroups
 					SET tfa_required = {int:zero}',
 					[
 						'zero' => 0,
@@ -430,8 +429,7 @@ class Server implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}members
+					'UPDATE {db_prefix}members
 					SET tfa_secret = {string:empty}, tfa_backup = {string:empty}',
 					[
 						'empty' => '',
@@ -1484,8 +1482,7 @@ class Server implements ActionInterface
 		// First, get a list of theme URLs...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, variable, value
+			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable in ({string:themeurl}, {string:imagesurl})
 				AND id_member = {int:zero}',
@@ -1507,8 +1504,7 @@ class Server implements ActionInterface
 
 				Db::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}themes
+					'UPDATE {db_prefix}themes
 					SET value = {string:theme_val}
 					WHERE variable = {string:theme_var}
 						AND id_theme = {string:theme_id}

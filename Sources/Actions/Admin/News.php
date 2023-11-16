@@ -502,8 +502,7 @@ class News extends ACP implements ActionInterface
 		// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT DISTINCT mem.id_member
+			'SELECT DISTINCT mem.id_member
 			FROM {db_prefix}ban_groups AS bg
 				INNER JOIN {db_prefix}ban_items AS bi ON (bg.id_ban_group = bi.id_ban_group)
 				INNER JOIN {db_prefix}members AS mem ON (bi.id_member = mem.id_member)
@@ -527,8 +526,7 @@ class News extends ACP implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT DISTINCT bi.email_address
+			'SELECT DISTINCT bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 			WHERE (bg.cannot_access = {int:cannot_access} OR bg.cannot_login = {int:cannot_login})
@@ -551,8 +549,7 @@ class News extends ACP implements ActionInterface
 		if (!empty($condition_array)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE email_address IN (' . implode(', ', $condition_array) . ')',
 				$condition_array_params,
@@ -577,8 +574,7 @@ class News extends ACP implements ActionInterface
 		) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT DISTINCT mem.id_member AS identifier
+				'SELECT DISTINCT mem.id_member AS identifier
 				FROM {db_prefix}members AS mem
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
 				WHERE mem.is_activated = {int:is_activated}',
@@ -602,8 +598,7 @@ class News extends ACP implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}members',
 			[
 			],
@@ -660,8 +655,7 @@ class News extends ACP implements ActionInterface
 		if (empty($_REQUEST['total_members'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}members',
 				[
 				],
@@ -938,8 +932,7 @@ class News extends ACP implements ActionInterface
 
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
+				'SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
 				FROM {db_prefix}members AS mem
 				WHERE ' . $sendQuery . '
 					AND mem.is_activated = {int:is_activated}

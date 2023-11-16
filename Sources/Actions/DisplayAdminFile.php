@@ -69,8 +69,7 @@ class DisplayAdminFile implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT data, filetype
+			'SELECT data, filetype
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:current_filename}
 			LIMIT 1',

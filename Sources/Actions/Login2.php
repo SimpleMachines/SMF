@@ -804,8 +804,7 @@ class Login2 implements ActionInterface
 		// Get rid of the online entry for that old guest....
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_online
+			'DELETE FROM {db_prefix}log_online
 			WHERE session = {string:session}',
 			[
 				'session' => 'ip' . User::$me->ip,

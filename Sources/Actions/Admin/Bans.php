@@ -532,8 +532,7 @@ class Bans implements ActionInterface
 				if (!empty($_REQUEST['u'])) {
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_member, real_name, member_ip, email_address
+						'SELECT id_member, real_name, member_ip, email_address
 						FROM {db_prefix}members
 						WHERE id_member = {int:current_user}
 						LIMIT 1',
@@ -577,8 +576,7 @@ class Bans implements ActionInterface
 				elseif (isset($_GET['msg']) && !empty($_GET['msg'])) {
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT poster_name, poster_ip, poster_email
+						'SELECT poster_name, poster_ip, poster_email
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:message}
 						LIMIT 1',
@@ -842,8 +840,7 @@ class Bans implements ActionInterface
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					bi.id_ban, bi.id_ban_group, bi.hostname, bi.email_address, bi.id_member,
 					bi.ip_low, bi.ip_high,
 					mem.member_name, mem.real_name
@@ -1081,8 +1078,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT bi.id_member, bi.email_address
+			'SELECT bi.id_member, bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 			WHERE (bi.id_member > {int:no_member} OR bi.email_address != {string:blank_string})
@@ -1137,8 +1133,7 @@ class Bans implements ActionInterface
 		if (!empty($queryPart)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT mem.id_member, mem.is_activated
+				'SELECT mem.id_member, mem.is_activated
 				FROM {db_prefix}members AS mem
 				WHERE ' . implode(' OR ', $queryPart),
 				$queryValues,
@@ -1162,8 +1157,7 @@ class Bans implements ActionInterface
 		if (!empty($newMembers)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_online
+				'DELETE FROM {db_prefix}log_online
 				WHERE id_member IN ({array_int:new_banned_members})',
 				[
 					'new_banned_members' => $newMembers,
@@ -1174,8 +1168,7 @@ class Bans implements ActionInterface
 		// Find members that are wrongfully marked as banned.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT mem.id_member, mem.is_activated - 10 AS new_value
+			'SELECT mem.id_member, mem.is_activated - 10 AS new_value
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_member = mem.id_member OR mem.email_address LIKE bi.email_address)
 				LEFT JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND bg.cannot_access = {int:cannot_access_activated} AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
@@ -1221,8 +1214,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, COUNT(bi.id_ban) AS num_triggers
+			'SELECT bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, COUNT(bi.id_ban) AS num_triggers
 			FROM {db_prefix}ban_groups AS bg
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
 			GROUP BY bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes
@@ -1252,8 +1244,7 @@ class Bans implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS num_bans
+			'SELECT COUNT(*) AS num_bans
 			FROM {db_prefix}ban_groups',
 			[
 			],
@@ -1279,8 +1270,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low, bi.ip_high,
 				bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time AS expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
@@ -1373,8 +1363,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(bi.id_ban)
+			'SELECT COUNT(bi.id_ban)
 			FROM {db_prefix}ban_groups AS bg
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
@@ -1412,8 +1401,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				bi.id_ban, bi.ip_low, bi.ip_high, bi.hostname, bi.email_address, bi.hits,
 				bg.id_ban_group, bg.name' . ($trigger_type === 'member' ? ',
 				mem.id_member, mem.real_name' : '') . '
@@ -1457,8 +1445,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}ban_items AS bi' . ($trigger_type === 'member' ? '
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)' : '
 			WHERE ' . $where[$trigger_type]),
@@ -1487,8 +1474,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lb.id_ban_log, lb.id_member, lb.ip AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
+			'SELECT lb.id_ban_log, lb.id_member, lb.ip AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
 			FROM {db_prefix}log_banned AS lb
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lb.id_member)
 			ORDER BY {raw:sort}
@@ -1520,8 +1506,7 @@ class Bans implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_banned AS lb',
 			[
 			],
@@ -1776,8 +1761,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT DISTINCT poster_ip
+			'SELECT DISTINCT poster_ip
 			FROM {db_prefix}messages
 			WHERE id_member = {int:current_user}
 				AND poster_ip IS NOT NULL
@@ -1807,8 +1791,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT DISTINCT ip
+			'SELECT DISTINCT ip
 			FROM {db_prefix}log_errors
 			WHERE id_member = {int:current_user}
 				AND ip IS NOT NULL
@@ -1898,8 +1881,7 @@ class Bans implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}ban_groups
+			'DELETE FROM {db_prefix}ban_groups
 			WHERE id_ban_group IN ({array_int:ban_list})',
 			[
 				'ban_list' => $group_ids,
@@ -1909,8 +1891,7 @@ class Bans implements ActionInterface
 		// Remove all ban triggers for these bans groups
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_ban
+			'SELECT id_ban
 			FROM {db_prefix}ban_items
 			WHERE id_ban_group IN ({array_int:ban_list})',
 			[
@@ -1943,8 +1924,7 @@ class Bans implements ActionInterface
 		if (empty($ids)) {
 			Db::$db->query(
 				'truncate_table',
-				'
-				TRUNCATE {db_prefix}log_banned',
+				'TRUNCATE {db_prefix}log_banned',
 				[
 				],
 			);
@@ -1957,8 +1937,7 @@ class Bans implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_banned
+				'DELETE FROM {db_prefix}log_banned
 				WHERE id_ban_log IN ({array_int:ban_list})',
 				[
 					'ban_list' => $ids,
@@ -2021,8 +2000,7 @@ class Bans implements ActionInterface
 					// Check the user is not banning an admin.
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_member
+						'SELECT id_member
 						FROM {db_prefix}members
 						WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
 							AND email_address LIKE {string:email}
@@ -2046,8 +2024,7 @@ class Bans implements ActionInterface
 
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
+						'SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
 						FROM {db_prefix}members
 						WHERE member_name = {string:username} OR real_name = {string:username}
 						LIMIT 1',
@@ -2131,8 +2108,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT bg.id_ban_group, bg.name
+			'SELECT bg.id_ban_group, bg.name
 			FROM {db_prefix}ban_groups AS bg
 			INNER JOIN {db_prefix}ban_items AS bi ON
 				(bi.id_ban_group = bg.id_ban_group)
@@ -2269,8 +2245,7 @@ class Bans implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}ban_items
+			'UPDATE {db_prefix}ban_items
 			SET
 				hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
 				ip_low = {inet:ip_low}, ip_high = {inet:ip_high}
@@ -2317,8 +2292,7 @@ class Bans implements ActionInterface
 			// Verify the ban group exists.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_ban_group
+				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE id_ban_group = {int:ban_group}
 				LIMIT 1',
@@ -2337,8 +2311,7 @@ class Bans implements ActionInterface
 			// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_ban_group
+				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE name = {string:new_ban_name}
 					AND id_ban_group != {int:ban_group}
@@ -2358,8 +2331,7 @@ class Bans implements ActionInterface
 		if (empty(Utils::$context['ban_errors'])) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}ban_groups
+				'UPDATE {db_prefix}ban_groups
 				SET
 					name = {string:ban_name},
 					reason = {string:reason},
@@ -2417,8 +2389,7 @@ class Bans implements ActionInterface
 			// Check whether a ban with this name already exists.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_ban_group
+				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE name = {string:new_ban_name}' . '
 				LIMIT 1',
@@ -2474,8 +2445,7 @@ class Bans implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, member_ip, email_address
+			'SELECT id_member, real_name, member_ip, email_address
 			FROM {db_prefix}members
 			WHERE id_member = {int:current_user}
 			LIMIT 1',
@@ -2530,8 +2500,7 @@ class Bans implements ActionInterface
 		// First order of business: Load up the info so we can log this...
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low, bi.ip_high,
 				COALESCE(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
@@ -2600,8 +2569,7 @@ class Bans implements ActionInterface
 		if (isset($group_id)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}ban_items
+				'DELETE FROM {db_prefix}ban_items
 				WHERE id_ban IN ({array_int:ban_list})
 					AND id_ban_group = {int:ban_group}',
 				[
@@ -2612,8 +2580,7 @@ class Bans implements ActionInterface
 		} elseif (!empty($items_ids)) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}ban_items
+				'DELETE FROM {db_prefix}ban_items
 				WHERE id_ban IN ({array_int:ban_list})',
 				[
 					'ban_list' => $items_ids,

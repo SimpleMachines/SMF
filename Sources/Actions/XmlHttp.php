@@ -243,8 +243,7 @@ class XmlHttp implements ActionInterface
 		if (!empty($user) && $can_change) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT signature
+				'SELECT signature
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
 				LIMIT 1',

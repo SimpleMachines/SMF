@@ -776,8 +776,7 @@ class Main implements ActionInterface
 		if (!empty(Config::$modSettings['paid_enabled'])) {
 			$get_active_subs = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}subscriptions
 				WHERE active = {int:active}',
 				[

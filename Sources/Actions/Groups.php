@@ -363,8 +363,7 @@ class Groups implements ActionInterface
 			if (!empty($member_query)) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE (' . implode(' OR ', $member_query) . ')
 						AND id_group != {int:id_group}
@@ -502,8 +501,7 @@ class Groups implements ActionInterface
 
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT lgr.id_request
+					'SELECT lgr.id_request
 					FROM {db_prefix}log_group_requests AS lgr
 					WHERE ' . $where . '
 						AND lgr.id_request IN ({array_int:request_list})',
@@ -576,8 +574,7 @@ class Groups implements ActionInterface
 					foreach ($log_changes as $id_request => $details) {
 						Db::$db->query(
 							'',
-							'
-							UPDATE {db_prefix}log_group_requests
+							'UPDATE {db_prefix}log_group_requests
 							SET status = {int:status},
 								id_member_acted = {int:id_member_acted},
 								member_name_acted = {string:member_name_acted},
@@ -832,8 +829,7 @@ class Groups implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name
+			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_group = {int:id_group} OR FIND_IN_SET({int:id_group}, additional_groups) != 0' . ($limit === null ? '' : '
 			LIMIT ' . ($limit + 1)),
@@ -870,8 +866,7 @@ class Groups implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_group_requests AS lgr
 			WHERE ' . $where,
 			array_merge($where_parameters, [
@@ -905,8 +900,7 @@ class Groups implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
 				lgr.status, lgr.id_member_acted, lgr.member_name_acted, lgr.time_acted, lgr.act_reason,
 				mem.member_name, mg.group_name, mg.online_color, mem.real_name

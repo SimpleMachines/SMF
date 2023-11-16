@@ -288,8 +288,7 @@ class WatchedUsers implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}members
 			WHERE warning >= {int:warning_watch}',
 			[
@@ -316,8 +315,7 @@ class WatchedUsers implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name, last_login, posts, warning
+			'SELECT id_member, real_name, last_login, posts, warning
 			FROM {db_prefix}members
 			WHERE warning >= {int:warning_watch}
 			ORDER BY {raw:sort}
@@ -350,8 +348,7 @@ class WatchedUsers implements ActionInterface
 			// First get the latest messages from these users.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.id_member, MAX(m.id_msg) AS last_post_id
+				'SELECT m.id_member, MAX(m.id_msg) AS last_post_id
 				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board}
@@ -374,8 +371,7 @@ class WatchedUsers implements ActionInterface
 				// Now get the time those messages were posted.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member, poster_time
+					'SELECT id_member, poster_time
 					FROM {db_prefix}messages
 					WHERE id_msg IN ({array_int:message_list})',
 					[
@@ -393,8 +389,7 @@ class WatchedUsers implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
+				'SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
 					AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -426,8 +421,7 @@ class WatchedUsers implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -458,8 +452,7 @@ class WatchedUsers implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.subject, m.body, m.poster_time,
+			'SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.subject, m.body, m.poster_time,
 				m.approved, mem.real_name, m.smileys_enabled
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)

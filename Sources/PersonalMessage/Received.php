@@ -240,8 +240,7 @@ class Received implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}pm_recipients
+			'UPDATE {db_prefix}pm_recipients
 			SET
 				id_member = {int:member},
 				bcc = {int:bcc},
@@ -265,8 +264,7 @@ class Received implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}pm_labeled_messages
+			'DELETE FROM {db_prefix}pm_labeled_messages
 			WHERE id_pm = {int:current_pm}' . (empty($labels) ? '' : '
 				AND id_label NOT IN ({array_int:labels})'),
 			[
@@ -555,8 +553,7 @@ class Received implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT pmr.id_pm
+			'SELECT pmr.id_pm
 			FROM {db_prefix}pm_recipients AS pmr' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
 			WHERE (' . implode(') AND (', $where) . ')
@@ -582,8 +579,7 @@ class Received implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}pm_recipients
+			'UPDATE {db_prefix}pm_recipients
 			SET is_new = {int:not_new}
 			WHERE id_member = {int:me}',
 			[
@@ -649,8 +645,7 @@ class Received implements \ArrayAccess
 	{
 		self::$messages_request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}pm_recipients AS pmr' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '

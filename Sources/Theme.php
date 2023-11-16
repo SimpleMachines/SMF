@@ -1230,8 +1230,7 @@ class Theme
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
 					'',
-					'
-					SELECT COUNT(*)
+					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
 					[],
 				);
@@ -1787,8 +1786,7 @@ class Theme
 		// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme AS id, value AS dir
+			'SELECT id_theme AS id, value AS dir
 			FROM {db_prefix}themes
 			WHERE variable = {string:var}',
 			[
@@ -2045,8 +2043,7 @@ class Theme
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_theme
+				'SELECT id_theme
 				FROM {db_prefix}members
 				WHERE id_member = {int:current_member}
 				LIMIT 1',
@@ -2064,8 +2061,7 @@ class Theme
 		if (!empty(Config::$modSettings['knownThemes'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_theme, variable, value
+				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!User::$me->allowedTo('admin_forum') ? '
 					AND id_theme IN ({array_int:known_themes})' : '') . '
@@ -2105,8 +2101,7 @@ class Theme
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_theme, COUNT(*) AS the_count
+			'SELECT id_theme, COUNT(*) AS the_count
 			FROM {db_prefix}members
 			GROUP BY id_theme
 			ORDER BY id_theme DESC',
@@ -2136,8 +2131,7 @@ class Theme
 		if (Utils::$context['current_member'] > 0) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_theme, value
+				'SELECT id_theme, value
 				FROM {db_prefix}themes
 				WHERE variable = {string:theme_variant}
 					AND id_member IN ({array_int:id_member})
@@ -2331,8 +2325,7 @@ class Theme
 			// Load variables from the current or default theme, global or this user's.
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT variable, value, id_member, id_theme
+				'SELECT variable, value, id_member, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member' . (empty($themeData[0]) ? ' IN ({array_int:members})' : ' = {int:id_member}') . '
 					AND id_theme' . ($this->id == 1 ? ' = {int:id_theme}' : ' IN ({array_int:themes})') . '

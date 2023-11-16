@@ -136,8 +136,7 @@ class TrackIP implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name AS display_name, member_ip
+			'SELECT id_member, real_name AS display_name, member_ip
 			FROM {db_prefix}members
 			WHERE member_ip >= ' . $ip_string[0] . ' and member_ip <= ' . $ip_string[1],
 			$fields,
@@ -400,8 +399,7 @@ class TrackIP implements ActionInterface
 		// Get all the messages fitting this where clause.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 				m.subject, m.poster_time, m.id_topic, m.id_board
 			FROM {db_prefix}messages AS m
@@ -447,8 +445,7 @@ class TrackIP implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board} AND ' . $where,
 			$where_vars,

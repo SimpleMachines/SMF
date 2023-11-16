@@ -78,8 +78,7 @@ class TopicRemove implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_member_started, ms.subject, t.approved, t.locked
+			'SELECT t.id_member_started, ms.subject, t.approved, t.locked
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:current_topic}
@@ -243,8 +242,7 @@ class TopicRemove implements ActionInterface
 		// All we're gonna do here is grab the id_topic's and send them to Topic::remove().
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT t.id_topic
+			'SELECT t.id_topic
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)
 			WHERE

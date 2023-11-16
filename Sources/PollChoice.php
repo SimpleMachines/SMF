@@ -138,8 +138,7 @@ class PollChoice implements \ArrayAccess
 	{
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}poll_choices
+			'UPDATE {db_prefix}poll_choices
 			SET label = {string:label}, votes = {int:votes}
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:id_choice}',
@@ -159,8 +158,7 @@ class PollChoice implements \ArrayAccess
 	{
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_polls
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:to_delete}',
 			[
@@ -171,8 +169,7 @@ class PollChoice implements \ArrayAccess
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}poll_choices
+			'DELETE FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:to_delete}',
 			[

@@ -142,8 +142,7 @@ class AutoSuggest implements ActionInterface
 		// Find the member.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, real_name
+			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
@@ -192,8 +191,7 @@ class AutoSuggest implements ActionInterface
 		// but not the "Administrators" or "Moderators" groups.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_group, group_name
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE {raw:group_name} LIKE {string:search}
 				AND min_posts = {int:min_posts}
@@ -241,8 +239,7 @@ class AutoSuggest implements ActionInterface
 		$versions = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT data
+			'SELECT data
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:latest_versions}
 				AND path = {string:path}',

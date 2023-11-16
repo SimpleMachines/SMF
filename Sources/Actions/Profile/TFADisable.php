@@ -78,8 +78,7 @@ class TFADisable implements ActionInterface
 		if (Config::$modSettings['tfa_mode'] == 2 && User::$me->is_owner) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_group
+				'SELECT id_group
 				FROM {db_prefix}membergroups
 				WHERE tfa_required = {int:tfa_required}
 					AND id_group IN ({array_int:groups})',

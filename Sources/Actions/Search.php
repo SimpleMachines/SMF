@@ -172,8 +172,7 @@ class Search implements ActionInterface
 		// Find all the boards this user is allowed to see.
 		$request = Db::$db->query(
 			'order_by_board_order',
-			'
-			SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
+			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			WHERE {query_see_board}
@@ -271,8 +270,7 @@ class Search implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT subject
+				'SELECT subject
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				WHERE t.id_topic = {int:search_topic_id}

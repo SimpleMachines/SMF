@@ -99,8 +99,7 @@ class IssueWarning implements ActionInterface
 			// Make sure we cannot go outside of our limit for the day.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT SUM(counter)
+				'SELECT SUM(counter)
 				FROM {db_prefix}log_comments
 				WHERE id_recipient = {int:selected_member}
 					AND id_member = {int:current_member}
@@ -254,8 +253,7 @@ class IssueWarning implements ActionInterface
 		if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg']) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT m.subject
+				'SELECT m.subject
 				FROM {db_prefix}messages AS m
 				WHERE m.id_msg = {int:message}
 					AND {query_see_message_board}
@@ -283,8 +281,7 @@ class IssueWarning implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT recipient_name AS template_title, body
+			'SELECT recipient_name AS template_title, body
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {literal:warntpl}
 				AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
@@ -367,8 +364,7 @@ class IssueWarning implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
+			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 				lc.log_time, lc.body, lc.counter, lc.id_notice
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
@@ -410,8 +406,7 @@ class IssueWarning implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE id_recipient = {int:selected_member}
 				AND comment_type = {literal:warning}',

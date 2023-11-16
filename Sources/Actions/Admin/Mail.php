@@ -129,8 +129,7 @@ class Mail implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}mail_queue
+				'DELETE FROM {db_prefix}mail_queue
 				WHERE id_mail IN ({array_int:mail_ids})',
 				[
 					'mail_ids' => $_REQUEST['delete'],
@@ -141,8 +140,7 @@ class Mail implements ActionInterface
 		// How many items do we have?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS queue_size, MIN(time_sent) AS oldest
+			'SELECT COUNT(*) AS queue_size, MIN(time_sent) AS oldest
 			FROM {db_prefix}mail_queue',
 			[
 			],
@@ -339,8 +337,7 @@ class Mail implements ActionInterface
 			// How many items do we have?
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*) AS queue_size
+				'SELECT COUNT(*) AS queue_size
 				FROM {db_prefix}mail_queue',
 				[
 				],
@@ -480,8 +477,7 @@ class Mail implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				id_mail, time_sent, recipient, priority, private, subject
 			FROM {db_prefix}mail_queue
 			ORDER BY {raw:sort}
@@ -519,8 +515,7 @@ class Mail implements ActionInterface
 		// How many items do we have?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*) AS queue_size
+			'SELECT COUNT(*) AS queue_size
 			FROM {db_prefix}mail_queue',
 			[
 			],

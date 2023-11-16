@@ -631,8 +631,7 @@ class ReportedContent implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_reported
 			WHERE closed = {int:not_closed}
 				AND ignore_all = {int:not_ignored}
@@ -800,8 +799,7 @@ class ReportedContent implements ActionInterface
 		// Update the report...
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_reported
+			'UPDATE {db_prefix}log_reported
 			SET  {raw:action} = {string:value}
 			' . (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
 				' . $board_query,
@@ -822,8 +820,7 @@ class ReportedContent implements ActionInterface
 			// Get the board, topic and message for this report
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board, id_topic, id_msg, id_report
+				'SELECT id_board, id_topic, id_msg, id_report
 				FROM {db_prefix}log_reported
 				WHERE id_report IN ({array_int:id_report})',
 				[
@@ -843,8 +840,7 @@ class ReportedContent implements ActionInterface
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_report, id_member, membername
+				'SELECT id_report, id_member, membername
 				FROM {db_prefix}log_reported
 				WHERE id_report IN ({array_int:id_report})',
 				[
@@ -948,8 +944,7 @@ class ReportedContent implements ActionInterface
 		// How many entries are we viewing?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_reported AS lr
 			WHERE lr.closed = {int:view_closed}
 				AND ' . $and,
@@ -981,8 +976,7 @@ class ReportedContent implements ActionInterface
 		if ($this->type == 'members') {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT lr.id_report, lr.id_member,
+				'SELECT lr.id_report, lr.id_member,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 				FROM {db_prefix}log_reported AS lr
@@ -1000,8 +994,7 @@ class ReportedContent implements ActionInterface
 		} else {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
+				'SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS author_name, COALESCE(mem.id_member, 0) AS id_author
 				FROM {db_prefix}log_reported AS lr
@@ -1071,8 +1064,7 @@ class ReportedContent implements ActionInterface
 			$board_names = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_board, name
+				'SELECT id_board, name
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:boards})',
 				[
@@ -1096,8 +1088,7 @@ class ReportedContent implements ActionInterface
 		if (!empty($report_ids)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment,
+				'SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment,
 					COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 				FROM {db_prefix}log_reported_comments AS lrc
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
@@ -1146,8 +1137,7 @@ class ReportedContent implements ActionInterface
 		if ($this->type == 'members') {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT lr.id_report, lr.id_member,
+				'SELECT lr.id_report, lr.id_member,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 				FROM {db_prefix}log_reported AS lr
@@ -1163,8 +1153,7 @@ class ReportedContent implements ActionInterface
 			// Get the report details, need this so we can limit access to a particular board.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
+				'SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS author_name, COALESCE(mem.id_member, 0) AS id_author
 				FROM {db_prefix}log_reported AS lr
@@ -1210,8 +1199,7 @@ class ReportedContent implements ActionInterface
 		// So what bad things do the reporters have to say about it?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
+			'SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
 				COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 			FROM {db_prefix}log_reported_comments AS lrc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
@@ -1242,8 +1230,7 @@ class ReportedContent implements ActionInterface
 		// Hang about old chap, any comments from moderators on this one?
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lc.id_comment, lc.id_notice, lc.log_time, lc.body,
+			'SELECT lc.id_comment, lc.id_notice, lc.log_time, lc.body,
 				COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS moderator
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
@@ -1290,8 +1277,7 @@ class ReportedContent implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_comment, id_notice, log_time, body, id_member
+			'SELECT id_comment, id_notice, log_time, body, id_member
 			FROM {db_prefix}log_comments
 			WHERE id_comment = {int:id_comment}
 				AND comment_type = {literal:reportc}',
@@ -1389,8 +1375,7 @@ class ReportedContent implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			UPDATE {db_prefix}log_comments
+			'UPDATE {db_prefix}log_comments
 			SET  body = {string:body}
 			WHERE id_comment = {int:id_comment}',
 			[
@@ -1413,8 +1398,7 @@ class ReportedContent implements ActionInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_comments
+			'DELETE FROM {db_prefix}log_comments
 			WHERE id_comment = {int:comment_id}',
 			[
 				'comment_id' => $comment_id,

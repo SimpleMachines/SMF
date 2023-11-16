@@ -375,8 +375,7 @@ class Display implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT t2.id_topic
+				'SELECT t2.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}topics AS t2 ON (
 					(t2.id_last_msg ' . $gt_lt . ' t.id_last_msg AND t2.is_sticky ' . $gt_lt . '= t.is_sticky) OR t2.is_sticky ' . $gt_lt . ' t.is_sticky)
@@ -401,8 +400,7 @@ class Display implements ActionInterface
 				// Roll over - if we're going prev, get the last - otherwise the first.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_topic
+					'SELECT id_topic
 					FROM {db_prefix}topics
 					WHERE id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 						AND (approved = {int:is_approved} OR (id_member_started != {int:id_member_started} AND id_member_started = {int:current_member}))') . '
@@ -492,8 +490,7 @@ class Display implements ActionInterface
 		if (!User::$me->possibly_robot && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != Topic::$info->id)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}topics
+				'UPDATE {db_prefix}topics
 				SET num_views = num_views + 1
 				WHERE id_topic = {int:current_topic}',
 				[
@@ -535,8 +532,7 @@ class Display implements ActionInterface
 			// Check for notifications on this topic OR board.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT sent, id_topic
+				'SELECT sent, id_topic
 				FROM {db_prefix}log_notify
 				WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
 					AND id_member = {int:current_member}
@@ -559,8 +555,7 @@ class Display implements ActionInterface
 				if (!empty($row['sent']) && $do_once) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}log_notify
+						'UPDATE {db_prefix}log_notify
 						SET sent = {int:is_not_sent}
 						WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
 							AND id_member = {int:current_member}',
@@ -584,8 +579,7 @@ class Display implements ActionInterface
 				// Use the mark read tables... and the last visit to figure out if this should be read or not.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT COUNT(*)
+					'SELECT COUNT(*)
 					FROM {db_prefix}topics AS t
 						LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = {int:current_board} AND lb.id_member = {int:current_member})
 						LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -689,8 +683,7 @@ class Display implements ActionInterface
 					// Find the earliest unread message in the topic. (the use of topics here is just for both tables.)
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from
+						'SELECT COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from
 						FROM {db_prefix}topics AS t
 							LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 							LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})
@@ -720,8 +713,7 @@ class Display implements ActionInterface
 					// Find the number of messages posted before said time...
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT COUNT(*)
+						'SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE poster_time < {int:timestamp}
 							AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Topic::$info->unapproved_posts && !User::$me->allowedTo('approve_posts') ? '
@@ -753,8 +745,7 @@ class Display implements ActionInterface
 					// Find the start value for that message......
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT COUNT(*)
+						'SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE id_msg < {int:virtual_msg}
 							AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Topic::$info->unapproved_posts && !User::$me->allowedTo('approve_posts') ? '
@@ -791,8 +782,7 @@ class Display implements ActionInterface
 			// Search for members who have this topic set in their GET data.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT
+				'SELECT
 					lo.id_member, lo.log_time, mem.real_name, mem.member_name, mem.show_online,
 					mg.online_color, mg.id_group, mg.group_name
 				FROM {db_prefix}log_online AS lo
@@ -1144,8 +1134,7 @@ class Display implements ActionInterface
 		// Get each post and poster in this topic.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_msg, id_member, approved
+			'SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')') . '
@@ -1237,8 +1226,7 @@ class Display implements ActionInterface
 		if (!empty(Config::$modSettings['oldTopicDays']) && (Topic::$info->permissions['can_reply'] || Topic::$info->permissions['can_reply_unapproved']) && empty(Topic::$info->is_sticky)) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT poster_time
+				'SELECT poster_time
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_last_msg}
 				LIMIT 1',

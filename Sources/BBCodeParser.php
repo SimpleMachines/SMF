@@ -1277,8 +1277,7 @@ class BBCodeParser
 
 				$result = Db::$db->query(
 					'',
-					'
-					SELECT s.code, f.filename, s.description
+					'SELECT s.code, f.filename, s.description
 					FROM {db_prefix}smileys AS s
 						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
 					WHERE f.smiley_set = {string:smiley_set}' . (!$this->custom_smileys_enabled ? '
@@ -1405,8 +1404,7 @@ class BBCodeParser
 			// Get all our smiley codes
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT code
+				'SELECT code
 				FROM {db_prefix}smileys
 				ORDER BY LENGTH(code) DESC',
 				[],

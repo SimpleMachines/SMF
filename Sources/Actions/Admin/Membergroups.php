@@ -403,8 +403,7 @@ class Membergroups implements ActionInterface
 				$inserts = [];
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT permission, add_deny
+					'SELECT permission, add_deny
 					FROM {db_prefix}permissions
 					WHERE id_group = {int:copy_from}',
 					[
@@ -432,8 +431,7 @@ class Membergroups implements ActionInterface
 				$inserts = [];
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_profile, permission, add_deny
+					'SELECT id_profile, permission, add_deny
 					FROM {db_prefix}board_permissions
 					WHERE id_group = {int:copy_from}',
 					[
@@ -461,8 +459,7 @@ class Membergroups implements ActionInterface
 					// ...and update the new membergroup with it.
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}membergroups
+						'UPDATE {db_prefix}membergroups
 						SET
 							online_color = {string:online_color},
 							max_messages = {int:max_messages},
@@ -480,8 +477,7 @@ class Membergroups implements ActionInterface
 				elseif ($_POST['perm_type'] == 'inherit') {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}membergroups
+						'UPDATE {db_prefix}membergroups
 						SET id_parent = {int:copy_from}
 						WHERE id_group = {int:current_group}',
 						[
@@ -508,8 +504,7 @@ class Membergroups implements ActionInterface
 				if (!empty($changed_boards[$board_action])) {
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}boards
+						'UPDATE {db_prefix}boards
 						SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
 						WHERE id_board IN ({array_int:board_list})',
 						[
@@ -523,8 +518,7 @@ class Membergroups implements ActionInterface
 
 					Db::$db->query(
 						'',
-						'
-						DELETE FROM {db_prefix}board_permissions_view
+						'DELETE FROM {db_prefix}board_permissions_view
 						WHERE id_board IN ({array_int:board_list})
 							AND id_group = {int:group_id}
 							AND deny = {int:deny}',
@@ -593,8 +587,7 @@ class Membergroups implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
+			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			ORDER BY board_order',
@@ -786,8 +779,7 @@ class Membergroups implements ActionInterface
 			// Let's check whether our "show group membership" setting is correct.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}membergroups
 				WHERE group_type > {int:non_joinable}',
 				[
@@ -838,8 +830,7 @@ class Membergroups implements ActionInterface
 			Utils::$context['categories'] = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level,
+				'SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level,
 				FIND_IN_SET({string:current_group}, b.member_groups) != 0 AS can_access, FIND_IN_SET({string:current_group}, b.deny_member_groups) != 0 AS cannot_access
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)

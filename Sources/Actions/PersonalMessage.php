@@ -569,8 +569,7 @@ class PersonalMessage implements ActionInterface
 			Utils::$context['admins'] = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name
+				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
 				ORDER BY real_name',
@@ -623,8 +622,7 @@ class PersonalMessage implements ActionInterface
 			$memberFromName = Utils::htmlspecialcharsDecode($this->from_name);
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, real_name, lngfile
+				'SELECT id_member, real_name, lngfile
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_id} OR FIND_IN_SET({int:admin_id}, additional_groups) != 0)
 					' . (empty($_POST['id_admin']) ? '' : 'AND id_member = {int:specific_admin}') . '
@@ -1085,8 +1083,7 @@ class PersonalMessage implements ActionInterface
 			// @todo Why do we do this?  It seems like if they have any limit we should use it.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
+				'SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
 				FROM {db_prefix}membergroups
 				WHERE id_group IN ({array_int:users_groups})',
 				[

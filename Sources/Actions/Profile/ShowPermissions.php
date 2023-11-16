@@ -87,8 +87,7 @@ class ShowPermissions implements ActionInterface
 
 		$request = Db::$db->query(
 			'order_by_board_order',
-			'
-			SELECT b.id_board, b.name, b.id_profile, b.member_groups, COALESCE(mods.id_member, modgs.id_group, 0) AS is_mod
+			'SELECT b.id_board, b.name, b.id_profile, b.member_groups, COALESCE(mods.id_member, modgs.id_group, 0) AS is_mod
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:current_groups}))
@@ -138,8 +137,7 @@ class ShowPermissions implements ActionInterface
 		// Get all general permissions.
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT p.permission, p.add_deny, mg.group_name, p.id_group
+			'SELECT p.permission, p.add_deny, mg.group_name, p.id_group
 			FROM {db_prefix}permissions AS p
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = p.id_group)
 			WHERE p.id_group IN ({array_int:group_list})
@@ -197,8 +195,7 @@ class ShowPermissions implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT
+			'SELECT
 				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty(Board::$info->id) ? '' : ',
 				b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '
 			FROM {db_prefix}board_permissions AS bp' . (empty(Board::$info->id) ? '' : '

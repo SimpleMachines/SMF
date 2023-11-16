@@ -502,8 +502,7 @@ class Profile extends User implements \ArrayAccess
 				'preload' => function () {
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT value
+						'SELECT value
 						FROM {db_prefix}themes
 						WHERE id_theme = {int:id_theme}
 							AND variable = {string:variable}
@@ -773,8 +772,7 @@ class Profile extends User implements \ArrayAccess
 
 					$result = Db::$db->query(
 						'',
-						'
-						SELECT f.filename, f.smiley_set
+						'SELECT f.filename, f.smiley_set
 						FROM {db_prefix}smiley_files AS f
 							JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
 						WHERE s.code = {string:smiley}',
@@ -1587,8 +1585,7 @@ class Profile extends User implements \ArrayAccess
 		if (!empty($this->new_cf_data['deletes']) || !empty($this->new_options['deletes'])) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}themes
+				'DELETE FROM {db_prefix}themes
 				WHERE id_member = {int:id_member}
 					AND (
 						(
@@ -1668,8 +1665,7 @@ class Profile extends User implements \ArrayAccess
 		// Email addresses should be and stay unique.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_member != {int:selected_member}
 				AND email_address = {string:email_address}
@@ -1728,8 +1724,7 @@ class Profile extends User implements \ArrayAccess
 			if (!$stillAdmin) {
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
 						AND id_member != {int:selected_member}
@@ -1882,8 +1877,7 @@ class Profile extends User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT *
+			'SELECT *
 			FROM {db_prefix}custom_fields
 			ORDER BY field_order',
 			[],
@@ -3038,8 +3032,7 @@ class Profile extends User implements \ArrayAccess
 		// Log the user out.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_online
+			'DELETE FROM {db_prefix}log_online
 			WHERE id_member = {int:selected_member}',
 			[
 				'selected_member' => $this->id,

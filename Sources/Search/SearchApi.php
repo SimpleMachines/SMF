@@ -469,8 +469,7 @@ abstract class SearchApi implements SearchApiInterface
 	{
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT DISTINCT id_search
+			'SELECT DISTINCT id_search
 			FROM {db_prefix}log_search_results
 			WHERE id_msg = {int:id_msg}',
 			[
@@ -490,8 +489,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_search_results
+			'DELETE FROM {db_prefix}log_search_results
 			WHERE id_search in ({array_int:id_searchs})',
 			[
 				'id_searchs' => $id_searchs,
@@ -500,8 +498,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_search_topics
+			'DELETE FROM {db_prefix}log_search_topics
 			WHERE id_search in ({array_int:id_searchs})',
 			[
 				'id_searchs' => $id_searchs,
@@ -510,8 +507,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}log_search_messages
+			'DELETE FROM {db_prefix}log_search_messages
 			WHERE id_search in ({array_int:id_searchs})',
 			[
 				'id_searchs' => $id_searchs,
@@ -555,8 +551,7 @@ abstract class SearchApi implements SearchApiInterface
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_search
+				'SELECT id_search
 				FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}
 				LIMIT 1',
@@ -666,8 +661,7 @@ abstract class SearchApi implements SearchApiInterface
 		if (!empty(Config::$modSettings['enableParticipation']) && !User::$me->is_guest) {
 			$result = Db::$db->query(
 				'',
-				'
-				SELECT id_topic
+				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:current_member}
@@ -1240,8 +1234,7 @@ abstract class SearchApi implements SearchApiInterface
 		if (!empty($this->params['minage']) || !empty($this->params['maxage'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT ' . (empty($this->params['maxage']) ? '0, ' : 'COALESCE(MIN(id_msg), -1), ') . (empty($this->params['minage']) ? '0' : 'COALESCE(MAX(id_msg), -1)') . '
+				'SELECT ' . (empty($this->params['maxage']) ? '0, ' : 'COALESCE(MIN(id_msg), -1), ') . (empty($this->params['minage']) ? '0' : 'COALESCE(MAX(id_msg), -1)') . '
 				FROM {db_prefix}messages
 				WHERE 1=1' . (Config::$modSettings['postmod_active'] ? '
 					AND approved = {int:is_approved_true}' : '') . (empty($this->params['minage']) ? '' : '
@@ -1302,8 +1295,7 @@ abstract class SearchApi implements SearchApiInterface
 				// Retrieve a list of possible members.
 				$request = Db::$db->query(
 					'',
-					'
-					SELECT id_member
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE {raw:match_possible_users}',
 					[
@@ -1373,8 +1365,7 @@ abstract class SearchApi implements SearchApiInterface
 		if (!empty($this->params['topic'])) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT t.id_board
+				'SELECT t.id_board
 				FROM {db_prefix}topics AS t
 				WHERE t.id_topic = {int:search_topic_id}
 					AND {query_see_topic_board}' . (Config::$modSettings['postmod_active'] ? '
@@ -1402,8 +1393,7 @@ abstract class SearchApi implements SearchApiInterface
 
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT b.id_board
+				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {raw:boards_allowed_to_see}
 					AND redirect = {string:empty_string}' . (empty($_REQUEST['brd']) ? (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -1439,8 +1429,7 @@ abstract class SearchApi implements SearchApiInterface
 			// If we've selected all boards, this parameter can be left empty.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}boards
 				WHERE redirect = {string:empty_string}',
 				[

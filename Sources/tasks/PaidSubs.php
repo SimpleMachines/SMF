@@ -39,8 +39,7 @@ class PaidSubs extends ScheduledTask
 		// Start off by checking for removed subscriptions.
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_subscribe, id_member
+			'SELECT id_subscribe, id_member
 			FROM {db_prefix}log_subscribed
 			WHERE status = {int:is_active}
 				AND end_time < {int:time_now}',
@@ -61,8 +60,7 @@ class PaidSubs extends ScheduledTask
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT ls.id_sublog, m.id_member, m.member_name, m.email_address, m.lngfile, s.name, ls.end_time
+			'SELECT ls.id_sublog, m.id_member, m.member_name, m.email_address, m.lngfile, s.name, ls.end_time
 			FROM {db_prefix}log_subscribed AS ls
 				JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
 				JOIN {db_prefix}members AS m ON (m.id_member = ls.id_member)
@@ -136,8 +134,7 @@ class PaidSubs extends ScheduledTask
 		if (!empty($subs_reminded)) {
 			Db::$db->query(
 				'',
-				'
-				UPDATE {db_prefix}log_subscribed
+				'UPDATE {db_prefix}log_subscribed
 				SET reminder_sent = {int:reminder_sent}
 				WHERE id_sublog IN ({array_int:subscription_list})',
 				[

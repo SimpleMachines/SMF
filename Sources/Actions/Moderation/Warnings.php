@@ -304,8 +304,7 @@ class Warnings implements ActionInterface
 			// Log the actions.
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT recipient_name
+				'SELECT recipient_name
 				FROM {db_prefix}log_comments
 				WHERE id_comment IN ({array_int:delete_ids})
 					AND comment_type = {string:warntpl}
@@ -326,8 +325,7 @@ class Warnings implements ActionInterface
 			// Do the deletes.
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_comments
+				'DELETE FROM {db_prefix}log_comments
 				WHERE id_comment IN ({array_int:delete_ids})
 					AND comment_type = {string:warntpl}
 					AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
@@ -465,8 +463,7 @@ class Warnings implements ActionInterface
 		if (Utils::$context['is_edit']) {
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, id_recipient, recipient_name AS template_title, body
+				'SELECT id_member, id_recipient, recipient_name AS template_title, body
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:id}
 					AND comment_type = {string:warntpl}
@@ -518,8 +515,7 @@ class Warnings implements ActionInterface
 					// Simple update...
 					Db::$db->query(
 						'',
-						'
-						UPDATE {db_prefix}log_comments
+						'UPDATE {db_prefix}log_comments
 						SET id_recipient = {int:personal}, recipient_name = {string:title}, body = {string:body}
 						WHERE id_comment = {int:id}
 							AND comment_type = {string:warntpl}
@@ -622,8 +618,7 @@ class Warnings implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {string:warning}',
 			[
@@ -650,8 +645,7 @@ class Warnings implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name_col,
+			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name_col,
 				COALESCE(mem2.id_member, 0) AS id_recipient, COALESCE(mem2.real_name, lc.recipient_name) AS recipient_name,
 				lc.log_time, lc.body, lc.id_notice, lc.counter
 			FROM {db_prefix}log_comments AS lc
@@ -692,8 +686,7 @@ class Warnings implements ActionInterface
 	{
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {string:warntpl}
 				AND (id_recipient = {string:generic} OR id_recipient = {int:current_member})',
@@ -723,8 +716,7 @@ class Warnings implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
+			'SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
 				COALESCE(mem.real_name, lc.member_name) AS creator_name, recipient_name AS template_title,
 				lc.log_time, lc.body
 			FROM {db_prefix}log_comments AS lc

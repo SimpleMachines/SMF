@@ -40,8 +40,7 @@ class MemberReportReply_Notify extends BackgroundTask
 		$possible_members = [];
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member
+			'SELECT id_member
 			FROM {db_prefix}log_comments
 			WHERE id_notice = {int:report}
 				AND comment_type = {literal:reportc}
@@ -125,8 +124,7 @@ class MemberReportReply_Notify extends BackgroundTask
 			$emails = [];
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, lngfile, email_address
+				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
 				[

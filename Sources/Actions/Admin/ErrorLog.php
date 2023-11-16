@@ -173,8 +173,7 @@ class ErrorLog implements ActionInterface
 		// Just how many errors are there?
 		$result = Db::$db->query(
 			'',
-			'
-			SELECT COUNT(*)
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_errors' . (isset($this->filter) ? '
 			WHERE ' . $this->filter['variable'] . ' ' . $this->filters[$_GET['filter']]['operator'] . ' {' . $this->filters[$_GET['filter']]['datatype'] . ':filter}' : ''),
 			[
@@ -209,8 +208,7 @@ class ErrorLog implements ActionInterface
 			// We want all errors, not just the number of filtered messages...
 			$query = Db::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				[],
 			);
@@ -224,8 +222,7 @@ class ErrorLog implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line
+			'SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line
 			FROM {db_prefix}log_errors' . (isset($this->filter) ? '
 			WHERE ' . $this->filter['variable'] . ' ' . $this->filters[$_GET['filter']]['operator'] . ' {' . $this->filters[$_GET['filter']]['datatype'] . ':filter}' : '') . '
 			ORDER BY id_error ' . (Utils::$context['sort_direction'] == 'down' ? 'DESC' : '') . '
@@ -294,8 +291,7 @@ class ErrorLog implements ActionInterface
 			// Get some additional member info...
 			$request = Db::$db->query(
 				'',
-				'
-				SELECT id_member, member_name, real_name
+				'SELECT id_member, member_name, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
 				LIMIT {int:members}',
@@ -367,8 +363,7 @@ class ErrorLog implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT error_type, COUNT(*) AS num_errors
+			'SELECT error_type, COUNT(*) AS num_errors
 			FROM {db_prefix}log_errors
 			GROUP BY error_type
 			ORDER BY error_type = {string:critical_type} DESC, error_type ASC',
@@ -486,8 +481,7 @@ class ErrorLog implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT backtrace, error_type, message, file, line, url
+			'SELECT backtrace, error_type, message, file, line, url
 			FROM {db_prefix}log_errors
 			WHERE id_error = {int:id_error}',
 			[
@@ -570,8 +564,7 @@ class ErrorLog implements ActionInterface
 		if (isset($_POST['delall']) && !isset($this->filter)) {
 			Db::$db->query(
 				'truncate_table',
-				'
-				TRUNCATE {db_prefix}log_errors',
+				'TRUNCATE {db_prefix}log_errors',
 				[
 				],
 			);
@@ -584,8 +577,7 @@ class ErrorLog implements ActionInterface
 
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_errors
+				'DELETE FROM {db_prefix}log_errors
 				WHERE ' . $this->filter['variable'] . ' ' . $filter_op . ' {' . $filter_type . ':filter}',
 				[
 					'filter' => $this->filter['value']['sql'],
@@ -596,8 +588,7 @@ class ErrorLog implements ActionInterface
 		elseif (!empty($_POST['delete'])) {
 			Db::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}log_errors
+				'DELETE FROM {db_prefix}log_errors
 				WHERE id_error IN ({array_int:error_list})',
 				[
 					'error_list' => array_unique($_POST['delete']),

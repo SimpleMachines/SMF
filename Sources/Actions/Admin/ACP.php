@@ -1355,8 +1355,7 @@ class ACP implements ActionInterface
 					$board_list = [];
 					$request = Db::$db->query(
 						'',
-						'
-						SELECT id_board
+						'SELECT id_board
 						FROM {db_prefix}boards',
 					);
 
@@ -1723,8 +1722,7 @@ class ACP implements ActionInterface
 		// Just check we haven't ended up with something theme exclusive somehow.
 		Db::$db->query(
 			'',
-			'
-			DELETE FROM {db_prefix}themes
+			'DELETE FROM {db_prefix}themes
 			WHERE id_theme != {int:default_theme}
 				AND variable = {string:admin_preferences}',
 			[
@@ -1768,8 +1766,7 @@ class ACP implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'
-			SELECT id_member, member_name, real_name, lngfile, email_address
+			'SELECT id_member, member_name, real_name, lngfile, email_address
 			FROM {db_prefix}members
 			WHERE id_member IN({array_int:members})',
 			[

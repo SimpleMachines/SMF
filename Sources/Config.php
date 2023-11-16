@@ -1009,8 +1009,7 @@ class Config
 
 			$request = Db\DatabaseApi::$db->query(
 				'',
-				'
-				SELECT variable, value
+				'SELECT variable, value
 				FROM {db_prefix}settings',
 				[
 				],
@@ -1233,8 +1232,7 @@ class Config
 		if (!empty($to_remove)) {
 			Db\DatabaseApi::$db->query(
 				'',
-				'
-				DELETE FROM {db_prefix}settings
+				'DELETE FROM {db_prefix}settings
 				WHERE variable IN ({array_string:remove})',
 				[
 					'remove' => $to_remove,
@@ -1247,8 +1245,7 @@ class Config
 			foreach ($change_array as $variable => $value) {
 				Db\DatabaseApi::$db->query(
 					'',
-					'
-					UPDATE {db_prefix}settings
+					'UPDATE {db_prefix}settings
 					SET value = {' . ($value === false || $value === true ? 'raw' : 'string') . ':value}
 					WHERE variable = {string:variable}',
 					[
@@ -2956,8 +2953,7 @@ class Config
 		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 86400) {
 			$request = Db\DatabaseApi::$db->query(
 				'',
-				'
-				SELECT COUNT(*)
+				'SELECT COUNT(*)
 				FROM {db_prefix}scheduled_tasks
 				WHERE disabled = {int:not_disabled}
 					AND next_time < {int:yesterday}',
