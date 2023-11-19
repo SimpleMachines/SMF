@@ -305,7 +305,7 @@ class Home implements ActionInterface
 
 		// Grab the current notes. We can only use the cache for the first page of notes.
 		$offset = isset($_GET['notes']) && isset($_GET['start']) ? $_GET['start'] : 0;
-		$start = isset($_GET['start']) ? $_GET['start'] : 0;
+		$start = (int) ($_GET['start'] ?? 0);
 
 		if ($offset != 0 || ($moderator_notes = CacheApi::get('moderator_notes', 240)) === null)
 		{
