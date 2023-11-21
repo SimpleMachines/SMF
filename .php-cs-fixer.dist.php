@@ -12,15 +12,20 @@
  */
 
 $finder = (new PhpCsFixer\Finder())
-	->in(__DIR__ . '/Sources')
+	->in(__DIR__)
 	// Don't touch libraries.
 	->exclude([
-		'minify',
-		'random_compat',
-		'ReCaptcha',
+		'cache',
+		'other',
+		'Packages',
+		'Smileys',
+		'Sources/minify',
+		'Sources/random_compat',
+		'Sources/ReCaptcha',
+		'Themes',
 	])
-	// Skip all index.php files.
-	->notName('index.php')
+	// Skip all index.php files and ssi_example.php.
+	->notName(['index.php', 'ssi_examples.php'])
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 
