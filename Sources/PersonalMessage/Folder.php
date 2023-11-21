@@ -181,17 +181,14 @@ class Folder
 		switch ($this->mode) {
 			case PMAction::VIEW_CONV:
 				$display_pms = $this->showConversation();
-
 				break;
 
 			case PMAction::VIEW_ONE:
 				$display_pms = $this->showOne();
-
 				break;
 
 			default:
 				$display_pms = $this->showAll();
-
 				break;
 		}
 

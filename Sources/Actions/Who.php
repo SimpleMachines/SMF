@@ -581,7 +581,6 @@ class Who implements ActionInterface
 						if (isset($actions['u'], $profile_ids[(int) $actions['u']][$k])) {
 							$profile_ids[(int) $actions['u']][$k] = $integrate_action;
 						}
-
 						break;
 					}
 				}

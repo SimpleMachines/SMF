@@ -757,7 +757,6 @@ class Logs implements ActionInterface
 			foreach (Lang::$txt as $key => $text) {
 				if (substr($key, 0, 10) == 'modlog_ac_' && strpos($text, $this->search_params['string']) !== false) {
 					$this->search_params['string'] = substr($key, 10);
-
 					break;
 				}
 			}

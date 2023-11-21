@@ -333,7 +333,6 @@ abstract class DatabaseApi
 			case 'postgre':
 			case 'pg':
 				$class = POSTGRE_TITLE;
-
 				break;
 
 				// MySQL and its forks.
@@ -341,7 +340,6 @@ abstract class DatabaseApi
 			case 'mariadb':
 			case 'percona':
 				$class = MYSQL_TITLE;
-
 				break;
 
 				// Something else?

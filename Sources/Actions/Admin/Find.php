@@ -285,7 +285,6 @@ class Find implements ActionInterface
 						)
 					) {
 						$found = $term;
-
 						break;
 					}
 				}

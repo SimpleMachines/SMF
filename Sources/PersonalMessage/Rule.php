@@ -344,7 +344,6 @@ class Rule implements \ArrayAccess
 					// If all criteria must match but one criterion doesn't, then we stop!
 					elseif ($rule->logic == self::RULE_AND) {
 						$match = false;
-
 						break;
 					}
 				}

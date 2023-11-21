@@ -155,7 +155,6 @@ class ViewQuery implements ActionInterface
 				foreach (['log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages'] as $tmp) {
 					if (strpos($select, $tmp) !== false) {
 						$is_select_query = false;
-
 						break;
 					}
 				}

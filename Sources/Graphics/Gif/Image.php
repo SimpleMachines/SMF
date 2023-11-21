@@ -115,13 +115,11 @@ class Image
 				$this->m_bTrans = ($b & 0x01) ? true : false;
 				list($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
 				$this->m_nTrans = ord($data[4]);
-
 				break;
 
 				// Comment...
 			case 0xFE:
 				$this->m_lpComm = substr($data, 1, ord($data[0]));
-
 				break;
 
 				// Plain text...
@@ -158,25 +156,21 @@ class Image
 				case 0:
 					$s = 8;
 					$y = 0;
-
 					break;
 
 				case 1:
 					$s = 8;
 					$y = 4;
-
 					break;
 
 				case 2:
 					$s = 4;
 					$y = 2;
-
 					break;
 
 				case 3:
 					$s = 2;
 					$y = 1;
-
 					break;
 			}
 

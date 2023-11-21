@@ -1503,25 +1503,21 @@ class Subscriptions implements ActionInterface
 					case 'D':
 						$length .= Lang::$txt['paid_mod_span_days'];
 						$num_length *= 86400;
-
 						break;
 
 					case 'W':
 						$length .= Lang::$txt['paid_mod_span_weeks'];
 						$num_length *= 604800;
-
 						break;
 
 					case 'M':
 						$length .= Lang::$txt['paid_mod_span_months'];
 						$num_length *= 2629743;
-
 						break;
 
 					case 'Y':
 						$length .= Lang::$txt['paid_mod_span_years'];
 						$num_length *= 31556926;
-
 						break;
 				}
 			} else {
@@ -1617,22 +1613,18 @@ class Subscriptions implements ActionInterface
 			switch ($renewal) {
 				case 'D':
 					$duration = 86400;
-
 					break;
 
 				case 'W':
 					$duration = 604800;
-
 					break;
 
 				case 'M':
 					$duration = 2629743;
-
 					break;
 
 				case 'Y':
 					$duration = 31556926;
-
 					break;
 
 				default:

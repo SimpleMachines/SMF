@@ -1198,7 +1198,6 @@ class Mail
 				$ref = &User::$me->{$index};
 			} else {
 				$use_ref = false;
-
 				break;
 			}
 		}

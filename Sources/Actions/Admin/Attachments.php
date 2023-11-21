@@ -1528,7 +1528,6 @@ class Attachments implements ActionInterface
 						foreach (Config::$modSettings['attachment_basedirectories'] as $bid => $base) {
 							if (strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !== false) {
 								$use_subdirectories_for_attachments = 1;
-
 								break;
 							}
 						}
@@ -1990,7 +1989,6 @@ class Attachments implements ActionInterface
 					if (empty($current_progress)) {
 						$results[] = Lang::$txt['attachment_transfer_no_find'];
 					}
-
 					break;
 				}
 

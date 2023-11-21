@@ -1278,37 +1278,30 @@ class Utils
 		switch (json_last_error()) {
 			case JSON_ERROR_NONE:
 				$json_error = false;
-
 				break;
 
 			case JSON_ERROR_DEPTH:
 				$json_error = 'JSON_ERROR_DEPTH';
-
 				break;
 
 			case JSON_ERROR_STATE_MISMATCH:
 				$json_error = 'JSON_ERROR_STATE_MISMATCH';
-
 				break;
 
 			case JSON_ERROR_CTRL_CHAR:
 				$json_error = 'JSON_ERROR_CTRL_CHAR';
-
 				break;
 
 			case JSON_ERROR_SYNTAX:
 				$json_error = 'JSON_ERROR_SYNTAX';
-
 				break;
 
 			case JSON_ERROR_UTF8:
 				$json_error = 'JSON_ERROR_UTF8';
-
 				break;
 
 			default:
 				$json_error = 'unknown';
-
 				break;
 		}
 
@@ -1372,27 +1365,22 @@ class Utils
 		switch (gettype($value)) {
 			case 'NULL':
 				$out = 'N;';
-
 				break;
 
 			case 'boolean':
 				$out = 'b:' . (int) $value . ';';
-
 				break;
 
 			case 'integer':
 				$out = 'i:' . $value . ';';
-
 				break;
 
 			case 'double':
 				$out = 'd:' . str_replace(',', '.', $value) . ';';
-
 				break;
 
 			case 'string':
 				$out = 's:' . strlen($value) . ':"' . $value . '";';
-
 				break;
 
 			case 'array':
@@ -1419,12 +1407,10 @@ class Utils
 
 					$out = 'a:' . count($value) . ':{' . $out . '}';
 				}
-
 				break;
 
 			default:
 				$out = false;
-
 				break;
 		}
 
@@ -1504,7 +1490,6 @@ class Utils
 				// Object or unknown/malformed type.
 				else {
 					$out = false;
-
 					break;
 				}
 
@@ -1517,20 +1502,17 @@ class Utils
 							$list = &$list[$key];
 							$expected[] = $expectedLength;
 							$state = 2;
-
 							break;
 						}
 
 						if ($type != '}') {
 							$list[$key] = $value;
 							$state = 2;
-
 							break;
 						}
 
 						// Missing array value.
 						$out = false;
-
 						break 2;
 
 						// In array, expecting end of array or a key.
@@ -1569,7 +1551,6 @@ class Utils
 
 						// Illegal array index type.
 						$out = false;
-
 						break 2;
 
 						// Expecting array or value.
@@ -1579,20 +1560,17 @@ class Utils
 							$list = &$data;
 							$expected[] = $expectedLength;
 							$state = 2;
-
 							break;
 						}
 
 						if ($type != '}') {
 							$data = $value;
 							$state = 1;
-
 							break;
 						}
 
 						// Not in array.
 						$out = false;
-
 						break 2;
 				}
 			}

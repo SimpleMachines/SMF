@@ -2513,7 +2513,6 @@ class SubsPackage
 					foreach ($places_to_check as $place) {
 						if (file_exists($place . '/' . $working_file)) {
 							$working_file = $place . '/' . $working_file;
-
 							break;
 						}
 					}

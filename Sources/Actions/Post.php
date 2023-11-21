@@ -1351,7 +1351,6 @@ class Post implements ActionInterface
 								$this->errors[] = 'temp_attachments_new';
 								Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
 								unset($_SESSION['temp_attachments']['post']['files']);
-
 								break;
 							}
 						}
@@ -1733,7 +1732,6 @@ class Post implements ActionInterface
 				if (isset($icons['value']) && $icons['value'] == 'poll') {
 					// if found we are done
 					Utils::$context['icon'] = 'poll';
-
 					break;
 				}
 			}

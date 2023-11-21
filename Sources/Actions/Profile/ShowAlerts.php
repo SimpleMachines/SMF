@@ -189,17 +189,14 @@ class ShowAlerts implements ActionInterface
 			switch ($action) {
 				case 'remove':
 					Alert::delete($toMark, User::$me->id);
-
 					break;
 
 				case 'purge':
 					Alert::purge(User::$me->id);
-
 					break;
 
 				default:
 					Alert::mark(User::$me->id, $toMark, $action == 'read' ? 1 : 0);
-
 					break;
 			}
 

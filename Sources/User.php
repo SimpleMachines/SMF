@@ -3006,18 +3006,15 @@ class User implements \ArrayAccess
 			switch ($var) {
 				case  'birthdate':
 					$type = 'date';
-
 					break;
 
 				case 'member_ip':
 				case 'member_ip2':
 					$type = 'inet';
-
 					break;
 
 				default:
 					$type = 'string';
-
 					break;
 			}
 
@@ -4780,7 +4777,6 @@ class User implements \ArrayAccess
 			if (intval($integration_id) > 0) {
 				self::$my_id = (int) $integration_id;
 				$this->already_verified = true;
-
 				break;
 			}
 		}
@@ -5419,14 +5415,12 @@ class User implements \ArrayAccess
 				default:
 					Lang::load('Errors');
 					trigger_error(sprintf(Lang::$txt['invalid_member_data_set'], $dataset), E_USER_WARNING);
-
 					break;
 			}
 
 			switch ($type) {
 				case self::LOAD_BY_EMAIL:
 					$where = 'mem.email_address' . (count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}');
-
 					break;
 
 				case self::LOAD_BY_NAME:
@@ -5443,7 +5437,6 @@ class User implements \ArrayAccess
 
 				default:
 					$where = 'mem.id_member' . (count($users) > 1 ? ' IN ({array_int:users})' : ' = {int:users}');
-
 					break;
 			}
 

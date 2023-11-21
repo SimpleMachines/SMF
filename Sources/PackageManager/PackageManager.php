@@ -245,7 +245,6 @@ class PackageManager
 				foreach (Utils::$context['extracted_files'] as $file) {
 					if (basename($file['filename']) == 'package-info.xml') {
 						Utils::$context['base_path'] = dirname($file['filename']) . '/';
-
 						break;
 					}
 				}
@@ -903,7 +902,6 @@ class PackageManager
 				foreach (Utils::$context['extracted_files'] as $file) {
 					if (basename($file['filename']) == 'package-info.xml') {
 						Utils::$context['base_path'] = dirname($file['filename']) . '/';
-
 						break;
 					}
 				}
@@ -1714,7 +1712,6 @@ class PackageManager
 				foreach (Utils::$context['extracted_files'] as $file) {
 					if (basename($file['filename']) == 'package-info.xml') {
 						Utils::$context['base_path'] = dirname($file['filename']) . '/';
-
 						break;
 					}
 				}
@@ -2812,7 +2809,6 @@ class PackageManager
 						if (!$install->exists('@for') || SubsPackage::matchPackageVersion($the_version, $install->fetch('@for'))) {
 							// Okay, this one is good to go.
 							Utils::$context['package_list'][$ps_id]['items'][$i]['can_install'] = true;
-
 							break;
 						}
 
@@ -3237,7 +3233,6 @@ class PackageManager
 							if (!$install->exists('@for') || SubsPackage::matchPackageVersion($the_version, $install->fetch('@for'))) {
 								// Okay, this one is good to go.
 								$packageInfo['can_install'] = true;
-
 								break;
 							}
 						}
@@ -3263,7 +3258,6 @@ class PackageManager
 							if (!$upgrade->exists('@for') || SubsPackage::matchPackageVersion($the_version, $upgrade->fetch('@for'))) {
 								if (!$upgrade->exists('@from') || SubsPackage::matchPackageVersion($installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
 									$packageInfo['can_upgrade'] = true;
-
 									break;
 								}
 							}
@@ -3277,7 +3271,6 @@ class PackageManager
 						foreach ($uninstalls as $uninstall) {
 							if (!$uninstall->exists('@for') || SubsPackage::matchPackageVersion($the_version, $uninstall->fetch('@for'))) {
 								$packageInfo['can_uninstall'] = true;
-
 								break;
 							}
 						}

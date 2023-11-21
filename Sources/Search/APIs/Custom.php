@@ -83,7 +83,6 @@ class Custom extends SearchApi
 			case 'postCreated':
 			case 'postModified':
 				$return = true;
-
 				break;
 
 				// All other methods, too bad dunno you.

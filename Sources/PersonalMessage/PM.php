@@ -436,7 +436,6 @@ class PM implements \ArrayAccess
 			foreach ($this->received as $received) {
 				if ($received->member === User::$me->id) {
 					$valid_for['inbox'] = !$received->deleted;
-
 					break;
 				}
 			}
@@ -1282,7 +1281,6 @@ class PM implements \ArrayAccess
 				// If we're adding and one criteria doesn't match then we stop!
 				elseif (!$row['is_or']) {
 					$delete = false;
-
 					break;
 				}
 			}

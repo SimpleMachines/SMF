@@ -471,24 +471,20 @@ class Security
 							case 'http':
 							case 'ws':
 								$origin->port = 80;
-
 								break;
 
 							case 'https':
 							case 'wss':
 								$origin->port = 443;
-
 								break;
 
 							case 'ftp':
 								$origin->port = 21;
-
 								break;
 
 							case 'file':
 							default:
 								$origin->port = null;
-
 								break;
 						}
 					}
@@ -515,7 +511,6 @@ class Security
 				if (preg_match('~' . $host_regex . '~u', $origin->host)) {
 					Utils::$context['cors_domain'] = trim($_SERVER['HTTP_ORIGIN']);
 					Utils::$context['valid_cors_found'] = $allowed_origin['type'];
-
 					break;
 				}
 			}

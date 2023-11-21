@@ -408,7 +408,6 @@ class Like implements ActionInterface
 						$this->valid_likes = array_merge($this->valid_likes, $result);
 
 						$found = true;
-
 						break;
 					}
 				}

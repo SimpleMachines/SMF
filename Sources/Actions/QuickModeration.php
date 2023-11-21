@@ -401,7 +401,6 @@ class QuickModeration implements ActionInterface
 			foreach (['any', 'own'] as $scope) {
 				if (isset($permissions[$scope]) && !empty($this->boards_can[$permissions[$scope]])) {
 					$this->possible_actions[] = $action;
-
 					break;
 				}
 			}
@@ -516,12 +515,10 @@ class QuickModeration implements ActionInterface
 					}
 
 					$this->topic_actions['move']['topics'][] = $topic;
-
 					break;
 
 				default:
 					$this->topic_actions[$action][] = $topic;
-
 					break;
 			}
 		}

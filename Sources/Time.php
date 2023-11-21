@@ -224,7 +224,6 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'date_orig':
 			case 'time_orig':
 				$this->modify($value);
-
 				break;
 
 			case 'date_local':
@@ -233,7 +232,6 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setTimezone(self::$user_tz);
 				$this->modify($value);
 				$this->setTimezone($tz);
-
 				break;
 
 			case 'year':
@@ -242,7 +240,6 @@ class Time extends \DateTime implements \ArrayAccess
 					$this->format('m', false, false),
 					$this->format('d', false, false),
 				);
-
 				break;
 
 			case 'month':
@@ -251,7 +248,6 @@ class Time extends \DateTime implements \ArrayAccess
 					(int) $value,
 					$this->format('d', false, false),
 				);
-
 				break;
 
 			case 'day':
@@ -260,7 +256,6 @@ class Time extends \DateTime implements \ArrayAccess
 					$this->format('m', false, false),
 					(int) $value,
 				);
-
 				break;
 
 			case 'hour':
@@ -269,7 +264,6 @@ class Time extends \DateTime implements \ArrayAccess
 					$this->format('i', false, false),
 					$this->format('s', false, false),
 				);
-
 				break;
 
 			case 'minute':
@@ -278,7 +272,6 @@ class Time extends \DateTime implements \ArrayAccess
 					(int) $value,
 					$this->format('s', false, false),
 				);
-
 				break;
 
 			case 'second':
@@ -287,7 +280,6 @@ class Time extends \DateTime implements \ArrayAccess
 					$this->format('i', false, false),
 					(int) $value,
 				);
-
 				break;
 
 			case 'iso_gmdate':
@@ -295,12 +287,10 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setTimezone(timezone_open('UTC'));
 				$this->modify($value);
 				$this->setTimezone($tz);
-
 				break;
 
 			case 'timestamp':
 				$this->setTimestamp((int) $value);
-
 				break;
 
 			case 'tz':
@@ -309,7 +299,6 @@ class Time extends \DateTime implements \ArrayAccess
 				if (in_array($value, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 					$this->setTimezone(timezone_open($value));
 				}
-
 				break;
 
 				// Read only.
@@ -318,7 +307,6 @@ class Time extends \DateTime implements \ArrayAccess
 
 			default:
 				$this->custom[$prop] = $value;
-
 				break;
 		}
 	}
@@ -333,94 +321,76 @@ class Time extends \DateTime implements \ArrayAccess
 		switch ($prop) {
 			case 'datetime':
 				$value = $this->format('Y-m-d H:i:s', false, false);
-
 				break;
 
 			case 'date':
 				$value = $this->format('Y-m-d', false, false);
-
 				break;
 
 			case 'time':
 				$value = $this->format('H:i:s', false, false);
-
 				break;
 
 			case 'date_orig':
 				$value = $this->format(self::getDateFormat());
-
 				break;
 
 			case 'time_orig':
 				$value = $this->format(self::getShortTimeFormat());
-
 				break;
 
 			case 'date_local':
 				$value = (clone $this)->setTimezone(self::$user_tz)->format(self::getDateFormat());
-
 				break;
 
 			case 'time_local':
 				$value = (clone $this)->setTimezone(self::$user_tz)->format(self::getShortTimeFormat());
-
 				break;
 
 			case 'year':
 				$value = $this->format('Y', false, false);
-
 				break;
 
 			case 'month':
 				$value = $this->format('m', false, false);
-
 				break;
 
 			case 'day':
 				$value = $this->format('d', false, false);
-
 				break;
 
 			case 'hour':
 				$value = $this->format('H', false, false);
-
 				break;
 
 			case 'minute':
 				$value = $this->format('i', false, false);
-
 				break;
 
 			case 'second':
 				$value = $this->format('s', false, false);
-
 				break;
 
 			case 'iso_gmdate':
 				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c', false, false);
-
 				break;
 
 			case 'timestamp':
 				$value = $this->getTimestamp();
-
 				break;
 
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
 				$value = $this->format('e', false, false);
-
 				break;
 
 			case 'tz_abbrev':
 				$value = preg_replace('/^[+-]/', 'UTC$0', $this->format('T', false, false));
-
 				break;
 
 			default:
 				$value = $this->custom[$prop] ?? null;
-
 				break;
 		}
 
@@ -565,7 +535,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'days_short';
 						$f = 'w';
 						$placeholder_end = "\xEE\x84\x83";
-
 						break;
 
 					case 'A':
@@ -574,7 +543,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'days';
 						$f = 'w';
 						$placeholder_end = "\xEE\x84\x82";
-
 						break;
 
 					case 'b':
@@ -583,7 +551,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'months_short';
 						$f = 'n';
 						$placeholder_end = "\xEE\x84\x85";
-
 						break;
 
 					case 'B':
@@ -592,7 +559,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'months';
 						$f = 'n';
 						$placeholder_end = "\xEE\x84\x84";
-
 						break;
 				}
 
@@ -605,7 +571,6 @@ class Time extends \DateTime implements \ArrayAccess
 				for ($num = $min; $num <= $max; $num++) {
 					if (!isset(Lang::$txt[$key][$num])) {
 						$txt_strings_exist = false;
-
 						break;
 					}
 
@@ -627,14 +592,12 @@ class Time extends \DateTime implements \ArrayAccess
 					case 'p':
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_am']);
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_pm']);
-
 						break;
 
 						// Lower case.
 					case 'P':
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::$txt['time_am']);
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::$txt['time_pm']);
-
 						break;
 				}
 
@@ -647,28 +610,23 @@ class Time extends \DateTime implements \ArrayAccess
 				switch ($parts[$i]) {
 					case 'j':
 						$placeholder_end = "\xEE\x84\xA1";
-
 						break;
 
 					case 'C':
 						$placeholder_end = "\xEE\x84\xA2";
-
 						break;
 
 					case 'U':
 					case 'W':
 						$placeholder_end = "\xEE\x84\xA3";
-
 						break;
 
 					case 'G':
 						$placeholder_end = "\xEE\x84\xA4";
-
 						break;
 
 					case 'g':
 						$placeholder_end = "\xEE\x84\xA5";
-
 						break;
 
 					case 'e':
@@ -696,44 +654,37 @@ class Time extends \DateTime implements \ArrayAccess
 						// %j
 						case "\xEE\x84\xA1":
 							$replacement = sprintf('%03d', (int) $matches[1] + 1);
-
 							break;
 
 							// %C
 						case "\xEE\x84\xA2":
 							$replacement = substr(sprintf('%04d', $matches[1]), 0, 2);
-
 							break;
 
 							// %U and %W
 						case "\xEE\x84\xA3":
 							list($day_of_year, $day_of_week, $first_day) = explode('_', $matches[1]);
 							$replacement = sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
-
 							break;
 
 							// %G
 						case "\xEE\x84\xA4":
 							$replacement = sprintf('%04d', $matches[1]);
-
 							break;
 
 							// %g
 						case "\xEE\x84\xA5":
 							$replacement = substr(sprintf('%04d', $matches[1]), -2);
-
 							break;
 
 							// %e and %l
 						case "\xEE\x84\xA6":
 							$replacement = sprintf('%2d', $matches[1]);
-
 							break;
 
 							// Shouldn't happen, but just in case...
 						default:
 							$replacement = $matches[1];
-
 							break;
 					}
 

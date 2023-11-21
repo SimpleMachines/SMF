@@ -1474,7 +1474,6 @@ class BBCodeParser
 								$curCloseTags .= '[/b]';
 								$replacement .= '[b]';
 							}
-
 							break;
 
 						case 'text-decoration':
@@ -1485,7 +1484,6 @@ class BBCodeParser
 								$curCloseTags .= '[/s]';
 								$replacement .= '[s]';
 							}
-
 							break;
 
 						case 'text-align':
@@ -1499,7 +1497,6 @@ class BBCodeParser
 								$curCloseTags .= '[/right]';
 								$replacement .= '[right]';
 							}
-
 							break;
 
 						case 'font-style':
@@ -1507,13 +1504,11 @@ class BBCodeParser
 								$curCloseTags .= '[/i]';
 								$replacement .= '[i]';
 							}
-
 							break;
 
 						case 'color':
 							$curCloseTags .= '[/color]';
 							$replacement .= '[color=' . $style_value . ']';
-
 							break;
 
 						case 'font-size':
@@ -1524,7 +1519,6 @@ class BBCodeParser
 
 							$curCloseTags .= '[/size]';
 							$replacement .= '[size=' . $style_value . ']';
-
 							break;
 
 						case 'font-family':
@@ -1535,7 +1529,6 @@ class BBCodeParser
 
 							$curCloseTags .= '[/font]';
 							$replacement .= '[font=' . strtr($style_value, ["'" => '']) . ']';
-
 							break;
 
 							// This is a hack for images with dimensions embedded.
@@ -1544,14 +1537,12 @@ class BBCodeParser
 							if (preg_match('~[1-9]\\d*~i', $style_value, $dimension) === 1) {
 								$extra_attr .= ' ' . $style_type . '="' . $dimension[0] . '"';
 							}
-
 							break;
 
 						case 'list-style-type':
 							if (preg_match('~none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha~i', $style_value, $listType) === 1) {
 								$extra_attr .= ' listtype="' . $listType[0] . '"';
 							}
-
 							break;
 					}
 				}
@@ -1662,7 +1653,6 @@ class BBCodeParser
 				// Otherwise we're there!
 				else {
 					$end_pos = $next_end_pos;
-
 					break;
 				}
 			}
@@ -1772,7 +1762,6 @@ class BBCodeParser
 								$parts[$i + 2] = '[list' . ($listType === null ? '' : ' type=' . $listType) . ']' . "\n";
 								$parts[$i + 3] = '';
 							}
-
 							break;
 
 						case 'li':
@@ -1802,7 +1791,6 @@ class BBCodeParser
 									$parts[$i + 3] = '';
 								}
 							}
-
 							break;
 					}
 				}
@@ -1844,7 +1832,6 @@ class BBCodeParser
 									$parts[$i + 3] = '';
 								}
 							}
-
 							break;
 
 						case 'li':
@@ -1863,7 +1850,6 @@ class BBCodeParser
 								// And we're back in the [list] space.
 								$inList = true;
 							}
-
 							break;
 					}
 				}
@@ -3290,19 +3276,16 @@ class BBCodeParser
 				case 'path':
 					$part_disallowed_chars = '\\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '/#&';
 					$part_excluded_trailing_chars = str_replace('?', '', self::$excluded_trailing_chars);
-
 					break;
 
 				case 'query':
 					$part_disallowed_chars = '\\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '#&';
 					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
-
 					break;
 
 				default:
 					$part_disallowed_chars = '\\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '&';
 					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
-
 					break;
 			}
 			$pcre_subroutines[$part . '_allowed'] = '[^' . $part_disallowed_chars . ']|(?P>allowed_entities)|[' . $part_excluded_trailing_chars . '](?P>excluded_lookahead)';
@@ -3679,7 +3662,6 @@ class BBCodeParser
 				// Only find out if we need to.
 				if ($block_level === false) {
 					array_push($this->open_tags, $tag);
-
 					break;
 				}
 
@@ -3688,7 +3670,6 @@ class BBCodeParser
 					foreach ($this->bbc_codes[$look_for[0]] as $temp) {
 						if ($temp['tag'] == $look_for) {
 							$block_level = !empty($temp['block_level']);
-
 							break;
 						}
 					}
@@ -3697,7 +3678,6 @@ class BBCodeParser
 				if ($block_level !== true) {
 					$block_level = false;
 					array_push($this->open_tags, $tag);
-
 					break;
 				}
 			}
@@ -3717,7 +3697,6 @@ class BBCodeParser
 				foreach ($this->bbc_codes[$look_for[0]] as $temp) {
 					if ($temp['tag'] == $look_for) {
 						$block_level = !empty($temp['block_level']);
-
 						break;
 					}
 				}
@@ -3800,7 +3779,6 @@ class BBCodeParser
 				foreach ($possible['parameters'] as $param) {
 					if (empty($param['optional'])) {
 						$param_required = true;
-
 						break;
 					}
 				}
@@ -3958,7 +3936,6 @@ class BBCodeParser
 				$tag = $possible;
 				$params = [];
 			}
-
 			break;
 		}
 
@@ -4658,7 +4635,6 @@ class BBCodeParser
 										// Gotcha! Clean out this closing tag gone rogue.
 										if ($cur_level === 0) {
 											$parts[$j + 1] = $parts[$j + 2] = $parts[$j + 3] = $parts[$j + 4] = '';
-
 											break;
 										}
 									}

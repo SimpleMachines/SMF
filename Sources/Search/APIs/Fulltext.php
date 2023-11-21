@@ -69,13 +69,11 @@ class Fulltext extends SearchApi
 			case 'prepareIndexes':
 			case 'indexedWordQuery':
 				$return = true;
-
 				break;
 
 				// All other methods, too bad dunno you.
 			default:
 				$return = false;
-
 				break;
 		}
 

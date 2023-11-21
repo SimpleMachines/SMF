@@ -425,17 +425,14 @@ abstract class Notify
 			case self::MODE_IGNORE:
 			case self::MODE_NONE:
 				$this->alert_pref = self::PREF_NONE;
-
 				break;
 
 			case self::MODE_ALERT:
 				$this->alert_pref = self::PREF_ALERT;
-
 				break;
 
 			case self::MODE_BOTH:
 				$this->alert_pref = self::PREF_BOTH;
-
 				break;
 
 				// self::MODE_NO_EMAIL is used to turn off email notifications
@@ -443,7 +440,6 @@ abstract class Notify
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
 				$this->alert_pref = self::getNotifyPrefs($this->member_info['id'], [$this->type . '_notify_' . $this->id], true) & self::PREF_ALERT;
-
 				break;
 		}
 	}

@@ -1391,22 +1391,18 @@ class News extends ACP implements ActionInterface
 						switch ($matches[1]) {
 							case 'scripturl':
 								$new_value = Config::$scripturl;
-
 								break;
 
 							case 'boardurl':
 								$new_value = Config::$boardurl;
-
 								break;
 
 							case 'js_escape:':
 								$new_value = Utils::JavaScriptEscape($matches[2]);
-
 								break;
 
 							default:
 								$new_value = Lang::$txt[$matches[2]] ?? $matches[0];
-
 								break;
 						}
 

@@ -644,7 +644,6 @@ class Search implements ActionInterface
 						// In theory it's possible for one of these to take friggin ages so add more timeout protection.
 						if ($stop < time()) {
 							$forced_break = true;
-
 							break;
 						}
 
@@ -673,7 +672,6 @@ class Search implements ActionInterface
 					if ($num_messages['todo'] === 0) {
 						Utils::$context['step'] = 2;
 						Utils::$context['start'] = 0;
-
 						break;
 					}
 
@@ -736,7 +734,6 @@ class Search implements ActionInterface
 
 					if (Utils::$context['start'] > $index_properties[Utils::$context['index_settings']['bytes_per_word']]['max_size']) {
 						Utils::$context['step'] = 3;
-
 						break;
 					}
 				}

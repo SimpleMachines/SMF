@@ -2278,17 +2278,14 @@ class TimeZone extends \DateTimeZone
 				switch ($tz->getDstType()) {
 					case self::DST_SWITCHES:
 						$dst_types[$tzkey] = 'c';
-
 						break;
 
 					case self::DST_ALWAYS:
 						$dst_types[$tzkey] = 't';
-
 						break;
 
 					default:
 						$dst_types[$tzkey] = 'f';
-
 						break;
 				}
 
@@ -2315,17 +2312,14 @@ class TimeZone extends \DateTimeZone
 				switch ($tzvalue['dst_type']) {
 					case 0:
 						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_false']);
-
 						break;
 
 					case 1:
 						$desc = sprintf($tzvalue['metazone'], '');
-
 						break;
 
 					case 2:
 						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_true']);
-
 						break;
 				}
 			}

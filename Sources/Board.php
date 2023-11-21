@@ -752,7 +752,6 @@ class Board implements \ArrayAccess
 					Lang::load('Errors');
 					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
 				}
-
 				break;
 
 			default:
@@ -760,7 +759,6 @@ class Board implements \ArrayAccess
 					Lang::load('Errors');
 					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
 				}
-
 				break;
 		}
 
@@ -779,7 +777,6 @@ class Board implements \ArrayAccess
 				$child_level = 0;
 				$id_parent = 0;
 				$after = Category::$loaded[$id_cat]->last_board_order;
-
 				break;
 
 			case 'bottom':
@@ -823,13 +820,11 @@ class Board implements \ArrayAccess
 				$child_level = self::$loaded[$target_board]->child_level;
 				$id_parent = self::$loaded[$target_board]->parent;
 				$after = self::$loaded[$target_board]->order - ($move_to == 'before' ? 1 : 0);
-
 				break;
 
 			default:
 				Lang::load('Errors');
 				trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
-
 				break;
 		}
 

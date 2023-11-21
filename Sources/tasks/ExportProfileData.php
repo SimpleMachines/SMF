@@ -1162,7 +1162,6 @@ class ExportProfileData extends BackgroundTask
 					// Write failed. We'll try again next time.
 					if (empty($bytes_written)) {
 						$delay = Taskrunner::MAX_CLAIM_THRESHOLD;
-
 						break;
 					}
 					// All went well.

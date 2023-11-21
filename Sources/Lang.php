@@ -250,7 +250,6 @@ class Lang
 			// That couldn't be found!  Log the error, but *try* to continue normally.
 			if (!$found && $fatal) {
 				ErrorHandler::log(sprintf(self::$txt['theme_language_error'] ?? 'Unable to load the \'%1$s\' language file.', $template_name . '.' . $lang, 'template'));
-
 				break;
 			}
 
@@ -560,7 +559,6 @@ class Lang
 			if (strpos($item, $separator) !== false) {
 				$separator = Lang::$txt['sentence_list_separator_alt'];
 				$format = strtr($format, trim(Lang::$txt['sentence_list_separator']), trim($separator));
-
 				break;
 			}
 		}

@@ -626,17 +626,14 @@ class Server implements ActionInterface
 				switch ($key) {
 					case 'loadavg_auto_opt':
 						$min_value = 1.0;
-
 						break;
 
 					case 'loadavg_forum':
 						$min_value = 10.0;
-
 						break;
 
 					default:
 						$min_value = 2.0;
-
 						break;
 				}
 

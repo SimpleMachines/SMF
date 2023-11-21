@@ -898,19 +898,16 @@ class Tracking implements ActionInterface
 			switch ($row['status']) {
 				case 0:
 					$this_req['outcome'] = Lang::$txt['outcome_pending'];
-
 					break;
 
 				case 1:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
 					$this_req['outcome'] = sprintf(Lang::$txt['outcome_approved'], $member_link, Time::create('@' . $row['time_acted'])->format());
-
 					break;
 
 				case 2:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
 					$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? Lang::$txt['outcome_refused_reason'] : Lang::$txt['outcome_refused'], $member_link, Time::create('@' . $row['time_acted'])->format(), $row['act_reason']);
-
 					break;
 			}
 

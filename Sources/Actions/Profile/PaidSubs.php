@@ -166,7 +166,6 @@ class PaidSubs implements ActionInterface
 						// Just find one and change it.
 						if ($sub[0] == $_GET['sub_id'] && $sub[3] == 'prepay') {
 							$current_pending[$id][3] = 'payback';
-
 							break;
 						}
 					}

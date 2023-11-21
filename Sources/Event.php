@@ -427,7 +427,6 @@ class Event implements \ArrayAccess
 				if ($tzinfo === $possible_tzinfo) {
 					$this->timezone = $possible_tzid;
 					$found = true;
-
 					break;
 				}
 			}
@@ -487,73 +486,61 @@ class Event implements \ArrayAccess
 				case 'start_datetime':
 				case 'end_datetime':
 					$this->{$start_end}->datetime = $value;
-
 					break;
 
 				case 'start_date':
 				case 'end_date':
 					$this->{$start_end}->date = $value;
-
 					break;
 
 				case 'start_time':
 				case 'end_time':
 					$this->{$start_end}->time = $value;
-
 					break;
 
 				case 'start_date_orig':
 				case 'end_date_orig':
 					$this->{$start_end}->date_orig = $value;
-
 					break;
 
 				case 'start_time_orig':
 				case 'end_time_orig':
 					$this->{$start_end}->time_orig = $value;
-
 					break;
 
 				case 'start_date_local':
 				case 'end_date_local':
 					$this->{$start_end}->date_local = $value;
-
 					break;
 
 				case 'start_time_local':
 				case 'end_time_local':
 					$this->{$start_end}->time_local = $value;
-
 					break;
 
 				case 'start_year':
 				case 'end_year':
 					$this->{$start_end}->year = $value;
-
 					break;
 
 				case 'start_month':
 				case 'end_month':
 					$this->{$start_end}->month = $value;
-
 					break;
 
 				case 'start_day':
 				case 'end_day':
 					$this->{$start_end}->day = $value;
-
 					break;
 
 				case 'start_hour':
 				case 'end_hour':
 					$this->{$start_end}->hour = $value;
-
 					break;
 
 				case 'start_minute':
 				case 'end_minute':
 					$this->{$start_end}->minute = $value;
-
 					break;
 
 				case 'start_second':
@@ -564,13 +551,11 @@ class Event implements \ArrayAccess
 				case 'start_timestamp':
 				case 'end_timestamp':
 					$this->{$start_end}->timestamp = $value;
-
 					break;
 
 				case 'start_iso_gmdate':
 				case 'end_iso_gmdate':
 					$this->{$start_end}->iso_gmdate = $value;
-
 					break;
 
 				case 'tz':
@@ -589,7 +574,6 @@ class Event implements \ArrayAccess
 				case 'span':
 				case 'num_days':
 					$value = $this->setNumDays($value);
-
 					break;
 
 					// These computed properties are read-only.
@@ -606,7 +590,6 @@ class Event implements \ArrayAccess
 
 				default:
 					$this->custom[$prop] = $value;
-
 					break;
 			}
 		}
@@ -659,154 +642,127 @@ class Event implements \ArrayAccess
 			case 'start_datetime':
 			case 'end_datetime':
 				$value = $this->{$start_end}->datetime;
-
 				break;
 
 			case 'start_date':
 			case 'end_date':
 				$value = $this->{$start_end}->date;
-
 				break;
 
 			case 'start_date_local':
 			case 'end_date_local':
 				$value = $this->{$start_end}->date_local;
-
 				break;
 
 			case 'start_date_orig':
 			case 'end_date_orig':
 				$value = $this->{$start_end}->date_orig;
-
 				break;
 
 			case 'start_time':
 			case 'end_time':
 				$value = $this->{$start_end}->time;
-
 				break;
 
 			case 'start_time_local':
 			case 'end_time_local':
 				$value = $this->{$start_end}->time_local;
-
 				break;
 
 			case 'start_time_orig':
 			case 'end_time_orig':
 				$value = $this->{$start_end}->time_orig;
-
 				break;
 
 			case 'start_year':
 			case 'end_year':
 				$value = $this->{$start_end}->format('Y');
-
 				break;
 
 			case 'start_month':
 			case 'end_month':
 				$value = $this->{$start_end}->format('m');
-
 				break;
 
 			case 'start_day':
 			case 'end_day':
 				$value = $this->{$start_end}->format('d');
-
 				break;
 
 			case 'start_hour':
 			case 'end_hour':
 				$value = $this->{$start_end}->format('H');
-
 				break;
 
 			case 'start_minute':
 			case 'end_minute':
 				$value = $this->{$start_end}->format('i');
-
 				break;
 
 			case 'start_second':
 			case 'end_second':
 				$value = $this->{$start_end}->format('s');
-
 				break;
 
 			case 'start_timestamp':
 			case 'end_timestamp':
 				$value = $this->{$start_end}->getTimestamp() - ($this->allday ? $this->{$start_end}->getTimestamp() % 86400 : 0);
-
 				break;
 
 			case 'start_iso_gmdate':
 			case 'end_iso_gmdate':
 				$value = $this->allday ? preg_replace('/T\\d\\d:\\d\\d:\\d\\d/', 'T00:00:00', $this->{$start_end}->iso_gmdate) : $this->{$start_end}->iso_gmdate;
-
 				break;
 
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
 				$value = $this->start->timezone;
-
 				break;
 
 			case 'tz_abbrev':
 				$value = $this->start->tz_abbrev;
-
 				break;
 
 			case 'span':
 			case 'num_days':
 				$value = $this->getNumDays();
-
 				break;
 
 			case 'new':
 				$value = !isset($this->id) || $this->id < 1;
-
 				break;
 
 			case 'is_selected':
 				$value = !empty(Utils::$context['selected_event']) && Utils::$context['selected_event'] == $this->id;
-
 				break;
 
 			case 'href':
 				$value = empty($this->topic) ? '' : Config::$scripturl . '?topic=' . $this->topic . '.0';
-
 				break;
 
 			case 'link':
 				$value = empty($this->topic) ? $this->title : '<a href="' . Config::$scripturl . '?topic=' . $this->topic . '.0">' . $this->title . '</a>';
-
 				break;
 
 			case 'can_edit':
 				$value = $this->use_permissions ? User::$me->allowedTo('calendar_edit_any') || ($this->member == User::$me->id && User::$me->allowedTo('calendar_edit_own')) : false;
-
 				break;
 
 			case 'modify_href':
 				$value = Config::$scripturl . '?action=' . ($this->board == 0 ? 'calendar;sa=post;' : 'post;msg=' . $this->msg . ';topic=' . $this->topic . '.0;calendar;') . 'eventid=' . $this->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-
 				break;
 
 			case 'can_export':
 				$value = !empty(Config::$modSettings['cal_export']);
-
 				break;
 
 			case 'export_href':
 				$value = Config::$scripturl . '?action=calendar;sa=ical;eventid=' . $this->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-
 				break;
 
 			default:
 				$value = $this->custom[$prop] ?? null;
-
 				break;
 		}
 

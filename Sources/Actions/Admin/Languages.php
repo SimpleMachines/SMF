@@ -494,7 +494,6 @@ class Languages implements ActionInterface
 			foreach (Utils::$context['languages'] as $lang) {
 				if ($_POST['def_language'] == $lang['filename']) {
 					$lang_exists = true;
-
 					break;
 				}
 			}

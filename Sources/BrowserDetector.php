@@ -503,7 +503,6 @@ class BrowserDetector
 			foreach ($active as $browser) {
 				if (array_key_exists($browser, $browser_priority)) {
 					Utils::$context['browser_body_id'] = $browser_priority[$browser];
-
 					break;
 				}
 			}

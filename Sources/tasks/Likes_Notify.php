@@ -70,7 +70,6 @@ class Likes_Notify extends BackgroundTask
 			foreach ($hook_results as $result) {
 				if (!empty($result)) {
 					$author = $result;
-
 					break;
 				}
 			}

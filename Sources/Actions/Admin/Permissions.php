@@ -1789,7 +1789,6 @@ class Permissions implements ActionInterface
 
 					case GROUP_LEVEL_MAINTENANCE:
 						$group_levels[$perm_info['scope']]['maintenance'][] = $permission;
-
 						break;
 				}
 			}
@@ -1810,7 +1809,6 @@ class Permissions implements ActionInterface
 
 					case BOARD_LEVEL_FREE:
 						$group_levels[$perm_info['scope']]['free'][] = $permission;
-
 						break;
 				}
 			}
@@ -2864,18 +2862,15 @@ class Permissions implements ActionInterface
 		switch (Utils::$context['group']['id']) {
 			case -1:
 				Utils::$context['group']['name'] = Lang::$txt['membergroups_guests'];
-
 				break;
 
 			case 0:
 				Utils::$context['group']['name'] = Lang::$txt['membergroups_members'];
-
 				break;
 
 				// Can't set permissions for admins.
 			case 1:
 				Utils::redirectexit('action=admin;area=permissions');
-
 				break;
 
 			default:
@@ -2896,7 +2891,6 @@ class Permissions implements ActionInterface
 				if ($parent != -2) {
 					ErrorHandler::fatalLang('cannot_edit_permissions_inherited');
 				}
-
 				break;
 		}
 	}

@@ -176,11 +176,8 @@ class Punycode
 				case self::IDNA_ERROR_CONTEXTJ:
 					return false;
 
-					break;
-
 				case self::IDNA_ERROR_HYPHEN_3_4:
 					$part = $parts[$p];
-
 					break;
 
 				case self::IDNA_ERROR_EMPTY_LABEL:

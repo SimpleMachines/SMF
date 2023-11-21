@@ -321,7 +321,6 @@ class QueryString
 				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
 					if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy)) {
 						$valid_sender = true;
-
 						break;
 					}
 				}
@@ -538,17 +537,14 @@ class QueryString
 
 				case 1:
 					$binMask .= '8';
-
 					break;
 
 				case 2:
 					$binMask .= 'c';
-
 					break;
 
 				case 3:
 					$binMask .= 'e';
-
 					break;
 			}
 			$binMask = str_pad($binMask, 32, '0');

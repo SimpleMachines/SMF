@@ -197,7 +197,6 @@ class Draft
 					switch ($key) {
 						case 'id_draft':
 							$this->id = $value;
-
 							break;
 
 						case 'id_topic':
@@ -205,24 +204,20 @@ class Draft
 						case 'id_member':
 						case 'is_sticky':
 							$this->{substr($key, 3)} = $value;
-
 							break;
 
 						case 'id_reply':
 							$this->reply_to = $value;
-
 							break;
 
 						case 'to_list':
 							$recipientsList = Utils::jsonDecode($draft_info['to_list'], true);
 							$this->recipients['to'] = $recipientsList['to'] ?? [];
 							$this->recipients['bcc'] = $recipientsList['bcc'] ?? [];
-
 							break;
 
 						default:
 							$this->$key = $value;
-
 							break;
 					}
 				}

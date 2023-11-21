@@ -891,17 +891,14 @@ class ACP implements ActionInterface
 					switch ($config_var[0]) {
 						case 'select':
 							$value = Config::$modSettings[$config_var[1]];
-
 							break;
 
 						case 'json':
 							$value = Utils::htmlspecialchars(Utils::jsonEncode(Config::$modSettings[$config_var[1]]));
-
 							break;
 
 						case 'boards':
 							$value = explode(',', Config::$modSettings[$config_var[1]]);
-
 							break;
 
 						default:
@@ -913,17 +910,14 @@ class ACP implements ActionInterface
 						case 'int':
 						case 'float':
 							$value = 0;
-
 							break;
 
 						case 'select':
 							$value = !empty($config_var['multiple']) ? Utils::jsonEncode([]) : '';
-
 							break;
 
 						case 'boards':
 							$value = [];
-
 							break;
 
 						default:
@@ -1164,7 +1158,6 @@ class ACP implements ActionInterface
 						// no break
 					case 'double':
 						$config_nums[] = $var;
-
 						break;
 
 					case 'integer':
@@ -1173,22 +1166,16 @@ class ACP implements ActionInterface
 							if (is_array($config_var) && $config_var[0] == $var) {
 								if ($config_var[3] == 'check') {
 									$config_bools[] = $var;
-
 									break 2;
 								}
-
-
 								break;
-
 							}
 						}
 						$config_nums[] = $var;
-
 						break;
 
 					case 'boolean':
 						$config_bools[] = $var;
-
 						break;
 
 					default:
@@ -1214,12 +1201,10 @@ class ACP implements ActionInterface
 					case 'int':
 					case 'float':
 						$config_nums[] = $var_name;
-
 						break;
 
 					case 'check':
 						$config_bools[] = $var_name;
-
 						break;
 
 					default:
@@ -1258,7 +1243,6 @@ class ACP implements ActionInterface
 					if ($temp == $_POST[$var_name]) {
 						$new_settings[$var_name] = $temp;
 						$is_acceptable_type = true;
-
 						break;
 					}
 				}

@@ -191,7 +191,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 					if ($pos2 === false || $pos2 > $pos1) {
 						$pos = $pos1;
-
 						break;
 					}
 
@@ -402,12 +401,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'ignore':
 				$queryTitle = 'INSERT IGNORE';
-
 				break;
 
 			default:
 				$queryTitle = 'INSERT';
-
 				break;
 		}
 
@@ -486,12 +483,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				switch ($returnmode) {
 					case 2:
 						$return_var[] = $ai;
-
 						break;
 
 					default:
 						$return_var = $ai;
-
 						break;
 				}
 			}
@@ -2164,13 +2159,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				return (string) (int) $replacement;
 
-				break;
-
 			case 'string':
 			case 'text':
 				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $replacement));
-
-				break;
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2246,18 +2237,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				return (string) (float) $replacement;
 
-				break;
-
 			case 'identifier':
 				// Backticks inside identifiers are supported as of MySQL 4.1. We don't need them for SMF.
 				return '`' . implode('`.`', array_filter(explode('.', strtr($replacement, ['`' => ''])), 'strlen')) . '`';
 
-				break;
-
 			case 'raw':
 				return $replacement;
-
-				break;
 
 			case 'inet':
 				if ($replacement == 'null' || $replacement == '') {
@@ -2303,7 +2288,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			default:
 				$this->error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
-
 				break;
 		}
 	}
@@ -2328,7 +2312,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			// Found it?
 			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class)) {
 				$log_message .= '<br>Function: ' . $step['function'];
-
 				break;
 			}
 

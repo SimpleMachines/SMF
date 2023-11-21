@@ -180,7 +180,6 @@ class FtpConnection
 			// If it's writable, break out of the loop.
 			if (is_writable($ftp_file)) {
 				$is_writable = true;
-
 				break;
 			}
 
@@ -191,7 +190,6 @@ class FtpConnection
 
 			if (!$this->check_response(200)) {
 				$this->error = 'bad_file';
-
 				break;
 			}
 

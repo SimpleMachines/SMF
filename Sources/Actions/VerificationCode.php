@@ -786,7 +786,6 @@ class VerificationCode implements ActionInterface
 							$sound_word .= $chars[$i] === 's' ? $sound_letter[$j] : chr(mt_rand(max(ord($sound_letter[$j]) - 1, 0x00), min(ord($sound_letter[$j]) + 1, 0xFF)));
 						}
 					}
-
 					break;
 
 				case 1:
@@ -794,7 +793,6 @@ class VerificationCode implements ActionInterface
 						$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j + 1] : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j] : $sound_letter[$j + 1]) . $sound_letter[$j + 1] . (mt_rand(0, 3) == 0 ? $sound_letter[$j + 1] : '');
 					}
 					$sound_word .= str_repeat($sound_letter[$n], 2);
-
 					break;
 
 				case 2:
@@ -809,7 +807,6 @@ class VerificationCode implements ActionInterface
 							$sound_word .= chr(min(max(ord($sound_letter[$j]) + $shift, 0x00), 0xFF));
 						}
 					}
-
 					break;
 			}
 

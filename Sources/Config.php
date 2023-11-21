@@ -1646,7 +1646,6 @@ class Config
 							foreach (['boolean', 'integer', 'double', 'string', 'array'] as $to_type) {
 								if (in_array($to_type, $expected_types)) {
 									settype($new_settings_vars[$var], $to_type);
-
 									break;
 								}
 							}
@@ -2601,7 +2600,6 @@ class Config
 
 						default:
 							$parts[] = $text;
-
 							break;
 					}
 				}
@@ -2802,22 +2800,18 @@ class Config
 			switch ($temp_option) {
 				case 'cachedir':
 					$possible_temp = rtrim(self::$cachedir, '\\/');
-
 					break;
 
 				case 'session.save_path':
 					$possible_temp = rtrim(ini_get('session.save_path'), '\\/');
-
 					break;
 
 				case 'upload_tmp_dir':
 					$possible_temp = rtrim(ini_get('upload_tmp_dir'), '\\/');
-
 					break;
 
 				default:
 					$possible_temp = sys_get_temp_dir();
-
 					break;
 			}
 
@@ -2826,7 +2820,6 @@ class Config
 				foreach ($restriction as $dir) {
 					if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp)) {
 						self::$temp_dir = $possible_temp;
-
 						break;
 					}
 				}
@@ -2834,7 +2827,6 @@ class Config
 			// No restrictions, but need to check for writable status.
 			elseif (is_writable($possible_temp)) {
 				self::$temp_dir = $possible_temp;
-
 				break;
 			}
 		}

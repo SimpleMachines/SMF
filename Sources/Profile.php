@@ -1778,27 +1778,22 @@ class Profile extends User implements \ArrayAccess
 		switch ($value) {
 			case 'server_stored':
 				$result = $this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
-
 				break;
 
 			case 'external':
 				$result = $this->setAvatarExternal($_POST['userpicpersonal'] ?? '');
-
 				break;
 
 			case 'upload':
 				$result = $this->setAvatarAttachment($_FILES['attachment']['tmp_name'] ?? '');
-
 				break;
 
 			case 'gravatar':
 				$result = $this->setAvatarGravatar();
-
 				break;
 
 			default:
 				$result = $this->setAvatarNone();
-
 				break;
 
 		}

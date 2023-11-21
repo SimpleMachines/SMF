@@ -802,7 +802,6 @@ class Warnings implements ActionInterface
 
 				if (User::$me->allowedTo(self::$subactions[$sa][1])) {
 					$this->subaction = $sa;
-
 					break;
 				}
 			}

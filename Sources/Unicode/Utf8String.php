@@ -170,7 +170,6 @@ class Utf8String implements \Stringable
 			switch ($case) {
 				case 'upper':
 					require_once __DIR__ . '/CaseUpper.php';
-
 					$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
@@ -182,7 +181,6 @@ class Utf8String implements \Stringable
 
 				case 'lower':
 					require_once __DIR__ . '/CaseLower.php';
-
 					$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
@@ -196,9 +194,7 @@ class Utf8String implements \Stringable
 
 				case 'fold':
 					require_once __DIR__ . '/CaseFold.php';
-
 					$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_maps();
-
 					break;
 			}
 
@@ -229,17 +225,14 @@ class Utf8String implements \Stringable
 				case 'title':
 					$this->convertCase($this->string, 'lower', $simple);
 					$regex = '/(?:^|[^\\w' . $prop_classes['Case_Ignorable'] . '])\\K(\\p{L})/u';
-
 					break;
 
 				case 'ucwords':
 					$regex = '/(?:^|[^\\w' . $prop_classes['Case_Ignorable'] . '])\\K(\\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\\p{Lu})|\\w?))/u';
-
 					break;
 
 				case 'ucfirst':
 					$regex = '/^[^\\w' . $prop_classes['Case_Ignorable'] . ']*\\K(\\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\\p{Lu})|\\w?))/u';
-
 					break;
 			}
 
@@ -413,27 +406,22 @@ class Utf8String implements \Stringable
 			switch ($form) {
 				case 'd':
 					$form = \Normalizer::FORM_D;
-
 					break;
 
 				case 'kd':
 					$form = \Normalizer::FORM_KD;
-
 					break;
 
 				case 'c':
 					$form = \Normalizer::FORM_C;
-
 					break;
 
 				case 'kc':
 					$form = \Normalizer::FORM_KC;
-
 					break;
 
 				case 'kc_casefold':
 					$form = \Normalizer::FORM_KC_CF;
-
 					break;
 
 				default:
@@ -447,27 +435,22 @@ class Utf8String implements \Stringable
 		switch ($form) {
 			case 'd':
 				$prop = 'NFD_QC';
-
 				break;
 
 			case 'kd':
 				$prop = 'NFKD_QC';
-
 				break;
 
 			case 'c':
 				$prop = 'NFC_QC';
-
 				break;
 
 			case 'kc':
 				$prop = 'NFKC_QC';
-
 				break;
 
 			case 'kc_casefold':
 				$prop = 'Changes_When_NFKC_Casefolded';
-
 				break;
 
 			default:

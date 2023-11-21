@@ -410,13 +410,9 @@ abstract class SearchApi implements SearchApiInterface
 			case 'getQueryParams':
 				return true;
 
-				break;
-
 				// All other methods, too bad dunno you.
 			default:
 				return false;
-
-				break;
 		}
 	}
 
@@ -1190,19 +1186,15 @@ abstract class SearchApi implements SearchApiInterface
 			// Search_force_index requires all AND parts to have at least one fulltext word.
 			if (!empty(Config::$modSettings['search_force_index']) && empty($this->searchWords[$orIndex]['indexed_words'])) {
 				$this->errors['query_not_specific_enough'] = true;
-
 				break;
 			}
 
 			if ($this->params['subject_only'] && empty($this->searchWords[$orIndex]['subject_words']) && empty($this->excludedSubjectWords)) {
 				$this->errors['query_not_specific_enough'] = true;
-
 				break;
 			}
 
 			// Make sure we aren't searching for too many indexed words.
-
-
 			$this->searchWords[$orIndex]['indexed_words'] = array_slice($this->searchWords[$orIndex]['indexed_words'], 0, 7);
 			$this->searchWords[$orIndex]['subject_words'] = array_slice($this->searchWords[$orIndex]['subject_words'], 0, 7);
 			$this->searchWords[$orIndex]['words'] = array_slice($this->searchWords[$orIndex]['words'], 0, 4);

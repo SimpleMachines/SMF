@@ -260,18 +260,15 @@ class Alert implements \ArrayAccess
 			switch ($this->content_type) {
 				case 'msg':
 					self::checkMsgAccess([$this->id => $this->content_id], $this->member);
-
 					break;
 
 				case 'topic':
 				case 'board':
 					self::checkTopicAccess([$this->id => $this->content_id], $this->member);
-
 					break;
 
 				default:
 					$this->visible = true;
-
 					break;
 			}
 
@@ -433,19 +430,16 @@ class Alert implements \ArrayAccess
 			switch ($this->content_action) {
 				case 'register_approval':
 					$this->target_href = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-
 					break;
 
 				case 'group_request':
 					$this->target_href = Config::$scripturl . '?action=moderate;area=groups;sa=requests';
-
 					break;
 
 				case 'buddy_request':
 					if (!empty($this->member_started)) {
 						$this->target_href = Config::$scripturl . '?action=profile;u=' . $this->member_started;
 					}
-
 					break;
 
 				default:
@@ -460,21 +454,18 @@ class Alert implements \ArrayAccess
 					if (!empty($this->content_id)) {
 						$this->target_href = Config::$scripturl . '?msg=' . $this->content_id;
 					}
-
 					break;
 
 				case 'member':
 					if (!empty($this->member_started)) {
 						$this->target_href = Config::$scripturl . '?action=profile;u=' . $this->member_started;
 					}
-
 					break;
 
 				case 'event':
 					if (!empty($this->extra['event_id'])) {
 						$this->target_href = Config::$scripturl . '?action=calendar;event=' . $this->extra['event_id'];
 					}
-
 					break;
 
 				default:
@@ -651,7 +642,6 @@ class Alert implements \ArrayAccess
 					$props['visible'] = false;
 					$props['simple_access_check'] = true;
 					$possible_msgs[$props['id_member']][$props['id_alert']] = $props['content_id'];
-
 					break;
 
 				case 'topic':
@@ -659,12 +649,10 @@ class Alert implements \ArrayAccess
 					$props['visible'] = false;
 					$props['simple_access_check'] = true;
 					$possible_topics[$props['id_member']][$props['id_alert']] = $props['content_id'];
-
 					break;
 
 				default:
 					$props['visible'] = true;
-
 					break;
 			}
 		}
@@ -805,7 +793,6 @@ class Alert implements \ArrayAccess
 					$row['visible'] = false;
 					$row['simple_access_check'] = $simple_access_check;
 					$possible_msgs[$row['id_member']][$row['id_alert']] = $row['content_id'];
-
 					break;
 
 				case 'topic':
@@ -813,12 +800,10 @@ class Alert implements \ArrayAccess
 					$row['visible'] = false;
 					$row['simple_access_check'] = $simple_access_check;
 					$possible_topics[$row['id_member']][$row['id_alert']] = $row['content_id'];
-
 					break;
 
 				default:
 					$row['visible'] = true;
-
 					break;
 			}
 
@@ -1205,54 +1190,44 @@ class Alert implements \ArrayAccess
 						case 'reply':
 						case 'topic':
 							$class = 'main_icons posts';
-
 							break;
 
 						case 'move':
 							$src = Theme::$current->settings['images_url'] . '/post/moved.png';
-
 							break;
 
 						case 'remove':
 							$class = 'main_icons delete';
-
 							break;
 
 						case 'lock':
 						case 'unlock':
 							$class = 'main_icons lock';
-
 							break;
 
 						case 'sticky':
 						case 'unsticky':
 							$class = 'main_icons sticky';
-
 							break;
 
 						case 'split':
 							$class = 'main_icons split_button';
-
 							break;
 
 						case 'merge':
 							$class = 'main_icons merge';
-
 							break;
 
 						case 'unapproved_topic':
 						case 'unapproved_post':
 							$class = 'main_icons post_moderation_moderate';
-
 							break;
 
 						default:
 							$class = 'main_icons posts';
-
 							break;
 					}
 				}
-
 				break;
 
 			case 'msg':
@@ -1260,37 +1235,30 @@ class Alert implements \ArrayAccess
 					switch ($this->content_action) {
 						case 'like':
 							$class = 'main_icons like';
-
 							break;
 
 						case 'mention':
 							$class = 'main_icons im_on';
-
 							break;
 
 						case 'quote':
 							$class = 'main_icons quote';
-
 							break;
 
 						case 'unapproved_attachment':
 							$class = 'main_icons post_moderation_attach';
-
 							break;
 
 						case 'report':
 						case 'report_reply':
 							$class = 'main_icons post_moderation_moderate';
-
 							break;
 
 						default:
 							$class = 'main_icons posts';
-
 							break;
 					}
 				}
-
 				break;
 
 			case 'member':
@@ -1300,57 +1268,46 @@ class Alert implements \ArrayAccess
 						case 'register_approval':
 						case 'register_activation':
 							$class = 'main_icons members';
-
 							break;
 
 						case 'report':
 						case 'report_reply':
 							$class = 'main_icons members_watched';
-
 							break;
 
 						case 'buddy_request':
 							$class = 'main_icons people';
-
 							break;
 
 						case 'group_request':
 							$class = 'main_icons members_request';
-
 							break;
 
 						default:
 							$class = 'main_icons members';
-
 							break;
 					}
 				}
-
 				break;
 
 			case 'groupr':
 				$class = 'main_icons members_request';
-
 				break;
 
 			case 'event':
 				$class = 'main_icons calendar';
-
 				break;
 
 			case 'paidsubs':
 				$class = 'main_icons paid';
-
 				break;
 
 			case 'birthday':
 				$src = Theme::$current->settings['images_url'] . '/cake.png';
-
 				break;
 
 			default:
 				$class = 'main_icons alerts';
-
 				break;
 		}
 

@@ -2538,27 +2538,22 @@ class Group implements \ArrayAccess
 		switch ($group->id) {
 			case self::GUEST:
 				$help = 'membergroup_guests';
-
 				break;
 
 			case self::REGULAR:
 				$help = 'membergroup_regular_members';
-
 				break;
 
 			case self::ADMIN:
 				$help = 'membergroup_administrator';
-
 				break;
 
 			case self::MOD:
 				$help = 'membergroup_moderator';
-
 				break;
 
 			default:
 				$help = '';
-
 				break;
 		}
 

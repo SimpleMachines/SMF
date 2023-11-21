@@ -899,7 +899,6 @@ class Logging
 					foreach (['log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages'] as $tmp) {
 						if (strpos(trim($query_data['q']), $tmp) !== false) {
 							$is_select = false;
-
 							break;
 						}
 					}

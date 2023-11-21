@@ -522,7 +522,6 @@ class Notification implements ActionInterface
 					switch ($this_option[0]) {
 						case 'check':
 							$update_prefs[$this_option[1]] = !empty($_POST['opt_' . $this_option[1]]) ? 1 : 0;
-
 							break;
 
 						case 'select':
@@ -534,7 +533,6 @@ class Notification implements ActionInterface
 								$first = array_shift($keys);
 								$update_prefs[$this_option[1]] = $first;
 							}
-
 							break;
 					}
 				}

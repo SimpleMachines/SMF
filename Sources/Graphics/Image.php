@@ -929,59 +929,50 @@ class Image
 					// Points.
 				case 'pt':
 					$$dimension *= 0.75;
-
 					break;
 
 					// Picas.
 				case 'pc':
 					$$dimension *= 16;
-
 					break;
 
 					// Inches.
 				case 'in':
 					$$dimension *= 96;
-
 					break;
 
 					// Centimetres.
 				case 'cm':
 					$$dimension *= 37.8;
-
 					break;
 
 					// Millimetres.
 				case 'mm':
 					$$dimension *= 3.78;
-
 					break;
 
 					// Font height.
 					// Assume browser default of 1em = 1pc.
 				case 'em':
 					$$dimension *= 16;
-
 					break;
 
 					// Font x-height.
 					// Assume half of font height.
 				case 'ex':
 					$$dimension *= 8;
-
 					break;
 
 					// Font '0' character width.
 					// Assume a typical monospace font at 1em = 1pc.
 				case 'ch':
 					$$dimension *= 9.6;
-
 					break;
 
 					// Percentage.
 					// SVG spec says to use viewBox dimensions in this case.
 				default:
 					unset($$dimension);
-
 					break;
 			}
 		}
@@ -1205,19 +1196,16 @@ class Image
 				case 3:
 				case 4:
 					$dst_img = imagerotate($dst_img, 180, 0);
-
 					break;
 
 				case 5:
 				case 6:
 					$dst_img = imagerotate($dst_img, 270, 0);
-
 					break;
 
 				case 7:
 				case 8:
 					$dst_img = imagerotate($dst_img, 90, 0);
-
 					break;
 			}
 
@@ -1271,19 +1259,16 @@ class Image
 				case 3:
 				case 4:
 					$imagick->rotateImage('#00000000', 180);
-
 					break;
 
 				case 5:
 				case 6:
 					$imagick->rotateImage('#00000000', 90);
-
 					break;
 
 				case 7:
 				case 8:
 					$imagick->rotateImage('#00000000', 270);
-
 					break;
 			}
 

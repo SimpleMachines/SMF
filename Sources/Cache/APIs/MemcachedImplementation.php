@@ -115,7 +115,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 			foreach ($currentServers as $currentServer) {
 				if ($server[0] == $currentServer['host'] && $server[1] == $currentServer['port']) {
 					$foundServer = true;
-
 					break;
 				}
 			}

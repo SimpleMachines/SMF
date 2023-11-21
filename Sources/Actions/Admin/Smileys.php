@@ -1591,7 +1591,6 @@ class Smileys implements ActionInterface
 			foreach ($extracted as $file) {
 				if (basename($file['filename']) == 'package-info.xml') {
 					$base_path = dirname($file['filename']) . '/';
-
 					break;
 				}
 			}
@@ -2543,7 +2542,6 @@ class Smileys implements ActionInterface
 					foreach (array_diff($known_sets, $sets_missing) as $set) {
 						if (file_exists(self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key])) {
 							$p = $set;
-
 							break;
 						}
 					}

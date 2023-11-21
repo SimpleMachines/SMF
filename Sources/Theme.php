@@ -380,7 +380,6 @@ class Theme
 			if (file_exists($template_dir . '/' . $template_name . '.template.php')) {
 				$loaded = true;
 				self::templateInclude($template_dir . '/' . $template_name . '.template.php', true);
-
 				break;
 			}
 		}
@@ -723,17 +722,14 @@ class Theme
 						},
 					);
 					$value = strtr(json_encode($value), $replacements);
-
 					break;
 
 				case 'string':
 					$value = Utils::JavaScriptEscape($value);
-
 					break;
 
 				default:
 					$value = json_encode($value);
-
 					break;
 			}
 		}
@@ -3081,7 +3077,6 @@ class Theme
 							if (preg_match('~(<[^/>]+>)[^<]*$~', $data2[$line2], $color_match) != 0) {
 								$last_line = $color_match[1];
 							}
-
 							break;
 						}
 					}

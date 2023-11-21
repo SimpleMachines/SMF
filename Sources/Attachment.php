@@ -712,7 +712,6 @@ class Attachment implements \ArrayAccess
 			foreach ($_FILES['attachment']['tmp_name'] as $dummy) {
 				if (!empty($dummy)) {
 					$doit = true;
-
 					break;
 				}
 			}
@@ -762,27 +761,22 @@ class Attachment implements \ArrayAccess
 		switch (Config::$modSettings['automanage_attachments']) {
 			case 1:
 				$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . (Config::$modSettings['last_attachments_directory'][$base_dir] ?? 0);
-
 				break;
 
 			case 2:
 				$updir = $basedirectory . DIRECTORY_SEPARATOR . $year;
-
 				break;
 
 			case 3:
 				$updir = $basedirectory . DIRECTORY_SEPARATOR . $year . DIRECTORY_SEPARATOR . $month;
-
 				break;
 
 			case 4:
 				$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty(Config::$modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : 'random_') . $rand;
-
 				break;
 
 			case 5:
 				$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty(Config::$modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : 'random_') . $rand . DIRECTORY_SEPARATOR . $rand1;
-
 				break;
 
 			default:
@@ -999,7 +993,6 @@ class Attachment implements \ArrayAccess
 			foreach ($_FILES['attachment']['tmp_name'] as $dummy) {
 				if (!empty($dummy)) {
 					$ignore_temp = false;
-
 					break;
 				}
 			}
@@ -1957,7 +1950,6 @@ class Attachment implements \ArrayAccess
 				if (array_key_exists('id_thumb', $foundAttach) && $foundAttach['id_thumb'] == $attachID) {
 					$attachContext = Utils::$context['loaded_attachments'][$attachInfo['msg']][$foundAttachID];
 					$attachID = $foundAttachID;
-
 					break;
 				}
 			}

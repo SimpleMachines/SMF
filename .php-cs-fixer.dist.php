@@ -124,7 +124,6 @@ return (new PhpCsFixer\Config())
 		'array_indentation' => true,
 		'blank_line_before_statement' => [
 			'statements' => [
-				'break',
 				'case',
 				'continue',
 				'declare',

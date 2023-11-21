@@ -629,12 +629,10 @@ class UpdateUnicode extends BackgroundTask
 		switch ($data_url) {
 			case self::DATA_URL_IDNA:
 				$sub_dir = 'idna';
-
 				break;
 
 			default:
 				$sub_dir = 'ucd';
-
 				break;
 		}
 
@@ -953,7 +951,6 @@ class UpdateUnicode extends BackgroundTask
 		foreach ($this->funcs as $func_name => &$func_info) {
 			if ($func_info['file'] === 'Metadata.php') {
 				$func_info['data'][0] = str_replace('0.0.0.0', $this->ucd_version, $func_info['data'][0]);
-
 				break;
 			}
 		}
@@ -1651,32 +1648,26 @@ class UpdateUnicode extends BackgroundTask
 			switch ($fields[1]) {
 				case 'C':
 					$joining_type = 'Join_Causing';
-
 					break;
 
 				case 'D':
 					$joining_type = 'Dual_Joining';
-
 					break;
 
 				case 'R':
 					$joining_type = 'Right_Joining';
-
 					break;
 
 				case 'L':
 					$joining_type = 'Left_Joining';
-
 					break;
 
 				case 'T':
 					$joining_type = 'Transparent';
-
 					break;
 
 				default:
 					$joining_type = null;
-
 					break;
 			}
 

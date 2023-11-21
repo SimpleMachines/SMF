@@ -634,22 +634,18 @@ class TaskRunner
 			switch ($row['time_unit']) {
 				case 'm':
 					$duration *= 60;
-
 					break;
 
 				case 'h':
 					$duration *= 3600;
-
 					break;
 
 				case 'd':
 					$duration *= 86400;
-
 					break;
 
 				case 'w':
 					$duration *= 604800;
-
 					break;
 
 				default:
