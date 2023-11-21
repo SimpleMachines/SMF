@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_convert_case.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_titlecase_simple_maps()
 {
-	return array(
+	return [
 		"\xC7\x84" => "\xC7\x85",
 		"\xC7\x85" => "\xC7\x85",
 		"\xC7\x86" => "\xC7\x85",
@@ -85,7 +86,7 @@ function utf8_titlecase_simple_maps()
 		"\xE1\x83\xBD" => "\xE1\x83\xBD",
 		"\xE1\x83\xBE" => "\xE1\x83\xBE",
 		"\xE1\x83\xBF" => "\xE1\x83\xBF",
-	);
+	];
 }
 
 /**
@@ -98,7 +99,7 @@ function utf8_titlecase_simple_maps()
  */
 function utf8_titlecase_maps()
 {
-	return array(
+	return [
 		"\xC3\x9F" => "\x53\x73",
 		"\xC7\x84" => "\xC7\x85",
 		"\xC7\x85" => "\xC7\x85",
@@ -234,7 +235,7 @@ function utf8_titlecase_maps()
 		"\xEF\xAC\x95" => "\xD5\x84\xD5\xAB",
 		"\xEF\xAC\x96" => "\xD5\x8E\xD5\xB6",
 		"\xEF\xAC\x97" => "\xD5\x84\xD5\xAD",
-	);
+	];
 }
 
 ?>

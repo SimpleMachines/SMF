@@ -13,10 +13,12 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
-if (!defined('SMF_UNICODE_VERSION'))
+if (!defined('SMF_UNICODE_VERSION')) {
 	define('SMF_UNICODE_VERSION', '15.1.0.0');
+}
 
 ?>

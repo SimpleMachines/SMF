@@ -19,12 +19,8 @@ $finder = (new PhpCsFixer\Finder())
 		'random_compat',
 		'ReCaptcha',
 	])
-	// Work with PHP files.
-	->name('*.php')
 	// Skip all index.php files.
 	->notName('index.php')
-	// Skip Unicode data files, but not Utf8String.php.
-	->notPath('/Unicode\/(?!Utf8String).*\.php/')
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 

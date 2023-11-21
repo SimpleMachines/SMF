@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_normalize_kc_casefold.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_default_ignorables()
 {
-	return array(
+	return [
 		"\xC2\xAD",
 		"\xCD\x8F",
 		"\xD8\x9C",
@@ -4201,7 +4202,7 @@ function utf8_default_ignorables()
 		"\xF3\xA0\xBF\xBD",
 		"\xF3\xA0\xBF\xBE",
 		"\xF3\xA0\xBF\xBF",
-	);
+	];
 }
 
 ?>

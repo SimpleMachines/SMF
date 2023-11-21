@@ -83,10 +83,10 @@ class UpdateUnicode extends BackgroundTask
 	private $funcs = [
 		[
 			'file' => 'Metadata.php',
-			'regex' => '/if \\(!defined\\(\'SMF_UNICODE_VERSION\'\\)\\)\\n\\tdefine\\(\'SMF_UNICODE_VERSION\', \'\\d+(\\.\\d+)*\'\\);/',
+			'regex' => '/if \\(!defined\\(\'SMF_UNICODE_VERSION\'\\)\\)(?:\s*{)?\\n\\tdefine\\(\'SMF_UNICODE_VERSION\', \'\\d+(\\.\\d+)*\'\\);(?:\n})?/',
 			'data' => [
 				// 0.0.0.0 will be replaced with correct value at runtime.
-				"if (!defined('SMF_UNICODE_VERSION'))\n\tdefine('SMF_UNICODE_VERSION', '0.0.0.0');",
+				"if (!defined('SMF_UNICODE_VERSION')) {\n\tdefine('SMF_UNICODE_VERSION', '0.0.0.0');\n}",
 			],
 		],
 		'utf8_normalize_d_maps' => [
@@ -733,7 +733,7 @@ class UpdateUnicode extends BackgroundTask
 			'<' . '?php',
 			trim($license_block),
 			'namespace SMF\\Unicode;',
-			"if (!defined('SMF'))\n\tdie('No direct access...');",
+			"if (!defined('SMF')) {\n\tdie('No direct access...');\n}",
 			'',
 		]);
 
@@ -808,7 +808,7 @@ class UpdateUnicode extends BackgroundTask
 			$func_code .= implode("\n", [
 				'function ' . $func_name . '()',
 				'{',
-				"\t" . 'return array(',
+				"\t" . 'return [',
 				'',
 			]);
 
@@ -820,13 +820,13 @@ class UpdateUnicode extends BackgroundTask
 			);
 
 			$func_code .= implode("\n", [
-				"\t" . ');',
+				"\t" . '];',
 				'}',
 			]);
 		}
 
 		// Some final tidying.
-		$func_code = str_replace('\\\\x', '\\x', $func_code);
+		$func_code = str_replace('""', "''", $func_code);
 		$func_code = preg_replace('/\\h+$/m', '', $func_code);
 
 		return [$func_code, $func_regex];
@@ -874,13 +874,13 @@ class UpdateUnicode extends BackgroundTask
 						$value,
 					));
 				} else {
-					$func_code .= 'array(' . "\n";
+					$func_code .= '[' . "\n";
 
 					$indent++;
 					$this->build_func_array($func_code, $value, $key_type, $val_type);
 					$indent--;
 
-					$func_code .= str_repeat("\t", $indent) . ')';
+					$func_code .= str_repeat("\t", $indent) . ']';
 				}
 			} elseif ($val_type == 'hexchar') {
 				$func_code .= '"';

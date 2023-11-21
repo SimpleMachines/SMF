@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_normalize_d.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_combining_classes()
 {
-	return array(
+	return [
 		"\xCC\x80" => 230,
 		"\xCC\x81" => 230,
 		"\xCC\x82" => 230,
@@ -949,7 +950,7 @@ function utf8_combining_classes()
 		"\xF0\x9E\xA5\x88" => 230,
 		"\xF0\x9E\xA5\x89" => 230,
 		"\xF0\x9E\xA5\x8A" => 7,
-	);
+	];
 }
 
 ?>
