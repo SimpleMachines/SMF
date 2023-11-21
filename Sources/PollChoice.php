@@ -77,10 +77,10 @@ class PollChoice implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_choice' => 'id',
 		'id_poll' => 'poll',
-	);
+	];
 
 	/****************
 	 * Public methods
@@ -91,7 +91,7 @@ class PollChoice implements \ArrayAccess
 	 *
 	 * @param array $props Properties to set.
 	 */
-	public function __construct(array $props = array())
+	public function __construct(array $props = [])
 	{
 		$this->set($props);
 	}
@@ -104,18 +104,15 @@ class PollChoice implements \ArrayAccess
 	public function save(): void
 	{
 		// Delete if label is empty.
-		if (trim(Utils::normalizeSpaces($this->label)) === '')
-		{
+		if (trim(Utils::normalizeSpaces($this->label)) === '') {
 			$this->delete();
 		}
 		// Not new, so update the existing one.
-		elseif (empty($this->new))
-		{
+		elseif (empty($this->new)) {
 			$this->update();
 		}
 		// New, so add it.
-		else
-		{
+		else {
 			$this->add();
 		}
 	}
@@ -125,11 +122,12 @@ class PollChoice implements \ArrayAccess
 	 */
 	public function add(): void
 	{
-		Db::$db->insert('',
+		Db::$db->insert(
+			'',
 			'{db_prefix}poll_choices',
-			array('id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255'),
-			array($this->poll, $this->id, $this->label),
-			array()
+			['id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255'],
+			[$this->poll, $this->id, $this->label],
+			[],
 		);
 	}
 
@@ -138,17 +136,18 @@ class PollChoice implements \ArrayAccess
 	 */
 	public function update(): void
 	{
-		Db::$db->query('', '
-			UPDATE {db_prefix}poll_choices
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}poll_choices
 			SET label = {string:label}, votes = {int:votes}
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:id_choice}',
-			array(
+			[
 				'id_poll' => $this->poll,
 				'id_choice' => $this->id,
 				'label' => $this->label,
 				'votes' => $this->votes,
-			)
+			],
 		);
 	}
 
@@ -157,24 +156,26 @@ class PollChoice implements \ArrayAccess
 	 */
 	public function delete(): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_polls
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:to_delete}',
-			array(
+			[
 				'to_delete' => $this->id,
 				'id_poll' => $this->id_poll,
-			)
+			],
 		);
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}poll_choices
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:to_delete}',
-			array(
+			[
 				'to_delete' => $this->id,
 				'id_poll' => $this->id_poll,
-			)
+			],
 		);
 	}
 }

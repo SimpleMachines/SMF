@@ -14,12 +14,11 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
+use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This simple action adds/removes the passed user from the current user's buddy list.
@@ -36,11 +35,11 @@ class BuddyListToggle implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'BuddyListToggle',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -79,32 +78,31 @@ class BuddyListToggle implements ActionInterface
 		User::$me->isAllowedTo('profile_extra_own');
 		User::$me->kickIfGuest();
 
-		if (empty($this->userReceiver))
+		if (empty($this->userReceiver)) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		// Remove if it's already there...
-		if (in_array($this->userReceiver, User::$me->buddies))
-		{
-			User::$me->buddies = array_diff(User::$me->buddies, array($this->userReceiver));
+		if (in_array($this->userReceiver, User::$me->buddies)) {
+			User::$me->buddies = array_diff(User::$me->buddies, [$this->userReceiver]);
 		}
 		// ...or add if it's not and if it's not you.
-		elseif (User::$me->id != $this->userReceiver)
-		{
+		elseif (User::$me->id != $this->userReceiver) {
 			User::$me->buddies[] = $this->userReceiver;
 
 			// And add a nice alert. Don't abuse though!
-			if ((CacheApi::get('Buddy-sent-' . User::$me->id . '-' . $this->userReceiver, 86400)) == null)
-			{
-				Db::$db->insert('insert',
+			if ((CacheApi::get('Buddy-sent-' . User::$me->id . '-' . $this->userReceiver, 86400)) == null) {
+				Db::$db->insert(
+					'insert',
 					'{db_prefix}background_tasks',
-					array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-					array('$sourcedir/tasks/Buddy_Notify.php', 'SMF\Tasks\Buddy_Notify', Utils::jsonEncode(array(
+					['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
+					['$sourcedir/tasks/Buddy_Notify.php', 'SMF\\Tasks\\Buddy_Notify', Utils::jsonEncode([
 						'receiver_id' => $this->userReceiver,
 						'id_member' => User::$me->id,
 						'member_name' => User::$me->username,
 						'time' => time(),
-					)), 0),
-					array('id_task')
+					]), 0],
+					['id_task'],
 				);
 
 				// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
@@ -113,7 +111,7 @@ class BuddyListToggle implements ActionInterface
 		}
 
 		// Update the settings.
-		User::updateMemberData(User::$me->id, array('buddy_list' => implode(',', User::$me->buddies)));
+		User::updateMemberData(User::$me->id, ['buddy_list' => implode(',', User::$me->buddies)]);
 
 		// Redirect back to the profile
 		Utils::redirectexit('action=profile;u=' . $this->userReceiver);
@@ -130,8 +128,9 @@ class BuddyListToggle implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -158,7 +157,8 @@ class BuddyListToggle implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\BuddyListToggle::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\BuddyListToggle::exportStatic')) {
 	BuddyListToggle::exportStatic();
+}
 
 ?>

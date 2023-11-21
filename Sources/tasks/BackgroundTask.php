@@ -22,9 +22,9 @@ abstract class BackgroundTask
 {
 	/**
 	 * Constants for notification types.
-	*/
-	const RECEIVE_NOTIFY_EMAIL = 0x02;
-	const RECEIVE_NOTIFY_ALERT = 0x01;
+	 */
+	public const RECEIVE_NOTIFY_EMAIL = 0x02;
+	public const RECEIVE_NOTIFY_ALERT = 0x01;
 
 	/**
 	 * @var array Holds the details for the task
@@ -52,12 +52,12 @@ abstract class BackgroundTask
 	 * Loads minimal info for the previously loaded user ids
 	 *
 	 * @param array $user_ids
-	 * @return array
 	 * @throws Exception
+	 * @return array
 	 */
-	public function getMinUserInfo($user_ids = array())
+	public function getMinUserInfo($user_ids = [])
 	{
-		$loaded_ids = array_map(fn($member) => $member->id, User::load($user_ids, User::LOAD_BY_ID, 'minimal'));
+		$loaded_ids = array_map(fn ($member) => $member->id, User::load($user_ids, User::LOAD_BY_ID, 'minimal'));
 
 		return array_intersect_key(User::$profiles, array_flip($loaded_ids));
 	}

@@ -23,8 +23,15 @@ namespace SMF\Graphics\Gif;
 
 class Image
 {
-	public $m_disp, $m_bUser, $m_bTrans, $m_nDelay, $m_nTrans, $m_lpComm;
-	public $m_gih, $m_data, $m_lzw;
+	public $m_disp;
+	public $m_bUser;
+	public $m_bTrans;
+	public $m_nDelay;
+	public $m_nTrans;
+	public $m_lpComm;
+	public $m_gih;
+	public $m_data;
+	public $m_lzw;
 
 	public function __construct()
 	{
@@ -37,42 +44,48 @@ class Image
 	{
 		$datLen = 0;
 
-		while (true)
-		{
+		while (true) {
 			$b = ord($data[0]);
 			$data = substr($data, 1);
 			$datLen++;
 
-			switch ($b)
-			{
+			switch ($b) {
 				// Extension...
 				case 0x21:
 					$len = 0;
-					if (!$this->skipExt($data, $len))
+
+					if (!$this->skipExt($data, $len)) {
 						return false;
+					}
 
 					$datLen += $len;
+
 					break;
 
-				// Image...
+					// Image...
 				case 0x2C:
 					// Load the header and color table.
 					$len = 0;
-					if (!$this->m_gih->load($data, $len))
+
+					if (!$this->m_gih->load($data, $len)) {
 						return false;
+					}
 
 					$data = substr($data, $len);
 					$datLen += $len;
 
 					// Decompress the data, and ride on home ;).
 					$len = 0;
-					if (!($this->m_data = $this->m_lzw->decompress($data, $len)))
+
+					if (!($this->m_data = $this->m_lzw->decompress($data, $len))) {
 						return false;
+					}
 
 					$datLen += $len;
 
-					if ($this->m_gih->m_bInterlace)
+					if ($this->m_gih->m_bInterlace) {
 						$this->deInterlace();
+					}
 
 					return true;
 
@@ -81,6 +94,7 @@ class Image
 					return false;
 			}
 		}
+
 		return false;
 	}
 
@@ -92,28 +106,27 @@ class Image
 		$data = substr($data, 1);
 		$extLen++;
 
-		switch ($b)
-		{
+		switch ($b) {
 			// Graphic Control...
 			case 0xF9:
 				$b = ord($data[1]);
 				$this->m_disp = ($b & 0x1C) >> 2;
 				$this->m_bUser = ($b & 0x02) ? true : false;
 				$this->m_bTrans = ($b & 0x01) ? true : false;
-				list ($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
+				list($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
 				$this->m_nTrans = ord($data[4]);
 				break;
 
-			// Comment...
+				// Comment...
 			case 0xFE:
 				$this->m_lpComm = substr($data, 1, ord($data[0]));
 				break;
 
-			// Plain text...
+				// Plain text...
 			case 0x01:
 				break;
 
-			// Application...
+				// Application...
 			case 0xFF:
 				break;
 		}
@@ -122,14 +135,15 @@ class Image
 		$b = ord($data[0]);
 		$data = substr($data, 1);
 		$extLen++;
-		while ($b > 0)
-		{
+
+		while ($b > 0) {
 			$data = substr($data, $b);
 			$extLen += $b;
 			$b = ord($data[0]);
 			$data = substr($data, 1);
 			$extLen++;
 		}
+
 		return true;
 	}
 
@@ -137,10 +151,8 @@ class Image
 	{
 		$data = $this->m_data;
 
-		for ($i = 0; $i < 4; $i++)
-		{
-			switch ($i)
-			{
+		for ($i = 0; $i < 4; $i++) {
+			switch ($i) {
 				case 0:
 					$s = 8;
 					$y = 0;
@@ -162,8 +174,7 @@ class Image
 					break;
 			}
 
-			for (; $y < $this->m_gih->m_nHeight; $y += $s)
-			{
+			for (; $y < $this->m_gih->m_nHeight; $y += $s) {
 				$lne = substr($this->m_data, 0, $this->m_gih->m_nWidth);
 				$this->m_data = substr($this->m_data, $this->m_gih->m_nWidth);
 

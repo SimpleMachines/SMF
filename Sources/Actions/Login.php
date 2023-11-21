@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\Lang;
 use SMF\SecurityToken;
@@ -34,11 +33,11 @@ class Login extends Login2
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'Login',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -68,15 +67,11 @@ class Login extends Login2
 	public function execute(): void
 	{
 		// You are already logged in, go take a tour of the boards
-		if (!empty(User::$me->id))
-		{
-	 		// This came from a valid hashed return url.  Or something that knows our secrets...
-	 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
-	 		{
+		if (!empty(User::$me->id)) {
+			// This came from a valid hashed return url.  Or something that knows our secrets...
+			if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash']) {
 				Utils::redirectexit(Utils::htmlspecialcharsDecode($_REQUEST['return_to']));
-	 		}
-			else
-			{
+			} else {
 				Utils::redirectexit();
 			}
 		}
@@ -96,23 +91,19 @@ class Login extends Login2
 		Utils::$context['never_expire'] = false;
 
 		// Add the login chain to the link tree.
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=login',
 			'name' => Lang::$txt['login'],
-		);
+		];
 
 		// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
-		if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
-		{
+		if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0) {
 			$_SESSION['login_url'] = $_SESSION['old_url'];
 		}
 		// This came from a valid hashed return url.  Or something that knows our secrets...
-		elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
-		{
+		elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash']) {
 			$_SESSION['login_url'] = Utils::htmlspecialcharsDecode($_REQUEST['return_to']);
-		}
-		elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
-		{
+		} elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false) {
 			unset($_SESSION['login_url']);
 		}
 
@@ -131,8 +122,9 @@ class Login extends Login2
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -158,7 +150,8 @@ class Login extends Login2
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Login::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Login::exportStatic')) {
 	Login::exportStatic();
+}
 
 ?>

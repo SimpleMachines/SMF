@@ -25,15 +25,15 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'list' => 'smf_list_timezones',
 			'getTzidMetazones' => 'get_tzid_metazones',
 			'getSortedTzidsForCountry' => 'get_sorted_tzids_for_country',
 			'getTzidFallbacks' => 'get_tzid_fallbacks',
 			'validateIsoCountryCodes' => 'validate_iso_country_codes',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -42,17 +42,17 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Never uses DST.
 	 */
-	const DST_NEVER = 0;
+	public const DST_NEVER = 0;
 
 	/**
 	 * Uses DST for some parts of the year, and not for other parts.
 	 */
-	const DST_SWITCHES = 1;
+	public const DST_SWITCHES = 1;
 
 	/**
 	 * Uses DST throughout the entire year.
 	 */
-	const DST_ALWAYS = 2;
+	public const DST_ALWAYS = 2;
 
 	/**************************
 	 * Public static properties
@@ -60,23 +60,23 @@ class TimeZone extends \DateTimeZone
 
 	/**
 	 * @var array
-	 * 
+	 *
 	 * This array lists a series of representative time zones and their
 	 * corresponding "meta-zone" labels.
-	 * 
+	 *
 	 * The term "representative" here means that a given time zone can
 	 * represent others that use exactly the same rules for DST
 	 * transitions, UTC offsets, and abbreviations. For example,
 	 * Europe/Berlin can be representative for Europe/Rome,
 	 * Europe/Paris, etc., because these cities all use exactly the
 	 * same time zone rules and values.
-	 * 
+	 *
 	 * Meta-zone labels are the user friendly strings shown to the end
 	 * user, e.g. "Mountain Standard Time". The values of this array
 	 * are keys of strings defined in Timezones.{language}.php, which
 	 * in turn are sprintf format strings used to generate the final
 	 * label text.
-	 * 
+	 *
 	 * Sometimes several representative time zones will map onto the
 	 * same meta-zone label. This usually happens when there are
 	 * different rules for Daylight Saving time in locations that are
@@ -84,14 +84,14 @@ class TimeZone extends \DateTimeZone
 	 * America/Phoenix map to North_America_Mountain, but the ultimate
 	 * output will be 'Mountain Time (MST/MDT)' for America/Denver vs.
 	 * 'Mountain Standard Time (MST)' for America/Phoenix.
-	 * 
+	 *
 	 * If you are adding a new meta-zone to this list because the TZDB
 	 * added a new time zone that doesn't fit any existing meta-zone,
 	 * please also add a fallback in the get_tzid_fallbacks() function.
 	 * This helps support SMF installs on servers using outdated
 	 * versions of the TZDB.
 	 */
-	public static array $metazones = array(
+	public static array $metazones = [
 		// No DST
 		'Africa/Abidjan' => 'GMT',
 
@@ -589,11 +589,11 @@ class TimeZone extends \DateTimeZone
 
 		// No DST
 		'Pacific/Wallis' => 'Pacific_Wallis',
-	);
+	];
 
 	/**
 	 * @var array
-	 * 
+	 *
 	 * This array lists all the individual time zones in each country,
 	 * sorted by population (as reported in statistics available on
 	 * Wikipedia in November 2020). Sorting this way enables us to
@@ -601,42 +601,42 @@ class TimeZone extends \DateTimeZone
 	 * represent all others that share its DST transition rules and values.
 	 * For example, this ensures that New York will be preferred over
 	 * random small towns in Indiana.
-	 * 
+	 *
 	 * If future versions of the time zone database add new time zone
 	 * identifiers beyond those included here, they should be added to this
 	 * list as appropriate. However, SMF will gracefully handle unexpected
 	 * new time zones, so nothing will break in the meantime.
 	 */
-	public static array $sorted_tzids = array(
+	public static array $sorted_tzids = [
 		// '??' means international.
-		'??' => array(
+		'??' => [
 			'UTC',
-		),
-		'AD' => array(
+		],
+		'AD' => [
 			'Europe/Andorra',
-		),
-		'AE' => array(
+		],
+		'AE' => [
 			'Asia/Dubai',
-		),
-		'AF' => array(
+		],
+		'AF' => [
 			'Asia/Kabul',
-		),
-		'AG' => array(
+		],
+		'AG' => [
 			'America/Antigua',
-		),
-		'AI' => array(
+		],
+		'AI' => [
 			'America/Anguilla',
-		),
-		'AL' => array(
+		],
+		'AL' => [
 			'Europe/Tirane',
-		),
-		'AM' => array(
+		],
+		'AM' => [
 			'Asia/Yerevan',
-		),
-		'AO' => array(
+		],
+		'AO' => [
 			'Africa/Luanda',
-		),
-		'AQ' => array(
+		],
+		'AQ' => [
 			// Sorted based on summer population.
 			'Antarctica/McMurdo',
 			'Antarctica/Casey',
@@ -648,8 +648,8 @@ class TimeZone extends \DateTimeZone
 			'Antarctica/Troll',
 			'Antarctica/DumontDUrville',
 			'Antarctica/Vostok',
-		),
-		'AR' => array(
+		],
+		'AR' => [
 			'America/Argentina/Buenos_Aires',
 			'America/Argentina/Cordoba',
 			'America/Argentina/Tucuman',
@@ -662,14 +662,14 @@ class TimeZone extends \DateTimeZone
 			'America/Argentina/San_Juan',
 			'America/Argentina/Rio_Gallegos',
 			'America/Argentina/Ushuaia',
-		),
-		'AS' => array(
+		],
+		'AS' => [
 			'Pacific/Pago_Pago',
-		),
-		'AT' => array(
+		],
+		'AT' => [
 			'Europe/Vienna',
-		),
-		'AU' => array(
+		],
+		'AU' => [
 			'Australia/Sydney',
 			'Australia/Melbourne',
 			'Australia/Brisbane',
@@ -683,59 +683,59 @@ class TimeZone extends \DateTimeZone
 			'Australia/Eucla',
 			'Australia/Lindeman',
 			'Antarctica/Macquarie',
-		),
-		'AW' => array(
+		],
+		'AW' => [
 			'America/Aruba',
-		),
-		'AX' => array(
+		],
+		'AX' => [
 			'Europe/Mariehamn',
-		),
-		'AZ' => array(
+		],
+		'AZ' => [
 			'Asia/Baku',
-		),
-		'BA' => array(
+		],
+		'BA' => [
 			'Europe/Sarajevo',
-		),
-		'BB' => array(
+		],
+		'BB' => [
 			'America/Barbados',
-		),
-		'BD' => array(
+		],
+		'BD' => [
 			'Asia/Dhaka',
-		),
-		'BE' => array(
+		],
+		'BE' => [
 			'Europe/Brussels',
-		),
-		'BF' => array(
+		],
+		'BF' => [
 			'Africa/Ouagadougou',
-		),
-		'BG' => array(
+		],
+		'BG' => [
 			'Europe/Sofia',
-		),
-		'BH' => array(
+		],
+		'BH' => [
 			'Asia/Bahrain',
-		),
-		'BI' => array(
+		],
+		'BI' => [
 			'Africa/Bujumbura',
-		),
-		'BJ' => array(
+		],
+		'BJ' => [
 			'Africa/Porto-Novo',
-		),
-		'BL' => array(
+		],
+		'BL' => [
 			'America/St_Barthelemy',
-		),
-		'BM' => array(
+		],
+		'BM' => [
 			'Atlantic/Bermuda',
-		),
-		'BN' => array(
+		],
+		'BN' => [
 			'Asia/Brunei',
-		),
-		'BO' => array(
+		],
+		'BO' => [
 			'America/La_Paz',
-		),
-		'BQ' => array(
+		],
+		'BQ' => [
 			'America/Kralendijk',
-		),
-		'BR' => array(
+		],
+		'BR' => [
 			'America/Sao_Paulo',
 			'America/Bahia',
 			'America/Fortaleza',
@@ -752,23 +752,23 @@ class TimeZone extends \DateTimeZone
 			'America/Araguaina',
 			'America/Eirunepe',
 			'America/Noronha',
-		),
-		'BS' => array(
+		],
+		'BS' => [
 			'America/Nassau',
-		),
-		'BT' => array(
+		],
+		'BT' => [
 			'Asia/Thimphu',
-		),
-		'BW' => array(
+		],
+		'BW' => [
 			'Africa/Gaborone',
-		),
-		'BY' => array(
+		],
+		'BY' => [
 			'Europe/Minsk',
-		),
-		'BZ' => array(
+		],
+		'BZ' => [
 			'America/Belize',
-		),
-		'CA' => array(
+		],
+		'CA' => [
 			'America/Toronto',
 			'America/Vancouver',
 			'America/Edmonton',
@@ -797,283 +797,283 @@ class TimeZone extends \DateTimeZone
 			'America/Blanc-Sablon',
 			'America/Rainy_River',
 			'America/Resolute',
-		),
-		'CC' => array(
+		],
+		'CC' => [
 			'Indian/Cocos',
-		),
-		'CD' => array(
+		],
+		'CD' => [
 			'Africa/Kinshasa',
 			'Africa/Lubumbashi',
-		),
-		'CF' => array(
+		],
+		'CF' => [
 			'Africa/Bangui',
-		),
-		'CG' => array(
+		],
+		'CG' => [
 			'Africa/Brazzaville',
-		),
-		'CH' => array(
+		],
+		'CH' => [
 			'Europe/Zurich',
-		),
-		'CI' => array(
+		],
+		'CI' => [
 			'Africa/Abidjan',
-		),
-		'CK' => array(
+		],
+		'CK' => [
 			'Pacific/Rarotonga',
-		),
-		'CL' => array(
+		],
+		'CL' => [
 			'America/Santiago',
 			'America/Punta_Arenas',
 			'Pacific/Easter',
-		),
-		'CM' => array(
+		],
+		'CM' => [
 			'Africa/Douala',
-		),
-		'CN' => array(
+		],
+		'CN' => [
 			'Asia/Shanghai',
 			'Asia/Urumqi',
-		),
-		'CO' => array(
+		],
+		'CO' => [
 			'America/Bogota',
-		),
-		'CR' => array(
+		],
+		'CR' => [
 			'America/Costa_Rica',
-		),
-		'CU' => array(
+		],
+		'CU' => [
 			'America/Havana',
-		),
-		'CV' => array(
+		],
+		'CV' => [
 			'Atlantic/Cape_Verde',
-		),
-		'CW' => array(
+		],
+		'CW' => [
 			'America/Curacao',
-		),
-		'CX' => array(
+		],
+		'CX' => [
 			'Indian/Christmas',
-		),
-		'CY' => array(
+		],
+		'CY' => [
 			'Asia/Nicosia',
 			'Asia/Famagusta',
-		),
-		'CZ' => array(
+		],
+		'CZ' => [
 			'Europe/Prague',
-		),
-		'DE' => array(
+		],
+		'DE' => [
 			'Europe/Berlin',
 			'Europe/Busingen',
-		),
-		'DJ' => array(
+		],
+		'DJ' => [
 			'Africa/Djibouti',
-		),
-		'DK' => array(
+		],
+		'DK' => [
 			'Europe/Copenhagen',
-		),
-		'DM' => array(
+		],
+		'DM' => [
 			'America/Dominica',
-		),
-		'DO' => array(
+		],
+		'DO' => [
 			'America/Santo_Domingo',
-		),
-		'DZ' => array(
+		],
+		'DZ' => [
 			'Africa/Algiers',
-		),
-		'EC' => array(
+		],
+		'EC' => [
 			'America/Guayaquil',
 			'Pacific/Galapagos',
-		),
-		'EE' => array(
+		],
+		'EE' => [
 			'Europe/Tallinn',
-		),
-		'EG' => array(
+		],
+		'EG' => [
 			'Africa/Cairo',
-		),
-		'EH' => array(
+		],
+		'EH' => [
 			'Africa/El_Aaiun',
-		),
-		'ER' => array(
+		],
+		'ER' => [
 			'Africa/Asmara',
-		),
-		'ES' => array(
+		],
+		'ES' => [
 			'Europe/Madrid',
 			'Atlantic/Canary',
 			'Africa/Ceuta',
-		),
-		'ET' => array(
+		],
+		'ET' => [
 			'Africa/Addis_Ababa',
-		),
-		'FI' => array(
+		],
+		'FI' => [
 			'Europe/Helsinki',
-		),
-		'FJ' => array(
+		],
+		'FJ' => [
 			'Pacific/Fiji',
-		),
-		'FK' => array(
+		],
+		'FK' => [
 			'Atlantic/Stanley',
-		),
-		'FM' => array(
+		],
+		'FM' => [
 			'Pacific/Chuuk',
 			'Pacific/Kosrae',
 			'Pacific/Pohnpei',
-		),
-		'FO' => array(
+		],
+		'FO' => [
 			'Atlantic/Faroe',
-		),
-		'FR' => array(
+		],
+		'FR' => [
 			'Europe/Paris',
-		),
-		'GA' => array(
+		],
+		'GA' => [
 			'Africa/Libreville',
-		),
-		'GB' => array(
+		],
+		'GB' => [
 			'Europe/London',
-		),
-		'GD' => array(
+		],
+		'GD' => [
 			'America/Grenada',
-		),
-		'GE' => array(
+		],
+		'GE' => [
 			'Asia/Tbilisi',
-		),
-		'GF' => array(
+		],
+		'GF' => [
 			'America/Cayenne',
-		),
-		'GG' => array(
+		],
+		'GG' => [
 			'Europe/Guernsey',
-		),
-		'GH' => array(
+		],
+		'GH' => [
 			'Africa/Accra',
-		),
-		'GI' => array(
+		],
+		'GI' => [
 			'Europe/Gibraltar',
-		),
-		'GL' => array(
+		],
+		'GL' => [
 			'America/Nuuk',
 			'America/Thule',
 			'America/Scoresbysund',
 			'America/Danmarkshavn',
-		),
-		'GM' => array(
+		],
+		'GM' => [
 			'Africa/Banjul',
-		),
-		'GN' => array(
+		],
+		'GN' => [
 			'Africa/Conakry',
-		),
-		'GP' => array(
+		],
+		'GP' => [
 			'America/Guadeloupe',
-		),
-		'GQ' => array(
+		],
+		'GQ' => [
 			'Africa/Malabo',
-		),
-		'GR' => array(
+		],
+		'GR' => [
 			'Europe/Athens',
-		),
-		'GS' => array(
+		],
+		'GS' => [
 			'Atlantic/South_Georgia',
-		),
-		'GT' => array(
+		],
+		'GT' => [
 			'America/Guatemala',
-		),
-		'GU' => array(
+		],
+		'GU' => [
 			'Pacific/Guam',
-		),
-		'GW' => array(
+		],
+		'GW' => [
 			'Africa/Bissau',
-		),
-		'GY' => array(
+		],
+		'GY' => [
 			'America/Guyana',
-		),
-		'HK' => array(
+		],
+		'HK' => [
 			'Asia/Hong_Kong',
-		),
-		'HN' => array(
+		],
+		'HN' => [
 			'America/Tegucigalpa',
-		),
-		'HR' => array(
+		],
+		'HR' => [
 			'Europe/Zagreb',
-		),
-		'HT' => array(
+		],
+		'HT' => [
 			'America/Port-au-Prince',
-		),
-		'HU' => array(
+		],
+		'HU' => [
 			'Europe/Budapest',
-		),
-		'ID' => array(
+		],
+		'ID' => [
 			'Asia/Jakarta',
 			'Asia/Makassar',
 			'Asia/Pontianak',
 			'Asia/Jayapura',
-		),
-		'IE' => array(
+		],
+		'IE' => [
 			'Europe/Dublin',
-		),
-		'IL' => array(
+		],
+		'IL' => [
 			'Asia/Jerusalem',
-		),
-		'IM' => array(
+		],
+		'IM' => [
 			'Europe/Isle_of_Man',
-		),
-		'IN' => array(
+		],
+		'IN' => [
 			'Asia/Kolkata',
-		),
-		'IO' => array(
+		],
+		'IO' => [
 			'Indian/Chagos',
-		),
-		'IQ' => array(
+		],
+		'IQ' => [
 			'Asia/Baghdad',
-		),
-		'IR' => array(
+		],
+		'IR' => [
 			'Asia/Tehran',
-		),
-		'IS' => array(
+		],
+		'IS' => [
 			'Atlantic/Reykjavik',
-		),
-		'IT' => array(
+		],
+		'IT' => [
 			'Europe/Rome',
-		),
-		'JE' => array(
+		],
+		'JE' => [
 			'Europe/Jersey',
-		),
-		'JM' => array(
+		],
+		'JM' => [
 			'America/Jamaica',
-		),
-		'JO' => array(
+		],
+		'JO' => [
 			'Asia/Amman',
-		),
-		'JP' => array(
+		],
+		'JP' => [
 			'Asia/Tokyo',
-		),
-		'KE' => array(
+		],
+		'KE' => [
 			'Africa/Nairobi',
-		),
-		'KG' => array(
+		],
+		'KG' => [
 			'Asia/Bishkek',
-		),
-		'KH' => array(
+		],
+		'KH' => [
 			'Asia/Phnom_Penh',
-		),
-		'KI' => array(
+		],
+		'KI' => [
 			'Pacific/Tarawa',
 			'Pacific/Kiritimati',
 			'Pacific/Kanton',
 			'Pacific/Enderbury',
-		),
-		'KM' => array(
+		],
+		'KM' => [
 			'Indian/Comoro',
-		),
-		'KN' => array(
+		],
+		'KN' => [
 			'America/St_Kitts',
-		),
-		'KP' => array(
+		],
+		'KP' => [
 			'Asia/Pyongyang',
-		),
-		'KR' => array(
+		],
+		'KR' => [
 			'Asia/Seoul',
-		),
-		'KW' => array(
+		],
+		'KW' => [
 			'Asia/Kuwait',
-		),
-		'KY' => array(
+		],
+		'KY' => [
 			'America/Cayman',
-		),
-		'KZ' => array(
+		],
+		'KZ' => [
 			'Asia/Almaty',
 			'Asia/Aqtobe',
 			'Asia/Atyrau',
@@ -1081,104 +1081,104 @@ class TimeZone extends \DateTimeZone
 			'Asia/Qyzylorda',
 			'Asia/Aqtau',
 			'Asia/Oral',
-		),
-		'LA' => array(
+		],
+		'LA' => [
 			'Asia/Vientiane',
-		),
-		'LB' => array(
+		],
+		'LB' => [
 			'Asia/Beirut',
-		),
-		'LC' => array(
+		],
+		'LC' => [
 			'America/St_Lucia',
-		),
-		'LI' => array(
+		],
+		'LI' => [
 			'Europe/Vaduz',
-		),
-		'LK' => array(
+		],
+		'LK' => [
 			'Asia/Colombo',
-		),
-		'LR' => array(
+		],
+		'LR' => [
 			'Africa/Monrovia',
-		),
-		'LS' => array(
+		],
+		'LS' => [
 			'Africa/Maseru',
-		),
-		'LT' => array(
+		],
+		'LT' => [
 			'Europe/Vilnius',
-		),
-		'LU' => array(
+		],
+		'LU' => [
 			'Europe/Luxembourg',
-		),
-		'LV' => array(
+		],
+		'LV' => [
 			'Europe/Riga',
-		),
-		'LY' => array(
+		],
+		'LY' => [
 			'Africa/Tripoli',
-		),
-		'MA' => array(
+		],
+		'MA' => [
 			'Africa/Casablanca',
-		),
-		'MC' => array(
+		],
+		'MC' => [
 			'Europe/Monaco',
-		),
-		'MD' => array(
+		],
+		'MD' => [
 			'Europe/Chisinau',
-		),
-		'ME' => array(
+		],
+		'ME' => [
 			'Europe/Podgorica',
-		),
-		'MF' => array(
+		],
+		'MF' => [
 			'America/Marigot',
-		),
-		'MG' => array(
+		],
+		'MG' => [
 			'Indian/Antananarivo',
-		),
-		'MH' => array(
+		],
+		'MH' => [
 			'Pacific/Majuro',
 			'Pacific/Kwajalein',
-		),
-		'MK' => array(
+		],
+		'MK' => [
 			'Europe/Skopje',
-		),
-		'ML' => array(
+		],
+		'ML' => [
 			'Africa/Bamako',
-		),
-		'MM' => array(
+		],
+		'MM' => [
 			'Asia/Yangon',
-		),
-		'MN' => array(
+		],
+		'MN' => [
 			'Asia/Ulaanbaatar',
 			'Asia/Choibalsan',
 			'Asia/Hovd',
-		),
-		'MO' => array(
+		],
+		'MO' => [
 			'Asia/Macau',
-		),
-		'MP' => array(
+		],
+		'MP' => [
 			'Pacific/Saipan',
-		),
-		'MQ' => array(
+		],
+		'MQ' => [
 			'America/Martinique',
-		),
-		'MR' => array(
+		],
+		'MR' => [
 			'Africa/Nouakchott',
-		),
-		'MS' => array(
+		],
+		'MS' => [
 			'America/Montserrat',
-		),
-		'MT' => array(
+		],
+		'MT' => [
 			'Europe/Malta',
-		),
-		'MU' => array(
+		],
+		'MU' => [
 			'Indian/Mauritius',
-		),
-		'MV' => array(
+		],
+		'MV' => [
 			'Indian/Maldives',
-		),
-		'MW' => array(
+		],
+		'MW' => [
 			'Africa/Blantyre',
-		),
-		'MX' => array(
+		],
+		'MX' => [
 			'America/Mexico_City',
 			'America/Tijuana',
 			'America/Monterrey',
@@ -1191,115 +1191,115 @@ class TimeZone extends \DateTimeZone
 			'America/Mazatlan',
 			'America/Bahia_Banderas',
 			'America/Ojinaga',
-		),
-		'MY' => array(
+		],
+		'MY' => [
 			'Asia/Kuala_Lumpur',
 			'Asia/Kuching',
-		),
-		'MZ' => array(
+		],
+		'MZ' => [
 			'Africa/Maputo',
-		),
-		'NA' => array(
+		],
+		'NA' => [
 			'Africa/Windhoek',
-		),
-		'NC' => array(
+		],
+		'NC' => [
 			'Pacific/Noumea',
-		),
-		'NE' => array(
+		],
+		'NE' => [
 			'Africa/Niamey',
-		),
-		'NF' => array(
+		],
+		'NF' => [
 			'Pacific/Norfolk',
-		),
-		'NG' => array(
+		],
+		'NG' => [
 			'Africa/Lagos',
-		),
-		'NI' => array(
+		],
+		'NI' => [
 			'America/Managua',
-		),
-		'NL' => array(
+		],
+		'NL' => [
 			'Europe/Amsterdam',
-		),
-		'NO' => array(
+		],
+		'NO' => [
 			'Europe/Oslo',
-		),
-		'NP' => array(
+		],
+		'NP' => [
 			'Asia/Kathmandu',
-		),
-		'NR' => array(
+		],
+		'NR' => [
 			'Pacific/Nauru',
-		),
-		'NU' => array(
+		],
+		'NU' => [
 			'Pacific/Niue',
-		),
-		'NZ' => array(
+		],
+		'NZ' => [
 			'Pacific/Auckland',
 			'Pacific/Chatham',
-		),
-		'OM' => array(
+		],
+		'OM' => [
 			'Asia/Muscat',
-		),
-		'PA' => array(
+		],
+		'PA' => [
 			'America/Panama',
-		),
-		'PE' => array(
+		],
+		'PE' => [
 			'America/Lima',
-		),
-		'PF' => array(
+		],
+		'PF' => [
 			'Pacific/Tahiti',
 			'Pacific/Marquesas',
 			'Pacific/Gambier',
-		),
-		'PG' => array(
+		],
+		'PG' => [
 			'Pacific/Port_Moresby',
 			'Pacific/Bougainville',
-		),
-		'PH' => array(
+		],
+		'PH' => [
 			'Asia/Manila',
-		),
-		'PK' => array(
+		],
+		'PK' => [
 			'Asia/Karachi',
-		),
-		'PL' => array(
+		],
+		'PL' => [
 			'Europe/Warsaw',
-		),
-		'PM' => array(
+		],
+		'PM' => [
 			'America/Miquelon',
-		),
-		'PN' => array(
+		],
+		'PN' => [
 			'Pacific/Pitcairn',
-		),
-		'PR' => array(
+		],
+		'PR' => [
 			'America/Puerto_Rico',
-		),
-		'PS' => array(
+		],
+		'PS' => [
 			'Asia/Gaza',
 			'Asia/Hebron',
-		),
-		'PT' => array(
+		],
+		'PT' => [
 			'Europe/Lisbon',
 			'Atlantic/Madeira',
 			'Atlantic/Azores',
-		),
-		'PW' => array(
+		],
+		'PW' => [
 			'Pacific/Palau',
-		),
-		'PY' => array(
+		],
+		'PY' => [
 			'America/Asuncion',
-		),
-		'QA' => array(
+		],
+		'QA' => [
 			'Asia/Qatar',
-		),
-		'RE' => array(
+		],
+		'RE' => [
 			'Indian/Reunion',
-		),
-		'RO' => array(
+		],
+		'RO' => [
 			'Europe/Bucharest',
-		),
-		'RS' => array(
+		],
+		'RS' => [
 			'Europe/Belgrade',
-		),
-		'RU' => array(
+		],
+		'RU' => [
 			'Europe/Moscow',
 			'Asia/Novosibirsk',
 			'Asia/Yekaterinburg',
@@ -1326,135 +1326,135 @@ class TimeZone extends \DateTimeZone
 			'Asia/Khandyga',
 			'Asia/Ust-Nera',
 			'Asia/Srednekolymsk',
-		),
-		'RW' => array(
+		],
+		'RW' => [
 			'Africa/Kigali',
-		),
-		'SA' => array(
+		],
+		'SA' => [
 			'Asia/Riyadh',
-		),
-		'SB' => array(
+		],
+		'SB' => [
 			'Pacific/Guadalcanal',
-		),
-		'SC' => array(
+		],
+		'SC' => [
 			'Indian/Mahe',
-		),
-		'SD' => array(
+		],
+		'SD' => [
 			'Africa/Khartoum',
-		),
-		'SE' => array(
+		],
+		'SE' => [
 			'Europe/Stockholm',
-		),
-		'SG' => array(
+		],
+		'SG' => [
 			'Asia/Singapore',
-		),
-		'SH' => array(
+		],
+		'SH' => [
 			'Atlantic/St_Helena',
-		),
-		'SI' => array(
+		],
+		'SI' => [
 			'Europe/Ljubljana',
-		),
-		'SJ' => array(
+		],
+		'SJ' => [
 			'Arctic/Longyearbyen',
-		),
-		'SK' => array(
+		],
+		'SK' => [
 			'Europe/Bratislava',
-		),
-		'SL' => array(
+		],
+		'SL' => [
 			'Africa/Freetown',
-		),
-		'SM' => array(
+		],
+		'SM' => [
 			'Europe/San_Marino',
-		),
-		'SN' => array(
+		],
+		'SN' => [
 			'Africa/Dakar',
-		),
-		'SO' => array(
+		],
+		'SO' => [
 			'Africa/Mogadishu',
-		),
-		'SR' => array(
+		],
+		'SR' => [
 			'America/Paramaribo',
-		),
-		'SS' => array(
+		],
+		'SS' => [
 			'Africa/Juba',
-		),
-		'ST' => array(
+		],
+		'ST' => [
 			'Africa/Sao_Tome',
-		),
-		'SV' => array(
+		],
+		'SV' => [
 			'America/El_Salvador',
-		),
-		'SX' => array(
+		],
+		'SX' => [
 			'America/Lower_Princes',
-		),
-		'SY' => array(
+		],
+		'SY' => [
 			'Asia/Damascus',
-		),
-		'SZ' => array(
+		],
+		'SZ' => [
 			'Africa/Mbabane',
-		),
-		'TC' => array(
+		],
+		'TC' => [
 			'America/Grand_Turk',
-		),
-		'TD' => array(
+		],
+		'TD' => [
 			'Africa/Ndjamena',
-		),
-		'TF' => array(
+		],
+		'TF' => [
 			'Indian/Kerguelen',
-		),
-		'TG' => array(
+		],
+		'TG' => [
 			'Africa/Lome',
-		),
-		'TH' => array(
+		],
+		'TH' => [
 			'Asia/Bangkok',
-		),
-		'TJ' => array(
+		],
+		'TJ' => [
 			'Asia/Dushanbe',
-		),
-		'TK' => array(
+		],
+		'TK' => [
 			'Pacific/Fakaofo',
-		),
-		'TL' => array(
+		],
+		'TL' => [
 			'Asia/Dili',
-		),
-		'TM' => array(
+		],
+		'TM' => [
 			'Asia/Ashgabat',
-		),
-		'TN' => array(
+		],
+		'TN' => [
 			'Africa/Tunis',
-		),
-		'TO' => array(
+		],
+		'TO' => [
 			'Pacific/Tongatapu',
-		),
-		'TR' => array(
+		],
+		'TR' => [
 			'Europe/Istanbul',
-		),
-		'TT' => array(
+		],
+		'TT' => [
 			'America/Port_of_Spain',
-		),
-		'TV' => array(
+		],
+		'TV' => [
 			'Pacific/Funafuti',
-		),
-		'TW' => array(
+		],
+		'TW' => [
 			'Asia/Taipei',
-		),
-		'TZ' => array(
+		],
+		'TZ' => [
 			'Africa/Dar_es_Salaam',
-		),
-		'UA' => array(
+		],
+		'UA' => [
 			'Europe/Kyiv',
 			'Europe/Zaporozhye',
 			'Europe/Simferopol',
 			'Europe/Uzhgorod',
-		),
-		'UG' => array(
+		],
+		'UG' => [
 			'Africa/Kampala',
-		),
-		'UM' => array(
+		],
+		'UM' => [
 			'Pacific/Midway',
 			'Pacific/Wake',
-		),
-		'US' => array(
+		],
+		'US' => [
 			'America/New_York',
 			'America/Los_Angeles',
 			'America/Chicago',
@@ -1484,121 +1484,121 @@ class TimeZone extends \DateTimeZone
 			'America/Yakutat',
 			'America/North_Dakota/Center',
 			'America/Adak',
-		),
-		'UY' => array(
+		],
+		'UY' => [
 			'America/Montevideo',
-		),
-		'UZ' => array(
+		],
+		'UZ' => [
 			'Asia/Tashkent',
 			'Asia/Samarkand',
-		),
-		'VA' => array(
+		],
+		'VA' => [
 			'Europe/Vatican',
-		),
-		'VC' => array(
+		],
+		'VC' => [
 			'America/St_Vincent',
-		),
-		'VE' => array(
+		],
+		'VE' => [
 			'America/Caracas',
-		),
-		'VG' => array(
+		],
+		'VG' => [
 			'America/Tortola',
-		),
-		'VI' => array(
+		],
+		'VI' => [
 			'America/St_Thomas',
-		),
-		'VN' => array(
+		],
+		'VN' => [
 			'Asia/Ho_Chi_Minh',
-		),
-		'VU' => array(
+		],
+		'VU' => [
 			'Pacific/Efate',
-		),
-		'WF' => array(
+		],
+		'WF' => [
 			'Pacific/Wallis',
-		),
-		'WS' => array(
+		],
+		'WS' => [
 			'Pacific/Apia',
-		),
-		'YE' => array(
+		],
+		'YE' => [
 			'Asia/Aden',
-		),
-		'YT' => array(
+		],
+		'YT' => [
 			'Indian/Mayotte',
-		),
-		'ZA' => array(
+		],
+		'ZA' => [
 			'Africa/Johannesburg',
-		),
-		'ZM' => array(
+		],
+		'ZM' => [
 			'Africa/Lusaka',
-		),
-		'ZW' => array(
+		],
+		'ZW' => [
 			'Africa/Harare',
-		),
-	);
+		],
+	];
 
 	/**
 	 * @var array
-	 * 
+	 *
 	 * Time zone fallbacks to use when PHP has an outdated copy of the time zone
 	 * database.
-	 * 
+	 *
 	 * 'ts' is the timestamp when the substitution first becomes valid.
 	 * 'tzid' is the alternative time zone identifier to use.
 	 */
-	public static array $fallbacks = array(
+	public static array $fallbacks = [
 		/*
 		 * 1. Simple renames.
 		 *
 		 * PHP_INT_MIN because these are valid for all dates.
 		 */
-		'Asia/Kolkata' => array(
-			array(
+		'Asia/Kolkata' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Asia/Calcutta',
-			),
-		),
-		'Pacific/Chuuk' => array(
-			array(
+			],
+		],
+		'Pacific/Chuuk' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Pacific/Truk',
-			),
-		),
-		'Pacific/Kanton' => array(
-			array(
+			],
+		],
+		'Pacific/Kanton' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Pacific/Enderbury',
-			),
-		),
-		'Pacific/Pohnpei' => array(
-			array(
+			],
+		],
+		'Pacific/Pohnpei' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Pacific/Ponape',
-			),
-		),
-		'Asia/Yangon' => array(
-			array(
+			],
+		],
+		'Asia/Yangon' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Asia/Rangoon',
-			),
-		),
-		'America/Nuuk' => array(
-			array(
+			],
+		],
+		'America/Nuuk' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'America/Godthab',
-			),
-		),
-		'Europe/Busingen' => array(
-			array(
+			],
+		],
+		'Europe/Busingen' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Europe/Zurich',
-			),
-		),
-		'Europe/Kyiv' => array(
-			array(
+			],
+		],
+		'Europe/Kyiv' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Europe/Kiev',
-			),
-		),
+			],
+		],
 
 		/*
 		 * 2. Newly created time zones.
@@ -1611,408 +1611,408 @@ class TimeZone extends \DateTimeZone
 		// The same as Tasmania, except it stayed on DST all year in 2010.
 		// Australia/Tasmania is an otherwise unused backward compatibility
 		// link to Australia/Hobart, so we can borrow it here without conflict.
-		'Antarctica/Macquarie' => array(
-			array(
+		'Antarctica/Macquarie' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Australia/Tasmania',
-			),
-			array(
+			],
+			[
 				'ts' => '2010-04-03T16:00:00+0000',
 				'tzid' => 'Etc/GMT-11',
-			),
-			array(
+			],
+			[
 				'ts' => '2011-04-07T17:00:00+0000',
 				'tzid' => 'Australia/Tasmania',
-			),
-		),
+			],
+		],
 
 		// Added in version 2013a.
-		'Asia/Khandyga' => array(
-			array(
+		'Asia/Khandyga' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1919-12-14T14:57:47+0000',
 				'tzid' => 'Etc/GMT-8',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T16:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
-			),
-			array(
+			],
+			[
 				'ts' => '2003-12-31T15:00:00+0000',
 				'tzid' => 'Asia/Vladivostok',
-			),
-			array(
+			],
+			[
 				'ts' => '2011-09-12T13:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
-			),
-		),
+			],
+		],
 
 		// Added in version 2013a.
-		'Asia/Ust-Nera' => array(
-			array(
+		'Asia/Ust-Nera' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1919-12-14T14:27:06+0000',
 				'tzid' => 'Etc/GMT-8',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T16:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
-			),
-			array(
+			],
+			[
 				'ts' => '1981-03-31T15:00:00+0000',
 				'tzid' => 'Asia/Magadan',
-			),
-			array(
+			],
+			[
 				'ts' => '2011-09-12T12:00:00+0000',
 				'tzid' => 'Asia/Vladivostok',
-			),
-		),
+			],
+		],
 
 		// Created in version 2014b.
 		// This place uses two hours for DST. No substitutes are possible.
-		'Antarctica/Troll' => array(
-			array(
+		'Antarctica/Troll' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-		),
+			],
+		],
 
 		// Diverged from Asia/Yakustsk in version 2014f.
-		'Asia/Chita' => array(
-			array(
+		'Asia/Chita' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1919-12-14T16:26:08+0000',
 				'tzid' => 'Asia/Yakutsk',
-			),
-			array(
+			],
+			[
 				'ts' => '2014-10-25T16:00:00+0000',
 				'tzid' => 'Etc/GMT-8',
-			),
-			array(
+			],
+			[
 				'ts' => '2016-03-26T18:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
-			),
-		),
+			],
+		],
 
 		// Diverged from Asia/Magadan in version 2014f.
-		'Asia/Srednekolymsk' => array(
-			array(
+		'Asia/Srednekolymsk' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1924-05-01T13:45:08+0000',
 				'tzid' => 'Etc/GMT-10',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T14:00:00+0000',
 				'tzid' => 'Asia/Magadan',
-			),
-			array(
+			],
+			[
 				'ts' => '2014-10-25T14:00:00+0000',
 				'tzid' => 'Etc/GMT-11',
-			),
-		),
+			],
+		],
 
 		// Diverged from Pacific/Port_Moresby in version 2014i.
-		'Pacific/Bougainville' => array(
-			array(
+		'Pacific/Bougainville' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
+			],
 			// Pacific/Yap is an unused link to Pacific/Port_Moresby.
-			array(
+			[
 				'ts' => '1879-12-31T14:11:20+0000',
 				'tzid' => 'Pacific/Yap',
-			),
+			],
 			// Apparently this was different for a while in World War II.
-			array(
+			[
 				'ts' => '1942-06-30T14:00:00+0000',
 				'tzid' => 'Singapore',
-			),
-			array(
+			],
+			[
 				'ts' => '1945-08-20T15:00:00+0000',
 				'tzid' => 'Pacific/Yap',
-			),
+			],
 			// For dates after divergence, it is the same as Pacific/Kosrae.
 			// If this ever ceases to be true, add another entry.
-			array(
+			[
 				'ts' => '2014-12-27T16:00:00+0000',
 				'tzid' => 'Pacific/Kosrae',
-			),
-		),
+			],
+		],
 
 		// Added in version 2015g.
-		'America/Fort_Nelson' => array(
-			array(
+		'America/Fort_Nelson' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1884-01-01T08:12:28+0000',
 				'tzid' => 'Canada/Pacific',
-			),
-			array(
+			],
+			[
 				'ts' => '1946-01-01T08:00:00+0000',
 				'tzid' => 'Etc/GMT+8',
-			),
-			array(
+			],
+			[
 				'ts' => '1947-01-01T08:00:00+0000',
 				'tzid' => 'Canada/Pacific',
-			),
-			array(
+			],
+			[
 				'ts' => '2015-03-08T10:00:00+0000',
 				'tzid' => 'MST',
-			),
-		),
+			],
+		],
 
 		// Created in version 2016b.
-		'Europe/Astrakhan' => array(
-			array(
+		'Europe/Astrakhan' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-			array(
+			],
+			[
 				'ts' => '1989-03-25T22:00:00+0000',
 				'tzid' => 'Europe/Volgograd',
-			),
-			array(
+			],
+			[
 				'ts' => '2016-03-26T23:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-		),
+			],
+		],
 
 		// Created in version 2016b.
-		'Europe/Ulyanovsk' => array(
-			array(
+		'Europe/Ulyanovsk' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-			array(
+			],
+			[
 				'ts' => '1989-03-25T22:00:00+0000',
 				'tzid' => 'W-SU',
-			),
-			array(
+			],
+			[
 				'ts' => '2016-03-26T23:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-		),
+			],
+		],
 
 		// Created in version 2016b.
-		'Asia/Barnaul' => array(
-			array(
+		'Asia/Barnaul' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1919-12-09T18:25:00+0000',
 				'tzid' => 'Etc/GMT-6',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T18:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
-			),
-			array(
+			],
+			[
 				'ts' => '1995-05-27T16:00:00+0000',
 				'tzid' => 'Asia/Novosibirsk',
-			),
-			array(
+			],
+			[
 				'ts' => '2016-03-26T20:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
-			),
-		),
+			],
+		],
 
 		// Created in version 2016b.
-		'Asia/Tomsk' => array(
-			array(
+		'Asia/Tomsk' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1919-12-21T18:20:09+0000',
 				'tzid' => 'Asia/Novosibirsk',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T18:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
-			),
-			array(
+			],
+			[
 				'ts' => '2002-04-30T19:00:00+0000',
 				'tzid' => 'Asia/Novosibirsk',
-			),
-			array(
+			],
+			[
 				'ts' => '2016-05-28T20:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
-			),
-		),
+			],
+		],
 
 		// Created in version 2016d.
-		'Europe/Kirov' => array(
-			array(
+		'Europe/Kirov' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-			array(
+			],
+			[
 				'ts' => '1989-03-25T22:00:00+0000',
 				'tzid' => 'Europe/Volgograd',
-			),
-			array(
+			],
+			[
 				'ts' => '1992-03-28T22:00:00+0000',
 				'tzid' => 'W-SU',
-			),
-		),
+			],
+		],
 
 		// Diverged from Asia/Nicosia in version 2016i.
-		'Asia/Famagusta' => array(
-			array(
+		'Asia/Famagusta' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
+			],
 			// Europe/Nicosia is an otherwise unused link to Asia/Nicosia.
-			array(
+			[
 				'ts' => '1921-11-13T21:46:32+0000',
 				'tzid' => 'Europe/Nicosia',
-			),
+			],
 			// Became same as Europe/Istanbul.
 			// Turkey is an otherwise unused link to Europe/Istanbul.
-			array(
+			[
 				'ts' => '2016-09-07T21:00:00+0000',
 				'tzid' => 'Turkey',
-			),
+			],
 			// Became same as Asia/Nicosia again.
-			array(
+			[
 				'ts' => '2017-10-29T01:00:00+0000',
 				'tzid' => 'Europe/Nicosia',
-			),
-		),
+			],
+		],
 
 		// Created in version 2016j.
-		'Asia/Atyrau' => array(
-			array(
+		'Asia/Atyrau' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1924-05-01T20:32:16+0000',
 				'tzid' => 'Etc/GMT-3',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T21:00:00+0000',
 				'tzid' => 'Asia/Aqtau',
-			),
-			array(
+			],
+			[
 				'ts' => '1981-09-30T19:00:00+0000',
 				'tzid' => 'Asia/Aqtobe',
-			),
-			array(
+			],
+			[
 				'tz' => '1999-03-27T21:00:00+0000',
-				'tzid' => 'Etc/GMT-5'
-			),
-		),
+				'tzid' => 'Etc/GMT-5',
+			],
+		],
 
 		// Diverged from Europe/Volgograd in version 2016j.
-		'Europe/Saratov' => array(
-			array(
+		'Europe/Saratov' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-			array(
+			],
+			[
 				'ts' => '1988-03-26T22:00:00+0000',
 				'tzid' => 'Europe/Volgograd',
-			),
-			array(
+			],
+			[
 				'ts' => '2016-12-03T23:00:00+0000',
 				'tzid' => 'Europe/Samara',
-			),
-		),
+			],
+		],
 
 		// Diverged from America/Santiago in version 2017a.
-		'America/Punta_Arenas' => array(
-			array(
+		'America/Punta_Arenas' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
+			],
 			// Chile/Continental is an otherwise unused link to America/Santiago.
-			array(
+			[
 				'ts' => '1890-01-01T04:43:40+0000',
 				'tzid' => 'Chile/Continental',
-			),
-			array(
+			],
+			[
 				'ts' => '1942-08-01T05:00:00+0000',
 				'tzid' => 'Etc/GMT+4',
-			),
-			array(
+			],
+			[
 				'ts' => '1946-08-29T04:00:00+0000',
 				'tzid' => 'Chile/Continental',
-			),
+			],
 			// America/Mendoza is an otherwise unused link to America/Argentina/Mendoza.
-			array(
+			[
 				'ts' => '2016-12-04T03:00:00+0000',
 				'tzid' => 'America/Mendoza',
-			),
-		),
+			],
+		],
 
 		// Diverged from Asia/Qyzylorda in version 2018h.
-		'Asia/Qostanay' => array(
-			array(
+		'Asia/Qostanay' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1924-05-01T19:45:32+0000',
 				'tzid' => 'Asia/Qyzylorda',
-			),
-			array(
+			],
+			[
 				'ts' => '1930-06-20T20:00:00+0000',
 				'tzid' => 'Asia/Aqtobe',
-			),
-			array(
+			],
+			[
 				'ts' => '2004-10-30T21:00:00+0000',
 				'tzid' => 'Asia/Almaty',
-			),
-		),
+			],
+		],
 
 		// Diverged from America/Ojinaga in version 2022g.
-		'America/Ciudad_Juarez' => array(
-			array(
+		'America/Ciudad_Juarez' => [
+			[
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
-			),
-			array(
+			],
+			[
 				'ts' => '1922-01-01T07:00:00+0000',
 				'tzid' => 'America/Ojinaga',
-			),
-			array(
+			],
+			[
 				'ts' => '2022-11-30T06:00:00+0000',
 				'tzid' => 'America/Denver',
-			),
-		),
-	);
+			],
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -2026,7 +2026,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::list()
 	 */
-	protected static $timezones_when = array();
+	protected static $timezones_when = [];
 
 	/**
 	 * @var array
@@ -2036,7 +2036,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::prioritizeTzids()
 	 */
-	protected static array $prioritized_tzids = array();
+	protected static array $prioritized_tzids = [];
 
 	/**
 	 * @var array
@@ -2046,7 +2046,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::getTimeRange()
 	 */
-	protected static array $ranges = array();
+	protected static array $ranges = [];
 
 	/**
 	 * @var array
@@ -2056,7 +2056,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::buildMetaZoneTransitions()
 	 */
-	protected static array $metazone_transitions = array();
+	protected static array $metazone_transitions = [];
 
 	/****************
 	 * Public methods
@@ -2074,12 +2074,14 @@ class TimeZone extends \DateTimeZone
 	{
 		Lang::load('Timezones');
 
-		if (!empty(Lang::$txt[$this->getName()]))
+		if (!empty(Lang::$txt[$this->getName()])) {
 			return Lang::$txt[$this->getName()];
+		}
 
 		// If there's no $txt string, just guess based on the tzid's name.
 		$tzid_parts = explode('/', $this->getName());
-		return str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
+
+		return str_replace(['St_', '_'], ['St. ', ' '], array_pop($tzid_parts));
 	}
 
 	/**
@@ -2094,17 +2096,18 @@ class TimeZone extends \DateTimeZone
 	{
 		list($when, $later) = self::getTimeRange($when);
 
-		$abbrs = array();
+		$abbrs = [];
 
-		foreach ($this->getTransitions($when, $later) as $transition)
+		foreach ($this->getTransitions($when, $later) as $transition) {
 			$abbrs[] = $transition['abbr'];
+		}
 
 		return $abbrs;
 	}
 
 	/**
 	 * Returns the "meta-zone" for this time zone at the given timestamp.
-	 * 
+	 *
 	 * @param string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
@@ -2114,20 +2117,21 @@ class TimeZone extends \DateTimeZone
 	{
 		list($when, $later) = self::getTimeRange($when);
 
-		if (empty(self::$metazone_transitions[$when]))
+		if (empty(self::$metazone_transitions[$when])) {
 			self::buildMetaZoneTransitions($when);
+		}
 
 		$tzkey = serialize($this->getTransitions($when, $later));
 
-		if (isset(self::$metazone_transitions[$when][$tzkey]))
+		if (isset(self::$metazone_transitions[$when][$tzkey])) {
 			return self::$metazone_transitions[$when][$tzkey];
+		}
 
 		// Doesn't match any existing metazone. Can we build a custom one?
 		$tzgeo = $this->getLocation();
 		$country_tzids = self::getSortedTzidsForCountry($tzgeo['country_code']);
 
-		if (count($country_tzids) === 1)
-		{
+		if (count($country_tzids) === 1) {
 			Lang::load('Timezones');
 
 			Lang::$tztxt[$tzgeo['country_code']] = sprintf(Lang::$tztxt['generic_timezone'], Lang::$txt['iso3166'][$tzgeo['country_code']], '%1$s');
@@ -2169,11 +2173,13 @@ class TimeZone extends \DateTimeZone
 
 		$tzinfo = $this->getTransitions($when, $later);
 
-		if (count($tzinfo) > 1)
+		if (count($tzinfo) > 1) {
 			return self::DST_SWITCHES;
+		}
 
-		if ($tzinfo[0]['isdst'])
+		if ($tzinfo[0]['isdst']) {
 			return self::DST_ALWAYS;
+		}
 
 		return self::DST_NEVER;
 	}
@@ -2193,10 +2199,10 @@ class TimeZone extends \DateTimeZone
 
 		$tzinfo = $this->getTransitions($when, $later);
 
-		foreach ($tzinfo as $transition)
-		{
-			if (!$transition['isdst'])
+		foreach ($tzinfo as $transition) {
+			if (!$transition['isdst']) {
 				return $transition['offset'];
+			}
 		}
 
 		// If it uses DST all the time, just return the first offset.
@@ -2220,8 +2226,9 @@ class TimeZone extends \DateTimeZone
 		list($when, $later) = self::getTimeRange($when);
 
 		// No point doing this over if we already did it once.
-		if (isset(self::$timezones_when[$when]))
+		if (isset(self::$timezones_when[$when])) {
 			return self::$timezones_when[$when];
+		}
 
 		// Load up any custom time zone descriptions we might have
 		Lang::load('Timezones');
@@ -2232,18 +2239,17 @@ class TimeZone extends \DateTimeZone
 		self::prioritizeTzids();
 
 		// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
-		$zones = array();
-		$dst_types = array();
-		$labels = array();
-		$offsets = array();
+		$zones = [];
+		$dst_types = [];
+		$labels = [];
+		$offsets = [];
 
-		foreach (self::$prioritized_tzids as $priority_level => $tzids)
-		{
-			foreach ($tzids as $tzid)
-			{
+		foreach (self::$prioritized_tzids as $priority_level => $tzids) {
+			foreach ($tzids as $tzid) {
 				// We don't want UTC right now.
-				if ($tzid == 'UTC')
+				if ($tzid == 'UTC') {
 					continue;
+				}
 
 				$tz = new self($tzid);
 
@@ -2251,16 +2257,16 @@ class TimeZone extends \DateTimeZone
 				$tzkey = serialize($tzinfo);
 
 				// Don't overwrite our preferred tzids
-				if (empty($zones[$tzkey]['tzid']))
-				{
+				if (empty($zones[$tzkey]['tzid'])) {
 					$zones[$tzkey]['tzid'] = $tzid;
 					$zones[$tzkey]['dst_type'] = $tz->getDstType();
 					$zones[$tzkey]['abbrs'] = $tz->getAbbreviations($when);
 
 					$metazone_label = $tz->getMetaZoneLabel();
 
-					if (!empty($metazone_label))
+					if (!empty($metazone_label)) {
 						$zones[$tzkey]['metazone'] = $metazone_label;
+					}
 				}
 
 				$zones[$tzkey]['locations'][] = $tz->getLabel();
@@ -2269,8 +2275,7 @@ class TimeZone extends \DateTimeZone
 				$offsets[$tzkey] = $tzinfo[0]['offset'];
 				$std_offsets[$tzkey] = $tz->getStandardOffset($when);
 
-				switch ($tz->getDstType())
-				{
+				switch ($tz->getDstType()) {
 					case self::DST_SWITCHES:
 						$dst_types[$tzkey] = 'c';
 						break;
@@ -2294,19 +2299,17 @@ class TimeZone extends \DateTimeZone
 		$date_when = date_create('@' . $when);
 
 		// Build the final array of formatted values
-		$priority_timezones = array();
-		$timezones = array();
-		foreach ($zones as $tzkey => $tzvalue)
-		{
+		$priority_timezones = [];
+		$timezones = [];
+
+		foreach ($zones as $tzkey => $tzvalue) {
 			date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
 			// Use the human friendly time zone name, if there is one.
 			$desc = '';
 
-			if (!empty($tzvalue['metazone']))
-			{
-				switch ($tzvalue['dst_type'])
-				{
+			if (!empty($tzvalue['metazone'])) {
+				switch ($tzvalue['dst_type']) {
 					case 0:
 						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_false']);
 						break;
@@ -2321,48 +2324,44 @@ class TimeZone extends \DateTimeZone
 				}
 			}
 			// Otherwise, use the list of locations (max 5, so things don't get silly)
-			else
-			{
+			else {
 				$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::$txt['etc'] : '');
 			}
 
 			// We don't want abbreviations like '+03' or '-11'.
 			$abbrs = array_filter(
 				$tzvalue['abbrs'],
-				function ($abbr)
-				{
+				function ($abbr) {
 					return !strspn($abbr, '+-');
-				}
+				},
 			);
-			$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : array();
+			$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
 
 			// Show the UTC offset and abbreviation(s).
 			$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
 
-			if (in_array($tzvalue['tzid'], self::$prioritized_tzids['high']))
-			{
+			if (in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
 				$priority_timezones[$tzvalue['tzid']] = $desc;
-			}
-			else
-			{
+			} else {
 				$timezones[$tzvalue['tzid']] = $desc;
 			}
 		}
 
-		if (!empty($priority_timezones))
+		if (!empty($priority_timezones)) {
 			$priority_timezones[] = '-----';
+		}
 
 		$timezones = array_merge(
 			$priority_timezones,
-			array('UTC' => 'UTC' . (!empty(Lang::$tztxt['UTC']) ? ' - ' . Lang::$tztxt['UTC'] : ''), '-----'),
-			$timezones
+			['UTC' => 'UTC' . (!empty(Lang::$tztxt['UTC']) ? ' - ' . Lang::$tztxt['UTC'] : ''), '-----'],
+			$timezones,
 		);
 
 		self::$timezones_when[$when] = $timezones;
 
 		return self::$timezones_when[$when];
 	}
-	
+
 	/**
 	 * Returns an array that instructs SMF how to map specific time zones
 	 * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
@@ -2379,20 +2378,19 @@ class TimeZone extends \DateTimeZone
 
 		list($when, $later) = self::getTimeRange($when);
 
-		IntegrationHook::call('integrate_metazones', array(&self::$metazones, $when));
+		IntegrationHook::call('integrate_metazones', [&self::$metazones, $when]);
 
 		// Fallbacks in case the server has an old version of the TZDB.
 		$tzid_fallbacks = self::getTzidFallbacks(array_keys(self::$metazones), $when);
 
-		foreach ($tzid_fallbacks as $orig_tzid => $alt_tzid)
-		{
+		foreach ($tzid_fallbacks as $orig_tzid => $alt_tzid) {
 			// Skip any that are unchanged.
-			if ($orig_tzid == $alt_tzid)
+			if ($orig_tzid == $alt_tzid) {
 				continue;
+			}
 
 			// Use fallback where possible.
-			if (!empty($alt_tzid) && empty(self::$metazones[$alt_tzid]))
-			{
+			if (!empty($alt_tzid) && empty(self::$metazones[$alt_tzid])) {
 				self::$metazones[$alt_tzid] = self::$metazones[$orig_tzid];
 				Lang::$txt[$alt_tzid] = Lang::$txt[$orig_tzid];
 			}
@@ -2416,7 +2414,7 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function getSortedTzidsForCountry(string $country_code, int|string $when = 'now'): array
 	{
-		static $country_tzids = array();
+		static $country_tzids = [];
 
 		list($when, $later) = self::getTimeRange($when);
 
@@ -2424,11 +2422,10 @@ class TimeZone extends \DateTimeZone
 		$country_code = strtoupper(trim($country_code));
 
 		// Avoid unnecessary repetition.
-		if (!isset($country_tzids[$country_code]))
-		{
-			IntegrationHook::call('integrate_country_timezones', array(&self::$sorted_tzids, $country_code, $when));
+		if (!isset($country_tzids[$country_code])) {
+			IntegrationHook::call('integrate_country_timezones', [&self::$sorted_tzids, $country_code, $when]);
 
-			$country_tzids[$country_code] = isset(self::$sorted_tzids[$country_code]) ? self::$sorted_tzids[$country_code] : array();
+			$country_tzids[$country_code] = self::$sorted_tzids[$country_code] ?? [];
 
 			// If something goes wrong, we want an empty array, not false.
 			$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code));
@@ -2476,46 +2473,43 @@ class TimeZone extends \DateTimeZone
 
 		$missing = array_diff($tzids, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
 
-		IntegrationHook::call('integrate_timezone_fallbacks', array(&self::$fallbacks, &$missing, $tzids, $when));
+		IntegrationHook::call('integrate_timezone_fallbacks', [&self::$fallbacks, &$missing, $tzids, $when]);
 
-		$replacements = array();
+		$replacements = [];
 
-		foreach ($tzids as $tzid)
-		{
+		foreach ($tzids as $tzid) {
 			// Not missing.
-			if (!in_array($tzid, $missing))
-			{
+			if (!in_array($tzid, $missing)) {
 				$replacements[$tzid] = $tzid;
 			}
 			// Missing and we have no fallback.
-			elseif (empty(self::$fallbacks[$tzid]))
-			{
+			elseif (empty(self::$fallbacks[$tzid])) {
 				$replacements[$tzid] = '';
 			}
 			// Missing, but we have a fallback.
-			else
-			{
-				foreach (self::$fallbacks[$tzid] as &$alt)
+			else {
+				foreach (self::$fallbacks[$tzid] as &$alt) {
 					$alt['ts'] = is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
+				}
 
-				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts']);
+				usort(self::$fallbacks[$tzid], fn ($a, $b) => $a['ts'] > $b['ts']);
 
-				foreach (self::$fallbacks[$tzid] as $alt)
-				{
-					if ($when < $alt['ts'])
+				foreach (self::$fallbacks[$tzid] as $alt) {
+					if ($when < $alt['ts']) {
 						break;
+					}
 
 					$replacements[$tzid] = $alt['tzid'];
 				}
 
 				// Replacement is already in use.
-				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && strpos($alt['tzid'], 'Etc/') === false))
-				{
+				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && strpos($alt['tzid'], 'Etc/') === false)) {
 					$replacements[$tzid] = '';
 				}
 
-				if (empty($replacements[$tzid]))
+				if (empty($replacements[$tzid])) {
 					$replacements[$tzid] = '';
+				}
 			}
 		}
 
@@ -2531,17 +2525,13 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function validateIsoCountryCodes(array|string $country_codes, bool $as_csv = false): array|string
 	{
-		if (is_string($country_codes))
-		{
+		if (is_string($country_codes)) {
 			$country_codes = explode(',', $country_codes);
-		}
-		else
-		{
+		} else {
 			$country_codes = array_map('strval', (array) $country_codes);
 		}
 
-		foreach ($country_codes as $key => $country_code)
-		{
+		foreach ($country_codes as $key => $country_code) {
 			$country_code = strtoupper(trim($country_code));
 
 			$country_tzids = strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
@@ -2551,8 +2541,9 @@ class TimeZone extends \DateTimeZone
 
 		$country_codes = array_filter($country_codes);
 
-		if (!empty($as_csv))
+		if (!empty($as_csv)) {
 			$country_codes = implode(',', $country_codes);
+		}
 
 		return $country_codes;
 	}
@@ -2572,26 +2563,24 @@ class TimeZone extends \DateTimeZone
 	 */
 	protected static function getTimeRange(int|string $when = 'now'): array
 	{
-		if (isset(self::$ranges[$when]))
+		if (isset(self::$ranges[$when])) {
 			return self::$ranges[$when];
+		}
 
 		// Parseable datetime string?
-		if (is_int($timestamp = strtotime($when)))
-		{
+		if (is_int($timestamp = strtotime($when))) {
 			$start = $timestamp;
 		}
 		// A Unix timestamp?
-		elseif (is_numeric($when))
-		{
+		elseif (is_numeric($when)) {
 			$start = intval($when);
 		}
 		// Invalid value? Just get current Unix timestamp.
-		else
-		{
+		else {
 			$start = time();
 		}
 
-		self::$ranges[$when] = array($start, strtotime('@' . $start . ' + 1 year'));
+		self::$ranges[$when] = [$start, strtotime('@' . $start . ' + 1 year')];
 
 		return self::$ranges[$when];
 	}
@@ -2605,28 +2594,30 @@ class TimeZone extends \DateTimeZone
 	protected static function prioritizeTzids(): void
 	{
 		// No need to do this twice.
-		if (!empty(self::$prioritized_tzids))
+		if (!empty(self::$prioritized_tzids)) {
 			return;
+		}
 
 		// Should we put time zones from certain countries at the top of the list?
-		$priority_countries = !empty(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : array();
+		$priority_countries = !empty(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : [];
 
-		$high_priority_tzids = array();
-		foreach ($priority_countries as $country)
-		{
+		$high_priority_tzids = [];
+
+		foreach ($priority_countries as $country) {
 			$country_tzids = self::getSortedTzidsForCountry($country);
 
-			if (!empty($country_tzids))
+			if (!empty($country_tzids)) {
 				$high_priority_tzids = array_merge($high_priority_tzids, $country_tzids);
+			}
 		}
 
 		// Antarctic research stations should be listed last, unless you're running a penguin forum
-		$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : array();
+		$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
 
 		$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys(self::getTzidMetazones()), timezone_identifiers_list())), $high_priority_tzids, $low_priority_tzids);
 
 		// Put them in order of importance.
-		self::$prioritized_tzids = array('high' => $high_priority_tzids, 'normal' => $normal_priority_tzids, 'low' => $low_priority_tzids);
+		self::$prioritized_tzids = ['high' => $high_priority_tzids, 'normal' => $normal_priority_tzids, 'low' => $low_priority_tzids];
 	}
 
 	/**
@@ -2643,12 +2634,12 @@ class TimeZone extends \DateTimeZone
 
 		self::getTzidMetazones($when);
 
-		foreach (self::$metazones as $tzid => $label)
-		{
+		foreach (self::$metazones as $tzid => $label) {
 			$tz = @timezone_open($tzid);
 
-			if ($tz == null)
+			if ($tz == null) {
 				continue;
+			}
 
 			self::$metazone_transitions[$when][serialize($tz->getTransitions($when, $later))] = $label;
 		}
@@ -2656,7 +2647,8 @@ class TimeZone extends \DateTimeZone
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\TimeZone::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\TimeZone::exportStatic')) {
 	TimeZone::exportStatic();
+}
 
 ?>

@@ -32,14 +32,15 @@ class Popup
 	{
 		Lang::load('PersonalMessage');
 
-		if (!isset($_REQUEST['xml']))
+		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
+		}
 
 		// We do not want to output debug information here.
 		Config::$db_show_debug = false;
 
 		// We only want to output our little layer here.
-		Utils::$context['template_layers'] = array();
+		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'pm_popup';
 
 		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
@@ -52,25 +53,23 @@ class Popup
 	public function show(): void
 	{
 		// So are we loading stuff?
-		$pms = array_map(fn($unread) => $unread->id, Received::loadUnread());
+		$pms = array_map(fn ($unread) => $unread->id, Received::loadUnread());
 
-		if (!empty($pms))
-		{
+		if (!empty($pms)) {
 			// Just quickly, it's possible that the number of PMs can get out of sync.
 			$count_unread = count($pms);
 
-			if ($count_unread != User::$me->unread_messages)
-			{
-				User::updateMemberData(User::$me->id, array('unread_messages' => $count_unread));
+			if ($count_unread != User::$me->unread_messages) {
+				User::updateMemberData(User::$me->id, ['unread_messages' => $count_unread]);
 				User::$me->unread_messages = count($pms);
 			}
 
 			// Now, actually fetch me some PMs.
-			foreach (PM::load($pms, false) as $pm)
-			{
+			foreach (PM::load($pms, false) as $pm) {
 				// Make sure we track the senders. We have some work to do for them.
-				if (!empty($pm->member_from))
+				if (!empty($pm->member_from)) {
 					$senders[] = $pm->member_from;
+				}
 
 				$pm->replied_to_you = $pm->id != $pm->head;
 				$pm->time = Time::create('@' . $pm->msgtime)->format();
@@ -82,10 +81,8 @@ class Popup
 			User::load($senders);
 
 			// Having loaded everyone, attach them to the PMs.
-			foreach (Utils::$context['unread_pms'] as $id => $pm)
-			{
-				if (!empty(User::$loaded[$pm->member_from]))
-				{
+			foreach (Utils::$context['unread_pms'] as $id => $pm) {
+				if (!empty(User::$loaded[$pm->member_from])) {
 					Utils::$context['unread_pms'][$id]->member = User::$loaded[$pm->member_from]->format();
 				}
 			}

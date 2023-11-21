@@ -14,16 +14,15 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This action handles the deletion of posts.
@@ -37,11 +36,11 @@ class MsgDelete implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'DeleteMessage',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -70,85 +69,65 @@ class MsgDelete implements ActionInterface
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Is Topic::$topic_id set?
-		if (empty(Topic::$topic_id) && isset($_REQUEST['topic']))
+		if (empty(Topic::$topic_id) && isset($_REQUEST['topic'])) {
 			Topic::$topic_id = (int) $_REQUEST['topic'];
+		}
 
 		TopicRemove::removeDeleteConcurrence();
 
-		$request = Db::$db->query('', '
-			SELECT t.id_member_started, m.id_member, m.subject, m.poster_time, m.approved
+		$request = Db::$db->query(
+			'',
+			'SELECT t.id_member_started, m.id_member, m.subject, m.poster_time, m.approved
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = {int:id_msg} AND m.id_topic = {int:current_topic})
 			WHERE t.id_topic = {int:current_topic}
 			LIMIT 1',
-			array(
+			[
 				'current_topic' => Topic::$topic_id,
 				'id_msg' => $_REQUEST['msg'],
-			)
+			],
 		);
 		list($starter, $poster, $subject, $post_time, $approved) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Verify they can see this!
-		if (Config::$modSettings['postmod_active'] && !$approved && !empty($poster) && $poster != User::$me->id)
-		{
+		if (Config::$modSettings['postmod_active'] && !$approved && !empty($poster) && $poster != User::$me->id) {
 			User::$me->isAllowedTo('approve_posts');
 		}
 
-		if ($poster == User::$me->id)
-		{
-			if (!User::$me->allowedTo('delete_own'))
-			{
-				if ($starter == User::$me->id && !User::$me->allowedTo('delete_any'))
-				{
+		if ($poster == User::$me->id) {
+			if (!User::$me->allowedTo('delete_own')) {
+				if ($starter == User::$me->id && !User::$me->allowedTo('delete_any')) {
 					User::$me->isAllowedTo('delete_replies');
-				}
-				elseif (!User::$me->allowedTo('delete_any'))
-				{
+				} elseif (!User::$me->allowedTo('delete_any')) {
 					User::$me->isAllowedTo('delete_own');
 				}
-			}
-			elseif (!User::$me->allowedTo('delete_any') && ($starter != User::$me->id || !User::$me->allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time())
-			{
+			} elseif (!User::$me->allowedTo('delete_any') && ($starter != User::$me->id || !User::$me->allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time()) {
 				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
-		}
-		elseif ($starter == User::$me->id && !User::$me->allowedTo('delete_any'))
-		{
+		} elseif ($starter == User::$me->id && !User::$me->allowedTo('delete_any')) {
 			User::$me->isAllowedTo('delete_replies');
-		}
-		else
-		{
+		} else {
 			User::$me->isAllowedTo('delete_any');
 		}
 
 		// If the full topic was removed go back to the board.
 		$full_topic = Msg::remove($_REQUEST['msg']);
 
-		if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $poster != User::$me->id))
-		{
-			Logging::logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
+		if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $poster != User::$me->id)) {
+			Logging::logAction('delete', ['topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id]);
 		}
 
 		// We want to redirect back to recent action.
-		if (isset($_REQUEST['modcenter']))
-		{
+		if (isset($_REQUEST['modcenter'])) {
 			Utils::redirectexit('action=moderate;area=reportedposts;done');
-		}
-		elseif (isset($_REQUEST['recent']))
-		{
+		} elseif (isset($_REQUEST['recent'])) {
 			Utils::redirectexit('action=recent');
-		}
-		elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u']))
-		{
+		} elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u'])) {
 			Utils::redirectexit('action=profile;u=' . $_REQUEST['u'] . ';area=showposts;start=' . $_REQUEST['start']);
-		}
-		elseif ($full_topic)
-		{
+		} elseif ($full_topic) {
 			Utils::redirectexit('board=' . Board::$info->id . '.0');
-		}
-		else
-		{
+		} else {
 			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 		}
 	}
@@ -164,8 +143,9 @@ class MsgDelete implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -191,7 +171,8 @@ class MsgDelete implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\MsgDelete::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\MsgDelete::exportStatic')) {
 	MsgDelete::exportStatic();
+}
 
 ?>

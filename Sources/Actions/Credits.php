@@ -14,16 +14,15 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
+use SMF\Cache\CacheApi;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This action prepares credit and copyright information for the credits page
@@ -38,11 +37,11 @@ class Credits implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'Credits',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -79,33 +78,32 @@ class Credits implements ActionInterface
 		// Discourage robots from indexing this page.
 		Utils::$context['robot_no_index'] = true;
 
-		if ($this->in_admin)
-		{
-			Menu::$loaded['admin']->tab_data = array(
+		if ($this->in_admin) {
+			Menu::$loaded['admin']->tab_data = [
 				'title' => Lang::$txt['support_credits_title'],
 				'help' => '',
 				'description' => '',
-			);
+			];
 		}
 
-		Utils::$context['credits'] = array(
-			array(
+		Utils::$context['credits'] = [
+			[
 				'pretext' => Lang::$txt['credits_intro'],
 				'title' => Lang::$txt['credits_team'],
-				'groups' => array(
-					array(
+				'groups' => [
+					[
 						'title' => Lang::$txt['credits_groups_pm'],
-						'members' => array(
+						'members' => [
 							'Aleksi "Lex" Kilpinen',
 							// Former Project Managers
 							'Michele "Illori" Davis',
 							'Jessica "Suki" González',
 							'Will "Kindred" Wagner',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_dev'],
-						'members' => array(
+						'members' => [
 							// Lead Developer
 							'Shawn Bulen',
 							// Developers
@@ -137,11 +135,11 @@ class Credits implements ActionInterface
 							'Theodore "Orstio" Hildebrandt',
 							'Thorsten "TE" Eurich',
 							'winrules',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_support'],
-						'members' => array(
+						'members' => [
 							// Lead Support Specialist
 							'Will "Kindred" Wagner',
 							// Support Specialists
@@ -175,11 +173,11 @@ class Credits implements ActionInterface
 							'Storman™',
 							'Wade "sησω" Poulsen',
 							'xenovanis',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_customize'],
-						'members' => array(
+						'members' => [
 							// Lead Customizer
 							'Diego Andrés',
 							// Customizers
@@ -200,11 +198,11 @@ class Credits implements ActionInterface
 							'Ricky.',
 							'Russell "NEND" Najar',
 							'SA™',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_docs'],
-						'members' => array(
+						'members' => [
 							// Doc Coordinator
 							'Michele "Illori" Davis',
 							// Doc Writers
@@ -215,11 +213,11 @@ class Credits implements ActionInterface
 							'Chainy',
 							'Graeme Spence',
 							'Joshua "groundup" Dickerson',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_internationalizers'],
-						'members' => array(
+						'members' => [
 							// Lead Localizer
 							'Nikola "Dzonny" Novaković',
 							// Localizers
@@ -228,11 +226,11 @@ class Credits implements ActionInterface
 							'Francisco "d3vcho" Domínguez',
 							'Robert Monden',
 							'Relyana',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_marketing'],
-						'members' => array(
+						'members' => [
 							// Marketing Coordinator
 
 							// Marketing
@@ -242,105 +240,103 @@ class Credits implements ActionInterface
 							'Bryan "Runic" Deakin',
 							'Marcus "cσσкιє мσηѕтєя" Forsberg',
 							'Ralph "[n3rve]" Otowo',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_site'],
-						'members' => array(
+						'members' => [
 							'Jeremy "SleePy" Darwood',
-						),
-					),
-					array(
+						],
+					],
+					[
 						'title' => Lang::$txt['credits_groups_servers'],
-						'members' => array(
+						'members' => [
 							'Derek Schwab',
 							'Michael Johnson',
 							'Liroy van Hoewijk',
-						),
-					),
-				),
-			),
-		);
+						],
+					],
+				],
+			],
+		];
 
 		// Give the translators some credit for their hard work.
-		if (!is_array(Lang::$txt['translation_credits']))
-		{
+		if (!is_array(Lang::$txt['translation_credits'])) {
 			Lang::$txt['translation_credits'] = array_filter(array_map('trim', explode(',', Lang::$txt['translation_credits'])));
 		}
 
-		if (!empty(Lang::$txt['translation_credits']))
-		{
-			Utils::$context['credits'][] = array(
+		if (!empty(Lang::$txt['translation_credits'])) {
+			Utils::$context['credits'][] = [
 				'title' => Lang::$txt['credits_groups_translation'],
-				'groups' => array(
-					array(
+				'groups' => [
+					[
 						'title' => Lang::$txt['credits_groups_translation'],
 						'members' => Lang::$txt['translation_credits'],
-					),
-				),
-			);
+					],
+				],
+			];
 		}
 
-		Utils::$context['credits'][] = array(
+		Utils::$context['credits'][] = [
 			'title' => Lang::$txt['credits_special'],
 			'posttext' => Lang::$txt['credits_anyone'],
-			'groups' => array(
-				array(
+			'groups' => [
+				[
 					'title' => Lang::$txt['credits_groups_consultants'],
-					'members' => array(
+					'members' => [
 						'albertlast',
 						'Brett Flannigan',
 						'Mark Rose',
 						'René-Gilles "Nao 尚" Deberdt',
 						'tinoest',
 						Lang::$txt['credits_code_contributors'],
-					),
-				),
-				array(
+					],
+				],
+				[
 					'title' => Lang::$txt['credits_groups_beta'],
-					'members' => array(
+					'members' => [
 						Lang::$txt['credits_beta_message'],
-					),
-				),
-				array(
+					],
+				],
+				[
 					'title' => Lang::$txt['credits_groups_translators'],
-					'members' => array(
+					'members' => [
 						Lang::$txt['credits_translators_message'],
-					),
-				),
-				array(
+					],
+				],
+				[
 					'title' => Lang::$txt['credits_groups_founder'],
-					'members' => array(
+					'members' => [
 						'Unknown W. "[Unknown]" Brackets',
-					),
-				),
-				array(
+					],
+				],
+				[
 					'title' => Lang::$txt['credits_groups_orignal_pm'],
-					'members' => array(
+					'members' => [
 						'Jeff Lewis',
 						'Joseph Fung',
 						'David Recordon',
-					),
-				),
-				array(
+					],
+				],
+				[
 					'title' => Lang::$txt['credits_in_memoriam'],
-					'members' => array(
+					'members' => [
 						'Crip',
 						'K@',
 						'metallica48423',
 						'Paul_Pauline',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 
 		// Give credit to any graphic library's, software library's, plugins etc
-		Utils::$context['credits_software_graphics'] = array(
-			'graphics' => array(
+		Utils::$context['credits_software_graphics'] = [
+			'graphics' => [
 				'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | © 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
 				'<a href="https://techbase.kde.org/Projects/Oxygen/Licensing#Use_on_Websites">Oxygen Icons</a> | These icons are licensed under <a href="http://www.gnu.org/copyleft/lesser.html">GNU LGPLv3</a>',
-			),
-			'software' => array(
+			],
+			'software' => [
 				'<a href="https://jquery.org/">JQuery</a> | © John Resig | Licensed under <a href="https://github.com/jquery/jquery/blob/master/LICENSE.txt">The MIT License (MIT)</a>',
 				'<a href="https://briancherne.github.io/jquery-hoverIntent/">hoverIntent</a> | © Brian Cherne | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 				'<a href="https://www.sceditor.com/">SCEditor</a> | © Sam Clarke | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
@@ -353,35 +349,35 @@ class Credits implements ActionInterface
 				'<a href="https://github.com/enyo/dropzone">Dropzone.js</a> | © Matias Meno | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 				'<a href="https://github.com/matthiasmullie/minify">Minify</a> | © Matthias Mullie | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 				'<a href="https://github.com/true/php-punycode">PHP-Punycode</a> | © True B.V. | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			),
-			'fonts' => array(
+			],
+			'fonts' => [
 				'<a href="https://fontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
 				'<a href="https://fontlibrary.org/en/font/consolamono"> ConsolaMono</a> | © 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 				'<a href="https://fontlibrary.org/en/font/phennig"> Phennig</a> | © 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-			),
-		);
+			],
+		];
 
 		// Support for mods that use the <credits> tag via the package manager
-		Utils::$context['credits_modifications'] = array();
+		Utils::$context['credits_modifications'] = [];
 
-		if (($mods = CacheApi::get('mods_credits', 86400)) === null)
-		{
-			$mods = array();
+		if (($mods = CacheApi::get('mods_credits', 86400)) === null) {
+			$mods = [];
 
-			$request = Db::$db->query('substring', '
-				SELECT version, name, credits
+			$request = Db::$db->query(
+				'substring',
+				'SELECT version, name, credits
 				FROM {db_prefix}log_packages
 				WHERE install_state = {int:installed_mods}
 					AND credits != {string:empty}
 					AND SUBSTRING(filename, 1, 9) != {string:patch_name}',
-				array(
+				[
 					'installed_mods' => 1,
 					'patch_name' => 'smf_patch',
 					'empty' => '',
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$credit_info = Utils::jsonDecode($row['credits'], true);
 
 				$copyright = empty($credit_info['copyright']) ? '' : Lang::$txt['credits_copyright'] . ' © ' . Utils::htmlspecialchars($credit_info['copyright']);
@@ -402,22 +398,21 @@ class Credits implements ActionInterface
 
 		Utils::$context['credits_modifications'] = $mods;
 
-		Utils::$context['copyrights'] = array(
+		Utils::$context['copyrights'] = [
 			'smf' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
 			/* Modification Authors:  You may add a copyright statement to this array for your mods.
 				Copyright statements should be in the form of a value only without a array key.  I.E.:
 					'Some Mod by Thantos © 2010',
 					Lang::$txt['some_mod_copyright'],
 			*/
-			'mods' => array(
-			),
-		);
+			'mods' => [
+			],
+		];
 
 		// Support for those that want to use a hook as well
 		IntegrationHook::call('integrate_credits');
 
-		if (!$this->in_admin)
-		{
+		if (!$this->in_admin) {
 			Theme::loadTemplate('Who');
 			Utils::$context['sub_template'] = 'credits';
 			Utils::$context['robot_no_index'] = true;
@@ -436,8 +431,9 @@ class Credits implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -469,7 +465,8 @@ class Credits implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Credits::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Credits::exportStatic')) {
 	Credits::exportStatic();
+}
 
 ?>

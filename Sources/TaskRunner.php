@@ -45,11 +45,11 @@ class TaskRunner
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'calculateNextTrigger' => 'CalculateNextTrigger',
-		),
-	);
+		],
+	];
 
 	/***********
 	 * Constants
@@ -61,14 +61,14 @@ class TaskRunner
 	 * indicated here. It might turn ugly if you do. But on proper cron you can
 	 * always increase this value provided you don't go beyond max_limit.
 	 */
-	const MAX_CRON_TIME = 10;
+	public const MAX_CRON_TIME = 10;
 
 	/**
 	 * If a task fails for whatever reason it will still be marked as claimed.
 	 * This is the threshold by which if a task has not completed in this time,
 	 * the task should become available again.
 	 */
-	const MAX_CLAIM_THRESHOLD = 300;
+	public const MAX_CLAIM_THRESHOLD = 300;
 
 	/**************************
 	 * Public static properties
@@ -79,43 +79,43 @@ class TaskRunner
 	 *
 	 * Info about the classes to load for scheduled tasks.
 	 */
-	public static array $scheduled_tasks = array(
-		'daily_maintenance' => array(
+	public static array $scheduled_tasks = [
+		'daily_maintenance' => [
 			'class' => 'SMF\\Tasks\\DailyMaintenance',
-		),
-		'weekly_maintenance' => array(
+		],
+		'weekly_maintenance' => [
 			'class' => 'SMF\\Tasks\\WeekLyMaintenance',
-		),
-		'daily_digest' => array(
+		],
+		'daily_digest' => [
 			'class' => 'SMF\\Tasks\\SendDigests',
-			'data' => array('is_weekly' => 0),
-		),
-		'weekly_digest' => array(
+			'data' => ['is_weekly' => 0],
+		],
+		'weekly_digest' => [
 			'class' => 'SMF\\Tasks\\SendDigests',
-			'data' => array('is_weekly' => 1),
-		),
-		'fetchSMfiles' => array(
+			'data' => ['is_weekly' => 1],
+		],
+		'fetchSMfiles' => [
 			'class' => 'SMF\\Tasks\\FetchSMFiles',
-		),
-		'birthdayemails' => array(
+		],
+		'birthdayemails' => [
 			'class' => 'SMF\\Tasks\\Birthday_Notify',
-		),
-		'paid_subscriptions' => array(
+		],
+		'paid_subscriptions' => [
 			'class' => 'SMF\\Tasks\\PaidSubs',
-		),
-		'remove_temp_attachments' => array(
+		],
+		'remove_temp_attachments' => [
 			'class' => 'SMF\\Tasks\\RemoveTempAttachments',
-		),
-		'remove_topic_redirect' => array(
+		],
+		'remove_topic_redirect' => [
 			'class' => 'SMF\\Tasks\\RemoveTopicRedirects',
-		),
-		'remove_old_drafts' => array(
+		],
+		'remove_old_drafts' => [
 			'class' => 'SMF\\Tasks\\RemoveOldDrafts',
-		),
-		'prune_log_topics' => array(
+		],
+		'prune_log_topics' => [
 			'class' => 'SMF\\Tasks\\PruneLogTopics',
-		),
-	);
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -127,31 +127,33 @@ class TaskRunner
 	public function __construct()
 	{
 		// For backward compatibility.
-		if (!defined('MAX_CRON_TIME'))
+		if (!defined('MAX_CRON_TIME')) {
 			define('MAX_CRON_TIME', self::MAX_CRON_TIME);
+		}
 
-		if (!defined('MAX_CLAIM_THRESHOLD'))
+		if (!defined('MAX_CLAIM_THRESHOLD')) {
 			define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
+		}
 
 		// Called from cron.php.
-		if (SMF === 'BACKGROUND')
-		{
+		if (SMF === 'BACKGROUND') {
 			define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
 			// Don't do john didley if the forum's been shut down completely.
-			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance)
+			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
 				ErrorHandler::displayMaintenanceMessage();
+			}
 
 			// Have we already turned this off? If so, exist gracefully.
 			// @todo Remove this? It's a bad idea to ever disable background tasks.
-			if (file_exists(Config::$cachedir . '/cron.lock'))
+			if (file_exists(Config::$cachedir . '/cron.lock')) {
 				$this->obExit();
+			}
 
 			Security::frameOptionsHeader();
 
 			// Before we go any further, if this is not a CLI request, we need to do some checking.
-			if (!FROM_CLI)
-			{
+			if (!FROM_CLI) {
 				// When using sub-domains with SSI and ssi_themes set, browsers will
 				// receive a "Access-Control-Allow-Origin" error. '*' is not ideal,
 				// but the best method to preventing this from occurring.
@@ -160,11 +162,10 @@ class TaskRunner
 				// We will clean up $_GET shortly. But we want to this ASAP.
 				$ts = isset($_GET['ts']) ? (int) $_GET['ts'] : 0;
 
-				if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20)
+				if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20) {
 					$this->obExit();
-			}
-			else
-			{
+				}
+			} else {
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
@@ -200,28 +201,27 @@ class TaskRunner
 	public function execute(): void
 	{
 		// If we have any scheduled tasks due, add them to the queue.
-		if ((Config::$modSettings['next_task_time'] ?? 0) < time())
+		if ((Config::$modSettings['next_task_time'] ?? 0) < time()) {
 			$this->scheduleTask();
+		}
 
-		while ($task_details = $this->fetchTask())
-		{
+		while ($task_details = $this->fetchTask()) {
 			$result = $this->performTask($task_details);
 
-			if ($result)
-			{
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}background_tasks
+			if ($result) {
+				Db::$db->query(
+					'',
+					'DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
-					array(
+					[
 						'task' => $task_details['id_task'],
-					)
+					],
 				);
 			}
 		}
 
 		// If we have time, work on the mail queue.
-		if (time() - TIME_START < ceil(self::MAX_CRON_TIME / 2) && (Config::$modSettings['mail_next_send'] ?? INF) < time())
-		{
+		if (time() - TIME_START < ceil(self::MAX_CRON_TIME / 2) && (Config::$modSettings['mail_next_send'] ?? INF) < time()) {
 			Mail::reduceQueue();
 		}
 
@@ -235,28 +235,27 @@ class TaskRunner
 	public function runOneTask(): void
 	{
 		// If we have any scheduled tasks due, add them to the queue.
-		if ((Config::$modSettings['next_task_time'] ?? 0) < time())
+		if ((Config::$modSettings['next_task_time'] ?? 0) < time()) {
 			$this->scheduleTask();
+		}
 
 		// Do we have a task to run?
-		if ($task_details = $this->fetchTask())
-		{
+		if ($task_details = $this->fetchTask()) {
 			$result = $this->performTask($task_details);
 
-			if ($result)
-			{
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}background_tasks
+			if ($result) {
+				Db::$db->query(
+					'',
+					'DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
-					array(
+					[
 						'task' => $task_details['id_task'],
-					)
+					],
 				);
 			}
 		}
 		// What about mail to send?
-		elseif ((Config::$modSettings['mail_next_send'] ?? INF) < time())
-		{
+		elseif ((Config::$modSettings['mail_next_send'] ?? INF) < time()) {
 			Mail::reduceQueue();
 		}
 	}
@@ -269,75 +268,74 @@ class TaskRunner
 	public function runScheduledTasks(array $tasks): void
 	{
 		// Actually have something passed?
-		if (!empty($tasks))
-		{
-			$task_ids = array();
-			$task_names = array();
-			$task_query = array();
+		if (!empty($tasks)) {
+			$task_ids = [];
+			$task_names = [];
+			$task_query = [];
 
-			foreach ($tasks as $task)
-			{
-				if (is_numeric($task))
-				{
+			foreach ($tasks as $task) {
+				if (is_numeric($task)) {
 					$task_ids[] = (int) $task;
-				}
-				else
-				{
+				} else {
 					$task_names[] = (string) $task;
 				}
 			}
 
-			if (!empty($task_ids))
+			if (!empty($task_ids)) {
 				$task_query[] = 'id_task IN ({array_int:task_ids})';
+			}
 
-			if (!empty($task_names))
+			if (!empty($task_names)) {
 				$task_query[] = 'task IN ({array_string:task_names})';
+			}
 
-			if (!empty($task_query))
+			if (!empty($task_query)) {
 				$task_query = implode(' OR ', $task_query);
+			}
 		}
 
-		if (empty($task_query))
+		if (empty($task_query)) {
 			return;
+		}
 
 		// Load up the tasks.
 		ignore_user_abort(true);
 
-		$request = Db::$db->query('', '
-			SELECT id_task, next_time, task, callable
+		$request = Db::$db->query(
+			'',
+			'SELECT id_task, next_time, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE ' . $task_query . '
 			LIMIT {int:limit}',
-			array(
+			[
 				'task_ids' => $task_ids,
 				'task_names' => $task_names,
 				'limit' => count($task_ids) + count($task_names),
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// What kind of task are we handling?
 			// Note: keep the next_time value unchanged, because running the
 			// task manually shouldn't interfere with the normal schedule.
-			if (!empty($row['callable']))
-			{
+			if (!empty($row['callable'])) {
 				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['next_time'], $row['callable'], true);
-			}
-			elseif (!empty($row['task']))
-			{
+			} elseif (!empty($row['task'])) {
 				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['next_time'], $row['task']);
 			}
 
 			// Does the class exist?
-			if (!class_exists($task_details['task_class']))
+			if (!class_exists($task_details['task_class'])) {
 				continue;
+			}
 
 			// Load an instance of the scheduled task.
 			$bgtask = new $task_details['task_class']($task_details['task_data']);
 
 			// If the instance isn't actually a scheduled task, skip it.
-			if (!is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask'))
+			if (!is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
 				continue;
+			}
 
 			// Run the task and log that we did.
 			$bgtask->execute();
@@ -357,21 +355,22 @@ class TaskRunner
 	 * @param string $error_string The error message
 	 * @param string $file The file where the error occurred
 	 * @param int $line What line of the specified file the error occurred on
-	 * @return void
 	 */
 	public static function handleError($error_level, $error_string, $file, $line): void
 	{
 		// Ignore errors that should not be logged.
-		if (error_reporting() == 0)
+		if (error_reporting() == 0) {
 			return;
+		}
 
 		$error_type = 'cron';
 
 		ErrorHandler::log($error_level . ': ' . $error_string, $error_type, $file, $line);
 
 		// If this is an E_ERROR or E_USER_ERROR.... die.  Violently so.
-		if ($error_level % 255 == E_ERROR)
+		if ($error_level % 255 == E_ERROR) {
 			die('No direct access...');
+		}
 	}
 
 	/**
@@ -380,94 +379,93 @@ class TaskRunner
 	 * @param string|array $tasks IDs or names of one or more scheduled tasks.
 	 * @param bool $force_update Whether to force the tasks to run now.
 	 */
-	public static function calculateNextTrigger(string|array $tasks = array(), bool $force_update = false): void
+	public static function calculateNextTrigger(string|array $tasks = [], bool $force_update = false): void
 	{
 		$tasks = (array) $tasks;
 
 		// Actually have something passed?
-		if (!empty($tasks))
-		{
-			$task_ids = array();
-			$task_names = array();
-			$task_query = array();
+		if (!empty($tasks)) {
+			$task_ids = [];
+			$task_names = [];
+			$task_query = [];
 
-			foreach ($tasks as $task)
-			{
-				if (is_numeric($task))
-				{
+			foreach ($tasks as $task) {
+				if (is_numeric($task)) {
 					$task_ids[] = (int) $task;
-				}
-				else
-				{
+				} else {
 					$task_names[] = (string) $task;
 				}
 			}
 
-			if (!empty($task_ids))
+			if (!empty($task_ids)) {
 				$task_query[] = 'id_task IN ({array_int:task_ids})';
+			}
 
-			if (!empty($task_names))
+			if (!empty($task_names)) {
 				$task_query[] = 'task IN ({array_string:task_names})';
+			}
 
-			if (!empty($task_query))
+			if (!empty($task_query)) {
 				$task_query = 'AND (' . implode(' OR ', $task_query) . ')';
+			}
 		}
 
-		if (empty($task_query))
+		if (empty($task_query)) {
 			$task_query = '';
+		}
 
 		$next_task_time = empty($tasks) ? time() + 86400 : Config::$modSettings['next_task_time'];
 
 		// Get the critical info for the tasks.
-		$tasks = array();
-		$request = Db::$db->query('', '
-			SELECT id_task, next_time, time_offset, time_regularity, time_unit
+		$tasks = [];
+		$request = Db::$db->query(
+			'',
+			'SELECT id_task, next_time, time_offset, time_regularity, time_unit
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
 				' . $task_query,
-			array(
+			[
 				'not_disabled' => 0,
-				'task_ids' => $task_ids ?? array(),
-				'task_names' => $task_names ?? array(),
-			)
+				'task_ids' => $task_ids ?? [],
+				'task_names' => $task_names ?? [],
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$next_time = self::getNextScheduledTime($row['time_regularity'], $row['time_unit'], $row['time_offset']);
 
 			// Only bother moving the task if it's out of place or we're forcing it!
-			if ($force_update || $next_time < $row['next_time'] || $row['next_time'] < time())
-			{
+			if ($force_update || $next_time < $row['next_time'] || $row['next_time'] < time()) {
 				$tasks[$row['id_task']] = $next_time;
-			}
-			else
-			{
+			} else {
 				$next_time = $row['next_time'];
 			}
 
 			// If this is sooner than the current next task, make this the next task.
-			if ($next_time < $next_task_time)
+			if ($next_time < $next_task_time) {
 				$next_task_time = $next_time;
+			}
 		}
 		Db::$db->free_result($request);
 
 		// Now make the changes!
-		foreach ($tasks as $id => $time)
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}scheduled_tasks
+		foreach ($tasks as $id => $time) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}scheduled_tasks
 				SET next_time = {int:next_time}
 				WHERE id_task = {int:id_task}',
-				array(
+				[
 					'next_time' => $time,
 					'id_task' => $id,
-				)
+				],
 			);
 		}
 
 		// If the next task is now different, update.
-		if (Config::$modSettings['next_task_time'] != $next_task_time)
-			Config::updateModSettings(array('next_task_time' => $next_task_time));
+		if (Config::$modSettings['next_task_time'] != $next_task_time) {
+			Config::updateModSettings(['next_task_time' => $next_task_time]);
+		}
 	}
 
 	/******************
@@ -483,58 +481,63 @@ class TaskRunner
 	protected function fetchTask(): bool|array
 	{
 		// Check we haven't run over our time limit.
-		if (microtime(true) - TIME_START > self::MAX_CRON_TIME)
+		if (microtime(true) - TIME_START > self::MAX_CRON_TIME) {
 			return false;
+		}
 
 		// Try to find a task. Specifically, try to find one that hasn't been
 		// claimed previously, or failing that, a task that was claimed but
 		// failed for whatever reason and failed long enough ago. We should not
 		// care what task it is, merely that it is one in the queue; the order
 		// is irrelevant.
-		$request = Db::$db->query('', '
-			SELECT id_task, task_file, task_class, task_data, claimed_time
+		$request = Db::$db->query(
+			'',
+			'SELECT id_task, task_file, task_class, task_data, claimed_time
 			FROM {db_prefix}background_tasks
 			WHERE claimed_time < {int:claim_limit}
 			LIMIT 1',
-			array(
+			[
 				'claim_limit' => time() - self::MAX_CLAIM_THRESHOLD,
-			)
+			],
 		);
-		if ($row = Db::$db->fetch_assoc($request))
-		{
+
+		if ($row = Db::$db->fetch_assoc($request)) {
 			// We found one. Let's try and claim it immediately.
 			Db::$db->free_result($request);
-			Db::$db->query('', '
-				UPDATE {db_prefix}background_tasks
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}background_tasks
 				SET claimed_time = {int:new_claimed}
 				WHERE id_task = {int:task}
 					AND claimed_time = {int:old_claimed}',
-				array(
+				[
 					'new_claimed' => time(),
 					'task' => $row['id_task'],
 					'old_claimed' => $row['claimed_time'],
-				)
+				],
 			);
+
 			// Could we claim it? If so, return it back.
-			if (Db::$db->affected_rows() != 0)
-			{
+			if (Db::$db->affected_rows() != 0) {
 				// Update the time and go back.
 				$row['claimed_time'] = time();
+
 				return $row;
 			}
-			else
-			{
-				// Uh oh, we just missed it. Try to claim another one, and let
-				// it fall through if there aren't any.
-				return $this->fetchTask();
-			}
+
+
+			// Uh oh, we just missed it. Try to claim another one, and let
+			// it fall through if there aren't any.
+			return $this->fetchTask();
+
 		}
-		else
-		{
-			// No dice. Clean up and go home.
-			Db::$db->free_result($request);
-			return false;
-		}
+
+
+		// No dice. Clean up and go home.
+		Db::$db->free_result($request);
+
+		return false;
+
 	}
 
 	/**
@@ -547,17 +550,16 @@ class TaskRunner
 	{
 		// This indicates the file to load.
 		// Only needed for tasks that don't use the SMF\Tasks\ namespace.
-		if (!empty($task_details['task_file']))
-		{
-			$include = strtr(trim($task_details['task_file']), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir));
+		if (!empty($task_details['task_file'])) {
+			$include = strtr(trim($task_details['task_file']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir]);
 
-			if (file_exists($include))
-				require_once($include);
+			if (file_exists($include)) {
+				require_once $include;
+			}
 		}
 
 		// All background tasks need to be classes.
-		if (empty($task_details['task_class']))
-		{
+		if (empty($task_details['task_class'])) {
 			// This would be nice to translate but the language files aren't
 			// loaded for any specific language.
 			ErrorHandler::log('Invalid background task specified: no class supplied');
@@ -567,18 +569,16 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask'))
-		{
-			$details = empty($task_details['task_data']) ? array() : Utils::jsonDecode($task_details['task_data'], true);
+		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$bgtask = new $task_details['task_class']($details);
 
 			$success = $bgtask->execute();
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask'))
-		{
-			$details = empty($task_details['task_data']) ? array() : Utils::jsonDecode($task_details['task_data'], true);
+		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
 
@@ -587,8 +587,7 @@ class TaskRunner
 			$success = $bgtask->execute();
 		}
 		// Uh-oh...
-		else
-		{
+		else {
 			ErrorHandler::log('Invalid background task specified: class ' . $task_details['task_class'] . ' not found');
 
 			// So we clear it from the queue.
@@ -596,8 +595,7 @@ class TaskRunner
 		}
 
 		// For scheduled tasks, log it and update our next scheduled task time.
-		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask'))
-		{
+		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}
@@ -612,28 +610,28 @@ class TaskRunner
 	protected function scheduleTask(): void
 	{
 		// Select the next task to do.
-		$request = Db::$db->query('', '
-			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
+		$request = Db::$db->query(
+			'',
+			'SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
 				AND next_time <= {int:current_time}
 			ORDER BY next_time ASC
 			LIMIT 1',
-			array(
+			[
 				'not_disabled' => 0,
 				'current_time' => time(),
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// When should this next be run?
 			$next_time = self::getNextScheduledTime($row['time_regularity'], $row['time_unit'], $row['time_offset']);
 
 			// How long in seconds is the gap?
 			$duration = $row['time_regularity'];
 
-			switch ($row['time_unit'])
-			{
+			switch ($row['time_unit']) {
 				case 'm':
 					$duration *= 60;
 					break;
@@ -655,48 +653,47 @@ class TaskRunner
 			}
 
 			// If we were really late running this task, skip the next scheduled execution.
-			if (time() + ($duration / 2) > $next_time)
+			if (time() + ($duration / 2) > $next_time) {
 				$next_time += $duration;
+			}
 
 			// What kind of task are we handling?
-			if (!empty($row['callable']))
-			{
+			if (!empty($row['callable'])) {
 				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['callable'], true);
-			}
-			elseif (!empty($row['task']))
-			{
+			} elseif (!empty($row['task'])) {
 				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['task']);
 			}
 
 			// If we have a valid background task, queue it up.
-			if (isset($task_details['task_class']) && class_exists($task_details['task_class']))
-			{
-				Db::$db->insert('insert',
+			if (isset($task_details['task_class']) && class_exists($task_details['task_class'])) {
+				Db::$db->insert(
+					'insert',
 					'{db_prefix}background_tasks',
-					array(
+					[
 						'task_file' => 'string-255',
 						'task_class' => 'string-255',
 						'task_data' => 'string',
 						'claimed_time' => 'int',
-					),
-					array(
+					],
+					[
 						'',
 						$task_details['task_class'],
 						json_encode($task_details['task_data']),
 						0,
-					),
-					array()
+					],
+					[],
 				);
 
 				// Updates next_time for this task so that no parallel processes run it.
-				Db::$db->query('', '
-					UPDATE {db_prefix}scheduled_tasks
+				Db::$db->query(
+					'',
+					'UPDATE {db_prefix}scheduled_tasks
 					SET next_time = {int:next_time}
 					WHERE id_task = {int:id_task}',
-					array(
+					[
 						'next_time' => $next_time,
 						'id_task' => $row['id_task'],
-					)
+					],
 				);
 			}
 		}
@@ -715,40 +712,35 @@ class TaskRunner
 	protected function getScheduledTaskDetails(int $id, string $task, bool $is_callable = false): array
 	{
 		// Allow mods to easily add scheduled tasks.
-		IntegrationHook::call('integrate_scheduled_tasks', array(&self::$scheduled_tasks));
+		IntegrationHook::call('integrate_scheduled_tasks', [&self::$scheduled_tasks]);
 
-		if ($is_callable)
-		{
+		if ($is_callable) {
 			$class = 'SMF\\Tasks\\GenericScheduledTask';
-			$data = array(
+			$data = [
 				'callable' => $task,
 				'id_scheduled_task' => $id,
-			);
-		}
-		elseif (isset(self::$scheduled_tasks[$task]))
-		{
+			];
+		} elseif (isset(self::$scheduled_tasks[$task])) {
 			$class = self::$scheduled_tasks[$task]['class'];
 			$data = array_merge(
-				array(
+				[
 					'task' => $task,
 					'id_scheduled_task' => $id,
-				),
-				self::$scheduled_tasks[$task]['data'] ?? array(),
+				],
+				self::$scheduled_tasks[$task]['data'] ?? [],
 			);
-		}
-		else
-		{
+		} else {
 			$class = 'SMF\\Tasks\\' . $task;
-			$data = array(
+			$data = [
 				'task' => $task,
 				'id_scheduled_task' => $id,
-			);
+			];
 		}
 
-		return array(
+		return [
 			'task_class' => $class,
 			'task_data' => $data,
-		);
+		];
 	}
 
 
@@ -757,13 +749,13 @@ class TaskRunner
 	/**
 	 * Cleans up the request variables.
 	 *
-	 * @return void
 	 */
 	protected function cleanRequest(): void
 	{
 		// These keys shouldn't be set...ever.
-		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
+		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
 			die('Invalid request variable.');
+		}
 
 		// Save some memory.. (since we don't use these anyway.)
 		unset(
@@ -784,15 +776,15 @@ class TaskRunner
 	 */
 	protected function obExit(): void
 	{
-		if (FROM_CLI)
-		{
+		if (FROM_CLI) {
 			die(0);
 		}
-		else
-		{
-			header('content-type: image/gif');
-			die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
-		}
+
+
+		header('content-type: image/gif');
+
+		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
+
 	}
 
 	/*************************
@@ -810,58 +802,59 @@ class TaskRunner
 	protected static function getNextScheduledTime(int $regularity, string $unit, int $offset): int
 	{
 		// Just in case!
-		if ($regularity == 0)
+		if ($regularity == 0) {
 			$regularity = 2;
+		}
 
 		$cur_min = date('i', time());
 
 		// If the unit is minutes only check regularity in minutes.
-		if ($unit == 'm')
-		{
+		if ($unit == 'm') {
 			$off = date('i', $offset);
 
 			// If it's now just pretend it ain't,
-			if ($off == $cur_min)
-			{
+			if ($off == $cur_min) {
 				$next_time = time() + $regularity;
-			}
-			else
-			{
+			} else {
 				// Make sure that the offset is always in the past.
 				$off = $off > $cur_min ? $off - 60 : $off;
 
-				while ($off <= $cur_min)
+				while ($off <= $cur_min) {
 					$off += $regularity;
+				}
 
 				// Now we know when the time should be!
 				$next_time = time() + 60 * ($off - $cur_min);
 			}
 		}
 		// Otherwise, work out what the offset would be with today's date.
-		else
-		{
+		else {
 			$next_time = mktime(date('H', $offset), date('i', $offset), 0, date('m'), date('d'), date('Y'));
 
 			// Make the time offset in the past!
-			if ($next_time > time())
+			if ($next_time > time()) {
 				$next_time -= 86400;
+			}
 
 			// Default we'll jump in hours.
 			$apply_offset = 3600;
 
 			// 24 hours = 1 day.
-			if ($unit == 'd')
+			if ($unit == 'd') {
 				$apply_offset = 86400;
+			}
 
 			// Otherwise a week.
-			if ($unit == 'w')
+			if ($unit == 'w') {
 				$apply_offset = 604800;
+			}
 
 			$apply_offset *= $regularity;
 
 			// Just add on the offset.
-			while ($next_time <= time())
+			while ($next_time <= time()) {
 				$next_time += $apply_offset;
+			}
 		}
 
 		return $next_time;
@@ -869,7 +862,8 @@ class TaskRunner
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\TaskRunner::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\TaskRunner::exportStatic')) {
 	TaskRunner::exportStatic();
+}
 
 ?>

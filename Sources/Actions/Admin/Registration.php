@@ -13,10 +13,11 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\Register2;
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -24,12 +25,10 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Profile;
 use SMF\SecurityToken;
-use SMF\User;
 use SMF\Theme;
 use SMF\Time;
+use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Register2;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class helps the administrator setting registration settings and policy
@@ -44,16 +43,16 @@ class Registration implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'RegCenter',
 			'adminRegister' => 'AdminRegister',
 			'editAgreement' => 'EditAgreement',
 			'editPrivacyPolicy' => 'EditPrivacyPolicy',
 			'setReserved' => 'SetReserved',
 			'modifyRegistrationSettings' => 'ModifyRegistrationSettings',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -78,13 +77,13 @@ class Registration implements ActionInterface
 	 *
 	 * Format: 'sa' => array('method', 'required_permission')
 	 */
-	public static array $subactions = array(
-		'register' => array('register', 'moderate_forum'),
-		'agreement' => array('agreement', 'admin_forum'),
-		'policy' => array('privacyPolicy', 'admin_forum'),
-		'reservednames' => array('reservedNames', 'admin_forum'),
-		'settings' => array('settings', 'admin_forum'),
-	);
+	public static array $subactions = [
+		'register' => ['register', 'moderate_forum'],
+		'agreement' => ['agreement', 'admin_forum'],
+		'policy' => ['privacyPolicy', 'admin_forum'],
+		'reservednames' => ['reservedNames', 'admin_forum'],
+		'settings' => ['settings', 'admin_forum'],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -110,10 +109,11 @@ class Registration implements ActionInterface
 		// Must have sufficient permissions.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -129,20 +129,17 @@ class Registration implements ActionInterface
 		Profile::load(0);
 		Profile::$member->loadCustomFields('register');
 
-		if (!empty($_POST['regSubmit']))
-		{
+		if (!empty($_POST['regSubmit'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-regc');
 
-			foreach ($_POST as $key => $value)
-			{
-				if (!is_array($_POST[$key]))
-				{
-					$_POST[$key] = Utils::htmlTrimRecursive(str_replace(array("\n", "\r"), '', Utils::normalize($_POST[$key])));
+			foreach ($_POST as $key => $value) {
+				if (!is_array($_POST[$key])) {
+					$_POST[$key] = Utils::htmlTrimRecursive(str_replace(["\n", "\r"], '', Utils::normalize($_POST[$key])));
 				}
 			}
 
-			$regOptions = array(
+			$regOptions = [
 				'interface' => 'admin',
 				'username' => $_POST['user'],
 				'email' => $_POST['email'],
@@ -154,40 +151,38 @@ class Registration implements ActionInterface
 				'send_welcome_email' => isset($_POST['emailPassword']) || empty($_POST['password']),
 				'require' => isset($_POST['emailActivate']) ? 'activation' : 'nothing',
 				'memberGroup' => empty($_POST['group']) || !User::$me->allowedTo('manage_membergroups') ? 0 : (int) $_POST['group'],
-			);
+			];
 
 			$memberID = Register2::registerMember($regOptions);
 
-			if (!empty($memberID))
-			{
+			if (!empty($memberID)) {
 				// We'll do custom fields after as then we get to use the helper function!
-				if (!empty($_POST['customfield']))
-				{
+				if (!empty($_POST['customfield'])) {
 					Profile::load($memberID);
 					Profile::$member->loadCustomFields('register');
 					Profile::$member->save();
 				}
 
-				Utils::$context['new_member'] = array(
+				Utils::$context['new_member'] = [
 					'id' => $memberID,
 					'name' => $_POST['user'],
 					'href' => Config::$scripturl . '?action=profile;u=' . $memberID,
 					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
-				);
+				];
 
 				Utils::$context['registration_done'] = sprintf(Lang::$txt['admin_register_done'], Utils::$context['new_member']['link']);
 			}
 		}
 
-		Utils::$context['member_groups'] = array();
+		Utils::$context['member_groups'] = [];
 
 		// Load the assignable member groups.
-		if (User::$me->allowedTo('manage_membergroups'))
-		{
+		if (User::$me->allowedTo('manage_membergroups')) {
 			Utils::$context['member_groups'][] = Lang::$txt['admin_register_group_none'];
 
-			$request = Db::$db->query('', '
-				SELECT group_name, id_group
+			$request = Db::$db->query(
+				'',
+				'SELECT group_name, id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group != {int:moderator_group}
 					AND min_posts = {int:min_posts}' . (User::$me->allowedTo('admin_forum') ? '' : '
@@ -195,17 +190,17 @@ class Registration implements ActionInterface
 					AND group_type != {int:is_protected}') . '
 					AND hidden != {int:hidden_group}
 				ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
-				array(
+				[
 					'moderator_group' => 3,
 					'min_posts' => -1,
 					'admin_group' => 1,
 					'is_protected' => 1,
 					'hidden_group' => 2,
 					'newbie_group' => 4,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				Utils::$context['member_groups'][$row['id_group']] = $row['group_name'];
 			}
 			Db::$db->free_result($request);
@@ -217,7 +212,7 @@ class Registration implements ActionInterface
 
 		SecurityToken::create('admin-regc');
 
-		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
+		Theme::loadJavaScriptFile('register.js', ['defer' => false, 'minimize' => true], 'smf_register');
 	}
 
 	/**
@@ -235,23 +230,20 @@ class Registration implements ActionInterface
 		Utils::$context['current_agreement'] = '';
 
 		// Is there more than one to edit?
-		Utils::$context['editable_agreements'] = array(
+		Utils::$context['editable_agreements'] = [
 			'' => Lang::$txt['admin_agreement_default'],
-		);
+		];
 
 		// Get our languages.
 		Lang::get();
 
 		// Try to figure out if we have more agreements.
-		foreach (Utils::$context['languages'] as $lang)
-		{
-			if (file_exists(Config::$boarddir . '/agreement.' . $lang['filename'] . '.txt'))
-			{
+		foreach (Utils::$context['languages'] as $lang) {
+			if (file_exists(Config::$boarddir . '/agreement.' . $lang['filename'] . '.txt')) {
 				Utils::$context['editable_agreements']['.' . $lang['filename']] = $lang['name'];
 
 				// Are we editing this?
-				if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == '.' . $lang['filename'])
-				{
+				if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == '.' . $lang['filename']) {
 					Utils::$context['current_agreement'] = '.' . $lang['filename'];
 				}
 			}
@@ -263,41 +255,39 @@ class Registration implements ActionInterface
 
 		Utils::$context['agreement'] = file_exists($agreement_file) ? str_replace("\r", '', file_get_contents($agreement_file)) : '';
 
-		if (isset($_POST['agreement']))
+		if (isset($_POST['agreement'])) {
 			$_POST['agreement'] = Utils::normalizeSpaces(Utils::normalize($_POST['agreement']));
+		}
 
-		if (isset($_POST['agreement']) && $_POST['agreement'] != Utils::$context['agreement'])
-		{
+		if (isset($_POST['agreement']) && $_POST['agreement'] != Utils::$context['agreement']) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
-			$backup_file = (date_create('@' . filemtime($agreement_file))->format('Y-m-d\TH_i_sp')) . '_' . $agreement_file;
+			$backup_file = (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . $agreement_file;
 
 			// Off it goes to the agreement file.
-			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file))
-			{
+			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
 				Utils::$context['saved_successful'] = true;
 
 				$agreement_settings['agreement_updated_' . $agreement_lang] = time();
 
 				// Writing it counts as agreeing to it, right?
-				Db::$db->insert('replace',
+				Db::$db->insert(
+					'replace',
 					'{db_prefix}themes',
-					array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-					array(User::$me->id, 1, 'agreement_accepted', time()),
-					array('id_member', 'id_theme', 'variable')
+					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
+					[User::$me->id, 1, 'agreement_accepted', time()],
+					['id_member', 'id_theme', 'variable'],
 				);
 
-				Logging::logAction('agreement_updated', array('language' => Utils::$context['editable_agreements'][Utils::$context['current_agreement']]), 'admin');
+				Logging::logAction('agreement_updated', ['language' => Utils::$context['editable_agreements'][Utils::$context['current_agreement']]], 'admin');
 
-				Logging::logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
+				Logging::logAction('agreement_accepted', ['applicator' => User::$me->id], 'user');
 
 				Config::updateModSettings($agreement_settings);
 
 				Utils::$context['agreement'] = $_POST['agreement'];
-			}
-			else
-			{
+			} else {
 				Utils::$context['could_not_save'] = true;
 			}
 		}
@@ -330,46 +320,47 @@ class Registration implements ActionInterface
 		// We need a policy for every language.
 		Lang::get();
 
-		foreach (Utils::$context['languages'] as $lang)
-		{
+		foreach (Utils::$context['languages'] as $lang) {
 			Utils::$context['editable_policies'][$lang['filename']] = $lang['name'];
 
 			// Are we editing this one?
-			if (isset($_POST['policy_lang']) && $_POST['policy_lang'] == $lang['filename'])
+			if (isset($_POST['policy_lang']) && $_POST['policy_lang'] == $lang['filename']) {
 				Utils::$context['current_policy_lang'] = $lang['filename'];
+			}
 		}
 
 		Utils::$context['privacy_policy'] = empty(Config::$modSettings['policy_' . Utils::$context['current_policy_lang']]) ? '' : Config::$modSettings['policy_' . Utils::$context['current_policy_lang']];
 
-		if (isset($_POST['policy']))
-		{
+		if (isset($_POST['policy'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-regp');
 
 			// Make sure there are no creepy-crawlies in it.
 			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
 
-			$policy_settings = array(
+			$policy_settings = [
 				'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
 				'policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] => Utils::$context['privacy_policy'],
-			);
+			];
 
 			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
 
 			// Writing it counts as agreeing to it, right?
-			Db::$db->insert('replace',
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}themes',
-				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-				array(User::$me->id, 1, 'policy_accepted', time()),
-				array('id_member', 'id_theme', 'variable')
+				['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
+				[User::$me->id, 1, 'policy_accepted', time()],
+				['id_member', 'id_theme', 'variable'],
 			);
 
-			Logging::logAction('policy_updated', array('language' => Utils::$context['editable_policies'][Utils::$context['current_policy_lang']]), 'admin');
+			Logging::logAction('policy_updated', ['language' => Utils::$context['editable_policies'][Utils::$context['current_policy_lang']]], 'admin');
 
-			Logging::logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
+			Logging::logAction('policy_accepted', ['applicator' => User::$me->id], 'user');
 
-			if (Utils::$context['privacy_policy'] !== $policy_text)
+			if (Utils::$context['privacy_policy'] !== $policy_text) {
 				Utils::$context['saved_successful'] = true;
+			}
 
 			Config::updateModSettings($policy_settings);
 
@@ -393,36 +384,35 @@ class Registration implements ActionInterface
 	public function reservedNames(): void
 	{
 		// Submitting new reserved words.
-		if (!empty($_POST['save_reserved_names']))
-		{
+		if (!empty($_POST['save_reserved_names'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-regr');
 
 			$_POST['reserved'] = Utils::normalize($_POST['reserved']);
 
 			// Set all the options....
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'reserveWord' => (int) !empty($_POST['matchword']),
 				'reserveCase' => (int) !empty($_POST['matchcase']),
 				'reserveUser' => (int) !empty($_POST['matchuser']),
 				'reserveName' => (int) !empty($_POST['matchname']),
 				'reserveNames' => Utils::normalizeSpaces(Utils::normalize($_POST['reserved'])),
-			));
+			]);
 
 			Utils::$context['saved_successful'] = true;
 		}
 
 		// Get the reserved word options and words.
-		Config::$modSettings['reserveNames'] = str_replace('\n', "\n", Config::$modSettings['reserveNames']);
+		Config::$modSettings['reserveNames'] = str_replace('\\n', "\n", Config::$modSettings['reserveNames']);
 
 		Utils::$context['reserved_words'] = explode("\n", Config::$modSettings['reserveNames']);
 
-		Utils::$context['reserved_word_options'] = array(
+		Utils::$context['reserved_word_options'] = [
 			'match_word' => !empty(Config::$modSettings['reserveWord']),
 			'match_case' => !empty(Config::$modSettings['reserveCase']),
 			'match_user' => !empty(Config::$modSettings['reserveUser']),
 			'match_name' => !empty(Config::$modSettings['reserveName']),
-		);
+		];
 
 		// Ready the template......
 		Utils::$context['sub_template'] = 'edit_reserved_words';
@@ -447,13 +437,13 @@ class Registration implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['page_title'] = Lang::$txt['registration_center'];
 
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			// Are there some contacts missing?
-			if (!empty($_POST['coppaAge']) && !empty($_POST['coppaType']) && empty($_POST['coppaPost']) && empty($_POST['coppaFax']))
+			if (!empty($_POST['coppaAge']) && !empty($_POST['coppaType']) && empty($_POST['coppaPost']) && empty($_POST['coppaFax'])) {
 				ErrorHandler::fatalLang('admin_setting_coppa_require_contact');
+			}
 
 			// Post needs to take into account line breaks.
 			$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : Utils::normalize($_POST['coppaPost']));
@@ -499,8 +489,9 @@ class Registration implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -525,27 +516,27 @@ class Registration implements ActionInterface
 
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 
-		$config_vars = array(
-			array('select', 'registration_method', array(Lang::$txt['setting_registration_standard'], Lang::$txt['setting_registration_activate'], Lang::$txt['setting_registration_approval'], Lang::$txt['setting_registration_disabled'])),
-			array('check', 'send_welcomeEmail'),
+		$config_vars = [
+			['select', 'registration_method', [Lang::$txt['setting_registration_standard'], Lang::$txt['setting_registration_activate'], Lang::$txt['setting_registration_approval'], Lang::$txt['setting_registration_disabled']]],
+			['check', 'send_welcomeEmail'],
 
 			'',
 
-			array('check', 'requireAgreement', 'text_label' => Lang::$txt['admin_agreement'], 'value' => !empty(Config::$modSettings['requireAgreement'])),
-			array('warning', empty($agreement) ? 'error_no_agreement' : ''),
-			array('check', 'requirePolicyAgreement', 'text_label' => Lang::$txt['admin_privacy_policy'], 'value' => !empty(Config::$modSettings['requirePolicyAgreement'])),
-			array('warning', empty($policy) ? 'error_no_privacy_policy' : ''),
+			['check', 'requireAgreement', 'text_label' => Lang::$txt['admin_agreement'], 'value' => !empty(Config::$modSettings['requireAgreement'])],
+			['warning', empty($agreement) ? 'error_no_agreement' : ''],
+			['check', 'requirePolicyAgreement', 'text_label' => Lang::$txt['admin_privacy_policy'], 'value' => !empty(Config::$modSettings['requirePolicyAgreement'])],
+			['warning', empty($policy) ? 'error_no_privacy_policy' : ''],
 
 			'',
 
-			array('int', 'coppaAge', 'subtext' => Lang::$txt['zero_to_disable'], 'onchange' => 'checkCoppa();'),
-			array('select', 'coppaType', array(Lang::$txt['setting_coppaType_reject'], Lang::$txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
-			array('large_text', 'coppaPost', 'subtext' => Lang::$txt['setting_coppaPost_desc']),
-			array('text', 'coppaFax'),
-			array('text', 'coppaPhone'),
-		);
+			['int', 'coppaAge', 'subtext' => Lang::$txt['zero_to_disable'], 'onchange' => 'checkCoppa();'],
+			['select', 'coppaType', [Lang::$txt['setting_coppaType_reject'], Lang::$txt['setting_coppaType_approval']], 'onchange' => 'checkCoppa();'],
+			['large_text', 'coppaPost', 'subtext' => Lang::$txt['setting_coppaPost_desc']],
+			['text', 'coppaFax'],
+			['text', 'coppaPhone'],
+		];
 
-		IntegrationHook::call('integrate_modify_registration_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_registration_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -598,8 +589,9 @@ class Registration implements ActionInterface
 	 */
 	public static function modifyRegistrationSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'settings';
@@ -621,37 +613,34 @@ class Registration implements ActionInterface
 		Theme::loadTemplate('Register');
 
 		// Next create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['registration_center'],
 			'help' => 'registrations',
 			'description' => Lang::$txt['admin_settings_desc'],
-			'tabs' => array(
-				'register' => array(
+			'tabs' => [
+				'register' => [
 					'description' => Lang::$txt['admin_register_desc'],
-				),
-				'agreement' => array(
+				],
+				'agreement' => [
 					'description' => Lang::$txt['registration_agreement_desc'],
-				),
-				'policy' => array(
+				],
+				'policy' => [
 					'description' => Lang::$txt['privacy_policy_desc'],
-				),
-				'reservednames' => array(
+				],
+				'reservednames' => [
 					'description' => Lang::$txt['admin_reserved_desc'],
-				),
-				'settings' => array(
+				],
+				'settings' => [
 					'description' => Lang::$txt['admin_settings_desc'],
-				)
-			)
-		);
+				],
+			],
+		];
 
-		IntegrationHook::call('integrate_manage_registrations', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_registrations', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
-		{
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
-		}
-		elseif (!User::$me->allowedTo('moderate_forum'))
-		{
+		} elseif (!User::$me->allowedTo('moderate_forum')) {
 			$this->subaction = 'settings';
 		}
 
@@ -661,7 +650,8 @@ class Registration implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Registration::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Registration::exportStatic')) {
 	Registration::exportStatic();
+}
 
 ?>

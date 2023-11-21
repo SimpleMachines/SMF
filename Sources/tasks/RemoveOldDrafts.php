@@ -14,9 +14,9 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\Theme;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Check for old drafts and remove them.
@@ -30,35 +30,37 @@ class RemoveOldDrafts extends ScheduledTask
 	 */
 	public function execute()
 	{
-		if (empty(Config::$modSettings['drafts_keep_days']))
-		{
+		if (empty(Config::$modSettings['drafts_keep_days'])) {
 			$this->should_log = false;
+
 			return true;
 		}
 
-		$drafts = array();
+		$drafts = [];
 
 		// We need this for language items.
 		Theme::loadEssential();
 
 		// Find all of the old drafts.
-		$request = Db::$db->query('', '
-			SELECT id_draft
+		$request = Db::$db->query(
+			'',
+			'SELECT id_draft
 			FROM {db_prefix}user_drafts
 			WHERE poster_time <= {int:poster_time_old}',
-			array(
+			[
 				'poster_time_old' => time() - (86400 * Config::$modSettings['drafts_keep_days']),
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_row($request))
-		{
+
+		while ($row = Db::$db->fetch_row($request)) {
 			$drafts[] = (int) $row[0];
 		}
 		Db::$db->free_result($request);
 
 		// If we have old ones, remove them.
-		if (count($drafts) > 0)
+		if (count($drafts) > 0) {
 			Draft::delete($drafts, false);
+		}
 
 		return true;
 	}

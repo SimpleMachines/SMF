@@ -16,8 +16,9 @@ namespace SMF\Cache\APIs;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Our Cache API class
@@ -33,8 +34,9 @@ class Zend extends CacheApi implements CacheApiInterface
 	{
 		$supported = function_exists('zend_shm_cache_fetch') || function_exists('output_cache_get');
 
-		if ($test)
+		if ($test) {
 			return $supported;
+		}
 
 		return parent::isSupported() && $supported;
 	}
@@ -52,11 +54,13 @@ class Zend extends CacheApi implements CacheApiInterface
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		// Zend's pricey stuff.
-		if (function_exists('zend_shm_cache_fetch'))
+		if (function_exists('zend_shm_cache_fetch')) {
 			return zend_shm_cache_fetch('SMF::' . $key);
+		}
 
-		elseif (function_exists('output_cache_get'))
+		if (function_exists('output_cache_get')) {
 			return output_cache_get($key, $ttl);
+		}
 	}
 
 	/**
@@ -66,11 +70,13 @@ class Zend extends CacheApi implements CacheApiInterface
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		if (function_exists('zend_shm_cache_store'))
+		if (function_exists('zend_shm_cache_store')) {
 			return zend_shm_cache_store('SMF::' . $key, $value, $ttl);
+		}
 
-		elseif (function_exists('output_cache_put'))
+		if (function_exists('output_cache_put')) {
 			return output_cache_put($key, $value);
+		}
 	}
 
 	/**

@@ -13,11 +13,12 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\Notify;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
 use SMF\Group;
 use SMF\IntegrationHook;
@@ -27,14 +28,12 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\PersonalMessage\PM;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Notify;
-use SMF\Db\DatabaseApi as Db;
-use SMF\PersonalMessage\PM;
 
 /**
  * This class manages... the news. :P
@@ -48,8 +47,8 @@ class News extends ACP implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ManageNews',
 			'list_getNews' => 'list_getNews',
 			'list_getNewsTextarea' => 'list_getNewsTextarea',
@@ -61,8 +60,8 @@ class News extends ACP implements ActionInterface
 			'composeMailing' => 'ComposeMailing',
 			'sendMailing' => 'SendMailing',
 			'modifyNewsSettings' => 'ModifyNewsSettings',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -93,50 +92,50 @@ class News extends ACP implements ActionInterface
 	 * runtime with escaped versions of whatever appears between the colon and
 	 * the closing brace. This escaping is done using Utils::JavaScriptEscape().
 	 */
-	public array $list_options = array(
+	public array $list_options = [
 		'id' => 'news_lists',
-		'get_items' => array(
+		'get_items' => [
 			'function' => __CLASS__ . '::list_getNews',
-		),
-		'columns' => array(
-			'news' => array(
-				'header' => array(
+		],
+		'columns' => [
+			'news' => [
+				'header' => [
 					'value' => '{txt:admin_edit_news}',
 					'class' => 'half_table',
-				),
-				'data' => array(
+				],
+				'data' => [
 					'function' => __CLASS__ . '::list_getNewsTextarea',
 					'class' => 'half_table',
-				),
-			),
-			'preview' => array(
-				'header' => array(
+				],
+			],
+			'preview' => [
+				'header' => [
 					'value' => '{txt:preview}',
 					'class' => 'half_table',
-				),
-				'data' => array(
+				],
+				'data' => [
 					'function' => __CLASS__ . '::list_getNewsPreview',
 					'class' => 'half_table',
-				),
-			),
-			'check' => array(
-				'header' => array(
+				],
+			],
+			'check' => [
+				'header' => [
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol icon',
-				),
-				'data' => array(
+				],
+				'data' => [
 					'function' => __CLASS__ . '::list_getNewsCheckbox',
 					'class' => 'centercol icon',
-				),
-			),
-		),
-		'form' => array(
+				],
+			],
+		],
+		'form' => [
 			'href' => '{scripturl}?action=admin;area=news;sa=editnews',
 			// Will be populated at runtime with session_var => session_id
-			'hidden_fields' => array(),
-		),
-		'additional_rows' => array(
-			array(
+			'hidden_fields' => [],
+		],
+		'additional_rows' => [
+			[
 				'position' => 'bottom_of_list',
 				'value' => '
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
@@ -144,8 +143,8 @@ class News extends ACP implements ActionInterface
 				</span>
 				<input type="submit" name="save_items" value="{txt:save}" class="button">
 				<input type="submit" name="delete_selection" value="{txt:editnews_remove_selected}" data-confirm="{txt:editnews_remove_confirm}" class="button you_sure">',
-			),
-		),
+			],
+		],
 		'javascript' => '
 			document.getElementById(\'list_news_lists_last\').style.display = "none";
 			document.getElementById("moreNewsItems_link").style.display = "";
@@ -222,7 +221,7 @@ class News extends ACP implements ActionInterface
 				');
 				make_preview_btn(last_preview);
 			}',
-	);
+	];
 
 	/**************************
 	 * Public static properties
@@ -235,13 +234,13 @@ class News extends ACP implements ActionInterface
 	 *
 	 * Format: 'sub-action' => array('function', 'permission')
 	 */
-	public static array $subactions = array(
-		'editnews' => array('edit', 'edit_news'),
-		'mailingmembers' => array('selectMembers', 'send_mail'),
-		'mailingcompose' => array('compose', 'send_mail'),
-		'mailingsend' => array('send', 'send_mail'),
-		'settings' => array('settings', 'admin_forum'),
-	);
+	public static array $subactions = [
+		'editnews' => ['edit', 'edit_news'],
+		'mailingmembers' => ['selectMembers', 'send_mail'],
+		'mailingcompose' => ['compose', 'send_mail'],
+		'mailingsend' => ['send', 'send_mail'],
+		'settings' => ['settings', 'admin_forum'],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -267,7 +266,7 @@ class News extends ACP implements ActionInterface
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		call_user_func(array($this, self::$subactions[$this->subaction][0]));
+		call_user_func([$this, self::$subactions[$this->subaction][0]]);
 	}
 
 	/**
@@ -283,38 +282,34 @@ class News extends ACP implements ActionInterface
 	public function edit(): void
 	{
 		// The 'remove selected' button was pressed.
-		if (!empty($_POST['delete_selection']) && !empty($_POST['remove']))
-		{
+		if (!empty($_POST['delete_selection']) && !empty($_POST['remove'])) {
 			User::$me->checkSession();
 
 			// Store the news temporarily in this array.
 			$temp_news = explode("\n", Config::$modSettings['news']);
 
 			// Remove the items that were selected.
-			foreach ($temp_news as $i => $news)
-				if (in_array($i, $_POST['remove']))
+			foreach ($temp_news as $i => $news) {
+				if (in_array($i, $_POST['remove'])) {
 					unset($temp_news[$i]);
+				}
+			}
 
 			// Update the database.
-			Config::updateModSettings(array('news' => implode("\n", $temp_news)));
+			Config::updateModSettings(['news' => implode("\n", $temp_news)]);
 
 			Utils::$context['saved_successful'] = true;
 
 			Logging::logAction('news');
 		}
 		// The 'Save' button was pressed.
-		elseif (!empty($_POST['save_items']))
-		{
+		elseif (!empty($_POST['save_items'])) {
 			User::$me->checkSession();
 
-			foreach ($_POST['news'] as $i => $news)
-			{
-				if (trim($news) == '')
-				{
+			foreach ($_POST['news'] as $i => $news) {
+				if (trim($news) == '') {
 					unset($_POST['news'][$i]);
-				}
-				else
-				{
+				} else {
 					$_POST['news'][$i] = Utils::htmlspecialchars($_POST['news'][$i], ENT_QUOTES);
 
 					Msg::preparsecode($_POST['news'][$i]);
@@ -322,7 +317,7 @@ class News extends ACP implements ActionInterface
 			}
 
 			// Send the new news to the database.
-			Config::updateModSettings(array('news' => implode("\n", $_POST['news'])));
+			Config::updateModSettings(['news' => implode("\n", $_POST['news'])]);
 
 			Utils::$context['saved_successful'] = true;
 
@@ -352,39 +347,32 @@ class News extends ACP implements ActionInterface
 	public function selectMembers(): void
 	{
 		// Is there any confirm message?
-		Utils::$context['newsletter_sent'] = isset($_SESSION['newsletter_sent']) ? $_SESSION['newsletter_sent'] : '';
+		Utils::$context['newsletter_sent'] = $_SESSION['newsletter_sent'] ?? '';
 
 		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
 
 		Utils::$context['sub_template'] = 'email_members';
 
-		Utils::$context['groups'] = array();
-		$postGroups = array();
-		$normalGroups = array();
+		Utils::$context['groups'] = [];
+		$postGroups = [];
+		$normalGroups = [];
 
 		// Get all the extra groups as well as Administrator and Global Moderator.
 		// If we have post groups disabled then we need to give a "ungrouped members" option.
-		if (empty(Config::$modSettings['permission_enable_postgroups']))
-		{
+		if (empty(Config::$modSettings['permission_enable_postgroups'])) {
 			$include = Group::LOAD_NORMAL;
-			$exclude = array(Group::GUEST, Group::MOD);
-		}
-		else
-		{
+			$exclude = [Group::GUEST, Group::MOD];
+		} else {
 			$include = Group::LOAD_BOTH;
-			$exclude = array(Group::GUEST, Group::REGULAR, Group::MOD);
+			$exclude = [Group::GUEST, Group::REGULAR, Group::MOD];
 		}
 
-		foreach (Group::loadSimple($include, $exclude) as $group)
-		{
+		foreach (Group::loadSimple($include, $exclude) as $group) {
 			Utils::$context['groups'][$group->id] = $group;
 
-			if ($group->min_posts == -1)
-			{
+			if ($group->min_posts == -1) {
 				$normalGroups[$group->id] = $group->id;
-			}
-			else
-			{
+			} else {
 				$postGroups[$group->id] = $group->id;
 			}
 		}
@@ -394,14 +382,15 @@ class News extends ACP implements ActionInterface
 
 		// Counting all the regular members could be a performance hit on large forums,
 		// so don't do that for anyone without high level permissions.
-		if (!User::$me->allowedTo('manage_membergroups'))
-			$groups_to_count = array_diff($groups_to_count, array(Group::REGULAR));
+		if (!User::$me->allowedTo('manage_membergroups')) {
+			$groups_to_count = array_diff($groups_to_count, [Group::REGULAR]);
+		}
 
 		Group::countMembersBatch($groups_to_count);
 
 		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
 
-		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 	}
 
 	/**
@@ -423,62 +412,58 @@ class News extends ACP implements ActionInterface
 		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
 
 		// Now create the editor.
-		new Editor(array(
+		new Editor([
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'height' => '150px',
 			'width' => '100%',
-			'labels' => array(
+			'labels' => [
 				'post_button' => Lang::$txt['sendtopic_send'],
-			),
+			],
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
-		));
+		]);
 
-		if (!empty(Utils::$context['preview']))
-		{
-			Utils::$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
-			Utils::$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
-			Utils::$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
-			Utils::$context['recipients']['exclude_groups'] = !empty($_POST['exclude_groups']) ? explode(',', $_POST['exclude_groups']) : array();
-			Utils::$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : array();
+		if (!empty(Utils::$context['preview'])) {
+			Utils::$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : [];
+			Utils::$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : [];
+			Utils::$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : [];
+			Utils::$context['recipients']['exclude_groups'] = !empty($_POST['exclude_groups']) ? explode(',', $_POST['exclude_groups']) : [];
+			Utils::$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : [];
 			Utils::$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
 			Utils::$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
 			Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 			Utils::$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
 
 			self::prepareMailingForPreview();
+
 			return;
 		}
 
 		// Start by finding any members!
-		$toClean = array();
+		$toClean = [];
 
-		if (!empty($_POST['members']))
+		if (!empty($_POST['members'])) {
 			$toClean[] = 'members';
+		}
 
-		if (!empty($_POST['exclude_members']))
+		if (!empty($_POST['exclude_members'])) {
 			$toClean[] = 'exclude_members';
+		}
 
-		if (!empty($toClean))
-		{
-			foreach ($toClean as $type)
-			{
+		if (!empty($toClean)) {
+			foreach ($toClean as $type) {
 				// Remove the quotes.
-				$_POST[$type] = strtr($_POST[$type], array('\\"' => '"'));
+				$_POST[$type] = strtr($_POST[$type], ['\\"' => '"']);
 
 				preg_match_all('~"([^"]+)"~', $_POST[$type], $matches);
 
 				$_POST[$type] = array_unique(array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $_POST[$type]))));
 
-				foreach ($_POST[$type] as $index => $member)
-				{
-					if (strlen(trim($member)) > 0)
-					{
+				foreach ($_POST[$type] as $index => $member) {
+					if (strlen(trim($member)) > 0) {
 						$_POST[$type][$index] = Utils::htmlspecialchars(Utils::strtolower(trim($member)));
-					}
-					else
-					{
+					} else {
 						unset($_POST[$type][$index]);
 					}
 				}
@@ -488,22 +473,22 @@ class News extends ACP implements ActionInterface
 			}
 		}
 
-		if (isset($_POST['member_list']) && is_array($_POST['member_list']))
-		{
-			$members = array();
+		if (isset($_POST['member_list']) && is_array($_POST['member_list'])) {
+			$members = [];
 
-			foreach ($_POST['member_list'] as $member_id)
+			foreach ($_POST['member_list'] as $member_id) {
 				$members[] = (int) $member_id;
+			}
 
 			$_POST['members'] = implode(',', $members);
 		}
 
-		if (isset($_POST['exclude_member_list']) && is_array($_POST['exclude_member_list']))
-		{
-			$members = array();
+		if (isset($_POST['exclude_member_list']) && is_array($_POST['exclude_member_list'])) {
+			$members = [];
 
-			foreach ($_POST['exclude_member_list'] as $member_id)
+			foreach ($_POST['exclude_member_list'] as $member_id) {
 				$members[] = (int) $member_id;
+			}
 
 			$_POST['exclude_members'] = implode(',', $members);
 		}
@@ -515,60 +500,62 @@ class News extends ACP implements ActionInterface
 		Lang::load('EmailTemplates');
 
 		// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
-		$request = Db::$db->query('', '
-			SELECT DISTINCT mem.id_member
+		$request = Db::$db->query(
+			'',
+			'SELECT DISTINCT mem.id_member
 			FROM {db_prefix}ban_groups AS bg
 				INNER JOIN {db_prefix}ban_items AS bi ON (bg.id_ban_group = bi.id_ban_group)
 				INNER JOIN {db_prefix}members AS mem ON (bi.id_member = mem.id_member)
 			WHERE (bg.cannot_access = {int:cannot_access} OR bg.cannot_login = {int:cannot_login})
 				AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time})',
-			array(
+			[
 				'cannot_access' => 1,
 				'cannot_login' => 1,
 				'current_time' => time(),
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['recipients']['exclude_members'][] = $row['id_member'];
 		}
 		Db::$db->free_result($request);
 
-		$condition_array = array();
-		$condition_array_params = array();
+		$condition_array = [];
+		$condition_array_params = [];
 		$count = 0;
 
-		$request = Db::$db->query('', '
-			SELECT DISTINCT bi.email_address
+		$request = Db::$db->query(
+			'',
+			'SELECT DISTINCT bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 			WHERE (bg.cannot_access = {int:cannot_access} OR bg.cannot_login = {int:cannot_login})
 				AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time})
 				AND bi.email_address != {string:blank_string}',
-			array(
+			[
 				'cannot_access' => 1,
 				'cannot_login' => 1,
 				'current_time' => time(),
 				'blank_string' => '',
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$condition_array[] = '{string:email_' . $count . '}';
 			$condition_array_params['email_' . $count++] = $row['email_address'];
 		}
 		Db::$db->free_result($request);
 
-		if (!empty($condition_array))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_member
+		if (!empty($condition_array)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE email_address IN (' . implode(', ', $condition_array) . ')',
-				$condition_array_params
+				$condition_array_params,
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				Utils::$context['recipients']['exclude_members'][] = $row['id_member'];
 			}
 			Db::$db->free_result($request);
@@ -584,25 +571,22 @@ class News extends ACP implements ActionInterface
 				!empty(Utils::$context['recipients']['exclude_groups'])
 				&& in_array(3, Utils::$context['recipients']['exclude_groups'])
 			)
-		)
-		{
-			$request = Db::$db->query('', '
-				SELECT DISTINCT mem.id_member AS identifier
+		) {
+			$request = Db::$db->query(
+				'',
+				'SELECT DISTINCT mem.id_member AS identifier
 				FROM {db_prefix}members AS mem
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
 				WHERE mem.is_activated = {int:is_activated}',
-				array(
+				[
 					'is_activated' => 1,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (in_array(3, Utils::$context['recipients']))
-				{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				if (in_array(3, Utils::$context['recipients'])) {
 					Utils::$context['recipients']['exclude_members'][] = $row['identifier'];
-				}
-				else
-				{
+				} else {
 					Utils::$context['recipients']['members'][] = $row['identifier'];
 				}
 			}
@@ -612,13 +596,14 @@ class News extends ACP implements ActionInterface
 		// For progress bar!
 		Utils::$context['total_emails'] = count(Utils::$context['recipients']['emails']);
 
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}members',
-			array(
-			)
+			[
+			],
 		);
-		list (Utils::$context['total_members']) = Db::$db->fetch_row($request);
+		list(Utils::$context['total_members']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Clean up the arrays.
@@ -638,12 +623,12 @@ class News extends ACP implements ActionInterface
 	 *
 	 * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
 	 */
-	function send($clean_only = false): void
+	public function send($clean_only = false): void
 	{
-		if (isset($_POST['preview']))
-		{
+		if (isset($_POST['preview'])) {
 			Utils::$context['preview'] = true;
 			self::compose();
+
 			return;
 		}
 
@@ -652,8 +637,9 @@ class News extends ACP implements ActionInterface
 		$num_at_once = 1000;
 
 		// If by PM's I suggest we half the above number.
-		if (!empty($_POST['send_pm']))
+		if (!empty($_POST['send_pm'])) {
 			$num_at_once /= 2;
+		}
 
 		User::$me->checkSession();
 
@@ -665,104 +651,101 @@ class News extends ACP implements ActionInterface
 		Utils::$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
 		Utils::$context['parse_html'] = !empty($_POST['parse_html']) ? '1' : '0';
 
-		//One can't simply nullify things around
-		if (empty($_REQUEST['total_members']))
-		{
-			$request = Db::$db->query('', '
-				SELECT COUNT(*)
+		// One can't simply nullify things around
+		if (empty($_REQUEST['total_members'])) {
+			$request = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}members',
-				array(
-				)
+				[
+				],
 			);
-			list (Utils::$context['total_members']) = Db::$db->fetch_row($request);
+			list(Utils::$context['total_members']) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
-		}
-		else
-		{
+		} else {
 			Utils::$context['total_members'] = (int) $_REQUEST['total_members'];
 		}
 
 		// Create our main context.
-		Utils::$context['recipients'] = array(
-			'groups' => array(),
-			'exclude_groups' => array(),
-			'members' => array(),
-			'exclude_members' => array(),
-			'emails' => array(),
-		);
+		Utils::$context['recipients'] = [
+			'groups' => [],
+			'exclude_groups' => [],
+			'members' => [],
+			'exclude_members' => [],
+			'emails' => [],
+		];
 
 		// Have we any excluded members?
-		if (!empty($_POST['exclude_members']))
-		{
+		if (!empty($_POST['exclude_members'])) {
 			$members = explode(',', $_POST['exclude_members']);
 
-			foreach ($members as $member)
-			{
-				if ($member >= Utils::$context['start'])
+			foreach ($members as $member) {
+				if ($member >= Utils::$context['start']) {
 					Utils::$context['recipients']['exclude_members'][] = (int) $member;
+				}
 			}
 		}
 
 		// What about members we *must* do?
-		if (!empty($_POST['members']))
-		{
+		if (!empty($_POST['members'])) {
 			$members = explode(',', $_POST['members']);
 
-			foreach ($members as $member)
-			{
-				if ($member >= Utils::$context['start'])
+			foreach ($members as $member) {
+				if ($member >= Utils::$context['start']) {
 					Utils::$context['recipients']['members'][] = (int) $member;
+				}
 			}
 		}
+
 		// Cleaning groups is simple - although deal with both checkbox and commas.
-		if (isset($_POST['groups']))
-		{
-			if (is_array($_POST['groups']))
-			{
-				foreach ($_POST['groups'] as $group => $dummy)
+		if (isset($_POST['groups'])) {
+			if (is_array($_POST['groups'])) {
+				foreach ($_POST['groups'] as $group => $dummy) {
 					Utils::$context['recipients']['groups'][] = (int) $group;
-			}
-			else
-			{
+				}
+			} else {
 				$groups = explode(',', $_POST['groups']);
 
-				foreach ($groups as $group)
+				foreach ($groups as $group) {
 					Utils::$context['recipients']['groups'][] = (int) $group;
+				}
 			}
 		}
+
 		// Same for excluded groups
-		if (isset($_POST['exclude_groups']))
-		{
-			if (is_array($_POST['exclude_groups']))
-			{
-				foreach ($_POST['exclude_groups'] as $group => $dummy)
+		if (isset($_POST['exclude_groups'])) {
+			if (is_array($_POST['exclude_groups'])) {
+				foreach ($_POST['exclude_groups'] as $group => $dummy) {
 					Utils::$context['recipients']['exclude_groups'][] = (int) $group;
+				}
 			}
 			// Ignore an empty string - we don't want to exclude "Regular Members" unless it's specifically selected
-			elseif ($_POST['exclude_groups'] != '')
-			{
+			elseif ($_POST['exclude_groups'] != '') {
 				$groups = explode(',', $_POST['exclude_groups']);
 
-				foreach ($groups as $group)
+				foreach ($groups as $group) {
 					Utils::$context['recipients']['exclude_groups'][] = (int) $group;
+				}
 			}
 		}
+
 		// Finally - emails!
-		if (!empty($_POST['emails']))
-		{
-			$addressed = array_unique(explode(';', strtr($_POST['emails'], array("\n" => ';', "\r" => ';', ',' => ';'))));
-			foreach ($addressed as $curmem)
-			{
+		if (!empty($_POST['emails'])) {
+			$addressed = array_unique(explode(';', strtr($_POST['emails'], ["\n" => ';', "\r" => ';', ',' => ';'])));
+
+			foreach ($addressed as $curmem) {
 				$curmem = trim($curmem);
 
-				if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
+				if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL)) {
 					Utils::$context['recipients']['emails'][$curmem] = $curmem;
+				}
 			}
 		}
 
 		// If we're only cleaning drop out here.
-		if ($clean_only)
+		if ($clean_only) {
 			return;
+		}
 
 		// We are relying too much on writing to superglobals...
 		$_POST['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : '';
@@ -773,54 +756,48 @@ class News extends ACP implements ActionInterface
 		Utils::$context['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 		// Prepare the message for sending it as HTML
-		if (!Utils::$context['send_pm'] && !empty($_POST['send_html']))
-		{
+		if (!Utils::$context['send_pm'] && !empty($_POST['send_html'])) {
 			// Prepare the message for HTML.
-			if (!empty($_POST['parse_html']))
-			{
-				$_POST['message'] = str_replace(array("\n", '  '), array('<br>' . "\n", '&nbsp; '), $_POST['message']);
+			if (!empty($_POST['parse_html'])) {
+				$_POST['message'] = str_replace(["\n", '  '], ['<br>' . "\n", '&nbsp; '], $_POST['message']);
 			}
 
 			// This is here to prevent spam filters from tagging this as spam.
-			if (preg_match('~\<html~i', $_POST['message']) == 0)
-			{
-				if (preg_match('~\<body~i', $_POST['message']) == 0)
-				{
+			if (preg_match('~\\<html~i', $_POST['message']) == 0) {
+				if (preg_match('~\\<body~i', $_POST['message']) == 0) {
 					$_POST['message'] = '<html><head><title>' . $_POST['subject'] . '</title></head>' . "\n" . '<body>' . $_POST['message'] . '</body></html>';
-				}
-				else
-				{
+				} else {
 					$_POST['message'] = '<html>' . $_POST['message'] . '</html>';
 				}
 			}
 		}
 
-		if (empty($_POST['message']) || empty($_POST['subject']))
-		{
+		if (empty($_POST['message']) || empty($_POST['subject'])) {
 			Utils::$context['preview'] = true;
 			self::compose();
+
 			return;
 		}
 
 		// Include an unsubscribe link if necessary.
-		if (!Utils::$context['send_pm'])
-		{
+		if (!Utils::$context['send_pm']) {
 			$include_unsubscribe = true;
 
-			if (strpos($_POST['message'], '{$member.unsubscribe}') === false)
+			if (strpos($_POST['message'], '{$member.unsubscribe}') === false) {
 				$_POST['message'] .= "\n\n" . '{$member.unsubscribe}';
+			}
 		}
 
 		// Use the default time format.
 		User::$me->time_format = Config::$modSettings['time_format'];
 
-		$variables = array(
+		$variables = [
 			'{$board_url}',
 			'{$current_time}',
 			'{$latest_member.link}',
 			'{$latest_member.id}',
-			'{$latest_member.name}'
-		);
+			'{$latest_member.name}',
+		];
 
 		// We might need this in a bit
 		$cleanLatestMember = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
@@ -828,61 +805,63 @@ class News extends ACP implements ActionInterface
 		// Replace in all the standard things.
 		$_POST['message'] = str_replace(
 			$variables,
-			array(
+			[
 				!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '">' . Config::$scripturl . '</a>' : Config::$scripturl,
 				Time::create('now')->format(null, false),
 				!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember']),
 				Config::$modSettings['latestMember'],
-				$cleanLatestMember
-			),
-			$_POST['message']
+				$cleanLatestMember,
+			],
+			$_POST['message'],
 		);
 
 		$_POST['subject'] = str_replace(
 			$variables,
-			array(
+			[
 				Config::$scripturl,
 				Time::create('now')->format(null, false),
 				Config::$modSettings['latestRealName'],
 				Config::$modSettings['latestMember'],
-				Config::$modSettings['latestRealName']
-			),
-			$_POST['subject']
+				Config::$modSettings['latestRealName'],
+			],
+			$_POST['subject'],
 		);
 
-		$from_member = array(
+		$from_member = [
 			'{$member.email}',
 			'{$member.link}',
 			'{$member.id}',
 			'{$member.name}',
 			'{$member.unsubscribe}',
-		);
+		];
 
 		// If we still have emails, do them first!
 		$i = 0;
-		foreach (Utils::$context['recipients']['emails'] as $k => $email)
-		{
+
+		foreach (Utils::$context['recipients']['emails'] as $k => $email) {
 			// Done as many as we can?
-			if ($i >= $num_at_once)
+			if ($i >= $num_at_once) {
 				break;
+			}
 
 			// Don't sent it twice!
 			unset(Utils::$context['recipients']['emails'][$k]);
 
 			// Dammit - can't PM emails!
-			if (Utils::$context['send_pm'])
+			if (Utils::$context['send_pm']) {
 				continue;
+			}
 
 			// Non-members can't unsubscribe via the automated system.
 			$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_manual'], empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']);
 
-			$to_member = array(
+			$to_member = [
 				$email,
 				!empty($_POST['send_html']) ? '<a href="mailto:' . $email . '">' . $email . '</a>' : $email,
 				'??',
 				$email,
 				$unsubscribe_link,
-			);
+			];
 
 			Mail::send(
 				$email,
@@ -891,43 +870,39 @@ class News extends ACP implements ActionInterface
 				null,
 				'news',
 				!empty($_POST['send_html']),
-				5
+				5,
 			);
 
 			// Done another...
 			$i++;
 		}
 
-		if ($i < $num_at_once)
-		{
+		if ($i < $num_at_once) {
 			// Need to build quite a query!
 			$sendQuery = '(';
-			$sendParams = array();
+			$sendParams = [];
 
-			if (!empty(Utils::$context['recipients']['groups']))
-			{
+			if (!empty(Utils::$context['recipients']['groups'])) {
 				// Take the long route...
-				$queryBuild = array();
+				$queryBuild = [];
 
-				foreach (Utils::$context['recipients']['groups'] as $group)
-				{
+				foreach (Utils::$context['recipients']['groups'] as $group) {
 					$sendParams['group_' . $group] = $group;
 					$queryBuild[] = 'mem.id_group = {int:group_' . $group . '}';
 
-					if (!empty($group))
-					{
+					if (!empty($group)) {
 						$queryBuild[] = 'FIND_IN_SET({int:group_' . $group . '}, mem.additional_groups) != 0';
 
 						$queryBuild[] = 'mem.id_post_group = {int:group_' . $group . '}';
 					}
 				}
 
-				if (!empty($queryBuild))
+				if (!empty($queryBuild)) {
 					$sendQuery .= implode(' OR ', $queryBuild);
+				}
 			}
 
-			if (!empty(Utils::$context['recipients']['members']))
-			{
+			if (!empty(Utils::$context['recipients']['members'])) {
 				$sendQuery .= ($sendQuery == '(' ? '' : ' OR ') . 'mem.id_member IN ({array_int:members})';
 
 				$sendParams['members'] = Utils::$context['recipients']['members'];
@@ -936,44 +911,42 @@ class News extends ACP implements ActionInterface
 			$sendQuery .= ')';
 
 			// If we've not got a query then we must be done!
-			if ($sendQuery == '()')
-			{
+			if ($sendQuery == '()') {
 				// Set a confirmation message.
 				$_SESSION['newsletter_sent'] = 'queue_done';
 				Utils::redirectexit('action=admin;area=news;sa=mailingmembers');
 			}
 
 			// Anything to exclude?
-			if (!empty(Utils::$context['recipients']['exclude_groups']) && in_array(0, Utils::$context['recipients']['exclude_groups']))
-			{
+			if (!empty(Utils::$context['recipients']['exclude_groups']) && in_array(0, Utils::$context['recipients']['exclude_groups'])) {
 				$sendQuery .= ' AND mem.id_group != {int:regular_group}';
 			}
 
-			if (!empty(Utils::$context['recipients']['exclude_members']))
-			{
+			if (!empty(Utils::$context['recipients']['exclude_members'])) {
 				$sendQuery .= ' AND mem.id_member NOT IN ({array_int:exclude_members})';
 				$sendParams['exclude_members'] = Utils::$context['recipients']['exclude_members'];
 			}
 
 			// Get the smelly people - note we respect the id_member range as it gives us a quicker query.
-			$rows = array();
+			$rows = [];
 
-			$result = Db::$db->query('', '
-				SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
+			$result = Db::$db->query(
+				'',
+				'SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
 				FROM {db_prefix}members AS mem
 				WHERE ' . $sendQuery . '
 					AND mem.is_activated = {int:is_activated}
 				ORDER BY mem.id_member ASC
 				LIMIT {int:start}, {int:atonce}',
-				array_merge($sendParams, array(
+				array_merge($sendParams, [
 					'start' => Utils::$context['start'],
 					'atonce' => $num_at_once,
 					'regular_group' => 0,
 					'is_activated' => 1,
-				))
+				]),
 			);
-			while ($row = Db::$db->fetch_assoc($result))
-			{
+
+			while ($row = Db::$db->fetch_assoc($result)) {
 				$rows[$row['id_member']] = $row;
 			}
 			Db::$db->free_result($result);
@@ -981,72 +954,64 @@ class News extends ACP implements ActionInterface
 			// Load their alert preferences
 			$prefs = Notify::getNotifyPrefs(array_keys($rows), 'announcements', true);
 
-			foreach ($rows as $row)
-			{
+			foreach ($rows as $row) {
 				// Force them to have it?
-				if (empty(Utils::$context['email_force']) && empty($prefs[$row['id_member']]['announcements']))
-				{
+				if (empty(Utils::$context['email_force']) && empty($prefs[$row['id_member']]['announcements'])) {
 					continue;
 				}
 
 				// What groups are we looking at here?
-				if (empty($row['additional_groups']))
-				{
-					$groups = array($row['id_group'], $row['id_post_group']);
-				}
-				else
-				{
+				if (empty($row['additional_groups'])) {
+					$groups = [$row['id_group'], $row['id_post_group']];
+				} else {
 					$groups = array_merge(
-						array($row['id_group'], $row['id_post_group']),
-						explode(',', $row['additional_groups'])
+						[$row['id_group'], $row['id_post_group']],
+						explode(',', $row['additional_groups']),
 					);
 				}
 
 				// Excluded groups?
-				if (array_intersect($groups, Utils::$context['recipients']['exclude_groups']))
+				if (array_intersect($groups, Utils::$context['recipients']['exclude_groups'])) {
 					continue;
+				}
 
 				// We might need this
 				$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode($row['real_name']) : $row['real_name'];
 
-				if (!empty($include_unsubscribe))
-				{
+				if (!empty($include_unsubscribe)) {
 					$token = Notify::createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
 
 					$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
-				}
-				else
-				{
+				} else {
 					$unsubscribe_link = '';
 				}
 
 				// Replace the member-dependant variables
 				$message = str_replace(
 					$from_member,
-					array(
+					[
 						$row['email_address'],
 						!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $cleanMemberName . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . ']' . $cleanMemberName . '[/url]' : Config::$scripturl . '?action=profile;u=' . $row['id_member']),
 						$row['id_member'],
 						$cleanMemberName,
 						$unsubscribe_link,
-					),
-					$_POST['message']
+					],
+					$_POST['message'],
 				);
 
 				$subject = str_replace(
 					$from_member,
-					array(
+					[
 						$row['email_address'],
 						$row['real_name'],
 						$row['id_member'],
 						$row['real_name'],
-					),
-					$_POST['subject']
+					],
+					$_POST['subject'],
 				);
 
 				// Send the actual email - or a PM!
-				if (!Utils::$context['send_pm'])
-				{
+				if (!Utils::$context['send_pm']) {
 					Mail::send(
 						$row['email_address'],
 						$subject,
@@ -1054,16 +1019,14 @@ class News extends ACP implements ActionInterface
 						null,
 						'news',
 						!empty($_POST['send_html']),
-						5
+						5,
 					);
-				}
-				else
-				{
+				} else {
 					PM::send(
-						array('to' => array($row['id_member']),
-							'bcc' => array()),
+						['to' => [$row['id_member']],
+							'bcc' => []],
 						$subject,
-						$message
+						$message,
 					);
 				}
 			}
@@ -1071,10 +1034,9 @@ class News extends ACP implements ActionInterface
 
 		Utils::$context['start'] = Utils::$context['start'] + $num_at_once;
 
-		if (empty(Utils::$context['recipients']['emails']) && (Utils::$context['start'] >= Utils::$context['total_members']))
-		{
+		if (empty(Utils::$context['recipients']['emails']) && (Utils::$context['start'] >= Utils::$context['total_members'])) {
 			// Log this into the admin log.
-			Logging::logAction('newsletter', array(), 'admin');
+			Logging::logAction('newsletter', [], 'admin');
 			$_SESSION['newsletter_sent'] = 'queue_done';
 			Utils::redirectexit('action=admin;area=news;sa=mailingmembers');
 		}
@@ -1112,8 +1074,7 @@ class News extends ACP implements ActionInterface
 		Theme::addInlineJavaScript("\n\t" . 'document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;', true);
 
 		// Saving the settings?
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			IntegrationHook::call('integrate_save_news_settings');
@@ -1140,8 +1101,9 @@ class News extends ACP implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -1161,21 +1123,21 @@ class News extends ACP implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$config_vars = array(
-			array('title', 'settings'),
+		$config_vars = [
+			['title', 'settings'],
 
 			// Inline permissions.
-			array('permissions', 'edit_news', 'help' => ''),
-			array('permissions', 'send_mail'),
+			['permissions', 'edit_news', 'help' => ''],
+			['permissions', 'send_mail'],
 			'',
 
 			// Just the remaining settings.
-			array('check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'),
-			array('int', 'xmlnews_maxlen', 'subtext' => Lang::$txt['xmlnews_maxlen_note'], 10),
-			array('check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']),
-		);
+			['check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'],
+			['int', 'xmlnews_maxlen', 'subtext' => Lang::$txt['xmlnews_maxlen_note'], 10],
+			['check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']],
+		];
 
-		IntegrationHook::call('integrate_modify_news_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_news_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -1187,24 +1149,23 @@ class News extends ACP implements ActionInterface
 	 */
 	public static function list_getNews(): array
 	{
-		$admin_current_news = array();
+		$admin_current_news = [];
 
 		// Ready the current news.
-		foreach (explode("\n", Config::$modSettings['news']) as $id => $line)
-		{
-			$admin_current_news[$id] = array(
+		foreach (explode("\n", Config::$modSettings['news']) as $id => $line) {
+			$admin_current_news[$id] = [
 				'id' => $id,
 				'unparsed' => Msg::un_preparsecode($line),
 				'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', BBCodeParser::load()->parse($line)),
-			);
+			];
 		}
 
-		$admin_current_news['last'] = array(
+		$admin_current_news['last'] = [
 			'id' => 'last',
 			'unparsed' => '<div id="moreNewsItems"></div>
 			<noscript><textarea rows="3" cols="65" name="news[]" style="width: 85%;"></textarea></noscript>',
 			'parsed' => '<div id="moreNewsItems_preview"></div>',
-		);
+		];
 
 		return $admin_current_news;
 	}
@@ -1252,39 +1213,34 @@ class News extends ACP implements ActionInterface
 	{
 		Lang::load('Errors');
 
-		$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
+		$processing = ['preview_subject' => 'subject', 'preview_message' => 'message'];
 
 		// Use the default time format.
 		User::$me->time_format = Config::$modSettings['time_format'];
 
-		$variables = array(
+		$variables = [
 			'{$board_url}',
 			'{$current_time}',
 			'{$latest_member.link}',
 			'{$latest_member.id}',
-			'{$latest_member.name}'
-		);
+			'{$latest_member.name}',
+		];
 
 		// We might need this in a bit
 		$cleanLatestMember = empty(Utils::$context['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
 
-		foreach ($processing as $key => $post)
-		{
+		foreach ($processing as $key => $post) {
 			Utils::$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
-			if (empty(Utils::$context[$key]) && empty($_REQUEST['xml']))
-			{
+			if (empty(Utils::$context[$key]) && empty($_REQUEST['xml'])) {
 				Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_' . $post];
-			}
-			elseif (!empty($_REQUEST['xml']))
-			{
+			} elseif (!empty($_REQUEST['xml'])) {
 				continue;
 			}
 
 			Msg::preparsecode(Utils::$context[$key]);
 
-			if (!empty(Utils::$context['send_html']))
-			{
+			if (!empty(Utils::$context['send_html'])) {
 				$enablePostHTML = Config::$modSettings['enablePostHTML'];
 				Config::$modSettings['enablePostHTML'] = Utils::$context['send_html'];
 				Utils::$context[$key] = BBCodeParser::load()->parse(Utils::$context[$key]);
@@ -1294,14 +1250,14 @@ class News extends ACP implements ActionInterface
 			// Replace in all the standard things.
 			Utils::$context[$key] = str_replace(
 				$variables,
-				array(
+				[
 					!empty(Utils::$context['send_html']) ? '<a href="' . Config::$scripturl . '">' . Config::$scripturl . '</a>' : Config::$scripturl,
 					Time::create('now')->format(null, false),
 					!empty(Utils::$context['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
 					Config::$modSettings['latestMember'],
-					$cleanLatestMember
-				),
-				Utils::$context[$key]
+					$cleanLatestMember,
+				],
+				Utils::$context[$key],
 			);
 		}
 	}
@@ -1354,8 +1310,9 @@ class News extends ACP implements ActionInterface
 	 */
 	public static function modifyNewsSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'settings';
@@ -1374,30 +1331,31 @@ class News extends ACP implements ActionInterface
 		Theme::loadTemplate('ManageNews');
 
 		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['news_title'],
 			'help' => 'edit_news',
 			'description' => Lang::$txt['admin_news_desc'],
-			'tabs' => array(
-				'editnews' => array(
-				),
-				'mailingmembers' => array(
+			'tabs' => [
+				'editnews' => [
+				],
+				'mailingmembers' => [
 					'description' => Lang::$txt['news_mailing_desc'],
-				),
-				'settings' => array(
+				],
+				'settings' => [
 					'description' => Lang::$txt['news_settings_desc'],
-				),
-			),
-		);
+				],
+			],
+		];
 
-		IntegrationHook::call('integrate_manage_news', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
 
 		// Force the right area...
-		if (substr($this->subaction, 0, 7) == 'mailing')
+		if (substr($this->subaction, 0, 7) == 'mailing') {
 			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
+		}
 
 		// Insert dynamic values into the list options.
 		$this->setListOptions();
@@ -1426,14 +1384,11 @@ class News extends ACP implements ActionInterface
 	{
 		array_walk_recursive(
 			$data,
-			function(&$value, $key)
-			{
+			function (&$value, $key) {
 				$value = preg_replace_callback(
 					'/{(scripturl|boardurl|txt:|js_escape:)([^}]*)}/',
-					function($matches)
-					{
-						switch ($matches[1])
-						{
+					function ($matches) {
+						switch ($matches[1]) {
 							case 'scripturl':
 								$new_value = Config::$scripturl;
 								break;
@@ -1453,15 +1408,16 @@ class News extends ACP implements ActionInterface
 
 						return $new_value;
 					},
-					$value
+					$value,
 				);
-			}
+			},
 		);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\News::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\News::exportStatic')) {
 	News::exportStatic();
+}
 
 ?>

@@ -13,16 +13,16 @@
 
 namespace SMF\Actions;
 
+use SMF\Actions\Moderation\Main as ModCenter;
 use SMF\BackwardCompatibility;
-
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
-use SMF\Logging;
 use SMF\Menu;
 use SMF\PageIndex;
 use SMF\SecurityToken;
@@ -30,8 +30,6 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Moderation\Main as ModCenter;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Shows group info and allows certain priviledged members to add/remove members.
@@ -45,8 +43,8 @@ class Groups implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'Groups',
 			'list_getMembergroups' => 'list_getMembergroups',
 			'listMembergroupMembers_Href' => 'listMembergroupMembers_Href',
@@ -55,8 +53,8 @@ class Groups implements ActionInterface
 			'GroupList' => 'GroupList',
 			'MembergroupMembers' => 'MembergroupMembers',
 			'GroupRequests' => 'GroupRequests',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -79,11 +77,11 @@ class Groups implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'index' => 'index',
 		'members' => 'members',
 		'requests' => 'requests',
-	);
+	];
 
 	/*********************
 	 * Internal properties
@@ -131,8 +129,7 @@ class Groups implements ActionInterface
 		Theme::loadTemplate('ManageMembergroups');
 
 		// If needed, set the mod center menu.
-		if (User::$me->allowedTo('access_mod_center') && (User::$me->mod_cache['gq'] != '0=1' || User::$me->allowedTo('manage_membergroups')) && !isset(Menu::$loaded['admin']) && !isset(Menu::$loaded['moderate']))
-		{
+		if (User::$me->allowedTo('access_mod_center') && (User::$me->mod_cache['gq'] != '0=1' || User::$me->allowedTo('manage_membergroups')) && !isset(Menu::$loaded['admin']) && !isset(Menu::$loaded['moderate'])) {
 			$_GET['area'] = $this->subaction == 'requests' ? 'groups' : 'viewgroups';
 
 			$this->action_url = '?action=moderate;area=' . $_GET['area'];
@@ -140,22 +137,22 @@ class Groups implements ActionInterface
 			ModCenter::load()->createMenu();
 		}
 		// Otherwise add something to the link tree, for normal people.
-		else
-		{
+		else {
 			User::$me->isAllowedTo('view_mlist');
 
 			$this->action_url = '?action=groups';
 
-			Utils::$context['linktree'][] = array(
+			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . $this->action_url,
 				'name' => Lang::$txt['groups'],
-			);
+			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -166,97 +163,88 @@ class Groups implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['viewing_groups'];
 
 		// Use the standard templates for showing this.
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'group_lists',
 			'title' => Utils::$context['page_title'],
 			'base_href' => Config::$scripturl . $this->action_url . ';sa=view',
 			'default_sort_col' => 'group',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getMembergroups',
-				'params' => array(
+				'params' => [
 					'regular',
-				),
-			),
-			'columns' => array(
-				'group' => array(
-					'header' => array(
+				],
+			],
+			'columns' => [
+				'group' => [
+					'header' => [
 						'value' => Lang::$txt['name'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							// Since the moderator group has no explicit members, no link is needed.
-							if ($rowData['id_group'] == 3)
-							{
+							if ($rowData['id_group'] == 3) {
 								$group_name = $rowData['group_name'];
-							}
-							else
-							{
+							} else {
 								$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
 								$group_name = sprintf('<a href="%1$s' . $this->action_url . ';sa=members;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 
 							// Add a help option for moderator and administrator.
-							if ($rowData['id_group'] == 1)
-							{
+							if ($rowData['id_group'] == 1) {
 								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
-							}
-							elseif ($rowData['id_group'] == 3)
-							{
+							} elseif ($rowData['id_group'] == 3) {
 								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							}
 
 							return $group_name;
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name',
 						'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name DESC',
-					),
-				),
-				'icons' => array(
-					'header' => array(
+					],
+				],
+				'icons' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_icons'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'icons',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mg.icons',
 						'reverse' => 'mg.icons DESC',
-					)
-				),
-				'moderators' => array(
-					'header' => array(
+					],
+				],
+				'moderators' => [
+					'header' => [
 						'value' => Lang::$txt['moderators'],
-					),
-					'data' => array(
-						'function' => function($group)
-						{
+					],
+					'data' => [
+						'function' => function ($group) {
 							return empty($group['moderators']) ? '<em>' . Lang::$txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
 						},
-					),
-				),
-				'members' => array(
-					'header' => array(
+					],
+				],
+				'members' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_members_top'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							// No explicit members for the moderator group.
 							return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
 						},
 						'class' => 'centercol',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, 1',
 						'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, 1 DESC',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 
 		// Create the request list.
 		new ItemList($listOptions);
@@ -283,109 +271,109 @@ class Groups implements ActionInterface
 		$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
 		// No browsing of guests, membergroup 0 or moderators.
-		if (in_array($_REQUEST['group'], array(-1, 0, 3)))
+		if (in_array($_REQUEST['group'], [-1, 0, 3])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
 		// Load up the group details.
 		@list($group) = Group::load($_REQUEST['group']);
 
-		if (empty($group->id))
+		if (empty($group->id)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
 		Utils::$context['group'] = $group;
 
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . $this->action_url . ';sa=members;group=' . $group->id,
 			'name' => $group->name,
-		);
+		];
 		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 
 		// Load all the group moderators, for fun.
 		User::load($group->loadModerators(), User::LOAD_BY_ID, 'minimal');
 
-		foreach ($group->moderator_ids as $mod_id)
-		{
-			$group->moderators[] = array(
+		foreach ($group->moderator_ids as $mod_id) {
+			$group->moderators[] = [
 				'id' => $mod_id,
 				'name' => User::$loaded[$mod_id]->name,
-			);
+			];
 		}
 
 		// If this group is hidden then it can only "exist" if the user can moderate it!
-		if ($group->hidden === Group::INVISIBLE && !$group->can_moderate)
+		if ($group->hidden === Group::INVISIBLE && !$group->can_moderate) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
 		// Removing member from group?
-		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && $group->assignable)
-		{
+		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && $group->assignable) {
 			User::$me->checkSession();
 			SecurityToken::validate('mod-mgm');
 
 			$group->removeMembers($_REQUEST['rem'], true);
 		}
 		// Must be adding new members to the group...
-		elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $group->assignable)
-		{
+		elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $group->assignable) {
 			User::$me->checkSession();
 			SecurityToken::validate('mod-mgm');
 
-			$member_query = array();
-			$member_parameters = array();
+			$member_query = [];
+			$member_parameters = [];
 
 			// Get all the members to be added... taking into account names can be quoted ;)
-			$_REQUEST['toAdd'] = strtr(Utils::htmlspecialchars($_REQUEST['toAdd'], ENT_QUOTES), array('&quot;' => '"'));
+			$_REQUEST['toAdd'] = strtr(Utils::htmlspecialchars($_REQUEST['toAdd'], ENT_QUOTES), ['&quot;' => '"']);
 
 			preg_match_all('~"([^"]+)"~', $_REQUEST['toAdd'], $matches);
 
 			$member_names = array_unique(array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $_REQUEST['toAdd']))));
 
-			foreach ($member_names as $index => $member_name)
-			{
+			foreach ($member_names as $index => $member_name) {
 				$member_names[$index] = trim(Utils::strtolower($member_names[$index]));
 
-				if (strlen($member_names[$index]) == 0)
+				if (strlen($member_names[$index]) == 0) {
 					unset($member_names[$index]);
+				}
 			}
 
 			// Any passed by ID?
-			$member_ids = array();
-			if (!empty($_REQUEST['member_add']))
-			{
-				foreach ($_REQUEST['member_add'] as $id)
-				{
-					if ($id > 0)
+			$member_ids = [];
+
+			if (!empty($_REQUEST['member_add'])) {
+				foreach ($_REQUEST['member_add'] as $id) {
+					if ($id > 0) {
 						$member_ids[] = (int) $id;
+					}
 				}
 			}
 
 			// Construct the query pelements.
-			if (!empty($member_ids))
-			{
+			if (!empty($member_ids)) {
 				$member_query[] = 'id_member IN ({array_int:member_ids})';
 				$member_parameters['member_ids'] = $member_ids;
 			}
-			if (!empty($member_names))
-			{
+
+			if (!empty($member_names)) {
 				$member_query[] = 'LOWER(member_name) IN ({array_string:member_names})';
 				$member_query[] = 'LOWER(real_name) IN ({array_string:member_names})';
 				$member_parameters['member_names'] = $member_names;
 			}
 
-			$members = array();
-			if (!empty($member_query))
-			{
-				$request = Db::$db->query('', '
-					SELECT id_member
+			$members = [];
+
+			if (!empty($member_query)) {
+				$request = Db::$db->query(
+					'',
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE (' . implode(' OR ', $member_query) . ')
 						AND id_group != {int:id_group}
 						AND FIND_IN_SET({int:id_group}, additional_groups) = 0',
-					array_merge($member_parameters, array(
+					array_merge($member_parameters, [
 						'id_group' => $_REQUEST['group'],
-					))
+					]),
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
+
+				while ($row = Db::$db->fetch_assoc($request)) {
 					$members[] = $row['id_member'];
 				}
 				Db::$db->free_result($request);
@@ -394,35 +382,31 @@ class Groups implements ActionInterface
 			// @todo Add $_POST['additional'] to templates!
 
 			// Do the updates...
-			if (!empty($members))
-			{
+			if (!empty($members)) {
 				@list($group) = Group::load((int) $_REQUEST['group']);
 
-				if ($group instanceof Group)
-				{
+				if ($group instanceof Group) {
 					$group->addMembers($members, isset($_POST['additional']) ? 'only_additional' : 'auto', true);
 				}
 			}
 		}
 
 		// Sort out the sorting!
-		$sort_methods = array(
+		$sort_methods = [
 			'name' => 'real_name',
 			'email' => 'email_address',
 			'active' => 'last_login',
 			'registered' => 'date_registered',
 			'posts' => 'posts',
-		);
+		];
 
 		// They didn't pick one, default to by name..
-		if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
-		{
+		if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']])) {
 			Utils::$context['sort_by'] = 'name';
 			$querySort = 'real_name';
 		}
 		// Otherwise default to ascending.
-		else
-		{
+		else {
 			Utils::$context['sort_by'] = $_REQUEST['sort'];
 			$querySort = $sort_methods[$_REQUEST['sort']];
 		}
@@ -439,12 +423,12 @@ class Groups implements ActionInterface
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 
 		// Load up all members of this group.
-		Utils::$context['members'] = array();
+		Utils::$context['members'] = [];
 
-		if ($group->loadMembers() !== array())
-		{
-			foreach (User::load($group->members, User::LOAD_BY_ID, 'normal') as $member)
+		if ($group->loadMembers() !== []) {
+			foreach (User::load($group->members, User::LOAD_BY_ID, 'normal') as $member) {
 				Utils::$context['members'][] = $member->format();
+			}
 		}
 
 		// Select the template.
@@ -452,9 +436,8 @@ class Groups implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['membergroups_members_title'] . ': ' . $group->name;
 		SecurityToken::create('mod-mgm');
 
-		if ($group->assignable)
-		{
-			Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		if ($group->assignable) {
+			Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 		}
 	}
 
@@ -468,33 +451,33 @@ class Groups implements ActionInterface
 		Utils::$context['sub_template'] = 'show_list';
 
 		// Verify we can be here.
-		if (User::$me->mod_cache['gq'] == '0=1')
+		if (User::$me->mod_cache['gq'] == '0=1') {
 			User::$me->isAllowedTo('manage_membergroups');
+		}
 
 		// Normally, we act normally...
 		$where = (User::$me->mod_cache['gq'] == '1=1' || User::$me->mod_cache['gq'] == '0=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']);
 
 		$where .= ' AND lgr.status ' . (isset($_GET['closed']) ? '!=' : '=') . ' {int:status_open}';
 
-		$where_parameters = array(
+		$where_parameters = [
 			'status_open' => 0,
-		);
+		];
 
 		// We've submitted?
-		if (isset($_POST[Utils::$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
-		{
+		if (isset($_POST[Utils::$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('mod-gr');
 
 			// Clean the values.
-			foreach ($_POST['groupr'] as $k => $request)
+			foreach ($_POST['groupr'] as $k => $request) {
 				$_POST['groupr'][$k] = (int) $request;
+			}
 
-			$log_changes = array();
+			$log_changes = [];
 
 			// If we are giving a reason (And why shouldn't we?), then we don't actually do much.
-			if ($_POST['req_action'] == 'reason')
-			{
+			if ($_POST['req_action'] == 'reason') {
 				// Different sub template...
 				Utils::$context['sub_template'] = 'group_request_reason';
 
@@ -511,96 +494,94 @@ class Groups implements ActionInterface
 				Utils::obExit();
 			}
 			// Otherwise we do something!
-			else
-			{
-				$request_list = array();
+			else {
+				$request_list = [];
 
-				$members_to_add = array();
+				$members_to_add = [];
 
-				$request = Db::$db->query('', '
-					SELECT lgr.id_request
+				$request = Db::$db->query(
+					'',
+					'SELECT lgr.id_request
 					FROM {db_prefix}log_group_requests AS lgr
 					WHERE ' . $where . '
 						AND lgr.id_request IN ({array_int:request_list})',
-					array(
+					[
 						'request_list' => $_POST['groupr'],
 						'status_open' => 0,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					if ($_POST['req_action'] === 'approve')
-						$members_to_add[$row['id_group']] = $row['id_member'];
 
-					if (!isset($log_changes[$row['id_request']]))
-					{
-						$log_changes[$row['id_request']] = array(
+				while ($row = Db::$db->fetch_assoc($request)) {
+					if ($_POST['req_action'] === 'approve') {
+						$members_to_add[$row['id_group']] = $row['id_member'];
+					}
+
+					if (!isset($log_changes[$row['id_request']])) {
+						$log_changes[$row['id_request']] = [
 							'id_request' => $row['id_request'],
 							'status' => $_POST['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
 							'id_member_acted' => User::$me->id,
 							'member_name_acted' => User::$me->name,
 							'time_acted' => time(),
 							'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? Utils::htmlspecialchars($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
-						);
+						];
 					}
 
 					$request_list[] = $row['id_request'];
 				}
 				Db::$db->free_result($request);
 
-				if (!empty($members_to_add))
-				{
-					foreach ($members_to_add as $group_id => $members)
-					{
+				if (!empty($members_to_add)) {
+					foreach ($members_to_add as $group_id => $members) {
 						@list($group) = Group::load((int) $group_id);
 
-						if ($group instanceof Group)
+						if ($group instanceof Group) {
 							$group->addMembers($members);
+						}
 					}
 				}
 
 				// Add a background task to handle notifying people of this request
-				$data = Utils::jsonEncode(array(
+				$data = Utils::jsonEncode([
 					'member_id' => User::$me->id,
 					'member_ip' => User::$me->ip,
 					'request_list' => $request_list,
 					'status' => $_POST['req_action'],
-					'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '',
+					'reason' => $_POST['groupreason'] ?? '',
 					'time' => time(),
-				));
+				]);
 
 				Db::$db->insert(
 					'insert',
 					'{db_prefix}background_tasks',
-					array(
+					[
 						'task_file' => 'string-255',
 						'task_class' => 'string-255',
 						'task_data' => 'string',
 						'claimed_time' => 'int',
-					),
-					array(
+					],
+					[
 						'$sourcedir/tasks/GroupAct_Notify.php',
-						'SMF\Tasks\GroupAct_Notify',
+						'SMF\\Tasks\\GroupAct_Notify',
 						$data,
 						0,
-					),
-					array()
+					],
+					[],
 				);
 
 				// Some changes to log?
-				if (!empty($log_changes))
-				{
-					foreach ($log_changes as $id_request => $details)
-					{
-						Db::$db->query('', '
-							UPDATE {db_prefix}log_group_requests
+				if (!empty($log_changes)) {
+					foreach ($log_changes as $id_request => $details) {
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}log_group_requests
 							SET status = {int:status},
 								id_member_acted = {int:id_member_acted},
 								member_name_acted = {string:member_name_acted},
 								time_acted = {int:time_acted},
 								act_reason = {string:act_reason}
 							WHERE id_request = {int:id_request}',
-							$details
+							$details,
 						);
 					}
 				}
@@ -608,97 +589,97 @@ class Groups implements ActionInterface
 		}
 
 		// This is all the information required for a group listing.
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'group_request_list',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['mc_groupr_none_found'],
 			'base_href' => Config::$scripturl . $this->action_url . ';sa=requests',
 			'default_sort_col' => 'member',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getGroupRequests',
-				'params' => array(
+				'params' => [
 					$where,
 					$where_parameters,
-				),
-			),
-			'get_count' => array(
+				],
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getGroupRequestCount',
-				'params' => array(
+				'params' => [
 					$where,
 					$where_parameters,
-				),
-			),
-			'columns' => array(
-				'member' => array(
-					'header' => array(
+				],
+			],
+			'columns' => [
+				'member' => [
+					'header' => [
 						'value' => Lang::$txt['mc_groupr_member'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'member_link',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mem.member_name',
 						'reverse' => 'mem.member_name DESC',
-					),
-				),
-				'group' => array(
-					'header' => array(
+					],
+				],
+				'group' => [
+					'header' => [
 						'value' => Lang::$txt['mc_groupr_group'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'group_link',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mg.group_name',
 						'reverse' => 'mg.group_name DESC',
-					),
-				),
-				'reason' => array(
-					'header' => array(
+					],
+				],
+				'reason' => [
+					'header' => [
 						'value' => Lang::$txt['mc_groupr_reason'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'reason',
-					),
-				),
-				'date' => array(
-					'header' => array(
+					],
+				],
+				'date' => [
+					'header' => [
 						'value' => Lang::$txt['date'],
 						'style' => 'width: 18%; white-space:nowrap;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'time_submitted',
-					),
-				),
-				'action' => array(
-					'header' => array(
+					],
+				],
+				'action' => [
+					'header' => [
 						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'style' => 'width: 4%;',
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<input type="checkbox" name="groupr[]" value="%1$d">',
-							'params' => array(
+							'params' => [
 								'id' => false,
-							),
-						),
+							],
+						],
 						'class' => 'centercol',
-					),
-				),
-			),
-			'form' => array(
+					],
+				],
+			],
+			'form' => [
 				'href' => Config::$scripturl . $this->action_url . ';sa=requests',
 				'include_sort' => true,
 				'include_start' => true,
-				'hidden_fields' => array(
+				'hidden_fields' => [
 					Utils::$context['session_var'] => Utils::$context['session_id'],
-				),
+				],
 				'token' => 'mod-gr',
-			),
-			'additional_rows' => array(
-				array(
+			],
+			'additional_rows' => [
+				[
 					'position' => 'bottom_of_list',
 					'value' => '
 						<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . Lang::$txt['mc_groupr_warning'] . '\'))) this.form.submit();">
@@ -710,12 +691,11 @@ class Groups implements ActionInterface
 						</select>
 						<input type="submit" name="go" value="' . Lang::$txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . Lang::$txt['mc_groupr_warning'] . '\')) return false;" class="button">',
 					'class' => 'floatright',
-				),
-			),
-		);
+				],
+			],
+		];
 
-		if (isset($_GET['closed']))
-		{
+		if (isset($_GET['closed'])) {
 			// Closed requests don't require interaction.
 			unset($listOptions['columns']['action'], $listOptions['form'], $listOptions['additional_rows'][0]);
 			$listOptions['base_href'] .= 'closed';
@@ -726,9 +706,9 @@ class Groups implements ActionInterface
 		new ItemList($listOptions);
 
 		Utils::$context['default_list'] = 'group_request_list';
-		Menu::$loaded['moderate']->tab_data = array(
+		Menu::$loaded['moderate']->tab_data = [
 			'title' => Lang::$txt['mc_group_requests'],
-		);
+		];
 	}
 
 	/***********************
@@ -742,8 +722,9 @@ class Groups implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -768,31 +749,30 @@ class Groups implements ActionInterface
 	public static function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type): array
 	{
 		// Start collecting the data.
-		$groups = array();
-		$group_ids = array();
+		$groups = [];
+		$group_ids = [];
 		Utils::$context['can_moderate'] = User::$me->allowedTo('manage_membergroups');
 
-		$query_customizations = array(
-			'where' => array(
+		$query_customizations = [
+			'where' => [
 				'mg.min_posts' . ($membergroup_type === 'post_count' ? '!= ' : '= ') . '-1',
-			),
+			],
 			'order' => (array) $sort,
-		);
+		];
 
-		if (!User::$me->allowedTo('admin_forum'))
-		{
+		if (!User::$me->allowedTo('admin_forum')) {
 			$query_customizations['where'][] = 'mg.id_group != {int:mod_group}';
 			$query_customizations['params']['mod_group'] = Group::MOD;
 		}
 
-		$temp = Group::load(array(), $query_customizations);
-		Group::loadModeratorsBatch(array_map(fn($group) => $group->id, $temp));
+		$temp = Group::load([], $query_customizations);
+		Group::loadModeratorsBatch(array_map(fn ($group) => $group->id, $temp));
 
-		foreach ($temp as $group)
-		{
+		foreach ($temp as $group) {
 			// We only list the groups they can see.
-			if ($group->hidden === Group::INVISIBLE && !$group->can_moderate)
+			if ($group->hidden === Group::INVISIBLE && !$group->can_moderate) {
 				continue;
+			}
 
 			Utils::$context['can_moderate'] |= $group->can_moderate;
 
@@ -803,19 +783,17 @@ class Groups implements ActionInterface
 		}
 
 		// If we found any membergroups, get the amount of members in them.
-		if (!empty($group_ids))
-		{
+		if (!empty($group_ids)) {
 			Group::countMembersBatch($group_ids);
 			Group::loadModeratorsBatch($group_ids);
 
-			foreach ($group_ids as $group_id)
-			{
+			foreach ($group_ids as $group_id) {
 				User::load(Group::$loaded[$group_id]->moderator_ids);
 
-				foreach (Group::$loaded[$group_id]->moderator_ids as $mod_id)
-				{
-					if (!isset(User::$loaded[$mod_id]))
+				foreach (Group::$loaded[$group_id]->moderator_ids as $mod_id) {
+					if (!isset(User::$loaded[$mod_id])) {
 						continue;
+					}
 
 					Group::$loaded[$group_id]->moderators[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod_id . '">' . User::$loaded[$mod_id]->name . '</a>';
 				}
@@ -823,12 +801,12 @@ class Groups implements ActionInterface
 		}
 
 		// Apply manual sorting if the 'number of members' column is selected.
-		if (substr($sort, 0, 1) == '1' || strpos($sort, ', 1') !== false)
-		{
+		if (substr($sort, 0, 1) == '1' || strpos($sort, ', 1') !== false) {
 			$sort_ascending = strpos($sort, 'DESC') === false;
 
-			foreach ($groups as $group)
+			foreach ($groups as $group) {
 				$sort_array[] = $group->id_group != Group::MOD ? (int) $group->num_members : Group::GUEST;
+			}
 
 			array_multisort($sort_array, $sort_ascending ? SORT_ASC : SORT_DESC, SORT_REGULAR, $groups);
 		}
@@ -847,33 +825,34 @@ class Groups implements ActionInterface
 	 */
 	public static function listMembergroupMembers_Href(&$members, $membergroup, $limit = null): bool
 	{
-		$members = array();
+		$members = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_member, real_name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_group = {int:id_group} OR FIND_IN_SET({int:id_group}, additional_groups) != 0' . ($limit === null ? '' : '
 			LIMIT ' . ($limit + 1)),
-			array(
+			[
 				'id_group' => $membergroup,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$members[$row['id_member']] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 		}
 		Db::$db->free_result($request);
 
 		// If there are more than $limit members, add a 'more' link.
-		if ($limit !== null && count($members) > $limit)
-		{
+		if ($limit !== null && count($members) > $limit) {
 			array_pop($members);
+
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+
+
+		return false;
+
 	}
 
 	/**
@@ -885,12 +864,13 @@ class Groups implements ActionInterface
 	 */
 	public static function list_getGroupRequestCount($where, $where_parameters): int
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_group_requests AS lgr
 			WHERE ' . $where,
-			array_merge($where_parameters, array(
-			))
+			array_merge($where_parameters, [
+			]),
 		);
 		list($totalRequests) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -916,10 +896,11 @@ class Groups implements ActionInterface
 	 */
 	public static function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_parameters): array
 	{
-		$group_requests = array();
+		$group_requests = [];
 
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
 				lgr.status, lgr.id_member_acted, lgr.member_name_acted, lgr.time_acted, lgr.act_reason,
 				mem.member_name, mg.group_name, mg.online_color, mem.real_name
@@ -929,47 +910,41 @@ class Groups implements ActionInterface
 			WHERE ' . $where . '
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
-			array_merge($where_parameters, array(
+			array_merge($where_parameters, [
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,
-			))
+			]),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (empty($row['reason']))
-			{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (empty($row['reason'])) {
 				$reason = '<em>(' . Lang::$txt['mc_groupr_no_reason'] . ')</em>';
-			}
-			else
-			{
+			} else {
 				$reason = Lang::censorText($row['reason']);
 			}
 
-			if (isset($_GET['closed']))
-			{
-				if ($row['status'] == 1)
-				{
+			if (isset($_GET['closed'])) {
+				if ($row['status'] == 1) {
 					$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_approved'] . '</strong>';
-				}
-				elseif ($row['status'] == 2)
-				{
+				} elseif ($row['status'] == 2) {
 					$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_rejected'] . '</strong>';
 				}
 
 				$reason .= ' (' . Time::create('@' . $row['time_acted'])->format() . ')';
 
-				if (!empty($row['act_reason']))
+				if (!empty($row['act_reason'])) {
 					$reason .= '<br><br>' . Lang::censorText($row['act_reason']);
+				}
 			}
 
-			$group_requests[] = array(
+			$group_requests[] = [
 				'id' => $row['id_request'],
 				'member_link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				'group_link' => '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>',
 				'reason' => $reason,
 				'time_submitted' => Time::create('@' . $row['time_applied'])->format(),
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -1015,15 +990,17 @@ class Groups implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		IntegrationHook::call('integrate_manage_groups', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_groups', [&self::$subactions]);
 
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
+		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
 			$this->subaction = $_GET['sa'];
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Groups::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Groups::exportStatic')) {
 	Groups::exportStatic();
+}
 
 ?>

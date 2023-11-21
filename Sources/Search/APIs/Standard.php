@@ -28,8 +28,9 @@ class Standard extends SearchApi
 		$return = false;
 
 		// Maybe parent got support
-		if (!$return)
+		if (!$return) {
 			$return = parent::supportsMethod($methodName, $query_params);
+		}
 
 		return $return;
 	}

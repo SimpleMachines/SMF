@@ -33,11 +33,11 @@ class Session implements \SessionHandlerInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'load' => 'loadSession',
-		),
-	);
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -77,18 +77,20 @@ class Session implements \SessionHandlerInterface
 	 */
 	public function read(string $session_id): string
 	{
-		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
+		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return '';
+		}
 
 		// Look for it in the database.
-		$result = Db::$db->query('', '
-			SELECT data
+		$result = Db::$db->query(
+			'',
+			'SELECT data
 			FROM {db_prefix}sessions
 			WHERE session_id = {string:session_id}
 			LIMIT 1',
-			array(
+			[
 				'session_id' => $session_id,
-			)
+			],
 		);
 		list($sess_data) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
@@ -101,30 +103,33 @@ class Session implements \SessionHandlerInterface
 	 *
 	 * @param string $session_id The session ID.
 	 * @param string $data The data to write to the session.
-	 * @return boolean Whether the info was successfully written.
+	 * @return bool Whether the info was successfully written.
 	 */
 	public function write(string $session_id, string $data): bool
 	{
-		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
+		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return false;
+		}
 
-		if (empty(Db::$db_connection))
+		if (empty(Db::$db_connection)) {
 			Db::load();
+		}
 
 		// If an insert fails due to a duplicate, replace the existing session...
-		Db::$db->insert('replace',
+		Db::$db->insert(
+			'replace',
 			'{db_prefix}sessions',
-			array(
+			[
 				'session_id' => 'string',
 				'data' => 'string',
 				'last_update' => 'int',
-			),
-			array(
+			],
+			[
 				$session_id,
 				$data,
 				time(),
-			),
-			array('session_id')
+			],
+			['session_id'],
 		);
 
 		return (Db::$db->affected_rows() == 0 ? false : true);
@@ -134,20 +139,22 @@ class Session implements \SessionHandlerInterface
 	 * Destroys a session.
 	 *
 	 * @param string $session_id The session ID.
-	 * @return boolean Whether the session was successfully destroyed.
+	 * @return bool Whether the session was successfully destroyed.
 	 */
 	public function destroy(string $session_id): bool
 	{
-		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
+		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return false;
+		}
 
 		// Just delete the row...
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}sessions
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}sessions
 			WHERE session_id = {string:session_id}',
-			array(
+			[
 				'session_id' => $session_id,
-			)
+			],
 		);
 
 		return true;
@@ -163,18 +170,18 @@ class Session implements \SessionHandlerInterface
 	public function gc(int $max_lifetime): int|false
 	{
 		// Just set to the default or lower?  Ignore it for a higher value. (hopefully)
-		if (!empty(Config::$modSettings['databaseSession_lifetime']) && ($max_lifetime <= 1440 || Config::$modSettings['databaseSession_lifetime'] > $max_lifetime))
-		{
+		if (!empty(Config::$modSettings['databaseSession_lifetime']) && ($max_lifetime <= 1440 || Config::$modSettings['databaseSession_lifetime'] > $max_lifetime)) {
 			$max_lifetime = max(Config::$modSettings['databaseSession_lifetime'], 60);
 		}
 
 		// Clean up after yerself ;).
-		$session_update = Db::$db->query('', '
-			DELETE FROM {db_prefix}sessions
+		$session_update = Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}sessions
 			WHERE last_update < {int:last_update}',
-			array(
+			[
 				'last_update' => time() - $max_lifetime,
-			)
+			],
 		);
 
 		$num_deleted = Db::$db->affected_rows();
@@ -201,27 +208,24 @@ class Session implements \SessionHandlerInterface
 		// Allows mods to change/add PHP settings
 		IntegrationHook::call('integrate_load_session');
 
-		if (!empty(Config::$modSettings['globalCookies']))
-		{
+		if (!empty(Config::$modSettings['globalCookies'])) {
 			$url = new Url(Config::$boardurl);
 
-			if (preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $url->host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $url->host, $parts) == 1)
-			{
+			if (preg_match('~^\\d{1,3}(\\.\\d{1,3}){3}$~', $url->host) == 0 && preg_match('~(?:[^\\.]+\\.)?([^\\.]{2,}\\..+)\\z~i', $url->host, $parts) == 1) {
 				@ini_set('session.cookie_domain', '.' . $parts[1]);
 			}
 		}
 		// @todo Set the session cookie path?
 
 		// If it's already been started... probably best to skip this.
-		if ((ini_get('session.auto_start') == 1 && !empty(Config::$modSettings['databaseSession_enable'])) || session_id() == '')
-		{
+		if ((ini_get('session.auto_start') == 1 && !empty(Config::$modSettings['databaseSession_enable'])) || session_id() == '') {
 			// Attempt to end the already-started session.
-			if (ini_get('session.auto_start') == 1)
+			if (ini_get('session.auto_start') == 1) {
 				session_write_close();
+			}
 
 			// This is here to stop people from using bad junky PHPSESSIDs.
-			if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
-			{
+			if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()])) {
 				$session_id = md5(md5('smf_sess_' . time()) . Utils::randomInt());
 				$_REQUEST[session_name()] = $session_id;
 				$_GET[session_name()] = $session_id;
@@ -229,41 +233,38 @@ class Session implements \SessionHandlerInterface
 			}
 
 			// Use database sessions? (they don't work in 4.1.x!)
-			if (!empty(Config::$modSettings['databaseSession_enable']))
-			{
+			if (!empty(Config::$modSettings['databaseSession_enable'])) {
 				@ini_set('session.serialize_handler', 'php_serialize');
 
-				if (ini_get('session.serialize_handler') != 'php_serialize')
+				if (ini_get('session.serialize_handler') != 'php_serialize') {
 					@ini_set('session.serialize_handler', 'php');
+				}
 
 				session_set_save_handler(new self(), true);
 
 				@ini_set('session.gc_probability', '1');
-			}
-			elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime']))
-			{
+			} elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime'])) {
 				@ini_set('session.gc_maxlifetime', max(Config::$modSettings['databaseSession_lifetime'], 60));
 			}
 
 			// Use cache setting sessions?
-			if (empty(Config::$modSettings['databaseSession_enable']) && !empty(CacheApi::$enable) && php_sapi_name() != 'cli')
-			{
+			if (empty(Config::$modSettings['databaseSession_enable']) && !empty(CacheApi::$enable) && php_sapi_name() != 'cli') {
 				IntegrationHook::call('integrate_session_handlers');
 			}
 
 			session_start();
 
 			// Change it so the cache settings are a little looser than default.
-			if (!empty(Config::$modSettings['databaseSession_loose']))
+			if (!empty(Config::$modSettings['databaseSession_loose'])) {
 				header('cache-control: private');
+			}
 		}
 
 		// Set the randomly generated code.
-		if (!isset($_SESSION['session_var']))
-		{
+		if (!isset($_SESSION['session_var'])) {
 			$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
 
-			$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(Utils::randomInt() . session_id() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
+			$_SESSION['session_var'] = substr(preg_replace('~^\\d+~', '', sha1(Utils::randomInt() . session_id() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
 		}
 
 		User::$sc = $_SESSION['session_value'];
@@ -274,7 +275,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionOpen(string $path, string $name): bool
 	{
-		return (new self)->open();
+		return (new self())->open();
 	}
 
 	/**
@@ -282,7 +283,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionClose(): bool
 	{
-		return (new self)->close();
+		return (new self())->close();
 	}
 
 	/**
@@ -290,7 +291,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionRead(string $session_id): string
 	{
-		return (string) (new self)->read();
+		return (string) (new self())->read();
 	}
 
 	/**
@@ -298,7 +299,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionWrite(string $session_id, string $data): bool
 	{
-		return (new self)->write();
+		return (new self())->write();
 	}
 
 	/**
@@ -306,7 +307,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionDestroy(string $session_id): bool
 	{
-		return (new self)->destroy($session_id);
+		return (new self())->destroy($session_id);
 	}
 
 	/**
@@ -314,12 +315,13 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionGC(int $max_lifetime): int|false
 	{
-		return (new self)->gc($max_lifetime);
+		return (new self())->gc($max_lifetime);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Session::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Session::exportStatic')) {
 	Session::exportStatic();
+}
 
 ?>

@@ -13,10 +13,11 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\Logout;
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
@@ -24,8 +25,6 @@ use SMF\Profile;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Logout;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Handles deleting an account.
@@ -39,12 +38,12 @@ class Delete implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'deleteAccount',
 			'deleteAccount2' => 'deleteAccount2',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -67,12 +66,9 @@ class Delete implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!empty(Utils::$context['completed_save']))
-		{
+		if (!empty(Utils::$context['completed_save'])) {
 			$this->delete();
-		}
-		else
-		{
+		} else {
 			$this->show();
 		}
 	}
@@ -82,12 +78,9 @@ class Delete implements ActionInterface
 	 */
 	public function show(): void
 	{
-		if (!User::$me->is_owner)
-		{
+		if (!User::$me->is_owner) {
 			User::$me->isAllowedTo('profile_remove_any');
-		}
-		elseif (!User::$me->allowedTo('profile_remove_any'))
-		{
+		} elseif (!User::$me->allowedTo('profile_remove_any')) {
 			User::$me->isAllowedTo('profile_remove_own');
 		}
 
@@ -109,12 +102,9 @@ class Delete implements ActionInterface
 	 */
 	public function delete()
 	{
-		if (!User::$me->is_owner)
-		{
+		if (!User::$me->is_owner) {
 			User::$me->isAllowedTo('profile_remove_any');
-		}
-		elseif (!User::$me->allowedTo('profile_remove_any'))
-		{
+		} elseif (!User::$me->allowedTo('profile_remove_any')) {
 			User::$me->isAllowedTo('profile_remove_own');
 		}
 
@@ -124,119 +114,122 @@ class Delete implements ActionInterface
 		User::$me->checkSession();
 
 		// Too often, people remove/delete their own only account.
-		if (in_array(1, Profile::$member->groups))
-		{
+		if (in_array(1, Profile::$member->groups)) {
 			// Are you allowed to administrate the forum, as they are?
 			User::$me->isAllowedTo('admin_forum');
 
-			$request = Db::$db->query('', '
-				SELECT id_member
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
 					AND id_member != {int:selected_member}
 				LIMIT 1',
-				array(
+				[
 					'admin_group' => 1,
 					'selected_member' => Profile::$member->id,
-				)
+				],
 			);
 			list($another) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			if (empty($another))
+			if (empty($another)) {
 				ErrorHandler::fatalLang('at_least_one_admin', 'critical');
+			}
 		}
 
 		// Deleting someone else's account.
-		if (!User::$me->is_owner)
-		{
+		if (!User::$me->is_owner) {
 			// Now, have you been naughty and need your posts deleting?
 			// @todo Should this check board permissions?
-			if (!empty($_POST['deleteVotes']) && User::$me->allowedTo('moderate_forum'))
-			{
+			if (!empty($_POST['deleteVotes']) && User::$me->allowedTo('moderate_forum')) {
 				// First we find any polls that this user has voted in...
-				$polls_to_update = array();
-				$get_voted_polls = Db::$db->query('', '
-					SELECT DISTINCT id_poll
+				$polls_to_update = [];
+				$get_voted_polls = Db::$db->query(
+					'',
+					'SELECT DISTINCT id_poll
 					FROM {db_prefix}log_polls
 					WHERE id_member = {int:selected_member}',
-					array(
+					[
 						'selected_member' => Profile::$member->id,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($get_voted_polls))
-				{
+
+				while ($row = Db::$db->fetch_assoc($get_voted_polls)) {
 					$polls_to_update[] = $row['id_poll'];
 				}
 				Db::$db->free_result($get_voted_polls);
 
 				// Now we delete the votes and update the polls
-				if (!empty($polls_to_update))
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_polls
+				if (!empty($polls_to_update)) {
+					Db::$db->query(
+						'',
+						'DELETE FROM {db_prefix}log_polls
 						WHERE id_member = {int:selected_member}',
-						array(
+						[
 							'selected_member' => Profile::$member->id,
-						)
+						],
 					);
 
-					Db::$db->query('', '
-						UPDATE {db_prefix}polls
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}polls
 						SET votes = votes - 1
 						WHERE id_poll IN ({array_int:polls_to_update})',
-						array(
-							'polls_to_update' => $polls_to_update
-						)
+						[
+							'polls_to_update' => $polls_to_update,
+						],
 					);
 				}
 
 				// Next, delete the posts, if requested.
-				if (in_array($_POST['remove_type'], array('posts', 'topics')))
-				{
+				if (in_array($_POST['remove_type'], ['posts', 'topics'])) {
 					$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
 
 					$recycle_board = empty(Config::$modSettings['recycle_board']) ? 0 : Config::$modSettings['recycle_board'];
 
 					// First off we delete any topics the member has started, if requested.
-					if ($_POST['remove_type'] == 'topics')
-					{
+					if ($_POST['remove_type'] == 'topics') {
 						// Fetch all topics started by this user.
-						$request = Db::$db->query('', '
-							SELECT t.id_topic
+						$request = Db::$db->query(
+							'',
+							'SELECT t.id_topic
 							FROM {db_prefix}topics AS t
 							WHERE t.id_member_started = {int:selected_member}' . $extra,
-							array(
+							[
 								'selected_member' => Profile::$member->id,
 								'recycle_board' => $recycle_board,
-							)
+							],
 						);
 						$topic_ids = Db::$db->fetch_all($request);
 						Db::$db->free_result($request);
 
 						// Actually remove the topics.
 						// Ignore recycling if we want to perma-delete things...
-						if (!empty($topic_ids))
+						if (!empty($topic_ids)) {
 							Topic::remove($topic_ids, true, !empty($extra));
+						}
 					}
 
 					// Now delete the remaining messages.
-					$request = Db::$db->query('', '
-						SELECT m.id_msg
+					$request = Db::$db->query(
+						'',
+						'SELECT m.id_msg
 						FROM {db_prefix}messages AS m
 							INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic
 								AND t.id_first_msg != m.id_msg)
 						WHERE m.id_member = {int:selected_member}' . $extra,
-						array(
+						[
 							'selected_member' => Profile::$member->id,
 							'recycle_board' => $recycle_board,
-						)
+						],
 					);
+
 					// This could take a while... but ya know it's gonna be worth it in the end.
-					while ($row = Db::$db->fetch_assoc($request))
-					{
-						if (function_exists('apache_reset_timeout'))
+					while ($row = Db::$db->fetch_assoc($request)) {
+						if (function_exists('apache_reset_timeout')) {
 							@apache_reset_timeout();
+						}
 
 						Msg::remove($row['id_msg']);
 					}
@@ -245,21 +238,20 @@ class Delete implements ActionInterface
 			}
 
 			// Only delete this poor member's account if they are actually being booted out of camp.
-			if (isset($_POST['deleteAccount']))
+			if (isset($_POST['deleteAccount'])) {
 				User::delete(Profile::$member->id);
+			}
 		}
 		// Deleting their own account, but they need approval to delete.
-		elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum'))
-		{
+		elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum')) {
 			// Setup their account for deletion.
-			User::updateMemberData(Profile::$member->id, array('is_activated' => 4));
+			User::updateMemberData(Profile::$member->id, ['is_activated' => 4]);
 
 			// Another account needs approval...
-			Config::updateModSettings(array('unapprovedMembers' => true), true);
+			Config::updateModSettings(['unapprovedMembers' => true], true);
 		}
 		// Deleting their own account, and they don't need approval.
-		else
-		{
+		else {
 			User::delete(Profile::$member->id);
 
 			Logout::call(true);
@@ -279,8 +271,9 @@ class Delete implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -324,13 +317,15 @@ class Delete implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Delete::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Delete::exportStatic')) {
 	Delete::exportStatic();
+}
 
 ?>

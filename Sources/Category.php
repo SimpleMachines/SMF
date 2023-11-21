@@ -28,15 +28,16 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Category implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'modify' => 'modifyCategory',
 			'create' => 'createCategory',
 			'delete' => 'deleteCategories',
@@ -44,12 +45,12 @@ class Category implements \ArrayAccess
 			'getTreeOrder' => 'getTreeOrder',
 			'getTree' => 'getBoardTree',
 			'recursiveBoards' => 'recursiveBoards',
-		),
-		'prop_names' => array(
+		],
+		'prop_names' => [
 			'loaded' => 'cat_tree',
 			'boardList' => 'boardList',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -109,7 +110,7 @@ class Category implements \ArrayAccess
 	 *
 	 * Boards that are children of this category.
 	 */
-	public array $children = array();
+	public array $children = [];
 
 	/**
 	 * @var string
@@ -163,14 +164,14 @@ class Category implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/**
 	 * @var array
 	 *
 	 * A list of boards grouped by category ID.
 	 */
-	public static array $boardList = array();
+	public static array $boardList = [];
 
 	/*********************
 	 * Internal properties
@@ -181,12 +182,12 @@ class Category implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_cat' => 'id',
 		'cat_order' => 'order',
 		'href' => 'url',
 		'boards' => 'children',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -197,17 +198,17 @@ class Category implements \ArrayAccess
 	 *
 	 * Holds results of Category::getTreeOrder().
 	 */
-	protected static array $tree_order = array(
-		'cats' => array(),
-		'boards' => array(),
-	);
+	protected static array $tree_order = [
+		'cats' => [],
+		'boards' => [],
+	];
 
 	/**
 	 * @var array
 	 *
 	 * Holds parsed versions of category descriptions.
 	 */
-	protected static array $parsed_descriptions = array();
+	protected static array $parsed_descriptions = [];
 
 	/****************
 	 * Public methods
@@ -218,29 +219,28 @@ class Category implements \ArrayAccess
 	 */
 	public function parseDescription(): void
 	{
-		if (empty($this->description))
+		if (empty($this->description)) {
 			return;
+		}
 
 		// Save the unparsed description in case we need it later.
-		if (!isset($this->custom['unparsed_description']))
+		if (!isset($this->custom['unparsed_description'])) {
 			$this->custom['unparsed_description'] = $this->description;
+		}
 
-		if (!empty(CacheApi::$enable))
-		{
-			if (empty(self::$parsed_descriptions))
-				self::$parsed_descriptions = CacheApi::get('parsed_category_descriptions', 864000) ?? array();
+		if (!empty(CacheApi::$enable)) {
+			if (empty(self::$parsed_descriptions)) {
+				self::$parsed_descriptions = CacheApi::get('parsed_category_descriptions', 864000) ?? [];
+			}
 
-			if (!isset(self::$parsed_descriptions[$this->id]))
-			{
+			if (!isset(self::$parsed_descriptions[$this->id])) {
 				self::$parsed_descriptions[$this->id] = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
 
 				CacheApi::put('parsed_category_descriptions', self::$parsed_descriptions, 864000);
 			}
 
 			$this->description = self::$parsed_descriptions[$this->id];
-		}
-		else
-		{
+		} else {
 			$this->description = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
 		}
 	}
@@ -250,8 +250,9 @@ class Category implements \ArrayAccess
 	 */
 	public function unparseDescription(): void
 	{
-		if (isset($this->custom['unparsed_description']))
+		if (isset($this->custom['unparsed_description'])) {
 			$this->description = $this->custom['unparsed_description'];
+		}
 	}
 
 	/***********************
@@ -267,40 +268,36 @@ class Category implements \ArrayAccess
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded boards.
 	 */
-	public static function load(array|int $ids = array(), array $query_customizations = array()): array
+	public static function load(array|int $ids = [], array $query_customizations = []): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		$ids = array_unique(array_map('intval', (array) $ids));
 
-		if (empty($query_customizations) && empty($ids))
+		if (empty($query_customizations) && empty($ids)) {
 			return $loaded;
+		}
 
-		$selects = $query_customizations['selects'] ?? array('c.*');
-		$joins = $query_customizations['joins'] ?? array();
-		$where = $query_customizations['where'] ?? array();
-		$order = $query_customizations['order'] ?? array();
-		$group = $query_customizations['group'] ?? array();
+		$selects = $query_customizations['selects'] ?? ['c.*'];
+		$joins = $query_customizations['joins'] ?? [];
+		$where = $query_customizations['where'] ?? [];
+		$order = $query_customizations['order'] ?? [];
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
-		$params = $query_customizations['params'] ?? array();
+		$params = $query_customizations['params'] ?? [];
 
-		if ($ids !== array())
-		{
+		if ($ids !== []) {
 			$where[] = 'c.id_cat IN ({array_int:ids})';
 			$params['ids'] = $ids;
 		}
 
-		foreach (Board::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row)
-		{
+		foreach (Board::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$row['id_cat'] = (int) $row['id_cat'];
 
-			if (isset(self::$loaded[$row['id_cat']]))
-			{
+			if (isset(self::$loaded[$row['id_cat']])) {
 				self::$loaded[$row['id_cat']]->set($row);
 				$loaded[] = self::$loaded[$row['id_cat']];
-			}
-			else
-			{
+			} else {
 				$loaded[] = self::init($row['id_cat'], $row);
 			}
 		}
@@ -326,14 +323,11 @@ class Category implements \ArrayAccess
 	 * @param array $props Array of properties to set.
 	 * @return object An instance of this class.
 	 */
-	public static function init(int $id, array $props = array()): object
+	public static function init(int $id, array $props = []): object
 	{
-		if (!isset(self::$loaded[$id]))
-		{
+		if (!isset(self::$loaded[$id])) {
 			new self($id, $props);
-		}
-		else
-		{
+		} else {
 			self::$loaded[$id]->set($props);
 		}
 
@@ -350,56 +344,58 @@ class Category implements \ArrayAccess
 	 */
 	public static function modify(int $category_id, array $catOptions): void
 	{
-		$catUpdates = array();
-		$catParameters = array();
+		$catUpdates = [];
+		$catParameters = [];
 
 		$cat_id = $category_id;
-		IntegrationHook::call('integrate_pre_modify_category', array($cat_id, &$catOptions));
+		IntegrationHook::call('integrate_pre_modify_category', [$cat_id, &$catOptions]);
 
 		// Wanna change the categories position?
-		if (isset($catOptions['move_after']))
-		{
+		if (isset($catOptions['move_after'])) {
 			// Store all categories in the proper order.
-			$cats = array();
-			$cat_order = array();
+			$cats = [];
+			$cat_order = [];
 
 			// Setting 'move_after' to '0' moves the category to the top.
-			if ($catOptions['move_after'] == 0)
+			if ($catOptions['move_after'] == 0) {
 				$cats[] = $category_id;
+			}
 
 			// Grab the categories sorted by cat_order.
-			$request = Db::$db->query('', '
-				SELECT id_cat, cat_order
+			$request = Db::$db->query(
+				'',
+				'SELECT id_cat, cat_order
 				FROM {db_prefix}categories
 				ORDER BY cat_order',
-				array(
-				)
+				[
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if ($row['id_cat'] != $category_id)
-					$cats[] = $row['id_cat'];
 
-				if ($row['id_cat'] == $catOptions['move_after'])
+			while ($row = Db::$db->fetch_assoc($request)) {
+				if ($row['id_cat'] != $category_id) {
+					$cats[] = $row['id_cat'];
+				}
+
+				if ($row['id_cat'] == $catOptions['move_after']) {
 					$cats[] = $category_id;
+				}
 
 				$cat_order[$row['id_cat']] = $row['cat_order'];
 			}
 			Db::$db->free_result($request);
 
 			// Set the new order for the categories.
-			foreach ($cats as $index => $cat)
-			{
-				if ($index != $cat_order[$cat])
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}categories
+			foreach ($cats as $index => $cat) {
+				if ($index != $cat_order[$cat]) {
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}categories
 						SET cat_order = {int:new_order}
 						WHERE id_cat = {int:current_category}',
-						array(
+						[
 							'new_order' => $index,
 							'current_category' => $cat,
-						)
+						],
 					);
 				}
 			}
@@ -408,48 +404,45 @@ class Category implements \ArrayAccess
 			Board::reorder();
 		}
 
-		if (isset($catOptions['cat_name']))
-		{
+		if (isset($catOptions['cat_name'])) {
 			$catUpdates[] = 'name = {string:cat_name}';
 			$catParameters['cat_name'] = $catOptions['cat_name'];
 		}
 
-		if (isset($catOptions['cat_desc']))
-		{
+		if (isset($catOptions['cat_desc'])) {
 			$catUpdates[] = 'description = {string:cat_desc}';
 			$catParameters['cat_desc'] = $catOptions['cat_desc'];
 
-			if (!empty(CacheApi::$enable))
+			if (!empty(CacheApi::$enable)) {
 				CacheApi::put('parsed_category_descriptions', null);
+			}
 		}
 
 		// Can a user collapse this category or is it too important?
-		if (isset($catOptions['is_collapsible']))
-		{
+		if (isset($catOptions['is_collapsible'])) {
 			$catUpdates[] = 'can_collapse = {int:is_collapsible}';
 			$catParameters['is_collapsible'] = $catOptions['is_collapsible'] ? 1 : 0;
 		}
 
 		$cat_id = $category_id;
-		IntegrationHook::call('integrate_modify_category', array($cat_id, &$catUpdates, &$catParameters));
+		IntegrationHook::call('integrate_modify_category', [$cat_id, &$catUpdates, &$catParameters]);
 
 		// Do the updates (if any).
-		if (!empty($catUpdates))
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}categories
+		if (!empty($catUpdates)) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}categories
 				SET
 					' . implode(',
 					', $catUpdates) . '
 				WHERE id_cat = {int:current_category}',
-				array_merge($catParameters, array(
+				array_merge($catParameters, [
 					'current_category' => $category_id,
-				))
+				]),
 			);
 
-			if (empty($catOptions['dont_log']))
-			{
-				Logging::logAction('edit_cat', array('catname' => isset($catOptions['cat_name']) ? $catOptions['cat_name'] : $category_id), 'admin');
+			if (empty($catOptions['dont_log'])) {
+				Logging::logAction('edit_cat', ['catname' => $catOptions['cat_name'] ?? $category_id], 'admin');
 			}
 		}
 	}
@@ -468,49 +461,52 @@ class Category implements \ArrayAccess
 	public static function create(array $catOptions): int
 	{
 		// Check required values.
-		if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
-		{
+		if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '') {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['create_category_no_name'], E_USER_ERROR);
 		}
 
 		// Set default values.
-		if (!isset($catOptions['cat_desc']))
+		if (!isset($catOptions['cat_desc'])) {
 			$catOptions['cat_desc'] = '';
+		}
 
-		if (!isset($catOptions['move_after']))
+		if (!isset($catOptions['move_after'])) {
 			$catOptions['move_after'] = 0;
+		}
 
-		if (!isset($catOptions['is_collapsible']))
+		if (!isset($catOptions['is_collapsible'])) {
 			$catOptions['is_collapsible'] = true;
+		}
 
 		// Don't log an edit right after.
 		$catOptions['dont_log'] = true;
 
-		$cat_columns = array(
+		$cat_columns = [
 			'name' => 'string-48',
 			'description' => 'string',
-		);
-		$cat_parameters = array(
+		];
+		$cat_parameters = [
 			$catOptions['cat_name'],
 			$catOptions['cat_desc'],
-		);
+		];
 
-		IntegrationHook::call('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
+		IntegrationHook::call('integrate_create_category', [&$catOptions, &$cat_columns, &$cat_parameters]);
 
 		// Add the category to the database.
-		$category_id = Db::$db->insert('',
+		$category_id = Db::$db->insert(
+			'',
 			'{db_prefix}categories',
 			$cat_columns,
 			$cat_parameters,
-			array('id_cat'),
-			1
+			['id_cat'],
+			1,
 		);
 
 		// Set the given properties to the newly created category.
 		self::modify($category_id, $catOptions);
 
-		Logging::logAction('add_cat', array('catname' => $catOptions['cat_name']), 'admin');
+		Logging::logAction('add_cat', ['catname' => $catOptions['cat_name']], 'admin');
 
 		// Return the database ID of the category.
 		return $category_id;
@@ -527,67 +523,67 @@ class Category implements \ArrayAccess
 	 * @param array $categories The IDs of the categories to delete
 	 * @param int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
 	 */
-	public static function delete(array $categories, int $moveBoardsTo = null): void
+	public static function delete(array $categories, ?int $moveBoardsTo = null): void
 	{
 		self::getTree();
 
-		IntegrationHook::call('integrate_delete_category', array($categories, &$moveBoardsTo));
+		IntegrationHook::call('integrate_delete_category', [$categories, &$moveBoardsTo]);
 
 		// With no category set to move the boards to, delete them all.
-		if ($moveBoardsTo === null)
-		{
-			$boards_inside = array();
+		if ($moveBoardsTo === null) {
+			$boards_inside = [];
 
-			$request = Db::$db->query('', '
-				SELECT id_board
+			$request = Db::$db->query(
+				'',
+				'SELECT id_board
 				FROM {db_prefix}boards
 				WHERE id_cat IN ({array_int:category_list})',
-				array(
+				[
 					'category_list' => $categories,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards_inside[] = $row['id_board'];
 			}
 			Db::$db->free_result($request);
 
-			if (!empty($boards_inside))
+			if (!empty($boards_inside)) {
 				Board::delete($boards_inside, null);
+			}
 		}
 		// Make sure the safe category is really safe.
-		elseif (in_array($moveBoardsTo, $categories))
-		{
+		elseif (in_array($moveBoardsTo, $categories)) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['cannot_move_to_deleted_category'], E_USER_ERROR);
 		}
 		// Move the boards inside the categories to a safe category.
-		else
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}boards
+		else {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}boards
 				SET id_cat = {int:new_parent_cat}
 				WHERE id_cat IN ({array_int:category_list})',
-				array(
+				[
 					'category_list' => $categories,
 					'new_parent_cat' => $moveBoardsTo,
-				)
+				],
 			);
 		}
 
 		// Do the deletion of the category itself
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}categories
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}categories
 			WHERE id_cat IN ({array_int:category_list})',
-			array(
+			[
 				'category_list' => $categories,
-			)
+			],
 		);
 
 		// Log what we've done.
-		foreach ($categories as $category)
-		{
-			Logging::logAction('delete_cat', array('catname' => self::$loaded[$category]['node']['name']), 'admin');
+		foreach ($categories as $category) {
+			Logging::logAction('delete_cat', ['catname' => self::$loaded[$category]['node']['name']], 'admin');
 		}
 
 		// Get all boards back into the right order.
@@ -603,20 +599,15 @@ class Category implements \ArrayAccess
 	{
 		$tree = self::getTreeOrder();
 
-		$ordered = array();
+		$ordered = [];
 
-		foreach ($tree['cats'] as $cat)
-		{
-			if (!empty($categories[$cat]))
-			{
+		foreach ($tree['cats'] as $cat) {
+			if (!empty($categories[$cat])) {
 				$ordered[$cat] = $categories[$cat];
 
-				if (is_array($ordered[$cat]) && !empty($ordered[$cat]['boards']))
-				{
+				if (is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
 					Board::sort($ordered[$cat]['boards']);
-				}
-				elseif (is_object($ordered[$cat]) && !empty($ordered[$cat]->children))
-				{
+				} elseif (is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
 					Board::sort($ordered[$cat]->children);
 				}
 			}
@@ -633,25 +624,28 @@ class Category implements \ArrayAccess
 	 */
 	public static function getTreeOrder(): array
 	{
-		if (!empty(self::$tree_order['boards']))
+		if (!empty(self::$tree_order['boards'])) {
 			return self::$tree_order;
+		}
 
-		if (($cached = CacheApi::get('board_order', 86400)) !== null)
-		{
+		if (($cached = CacheApi::get('board_order', 86400)) !== null) {
 			self::$tree_order = $cached;
+
 			return $cached;
 		}
 
-		$request = Db::$db->query('', '
-			SELECT b.id_board, b.id_cat
+		$request = Db::$db->query(
+			'',
+			'SELECT b.id_board, b.id_cat
 			FROM {db_prefix}categories AS c
 				JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-			ORDER BY c.cat_order, b.board_order'
+			ORDER BY c.cat_order, b.board_order',
 		);
-		foreach (Db::$db->fetch_all($request) as $row)
-		{
-			if (!in_array($row['id_cat'], self::$tree_order['cats']))
+
+		foreach (Db::$db->fetch_all($request) as $row) {
+			if (!in_array($row['id_cat'], self::$tree_order['cats'])) {
 				self::$tree_order['cats'][] = $row['id_cat'];
+			}
 
 			self::$tree_order['boards'][] = $row['id_board'];
 		}
@@ -671,21 +665,21 @@ class Category implements \ArrayAccess
 	 */
 	public static function getTree(): void
 	{
-		$selects = array(
+		$selects = [
 			'COALESCE(b.id_board, 0) AS id_board', 'b.name', 'b.description',
 			'b.id_parent', 'b.child_level', 'b.board_order', 'b.redirect',
 			'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
 			'b.id_theme', 'b.override_theme', 'b.count_posts', 'b.num_posts',
 			'b.num_topics', 'c.id_cat', 'c.cat_order', 'c.can_collapse',
 			'c.name AS cat_name', 'c.description AS cat_desc',
-		);
-		$params = array();
-		$joins = array('LEFT JOIN {db_prefix}categories AS c ON (b.id_cat = c.id_cat)');
-		$where = array('{query_see_board}');
-		$order = array('c.cat_order', 'b.child_level', 'b.board_order');
+		];
+		$params = [];
+		$joins = ['LEFT JOIN {db_prefix}categories AS c ON (b.id_cat = c.id_cat)'];
+		$where = ['{query_see_board}'];
+		$order = ['c.cat_order', 'b.child_level', 'b.board_order'];
 
 		// Let mods add extra columns, parameters, etc., to the SELECT query
-		IntegrationHook::call('integrate_pre_boardtree', array(&$selects, &$params, &$joins, &$where, &$order));
+		IntegrationHook::call('integrate_pre_boardtree', [&$selects, &$params, &$joins, &$where, &$order]);
 
 		$selects = array_unique($selects);
 		$params = array_unique($params);
@@ -694,20 +688,18 @@ class Category implements \ArrayAccess
 		$order = array_unique($order);
 
 		// Getting all the board and category information you'd ever wanted.
-		self::$loaded = array();
+		self::$loaded = [];
 		$last_board_order = 0;
 
-		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row)
-		{
-			if (!isset(self::$loaded[$row['id_cat']]))
-			{
-				self::init($row['id_cat'], array(
+		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row) {
+			if (!isset(self::$loaded[$row['id_cat']])) {
+				self::init($row['id_cat'], [
 					'name' => $row['cat_name'],
 					'description' => $row['cat_desc'],
 					'order' => $row['cat_order'],
 					'can_collapse' => $row['can_collapse'],
 					'last_board_order' => $last_board_order,
-				));
+				]);
 				$prevBoard = 0;
 				$curLevel = 0;
 			}
@@ -716,10 +708,10 @@ class Category implements \ArrayAccess
 
 			unset($row['id_cat'], $row['cat_name'], $row['cat_desc'], $row['cat_order'], $row['can_collapse']);
 
-			if (!empty($row['id_board']))
-			{
-				if ($row['child_level'] != $curLevel)
+			if (!empty($row['id_board'])) {
+				if ($row['child_level'] != $curLevel) {
 					$prevBoard = 0;
+				}
 
 				$row['member_groups'] = explode(',', $row['member_groups']);
 				$row['deny_member_groups'] = explode(',', $row['deny_member_groups']);
@@ -730,29 +722,27 @@ class Category implements \ArrayAccess
 				$prevBoard = $row['id_board'];
 				$last_board_order = $row['board_order'];
 
-				if (empty($row['child_level']))
-				{
+				if (empty($row['child_level'])) {
 					Board::$loaded[$row['id_board']]->is_first = empty(self::$loaded[$row['cat']->id]['children']);
 
 					self::$loaded[$row['cat']->id]->children[$row['id_board']] = Board::$loaded[$row['id_board']];
-				}
-				else
-				{
+				} else {
 					// Parent doesn't exist!
-					if (!isset(Board::$loaded[$row['id_parent']]))
-						ErrorHandler::fatalLang('no_valid_parent', false, array($row['name']));
+					if (!isset(Board::$loaded[$row['id_parent']])) {
+						ErrorHandler::fatalLang('no_valid_parent', false, [$row['name']]);
+					}
 
 					// Wrong childlevel...we can silently fix this...
-					if (Board::$loaded[$row['id_parent']]->child_level != $row['child_level'] - 1)
-					{
-						Db::$db->query('', '
-							UPDATE {db_prefix}boards
+					if (Board::$loaded[$row['id_parent']]->child_level != $row['child_level'] - 1) {
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}boards
 							SET child_level = {int:new_child_level}
 							WHERE id_board = {int:selected_board}',
-							array(
+							[
 								'new_child_level' => Board::$loaded[$row['id_parent']]->child_level + 1,
 								'selected_board' => $row['id_board'],
-							)
+							],
 						);
 
 						Board::$loaded[$row['id_board']]->child_level = Board::$loaded[$row['id_parent']]->child_level + 1;
@@ -764,15 +754,14 @@ class Category implements \ArrayAccess
 			}
 
 			// If mods want to do anything with this board before we move on, now's the time
-			IntegrationHook::call('integrate_boardtree_board', array($row));
+			IntegrationHook::call('integrate_boardtree_board', [$row]);
 		}
 
 		// Get a list of all the boards in each category (using recursion).
-		self::$boardList = array();
+		self::$boardList = [];
 
-		foreach (self::$loaded as $id => $node)
-		{
-			self::$boardList[$id] = array();
+		foreach (self::$loaded as $id => $node) {
+			self::$boardList[$id] = [];
 			self::recursiveBoards(self::$boardList[$id], $node);
 		}
 	}
@@ -787,11 +776,11 @@ class Category implements \ArrayAccess
 	 */
 	public static function recursiveBoards(&$list, &$tree): void
 	{
-		if (empty($tree->children))
+		if (empty($tree->children)) {
 			return;
+		}
 
-		foreach ($tree->children as $child)
-		{
+		foreach ($tree->children as $child) {
 			$list[] = $child->id;
 			self::recursiveBoards($list, $child);
 		}
@@ -814,22 +803,22 @@ class Category implements \ArrayAccess
 	 * @param int $id The ID number of the category.
 	 * @param array $props Array of properties to set.
 	 */
-	protected function __construct(int $id, array $props = array())
+	protected function __construct(int $id, array $props = [])
 	{
 		// No props provided, so get the standard ones.
-		if (empty($props))
-		{
-			$request = Db::$db->query('', '
-				SELECT *
+		if (empty($props)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT *
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id}
 				LIMIT 1',
-				array(
+				[
 					'id' => $id,
-				)
+				],
 			);
-			if (Db::$db->num_rows($request) > 0)
-			{
+
+			if (Db::$db->num_rows($request) > 0) {
 				$props = Db::$db->fetch_all($request);
 			}
 			Db::$db->free_result($request);
@@ -839,30 +828,28 @@ class Category implements \ArrayAccess
 		$this->set($props);
 		self::$loaded[$this->id] = $this;
 
-		if (count(self::$loaded) > 1)
-		{
+		if (count(self::$loaded) > 1) {
 			uasort(
 				self::$loaded,
-				function ($a, $b)
-				{
+				function ($a, $b) {
 					return ($a->order ?? 0) <=> ($b->order ?? 0);
-				}
+				},
 			);
 
-			foreach (self::$loaded as $id => $info)
+			foreach (self::$loaded as $id => $info) {
 				self::$loaded[$id]->is_first = false;
+			}
 
 			self::$loaded[array_key_first(self::$loaded)]->is_first = true;
-		}
-		else
-		{
+		} else {
 			$this->is_first = true;
 		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Category::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Category::exportStatic')) {
 	Category::exportStatic();
+}
 
 ?>

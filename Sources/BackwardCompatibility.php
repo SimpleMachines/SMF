@@ -58,30 +58,34 @@ trait BackwardCompatibility
 	public static function exportStatic(): void
 	{
 		// Do nothing if backward compatibility has been turned off.
-		if (empty(\SMF\Config::$backward_compatibility))
+		if (empty(\SMF\Config::$backward_compatibility)) {
 			return;
+		}
 
-		if (!isset(self::$backcompat))
+		if (!isset(self::$backcompat)) {
 			return;
+		}
 
 		// Get any backward compatibility settings.
-		self::$backcompat['func_names'] = self::$backcompat['func_names'] ?? array();
-		self::$backcompat['prop_names'] = self::$backcompat['prop_names'] ?? array();
+		self::$backcompat['func_names'] = self::$backcompat['func_names'] ?? [];
+		self::$backcompat['prop_names'] = self::$backcompat['prop_names'] ?? [];
 
 		// The property names are simple enough to deal with...
-		foreach (self::$backcompat['prop_names'] as $static => $global)
+		foreach (self::$backcompat['prop_names'] as $static => $global) {
 			$GLOBALS[$global] = &self::${$static};
+		}
 
 		// The method names are slightly more complicated...
-		foreach (self::$backcompat['func_names'] as $method => $func)
-		{
+		foreach (self::$backcompat['func_names'] as $method => $func) {
 			// If the name is manually set to false (or anything invalid), skip this method.
-			if (!is_string($func))
+			if (!is_string($func)) {
 				continue;
+			}
 
 			// If function already exists, die violently.
-			if (function_exists($func))
-				throw new \Exception("Function $func already exists", 1);
+			if (function_exists($func)) {
+				throw new \Exception("Function {$func} already exists", 1);
+			}
 
 			// Here's where the magic happens.
 			eval('function ' . $func . '(...$args) { return ' . __CLASS__ . '::' . $method . '(...$args); }');

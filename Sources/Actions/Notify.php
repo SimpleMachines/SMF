@@ -14,14 +14,13 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This abstract class contains the main functionality to toggle email
@@ -40,34 +39,34 @@ abstract class Notify
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'getNotifyPrefs' => 'getNotifyPrefs',
 			'setNotifyPrefs' => 'setNotifyPrefs',
 			'deleteNotifyPrefs' => 'deleteNotifyPrefs',
 			'getMemberWithToken' => 'getMemberWithToken',
 			'createUnsubscribeToken' => 'createUnsubscribeToken',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
 	 *****************/
 
 	// Pref refers to the value that will be saved to user_alerts_prefs table.
-	const PREF_NONE = 0;
-	const PREF_ALERT = 1;
-	const PREF_EMAIL = 2;
-	const PREF_BOTH = 3;
+	public const PREF_NONE = 0;
+	public const PREF_ALERT = 1;
+	public const PREF_EMAIL = 2;
+	public const PREF_BOTH = 3;
 
 	// Mode refers to the input submitted by $_GET or $_POST.
 	// Unfortunately, mode != pref.
-	const MODE_NO_EMAIL = -2;
-	const MODE_NO_ALERT = -1;
-	const MODE_IGNORE = 0;
-	const MODE_NONE = 1;
-	const MODE_ALERT = 2;
-	const MODE_BOTH = 3;
+	public const MODE_NO_EMAIL = -2;
+	public const MODE_NO_ALERT = -1;
+	public const MODE_IGNORE = 0;
+	public const MODE_NONE = 1;
+	public const MODE_ALERT = 2;
+	public const MODE_BOTH = 3;
 
 	/*******************
 	 * Public properties
@@ -133,29 +132,30 @@ abstract class Notify
 		$this->setId();
 		$this->setMode();
 
-		if (!isset($this->mode))
+		if (!isset($this->mode)) {
 			return;
+		}
 
 		// We don't tolerate imposters around here.
-		if (empty($this->token))
+		if (empty($this->token)) {
 			User::$me->checkSession('get');
+		}
 
 		$this->changePref();
 
 		// AJAX call.
-		if (isset($_GET['xml']))
-		{
+		if (isset($_GET['xml'])) {
 			$this->prepareAjaxResponse();
 		}
 		// Nothing to redirect to or they got here via an unsubscribe link,
 		// so just show a confirmation message.
-		elseif (!isset($this->id) || !empty($this->token))
-		{
+		elseif (!isset($this->id) || !empty($this->token)) {
 			$this->showConfirmation();
 		}
 		// Send them back to wherever they came from.
-		else
+		else {
 			Utils::redirectexit($this->type . '=' . $this->id . '.' . ($_REQUEST['start'] ?? 0));
+		}
 	}
 
 	/***********************
@@ -176,37 +176,42 @@ abstract class Notify
 		// We want this as an array whether it is or not.
 		$members = array_map('intval', (array) $members);
 
-		if (!empty($prefs))
+		if (!empty($prefs)) {
 			$prefs = is_array($prefs) ? $prefs : (array) $prefs;
+		}
 
-		$result = array();
+		$result = [];
 
 		// We want to now load the default, which is stored with a member id of 0.
 		$members[] = 0;
 
-		$request = Db::$db->query('', '
-			SELECT id_member, alert_pref, alert_value
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, alert_pref, alert_value
 			FROM {db_prefix}user_alerts_prefs
 			WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
 				AND alert_pref IN ({array_string:prefs})' : ''),
-			array(
+			[
 				'members' => $members,
 				'prefs' => $prefs,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
+		}
 
 		// We may want to keep the default values separate from a given user's. Or we might not.
-		if ($process_default && isset($result[0]))
-		{
-			foreach ($members as $member)
-				if (isset($result[$member]))
+		if ($process_default && isset($result[0])) {
+			foreach ($members as $member) {
+				if (isset($result[$member])) {
 					$result[$member] += $result[0];
-				else
+				} else {
 					$result[$member] = $result[0];
+				}
+			}
 
-			unset ($result[0]);
+			unset($result[0]);
 		}
 
 		return $result;
@@ -218,20 +223,24 @@ abstract class Notify
 	 * @param int $memID The user whose preferences you are setting
 	 * @param array $prefs An array key of pref -> value
 	 */
-	public static function setNotifyPrefs($memID, $prefs = array())
+	public static function setNotifyPrefs($memID, $prefs = [])
 	{
-		if (empty($prefs) || !is_int($memID))
+		if (empty($prefs) || !is_int($memID)) {
 			return;
+		}
 
-		$update_rows = array();
-		foreach ($prefs as $k => $v)
-			$update_rows[] = array($memID, $k, min(max((int) $v, -128), 127));
+		$update_rows = [];
 
-		Db::$db->insert('replace',
+		foreach ($prefs as $k => $v) {
+			$update_rows[] = [$memID, $k, min(max((int) $v, -128), 127)];
+		}
+
+		Db::$db->insert(
+			'replace',
 			'{db_prefix}user_alerts_prefs',
-			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
+			['id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'],
 			$update_rows,
-			array('id_member', 'alert_pref')
+			['id_member', 'alert_pref'],
 		);
 	}
 
@@ -243,17 +252,19 @@ abstract class Notify
 	 */
 	public static function deleteNotifyPrefs($memID, array $prefs)
 	{
-		if (empty($prefs) || empty($memID))
+		if (empty($prefs) || empty($memID)) {
 			return;
+		}
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}user_alerts_prefs
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}user_alerts_prefs
 			WHERE id_member = {int:member}
 				AND alert_pref IN ({array_string:prefs})',
-			array(
+			[
 				'member' => $memID,
 				'prefs' => $prefs,
-			)
+			],
 		);
 	}
 
@@ -269,31 +280,34 @@ abstract class Notify
 		$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
 
 		// We can't do anything without these
-		if (empty($id_member) || empty($_REQUEST['token']))
+		if (empty($id_member) || empty($_REQUEST['token'])) {
 			ErrorHandler::fatalLang('unsubscribe_invalid', false);
+		}
 
 		// Get the user info we need
-		$request = Db::$db->query('', '
-			SELECT id_member AS id, email_address AS email
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member AS id, email_address AS email
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
-			array(
+			[
 				'id_member' => $id_member,
-			)
+			],
 		);
-		if (Db::$db->num_rows($request) == 0)
-		{
+
+		if (Db::$db->num_rows($request) == 0) {
 			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 		}
 		$this->member_info = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
 		// What token are we expecting?
-		$expected_token = Notify::createUnsubscribeToken($this->member_info['id'], $this->member_info['email'], $type, in_array($type, array('board', 'topic')) && !empty($$type) ? $$type : 0);
+		$expected_token = Notify::createUnsubscribeToken($this->member_info['id'], $this->member_info['email'], $type, in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
 
 		// Don't do anything if the token they gave is wrong
-		if ($_REQUEST['token'] !== $expected_token)
+		if ($_REQUEST['token'] !== $expected_token) {
 			ErrorHandler::fatalLang('unsubscribe_invalid', false);
+		}
 
 		// At this point, we know we have a legitimate unsubscribe request
 		return $this->member_info;
@@ -310,7 +324,7 @@ abstract class Notify
 	 */
 	public static function createUnsubscribeToken($memID, $email, $type = '', $itemID = 0)
 	{
-		$token_items = implode(' ', array($memID, $email, $type, $itemID));
+		$token_items = implode(' ', [$memID, $email, $type, $itemID]);
 
 		// When the message is public and the key is secret, an HMAC is the appropriate tool.
 		$token = hash_hmac('sha256', $token_items, Config::getAuthSecret(), true);
@@ -319,7 +333,7 @@ abstract class Notify
 		$token = substr($token, 0, 10);
 
 		// Use base64 (with URL-friendly characters) to make the token shorter.
-		return strtr(base64_encode($token), array('+' => '_', '/' => '-', '=' => ''));
+		return strtr(base64_encode($token), ['+' => '_', '/' => '-', '=' => '']);
 	}
 
 	/******************
@@ -331,14 +345,12 @@ abstract class Notify
 	 */
 	protected function setMemberInfo()
 	{
-		if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
-		{
+		if (isset($_REQUEST['u'], $_REQUEST['token'])) {
 			$this->member_info = self::getMemberWithToken($this->type);
 			$this->token = $_REQUEST['token'];
 		}
 		// No token, so try with the current user.
-		else
-		{
+		else {
 			// Permissions are an important part of anything ;).
 			User::$me->kickIfGuest();
 			$this->member_info = (array) User::$me;
@@ -365,11 +377,13 @@ abstract class Notify
 		$this->saToMode();
 
 		// What do we do?  Better ask if they didn't say..
-		if (!isset($_GET['mode']) && !isset($_GET['xml']))
+		if (!isset($_GET['mode']) && !isset($_GET['xml'])) {
 			$this->ask();
+		}
 
-		if (isset($_GET['mode']))
+		if (isset($_GET['mode'])) {
 			$this->mode = (int) $_GET['mode'];
+		}
 	}
 
 	/**
@@ -380,12 +394,11 @@ abstract class Notify
 		Theme::loadTemplate('Notify');
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 
-		if ($this->member_info['id'] !== User::$me->id)
-		{
-			Utils::$context['notify_info'] = array(
+		if ($this->member_info['id'] !== User::$me->id) {
+			Utils::$context['notify_info'] = [
 				'u' => $this->member_info['id'],
 				'token' => $_REQUEST['token'],
-			);
+			];
 		}
 
 		$this->askTemplateData();
@@ -408,8 +421,7 @@ abstract class Notify
 	 */
 	protected function setAlertPref()
 	{
-		switch ($this->mode)
-		{
+		switch ($this->mode) {
 			case self::MODE_IGNORE:
 			case self::MODE_NONE:
 				$this->alert_pref = self::PREF_NONE;
@@ -423,11 +435,11 @@ abstract class Notify
 				$this->alert_pref = self::PREF_BOTH;
 				break;
 
-			// self::MODE_NO_EMAIL is used to turn off email notifications
-			// while leaving the alert preference unchanged.
+				// self::MODE_NO_EMAIL is used to turn off email notifications
+				// while leaving the alert preference unchanged.
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
-				$this->alert_pref = self::getNotifyPrefs($this->member_info['id'], array($this->type . '_notify_' . $this->id), true) & self::PREF_ALERT;
+				$this->alert_pref = self::getNotifyPrefs($this->member_info['id'], [$this->type . '_notify_' . $this->id], true) & self::PREF_ALERT;
 				break;
 		}
 	}
@@ -437,32 +449,31 @@ abstract class Notify
 	 */
 	protected function changeBoardTopicPref()
 	{
-		self::setNotifyPrefs((int) $this->member_info['id'], array($this->type . '_notify_' . $this->id => $this->alert_pref));
+		self::setNotifyPrefs((int) $this->member_info['id'], [$this->type . '_notify_' . $this->id => $this->alert_pref]);
 
-		if ($this->alert_pref > self::PREF_NONE)
-		{
+		if ($this->alert_pref > self::PREF_NONE) {
 			$id_board = $this->type === 'board' ? $this->id : 0;
 			$id_topic = $this->type === 'topic' ? $this->id : 0;
 
 			// Turn notification on.  (note this just blows smoke if it's already on.)
-			Db::$db->insert('ignore',
+			Db::$db->insert(
+				'ignore',
 				'{db_prefix}log_notify',
-				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-				array(User::$me->id, $id_topic, $id_board),
-				array('id_member', 'id_topic', 'id_board')
+				['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'],
+				[User::$me->id, $id_topic, $id_board],
+				['id_member', 'id_topic', 'id_board'],
 			);
-		}
-		else
-		{
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_notify
+		} else {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:member}
 					AND {raw:column} = {int:id}',
-				array(
+				[
 					'column' => 'id_' . $this->type,
 					'id' => $this->id,
 					'member' => $this->member_info['id'],
-				)
+				],
 			);
 		}
 	}
@@ -472,14 +483,14 @@ abstract class Notify
 	 */
 	protected function prepareAjaxResponse()
 	{
-		Utils::$context['xml_data']['errors'] = array(
+		Utils::$context['xml_data']['errors'] = [
 			'identifier' => 'error',
-			'children' => array(
-				array(
+			'children' => [
+				[
 					'value' => 0,
-				),
-			),
-		);
+				],
+			],
+		];
 
 		Utils::$context['sub_template'] = 'generic_xml';
 	}
@@ -503,7 +514,8 @@ abstract class Notify
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Notify::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Notify::exportStatic')) {
 	Notify::exportStatic();
+}
 
 ?>

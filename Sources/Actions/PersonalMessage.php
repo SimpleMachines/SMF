@@ -14,21 +14,14 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
-use SMF\BBCodeParser;
 use SMF\BrowserDetector;
+use SMF\Cache\CacheApi;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\Msg;
-use SMF\Profile;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\{
 	Conversation,
 	DraftPM,
@@ -41,6 +34,10 @@ use SMF\PersonalMessage\{
 	Search,
 	SearchResult,
 };
+use SMF\Profile;
+use SMF\Theme;
+use SMF\User;
+use SMF\Utils;
 
 /**
  * This class is mainly meant for controlling the actions related to personal
@@ -56,8 +53,8 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'MessageMain',
 			'messageFolder' => 'MessageFolder',
 			'messagePopup' => 'MessagePopup',
@@ -73,8 +70,8 @@ class PersonalMessage implements ActionInterface
 			'messagePost2' => 'MessagePost2',
 			'messageSettings' => 'MessageSettings',
 			'messageDrafts' => 'MessageDrafts',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -83,17 +80,17 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * Display mode to show all personal messages in a paginated list.
 	 */
-	const VIEW_ALL = 0;
+	public const VIEW_ALL = 0;
 
 	/**
 	 * Display mode to show one personal message at a time.
 	 */
-	const VIEW_ONE = 1;
+	public const VIEW_ONE = 1;
 
 	/**
 	 * Display mode to show personal messages in a conversation view.
 	 */
-	const VIEW_CONV = 2;
+	public const VIEW_CONV = 2;
 
 	/*******************
 	 * Public properties
@@ -115,72 +112,72 @@ class PersonalMessage implements ActionInterface
 	 * In this default definintion, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off.
 	 */
-	public array $pm_areas = array(
-		'folders' => array(
+	public array $pm_areas = [
+		'folders' => [
 			'title' => 'pm_messages',
-			'areas' => array(
-				'inbox' => array(
+			'areas' => [
+				'inbox' => [
 					'label' => 'inbox',
 					'custom_url' => '{scripturl}?action=pm',
 					'amt' => 0,
-				),
-				'send' => array(
+				],
+				'send' => [
 					'label' => 'new_message',
 					'custom_url' => '{scripturl}?action=pm;sa=send',
 					'permission' => 'pm_send',
 					'amt' => 0,
-				),
-				'sent' => array(
+				],
+				'sent' => [
 					'label' => 'sent_items',
 					'custom_url' => '{scripturl}?action=pm;f=sent',
 					'amt' => 0,
-				),
-				'drafts' => array(
+				],
+				'drafts' => [
 					'label' => 'drafts_show',
 					'custom_url' => '{scripturl}?action=pm;sa=showpmdrafts',
 					'permission' => 'pm_draft',
 					'enabled' => true,
 					'amt' => 0,
-				),
-			),
+				],
+			],
 			'amt' => 0,
-		),
-		'labels' => array(
+		],
+		'labels' => [
 			'title' => 'pm_labels',
-			'areas' => array(),
+			'areas' => [],
 			'amt' => 0,
-		),
-		'actions' => array(
+		],
+		'actions' => [
 			'title' => 'pm_actions',
-			'areas' => array(
-				'search' => array(
+			'areas' => [
+				'search' => [
 					'label' => 'pm_search_bar_title',
 					'custom_url' => '{scripturl}?action=pm;sa=search',
-				),
-				'prune' => array(
+				],
+				'prune' => [
 					'label' => 'pm_prune',
-					'custom_url' => '{scripturl}?action=pm;sa=prune'
-				),
-			),
-		),
-		'pref' => array(
+					'custom_url' => '{scripturl}?action=pm;sa=prune',
+				],
+			],
+		],
+		'pref' => [
 			'title' => 'pm_preferences',
-			'areas' => array(
-				'manlabels' => array(
+			'areas' => [
+				'manlabels' => [
 					'label' => 'pm_manage_labels',
 					'custom_url' => '{scripturl}?action=pm;sa=manlabels',
-				),
-				'manrules' => array(
+				],
+				'manrules' => [
 					'label' => 'pm_manage_rules',
 					'custom_url' => '{scripturl}?action=pm;sa=manrules',
-				),
-				'settings' => array(
+				],
+				'settings' => [
 					'label' => 'pm_settings',
 					'custom_url' => '{scripturl}?action=pm;sa=settings',
-				),
-			),
-		),
-	);
+				],
+			],
+		],
+	];
 
 	/**
 	 * @var string
@@ -225,7 +222,7 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * Keys are the IDs of some PMs. Values are arrays of label IDs.
 	 */
-	public array $labels_in_use = array();
+	public array $labels_in_use = [];
 
 	/**
 	 * @var array
@@ -234,7 +231,7 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * Keys are the IDs of some PMs. Values are booleans.
 	 */
-	public array $replied = array();
+	public array $replied = [];
 
 	/**
 	 * @var array
@@ -243,7 +240,7 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * Keys are the IDs of some PMs. Values are booleans.
 	 */
-	public array $unread = array();
+	public array $unread = [];
 
 	/**************************
 	 * Public static properties
@@ -254,7 +251,7 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'show' => 'show',
 		'popup' => 'popup',
 		'showpmdrafts' => 'drafts',
@@ -269,18 +266,18 @@ class PersonalMessage implements ActionInterface
 		'manlabels' => 'labels',
 		'manrules' => 'rules',
 		'settings' => 'settings',
-	);
+	];
 
 	/**
 	 * @var array
 	 *
 	 * Instructions for sorting the personal messages.
 	 */
-	public static $sort_methods = array(
+	public static $sort_methods = [
 		'date' => 'pm.id_pm',
 		'name' => 'COALESCE(mem.real_name, \'\')',
 		'subject' => 'pm.subject',
-	);
+	];
 
 	/*********************
 	 * Internal properties
@@ -321,30 +318,26 @@ class PersonalMessage implements ActionInterface
 		User::$me->isAllowedTo('pm_read');
 
 		// If we have unsorted mail, apply our rules!
-		if (User::$me->new_pm)
-		{
+		if (User::$me->new_pm) {
 			Rule::apply();
 			Received::setNotNew();
 		}
 
 		// No menu in AJAX requests or the popup.
-		if (!isset($_REQUEST['xml']) && $this->subaction !== 'popup')
-		{
-			if ($this->subaction === 'show')
-			{
+		if (!isset($_REQUEST['xml']) && $this->subaction !== 'popup') {
+			if ($this->subaction === 'show') {
 				$this->createMenu($this->current_label_id == -1 ? $this->folder : 'label' . $this->current_label_id);
-			}
-			else
-			{
+			} else {
 				$this->createMenu($this->subaction);
 			}
 		}
 
 		// Now let's get on with the main job...
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -368,8 +361,9 @@ class PersonalMessage implements ActionInterface
 	 */
 	public function drafts(): void
 	{
-		if (empty(User::$me->id))
+		if (empty(User::$me->id)) {
 			ErrorHandler::fatalLang('not_a_user', false);
+		}
 
 		DraftPM::showInProfile(User::$me->id);
 	}
@@ -413,93 +407,81 @@ class PersonalMessage implements ActionInterface
 	{
 		User::$me->checkSession('request');
 
-		if (isset($_REQUEST['del_selected']))
+		if (isset($_REQUEST['del_selected'])) {
 			$_REQUEST['pm_action'] = 'delete';
-
-		if (isset($_REQUEST['pm_action']) && $_REQUEST['pm_action'] != '' && !empty($_REQUEST['pms']) && is_array($_REQUEST['pms']))
-		{
-			foreach ($_REQUEST['pms'] as $pm)
-				$_REQUEST['pm_actions'][(int) $pm] = $_REQUEST['pm_action'];
 		}
 
-		if (empty($_REQUEST['pm_actions']))
+		if (isset($_REQUEST['pm_action']) && $_REQUEST['pm_action'] != '' && !empty($_REQUEST['pms']) && is_array($_REQUEST['pms'])) {
+			foreach ($_REQUEST['pms'] as $pm) {
+				$_REQUEST['pm_actions'][(int) $pm] = $_REQUEST['pm_action'];
+			}
+		}
+
+		if (empty($_REQUEST['pm_actions'])) {
 			Utils::redirectexit($this->current_label_redirect);
+		}
 
 		// Don't act on a conversation unless the view mode and the $_REQUEST var match.
-		if (($this->mode == self::VIEW_CONV) != (isset($_REQUEST['conversation'])))
+		if (($this->mode == self::VIEW_CONV) != (isset($_REQUEST['conversation']))) {
 			Utils::redirectexit($this->current_label_redirect);
+		}
 
 		// Don't do labels unless we're in the inbox.
-		if ($this->folder !== 'inbox')
-		{
-			$_REQUEST['pm_actions'] = array_filter($_REQUEST['pm_actions'], fn($action) => $action === 'delete');
+		if ($this->folder !== 'inbox') {
+			$_REQUEST['pm_actions'] = array_filter($_REQUEST['pm_actions'], fn ($action) => $action === 'delete');
 		}
 
 		// If we are in conversation, we may need to apply this to every PM in the conversation.
-		if ($this->mode == self::VIEW_CONV)
-		{
-			foreach (array_keys($_REQUEST['pm_actions']) as $pm)
-			{
+		if ($this->mode == self::VIEW_CONV) {
+			foreach (array_keys($_REQUEST['pm_actions']) as $pm) {
 				$conversation = new Conversation($pm);
 
-				foreach ($conversation->pms as $id => $info)
-				{
+				foreach ($conversation->pms as $id => $info) {
 					// We only label received PMs, not sent ones.
-					if ($_REQUEST['pm_actions'][$pm] == 'delete' || $info['sender'] != User::$me->id)
-					{
+					if ($_REQUEST['pm_actions'][$pm] == 'delete' || $info['sender'] != User::$me->id) {
 						$_REQUEST['pm_actions'][$id] = $_REQUEST['pm_actions'][$pm];
 					}
 				}
 			}
 		}
 
-		$to_delete = array();
-		$to_label = array();
-		$label_type = array();
-		foreach ($_REQUEST['pm_actions'] as $pm => $action)
-		{
+		$to_delete = [];
+		$to_label = [];
+		$label_type = [];
+
+		foreach ($_REQUEST['pm_actions'] as $pm => $action) {
 			// Deleting.
-			if ($action === 'delete')
-			{
+			if ($action === 'delete') {
 				$to_delete[] = (int) $pm;
 			}
 			// Adding a label.
-			elseif (substr($action, 0, 4) == 'add_')
-			{
+			elseif (substr($action, 0, 4) == 'add_') {
 				$type = 'add';
 				$action = substr($action, 4);
 			}
 			// Removing a label.
-			elseif (substr($action, 0, 4) == 'rem_')
-			{
+			elseif (substr($action, 0, 4) == 'rem_') {
 				$type = 'rem';
 				$action = substr($action, 4);
 			}
 
-			if (in_array($type, array('add', 'rem')) && ($action == '-1' || (int) $action > 0))
-			{
+			if (in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
 				$to_label[(int) $pm] = (int) $action;
 				$label_type[(int) $pm] = $type;
 			}
 		}
 
 		// Deleting, it looks like?
-		if (!empty($to_delete))
-		{
+		if (!empty($to_delete)) {
 			PM::delete($to_delete, $this->folder);
 		}
 
 		// Are we labeling anything?
-		if (!empty($to_label) && $this->folder === 'inbox')
-		{
-			foreach (Received::loadByPm(array_keys($to_label)) as $received)
-			{
-				if ($label_type[$received->id] === 'add')
-				{
+		if (!empty($to_label) && $this->folder === 'inbox') {
+			foreach (Received::loadByPm(array_keys($to_label)) as $received) {
+				if ($label_type[$received->id] === 'add') {
 					$received->addLabel($to_label[$received->id]);
-				}
-				elseif ($label_type[$received->id] === 'rem')
-				{
+				} elseif ($label_type[$received->id] === 'rem') {
 					$received->removeLabel($to_label[$received->id]);
 				}
 			}
@@ -529,8 +511,7 @@ class PersonalMessage implements ActionInterface
 	 */
 	public function prune(): void
 	{
-		if (isset($_REQUEST['age']))
-		{
+		if (isset($_REQUEST['age'])) {
 			User::$me->checkSession();
 
 			// Calculate the time to delete before.
@@ -544,10 +525,10 @@ class PersonalMessage implements ActionInterface
 		}
 
 		// Build the link tree elements.
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=prune',
-			'name' => Lang::$txt['pm_prune']
-		);
+			'name' => Lang::$txt['pm_prune'],
+		];
 
 		Utils::$context['sub_template'] = 'prune';
 		Utils::$context['page_title'] = Lang::$txt['pm_prune'];
@@ -565,37 +546,39 @@ class PersonalMessage implements ActionInterface
 	public function report(): void
 	{
 		// Check that this feature is even enabled!
-		if (empty(Config::$modSettings['enableReportPM']) || empty($_REQUEST['pmsg']))
+		if (empty(Config::$modSettings['enableReportPM']) || empty($_REQUEST['pmsg'])) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		$pm = current(PM::load((int) $_REQUEST['pmsg']));
 
 		// Users are not allowed to report messages that they can't see.
-		if (!$pm->canAccess('inbox'))
+		if (!$pm->canAccess('inbox')) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		Utils::$context['pm_id'] = $pm->id;
 		Utils::$context['page_title'] = Lang::$txt['pm_report_title'];
 
 		// If we're here, just send the user to the template, with a few useful context bits.
-		if (!isset($_POST['report']))
-		{
+		if (!isset($_POST['report'])) {
 			Utils::$context['sub_template'] = 'report_message';
 
 			// @todo I don't like being able to pick who to send it to.  Favoritism, etc. sucks.
 			// Now, get all the administrators.
-			Utils::$context['admins'] = array();
-			$request = Db::$db->query('', '
-				SELECT id_member, real_name
+			Utils::$context['admins'] = [];
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
 				ORDER BY real_name',
-				array(
+				[
 					'admin_group' => 1,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				Utils::$context['admins'][$row['id_member']] = $row['real_name'];
 			}
 			Db::$db->free_result($request);
@@ -604,8 +587,7 @@ class PersonalMessage implements ActionInterface
 			Utils::$context['admin_count'] = count(Utils::$context['admins']);
 		}
 		// Otherwise, let's get down to the sending stuff.
-		else
-		{
+		else {
 			// Check the session before proceeding any further!
 			User::$me->checkSession();
 
@@ -613,80 +595,77 @@ class PersonalMessage implements ActionInterface
 			$body = preg_replace('~<br ?/?' . '>~i', "\n", $this->body);
 
 			// Get any other recipients of the email.
-			$recipients = array();
+			$recipients = [];
 			$hidden_recipients = 0;
 
-			foreach ($pm->received as $received)
-			{
-				if ($received->member === User::$me->id)
+			foreach ($pm->received as $received) {
+				if ($received->member === User::$me->id) {
 					continue;
+				}
 
 				// If it's hidden still don't reveal their names - privacy after all ;)
-				if (!empty($received->bcc))
-				{
+				if (!empty($received->bcc)) {
 					$hidden_recipients++;
-				}
-				else
-				{
+				} else {
 					$recipients[] = '[url=' . Config::$scripturl . '?action=profile;u=' . $received->member . ']' . $received->name . '[/url]';
 				}
 			}
 
-			if ($hidden_recipients)
+			if ($hidden_recipients) {
 				$recipients[] = sprintf(Lang::$txt['pm_report_pm_hidden'], $hidden_recipients);
+			}
 
 			// Prepare the message storage array.
-			$messagesToSend = array();
+			$messagesToSend = [];
 
 			// Now let's get out and loop through the admins.
 			$memberFromName = Utils::htmlspecialcharsDecode($this->from_name);
-			$request = Db::$db->query('', '
-				SELECT id_member, real_name, lngfile
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member, real_name, lngfile
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_id} OR FIND_IN_SET({int:admin_id}, additional_groups) != 0)
 					' . (empty($_POST['id_admin']) ? '' : 'AND id_member = {int:specific_admin}') . '
 				ORDER BY lngfile',
-				array(
+				[
 					'admin_id' => 1,
 					'specific_admin' => isset($_POST['id_admin']) ? (int) $_POST['id_admin'] : 0,
-				)
+				],
 			);
+
 			// Maybe we shouldn't advertise this?
-			if (Db::$db->num_rows($request) == 0)
-			{
+			if (Db::$db->num_rows($request) == 0) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
+
 			// Loop through each admin, and add them to the right language pile...
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+			while ($row = Db::$db->fetch_assoc($request)) {
 				// Need to send in the correct language!
 				$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
 
-				if (!isset($messagesToSend[$cur_language]))
-				{
+				if (!isset($messagesToSend[$cur_language])) {
 					Lang::load('PersonalMessage', $cur_language, false);
 
 					// Make the body.
-					$report_body = str_replace(array('{REPORTER}', '{SENDER}'), array(Utils::htmlspecialcharsDecode(User::$me->name), $memberFromName), Lang::$txt['pm_report_pm_user_sent']);
+					$report_body = str_replace(['{REPORTER}', '{SENDER}'], [Utils::htmlspecialcharsDecode(User::$me->name), $memberFromName], Lang::$txt['pm_report_pm_user_sent']);
 
 					$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 
-					if (!empty($recipients))
-					{
+					if (!empty($recipients)) {
 						$report_body .= Lang::$txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
 					}
 
 					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($this->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $this->member_from . ' date=' . $this->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
 
 					// Plonk it in the array ;)
-					$messagesToSend[$cur_language] = array(
+					$messagesToSend[$cur_language] = [
 						'subject' => (Utils::entityStrpos($this->subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . Utils::htmlspecialcharsDecode($this->subject),
 						'body' => $report_body,
-						'recipients' => array(
-							'to' => array(),
-							'bcc' => array()
-						),
-					);
+						'recipients' => [
+							'to' => [],
+							'bcc' => [],
+						],
+					];
 				}
 
 				// Add them to the list.
@@ -695,12 +674,14 @@ class PersonalMessage implements ActionInterface
 			Db::$db->free_result($request);
 
 			// Send a different email for each language.
-			foreach ($messagesToSend as $lang => $message)
+			foreach ($messagesToSend as $lang => $message) {
 				PM::send($message['recipients'], $message['subject'], $message['body']);
+			}
 
 			// Give the user their own language back!
-			if (!empty(Config::$modSettings['userLanguage']))
+			if (!empty(Config::$modSettings['userLanguage'])) {
 				Lang::load('PersonalMessage', '', false);
+			}
 
 			// Leave them with a template.
 			Utils::$context['sub_template'] = 'report_message_complete';
@@ -757,19 +738,18 @@ class PersonalMessage implements ActionInterface
 		Profile::$member->loadCustomFields('pmprefs');
 
 		// Add our position to the linktree.
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=settings',
-			'name' => Lang::$txt['pm_settings']
-		);
+			'name' => Lang::$txt['pm_settings'],
+		];
 
 		// Are they saving?
-		if (isset($_REQUEST['save']))
-		{
+		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
 			Profile::$member->save();
 		}
 
-		Profile::$member->setupContext(array('pm_prefs'));
+		Profile::$member->setupContext(['pm_prefs']);
 	}
 
 	/***********************
@@ -783,8 +763,9 @@ class PersonalMessage implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -948,14 +929,17 @@ class PersonalMessage implements ActionInterface
 	{
 		Lang::load('PersonalMessage+Drafts');
 
-		if (!isset($_REQUEST['xml']))
+		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
+		}
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 
-		if (isset($_REQUEST['f']) && $_REQUEST['f'] === 'sent')
+		if (isset($_REQUEST['f']) && $_REQUEST['f'] === 'sent') {
 			$this->folder = 'sent';
+		}
 
 		$this->buildLimitBar();
 
@@ -972,8 +956,9 @@ class PersonalMessage implements ActionInterface
 		$this->mode = User::$me->pm_prefs & 3;
 
 		// A previous message was sent successfully? Show a small indication.
-		if (isset($_GET['done']) && ($_GET['done'] == 'sent'))
+		if (isset($_GET['done']) && ($_GET['done'] == 'sent')) {
 			Utils::$context['pm_sent'] = true;
+		}
 
 		// Some context stuff for the templates.
 		Utils::$context['display_mode'] = &$this->mode;
@@ -990,10 +975,10 @@ class PersonalMessage implements ActionInterface
 		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// Build the linktree for all the actions...
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm',
-			'name' => Lang::$txt['personal_messages']
-		);
+			'name' => Lang::$txt['personal_messages'],
+		];
 	}
 
 	/**
@@ -1006,48 +991,45 @@ class PersonalMessage implements ActionInterface
 		// Finalize string values in the menu.
 		array_walk_recursive(
 			$this->pm_areas,
-			function(&$value, $key)
-			{
-				if (in_array($key, array('title', 'label')))
+			function (&$value, $key) {
+				if (in_array($key, ['title', 'label'])) {
 					$value = Lang::$txt[$value] ?? $value;
+				}
 
-				$value = strtr($value, array(
+				$value = strtr($value, [
 					'{scripturl}' => Config::$scripturl,
 					'{boardurl}' => Config::$boardurl,
-				));
-			}
+				]);
+			},
 		);
 
 		$this->pm_areas['folders']['areas']['drafts']['enabled'] = !empty(Config::$modSettings['drafts_pm_enabled']);
 
 		// Give mods access to the menu.
-		IntegrationHook::call('integrate_pm_areas', array(&$this->pm_areas));
+		IntegrationHook::call('integrate_pm_areas', [&$this->pm_areas]);
 
 		// Handle labels.
-		if (empty(Label::$loaded))
-		{
+		if (empty(Label::$loaded)) {
 			unset($this->pm_areas['labels']);
-		}
-		else
-		{
+		} else {
 			// Note we send labels by id as it will have less problems in the querystring.
-			foreach (Label::$loaded as $label)
-			{
-				if ($label['id'] == -1)
+			foreach (Label::$loaded as $label) {
+				if ($label['id'] == -1) {
 					continue;
+				}
 
 				// Count the amount of unread items in labels.
 				$this->pm_areas['labels']['amt'] += $label['unread_messages'];
 
 				// Add the label to the menu.
-				$this->pm_areas['labels']['areas']['label' . $label['id']] = array(
+				$this->pm_areas['labels']['areas']['label' . $label['id']] = [
 					'label' => $label['name'],
 					'custom_url' => Config::$scripturl . '?action=pm;l=' . $label['id'],
 					'amt' => $label['unread_messages'],
 					'unread_messages' => $label['unread_messages'],
 					'messages' => $label['messages'],
 					'icon' => 'folder',
-				);
+				];
 			}
 		}
 
@@ -1055,25 +1037,25 @@ class PersonalMessage implements ActionInterface
 
 		$this->pm_areas['folders']['areas']['inbox']['messages'] = Label::$loaded[-1]['messages'];
 
-		if (!empty(Label::$loaded[-1]['unread_messages']))
-		{
+		if (!empty(Label::$loaded[-1]['unread_messages'])) {
 			$this->pm_areas['folders']['areas']['inbox']['amt'] = Label::$loaded[-1]['unread_messages'];
 
 			$this->pm_areas['folders']['amt'] = Label::$loaded[-1]['unread_messages'];
 		}
 
 		// Set a few options for the menu.
-		$menuOptions = array(
+		$menuOptions = [
 			'current_area' => $area,
 			'disable_url_session_check' => true,
-		);
+		];
 
 		// Actually create the menu!
 		$menu = new Menu($this->pm_areas, $menuOptions);
 
 		// No menu means no access.
-		if (empty($menu->include_data) && (!User::$me->is_guest || User::$me->validateSession()))
+		if (empty($menu->include_data) && (!User::$me->is_guest || User::$me->validateSession())) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		// Make a note of the Unique ID for this menu.
 		Utils::$context['pm_menu_id'] = $menu->id;
@@ -1083,8 +1065,9 @@ class PersonalMessage implements ActionInterface
 		Utils::$context['menu_item_selected'] = $menu->current_area;
 
 		// Set the template for this area and add the profile layer.
-		if (!isset($_REQUEST['xml']))
+		if (!isset($_REQUEST['xml'])) {
 			Utils::$context['template_layers'][] = 'pm';
+		}
 	}
 
 	/**
@@ -1092,19 +1075,20 @@ class PersonalMessage implements ActionInterface
 	 */
 	protected function buildLimitBar()
 	{
-		if (User::$me->is_admin)
+		if (User::$me->is_admin) {
 			return;
+		}
 
-		if (($limit = CacheApi::get('msgLimit:' . User::$me->id, 360)) === null)
-		{
+		if (($limit = CacheApi::get('msgLimit:' . User::$me->id, 360)) === null) {
 			// @todo Why do we do this?  It seems like if they have any limit we should use it.
-			$request = Db::$db->query('', '
-				SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
+			$request = Db::$db->query(
+				'',
+				'SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
 				FROM {db_prefix}membergroups
 				WHERE id_group IN ({array_int:users_groups})',
-				array(
+				[
 					'users_groups' => User::$me->groups,
-				)
+				],
 			);
 			list($maxMessage, $minMessage) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
@@ -1116,23 +1100,23 @@ class PersonalMessage implements ActionInterface
 		}
 
 		// Prepare the context for the capacity bar.
-		if (!empty($limit))
-		{
+		if (!empty($limit)) {
 			$bar = round((User::$me->messages * 100) / $limit, 1);
 
-			Utils::$context['limit_bar'] = array(
+			Utils::$context['limit_bar'] = [
 				'messages' => User::$me->messages,
 				'allowed' => $limit,
 				'percent' => $bar,
 				'bar' => min(100, (int) $bar),
 				'text' => sprintf(Lang::$txt['pm_currently_using'], User::$me->messages, $bar),
-			);
+			];
 		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\PersonalMessage::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\PersonalMessage::exportStatic')) {
 	PersonalMessage::exportStatic();
+}
 
 ?>

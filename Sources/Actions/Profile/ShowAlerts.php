@@ -13,10 +13,9 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
 use SMF\Alert;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\PageIndex;
@@ -37,11 +36,11 @@ class ShowAlerts implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'showAlerts' => 'showAlerts',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -65,8 +64,7 @@ class ShowAlerts implements ActionInterface
 	public function execute(): void
 	{
 		// Are we opening a specific alert? (i.e.: ?action=profile;area=showalerts;alert=12345)
-		if (!empty($_REQUEST['alert']))
-		{
+		if (!empty($_REQUEST['alert'])) {
 			$alert_id = (int) $_REQUEST['alert'];
 			$alerts = Alert::fetch(User::$me->id, $alert_id);
 			$alert = array_pop($alerts);
@@ -79,8 +77,9 @@ class ShowAlerts implements ActionInterface
 			 */
 
 			// In case it failed to determine this alert's link
-			if (empty($alert->target_href))
+			if (empty($alert->target_href)) {
 				Utils::redirectexit('action=profile;area=showalerts');
+			}
 
 			// Mark the alert as read while we're at it.
 			Alert::mark(User::$me->id, $alert_id, 1);
@@ -94,12 +93,9 @@ class ShowAlerts implements ActionInterface
 		Utils::$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 
 		// Fix invalid 'start' offsets.
-		if (Utils::$context['start'] > User::$me->alerts)
-		{
+		if (Utils::$context['start'] > User::$me->alerts) {
 			Utils::$context['start'] = User::$me->alerts - (User::$me->alerts % $maxIndex);
-		}
-		else
-		{
+		} else {
 			Utils::$context['start'] = Utils::$context['start'] - (Utils::$context['start'] % $maxIndex);
 		}
 
@@ -115,8 +111,7 @@ class ShowAlerts implements ActionInterface
 		Utils::$context['pagination'] = new PageIndex(Config::$scripturl . '?action=profile;area=showalerts;u=' . User::$me->id, Utils::$context['start'], User::$me->alerts, $maxIndex, false);
 
 		// Set some JavaScript for checking all alerts at once.
-		if (Utils::$context['showCheckboxes'])
-		{
+		if (Utils::$context['showCheckboxes']) {
 			Theme::addInlineJavaScript('
 			$(function(){
 				$(\'#select_all\').on(\'change\', function() {
@@ -132,46 +127,43 @@ class ShowAlerts implements ActionInterface
 		}
 
 		// The quickbuttons
-		foreach (Utils::$context['alerts'] as $id => $alert)
-		{
-			Utils::$context['alerts'][$id]['quickbuttons'] = array(
-				'delete' => array(
+		foreach (Utils::$context['alerts'] as $id => $alert) {
+			Utils::$context['alerts'][$id]['quickbuttons'] = [
+				'delete' => [
 					'label' => Lang::$txt['delete'],
 					'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 					'class' => 'you_sure',
-					'icon' => 'remove_button'
-				),
-				'mark' => array(
+					'icon' => 'remove_button',
+				],
+				'mark' => [
 					'label' => $alert['is_read'] != 0 ? Lang::$txt['mark_unread'] : Lang::$txt['mark_read_short'],
 					'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 					'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
-				),
-				'view' => array(
+				],
+				'view' => [
 					'label' => Lang::$txt['view'],
 					'href' => Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
 					'icon' => 'move',
-				),
-				'quickmod' => array(
-	    			'class' => 'inline_mod_check',
+				],
+				'quickmod' => [
+					'class' => 'inline_mod_check',
 					'content' => '<input type="checkbox" name="mark[' . $id . ']" value="' . $id . '">',
-					'show' => Utils::$context['showCheckboxes']
-				)
-			);
+					'show' => Utils::$context['showCheckboxes'],
+				],
+			];
 		}
 
 		// The Delete all unread link.
 		Utils::$context['alert_purge_link'] = Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=purge;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : '');
 
 		// Set a nice message.
-		if (!empty($_SESSION['update_message']))
-		{
+		if (!empty($_SESSION['update_message'])) {
 			Utils::$context['update_message'] = Lang::$txt['profile_updated_own'];
 			unset($_SESSION['update_message']);
 		}
 
 		// Saving multiple changes?
-		if (isset($_GET['save']) && !empty($_POST['mark']))
-		{
+		if (isset($_GET['save']) && !empty($_POST['mark'])) {
 			// Get the values.
 			$toMark = array_map('intval', (array) $_POST['mark']);
 
@@ -180,25 +172,21 @@ class ShowAlerts implements ActionInterface
 		}
 
 		// A single change.
-		if (!empty($_GET['do']) && !empty($_GET['aid']))
-		{
+		if (!empty($_GET['do']) && !empty($_GET['aid'])) {
 			$toMark = (int) $_GET['aid'];
 			$action = Utils::htmlspecialchars(Utils::htmlTrim($_GET['do']));
 		}
 		// Delete all read alerts.
-		elseif (!empty($_GET['do']) && $_GET['do'] === 'purge')
-		{
+		elseif (!empty($_GET['do']) && $_GET['do'] === 'purge') {
 			$action = 'purge';
 		}
 
 		// Save the changes.
-		if (!empty($action) && (!empty($toMark) || $action === 'purge'))
-		{
+		if (!empty($action) && (!empty($toMark) || $action === 'purge')) {
 			User::$me->checkSession('request');
 
 			// Call it!
-			switch ($action)
-			{
+			switch ($action) {
 				case 'remove':
 					Alert::delete($toMark, User::$me->id);
 					break;
@@ -231,8 +219,9 @@ class ShowAlerts implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -269,17 +258,20 @@ class ShowAlerts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 
 		// Users may only view their own alerts.
-		if (!User::$me->is_owner)
+		if (!User::$me->is_owner) {
 			Utils::redirectexit('action=profile;u=' . Profile::$member->id);
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ShowAlerts::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ShowAlerts::exportStatic')) {
 	ShowAlerts::exportStatic();
+}
 
 ?>

@@ -13,8 +13,8 @@
 
 namespace SMF;
 
-use SMF\Actions\Notify;
 use SMF\Actions\Moderation\ReportedContent;
+use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -27,26 +27,27 @@ use SMF\Search\SearchApi;
  */
 class Topic implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'lock' => 'LockTopic',
 			'sticky' => 'Sticky',
 			'approve' => 'approveTopics',
 			'move' => 'moveTopics',
 			'remove' => 'removeTopics',
 			'prepareLikesContext' => 'prepareLikesContext',
-		),
-		'prop_names' => array(
+		],
+		'prop_names' => [
 			'topic_id' => 'topic',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -263,7 +264,7 @@ class Topic implements \ArrayAccess
 	 *
 	 * The current user's notification preferences regarding this topic.
 	 */
-	public array $notify_prefs = array();
+	public array $notify_prefs = [];
 
 	/**
 	 * @var array
@@ -273,7 +274,7 @@ class Topic implements \ArrayAccess
 	 * "Contextual" here means "suitable for use in Utils::$context."
 	 * Examples include can_move, can_lock, etc.
 	 */
-	public array $permissions = array();
+	public array $permissions = [];
 
 	/**************************
 	 * Public static properties
@@ -298,7 +299,7 @@ class Topic implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static $loaded = array();
+	public static $loaded = [];
 
 	/*********************
 	 * Internal properties
@@ -309,13 +310,13 @@ class Topic implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_topic' => 'id',
 		'locked' => 'is_locked',
 		'approved' => 'is_approved',
 		'topic_started_name' => 'started_name',
 		'topic_started_time' => 'started_time',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -327,7 +328,7 @@ class Topic implements \ArrayAccess
 	 * Common permissions to check for this topic.
 	 * Used by Topic::doPermissions();
 	 */
-	protected static array $common_permissions = array(
+	protected static array $common_permissions = [
 		'can_approve' => 'approve_posts',
 		'can_ban' => 'manage_bans',
 		'can_sticky' => 'make_sticky',
@@ -341,7 +342,7 @@ class Topic implements \ArrayAccess
 		'can_restore_topic' => 'move_any',
 		'can_restore_msg' => 'move_any',
 		'can_like' => 'likes_like',
-	);
+	];
 
 	/**
 	 * @var array
@@ -349,7 +350,7 @@ class Topic implements \ArrayAccess
 	 * Permissions with _any/_own versions.  $context[YYY] => ZZZ_any/_own.
 	 * Used by Topic::doPermissions();
 	 */
-	protected static array $anyown_permissions = array(
+	protected static array $anyown_permissions = [
 		'can_move' => 'move',
 		'can_lock' => 'lock',
 		'can_delete' => 'remove',
@@ -357,7 +358,7 @@ class Topic implements \ArrayAccess
 		'can_remove_poll' => 'poll_remove',
 		'can_reply' => 'post_reply',
 		'can_reply_unapproved' => 'post_unapproved_replies',
-	);
+	];
 
 	/****************
 	 * Public methods
@@ -370,7 +371,7 @@ class Topic implements \ArrayAccess
 	 * @param array $props Properties to set for this topic.
 	 * @return object An instance of this class.
 	 */
-	public function __construct(int $id, array $props = array())
+	public function __construct(int $id, array $props = [])
 	{
 		self::$loaded[$id] = $this;
 		$this->id = $id;
@@ -386,12 +387,9 @@ class Topic implements \ArrayAccess
 	public function __set(string $prop, $value): void
 	{
 		// Special case for num_replies and real_num_replies.
-		if ($prop === 'num_replies' && !isset($this->real_num_replies))
-		{
+		if ($prop === 'num_replies' && !isset($this->real_num_replies)) {
 			$this->real_num_replies = $value;
-		}
-		elseif ($prop === 'real_num_replies' && !isset($this->num_replies))
-		{
+		} elseif ($prop === 'real_num_replies' && !isset($this->num_replies)) {
 			$this->num_replies = $value;
 		}
 
@@ -407,29 +405,28 @@ class Topic implements \ArrayAccess
 	 */
 	public function doPermissions(): array
 	{
-		if (!empty($this->permissions))
+		if (!empty($this->permissions)) {
 			return $this->permissions;
+		}
 
-		foreach (self::$common_permissions as $contextual => $perm)
+		foreach (self::$common_permissions as $contextual => $perm) {
 			$this->permissions[$contextual] = User::$me->allowedTo($perm);
+		}
 
-		foreach (self::$anyown_permissions as $contextual => $perm)
-		{
+		foreach (self::$anyown_permissions as $contextual => $perm) {
 			$this->permissions[$contextual] = User::$me->allowedTo($perm . '_any') || (User::$me->started && User::$me->allowedTo($perm . '_own'));
 		}
 
-		if (!User::$me->is_admin && $this->permissions['can_move'] && !Config::$modSettings['topic_move_any'])
-		{
+		if (!User::$me->is_admin && $this->permissions['can_move'] && !Config::$modSettings['topic_move_any']) {
 			// We'll use this in a minute
-			$boards_allowed = array_diff(User::$me->boardsAllowedTo('post_new'), array(Board::$info->id));
+			$boards_allowed = array_diff(User::$me->boardsAllowedTo('post_new'), [Board::$info->id]);
 
 			// You can't move this unless you have permission to start new topics on at least one other board.
 			$this->permissions['can_move'] = count($boards_allowed) > 1;
 		}
 
 		// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
-		if ($this->is_locked)
-		{
+		if ($this->is_locked) {
 			$this->permissions['can_delete'] &= (($this->is_locked == 1 && User::$me->started) || User::$me->allowedTo('lock_any'));
 		}
 
@@ -479,18 +476,17 @@ class Topic implements \ArrayAccess
 	 */
 	public function getNotificationPrefs(): array
 	{
-		if (!empty(User::$me->id))
-		{
-			$prefs = Notify::getNotifyPrefs(User::$me->id, array('topic_notify', 'topic_notify_' . $this->id, 'msg_auto_notify'), true);
+		if (!empty(User::$me->id)) {
+			$prefs = Notify::getNotifyPrefs(User::$me->id, ['topic_notify', 'topic_notify_' . $this->id, 'msg_auto_notify'], true);
 
 			// Only pay attention to Utils::$context['is_marked_notify'] if it is set.
-			$pref = !empty($prefs[User::$me->id]) && (!isset(Utils::$context['is_marked_notify']) || Utils::$context['is_marked_notify'] == true) ? $prefs[User::$me->id] : array();
+			$pref = !empty($prefs[User::$me->id]) && (!isset(Utils::$context['is_marked_notify']) || Utils::$context['is_marked_notify'] == true) ? $prefs[User::$me->id] : [];
 
-			$this->notify_prefs = array(
+			$this->notify_prefs = [
 				'is_custom' => isset($pref['topic_notify_' . $this->id]),
 				'pref' => $pref['topic_notify_' . $this->id] ?? ($pref['topic_notify'] ?? 0),
 				'msg_auto_notify' => $pref['msg_auto_notify'] ?? false,
-			);
+			];
 		}
 
 		return $this->notify_prefs;
@@ -504,30 +500,31 @@ class Topic implements \ArrayAccess
 	 */
 	public function getLikedMsgs(): array
 	{
-		if (User::$me->is_guest)
-			return array();
+		if (User::$me->is_guest) {
+			return [];
+		}
 
 		$cache_key = 'likes_topic_' . $this->id . '_' . User::$me->id;
 		$ttl = 180;
 
-		if (($liked_messages = CacheApi::get($cache_key, $ttl)) === null)
-		{
-			$liked_messages = array();
+		if (($liked_messages = CacheApi::get($cache_key, $ttl)) === null) {
+			$liked_messages = [];
 
-			$request = Db::$db->query('', '
-				SELECT content_id
+			$request = Db::$db->query(
+				'',
+				'SELECT content_id
 				FROM {db_prefix}user_likes AS l
 					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
 				WHERE l.id_member = {int:current_user}
 					AND l.content_type = {literal:msg}
 					AND m.id_topic = {int:topic}',
-				array(
+				[
 					'current_user' => User::$me->id,
 					'topic' => $this->id,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$liked_messages[] = (int) $row['content_id'];
 			}
 			Db::$db->free_result($request);
@@ -550,22 +547,22 @@ class Topic implements \ArrayAccess
 	 */
 	public static function load(?int $id = null)
 	{
-		if (!isset($id))
-		{
-			if (empty(self::$topic_id))
+		if (!isset($id)) {
+			if (empty(self::$topic_id)) {
 				ErrorHandler::fatalLang('not_a_topic', false, 404);
+			}
 
 			$id = self::$topic_id;
 		}
 
-		if (!isset(self::$loaded[$id]))
-		{
+		if (!isset(self::$loaded[$id])) {
 			new self($id);
 
 			self::$loaded[$id]->loadTopicInfo();
 
-			if (!empty(self::$topic_id) && $id === self::$topic_id)
+			if (!empty(self::$topic_id) && $id === self::$topic_id) {
 				self::$info = self::$loaded[$id];
+			}
 		}
 
 		return self::$loaded[$id];
@@ -584,20 +581,22 @@ class Topic implements \ArrayAccess
 	public static function lock(): void
 	{
 		// Just quit if there's no topic to lock.
-		if (empty(self::$topic_id))
+		if (empty(self::$topic_id)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
+		}
 
 		User::$me->checkSession('get');
 
 		// Find out who started the topic - in case User Topic Locking is enabled.
-		$request = Db::$db->query('', '
-			SELECT id_member_started, locked
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member_started, locked
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
-			array(
+			[
 				'current_topic' => self::$topic_id,
-			)
+			],
 		);
 		list($starter, $locked) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -605,61 +604,51 @@ class Topic implements \ArrayAccess
 		// Can you lock topics here, mister?
 		$user_lock = !User::$me->allowedTo('lock_any');
 
-		if ($user_lock && $starter == User::$me->id)
-		{
+		if ($user_lock && $starter == User::$me->id) {
 			User::$me->isAllowedTo('lock_own');
-		}
-		else
-		{
+		} else {
 			User::$me->isAllowedTo('lock_any');
 		}
 
 		// Another moderator got the job done first?
-		if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0')
-		{
+		if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0') {
 			ErrorHandler::fatalLang('error_topic_locked_already', false);
-		}
-		elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2'))
-		{
+		} elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2')) {
 			ErrorHandler::fatalLang('error_topic_unlocked_already', false);
 		}
 
 		// Locking with high privileges.
-		if ($locked == '0' && !$user_lock)
-		{
+		if ($locked == '0' && !$user_lock) {
 			$locked = '1';
 		}
 		// Locking with low privileges.
-		elseif ($locked == '0')
-		{
+		elseif ($locked == '0') {
 			$locked = '2';
 		}
 		// Unlocking - make sure you don't unlock what you can't.
-		elseif ($locked == '2' || ($locked == '1' && !$user_lock))
-		{
+		elseif ($locked == '2' || ($locked == '1' && !$user_lock)) {
 			$locked = '0';
 		}
 		// You cannot unlock this!
-		else
-		{
+		else {
 			ErrorHandler::fatalLang('locked_by_admin', 'user');
 		}
 
 		// Actually lock the topic in the database with the new value.
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET locked = {int:locked}
 			WHERE id_topic = {int:current_topic}',
-			array(
+			[
 				'current_topic' => self::$topic_id,
 				'locked' => $locked,
-			)
+			],
 		);
 
 		// If they are allowed a "moderator" permission, log it in the moderator log.
-		if (!$user_lock)
-		{
-			Logging::logAction($locked ? 'lock' : 'unlock', array('topic' => self::$topic_id, 'board' => Board::$info->id));
+		if (!$user_lock) {
+			Logging::logAction($locked ? 'lock' : 'unlock', ['topic' => self::$topic_id, 'board' => Board::$info->id]);
 		}
 
 		// Notify people that this topic has been locked?
@@ -685,51 +674,52 @@ class Topic implements \ArrayAccess
 		User::$me->isAllowedTo('make_sticky');
 
 		// You can't sticky a board or something!
-		if (empty(self::$topic_id))
+		if (empty(self::$topic_id)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
+		}
 
 		User::$me->checkSession('get');
 
 		// Is this topic already stickied, or no?
-		$request = Db::$db->query('', '
-			SELECT is_sticky
+		$request = Db::$db->query(
+			'',
+			'SELECT is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
-			array(
+			[
 				'current_topic' => self::$topic_id,
-			)
+			],
 		);
 		list($is_sticky) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Another moderator got the job done first?
-		if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0')
-		{
+		if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0') {
 			ErrorHandler::fatalLang('error_topic_nonsticky_already', false);
-		}
-		elseif (isset($_GET['sa']) && $_GET['sa'] == 'sticky' && $is_sticky == '1')
-		{
+		} elseif (isset($_GET['sa']) && $_GET['sa'] == 'sticky' && $is_sticky == '1') {
 			ErrorHandler::fatalLang('error_topic_sticky_already', false);
 		}
 
 		// Toggle the sticky value.... pretty simple ;).
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET is_sticky = {int:is_sticky}
 			WHERE id_topic = {int:current_topic}',
-			array(
+			[
 				'current_topic' => self::$topic_id,
 				'is_sticky' => empty($is_sticky) ? 1 : 0,
-			)
+			],
 		);
 
 		// Log this sticky action - always a moderator thing.
-		Logging::logAction(empty($is_sticky) ? 'sticky' : 'unsticky', array('topic' => self::$topic_id, 'board' => Board::$info->id));
+		Logging::logAction(empty($is_sticky) ? 'sticky' : 'unsticky', ['topic' => self::$topic_id, 'board' => Board::$info->id]);
 
 		// Notify people that this topic has been stickied?
-		if (empty($is_sticky))
+		if (empty($is_sticky)) {
 			Mail::sendNotifications(self::$topic_id, 'sticky');
+		}
 
 		// Take them back to the now stickied topic.
 		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
@@ -744,28 +734,33 @@ class Topic implements \ArrayAccess
 	 */
 	public static function approve($topics, $approve = true)
 	{
-		if (!is_array($topics))
-			$topics = array($topics);
+		if (!is_array($topics)) {
+			$topics = [$topics];
+		}
 
-		if (empty($topics))
+		if (empty($topics)) {
 			return false;
+		}
 
 		$approve_type = $approve ? 0 : 1;
 
 		// Just get the messages to be approved and pass through...
-		$request = Db::$db->query('', '
-			SELECT id_first_msg
+		$request = Db::$db->query(
+			'',
+			'SELECT id_first_msg
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topic_list})
 				AND approved = {int:approve_type}',
-			array(
+			[
 				'topic_list' => $topics,
 				'approve_type' => $approve_type,
-			)
+			],
 		);
-		$msgs = array();
-		while ($row = Db::$db->fetch_assoc($request))
+		$msgs = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$msgs[] = $row['id_first_msg'];
+		}
 		Db::$db->free_result($request);
 
 		return Msg::approve($msgs, $approve);
@@ -783,18 +778,21 @@ class Topic implements \ArrayAccess
 	public static function move($topics, $toBoard)
 	{
 		// Empty array?
-		if (empty($topics))
+		if (empty($topics)) {
 			return;
+		}
 
 		// Only a single topic.
-		if (is_numeric($topics))
-			$topics = array($topics);
+		if (is_numeric($topics)) {
+			$topics = [$topics];
+		}
 
-		$fromBoards = array();
+		$fromBoards = [];
 
 		// Destination board empty or equal to 0?
-		if (empty($toBoard))
+		if (empty($toBoard)) {
 			return;
+		}
 
 		// Are we moving to the recycle board?
 		$isRecycleDest = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $toBoard;
@@ -802,91 +800,96 @@ class Topic implements \ArrayAccess
 		// Callback for search APIs to do their thing
 		$searchAPI = SearchApi::load();
 
-		if ($searchAPI->supportsMethod('topicsMoved'))
+		if ($searchAPI->supportsMethod('topicsMoved')) {
 			$searchAPI->topicsMoved($topics, $toBoard);
+		}
 
 		// Determine the source boards...
-		$request = Db::$db->query('', '
-			SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
 				SUM(num_replies) AS num_replies
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 			GROUP BY id_board, approved',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
+
 		// Num of rows = 0 -> no topics found. Num of rows > 1 -> topics are on multiple boards.
-		if (Db::$db->num_rows($request) == 0)
+		if (Db::$db->num_rows($request) == 0) {
 			return;
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!isset($fromBoards[$row['id_board']]['num_posts']))
-			{
-				$fromBoards[$row['id_board']] = array(
+		}
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!isset($fromBoards[$row['id_board']]['num_posts'])) {
+				$fromBoards[$row['id_board']] = [
 					'num_posts' => 0,
 					'num_topics' => 0,
 					'unapproved_posts' => 0,
 					'unapproved_topics' => 0,
-					'id_board' => $row['id_board']
-				);
+					'id_board' => $row['id_board'],
+				];
 			}
 			// Posts = (num_replies + 1) for each approved topic.
 			$fromBoards[$row['id_board']]['num_posts'] += $row['num_replies'] + ($row['approved'] ? $row['num_topics'] : 0);
 			$fromBoards[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
 
 			// Add the topics to the right type.
-			if ($row['approved'])
+			if ($row['approved']) {
 				$fromBoards[$row['id_board']]['num_topics'] += $row['num_topics'];
-			else
+			} else {
 				$fromBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
+			}
 		}
 		Db::$db->free_result($request);
 
 		// Move over the mark_read data. (because it may be read and now not by some!)
 		$SaveAServer = max(0, Config::$modSettings['maxMsgID'] - 50000);
-		$request = Db::$db->query('', '
-			SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
+		$request = Db::$db->query(
+			'',
+			'SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board
 					AND lmr.id_msg > t.id_first_msg AND lmr.id_msg > {int:protect_lmr_msg})
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = lmr.id_member)
 			WHERE t.id_topic IN ({array_int:topics})
 				AND lmr.id_msg > COALESCE(lt.id_msg, 0)',
-			array(
+			[
 				'protect_lmr_msg' => $SaveAServer,
 				'topics' => $topics,
-			)
+			],
 		);
-		$log_topics = array();
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$log_topics[] = array($row['id_topic'], $row['id_member'], $row['id_msg'], (is_null($row['unwatched']) ? 0 : $row['unwatched']));
+		$log_topics = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (is_null($row['unwatched']) ? 0 : $row['unwatched'])];
 
 			// Prevent queries from getting too big. Taking some steam off.
-			if (count($log_topics) > 500)
-			{
-				Db::$db->insert('replace',
+			if (count($log_topics) > 500) {
+				Db::$db->insert(
+					'replace',
 					'{db_prefix}log_topics',
-					array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
+					['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
 					$log_topics,
-					array('id_topic', 'id_member')
+					['id_topic', 'id_member'],
 				);
 
-				$log_topics = array();
+				$log_topics = [];
 			}
 		}
 		Db::$db->free_result($request);
 
 		// Now that we have all the topics that *should* be marked read, and by which members...
-		if (!empty($log_topics))
-		{
+		if (!empty($log_topics)) {
 			// Insert that information into the database!
-			Db::$db->insert('replace',
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}log_topics',
-				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
+				['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
 				$log_topics,
-				array('id_topic', 'id_member')
+				['id_topic', 'id_member'],
 			);
 		}
 
@@ -895,31 +898,33 @@ class Topic implements \ArrayAccess
 		$totalPosts = 0;
 		$totalUnapprovedTopics = 0;
 		$totalUnapprovedPosts = 0;
-		foreach ($fromBoards as $stats)
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}boards
+
+		foreach ($fromBoards as $stats) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}boards
 				SET
 					num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
 					num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
 					unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
 					unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
 				WHERE id_board = {int:id_board}',
-				array(
+				[
 					'id_board' => $stats['id_board'],
 					'num_posts' => $stats['num_posts'],
 					'num_topics' => $stats['num_topics'],
 					'unapproved_posts' => $stats['unapproved_posts'],
 					'unapproved_topics' => $stats['unapproved_topics'],
-				)
+				],
 			);
 			$totalTopics += $stats['num_topics'];
 			$totalPosts += $stats['num_posts'];
 			$totalUnapprovedTopics += $stats['unapproved_topics'];
 			$totalUnapprovedPosts += $stats['unapproved_posts'];
 		}
-		Db::$db->query('', '
-			UPDATE {db_prefix}boards
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}boards
 			SET
 				num_topics = num_topics + {int:total_topics},
 				num_posts = num_posts + {int:total_posts},' . ($isRecycleDest ? '
@@ -927,165 +932,180 @@ class Topic implements \ArrayAccess
 				unapproved_posts = unapproved_posts + {int:total_unapproved_posts},
 				unapproved_topics = unapproved_topics + {int:total_unapproved_topics}') . '
 			WHERE id_board = {int:id_board}',
-			array(
+			[
 				'id_board' => $toBoard,
 				'total_topics' => $totalTopics,
 				'total_posts' => $totalPosts,
 				'total_unapproved_topics' => $totalUnapprovedTopics,
 				'total_unapproved_posts' => $totalUnapprovedPosts,
 				'no_unapproved' => 0,
-			)
+			],
 		);
 
 		// Move the topic.  Done.  :P
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET id_board = {int:id_board}' . ($isRecycleDest ? ',
 				unapproved_posts = {int:no_unapproved}, approved = {int:is_approved}' : '') . '
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'id_board' => $toBoard,
 				'topics' => $topics,
 				'is_approved' => 1,
 				'no_unapproved' => 0,
-			)
+			],
 		);
 
 		// If this was going to the recycle bin, check what messages are being recycled, and remove them from the queue.
-		if ($isRecycleDest && ($totalUnapprovedTopics || $totalUnapprovedPosts))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_msg
+		if ($isRecycleDest && ($totalUnapprovedTopics || $totalUnapprovedPosts)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})
 					AND approved = {int:not_approved}',
-				array(
+				[
 					'topics' => $topics,
 					'not_approved' => 0,
-				)
+				],
 			);
-			$approval_msgs = array();
-			while ($row = Db::$db->fetch_assoc($request))
+			$approval_msgs = [];
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$approval_msgs[] = $row['id_msg'];
+			}
 
 			Db::$db->free_result($request);
 
 			// Empty the approval queue for these, as we're going to approve them next.
-			if (!empty($approval_msgs))
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}approval_queue
+			if (!empty($approval_msgs)) {
+				Db::$db->query(
+					'',
+					'DELETE FROM {db_prefix}approval_queue
 					WHERE id_msg IN ({array_int:message_list})
 						AND id_attach = {int:id_attach}',
-					array(
+					[
 						'message_list' => $approval_msgs,
 						'id_attach' => 0,
-					)
+					],
 				);
+			}
 
 			// Get all the current max and mins.
-			$request = Db::$db->query('', '
-				SELECT id_topic, id_first_msg, id_last_msg
+			$request = Db::$db->query(
+				'',
+				'SELECT id_topic, id_first_msg, id_last_msg
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:topics})',
-				array(
+				[
 					'topics' => $topics,
-				)
+				],
 			);
-			$topicMaxMin = array();
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				$topicMaxMin[$row['id_topic']] = array(
+			$topicMaxMin = [];
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$topicMaxMin[$row['id_topic']] = [
 					'min' => $row['id_first_msg'],
 					'max' => $row['id_last_msg'],
-				);
+				];
 			}
 			Db::$db->free_result($request);
 
 			// Check the MAX and MIN are correct.
-			$request = Db::$db->query('', '
-				SELECT id_topic, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg
+			$request = Db::$db->query(
+				'',
+				'SELECT id_topic, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})
 				GROUP BY id_topic',
-				array(
+				[
 					'topics' => $topics,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				// If not, update.
-				if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max'])
-					Db::$db->query('', '
-						UPDATE {db_prefix}topics
+				if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max']) {
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}topics
 						SET id_first_msg = {int:first_msg}, id_last_msg = {int:last_msg}
 						WHERE id_topic = {int:selected_topic}',
-						array(
+						[
 							'first_msg' => $row['first_msg'],
 							'last_msg' => $row['last_msg'],
 							'selected_topic' => $row['id_topic'],
-						)
+						],
 					);
+				}
 			}
 			Db::$db->free_result($request);
 		}
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}messages
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
 			SET id_board = {int:id_board}' . ($isRecycleDest ? ',approved = {int:is_approved}' : '') . '
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'id_board' => $toBoard,
 				'topics' => $topics,
 				'is_approved' => 1,
-			)
+			],
 		);
-		Db::$db->query('', '
-			UPDATE {db_prefix}log_reported
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported
 			SET id_board = {int:id_board}
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'id_board' => $toBoard,
 				'topics' => $topics,
-			)
+			],
 		);
-		Db::$db->query('', '
-			UPDATE {db_prefix}calendar
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}calendar
 			SET id_board = {int:id_board}
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'id_board' => $toBoard,
 				'topics' => $topics,
-			)
+			],
 		);
 
 		// Mark target board as seen, if it was already marked as seen before.
-		$request = Db::$db->query('', '
-			SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
+		$request = Db::$db->query(
+			'',
+			'SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 			WHERE b.id_board = {int:id_board}',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'id_board' => $toBoard,
-			)
+			],
 		);
-		list ($isSeen) = Db::$db->fetch_row($request);
+		list($isSeen) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		if (!empty($isSeen) && !User::$me->is_guest)
-		{
-			Db::$db->insert('replace',
+		if (!empty($isSeen) && !User::$me->is_guest) {
+			Db::$db->insert(
+				'replace',
 				'{db_prefix}log_boards',
-				array('id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
-				array($toBoard, User::$me->id, Config::$modSettings['maxMsgID']),
-				array('id_board', 'id_member')
+				['id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'],
+				[$toBoard, User::$me->id, Config::$modSettings['maxMsgID']],
+				['id_board', 'id_member'],
 			);
 		}
 
 		// Update the cache?
-		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3)
-			foreach ($topics as $topic_id)
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+			foreach ($topics as $topic_id) {
 				CacheApi::put('topic_board-' . $topic_id, null, 120);
+			}
+		}
 
 		$updates = array_keys($fromBoards);
 		$updates[] = $toBoard;
@@ -1095,9 +1115,9 @@ class Topic implements \ArrayAccess
 		// Update 'em pesky stats.
 		Logging::updateStats('topic');
 		Logging::updateStats('message');
-		Config::updateModSettings(array(
+		Config::updateModSettings([
 			'calendar_updated' => time(),
-		));
+		]);
 	}
 
 	/**
@@ -1111,22 +1131,25 @@ class Topic implements \ArrayAccess
 	public static function remove($topics, $decreasePostCount = true, $ignoreRecycling = false, $updateBoardCount = true)
 	{
 		// Nothing to do?
-		if (empty($topics))
+		if (empty($topics)) {
 			return;
+		}
+
 		// Only a single topic.
-		if (is_numeric($topics))
-			$topics = array($topics);
+		if (is_numeric($topics)) {
+			$topics = [$topics];
+		}
 
 		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 		// Do something before?
-		IntegrationHook::call('integrate_remove_topics_before', array($topics, $recycle_board));
+		IntegrationHook::call('integrate_remove_topics_before', [$topics, $recycle_board]);
 
 		// Decrease the post counts.
-		if ($decreasePostCount)
-		{
-			$requestMembers = Db::$db->query('', '
-				SELECT m.id_member, COUNT(*) AS posts
+		if ($decreasePostCount) {
+			$requestMembers = Db::$db->query(
+				'',
+				'SELECT m.id_member, COUNT(*) AS posts
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 				WHERE m.id_topic IN ({array_int:topics})' . (!empty($recycle_board) ? '
@@ -1134,57 +1157,60 @@ class Topic implements \ArrayAccess
 					AND b.count_posts = {int:do_count_posts}
 					AND m.approved = {int:is_approved}
 				GROUP BY m.id_member',
-				array(
+				[
 					'do_count_posts' => 0,
 					'recycled_board' => $recycle_board,
 					'topics' => $topics,
 					'is_approved' => 1,
-				)
+				],
 			);
-			if (Db::$db->num_rows($requestMembers) > 0)
-			{
-				while ($rowMembers = Db::$db->fetch_assoc($requestMembers))
-					User::updateMemberData($rowMembers['id_member'], array('posts' => 'posts - ' . $rowMembers['posts']));
+
+			if (Db::$db->num_rows($requestMembers) > 0) {
+				while ($rowMembers = Db::$db->fetch_assoc($requestMembers)) {
+					User::updateMemberData($rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
+				}
 			}
 			Db::$db->free_result($requestMembers);
 		}
 
 		// Recycle topics that aren't in the recycle board...
-		if (!empty($recycle_board) && !$ignoreRecycling)
-		{
-			$request = Db::$db->query('', '
-				SELECT id_topic, id_board, unapproved_posts, approved
+		if (!empty($recycle_board) && !$ignoreRecycling) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_topic, id_board, unapproved_posts, approved
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:topics})
 					AND id_board != {int:recycle_board}
 				LIMIT {int:limit}',
-				array(
+				[
 					'recycle_board' => $recycle_board,
 					'topics' => $topics,
 					'limit' => count($topics),
-				)
+				],
 			);
-			if (Db::$db->num_rows($request) > 0)
-			{
+
+			if (Db::$db->num_rows($request) > 0) {
 				// Get topics that will be recycled.
-				$recycleTopics = array();
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					if (function_exists('apache_reset_timeout'))
+				$recycleTopics = [];
+
+				while ($row = Db::$db->fetch_assoc($request)) {
+					if (function_exists('apache_reset_timeout')) {
 						@apache_reset_timeout();
+					}
 
 					$recycleTopics[] = $row['id_topic'];
 
 					// Set the id_previous_board for this topic - and make it not sticky.
-					Db::$db->query('', '
-						UPDATE {db_prefix}topics
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}topics
 						SET id_previous_board = {int:id_previous_board}, is_sticky = {int:not_sticky}
 						WHERE id_topic = {int:id_topic}',
-						array(
+						[
 							'id_previous_board' => $row['id_board'],
 							'id_topic' => $row['id_topic'],
 							'not_sticky' => 0,
-						)
+						],
 					);
 				}
 				Db::$db->free_result($request);
@@ -1193,171 +1219,181 @@ class Topic implements \ArrayAccess
 				self::move($recycleTopics, Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
-				require_once(Config::$sourcedir . '/Actions/Moderation/Main.php');
+				require_once Config::$sourcedir . '/Actions/Moderation/Main.php';
 
-				Db::$db->query('', '
-					UPDATE {db_prefix}log_reported
+				Db::$db->query(
+					'',
+					'UPDATE {db_prefix}log_reported
 					SET closed = {int:is_closed}
 					WHERE id_topic IN ({array_int:recycle_topics})',
-					array(
+					[
 						'recycle_topics' => $recycleTopics,
 						'is_closed' => 1,
-					)
+					],
 				);
 
-				Config::updateModSettings(array('last_mod_report_action' => time()));
+				Config::updateModSettings(['last_mod_report_action' => time()]);
 
 				ReportedContent::recountOpenReports('posts');
 
 				// Topics that were recycled don't need to be deleted, so subtract them.
 				$topics = array_diff($topics, $recycleTopics);
-			}
-			else
+			} else {
 				Db::$db->free_result($request);
+			}
 		}
 
 		// Still topics left to delete?
-		if (empty($topics))
+		if (empty($topics)) {
 			return;
+		}
 
 		// Callback for search APIs to do their thing
 		$searchAPI = SearchApi::load();
 
-		if ($searchAPI->supportsMethod('topicsRemoved'))
+		if ($searchAPI->supportsMethod('topicsRemoved')) {
 			$searchAPI->topicsRemoved($topics);
+		}
 
-		$adjustBoards = array();
+		$adjustBoards = [];
 
 		// Find out how many posts we are deleting.
-		$request = Db::$db->query('', '
-			SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
 				SUM(num_replies) AS num_replies
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 			GROUP BY id_board, approved',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!isset($adjustBoards[$row['id_board']]['num_posts']))
-			{
-				$adjustBoards[$row['id_board']] = array(
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!isset($adjustBoards[$row['id_board']]['num_posts'])) {
+				$adjustBoards[$row['id_board']] = [
 					'num_posts' => 0,
 					'num_topics' => 0,
 					'unapproved_posts' => 0,
 					'unapproved_topics' => 0,
-					'id_board' => $row['id_board']
-				);
+					'id_board' => $row['id_board'],
+				];
 			}
 			// Posts = (num_replies + 1) for each approved topic.
 			$adjustBoards[$row['id_board']]['num_posts'] += $row['num_replies'] + ($row['approved'] ? $row['num_topics'] : 0);
 			$adjustBoards[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
 
 			// Add the topics to the right type.
-			if ($row['approved'])
+			if ($row['approved']) {
 				$adjustBoards[$row['id_board']]['num_topics'] += $row['num_topics'];
-			else
+			} else {
 				$adjustBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
+			}
 		}
 		Db::$db->free_result($request);
 
-		if ($updateBoardCount)
-		{
+		if ($updateBoardCount) {
 			// Decrease the posts/topics...
-			foreach ($adjustBoards as $stats)
-			{
-				if (function_exists('apache_reset_timeout'))
+			foreach ($adjustBoards as $stats) {
+				if (function_exists('apache_reset_timeout')) {
 					@apache_reset_timeout();
+				}
 
-				Db::$db->query('', '
-					UPDATE {db_prefix}boards
+				Db::$db->query(
+					'',
+					'UPDATE {db_prefix}boards
 					SET
 						num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
 						num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
 						unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
 						unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
 					WHERE id_board = {int:id_board}',
-					array(
+					[
 						'id_board' => $stats['id_board'],
 						'num_posts' => $stats['num_posts'],
 						'num_topics' => $stats['num_topics'],
 						'unapproved_posts' => $stats['unapproved_posts'],
 						'unapproved_topics' => $stats['unapproved_topics'],
-					)
+					],
 				);
 			}
 		}
 		// Remove Polls.
-		$request = Db::$db->query('', '
-			SELECT id_poll
+		$request = Db::$db->query(
+			'',
+			'SELECT id_poll
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 				AND id_poll > {int:no_poll}
 			LIMIT {int:limit}',
-			array(
+			[
 				'no_poll' => 0,
 				'topics' => $topics,
 				'limit' => count($topics),
-			)
+			],
 		);
-		$polls = array();
-		while ($row = Db::$db->fetch_assoc($request))
+		$polls = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$polls[] = $row['id_poll'];
+		}
 		Db::$db->free_result($request);
 
-		if (!empty($polls))
-		{
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}polls
+		if (!empty($polls)) {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}polls
 				WHERE id_poll IN ({array_int:polls})',
-				array(
+				[
 					'polls' => $polls,
-				)
+				],
 			);
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}poll_choices
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}poll_choices
 				WHERE id_poll IN ({array_int:polls})',
-				array(
+				[
 					'polls' => $polls,
-				)
+				],
 			);
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_polls
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_polls
 				WHERE id_poll IN ({array_int:polls})',
-				array(
+				[
 					'polls' => $polls,
-				)
+				],
 			);
 		}
 
 		// Get rid of the attachment, if it exists.
-		$attachmentQuery = array(
+		$attachmentQuery = [
 			'attachment_type' => 0,
 			'id_topic' => $topics,
-		);
+		];
 		Attachment::remove($attachmentQuery, 'messages');
 
 		// Delete possible search index entries.
-		if (!empty(Config::$modSettings['search_custom_index_config']))
-		{
+		if (!empty(Config::$modSettings['search_custom_index_config'])) {
 			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
-			$words = array();
-			$messages = array();
-			$request = Db::$db->query('', '
-				SELECT id_msg, body
+			$words = [];
+			$messages = [];
+			$request = Db::$db->query(
+				'',
+				'SELECT id_msg, body
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})',
-				array(
+				[
 					'topics' => $topics,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (function_exists('apache_reset_timeout'))
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				if (function_exists('apache_reset_timeout')) {
 					@apache_reset_timeout();
+				}
 
 				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
 				$messages[] = $row['id_msg'];
@@ -1365,82 +1401,92 @@ class Topic implements \ArrayAccess
 			Db::$db->free_result($request);
 			$words = array_unique($words);
 
-			if (!empty($words) && !empty($messages))
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}log_search_words
+			if (!empty($words) && !empty($messages)) {
+				Db::$db->query(
+					'',
+					'DELETE FROM {db_prefix}log_search_words
 					WHERE id_word IN ({array_int:word_list})
 						AND id_msg IN ({array_int:message_list})',
-					array(
+					[
 						'word_list' => $words,
 						'message_list' => $messages,
-					)
+					],
 				);
+			}
 		}
 
 		// Delete anything related to the topic.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}messages
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}calendar
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}calendar
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_topics
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_notify
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_notify
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}topics
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_search_subjects
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
 
 		// Maybe there's a mod that wants to delete topic related data of its own
-		IntegrationHook::call('integrate_remove_topics', array($topics));
+		IntegrationHook::call('integrate_remove_topics', [$topics]);
 
 		// Update the totals...
 		Logging::updateStats('message');
 		Logging::updateStats('topic');
-		Config::updateModSettings(array(
+		Config::updateModSettings([
 			'calendar_updated' => time(),
-		));
+		]);
 
-		$updates = array();
-		foreach ($adjustBoards as $stats)
+		$updates = [];
+
+		foreach ($adjustBoards as $stats) {
 			$updates[] = $stats['id_board'];
+		}
 		Msg::updateLastMessages($updates);
 	}
 
 	/**
 	 * Backward compatibility wrapper for the getLikedMsgs method.
 	 *
-	 * @param integer $topic The topic ID to fetch the info from.
+	 * @param int $topic The topic ID to fetch the info from.
 	 * @return array An array of IDs of messages in the specified topic that the current user likes
 	 */
 	public static function prepareLikesContext(int $topic): array
@@ -1457,36 +1503,34 @@ class Topic implements \ArrayAccess
 	 */
 	protected function loadTopicInfo(): void
 	{
-		if (empty($this->id))
+		if (empty($this->id)) {
 			ErrorHandler::fatalLang('not_a_topic', false, 404);
+		}
 
 		// Basic stuff we always want.
-		$topic_selects = array(
+		$topic_selects = [
 			't.*',
 			'ms.subject',
 			'ms.poster_time AS started_timestamp',
 			'COALESCE(mem.real_name, ms.poster_name) AS started_name',
 			'ml.poster_time AS updated_timestamp',
 			'COALESCE(meml.real_name, ml.poster_name) AS updated_name',
-		);
-		$topic_joins = array(
+		];
+		$topic_joins = [
 			'INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)',
 			'INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)',
 			'LEFT JOIN {db_prefix}members AS mem on (mem.id_member = t.id_member_started)',
 			'LEFT JOIN {db_prefix}members AS meml on (meml.id_member = t.id_member_updated)',
-		);
-		$topic_parameters = array(
+		];
+		$topic_parameters = [
 			'current_topic' => $this->id,
 			'current_member' => User::$me->id ?? 0,
-		);
+		];
 
 		// What's new to this user?
-		if (User::$me->is_guest)
-		{
+		if (User::$me->is_guest) {
 			$topic_selects[] = 't.id_last_msg + 1 AS new_from';
-		}
-		else
-		{
+		} else {
 			$topic_selects[] = 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from';
 			$topic_selects[] = 'COALESCE(lt.unwatched, 0) as unwatched';
 
@@ -1494,22 +1538,23 @@ class Topic implements \ArrayAccess
 			$topic_joins[] = 'LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})';
 		}
 
-		IntegrationHook::call('integrate_display_topic', array(&$topic_selects, &$topic_joins, &$topic_parameters));
+		IntegrationHook::call('integrate_display_topic', [&$topic_selects, &$topic_joins, &$topic_parameters]);
 
 		// @todo Why isn't this cached?
 		// @todo if we get id_board in this query and cache it, we can save a query on posting
 		// Get all the important topic info.
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				' . implode(', ', $topic_selects) . '
 			FROM {db_prefix}topics AS t
 				' . implode("\n\t\t\t\t", $topic_joins) . '
 			WHERE t.id_topic = {int:current_topic}
 			LIMIT 1',
-			$topic_parameters
+			$topic_parameters,
 		);
-		if (Db::$db->num_rows($request) == 0)
-		{
+
+		if (Db::$db->num_rows($request) == 0) {
 			ErrorHandler::fatalLang('not_a_topic', false, 404);
 		}
 		$this->set(Db::$db->fetch_assoc($request));
@@ -1526,30 +1571,26 @@ class Topic implements \ArrayAccess
 		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
 
 		// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !User::$me->allowedTo('approve_posts'))
-		{
-			$request = Db::$db->query('', '
-				SELECT COUNT(id_member) AS my_unapproved_posts
+		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !User::$me->allowedTo('approve_posts')) {
+			$request = Db::$db->query(
+				'',
+				'SELECT COUNT(id_member) AS my_unapproved_posts
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
 					AND id_member = {int:current_member}
 					AND approved = 0',
-				array(
+				[
 					'current_topic' => Topic::$topic_id,
 					'current_member' => User::$me->id,
-				)
+				],
 			);
 			list($myUnapprovedPosts) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
 			$this->total_visible_posts = $this->num_replies + $myUnapprovedPosts + ($this->is_approved ? 1 : 0);
-		}
-		elseif (User::$me->is_guest)
-		{
+		} elseif (User::$me->is_guest) {
 			$this->total_visible_posts = $this->num_replies + ($this->is_approved ? 1 : 0);
-		}
-		else
-		{
+		} else {
 			$this->total_visible_posts = $this->num_replies + $this->unapproved_posts + ($this->is_approved ? 1 : 0);
 		}
 
@@ -1559,7 +1600,8 @@ class Topic implements \ArrayAccess
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Topic::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Topic::exportStatic')) {
 	Topic::exportStatic();
+}
 
 ?>

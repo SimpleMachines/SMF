@@ -13,17 +13,16 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Allows a user to choose, or at least request, group memberships.
@@ -37,12 +36,12 @@ class GroupMembership implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'groupMembership',
 			'groupMembership2' => 'groupMembership2',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -76,12 +75,9 @@ class GroupMembership implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!empty(Utils::$context['completed_save']))
-		{
+		if (!empty(Utils::$context['completed_save'])) {
 			$this->save();
-		}
-		else
-		{
+		} else {
 			$this->show();
 		}
 	}
@@ -91,8 +87,9 @@ class GroupMembership implements ActionInterface
 	 */
 	public function show(): void
 	{
-		if (!User::$me->allowedTo('manage_membergroups') && !User::$me->is_owner)
+		if (!User::$me->allowedTo('manage_membergroups') && !User::$me->is_owner) {
 			ErrorHandler::fatalLang('cannot_manage_membergroups', false);
+		}
 
 		Utils::$context['primary_group'] = Profile::$member->group_id;
 		Utils::$context['update_message'] = Lang::$txt['group_membership_msg_' . ($_GET['msg'] ?? '')] ?? '';
@@ -101,41 +98,43 @@ class GroupMembership implements ActionInterface
 		Utils::$context['can_edit_primary'] = $this->canEditPrimary();
 
 		// This beast will be our group holder.
-		Utils::$context['groups'] = array(
-			'member' => array(),
-			'available' => array()
-		);
+		Utils::$context['groups'] = [
+			'member' => [],
+			'available' => [],
+		];
 
 		// Get all the membergroups they can join.
 		$this->loadCurrentAndAssignableGroups();
 
 		// Get any pending join requests.
-		$request = Db::$db->query('', '
-			SELECT id_group
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
 				AND status = {int:status_open}',
-			array(
+			[
 				'selected_member' => Profile::$member->id,
 				'status_open' => 0,
-			)
+			],
 		);
 		$open_requests = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
 		// Show the assignable groups in the templates.
-		foreach (Profile::$member->current_and_assignable_groups as $id => $group)
-		{
+		foreach (Profile::$member->current_and_assignable_groups as $id => $group) {
 			// Skip "Regular Members" for now.
-			if ($id == 0)
+			if ($id == 0) {
 				continue;
+			}
 
 			// Are they in this group?
 			$member_or_available = in_array($id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
-			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available')
+			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available') {
 				continue;
+			}
 
 			Utils::$context['groups'][$member_or_available][$id] = $group;
 
@@ -144,23 +143,22 @@ class GroupMembership implements ActionInterface
 		}
 
 		// If needed, add "Regular Members" on the end.
-		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == Group::REGULAR)
-		{
+		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == Group::REGULAR) {
 			Utils::$context['groups']['member'][Group::REGULAR] = Profile::$member->assignable_groups[Group::REGULAR];
 			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::$txt['regular_members'];
 		}
 
 		// No changing primary group unless you have enough groups!
-		if (count(Utils::$context['groups']['member']) < 2)
+		if (count(Utils::$context['groups']['member']) < 2) {
 			Utils::$context['can_edit_primary'] = false;
+		}
 
 		// In the special case that someone is requesting membership of a group, setup some special context vars.
 		if (
-			isset($_REQUEST['request']) 
-			&& isset(Utils::$context['groups']['available'][(int) $_REQUEST['request']]) 
+			isset($_REQUEST['request'], Utils::$context['groups']['available'][(int) $_REQUEST['request']])
+
 			&& Utils::$context['groups']['available'][(int) $_REQUEST['request']]->type == Group::TYPE_REQUESTABLE
-		)
-		{
+		) {
 			Utils::$context['group_request'] = Utils::$context['groups']['available'][(int) $_REQUEST['request']];
 		}
 	}
@@ -170,12 +168,14 @@ class GroupMembership implements ActionInterface
 	 */
 	public function save(): void
 	{
-		if (!isset($_REQUEST['gid']) && !isset($_POST['primary']))
+		if (!isset($_REQUEST['gid']) && !isset($_POST['primary'])) {
 			return;
+		}
 
 		// Let's be extra cautious...
-		if (!User::$me->is_owner || empty(Config::$modSettings['show_group_membership']))
+		if (!User::$me->is_owner || empty(Config::$modSettings['show_group_membership'])) {
 			User::$me->isAllowedTo('manage_membergroups');
+		}
 
 		User::$me->checkSession(isset($_GET['gid']) ? 'get' : 'post');
 
@@ -192,81 +192,80 @@ class GroupMembership implements ActionInterface
 		// Which groups can they be assigned to?
 		$this->loadCurrentAndAssignableGroups();
 
-		if (!isset(Profile::$member->current_and_assignable_groups[$new_group_id]))
+		if (!isset(Profile::$member->current_and_assignable_groups[$new_group_id])) {
 			ErrorHandler::fatalLang('cannot_manage_membergroups', false);
+		}
 
 		// Just for improved legibility...
 		$new_group_info = Profile::$member->current_and_assignable_groups[$new_group_id];
 
 		// Can't request a non-requestable group.
-		if ($this->change_type == 'request' && $new_group_info['type'] != 2)
+		if ($this->change_type == 'request' && $new_group_info['type'] != 2) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
-		if ($this->change_type == 'free')
-		{
+		if ($this->change_type == 'free') {
 			// Can't freely join or leave private or protected groups.
-			if ($new_group_info['type'] <= 1)
+			if ($new_group_info['type'] <= 1) {
 				ErrorHandler::fatalLang('no_access', false);
+			}
 
 			// Can't leave a requestable group that you're not part of.
-			if ($new_group_info['type'] == 2 && !in_array($new_group_id, Profile::$member->groups))
+			if ($new_group_info['type'] == 2 && !in_array($new_group_id, Profile::$member->groups)) {
 				ErrorHandler::fatalLang('no_access', false);
+			}
 		}
 
 		// Whatever we are doing, we need to determine if changing primary is possible.
 		$can_edit_primary = $this->canEditPrimary($new_group_id);
 
-		switch ($this->change_type)
-		{
+		switch ($this->change_type) {
 			// If they're requesting, add the note then return.
 			case 'request':
 				$this->sendJoinRequest($new_group_id);
+
 				return;
 
-			// Leaving/joining a group.
+				// Leaving/joining a group.
 			case 'free':
 				// Are they leaving?
-				if (Profile::$member->group_id == $new_group_id)
-				{
+				if (Profile::$member->group_id == $new_group_id) {
 					$new_primary = $can_edit_primary ? 0 : Profile::$member->group_id;
-				}
-				elseif (in_array($new_group_id, Profile::$member->additional_groups))
-				{
-					$new_additional_groups = array_diff($new_additional_groups, array($new_group_id));
+				} elseif (in_array($new_group_id, Profile::$member->additional_groups)) {
+					$new_additional_groups = array_diff($new_additional_groups, [$new_group_id]);
 				}
 				// ... if not, must be joining.
-				else
-				{
+				else {
 					// If they're just a regular member and this can be a primary group,
 					// then make it the primary.
-					if (Profile::$member->group_id == 0 && $can_edit_primary && !empty($new_group_info['can_be_primary']))
-					{
+					if (Profile::$member->group_id == 0 && $can_edit_primary && !empty($new_group_info['can_be_primary'])) {
 						$new_primary = $new_group_id;
 					}
 					// Otherwise, make it an addtional group.
-					else
-					{
+					else {
 						$new_additional_groups[] = $new_group_id;
 					}
 				}
+
 				break;
 
-			// Finally, we must be setting the primary.
+				// Finally, we must be setting the primary.
 			default:
-				if (Profile::$member->group_id != 0)
+				if (Profile::$member->group_id != 0) {
 					$new_additional_groups[] = Profile::$member->group_id;
+				}
 
-				if (in_array($new_group_id, $new_additional_groups))
-				{
-					$new_additional_groups = array_diff($new_additional_groups, array($new_group_id));
+				if (in_array($new_group_id, $new_additional_groups)) {
+					$new_additional_groups = array_diff($new_additional_groups, [$new_group_id]);
 				}
 
 				$new_primary = $new_group_id;
+
 				break;
 		}
 
 		// Run the changes through the validation method for group membership.
-		Profile::$member->validateGroups($new_primary, $new_additional_groups ?? array());
+		Profile::$member->validateGroups($new_primary, $new_additional_groups ?? []);
 		Profile::$member->new_data['id_group'] = $new_primary;
 	}
 
@@ -281,8 +280,9 @@ class GroupMembership implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -327,8 +327,9 @@ class GroupMembership implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 
 	/**
@@ -336,23 +337,24 @@ class GroupMembership implements ActionInterface
 	 */
 	protected function loadCurrentAndAssignableGroups(): void
 	{
-		if (isset(Profile::$member->current_and_assignable_groups))
+		if (isset(Profile::$member->current_and_assignable_groups)) {
 			return;
+		}
 
-		if (empty(Profile::$member->assignable_groups))
+		if (empty(Profile::$member->assignable_groups)) {
 			Profile::$member->loadAssignableGroups();
+		}
 
 		$current_and_assignable_groups = Profile::$member->assignable_groups;
 
 		// If they are already in an unassignable group, show that too.
 		$current_unassignable_groups = array_intersect(Profile::$member->groups, Group::getUnassignable());
 
-		if ($current_unassignable_groups !== array())
-		{
-			foreach (Group::load($current_unassignable_groups) as $group)
-			{
-				if ($group->min_posts > -1)
+		if ($current_unassignable_groups !== []) {
+			foreach (Group::load($current_unassignable_groups) as $group) {
+				if ($group->min_posts > -1) {
 					continue;
+				}
 
 				$group->is_primary = $group->id == Profile::$member->group_id;
 				$group->is_additional = in_array($group->id, Profile::$member->additional_groups);
@@ -363,13 +365,13 @@ class GroupMembership implements ActionInterface
 
 		uasort(
 			$current_and_assignable_groups,
-			function($a, $b)
-			{
-				if ($a['id'] >= 4 && $b['id'] >= 4)
+			function ($a, $b) {
+				if ($a['id'] >= 4 && $b['id'] >= 4) {
 					return $a['name'] <=> $b['name'];
+				}
 
 				return $a['id'] <=> $b['id'];
-			}
+			},
 		);
 
 		Profile::$member->current_and_assignable_groups = $current_and_assignable_groups;
@@ -379,18 +381,15 @@ class GroupMembership implements ActionInterface
 	 * Figures out whether the current user can change the primary membergroup
 	 * of the member whose profile is being viewed.
 	 */
-	protected function canEditPrimary(int $new_group_id = null): bool
+	protected function canEditPrimary(?int $new_group_id = null): bool
 	{
 		$this->loadCurrentAndAssignableGroups();
 
 		// Hidden groups cannot be primary groups.
-		if (isset($new_group_id))
-		{
+		if (isset($new_group_id)) {
 			$can_edit_primary = Profile::$member->current_and_assignable_groups[$new_group_id]->can_be_primary;
-		}
-		else
-		{
-			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn($group) => !empty($group->can_be_primary));
+		} else {
+			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn ($group) => !empty($group->can_be_primary));
 
 			$can_edit_primary = !empty($possible_primary_groups);
 		}
@@ -407,28 +406,31 @@ class GroupMembership implements ActionInterface
 	 */
 	protected function sendJoinRequest(int $new_group_id): void
 	{
-		$request = Db::$db->query('', '
-			SELECT id_member
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
 				AND id_group = {int:selected_group}
 				AND status = {int:status_open}',
-			array(
+			[
 				'selected_member' => Profile::$member->id,
 				'selected_group' => $new_group_id,
 				'status_open' => 0,
-			)
+			],
 		);
 		$already_requested = Db::$db->num_rows($request) != 0;
 		Db::$db->free_result($request);
 
-		if ($already_requested)
+		if ($already_requested) {
 			ErrorHandler::fatalLang('profile_error_already_requested_group');
+		}
 
 		// Log the request.
-		Db::$db->insert('',
+		Db::$db->insert(
+			'',
 			'{db_prefix}log_group_requests',
-			array(
+			[
 				'id_member' => 'int',
 				'id_group' => 'int',
 				'time_applied' => 'int',
@@ -438,8 +440,8 @@ class GroupMembership implements ActionInterface
 				'member_name_acted' => 'string',
 				'time_acted' => 'int',
 				'act_reason' => 'string',
-			),
-			array(
+			],
+			[
 				Profile::$member->id,
 				$new_group_id,
 				time(),
@@ -449,43 +451,44 @@ class GroupMembership implements ActionInterface
 				'',
 				0,
 				'',
-			),
-			array('id_request')
+			],
+			['id_request'],
 		);
 
 		// Set up some data for our background task...
-		$data = Utils::jsonEncode(array(
+		$data = Utils::jsonEncode([
 			'id_member' => Profile::$member->id,
 			'member_name' => User::$me->name,
 			'id_group' => $new_group_id,
 			'group_name' => Profile::$member->assignable_groups[$new_group_id]['name'],
 			'reason' => $_POST['reason'],
 			'time' => time(),
-		));
+		]);
 
 		// Add a background task to handle notifying people of this request
 		Db::$db->insert(
 			'insert',
 			'{db_prefix}background_tasks',
-			array(
+			[
 				'task_file' => 'string-255',
 				'task_class' => 'string-255',
 				'task_data' => 'string',
 				'claimed_time' => 'int',
-			),
-			array(
+			],
+			[
 				'$sourcedir/tasks/GroupReq_Notify.php',
-				'SMF\Tasks\GroupReq_Notify',
+				'SMF\\Tasks\\GroupReq_Notify',
 				$data,
 				0,
-			),
-			array()
+			],
+			[],
 		);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\GroupMembership::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\GroupMembership::exportStatic')) {
 	GroupMembership::exportStatic();
+}
 
 ?>

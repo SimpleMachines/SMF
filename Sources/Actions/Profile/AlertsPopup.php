@@ -13,10 +13,9 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
 use SMF\Alert;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -34,11 +33,11 @@ class AlertsPopup implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'alerts_popup',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -65,20 +64,19 @@ class AlertsPopup implements ActionInterface
 		Config::$db_show_debug = false;
 
 		// We only want to output our little layer here.
-		Utils::$context['template_layers'] = array();
+		Utils::$context['template_layers'] = [];
 
 		// No funny business allowed
 		$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
 
 		$limit = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
 
-		Utils::$context['unread_alerts'] = array();
+		Utils::$context['unread_alerts'] = [];
 
-		if ($counter < User::$me->alerts)
-		{
+		if ($counter < User::$me->alerts) {
 			// Now fetch me my unread alerts, pronto!
 			Utils::$context['unread_alerts'] = Alert::fetch(User::$me->id, false, !empty($counter) ? User::$me->alerts - $counter : $limit, 0, !isset($_REQUEST['counter']));
-		}	
+		}
 	}
 
 	/***********************
@@ -92,8 +90,9 @@ class AlertsPopup implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -121,7 +120,8 @@ class AlertsPopup implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\AlertsPopup::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\AlertsPopup::exportStatic')) {
 	AlertsPopup::exportStatic();
+}
 
 ?>

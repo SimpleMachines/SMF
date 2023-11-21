@@ -13,13 +13,14 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-
 use SMF\Attachment;
-use SMF\BrowserDetector;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
+use SMF\BrowserDetector;
+use SMF\Cache\CacheApi;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
@@ -29,8 +30,6 @@ use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class contains the code necessary to display XML feeds.
@@ -66,13 +65,13 @@ class Feed implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ShowXmlFeed',
 			'build' => 'buildXmlFeed',
 			'cdataParse' => 'cdata_parse',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -95,34 +94,34 @@ class Feed implements ActionInterface
 	 * These strings have been broken up and concatenated to help prevent any
 	 * automatic search and replace attempts from changing them.
 	 */
-	const XML_NAMESPACES = array(
-		'rss' => array(),
-		'rss2' => array(
-			'atom' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/2005/Atom',
-		),
-		'atom' => array(
-			'' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/2005/Atom',
-		),
-		'rdf' => array(
-			'' => 'htt'.'p:/'.'/purl.o'.'rg/rss/1.0/',
-			'rdf' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/02/22-rdf-syntax-ns#',
-			'dc' => 'htt'.'p:/'.'/purl.o'.'rg/dc/elements/1.1/',
-		),
-		'smf' => array(
-			'smf' => 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/%1s',
-		),
-	);
+	public const XML_NAMESPACES = [
+		'rss' => [],
+		'rss2' => [
+			'atom' => 'htt' . 'p:/' . '/ww' . 'w.w3.o' . 'rg/2005/Atom',
+		],
+		'atom' => [
+			'' => 'htt' . 'p:/' . '/ww' . 'w.w3.o' . 'rg/2005/Atom',
+		],
+		'rdf' => [
+			'' => 'htt' . 'p:/' . '/purl.o' . 'rg/rss/1.0/',
+			'rdf' => 'htt' . 'p:/' . '/ww' . 'w.w3.o' . 'rg/1999/02/22-rdf-syntax-ns#',
+			'dc' => 'htt' . 'p:/' . '/purl.o' . 'rg/dc/elements/1.1/',
+		],
+		'smf' => [
+			'smf' => 'htt' . 'p:/' . '/ww' . 'w.simple' . 'machines.o' . 'rg/xml/%1s',
+		],
+	];
 
 	/**
 	 * An array of MIME types for feed formats.
 	 */
-	const MIME_TYPES = array(
+	public const MIME_TYPES = [
 		'rss' => 'application/rss+xml',
 		'rss2' => 'application/rss+xml',
 		'atom' => 'application/atom+xml',
 		'rdf' => 'application/rdf+xml',
 		'smf' => 'text/xml',
-	);
+	];
 
 	/*******************
 	 * Public properties
@@ -181,21 +180,21 @@ class Feed implements ActionInterface
 	 *
 	 * Metadata about this feed.
 	 */
-	public array $metadata = array();
+	public array $metadata = [];
 
 	/**
 	 * @var array
 	 *
 	 * Main data in this feed.
 	 */
-	public array $data = array();
+	public array $data = [];
 
 	/**
 	 * @var array
 	 *
 	 * Boards to fetch posts from.
 	 */
-	public array $boards = array();
+	public array $boards = [];
 
 	/**
 	 * @var string
@@ -210,11 +209,11 @@ class Feed implements ActionInterface
 	 *
 	 * The constructed XML.
 	 */
-	public array $xml = array(
+	public array $xml = [
 		'header' => '',
 		'items' => '',
 		'footer' => '',
-	);
+	];
 
 	/**************************
 	 * Public static properties
@@ -225,14 +224,14 @@ class Feed implements ActionInterface
 	 *
 	 * List all the different types of data they can pull.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'recent' => 'getXmlRecent',
 		'news' => 'getXmlNews',
 		'members' => 'getXmlMembers',
 		'profile' => 'getXmlProfile',
 		'posts' => 'getXmlPosts',
 		'personal_messages' => 'getXmlPMs',
-	);
+	];
 
 	/*********************
 	 * Internal properties
@@ -243,10 +242,10 @@ class Feed implements ActionInterface
 	 *
 	 * Used to optimize SQL queries.
 	 */
-	protected array $optimize_msg = array(
+	protected array $optimize_msg = [
 		'highest' => 'm.id_msg <= b.id_last_msg',
 		'lowest' => 'm.id_msg >= 0',
-	);
+	];
 
 	/**
 	 * @var string
@@ -279,12 +278,12 @@ class Feed implements ActionInterface
 	 * @param int $member The member whose data is being requested.
 	 *     If null, will try $_GET['u'] and then User::$me->id.
 	 */
-	public function __construct(string $subaction = null, int $member = null)
+	public function __construct(?string $subaction = null, ?int $member = null)
 	{
 		$this->host = Url::create(Config::$scripturl)->host;
 
 		// Easy adding of sub actions
-		IntegrationHook::call('integrate_xmlfeeds', array(&self::$subactions));
+		IntegrationHook::call('integrate_xmlfeeds', [&self::$subactions]);
 
 		// These things are simple to set.
 		$this->setSubaction($subaction);
@@ -299,139 +298,135 @@ class Feed implements ActionInterface
 		Lang::load('Stats');
 
 		// Some general metadata for this feed. We'll change some of these values below.
-		$this->metadata = array(
+		$this->metadata = [
 			'title' => '',
 			'desc' => sprintf(Lang::$txt['xml_rss_desc'], Utils::$context['forum_name']),
 			'author' => Utils::$context['forum_name'],
 			'source' => Config::$scripturl,
 			'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],
 			'icon' => !empty(Theme::$current->settings['og_image']) ? Theme::$current->settings['og_image'] : Config::$boardurl . '/favicon.ico',
-			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) : 'en',
+			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace('_', '-', substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], '.'))) : 'en',
 			'self' => Config::$scripturl,
-		);
+		];
 
 		// Set $this->metadata['self'] to the canonical form of the requested URL.
-		foreach (array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit', 'offset') as $var)
-		{
-			if (isset($_GET[$var]))
-			{
-				$this->metadata['self'] .= ($this->metadata['self'] === Config::$scripturl ? '?' : ';' ) . $var . '=' . $_GET[$var];
+		foreach (['action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit', 'offset'] as $var) {
+			if (isset($_GET[$var])) {
+				$this->metadata['self'] .= ($this->metadata['self'] === Config::$scripturl ? '?' : ';') . $var . '=' . $_GET[$var];
 			}
 		}
 
 		// Handle the cases where a board, boards, or category is asked for.
-		if (!empty($_GET['c']) && empty(Board::$info->id))
-		{
+		if (!empty($_GET['c']) && empty(Board::$info->id)) {
 			$_GET['c'] = explode(',', $_GET['c']);
 
-			foreach ($_GET['c'] as $i => $c)
+			foreach ($_GET['c'] as $i => $c) {
 				$_GET['c'][$i] = (int) $c;
+			}
 
-			if (count($_GET['c']) == 1)
-			{
-				$request = Db::$db->query('', '
-					SELECT name
+			if (count($_GET['c']) == 1) {
+				$request = Db::$db->query(
+					'',
+					'SELECT name
 					FROM {db_prefix}categories
 					WHERE id_cat = {int:current_category}',
-					array(
+					[
 						'current_category' => (int) $_GET['c'][0],
-					)
+					],
 				);
 				list($this->metadata['title']) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
 			}
 
 			$total_cat_posts = 0;
-			$this->boards = array();
-			$request = Db::$db->query('', '
-				SELECT b.id_board, b.num_posts
+			$this->boards = [];
+			$request = Db::$db->query(
+				'',
+				'SELECT b.id_board, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:current_category_list})
 					AND {query_see_board}',
-				array(
+				[
 					'current_category_list' => $_GET['c'],
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$this->boards[] = $row['id_board'];
 				$total_cat_posts += $row['num_posts'];
 			}
 			Db::$db->free_result($request);
 
-			if (!empty($this->boards))
-			{
+			if (!empty($this->boards)) {
 				$this->query_this_board = 'b.id_board IN (' . implode(', ', $this->boards) . ')';
-			}
-			else
-			{
+			} else {
 				ErrorHandler::fatalLang('no_board', false);
 			}
 
 			// Try to limit the number of messages we look through.
-			if ($total_cat_posts > 100 && $total_cat_posts > Config::$modSettings['totalMessages'] / 15)
-			{
+			if ($total_cat_posts > 100 && $total_cat_posts > Config::$modSettings['totalMessages'] / 15) {
 				$this->optimize_msg['lowest'] = 'm.id_msg >= ' . max(0, Config::$modSettings['maxMsgID'] - 400 - $this->limit * 5);
 			}
-		}
-		elseif (!empty($_GET['boards']))
-		{
+		} elseif (!empty($_GET['boards'])) {
 			$_GET['boards'] = explode(',', $_GET['boards']);
 
-			foreach ($_GET['boards'] as $i => $b)
+			foreach ($_GET['boards'] as $i => $b) {
 				$_GET['boards'][$i] = (int) $b;
+			}
 
 			$total_posts = 0;
-			$this->boards = array();
+			$this->boards = [];
 			$num_boards = 0;
 
-			$request = Db::$db->query('', '
-				SELECT b.id_board, b.num_posts, b.name
+			$request = Db::$db->query(
+				'',
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
 					AND {query_see_board}
 				LIMIT {int:limit}',
-				array(
+				[
 					'board_list' => $_GET['boards'],
 					'limit' => count($_GET['boards']),
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (++$num_boards == 1)
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				if (++$num_boards == 1) {
 					$this->metadata['title'] = $row['name'];
+				}
 
 				$this->boards[] = $row['id_board'];
 				$total_posts += $row['num_posts'];
 			}
 			Db::$db->free_result($request);
 
-			if ($num_boards == 0)
+			if ($num_boards == 0) {
 				ErrorHandler::fatalLang('no_board', false);
+			}
 
-			if (!empty($this->boards))
+			if (!empty($this->boards)) {
 				$this->query_this_board = 'b.id_board IN (' . implode(', ', $this->boards) . ')';
+			}
 
 			// The more boards, the more we're going to look through...
-			if ($total_posts > 100 && $total_posts > Config::$modSettings['totalMessages'] / 12)
-			{
+			if ($total_posts > 100 && $total_posts > Config::$modSettings['totalMessages'] / 12) {
 				$this->optimize_msg['lowest'] = 'm.id_msg >= ' . max(0, Config::$modSettings['maxMsgID'] - 500 - $this->limit * 5);
 			}
-		}
-		elseif (!empty(Board::$info->id))
-		{
-			$request = Db::$db->query('', '
-				SELECT num_posts
+		} elseif (!empty(Board::$info->id)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT num_posts
 				FROM {db_prefix}boards AS b
 				WHERE id_board = {int:current_board}
 					AND {query_see_board}
 				LIMIT 1',
-				array(
+				[
 					'current_board' => Board::$info->id,
-				)
+				],
 			);
-			if (Db::$db->num_rows($request) == 0)
-			{
+
+			if (Db::$db->num_rows($request) == 0) {
 				Db::$db->free_result($request);
 				ErrorHandler::fatalLang('no_board', false);
 			}
@@ -446,13 +441,10 @@ class Feed implements ActionInterface
 			$this->query_this_board = 'b.id_board = ' . Board::$info->id;
 
 			// Try to look through just a few messages, if at all possible.
-			if ($total_posts > 80 && $total_posts > Config::$modSettings['totalMessages'] / 10)
-			{
+			if ($total_posts > 80 && $total_posts > Config::$modSettings['totalMessages'] / 10) {
 				$this->optimize_msg['lowest'] = 'm.id_msg >= ' . max(0, Config::$modSettings['maxMsgID'] - 600 - $this->limit * 5);
 			}
-		}
-		else
-		{
+		} else {
 			$this->query_this_board = '{query_see_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				AND b.id_board != ' . Config::$modSettings['recycle_board'] : '');
 
@@ -462,8 +454,9 @@ class Feed implements ActionInterface
 		$this->metadata['title'] .= (!empty($this->metadata['title']) ? ' - ' : '') . Utils::$context['forum_name'];
 
 		// Sanitize feed metadata values
-		foreach ($this->metadata as $key => $value)
+		foreach ($this->metadata as $key => $value) {
 			$this->metadata[$key] = strip_tags($value);
+		}
 	}
 
 	/**
@@ -485,37 +478,34 @@ class Feed implements ActionInterface
 	public function getData(): array
 	{
 		// We only want some information, not all of it.
-		$cachekey = array($this->subaction, $this->limit, $this->ascending, $this->start_after);
+		$cachekey = [$this->subaction, $this->limit, $this->ascending, $this->start_after];
 
-		if (!empty($this->member))
+		if (!empty($this->member)) {
 			$cachekey[] = $this->member;
+		}
 
-		if (!empty($this->boards))
+		if (!empty($this->boards)) {
 			$cachekey[] = 'boards=' . implode(',', $this->boards);
+		}
 
 		$cachekey = md5(Utils::jsonEncode($cachekey) . (!empty($this->query_this_board) ? $this->query_this_board : ''));
 
 		$cache_t = microtime(true);
 
 		// Get the associative array representing the xml.
-		if (!empty(CacheApi::$enable) && (!User::$me->is_guest || CacheApi::$enable >= 3))
-		{
+		if (!empty(CacheApi::$enable) && (!User::$me->is_guest || CacheApi::$enable >= 3)) {
 			$this->data = CacheApi::get('xmlfeed-' . $this->format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, 240);
 		}
 
-		if (empty($this->data))
-		{
+		if (empty($this->data)) {
 			// Should we call one of this class's own methods, or something added by a mod?
-			if (is_callable(array($this, self::$subactions[$this->subaction])))
-			{
-				$call = array($this, self::$subactions[$this->subaction]);
-			}
-			else
-			{
+			if (is_callable([$this, self::$subactions[$this->subaction]])) {
+				$call = [$this, self::$subactions[$this->subaction]];
+			} else {
 				$call = Utils::getCallable(self::$subactions[$this->subaction]);
 			}
 
-			$this->data = !empty($call) ? call_user_func($call, $this->format) : array();
+			$this->data = !empty($call) ? call_user_func($call, $this->format) : [];
 
 			if (
 				!empty(CacheApi::$enable)
@@ -523,8 +513,7 @@ class Feed implements ActionInterface
 					(User::$me->is_guest && CacheApi::$enable >= 3)
 					|| (!User::$me->is_guest && (microtime(true) - $cache_t > 0.2))
 				)
-			)
-			{
+			) {
 				CacheApi::put('xmlfeed-' . $this->format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, $this->data, 240);
 			}
 		}
@@ -541,34 +530,30 @@ class Feed implements ActionInterface
 		$filename[] = $this->metadata['title'];
 		$filename[] = $this->subaction;
 
-		if (in_array($this->subaction, array('profile', 'posts', 'personal_messages')))
+		if (in_array($this->subaction, ['profile', 'posts', 'personal_messages'])) {
 			$filename[] = 'u=' . $this->member;
+		}
 
-		if (!empty($this->boards))
-		{
-			if (count($this->boards) > 1)
-			{
+		if (!empty($this->boards)) {
+			if (count($this->boards) > 1) {
 				$filename[] = 'boards=' . implode(',', $this->boards);
-			}
-			else
-			{
+			} else {
 				$filename[] = 'board=' . reset($this->boards);
 			}
 		}
 
 		$filename[] = $this->format;
 
-		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
+		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\\p{L}\\p{M}\\p{N}\\-]+/u' : '/[\\s_,.\\/\\;:\'<>?|\\[\\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
 
-		$file = array(
+		$file = [
 			'filename' => $filename . '.xml',
 			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=' . (empty(Utils::$context['character_set']) ? 'UTF-8' : Utils::$context['character_set']),
 			'content' => implode('', $this->xml),
 			'disposition' => isset($_GET['download']) ? 'attachment' : 'inline',
-		);
+		];
 
-		if (isset($_GET['debug']) || (BrowserDetector::isBrowser('ie') && $this->format == 'rdf'))
-		{
+		if (isset($_GET['debug']) || (BrowserDetector::isBrowser('ie') && $this->format == 'rdf')) {
 			$file['mime_type'] = str_replace(self::MIME_TYPES[$this->format], self::MIME_TYPES['smf'], $file['mime_type']);
 		}
 
@@ -585,149 +570,145 @@ class Feed implements ActionInterface
 	 */
 	public function getXmlMembers(): array
 	{
-		if (!User::$me->allowedTo('view_mlist'))
-			return array();
+		if (!User::$me->allowedTo('view_mlist')) {
+			return [];
+		}
 
 		Lang::load('Profile');
 
 		// Find the most (or least) recent members.
-		$data = array();
+		$data = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_member, member_name, real_name, date_registered, last_login
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, member_name, real_name, date_registered, last_login
 			FROM {db_prefix}members
 			ORDER BY id_member {raw:ascdesc}
 			LIMIT {int:limit}',
-			array(
+			[
 				'limit' => $this->limit,
 				'ascdesc' => !empty($this->ascending) ? 'ASC' : 'DESC',
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// Create a GUID for each member using the tag URI scheme
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
 
 			// Make the data look rss-ish.
-			if ($this->format == 'rss' || $this->format == 'rss2')
-			{
-				$data[] = array(
+			if ($this->format == 'rss' || $this->format == 'rss2') {
+				$data[] = [
 					'tag' => 'item',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['real_name'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-						),
-						array(
+						],
+						[
 							'tag' => 'comments',
 							'content' => Config::$scripturl . '?action=pm;sa=send;u=' . $row['id_member'],
-						),
-						array(
+						],
+						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['date_registered']),
-						),
-						array(
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['date_registered']),
+						],
+						[
 							'tag' => 'guid',
 							'content' => $guid,
-							'attributes' => array(
+							'attributes' => [
 								'isPermaLink' => 'false',
-							),
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'rdf')
-			{
-				$data[] = array(
+							],
+						],
+					],
+				];
+			} elseif ($this->format == 'rdf') {
+				$data[] = [
 					'tag' => 'item',
-					'attributes' => array('rdf:about' => Config::$scripturl . '?action=profile;u=' . $row['id_member']),
-					'content' => array(
-						array(
+					'attributes' => ['rdf:about' => Config::$scripturl . '?action=profile;u=' . $row['id_member']],
+					'content' => [
+						[
 							'tag' => 'dc:format',
 							'content' => 'text/html',
-						),
-						array(
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['real_name'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'atom')
-			{
-				$data[] = array(
+						],
+					],
+				];
+			} elseif ($this->format == 'atom') {
+				$data[] = [
 					'tag' => 'entry',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['real_name'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array(
+							'attributes' => [
 								'rel' => 'alternate',
 								'type' => 'text/html',
 								'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'published',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
-						),
-						array(
+						],
+						[
 							'tag' => 'updated',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $guid,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 			// More logical format for the data, but harder to apply.
-			else
-			{
-				$data[] = array(
+			else {
+				$data[] = [
 					'tag' => 'member',
-					'attributes' => array('label' => Lang::$txt['who_member']),
-					'content' => array(
-						array(
+					'attributes' => ['label' => Lang::$txt['who_member']],
+					'content' => [
+						[
 							'tag' => 'name',
-							'attributes' => array('label' => Lang::$txt['name']),
+							'attributes' => ['label' => Lang::$txt['name']],
 							'content' => $row['real_name'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $row['date_registered'])),
+							'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $row['date_registered'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $row['id_member'],
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array('label' => Lang::$txt['url']),
+							'attributes' => ['label' => Lang::$txt['url']],
 							'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 		}
 		Db::$db->free_result($request);
@@ -749,15 +730,16 @@ class Feed implements ActionInterface
 			- are on an any board OR in a specified board.
 			- can be seen by this user. */
 
-		$data = array();
+		$data = [];
 
 		$done = false;
 		$loops = 0;
-		while (!$done)
-		{
+
+		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
-			$request = Db::$db->query('', '
-				SELECT
+			$request = Db::$db->query(
+				'',
+				'SELECT
 					m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 					m.icon, t.id_topic, t.id_board, t.num_replies,
 					b.name AS bname,
@@ -774,45 +756,39 @@ class Feed implements ActionInterface
 					AND t.approved = {int:is_approved}' : '') . '
 				ORDER BY t.id_first_msg {raw:ascdesc}
 				LIMIT {int:limit}',
-				array(
+				[
 					'current_board' => Board::$info->id,
 					'is_approved' => 1,
 					'limit' => $this->limit,
 					'optimize_msg' => $optimize_msg,
 					'ascdesc' => !empty($this->ascending) ? 'ASC' : 'DESC',
-				)
+				],
 			);
+
 			// If we don't have $this->limit results, try again with an unoptimized version covering all rows.
-			if ($loops < 2 && Db::$db->num_rows($request) < $this->limit)
-			{
+			if ($loops < 2 && Db::$db->num_rows($request) < $this->limit) {
 				Db::$db->free_result($request);
 
-				if (empty($_GET['boards']) && empty(Board::$info->id))
-				{
+				if (empty($_GET['boards']) && empty(Board::$info->id)) {
 					unset($this->optimize_msg['lowest']);
-				}
-				else
-				{
+				} else {
 					$this->optimize_msg['lowest'] = 'm.id_msg >= t.id_first_msg';
 				}
 
 				$this->optimize_msg['highest'] = 'm.id_msg <= t.id_last_msg';
 				$loops++;
-			}
-			else
-			{
+			} else {
 				$done = true;
 			}
 		}
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// Limit the length of the message, if the option is set.
-			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen'])
-			{
-				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
+			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
+				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -821,31 +797,25 @@ class Feed implements ActionInterface
 			Lang::censorText($row['subject']);
 
 			// Do we want to include any attachments?
-			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && User::$me->allowedTo('view_attachments', $row['id_board']))
-			{
+			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && User::$me->allowedTo('view_attachments', $row['id_board'])) {
 				$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
 				// Sort the attachments by size to make things easier below
-				if (!empty($loaded_attachments))
-				{
+				if (!empty($loaded_attachments)) {
 					uasort(
 						$loaded_attachments,
-						function($a, $b)
-						{
-							if ($a->size == $b->size)
+						function ($a, $b) {
+							if ($a->size == $b->size) {
 								return 0;
+							}
 
 							return ($a->size < $b->size) ? -1 : 1;
-						}
+						},
 					);
-				}
-				else
-				{
+				} else {
 					$loaded_attachments = null;
 				}
-			}
-			else
-			{
+			} else {
 				$loaded_attachments = null;
 			}
 
@@ -853,318 +823,303 @@ class Feed implements ActionInterface
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
 
 			// Being news, this actually makes sense in rss format.
-			if ($this->format == 'rss' || $this->format == 'rss2')
-			{
+			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
-				if ($loaded_attachments !== null)
-				{
+				if ($loaded_attachments !== null) {
 					$attachment = array_pop($loaded_attachments);
-					$enclosure = array(
+					$enclosure = [
 						'url' => self::fixPossibleUrl(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
 						'length' => $attachment->size,
 						'type' => $attachment->mime_type,
-					);
-				}
-				else
-				{
+					];
+				} else {
 					$enclosure = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'item',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
 							'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'comments',
 							'content' => Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
-						),
-						array(
+						],
+						[
 							'tag' => 'category',
 							'content' => $row['bname'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
-						),
-						array(
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+						],
+						[
 							'tag' => 'guid',
 							'content' => $guid,
-							'attributes' => array(
+							'attributes' => [
 								'isPermaLink' => 'false',
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'enclosure',
 							'attributes' => $enclosure,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'rdf')
-			{
-				$data[] = array(
+						],
+					],
+				];
+			} elseif ($this->format == 'rdf') {
+				$data[] = [
 					'tag' => 'item',
-					'attributes' => array('rdf:about' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0'),
-					'content' => array(
-						array(
+					'attributes' => ['rdf:about' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0'],
+					'content' => [
+						[
 							'tag' => 'dc:format',
 							'content' => 'text/html',
-						),
-						array(
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'atom')
-			{
+						],
+					],
+				];
+			} elseif ($this->format == 'atom') {
 				// Only one attachment allowed
-				if (!empty($loaded_attachments))
-				{
+				if (!empty($loaded_attachments)) {
 					$attachment = array_pop($loaded_attachments);
-					$enclosure = array(
+					$enclosure = [
 						'rel' => 'enclosure',
 						'href' => self::fixPossibleUrl(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
 						'length' => $attachment->size,
 						'type' => $attachment->mime_type,
-					);
-				}
-				else
-				{
+					];
+				} else {
 					$enclosure = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'entry',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array(
+							'attributes' => [
 								'rel' => 'alternate',
 								'type' => 'text/html',
 								'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'summary',
-							'attributes' => array('type' => 'html'),
+							'attributes' => ['type' => 'html'],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'category',
-							'attributes' => array('term' => $row['bname']),
+							'attributes' => ['term' => $row['bname']],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
-							'content' => array(
-								array(
+							'content' => [
+								[
 									'tag' => 'name',
 									'content' => $row['poster_name'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'email',
 									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'uri',
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : null,
-								),
-							)
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'published',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
-						),
-						array(
+						],
+						[
 							'tag' => 'updated',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $guid,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'attributes' => $enclosure,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 			// The biggest difference here is more information.
-			else
-			{
+			else {
 				Lang::load('Post');
 
-				$attachments = array();
-				if (!empty($loaded_attachments))
-				{
-					foreach ($loaded_attachments as $attachment)
-					{
-						$attachments[] = array(
+				$attachments = [];
+
+				if (!empty($loaded_attachments)) {
+					foreach ($loaded_attachments as $attachment) {
+						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => array('label' => Lang::$txt['attachment']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['attachment']],
+							'content' => [
+								[
 									'tag' => 'id',
 									'content' => $attachment->id,
-								),
-								array(
+								],
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
-								),
-								array(
+								],
+								[
 									'tag' => 'downloads',
-									'attributes' => array('label' => Lang::$txt['downloads']),
+									'attributes' => ['label' => Lang::$txt['downloads']],
 									'content' => $attachment->downloads,
-								),
-								array(
+								],
+								[
 									'tag' => 'size',
-									'attributes' => array('label' => Lang::$txt['filesize']),
+									'attributes' => ['label' => Lang::$txt['filesize']],
 									'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
-								),
-								array(
+								],
+								[
 									'tag' => 'byte_size',
-									'attributes' => array('label' => Lang::$txt['filesize']),
+									'attributes' => ['label' => Lang::$txt['filesize']],
 									'content' => $attachment->size,
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
-								),
-							)
-						);
+								],
+							],
+						];
 					}
-				}
-				else
-				{
+				} else {
 					$attachments = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'article',
-					'attributes' => array('label' => Lang::$txt['news']),
-					'content' => array(
-						array(
+					'attributes' => ['label' => Lang::$txt['news']],
+					'content' => [
+						[
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])),
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $row['id_topic'],
-						),
-						array(
+						],
+						[
 							'tag' => 'subject',
-							'attributes' => array('label' => Lang::$txt['subject']),
+							'attributes' => ['label' => Lang::$txt['subject']],
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'body',
-							'attributes' => array('label' => Lang::$txt['message']),
+							'attributes' => ['label' => Lang::$txt['message']],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'poster',
-							'attributes' => array('label' => Lang::$txt['author']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['author']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $row['poster_name'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_member'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => !empty($row['id_member']) ? array('label' => Lang::$txt['url']) : null,
+									'attributes' => !empty($row['id_member']) ? ['label' => Lang::$txt['url']] : null,
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
-								),
-							)
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'topic',
-							'attributes' => array('label' => Lang::$txt['topic']),
+							'attributes' => ['label' => Lang::$txt['topic']],
 							'content' => $row['id_topic'],
-						),
-						array(
+						],
+						[
 							'tag' => 'board',
-							'attributes' => array('label' => Lang::$txt['board']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['board']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $row['bname'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_board'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array('label' => Lang::$txt['url']),
+							'attributes' => ['label' => Lang::$txt['url']],
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-						),
-						array(
+						],
+						[
 							'tag' => 'attachments',
-							'attributes' => array('label' => Lang::$txt['attachments']),
+							'attributes' => ['label' => Lang::$txt['attachments']],
 							'content' => $attachments,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 		}
 		Db::$db->free_result($request);
@@ -1180,16 +1135,17 @@ class Feed implements ActionInterface
 	 */
 	public function getXmlRecent(): array
 	{
-		$data = array();
-		$messages = array();
+		$data = [];
+		$messages = [];
 
 		$done = false;
 		$loops = 0;
-		while (!$done)
-		{
+
+		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
-			$request = Db::$db->query('', '
-				SELECT m.id_msg
+			$request = Db::$db->query(
+				'',
+				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 					INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
@@ -1200,38 +1156,42 @@ class Feed implements ActionInterface
 					AND t.approved = {int:is_approved}' : '') . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:limit}',
-				array(
+				[
 					'limit' => $this->limit,
 					'current_board' => Board::$info->id,
 					'is_approved' => 1,
 					'optimize_msg' => $optimize_msg,
-				)
+				],
 			);
+
 			// If we don't have $this->limit results, try again with an unoptimized version covering all rows.
-			if ($loops < 2 && Db::$db->num_rows($request) < $this->limit)
-			{
+			if ($loops < 2 && Db::$db->num_rows($request) < $this->limit) {
 				Db::$db->free_result($request);
-				if (empty($_GET['boards']) && empty(Board::$info->id))
+
+				if (empty($_GET['boards']) && empty(Board::$info->id)) {
 					unset($this->optimize_msg['lowest']);
-				else
+				} else {
 					$this->optimize_msg['lowest'] = $loops ? 'm.id_msg >= t.id_first_msg' : 'm.id_msg >= (t.id_last_msg - t.id_first_msg) / 2';
+				}
 				$loops++;
-			}
-			else
+			} else {
 				$done = true;
+			}
 		}
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$messages[] = $row['id_msg'];
 		}
 		Db::$db->free_result($request);
 
-		if (empty($messages))
-			return array();
+		if (empty($messages)) {
+			return [];
+		}
 
 		// Find the most recent posts this user can see.
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 				b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
@@ -1247,21 +1207,20 @@ class Feed implements ActionInterface
 				' . (empty(Board::$info->id) ? '' : 'AND t.id_board = {int:current_board}') . '
 			ORDER BY m.id_msg DESC
 			LIMIT {int:limit}',
-			array(
+			[
 				'limit' => $this->limit,
 				'current_board' => Board::$info->id,
 				'message_list' => $messages,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// Limit the length of the message, if the option is set.
-			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen'])
-			{
-				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
+			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
+				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -1270,31 +1229,25 @@ class Feed implements ActionInterface
 			Lang::censorText($row['subject']);
 
 			// Do we want to include any attachments?
-			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && User::$me->allowedTo('view_attachments', $row['id_board']))
-			{
+			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && User::$me->allowedTo('view_attachments', $row['id_board'])) {
 				$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
 				// Sort the attachments by size to make things easier below
-				if (!empty($loaded_attachments))
-				{
+				if (!empty($loaded_attachments)) {
 					uasort(
 						$loaded_attachments,
-						function($a, $b)
-						{
-							if ($a->size == $b->size)
+						function ($a, $b) {
+							if ($a->size == $b->size) {
 								return 0;
+							}
 
 							return ($a->size < $b->size) ? -1 : 1;
-						}
+						},
 					);
-				}
-				else
-				{
+				} else {
 					$loaded_attachments = null;
 				}
-			}
-			else
-			{
+			} else {
 				$loaded_attachments = null;
 			}
 
@@ -1302,355 +1255,340 @@ class Feed implements ActionInterface
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			// Doesn't work as well as news, but it kinda does..
-			if ($this->format == 'rss' || $this->format == 'rss2')
-			{
+			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
-				if ($loaded_attachments !== null)
-				{
+				if ($loaded_attachments !== null) {
 					$attachment = array_pop($loaded_attachments);
-					$enclosure = array(
+					$enclosure = [
 						'url' => self::fixPossibleUrl(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
 						'length' => $attachment->size,
 						'type' => $attachment->mime_type,
-					);
-				}
-				else
-				{
+					];
+				} else {
 					$enclosure = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'item',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
 							'content' => (User::$me->allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'category',
 							'content' => $row['bname'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'comments',
 							'content' => Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
-						),
-						array(
+						],
+						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
-						),
-						array(
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+						],
+						[
 							'tag' => 'guid',
 							'content' => $guid,
-							'attributes' => array(
+							'attributes' => [
 								'isPermaLink' => 'false',
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'enclosure',
 							'attributes' => $enclosure,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'rdf')
-			{
-				$data[] = array(
+						],
+					],
+				];
+			} elseif ($this->format == 'rdf') {
+				$data[] = [
 					'tag' => 'item',
-					'attributes' => array('rdf:about' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']),
-					'content' => array(
-						array(
+					'attributes' => ['rdf:about' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']],
+					'content' => [
+						[
 							'tag' => 'dc:format',
 							'content' => 'text/html',
-						),
-						array(
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'atom')
-			{
+						],
+					],
+				];
+			} elseif ($this->format == 'atom') {
 				// Only one attachment allowed
-				if (!empty($loaded_attachments))
-				{
+				if (!empty($loaded_attachments)) {
 					$attachment = array_pop($loaded_attachments);
-					$enclosure = array(
+					$enclosure = [
 						'rel' => 'enclosure',
 						'href' => self::fixPossibleUrl(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
 						'length' => $attachment->size,
 						'type' => $attachment->mime_type,
-					);
-				}
-				else
-				{
+					];
+				} else {
 					$enclosure = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'entry',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array(
+							'attributes' => [
 								'rel' => 'alternate',
 								'type' => 'text/html',
 								'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'summary',
-							'attributes' => array('type' => 'html'),
+							'attributes' => ['type' => 'html'],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'category',
-							'attributes' => array('term' => $row['bname']),
+							'attributes' => ['term' => $row['bname']],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
-							'content' => array(
-								array(
+							'content' => [
+								[
 									'tag' => 'name',
 									'content' => $row['poster_name'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'email',
 									'content' => (User::$me->allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'uri',
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : null,
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'published',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
-						),
-						array(
+						],
+						[
 							'tag' => 'updated',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $guid,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'attributes' => $enclosure,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 			// A lot of information here.  Should be enough to please the rss-ers.
-			else
-			{
+			else {
 				Lang::load('Post');
 
-				$attachments = array();
-				if (!empty($loaded_attachments))
-				{
-					foreach ($loaded_attachments as $attachment)
-					{
-						$attachments[] = array(
+				$attachments = [];
+
+				if (!empty($loaded_attachments)) {
+					foreach ($loaded_attachments as $attachment) {
+						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => array('label' => Lang::$txt['attachment']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['attachment']],
+							'content' => [
+								[
 									'tag' => 'id',
 									'content' => $attachment->id,
-								),
-								array(
+								],
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
-								),
-								array(
+								],
+								[
 									'tag' => 'downloads',
-									'attributes' => array('label' => Lang::$txt['downloads']),
+									'attributes' => ['label' => Lang::$txt['downloads']],
 									'content' => $attachment->downloads,
-								),
-								array(
+								],
+								[
 									'tag' => 'size',
-									'attributes' => array('label' => Lang::$txt['filesize']),
+									'attributes' => ['label' => Lang::$txt['filesize']],
 									'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
-								),
-								array(
+								],
+								[
 									'tag' => 'byte_size',
-									'attributes' => array('label' => Lang::$txt['filesize']),
+									'attributes' => ['label' => Lang::$txt['filesize']],
 									'content' => $attachment->size,
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
-								),
-							)
-						);
+								],
+							],
+						];
 					}
-				}
-				else
-				{
+				} else {
 					$attachments = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'recent-post', // Hyphen rather than underscore for backward compatibility reasons
-					'attributes' => array('label' => Lang::$txt['post']),
-					'content' => array(
-						array(
+					'attributes' => ['label' => Lang::$txt['post']],
+					'content' => [
+						[
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])),
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'subject',
-							'attributes' => array('label' => Lang::$txt['subject']),
+							'attributes' => ['label' => Lang::$txt['subject']],
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'body',
-							'attributes' => array('label' => Lang::$txt['message']),
+							'attributes' => ['label' => Lang::$txt['message']],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'starter',
-							'attributes' => array('label' => Lang::$txt['topic_started']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['topic_started']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $row['first_poster_name'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_first_member'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => !empty($row['id_first_member']) ? array('label' => Lang::$txt['url']) : null,
+									'attributes' => !empty($row['id_first_member']) ? ['label' => Lang::$txt['url']] : null,
 									'content' => !empty($row['id_first_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_first_member'] : '',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'poster',
-							'attributes' => array('label' => Lang::$txt['author']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['author']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $row['poster_name'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_member'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => !empty($row['id_member']) ? array('label' => Lang::$txt['url']) : null,
+									'attributes' => !empty($row['id_member']) ? ['label' => Lang::$txt['url']] : null,
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'topic',
-							'attributes' => array('label' => Lang::$txt['topic']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['topic']],
+							'content' => [
+								[
 									'tag' => 'subject',
-									'attributes' => array('label' => Lang::$txt['subject']),
+									'attributes' => ['label' => Lang::$txt['subject']],
 									'content' => $row['first_subject'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_topic'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.new#new',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'board',
-							'attributes' => array('label' => Lang::$txt['board']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['board']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $row['bname'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_board'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array('label' => Lang::$txt['url']),
+							'attributes' => ['label' => Lang::$txt['url']],
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'attachments',
-							'attributes' => array('label' => Lang::$txt['attachments']),
+							'attributes' => ['label' => Lang::$txt['attachments']],
 							'content' => $attachments,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 		}
 		Db::$db->free_result($request);
@@ -1667,298 +1605,287 @@ class Feed implements ActionInterface
 	public function getXmlProfile(): array
 	{
 		// You must input a valid user, and you must be allowed to view that user's profile.
-		if (empty($this->member) || ($this->member != User::$me->id && !User::$me->allowedTo('profile_view')) || (User::load($this->member) === array()))
-		{
-			return array();
+		if (empty($this->member) || ($this->member != User::$me->id && !User::$me->allowedTo('profile_view')) || (User::load($this->member) === [])) {
+			return [];
 		}
 
 		// Load the member's contextual information! (Including custom fields for our proprietary XML type)
 		$profile = User::$loaded[$this->member]->format($this->format == 'smf');
 
 		// If any control characters slipped in somehow, kill the evil things
-		$profile = filter_var($profile, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
+		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 		// Create a GUID for this member using the tag URI scheme
 		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
-		if ($this->format == 'rss' || $this->format == 'rss2')
-		{
-			$data[] = array(
+		if ($this->format == 'rss' || $this->format == 'rss2') {
+			$data[] = [
 				'tag' => 'item',
-				'content' => array(
-					array(
+				'content' => [
+					[
 						'tag' => 'title',
 						'content' => $profile['name'],
 						'cdata' => true,
-					),
-					array(
+					],
+					[
 						'tag' => 'link',
 						'content' => Config::$scripturl . '?action=profile;u=' . $profile['id'],
-					),
-					array(
+					],
+					[
 						'tag' => 'description',
-						'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+						'content' => $profile['group'] ?? $profile['post_group'],
 						'cdata' => true,
-					),
-					array(
+					],
+					[
 						'tag' => 'comments',
 						'content' => Config::$scripturl . '?action=pm;sa=send;u=' . $profile['id'],
-					),
-					array(
+					],
+					[
 						'tag' => 'pubDate',
-						'content' => gmdate('D, d M Y H:i:s \G\M\T', $profile['registered_timestamp']),
-					),
-					array(
+						'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $profile['registered_timestamp']),
+					],
+					[
 						'tag' => 'guid',
 						'content' => $guid,
-						'attributes' => array(
+						'attributes' => [
 							'isPermaLink' => 'false',
-						),
-					),
-				)
-			);
-		}
-		elseif ($this->format == 'rdf')
-		{
-			$data[] = array(
+						],
+					],
+				],
+			];
+		} elseif ($this->format == 'rdf') {
+			$data[] = [
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => Config::$scripturl . '?action=profile;u=' . $profile['id']),
-				'content' => array(
-					array(
+				'attributes' => ['rdf:about' => Config::$scripturl . '?action=profile;u=' . $profile['id']],
+				'content' => [
+					[
 						'tag' => 'dc:format',
 						'content' => 'text/html',
-					),
-					array(
+					],
+					[
 						'tag' => 'title',
 						'content' => $profile['name'],
 						'cdata' => true,
-					),
-					array(
+					],
+					[
 						'tag' => 'link',
 						'content' => Config::$scripturl . '?action=profile;u=' . $profile['id'],
-					),
-					array(
+					],
+					[
 						'tag' => 'description',
-						'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+						'content' => $profile['group'] ?? $profile['post_group'],
 						'cdata' => true,
-					),
-				)
-			);
-		}
-		elseif ($this->format == 'atom')
-		{
-			$data[] = array(
+					],
+				],
+			];
+		} elseif ($this->format == 'atom') {
+			$data[] = [
 				'tag' => 'entry',
-				'content' => array(
-					array(
+				'content' => [
+					[
 						'tag' => 'title',
 						'content' => $profile['name'],
 						'cdata' => true,
-					),
-					array(
+					],
+					[
 						'tag' => 'link',
-						'attributes' => array(
+						'attributes' => [
 							'rel' => 'alternate',
 							'type' => 'text/html',
 							'href' => Config::$scripturl . '?action=profile;u=' . $profile['id'],
-						),
-					),
-					array(
+						],
+					],
+					[
 						'tag' => 'summary',
-						'attributes' => array('type' => 'html'),
-						'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+						'attributes' => ['type' => 'html'],
+						'content' => $profile['group'] ?? $profile['post_group'],
 						'cdata' => true,
-					),
-					array(
+					],
+					[
 						'tag' => 'author',
-						'content' => array(
-							array(
+						'content' => [
+							[
 								'tag' => 'name',
 								'content' => $profile['name'],
 								'cdata' => true,
-							),
-							array(
+							],
+							[
 								'tag' => 'email',
 								'content' => $profile['show_email'] ? $profile['email'] : null,
 								'cdata' => true,
-							),
-							array(
+							],
+							[
 								'tag' => 'uri',
 								'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : Config::$scripturl . '?action=profile;u=' . $profile['id_member'],
 								'cdata' => !empty($profile['website']['url']),
-							),
-						),
-					),
-					array(
+							],
+						],
+					],
+					[
 						'tag' => 'published',
 						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
-					),
-					array(
+					],
+					[
 						'tag' => 'updated',
 						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
-					),
-					array(
+					],
+					[
 						'tag' => 'id',
 						'content' => $guid,
-					),
-				)
-			);
-		}
-		else
-		{
+					],
+				],
+			];
+		} else {
 			Lang::load('Profile');
 
-			$data = array(
-				array(
+			$data = [
+				[
 					'tag' => 'username',
-					'attributes' => User::$me->is_admin || User::$me->id == $profile['id'] ? array('label' => Lang::$txt['username']) : null,
+					'attributes' => User::$me->is_admin || User::$me->id == $profile['id'] ? ['label' => Lang::$txt['username']] : null,
 					'content' => User::$me->is_admin || User::$me->id == $profile['id'] ? $profile['username'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'name',
-					'attributes' => array('label' => Lang::$txt['name']),
+					'attributes' => ['label' => Lang::$txt['name']],
 					'content' => $profile['name'],
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'link',
-					'attributes' => array('label' => Lang::$txt['url']),
+					'attributes' => ['label' => Lang::$txt['url']],
 					'content' => Config::$scripturl . '?action=profile;u=' . $profile['id'],
-				),
-				array(
+				],
+				[
 					'tag' => 'posts',
-					'attributes' => array('label' => Lang::$txt['member_postcount']),
+					'attributes' => ['label' => Lang::$txt['member_postcount']],
 					'content' => $profile['posts'],
-				),
-				array(
+				],
+				[
 					'tag' => 'post-group',
-					'attributes' => array('label' => Lang::$txt['post_based_membergroup']),
+					'attributes' => ['label' => Lang::$txt['post_based_membergroup']],
 					'content' => $profile['post_group'],
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'language',
-					'attributes' => array('label' => Lang::$txt['preferred_language']),
+					'attributes' => ['label' => Lang::$txt['preferred_language']],
 					'content' => $profile['language'],
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'last-login',
-					'attributes' => array('label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])),
+					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])],
 					'content' => Time::create('@' . $row['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
-				),
-				array(
+				],
+				[
 					'tag' => 'registered',
-					'attributes' => array('label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])),
+					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])],
 					'content' => Time::create('@' . $row['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
-				),
-				array(
+				],
+				[
 					'tag' => 'avatar',
-					'attributes' => !empty($profile['avatar']['url']) ? array('label' => Lang::$txt['personal_picture']) : null,
+					'attributes' => !empty($profile['avatar']['url']) ? ['label' => Lang::$txt['personal_picture']] : null,
 					'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'signature',
-					'attributes' => !empty($profile['signature']) ? array('label' => Lang::$txt['signature']) : null,
+					'attributes' => !empty($profile['signature']) ? ['label' => Lang::$txt['signature']] : null,
 					'content' => !empty($profile['signature']) ? $profile['signature'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'blurb',
-					'attributes' => !empty($profile['blurb']) ? array('label' => Lang::$txt['personal_text']) : null,
+					'attributes' => !empty($profile['blurb']) ? ['label' => Lang::$txt['personal_text']] : null,
 					'content' => !empty($profile['blurb']) ? $profile['blurb'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'title',
-					'attributes' => !empty($profile['title']) ? array('label' => Lang::$txt['title']) : null,
+					'attributes' => !empty($profile['title']) ? ['label' => Lang::$txt['title']] : null,
 					'content' => !empty($profile['title']) ? $profile['title'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'position',
-					'attributes' => !empty($profile['group']) ? array('label' => Lang::$txt['position']) : null,
+					'attributes' => !empty($profile['group']) ? ['label' => Lang::$txt['position']] : null,
 					'content' => !empty($profile['group']) ? $profile['group'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'email',
-					'attributes' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? array('label' => Lang::$txt['user_email_address']) : null,
+					'attributes' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? ['label' => Lang::$txt['user_email_address']] : null,
 					'content' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? $profile['email'] : null,
 					'cdata' => true,
-				),
-				array(
+				],
+				[
 					'tag' => 'website',
-					'attributes' => empty($profile['website']['url']) ? null : array('label' => Lang::$txt['website']),
-					'content' => empty($profile['website']['url']) ? null : array(
-						array(
+					'attributes' => empty($profile['website']['url']) ? null : ['label' => Lang::$txt['website']],
+					'content' => empty($profile['website']['url']) ? null : [
+						[
 							'tag' => 'title',
-							'attributes' => !empty($profile['website']['title']) ? array('label' => Lang::$txt['website_title']) : null,
+							'attributes' => !empty($profile['website']['title']) ? ['label' => Lang::$txt['website_title']] : null,
 							'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array('label' => Lang::$txt['website_url']),
+							'attributes' => ['label' => Lang::$txt['website_url']],
 							'content' => $profile['website']['url'],
 							'cdata' => true,
-						),
-					),
-				),
-				array(
+						],
+					],
+				],
+				[
 					'tag' => 'online',
-					'attributes' => !empty($profile['online']['is_online']) ? array('label' => Lang::$txt['online']) : null,
+					'attributes' => !empty($profile['online']['is_online']) ? ['label' => Lang::$txt['online']] : null,
 					'content' => !empty($profile['online']['is_online']) ? 'true' : null,
-				),
-				array(
+				],
+				[
 					'tag' => 'ip_addresses',
-					'attributes' => array('label' => Lang::$txt['ip_address']),
-					'content' => User::$me->allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? array(
-						array(
+					'attributes' => ['label' => Lang::$txt['ip_address']],
+					'content' => User::$me->allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? [
+						[
 							'tag' => 'ip',
-							'attributes' => array('label' => Lang::$txt['most_recent_ip']),
+							'attributes' => ['label' => Lang::$txt['most_recent_ip']],
 							'content' => $profile['ip'],
-						),
-						array(
+						],
+						[
 							'tag' => 'ip2',
 							'content' => $profile['ip'] != $profile['ip2'] ? $profile['ip2'] : null,
-						),
-					) : null,
-				),
-			);
+						],
+					] : null,
+				],
+			];
 
-			if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004')
-			{
+			if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004') {
 				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 
 				$datearray = getdate(time());
 
 				$age = $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1);
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'age',
-					'attributes' => array('label' => Lang::$txt['age']),
+					'attributes' => ['label' => Lang::$txt['age']],
 					'content' => $age,
-				);
-				$data[] = array(
+				];
+				$data[] = [
 					'tag' => 'birthdate',
-					'attributes' => array('label' => Lang::$txt['dob']),
+					'attributes' => ['label' => Lang::$txt['dob']],
 					'content' => $profile['birth_date'],
-				);
+				];
 			}
 
-			if (!empty($profile['custom_fields']))
-			{
-				foreach ($profile['custom_fields'] as $custom_field)
-				{
-					$data[] = array(
+			if (!empty($profile['custom_fields'])) {
+				foreach ($profile['custom_fields'] as $custom_field) {
+					$data[] = [
 						'tag' => $custom_field['col_name'],
-						'attributes' => array('label' => $custom_field['title']),
+						'attributes' => ['label' => $custom_field['title']],
 						'content' => $custom_field['simple'],
 						'cdata' => true,
-					);
+					];
 				}
 			}
 		}
@@ -1977,57 +1904,56 @@ class Feed implements ActionInterface
 	 */
 	public function getXmlPosts(): array
 	{
-		if (empty($this->member) || ($this->member != User::$me->id && !User::$me->allowedTo('profile_view')))
-		{
-			return array();
+		if (empty($this->member) || ($this->member != User::$me->id && !User::$me->allowedTo('profile_view'))) {
+			return [];
 		}
 
-		$data = array();
+		$data = [];
 
 		$show_all = !empty(User::$me->is_admin) || defined('EXPORTING');
 
-		$query_this_message_board = str_replace(array('{query_see_board}', 'b.'), array('{query_see_message_board}', 'm.'), $this->query_this_board);
+		$query_this_message_board = str_replace(['{query_see_board}', 'b.'], ['{query_see_message_board}', 'm.'], $this->query_this_board);
 
 		/* MySQL can choke if we use joins in the main query when the user has
 		 * massively long posts. To avoid that, we get the names of the boards
 		 * and the user's displayed name in separate queries.
 		 */
-		$boardnames = array();
-		$request = Db::$db->query('', '
-			SELECT id_board, name
+		$boardnames = [];
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board, name
 			FROM {db_prefix}boards',
-			array()
+			[],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$boardnames[$row['id_board']] = $row['name'];
 		}
 		Db::$db->free_result($request);
 
-		if ($this->member == User::$me->id)
-		{
+		if ($this->member == User::$me->id) {
 			$poster_name = User::$me->name;
-		}
-		else
-		{
-			$request = Db::$db->query('', '
-				SELECT COALESCE(real_name, member_name) AS poster_name
+		} else {
+			$request = Db::$db->query(
+				'',
+				'SELECT COALESCE(real_name, member_name) AS poster_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:uid}',
-				array(
+				[
 					'uid' => $this->member,
-				)
+				],
 			);
 			list($poster_name) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 		}
 
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 				m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
 				m.likes, m.approved, m.smileys_enabled
-			FROM {db_prefix}messages AS m' . (Config::$modSettings['postmod_active'] && !$show_all ?'
+			FROM {db_prefix}messages AS m' . (Config::$modSettings['postmod_active'] && !$show_all ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 			WHERE m.id_member = {int:uid}
 				AND m.id_msg > {int:start_after}
@@ -2036,424 +1962,403 @@ class Feed implements ActionInterface
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg {raw:ascdesc}
 			LIMIT {int:limit}',
-			array(
+			[
 				'limit' => $this->limit,
 				'start_after' => $this->start_after,
 				'uid' => $this->member,
 				'is_approved' => 1,
 				'ascdesc' => !empty($this->ascending) ? 'ASC' : 'DESC',
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['last'] = $row['id_msg'];
 
 			// We want a readable version of the IP address
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// If using our own format, we want both the raw and the parsed content.
 			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 			// Do we want to include any attachments?
-			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']))
-			{
+			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments'])) {
 				$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
 				// Sort the attachments by size to make things easier below
-				if (!empty($loaded_attachments))
-				{
+				if (!empty($loaded_attachments)) {
 					uasort(
 						$loaded_attachments,
-						function($a, $b)
-						{
-							if ($a->size == $b->size)
-						        return 0;
+						function ($a, $b) {
+							if ($a->size == $b->size) {
+								return 0;
+							}
 
-						    return ($a->size < $b->size) ? -1 : 1;
-						}
+							return ($a->size < $b->size) ? -1 : 1;
+						},
 					);
-				}
-				else
-				{
+				} else {
 					$loaded_attachments = null;
 				}
-			}
-			else
-			{
+			} else {
 				$loaded_attachments = null;
 			}
 
 			// Create a GUID for this post using the tag URI scheme
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
-			if ($this->format == 'rss' || $this->format == 'rss2')
-			{
+			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
-				if ($loaded_attachments !== null)
-				{
+				if ($loaded_attachments !== null) {
 					$attachment = array_pop($loaded_attachments);
-					$enclosure = array(
+					$enclosure = [
 						'url' => self::fixPossibleUrl(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
 						'length' => $attachment->size,
 						'type' => $attachment->mime_type,
-					);
-				}
-				else
-				{
+					];
+				} else {
 					$enclosure = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'item',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?msg=' . $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
 							'content' => (User::$me->allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'category',
 							'content' => $boardnames[$row['id_board']],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'comments',
 							'content' => Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
-						),
-						array(
+						],
+						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
-						),
-						array(
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+						],
+						[
 							'tag' => 'guid',
 							'content' => $guid,
-							'attributes' => array(
+							'attributes' => [
 								'isPermaLink' => 'false',
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'enclosure',
 							'attributes' => $enclosure,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'rdf')
-			{
-				$data[] = array(
+						],
+					],
+				];
+			} elseif ($this->format == 'rdf') {
+				$data[] = [
 					'tag' => 'item',
-					'attributes' => array('rdf:about' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']),
-					'content' => array(
-						array(
+					'attributes' => ['rdf:about' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']],
+					'content' => [
+						[
 							'tag' => 'dc:format',
 							'content' => 'text/html',
-						),
-						array(
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?msg=' . $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'atom')
-			{
+						],
+					],
+				];
+			} elseif ($this->format == 'atom') {
 				// Only one attachment allowed
-				if (!empty($loaded_attachments))
-				{
+				if (!empty($loaded_attachments)) {
 					$attachment = array_pop($loaded_attachments);
-					$enclosure = array(
+					$enclosure = [
 						'rel' => 'enclosure',
 						'href' => self::fixPossibleUrl(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
 						'length' => $attachment->size,
 						'type' => $attachment->mime_type,
-					);
-				}
-				else
-				{
+					];
+				} else {
 					$enclosure = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'entry',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array(
+							'attributes' => [
 								'rel' => 'alternate',
 								'type' => 'text/html',
 								'href' => Config::$scripturl . '?msg=' . $row['id_msg'],
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'summary',
-							'attributes' => array('type' => 'html'),
+							'attributes' => ['type' => 'html'],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
-							'content' => array(
-								array(
+							'content' => [
+								[
 									'tag' => 'name',
 									'content' => $poster_name,
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'email',
 									'content' => (User::$me->allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'uri',
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : null,
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'published',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
-						),
-						array(
+						],
+						[
 							'tag' => 'updated',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
-						),
-						array(
+						],
+						[
 							'tag' => 'id',
 							'content' => $guid,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'attributes' => $enclosure,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 			// A lot of information here.  Should be enough to please the rss-ers.
-			else
-			{
+			else {
 				Lang::load('Post');
 
-				$attachments = array();
-				if (!empty($loaded_attachments))
-				{
-					foreach ($loaded_attachments as $attachment)
-					{
-						$attachments[] = array(
+				$attachments = [];
+
+				if (!empty($loaded_attachments)) {
+					foreach ($loaded_attachments as $attachment) {
+						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => array('label' => Lang::$txt['attachment']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['attachment']],
+							'content' => [
+								[
 									'tag' => 'id',
 									'content' => $attachment->id,
-								),
-								array(
+								],
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
-								),
-								array(
+								],
+								[
 									'tag' => 'downloads',
-									'attributes' => array('label' => Lang::$txt['downloads']),
+									'attributes' => ['label' => Lang::$txt['downloads']],
 									'content' => $attachment->downloads,
-								),
-								array(
+								],
+								[
 									'tag' => 'size',
-									'attributes' => array('label' => Lang::$txt['filesize']),
+									'attributes' => ['label' => Lang::$txt['filesize']],
 									'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
-								),
-								array(
+								],
+								[
 									'tag' => 'byte_size',
-									'attributes' => array('label' => Lang::$txt['filesize']),
+									'attributes' => ['label' => Lang::$txt['filesize']],
 									'content' => $attachment->size,
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
-								),
-								array(
+								],
+								[
 									'tag' => 'approval_status',
-									'attributes' => $show_all ? array('label' => Lang::$txt['approval_status']) : null,
+									'attributes' => $show_all ? ['label' => Lang::$txt['approval_status']] : null,
 									'content' => $show_all ? $attachment->approved : null,
-								),
-							)
-						);
+								],
+							],
+						];
 					}
-				}
-				else
-				{
+				} else {
 					$attachments = null;
 				}
 
-				$data[] = array(
+				$data[] = [
 					'tag' => 'member_post',
-					'attributes' => array('label' => Lang::$txt['post']),
-					'content' => array(
-						array(
+					'attributes' => ['label' => Lang::$txt['post']],
+					'content' => [
+						[
 							'tag' => 'id',
 							'content' => $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'subject',
-							'attributes' => array('label' => Lang::$txt['subject']),
+							'attributes' => ['label' => Lang::$txt['subject']],
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'body',
-							'attributes' => array('label' => Lang::$txt['message']),
+							'attributes' => ['label' => Lang::$txt['message']],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'body_html',
-							'attributes' => array('label' => Lang::$txt['html']),
+							'attributes' => ['label' => Lang::$txt['html']],
 							'content' => $row['body_html'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'poster',
-							'attributes' => array('label' => Lang::$txt['author']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['author']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $poster_name,
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_member'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-								),
-								array(
+								],
+								[
 									'tag' => 'email',
-									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['user_email_address']) : null,
+									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? ['label' => Lang::$txt['user_email_address']] : null,
 									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'ip',
-									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['ip']) : null,
+									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? ['label' => Lang::$txt['ip']] : null,
 									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_ip'] : null,
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'topic',
-							'attributes' => array('label' => Lang::$txt['topic']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['topic']],
+							'content' => [
+								[
 									'tag' => 'id',
 									'content' => $row['id_topic'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'board',
-							'attributes' => array('label' => Lang::$txt['board']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['board']],
+							'content' => [
+								[
 									'tag' => 'id',
 									'content' => $row['id_board'],
-								),
-								array(
+								],
+								[
 									'tag' => 'name',
 									'content' => $boardnames[$row['id_board']],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
-								),
-							),
-						),
-						array(
+								],
+							],
+						],
+						[
 							'tag' => 'link',
-							'attributes' => array('label' => Lang::$txt['url']),
+							'attributes' => ['label' => Lang::$txt['url']],
 							'content' => Config::$scripturl . '?msg=' . $row['id_msg'],
-						),
-						array(
+						],
+						[
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])),
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
-						),
-						array(
+						],
+						[
 							'tag' => 'modified_time',
-							'attributes' => !empty($row['modified_time']) ? array('label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', $row['modified_time'])) : null,
+							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', $row['modified_time'])] : null,
 							'content' => !empty($row['modified_time']) ? Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['modified_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))) : null,
-						),
-						array(
+						],
+						[
 							'tag' => 'modified_by',
-							'attributes' => !empty($row['modified_name']) ? array('label' => Lang::$txt['modified_by']) : null,
+							'attributes' => !empty($row['modified_name']) ? ['label' => Lang::$txt['modified_by']] : null,
 							'content' => !empty($row['modified_name']) ? $row['modified_name'] : null,
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'modified_reason',
-							'attributes' => !empty($row['modified_reason']) ? array('label' => Lang::$txt['reason_for_edit']) : null,
+							'attributes' => !empty($row['modified_reason']) ? ['label' => Lang::$txt['reason_for_edit']] : null,
 							'content' => !empty($row['modified_reason']) ? $row['modified_reason'] : null,
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'likes',
-							'attributes' => array('label' => Lang::$txt['likes']),
+							'attributes' => ['label' => Lang::$txt['likes']],
 							'content' => $row['likes'],
-						),
-						array(
+						],
+						[
 							'tag' => 'approval_status',
-							'attributes' => $show_all ? array('label' => Lang::$txt['approval_status']) : null,
+							'attributes' => $show_all ? ['label' => Lang::$txt['approval_status']] : null,
 							'content' => $show_all ? $row['approved'] : null,
-						),
-						array(
+						],
+						[
 							'tag' => 'attachments',
-							'attributes' => array('label' => Lang::$txt['attachments']),
+							'attributes' => ['label' => Lang::$txt['attachments']],
 							'content' => $attachments,
-						),
-					),
-				);
+						],
+					],
+				];
 			}
 		}
 		Db::$db->free_result($request);
@@ -2470,10 +2375,11 @@ class Feed implements ActionInterface
 	public function getXmlPMs(): array
 	{
 		// Personal messages are supposed to be private
-		if (empty($this->member) || ($this->member != User::$me->id))
-			return array();
+		if (empty($this->member) || ($this->member != User::$me->id)) {
+			return [];
+		}
 
-		$data = array();
+		$data = [];
 
 		// Use a private-use Unicode character to separate member names.
 		// This ensures that the separator will not occur in the names themselves.
@@ -2481,10 +2387,11 @@ class Feed implements ActionInterface
 
 		$select_id_members_to = Db::$db->title === POSTGRE_TITLE ? "string_agg(pmr.id_member::text, ',')" : 'GROUP_CONCAT(pmr.id_member)';
 
-		$select_to_names = Db::$db->title === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), '$separator')" : "GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name) SEPARATOR '$separator')";
+		$select_to_names = Db::$db->title === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), '{$separator}')" : "GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name) SEPARATOR '{$separator}')";
 
-		$request = Db::$db->query('', '
-			SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
+		$request = Db::$db->query(
+			'',
+			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
 			FROM {db_prefix}personal_messages AS pm
 			INNER JOIN
 			(
@@ -2503,20 +2410,20 @@ class Feed implements ActionInterface
 				LIMIT {int:limit}
 			) AS nis ON pm.id_pm = nis.id_pm
 			ORDER BY pm.id_pm {raw:ascdesc}',
-			array(
+			[
 				'limit' => $this->limit,
 				'start_after' => $this->start_after,
 				'uid' => $this->member,
 				'not_deleted' => 0,
 				'ascdesc' => !empty($this->ascending) ? 'ASC' : 'DESC',
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$this->start_after = $row['id_pm'];
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// If using our own format, we want both the raw and the parsed content.
 			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body']);
@@ -2526,218 +2433,208 @@ class Feed implements ActionInterface
 			// Create a GUID for this post using the tag URI scheme
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
 
-			if ($this->format == 'rss' || $this->format == 'rss2')
-			{
-				$item = array(
+			if ($this->format == 'rss' || $this->format == 'rss2') {
+				$item = [
 					'tag' => 'item',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'guid',
 							'content' => $guid,
-							'attributes' => array(
+							'attributes' => [
 								'isPermaLink' => 'false',
-							),
-						),
-						array(
+							],
+						],
+						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['msgtime']),
-						),
-						array(
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['msgtime']),
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'smf:sender',
 							// This technically violates the RSS spec, but meh...
 							'content' => $row['from_name'],
 							'cdata' => true,
-						),
-					),
-				);
+						],
+					],
+				];
 
-				foreach ($recipients as $recipient_id => $recipient_name)
-				{
-					$item['content'][] = array(
+				foreach ($recipients as $recipient_id => $recipient_name) {
+					$item['content'][] = [
 						'tag' => 'smf:recipient',
 						'content' => $recipient_name,
 						'cdata' => true,
-					);
+					];
 				}
 
 				$data[] = $item;
-			}
-			elseif ($this->format == 'rdf')
-			{
-				$data[] = array(
+			} elseif ($this->format == 'rdf') {
+				$data[] = [
 					'tag' => 'item',
-					'attributes' => array('rdf:about' => Config::$scripturl . '?action=pm#msg' . $row['id_pm']),
-					'content' => array(
-						array(
+					'attributes' => ['rdf:about' => Config::$scripturl . '?action=pm#msg' . $row['id_pm']],
+					'content' => [
+						[
 							'tag' => 'dc:format',
 							'content' => 'text/html',
-						),
-						array(
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'link',
 							'content' => Config::$scripturl . '?action=pm#msg' . $row['id_pm'],
-						),
-						array(
+						],
+						[
 							'tag' => 'description',
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-					),
-				);
-			}
-			elseif ($this->format == 'atom')
-			{
-				$item = array(
+						],
+					],
+				];
+			} elseif ($this->format == 'atom') {
+				$item = [
 					'tag' => 'entry',
-					'content' => array(
-						array(
+					'content' => [
+						[
 							'tag' => 'id',
 							'content' => $guid,
-						),
-						array(
+						],
+						[
 							'tag' => 'updated',
 							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
-						),
-						array(
+						],
+						[
 							'tag' => 'title',
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'content',
-							'attributes' => array('type' => 'html'),
+							'attributes' => ['type' => 'html'],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'author',
-							'content' => array(
-								array(
+							'content' => [
+								[
 									'tag' => 'name',
 									'content' => $row['from_name'],
 									'cdata' => true,
-								),
-							),
-						),
-					),
-				);
+								],
+							],
+						],
+					],
+				];
 
-				foreach ($recipients as $recipient_id => $recipient_name)
-				{
-					$item['content'][] = array(
+				foreach ($recipients as $recipient_id => $recipient_name) {
+					$item['content'][] = [
 						'tag' => 'contributor',
-						'content' => array(
-							array(
+						'content' => [
+							[
 								'tag' => 'smf:role',
 								'content' => 'recipient',
-							),
-							array(
+							],
+							[
 								'tag' => 'name',
 								'content' => $recipient_name,
 								'cdata' => true,
-							),
-						),
-					);
+							],
+						],
+					];
 				}
 
 				$data[] = $item;
-			}
-			else
-			{
+			} else {
 				Lang::load('PersonalMessage');
 
-				$item = array(
+				$item = [
 					'tag' => 'personal_message',
-					'attributes' => array('label' => Lang::$txt['pm']),
-					'content' => array(
-						array(
+					'attributes' => ['label' => Lang::$txt['pm']],
+					'content' => [
+						[
 							'tag' => 'id',
 							'content' => $row['id_pm'],
-						),
-						array(
+						],
+						[
 							'tag' => 'sent_date',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['msgtime'])),
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['msgtime'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['msgtime'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
-						),
-						array(
+						],
+						[
 							'tag' => 'subject',
-							'attributes' => array('label' => Lang::$txt['subject']),
+							'attributes' => ['label' => Lang::$txt['subject']],
 							'content' => $row['subject'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'body',
-							'attributes' => array('label' => Lang::$txt['message']),
+							'attributes' => ['label' => Lang::$txt['message']],
 							'content' => $row['body'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'body_html',
-							'attributes' => array('label' => Lang::$txt['html']),
+							'attributes' => ['label' => Lang::$txt['html']],
 							'content' => $row['body_html'],
 							'cdata' => true,
-						),
-						array(
+						],
+						[
 							'tag' => 'sender',
-							'attributes' => array('label' => Lang::$txt['author']),
-							'content' => array(
-								array(
+							'attributes' => ['label' => Lang::$txt['author']],
+							'content' => [
+								[
 									'tag' => 'name',
-									'attributes' => array('label' => Lang::$txt['name']),
+									'attributes' => ['label' => Lang::$txt['name']],
 									'content' => $row['from_name'],
 									'cdata' => true,
-								),
-								array(
+								],
+								[
 									'tag' => 'id',
 									'content' => $row['id_member_from'],
-								),
-								array(
+								],
+								[
 									'tag' => 'link',
-									'attributes' => array('label' => Lang::$txt['url']),
+									'attributes' => ['label' => Lang::$txt['url']],
 									'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member_from'],
-								),
-							),
-						),
-					),
-				);
+								],
+							],
+						],
+					],
+				];
 
-				foreach ($recipients as $recipient_id => $recipient_name)
-				{
-					$item['content'][] = array(
+				foreach ($recipients as $recipient_id => $recipient_name) {
+					$item['content'][] = [
 						'tag' => 'recipient',
-						'attributes' => array('label' => Lang::$txt['recipient']),
-						'content' => array(
-							array(
+						'attributes' => ['label' => Lang::$txt['recipient']],
+						'content' => [
+							[
 								'tag' => 'name',
-								'attributes' => array('label' => Lang::$txt['name']),
+								'attributes' => ['label' => Lang::$txt['name']],
 								'content' => $recipient_name,
 								'cdata' => true,
-							),
-							array(
+							],
+							[
 								'tag' => 'id',
 								'content' => $recipient_id,
-							),
-							array(
+							],
+							[
 								'tag' => 'link',
-								'attributes' => array('label' => Lang::$txt['url']),
+								'attributes' => ['label' => Lang::$txt['url']],
 								'content' => Config::$scripturl . '?action=profile;u=' . $recipient_id,
-							),
-						),
-					);
+							],
+						],
+					];
 				}
 
 				$data[] = $item;
@@ -2759,8 +2656,9 @@ class Feed implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -2798,25 +2696,24 @@ class Feed implements ActionInterface
 		$namespaces['smf']['smf'] = sprintf($namespaces['smf']['smf'], $subaction);
 
 		// These sub-actions need the SMF namespace in other feed formats.
-		if (in_array($subaction, array('profile', 'posts', 'personal_messages')))
-		{
+		if (in_array($subaction, ['profile', 'posts', 'personal_messages'])) {
 			$namespaces['rss']['smf'] = $namespaces['smf']['smf'];
 			$namespaces['rss2']['smf'] = $namespaces['smf']['smf'];
 			$namespaces['atom']['smf'] = $namespaces['smf']['smf'];
 		}
 
 		// Allow mods to add extra feed-level tags to the feed/channel
-		$extraFeedTags = array(
-			'rss' => array(),
-			'rss2' => array(),
-			'atom' => array(),
-			'rdf' => array(),
-			'smf' => array(),
-		);
+		$extraFeedTags = [
+			'rss' => [],
+			'rss2' => [],
+			'atom' => [],
+			'rdf' => [],
+			'smf' => [],
+		];
 
 		// Allow mods to specify any keys that need special handling
-		$forceCdataKeys = array();
-		$nsKeys = array();
+		$forceCdataKeys = [];
+		$nsKeys = [];
 
 		// Maybe someone needs to insert a DOCTYPE declaration?
 		$doctype = '';
@@ -2826,44 +2723,45 @@ class Feed implements ActionInterface
 
 		// If mods want to do something with this feed, let them do that now.
 		// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction.
-		IntegrationHook::call('integrate_xml_data', array(&$data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $format, $subaction, &$doctype));
+		IntegrationHook::call('integrate_xml_data', [&$data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $format, $subaction, &$doctype]);
 
 		// These can't be empty.
-		foreach (array('title', 'desc', 'source', 'self') as $mkey)
+		foreach (['title', 'desc', 'source', 'self'] as $mkey) {
 			$metadata[$mkey] = !empty($metadata[$mkey]) ? $metadata[$mkey] : $orig_metadata[$mkey];
+		}
 
 		// Sanitize feed metadata values.
-		foreach ($metadata as $mkey => $mvalue)
+		foreach ($metadata as $mkey => $mvalue) {
 			$metadata[$mkey] = self::cdataParse(self::fixPossibleUrl($mvalue));
+		}
 
 		$ns_string = '';
-		if (!empty($namespaces[$format]))
-		{
-			foreach ($namespaces[$format] as $nsprefix => $nsurl)
-			{
+
+		if (!empty($namespaces[$format])) {
+			foreach ($namespaces[$format] as $nsprefix => $nsurl) {
 				$ns_string .= ' xmlns' . ($nsprefix !== '' ? ':' : '') . $nsprefix . '="' . $nsurl . '"';
 			}
 		}
 
-		$i = in_array($format, array('atom', 'smf')) ? 1 : 2;
+		$i = in_array($format, ['atom', 'smf']) ? 1 : 2;
 
 		$extraFeedTags_string = '';
-		if (!empty($extraFeedTags[$format]))
-		{
+
+		if (!empty($extraFeedTags[$format])) {
 			$indent = str_repeat("\t", $i);
 
-			foreach ($extraFeedTags[$format] as $extraTag)
+			foreach ($extraFeedTags[$format] as $extraTag) {
 				$extraFeedTags_string .= "\n" . $indent . $extraTag;
+			}
 		}
 
-		Utils::$context['feed'] = array();
+		Utils::$context['feed'] = [];
 
 		// First, output the xml header.
 		Utils::$context['feed']['header'] = '<?xml version="1.0" encoding="' . Utils::$context['character_set'] . '"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
 
 		// Are we outputting an rss feed or one with more information?
-		if ($format == 'rss' || $format == 'rss2')
-		{
+		if ($format == 'rss' || $format == 'rss2') {
 			// Start with an RSS 2.0 header.
 			Utils::$context['feed']['header'] .= '
 <rss version="' . ($format == 'rss2' ? '2.0' : '0.92') . '" xml:lang="' . $metadata['language'] . '"' . $ns_string . '>
@@ -2872,26 +2770,30 @@ class Feed implements ActionInterface
 		<link>' . $metadata['source'] . '</link>
 		<description>' . $metadata['desc'] . '</description>';
 
-			if (!empty($metadata['icon']))
+			if (!empty($metadata['icon'])) {
 				Utils::$context['feed']['header'] .= '
 		<image>
 			<url>' . $metadata['icon'] . '</url>
 			<title>' . $metadata['title'] . '</title>
 			<link>' . $metadata['source'] . '</link>
 		</image>';
+			}
 
-			if (!empty($metadata['rights']))
+			if (!empty($metadata['rights'])) {
 				Utils::$context['feed']['header'] .= '
 		<copyright>' . $metadata['rights'] . '</copyright>';
+			}
 
-			if (!empty($metadata['language']))
+			if (!empty($metadata['language'])) {
 				Utils::$context['feed']['header'] .= '
 		<language>' . $metadata['language'] . '</language>';
+			}
 
 			// RSS2 calls for this.
-			if ($format == 'rss2')
+			if ($format == 'rss2') {
 				Utils::$context['feed']['header'] .= '
 		<atom:link rel="self" type="application/rss+xml" href="' . $metadata['self'] . '" />';
+			}
 
 			Utils::$context['feed']['header'] .= $extraFeedTags_string;
 
@@ -2902,9 +2804,7 @@ class Feed implements ActionInterface
 			Utils::$context['feed']['footer'] = '
 	</channel>
 </rss>';
-		}
-		elseif ($format == 'atom')
-		{
+		} elseif ($format == 'atom') {
 			Utils::$context['feed']['header'] .= '
 <feed xml:lang="' . $metadata['language'] . '"' . $ns_string . '>
 	<title>' . $metadata['title'] . '</title>
@@ -2915,19 +2815,22 @@ class Feed implements ActionInterface
 	<subtitle>' . $metadata['desc'] . '</subtitle>
 	<generator uri="https://www.simplemachines.org" version="' . SMF_VERSION . '">SMF</generator>';
 
-			if (!empty($metadata['icon']))
+			if (!empty($metadata['icon'])) {
 				Utils::$context['feed']['header'] .= '
 	<icon>' . $metadata['icon'] . '</icon>';
+			}
 
-			if (!empty($metadata['author']))
+			if (!empty($metadata['author'])) {
 				Utils::$context['feed']['header'] .= '
 	<author>
 		<name>' . $metadata['author'] . '</name>
 	</author>';
+			}
 
-			if (!empty($metadata['rights']))
+			if (!empty($metadata['rights'])) {
 				Utils::$context['feed']['header'] .= '
 	<rights>' . $metadata['rights'] . '</rights>';
+			}
 
 			Utils::$context['feed']['header'] .= $extraFeedTags_string;
 
@@ -2935,9 +2838,7 @@ class Feed implements ActionInterface
 
 			Utils::$context['feed']['footer'] = '
 </feed>';
-		}
-		elseif ($format == 'rdf')
-		{
+		} elseif ($format == 'rdf') {
 			Utils::$context['feed']['header'] .= '
 <rdf:RDF' . $ns_string . '>
 	<channel rdf:about="' . Config::$scripturl . '">
@@ -2951,14 +2852,12 @@ class Feed implements ActionInterface
 		<items>
 			<rdf:Seq>';
 
-			foreach ($data as $item)
-			{
+			foreach ($data as $item) {
 				$link = array_filter(
 					$item['content'],
-					function($e)
-					{
+					function ($e) {
 						return ($e['tag'] == 'link');
-					}
+					},
 				);
 				$link = array_pop($link);
 
@@ -2977,8 +2876,7 @@ class Feed implements ActionInterface
 </rdf:RDF>';
 		}
 		// Otherwise, we're using our proprietary formats - they give more data, though.
-		else
-		{
+		else {
 			Utils::$context['feed']['header'] .= '
 <smf:xml-feed xml:lang="' . $metadata['language'] . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . Utils::$context['forum_name'] . '" forum-url="' . Config::$scripturl . '"' . (!empty($metadata['title']) && $metadata['title'] != Utils::$context['forum_name'] ? ' title="' . $metadata['title'] . '"' : '') . (!empty($metadata['desc']) ? ' description="' . $metadata['desc'] . '"' : '') . ' source="' . $metadata['source'] . '" generated-date-localized="' . strip_tags(Time::create('now', new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false)) . '" generated-date-UTC="' . Time::gmstrftime('%F %T') . '"' . (!empty($metadata['page']) ? ' page="' . $metadata['page'] . '"' : '') . '>';
 
@@ -3006,57 +2904,52 @@ class Feed implements ActionInterface
 	public static function cdataParse(string $data, string $ns = '', bool $force = false): string
 	{
 		// Do we even need to do this?
-		if (strpbrk($data, '<>&') == false && $force !== true)
+		if (strpbrk($data, '<>&') == false && $force !== true) {
 			return $data;
+		}
 
 		$cdata = '<![CDATA[';
 
 		// If there's no namespace prefix to worry about, things are easy.
-		if ($ns === '')
-		{
+		if ($ns === '') {
 			$cdata .= str_replace(']]>', ']]]]><[CDATA[>', $data);
 		}
 		// Looks like we need to do it the hard way.
-		else
-		{
-			for ($pos = 0, $n = strlen($data); $pos < $n; null)
-			{
-				$positions = array(
+		else {
+			for ($pos = 0, $n = strlen($data); $pos < $n; null) {
+				$positions = [
 					strpos($data, ']]>', $pos),
 					strpos($data, '<', $pos),
-				);
+				];
 
 				$positions = array_filter($positions, 'is_int');
 
 				$old = $pos;
 				$pos = empty($positions) ? $n : min($positions);
 
-				if ($pos - $old > 0)
+				if ($pos - $old > 0) {
 					$cdata .= substr($data, $old, $pos - $old);
+				}
 
-				if ($pos >= $n)
+				if ($pos >= $n) {
 					break;
+				}
 
-				if (substr($data, $pos, 1) == '<')
-				{
+				if (substr($data, $pos, 1) == '<') {
 					$pos2 = strpos($data, '>', $pos);
 
-					if ($pos2 === false)
+					if ($pos2 === false) {
 						$pos2 = $n;
-
-					if (substr($data, $pos + 1, 1) == '/')
-					{
-						$cdata .= ']]></' . $ns . ':' . substr($data, $pos + 2, $pos2 - $pos - 1) . '<![CDATA[';
 					}
-					else
-					{
+
+					if (substr($data, $pos + 1, 1) == '/') {
+						$cdata .= ']]></' . $ns . ':' . substr($data, $pos + 2, $pos2 - $pos - 1) . '<![CDATA[';
+					} else {
 						$cdata .= ']]><' . $ns . ':' . substr($data, $pos + 1, $pos2 - $pos) . '<![CDATA[';
 					}
 
 					$pos = $pos2 + 1;
-				}
-				elseif (substr($data, $pos, 3) == ']]>')
-				{
+				} elseif (substr($data, $pos, 3) == ']]>') {
 					$cdata .= ']]]]><![CDATA[>';
 					$pos = $pos + 3;
 				}
@@ -3065,7 +2958,7 @@ class Feed implements ActionInterface
 
 		$cdata .= ']]>';
 
-		return strtr($cdata, array('<![CDATA[]]>' => ''));
+		return strtr($cdata, ['<![CDATA[]]>' => '']);
 	}
 
 	/******************
@@ -3074,16 +2967,11 @@ class Feed implements ActionInterface
 
 	protected function setSubaction($subaction)
 	{
-		if (isset($subaction) && isset(self::$subactions[$subaction]))
-		{
+		if (isset($subaction, self::$subactions[$subaction])) {
 			$this->subaction = $subaction;
-		}
-		elseif (isset($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
-		{
+		} elseif (isset($_GET['sa'], self::$subactions[$_GET['sa']])) {
 			$this->subaction = $_GET['sa'];
-		}
-		else
-		{
+		} else {
 			$this->subaction = array_key_first(self::$subactions);
 		}
 	}
@@ -3091,23 +2979,19 @@ class Feed implements ActionInterface
 	protected function setMember($member)
 	{
 		// Member ID was passed to the constructor.
-		if (isset($member))
-		{
+		if (isset($member)) {
 			$this->member = $member;
 		}
 		// Member ID was set via Utils::$context.
-		elseif (isset(Utils::$context['xmlnews_uid']))
-		{
+		elseif (isset(Utils::$context['xmlnews_uid'])) {
 			$this->member = Utils::$context['xmlnews_uid'];
 		}
 		// Member ID was set via URL parameter.
-		elseif (isset($_GET['u']))
-		{
+		elseif (isset($_GET['u'])) {
 			$this->member = $_GET['u'];
 		}
 		// Default to current user.
-		else
-		{
+		else {
 			$this->member = User::$me->id;
 		}
 
@@ -3120,20 +3004,19 @@ class Feed implements ActionInterface
 
 	protected function setFormat()
 	{
-		if (isset($_GET['type']) && isset(self::XML_NAMESPACES[$_GET['type']]))
+		if (isset($_GET['type'], self::XML_NAMESPACES[$_GET['type']])) {
 			$this->format = $_GET['type'];
+		}
 	}
 
 	protected function setlimit()
 	{
 		// Limit was set via Utils::$context.
-		if (isset(Utils::$context['xmlnews_limit']))
-		{
+		if (isset(Utils::$context['xmlnews_limit'])) {
 			$this->limit = Utils::$context['xmlnews_limit'];
 		}
 		// Limit was set via URL parameter.
-		elseif (isset($_GET['limit']))
-		{
+		elseif (isset($_GET['limit'])) {
 			$this->limit = $_GET['limit'];
 		}
 
@@ -3147,14 +3030,14 @@ class Feed implements ActionInterface
 	protected function checkEnabled(): void
 	{
 		// Users can always export their own profile data.
-		if (in_array($this->subaction, array('profile', 'posts', 'personal_messages')) && $this->member == User::$me->id && !User::$me->is_guest)
-		{
+		if (in_array($this->subaction, ['profile', 'posts', 'personal_messages']) && $this->member == User::$me->id && !User::$me->is_guest) {
 			return;
 		}
 
 		// If it's not enabled, die.
-		if (empty(Config::$modSettings['xmlnews_enable']))
+		if (empty(Config::$modSettings['xmlnews_enable'])) {
 			Utils::obExit(false);
+		}
 	}
 
 	/*************************
@@ -3174,21 +3057,22 @@ class Feed implements ActionInterface
 	 * @param array $forceCdataKeys A list of keys on which to force cdata wrapping (used by mods, maybe)
 	 * @param array $nsKeys Key-value pairs of namespace prefixes to pass to self::cdataParse() (used by mods, maybe)
 	 */
-	protected static function dumpTags(array $data, int $i, string $format = '', array $forceCdataKeys = array(), array $nsKeys = array()): void
+	protected static function dumpTags(array $data, int $i, string $format = '', array $forceCdataKeys = [], array $nsKeys = []): void
 	{
-		if (empty(Utils::$context['feed']['items']))
+		if (empty(Utils::$context['feed']['items'])) {
 			Utils::$context['feed']['items'] = '';
+		}
 
 		// For every array in the data...
-		foreach ($data as $element)
-		{
-			$key = isset($element['tag']) ? $element['tag'] : null;
-			$val = isset($element['content']) ? $element['content'] : null;
-			$attrs = isset($element['attributes']) ? $element['attributes'] : null;
+		foreach ($data as $element) {
+			$key = $element['tag'] ?? null;
+			$val = $element['content'] ?? null;
+			$attrs = $element['attributes'] ?? null;
 
 			// Skip it, it's been set to null.
-			if ($key === null || ($val === null && $attrs === null))
+			if ($key === null || ($val === null && $attrs === null)) {
 				continue;
+			}
 
 			$forceCdata = in_array($key, $forceCdataKeys);
 			$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
@@ -3199,38 +3083,30 @@ class Feed implements ActionInterface
 			// Beginning tag.
 			Utils::$context['feed']['items'] .= '<' . $key;
 
-			if (!empty($attrs))
-			{
-				foreach ($attrs as $attr_key => $attr_value)
-				{
+			if (!empty($attrs)) {
+				foreach ($attrs as $attr_key => $attr_value) {
 					Utils::$context['feed']['items'] .= ' ' . $attr_key . '="' . self::fixPossibleUrl($attr_value) . '"';
 				}
 			}
 
 			// If it's empty, simply output an empty element.
-			if (empty($val) && $val !== '0' && $val !== 0)
-			{
+			if (empty($val) && $val !== '0' && $val !== 0) {
 				Utils::$context['feed']['items'] .= ' />';
-			}
-			else
-			{
+			} else {
 				Utils::$context['feed']['items'] .= '>';
 
 				// The element's value.
-				if (is_array($val))
-				{
+				if (is_array($val)) {
 					// An array.  Dump it, and then indent the tag.
 					self::dumpTags($val, $i + 1, $format, $forceCdataKeys, $nsKeys);
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 				}
 				// A string with returns in it.... show this as a multiline element.
-				elseif (strpos($val, "\n") !== false)
-				{
+				elseif (strpos($val, "\n") !== false) {
 					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val)) . "\n" . str_repeat("\t", $i);
 				}
 				// A simple string.
-				else
-				{
+				else {
 					Utils::$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val);
 				}
 
@@ -3249,10 +3125,11 @@ class Feed implements ActionInterface
 	 */
 	protected static function fixPossibleUrl($val)
 	{
-		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl)
+		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl) {
 			return $val;
+		}
 
-		IntegrationHook::call('integrate_fix_url', array(&$val));
+		IntegrationHook::call('integrate_fix_url', [&$val]);
 
 		if (
 			empty(Config::$modSettings['queryless_urls'])
@@ -3265,18 +3142,16 @@ class Feed implements ActionInterface
 				!Utils::$context['server']['is_apache']
 				&& !Utils::$context['server']['is_lighttpd']
 			)
-		)
-		{
+		) {
 			return $val;
 		}
 
 		$val = preg_replace_callback(
-			'~\b' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
-			function($m)
-			{
-				return Config::$scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+			'~\\b' . preg_quote(Config::$scripturl, '~') . '\\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
+			function ($m) {
+				return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . ($m[2] ?? '');
 			},
-			$val
+			$val,
 		);
 
 		return $val;
@@ -3284,7 +3159,8 @@ class Feed implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Feed::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Feed::exportStatic')) {
 	Feed::exportStatic();
+}
 
 ?>

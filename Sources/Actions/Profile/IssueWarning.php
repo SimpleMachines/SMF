@@ -13,21 +13,20 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\PersonalMessage\PM;
 use SMF\Profile;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
-use SMF\PersonalMessage\PM;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.
@@ -41,13 +40,13 @@ class IssueWarning implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'list_getUserWarnings' => 'list_getUserWarnings',
 			'list_getUserWarningCount' => 'list_getUserWarningCount',
 			'issueWarning' => 'issueWarning',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -58,7 +57,7 @@ class IssueWarning implements ActionInterface
 	 *
 	 * This stores any legitimate errors.
 	 */
-	public array $issueErrors = array();
+	public array $issueErrors = [];
 
 	/****************************
 	 * Internal static properties
@@ -82,8 +81,7 @@ class IssueWarning implements ActionInterface
 	public function execute(): void
 	{
 		// Doesn't hurt to be overly cautious.
-		if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !Profile::$member->warning) || !User::$me->allowedTo('issue_warning'))
-		{
+		if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !Profile::$member->warning) || !User::$me->allowedTo('issue_warning')) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -97,22 +95,22 @@ class IssueWarning implements ActionInterface
 		Utils::$context['min_allowed'] = 0;
 		Utils::$context['max_allowed'] = 100;
 
-		if (Utils::$context['warning_limit'] > 0)
-		{
+		if (Utils::$context['warning_limit'] > 0) {
 			// Make sure we cannot go outside of our limit for the day.
-			$request = Db::$db->query('', '
-				SELECT SUM(counter)
+			$request = Db::$db->query(
+				'',
+				'SELECT SUM(counter)
 				FROM {db_prefix}log_comments
 				WHERE id_recipient = {int:selected_member}
 					AND id_member = {int:current_member}
 					AND comment_type = {string:warning}
 					AND log_time > {int:day_time_period}',
-				array(
+				[
 					'current_member' => User::$me->id,
 					'selected_member' => Profile::$member->id,
 					'day_time_period' => time() - 86400,
 					'warning' => 'warning',
-				)
+				],
 			);
 			list($current_applied) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
@@ -123,148 +121,149 @@ class IssueWarning implements ActionInterface
 		}
 
 		// Defaults.
-		Utils::$context['warning_data'] = array(
+		Utils::$context['warning_data'] = [
 			'reason' => '',
 			'notify' => '',
 			'notify_subject' => '',
 			'notify_body' => '',
-		);
+		];
 
 		// Are we saving?
-		if (isset($_POST['save']))
+		if (isset($_POST['save'])) {
 			$this->save();
+		}
 
-		if (isset($_POST['preview']))
+		if (isset($_POST['preview'])) {
 			$this->preview();
+		}
 
-		if (!empty($this->issueErrors))
-		{
+		if (!empty($this->issueErrors)) {
 			// Fill in the suite of errors.
-			Utils::$context['post_errors'] = array();
+			Utils::$context['post_errors'] = [];
 
-			foreach ($this->issueErrors as $error)
+			foreach ($this->issueErrors as $error) {
 				Utils::$context['post_errors'][] = Lang::$txt[$error];
+			}
 		}
 
 		Utils::$context['page_title'] = Lang::$txt['profile_issue_warning'];
 
 		// Work our the various levels.
-		Utils::$context['level_effects'] = array(
+		Utils::$context['level_effects'] = [
 			0 => Lang::$txt['profile_warning_effect_none'],
 			Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_watch'],
 			Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_moderation'],
 			Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_mute'],
-		);
+		];
 
 		Utils::$context['current_level'] = 0;
 
-		foreach (Utils::$context['level_effects'] as $limit => $dummy)
-		{
-			if (Utils::$context['member']['warning'] >= $limit)
+		foreach (Utils::$context['level_effects'] as $limit => $dummy) {
+			if (Utils::$context['member']['warning'] >= $limit) {
 				Utils::$context['current_level'] = $limit;
+			}
 		}
 
-		$list_options = array(
+		$list_options = [
 			'id' => 'view_warnings',
 			'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
 			'base_href' => Config::$scripturl . '?action=profile;area=issuewarning;sa=user;u=' . Profile::$member->id,
 			'default_sort_col' => 'log_time',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getUserWarnings',
-				'params' => array(),
-			),
-			'get_count' => array(
+				'params' => [],
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getUserWarningCount',
-				'params' => array(),
-			),
-			'columns' => array(
-				'issued_by' => array(
-					'header' => array(
+				'params' => [],
+			],
+			'columns' => [
+				'issued_by' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_issued'],
 						'style' => 'width: 20%;',
-					),
-					'data' => array(
-						'function' => function($warning)
-						{
+					],
+					'data' => [
+						'function' => function ($warning) {
 							return $warning['issuer']['link'];
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'lc.member_name DESC',
 						'reverse' => 'lc.member_name',
-					),
-				),
-				'log_time' => array(
-					'header' => array(
+					],
+				],
+				'log_time' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_time'],
 						'style' => 'width: 30%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'time',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'lc.log_time DESC',
 						'reverse' => 'lc.log_time',
-					),
-				),
-				'reason' => array(
-					'header' => array(
+					],
+				],
+				'reason' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_reason'],
-					),
-					'data' => array(
-						'function' => function($warning)
-						{
+					],
+					'data' => [
+						'function' => function ($warning) {
 							$ret = '
 							<div class="floatleft">
 								' . $warning['reason'] . '
 							</div>';
 
-							if (!empty($warning['id_notice']))
+							if (!empty($warning['id_notice'])) {
 								$ret .= '
 							<div class="floatright">
 								<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::$txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
 							</div>';
+							}
 
 							return $ret;
 						},
-					),
-				),
-				'level' => array(
-					'header' => array(
+					],
+				],
+				'level' => [
+					'header' => [
 						'value' => Lang::$txt['profile_warning_previous_level'],
 						'style' => 'width: 6%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'counter',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'lc.counter DESC',
 						'reverse' => 'lc.counter',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 
 		// Create the list for viewing.
 		new ItemList($list_options);
 
 		// Are they warning because of a message?
-		if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg'])
-		{
-			$request = Db::$db->query('', '
-				SELECT m.subject
+		if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg']) {
+			$request = Db::$db->query(
+				'',
+				'SELECT m.subject
 				FROM {db_prefix}messages AS m
 				WHERE m.id_msg = {int:message}
 					AND {query_see_message_board}
 				LIMIT 1',
-				array(
+				[
 					'message' => (int) $_REQUEST['msg'],
-				)
+				],
 			);
-			if (Db::$db->num_rows($request) != 0)
-			{
+
+			if (Db::$db->num_rows($request) != 0) {
 				Utils::$context['warning_for_message'] = (int) $_REQUEST['msg'];
 				list(Utils::$context['warned_message_subject']) = Db::$db->fetch_row($request);
 			}
@@ -272,59 +271,56 @@ class IssueWarning implements ActionInterface
 		}
 
 		// Didn't find the message?
-		if (empty(Utils::$context['warning_for_message']))
-		{
+		if (empty(Utils::$context['warning_for_message'])) {
 			Utils::$context['warning_for_message'] = 0;
 			Utils::$context['warned_message_subject'] = '';
 		}
 
 		// Any custom templates?
-		Utils::$context['notification_templates'] = array();
+		Utils::$context['notification_templates'] = [];
 
-		$request = Db::$db->query('', '
-			SELECT recipient_name AS template_title, body
+		$request = Db::$db->query(
+			'',
+			'SELECT recipient_name AS template_title, body
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {literal:warntpl}
 				AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
-			array(
+			[
 				'generic' => 0,
 				'current_member' => User::$me->id,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// If we're not warning for a message skip any that are.
-			if (!Utils::$context['warning_for_message'] && strpos($row['body'], '{MESSAGE}') !== false)
-			{
+			if (!Utils::$context['warning_for_message'] && strpos($row['body'], '{MESSAGE}') !== false) {
 				continue;
 			}
 
-			Utils::$context['notification_templates'][] = array(
+			Utils::$context['notification_templates'][] = [
 				'title' => $row['template_title'],
 				'body' => $row['body'],
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
 		// Setup the "default" templates.
-		foreach (array('spamming', 'offence', 'insulting') as $type)
-		{
-			Utils::$context['notification_templates'][] = array(
+		foreach (['spamming', 'offence', 'insulting'] as $type) {
+			Utils::$context['notification_templates'][] = [
 				'title' => Lang::$txt['profile_warning_notify_title_' . $type],
 				'body' => sprintf(Lang::$txt['profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : '')], Lang::$txt['profile_warning_notify_for_' . $type]),
-			);
+			];
 		}
 
 		// Replace all the common variables in the templates.
-		foreach (Utils::$context['notification_templates'] as $k => $name)
-		{
-			Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], array(
+		foreach (Utils::$context['notification_templates'] as $k => $name) {
+			Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], [
 				'{MEMBER}' => Utils::htmlspecialcharsDecode(Utils::$context['member']['name']),
 				'{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
 				'{SCRIPTURL}' => Config::$scripturl,
 				'{FORUMNAME}' => Config::$mbname,
-				'{REGARDS}' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name'])
-			));
+				'{REGARDS}' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+			]);
 		}
 	}
 
@@ -339,8 +335,9 @@ class IssueWarning implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -363,10 +360,11 @@ class IssueWarning implements ActionInterface
 	 */
 	public static function list_getUserWarnings(int $start, int $items_per_page, string $sort): array
 	{
-		$previous_warnings = array();
+		$previous_warnings = [];
 
-		$request = Db::$db->query('', '
-			SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
+		$request = Db::$db->query(
+			'',
+			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 				lc.log_time, lc.body, lc.counter, lc.id_notice
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
@@ -374,25 +372,25 @@ class IssueWarning implements ActionInterface
 				AND lc.comment_type = {literal:warning}
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
-			array(
+			[
 				'selected_member' => Profile::$member->id,
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$previous_warnings[] = array(
-				'issuer' => array(
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$previous_warnings[] = [
+				'issuer' => [
 					'id' => $row['id_member'],
 					'link' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>') : $row['member_name'],
-				),
+				],
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'reason' => $row['body'],
 				'counter' => $row['counter'] > 0 ? '+' . $row['counter'] : $row['counter'],
 				'id_notice' => $row['id_notice'],
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -406,14 +404,15 @@ class IssueWarning implements ActionInterface
 	 */
 	public static function list_getUserWarningCount(): int
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE id_recipient = {int:selected_member}
 				AND comment_type = {literal:warning}',
-			array(
+			[
 				'selected_member' => Profile::$member->id,
-			)
+			],
 		);
 		list($total_warnings) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -447,8 +446,9 @@ class IssueWarning implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 
 		// Get all the actual settings.
 		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
@@ -468,8 +468,9 @@ class IssueWarning implements ActionInterface
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';
 
-		if ($_POST['warn_reason'] == '' && !User::$me->is_owner)
+		if ($_POST['warn_reason'] == '' && !User::$me->is_owner) {
 			$this->issueErrors[] = 'warning_no_reason';
+		}
 
 		$_POST['warn_reason'] = Utils::htmlspecialchars($_POST['warn_reason']);
 
@@ -479,46 +480,45 @@ class IssueWarning implements ActionInterface
 
 		// Do we actually have to issue them with a PM?
 		$id_notice = 0;
-		if (!empty($_POST['warn_notify']) && empty($this->issueErrors))
-		{
+
+		if (!empty($_POST['warn_notify']) && empty($this->issueErrors)) {
 			$_POST['warn_sub'] = trim($_POST['warn_sub']);
 			$_POST['warn_body'] = trim($_POST['warn_body']);
 
-			if (empty($_POST['warn_sub']) || empty($_POST['warn_body']))
-			{
+			if (empty($_POST['warn_sub']) || empty($_POST['warn_body'])) {
 				$this->issueErrors[] = 'warning_notify_blank';
 			}
 			// Send the PM?
-			else
-			{
+			else {
 				PM::send(
-					array(
-						'to' => array(Profile::$member->id),
-						'bcc' => array(),
-					),
+					[
+						'to' => [Profile::$member->id],
+						'bcc' => [],
+					],
 					$_POST['warn_sub'],
 					$_POST['warn_body'],
 					false,
-					array(
+					[
 						'id' => 0,
 						'name' => Utils::$context['forum_name_html_safe'],
 						'username' => Utils::$context['forum_name_html_safe'],
-					)
+					],
 				);
 
 				// Log the notice!
-				$id_notice = Db::$db->insert('',
+				$id_notice = Db::$db->insert(
+					'',
 					'{db_prefix}log_member_notices',
-					array(
+					[
 						'subject' => 'string-255',
 						'body' => 'string-65534',
-					),
-					array(
+					],
+					[
 						Utils::htmlspecialchars($_POST['warn_sub']),
 						Utils::htmlspecialchars($_POST['warn_body']),
-					),
-					array('id_notice'),
-					1
+					],
+					['id_notice'],
+					1,
 				);
 			}
 		}
@@ -527,14 +527,13 @@ class IssueWarning implements ActionInterface
 		$level_change = $_POST['warning_level'] - Profile::$member->warning;
 
 		// No errors? Proceed! Only log if you're not the owner.
-		if (empty($this->issueErrors))
-		{
+		if (empty($this->issueErrors)) {
 			// Log what we've done!
-			if (!User::$me->is_owner)
-			{
-				Db::$db->insert('',
+			if (!User::$me->is_owner) {
+				Db::$db->insert(
+					'',
 					'{db_prefix}log_comments',
-					array(
+					[
 						'id_member' => 'int',
 						'member_name' => 'string',
 						'comment_type' => 'string',
@@ -544,8 +543,8 @@ class IssueWarning implements ActionInterface
 						'id_notice' => 'int',
 						'counter' => 'int',
 						'body' => 'string-65534',
-					),
-					array(
+					],
+					[
 						User::$me->id,
 						User::$me->name,
 						'warning',
@@ -555,26 +554,24 @@ class IssueWarning implements ActionInterface
 						(int) $id_notice,
 						$level_change,
 						$_POST['warn_reason'],
-					),
-					array('id_comment')
+					],
+					['id_comment'],
 				);
 			}
 
 			// Make the change.
-			User::updateMemberData(Profile::$member->id, array('warning' => $_POST['warning_level']));
+			User::updateMemberData(Profile::$member->id, ['warning' => $_POST['warning_level']]);
 
 			// Leave a lovely message.
 			Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::$txt['profile_warning_success'];
-		}
-		else
-		{
+		} else {
 			// Try to remember some bits.
-			Utils::$context['warning_data'] = array(
+			Utils::$context['warning_data'] = [
 				'reason' => $_POST['warn_reason'],
 				'notify' => !empty($_POST['warn_notify']),
-				'notify_subject' => isset($_POST['warn_sub']) ? $_POST['warn_sub'] : '',
-				'notify_body' => isset($_POST['warn_body']) ? $_POST['warn_body'] : '',
-			);
+				'notify_subject' => $_POST['warn_sub'] ?? '',
+				'notify_body' => $_POST['warn_body'] ?? '',
+			];
 		}
 
 		// Show the new improved warning level.
@@ -590,28 +587,29 @@ class IssueWarning implements ActionInterface
 
 		Utils::$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim(Utils::htmlspecialchars($_POST['warn_sub'])) : '';
 
-		if (empty($_POST['warn_sub']) || empty($_POST['warn_body']))
+		if (empty($_POST['warn_sub']) || empty($_POST['warn_body'])) {
 			$this->issueErrors[] = 'warning_notify_blank';
+		}
 
-		if (!empty($_POST['warn_body']))
-		{
+		if (!empty($_POST['warn_body'])) {
 			Msg::preparsecode($warning_body);
 			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 
 		// Try to remember some bits.
-		Utils::$context['warning_data'] = array(
+		Utils::$context['warning_data'] = [
 			'reason' => $_POST['warn_reason'],
 			'notify' => !empty($_POST['warn_notify']),
-			'notify_subject' => isset($_POST['warn_sub']) ? $_POST['warn_sub'] : '',
-			'notify_body' => isset($_POST['warn_body']) ? $_POST['warn_body'] : '',
+			'notify_subject' => $_POST['warn_sub'] ?? '',
+			'notify_body' => $_POST['warn_body'] ?? '',
 			'body_preview' => $warning_body,
-		);
+		];
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\IssueWarning::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\IssueWarning::exportStatic')) {
 	IssueWarning::exportStatic();
+}
 
 ?>

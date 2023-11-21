@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -36,11 +35,11 @@ class HelpAdmin implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ShowAdminHelp',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -70,15 +69,17 @@ class HelpAdmin implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($_GET['help']) || !is_string($_GET['help']))
+		if (!isset($_GET['help']) || !is_string($_GET['help'])) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		// Load the admin help language file and template.
 		Lang::load('Help');
 
 		// Permission specific help?
-		if (isset($_GET['help']) && substr($_GET['help'], 0, 14) == 'permissionhelp')
+		if (isset($_GET['help']) && substr($_GET['help'], 0, 14) == 'permissionhelp') {
 			Lang::load('ManagePermissions');
+		}
 
 		Theme::loadTemplate('Help');
 
@@ -86,21 +87,15 @@ class HelpAdmin implements ActionInterface
 		IntegrationHook::call('integrate_helpadmin');
 
 		// What help string should be used?
-		if (isset(Lang::$helptxt[$_GET['help']]))
-		{
+		if (isset(Lang::$helptxt[$_GET['help']])) {
 			Utils::$context['help_text'] = Lang::$helptxt[$_GET['help']];
-		}
-		elseif (isset(Lang::$txt[$_GET['help']]))
-		{
+		} elseif (isset(Lang::$txt[$_GET['help']])) {
 			Utils::$context['help_text'] = Lang::$txt[$_GET['help']];
-		}
-		else
-		{
-			ErrorHandler::fatalLang('not_found', false, array(), 404);
+		} else {
+			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
 
-		switch ($_GET['help'])
-		{
+		switch ($_GET['help']) {
 			case 'cal_short_months':
 				Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Lang::$txt['months_short'][1], Lang::$txt['months_titles'][1]);
 				break;
@@ -119,8 +114,7 @@ class HelpAdmin implements ActionInterface
 		}
 
 		// Does this text contain a link that we should fill in?
-		if (preg_match('~%([0-9]+\$)?s\?~', Utils::$context['help_text'], $match))
-		{
+		if (preg_match('~%([0-9]+\\$)?s\\?~', Utils::$context['help_text'], $match)) {
 			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Config::$scripturl, Utils::$context['session_id'], Utils::$context['session_var']);
 		}
 
@@ -128,7 +122,7 @@ class HelpAdmin implements ActionInterface
 		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['help'];
 
 		// Don't show any template layers, just the popup sub template.
-		Utils::$context['template_layers'] = array();
+		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'popup';
 	}
 
@@ -143,8 +137,9 @@ class HelpAdmin implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -170,7 +165,8 @@ class HelpAdmin implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\HelpAdmin::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\HelpAdmin::exportStatic')) {
 	HelpAdmin::exportStatic();
+}
 
 ?>

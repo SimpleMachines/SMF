@@ -14,21 +14,16 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
-use SMF\Msg;
-use SMF\Mail;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Search\SearchApi;
 
 /**
  * This action provides UI to allow topics to be moved from one board to another.
@@ -42,11 +37,11 @@ class TopicMove implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'MoveTopic',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -77,46 +72,46 @@ class TopicMove implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (empty(Topic::$topic_id))
+		if (empty(Topic::$topic_id)) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
-		$request = Db::$db->query('', '
-			SELECT t.id_member_started, ms.subject, t.approved
+		$request = Db::$db->query(
+			'',
+			'SELECT t.id_member_started, ms.subject, t.approved
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:current_topic}
 			LIMIT 1',
-			array(
+			[
 				'current_topic' => Topic::$topic_id,
-			)
+			],
 		);
-		list ($id_member_started, Utils::$context['subject'], Utils::$context['is_approved']) = Db::$db->fetch_row($request);
+		list($id_member_started, Utils::$context['subject'], Utils::$context['is_approved']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Can they see it - if not approved?
-		if (Config::$modSettings['postmod_active'] && !Utils::$context['is_approved'])
+		if (Config::$modSettings['postmod_active'] && !Utils::$context['is_approved']) {
 			User::$me->isAllowedTo('approve_posts');
+		}
 
 		// Permission check!
 		// @todo
-		if (!User::$me->allowedTo('move_any'))
-		{
-			if ($id_member_started == User::$me->id)
-			{
+		if (!User::$me->allowedTo('move_any')) {
+			if ($id_member_started == User::$me->id) {
 				User::$me->isAllowedTo('move_own');
-			}
-			else
+			} else {
 				User::$me->isAllowedTo('move_any');
+			}
 		}
 
 		Utils::$context['move_any'] = User::$me->is_admin || Config::$modSettings['topic_move_any'];
-		$boards = array();
+		$boards = [];
 
-		if (!Utils::$context['move_any'])
-		{
-			$boards = array_diff(User::$me->boardsAllowedTo('post_new', true), array(Board::$info->id));
-			if (empty($boards))
-			{
+		if (!Utils::$context['move_any']) {
+			$boards = array_diff(User::$me->boardsAllowedTo('post_new', true), [Board::$info->id]);
+
+			if (empty($boards)) {
 				// No boards? Too bad...
 				ErrorHandler::fatalLang('moveto_no_boards');
 			}
@@ -124,34 +119,35 @@ class TopicMove implements ActionInterface
 
 		Theme::loadTemplate('MoveTopic');
 
-		$options = array(
+		$options = [
 			'not_redirection' => true,
 			'use_permissions' => Utils::$context['move_any'],
-		);
+		];
 
-		if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != Board::$info->id)
+		if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != Board::$info->id) {
 			$options['selected_board'] = $_SESSION['move_to_topic'];
+		}
 
-		if (!Utils::$context['move_any'])
+		if (!Utils::$context['move_any']) {
 			$options['included_boards'] = $boards;
+		}
 
 		Utils::$context['categories'] = MessageIndex::getBoardList($options);
 
 		Utils::$context['page_title'] = Lang::$txt['move_topic'];
 
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
 			'name' => Utils::$context['subject'],
-		);
+		];
 
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'name' => Lang::$txt['move_topic'],
-		);
+		];
 
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
-		if (User::$me->language != Lang::$default)
-		{
+		if (User::$me->language != Lang::$default) {
 			Lang::load('index', Lang::$default);
 			$temp = Lang::$txt['movetopic_default'];
 			Lang::load('index');
@@ -179,8 +175,9 @@ class TopicMove implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -206,7 +203,8 @@ class TopicMove implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\TopicMove::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\TopicMove::exportStatic')) {
 	TopicMove::exportStatic();
+}
 
 ?>

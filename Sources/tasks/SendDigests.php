@@ -13,14 +13,14 @@
 
 namespace SMF\Tasks;
 
+use SMF\Actions\Notify;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
 use SMF\Utils;
-use SMF\Actions\Notify;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Send out a daily or weekly email of all subscribed topics.
@@ -39,32 +39,32 @@ class SendDigests extends ScheduledTask
 		$is_weekly = !empty($this->_details['is_weekly']) ? 1 : 0;
 
 		// Right - get all the notification data FIRST.
-		$members = array();
-		$langs = array();
-		$notify = array();
+		$members = [];
+		$langs = [];
+		$notify = [];
 
-		$request = Db::$db->query('', '
-			SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
+		$request = Db::$db->query(
+			'',
+			'SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 				mem.lngfile, mem.id_member
 			FROM {db_prefix}log_notify AS ln
 				JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (ln.id_topic != {int:empty_topic} AND t.id_topic = ln.id_topic)
 			WHERE mem.is_activated = {int:is_activated}',
-			array(
+			[
 				'empty_topic' => 0,
 				'is_activated' => 1,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!isset($members[$row['id_member']]))
-			{
-				$members[$row['id_member']] = array(
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!isset($members[$row['id_member']])) {
+				$members[$row['id_member']] = [
 					'email' => $row['email_address'],
 					'name' => $row['member_name'],
 					'id' => $row['id_member'],
 					'lang' => $row['lngfile'],
-				);
+				];
 
 				$langs[$row['lngfile']] = $row['lngfile'];
 			}
@@ -72,43 +72,44 @@ class SendDigests extends ScheduledTask
 			// Store this useful data!
 			$boards[$row['id_board']] = $row['id_board'];
 
-			if ($row['id_topic'])
-			{
+			if ($row['id_topic']) {
 				$notify['topics'][$row['id_topic']][] = $row['id_member'];
-			}
-			else
-			{
+			} else {
 				$notify['boards'][$row['id_board']][] = $row['id_member'];
 			}
 		}
 		Db::$db->free_result($request);
 
-		if (empty($boards))
+		if (empty($boards)) {
 			return true;
+		}
 
 		// Just get the board names.
-		$request = Db::$db->query('', '
-			SELECT id_board, name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board, name
 			FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:board_list})',
-			array(
+			[
 				'board_list' => $boards,
-			)
+			],
 		);
-		$boards = array();
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+		$boards = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$boards[$row['id_board']] = $row['name'];
 		}
 		Db::$db->free_result($request);
 
-		if (empty($boards))
+		if (empty($boards)) {
 			return true;
+		}
 
 		// Get the actual topics...
-		$types = array();
-		$request = Db::$db->query('', '
-			SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
+		$types = [];
+		$request = Db::$db->query(
+			'',
+			'SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
 				b.name AS board_name
 			FROM {db_prefix}log_digest AS ld
 				JOIN {db_prefix}topics AS t ON (t.id_topic = ld.id_topic
@@ -116,83 +117,71 @@ class SendDigests extends ScheduledTask
 				JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE ' . ($is_weekly ? 'ld.daily != {int:daily_value}' : 'ld.daily IN (0, 2)'),
-			array(
+			[
 				'board_list' => array_keys($boards),
 				'daily_value' => 2,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!isset($types[$row['note_type']][$row['id_board']]))
-			{
-				$types[$row['note_type']][$row['id_board']] = array(
-					'lines' => array(),
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!isset($types[$row['note_type']][$row['id_board']])) {
+				$types[$row['note_type']][$row['id_board']] = [
+					'lines' => [],
 					'name' => $row['board_name'],
 					'id' => $row['id_board'],
-				);
+				];
 			}
 
-			if ($row['note_type'] == 'reply')
-			{
-				if (isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]))
-				{
+			if ($row['note_type'] == 'reply') {
+				if (isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']])) {
 					$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['count']++;
-				}
-				else
-				{
-					$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = array(
+				} else {
+					$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = [
 						'id' => $row['id_topic'],
 						'subject' => Utils::htmlspecialcharsDecode($row['subject']),
 						'count' => 1,
-					);
+					];
 				}
-			}
-			elseif ($row['note_type'] == 'topic')
-			{
-				if (!isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]))
-				{
-					$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = array(
+			} elseif ($row['note_type'] == 'topic') {
+				if (!isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']])) {
+					$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = [
 						'id' => $row['id_topic'],
 						'subject' => Utils::htmlspecialcharsDecode($row['subject']),
-					);
+					];
 				}
-			}
-			elseif (!isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]))
-			{
-				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = array(
+			} elseif (!isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']])) {
+				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = [
 					'id' => $row['id_topic'],
 					'subject' => Utils::htmlspecialcharsDecode($row['subject']),
 					'starter' => $row['id_member_started'],
-				);
+				];
 			}
 
-			$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array();
+			$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = [];
 
-			if (!empty($notify['topics'][$row['id_topic']]))
-			{
+			if (!empty($notify['topics'][$row['id_topic']])) {
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['topics'][$row['id_topic']]);
 			}
 
-			if (!empty($notify['boards'][$row['id_board']]))
-			{
+			if (!empty($notify['boards'][$row['id_board']])) {
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['boards'][$row['id_board']]);
 			}
 		}
 		Db::$db->free_result($request);
 
-		if (empty($types))
+		if (empty($types)) {
 			return true;
+		}
 
 		// Let's load all the languages into a cache thingy.
-		$langtxt = array();
+		$langtxt = [];
 
-		foreach ($langs as $lang)
-		{
+		foreach ($langs as $lang) {
 			Lang::load('Post', $lang);
 			Lang::load('index', $lang);
 			Lang::load('EmailTemplates', $lang);
 
-			$langtxt[$lang] = array(
+			$langtxt[$lang] = [
 				'subject' => Lang::$txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
 				'char_set' => Lang::$txt['lang_character_set'],
 				'intro' => sprintf(Lang::$txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], Config::$mbname),
@@ -210,26 +199,24 @@ class SendDigests extends ScheduledTask
 				'merge' => Lang::$txt['digest_mod_act_merge'],
 				'split' => Lang::$txt['digest_mod_act_split'],
 				'bye' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
-			);
+			];
 
-			IntegrationHook::call('integrate_daily_digest_lang', array(&$langtxt, $lang));
+			IntegrationHook::call('integrate_daily_digest_lang', [&$langtxt, $lang]);
 		}
 
 		// The preferred way...
-		$prefs = Notify::getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
+		$prefs = Notify::getNotifyPrefs(array_keys($members), ['msg_notify_type', 'msg_notify_pref'], true);
 
 		// Right - send out the silly things - this will take quite some space!
-		$members_sent = array();
+		$members_sent = [];
 
-		foreach ($members as $mid => $member)
-		{
-			$frequency = isset($prefs[$mid]['msg_notify_pref']) ? $prefs[$mid]['msg_notify_pref'] : 0;
+		foreach ($members as $mid => $member) {
+			$frequency = $prefs[$mid]['msg_notify_pref'] ?? 0;
 
 			$notify_types = !empty($prefs[$mid]['msg_notify_type']) ? $prefs[$mid]['msg_notify_type'] : 1;
 
 			// Did they not elect to choose this?
-			if ($frequency < 3 || $frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4)
-			{
+			if ($frequency < 3 || $frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4) {
 				continue;
 			}
 
@@ -237,25 +224,20 @@ class SendDigests extends ScheduledTask
 			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : Config::$modSettings['global_character_set'];
 
 			// Do the start stuff!
-			$email = array(
+			$email = [
 				'subject' => Config::$mbname . ' - ' . $langtxt[$lang]['subject'],
 				'body' => $member['name'] . ',' . "\n\n" . $langtxt[$lang]['intro'] . "\n" . Config::$scripturl . '?action=profile;area=notification;u=' . $member['id'] . "\n",
 				'email' => $member['email'],
-			);
+			];
 
 			// All new topics?
-			if (isset($types['topic']))
-			{
+			if (isset($types['topic'])) {
 				$titled = false;
 
-				foreach ($types['topic'] as $id => $board)
-				{
-					foreach ($board['lines'] as $topic)
-					{
-						if (in_array($mid, $topic['members']))
-						{
-							if (!$titled)
-							{
+				foreach ($types['topic'] as $id => $board) {
+					foreach ($board['lines'] as $topic) {
+						if (in_array($mid, $topic['members'])) {
+							if (!$titled) {
 								$email['body'] .= "\n" . $langtxt[$lang]['new_topics'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
 							}
@@ -265,23 +247,19 @@ class SendDigests extends ScheduledTask
 					}
 				}
 
-				if ($titled)
+				if ($titled) {
 					$email['body'] .= "\n";
+				}
 			}
 
 			// What about replies?
-			if (isset($types['reply']))
-			{
+			if (isset($types['reply'])) {
 				$titled = false;
 
-				foreach ($types['reply'] as $id => $board)
-				{
-					foreach ($board['lines'] as $topic)
-					{
-						if (in_array($mid, $topic['members']))
-						{
-							if (!$titled)
-							{
+				foreach ($types['reply'] as $id => $board) {
+					foreach ($board['lines'] as $topic) {
+						if (in_array($mid, $topic['members'])) {
+							if (!$titled) {
 								$email['body'] .= "\n" . $langtxt[$lang]['new_replies'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
 							}
@@ -291,28 +269,24 @@ class SendDigests extends ScheduledTask
 					}
 				}
 
-				if ($titled)
+				if ($titled) {
 					$email['body'] .= "\n";
+				}
 			}
 
 			// Finally, moderation actions!
-			if ($notify_types < 3)
-			{
+			if ($notify_types < 3) {
 				$titled = false;
 
-				foreach ($types as $note_type => $type)
-				{
-					if ($note_type == 'topic' || $note_type == 'reply')
+				foreach ($types as $note_type => $type) {
+					if ($note_type == 'topic' || $note_type == 'reply') {
 						continue;
+					}
 
-					foreach ($type as $id => $board)
-					{
-						foreach ($board['lines'] as $topic)
-						{
-							if (in_array($mid, $topic['members']))
-							{
-								if (!$titled)
-								{
+					foreach ($type as $id => $board) {
+						foreach ($board['lines'] as $topic) {
+							if (in_array($mid, $topic['members'])) {
+								if (!$titled) {
 									$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
 									$titled = true;
 								}
@@ -324,10 +298,11 @@ class SendDigests extends ScheduledTask
 				}
 			}
 
-			IntegrationHook::call('integrate_daily_digest_email', array(&$email, $types, $notify_types, $langtxt));
+			IntegrationHook::call('integrate_daily_digest_email', [&$email, $types, $notify_types, $langtxt]);
 
-			if ($titled)
+			if ($titled) {
 				$email['body'] .= "\n";
+			}
 
 			// Then just say our goodbyes!
 			$email['body'] .= "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']);
@@ -339,59 +314,60 @@ class SendDigests extends ScheduledTask
 		}
 
 		// Clean up...
-		if ($is_weekly)
-		{
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_digest
+		if ($is_weekly) {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_digest
 				WHERE daily != {int:not_daily}',
-				array(
+				[
 					'not_daily' => 0,
-				)
+				],
 			);
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}log_digest
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}log_digest
 				SET daily = {int:daily_value}
 				WHERE daily = {int:not_daily}',
-				array(
+				[
 					'daily_value' => 2,
 					'not_daily' => 0,
-				)
+				],
 			);
-		}
-		else
-		{
+		} else {
 			// Clear any only weekly ones, and stop us from sending daily again.
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_digest
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_digest
 				WHERE daily = {int:daily_value}',
-				array(
+				[
 					'daily_value' => 2,
-				)
+				],
 			);
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}log_digest
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}log_digest
 				SET daily = {int:both_value}
 				WHERE daily = {int:no_value}',
-				array(
+				[
 					'both_value' => 1,
 					'no_value' => 0,
-				)
+				],
 			);
 		}
 
 		// Just in case the member changes their settings mark this as sent.
-		if (!empty($members_sent))
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}log_notify
+		if (!empty($members_sent)) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE id_member IN ({array_int:member_list})',
-				array(
+				[
 					'member_list' => $members_sent,
 					'is_sent' => 1,
-				)
+				],
 			);
 		}
 

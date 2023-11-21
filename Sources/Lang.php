@@ -27,24 +27,24 @@ class Lang
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'load' => 'loadLanguage',
 			'get' => 'getLanguages',
 			'censorText' => 'censorText',
 			'tokenTxtReplace' => 'tokenTxtReplace',
 			'sentenceList' => 'sentence_list',
 			'numberFormat' => 'comma_format',
-		),
-		'prop_names' => array(
+		],
+		'prop_names' => [
 			'txt' => 'txt',
 			'tztxt' => 'tztxt',
 			'editortxt' => 'editortxt',
 			'helptxt' => 'helptxt',
 			'txtBirthdayEmails' => 'txtBirthdayEmails',
 			'forum_copyright' => 'forum_copyright',
-		),
-	);
+		],
+	];
 
 	/**************************
 	 * Public static properties
@@ -70,42 +70,42 @@ class Lang
 	 *
 	 * Array of localized strings for the UI.
 	 */
-	public static array $txt = array();
+	public static array $txt = [];
 
 	/**
 	 * @var array
 	 *
 	 * Array of localized strings for birthday emails.
 	 */
-	public static array $txtBirthdayEmails = array();
+	public static array $txtBirthdayEmails = [];
 
 	/**
 	 * @var array
 	 *
 	 * Array of localized strings for time zone "meta-zones".
 	 */
-	public static array $tztxt = array();
+	public static array $tztxt = [];
 
 	/**
 	 * @var array
 	 *
 	 * Array of localized strings for the editor UI.
 	 */
-	public static array $editortxt = array();
+	public static array $editortxt = [];
 
 	/**
 	 * @var array
 	 *
 	 * Array of localized strings for the admin help popup.
 	 */
-	public static array $helptxt = array();
+	public static array $helptxt = [];
 
 	/**
 	 * @var array
 	 *
 	 * Language file directories.
 	 */
-	public static array $dirs = array();
+	public static array $dirs = [];
 
 	/**
 	 * @var int
@@ -137,14 +137,14 @@ class Lang
 	 *
 	 * Tracks which langauge files we have loaded.
 	 */
-	private static $already_loaded = array();
+	private static $already_loaded = [];
 
 	/**
 	 * @var array
 	 *
 	 * Tracks the value of $forum_copyright for different languages.
 	 */
-	private static $localized_copyright = array();
+	private static $localized_copyright = [];
 
 	/***********************
 	 * Public static methods
@@ -163,55 +163,56 @@ class Lang
 	 */
 	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false)
 	{
-		if (!isset(self::$default))
+		if (!isset(self::$default)) {
 			self::$default = &Config::$language;
+		}
 
 		// Default to the user's language.
-		if ($lang == '')
-			$lang = isset(User::$me->language) ? User::$me->language : self::$default;
+		if ($lang == '') {
+			$lang = User::$me->language ?? self::$default;
+		}
 
 		// Don't repeat this unnecessarily.
-		if (!$force_reload && isset(self::$already_loaded[$template_name]) && self::$already_loaded[$template_name] == $lang)
+		if (!$force_reload && isset(self::$already_loaded[$template_name]) && self::$already_loaded[$template_name] == $lang) {
 			return $lang;
+		}
 
-		if (empty(self::$dirs))
+		if (empty(self::$dirs)) {
 			self::addDirs();
+		}
 
 		// For each file open it up and write it out!
-		foreach (explode('+', $template_name) as $template)
-		{
-			$attempts = array();
+		foreach (explode('+', $template_name) as $template) {
+			$attempts = [];
 
-			foreach (self::$dirs as $dir)
-			{
-				$attempts[] = array($dir, $template, $lang);
-				$attempts[] = array($dir, $template, self::$default);
+			foreach (self::$dirs as $dir) {
+				$attempts[] = [$dir, $template, $lang];
+				$attempts[] = [$dir, $template, self::$default];
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('english', array($lang, self::$default)))
-			{
-				foreach (self::$dirs as $dir)
-					$attempts[] = array($dir, $template, 'english');
+			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('english', [$lang, self::$default])) {
+				foreach (self::$dirs as $dir) {
+					$attempts[] = [$dir, $template, 'english'];
+				}
 			}
 
 			// Try to find the language file.
 			$found = false;
-			foreach ($attempts as $k => $file)
-			{
-				if (file_exists($file[0] . '/' . $file[1] . '.' . $file[2] . '.php'))
-				{
+
+			foreach ($attempts as $k => $file) {
+				if (file_exists($file[0] . '/' . $file[1] . '.' . $file[2] . '.php')) {
 					// Include it!
-					require($file[0] . '/' . $file[1] . '.' . $file[2] . '.php');
+					require $file[0] . '/' . $file[1] . '.' . $file[2] . '.php';
 
 					// Note that we found it.
 					$found = true;
 
 					// Load the strings into our properties.
-					foreach (array('txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt') as $var)
-					{
-						if (!isset(${$var}))
+					foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
+						if (!isset(${$var})) {
 							continue;
+						}
 
 						self::${$var} = array_merge(self::${$var}, ${$var});
 
@@ -219,8 +220,7 @@ class Lang
 					}
 
 					// Did this file define the $forum_copyright?
-					if (isset($forum_copyright))
-					{
+					if (isset($forum_copyright)) {
 						self::$localized_copyright[$file[2]] = $forum_copyright;
 
 						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['english'] ?? ''));
@@ -229,16 +229,16 @@ class Lang
 					}
 
 					// setlocale is required for basename() & pathinfo() to work properly on the selected language
-					if (!empty(self::$txt['lang_locale']))
-					{
-						if (strpos(self::$txt['lang_locale'], '.') !== false)
+					if (!empty(self::$txt['lang_locale'])) {
+						if (strpos(self::$txt['lang_locale'], '.') !== false) {
 							$locale_variants = self::$txt['lang_locale'];
-						else
+						} else {
 							$locale_variants = array_unique(array_merge(
-								!empty(Config::$modSettings['global_character_set']) ? array(self::$txt['lang_locale'] . '.' . Config::$modSettings['global_character_set']) : array(),
-								!empty(Utils::$context['utf8']) ? array(self::$txt['lang_locale'] . '.UTF-8', self::$txt['lang_locale'] . '.UTF8', self::$txt['lang_locale'] . '.utf-8', self::$txt['lang_locale'] . '.utf8') : array(),
-								array(self::$txt['lang_locale'])
+								!empty(Config::$modSettings['global_character_set']) ? [self::$txt['lang_locale'] . '.' . Config::$modSettings['global_character_set']] : [],
+								!empty(Utils::$context['utf8']) ? [self::$txt['lang_locale'] . '.UTF-8', self::$txt['lang_locale'] . '.UTF8', self::$txt['lang_locale'] . '.utf-8', self::$txt['lang_locale'] . '.utf8'] : [],
+								[self::$txt['lang_locale']],
 							));
+						}
 
 						setlocale(LC_CTYPE, $locale_variants);
 					}
@@ -248,49 +248,44 @@ class Lang
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
-			if (!$found && $fatal)
-			{
+			if (!$found && $fatal) {
 				ErrorHandler::log(sprintf(self::$txt['theme_language_error'] ?? 'Unable to load the \'%1$s\' language file.', $template_name . '.' . $lang, 'template'));
-
 				break;
 			}
 
 			// Copyright can't be empty.
-			if (empty(self::$forum_copyright))
-			{
+			if (empty(self::$forum_copyright)) {
 				$class_vars = get_class_vars(__CLASS__);
 				self::$forum_copyright = $class_vars['forum_copyright'];
 			}
 
 			// For the sake of backward compatibility
-			if (!empty(self::$txt['emails']))
-			{
-				foreach (self::$txt['emails'] as $key => $value)
-				{
+			if (!empty(self::$txt['emails'])) {
+				foreach (self::$txt['emails'] as $key => $value) {
 					self::$txt[$key . '_subject'] = $value['subject'];
 					self::$txt[$key . '_body'] = $value['body'];
 				}
-				self::$txt['emails'] = array();
+				self::$txt['emails'] = [];
 			}
+
 			// For sake of backward compatibility: $birthdayEmails is supposed to be
 			// empty in a normal install. If it isn't it means the forum is using
 			// something "old" (it may be the translation, it may be a mod) and this
 			// code (like the piece above) takes care of converting it to the new format
-			if (!empty($birthdayEmails))
-			{
-				foreach ($birthdayEmails as $key => $value)
-				{
+			if (!empty($birthdayEmails)) {
+				foreach ($birthdayEmails as $key => $value) {
 					self::$txtBirthdayEmails[$key . '_subject'] = $value['subject'];
 					self::$txtBirthdayEmails[$key . '_body'] = $value['body'];
 					self::$txtBirthdayEmails[$key . '_author'] = $value['author'];
 				}
-				$birthdayEmails = array();
+				$birthdayEmails = [];
 			}
 		}
 
 		// Keep track of what we're up to, soldier.
-		if (!empty(Config::$db_show_debug))
+		if (!empty(Config::$db_show_debug)) {
 			Utils::$context['debug']['language_files'][] = $template_name . '.' . $lang . ' (' . basename(Theme::$current->settings['theme_url'] ?? 'unknown') . ')';
+		}
 
 		// Remember what we have loaded, and in which language.
 		self::$already_loaded[$template_name] = $lang;
@@ -311,26 +306,25 @@ class Lang
 	 *
 	 * @param array|string $custom_dirs Optional custom directories to include.
 	 */
-	public static function addDirs($custom_dirs = array())
+	public static function addDirs($custom_dirs = [])
 	{
 		// We only accept real directories.
-		if (!empty($custom_dirs))
+		if (!empty($custom_dirs)) {
 			$custom_dirs = array_filter(array_map('realpath', (array) $custom_dirs), 'is_dir');
-
-		if (!empty($custom_dirs))
-		{
-			self::$dirs = array_merge($custom_dirs, self::$dirs);
 		}
-		else
-		{
-			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
-			if (empty(Theme::$current->settings['default_theme_dir']))
-				Theme::loadEssential();
 
-			foreach (array('theme_dir', 'base_theme_dir', 'default_theme_dir') as $var)
-			{
-				if (isset(Theme::$current->settings[$var]))
+		if (!empty($custom_dirs)) {
+			self::$dirs = array_merge($custom_dirs, self::$dirs);
+		} else {
+			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
+			if (empty(Theme::$current->settings['default_theme_dir'])) {
+				Theme::loadEssential();
+			}
+
+			foreach (['theme_dir', 'base_theme_dir', 'default_theme_dir'] as $var) {
+				if (isset(Theme::$current->settings[$var])) {
 					self::$dirs[] = Theme::$current->settings[$var] . '/languages';
+				}
 			}
 
 			// Don't count this as loading the theme.
@@ -350,65 +344,70 @@ class Lang
 	public static function get($use_cache = true)
 	{
 		// Either we don't use the cache, or its expired.
-		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null)
-		{
+		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null) {
 			// If we don't have our theme information yet, let's get it.
-			if (empty(Theme::$current->settings['default_theme_dir']))
+			if (empty(Theme::$current->settings['default_theme_dir'])) {
 				Theme::load(0, false);
+			}
 
 			// Default language directories to try.
-			$language_directories = array(
+			$language_directories = [
 				Theme::$current->settings['default_theme_dir'] . '/languages',
-			);
-			if (!empty(Theme::$current->settings['actual_theme_dir']) && Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir'])
+			];
+
+			if (!empty(Theme::$current->settings['actual_theme_dir']) && Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir']) {
 				$language_directories[] = Theme::$current->settings['actual_theme_dir'] . '/languages';
+			}
 
 			// We possibly have a base theme directory.
-			if (!empty(Theme::$current->settings['base_theme_dir']))
+			if (!empty(Theme::$current->settings['base_theme_dir'])) {
 				$language_directories[] = Theme::$current->settings['base_theme_dir'] . '/languages';
+			}
 
 			// Remove any duplicates.
 			$language_directories = array_unique($language_directories);
 
-			foreach ($language_directories as $language_dir)
-			{
+			foreach ($language_directories as $language_dir) {
 				// Can't look in here... doesn't exist!
-				if (!file_exists($language_dir))
+				if (!file_exists($language_dir)) {
 					continue;
+				}
 
 				$dir = dir($language_dir);
-				while ($entry = $dir->read())
-				{
+
+				while ($entry = $dir->read()) {
 					// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-					if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches))
+					if (!preg_match('~^index\\.((?:.(?!-utf8))+)\\.php$~', $entry, $matches)) {
 						continue;
+					}
 
-					$langName = Utils::ucwords(strtr($matches[1], array('_' => ' ')));
+					$langName = Utils::ucwords(strtr($matches[1], ['_' => ' ']));
 
-					if (($spos = strpos($langName, ' ')) !== false)
+					if (($spos = strpos($langName, ' ')) !== false) {
 						$langName = substr($langName, 0, ++$spos) . '(' . substr($langName, $spos) . ')';
+					}
 
 					// Get the line we need.
 					$fp = @fopen($language_dir . '/' . $entry, 'r');
 
 					// Yay!
-					if ($fp)
-					{
-						while (($line = fgets($fp)) !== false)
-						{
-							if (strpos($line, '$txt[\'native_name\']') === false)
+					if ($fp) {
+						while (($line = fgets($fp)) !== false) {
+							if (strpos($line, '$txt[\'native_name\']') === false) {
 								continue;
+							}
 
-							preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+							preg_match('~\\$txt\\[\'native_name\'\\]\\s*=\\s*\'([^\']+)\';~', $line, $matchNative);
 
 							// Set the language's name.
-							if (!empty($matchNative) && !empty($matchNative[1]))
-							{
+							if (!empty($matchNative) && !empty($matchNative[1])) {
 								// Don't mislabel the language if the translator missed this one.
-								if ($langName !== 'English' && $matchNative[1] === 'English')
+								if ($langName !== 'English' && $matchNative[1] === 'English') {
 									break;
+								}
 
 								$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+
 								break;
 							}
 						}
@@ -417,24 +416,26 @@ class Lang
 					}
 
 					// Build this language entry.
-					Utils::$context['languages'][$matches[1]] = array(
+					Utils::$context['languages'][$matches[1]] = [
 						'name' => $langName,
 						'selected' => false,
 						'filename' => $matches[1],
 						'location' => $language_dir . '/index.' . $matches[1] . '.php',
-					);
+					];
 				}
 				$dir->close();
 			}
 
 			// Avoid confusion when we have more than one English variant installed.
 			// Honestly, our default English version should always have been called "English (US)"
-			if (substr_count(implode(' ', array_keys(Utils::$context['languages'])), 'english') > 1 && Utils::$context['languages']['english']['name'] === 'English')
+			if (substr_count(implode(' ', array_keys(Utils::$context['languages'])), 'english') > 1 && Utils::$context['languages']['english']['name'] === 'English') {
 				Utils::$context['languages']['english']['name'] = 'English (US)';
+			}
 
 			// Let's cash in on this deal.
-			if (!empty(CacheApi::$enable))
+			if (!empty(CacheApi::$enable)) {
 				CacheApi::put('known_languages', Utils::$context['languages'], !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
+			}
 		}
 
 		return Utils::$context['languages'];
@@ -456,29 +457,27 @@ class Lang
 	{
 		static $censor_vulgar = null, $censor_proper;
 
-		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
+		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '') {
 			return $text;
+		}
 
-		IntegrationHook::call('integrate_word_censor', array(&$text));
+		IntegrationHook::call('integrate_word_censor', [&$text]);
 
 		// If they haven't yet been loaded, load them.
-		if ($censor_vulgar == null)
-		{
+		if ($censor_vulgar == null) {
 			$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 			$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
 			// Quote them for use in regular expressions.
-			if (!empty(Config::$modSettings['censorWholeWord']))
-			{
+			if (!empty(Config::$modSettings['censorWholeWord'])) {
 				$charset = empty(Config::$modSettings['global_character_set']) ? self::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
 
-				for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
-				{
-					$censor_vulgar[$i] = str_replace(array('\\\\\\*', '\\*', '&', '\''), array('[*]', '[^\s]*?', '&amp;', '&#039;'), preg_quote($censor_vulgar[$i], '/'));
+				for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
+					$censor_vulgar[$i] = str_replace(['\\\\\\*', '\\*', '&', '\''], ['[*]', '[^\\s]*?', '&amp;', '&#039;'], preg_quote($censor_vulgar[$i], '/'));
 
 					// Use the faster \b if we can, or something more complex if we can't
-					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
-					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
+					$boundary_before = preg_match('/^\\w/', $censor_vulgar[$i]) ? '\\b' : ($charset === 'UTF-8' ? '(?<![\\p{L}\\p{M}\\p{N}_])' : '(?<!\\w)');
+					$boundary_after = preg_match('/\\w$/', $censor_vulgar[$i]) ? '\\b' : ($charset === 'UTF-8' ? '(?![\\p{L}\\p{M}\\p{N}_])' : '(?!\\w)');
 
 					$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
 				}
@@ -486,13 +485,12 @@ class Lang
 		}
 
 		// Censoring isn't so very complicated :P.
-		if (empty(Config::$modSettings['censorWholeWord']))
-		{
+		if (empty(Config::$modSettings['censorWholeWord'])) {
 			$func = !empty(Config::$modSettings['censorIgnoreCase']) ? 'str_ireplace' : 'str_replace';
 			$text = $func($censor_vulgar, $censor_proper, $text);
-		}
-		else
+		} else {
 			$text = preg_replace($censor_vulgar, $censor_proper, $text);
+		}
 
 		return $text;
 	}
@@ -508,19 +506,18 @@ class Lang
 	 */
 	public static function tokenTxtReplace(string $string = ''): string
 	{
-		if (empty($string))
+		if (empty($string)) {
 			return '';
+		}
 
-		$translatable_tokens = preg_match_all('/{(.*?)}/' , $string, $matches);
-		$toFind = array();
-		$replaceWith = array();
+		$translatable_tokens = preg_match_all('/{(.*?)}/', $string, $matches);
+		$toFind = [];
+		$replaceWith = [];
 
-		if (!empty($matches[1]))
-		{
-			foreach ($matches[1] as $token)
-			{
+		if (!empty($matches[1])) {
+			foreach ($matches[1] as $token) {
 				$toFind[] = '{' . $token . '}';
-				$replaceWith[] = isset(self::$txt[$token]) ? self::$txt[$token] : $token;
+				$replaceWith[] = self::$txt[$token] ?? $token;
 			}
 		}
 
@@ -540,41 +537,47 @@ class Lang
 	public static function sentenceList(array $list): string
 	{
 		// Make sure the bare necessities are defined.
-		if (empty(Lang::$txt['sentence_list_format']['n']))
+		if (empty(Lang::$txt['sentence_list_format']['n'])) {
 			Lang::$txt['sentence_list_format']['n'] = '{series}';
+		}
 
-		if (!isset(Lang::$txt['sentence_list_separator']))
+		if (!isset(Lang::$txt['sentence_list_separator'])) {
 			Lang::$txt['sentence_list_separator'] = ', ';
+		}
 
-		if (!isset(Lang::$txt['sentence_list_separator_alt']))
+		if (!isset(Lang::$txt['sentence_list_separator_alt'])) {
 			Lang::$txt['sentence_list_separator_alt'] = '; ';
+		}
 
 		// Which format should we use?
 		$format = Lang::$txt['sentence_list_format'][count($list)] ?? Lang::$txt['sentence_list_format']['n'];
 
 		// Do we want the normal separator or the alternate?
 		$separator = Lang::$txt['sentence_list_separator'];
-		foreach ($list as $item)
-		{
-			if (strpos($item, $separator) !== false)
-			{
+
+		foreach ($list as $item) {
+			if (strpos($item, $separator) !== false) {
 				$separator = Lang::$txt['sentence_list_separator_alt'];
 				$format = strtr($format, trim(Lang::$txt['sentence_list_separator']), trim($separator));
 				break;
 			}
 		}
 
-		$replacements = array();
+		$replacements = [];
 
 		// Special handling for the last items on the list.
 		$i = 0;
-		while (strpos($format, '{' . --$i . '}') !== false)
+
+		while (strpos($format, '{' . --$i . '}') !== false) {
 			$replacements['{' . $i . '}'] = array_pop($list);
+		}
 
 		// Special handling for the first items on the list.
 		$i = 0;
-		while (strpos($format, '{' . ++$i . '}') !== false)
+
+		while (strpos($format, '{' . ++$i . '}') !== false) {
 			$replacements['{' . $i . '}'] = array_shift($list);
+		}
 
 		// Whatever is left.
 		$replacements['{series}'] = implode($separator, $list);
@@ -592,14 +595,12 @@ class Lang
 	 *    places. Otherwise it's automatically determined.
 	 * @return string A formatted number
 	 */
-	public static function numberFormat(int|float $number, int $decimals = null): string
+	public static function numberFormat(int|float $number, ?int $decimals = null): string
 	{
 		// Cache these values...
-		if (!isset(self::$decimal_separator))
-		{
+		if (!isset(self::$decimal_separator)) {
 			// Not set for whatever reason?
-			if (empty(Lang::$txt['number_format']) || preg_match('~^1(\D*)234(\D*)(0*)$~', Lang::$txt['number_format'], $matches) != 1)
-			{
+			if (empty(Lang::$txt['number_format']) || preg_match('~^1(\\D*)234(\\D*)(0*)$~', Lang::$txt['number_format'], $matches) != 1) {
 				return (string) $number;
 			}
 
@@ -614,14 +615,15 @@ class Lang
 			$number,
 			(float) $number === $number ? ($decimals ?? self::$decimals) : 0,
 			self::$decimal_separator,
-			self::$thousands_separator
+			self::$thousands_separator,
 		);
 	}
 
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Lang::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Lang::exportStatic')) {
 	Lang::exportStatic();
+}
 
 ?>

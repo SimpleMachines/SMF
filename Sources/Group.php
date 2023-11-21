@@ -21,15 +21,16 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Group implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'loadSimple' => 'loadSimple',
 			'loadAssignable' => 'loadAssignable',
 			'loadPermissionsBatch' => 'loadPermissionsBatch',
@@ -37,37 +38,37 @@ class Group implements \ArrayAccess
 			'getPostGroups' => 'getPostGroups',
 			'getUnassignable' => 'getUnassignable',
 			'getCachedList' => 'cache_getMembergroupList',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
 	 *****************/
 
 	// Reserved group IDs.
-	const NONE = -2;
-	const GUEST = -1;
-	const REGULAR = 0;
-	const ADMIN = 1;
-	const GLOBAL_MOD = 2;
-	const MOD = 3;
-	const NEWBIE = 4;
+	public const NONE = -2;
+	public const GUEST = -1;
+	public const REGULAR = 0;
+	public const ADMIN = 1;
+	public const GLOBAL_MOD = 2;
+	public const MOD = 3;
+	public const NEWBIE = 4;
 
 	// Group types.
-	const TYPE_PRIVATE = 0;
-	const TYPE_PROTECTED = 1;
-	const TYPE_REQUESTABLE = 2;
-	const TYPE_FREE = 3;
+	public const TYPE_PRIVATE = 0;
+	public const TYPE_PROTECTED = 1;
+	public const TYPE_REQUESTABLE = 2;
+	public const TYPE_FREE = 3;
 
 	// Group visibility levels.
-	const VISIBLE = 0;
-	const NO_GROUP_KEY = 1;
-	const INVISIBLE = 2;
+	public const VISIBLE = 0;
+	public const NO_GROUP_KEY = 1;
+	public const INVISIBLE = 2;
 
 	// Load types for the loadSimple() method.
-	const LOAD_NORMAL = 1;
-	const LOAD_POST = 2;
-	const LOAD_BOTH = 3;
+	public const LOAD_NORMAL = 1;
+	public const LOAD_POST = 2;
+	public const LOAD_BOTH = 3;
 
 	/*******************
 	 * Public properties
@@ -214,7 +215,7 @@ class Group implements \ArrayAccess
 	 * Members who can moderate this group, formatted for display.
 	 * Items in this array take different forms in different cases.
 	 */
-	public array $moderators = array();
+	public array $moderators = [];
 
 	/**
 	 * @var array
@@ -254,10 +255,10 @@ class Group implements \ArrayAccess
 	 * As in the database table itself, 0 means denied and 1 means allowed.
 	 * A permission that is not listed at all is neither granted nor denied.
 	 */
-	public array $permissions = array(
-		'general' => array(),
-		'board_profiles' => array(),
-	);
+	public array $permissions = [
+		'general' => [],
+		'board_profiles' => [],
+	];
 
 	/**
 	 * @var array
@@ -268,10 +269,10 @@ class Group implements \ArrayAccess
 	 *
 	 * This is typically only used by SMF\Actions\Admin\Permissions.
 	 */
-	public array $num_permissions = array(
+	public array $num_permissions = [
 		'allowed' => 0,
 		'denied' => 0,
-	);
+	];
 
 	/**************************
 	 * Public static properties
@@ -282,7 +283,7 @@ class Group implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/*********************
 	 * Internal properties
@@ -293,7 +294,7 @@ class Group implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_group' => 'id',
 		'group_name' => 'name',
 		'editable_name' => 'name',
@@ -310,24 +311,24 @@ class Group implements \ArrayAccess
 		'is_moderator_group' => __CLASS__ . '::isModeratorGroup',
 		'assignable' => __CLASS__ . '::isAssignable',
 		'is_assignable' => __CLASS__ . '::isAssignable',
-		'allow_post_group' => __CLASS__ .  '::canBePostGroup',
-		'allow_protected' => __CLASS__ .  '::canBeProtected',
-		'allow_delete' => __CLASS__ .  '::canDelete',
-		'allow_modify' => __CLASS__ .  '::canChangePermissions',
-		'can_be_post_group' => __CLASS__ .  '::canBePostGroup',
-		'can_be_protected' => __CLASS__ .  '::canBeProtected',
+		'allow_post_group' => __CLASS__ . '::canBePostGroup',
+		'allow_protected' => __CLASS__ . '::canBeProtected',
+		'allow_delete' => __CLASS__ . '::canDelete',
+		'allow_modify' => __CLASS__ . '::canChangePermissions',
+		'can_be_post_group' => __CLASS__ . '::canBePostGroup',
+		'can_be_protected' => __CLASS__ . '::canBeProtected',
 		'can_be_additional' => __CLASS__ . '::canBeAdditional',
 		'can_be_primary' => __CLASS__ . '::canBePrimary',
-		'can_change_type' => __CLASS__ .  '::canChangePermissions',
-		'can_change_permissions' => __CLASS__ .  '::canChangePermissions',
-		'can_delete' => __CLASS__ .  '::canDelete',
-		'can_search' => __CLASS__ .  '::canSearch',
+		'can_change_type' => __CLASS__ . '::canChangePermissions',
+		'can_change_permissions' => __CLASS__ . '::canChangePermissions',
+		'can_delete' => __CLASS__ . '::canDelete',
+		'can_search' => __CLASS__ . '::canSearch',
 		'can_leave' => __CLASS__ . '::canLeave',
 		'icons' => __CLASS__ . '::formatIcons',
 		'help' => __CLASS__ . '::getHelpTxt',
 		'href' => __CLASS__ . '::getHref',
 		'link' => __CLASS__ . '::getLink',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -358,18 +359,18 @@ class Group implements \ArrayAccess
 	 * @param array $props Properties to set for this group. If empty, will be
 	 *    loaded from the database automatically.
 	 */
-	public function __construct(int $id, array $props = array())
+	public function __construct(int $id, array $props = [])
 	{
-		if ($id > self::REGULAR && empty($props))
-		{
-			$request = Db::$db->query('', '
-				SELECT *
+		if ($id > self::REGULAR && empty($props)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT *
 				FROM {db_prefix}membergroups
 				WHERE id_group = {int:id}
 				LIMIT 1',
-				array(
+				[
 					'id' => $id,
-				)
+				],
 			);
 			$props = Db::$db->fetch_all($request);
 			Db::$db->free_result($request);
@@ -380,26 +381,25 @@ class Group implements \ArrayAccess
 		self::$loaded[$this->id] = $this;
 
 		// Some special cases.
-		if (in_array($this->id, array(self::GUEST, self::REGULAR)))
-		{
-			if (empty($this->name))
-			{
-				if ($this->id === self::GUEST || !isset(Lang::$txt['announce_regular_members']))
+		if (in_array($this->id, [self::GUEST, self::REGULAR])) {
+			if (empty($this->name)) {
+				if ($this->id === self::GUEST || !isset(Lang::$txt['announce_regular_members'])) {
 					Lang::load('Admin');
+				}
 
 				$this->name = $this->id === self::GUEST ? Lang::$txt['membergroups_guests'] : (Lang::$txt['announce_regular_members'] ?? Lang::$txt['membergroups_members']);
 			}
 
-			if ($this->id === self::REGULAR && !isset($this->description))
-			{
+			if ($this->id === self::REGULAR && !isset($this->description)) {
 				Lang::load('Profile');
 
 				$this->description = Lang::$txt['regular_members_desc'];
 			}
 		}
 
-		if (!isset($this->min_posts) && ($this->id < self::NEWBIE || !empty($this->type)))
+		if (!isset($this->min_posts) && ($this->id < self::NEWBIE || !empty($this->type))) {
 			$this->min_posts = -1;
+		}
 
 		// Set initial value for $this->can_moderate.
 		// This might change when $this->loadModerators() is called.
@@ -415,16 +415,12 @@ class Group implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		// Special handling for the icons.
-		if ($prop === 'icons' && is_string($value))
-		{
+		if ($prop === 'icons' && is_string($value)) {
 			$prop = 'raw_icons';
 
-			if (preg_match('/^\d+#/', $value))
-			{
+			if (preg_match('/^\\d+#/', $value)) {
 				list($this->icon_count, $this->icon_image) = explode('#', $value);
-			}
-			else
-			{
+			} else {
 				$this->icon_count = 0;
 				$this->icon_image = '';
 				$value = '';
@@ -444,11 +440,10 @@ class Group implements \ArrayAccess
 		SecurityToken::validate('admin-mmg');
 
 		// Saving a new group.
-		if (empty($this->id))
-		{
-			IntegrationHook::call('integrate_pre_add_membergroup', array());
+		if (empty($this->id)) {
+			IntegrationHook::call('integrate_pre_add_membergroup', []);
 
-			$columns = array(
+			$columns = [
 				'group_name' => 'string-80',
 				'description' => 'string',
 				'online_color' => 'string',
@@ -459,9 +454,9 @@ class Group implements \ArrayAccess
 				'hidden' => 'int',
 				'id_parent' => 'int',
 				'tfa_required' => 'int',
-			);
+			];
 
-			$params = array(
+			$params = [
 				$this->name ?? '',
 				$this->description ?? '',
 				$this->online_color ?? '',
@@ -472,24 +467,24 @@ class Group implements \ArrayAccess
 				$this->hidden ?? self::VISIBLE,
 				$this->parent ?? self::NONE,
 				(int) ($this->tfa_required ?? 0),
-			);
+			];
 
-			$this->id = Db::$db->insert('',
+			$this->id = Db::$db->insert(
+				'',
 				'{db_prefix}membergroups',
 				$columns,
 				$params,
-				array('id_group'),
-				1
+				['id_group'],
+				1,
 			);
 
 			self::$loaded[$this->id] = $this;
 
-			IntegrationHook::call('integrate_add_membergroup', array($this->id, $this->min_posts > -1));
+			IntegrationHook::call('integrate_add_membergroup', [$this->id, $this->min_posts > -1]);
 		}
 		// Updating an existing group.
-		else
-		{
-			$set = array(
+		else {
+			$set = [
 				'group_name = {string:name}',
 				'description = {string:description}',
 				'online_color = {string:online_color}',
@@ -500,9 +495,9 @@ class Group implements \ArrayAccess
 				'hidden = {int:hidden}',
 				'id_parent = {int:parent}',
 				'tfa_required = {int:tfa_required}',
-			);
+			];
 
-			$params = array(
+			$params = [
 				'id' => $this->id,
 				'name' => $this->name ?? '',
 				'description' => $this->description ?? '',
@@ -514,61 +509,66 @@ class Group implements \ArrayAccess
 				'hidden' => $this->hidden ?? self::VISIBLE,
 				'parent' => $this->parent ?? self::NONE,
 				'tfa_required' => (int) ($this->tfa_required ?? 0),
-			);
+			];
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}membergroups
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}membergroups
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_group = {int:id}',
-				$params
+				$params,
 			);
 
-			IntegrationHook::call('integrate_save_membergroup', array($this->id));
+			IntegrationHook::call('integrate_save_membergroup', [$this->id]);
 		}
 
 		// Update membership for post groups, hidden groups, and the moderator group.
 		$this->fixMembership();
 
 		// Update the list of group moderators (i.e. people who can moderate this group)
-		if (isset($this->moderator_ids))
-		{
+		if (isset($this->moderator_ids)) {
 			$this->moderator_ids = array_unique($this->moderator_ids);
 			sort($this->moderator_ids);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}group_moderators
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}group_moderators
 				WHERE id_group = {int:current_group}',
-				array(
+				[
 					'current_group' => $this->id,
-				)
+				],
 			);
 
-			foreach ($this->moderator_ids as $mod_id)
-				$inserts[] = array($this->id, $mod_id);
+			foreach ($this->moderator_ids as $mod_id) {
+				$inserts[] = [$this->id, $mod_id];
+			}
 
-			Db::$db->insert('insert',
+			Db::$db->insert(
+				'insert',
 				'{db_prefix}group_moderators',
-				array('id_group' => 'int', 'id_member' => 'int'),
+				['id_group' => 'int', 'id_member' => 'int'],
 				$inserts,
-				array('id_group', 'id_member')
+				['id_group', 'id_member'],
 			);
 		}
 
 		// Update permissions of any groups that inherit from this group.
-		if ($this->parent === self::NONE)
+		if ($this->parent === self::NONE) {
 			Permissions::updateChildPermissions($this->id);
+		}
 
 		// Did we make some post group changes?
-		if ($this->min_posts > -1)
+		if ($this->min_posts > -1) {
 			Logging::updateStats('postgroups');
+		}
 
 		// Rebuild the group cache.
-		Config::updateModSettings(array(
+		Config::updateModSettings([
 			'settings_updated' => time(),
-		));
+		]);
 
 		// Log the edit.
-		Logging::logAction('edited_group', array('group' => $this->name), 'admin');
+		Logging::logAction('edited_group', ['group' => $this->name], 'admin');
 
 		SecurityToken::create('admin-mmg');
 	}
@@ -585,30 +585,31 @@ class Group implements \ArrayAccess
 		SecurityToken::validate('admin-mmg');
 
 		// Don't delete protected groups.
-		if (!$this->can_delete)
+		if (!$this->can_delete) {
 			return 'no_group_found';
+		}
 
 		// Make sure they don't try to delete a group attached to a paid subscription.
-		$subscriptions = array();
+		$subscriptions = [];
 
-		$request = Db::$db->query('', '
-			SELECT name
+		$request = Db::$db->query(
+			'',
+			'SELECT name
 			FROM {db_prefix}subscriptions
 			WHERE id_group = {int:this_group}
 				OR FIND_IN_SET({int:this_group}, additional_groups) != 0
 			ORDER BY name',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$subscriptions[] = $row['name'];
 		}
 		Db::$db->free_result($request);
 
-		if (!empty($subscriptions))
-		{
+		if (!empty($subscriptions)) {
 			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
 			Lang::load('ManageMembers');
 			Lang::$txt['membergroups_cannot_delete_paid'] = sprintf(Lang::$txt['membergroups_cannot_delete_paid'], sentence_list($subscriptions));
@@ -617,143 +618,152 @@ class Group implements \ArrayAccess
 		}
 
 		// Log the deletion.
-		Logging::logAction('delete_group', array('group' => $this->name), 'admin');
+		Logging::logAction('delete_group', ['group' => $this->name], 'admin');
 
 		// Remove the group itself.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}membergroups
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}membergroups
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
 		// Remove the permissions of the groups.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}permissions
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}permissions
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}board_permissions
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}board_permissions
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}group_moderators
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}group_moderators
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}moderator_groups
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}moderator_groups
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
 		// Delete any outstanding requests.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_group_requests
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
 		// Update the primary groups of members.
-		Db::$db->query('', '
-			UPDATE {db_prefix}members
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}members
 			SET id_group = {int:regular_group}
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
 				'regular_group' => self::REGULAR,
-			)
+			],
 		);
 
 		// Update any inherited groups (Lose inheritance).
-		Db::$db->query('', '
-			UPDATE {db_prefix}membergroups
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}membergroups
 			SET id_parent = {int:uninherited}
 			WHERE id_parent = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
 				'uninherited' => self::NONE,
-			)
+			],
 		);
 
 		// Update the additional groups of members.
-		$updates = array();
+		$updates = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_member, additional_groups
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, additional_groups
 			FROM {db_prefix}members
 			WHERE FIND_IN_SET({int:this_group}, additional_groups) != 0',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$updates[$row['additional_groups']][] = $row['id_member'];
 		}
 		Db::$db->free_result($request);
 
-		foreach ($updates as $additional_groups => $member_array)
-		{
-			User::updateMemberData($member_array, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array($this->id)))));
+		foreach ($updates as $additional_groups => $member_array) {
+			User::updateMemberData($member_array, ['additional_groups' => implode(',', array_diff(explode(',', $additional_groups), [$this->id]))]);
 		}
 
 		// No boards can provide access to these groups anymore.
-		$updates = array();
+		$updates = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_board, member_groups
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board, member_groups
 			FROM {db_prefix}boards
 			WHERE FIND_IN_SET({int:this_group}, member_groups) != 0',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$updates[$row['member_groups']][] = $row['id_board'];
 		}
 		Db::$db->free_result($request);
 
-		foreach ($updates as $member_groups => $board_array)
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}boards
+		foreach ($updates as $member_groups => $board_array) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
 				WHERE id_board IN ({array_int:board_lists})',
-				array(
+				[
 					'board_lists' => $board_array,
-					'member_groups' => implode(',', array_diff(explode(',', $member_groups), array($this->id))),
-				)
+					'member_groups' => implode(',', array_diff(explode(',', $member_groups), [$this->id])),
+				],
 			);
 		}
 
 		// Recalculate the post groups if this was one.
-		if ($this->min_posts > -1)
+		if ($this->min_posts > -1) {
 			Logging::updateStats('postgroups');
+		}
 
 		// Make a note of the fact that the cache may be wrong.
-		$settings_update = array('settings_updated' => time());
+		$settings_update = ['settings_updated' => time()];
 
 		// Have we deleted the spider group?
-		if (isset(Config::$modSettings['spider_group']) && Config::$modSettings['spider_group'] == $this->id)
-		{
+		if (isset(Config::$modSettings['spider_group']) && Config::$modSettings['spider_group'] == $this->id) {
 			$settings_update['spider_group'] = 0;
 		}
 
@@ -774,16 +784,18 @@ class Group implements \ArrayAccess
 	 */
 	public function getBoardsCanModerate(): array
 	{
-		if (isset($this->boards_can_moderate))
+		if (isset($this->boards_can_moderate)) {
 			return $this->boards_can_moderate;
+		}
 
-		$request = Db::$db->query('', '
-			SELECT id_board
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board
 			FROM {db_prefix}moderator_groups
 			WHERE id_group = {int:current_group}',
-			array(
+			[
 				'current_group' => $this->id,
-			)
+			],
 		);
 		$this->boards_can_moderate = array_values(Db::$db->fetch_all($request));
 		Db::$db->free_result($request);
@@ -801,7 +813,7 @@ class Group implements \ArrayAccess
 	 */
 	public function loadModerators(bool $ignore_protected = false): void
 	{
-		self::loadModeratorsBatch(array($this->id), $ignore_protected);
+		self::loadModeratorsBatch([$this->id], $ignore_protected);
 	}
 
 	/**
@@ -814,7 +826,8 @@ class Group implements \ArrayAccess
 	 */
 	public function countMembers(bool $recount = false): int
 	{
-		self::countMembersBatch(array($this->id), $recount);
+		self::countMembersBatch([$this->id], $recount);
+
 		return $this->num_members;
 	}
 
@@ -827,89 +840,86 @@ class Group implements \ArrayAccess
 	 */
 	public function loadMembers(): array
 	{
-		if (isset($this->members))
+		if (isset($this->members)) {
 			return $this->members;
+		}
 
-		$this->members = array();
+		$this->members = [];
 
 		// Special case for the moderator group.
-		if ($this->id === self::MOD)
-		{
+		if ($this->id === self::MOD) {
 			// If we're in a board, only get the moderators for that board.
-			if (isset(Board::$info))
-			{
+			if (isset(Board::$info)) {
 				self::$loaded[self::MOD]->members = array_keys(Board::$info->moderators);
 			}
 			// Outside a board, get the moderators for all boards.
-			else
-			{
-				$request = Db::$db->query('', '
-					SELECT DISTINCT id_member
+			else {
+				$request = Db::$db->query(
+					'',
+					'SELECT DISTINCT id_member
 					FROM {db_prefix}moderators',
-					array()
+					[],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
+
+				while ($row = Db::$db->fetch_assoc($request)) {
 					self::$loaded[self::MOD]->members[] = (int) $row['id_member'];
 				}
 				Db::$db->free_result($request);
 			}
 		}
 		// Post-count based groups.
-		elseif ($this->min_posts > -1)
-		{
-			$request = Db::$db->query('', '
-				SELECT id_member
+		elseif ($this->min_posts > -1) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE id_post_group = {int:group}',
-				array(
+				[
 					'group' => $this->id,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$this->members[] = (int) $row['id_member'];
 			}
 			Db::$db->free_result($request);
 		}
 		// Regular groups.
-		else
-		{
+		else {
 			$this->loadModerators();
 
-			if ($this->can_moderate)
-			{
-				$request = Db::$db->query('', '
-					SELECT id_member
+			if ($this->can_moderate) {
+				$request = Db::$db->query(
+					'',
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE id_group = {int:group}
 						OR (
 							additional_groups != {string:blank_string}
 							AND FIND_IN_SET({int:group}, additional_groups) != 0
 					)',
-					array(
+					[
 						'group' => $this->id,
 						'blank_string' => '',
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
+
+				while ($row = Db::$db->fetch_assoc($request)) {
 					$this->members[] = (int) $row['id_member'];
 				}
 				Db::$db->free_result($request);
-			}
-			else
-			{
-				$request = Db::$db->query('', '
-					SELECT id_member
+			} else {
+				$request = Db::$db->query(
+					'',
+					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE id_group = {int:group}',
-					array(
+					[
 						'group' => $this->id,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
+
+				while ($row = Db::$db->fetch_assoc($request)) {
 					$this->members[] = (int) $row['id_member'];
 				}
 				Db::$db->free_result($request);
@@ -954,18 +964,15 @@ class Group implements \ArrayAccess
 	public function addMembers(int|array $members, string $type = 'auto', bool $perms_checked = false, bool $ignore_protected = false): bool
 	{
 		// Show your licence, but only if it hasn't been done yet.
-		if (!$perms_checked)
-		{
+		if (!$perms_checked) {
 			$this->loadModerators($ignore_protected);
 
-			if (!$this->can_moderate)
-			{
+			if (!$this->can_moderate) {
 				User::$me->isAllowedTo(User::$me->allowedTo('manage_membergroups') ? 'admin_forum' : 'manage_membergroups');
 			}
 		}
 
-		if (!in_array($type, array('auto', 'only_additional', 'only_primary', 'force_primary')))
-		{
+		if (!in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
 			Lang::load('Errors');
 			trigger_error(sprintf(Lang::$txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
 		}
@@ -974,162 +981,161 @@ class Group implements \ArrayAccess
 		$type = !$this->can_be_primary ? 'only_additional' : $type;
 
 		// Requested only_additional, but the group can't be additional?
-		if ($type == 'only_additional' && !$this->can_be_additional)
+		if ($type == 'only_additional' && !$this->can_be_additional) {
 			return false;
+		}
 
 		// Some groups just don't like explicitly having members.
-		if (in_array($this->id, array(self::GUEST, self::REGULAR, self::MOD)))
+		if (in_array($this->id, [self::GUEST, self::REGULAR, self::MOD])) {
 			return false;
+		}
 
 		// Can't join a post-count based group.
-		if ($this->min_posts != -1)
+		if ($this->min_posts != -1) {
 			return false;
+		}
 
 		// Only admins can add admins...
-		if ($this->id == self::ADMIN && !User::$me->allowedTo('admin_forum'))
+		if ($this->id == self::ADMIN && !User::$me->allowedTo('admin_forum')) {
 			return false;
+		}
 
 		// ... or assign protected groups!
-		if (!$ignore_protected && $this->type == self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum'))
+		if (!$ignore_protected && $this->type == self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum')) {
 			return false;
+		}
 
 		// Demand an admin password before adding new admins -- every time, no matter what.
-		if ($this->id == self::ADMIN)
+		if ($this->id == self::ADMIN) {
 			User::$me->validateSession('admin', true);
+		}
 
 		// Make sure all members are integers.
 		$members = array_unique(array_map('intval', (array) $members));
 
 		// There's nobody to add.
-		if (empty($members))
+		if (empty($members)) {
 			return false;
+		}
 
 		// Load the user info for the new members.
 		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
 
-		if (empty($members))
+		if (empty($members)) {
 			return false;
+		}
 
 		// Filter out members that are already in the group and figure out which
 		// members get this as their new primary group and which get it as an
 		// new additional group.
-		$set_primary = array();
-		$set_additional = array();
+		$set_primary = [];
+		$set_additional = [];
 
-		foreach ($members as $key => $member)
-		{
+		foreach ($members as $key => $member) {
 			// Forcing primary.
-			if ($type === 'force_primary')
-			{
-				if (User::$loaded[$member]->group_id !== $this->id)
+			if ($type === 'force_primary') {
+				if (User::$loaded[$member]->group_id !== $this->id) {
 					$set_primary[] = $member;
+				}
 			}
 			// They're already in this group.
-			elseif (in_array($this->id, User::$loaded[$member]->groups))
-			{
+			elseif (in_array($this->id, User::$loaded[$member]->groups)) {
 				continue;
 			}
 			// They have a different primary group.
-			elseif (User::$loaded[$member]->group_id !== self::REGULAR)
-			{
+			elseif (User::$loaded[$member]->group_id !== self::REGULAR) {
 				// Skip if we only want to set their primary group.
-				if ($type === 'only_primary')
+				if ($type === 'only_primary') {
 					continue;
+				}
 
 				// Skip if the group can't be additional.
-				if (!$this->can_be_additional)
+				if (!$this->can_be_additional) {
 					continue;
+				}
 
 				// Set this as an additional group.
 				$set_additional[] = $member;
 			}
 			// This can only be an additional group.
-			elseif ($type === 'only_additional')
-			{
+			elseif ($type === 'only_additional') {
 				$set_additional[] = $member;
 			}
 			// They have no primary group, so let's give them one.
-			else
-			{
+			else {
 				$set_primary[] = $member;
 			}
 		}
 
 		// We need some special handling if we are forcing the primary.
-		if ($type === 'force_primary')
-		{
-			if (empty($set_primary))
+		if ($type === 'force_primary') {
+			if (empty($set_primary)) {
 				return false;
+			}
 
-			Config::updateModSettings(array('settings_updated' => time()));
+			Config::updateModSettings(['settings_updated' => time()]);
 
-			$to_set = array();
+			$to_set = [];
 
-			foreach ($set_primary as $member)
-			{
-				$new_additional_groups = array_diff(User::$loaded[$member]->groups, array($this->id, User::$loaded[$member]->post_group_id));
+			foreach ($set_primary as $member) {
+				$new_additional_groups = array_diff(User::$loaded[$member]->groups, [$this->id, User::$loaded[$member]->post_group_id]);
 				sort($new_additional_groups);
 
 				$to_set[implode(',', $new_additional_groups)][] = $member->id;
 			}
 
-			foreach ($to_set as $new_additional_groups => $member_ids)
-			{
-				User::updateMemberData($member_ids, array(
+			foreach ($to_set as $new_additional_groups => $member_ids) {
+				User::updateMemberData($member_ids, [
 					'id_group' => $this->id,
 					'additional_groups' => $new_additional_groups,
-				));
+				]);
 			}
 
 			return true;
 		}
 
-		if (empty($set_primary) && empty($set_additional))
+		if (empty($set_primary) && empty($set_additional)) {
 			return false;
-
-		Config::updateModSettings(array('settings_updated' => time()));
-
-		if (!empty($set_primary))
-		{
-			User::updateMemberData($set_primary, array('id_group' => $this->id));
 		}
 
-		if (!empty($set_additional))
-		{
-			$to_set = array();
+		Config::updateModSettings(['settings_updated' => time()]);
 
-			foreach ($set_additional as $member)
-			{
-				$new_additional_groups = array_unique(array_merge(User::$loaded[$member]->additional_groups, array($this->id)));
+		if (!empty($set_primary)) {
+			User::updateMemberData($set_primary, ['id_group' => $this->id]);
+		}
+
+		if (!empty($set_additional)) {
+			$to_set = [];
+
+			foreach ($set_additional as $member) {
+				$new_additional_groups = array_unique(array_merge(User::$loaded[$member]->additional_groups, [$this->id]));
 				sort($new_additional_groups);
 
 				$to_set[implode(',', $new_additional_groups)][] = $member->id;
 			}
 
-			foreach ($to_set as $new_additional_groups => $member_ids)
-			{
-				User::updateMemberData($member_ids, array('additional_groups' => $new_additional_groups));
+			foreach ($to_set as $new_additional_groups => $member_ids) {
+				User::updateMemberData($member_ids, ['additional_groups' => $new_additional_groups]);
 			}
 		}
 
 		// For historical reasons, the hook expects an array rather than just the name string.
-		$group_names = array($this->id => $this->name);
+		$group_names = [$this->id => $this->name];
 
-		IntegrationHook::call('integrate_add_members_to_group', array($members, $this->id, &$group_names));
+		IntegrationHook::call('integrate_add_members_to_group', [$members, $this->id, &$group_names]);
 
 		// Update their postgroup statistics.
 		Logging::updateStats('postgroups', $members);
 
 		// Log the data.
-		foreach ($members as $member)
-		{
+		foreach ($members as $member) {
 			Logging::logAction(
 				'added_to_group',
-				array(
+				[
 					'group' => $this->name,
 					'member' => $member,
-				),
-				'admin'
+				],
+				'admin',
 			);
 		}
 
@@ -1144,119 +1150,126 @@ class Group implements \ArrayAccess
 	 * Non-admins are not able to remove members from the admin group.
 	 *
 	 * @param int|array $members The ID of a member or an array of member IDs.
-	 * @param mixed The groups to remove the member(s) from. If null, the
-	 *    specified members are stripped from all their membergroups.
 	 * @param bool $perms_checked Whether we've already checked permissions.
 	 * @param bool $ignore_protected Whether to ignore the protected status of
 	 *    protected groups.
+	 * @param mixed The groups to remove the member(s) from. If null, the
+	 *    specified members are stripped from all their membergroups.
 	 * @return bool Whether the operation was successful.
 	 */
 	public function removeMembers(int|array $members, bool $perms_checked = false, bool $ignore_protected = false): bool
 	{
 		// You're getting nowhere without this permission, unless of course you are the group's moderator.
-		if (!$perms_checked)
-		{
+		if (!$perms_checked) {
 			$this->loadModerators($ignore_protected);
 
-			if (!$this->can_moderate)
-			{
+			if (!$this->can_moderate) {
 				User::$me->isAllowedTo(User::$me->allowedTo('manage_membergroups') ? 'admin_forum' : 'manage_membergroups');
 			}
 		}
 
-		if (in_array($this->id, array(self::GUEST, self::REGULAR, self::MOD)))
+		if (in_array($this->id, [self::GUEST, self::REGULAR, self::MOD])) {
 			return false;
+		}
 
-		if ($this->min_posts != -1)
+		if ($this->min_posts != -1) {
 			return false;
+		}
 
-		if ($this->id == self::ADMIN && !User::$me->allowedTo('admin_forum'))
+		if ($this->id == self::ADMIN && !User::$me->allowedTo('admin_forum')) {
 			return false;
+		}
 
-		if ($this->type == self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum') && !$ignore_protected)
+		if ($this->type == self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum') && !$ignore_protected) {
 			return false;
+		}
 
 		// Only proven admins can remove admins.
-		if ($this->id == self::ADMIN)
+		if ($this->id == self::ADMIN) {
 			User::$me->validateSession('admin', true);
+		}
 
 		// Cleaning the input.
 		$members = array_unique(array_map('intval', (array) $members));
 
-		if (empty($members))
+		if (empty($members)) {
 			return false;
+		}
 
 		// Load the IDs of the current members of this group.
 		$this->loadMembers();
 
 		// Before we get started, let's check we won't leave the admin group empty!
-		if ($this->id === self::ADMIN && array_diff($this->members, $members) === array())
+		if ($this->id === self::ADMIN && array_diff($this->members, $members) === []) {
 			return false;
+		}
 
 		// Load the user info for the members being removed.
 		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
 
 		// Figure out which members should have their primary group changed and
 		// which should have their additional groups changed.
-		$remove_primary = array();
-		$remove_additional = array();
+		$remove_primary = [];
+		$remove_additional = [];
 
-		foreach ($members as $member)
-		{
-			if (User::$loaded[$member]->group_id === $this->id)
+		foreach ($members as $member) {
+			if (User::$loaded[$member]->group_id === $this->id) {
 				$remove_primary[] = $member;
+			}
 
-			if (in_array($this->id, User::$loaded[$member]->additional_groups))
+			if (in_array($this->id, User::$loaded[$member]->additional_groups)) {
 				$remove_additional[] = $member;
+			}
 		}
 
-		if (empty($remove_primary) && empty($remove_additional))
+		if (empty($remove_primary) && empty($remove_additional)) {
 			return false;
+		}
 
 		$members = array_unique(array_merge($remove_primary, $remove_additional));
 
 		// First, reset those who have this as their primary group. This is the easy one.
-		if (!empty($remove_primary))
-		{
+		if (!empty($remove_primary)) {
 			// Remove in database.
-			Db::$db->query('', '
-				UPDATE {db_prefix}members
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}members
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:group}
 					AND id_member IN ({array_int:member_list})',
-				array(
+				[
 					'group' => $this->id,
 					'member_list' => $remove_primary,
 					'regular_member' => self::REGULAR,
-				)
+				],
 			);
 
 			// Remove from current object.
 			$this->members = array_diff($this->members, $remove_primary);
 
 			// Log the change.
-			foreach ($remove_primary as $member)
-				$log_inserts[] = array('group' => $this->name, 'member' => $member);
+			foreach ($remove_primary as $member) {
+				$log_inserts[] = ['group' => $this->name, 'member' => $member];
+			}
 		}
 
 		// Now remove this group from the additional groups.
-		if (!empty($remove_additional))
-		{
-			foreach ($remove_additional as $member)
-			{
+		if (!empty($remove_additional)) {
+			foreach ($remove_additional as $member) {
 				// Remove in database.
-				Db::$db->query('', '
-					UPDATE {db_prefix}members
+				Db::$db->query(
+					'',
+					'UPDATE {db_prefix}members
 					SET additional_groups = {string:additional_groups}
 					WHERE id_member = {int:member}',
-					array(
+					[
 						'member' => $this->id,
-						'additional_groups' => implode(',', array_diff(User::$loaded[$member]->additional_groups, array($this->id))),
-					)
+						'additional_groups' => implode(',', array_diff(User::$loaded[$member]->additional_groups, [$this->id])),
+					],
 				);
 
 				// Log the change.
-				$log_inserts[] = array('group' => $this->name, 'member' => $member);
+				$log_inserts[] = ['group' => $this->name, 'member' => $member];
 			}
 
 			// Remove from current object.
@@ -1264,16 +1277,16 @@ class Group implements \ArrayAccess
 		}
 
 		// Settings have been updated.
-		Config::updateModSettings(array('settings_updated' => time()));
+		Config::updateModSettings(['settings_updated' => time()]);
 
 		// Their post groups may have changed now...
 		Logging::updateStats('postgroups', $members);
 
 		// Do the log.
-		if (!empty($log_inserts) && !empty(Config::$modSettings['modlog_enabled']))
-		{
-			foreach ($log_inserts as $extra)
+		if (!empty($log_inserts) && !empty(Config::$modSettings['modlog_enabled'])) {
+			foreach ($log_inserts as $extra) {
 				Logging::logAction('removed_from_group', $extra, 'admin');
+			}
 		}
 
 		// Mission successful.
@@ -1288,94 +1301,96 @@ class Group implements \ArrayAccess
 	public function fixMembership(): void
 	{
 		// Fix post-count based groups and moderator group.
-		if ($this->min_posts > -1 || $this->id === self::MOD)
-		{
+		if ($this->min_posts > -1 || $this->id === self::MOD) {
 			// Can't be primary groups.
-			Db::$db->query('', '
-				UPDATE {db_prefix}members
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}members
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:current_group}',
-				array(
+				[
 					'regular_member' => 0,
 					'current_group' => $this->id,
-				)
+				],
 			);
 
 			// Can't be additional groups.
-			$updates = array();
+			$updates = [];
 
-			$request = Db::$db->query('', '
-				SELECT id_member, additional_groups
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member, additional_groups
 				FROM {db_prefix}members
 				WHERE FIND_IN_SET({string:current_group}, additional_groups) != 0',
-				array(
+				[
 					'current_group' => $this->id,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$updates[$row['additional_groups']][] = $row['id_member'];
 			}
 			Db::$db->free_result($request);
 
-			foreach ($updates as $additional_groups => $memberArray)
-			{
-				User::updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array($this->id)))));
+			foreach ($updates as $additional_groups => $memberArray) {
+				User::updateMemberData($memberArray, ['additional_groups' => implode(',', array_diff(explode(',', $additional_groups), [$this->id]))]);
 			}
 
 			// Post-count based groups can't be moderator groups, and the main moderator group already is one.
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}moderator_groups
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}moderator_groups
 				WHERE id_group = {int:current_group}',
-				array(
+				[
 					'current_group' => $this->id,
-				)
+				],
 			);
 		}
 		// A hidden group?.
-		elseif ($this->hidden == self::INVISIBLE)
-		{
-			$updates = array();
+		elseif ($this->hidden == self::INVISIBLE) {
+			$updates = [];
 
-			$request = Db::$db->query('', '
-				SELECT id_member, additional_groups
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member, additional_groups
 				FROM {db_prefix}members
 				WHERE id_group = {int:current_group}
 					AND FIND_IN_SET({int:current_group}, additional_groups) = 0',
-				array(
+				[
 					'current_group' => $this->id,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$updates[$row['additional_groups']][] = $row['id_member'];
 			}
 			Db::$db->free_result($request);
 
-			foreach ($updates as $additional_groups => $memberArray)
-			{
+			foreach ($updates as $additional_groups => $memberArray) {
 				$new_groups = (!empty($additional_groups) ? $additional_groups . ',' : '') . $this->id;
 
-				User::updateMemberData($memberArray, array('additional_groups' => $new_groups));
+				User::updateMemberData($memberArray, ['additional_groups' => $new_groups]);
 			}
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}members
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}members
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:current_group}',
-				array(
+				[
 					'regular_member' => 0,
 					'current_group' => $this->id,
-				)
+				],
 			);
 
 			// Hidden groups can't moderate boards
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}moderator_groups
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}moderator_groups
 				WHERE id_group = {int:current_group}',
-				array(
+				[
 					'current_group' => $this->id,
-				)
+				],
 			);
 		}
 	}
@@ -1390,26 +1405,28 @@ class Group implements \ArrayAccess
 	 */
 	public function getChildren(): array
 	{
-		if (isset($this->children))
+		if (isset($this->children)) {
 			return $this->children;
+		}
 
-		$this->children = array();
+		$this->children = [];
 
-		$selects = array('mg.id_group');
-		$where = array('mg.id_parent = {int:this_group}');
-		$order = array('mg.id_group');
-		$params = array('this_group' => $this->id);
+		$selects = ['mg.id_group'];
+		$where = ['mg.id_parent = {int:this_group}'];
+		$order = ['mg.id_group'];
+		$params = ['this_group' => $this->id];
 
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_parent = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$this->children[(int) $row['id_group']] = $row['group_name'];
 		}
 		Db::$db->free_result($request);
@@ -1429,23 +1446,22 @@ class Group implements \ArrayAccess
 	 * @param bool $reload If true, force a reload from the database.
 	 * @return array A copy of $this->permissions.
 	 */
-	public function loadPermissions(int $profile = null, bool $reload = false): array
+	public function loadPermissions(?int $profile = null, bool $reload = false): array
 	{
 		// General permissions.
-		if (empty($profile))
-		{
-			if (empty($this->permissions['general']) || $reload)
-			{
-				$request = Db::$db->query('', '
-					SELECT permission, add_deny
+		if (empty($profile)) {
+			if (empty($this->permissions['general']) || $reload) {
+				$request = Db::$db->query(
+					'',
+					'SELECT permission, add_deny
 					FROM {db_prefix}permissions
 					WHERE id_group = {int:this_group}',
-					array(
+					[
 						'this_group' => $this->id,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
+
+				while ($row = Db::$db->fetch_assoc($request)) {
 					$this->permissions['general'][$row['permission']] = (int) $row['add_deny'];
 				}
 				Db::$db->free_result($request);
@@ -1453,32 +1469,36 @@ class Group implements \ArrayAccess
 		}
 
 		// If profile is zero, we only wanted general permissions.
-		if (isset($profile) && $profile === 0)
+		if (isset($profile) && $profile === 0) {
 			return $this->permissions;
+		}
 
 		// Don't reload unnecessarily.
-		if (isset($profile) && isset($this->permissions['board_profiles'][$profile]) && !$reload)
+		if (isset($profile, $this->permissions['board_profiles'][$profile])   && !$reload) {
 			return $this->permissions;
+		}
 
 		// Have we already loaded some board permissions?
-		if (!$reload && !empty($this->permissions['board_profiles']))
+		if (!$reload && !empty($this->permissions['board_profiles'])) {
 			$excluded_profiles = array_keys($this->permissions['board_profiles']);
+		}
 
 		// Get board permissions.
-		$request = Db::$db->query('', '
-			SELECT id_profile, permission, add_deny
+		$request = Db::$db->query(
+			'',
+			'SELECT id_profile, permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_group = {int:this_group}' . (isset($profile) ? '
 				AND id_profile = {int:profile}' : '') . (isset($excluded_profiles) ? '
 				AND id_profile NOT IN ({array_int:excluded_profiles})' : ''),
-			array(
+			[
 				'this_group' => $this->id,
 				'profile' => $profile ?? 0,
-				'excluded_profiles' => $excluded_profiles ?? array(0),
-			)
+				'excluded_profiles' => $excluded_profiles ?? [0],
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$this->permissions['board_profiles'][(int) $row['id_profile']][$row['permission']] = (int) $row['add_deny'];
 		}
 		Db::$db->free_result($request);
@@ -1497,9 +1517,10 @@ class Group implements \ArrayAccess
 	 *    If null, get all permissions.
 	 * @return array A copy of $this->num_permissions.
 	 */
-	public function countPermissions(int $profile = null): array
+	public function countPermissions(?int $profile = null): array
 	{
-		self::countPermissionsBatch(array($this->id), $profile);
+		self::countPermissionsBatch([$this->id], $profile);
+
 		return $this->num_permissions;
 	}
 
@@ -1511,24 +1532,26 @@ class Group implements \ArrayAccess
 	public function updateBoardAccess(array $board_access): void
 	{
 		// This doesn't apply to administrators or moderators.
-		if ($this->id === self::ADMIN || $this->id === self::MOD)
+		if ($this->id === self::ADMIN || $this->id === self::MOD) {
 			return;
+		}
 
 		// Nothing to change?
-		if (empty($board_access))
+		if (empty($board_access)) {
 			return;
+		}
 
 		// Reorganize the new access permissions for easier processing.
-		$changed_boards = array(
-			'allow' => array(),
-			'deny' => array(),
-		);
+		$changed_boards = [
+			'allow' => [],
+			'deny' => [],
+		];
 
-		foreach ($board_access as $board_id => $access)
-		{
+		foreach ($board_access as $board_id => $access) {
 			// The only supported access types are 'allow' and 'deny'.
-			if (!isset($changed_boards[$access]))
+			if (!isset($changed_boards[$access])) {
 				continue;
+			}
 
 			$changed_boards[$access][] = (int) $board_id;
 		}
@@ -1537,50 +1560,47 @@ class Group implements \ArrayAccess
 		$changed_boards['allow'] = array_diff($changed_boards['allow'], $changed_boards['deny']);
 
 		// Reset the group's existing access permssions.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}board_permissions_view
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_group = {int:this_group}',
-			array(
+			[
 				'this_group' => $this->id,
-			)
+			],
 		);
 
 		// This will hold the inserts for the group's new access permissions.
-		$new_perms = array();
+		$new_perms = [];
 
 		// We're going to need all the boards, one way or another.
 		Category::getTree();
 
 		// Now loop through our changes and apply them.
-		foreach ($changed_boards as $access => $board_ids)
-		{
+		foreach ($changed_boards as $access => $board_ids) {
 			$prop = $access == 'allow' ? 'member_groups' : 'deny_groups';
 
-			foreach (Board::$loaded as $board)
-			{
-				if (in_array($board->id, $board_ids))
-				{
-					$board->{$prop} = array_unique(array_merge($board->{$prop}, array($this->id)));
-				}
-				else
-				{
-					$board->{$prop} = array_diff($board->{$prop}, array($this->id));
+			foreach (Board::$loaded as $board) {
+				if (in_array($board->id, $board_ids)) {
+					$board->{$prop} = array_unique(array_merge($board->{$prop}, [$this->id]));
+				} else {
+					$board->{$prop} = array_diff($board->{$prop}, [$this->id]);
 				}
 
 				$board->save();
 			}
 
-			foreach ($board_ids as $board_id)
-				$new_perms[] = array($this->id, (int) $board_id, $access == 'allow' ? 0 : 1);
+			foreach ($board_ids as $board_id) {
+				$new_perms[] = [$this->id, (int) $board_id, $access == 'allow' ? 0 : 1];
+			}
 		}
 
-		if (!empty($new_perms))
-		{
-			Db::$db->insert('insert',
+		if (!empty($new_perms)) {
+			Db::$db->insert(
+				'insert',
 				'{db_prefix}board_permissions_view',
-				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				['id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'],
 				$new_perms,
-				array('id_group', 'id_board', 'deny')
+				['id_group', 'id_board', 'deny'],
 			);
 		}
 	}
@@ -1596,55 +1616,51 @@ class Group implements \ArrayAccess
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded groups.
 	 */
-	public static function load(array|int $ids = array(), array $query_customizations = array()): array
+	public static function load(array|int $ids = [], array $query_customizations = []): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		$ids = array_unique(array_map('intval', (array) $ids));
 
 		// The guest and regular member groups require special handling.
-		$guest_and_reg = array_intersect(array(-1, 0), $ids);
+		$guest_and_reg = array_intersect([-1, 0], $ids);
 
-		if (!empty($guest_and_reg))
-		{
-			foreach ($guest_and_reg as $id)
+		if (!empty($guest_and_reg)) {
+			foreach ($guest_and_reg as $id) {
 				$loaded[$id] = new self($id);
+			}
 
 			$ids = array_diff($ids, $guest_and_reg);
 
-			if ($ids === array())
+			if ($ids === []) {
 				return $loaded;
+			}
 		}
 
-		$selects = $query_customizations['selects'] ?? array('mg.*');
-		$joins = $query_customizations['joins'] ?? array();
-		$where = $query_customizations['where'] ?? array();
-		$order = $query_customizations['order'] ?? array(
+		$selects = $query_customizations['selects'] ?? ['mg.*'];
+		$joins = $query_customizations['joins'] ?? [];
+		$where = $query_customizations['where'] ?? [];
+		$order = $query_customizations['order'] ?? [
 			'min_posts',
 			'CASE WHEN id_group < 4 THEN id_group ELSE 4 END',
 			'group_name',
-		);
-		$group = $query_customizations['group'] ?? array();
+		];
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
-		$params = $query_customizations['params'] ?? array();
+		$params = $query_customizations['params'] ?? [];
 
-		if ($ids !== array())
-		{
+		if ($ids !== []) {
 			$where[] = 'mg.id_group IN ({array_int:ids})';
 			$params['ids'] = $ids;
 		}
 
-		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row)
-		{
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$row['id_group'] = (int) $row['id_group'];
 
-			if (isset(self::$loaded[$row['id_group']]))
-			{
+			if (isset(self::$loaded[$row['id_group']])) {
 				self::$loaded[$row['id_group']]->set($row);
 				$loaded[] = self::$loaded[$row['id_group']];
-			}
-			else
-			{
+			} else {
 				$loaded[] = new self($row['id_group'], $row);
 			}
 		}
@@ -1664,57 +1680,59 @@ class Group implements \ArrayAccess
 	 * @param array $exclude IDs of groups to exclude.
 	 * @return array Instances of this class for the loaded groups.
 	 */
-	public static function loadSimple(int $include = self::LOAD_NORMAL, array $exclude = array(self::GUEST, self::REGULAR, self::MOD)): array
+	public static function loadSimple(int $include = self::LOAD_NORMAL, array $exclude = [self::GUEST, self::REGULAR, self::MOD]): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		// This is the typical sort order.
-		$query_customizations = array(
-			'order' => array(
+		$query_customizations = [
+			'order' => [
 				'min_posts',
 				'CASE WHEN id_group < 4 THEN id_group ELSE 4 END',
 				'group_name',
-			),
-		);
+			],
+		];
 
 		// Are we excluding post-count based groups?
-		if (!($include & self::LOAD_POST))
+		if (!($include & self::LOAD_POST)) {
 			$query_customizations['where'][] = 'min_posts = -1';
+		}
 
 		// Are we excluding normal groups?
-		if (!($include & self::LOAD_NORMAL))
+		if (!($include & self::LOAD_NORMAL)) {
 			$query_customizations['where'][] = 'min_posts > -1';
+		}
 
 		// If we are including normal groups, do we want guests and regular members?
-		if ($include & self::LOAD_NORMAL)
-		{
+		if ($include & self::LOAD_NORMAL) {
 			// Do we want the guest group?
-			if (!in_array(self::GUEST, $exclude))
+			if (!in_array(self::GUEST, $exclude)) {
 				$loaded = array_merge($loaded, self::load(-1));
+			}
 
 			// Do we want the regular members group?
-			if (!in_array(self::REGULAR, $exclude))
+			if (!in_array(self::REGULAR, $exclude)) {
 				$loaded = array_merge($loaded, self::load(0));
+			}
 		}
 
 		// Finally, exclude any groups we don't want.
-		foreach ($exclude as $id)
-		{
-			if (!is_int($id) || $id <= 0)
+		foreach ($exclude as $id) {
+			if (!is_int($id) || $id <= 0) {
 				continue;
+			}
 
 			$query_customizations['where'][] = 'id_group != ' . $id;
 		}
 
-		$loaded = array_merge($loaded, self::load(array(), $query_customizations));
+		$loaded = array_merge($loaded, self::load([], $query_customizations));
 
 		// If we loaded all the groups, populate the $children properties now for efficiency.
-		if ($include == self::LOAD_BOTH && ($exclude == array() || $exclude == array(self::MOD)))
-		{
-			foreach (self::$loaded as $group)
-			{
-				if (!isset(self::$loaded[$group->parent]))
+		if ($include == self::LOAD_BOTH && ($exclude == [] || $exclude == [self::MOD])) {
+			foreach (self::$loaded as $group) {
+				if (!isset(self::$loaded[$group->parent])) {
 					continue;
+				}
 
 				self::$loaded[$group->parent]->children[$group->id] = $group->name;
 				ksort(self::$loaded[$group->parent]->children);
@@ -1732,27 +1750,27 @@ class Group implements \ArrayAccess
 	 */
 	public static function loadAssignable(): array
 	{
-		$loaded = array(
+		$loaded = [
 			new self(0),
-		);
+		];
 
-		$query_customizations = array(
-			'where' => array(
+		$query_customizations = [
+			'where' => [
 				'id_group != 3',
 				'min_posts = -1',
-				'id_group NOT IN ({array_int:unassignable})'
-			),
-			'order' => array(
+				'id_group NOT IN ({array_int:unassignable})',
+			],
+			'order' => [
 				'min_posts',
 				'CASE WHEN id_group < 4 THEN id_group ELSE 4 END',
 				'group_name',
-			),
-			'params' => array(
+			],
+			'params' => [
 				'unassignable' => self::getUnassignable(),
-			),
-		);
+			],
+		];
 
-		$loaded = array_merge($loaded, self::load(array(), $query_customizations));
+		$loaded = array_merge($loaded, self::load([], $query_customizations));
 
 		// Return the instances we just loaded.
 		return $loaded;
@@ -1773,21 +1791,21 @@ class Group implements \ArrayAccess
 	public static function loadModeratorsBatch(array $group_ids, bool $ignore_protected = false): void
 	{
 		$group_ids = array_intersect(array_filter(array_unique(array_map('intval', $group_ids))), array_keys(self::$loaded));
-		$mod_ids = array();
+		$mod_ids = [];
 
-		foreach ($group_ids as $key => $group_id)
-		{
+		foreach ($group_ids as $key => $group_id) {
 			// Avoid unnecessary repetition.
-			if (isset(self::$loaded[$group_id]->moderator_ids))
+			if (isset(self::$loaded[$group_id]->moderator_ids)) {
 				unset($group_ids[$key]);
+			}
 		}
 
-		if (empty($group_ids))
+		if (empty($group_ids)) {
 			return;
+		}
 
-		foreach ($group_ids as $group_id)
-		{
-			self::$loaded[$group_id]->moderator_ids = array();
+		foreach ($group_ids as $group_id) {
+			self::$loaded[$group_id]->moderator_ids = [];
 
 			// We'll check below whether the current user is explicitly designated
 			// as a moderator for this group. But even if not, the current user
@@ -1800,16 +1818,17 @@ class Group implements \ArrayAccess
 			self::$loaded[$group_id]->can_moderate = User::$me->allowedTo('manage_membergroups') && ((self::$loaded[$group_id]->type ?? self::TYPE_PRIVATE) != self::TYPE_PROTECTED || $ignore_protected || User::$me->allowedTo('admin_forum'));
 		}
 
-		$request = Db::$db->query('', '
-			SELECT id_group, id_member
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group, id_member
 			FROM {db_prefix}group_moderators
 			WHERE id_group IN ({array_int:groups})',
-			array(
+			[
 				'groups' => $group_ids,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$row = array_map('intval', $row);
 
 			$group = self::$loaded[$row['id_group']];
@@ -1837,66 +1856,59 @@ class Group implements \ArrayAccess
 	 */
 	public static function countMembersBatch(array $group_ids, bool $recount = false): array
 	{
-		$counts = array();
+		$counts = [];
 
-		$post_groups = array();
-		$regular_groups = array();
+		$post_groups = [];
+		$regular_groups = [];
 		$moderator_group = null;
 
 		$group_ids = array_intersect(array_unique(array_map('intval', $group_ids)), array_keys(self::$loaded));
 
-		foreach ($group_ids as $key => $group_id)
-		{
+		foreach ($group_ids as $key => $group_id) {
 			// Can't count guests.
-			if ($group_id <= self::GUEST)
-			{
+			if ($group_id <= self::GUEST) {
 				unset($group_ids[$key]);
+
 				continue;
 			}
 
 			// Avoid unnecessary repetition.
-			if (!$recount && isset(self::$loaded[$group_id]->num_members))
-			{
+			if (!$recount && isset(self::$loaded[$group_id]->num_members)) {
 				$counts[$group_id] = self::$loaded[$group_id]->num_members;
 				unset($group_ids[$key]);
+
 				continue;
 			}
 
 			self::$loaded[$group_id]->num_members = 0;
 
-			if ($group_id === self::MOD)
-			{
+			if ($group_id === self::MOD) {
 				$moderator_group = $group_id;
-			}
-			elseif (self::$loaded[$group_id]->min_posts > -1)
-			{
+			} elseif (self::$loaded[$group_id]->min_posts > -1) {
 				$post_groups[] = $group_id;
-			}
-			else
-			{
+			} else {
 				$regular_groups[] = $group_id;
 			}
 		}
 
-		if (empty($post_groups) && empty($regular_groups) && empty($moderator_group))
+		if (empty($post_groups) && empty($regular_groups) && empty($moderator_group)) {
 			return $counts;
+		}
 
 		// Counting moderators is tricky.
-		if (!empty($moderator_group))
-		{
+		if (!empty($moderator_group)) {
 			// If we're in a board, only count the moderators for that board.
-			if (isset(Board::$info))
-			{
+			if (isset(Board::$info)) {
 				self::$loaded[self::MOD]->num_members = count(Board::$info->moderators);
 			}
 			// Outside a board, count the moderators for all boards.
-			else
-			{
-				$request = Db::$db->query('', '
-					SELECT COUNT(DISTINCT id_member)
+			else {
+				$request = Db::$db->query(
+					'',
+					'SELECT COUNT(DISTINCT id_member)
 					FROM {db_prefix}moderators
 					LIMIT 1',
-					array()
+					[],
 				);
 				list(self::$loaded[self::MOD]->num_members) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
@@ -1904,38 +1916,38 @@ class Group implements \ArrayAccess
 		}
 
 		// Post-count based groups.
-		if (!empty($post_groups))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_post_group, COUNT(*) AS num_members
+		if (!empty($post_groups)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_post_group, COUNT(*) AS num_members
 				FROM {db_prefix}members
 				WHERE id_post_group IN ({array_int:group_list})
 				GROUP BY id_post_group',
-				array(
+				[
 					'group_list' => $post_groups,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				self::$loaded[(int) $row['id_post_group']]->num_members += (int) $row['num_members'];
 			}
 			Db::$db->free_result($request);
 		}
 
 		// Regular groups.
-		if (!empty($regular_groups))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_group, COUNT(*) AS num_members
+		if (!empty($regular_groups)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group, COUNT(*) AS num_members
 				FROM {db_prefix}members
 				WHERE id_group IN ({array_int:group_list})
 				GROUP BY id_group',
-				array(
+				[
 					'group_list' => $regular_groups,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				self::$loaded[(int) $row['id_group']]->num_members += (int) $row['num_members'];
 			}
 			Db::$db->free_result($request);
@@ -1943,18 +1955,18 @@ class Group implements \ArrayAccess
 			// Count in additional groups if current user can moderate the group.
 			self::loadModeratorsBatch($regular_groups);
 
-			$groups_can_moderate = array();
+			$groups_can_moderate = [];
 
-			foreach ($regular_groups as $group_id)
-			{
-				if (self::$loaded[$group_id]->can_moderate)
+			foreach ($regular_groups as $group_id) {
+				if (self::$loaded[$group_id]->can_moderate) {
 					$groups_can_moderate[] = $group_id;
+				}
 			}
 
-			if (!empty($groups_can_moderate))
-			{
-				$request = Db::$db->query('', '
-					SELECT mg.id_group, COUNT(*) AS num_members
+			if (!empty($groups_can_moderate)) {
+				$request = Db::$db->query(
+					'',
+					'SELECT mg.id_group, COUNT(*) AS num_members
 					FROM {db_prefix}membergroups AS mg
 						INNER JOIN {db_prefix}members AS mem ON (
 							mem.additional_groups != {string:blank_string}
@@ -1963,27 +1975,28 @@ class Group implements \ArrayAccess
 						)
 					WHERE mg.id_group IN ({array_int:group_list})
 					GROUP BY mg.id_group',
-					array(
+					[
 						'group_list' => $groups_can_moderate,
 						'blank_string' => '',
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
+
+				while ($row = Db::$db->fetch_assoc($request)) {
 					self::$loaded[(int) $row['id_group']]->num_members += (int) $row['num_members'];
 				}
 				Db::$db->free_result($request);
 			}
 			// If user can't moderate the group, but has it as an additional group, add 1.
-			else
-			{
-				foreach (array_intersect($regular_groups, User::$me->additional_groups) as $id)
+			else {
+				foreach (array_intersect($regular_groups, User::$me->additional_groups) as $id) {
 					self::$loaded[$id]->num_members++;
+				}
 			}
 		}
 
-		foreach ($group_ids as $group_id)
+		foreach ($group_ids as $group_id) {
 			$counts[$group_id] = self::$loaded[$group_id]->num_members;
+		}
 
 		return $counts;
 	}
@@ -2004,70 +2017,66 @@ class Group implements \ArrayAccess
 	 * @param bool $reload If true, force a reload from the database.
 	 * @return array Copies of $this->permissions for all the groups.
 	 */
-	public static function loadPermissionsBatch(array $group_ids, int $profile = null, bool $reload = false): array
+	public static function loadPermissionsBatch(array $group_ids, ?int $profile = null, bool $reload = false): array
 	{
-		$get_general = array();
-		$get_board = array();
+		$get_general = [];
+		$get_board = [];
 
 		$group_ids = array_intersect(array_unique(array_map('intval', $group_ids)), array_keys(self::$loaded));
 
 		// Figure out which groups we need to get info for.
-		foreach ($group_ids as $key => $group_id)
-		{
+		foreach ($group_ids as $key => $group_id) {
 			// Profile is 0 or null and general perms haven't been loaded or should be reloaded.
-			if (empty($profile) && (empty(self::$loaded[$group_id]->permissions['general']) || $reload))
-			{
+			if (empty($profile) && (empty(self::$loaded[$group_id]->permissions['general']) || $reload)) {
 				$get_general[] = $group_id;
 			}
 
 			// Profile is null, or it's not 0 and either hasn't been loaded or should be reloaded.
-			if (!isset($profile) || (!empty($profile) && (!isset(self::$loaded[$group_id]->permissions['board_profiles'][$profile]) || $reload)))
-			{
+			if (!isset($profile) || (!empty($profile) && (!isset(self::$loaded[$group_id]->permissions['board_profiles'][$profile]) || $reload))) {
 				$get_board[] = $group_id;
 			}
 		}
 
 		// General permissions.
-		if (!empty($get_general))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_group, permission, add_deny
+		if (!empty($get_general)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group, permission, add_deny
 				FROM {db_prefix}permissions
 				WHERE id_group IN ({array_int:groups})',
-				array(
+				[
 					'groups' => $get_general,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				self::$loaded[(int) $row['id_group']]->permissions['general'][$row['permission']] = (int) $row['add_deny'];
 			}
 			Db::$db->free_result($request);
 		}
 
 		// Board permissions.
-		if (!empty($get_board))
-		{
+		if (!empty($get_board)) {
 			// Get board permissions.
-			$request = Db::$db->query('', '
-				SELECT id_profile, id_group, permission, add_deny
+			$request = Db::$db->query(
+				'',
+				'SELECT id_profile, id_group, permission, add_deny
 				FROM {db_prefix}board_permissions
 				WHERE id_group IN ({array_int:groups})' . (isset($profile) ? '
 					AND id_profile = {int:profile}' : ''),
-				array(
+				[
 					'groups' => $get_board,
 					'profile' => $profile ?? 0,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$row['id_profile'] = (int) $row['id_profile'];
 				$row['id_group'] = (int) $row['id_group'];
 				$row['add_deny'] = (int) $row['add_deny'];
 
 				// If we're loading all profiles, but not reloading, don't overwrite existing data.
-				if (!isset($profile) && !$reload && isset(self::$loaded[$row['id_group']]->permissions['board_profiles'][$row['id_profile']]))
-				{
+				if (!isset($profile) && !$reload && isset(self::$loaded[$row['id_group']]->permissions['board_profiles'][$row['id_profile']])) {
 					continue;
 				}
 
@@ -2076,10 +2085,11 @@ class Group implements \ArrayAccess
 			Db::$db->free_result($request);
 		}
 
-		$all_loaded_permissions = array();
+		$all_loaded_permissions = [];
 
-		foreach ($group_ids as $group_id)
+		foreach ($group_ids as $group_id) {
 			$all_loaded_permissions[$group_id] = self::$loaded[$group_id]->permissions;
+		}
 
 		return $all_loaded_permissions;
 	}
@@ -2100,32 +2110,33 @@ class Group implements \ArrayAccess
 	 *    If null, count general permissions and the default profile.
 	 * @return array Copies of $this->num_permissions for all the groups.
 	 */
-	public static function countPermissionsBatch(array $group_ids, int $profile = null): array
+	public static function countPermissionsBatch(array $group_ids, ?int $profile = null): array
 	{
-		if (!isset(Permissions::$hidden))
+		if (!isset(Permissions::$hidden)) {
 			Permissions::buildHidden();
+		}
 
 		// If null or 0, we want general permissions.
-		if (empty($profile))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_group, COUNT(*) AS num_permissions, add_deny
+		if (empty($profile)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group, COUNT(*) AS num_permissions, add_deny
 				FROM {db_prefix}permissions
 				' . (empty(Permissions::$hidden) ? '' : ' WHERE permission NOT IN ({array_string:hidden_permissions})') . '
 				GROUP BY id_group, add_deny',
-				array(
+				[
 					'hidden_permissions' => Permissions::$hidden,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$row['id_group'] = (int) $row['id_group'];
 
-				if (!isset(self::$loaded[$row['id_group']]))
+				if (!isset(self::$loaded[$row['id_group']])) {
 					continue;
+				}
 
-				if (!empty($row['add_deny']) || $row['id_group'] != self::GUEST)
-				{
+				if (!empty($row['add_deny']) || $row['id_group'] != self::GUEST) {
 					self::$loaded[$row['id_group']]->num_permissions[empty($row['add_deny']) ? 'denied' : 'allowed'] = $row['num_permissions'];
 				}
 			}
@@ -2133,29 +2144,30 @@ class Group implements \ArrayAccess
 		}
 
 		// For board permissions, null means the same as default.
-		if ($profile === null)
+		if ($profile === null) {
 			$profile = Permissions::PROFILE_DEFAULT;
+		}
 
-		if (!empty($profile))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_profile, id_group, COUNT(*) AS num_permissions, add_deny
+		if (!empty($profile)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_profile, id_group, COUNT(*) AS num_permissions, add_deny
 				FROM {db_prefix}board_permissions
 				WHERE id_profile = {int:current_profile}
 				GROUP BY id_profile, id_group, add_deny',
-				array(
+				[
 					'current_profile' => $profile,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$row['id_group'] = (int) $row['id_group'];
 
-				if (!isset(self::$loaded[$row['id_group']]))
+				if (!isset(self::$loaded[$row['id_group']])) {
 					continue;
+				}
 
-				if (!empty($row['add_deny']) || $row['id_group'] != self::GUEST)
-				{
+				if (!empty($row['add_deny']) || $row['id_group'] != self::GUEST) {
 					self::$loaded[$row['id_group']]->num_permissions[empty($row['add_deny']) ? 'denied' : 'allowed'] += $row['num_permissions'];
 				}
 			}
@@ -2163,21 +2175,20 @@ class Group implements \ArrayAccess
 		}
 
 		// A few overrides.
-		if (isset(self::$loaded[self::GUEST]))
-		{
+		if (isset(self::$loaded[self::GUEST])) {
 			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
 		}
 
-		if (isset(self::$loaded[self::ADMIN]))
-		{
+		if (isset(self::$loaded[self::ADMIN])) {
 			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::$txt['permissions_all'] . ')';
 			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
 		}
 
-		$all_counted_permissions = array();
+		$all_counted_permissions = [];
 
-		foreach ($group_ids as $group_id)
+		foreach ($group_ids as $group_id) {
 			$all_counted_permissions[$group_id] = self::$loaded[$group_id]->num_permissions;
+		}
 
 		return $all_counted_permissions;
 	}
@@ -2189,31 +2200,33 @@ class Group implements \ArrayAccess
 	 */
 	public static function getPostGroups(): array
 	{
-		if (isset(self::$post_groups))
+		if (isset(self::$post_groups)) {
 			return self::$post_groups;
+		}
 
-		self::$post_groups = array();
+		self::$post_groups = [];
 
 		// First, check any groups we have already loaded.
-		foreach (self::$loaded as $group)
-		{
-			if ($group->min_posts !== -1)
+		foreach (self::$loaded as $group) {
+			if ($group->min_posts !== -1) {
 				self::$post_groups[$group->id] = $group->min_posts;
+			}
 		}
 
 		// Now query the database to find any that haven't been loaded.
-		$request = Db::$db->query('', '
-			SELECT id_group, min_posts
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group, min_posts
 			FROM {db_prefix}membergroups
 			WHERE id_group NOT IN ({array_int:known_post_groups})
 				AND min_posts != {int:min_posts}',
-			array(
+			[
 				'min_posts' => -1,
-				'known_post_groups' => !empty(self::$post_groups) ? self::$post_groups : array(self::NONE),
-			)
+				'known_post_groups' => !empty(self::$post_groups) ? self::$post_groups : [self::NONE],
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			self::$post_groups[(int) $row['id_group']] = (int) $row['min_posts'];
 		}
 		Db::$db->free_result($request);
@@ -2232,22 +2245,23 @@ class Group implements \ArrayAccess
 	public static function getUnassignable(): array
 	{
 		// No need to do this twice.
-		if (isset(self::$unassignable))
+		if (isset(self::$unassignable)) {
 			return self::$unassignable;
+		}
 
 		// Admins can assign any group they like, except the guest group and post-count based groups.
-		if (User::$me->allowedTo('admin_forum'))
-		{
-			self::$unassignable = array(self::GUEST);
+		if (User::$me->allowedTo('admin_forum')) {
+			self::$unassignable = [self::GUEST];
 
-			$request = Db::$db->query('', '
-				SELECT id_group
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group
 				FROM {db_prefix}membergroups
 				WHERE min_posts > -1',
-				array()
+				[],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				self::$unassignable[] = (int) $row['id_group'];
 			}
 			Db::$db->free_result($request);
@@ -2256,44 +2270,47 @@ class Group implements \ArrayAccess
 		}
 
 		// No one can assign the guest group, and only admins can assign the admin group.
-		self::$unassignable = array(self::GUEST, self::ADMIN);
+		self::$unassignable = [self::GUEST, self::ADMIN];
 
 		// Find any other groups that are designated as protected.
-		$request = Db::$db->query('', '
-			SELECT id_group
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group
 			FROM {db_prefix}membergroups
 			WHERE group_type IN ({array_int:is_protected})
 				OR min_posts > -1',
-			array(
-				'is_protected' => !User::$me->allowedTo('manage_membergroups') ? array(self::REGULAR, self::ADMIN) : array(self::ADMIN),
-			)
+			[
+				'is_protected' => !User::$me->allowedTo('manage_membergroups') ? [self::REGULAR, self::ADMIN] : [self::ADMIN],
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			self::$unassignable[] = (int) $row['id_group'];
 		}
 		Db::$db->free_result($request);
 
 		// Prevent privilege escalation.
-		$protected_permissions = array();
-		foreach (array('admin_forum', 'manage_membergroups', 'manage_permissions') as $permission)
-		{
-			if (!User::$me->allowedTo($permission))
+		$protected_permissions = [];
+
+		foreach (['admin_forum', 'manage_membergroups', 'manage_permissions'] as $permission) {
+			if (!User::$me->allowedTo($permission)) {
 				$protected_permissions[] = $permission;
+			}
 		}
 
-		$request = Db::$db->query('', '
-			SELECT id_group
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group
 			FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:protected})
 				AND add_deny = {int:add}',
-			array(
+			[
 				'protected' => $protected_permissions,
 				'add' => 1,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			self::$unassignable[] = (int) $row['id_group'];
 		}
 		Db::$db->free_result($request);
@@ -2310,36 +2327,35 @@ class Group implements \ArrayAccess
 	 */
 	public static function getCachedList()
 	{
-		$groupCache = array();
-		$group = array();
+		$groupCache = [];
+		$group = [];
 
-		$selects = array('mg.*');
-		$joins = array();
-		$where = array(
+		$selects = ['mg.*'];
+		$joins = [];
+		$where = [
 			'min_posts = {int:min_posts}',
 			'hidden = {int:not_hidden}',
 			'id_group != {int:mod_group}',
-		);
-		$params = array(
+		];
+		$params = [
 			'min_posts' => -1,
 			'not_hidden' => self::VISIBLE,
 			'mod_group' => self::MOD,
-		);
+		];
 
-		foreach (self::queryData($selects, $params, $joins, $where) as $row)
-		{
+		foreach (self::queryData($selects, $params, $joins, $where) as $row) {
 			$group[$row['id_group']] = $row;
 
 			$groupCache[$row['id_group']] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" ' . ($row['online_color'] ? 'style="color: ' . $row['online_color'] . '"' : '') . '>' . $row['group_name'] . '</a>';
 		}
 
-		IntegrationHook::call('integrate_getMembergroupList', array(&$groupCache, $group));
+		IntegrationHook::call('integrate_getMembergroupList', [&$groupCache, $group]);
 
-		return array(
+		return [
 			'data' => $groupCache,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \SMF\Config::$modSettings[\'settings_updated\'] > ' . time() . ';',
-		);
+			'refresh_eval' => 'return \\SMF\\Config::$modSettings[\'settings_updated\'] > ' . time() . ';',
+		];
 	}
 
 	/*************************
@@ -2445,8 +2461,9 @@ class Group implements \ArrayAccess
 	 */
 	protected static function canDelete(object $group): bool
 	{
-		if ($group->type === self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum'))
+		if ($group->type === self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum')) {
 			return false;
+		}
 
 		return $group->id == self::GLOBAL_MOD || $group->id > self::NEWBIE;
 	}
@@ -2518,8 +2535,7 @@ class Group implements \ArrayAccess
 	 */
 	protected static function getHelpTxt(object $group): bool
 	{
-		switch ($group->id)
-		{
+		switch ($group->id) {
 			case self::GUEST:
 				$help = 'membergroup_guests';
 				break;
@@ -2552,12 +2568,9 @@ class Group implements \ArrayAccess
 	 */
 	protected static function getHref(object $group): string
 	{
-		if (User::$me->allowedTo('access_mod_center') && User::$me->allowedTo('manage_membergroups'))
-		{
+		if (User::$me->allowedTo('access_mod_center') && User::$me->allowedTo('manage_membergroups')) {
 			$action_url = '?action=moderate;area=viewgroups';
-		}
-		elseif (User::$me->allowedTo('view_mlist'))
-		{
+		} elseif (User::$me->allowedTo('view_mlist')) {
 			$action_url = '?action=groups';
 		}
 
@@ -2574,11 +2587,13 @@ class Group implements \ArrayAccess
 	{
 		$href = $this->getHref();
 
-		if ($href === '')
+		if ($href === '') {
 			return '';
+		}
 
-		if (!isset($this->num_members))
+		if (!isset($this->num_members)) {
 			$this->countMembers();
+		}
 
 		return '<a href="' . $href . '">' . $this->num_members . '</a>';
 	}
@@ -2601,10 +2616,11 @@ class Group implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = array(), array $joins = array(), array $where = array(), array $order = array(), array $group = array(), int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}membergroups AS mg' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
@@ -2612,10 +2628,10 @@ class Group implements \ArrayAccess
 			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
 			LIMIT ' . $limit : ''),
-			$params
+			$params,
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			yield $row;
 		}
 		Db::$db->free_result($request);
@@ -2623,7 +2639,8 @@ class Group implements \ArrayAccess
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Group::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Group::exportStatic')) {
 	Group::exportStatic();
+}
 
 ?>

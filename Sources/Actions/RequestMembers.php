@@ -14,10 +14,9 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
+use SMF\Db\DatabaseApi as Db;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Outputs each member name on its own line.
@@ -36,11 +35,11 @@ class RequestMembers implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'RequestMembers',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -76,31 +75,33 @@ class RequestMembers implements ActionInterface
 	{
 		User::$me->checkSession('get');
 
-		if (Utils::$context['utf8'] || function_exists('mb_convert_encoding'))
+		if (Utils::$context['utf8'] || function_exists('mb_convert_encoding')) {
 			header('content-type: text/plain; charset=UTF-8');
+		}
 
-		$request = Db::$db->query('', '
-			SELECT real_name
+		$request = Db::$db->query(
+			'',
+			'SELECT real_name
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
 				AND is_activated IN (1, 11)
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
-			array(
+			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!Utils::$context['utf8'])
-			{
-				if (($temp = @mb_convert_encoding($row['real_name'], 'UTF-8', Utils::$context['character_set'])) !== false)
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!Utils::$context['utf8']) {
+				if (($temp = @mb_convert_encoding($row['real_name'], 'UTF-8', Utils::$context['character_set'])) !== false) {
 					$row['real_name'] = $temp;
+				}
 			}
 
-			$row['real_name'] = strtr($row['real_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
+			$row['real_name'] = strtr($row['real_name'], ['&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;']);
 
 			$row['real_name'] = Utils::entityDecode($row['real_name'], true);
 
@@ -122,8 +123,9 @@ class RequestMembers implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -149,12 +151,13 @@ class RequestMembers implements ActionInterface
 
 		$this->search = Utils::htmlspecialchars($this->search);
 		$this->search = trim(Utils::strtolower($this->search)) . '*';
-		$this->search = strtr($this->search, array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
+		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\RequestMembers::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\RequestMembers::exportStatic')) {
 	RequestMembers::exportStatic();
+}
 
 ?>

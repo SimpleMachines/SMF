@@ -33,8 +33,8 @@ class Url implements \Stringable
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'setTldRegex' => 'set_tld_regex',
 			'parseIri' => 'parse_iri',
 			'validateIri' => 'validate_iri',
@@ -44,8 +44,8 @@ class Url implements \Stringable
 			'urlToIri' => 'url_to_iri',
 			'getProxiedUrl' => 'get_proxied_url',
 			'sslCertFound' => 'ssl_cert_found',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -133,7 +133,7 @@ class Url implements \Stringable
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param string $url The URL or IRI.
 	 * @param bool $normalize Whether to normalize the URL during construction.
 	 *    Default: false.
@@ -141,15 +141,12 @@ class Url implements \Stringable
 	public function __construct(string $url, bool $normalize = false)
 	{
 		$this->url = $url;
-		
+
 		// Clean it up?
-		if ($normalize)
-		{
+		if ($normalize) {
 			// normalize() will call parse() for us.
 			$this->normalize();
-		}
-		else
-		{
+		} else {
 			$this->parse();
 		}
 
@@ -167,29 +164,28 @@ class Url implements \Stringable
 	/**
 	 * Converts an IRI (a URL with international characters) into an ASCII URL.
 	 *
-	 * Uses Punycode to encode any non-ASCII characters in the domain name, and 
+	 * Uses Punycode to encode any non-ASCII characters in the domain name, and
 	 * uses standard URL encoding on the rest.
-	 * 
+	 *
 	 * @return object A reference to this object for method chaining.
 	 */
 	public function toAscii(): object
 	{
 		// Nothing to do if it is already ASCII.
-		if ($this->is_ascii)
+		if ($this->is_ascii) {
 			return $this;
+		}
 
-		if (!empty($this->host))
-		{
-			if (!function_exists('idn_to_ascii'))
-				require_once(Config::$sourcedir . '/Subs-Compat.php');
+		if (!empty($this->host)) {
+			if (!function_exists('idn_to_ascii')) {
+				require_once Config::$sourcedir . '/Subs-Compat.php';
+			}
 
 			// Convert the host using the Punycode algorithm
 			$encoded_host = idn_to_ascii($this->host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 			$pos = strpos($this->url, $this->host);
-		}
-		else
-		{
+		} else {
 			$encoded_host = '';
 			$pos = 0;
 		}
@@ -198,13 +194,13 @@ class Url implements \Stringable
 		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
 
 		// Encode any disallowed characters in the rest of the URL
-		$unescaped = array(
+		$unescaped = [
 			'%21' => '!', '%23' => '#', '%24' => '$', '%26' => '&',
 			'%27' => "'", '%28' => '(', '%29' => ')', '%2A' => '*',
 			'%2B' => '+', '%2C' => ',', '%2F' => '/', '%3A' => ':',
 			'%3B' => ';', '%3D' => '=', '%3F' => '?', '%40' => '@',
 			'%25' => '%',
-		);
+		];
 
 		$before_host = strtr(rawurlencode($before_host), $unescaped);
 		$after_host = strtr(rawurlencode($after_host), $unescaped);
@@ -222,28 +218,25 @@ class Url implements \Stringable
 	 *
 	 * Decodes any Punycode encoded characters in the domain name, then uses
 	 * standard URL decoding on the rest.
-	 * 
+	 *
 	 * @return object A reference to this object for method chaining.
 	 */
 	public function toUtf8(): object
 	{
 		// Bail out if we can be sure that it contains no international characters, encoded or otherwise.
-		if ($this->is_ascii && strpos($this->host ?? '', 'xn--') === false && strpos($this->url, '%') === false)
-		{
+		if ($this->is_ascii && strpos($this->host ?? '', 'xn--') === false && strpos($this->url, '%') === false) {
 			return $this;
 		}
 
-		if (!empty($this->host))
-		{
-			if (!function_exists('idn_to_utf8'))
-				require_once(Config::$sourcedir . '/Subs-Compat.php');
+		if (!empty($this->host)) {
+			if (!function_exists('idn_to_utf8')) {
+				require_once Config::$sourcedir . '/Subs-Compat.php';
+			}
 
 			// Decode the domain from Punycode.
 			$decoded_host = idn_to_utf8($this->host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 			$pos = strpos($this->url, $this->host);
-		}
-		else
-		{
+		} else {
 			$decoded_host = '';
 			$pos = 0;
 		}
@@ -252,13 +245,13 @@ class Url implements \Stringable
 		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
 
 		// Decode the rest of the URL, but preserve escaped URL syntax characters.
-		$double_escaped = array(
+		$double_escaped = [
 			'%21' => '%2521', '%23' => '%2523', '%24' => '%2524', '%26' => '%2526',
 			'%27' => '%2527', '%28' => '%2528', '%29' => '%2529', '%2A' => '%252A',
 			'%2B' => '%252B', '%2C' => '%252C', '%2F' => '%252F', '%3A' => '%253A',
 			'%3B' => '%253B', '%3D' => '%253D', '%3F' => '%253F', '%40' => '%2540',
 			'%25' => '%2525',
-		);
+		];
 
 		$before_host = rawurldecode(strtr($before_host, $double_escaped));
 		$after_host = rawurldecode(strtr($after_host, $double_escaped));
@@ -285,13 +278,10 @@ class Url implements \Stringable
 
 		$this->sanitize();
 
-		if (!empty($this->host))
-		{
+		if (!empty($this->host)) {
 			$normalized_host = Utils::normalize($this->host, 'kc_casefold');
 			$pos = strpos($this->url, $this->host);
-		}
-		else
-		{
+		} else {
 			$normalized_host = '';
 			$pos = 0;
 		}
@@ -319,12 +309,11 @@ class Url implements \Stringable
 		// Encode any non-ASCII characters (but not space or control characters of any sort)
 		// Also encode '%' in order to preserve anything that is already percent-encoded.
 		$url = preg_replace_callback(
-			'~[^\x00-\x7F\pZ\pC]|%~u',
-			function($matches)
-			{
+			'~[^\\x00-\\x7F\\pZ\\pC]|%~u',
+			function ($matches) {
 				return rawurlencode($matches[0]);
 			},
-			$this->url
+			$this->url,
 		);
 
 		// Perform normal sanitization
@@ -353,8 +342,9 @@ class Url implements \Stringable
 	{
 		$ascii_url = $this->is_ascii ? $this->url : (string) (clone $this)->toAscii();
 
-		if (strpos($ascii_url, '//') === 0)
+		if (strpos($ascii_url, '//') === 0) {
 			$ascii_url = 'http:' . $ascii_url;
+		}
 
 		return filter_var($ascii_url, FILTER_VALIDATE_URL, $flags) !== false;
 	}
@@ -367,8 +357,7 @@ class Url implements \Stringable
 	 */
 	public function validate(int $flags = 0): object
 	{
-		if (!$this->isValid($flags))
-		{
+		if (!$this->isValid($flags)) {
 			$this->url = '';
 			$this->parse();
 		}
@@ -386,28 +375,26 @@ class Url implements \Stringable
 	public function parse(int $component = -1): mixed
 	{
 		$url = preg_replace_callback(
-			'~[^\x00-\x7F\pZ\pC]|%~u',
-			function($matches)
-			{
+			'~[^\\x00-\\x7F\\pZ\\pC]|%~u',
+			function ($matches) {
 				return rawurlencode($matches[0]);
 			},
-			$this->url
+			$this->url,
 		);
 
 		$parsed = parse_url($url);
 
-		foreach (array('scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment') as $prop)
-		{
+		foreach (['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'] as $prop) {
 			// Clear out any old value.
 			unset($this->{$prop});
 
 			// Set the new value, if any.
-			if (isset($parsed[$prop]))
+			if (isset($parsed[$prop])) {
 				$this->{$prop} = rawurldecode($parsed[$prop]);
+			}
 		}
 
-		switch ($component)
-		{
+		switch ($component) {
 			case PHP_URL_SCHEME:
 				return $this->scheme ?? null;
 
@@ -452,30 +439,28 @@ class Url implements \Stringable
 		$proxied = clone $this;
 
 		// Only use the proxy if enabled, and never for robots.
-		if (empty(Config::$image_proxy_enabled) || !empty(User::$me->possibly_robot))
-		{
+		if (empty(Config::$image_proxy_enabled) || !empty(User::$me->possibly_robot)) {
 			return $proxied;
 		}
 
 		// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs.
-		if (empty($parsed->scheme) || empty($parsed->host) || empty($parsed->path) || $parsed->scheme === 'https')
-		{
+		if (empty($parsed->scheme) || empty($parsed->host) || empty($parsed->path) || $parsed->scheme === 'https') {
 			return $proxied;
 		}
 
 		// We don't need to proxy our own resources.
-		if ($parsed->host === Url::create(Config::$boardurl)->host)
-		{
-			$proxied->url = strtr($this->url, array('http://' => 'https://'));
+		if ($parsed->host === Url::create(Config::$boardurl)->host) {
+			$proxied->url = strtr($this->url, ['http://' => 'https://']);
+
 			return $proxied;
 		}
 
 		// By default, use SMF's own image proxy script.
-		$proxied->url = strtr(Config::$boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($proxied->url) . '&hash=' . hash_hmac('sha1', $proxied->url, Config::$image_proxy_secret);
+		$proxied->url = strtr(Config::$boardurl, ['http://' => 'https://']) . '/proxy.php?request=' . urlencode($proxied->url) . '&hash=' . hash_hmac('sha1', $proxied->url, Config::$image_proxy_secret);
 
 		// Allow mods to easily implement an alternative proxy.
 		// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
-		IntegrationHook::call('integrate_proxy', array($this->url, &$proxied->url));
+		IntegrationHook::call('integrate_proxy', [$this->url, &$proxied->url]);
 
 		return $proxied;
 	}
@@ -488,27 +473,27 @@ class Url implements \Stringable
 	public function hasSSL(): bool
 	{
 		// This check won't work without OpenSSL
-		if (!extension_loaded('openssl'))
+		if (!extension_loaded('openssl')) {
 			return true;
+		}
 
 		// First, strip the subfolder from the passed url, if any
 		$ssl_url = 'ssl://' . $this->host . ':443';
 
 		// Next, check the ssl stream context for certificate info
-		$ssloptions = array(
+		$ssloptions = [
 			'capture_peer_cert' => true,
 			'verify_peer' => true,
 			'allow_self_signed' => true,
-		);
+		];
 
 		$result = false;
 
-		$stream_context = stream_context_create(array('ssl' => $ssloptions));
+		$stream_context = stream_context_create(['ssl' => $ssloptions]);
 
 		$stream = @stream_socket_client($ssl_url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $stream_context);
 
-		if ($stream !== false)
-		{
+		if ($stream !== false) {
 			$params = stream_context_get_params($stream);
 			$result = isset($params['options']['ssl']['peer_certificate']) ? true : false;
 		}
@@ -530,21 +515,21 @@ class Url implements \Stringable
 
 		$headers = @get_headers($http_url);
 
-		if ($headers === false)
+		if ($headers === false) {
 			return false;
+		}
 
 		// Now to see if it came back HTTPS.
 		// First check for a redirect status code in first row (301, 302, 307).
-		if (strstr($headers[0], '301') === false && strstr($headers[0], '302') === false && strstr($headers[0], '307') === false)
-		{
+		if (strstr($headers[0], '301') === false && strstr($headers[0], '302') === false && strstr($headers[0], '307') === false) {
 			return false;
 		}
 
 		// Search for the location entry to confirm HTTPS.
-		foreach ($headers as $header)
-		{
-			if (stristr($header, 'Location: https://') !== false)
+		foreach ($headers as $header) {
+			if (stristr($header, 'Location: https://') !== false) {
 				return true;
+			}
 		}
 
 		return false;
@@ -590,12 +575,12 @@ class Url implements \Stringable
 		static $done = false;
 
 		// If we don't need to do anything, don't
-		if (!$update && $done)
+		if (!$update && $done) {
 			return;
+		}
 
 		// Should we get a new copy of the official list of TLDs?
-		if ($update)
-		{
+		if ($update) {
 			$tlds = WebFetchApi::fetch('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
 			$tlds_md5 = WebFetchApi::fetch('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
@@ -608,47 +593,49 @@ class Url implements \Stringable
 			 * wait until the next regularly scheduled update to see if
 			 * civilization has been restored.
 			 */
-			if ($tlds === false || $tlds_md5 === false)
+			if ($tlds === false || $tlds_md5 === false) {
 				$postapocalypticNightmare = true;
+			}
 
 			// Make sure nothing went horribly wrong along the way.
-			if (md5($tlds) != substr($tlds_md5, 0, 32))
-				$tlds = array();
+			if (md5($tlds) != substr($tlds_md5, 0, 32)) {
+				$tlds = [];
+			}
 		}
 		// If we aren't updating and the regex is valid, we're done
-		elseif (!empty(Config::$modSettings['tld_regex']) && @preg_match('~' . Config::$modSettings['tld_regex'] . '~', '') !== false)
-		{
+		elseif (!empty(Config::$modSettings['tld_regex']) && @preg_match('~' . Config::$modSettings['tld_regex'] . '~', '') !== false) {
 			$done = true;
+
 			return;
 		}
 
 		// If we successfully got an update, process the list into an array
-		if (!empty($tlds))
-		{
+		if (!empty($tlds)) {
 			// Clean $tlds and convert it to an array
 			$tlds = array_filter(
 				explode("\n", strtolower($tlds)),
-				function($line)
-				{
+				function ($line) {
 					$line = trim($line);
-					if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
-						return false;
-					else
-						return true;
-				}
+
+					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
+
+
+					;
+				},
 			);
 
 			// Convert Punycode to Unicode
-			if (!function_exists('idn_to_utf8'))
-				require_once(Config::$sourcedir . '/Subs-Compat.php');
+			if (!function_exists('idn_to_utf8')) {
+				require_once Config::$sourcedir . '/Subs-Compat.php';
+			}
 
-			foreach ($tlds as &$tld)
+			foreach ($tlds as &$tld) {
 				$tld = idn_to_utf8($tld, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+			}
 		}
 		// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
-		else
-		{
-			$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
+		else {
+			$tlds = ['com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
 				'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
 				'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
 				'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
@@ -670,27 +657,29 @@ class Url implements \Stringable
 				'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
 				'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
 				'ws', 'ye', 'yt', 'za', 'zm', 'zw',
-			);
+			];
 
 			// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
-			if (empty($postapocalypticNightmare))
-			{
-				Db::$db->insert('insert', '{db_prefix}background_tasks',
-					array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-					array('$sourcedir/tasks/UpdateTldRegex.php', 'SMF\Tasks\UpdateTldRegex', '', 0), array()
+			if (empty($postapocalypticNightmare)) {
+				Db::$db->insert(
+					'insert',
+					'{db_prefix}background_tasks',
+					['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
+					['$sourcedir/tasks/UpdateTldRegex.php', 'SMF\\Tasks\\UpdateTldRegex', '', 0],
+					[],
 				);
 			}
 		}
 
 		// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
 		// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
-		$tlds = array_merge($tlds, array('local', 'onion', 'test'));
+		$tlds = array_merge($tlds, ['local', 'onion', 'test']);
 
 		// Get an optimized regex to match all the TLDs
 		$tld_regex = Utils::buildRegex($tlds);
 
 		// Remember the new regex in Config::$modSettings
-		Config::updateModSettings(array('tld_regex' => $tld_regex));
+		Config::updateModSettings(['tld_regex' => $tld_regex]);
 
 		// Redundant repetition is redundant
 		$done = true;
@@ -811,7 +800,7 @@ class Url implements \Stringable
 	 * @param string $url The URL to check.
 	 * @return bool Whether a redirect to HTTPS was found.
 	 */
-	function httpsRedirectActive(string $url):  bool
+	public function httpsRedirectActive(string $url): bool
 	{
 		$url = new self($url);
 
@@ -834,7 +823,8 @@ class Url implements \Stringable
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Url::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Url::exportStatic')) {
 	Url::exportStatic();
+}
 
 ?>

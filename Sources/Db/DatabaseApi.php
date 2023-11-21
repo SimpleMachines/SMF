@@ -30,18 +30,18 @@ abstract class DatabaseApi
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'load' => 'loadDatabase',
 			'extend' => 'db_extend',
-		),
-		'prop_names' => array(
+		],
+		'prop_names' => [
 			'count' => 'db_count',
 			'cache' => 'db_cache',
 			'package_log' => 'db_package_log',
 			'db_connection' => 'db_connection',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -190,7 +190,7 @@ abstract class DatabaseApi
 	 *
 	 * For backward compatibilty, also referenced as global $db_cache.
 	 */
-	public static array $cache = array();
+	public static array $cache = [];
 
 	/**
 	 * @var array
@@ -199,7 +199,7 @@ abstract class DatabaseApi
 	 *
 	 * For backward compatibilty, also referenced as global $db_package_log.
 	 */
-	public static array $package_log = array();
+	public static array $package_log = [];
 
 	/**
 	 * @var object
@@ -231,7 +231,7 @@ abstract class DatabaseApi
 	 *
 	 * SMF tables that can't be auto-removed - in case a mod writer cocks it up!
 	 */
-	protected array $reservedTables = array(
+	protected array $reservedTables = [
 		'admin_info_files',
 		'approval_queue',
 		'attachments',
@@ -305,7 +305,7 @@ abstract class DatabaseApi
 		'user_alerts_prefs',
 		'user_drafts',
 		'user_likes',
-	);
+	];
 
 	/***********************
 	 * Public static methods
@@ -319,14 +319,14 @@ abstract class DatabaseApi
 	 * @param array $options An array of database options.
 	 * @return object An instance of a child class of this class.
 	 */
-	final public static function load(array $options = array())
+	final public static function load(array $options = [])
 	{
-		if (isset(self::$db))
+		if (isset(self::$db)) {
 			return self::$db;
+		}
 
 		// Figure out what type of database we are using.
-		switch (!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql')
-		{
+		switch (!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql') {
 			// PostgreSQL is known by many names.
 			case 'postgresql':
 			case 'postgres':
@@ -335,33 +335,34 @@ abstract class DatabaseApi
 				$class = POSTGRE_TITLE;
 				break;
 
-			// MySQL and its forks.
+				// MySQL and its forks.
 			case 'mysql':
 			case 'mariadb':
 			case 'percona':
 				$class = MYSQL_TITLE;
 				break;
 
-			// Something else?
+				// Something else?
 			default:
 				$class = ucwords(Config::$db_type);
 
 				// If the necessary class doesn't exist, fall back to MySQL.
-				if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class))
+				if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class)) {
 					$class = MYSQL_TITLE;
+				}
 
 				break;
 		}
 
-		if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class))
+		if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class)) {
 			ErrorHandler::displayDbError();
+		}
 
 		$class = __NAMESPACE__ . '\\APIs\\' . $class;
 		self::$db = new $class($options);
 
 		// Double check that we found what we expected.
-		if (!(self::$db instanceof DatabaseApi))
-		{
+		if (!(self::$db instanceof DatabaseApi)) {
 			unset($self::$db);
 			ErrorHandler::displayDbError();
 		}
@@ -385,32 +386,41 @@ abstract class DatabaseApi
 	 */
 	protected function __construct()
 	{
-		if (!isset($this->server))
+		if (!isset($this->server)) {
 			$this->server = (string) Config::$db_server;
+		}
 
-		if (!isset($this->name))
+		if (!isset($this->name)) {
 			$this->name = (string) Config::$db_name;
+		}
 
-		if (!isset($this->prefix))
+		if (!isset($this->prefix)) {
 			$this->prefix = (string) Config::$db_prefix;
+		}
 
-		if (!isset($this->port))
+		if (!isset($this->port)) {
 			$this->port = !empty(Config::$db_port) ? (int) Config::$db_port : 0;
+		}
 
-		if (!isset($this->persist))
+		if (!isset($this->persist)) {
 			$this->persist = !empty(Config::$db_persist);
+		}
 
-		if (!isset($this->mb4))
+		if (!isset($this->mb4)) {
 			$this->mb4 = !empty(Config::$db_mb4);
+		}
 
-		if (!isset($this->character_set))
+		if (!isset($this->character_set)) {
 			$this->character_set = (string) Config::$db_character_set;
+		}
 
-		if (!isset($this->show_debug))
+		if (!isset($this->show_debug)) {
 			$this->show_debug = !empty(Config::$db_show_debug);
+		}
 
-		if (!isset($this->disableQueryCheck))
+		if (!isset($this->disableQueryCheck)) {
 			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
+		}
 
 		$this->prefixReservedTables();
 
@@ -428,8 +438,9 @@ abstract class DatabaseApi
 		$this->reservedTables = $class_vars['reservedTables'];
 
 		// Prepend the prefix.
-		foreach ($this->reservedTables as $k => $table_name)
+		foreach ($this->reservedTables as $k => $table_name) {
 			$this->reservedTables[$k] = strtolower($this->prefix . $table_name);
+		}
 	}
 
 	/**
@@ -439,21 +450,22 @@ abstract class DatabaseApi
 	protected function mapToSmcFunc()
 	{
 		// Only do this once.
-		if (isset(Utils::$smcFunc['db_fetch_assoc']))
+		if (isset(Utils::$smcFunc['db_fetch_assoc'])) {
 			return;
+		}
 
 		// Scalar values to export.
-		Utils::$smcFunc += array(
+		Utils::$smcFunc += [
 			'db_title' => &$this->title,
 			'db_sybase' => &$this->sybase,
 			'db_case_sensitive' => &$this->case_sensitive,
 			'db_mb4' => &$this->mb4,
 			'db_support_ignore' => &$this->support_ignore,
 			'db_supports_pcre' => &$this->supports_pcre,
-		);
+		];
 
 		// Methods to export.
-		$methods = array(
+		$methods = [
 			// Basic
 			'db_affected_rows' => 'affected_rows',
 			'db_connect_errno' => 'connect_errno',
@@ -510,13 +522,11 @@ abstract class DatabaseApi
 			'db_search_language' => 'search_language',
 			'db_search_query' => 'query',
 			'db_search_support' => 'search_support',
-		);
+		];
 
 		// Wrap each method in a closure that calls it.
-		foreach ($methods as $key => $method)
-		{
-			Utils::$smcFunc[$key] = function(...$args) use ($method)
-			{
+		foreach ($methods as $key => $method) {
+			Utils::$smcFunc[$key] = function (...$args) use ($method) {
 				return $this->$method(...$args);
 			};
 		}
@@ -524,7 +534,8 @@ abstract class DatabaseApi
 }
 
 // Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\DatabaseApi::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\DatabaseApi::exportStatic')) {
 	DatabaseApi::exportStatic();
+}
 
 ?>

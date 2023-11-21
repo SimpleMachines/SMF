@@ -29,7 +29,7 @@ interface WebFetchApiInterface
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array $post_data = array()): object;
+	public function request(string $url, array $post_data = []): object;
 
 	/**
 	 * Used to return the results to the caller.
@@ -40,7 +40,7 @@ interface WebFetchApiInterface
 	 * @param string $area Used to return an area such as body, header, error.
 	 * @return mixed The response.
 	 */
-	public function result(string $area = null): mixed;
+	public function result(?string $area = null): mixed;
 
 	/**
 	 * Will return all results from all loops (redirects)
@@ -51,7 +51,7 @@ interface WebFetchApiInterface
 	 * @param int $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
-	public function resultRaw(int $response_number = null): array;
+	public function resultRaw(?int $response_number = null): array;
 }
 
 ?>

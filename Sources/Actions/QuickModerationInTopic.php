@@ -14,15 +14,14 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Handles quick moderation actions from within a topic.
@@ -39,11 +38,11 @@ class QuickModerationInTopic implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'QuickInTopicModeration',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -54,7 +53,7 @@ class QuickModerationInTopic implements ActionInterface
 	 *
 	 * IDs of the messages to act on.
 	 */
-	public array $messages = array();
+	public array $messages = [];
 
 	/****************************
 	 * Internal static properties
@@ -80,12 +79,13 @@ class QuickModerationInTopic implements ActionInterface
 		// Check the session = get or post.
 		User::$me->checkSession('request');
 
-		if (isset($_REQUEST['restore_selected']))
+		if (isset($_REQUEST['restore_selected'])) {
 			$this->restore();
-		elseif (isset($_REQUEST['split_selection']))
+		} elseif (isset($_REQUEST['split_selection'])) {
 			$this->split();
-		else
+		} else {
 			$this->delete();
+		}
 	}
 
 	/***********************
@@ -99,8 +99,9 @@ class QuickModerationInTopic implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -138,14 +139,15 @@ class QuickModerationInTopic implements ActionInterface
 	 */
 	protected function split()
 	{
-		$request = Db::$db->query('', '
-			SELECT subject
+		$request = Db::$db->query(
+			'',
+			'SELECT subject
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:message}
 			LIMIT 1',
-			array(
+			[
 				'message' => min($this->messages),
-			)
+			],
 		);
 		list($subname) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -163,92 +165,92 @@ class QuickModerationInTopic implements ActionInterface
 	protected function delete()
 	{
 		// Allowed to delete any message?
-		if (User::$me->allowedTo('delete_any'))
-		{
+		if (User::$me->allowedTo('delete_any')) {
 			$allowed_all = true;
 		}
 		// Allowed to delete replies to their messages?
-		elseif (User::$me->allowedTo('delete_replies'))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_member_started
+		elseif (User::$me->allowedTo('delete_replies')) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member_started
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:current_topic}
 				LIMIT 1',
-				array(
+				[
 					'current_topic' => Topic::$topic_id,
-				)
+				],
 			);
-			list ($starter) = Db::$db->fetch_row($request);
+			list($starter) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
 			$allowed_all = $starter == User::$me->id;
-		}
-		else
+		} else {
 			$allowed_all = false;
+		}
 
 		// Make sure they're allowed to delete their own messages, if not any.
-		if (!$allowed_all)
+		if (!$allowed_all) {
 			User::$me->isAllowedTo('delete_own');
+		}
 
 		// Allowed to remove which messages?
-		$request = Db::$db->query('', '
-			SELECT id_msg, subject, id_member, poster_time
+		$request = Db::$db->query(
+			'',
+			'SELECT id_msg, subject, id_member, poster_time
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:message_list})
 				AND id_topic = {int:current_topic}' . (!$allowed_all ? '
 				AND id_member = {int:current_member}' : '') . '
 			LIMIT {int:limit}',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'current_topic' => Topic::$topic_id,
 				'message_list' => $this->messages,
 				'limit' => count($this->messages),
-			)
+			],
 		);
-		$message_info = array();
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!$allowed_all && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
-				continue;
+		$message_info = [];
 
-			$message_info[$row['id_msg']] = array($row['subject'], $row['id_member']);
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!$allowed_all && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time()) {
+				continue;
+			}
+
+			$message_info[$row['id_msg']] = [$row['subject'], $row['id_member']];
 		}
 		Db::$db->free_result($request);
 
 		// Get the first message in the topic - because you can't delete that!
-		$request = Db::$db->query('', '
-			SELECT id_first_msg, id_last_msg
+		$request = Db::$db->query(
+			'',
+			'SELECT id_first_msg, id_last_msg
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
-			array(
+			[
 				'current_topic' => Topic::$topic_id,
-			)
+			],
 		);
-		list ($first_message, $last_message) = Db::$db->fetch_row($request);
+		list($first_message, $last_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Delete all the messages we know they can delete. ($message_info)
-		foreach ($message_info as $message => $info)
-		{
+		foreach ($message_info as $message => $info) {
 			// Just skip the first message - if it's not the last.
-			if ($message == $first_message && $message != $last_message)
-			{
+			if ($message == $first_message && $message != $last_message) {
 				continue;
 			}
+
 			// If the first message is going then don't bother going back to the topic as we're effectively deleting it.
-			elseif ($message == $first_message)
-			{
+			if ($message == $first_message) {
 				$topicGone = true;
 			}
 
 			Msg::remove($message);
 
 			// Log this moderation action ;).
-			if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $info[1] != User::$me->id))
-			{
-				Logging::logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $info[0], 'member' => $info[1], 'board' => Board::$info->id));
+			if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $info[1] != User::$me->id)) {
+				Logging::logAction('delete', ['topic' => Topic::$topic_id, 'subject' => $info[0], 'member' => $info[1], 'board' => Board::$info->id]);
 			}
 		}
 
@@ -257,7 +259,8 @@ class QuickModerationInTopic implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\QuickModerationInTopic::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\QuickModerationInTopic::exportStatic')) {
 	QuickModerationInTopic::exportStatic();
+}
 
 ?>

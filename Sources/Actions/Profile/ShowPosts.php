@@ -13,12 +13,12 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -32,7 +32,6 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.
@@ -46,8 +45,8 @@ class ShowPosts implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'list_getUnwatched' => 'list_getUnwatched',
 			'list_getNumUnwatched' => 'list_getNumUnwatched',
 			'list_getAttachments' => 'list_getAttachments',
@@ -55,8 +54,8 @@ class ShowPosts implements ActionInterface
 			'showPosts' => 'showPosts',
 			'showUnwatched' => 'showUnwatched',
 			'showAttachments' => 'showAttachments',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -79,12 +78,12 @@ class ShowPosts implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'messages' => 'messages',
 		'topics' => 'topics',
 		'unwatchedtopics' => 'unwatched',
 		'attach' => 'attachments',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -112,21 +111,21 @@ class ShowPosts implements ActionInterface
 		Utils::$context['current_member'] = Profile::$member->id;
 
 		// Create the tabs for the template.
-		Menu::$loaded['profile']->tab_data = array(
+		Menu::$loaded['profile']->tab_data = [
 			'title' => Lang::$txt['showPosts'],
 			'description' => Lang::$txt['showPosts_help'],
 			'icon_class' => 'main_icons profile_hd',
-			'tabs' => array(
-				'messages' => array(
-				),
-				'topics' => array(
-				),
-				'unwatchedtopics' => array(
-				),
-				'attach' => array(
-				),
-			),
-		);
+			'tabs' => [
+				'messages' => [
+				],
+				'topics' => [
+				],
+				'unwatchedtopics' => [
+				],
+				'attach' => [
+				],
+			],
+		];
 
 		$this->setPageTitle();
 
@@ -135,15 +134,15 @@ class ShowPosts implements ActionInterface
 			!empty(Utils::$context['load_average'])
 			&& !empty(Config::$modSettings['loadavg_show_posts'])
 			&& Utils::$context['load_average'] >= Config::$modSettings['loadavg_show_posts']
-		)
-		{
+		) {
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -154,8 +153,9 @@ class ShowPosts implements ActionInterface
 		Utils::$context['is_topics'] = false;
 
 		// If just deleting a message, do it and then redirect back.
-		if (isset($_GET['delete']))
+		if (isset($_GET['delete'])) {
 			$this->deletePost();
+		}
 
 		$this->loadPosts();
 	}
@@ -176,104 +176,105 @@ class ShowPosts implements ActionInterface
 	public function unwatched(): void
 	{
 		// Only the owner can see the list (if the function is enabled of course)
-		if (!User::$me->is_owner)
-			Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts');;
+		if (!User::$me->is_owner) {
+			Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts');
+		}
 
 		// And here they are: the topics you don't like
-		$list_options = array(
+		$list_options = [
 			'id' => 'unwatched_topics',
 			'width' => '100%',
 			'items_per_page' => (empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page'])) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'],
 			'no_items_label' => Lang::$txt['unwatched_topics_none'],
 			'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . Profile::$member->id,
 			'default_sort_col' => 'started_on',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getUnwatched',
-				'params' => array(),
-			),
-			'get_count' => array(
+				'params' => [],
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumUnwatched',
-				'params' => array(),
-			),
-			'columns' => array(
-				'subject' => array(
-					'header' => array(
+				'params' => [],
+			],
+			'columns' => [
+				'subject' => [
+					'header' => [
 						'value' => Lang::$txt['subject'],
 						'class' => 'lefttext',
 						'style' => 'width: 30%;',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?topic=%1$d.0">%2$s</a>',
-							'params' => array(
+							'params' => [
 								'id_topic' => false,
 								'subject' => false,
-							),
-						),
-					),
-					'sort' => array(
+							],
+						],
+					],
+					'sort' => [
 						'default' => 'm.subject',
 						'reverse' => 'm.subject DESC',
-					),
-				),
-				'started_by' => array(
-					'header' => array(
+					],
+				],
+				'started_by' => [
+					'header' => [
 						'value' => Lang::$txt['started_by'],
 						'style' => 'width: 15%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'started_by',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mem.real_name',
 						'reverse' => 'mem.real_name DESC',
-					),
-				),
-				'started_on' => array(
-					'header' => array(
+					],
+				],
+				'started_on' => [
+					'header' => [
 						'value' => Lang::$txt['on'],
 						'class' => 'lefttext',
 						'style' => 'width: 20%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'started_on',
 						'timeformat' => true,
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'm.poster_time',
 						'reverse' => 'm.poster_time DESC',
-					),
-				),
-				'last_post_by' => array(
-					'header' => array(
+					],
+				],
+				'last_post_by' => [
+					'header' => [
 						'value' => Lang::$txt['last_post'],
 						'style' => 'width: 15%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'last_post_by',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mem.real_name',
 						'reverse' => 'mem.real_name DESC',
-					),
-				),
-				'last_post_on' => array(
-					'header' => array(
+					],
+				],
+				'last_post_on' => [
+					'header' => [
 						'value' => Lang::$txt['on'],
 						'class' => 'lefttext',
 						'style' => 'width: 20%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'last_post_on',
 						'timeformat' => true,
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'm.poster_time',
 						'reverse' => 'm.poster_time DESC',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 
 		// Create the request list.
 		new ItemList($list_options);
@@ -291,108 +292,108 @@ class ShowPosts implements ActionInterface
 		$boards_allowed = User::$me->boardsAllowedTo('view_attachments');
 
 		// Make sure we can't actually see anything...
-		if (empty($boards_allowed))
-			$boards_allowed = array(-1);
+		if (empty($boards_allowed)) {
+			$boards_allowed = [-1];
+		}
 
 		// This is all the information required to list attachments.
-		$list_options = array(
+		$list_options = [
 			'id' => 'attachments',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['show_attachments_none'],
 			'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=attach;u=' . Profile::$member->id,
 			'default_sort_col' => 'filename',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getAttachments',
-				'params' => array(
+				'params' => [
 					$boards_allowed,
-				),
-			),
-			'get_count' => array(
+				],
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumAttachments',
-				'params' => array(
+				'params' => [
 					$boards_allowed,
-				),
-			),
-			'data_check' => array(
-				'class' => function($data)
-				{
+				],
+			],
+			'data_check' => [
+				'class' => function ($data) {
 					return $data['approved'] ? '' : 'approvebg';
-				}
-			),
-			'columns' => array(
-				'filename' => array(
-					'header' => array(
+				},
+			],
+			'columns' => [
+				'filename' => [
+					'header' => [
 						'value' => Lang::$txt['show_attach_filename'],
 						'class' => 'lefttext',
 						'style' => 'width: 25%;',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>%4$s',
-							'params' => array(
+							'params' => [
 								'topic' => true,
 								'id' => true,
 								'filename' => false,
 								'awaiting_approval' => false,
-							),
-						),
-					),
-					'sort' => array(
+							],
+						],
+					],
+					'sort' => [
 						'default' => 'a.filename',
 						'reverse' => 'a.filename DESC',
-					),
-				),
-				'downloads' => array(
-					'header' => array(
+					],
+				],
+				'downloads' => [
+					'header' => [
 						'value' => Lang::$txt['show_attach_downloads'],
 						'style' => 'width: 12%;',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'downloads',
 						'comma_format' => true,
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'a.downloads',
 						'reverse' => 'a.downloads DESC',
-					),
-				),
-				'subject' => array(
-					'header' => array(
+					],
+				],
+				'subject' => [
+					'header' => [
 						'value' => Lang::$txt['message'],
 						'class' => 'lefttext',
 						'style' => 'width: 30%;',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?msg=%1$d">%2$s</a>',
-							'params' => array(
+							'params' => [
 								'msg' => true,
 								'subject' => false,
-							),
-						),
-					),
-					'sort' => array(
+							],
+						],
+					],
+					'sort' => [
 						'default' => 'm.subject',
 						'reverse' => 'm.subject DESC',
-					),
-				),
-				'posted' => array(
-					'header' => array(
+					],
+				],
+				'posted' => [
+					'header' => [
 						'value' => Lang::$txt['show_attach_posted'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'posted',
 						'timeformat' => true,
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'm.poster_time',
 						'reverse' => 'm.poster_time DESC',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 
 		// Create the request list.
 		new ItemList($list_options);
@@ -409,8 +410,9 @@ class ShowPosts implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -434,51 +436,52 @@ class ShowPosts implements ActionInterface
 	public static function list_getUnwatched(int $start, int $items_per_page, string $sort): array
 	{
 		// Get the list of topics we can see
-		$topics = array();
+		$topics = [];
 
-		$request = Db::$db->query('', '
-			SELECT lt.id_topic
+		$request = Db::$db->query(
+			'',
+			'SELECT lt.id_topic
 			FROM {db_prefix}log_topics as lt
 				LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-				LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
+				LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, ['mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC']) ? '
 				LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
 			WHERE lt.id_member = {int:current_member}
 				AND unwatched = 1
 				AND {query_see_message_board}
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
-			array(
+			[
 				'current_member' => Profile::$member->id,
 				'sort' => $sort,
 				'offset' => $start,
 				'limit' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$topics[] = $row['id_topic'];
 		}
 		Db::$db->free_result($request);
 
 		// Any topics found?
-		$topics_info = array();
+		$topics_info = [];
 
-		if (!empty($topics))
-		{
-			$request = Db::$db->query('', '
-				SELECT mf.subject, mf.poster_time as started_on, COALESCE(memf.real_name, mf.poster_name) as started_by, ml.poster_time as last_post_on, COALESCE(meml.real_name, ml.poster_name) as last_post_by, t.id_topic
+		if (!empty($topics)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT mf.subject, mf.poster_time as started_on, COALESCE(memf.real_name, mf.poster_name) as started_by, ml.poster_time as last_post_on, COALESCE(meml.real_name, ml.poster_name) as last_post_by, t.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 					INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 					LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
 					LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)
 				WHERE t.id_topic IN ({array_int:topics})',
-				array(
+				[
 					'topics' => $topics,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$topics_info[] = $row;
 			}
 			Db::$db->free_result($request);
@@ -495,16 +498,17 @@ class ShowPosts implements ActionInterface
 	public static function list_getNumUnwatched(): int
 	{
 		// Get the total number of attachments they have posted.
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_topics as lt
 			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
 			WHERE lt.id_member = {int:current_member}
 				AND lt.unwatched = 1
 				AND {query_see_topic_board}',
-			array(
+			[
 				'current_member' => Profile::$member->id,
-			)
+			],
 		);
 		list($unwatched_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -524,10 +528,11 @@ class ShowPosts implements ActionInterface
 	public static function list_getAttachments(int $start, int $items_per_page, string $sort, array $boards_allowed): array
 	{
 		// Retrieve some attachments.
-		$attachments = array();
+		$attachments = [];
 
-		$request = Db::$db->query('', '
-			SELECT a.id_attach, a.id_msg, a.filename, a.downloads, a.approved, m.id_msg, m.id_topic,
+		$request = Db::$db->query(
+			'',
+			'SELECT a.id_attach, a.id_msg, a.filename, a.downloads, a.approved, m.id_msg, m.id_topic,
 				m.id_board, m.poster_time, m.subject, b.name
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -540,7 +545,7 @@ class ShowPosts implements ActionInterface
 				AND a.approved = {int:is_approved}') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
-			array(
+			[
 				'boards_list' => $boards_allowed,
 				'attachment_type' => 0,
 				'no_message' => 0,
@@ -550,11 +555,11 @@ class ShowPosts implements ActionInterface
 				'sort' => $sort,
 				'offset' => $start,
 				'limit' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$attachments[] = array(
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$attachments[] = [
 				'id' => $row['id_attach'],
 				'filename' => $row['filename'],
 				'downloads' => $row['downloads'],
@@ -566,7 +571,7 @@ class ShowPosts implements ActionInterface
 				'board_name' => $row['name'],
 				'approved' => $row['approved'],
 				'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''),
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -582,8 +587,9 @@ class ShowPosts implements ActionInterface
 	public static function list_getNumAttachments(array $boards_allowed): int
 	{
 		// Get the total number of attachments they have posted.
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
@@ -595,14 +601,14 @@ class ShowPosts implements ActionInterface
 				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
-			array(
+			[
 				'boards_list' => $boards_allowed,
 				'attachment_type' => 0,
 				'no_message' => 0,
 				'current_member' => Profile::$member->id,
 				'is_approved' => 1,
 				'board' => Board::$info->id ?? 0,
-			)
+			],
 		);
 		list($attach_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -666,11 +672,13 @@ class ShowPosts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 	}
 
 	/**
@@ -679,12 +687,12 @@ class ShowPosts implements ActionInterface
 	protected function setPageTitle(): void
 	{
 		// Shortcut used to determine which Lang::$txt['show*'] string to use for the title, based on the SA
-		$title = array(
+		$title = [
 			'messages' => 'showPosts',
 			'topics' => 'showTopics',
 			'unwatchedtopics' => User::$me->is_owner ? 'showUnwatched' : 'showPosts',
 			'attach' => 'showAttachments',
-		);
+		];
 
 		// Set the page title
 		Utils::$context['page_title'] = Lang::$txt[$title[$_REQUEST['sa'] ?? 'messages'] ?? $title['messages']] . ' - ' . Profile::$member->name;
@@ -696,26 +704,27 @@ class ShowPosts implements ActionInterface
 	protected function deletePost(): void
 	{
 		// Double check, just in case...
-		if (!isset($_GET['delete']))
+		if (!isset($_GET['delete'])) {
 			return;
+		}
 
 		User::$me->checkSession('get');
 
 		// We need msg info for logging.
-		$request = Db::$db->query('', '
-			SELECT subject, id_member, id_topic, id_board
+		$request = Db::$db->query(
+			'',
+			'SELECT subject, id_member, id_topic, id_board
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id_msg}',
-			array(
+			[
 				'id_msg' => (int) $_GET['delete'],
-			)
+			],
 		);
 		$info = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Trying to remove a message that doesn't exist.
-		if (empty($info))
-		{
+		if (empty($info)) {
 			Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts;start=' . $_GET['start']);
 		}
 
@@ -723,14 +732,13 @@ class ShowPosts implements ActionInterface
 		Msg::remove((int) $_GET['delete']);
 
 		// Add it to the mod log.
-		if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $info[1] != User::$me->id))
-		{
-			Logging::logAction('delete', array(
+		if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $info[1] != User::$me->id)) {
+			Logging::logAction('delete', [
 				'topic' => $info[2],
 				'subject' => $info[0],
 				'member' => $info[1],
 				'board' => $info[3],
-			));
+			]);
 		}
 
 		// Back to... where we are now ;).
@@ -743,70 +751,68 @@ class ShowPosts implements ActionInterface
 	protected function loadPosts($is_topics = false): void
 	{
 		// Default to 10.
-		if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount']))
+		if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount'])) {
 			$_REQUEST['viewscount'] = '10';
+		}
 
-		if ($is_topics)
-		{
-			$request = Db::$db->query('', '
-				SELECT COUNT(*)
+		if ($is_topics) {
+			$request = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}topics AS t' . '
 				WHERE {query_see_topic_board}
 					AND t.id_member_started = {int:current_member}' . (!empty(Board::$info->id) ? '
 					AND t.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 					AND t.approved = {int:is_approved}'),
-				array(
+				[
 					'current_member' => Profile::$member->id,
 					'is_approved' => 1,
 					'board' => Board::$info->id ?? 0,
-				)
+				],
 			);
-		}
-		else
-		{
-			$request = Db::$db->query('', '
-				SELECT COUNT(*)
+		} else {
+			$request = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 					AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 					AND m.approved = {int:is_approved}
 					AND t.approved = {int:is_approved}'),
-				array(
+				[
 					'current_member' => Profile::$member->id,
 					'is_approved' => 1,
 					'board' => Board::$info->id ?? 0,
-				)
+				],
 			);
 		}
 		list($msg_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$request = Db::$db->query('', '
-			SELECT MIN(id_msg), MAX(id_msg)
+		$request = Db::$db->query(
+			'',
+			'SELECT MIN(id_msg), MAX(id_msg)
 			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
-			array(
+			[
 				'current_member' => Profile::$member->id,
 				'is_approved' => 1,
 				'board' => Board::$info->id ?? 0,
-			)
+			],
 		);
 		list($min_msg_member, $max_msg_member) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		$range_limit = '';
 
-		if ($is_topics)
-		{
+		if ($is_topics) {
 			$max_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page']) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
-		}
-		else
-		{
+		} else {
 			$max_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 		}
 
@@ -821,41 +827,36 @@ class ShowPosts implements ActionInterface
 		$start = Utils::$context['start'];
 		$reverse = $_REQUEST['start'] > $msg_count / 2;
 
-		if ($reverse)
-		{
+		if ($reverse) {
 			$max_index = $msg_count < Utils::$context['start'] + $max_per_page + 1 && $msg_count > Utils::$context['start'] ? $msg_count - Utils::$context['start'] : $max_per_page;
 			$start = $msg_count < Utils::$context['start'] + $max_per_page + 1 || $msg_count < Utils::$context['start'] + $max_per_page ? 0 : $msg_count - Utils::$context['start'] - $max_per_page;
 		}
 
 		// Guess the range of messages to be shown.
-		if ($msg_count > 1000)
-		{
+		if ($msg_count > 1000) {
 			$margin = floor(($max_msg_member - $min_msg_member) * (($start + $max_per_page) / $msg_count) + .1 * ($max_msg_member - $min_msg_member));
 
 			// Make a bigger margin for topics only.
-			if ($is_topics)
-			{
+			if ($is_topics) {
 				$margin *= 5;
 				$range_limit = $reverse ? 't.id_first_msg < ' . ($min_msg_member + $margin) : 't.id_first_msg > ' . ($max_msg_member - $margin);
-			}
-			else
-			{
+			} else {
 				$range_limit = $reverse ? 'm.id_msg < ' . ($min_msg_member + $margin) : 'm.id_msg > ' . ($max_msg_member - $margin);
 			}
 		}
 
 		// Find this user's posts.  The left join on categories somehow makes this faster, weird as it looks.
 		$counter = $reverse ? Utils::$context['start'] + $max_index + 1 : Utils::$context['start'];
-		Utils::$context['posts'] = array();
-		$board_ids = array('own' => array(), 'any' => array());
+		Utils::$context['posts'] = [];
+		$board_ids = ['own' => [], 'any' => []];
 
 		$looped = false;
-		while (true)
-		{
-			if ($is_topics)
-			{
-				$request = Db::$db->query('', '
-					SELECT
+
+		while (true) {
+			if ($is_topics) {
+				$request = Db::$db->query(
+					'',
+					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, t.id_member_started, t.id_first_msg, t.id_last_msg,
 						t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg
 					FROM {db_prefix}topics AS t
@@ -869,19 +870,18 @@ class ShowPosts implements ActionInterface
 						AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 					ORDER BY t.id_first_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 					LIMIT {int:start}, {int:max}',
-					array(
+					[
 						'current_member' => Profile::$member->id,
 						'is_approved' => 1,
 						'board' => Board::$info->id ?? 0,
 						'start' => $start,
 						'max' => $max_index,
-					)
+					],
 				);
-			}
-			else
-			{
-				$request = Db::$db->query('', '
-					SELECT
+			} else {
+				$request = Db::$db->query(
+					'',
+					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, m.id_topic, m.id_msg,
 						t.id_member_started, t.id_first_msg, t.id_last_msg, m.body, m.smileys_enabled,
 						m.subject, m.poster_time, m.approved
@@ -896,26 +896,27 @@ class ShowPosts implements ActionInterface
 						AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 					ORDER BY m.id_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 					LIMIT {int:start}, {int:max}',
-					array(
+					[
 						'current_member' => Profile::$member->id,
 						'is_approved' => 1,
 						'board' => Board::$info->id ?? 0,
 						'start' => $start,
 						'max' => $max_index,
-					)
+					],
 				);
 			}
 
 			// Make sure we quit this loop.
-			if (Db::$db->num_rows($request) === $max_index || $looped || $range_limit == '')
+			if (Db::$db->num_rows($request) === $max_index || $looped || $range_limit == '') {
 				break;
+			}
 
 			$looped = true;
 			$range_limit = '';
 		}
+
 		// Start counting at the number of the first message displayed.
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// Censor....
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -924,17 +925,17 @@ class ShowPosts implements ActionInterface
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 			// And the array...
-			Utils::$context['posts'][$counter += $reverse ? -1 : 1] = array(
+			Utils::$context['posts'][$counter += $reverse ? -1 : 1] = [
 				'body' => $row['body'],
 				'counter' => $counter,
-				'category' => array(
+				'category' => [
 					'name' => $row['cname'],
-					'id' => $row['id_cat']
-				),
-				'board' => array(
+					'id' => $row['id_cat'],
+				],
+				'board' => [
 					'name' => $row['bname'],
-					'id' => $row['id_board']
-				),
+					'id' => $row['id_board'],
+				],
 				'topic' => $row['id_topic'],
 				'subject' => $row['subject'],
 				'start' => 'msg' . $row['id_msg'],
@@ -947,43 +948,42 @@ class ShowPosts implements ActionInterface
 				'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty(Config::$modSettings['edit_disable_time']) || $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 >= time()),
 				'approved' => $row['approved'],
 				'css_class' => $row['approved'] ? 'windowbg' : 'approvebg',
-			);
+			];
 
-			if (User::$me->id == $row['id_member_started'])
+			if (User::$me->id == $row['id_member_started']) {
 				$board_ids['own'][$row['id_board']][] = $counter;
+			}
 
 			$board_ids['any'][$row['id_board']][] = $counter;
 		}
 		Db::$db->free_result($request);
 
 		// All posts were retrieved in reverse order, get them right again.
-		if ($reverse)
+		if ($reverse) {
 			Utils::$context['posts'] = array_reverse(Utils::$context['posts'], true);
+		}
 
 		// These are all the permissions that are different from board to board..
-		if ($is_topics)
-		{
-			$permissions = array(
-				'own' => array(
+		if ($is_topics) {
+			$permissions = [
+				'own' => [
 					'post_reply_own' => 'can_reply',
-				),
-				'any' => array(
+				],
+				'any' => [
 					'post_reply_any' => 'can_reply',
-				)
-			);
-		}
-		else
-		{
-			$permissions = array(
-				'own' => array(
+				],
+			];
+		} else {
+			$permissions = [
+				'own' => [
 					'post_reply_own' => 'can_reply',
 					'delete_own' => 'can_delete',
-				),
-				'any' => array(
+				],
+				'any' => [
 					'post_reply_any' => 'can_reply',
 					'delete_any' => 'can_delete',
-				)
-			);
+				],
+			];
 		}
 
 		// Create an array for the permissions.
@@ -991,36 +991,36 @@ class ShowPosts implements ActionInterface
 			array_keys(
 				iterator_to_array(
 					new \RecursiveIteratorIterator(
-						new \RecursiveArrayIterator($permissions)
-					)
-				)
+						new \RecursiveArrayIterator($permissions),
+					),
+				),
 			),
 			true,
-			false
+			false,
 		);
 
 		// For every permission in the own/any lists...
-		foreach ($permissions as $type => $list)
-		{
-			foreach ($list as $permission => $allowed)
-			{
+		foreach ($permissions as $type => $list) {
+			foreach ($list as $permission => $allowed) {
 				// Get the boards they can do this on...
 				$boards = $boards_can[$permission];
 
 				// Hmm, they can do it on all boards, can they?
-				if (!empty($boards) && $boards[0] == 0)
+				if (!empty($boards) && $boards[0] == 0) {
 					$boards = array_keys($board_ids[$type]);
+				}
 
 				// Now go through each board they can do the permission on.
-				foreach ($boards as $board_id)
-				{
+				foreach ($boards as $board_id) {
 					// There aren't any posts displayed from this board.
-					if (!isset($board_ids[$type][$board_id]))
+					if (!isset($board_ids[$type][$board_id])) {
 						continue;
+					}
 
 					// Set the permission to true ;).
-					foreach ($board_ids[$type][$board_id] as $counter)
+					foreach ($board_ids[$type][$board_id] as $counter) {
 						Utils::$context['posts'][$counter][$allowed] = true;
+					}
 				}
 			}
 		}
@@ -1028,8 +1028,7 @@ class ShowPosts implements ActionInterface
 		// Clean up after posts that cannot be deleted and quoted.
 		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
-		foreach (Utils::$context['posts'] as $counter => $dummy)
-		{
+		foreach (Utils::$context['posts'] as $counter => $dummy) {
 			Utils::$context['posts'][$counter]['can_delete'] &= Utils::$context['posts'][$counter]['delete_possible'];
 
 			Utils::$context['posts'][$counter]['can_quote'] = Utils::$context['posts'][$counter]['can_reply'] && $quote_enabled;
@@ -1038,36 +1037,36 @@ class ShowPosts implements ActionInterface
 		// Allow last minute changes.
 		IntegrationHook::call('integrate_profile_showPosts');
 
-		foreach (Utils::$context['posts'] as $key => $post)
-		{
-			Utils::$context['posts'][$key]['quickbuttons'] = array(
-				'reply' => array(
+		foreach (Utils::$context['posts'] as $key => $post) {
+			Utils::$context['posts'][$key]['quickbuttons'] = [
+				'reply' => [
 					'label' => Lang::$txt['reply'],
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'],
 					'icon' => 'reply_button',
-					'show' => $post['can_reply']
-				),
-				'quote' => array(
+					'show' => $post['can_reply'],
+				],
+				'quote' => [
 					'label' => Lang::$txt['quote_action'],
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'] . ';quote=' . $post['id'],
 					'icon' => 'quote',
-					'show' => $post['can_quote']
-				),
-				'remove' => array(
+					'show' => $post['can_quote'],
+				],
+				'remove' => [
 					'label' => Lang::$txt['remove'],
 					'href' => Config::$scripturl . '?action=deletemsg;msg=' . $post['id'] . ';topic=' . $post['topic'] . ';profile;u=' . Utils::$context['member']['id'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'javascript' => 'data-confirm="' . Lang::$txt['remove_message'] . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
-					'show' => $post['can_delete']
-				)
-			);
+					'show' => $post['can_delete'],
+				],
+			];
 		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ShowPosts::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ShowPosts::exportStatic')) {
 	ShowPosts::exportStatic();
+}
 
 ?>

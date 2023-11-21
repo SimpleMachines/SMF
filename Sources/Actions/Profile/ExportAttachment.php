@@ -13,14 +13,13 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\AttachmentDownload;
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Profile;
 use SMF\Utils;
-use SMF\Actions\AttachmentDownload;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Downloads an attachment that was linked from a profile export.
@@ -34,11 +33,11 @@ class ExportAttachment implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'export_attachment',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -86,34 +85,36 @@ class ExportAttachment implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($_GET['t']) || $_GET['t'] !== $this->dltoken)
-		{
+		if (!isset($_GET['t']) || $_GET['t'] !== $this->dltoken) {
 			Utils::sendHttpStatus(403);
+
 			exit;
 		}
 
-		if (empty($this->attach))
-		{
+		if (empty($this->attach)) {
 			Utils::sendHttpStatus(404);
+
 			die('404 File Not Found');
 		}
 
 		// Does this attachment belong to this member?
-		$request = Db::$db->query('', '
-			SELECT m.id_topic
+		$request = Db::$db->query(
+			'',
+			'SELECT m.id_topic
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}attachments AS a ON (m.id_msg = a.id_msg)
 			WHERE m.id_member = {int:uid}
 				AND a.id_attach = {int:attach}',
-			array(
+			[
 				'uid' => Profile::$member->id,
 				'attach' => $this->attach,
-			)
+			],
 		);
-		if (Db::$db->num_rows($request) == 0)
-		{
+
+		if (Db::$db->num_rows($request) == 0) {
 			Db::$db->free_result($request);
 			Utils::sendHttpStatus(403);
+
 			exit;
 		}
 		Db::$db->free_result($request);
@@ -143,8 +144,9 @@ class ExportAttachment implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -166,8 +168,9 @@ class ExportAttachment implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 
 		$this->idhash = hash_hmac('sha1', Profile::$member->id, Config::getAuthSecret());
 		$this->dltoken = hash_hmac('sha1', $this->idhash, Config::getAuthSecret());
@@ -177,7 +180,8 @@ class ExportAttachment implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ExportAttachment::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ExportAttachment::exportStatic')) {
 	ExportAttachment::exportStatic();
+}
 
 ?>

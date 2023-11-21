@@ -14,15 +14,13 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
-
 
 /**
  * This class handles quoting posts via JavaScript.
@@ -42,11 +40,11 @@ class QuoteFast implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'QuoteFast',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -71,8 +69,9 @@ class QuoteFast implements ActionInterface
 	{
 		$moderate_boards = User::$me->boardsAllowedTo('moderate_board');
 
-		$request = Db::$db->query('', '
-			SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
+		$request = Db::$db->query(
+			'',
+			'SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 				m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -81,23 +80,24 @@ class QuoteFast implements ActionInterface
 				AND m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
 				AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR m.id_board IN ({array_int:moderation_board_list})') . ')') . '
 			LIMIT 1',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'moderation_board_list' => $moderate_boards,
 				'id_msg' => (int) $_REQUEST['quote'],
 				'not_locked' => 0,
-			)
+			],
 		);
 		Utils::$context['close_window'] = Db::$db->num_rows($request) == 0;
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
 		Utils::$context['sub_template'] = 'quotefast';
-		if (!empty($row))
-			$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || User::$me->allowedTo('approve_posts', $row['id_board']);
 
-		if (!empty($can_view_post))
-		{
+		if (!empty($row)) {
+			$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || User::$me->allowedTo('approve_posts', $row['id_board']);
+		}
+
+		if (!empty($can_view_post)) {
 			// Remove special formatting we don't want anymore.
 			$row['body'] = Msg::un_preparsecode($row['body']);
 
@@ -105,60 +105,59 @@ class QuoteFast implements ActionInterface
 			Lang::censorText($row['body']);
 
 			// Want to modify a single message by double clicking it?
-			if (isset($_REQUEST['modify']))
-			{
+			if (isset($_REQUEST['modify'])) {
 				Lang::censorText($row['subject']);
 
 				Utils::$context['sub_template'] = 'modifyfast';
-				Utils::$context['message'] = array(
+				Utils::$context['message'] = [
 					'id' => $_REQUEST['quote'],
 					'body' => $row['body'],
 					'subject' => addcslashes($row['subject'], '"'),
-					'reason' => array(
+					'reason' => [
 						'name' => $row['modified_name'],
 						'text' => $row['modified_reason'],
 						'time' => $row['modified_time'],
-					),
-				);
+					],
+				];
 
 				return;
 			}
 
 			// Remove any nested quotes.
-			if (!empty(Config::$modSettings['removeNestedQuotes']))
-				$row['body'] = preg_replace(array('~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'), '', $row['body']);
+			if (!empty(Config::$modSettings['removeNestedQuotes'])) {
+				$row['body'] = preg_replace(['~\\n?\\[quote.*?\\].+?\\[/quote\\]\\n?~is', '~^\\n~', '~\\[/quote\\]~'], '', $row['body']);
+			}
 
 			$lb = "\n";
 
 			// Add a quote string on the front and end.
 			Utils::$context['quote']['xml'] = '[quote author=' . $row['poster_name'] . ' link=msg=' . (int) $_REQUEST['quote'] . ' date=' . $row['poster_time'] . ']' . $lb . $row['body'] . $lb . '[/quote]';
-			Utils::$context['quote']['text'] = strtr(Utils::htmlspecialcharsDecode(Utils::$context['quote']['xml']), array('\'' => '\\\'', '\\' => '\\\\', "\n" => '\\n', '</script>' => '</\' + \'script>'));
-			Utils::$context['quote']['xml'] = strtr(Utils::$context['quote']['xml'], array('&nbsp;' => '&#160;', '<' => '&lt;', '>' => '&gt;'));
+			Utils::$context['quote']['text'] = strtr(Utils::htmlspecialcharsDecode(Utils::$context['quote']['xml']), ['\'' => '\\\'', '\\' => '\\\\', "\n" => '\\n', '</script>' => '</\' + \'script>']);
+			Utils::$context['quote']['xml'] = strtr(Utils::$context['quote']['xml'], ['&nbsp;' => '&#160;', '<' => '&lt;', '>' => '&gt;']);
 
-			Utils::$context['quote']['mozilla'] = strtr(Utils::htmlspecialchars(Utils::$context['quote']['text']), array('&quot;' => '"'));
+			Utils::$context['quote']['mozilla'] = strtr(Utils::htmlspecialchars(Utils::$context['quote']['text']), ['&quot;' => '"']);
 		}
-		//@todo Needs a nicer interface.
+		// @todo Needs a nicer interface.
 		// In case our message has been removed in the meantime.
-		elseif (isset($_REQUEST['modify']))
-		{
+		elseif (isset($_REQUEST['modify'])) {
 			Utils::$context['sub_template'] = 'modifyfast';
-			Utils::$context['message'] = array(
+			Utils::$context['message'] = [
 				'id' => 0,
 				'body' => '',
 				'subject' => '',
-				'reason' => array(
+				'reason' => [
 					'name' => '',
 					'text' => '',
 					'time' => '',
-				),
-			);
-		}
-		else
-			Utils::$context['quote'] = array(
+				],
+			];
+		} else {
+			Utils::$context['quote'] = [
 				'xml' => '',
 				'mozilla' => '',
 				'text' => '',
-			);
+			];
+		}
 	}
 
 	/***********************
@@ -172,8 +171,9 @@ class QuoteFast implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -197,13 +197,15 @@ class QuoteFast implements ActionInterface
 	{
 		Lang::load('Post');
 
-		if (!isset($_REQUEST['xml']))
+		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Post');
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\QuoteFast::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\QuoteFast::exportStatic')) {
 	QuoteFast::exportStatic();
+}
 
 ?>

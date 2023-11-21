@@ -13,17 +13,16 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-
 use SMF\Attachment;
+use SMF\BackwardCompatibility;
 use SMF\BrowserDetector;
+use SMF\Cache\CacheApi;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Downloads an avatar or attachment based on $_GET['attach'], and increments the download count.
@@ -42,11 +41,11 @@ class AttachmentDownload implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'showAttachment',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -95,31 +94,29 @@ class AttachmentDownload implements ActionInterface
 		header_remove('content-encoding');
 
 		// We need a valid ID.
-		if (empty($this->id))
-		{
+		if (empty($this->id)) {
 			Utils::sendHttpStatus(404, 'File Not Found');
+
 			die('404 File Not Found');
 		}
 
 		// No access in strict maintenance mode.
-		if (!empty(Config::$maintenance) && Config::$maintenance == 2)
-		{
+		if (!empty(Config::$maintenance) && Config::$maintenance == 2) {
 			Utils::sendHttpStatus(404, 'File Not Found');
+
 			die('404 File Not Found');
 		}
 
 		// Use cache when possible.
-		if (($cache = CacheApi::get('attachment_lookup_id-' . $this->id)) != null)
-		{
-			list ($file, $thumbFile) = $cache;
+		if (($cache = CacheApi::get('attachment_lookup_id-' . $this->id)) != null) {
+			list($file, $thumbFile) = $cache;
 
 			$file = @unserialize($file);
 			$thumbFile = @unserialize($thumbFile);
 		}
 
 		// Get the info from the DB.
-		if (empty($file) || empty($thumbFile) && !empty($file->thumb))
-		{
+		if (empty($file) || empty($thumbFile) && !empty($file->thumb)) {
 			/*
 			 * Do we have a hook wanting to use our attachment system?
 			 *
@@ -128,13 +125,13 @@ class AttachmentDownload implements ActionInterface
 			 * SMF\Attachment::load() method.
 			 */
 			$request = null;
-			IntegrationHook::call('integrate_download_request', array(&$request));
-			if (!is_null($request) && Db::$db->is_resource($request))
-			{
+			IntegrationHook::call('integrate_download_request', [&$request]);
+
+			if (!is_null($request) && Db::$db->is_resource($request)) {
 				// No attachment has been found.
-				if (Db::$db->num_rows($request) == 0)
-				{
+				if (Db::$db->num_rows($request) == 0) {
 					Utils::sendHttpStatus(404, 'File Not Found');
+
 					die('404 File Not Found');
 				}
 
@@ -143,46 +140,41 @@ class AttachmentDownload implements ActionInterface
 
 				$file = new Attachment(0, $row);
 				$file->setFileProperties();
-			}
-			else
-			{
+			} else {
 				Attachment::load($this->id);
 
-				if (!isset(Attachment::$loaded[$this->id]))
-				{
+				if (!isset(Attachment::$loaded[$this->id])) {
 					Utils::sendHttpStatus(404, 'File Not Found');
+
 					die('404 File Not Found');
 				}
 
 				$file = Attachment::$loaded[$this->id];
-				$file->set(array('source' => 'SMF'));
+				$file->set(['source' => 'SMF']);
 				$file->setFileProperties();
 			}
 
-			if (!empty($file->thumb))
-			{
+			if (!empty($file->thumb)) {
 				Attachment::load($file->thumb);
 				$thumbFile = Attachment::$loaded[$file->thumb];
-				$thumbFile->set(array('source' => 'SMF'));
+				$thumbFile->set(['source' => 'SMF']);
 				$thumbFile->setFileProperties();
 			}
 
 			// Cache it.
-			if (!empty($file) || !empty($thumbFile))
-				CacheApi::put('attachment_lookup_id-' . $this->id, array(serialize($file ?? null), serialize($thumbFile ?? null)), mt_rand(850, 900));
+			if (!empty($file) || !empty($thumbFile)) {
+				CacheApi::put('attachment_lookup_id-' . $this->id, [serialize($file ?? null), serialize($thumbFile ?? null)], mt_rand(850, 900));
+			}
 		}
 
 		// Can they see attachments on this board?
-		if (!empty($file->msg))
-		{
+		if (!empty($file->msg)) {
 			// Special case for profile exports.
-			if (!empty(Utils::$context['attachment_allow_hidden_boards']))
-			{
-				$boards_allowed = array(0);
+			if (!empty(Utils::$context['attachment_allow_hidden_boards'])) {
+				$boards_allowed = [0];
 			}
 			// Check permissions and board access.
-			elseif (($boards_allowed = CacheApi::get('view_attachment_boards_id-' . User::$me->id)) == null)
-			{
+			elseif (($boards_allowed = CacheApi::get('view_attachment_boards_id-' . User::$me->id)) == null) {
 				$boards_allowed = User::$me->boardsAllowedTo('view_attachments');
 				CacheApi::put('view_attachment_boards_id-' . User::$me->id, $boards_allowed, mt_rand(850, 900));
 			}
@@ -209,122 +201,128 @@ class AttachmentDownload implements ActionInterface
 					!empty($file->msg)
 					&& (
 						empty($file->board)
-						|| ($boards_allowed !== array(0) && !in_array($file->board, $boards_allowed))
+						|| ($boards_allowed !== [0] && !in_array($file->board, $boards_allowed))
 					)
 				)
 			)
 			// We are not previewing an attachment.
 			&& !isset($_SESSION['attachments_can_preview'][$this->id])
-		)
-		{
+		) {
 			Utils::sendHttpStatus(404, 'File Not Found');
+
 			die('404 File Not Found');
 		}
 
 		// If attachment is unapproved, see if user is allowed to approve
-		if (!$file->approved && Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts'))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_member
+		if (!$file->approved && Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts')) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
 				LIMIT 1',
-				array(
+				[
 					'id_msg' => $file->msg,
-				)
+				],
 			);
 
 			$id_member = Db::$db->fetch_assoc($request)['id_member'];
 			Db::$db->free_result($request);
 
 			// Let users see own unapproved attachments
-			if ($id_member != User::$me->id)
-			{
+			if ($id_member != User::$me->id) {
 				Utils::sendHttpStatus(403, 'Forbidden');
+
 				die('403 Forbidden');
 			}
 		}
 
 		// Replace the normal file with its thumbnail if it has one!
-		if (!empty($this->showThumb) && !empty($thumbFile))
+		if (!empty($this->showThumb) && !empty($thumbFile)) {
 			$file = $thumbFile;
+		}
 
 		// No point in a nicer message, because this is supposed to be an attachment anyway...
-		if (empty($file->exists))
-		{
+		if (empty($file->exists)) {
 			Utils::sendHttpStatus(404, 'File Not Found');
+
 			die('404 File Not Found');
 		}
 
 		// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
-		if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
-		{
+		if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 			list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-			if (!empty($file->mtime) && strtotime($modified_since) >= $file->mtime)
-			{
+
+			if (!empty($file->mtime) && strtotime($modified_since) >= $file->mtime) {
 				ob_end_clean();
 				header_remove('content-encoding');
 
 				// Answer the question - no, it hasn't been modified ;).
 				Utils::sendHttpStatus(304);
+
 				exit;
 			}
 		}
 
 		// Check whether the ETag was sent back, and cache based on that...
-		if (!empty($file->etag) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file->etag) !== false)
-		{
+		if (!empty($file->etag) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file->etag) !== false) {
 			ob_end_clean();
 			header_remove('content-encoding');
 
 			Utils::sendHttpStatus(304);
+
 			exit;
 		}
 
 		// If this is a partial download, we need to determine what data range to send
 		$range = 0;
-		if (isset($_SERVER['HTTP_RANGE']))
-		{
-			list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
-			list($range) = explode(",", $range, 2);
-			list($range, $range_end) = explode("-", $range);
+
+		if (isset($_SERVER['HTTP_RANGE'])) {
+			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+			list($range) = explode(',', $range, 2);
+			list($range, $range_end) = explode('-', $range);
 			$range = intval($range);
 			$range_end = !$range_end ? $file->size - 1 : intval($range_end);
 			$length = $range_end - $range + 1;
 		}
 
 		// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
-		if ($file->type != 3 && empty($this->showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment']))
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}attachments
+		if ($file->type != 3 && empty($this->showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment'])) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}attachments
 				SET downloads = downloads + 1
 				WHERE id_attach = {int:id_attach}',
-				array(
+				[
 					'id_attach' => $this->id,
-				)
+				],
 			);
 		}
 
 		// Make sure the mime type warrants an inline display.
-		if (empty($file->mime_type))
+		if (empty($file->mime_type)) {
 			$file->mime_type = 'application/octet-stream';
+		}
 
-		if (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera'))
-			$file->mime_type = strtr($file->mime_type, array('application/octet-stream' => 'application/octetstream'));
+		if (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera')) {
+			$file->mime_type = strtr($file->mime_type, ['application/octet-stream' => 'application/octetstream']);
+		}
 
-		if (strpos($file->mime_type, 'image/') !== 0)
+		if (strpos($file->mime_type, 'image/') !== 0) {
 			unset($_REQUEST['image']);
+		}
 
 		// On mobile devices, audio and video should be served inline so the browser can play them.
-		if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (strpos($file->mime_type, 'audio/') === 0 || strpos($file->mime_type, 'video/') === 0)))
+		if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (strpos($file->mime_type, 'audio/') === 0 || strpos($file->mime_type, 'video/') === 0))) {
 			$file->disposition = 'inline';
-		else
+		} else {
 			$file->disposition = 'attachment';
+		}
 
 		// If necessary, prepend the attachment ID to the file name.
-		if (!empty(Utils::$context['prepend_attachment_id']))
+		if (!empty(Utils::$context['prepend_attachment_id'])) {
 			$file->filename = $_REQUEST['attach'] . ' - ' . $file->filename;
+		}
 
 		Utils::emitFile($file, $this->showThumb);
 	}
@@ -340,8 +338,9 @@ class AttachmentDownload implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -364,11 +363,13 @@ class AttachmentDownload implements ActionInterface
 	protected function __construct()
 	{
 		// Some defaults that we need.
-		if (!isset(Utils::$context['character_set']))
+		if (!isset(Utils::$context['character_set'])) {
 			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
+		}
 
-		if (!isset(Utils::$context['utf8']))
+		if (!isset(Utils::$context['utf8'])) {
 			Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
+		}
 
 		// Which attachment was requested?
 		$this->id = $_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
@@ -379,7 +380,8 @@ class AttachmentDownload implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\AttachmentDownload::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\AttachmentDownload::exportStatic')) {
 	AttachmentDownload::exportStatic();
+}
 
 ?>

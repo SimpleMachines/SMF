@@ -13,9 +13,9 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\Moderation\Logs as Modlog;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -23,7 +23,6 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Moderation\Logs as Modlog;
 
 /**
  * Dispatcher to show various kinds of logs.
@@ -37,11 +36,11 @@ class Logs implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'adminLogs' => 'AdminLogs',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -66,44 +65,44 @@ class Logs implements ActionInterface
 	 *
 	 * Format: 'sa' => array('file', 'function', 'disabled' => 'setting_to_check')
 	 */
-	public static array $subactions = array(
-		'errorlog' => array(
+	public static array $subactions = [
+		'errorlog' => [
 			'',
 			'errorlog',
 			// At runtime, will be set to empty(Config::$modSettings['enableErrorLogging'])
 			'disabled' => 'enableErrorLogging',
-		),
-		'adminlog' => array(
+		],
+		'adminlog' => [
 			'',
 			'adminlog',
 			// At runtime, will be set to empty(Config::$modSettings['adminlog_enabled'])
 			'disabled' => 'adminlog_enabled',
-		),
-		'modlog' => array(
+		],
+		'modlog' => [
 			'',
 			'modlog',
 			// At runtime, will be set to empty(Config::$modSettings['modlog_enabled'])
 			'disabled' => 'modlog_enabled',
-		),
-		'banlog' => array(
+		],
+		'banlog' => [
 			'',
 			'banlog',
-		),
-		'spiderlog' => array(
+		],
+		'spiderlog' => [
 			'',
 			'spiderlog',
 			// At runtime, will be set to empty(Config::$modSettings['spider_mode'])
 			'disabled' => 'spider_mode',
-		),
-		'tasklog' => array(
+		],
+		'tasklog' => [
 			'',
 			'tasklog',
-		),
-		'settings' => array(
+		],
+		'settings' => [
 			'',
 			'settings',
-		),
-	);
+		],
+	];
 
 	/**
 	 * @var array
@@ -114,14 +113,14 @@ class Logs implements ActionInterface
 	 * 'pruning' option is off, use the integrate_prune_settings hook to add it
 	 * to this list.
 	 */
-	public static array $prune_toggle = array(
+	public static array $prune_toggle = [
 		'pruneErrorLog',
 		'pruneModLog',
 		'pruneBanLog',
 		'pruneReportLog',
 		'pruneScheduledTaskLog',
 		'pruneSpiderHitLog',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -145,43 +144,45 @@ class Logs implements ActionInterface
 	public function execute(): void
 	{
 		// Set up some tab stuff.
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['logs'],
 			'help' => '',
 			'description' => Lang::$txt['maintain_info'],
-			'tabs' => array(
-				'errorlog' => array(
+			'tabs' => [
+				'errorlog' => [
 					'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 					'description' => sprintf(Lang::$txt['errorlog_desc'], Lang::$txt['remove']),
-				),
-				'adminlog' => array(
+				],
+				'adminlog' => [
 					'description' => Lang::$txt['admin_log_desc'],
-				),
-				'modlog' => array(
+				],
+				'modlog' => [
 					'description' => Lang::$txt['moderation_log_desc'],
-				),
-				'banlog' => array(
+				],
+				'banlog' => [
 					'description' => Lang::$txt['ban_log_description'],
-				),
-				'spiderlog' => array(
+				],
+				'spiderlog' => [
 					'description' => Lang::$txt['spider_log_desc'],
-				),
-				'tasklog' => array(
+				],
+				'tasklog' => [
 					'description' => Lang::$txt['scheduled_log_desc'],
-				),
-				'settings' => array(
+				],
+				'settings' => [
 					'description' => Lang::$txt['log_settings_desc'],
-				),
-			),
-		);
+				],
+			],
+		];
 
-		if (!empty(self::$subactions[$this->subaction][0]))
-			require_once(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
+		if (!empty(self::$subactions[$this->subaction][0])) {
+			require_once Config::$sourcedir . '/' . self::$subactions[$this->subaction][0];
+		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction][1]) ? array($this, self::$subactions[$this->subaction][1]) : Utils::getCallable(self::$subactions[$this->subaction][1]);
+		$call = method_exists($this, self::$subactions[$this->subaction][1]) ? [$this, self::$subactions[$this->subaction][1]] : Utils::getCallable(self::$subactions[$this->subaction][1]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -261,34 +262,31 @@ class Logs implements ActionInterface
 		$("#pruningOptions").click(function() { togglePruned(); });', true);
 
 		// Saving?
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			// Although the UI presents pruningOptions as a checkbox followed by
 			// several input fields, we save all that data as a single string.
 			$config_vars['pruningOptions'][0] = 'text';
 
-			if (!empty($_POST['pruningOptions']))
-			{
-				$vals = array();
+			if (!empty($_POST['pruningOptions'])) {
+				$vals = [];
 
-				foreach ($config_vars as $config_var)
-				{
-					if (!is_array($config_var) || !in_array($config_var[1], self::$prune_toggle))
+				foreach ($config_vars as $config_var) {
+					if (!is_array($config_var) || !in_array($config_var[1], self::$prune_toggle)) {
 						continue;
+					}
 
 					// Just in case a mod did something stupid...
-					if ($config_var[1] === 'pruningOptions')
+					if ($config_var[1] === 'pruningOptions') {
 						continue;
+					}
 
 					$vals[] = max(0, (int) ($_POST[$config_var[1]] ?? 0));
 				}
 
 				$_POST['pruningOptions'] = implode(',', $vals);
-			}
-			else
-			{
+			} else {
 				$_POST['pruningOptions'] = '';
 			}
 
@@ -302,17 +300,16 @@ class Logs implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Get the actual values
-		if (!empty(Config::$modSettings['pruningOptions']))
-		{
-			foreach (explode(',', Config::$modSettings['pruningOptions']) as $key => $value)
+		if (!empty(Config::$modSettings['pruningOptions'])) {
+			foreach (explode(',', Config::$modSettings['pruningOptions']) as $key => $value) {
 				Config::$modSettings[self::$prune_toggle[$key]] = $value;
-		}
-		else
-		{
-			$defaults = array_pad(array(30, 180, 180, 180, 30, 0), count(self::$prune_toggle), 0);
+			}
+		} else {
+			$defaults = array_pad([30, 180, 180, 180, 30, 0], count(self::$prune_toggle), 0);
 
-			foreach (array_combine(self::$prune_toggle, $defaults) as $setting => $default)
+			foreach (array_combine(self::$prune_toggle, $defaults) as $setting => $default) {
 				Config::$modSettings[$setting] = $default;
+			}
 		}
 
 		ACP::prepareDBSettingContext($config_vars);
@@ -329,8 +326,9 @@ class Logs implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -350,55 +348,55 @@ class Logs implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$config_vars = array(
-			array('check', 'modlog_enabled', 'help' => 'modlog'),
-			array('check', 'adminlog_enabled', 'help' => 'adminlog'),
-			array('check', 'userlog_enabled', 'help' => 'userlog'),
+		$config_vars = [
+			['check', 'modlog_enabled', 'help' => 'modlog'],
+			['check', 'adminlog_enabled', 'help' => 'adminlog'],
+			['check', 'userlog_enabled', 'help' => 'userlog'],
 
 			// The error log is a wonderful thing.
-			array('title', 'errorlog', 'force_div_id' => 'errorlog'),
-			array('desc', 'error_log_desc'),
-			array('check', 'enableErrorLogging'),
-			array('check', 'enableErrorQueryLogging'),
+			['title', 'errorlog', 'force_div_id' => 'errorlog'],
+			['desc', 'error_log_desc'],
+			['check', 'enableErrorLogging'],
+			['check', 'enableErrorQueryLogging'],
 
 			// The 'mark read' log settings.
-			array('title', 'markread_title', 'force_div_id' => 'markread_title'),
-			array('desc', 'mark_read_desc'),
-			array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']),
-			array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']),
-			array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => Lang::$txt['zero_to_disable']),
+			['title', 'markread_title', 'force_div_id' => 'markread_title'],
+			['desc', 'mark_read_desc'],
+			['int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => Lang::$txt['zero_to_disable']],
 
 			// Even do the pruning?
-			array('title', 'pruning_title', 'force_div_id' => 'pruning_title'),
-			array('desc', 'pruning_desc'),
+			['title', 'pruning_title', 'force_div_id' => 'pruning_title'],
+			['desc', 'pruning_desc'],
 
 			// The array indexes are there so we can remove/change them before saving.
-			'pruningOptions' => array('check', 'pruningOptions'),
+			'pruningOptions' => ['check', 'pruningOptions'],
 			'',
 
 			// Various logs that could be pruned.
 
 			// Error log.
-			array('int', 'pruneErrorLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']),
+			['int', 'pruneErrorLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
 
 			// Moderation log.
-			array('int', 'pruneModLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']),
+			['int', 'pruneModLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
 
 			// Ban hit log.
-			array('int', 'pruneBanLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']),
+			['int', 'pruneBanLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
 
 			// Report to moderator log.
-			array('int', 'pruneReportLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']),
+			['int', 'pruneReportLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
 
 			// Log of the scheduled tasks and how long they ran.
-			array('int', 'pruneScheduledTaskLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']),
+			['int', 'pruneScheduledTaskLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
 
 			// Log recording when search engines have crawled the forum.
-			array('int', 'pruneSpiderHitLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']),
-		);
+			['int', 'pruneSpiderHitLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+		];
 
 		// MOD AUTHORS: If you want to add your own logs, use this hook.
-		IntegrationHook::call('integrate_prune_settings', array(&$config_vars, &self::$prune_toggle, false));
+		IntegrationHook::call('integrate_prune_settings', [&$config_vars, &self::$prune_toggle, false]);
 
 		return $config_vars;
 	}
@@ -411,8 +409,9 @@ class Logs implements ActionInterface
 	 */
 	public static function adminLogs($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->execute();
@@ -427,24 +426,26 @@ class Logs implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		foreach (self::$subactions as &$subaction)
-		{
-			if (isset($subaction['disabled']))
+		foreach (self::$subactions as &$subaction) {
+			if (isset($subaction['disabled'])) {
 				$subaction['disabled'] = empty(Config::$modSettings[$subaction['disabled']]);
+			}
 		}
 
-		IntegrationHook::call('integrate_manage_logs', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_logs', [&self::$subactions]);
 
 		// By default, error log should be shown in descending order.
-		if (!isset($_REQUEST['sa']))
+		if (!isset($_REQUEST['sa'])) {
 			$_REQUEST['desc'] = true;
+		}
 
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
+		$this->subaction = isset($_REQUEST['sa'], self::$subactions[$_REQUEST['sa']])   && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Logs::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Logs::exportStatic')) {
 	Logs::exportStatic();
+}
 
 ?>

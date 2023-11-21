@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
@@ -37,13 +36,13 @@ class Agreement implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'Agreement',
 			'canRequireAgreement' => 'canRequireAgreement',
 			'canRequirePrivacyPolicy' => 'canRequirePrivacyPolicy',
-		),
-	);
+		],
+	];
 
 	/*********************
 	 * Internal properties
@@ -75,21 +74,24 @@ class Agreement implements ActionInterface
 		Theme::loadTemplate('Agreement');
 
 		$page_title = '';
-		if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy']))
+
+		if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy'])) {
 			$page_title = Lang::$txt['agreement_and_privacy_policy'];
-		elseif (!empty(Utils::$context['agreement']))
+		} elseif (!empty(Utils::$context['agreement'])) {
 			$page_title = Lang::$txt['agreement'];
-		elseif (!empty(Utils::$context['privacy_policy']))
+		} elseif (!empty(Utils::$context['privacy_policy'])) {
 			$page_title = Lang::$txt['privacy_policy'];
+		}
 
 		Utils::$context['page_title'] = $page_title;
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=agreement',
 			'name' => Utils::$context['page_title'],
-		);
+		];
 
-		if (isset($_SESSION['old_url']))
+		if (isset($_SESSION['old_url'])) {
 			$_SESSION['redirect_url'] = $_SESSION['old_url'];
+		}
 	}
 
 	/***********************
@@ -103,8 +105,9 @@ class Agreement implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -125,13 +128,15 @@ class Agreement implements ActionInterface
 	public static function canRequireAgreement(): bool
 	{
 		// Guests can't agree
-		if (!empty(User::$me->is_guest) || empty(Config::$modSettings['requireAgreement']))
+		if (!empty(User::$me->is_guest) || empty(Config::$modSettings['requireAgreement'])) {
 			return false;
+		}
 
 		$agreement_lang = file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt') ? User::$me->language : 'default';
 
-		if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang]))
+		if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang])) {
 			return false;
+		}
 
 		Utils::$context['agreement_accepted_date'] = empty(Theme::$current->options['agreement_accepted']) ? 0 : Theme::$current->options['agreement_accepted'];
 
@@ -146,13 +151,15 @@ class Agreement implements ActionInterface
 	 */
 	public static function canRequirePrivacyPolicy(): bool
 	{
-		if (!empty(User::$me->is_guest) || empty(Config::$modSettings['requirePolicyAgreement']))
+		if (!empty(User::$me->is_guest) || empty(Config::$modSettings['requirePolicyAgreement'])) {
 			return false;
+		}
 
 		$policy_lang = !empty(Config::$modSettings['policy_' . User::$me->language]) ? User::$me->language : Lang::$default;
 
-		if (empty(Config::$modSettings['policy_updated_' . $policy_lang]))
+		if (empty(Config::$modSettings['policy_updated_' . $policy_lang])) {
 			return false;
+		}
 
 		Utils::$context['privacy_policy_accepted_date'] = empty(Theme::$current->options['policy_accepted']) ? 0 : Theme::$current->options['policy_accepted'];
 
@@ -181,40 +188,41 @@ class Agreement implements ActionInterface
 		Utils::$context['can_accept_privacy_policy'] = !empty(Config::$modSettings['requirePolicyAgreement']) && self::canRequirePrivacyPolicy();
 		Utils::$context['accept_doc'] = Utils::$context['can_accept_agreement'] || Utils::$context['can_accept_privacy_policy'];
 
-		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_agreement'])
-		{
+		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_agreement']) {
 			// Grab the agreement.
 			// Have we got a localized one?
-			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt'))
+			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt')) {
 				Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.' . User::$me->language . '.txt';
-			elseif (file_exists(Config::$boarddir . '/agreement.txt'))
+			} elseif (file_exists(Config::$boarddir . '/agreement.txt')) {
 				Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.txt';
-
-			if (!empty(Utils::$context['agreement_file']))
-			{
-				$cache_id = strtr(Utils::$context['agreement_file'], array(Config::$boarddir => '', '.txt' => '', '.' => '_'));
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
 			}
-			elseif (Utils::$context['can_accept_agreement'])
+
+			if (!empty(Utils::$context['agreement_file'])) {
+				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$boarddir => '', '.txt' => '', '.' => '_']);
+				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
+			} elseif (Utils::$context['can_accept_agreement']) {
 				ErrorHandler::fatalLang('error_no_agreement', false);
+			}
 		}
 
-		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_privacy_policy'])
-		{
+		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_privacy_policy']) {
 			// Have we got a localized policy?
-			if (!empty(Config::$modSettings['policy_' . User::$me->language]))
+			if (!empty(Config::$modSettings['policy_' . User::$me->language])) {
 				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . User::$me->language]);
-			elseif (!empty(Config::$modSettings['policy_' . Lang::$default]))
+			} elseif (!empty(Config::$modSettings['policy_' . Lang::$default])) {
 				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
+			}
 			// Then I guess we've got nothing
-			elseif (Utils::$context['can_accept_privacy_policy'])
+			elseif (Utils::$context['can_accept_privacy_policy']) {
 				ErrorHandler::fatalLang('error_no_privacy_policy', false);
+			}
 		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Agreement::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Agreement::exportStatic')) {
 	Agreement::exportStatic();
+}
 
 ?>

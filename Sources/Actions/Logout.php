@@ -14,15 +14,14 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\Cookie;
+use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Logs the user out.
@@ -36,11 +35,11 @@ class Logout extends Login2
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'Logout',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -74,26 +73,22 @@ class Logout extends Login2
 	public function execute(bool $internal = false, bool $redirect = true): void
 	{
 		// They decided to cancel a logout?
-		if (!$internal && isset($_POST['cancel']) && isset($_GET[Utils::$context['session_var']]))
-		{
+		if (!$internal && isset($_POST['cancel'], $_GET[Utils::$context['session_var']])) {
 			Utils::redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
 		}
 		// Prompt to logout?
-		elseif (!$internal && !isset($_GET[Utils::$context['session_var']]))
-		{
+		elseif (!$internal && !isset($_GET[Utils::$context['session_var']])) {
 			Lang::load('Login');
 			Theme::loadTemplate('Login');
 			Utils::$context['sub_template'] = 'logout';
 
 			// This came from a valid hashed return url.  Or something that knows our secrets...
-			if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
-			{
+			if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash']) {
 				$_SESSION['logout_url'] = Utils::htmlspecialcharsDecode($_REQUEST['return_to']);
 				$_SESSION['logout_return'] = $_SESSION['logout_url'];
 			}
 			// Setup the return address.
-			elseif (isset($_SESSION['old_url']))
-			{
+			elseif (isset($_SESSION['old_url'])) {
 				$_SESSION['logout_return'] = $_SESSION['old_url'];
 			}
 
@@ -101,30 +96,30 @@ class Logout extends Login2
 			return;
 		}
 		// Make sure they aren't being auto-logged out.
-		elseif (!$internal && isset($_GET[Utils::$context['session_var']]))
-		{
+		elseif (!$internal && isset($_GET[Utils::$context['session_var']])) {
 			User::$me->checkSession('get');
 		}
 
-		if (isset($_SESSION['pack_ftp']))
+		if (isset($_SESSION['pack_ftp'])) {
 			$_SESSION['pack_ftp'] = null;
+		}
 
 		// It won't be first login anymore.
 		unset($_SESSION['first_login']);
 
 		// Just ensure they aren't a guest!
-		if (!User::$me->is_guest)
-		{
+		if (!User::$me->is_guest) {
 			// Pass the logout information to integrations.
-			IntegrationHook::call('integrate_logout', array(User::$me->username));
+			IntegrationHook::call('integrate_logout', [User::$me->username]);
 
 			// If you log out, you aren't online anymore :P.
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_online
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
-				array(
+				[
 					'current_member' => User::$me->id,
-				)
+				],
 			);
 		}
 
@@ -136,12 +131,12 @@ class Logout extends Login2
 		// And some other housekeeping while we're at it.
 		$salt = bin2hex(Utils::randomBytes(16));
 
-		if (!empty(User::$me->id))
-			User::updateMemberData(User::$me->id, array('password_salt' => $salt));
+		if (!empty(User::$me->id)) {
+			User::updateMemberData(User::$me->id, ['password_salt' => $salt]);
+		}
 
-		if (!empty(Config::$modSettings['tfa_mode']) && !empty(User::$me->id) && !empty($_COOKIE[Config::$cookiename . '_tfa']))
-		{
-			list(,, $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
+		if (!empty(Config::$modSettings['tfa_mode']) && !empty(User::$me->id) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
+			list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
 			Cookie::setTFACookie((int) $exp - time(), $salt, Cookie::encrypt(User::$me->tfa_backup, $salt));
 		}
@@ -149,19 +144,13 @@ class Logout extends Login2
 		session_destroy();
 
 		// Off to the merry board index we go!
-		if ($redirect)
-		{
-			if (empty($_SESSION['logout_url']))
-			{
+		if ($redirect) {
+			if (empty($_SESSION['logout_url'])) {
 				Utils::redirectexit('', Utils::$context['server']['needs_login_fix']);
-			}
-			elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false))
-			{
+			} elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false)) {
 				unset($_SESSION['logout_url']);
 				Utils::redirectexit();
-			}
-			else
-			{
+			} else {
 				$temp = $_SESSION['logout_url'];
 				unset($_SESSION['logout_url']);
 
@@ -181,8 +170,9 @@ class Logout extends Login2
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -211,7 +201,8 @@ class Logout extends Login2
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Logout::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Logout::exportStatic')) {
 	Logout::exportStatic();
+}
 
 ?>

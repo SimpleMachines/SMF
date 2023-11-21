@@ -25,7 +25,10 @@ use SMF\Config;
 
 class File
 {
-	public $header, $image, $data, $loaded;
+	public $header;
+	public $image;
+	public $data;
+	public $loaded;
 
 	public function __construct()
 	{
@@ -37,64 +40,70 @@ class File
 
 	public function loadFile($filename, $iIndex)
 	{
-		if ($iIndex < 0)
+		if ($iIndex < 0) {
 			return false;
+		}
 
 		$this->data = @file_get_contents($filename);
-		if ($this->data === false)
+
+		if ($this->data === false) {
 			return false;
+		}
 
 		// Tell the header to load up....
 		$len = 0;
-		if (!$this->header->load($this->data, $len))
+
+		if (!$this->header->load($this->data, $len)) {
 			return false;
+		}
 
 		$this->data = substr($this->data, $len);
 
 		// Keep reading (at least once) so we get to the actual image we're looking for.
-		for ($j = 0; $j <= $iIndex; $j++)
-		{
+		for ($j = 0; $j <= $iIndex; $j++) {
 			$imgLen = 0;
-			if (!$this->image->load($this->data, $imgLen))
+
+			if (!$this->image->load($this->data, $imgLen)) {
 				return false;
+			}
 
 			$this->data = substr($this->data, $imgLen);
 		}
 
 		$this->loaded = true;
+
 		return true;
 	}
 
 	public function get_png_data($background_color)
 	{
-		if (!$this->loaded)
+		if (!$this->loaded) {
 			return false;
+		}
 
 		// Prepare the color table.
-		if ($this->image->m_gih->m_bLocalClr)
-		{
+		if ($this->image->m_gih->m_bLocalClr) {
 			$colors = $this->image->m_gih->m_nTableSize;
 			$pal = $this->image->m_gih->m_colorTable->toString();
 
-			if ($background_color != -1)
+			if ($background_color != -1) {
 				$background_color = $this->image->m_gih->m_colorTable->colorIndex($background_color);
-		}
-		elseif ($this->header->m_bGlobalClr)
-		{
+			}
+		} elseif ($this->header->m_bGlobalClr) {
 			$colors = $this->header->m_nTableSize;
 			$pal = $this->header->m_colorTable->toString();
 
-			if ($background_color != -1)
+			if ($background_color != -1) {
 				$background_color = $this->header->m_colorTable->colorIndex($background_color);
-		}
-		else
-		{
+			}
+		} else {
 			$colors = 0;
 			$background_color = -1;
 		}
 
-		if ($background_color == -1)
+		if ($background_color == -1) {
 			$background_color = $this->header->m_nBgColor;
+		}
 
 		$data = &$this->image->m_data;
 		$header = &$this->image->m_gih;
@@ -103,18 +112,18 @@ class File
 		$bmp = '';
 
 		// Prepare the bitmap itself.
-		for ($y = 0; $y < $this->header->m_nHeight; $y++)
-		{
+		for ($y = 0; $y < $this->header->m_nHeight; $y++) {
 			$bmp .= "\x00";
 
-			for ($x = 0; $x < $this->header->m_nWidth; $x++, $i++)
-			{
+			for ($x = 0; $x < $this->header->m_nWidth; $x++, $i++) {
 				// Is this in the proper range?  If so, get the specific pixel data...
-				if ($x >= $header->m_nLeft && $y >= $header->m_nTop && $x < ($header->m_nLeft + $header->m_nWidth) && $y < ($header->m_nTop + $header->m_nHeight))
+				if ($x >= $header->m_nLeft && $y >= $header->m_nTop && $x < ($header->m_nLeft + $header->m_nWidth) && $y < ($header->m_nTop + $header->m_nHeight)) {
 					$bmp .= $data[$i];
+				}
 				// Otherwise, this is background...
-				else
+				else {
 					$bmp .= chr($background_color);
+				}
 			}
 		}
 
@@ -129,22 +138,21 @@ class File
 		$out .= $tmp . pack('N', smf_crc32($tmp));
 
 		// The palette, assuming we have one to speak of...
-		if ($colors > 0)
-		{
+		if ($colors > 0) {
 			$out .= pack('N', (int) $colors * 3);
 			$tmp = 'PLTE' . $pal;
 			$out .= $tmp . pack('N', smf_crc32($tmp));
 		}
 
 		// Do we have any transparency we want to make available?
-		if ($this->image->m_bTrans && $colors > 0)
-		{
+		if ($this->image->m_bTrans && $colors > 0) {
 			$out .= pack('N', (int) $colors);
 			$tmp = 'tRNS';
 
 			// Stick each color on - full transparency or none.
-			for ($i = 0; $i < $colors; $i++)
+			for ($i = 0; $i < $colors; $i++) {
 				$tmp .= $i == $this->image->m_nTrans ? "\x00" : "\xFF";
+			}
 
 			$out .= $tmp . pack('N', smf_crc32($tmp));
 		}
@@ -162,8 +170,7 @@ class File
 }
 
 // 64-bit only functions?
-if (!function_exists('smf_crc32'))
-{
+if (!function_exists('smf_crc32')) {
 	require_once Config::$sourcedir . '/Subs-Compat.php';
 }
 

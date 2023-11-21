@@ -13,13 +13,12 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-
 use SMF\Attachment;
+use SMF\BackwardCompatibility;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Allows the moderator to approve or reject attachments.
@@ -33,11 +32,11 @@ class AttachmentApprove implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ApproveAttach',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -66,62 +65,61 @@ class AttachmentApprove implements ActionInterface
 		// If it approve or delete?
 		$is_approve = !isset($_GET['sa']) || $_GET['sa'] != 'reject';
 
-		$attachments = array();
+		$attachments = [];
 
 		// If we are approving all ID's in a message, get the ID's.
-		if ($_GET['sa'] == 'all' && !empty($_GET['mid']))
-		{
+		if ($_GET['sa'] == 'all' && !empty($_GET['mid'])) {
 			$id_msg = (int) $_GET['mid'];
 
-			$request = Db::$db->query('', '
-				SELECT id_attach
+			$request = Db::$db->query(
+				'',
+				'SELECT id_attach
 				FROM {db_prefix}attachments
 				WHERE id_msg = {int:id_msg}
 					AND approved = {int:is_approved}
 					AND attachment_type = {int:attachment_type}',
-				array(
+				[
 					'id_msg' => $id_msg,
 					'is_approved' => 0,
 					'attachment_type' => 0,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$attachments[] = $row['id_attach'];
 			}
 			Db::$db->free_result($request);
-		}
-		elseif (!empty($_GET['aid']))
-		{
+		} elseif (!empty($_GET['aid'])) {
 			$attachments[] = (int) $_GET['aid'];
 		}
 
-		if (empty($attachments))
+		if (empty($attachments)) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		// Now we have some ID's cleaned and ready to approve, but first - let's check we have permission!
 		$allowed_boards = User::$me->boardsAllowedTo('approve_posts');
 
 		// Validate the attachments exist and are the right approval state.
-		$request = Db::$db->query('', '
-			SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic
+		$request = Db::$db->query(
+			'',
+			'SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.id_attach IN ({array_int:attachments})
 				AND a.attachment_type = {int:attachment_type}
 				AND a.approved = {int:is_approved}',
-			array(
+			[
 				'attachments' => $attachments,
 				'attachment_type' => 0,
 				'is_approved' => 0,
-			)
+			],
 		);
-		$attachments = array();
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+		$attachments = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// We can only add it if we can approve in this board!
-			if ($allowed_boards = array(0) || in_array($row['id_board'], $allowed_boards))
-			{
+			if ($allowed_boards = [0] || in_array($row['id_board'], $allowed_boards)) {
 				$attachments[] = $row['id_attach'];
 
 				// Also come up with the redirection URL.
@@ -130,18 +128,16 @@ class AttachmentApprove implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		if (empty($attachments))
+		if (empty($attachments)) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		// Finally, we are there. Follow through!
-		if ($is_approve)
-		{
+		if ($is_approve) {
 			// Checked and deemed worthy.
 			Attachment::approve($attachments);
-		}
-		else
-		{
-			Attachment::remove(array('id_attach' => $attachments, 'do_logging' => true));
+		} else {
+			Attachment::remove(['id_attach' => $attachments, 'do_logging' => true]);
 		}
 
 		// Return to the topic....
@@ -159,8 +155,9 @@ class AttachmentApprove implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -186,7 +183,8 @@ class AttachmentApprove implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\AttachmentApprove::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\AttachmentApprove::exportStatic')) {
 	AttachmentApprove::exportStatic();
+}
 
 ?>

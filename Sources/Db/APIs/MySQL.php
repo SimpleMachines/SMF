@@ -14,13 +14,13 @@
 namespace SMF\Db\APIs;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi;
+use SMF\Db\DatabaseApiInterface;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi;
-use SMF\Db\DatabaseApiInterface;
 
 /**
  * Interacts with MySQL databases.
@@ -102,7 +102,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *
 	 * Available MySQL engines.
 	 */
-	protected $engines = array();
+	protected $engines = [];
 
 	/**
 	 * @var bool
@@ -118,21 +118,21 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function query($identifier, $db_string, $db_values = array(), $connection = null)
+	public function query($identifier, $db_string, $db_values = [], $connection = null)
 	{
 		// Comments that are allowed in a query are preg_removed.
-		$allowed_comments_from = array(
-			'~\s+~s',
-			'~/\*!40001 SQL_NO_CACHE \*/~',
-			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
-			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
-		);
-		$allowed_comments_to = array(
+		$allowed_comments_from = [
+			'~\\s+~s',
+			'~/\\*!40001 SQL_NO_CACHE \\*/~',
+			'~/\\*!40000 USE INDEX \\([A-Za-z\\_]+?\\) \\*/~',
+			'~/\\*!40100 ON DUPLICATE KEY UPDATE id_msg = \\d+ \\*/~',
+		];
+		$allowed_comments_to = [
 			' ',
 			'',
 			'',
 			'',
-		);
+		];
 
 		// Decide which connection to use.
 		$connection = $connection ?? $this->connection;
@@ -140,54 +140,56 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// One more query....
 		self::$count++;
 
-		if (!$this->disableQueryCheck && strpos($db_string, '\'') !== false && empty($db_values['security_override']))
+		if (!$this->disableQueryCheck && strpos($db_string, '\'') !== false && empty($db_values['security_override'])) {
 			$this->error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
-
-		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string))
-		{
-			// Add before LIMIT
-			if ($pos = strpos($db_string, 'LIMIT '))
-				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
-			else
-				// Append it.
-				$db_string .= "\n\t\t\tORDER BY null";
 		}
 
-		if (empty($db_values['security_override']) && (!empty($db_values) || strpos($db_string, '{db_prefix}') !== false))
-		{
+		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
+		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\\s+SELECT~i', $db_string)) {
+			// Add before LIMIT
+			if ($pos = strpos($db_string, 'LIMIT ')) {
+				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
+			} else {
+				// Append it.
+				$db_string .= "\n\t\t\tORDER BY null";
+			}
+		}
+
+		if (empty($db_values['security_override']) && (!empty($db_values) || strpos($db_string, '{db_prefix}') !== false)) {
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection;
 
 			// Inject the values passed to this function.
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', array($this, 'replacement__callback'), $db_string);
+			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
 
 			unset($this->temp_values, $this->temp_connection);
 		}
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
-		if (!$this->disableQueryCheck)
-		{
+		if (!$this->disableQueryCheck) {
 			$clean = '';
 			$old_pos = 0;
 			$pos = -1;
 			// Remove the string escape for better runtime
 			$db_string_1 = str_replace('\\\'', '', $db_string);
-			while (true)
-			{
+
+			while (true) {
 				$pos = strpos($db_string_1, '\'', $pos + 1);
-				if ($pos === false)
+
+				if ($pos === false) {
 					break;
+				}
 				$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
 
-				while (true)
-				{
+				while (true) {
 					$pos1 = strpos($db_string_1, '\'', $pos + 1);
 					$pos2 = strpos($db_string_1, '\\', $pos + 1);
-					if ($pos1 === false)
+
+					if ($pos1 === false) {
 						break;
-					elseif ($pos2 === false || $pos2 > $pos1)
-					{
+					}
+
+					if ($pos2 === false || $pos2 > $pos1) {
 						$pos = $pos1;
 						break;
 					}
@@ -202,29 +204,30 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
-			if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
+			if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false) {
 				$fail = true;
+			}
 			// Trying to change passwords, slow us down, or something?
-			elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0)
+			elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
 				$fail = true;
-			elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0)
+			} elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
 				$fail = true;
+			}
 
-			if (!empty($fail) && function_exists('log_error'))
+			if (!empty($fail) && function_exists('log_error')) {
 				$this->error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
+			}
 		}
 
 		// Debugging.
-		if ($this->show_debug)
-		{
+		if ($this->show_debug) {
 			// Get the file and line number this function was called.
-			list ($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
+			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
 
-			if (!empty($_SESSION['debug_redirect']))
-			{
+			if (!empty($_SESSION['debug_redirect'])) {
 				self::$cache = array_merge($_SESSION['debug_redirect'], self::$cache);
 				self::$count = count(self::$cache) + 1;
-				$_SESSION['debug_redirect'] = array();
+				$_SESSION['debug_redirect'] = [];
 			}
 
 			// Don't overload it.
@@ -236,12 +239,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
 
-		if ($ret === false && empty($db_values['db_error_skip']))
+		if ($ret === false && empty($db_values['db_error_skip'])) {
 			$ret = $this->error($db_string, $connection);
+		}
 
 		// Debugging.
-		if ($this->show_debug)
+		if ($this->show_debug) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
+		}
 
 		return $ret;
 	}
@@ -252,14 +257,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function quote($db_string, $db_values, $connection = null)
 	{
 		// Only bother if there's something to replace.
-		if (strpos($db_string, '{') !== false)
-		{
+		if (strpos($db_string, '{') !== false) {
 			// This is needed by the callback function.
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection ?? $this->connection;
 
 			// Do the quoting and escaping
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', array($this, 'replacement__callback'), $db_string);
+			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
 
 			unset($this->temp_values, $this->temp_connection);
 		}
@@ -288,15 +292,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function fetch_all($request)
 	{
-		if (function_exists('mysqli_fetch_all'))
+		if (function_exists('mysqli_fetch_all')) {
 			$return = mysqli_fetch_all($request, MYSQLI_ASSOC);
-		else
-		{
-			$return = array();
-			while ($row = mysqli_fetch_assoc($request))
+		} else {
+			$return = [];
+
+			while ($row = mysqli_fetch_assoc($request)) {
 				$return[] = $row;
+			}
 		}
-		return !empty($return) ? $return : array();
+
+		return !empty($return) ? $return : [];
 	}
 
 	/**
@@ -317,8 +323,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$return_var = null;
 
 		// With nothing to insert, simply return.
-		if (empty($table) || empty($data))
+		if (empty($table) || empty($data)) {
 			return;
+		}
 
 		// Force method to lower case
 		$method = strtolower($method);
@@ -328,27 +335,29 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$with_returning = false;
 
-		if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
-		{
+		if (!empty($keys) && (count($keys) > 0) && $returnmode > 0) {
 			$with_returning = true;
 
-			if ($returnmode == 2)
-				$return_var = array();
+			if ($returnmode == 2) {
+				$return_var = [];
+			}
 		}
 
 		// Inserting data as a single row can be done as a single array.
-		if (!is_array($data[array_rand($data)]))
-			$data = array($data);
+		if (!is_array($data[array_rand($data)])) {
+			$data = [$data];
+		}
 
 		// Create the mold for a single row insert.
 		$insertData = '(';
-		foreach ($columns as $columnName => $type)
-		{
+
+		foreach ($columns as $columnName => $type) {
 			// Are we restricting the length?
-			if (strpos($type, 'string-') !== false)
+			if (strpos($type, 'string-') !== false) {
 				$insertData .= sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $columnName);
-			else
+			} else {
 				$insertData .= sprintf('{%1$s:%2$s}, ', $type, $columnName);
+			}
 		}
 		$insertData = substr($insertData, 0, -2) . ')';
 
@@ -356,38 +365,35 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$indexed_columns = array_keys($columns);
 
 		// Here's where the variables are injected to the query.
-		$insertRows = array();
-		foreach ($data as $dataRow)
-		{
+		$insertRows = [];
+
+		foreach ($data as $dataRow) {
 			$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 		}
 
 		// Determine the method of insertion.
-		switch ($method)
-		{
+		switch ($method) {
 			case 'replace':
 				$queryTitle = 'REPLACE';
 
 				// Sanity check for replace is key part of the columns array
-				if (empty($keys))
-				{
+				if (empty($keys)) {
 					$this->error_backtrace(
 						'When using the replace mode, the key column is a required entry.',
 						'Change the method of db insert to insert or add the pk field to the key array',
 						E_USER_ERROR,
 						__FILE__,
-						__LINE__
+						__LINE__,
 					);
 				}
 
-				if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
-				{
+				if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys)) {
 					$this->error_backtrace(
 						'Primary Key field missing in insert call',
 						'Change the method of db insert to insert or add the pk field to the columns array',
 						E_USER_ERROR,
 						__FILE__,
-						__LINE__
+						__LINE__,
 					);
 				}
 
@@ -402,79 +408,79 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 		}
 
-		if (!$with_returning || $method != 'ignore')
-		{
+		if (!$with_returning || $method != 'ignore') {
 			// Do the insert.
-			$this->query('', '
+			$this->query(
+				'',
+				'
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
 					' . implode(',
 					', $insertRows),
-				array(
+				[
 					'security_override' => true,
 					'db_error_skip' => $table === $this->prefix . 'log_errors',
-				),
-				$connection
+				],
+				$connection,
 			);
 		}
 		// Special way for ignore method with returning
-		else
-		{
+		else {
 			$count = count($insertRows);
 			$ai = 0;
-			for ($i = 0; $i < $count; $i++)
-			{
+
+			for ($i = 0; $i < $count; $i++) {
 				$old_id = $this->insert_id($table);
 
-				$this->query('', '
+				$this->query(
+					'',
+					'
 					' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 					VALUES
 						' . $insertRows[$i],
-					array(
+					[
 						'security_override' => true,
 						'db_error_skip' => $table === $this->prefix . 'log_errors',
-					),
-					$connection
+					],
+					$connection,
 				);
 				$new_id = $this->insert_id($table);
 
 				// the inserted value was new
-				if ($old_id != $new_id)
-				{
+				if ($old_id != $new_id) {
 					$ai = $new_id;
 				}
 				// the inserted value already exists we need to find the pk
-				else
-				{
+				else {
 					$where_string = '';
 
 					$count2 = count($keys);
 
-					for ($x = 0; $x < $count2; $x++)
-					{
+					for ($x = 0; $x < $count2; $x++) {
 						$keyPos = array_search($keys[$x], array_keys($columns));
 
 						$where_string .= $keys[$x] . ' = ' . $data[$i][$keyPos];
 
-						if (($x + 1) < $count2)
+						if (($x + 1) < $count2) {
 							$where_string .= ' AND ';
+						}
 					}
 
-					$request = $this->query('', '
+					$request = $this->query(
+						'',
+						'
 						SELECT `' . $keys[0] . '` FROM ' . $table . '
 						WHERE ' . $where_string . ' LIMIT 1',
-						array()
+						[],
 					);
 
-					if ($request !== false && $this->num_rows($request) == 1)
-					{
+					if ($request !== false && $this->num_rows($request) == 1) {
 						$row = $this->fetch_assoc($request);
 						$ai = $row[$keys[0]];
 					}
 				}
 
-				switch ($returnmode)
-				{
+				switch ($returnmode) {
 					case 2:
 						$return_var[] = $ai;
 						break;
@@ -486,22 +492,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if ($with_returning)
-		{
-			if ($returnmode == 1 && empty($return_var))
-			{
+		if ($with_returning) {
+			if ($returnmode == 1 && empty($return_var)) {
 				$return_var = $this->insert_id($table, $keys[0]) + count($insertRows) - 1;
-			}
-			elseif ($returnmode == 2 && empty($return_var))
-			{
-				$return_var = array();
+			} elseif ($returnmode == 2 && empty($return_var)) {
+				$return_var = [];
 
 				$count = count($insertRows);
 
 				$start = $this->insert_id($table, $keys[0]);
 
-				for ($i = 0; $i < $count; $i++)
+				for ($i = 0; $i < $count; $i++) {
 					$return_var[] = $start + $i;
+				}
 			}
 
 			return $return_var;
@@ -580,8 +583,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$type = strtoupper($type);
 
-		if (in_array($type, array('BEGIN', 'ROLLBACK', 'COMMIT')))
+		if (in_array($type, ['BEGIN', 'ROLLBACK', 'COMMIT'])) {
 			return @mysqli_query($connection ?? $this->connection, $type);
+		}
 
 		return false;
 	}
@@ -591,11 +595,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function error($connection)
 	{
-		if ($connection === null && $this->connection === null)
+		if ($connection === null && $this->connection === null) {
 			return '';
+		}
 
-		if (!(($connection ?? $this->connection) instanceof mysqli))
+		if (!(($connection ?? $this->connection) instanceof mysqli)) {
 			return '';
+		}
 
 		return mysqli_error($connection ?? $this->connection);
 	}
@@ -613,16 +619,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function escape_wildcard_string($string, $translate_human_wildcards = false)
 	{
-		$replacements = array(
-			'%' => '\%',
-			'_' => '\_',
+		$replacements = [
+			'%' => '\\%',
+			'_' => '\\_',
 			'\\' => '\\\\',
-		);
+		];
 
-		if ($translate_human_wildcards)
-			$replacements += array(
+		if ($translate_human_wildcards) {
+			$replacements += [
 				'*' => '%',
-			);
+			];
+		}
 
 		return strtr($string, $replacements);
 	}
@@ -649,27 +656,29 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function error_insert($error_array)
 	{
 		// Without a database we can't do anything.
-		if (empty($this->connection))
+		if (empty($this->connection)) {
 			return;
+		}
 
 		// String keys are easier to work with.
-		if (!isset($error_array['ip']))
-			$error_array = array_combine(array('id_member', 'log_time', 'ip', 'url', 'message', 'session', 'error_type', 'file', 'line', 'backtrace'), $error_array);
+		if (!isset($error_array['ip'])) {
+			$error_array = array_combine(['id_member', 'log_time', 'ip', 'url', 'message', 'session', 'error_type', 'file', 'line', 'backtrace'], $error_array);
+		}
 
-		if (empty($this->error_data_prep))
-		{
+		if (empty($this->error_data_prep)) {
 			$this->error_data_prep = mysqli_prepare(
 				$this->connection,
 				'INSERT INTO ' . $this->prefix . 'log_errors
 					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( ?, ?, unhex(?), ?, ?, ?, ?, ?, ?, ?)'
+				VALUES( ?, ?, unhex(?), ?, ?, ?, ?, ?, ?, ?)',
 			);
 		}
 
-		if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) !== false)
+		if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) !== false) {
 			$error_array['ip'] = bin2hex(inet_pton($error_array['ip']));
-		else
+		} else {
 			$error_array['ip'] = null;
+		}
 
 		mysqli_stmt_bind_param(
 			$this->error_data_prep,
@@ -683,7 +692,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$error_array['error_type'],
 			$error_array['file'],
 			$error_array['line'],
-			$error_array['backtrace']
+			$error_array['backtrace'],
 		);
 
 		mysqli_stmt_execute($this->error_data_prep);
@@ -698,8 +707,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$count = count($array_values);
 		$then = ($desc ? ' THEN -' : ' THEN ');
 
-		for ($i = 0; $i < $count; $i++)
+		for ($i = 0; $i < $count; $i++) {
 			$return .= 'WHEN ' . (int) $array_values[$i] . $then . $i . ' ';
+		}
 
 		$return .= 'END';
 
@@ -719,8 +729,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function cte_support()
 	{
-		if (isset($this->supports_cte))
+		if (isset($this->supports_cte)) {
 			return $this->supports_cte;
+		}
 
 		$this->get_version();
 
@@ -759,50 +770,59 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
 		// First, get rid of the old table.
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			DROP TABLE IF EXISTS {raw:backup_table}',
-			array(
+			[
 				'backup_table' => $backup_table,
-			)
+			],
 		);
 
 		// Can we do this the quick way?
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			CREATE TABLE {raw:backup_table} LIKE {raw:table}',
-			array(
+			[
 				'backup_table' => $backup_table,
-				'table' => $table
-			)
+				'table' => $table,
+			],
 		);
+
 		// If this failed, we go old school.
-		if ($result)
-		{
-			$request = $this->query('', '
+		if ($result) {
+			$request = $this->query(
+				'',
+				'
 				INSERT INTO {raw:backup_table}
 				SELECT *
 				FROM {raw:table}',
-				array(
+				[
 					'backup_table' => $backup_table,
-					'table' => $table
-				)
+					'table' => $table,
+				],
 			);
 
 			// Old school or no school?
-			if ($request)
+			if ($request) {
 				return $request;
+			}
 		}
 
 		// At this point, the quick method failed.
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			SHOW CREATE TABLE {raw:table}',
-			array(
+			[
 				'table' => $table,
-			)
+			],
 		);
-		list (, $create) = $this->fetch_row($result);
+		list(, $create) = $this->fetch_row($result);
 		$this->free_result($result);
 
-		$create = preg_split('/[\n\r]/', $create);
+		$create = preg_split('/[\\n\\r]/', $create);
 
 		$auto_inc = '';
 		// Default engine type.
@@ -810,71 +830,80 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$charset = '';
 		$collate = '';
 
-		foreach ($create as $k => $l)
-		{
+		foreach ($create as $k => $l) {
 			// Get the name of the auto_increment column.
-			if (strpos($l, 'auto_increment'))
+			if (strpos($l, 'auto_increment')) {
 				$auto_inc = trim($l);
+			}
 
 			// For the engine type, see if we can work out what it is.
-			if (strpos($l, 'ENGINE') !== false || strpos($l, 'TYPE') !== false)
-			{
+			if (strpos($l, 'ENGINE') !== false || strpos($l, 'TYPE') !== false) {
 				// Extract the engine type.
-				preg_match('~(ENGINE|TYPE)=(\w+)(\sDEFAULT)?(\sCHARSET=(\w+))?(\sCOLLATE=(\w+))?~', $l, $match);
+				preg_match('~(ENGINE|TYPE)=(\\w+)(\\sDEFAULT)?(\\sCHARSET=(\\w+))?(\\sCOLLATE=(\\w+))?~', $l, $match);
 
-				if (!empty($match[1]))
+				if (!empty($match[1])) {
 					$engine = $match[1];
+				}
 
-				if (!empty($match[2]))
+				if (!empty($match[2])) {
 					$engine = $match[2];
+				}
 
-				if (!empty($match[5]))
+				if (!empty($match[5])) {
 					$charset = $match[5];
+				}
 
-				if (!empty($match[7]))
+				if (!empty($match[7])) {
 					$collate = $match[7];
+				}
 			}
 
 			// Skip everything but keys...
-			if (strpos($l, 'KEY') === false)
+			if (strpos($l, 'KEY') === false) {
 				unset($create[$k]);
+			}
 		}
 
-		if (!empty($create))
+		if (!empty($create)) {
 			$create = '(
 				' . implode('
 				', $create) . ')';
-		else
+		} else {
 			$create = '';
+		}
 
-		$request = $this->query('', '
+		$request = $this->query(
+			'',
+			'
 			CREATE TABLE {raw:backup_table} {raw:create}
 			ENGINE={raw:engine}' . (empty($charset) ? '' : ' CHARACTER SET {raw:charset}' . (empty($collate) ? '' : ' COLLATE {raw:collate}')) . '
 			SELECT *
 			FROM {raw:table}',
-			array(
+			[
 				'backup_table' => $backup_table,
 				'table' => $table,
 				'create' => $create,
 				'engine' => $engine,
 				'charset' => empty($charset) ? '' : $charset,
 				'collate' => empty($collate) ? '' : $collate,
-			)
+			],
 		);
 
-		if ($auto_inc != '')
-		{
-			if (preg_match('~\`(.+?)\`\s~', $auto_inc, $match) != 0 && substr($auto_inc, -1, 1) == ',')
+		if ($auto_inc != '') {
+			if (preg_match('~\\`(.+?)\\`\\s~', $auto_inc, $match) != 0 && substr($auto_inc, -1, 1) == ',') {
 				$auto_inc = substr($auto_inc, 0, -1);
+			}
 
-			$this->query('', '
+			$this->query(
+				'',
+				'
 				ALTER TABLE {raw:backup_table}
 				CHANGE COLUMN {raw:column_detail} {raw:auto_inc}',
-				array(
+				[
 					'backup_table' => $backup_table,
 					'column_detail' => $match[1],
 					'auto_inc' => $auto_inc,
-				)
+				],
 			);
 		}
 
@@ -889,31 +918,39 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
 		// Get how much overhead there is.
-		$request = $this->query('', '
+		$request = $this->query(
+			'',
+			'
 			SHOW TABLE STATUS LIKE {string:table_name}',
-			array(
-				'table_name' => str_replace('_', '\_', $table),
-			)
+			[
+				'table_name' => str_replace('_', '\\_', $table),
+			],
 		);
 		$row = $this->fetch_assoc($request);
 		$this->free_result($request);
 
-		$data_before = isset($row['Data_free']) ? $row['Data_free'] : 0;
-		$request = $this->query('', '
+		$data_before = $row['Data_free'] ?? 0;
+		$request = $this->query(
+			'',
+			'
 			OPTIMIZE TABLE `{raw:table}`',
-			array(
+			[
 				'table' => $table,
-			)
+			],
 		);
-		if (!$request)
+
+		if (!$request) {
 			return -1;
+		}
 
 		// How much left?
-		$request = $this->query('', '
+		$request = $this->query(
+			'',
+			'
 			SHOW TABLE STATUS LIKE {string:table}',
-			array(
-				'table' => str_replace('_', '\_', $table),
-			)
+			[
+				'table' => str_replace('_', '\\_', $table),
+			],
 		);
 		$row = $this->fetch_assoc($request);
 		$this->free_result($request);
@@ -940,27 +977,28 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$schema_create .= 'CREATE TABLE ' . '`' . $tableName . '` (' . $crlf;
 
 		// Find all the fields.
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			SHOW FIELDS
 			FROM `{raw:table}`',
-			array(
+			[
 				'table' => $tableName,
-			)
+			],
 		);
-		while ($row = $this->fetch_assoc($result))
-		{
+
+		while ($row = $this->fetch_assoc($result)) {
 			// Make the CREATE for this column.
 			$schema_create .= ' `' . $row['Field'] . '` ' . $row['Type'] . ($row['Null'] != 'YES' ? ' NOT NULL' : '');
 
 			// Add a default...?
-			if (!empty($row['Default']) || $row['Null'] !== 'YES')
-			{
+			if (!empty($row['Default']) || $row['Null'] !== 'YES') {
 				// Make a special case of auto-timestamp.
-				if ($row['Default'] == 'CURRENT_TIMESTAMP')
+				if ($row['Default'] == 'CURRENT_TIMESTAMP') {
 					$schema_create .= ' /*!40102 NOT NULL default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP */';
+				}
 				// Text shouldn't have a default.
-				elseif ($row['Default'] !== null)
-				{
+				elseif ($row['Default'] !== null) {
 					// If this field is numeric the default needs no escaping.
 					$type = strtolower($row['Type']);
 					$isNumericColumn = strpos($type, 'int') !== false || strpos($type, 'bool') !== false || strpos($type, 'bit') !== false || strpos($type, 'float') !== false || strpos($type, 'double') !== false || strpos($type, 'decimal') !== false;
@@ -978,34 +1016,37 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
 
 		// Find the keys.
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			SHOW KEYS
 			FROM `{raw:table}`',
-			array(
+			[
 				'table' => $tableName,
-			)
+			],
 		);
-		$indexes = array();
-		while ($row = $this->fetch_assoc($result))
-		{
+		$indexes = [];
+
+		while ($row = $this->fetch_assoc($result)) {
 			// IS this a primary key, unique index, or regular index?
 			$row['Key_name'] = $row['Key_name'] == 'PRIMARY' ? 'PRIMARY KEY' : (empty($row['Non_unique']) ? 'UNIQUE ' : ($row['Comment'] == 'FULLTEXT' || (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT') ? 'FULLTEXT ' : 'KEY ')) . '`' . $row['Key_name'] . '`';
 
 			// Is this the first column in the index?
-			if (empty($indexes[$row['Key_name']]))
-				$indexes[$row['Key_name']] = array();
+			if (empty($indexes[$row['Key_name']])) {
+				$indexes[$row['Key_name']] = [];
+			}
 
 			// A sub part, like only indexing 15 characters of a varchar.
-			if (!empty($row['Sub_part']))
+			if (!empty($row['Sub_part'])) {
 				$indexes[$row['Key_name']][$row['Seq_in_index']] = '`' . $row['Column_name'] . '`(' . $row['Sub_part'] . ')';
-			else
+			} else {
 				$indexes[$row['Key_name']][$row['Seq_in_index']] = '`' . $row['Column_name'] . '`';
+			}
 		}
 		$this->free_result($result);
 
 		// Build the CREATEs for the keys.
-		foreach ($indexes as $keyname => $columns)
-		{
+		foreach ($indexes as $keyname => $columns) {
 			// Ensure the columns are in proper order.
 			ksort($columns);
 
@@ -1013,12 +1054,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Now just get the comment and engine... (MyISAM, etc.)
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			SHOW TABLE STATUS
 			LIKE {string:table}',
-			array(
-				'table' => strtr($tableName, array('_' => '\\_', '%' => '\\%')),
-			)
+			[
+				'table' => strtr($tableName, ['_' => '\\_', '%' => '\\%']),
+			],
 		);
 		$row = $this->fetch_assoc($result);
 		$this->free_result($result);
@@ -1038,18 +1081,22 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$db = trim($db);
 		$filter = $filter == false ? '' : ' LIKE \'' . $filter . '\'';
 
-		$request = $this->query('', '
+		$request = $this->query(
+			'',
+			'
 			SHOW TABLES
 			FROM `{raw:db}`
 			{raw:filter}',
-			array(
-				'db' => $db[0] == '`' ? strtr($db, array('`' => '')) : $db,
+			[
+				'db' => $db[0] == '`' ? strtr($db, ['`' => '']) : $db,
 				'filter' => $filter,
-			)
+			],
 		);
-		$tables = array();
-		while ($row = $this->fetch_row($request))
+		$tables = [];
+
+		while ($row = $this->fetch_row($request)) {
 			$tables[] = $row[0];
+		}
 		$this->free_result($request);
 
 		return $tables;
@@ -1060,15 +1107,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function get_version()
 	{
-		if (!empty($this->version))
+		if (!empty($this->version)) {
 			return $this->version;
+		}
 
-		$request = $this->query('', '
+		$request = $this->query(
+			'',
+			'
 			SELECT VERSION()',
-			array(
-			)
+			[
+			],
 		);
-		list ($this->version) = $this->fetch_row($request);
+		list($this->version) = $this->fetch_row($request);
 		$this->free_result($request);
 
 		return $this->version;
@@ -1079,26 +1129,26 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function get_vendor()
 	{
-		if (!empty($this->vendor))
+		if (!empty($this->vendor)) {
 			return $this->vendor;
+		}
 
 		$request = $this->query('', 'SELECT @@version_comment');
-		list ($comment) = $this->fetch_row($request);
+		list($comment) = $this->fetch_row($request);
 		$this->free_result($request);
 
 		// Skip these if we don't have a comment.
-		if (!empty($comment))
-		{
-			if (stripos($comment, 'percona') !== false)
+		if (!empty($comment)) {
+			if (stripos($comment, 'percona') !== false) {
 				$this->vendor = 'Percona';
-			elseif (stripos($comment, 'mariadb') !== false)
+			} elseif (stripos($comment, 'mariadb') !== false) {
 				$this->vendor = 'MariaDB';
-			else
+			} else {
 				$this->vendor = 'MySQL';
-		}
-		else
-		{
+			}
+		} else {
 			Lang::load('Admin');
+
 			return Lang::$txt['unknown'];
 		}
 
@@ -1111,10 +1161,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function allow_persistent()
 	{
 		$value = ini_get('mysqli.allow_persistent');
-		if (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
-			return true;
-		else
-			return false;
+
+		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
+
+
+		;
 	}
 
 	/*****************************************
@@ -1124,7 +1175,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_query($identifier, $db_string, $db_values = array(), $connection = null)
+	public function search_query($identifier, $db_string, $db_values = [], $connection = null)
 	{
 		return $this->query($identifier, $db_string, $db_values, $connection);
 	}
@@ -1134,7 +1185,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function search_support($search_type)
 	{
-		$supported_types = array('fulltext');
+		$supported_types = ['fulltext'];
 
 		return in_array($search_type, $supported_types);
 	}
@@ -1144,23 +1195,26 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function create_word_search($size)
 	{
-		if ($size == 'small')
+		if ($size == 'small') {
 			$size = 'smallint(5)';
-		elseif ($size == 'medium')
+		} elseif ($size == 'medium') {
 			$size = 'mediumint(8)';
-		else
+		} else {
 			$size = 'int(10)';
+		}
 
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			CREATE TABLE {db_prefix}log_search_words (
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_word, id_msg)
 			) ENGINE=InnoDB',
-			array(
+			[
 				'string_zero' => '0',
 				'size' => $size,
-			)
+			],
 		);
 	}
 
@@ -1169,7 +1223,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function search_language()
 	{
-		return null;
+
 	}
 
 	/*******************************************
@@ -1179,25 +1233,25 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function add_column($table_name, $column_info, $parameters = array(), $if_exists = 'update', $error = 'fatal')
+	public function add_column($table_name, $column_info, $parameters = [], $if_exists = 'update', $error = 'fatal')
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$column_info = array_change_key_case($column_info);
 
 		// Log that we will want to uninstall this!
-		self::$package_log[] = array('remove_column', $short_table_name, $column_info['name']);
+		self::$package_log[] = ['remove_column', $short_table_name, $column_info['name']];
 
 		// Does it exist - if so don't add it again!
 		$columns = $this->list_columns($table_name, false);
-		foreach ($columns as $column)
-		{
-			if ($column == $column_info['name'])
-			{
+
+		foreach ($columns as $column) {
+			if ($column == $column_info['name']) {
 				// If we're going to overwrite then use change column.
-				if ($if_exists == 'update')
+				if ($if_exists == 'update') {
 					return $this->change_column($table_name, $column_info['name'], $column_info);
-				else
-					return false;
+				}
+
+				return false;
 			}
 		}
 
@@ -1205,12 +1259,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
 
 		// Now add the thing!
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			ALTER TABLE ' . $short_table_name . '
 			ADD ' . $this->create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'),
-			array(
+			[
 				'security_override' => true,
-			)
+			],
 		);
 
 		return true;
@@ -1219,32 +1275,32 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function add_index($table_name, $index_info, $parameters = array(), $if_exists = 'update', $error = 'fatal')
+	public function add_index($table_name, $index_info, $parameters = [], $if_exists = 'update', $error = 'fatal')
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// No columns = no index.
-		if (empty($index_info['columns']))
+		if (empty($index_info['columns'])) {
 			return false;
+		}
 
 		// MySQL If its a text column, we need to add a size.
 		$cols = $this->list_columns($table_name, true);
-		foreach ($index_info['columns'] as &$c)
-		{
+
+		foreach ($index_info['columns'] as &$c) {
 			$c = trim($c);
 			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
-			list ($type, $size) = $this->calculate_type($cols[$c]['type'], $cols[$c]['size']);
+			list($type, $size) = $this->calculate_type($cols[$c]['type'], $cols[$c]['size']);
 
 			// If a size was already specified, we won't be able to match it anyways.
 			if (
 				!isset($cols[$c])
-				|| !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char'))
+				|| !in_array($cols[$c]['type'], ['text', 'mediumntext', 'largetext', 'varchar', 'char'])
 				|| (
 					isset($size)
 					&& $size <= 191
 				)
-			)
-			{
+			) {
 				continue;
 			}
 
@@ -1254,52 +1310,53 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$columns = implode(',', $index_info['columns']);
 
 		// No name - make it up!
-		if (empty($index_info['name']))
-		{
+		if (empty($index_info['name'])) {
 			// No need for primary.
-			if (isset($index_info['type']) && $index_info['type'] == 'primary')
+			if (isset($index_info['type']) && $index_info['type'] == 'primary') {
 				$index_info['name'] = '';
-			else
-				$index_info['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index_info['columns'])));
+			} else {
+				$index_info['name'] = trim(implode('_', preg_replace('~(\\(\\d+\\))~', '', $index_info['columns'])));
+			}
 		}
 
 		// Log that we are going to want to remove this!
-		self::$package_log[] = array('remove_index', $short_table_name, $index_info['name']);
+		self::$package_log[] = ['remove_index', $short_table_name, $index_info['name']];
 
 		// Let's get all our indexes.
 		$indexes = $this->list_indexes($table_name, true);
+
 		// Do we already have it?
-		foreach ($indexes as $index)
-		{
-			if ($index['name'] == $index_info['name'] || ($index['type'] == 'primary' && isset($index_info['type']) && $index_info['type'] == 'primary'))
-			{
+		foreach ($indexes as $index) {
+			if ($index['name'] == $index_info['name'] || ($index['type'] == 'primary' && isset($index_info['type']) && $index_info['type'] == 'primary')) {
 				// If we want to overwrite simply remove the current one then continue.
-				if ($if_exists != 'update' || $index['type'] == 'primary')
+				if ($if_exists != 'update' || $index['type'] == 'primary') {
 					return false;
-				else
-					$this->remove_index($table_name, $index_info['name']);
+				}
+
+				$this->remove_index($table_name, $index_info['name']);
 			}
 		}
 
 		// If we're here we know we don't have the index - so just add it.
-		if (!empty($index_info['type']) && $index_info['type'] == 'primary')
-		{
-			$this->query('', '
+		if (!empty($index_info['type']) && $index_info['type'] == 'primary') {
+			$this->query(
+				'',
+				'
 				ALTER TABLE ' . $short_table_name . '
 				ADD PRIMARY KEY (' . $columns . ')',
-				array(
+				[
 					'security_override' => true,
-				)
+				],
 			);
-		}
-		else
-		{
-			$this->query('', '
+		} else {
+			$this->query(
+				'',
+				'
 				ALTER TABLE ' . $short_table_name . '
 				ADD ' . (isset($index_info['type']) && $index_info['type'] == 'unique' ? 'UNIQUE' : 'INDEX') . ' ' . $index_info['name'] . ' (' . $columns . ')',
-				array(
+				[
 					'security_override' => true,
-				)
+				],
 			);
 		}
 	}
@@ -1312,42 +1369,36 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// MySQL is actually the generic baseline.
 
 		$type_name = strtolower($type_name);
+
 		// Generic => Specific.
-		if (!$reverse)
-		{
-			$types = array(
+		if (!$reverse) {
+			$types = [
 				'inet' => 'varbinary',
-			);
-		}
-		else
-		{
-			$types = array(
+			];
+		} else {
+			$types = [
 				'varbinary' => 'inet',
-			);
+			];
 		}
 
 		// Got it? Change it!
-		if (isset($types[$type_name]))
-		{
-			if ($type_name == 'inet' && !$reverse)
-			{
+		if (isset($types[$type_name])) {
+			if ($type_name == 'inet' && !$reverse) {
 				$type_size = 16;
 				$type_name = 'varbinary';
-			}
-			elseif ($type_name == 'varbinary' && $reverse && $type_size == 16)
-			{
+			} elseif ($type_name == 'varbinary' && $reverse && $type_size == 16) {
 				$type_name = 'inet';
 				$type_size = null;
-			}
-			elseif ($type_name == 'varbinary')
+			} elseif ($type_name == 'varbinary') {
 				$type_name = 'varbinary';
-			else
+			} else {
 				$type_name = $types[$type_name];
-		}
-		elseif ($type_name == 'boolean')
+			}
+		} elseif ($type_name == 'boolean') {
 			$type_size = null;
+		}
 
-		return array($type_name, $type_size);
+		return [$type_name, $type_size];
 	}
 
 	/**
@@ -1361,94 +1412,118 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Check it does exist!
 		$columns = $this->list_columns($table_name, true);
 		$old_info = null;
-		foreach ($columns as $column)
-		{
-			if ($column['name'] == $old_column)
+
+		foreach ($columns as $column) {
+			if ($column['name'] == $old_column) {
 				$old_info = $column;
+			}
 		}
 
 		// Nothing?
-		if ($old_info == null)
+		if ($old_info == null) {
 			return false;
+		}
 
 		// backward compatibility
-		if (isset($column_info['null']) && !isset($column_info['not_null']))
+		if (isset($column_info['null']) && !isset($column_info['not_null'])) {
 			$column_info['not_null'] = !$column_info['null'];
+		}
 
 		// Get the right bits.
-		if (isset($column_info['drop_default']) && !empty($column_info['drop_default']))
+		if (isset($column_info['drop_default']) && !empty($column_info['drop_default'])) {
 			$column_info['drop_default'] = true;
-		else
+		} else {
 			$column_info['drop_default'] = false;
-		if (!isset($column_info['name']))
+		}
+
+		if (!isset($column_info['name'])) {
 			$column_info['name'] = $old_column;
-		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default']))
+		}
+
+		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
 			$column_info['default'] = $old_info['default'];
-		if (!isset($column_info['not_null']))
+		}
+
+		if (!isset($column_info['not_null'])) {
 			$column_info['not_null'] = $old_info['not_null'];
-		if (!isset($column_info['auto']))
+		}
+
+		if (!isset($column_info['auto'])) {
 			$column_info['auto'] = $old_info['auto'];
-		if (!isset($column_info['type']))
+		}
+
+		if (!isset($column_info['type'])) {
 			$column_info['type'] = $old_info['type'];
-		if (!isset($column_info['size']) || !is_numeric($column_info['size']))
+		}
+
+		if (!isset($column_info['size']) || !is_numeric($column_info['size'])) {
 			$column_info['size'] = $old_info['size'];
-		if (!isset($column_info['unsigned']) || !in_array($column_info['type'], array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')))
+		}
+
+		if (!isset($column_info['unsigned']) || !in_array($column_info['type'], ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
 			$column_info['unsigned'] = '';
+		}
 
 		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
 		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default']))
+		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default'])) {
 			unset($column_info['default']);
+		}
 
-		list ($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 		// Allow for unsigned integers (mysql only)
-		$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
+		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
 		// If you need to drop the default, that needs it's own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
-		if ($column_info['drop_default'])
-		{
-			$this->query('', '
+		if ($column_info['drop_default']) {
+			$this->query(
+				'',
+				'
 				ALTER TABLE ' . $short_table_name . '
 				ALTER COLUMN `' . $old_column . '` DROP DEFAULT',
-				array(
+				[
 					'security_override' => true,
-				)
+				],
 			);
 		}
 
 		// Set the default clause.
 		$default_clause = '';
-		if (!$column_info['drop_default'] && array_key_exists('default', $column_info))
-		{
-			if (is_null($column_info['default']))
+
+		if (!$column_info['drop_default'] && array_key_exists('default', $column_info)) {
+			if (is_null($column_info['default'])) {
 				$default_clause = 'DEFAULT NULL';
-			elseif (is_numeric($column_info['default']))
+			} elseif (is_numeric($column_info['default'])) {
 				$default_clause = 'DEFAULT ' . (strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
-			elseif (is_string($column_info['default']))
+			} elseif (is_string($column_info['default'])) {
 				$default_clause = 'DEFAULT \'' . $this->escape_string($column_info['default']) . '\'';
+			}
 		}
 
-		if ($size !== null)
+		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
+		}
 
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			ALTER TABLE ' . $short_table_name . '
 			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
 				(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
 				$default_clause . ' ' .
 				(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
-			array(
+			[
 				'security_override' => true,
-			)
+			],
 		);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function create_table($table_name, $columns, $indexes = array(), $parameters = array(), $if_exists = 'ignore', $error = 'fatal')
+	public function create_table($table_name, $columns, $indexes = [], $parameters = [], $if_exists = 'ignore', $error = 'fatal')
 	{
 		$old_table_exists = false;
 
@@ -1462,64 +1537,67 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// First - no way do we touch SMF tables.
-		if (in_array(strtolower($short_table_name), $this->reservedTables))
+		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
+		}
 
 		// Log that we'll want to remove this on uninstall.
-		self::$package_log[] = array('remove_table', $short_table_name);
+		self::$package_log[] = ['remove_table', $short_table_name];
 
 		// Slightly easier on MySQL than the others...
 		$tables = $this->list_tables($database);
 
-		if (in_array($full_table_name, $tables))
-		{
+		if (in_array($full_table_name, $tables)) {
 			// This is a sad day... drop the table? If not, return false (error) by default.
-			if ($if_exists == 'overwrite')
+			if ($if_exists == 'overwrite') {
 				$this->drop_table($table_name);
-			elseif ($if_exists == 'update')
-			{
+			} elseif ($if_exists == 'update') {
 				$this->transaction('begin');
 				$db_trans = true;
 				$this->drop_table($short_table_name . '_old');
-				$this->query('', '
+				$this->query(
+					'',
+					'
 					RENAME TABLE ' . $short_table_name . ' TO ' . $short_table_name . '_old',
-					array(
+					[
 						'security_override' => true,
-					)
+					],
 				);
 				$old_table_exists = true;
-			}
-			else
+			} else {
 				return $if_exists == 'ignore';
+			}
 		}
 
 		// Righty - let's do the damn thing!
 		$table_query = 'CREATE TABLE ' . $short_table_name . "\n" . '(';
-		foreach ($columns as $column)
+
+		foreach ($columns as $column) {
 			$table_query .= "\n\t" . $this->create_query_column($column) . ',';
+		}
 
 		// Loop through the indexes next...
-		foreach ($indexes as $index)
-		{
+		foreach ($indexes as $index) {
 			// MySQL If its a text column, we need to add a size.
-			foreach ($index['columns'] as &$c)
-			{
+			foreach ($index['columns'] as &$c) {
 				$c = trim($c);
 
 				// If a size was already specified, we won't be able to match it anyways.
 				$key = array_search($c, array_column($columns, 'name'));
 				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? $columns[$key]['size'] : null;
-				list ($type, $size) = $this->calculate_type($columns[$key]['type'], $columns[$key]['size']);
+				list($type, $size) = $this->calculate_type($columns[$key]['type'], $columns[$key]['size']);
+
 				if (
 					$key === false
 					|| !isset($columns[$key])
-					|| !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char'))
+					|| !in_array($columns[$key]['type'], ['text', 'mediumntext', 'largetext', 'varchar', 'char'])
 					|| (
 						isset($size)
 						&& $size <= 191
 					)
-				)
+				) {
 					continue;
+				}
 
 				$c .= '(191)';
 			}
@@ -1527,31 +1605,31 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$idx_columns = implode(',', $index['columns']);
 
 			// Is it the primary?
-			if (isset($index['type']) && $index['type'] == 'primary')
+			if (isset($index['type']) && $index['type'] == 'primary') {
 				$table_query .= "\n\t" . 'PRIMARY KEY (' . implode(',', $index['columns']) . '),';
-			else
-			{
-				if (empty($index['name']))
-					$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
+			} else {
+				if (empty($index['name'])) {
+					$index['name'] = trim(implode('_', preg_replace('~(\\(\\d+\\))~', '', $index['columns'])));
+				}
 
 				$table_query .= "\n\t" . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : 'KEY') . ' ' . $index['name'] . ' (' . $idx_columns . '),';
 			}
 		}
 
 		// No trailing commas!
-		if (substr($table_query, -1) == ',')
+		if (substr($table_query, -1) == ',') {
 			$table_query = substr($table_query, 0, -1);
+		}
 
 		// Which engine do we want here?
-		if (empty($this->engines))
-		{
+		if (empty($this->engines)) {
 			// Figure out which engines we have
-			$get_engines = $this->query('', 'SHOW ENGINES', array());
+			$get_engines = $this->query('', 'SHOW ENGINES', []);
 
-			while ($row = $this->fetch_assoc($get_engines))
-			{
-				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
+			while ($row = $this->fetch_assoc($get_engines)) {
+				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
 					$this->engines[] = $row['Engine'];
+				}
 			}
 
 			$this->free_result($get_engines);
@@ -1559,52 +1637,57 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// If we don't have this engine, or didn't specify one, default to InnoDB or MyISAM
 		// depending on which one is available
-		if (!isset($parameters['engine']) || !in_array($parameters['engine'], $this->engines))
-		{
+		if (!isset($parameters['engine']) || !in_array($parameters['engine'], $this->engines)) {
 			$parameters['engine'] = in_array('InnoDB', $this->engines) ? 'InnoDB' : 'MyISAM';
 		}
 
 		$table_query .= ') ENGINE=' . $parameters['engine'];
-		if (!empty($this->character_set) && $this->character_set == 'utf8')
+
+		if (!empty($this->character_set) && $this->character_set == 'utf8') {
 			$table_query .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		}
 
 		// Create the table!
-		$this->query('', $table_query,
-			array(
+		$this->query(
+			'',
+			$table_query,
+			[
 				'security_override' => true,
-			)
+			],
 		);
 
 		// Fill the old data
-		if ($old_table_exists)
-		{
-			$same_col = array();
+		if ($old_table_exists) {
+			$same_col = [];
 
-			$request = $this->query('', '
+			$request = $this->query(
+				'',
+				'
 				SELECT count(*), column_name
 				FROM information_schema.columns
 				WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
 				GROUP BY column_name
 				HAVING count(*) > 1',
-				array(
+				[
 					'table1' => $short_table_name,
 					'table2' => $short_table_name . '_old',
 					'schema' => $this->name,
-				)
+				],
 			);
 
-			while ($row = $this->fetch_assoc($request))
-			{
+			while ($row = $this->fetch_assoc($request)) {
 				$same_col[] = $row['column_name'];
 			}
 
-			$this->query('', '
+			$this->query(
+				'',
+				'
 				INSERT INTO ' . $short_table_name . '('
 				. implode(',', $same_col) .
 				')
 				SELECT ' . implode(',', $same_col) . '
 				FROM ' . $short_table_name . '_old',
-				array()
+				[],
 			);
 
 			$this->drop_table($short_table_name . '_old');
@@ -1616,7 +1699,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function drop_table($table_name, $parameters = array(), $error = 'fatal')
+	public function drop_table($table_name, $parameters = [], $error = 'fatal')
 	{
 		// After stripping away the database name, this is what's left.
 		$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $this->prefix, $match) === 1 ? $match[3] : $this->prefix;
@@ -1628,19 +1711,21 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// God no - dropping one of these = bad.
-		if (in_array(strtolower($short_table_name), $this->reservedTables))
+		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
+		}
 
 		// Does it exist?
 		$tables = $this->list_tables($database);
-		if (in_array($full_table_name, $tables))
-		{
+
+		if (in_array($full_table_name, $tables)) {
 			$query = 'DROP TABLE ' . $short_table_name;
-			$this->query('',
+			$this->query(
+				'',
 				$query,
-				array(
+				[
 					'security_override' => true,
-				)
+				],
 			);
 
 			return true;
@@ -1660,14 +1745,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		// Find the table engine and add that to the info as well
-		$table_status = $this->query('', '
+		$table_status = $this->query(
+			'',
+			'
 			SHOW TABLE STATUS
 			IN {raw:db}
 			LIKE {string:table}',
-			array(
+			[
 				'db' => $database,
-				'table' => $real_table_name
-			)
+				'table' => $real_table_name,
+			],
 		);
 
 		// Only one row, so no need for a loop...
@@ -1675,72 +1762,69 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->free_result($table_status);
 
-		return array(
+		return [
 			'name' => $parsed_table_name,
 			'columns' => $this->list_columns($table_name, true),
 			'indexes' => $this->list_indexes($table_name, true),
 			'engine' => $row['Engine'],
-		);
+		];
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function list_columns($table_name, $detail = false, $parameters = array())
+	public function list_columns($table_name, $detail = false, $parameters = [])
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
 			FROM information_schema.columns
 			WHERE table_name = {string:table_name}
 				AND table_schema = {string:db_name}
 			ORDER BY ordinal_position',
-			array(
+			[
 				'table_name' => $real_table_name,
 				'db_name' => $this->name,
-			)
+			],
 		);
-		$columns = array();
-		while ($row = $this->fetch_assoc($result))
-		{
-			if (!$detail)
-			{
+		$columns = [];
+
+		while ($row = $this->fetch_assoc($result)) {
+			if (!$detail) {
 				$columns[] = $row['Field'];
-			}
-			else
-			{
+			} else {
 				// Is there an auto_increment?
 				$auto = strpos($row['Extra'], 'auto_increment') !== false ? true : false;
 
 				// Can we split out the size?
-				if (preg_match('~(.+?)\s*\((\d+)\)(?:(?:\s*)?(unsigned))?~i', $row['Type'], $matches) === 1)
-				{
+				if (preg_match('~(.+?)\\s*\\((\\d+)\\)(?:(?:\\s*)?(unsigned))?~i', $row['Type'], $matches) === 1) {
 					$type = $matches[1];
 					$size = $matches[2];
-					if (!empty($matches[3]) && $matches[3] == 'unsigned')
+
+					if (!empty($matches[3]) && $matches[3] == 'unsigned') {
 						$unsigned = true;
-				}
-				else
-				{
+					}
+				} else {
 					$type = $row['Type'];
 					$size = null;
 				}
 
-				$columns[$row['Field']] = array(
+				$columns[$row['Field']] = [
 					'name' => $row['Field'],
 					'not_null' => $row['Null'] != 'YES',
 					'null' => $row['Null'] == 'YES',
-					'default' => isset($row['Default']) ? $row['Default'] : null,
+					'default' => $row['Default'] ?? null,
 					'type' => $type,
 					'size' => $size,
 					'auto' => $auto,
-				);
+				];
 
-				if (isset($unsigned))
-				{
+				if (isset($unsigned)) {
 					$columns[$row['Field']]['unsigned'] = $unsigned;
 					unset($unsigned);
 				}
@@ -1754,53 +1838,55 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function list_indexes($table_name, $detail = false, $parameters = array())
+	public function list_indexes($table_name, $detail = false, $parameters = [])
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
-		$result = $this->query('', '
+		$result = $this->query(
+			'',
+			'
 			SHOW KEYS
 			FROM {raw:table_name}
 			IN {raw:db}',
-			array(
+			[
 				'db' => $database,
 				'table_name' => $real_table_name,
-			)
+			],
 		);
-		$indexes = array();
-		while ($row = $this->fetch_assoc($result))
-		{
-			if (!$detail)
+		$indexes = [];
+
+		while ($row = $this->fetch_assoc($result)) {
+			if (!$detail) {
 				$indexes[] = $row['Key_name'];
-			else
-			{
+			} else {
 				// What is the type?
-				if ($row['Key_name'] == 'PRIMARY')
+				if ($row['Key_name'] == 'PRIMARY') {
 					$type = 'primary';
-				elseif (empty($row['Non_unique']))
+				} elseif (empty($row['Non_unique'])) {
 					$type = 'unique';
-				elseif (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT')
+				} elseif (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT') {
 					$type = 'fulltext';
-				else
+				} else {
 					$type = 'index';
+				}
 
 				// This is the first column we've seen?
-				if (empty($indexes[$row['Key_name']]))
-				{
-					$indexes[$row['Key_name']] = array(
+				if (empty($indexes[$row['Key_name']])) {
+					$indexes[$row['Key_name']] = [
 						'name' => $row['Key_name'],
 						'type' => $type,
-						'columns' => array(),
-					);
+						'columns' => [],
+					];
 				}
 
 				// Is it a partial index?
-				if (!empty($row['Sub_part']))
+				if (!empty($row['Sub_part'])) {
 					$indexes[$row['Key_name']]['columns'][] = $row['Column_name'] . '(' . $row['Sub_part'] . ')';
-				else
+				} else {
 					$indexes[$row['Key_name']]['columns'][] = $row['Column_name'];
+				}
 			}
 		}
 		$this->free_result($result);
@@ -1811,26 +1897,28 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function remove_column($table_name, $column_name, $parameters = array(), $error = 'fatal')
+	public function remove_column($table_name, $column_name, $parameters = [], $error = 'fatal')
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// Does it exist?
 		$columns = $this->list_columns($table_name, true);
 
-		foreach ($columns as $column)
-			if ($column['name'] == $column_name)
-			{
-				$this->query('', '
+		foreach ($columns as $column) {
+			if ($column['name'] == $column_name) {
+				$this->query(
+					'',
+					'
 					ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
-					array(
+					[
 						'security_override' => true,
-					)
+					],
 				);
 
 				return true;
 			}
+		}
 
 		// If here we didn't have to work - joy!
 		return false;
@@ -1839,38 +1927,40 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function remove_index($table_name, $index_name, $parameters = array(), $error = 'fatal')
+	public function remove_index($table_name, $index_name, $parameters = [], $error = 'fatal')
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 
-		foreach ($indexes as $index)
-		{
+		foreach ($indexes as $index) {
 			// If the name is primary we want the primary key!
-			if ($index['type'] == 'primary' && $index_name == 'primary')
-			{
+			if ($index['type'] == 'primary' && $index_name == 'primary') {
 				// Dropping primary key?
-				$this->query('', '
+				$this->query(
+					'',
+					'
 					ALTER TABLE ' . $short_table_name . '
 					DROP PRIMARY KEY',
-					array(
+					[
 						'security_override' => true,
-					)
+					],
 				);
 
 				return true;
 			}
-			if ($index['name'] == $index_name)
-			{
+
+			if ($index['name'] == $index_name) {
 				// Drop the bugger...
-				$this->query('', '
+				$this->query(
+					'',
+					'
 					ALTER TABLE ' . $short_table_name . '
 					DROP INDEX ' . $index_name,
-					array(
+					[
 						'security_override' => true,
-					)
+					],
 				);
 
 				return true;
@@ -1892,7 +1982,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *
 	 * @param array $options An array of database options.
 	 */
-	protected function __construct(array $options = array())
+	protected function __construct(array $options = [])
 	{
 		parent::__construct();
 
@@ -1900,30 +1990,30 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$non_fatal = !empty($options['non_fatal']);
 
 		// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.
-		if (SMF == 'SSI' && !empty(Config::$ssi_db_user) && !empty(Config::$ssi_db_passwd))
-		{
-			if (empty($options))
-				$options = array('non_fatal' => true, 'dont_select_db' => true);
+		if (SMF == 'SSI' && !empty(Config::$ssi_db_user) && !empty(Config::$ssi_db_passwd)) {
+			if (empty($options)) {
+				$options = ['non_fatal' => true, 'dont_select_db' => true];
+			}
 
 			$this->initiate(Config::$ssi_db_user, Config::$ssi_db_passwd, $options);
 		}
 
 		// Either we aren't in SSI mode, or it failed.
-		if (empty($this->connection))
-		{
-			if (empty($options))
-				$options = array('dont_select_db' => SMF == 'SSI');
+		if (empty($this->connection)) {
+			if (empty($options)) {
+				$options = ['dont_select_db' => SMF == 'SSI'];
+			}
 
 			$this->initiate(Config::$db_user, Config::$db_passwd, $options);
 		}
 
 		// Safe guard here, if there isn't a valid connection let's put a stop to it.
-		if (empty($this->connection) && !$non_fatal)
+		if (empty($this->connection) && !$non_fatal) {
 			ErrorHandler::displayDbError();
+		}
 
 		// If in SSI mode, fix up the prefix so it doesn't require the database to be selected.
-		if (SMF == 'SSI')
-		{
+		if (SMF == 'SSI') {
 			$this->prefix = is_numeric(substr($this->prefix, 0, 1)) ? $this->name . '.' . $this->prefix : '`' . $this->name . '`.' . $this->prefix;
 
 			// Redo the reserved table name prefixes.
@@ -1934,15 +2024,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
 
 		// For backward compatibility.
-		if (!is_object(self::$db_connection))
+		if (!is_object(self::$db_connection)) {
 			self::$db_connection = $this->connection;
+		}
 
 		// Ensure database has UTF-8 as its default input charset.
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			SET NAMES {string:db_character_set}',
-			array(
+			[
 				'db_character_set' => $this->character_set,
-			)
+			],
 		);
 	}
 
@@ -1955,21 +2048,21 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string $passwd The database password
 	 * @param array $options An array of database options
 	 */
-	protected function initiate($user, $passwd, $options = array())
+	protected function initiate($user, $passwd, $options = [])
 	{
 		$server = ($this->persist ? 'p:' : '') . $this->server;
 
 		// We are not going to make it very far without these.
-		if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect'))
+		if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect')) {
 			ErrorHandler::displayDbError();
+		}
 
 		// This was the default prior to PHP 8.1, and all our code assumes it.
 		mysqli_report(MYSQLI_REPORT_OFF);
 
 		$success = false;
 
-		if (($this->connection = mysqli_init()))
-		{
+		if (($this->connection = mysqli_init())) {
 			$success = @mysqli_real_connect(
 				$this->connection,
 				$server,
@@ -1978,27 +2071,27 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				null,
 				$this->port,
 				null,
-				MYSQLI_CLIENT_FOUND_ROWS
+				MYSQLI_CLIENT_FOUND_ROWS,
 			);
 		}
 
 		// Something's wrong, show an error if its fatal (which we assume it is)
-		if ($success === false)
-		{
-			if (!empty($options['non_fatal']))
-			{
+		if ($success === false) {
+			if (!empty($options['non_fatal'])) {
 				$this->connection = null;
+
 				return;
 			}
-			else
-				ErrorHandler::displayDbError();
+
+			ErrorHandler::displayDbError();
 		}
 
 		// Select the database, unless told not to
-		if (empty($options['dont_select_db']) && !@mysqli_select_db($this->connection, $this->name) && empty($options['non_fatal']))
+		if (empty($options['dont_select_db']) && !@mysqli_select_db($this->connection, $this->name) && empty($options['non_fatal'])) {
 			ErrorHandler::displayDbError();
+		}
 
-		$sql_mode = array(
+		$sql_mode = [
 			'ONLY_FULL_GROUP_BY',
 			'STRICT_TRANS_TABLES',
 			'NO_ZERO_IN_DATE',
@@ -2006,11 +2099,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			'ERROR_FOR_DIVISION_BY_ZERO',
 			'NO_ENGINE_SUBSTITUTION',
 			'PIPES_AS_CONCAT',
-		);
+		];
 
 		mysqli_query(
 			$this->connection,
-			'SET SESSION sql_mode = \'' . implode(',', $sql_mode) . '\''
+			'SET SESSION sql_mode = \'' . implode(',', $sql_mode) . '\'',
 		);
 	}
 
@@ -2028,124 +2121,137 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function replacement__callback($matches)
 	{
-		if (!is_object($this->temp_connection))
+		if (!is_object($this->temp_connection)) {
 			ErrorHandler::displayDbError();
+		}
 
-		if ($matches[1] === 'db_prefix')
+		if ($matches[1] === 'db_prefix') {
 			return $this->prefix;
+		}
 
-		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false)
+		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false) {
 			return User::$me->{$matches[1]};
+		}
 
-		if ($matches[1] === 'empty')
+		if ($matches[1] === 'empty') {
 			return '\'\'';
+		}
 
-		if (!isset($matches[2]))
+		if (!isset($matches[2])) {
 			$this->error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
+		}
 
-		if ($matches[1] === 'literal')
+		if ($matches[1] === 'literal') {
 			return '\'' . mysqli_real_escape_string($this->temp_connection, $matches[2]) . '\'';
+		}
 
-		if (!isset($this->temp_values[$matches[2]]))
+		if (!isset($this->temp_values[$matches[2]])) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
+		}
 
 		$replacement = $this->temp_values[$matches[2]];
 
-		switch ($matches[1])
-		{
+		switch ($matches[1]) {
 			case 'int':
-				if (!is_numeric($replacement) || (string) $replacement !== (string) (int) $replacement)
+				if (!is_numeric($replacement) || (string) $replacement !== (string) (int) $replacement) {
 					$this->error_backtrace('Wrong value type sent to the database. Integer expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
 				return (string) (int) $replacement;
-				break;
 
 			case 'string':
 			case 'text':
 				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $replacement));
-				break;
 
 			case 'array_int':
-				if (is_array($replacement))
-				{
-					if (empty($replacement))
+				if (is_array($replacement)) {
+					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of integer values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
 
-					foreach ($replacement as $key => $value)
-					{
-						if (!is_numeric($value) || (string) $value !== (string) (int) $value)
+					foreach ($replacement as $key => $value) {
+						if (!is_numeric($value) || (string) $value !== (string) (int) $value) {
 							$this->error_backtrace('Wrong value type sent to the database. Array of integers expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+						}
 
 						$replacement[$key] = (string) (int) $value;
 					}
 
 					return implode(', ', $replacement);
 				}
-				else
-					$this->error_backtrace('Wrong value type sent to the database. Array of integers expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of integers expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 				break;
 
 			case 'array_string':
-				if (is_array($replacement))
-				{
-					if (empty($replacement))
+				if (is_array($replacement)) {
+					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
 
-					foreach ($replacement as $key => $value)
+					foreach ($replacement as $key => $value) {
 						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $value));
+					}
 
 					return implode(', ', $replacement);
 				}
-				else
-					$this->error_backtrace('Wrong value type sent to the database. Array of strings expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of strings expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
 				break;
 
 			case 'date':
-				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1)
+				if (preg_match('~^(\\d{4})-([0-1]?\\d)-([0-3]?\\d)$~', $replacement, $date_matches) === 1) {
 					return sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]);
-				else
-					$this->error_backtrace('Wrong value type sent to the database. Date expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Date expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
 				break;
 
 			case 'time':
-				if (preg_match('~^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $time_matches) === 1)
+				if (preg_match('~^([0-1]?\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$~', $replacement, $time_matches) === 1) {
 					return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]);
-				else
-					$this->error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
 				break;
 
 			case 'datetime':
-				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
+				if (preg_match('~^(\\d{4})-([0-1]?\\d)-([0-3]?\\d) ([0-1]?\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$~', $replacement, $datetime_matches) === 1) {
 					return 'str_to_date(' .
 						sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5], $datetime_matches[6]) .
 						',\'%Y-%m-%d %h:%i:%s\')';
-				else
-					$this->error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
 				break;
 
 			case 'float':
-				if (!is_numeric($replacement))
+				if (!is_numeric($replacement)) {
 					$this->error_backtrace('Wrong value type sent to the database. Floating point number expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
 				return (string) (float) $replacement;
-				break;
 
 			case 'identifier':
 				// Backticks inside identifiers are supported as of MySQL 4.1. We don't need them for SMF.
-				return '`' . implode('`.`', array_filter(explode('.', strtr($replacement, array('`' => ''))), 'strlen')) . '`';
-				break;
+				return '`' . implode('`.`', array_filter(explode('.', strtr($replacement, ['`' => ''])), 'strlen')) . '`';
 
 			case 'raw':
 				return $replacement;
-				break;
 
 			case 'inet':
-				if ($replacement == 'null' || $replacement == '')
+				if ($replacement == 'null' || $replacement == '') {
 					return 'null';
+				}
 
 				$ip = new IP($replacement);
 
-				if (!$ip->isValid())
-				{
+				if (!$ip->isValid()) {
 					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 				}
 
@@ -2153,22 +2259,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				return sprintf('unhex(\'%1$s\')', $ip->toHex());
 
 			case 'array_inet':
-				if (is_array($replacement))
-				{
-					if (empty($replacement))
-					{
+				if (is_array($replacement)) {
+					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 					}
 
-					foreach ($replacement as $key => $value)
-					{
-						if ($value == 'null' || $value == '')
+					foreach ($replacement as $key => $value) {
+						if ($value == 'null' || $value == '') {
 							$replacement[$key] = 'null';
+						}
 
 						$ip = new IP($value);
 
-						if (!$ip->isValid())
-						{
+						if (!$ip->isValid()) {
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 						}
 
@@ -2177,10 +2280,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 					return implode(', ', $replacement);
 				}
-				else
-				{
-					$this->error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-				}
+
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
 				break;
 
 			default:
@@ -2201,44 +2304,45 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function error_backtrace($error_message, $log_message = '', $error_type = false, $file = null, $line = null)
 	{
-		if (empty($log_message))
+		if (empty($log_message)) {
 			$log_message = $error_message;
+		}
 
-		foreach (debug_backtrace() as $step)
-		{
+		foreach (debug_backtrace() as $step) {
 			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class))
-			{
+			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class)) {
 				$log_message .= '<br>Function: ' . $step['function'];
 				break;
 			}
 
-			if (isset($step['line']))
-			{
+			if (isset($step['line'])) {
 				$file = $step['file'];
 				$line = $step['line'];
 			}
 		}
 
 		// A special case - we want the file and line numbers for debugging.
-		if ($error_type == 'return')
-			return array($file, $line);
+		if ($error_type == 'return') {
+			return [$file, $line];
+		}
 
 		// Is always a critical error.
-		if (function_exists('log_error'))
+		if (function_exists('log_error')) {
 			ErrorHandler::log($log_message, 'critical', $file, $line);
+		}
 
-		if (function_exists('fatal_error'))
-		{
+		if (function_exists('fatal_error')) {
 			ErrorHandler::fatal($error_message, false);
 
 			// Cannot continue...
 			exit;
 		}
-		elseif ($error_type)
+
+		if ($error_type) {
 			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), $error_type);
-		else
+		} else {
 			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
+		}
 	}
 
 	/**
@@ -2252,33 +2356,39 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$column = array_change_key_case($column);
 
 		// Auto increment is easy here!
-		if (!empty($column['auto']))
+		if (!empty($column['auto'])) {
 			$default = 'auto_increment';
+		}
 		// Make it null.
-		elseif (array_key_exists('default', $column) && is_null($column['default']))
+		elseif (array_key_exists('default', $column) && is_null($column['default'])) {
 			$default = 'DEFAULT NULL';
+		}
 		// Numbers don't need quotes.
-		elseif (isset($column['default']) && is_numeric($column['default']))
+		elseif (isset($column['default']) && is_numeric($column['default'])) {
 			$default = 'DEFAULT ' . (strpos($column['default'], '.') ? floatval($column['default']) : intval($column['default']));
+		}
 		// Non empty string.
-		elseif (isset($column['default']))
+		elseif (isset($column['default'])) {
 			$default = 'DEFAULT \'' . $this->escape_string($column['default']) . '\'';
-		else
+		} else {
 			$default = '';
+		}
 
 		// Backwards compatible with the nullable column.
-		if (isset($column['null']) && !isset($column['not_null']))
+		if (isset($column['null']) && !isset($column['not_null'])) {
 			$column['not_null'] = !$column['null'];
+		}
 
 		// Sort out the size... and stuff...
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list ($type, $size) = $this->calculate_type($column['type'], $column['size']);
+		list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
 		// Allow unsigned integers (mysql only)
-		$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column['unsigned']) ? 'unsigned ' : '';
+		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';
 
-		if ($size !== null)
+		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
+		}
 
 		// Now just put it together!
 		return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default;

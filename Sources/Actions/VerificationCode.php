@@ -14,13 +14,12 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
+use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
 
 /**
  * Shows the verification code or let it be heard.
@@ -36,11 +35,11 @@ class VerificationCode implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'VerificationCode',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -82,52 +81,48 @@ class VerificationCode implements ActionInterface
 	public function execute(): void
 	{
 		// Somehow no code was generated or the session was lost.
-		if (empty($this->code))
-		{
+		if (empty($this->code)) {
 			header('content-type: image/gif');
+
 			die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 		}
+
 		// Show a window that will play the verification code.
-		elseif (isset($_REQUEST['sound']))
-		{
+		if (isset($_REQUEST['sound'])) {
 			Lang::load('Login');
 			Theme::loadTemplate('Register');
 
 			Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . Utils::randomBytes(16) . ($this->verification_id ? ';vid=' . $this->verification_id : '') . ';format=.wav';
 			Utils::$context['sub_template'] = 'verification_sound';
-			Utils::$context['template_layers'] = array();
+			Utils::$context['template_layers'] = [];
 
 			Utils::obExit();
 		}
 		// If we have GD, try the nice code.
-		elseif (empty($_REQUEST['format']))
-		{
-			if (extension_loaded('gd') && !$this->showCodeImage($this->code))
-			{
+		elseif (empty($_REQUEST['format'])) {
+			if (extension_loaded('gd') && !$this->showCodeImage($this->code)) {
 				Utils::sendHttpStatus(400);
 			}
 			// Otherwise just show a pre-defined letter.
-			elseif (isset($_REQUEST['letter']))
-			{
+			elseif (isset($_REQUEST['letter'])) {
 				$_REQUEST['letter'] = (int) $_REQUEST['letter'];
 
-				if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($this->code) && !$this->showLetterImage(strtolower($this->code[$_REQUEST['letter'] - 1])))
-				{
+				if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($this->code) && !$this->showLetterImage(strtolower($this->code[$_REQUEST['letter'] - 1]))) {
 					header('content-type: image/gif');
+
 					die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 				}
 			}
 			// You must be up to no good.
-			else
-			{
+			else {
 				header('content-type: image/gif');
+
 				die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 			}
-		}
-		elseif ($_REQUEST['format'] === '.wav')
-		{
-			if (!$this->createWaveFile($this->code))
+		} elseif ($_REQUEST['format'] === '.wav') {
+			if (!$this->createWaveFile($this->code)) {
 				Utils::sendHttpStatus(400);
+			}
 		}
 
 		// We all die one day...
@@ -145,8 +140,9 @@ class VerificationCode implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -168,9 +164,9 @@ class VerificationCode implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		$this->verification_id = isset($_GET['vid']) ? $_GET['vid'] : '';
+		$this->verification_id = $_GET['vid'] ?? '';
 
-		$this->code = $this->verification_id && isset($_SESSION[$this->verification_id . '_vv']) ? $_SESSION[$this->verification_id . '_vv']['code'] : (isset($_SESSION['visual_verification_code']) ? $_SESSION['visual_verification_code'] : '');
+		$this->code = $this->verification_id && isset($_SESSION[$this->verification_id . '_vv']) ? $_SESSION[$this->verification_id . '_vv']['code'] : ($_SESSION['visual_verification_code'] ?? '');
 
 	}
 
@@ -186,8 +182,9 @@ class VerificationCode implements ActionInterface
 	 */
 	protected function showCodeImage($code): bool
 	{
-		if (!extension_loaded('gd'))
+		if (!extension_loaded('gd')) {
 			return false;
+		}
 
 		// Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
 
@@ -195,8 +192,9 @@ class VerificationCode implements ActionInterface
 		$image_type = Config::$modSettings['visual_verification_type'];
 
 		// Special case to allow the admin center to show samples.
-		if (User::$me->is_admin && isset($_GET['type']))
+		if (User::$me->is_admin && isset($_GET['type'])) {
 			$image_type = (int) $_GET['type'];
+		}
 
 		// Some quick references for what we do.
 		// Do we show no, low or high noise?
@@ -242,87 +240,75 @@ class VerificationCode implements ActionInterface
 		$character_spacing = 1;
 
 		// What color is the background - generally white unless we're on "hard".
-		if ($simple_bg_color)
-		{
-			$background_color = array(255, 255, 255);
-		}
-		else
-		{
-			$background_color = isset(Theme::$current->settings['verification_background']) ? Theme::$current->settings['verification_background'] : array(236, 237, 243);
+		if ($simple_bg_color) {
+			$background_color = [255, 255, 255];
+		} else {
+			$background_color = Theme::$current->settings['verification_background'] ?? [236, 237, 243];
 		}
 
 		// The color of the characters shown (red, green, blue).
-		if ($simple_fg_color)
-		{
-			$foreground_color = array(0, 0, 0);
-		}
-		else
-		{
-			$foreground_color = array(64, 101, 136);
+		if ($simple_fg_color) {
+			$foreground_color = [0, 0, 0];
+		} else {
+			$foreground_color = [64, 101, 136];
 
 			// Has the theme author requested a custom color?
-			if (isset(Theme::$current->settings['verification_foreground']))
+			if (isset(Theme::$current->settings['verification_foreground'])) {
 				$foreground_color = Theme::$current->settings['verification_foreground'];
+			}
 		}
 
-		if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts'))
+		if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts')) {
 			return false;
+		}
 
 		// Get a list of the available fonts.
-		$font_list = array();
-		$ttfont_list = array();
+		$font_list = [];
+		$ttfont_list = [];
 		$endian = unpack('v', pack('S', 0x00FF)) === 0x00FF;
 
 		$font_dir = dir(Theme::$current->settings['default_theme_dir'] . '/fonts');
 
-		while ($entry = $font_dir->read())
-		{
-			if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1)
-			{
-				if ($endian ^ (strpos($entry, '_end.gdf') === false))
+		while ($entry = $font_dir->read()) {
+			if (preg_match('~^(.+)\\.gdf$~', $entry, $matches) === 1) {
+				if ($endian ^ (strpos($entry, '_end.gdf') === false)) {
 					$font_list[] = $entry;
-			}
-			elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1)
-			{
+				}
+			} elseif (preg_match('~^(.+)\\.ttf$~', $entry, $matches) === 1) {
 				$ttfont_list[] = $entry;
 			}
 		}
 
-		if (empty($font_list))
+		if (empty($font_list)) {
 			return false;
+		}
 
 		// For non-hard things don't even change fonts.
-		if (!$vary_fonts)
-		{
-			$font_list = array($font_list[0]);
+		if (!$vary_fonts) {
+			$font_list = [$font_list[0]];
 
-			if (in_array('AnonymousPro.ttf', $ttfont_list))
-			{
-				$ttfont_list = array('AnonymousPro.ttf');
-			}
-			else
-			{
-				$ttfont_list = empty($ttfont_list) ? array() : array($ttfont_list[0]);
+			if (in_array('AnonymousPro.ttf', $ttfont_list)) {
+				$ttfont_list = ['AnonymousPro.ttf'];
+			} else {
+				$ttfont_list = empty($ttfont_list) ? [] : [$ttfont_list[0]];
 			}
 		}
 
 		// Create a list of characters to be shown.
-		$characters = array();
-		$loaded_fonts = array();
+		$characters = [];
+		$loaded_fonts = [];
 
-		for ($i = 0; $i < strlen($code); $i++)
-		{
-			$characters[$i] = array(
+		for ($i = 0; $i < strlen($code); $i++) {
+			$characters[$i] = [
 				'id' => $code[$i],
 				'font' => array_rand($font_list),
-			);
+			];
 
 			$loaded_fonts[$characters[$i]['font']] = null;
 		}
 
 		// Load all fonts and determine the maximum font height.
-		foreach ($loaded_fonts as $font_index => $dummy)
-		{
+		foreach ($loaded_fonts as $font_index => $dummy) {
 			$loaded_fonts[$font_index] = imageloadfont(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
 		}
 
@@ -332,8 +318,7 @@ class VerificationCode implements ActionInterface
 		$total_width = $character_spacing * strlen($code) + $extra;
 		$max_height = 0;
 
-		foreach ($characters as $char_index => $character)
-		{
+		foreach ($characters as $char_index => $character) {
 			$characters[$char_index]['width'] = imagefontwidth($loaded_fonts[$character['font']]);
 			$characters[$char_index]['height'] = imagefontheight($loaded_fonts[$character['font']]);
 
@@ -349,7 +334,7 @@ class VerificationCode implements ActionInterface
 			$code_image,
 			$background_color[0],
 			$background_color[1],
-			$background_color[2]
+			$background_color[2],
 		);
 
 		imagefilledrectangle(
@@ -358,12 +343,11 @@ class VerificationCode implements ActionInterface
 			0,
 			$total_width - 1,
 			$max_height - 1,
-			$bg_color
+			$bg_color,
 		);
 
 		// Randomize the foreground color a little.
-		for ($i = 0; $i < 3; $i++)
-		{
+		for ($i = 0; $i < 3; $i++) {
 			$foreground_color[$i] = Utils::randomInt(max($foreground_color[$i] - 3, 0), min($foreground_color[$i] + 3, 255));
 		}
 
@@ -371,18 +355,14 @@ class VerificationCode implements ActionInterface
 			$code_image,
 			$foreground_color[0],
 			$foreground_color[1],
-			$foreground_color[2]
+			$foreground_color[2],
 		);
 
 		// Color for the dots.
-		for ($i = 0; $i < 3; $i++)
-		{
-			if ($background_color[$i] < $foreground_color[$i])
-			{
+		for ($i = 0; $i < 3; $i++) {
+			if ($background_color[$i] < $foreground_color[$i]) {
 				$dotbgcolor[$i] = Utils::randomInt(0, max($foreground_color[$i] - 20, 0));
-			}
-			else
-			{
+			} else {
 				$dotbgcolor[$i] = Utils::randomInt(min($foreground_color[$i] + 20, 255), 255);
 			}
 		}
@@ -391,14 +371,12 @@ class VerificationCode implements ActionInterface
 			$code_image,
 			$dotbgcolor[0],
 			$dotbgcolor[1],
-			$dotbgcolor[2]
+			$dotbgcolor[2],
 		);
 
 		// Some squares/rectangles for new extreme level
-		if ($noise_type == 'extreme')
-		{
-			for ($i = 0; $i < Utils::randomInt(1, 5); $i++)
-			{
+		if ($noise_type == 'extreme') {
+			for ($i = 0; $i < Utils::randomInt(1, 5); $i++) {
 				$x1 = Utils::randomInt(0, $total_width / 4);
 				$x2 = $x1 + round(rand($total_width / 4, $total_width));
 				$y1 = Utils::randomInt(0, $max_height);
@@ -410,74 +388,65 @@ class VerificationCode implements ActionInterface
 					$y1,
 					$x2,
 					$y2,
-					Utils::randomInt(0, 1) ? $fg_color : $randomness_color
+					Utils::randomInt(0, 1) ? $fg_color : $randomness_color,
 				);
 			}
 		}
 
 		// Fill in the characters.
-		if (!$disable_chars)
-		{
+		if (!$disable_chars) {
 			$cur_x = 0;
 
-			foreach ($characters as $char_index => $character)
-			{
+			foreach ($characters as $char_index => $character) {
 				// Can we use true type fonts?
 				$can_do_ttf = function_exists('imagettftext');
 
 				// How much rotation will we give?
-				if ($rotation_type == 'none')
-				{
+				if ($rotation_type == 'none') {
 					$angle = 0;
-				}
-				else
-				{
+				} else {
 					$angle = Utils::randomInt(-100, 100) / ($rotation_type == 'high' ? 6 : 10);
 				}
 
 				// What color shall we do it?
-				if ($font_color_type == 'cyclic')
-				{
+				if ($font_color_type == 'cyclic') {
 					// Here we'll pick from a set of acceptance types.
-					$colors = array(
-						array(10, 120, 95),
-						array(46, 81, 29),
-						array(4, 22, 154),
-						array(131, 9, 130),
-						array(0, 0, 0),
-						array(143, 39, 31),
-					);
+					$colors = [
+						[10, 120, 95],
+						[46, 81, 29],
+						[4, 22, 154],
+						[131, 9, 130],
+						[0, 0, 0],
+						[143, 39, 31],
+					];
 
-					if (!isset($last_index))
+					if (!isset($last_index)) {
 						$last_index = -1;
+					}
 
 					$new_index = $last_index;
 
-					while ($last_index == $new_index)
+					while ($last_index == $new_index) {
 						$new_index = Utils::randomInt(0, count($colors) - 1);
+					}
 
 					$char_fg_color = $colors[$new_index];
 					$last_index = $new_index;
-				}
-				elseif ($font_color_type == 'random')
-				{
-					$char_fg_color = array(
+				} elseif ($font_color_type == 'random') {
+					$char_fg_color = [
 						Utils::randomInt(max($foreground_color[0] - 2, 0), $foreground_color[0]),
 						Utils::randomInt(max($foreground_color[1] - 2, 0), $foreground_color[1]),
 						Utils::randomInt(max($foreground_color[2] - 2, 0), $foreground_color[2]),
-					);
-				}
-				else
-				{
-					$char_fg_color = array(
+					];
+				} else {
+					$char_fg_color = [
 						$foreground_color[0],
 						$foreground_color[1],
 						$foreground_color[2],
-					);
+					];
 				}
 
-				if (!empty($can_do_ttf))
-				{
+				if (!empty($can_do_ttf)) {
 					$font_size = $font_size_random ? Utils::randomInt(17, 19) : 18;
 
 					// Work out the sizes - also fix the character width cause TTF not quite so wide!
@@ -485,31 +454,27 @@ class VerificationCode implements ActionInterface
 					$font_y = $max_height - ($font_vert_pos == 'vrandom' ? Utils::randomInt(2, 8) : ($font_vert_pos == 'random' ? Utils::randomInt(3, 5) : 5));
 
 					// What font face?
-					if (!empty($ttfont_list))
-					{
+					if (!empty($ttfont_list)) {
 						$fontface = Theme::$current->settings['default_theme_dir'] . '/fonts/' . $ttfont_list[Utils::randomInt(0, count($ttfont_list) - 1)];
 					}
 
 					// What color are we to do it in?
 					$is_reverse = $show_reverse_chars ? Utils::randomInt(0, 1) : false;
 
-					if (function_exists('imagecolorallocatealpha') && $font_transparent)
-					{
+					if (function_exists('imagecolorallocatealpha') && $font_transparent) {
 						$char_color = imagecolorallocatealpha(
 							$code_image,
 							$char_fg_color[0],
 							$char_fg_color[1],
 							$char_fg_color[2],
-							50
+							50,
 						);
-					}
-					else
-					{
+					} else {
 						$char_color = imagecolorallocate(
 							$code_image,
 							$char_fg_color[0],
 							$char_fg_color[1],
-							$char_fg_color[2]
+							$char_fg_color[2],
 						);
 					}
 
@@ -521,15 +486,12 @@ class VerificationCode implements ActionInterface
 						$font_y,
 						$char_color,
 						$fontface,
-						$character['id']
+						$character['id'],
 					);
 
-					if (empty($fontcord))
-					{
+					if (empty($fontcord)) {
 						$can_do_ttf = false;
-					}
-					elseif ($is_reverse)
-					{
+					} elseif ($is_reverse) {
 						imagefilledpolygon($code_image, $fontcord, 4, $fg_color);
 
 						// Put the character back!
@@ -541,29 +503,28 @@ class VerificationCode implements ActionInterface
 							$font_y,
 							$randomness_color,
 							$fontface,
-							$character['id']
+							$character['id'],
 						);
 					}
 
-					if ($can_do_ttf)
+					if ($can_do_ttf) {
 						$cur_x = max($fontcord[2], $fontcord[4]) + ($angle == 0 ? 0 : 3);
+					}
 				}
 
-				if (!$can_do_ttf)
-				{
+				if (!$can_do_ttf) {
 					// Rotating the characters a little...
-					if (function_exists('imagerotate'))
-					{
+					if (function_exists('imagerotate')) {
 						$char_image = imagecreatetruecolor(
 							$character['width'],
-							$character['height']
+							$character['height'],
 						);
 
 						$char_bgcolor = imagecolorallocate(
 							$char_image,
 							$background_color[0],
 							$background_color[1],
-							$background_color[2]
+							$background_color[2],
 						);
 
 						imagefilledrectangle(
@@ -572,7 +533,7 @@ class VerificationCode implements ActionInterface
 							0,
 							$character['width'] - 1,
 							$character['height'] - 1,
-							$char_bgcolor
+							$char_bgcolor,
 						);
 
 						imagechar(
@@ -585,14 +546,14 @@ class VerificationCode implements ActionInterface
 								$char_image,
 								$char_fg_color[0],
 								$char_fg_color[1],
-								$char_fg_color[2]
-							)
+								$char_fg_color[2],
+							),
 						);
 
 						$rotated_char = imagerotate(
 							$char_image,
 							Utils::randomInt(-100, 100) / 10,
-							$char_bgcolor
+							$char_bgcolor,
 						);
 
 						imagecopy(
@@ -603,13 +564,12 @@ class VerificationCode implements ActionInterface
 							0,
 							0,
 							$character['width'],
-							$character['height']
+							$character['height'],
 						);
 					}
 
 					// Sorry, no rotation available.
-					else
-					{
+					else {
 						imagechar(
 							$code_image,
 							$loaded_fonts[$character['font']],
@@ -620,8 +580,8 @@ class VerificationCode implements ActionInterface
 								$code_image,
 								$char_fg_color[0],
 								$char_fg_color[1],
-								$char_fg_color[2]
-							)
+								$char_fg_color[2],
+							),
 						);
 					}
 
@@ -630,46 +590,39 @@ class VerificationCode implements ActionInterface
 			}
 		}
 		// If disabled just show a cross.
-		else
-		{
+		else {
 			imageline($code_image, 0, 0, $total_width, $max_height, $fg_color);
 			imageline($code_image, 0, $max_height, $total_width, 0, $fg_color);
 		}
 
 		// Make the background color transparent on the hard image.
-		if (!$simple_bg_color)
+		if (!$simple_bg_color) {
 			imagecolortransparent($code_image, $bg_color);
+		}
 
-		if ($has_border)
+		if ($has_border) {
 			imagerectangle($code_image, 0, 0, $total_width - 1, $max_height - 1, $fg_color);
+		}
 
 		// Add some noise to the background?
-		if ($noise_type != 'none')
-		{
-			for ($i = Utils::randomInt(0, 2); $i < $max_height; $i += Utils::randomInt(1, 2))
-			{
-				for ($j = Utils::randomInt(0, 10); $j < $total_width; $j += Utils::randomInt(1, 10))
-				{
+		if ($noise_type != 'none') {
+			for ($i = Utils::randomInt(0, 2); $i < $max_height; $i += Utils::randomInt(1, 2)) {
+				for ($j = Utils::randomInt(0, 10); $j < $total_width; $j += Utils::randomInt(1, 10)) {
 					imagesetpixel($code_image, $j, $i, Utils::randomInt(0, 1) ? $fg_color : $randomness_color);
 				}
 			}
 
 			// Put in some lines too?
-			if ($noise_type != 'extreme')
-			{
+			if ($noise_type != 'extreme') {
 				$num_lines = $noise_type == 'high' ? Utils::randomInt(3, 7) : Utils::randomInt(2, 5);
 
-				for ($i = 0; $i < $num_lines; $i++)
-				{
-					if (Utils::randomInt(0, 1))
-					{
+				for ($i = 0; $i < $num_lines; $i++) {
+					if (Utils::randomInt(0, 1)) {
 						$x1 = Utils::randomInt(0, $total_width);
 						$x2 = Utils::randomInt(0, $total_width);
 						$y1 = 0;
 						$y2 = $max_height;
-					}
-					else
-					{
+					} else {
 						$y1 = Utils::randomInt(0, $max_height);
 						$y2 = Utils::randomInt(0, $max_height);
 						$x1 = 0;
@@ -684,17 +637,14 @@ class VerificationCode implements ActionInterface
 						$y1,
 						$x2,
 						$y2,
-						Utils::randomInt(0, 1) ? $fg_color : $randomness_color
+						Utils::randomInt(0, 1) ? $fg_color : $randomness_color,
 					);
 				}
-			}
-			else
-			{
+			} else {
 				// Put in some ellipse
 				$num_ellipse = $noise_type == 'extreme' ? Utils::randomInt(6, 12) : Utils::randomInt(2, 6);
 
-				for ($i = 0; $i < $num_ellipse; $i++)
-				{
+				for ($i = 0; $i < $num_ellipse; $i++) {
 					$x1 = round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
 					$x2 = round(rand($total_width / 2, 2 * $total_width));
 					$y1 = round(rand(($max_height / 4) * -1, $max_height + ($max_height / 4)));
@@ -706,20 +656,17 @@ class VerificationCode implements ActionInterface
 						$y1,
 						$x2,
 						$y2,
-						Utils::randomInt(0, 1) ? $fg_color : $randomness_color
+						Utils::randomInt(0, 1) ? $fg_color : $randomness_color,
 					);
 				}
 			}
 		}
 
 		// Show the image.
-		if (function_exists('imagegif'))
-		{
+		if (function_exists('imagegif')) {
 			header('content-type: image/gif');
 			imagegif($code_image);
-		}
-		else
-		{
+		} else {
 			header('content-type: image/png');
 			imagepng($code_image);
 		}
@@ -739,41 +686,40 @@ class VerificationCode implements ActionInterface
 	 */
 	protected function showLetterImage($letter): bool
 	{
-		if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts'))
+		if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts')) {
 			return false;
+		}
 
 		// Get a list of the available font directories.
 		$font_dir = dir(Theme::$current->settings['default_theme_dir'] . '/fonts');
-		$font_list = array();
+		$font_list = [];
 
-		while ($entry = $font_dir->read())
-		{
+		while ($entry = $font_dir->read()) {
 			if (
 				$entry[0] !== '.'
 				&& is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $entry)
 				&& file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $entry . '.gdf')
-			)
-			{
+			) {
 				$font_list[] = $entry;
 			}
 		}
 
-		if (empty($font_list))
+		if (empty($font_list)) {
 			return false;
+		}
 
 		// Pick a random font.
 		$random_font = $font_list[array_rand($font_list)];
 
 		// Check if the given letter exists.
-		if (!file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png'))
-		{
+		if (!file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png')) {
 			return false;
 		}
 
 		// Include it!
 		header('content-type: image/png');
 
-		include(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
+		include Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png';
 
 		// Nothing more to come.
 		die();
@@ -785,14 +731,14 @@ class VerificationCode implements ActionInterface
 	 * Used by VerificationCode() (Register.php).
 	 *
 	 * @param string $word
-	 * @return boolean false on failure
+	 * @return bool false on failure
 	 */
 	protected function createWaveFile($word)
 	{
 		// Allow max 2 requests per 20 seconds.
-		if (($ip = CacheApi::get('wave_file/' . User::$me->ip, 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . User::$me->ip2, 20)) > 2)
-		{
+		if (($ip = CacheApi::get('wave_file/' . User::$me->ip, 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . User::$me->ip2, 20)) > 2) {
 			Utils::sendHttpStatus(400);
+
 			die();
 		}
 
@@ -804,18 +750,15 @@ class VerificationCode implements ActionInterface
 		mt_srand(end($tmp));
 
 		// Try to see if there's a sound font in the user's language.
-		if (file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/a.' . User::$me->language . '.wav'))
-		{
+		if (file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/a.' . User::$me->language . '.wav')) {
 			$sound_language = User::$me->language;
 		}
 		// English should be there.
-		elseif (file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/a.english.wav'))
-		{
+		elseif (file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/a.english.wav')) {
 			$sound_language = 'english';
 		}
 		// Guess not...
-		else
-		{
+		else {
 			return false;
 		}
 
@@ -826,30 +769,27 @@ class VerificationCode implements ActionInterface
 
 		// Loop through all letters of the word $word.
 		$sound_word = '';
-		for ($i = 0; $i < count($chars); $i++)
-		{
+
+		for ($i = 0; $i < count($chars); $i++) {
 			$sound_letter = implode('', file(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/' . $chars[$i] . '.' . $sound_language . '.wav'));
 
-			if (strpos($sound_letter, 'data') === false)
+			if (strpos($sound_letter, 'data') === false) {
 				return false;
+			}
 
 			$sound_letter = substr($sound_letter, strpos($sound_letter, 'data') + 8);
 
-			switch ($chars[$i] === 's' ? 0 : mt_rand(0, 2))
-			{
-				case 0 :
-					for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++)
-					{
-						for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
-						{
+			switch ($chars[$i] === 's' ? 0 : mt_rand(0, 2)) {
+				case 0:
+					for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++) {
+						for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++) {
 							$sound_word .= $chars[$i] === 's' ? $sound_letter[$j] : chr(mt_rand(max(ord($sound_letter[$j]) - 1, 0x00), min(ord($sound_letter[$j]) + 1, 0xFF)));
 						}
 					}
 					break;
 
 				case 1:
-					for ($j = 0, $n = strlen($sound_letter) - 1; $j < $n; $j += 2)
-					{
+					for ($j = 0, $n = strlen($sound_letter) - 1; $j < $n; $j += 2) {
 						$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j + 1] : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j] : $sound_letter[$j + 1]) . $sound_letter[$j + 1] . (mt_rand(0, 3) == 0 ? $sound_letter[$j + 1] : '');
 					}
 					$sound_word .= str_repeat($sound_letter[$n], 2);
@@ -857,13 +797,13 @@ class VerificationCode implements ActionInterface
 
 				case 2:
 					$shift = 0;
-					for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++)
-					{
-						if (mt_rand(0, 10) === 0)
-							$shift += mt_rand(-3, 3);
 
-						for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
-						{
+					for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++) {
+						if (mt_rand(0, 10) === 0) {
+							$shift += mt_rand(-3, 3);
+						}
+
+						for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++) {
 							$sound_word .= chr(min(max(ord($sound_letter[$j]) + $shift, 0x00), 0xFF));
 						}
 					}
@@ -890,22 +830,19 @@ class VerificationCode implements ActionInterface
 		header('content-type: audio/x-wav');
 		header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 
-		if (isset($_SERVER['HTTP_RANGE']))
-		{
-			list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
-			list($range) = explode(",", $range, 2);
-			list($range, $range_end) = explode("-", $range);
+		if (isset($_SERVER['HTTP_RANGE'])) {
+			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+			list($range) = explode(',', $range, 2);
+			list($range, $range_end) = explode('-', $range);
 			$range = intval($range);
 			$range_end = !$range_end ? $content_length - 1 : intval($range_end);
 			$new_length = $range_end - $range + 1;
 
 			Utils::sendHttpStatus(206);
-			header("content-length: $new_length");
-			header("content-range: bytes $range-$range_end/$content_length");
-		}
-		else
-		{
-			header("content-length: " . $content_length);
+			header("content-length: {$new_length}");
+			header("content-range: bytes {$range}-{$range_end}/{$content_length}");
+		} else {
+			header('content-length: ' . $content_length);
 		}
 
 		echo pack('nnVnnnnnnnnVVnnnnV', 0x5249, 0x4646, $file_size, 0x5741, 0x5645, 0x666D, 0x7420, 0x1000, 0x0000, 0x0100, 0x0100, $sample_rate, $sample_rate, 0x0100, 0x0800, 0x6461, 0x7461, $data_size), $sound_word;
@@ -916,7 +853,8 @@ class VerificationCode implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\VerificationCode::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\VerificationCode::exportStatic')) {
 	VerificationCode::exportStatic();
+}
 
 ?>

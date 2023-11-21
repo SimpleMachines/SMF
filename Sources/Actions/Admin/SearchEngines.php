@@ -13,10 +13,12 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\Who;
+use SMF\BackwardCompatibility;
+use SMF\Cache\CacheApi;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
@@ -27,9 +29,6 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Who;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Manages the settings related to search engines.
@@ -43,8 +42,8 @@ class SearchEngines implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'SearchEngines',
 			'consolidateSpiderStats' => 'consolidateSpiderStats',
 			'list_getSpiders' => 'list_getSpiders',
@@ -59,8 +58,8 @@ class SearchEngines implements ActionInterface
 			'viewSpiders' => 'ViewSpiders',
 			'manageSearchEngineSettings' => 'ManageSearchEngineSettings',
 			'editSpider' => 'EditSpider',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -89,13 +88,13 @@ class SearchEngines implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'stats' => 'stats',
 		'logs' => 'logs',
 		'spiders' => 'view',
 		'settings' => 'settings',
 		'editspiders' => 'edit',
-	);
+	];
 
 	/*********************
 	 * Internal properties
@@ -131,10 +130,11 @@ class SearchEngines implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -143,39 +143,39 @@ class SearchEngines implements ActionInterface
 	public function stats(): void
 	{
 		// Force an update of the stats every 60 seconds.
-		if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
-		{
+		if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60) {
 			self::consolidateSpiderStats();
 			$_SESSION['spider_stat'] = time();
 		}
 
 		// Are we cleaning up some old stats?
-		if (!empty($_POST['delete_entries']) && isset($_POST['older']))
-		{
+		if (!empty($_POST['delete_entries']) && isset($_POST['older'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-ss');
 
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
 			// Delete the entires.
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_spider_stats
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE last_seen < {int:delete_period}',
-				array(
+				[
 					'delete_period' => $deleteTime,
-				)
+				],
 			);
 		}
 
 		// Get the earliest and latest dates.
-		$request = Db::$db->query('', '
-			SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
+		$request = Db::$db->query(
+			'',
+			'SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
 			FROM {db_prefix}log_spider_stats',
-			array(
-			)
+			[
+			],
 		);
 
-		list ($min_date, $max_date) = Db::$db->fetch_row($request);
+		list($min_date, $max_date) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		$min_year = (int) substr($min_date, 0, 4);
@@ -184,17 +184,18 @@ class SearchEngines implements ActionInterface
 		$max_month = (int) substr($max_date, 5, 2);
 
 		// Prepare the dates for the drop down.
-		$date_choices = array();
-		for ($y = $min_year; $y <= $max_year; $y++)
-		{
-			for ($m = 1; $m <= 12; $m++)
-			{
-				// This doesn't count?
-				if ($y == $min_year && $m < $min_month)
-					continue;
+		$date_choices = [];
 
-				if ($y == $max_year && $m > $max_month)
+		for ($y = $min_year; $y <= $max_year; $y++) {
+			for ($m = 1; $m <= 12; $m++) {
+				// This doesn't count?
+				if ($y == $min_year && $m < $min_month) {
+					continue;
+				}
+
+				if ($y == $max_year && $m > $max_month) {
 					break;
+				}
 
 				$date_choices[$y . $m] = Lang::$txt['months_short'][$m] . ' ' . $y;
 			}
@@ -204,15 +205,15 @@ class SearchEngines implements ActionInterface
 		$current_date = isset($_REQUEST['new_date']) && isset($date_choices[$_REQUEST['new_date']]) ? $_REQUEST['new_date'] : $max_date;
 
 		// Prepare the HTML.
-		if (!empty($date_choices))
-		{
+		if (!empty($date_choices)) {
 			$date_select = '
 			' . Lang::$txt['spider_stats_select_month'] . ':
 			<select name="new_date" onchange="document.spider_stat_list.submit();">';
 
-			foreach ($date_choices as $id => $text)
+			foreach ($date_choices as $id => $text) {
 				$date_select .= '
 				<option value="' . $id . '"' . ($current_date == $id ? ' selected' : '') . '>' . $text . '</option>';
+			}
 
 			$date_select .= '
 			</select>
@@ -222,85 +223,85 @@ class SearchEngines implements ActionInterface
 		}
 
 		// If we manually jumped to a date work out the offset.
-		if (isset($_REQUEST['new_date']))
-		{
+		if (isset($_REQUEST['new_date'])) {
 			$date_query = sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
 
-			$request = Db::$db->query('', '
-				SELECT COUNT(*)
+			$request = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}log_spider_stats
 				WHERE stat_date < {date:date_being_viewed}',
-				array(
+				[
 					'date_being_viewed' => $date_query,
-				)
+				],
 			);
 			list($_REQUEST['start']) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 		}
 
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'spider_stat_list',
 			'title' => Lang::$txt['spider_stats'],
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 			'default_sort_col' => 'stat_date',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getSpiderStats',
-			),
-			'get_count' => array(
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumSpiderStats',
-			),
+			],
 			'no_items_label' => Lang::$txt['spider_stats_no_entries'],
-			'columns' => array(
-				'stat_date' => array(
-					'header' => array(
+			'columns' => [
+				'stat_date' => [
+					'header' => [
 						'value' => Lang::$txt['date'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'stat_date',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'stat_date',
 						'reverse' => 'stat_date DESC',
-					),
-				),
-				'name' => array(
-					'header' => array(
+					],
+				],
+				'name' => [
+					'header' => [
 						'value' => Lang::$txt['spider_name'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'spider_name',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 's.spider_name',
 						'reverse' => 's.spider_name DESC',
-					),
-				),
-				'page_hits' => array(
-					'header' => array(
+					],
+				],
+				'page_hits' => [
+					'header' => [
 						'value' => Lang::$txt['spider_stats_page_hits'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'page_hits',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'ss.page_hits',
 						'reverse' => 'ss.page_hits DESC',
-					),
-				),
-			),
-			'form' => array(
+					],
+				],
+			],
+			'form' => [
 				'href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 				'name' => 'spider_stat_list',
-			),
-			'additional_rows' => empty($date_select) ? array() : array(
-				array(
+			],
+			'additional_rows' => empty($date_select) ? [] : [
+				[
 					'position' => 'below_table_data',
 					'value' => $date_select,
 					'style' => 'text-align: right;',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		SecurityToken::create('admin-ss');
 
@@ -320,136 +321,124 @@ class SearchEngines implements ActionInterface
 		Theme::loadTemplate('ManageSearch');
 
 		// Did they want to delete some entries?
-		if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll']))
-		{
+		if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-sl');
 
-			if (!empty($_POST['delete_entries']) && isset($_POST['older']))
-			{
+			if (!empty($_POST['delete_entries']) && isset($_POST['older'])) {
 				$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
 				// Delete the entires.
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}log_spider_hits
+				Db::$db->query(
+					'',
+					'DELETE FROM {db_prefix}log_spider_hits
 					WHERE log_time < {int:delete_period}',
-					array(
+					[
 						'delete_period' => $deleteTime,
-					)
+					],
 				);
-			}
-			else
-			{
+			} else {
 				// Deleting all of them
-				Db::$db->query('', '
-					TRUNCATE TABLE {db_prefix}log_spider_hits',
-					array()
+				Db::$db->query(
+					'',
+					'TRUNCATE TABLE {db_prefix}log_spider_hits',
+					[],
 				);
 			}
 		}
 
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'spider_logs',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'title' => Lang::$txt['spider_logs'],
 			'no_items_label' => Lang::$txt['spider_logs_empty'],
 			'base_href' => Utils::$context['admin_area'] == 'sengines' ? Config::$scripturl . '?action=admin;area=sengines;sa=logs' : Config::$scripturl . '?action=admin;area=logs;sa=spiderlog',
 			'default_sort_col' => 'log_time',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getSpiderLogs',
-			),
-			'get_count' => array(
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumSpiderLogs',
-			),
-			'columns' => array(
-				'name' => array(
-					'header' => array(
+			],
+			'columns' => [
+				'name' => [
+					'header' => [
 						'value' => Lang::$txt['spider'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'spider_name',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 's.spider_name',
 						'reverse' => 's.spider_name DESC',
-					),
-				),
-				'log_time' => array(
-					'header' => array(
+					],
+				],
+				'log_time' => [
+					'header' => [
 						'value' => Lang::$txt['spider_time'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							return Time::create('@' . $rowData['log_time'])->format();
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'sl.id_hit DESC',
 						'reverse' => 'sl.id_hit',
-					),
-				),
-				'viewing' => array(
-					'header' => array(
+					],
+				],
+				'viewing' => [
+					'header' => [
 						'value' => Lang::$txt['spider_viewing'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'url',
-					),
-				),
-			),
-			'form' => array(
+					],
+				],
+			],
+			'form' => [
 				'token' => 'admin-sl',
 				'href' => Config::$scripturl . '?action=admin;area=sengines;sa=logs',
-			),
-			'additional_rows' => array(
-				array(
+			],
+			'additional_rows' => [
+				[
 					'position' => 'after_title',
 					'value' => Lang::$txt['spider_logs_info'],
-				),
-				array(
+				],
+				[
 					'position' => 'below_table_data',
 					'value' => '<input type="submit" name="removeAll" value="' . Lang::$txt['spider_log_empty_log'] . '" data-confirm="' . Lang::$txt['spider_log_empty_log_confirm'] . '" class="button you_sure">',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		SecurityToken::create('admin-sl');
 
 		new ItemList($listOptions);
 
 		// Now determine the actions of the URLs.
-		if (!empty(Utils::$context['spider_logs']['rows']))
-		{
-			$urls = array();
+		if (!empty(Utils::$context['spider_logs']['rows'])) {
+			$urls = [];
 
 			// Grab the current /url.
-			foreach (Utils::$context['spider_logs']['rows'] as $k => $row)
-			{
+			foreach (Utils::$context['spider_logs']['rows'] as $k => $row) {
 				// Feature disabled?
-				if (empty($row['data']['viewing']['value']) && isset(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] < 3)
-				{
+				if (empty($row['data']['viewing']['value']) && isset(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] < 3) {
 					Utils::$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . Lang::$txt['spider_disabled'] . '</em>';
-				}
-				else
-				{
-					$urls[$k] = array($row['data']['viewing']['value'], -1);
+				} else {
+					$urls[$k] = [$row['data']['viewing']['value'], -1];
 				}
 			}
 
 			// Now stick in the new URLs.
 			$urls = Who::determineActions($urls, 'whospider_');
 
-			foreach ($urls as $k => $new_url)
-			{
-				if (is_array($new_url))
-				{
+			foreach ($urls as $k => $new_url) {
+				if (is_array($new_url)) {
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = Lang::$txt[$new_url['label']];
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
-				}
-				else
-				{
+				} else {
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 				}
 			}
@@ -465,52 +454,54 @@ class SearchEngines implements ActionInterface
 	 */
 	public function view(): void
 	{
-		if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
-		{
+		if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60) {
 			self::consolidateSpiderStats();
 			$_SESSION['spider_stat'] = time();
 		}
 
 		// Are we adding a new one?
-		if (!empty($_POST['addSpider']))
-		{
+		if (!empty($_POST['addSpider'])) {
 			self::edit();
+
 			return;
 		}
 
 		// User pressed the 'remove selection button'.
-		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove']))
-		{
+		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-ser');
 
 			// Make sure every entry is a proper integer.
-			foreach ($_POST['remove'] as $index => $spider_id)
+			foreach ($_POST['remove'] as $index => $spider_id) {
 				$_POST['remove'][(int) $index] = (int) $spider_id;
+			}
 
 			// Delete them all!
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}spiders
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}spiders
 				WHERE id_spider IN ({array_int:remove_list})',
-				array(
+				[
 					'remove_list' => $_POST['remove'],
-				)
+				],
 			);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_spider_hits
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_spider_hits
 				WHERE id_spider IN ({array_int:remove_list})',
-				array(
+				[
 					'remove_list' => $_POST['remove'],
-				)
+				],
 			);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_spider_stats
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE id_spider IN ({array_int:remove_list})',
-				array(
+				[
 					'remove_list' => $_POST['remove'],
-				)
+				],
 			);
 
 			CacheApi::put('spider_search', null, 300);
@@ -518,117 +509,116 @@ class SearchEngines implements ActionInterface
 		}
 
 		// Get the last seens.
-		Utils::$context['spider_last_seen'] = array();
+		Utils::$context['spider_last_seen'] = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_spider, MAX(last_seen) AS last_seen_time
+		$request = Db::$db->query(
+			'',
+			'SELECT id_spider, MAX(last_seen) AS last_seen_time
 			FROM {db_prefix}log_spider_stats
 			GROUP BY id_spider',
-			array()
+			[],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['spider_last_seen'][$row['id_spider']] = $row['last_seen_time'];
 		}
 		Db::$db->free_result($request);
 
 		SecurityToken::create('admin-ser');
 
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'spider_list',
 			'title' => Lang::$txt['spiders'],
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 			'default_sort_col' => 'name',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getSpiders',
-			),
-			'get_count' => array(
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumSpiders',
-			),
+			],
 			'no_items_label' => Lang::$txt['spiders_no_entries'],
-			'columns' => array(
-				'name' => array(
-					'header' => array(
+			'columns' => [
+				'name' => [
+					'header' => [
 						'value' => Lang::$txt['spider_name'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_spider'], Utils::htmlspecialchars($rowData['spider_name']));
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'spider_name DESC',
 						'reverse' => 'spider_name',
-					),
-				),
-				'last_seen' => array(
-					'header' => array(
+					],
+				],
+				'last_seen' => [
+					'header' => [
 						'value' => Lang::$txt['spider_last_seen'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? Time::create('@' . Utils::$context['spider_last_seen'][$rowData['id_spider']])->format() : Lang::$txt['spider_last_never'];
 						},
-					),
-				),
-				'user_agent' => array(
-					'header' => array(
+					],
+				],
+				'user_agent' => [
+					'header' => [
 						'value' => Lang::$txt['spider_agent'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db_htmlsafe' => 'user_agent',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'user_agent',
 						'reverse' => 'user_agent DESC',
-					),
-				),
-				'ip_info' => array(
-					'header' => array(
+					],
+				],
+				'ip_info' => [
+					'header' => [
 						'value' => Lang::$txt['spider_ip_info'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db_htmlsafe' => 'ip_info',
 						'class' => 'smalltext',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'ip_info',
 						'reverse' => 'ip_info DESC',
-					),
-				),
-				'check' => array(
-					'header' => array(
+					],
+				],
+				'check' => [
+					'header' => [
 						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
-							'params' => array(
+							'params' => [
 								'id_spider' => false,
-							),
-						),
+							],
+						],
 						'class' => 'centercol',
-					),
-				),
-			),
-			'form' => array(
+					],
+				],
+			],
+			'form' => [
 				'href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 				'token' => 'admin-ser',
-			),
-			'additional_rows' => array(
-				array(
+			],
+			'additional_rows' => [
+				[
 					'position' => 'bottom_of_list',
 					'value' => '
 						<input type="submit" name="removeSpiders" value="' . Lang::$txt['spiders_remove_selected'] . '" data-confirm="' . Lang::$txt['spider_remove_selected_confirm'] . '" class="button you_sure">
 						<input type="submit" name="addSpider" value="' . Lang::$txt['spiders_add'] . '" class="button">
 					',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		new ItemList($listOptions);
 
@@ -647,25 +637,25 @@ class SearchEngines implements ActionInterface
 		Utils::$context['settings_message'] = sprintf(Lang::$txt['spider_settings_desc'], Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 		// We need to load the groups for the spider group thingy.
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:admin_group}
 				AND id_group != {int:moderator_group}',
-			array(
+			[
 				'admin_group' => 1,
 				'moderator_group' => 3,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$config_vars['spider_group'][2][$row['id_group']] = $row['group_name'];
 		}
 		Db::$db->free_result($request);
 
 		// Make sure it's valid - note that regular members are given id_group = 1 which is reversed in SMF\User - no admins here!
-		if (isset($_POST['spider_group']) && !isset($config_vars['spider_group'][2][$_POST['spider_group']]))
-		{
+		if (isset($_POST['spider_group']) && !isset($config_vars['spider_group'][2][$_POST['spider_group']])) {
 			$_POST['spider_group'] = 0;
 		}
 
@@ -674,8 +664,7 @@ class SearchEngines implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			IntegrationHook::call('integrate_save_search_engine_settings');
@@ -714,54 +703,53 @@ class SearchEngines implements ActionInterface
 		Menu::$loaded['admin']->current_subsection = 'spiders';
 
 		// Are we saving?
-		if (!empty($_POST['save']))
-		{
+		if (!empty($_POST['save'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-ses');
 
-			foreach (array('spider_name', 'spider_agent') as $key)
+			foreach (['spider_name', 'spider_agent'] as $key) {
 				$_POST[$key] = trim(Utils::normalize($_POST[$key]));
+			}
 
 			// Check the IP range is valid.
-			$ips = array();
+			$ips = [];
 
-			foreach (explode(',', $_POST['spider_ip']) as $set)
-			{
+			foreach (explode(',', $_POST['spider_ip']) as $set) {
 				$test = IP::ip2range(trim($set));
 
-				if (!empty($test))
+				if (!empty($test)) {
 					$ips[] = $set;
+				}
 			}
 
 			$ips = implode(',', $ips);
 
 			// Goes in as it is...
-			if (Utils::$context['id_spider'])
-			{
-				Db::$db->query('', '
-					UPDATE {db_prefix}spiders
+			if (Utils::$context['id_spider']) {
+				Db::$db->query(
+					'',
+					'UPDATE {db_prefix}spiders
 					SET spider_name = {string:spider_name}, user_agent = {string:spider_agent},
 						ip_info = {string:ip_info}
 					WHERE id_spider = {int:current_spider}',
-					array(
+					[
 						'current_spider' => Utils::$context['id_spider'],
 						'spider_name' => $_POST['spider_name'],
 						'spider_agent' => $_POST['spider_agent'],
 						'ip_info' => $ips,
-					)
+					],
 				);
-			}
-			else
-			{
-				Db::$db->insert('insert',
+			} else {
+				Db::$db->insert(
+					'insert',
 					'{db_prefix}spiders',
-					array(
+					[
 						'spider_name' => 'string', 'user_agent' => 'string', 'ip_info' => 'string',
-					),
-					array(
+					],
+					[
 						$_POST['spider_name'], $_POST['spider_agent'], $ips,
-					),
-					array('id_spider')
+					],
+					['id_spider'],
 				);
 			}
 
@@ -772,32 +760,32 @@ class SearchEngines implements ActionInterface
 		}
 
 		// The default is new.
-		Utils::$context['spider'] = array(
+		Utils::$context['spider'] = [
 			'id' => 0,
 			'name' => '',
 			'agent' => '',
 			'ip_info' => '',
-		);
+		];
 
 		// An edit?
-		if (Utils::$context['id_spider'])
-		{
-			$request = Db::$db->query('', '
-				SELECT id_spider, spider_name, user_agent, ip_info
+		if (Utils::$context['id_spider']) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_spider, spider_name, user_agent, ip_info
 				FROM {db_prefix}spiders
 				WHERE id_spider = {int:current_spider}',
-				array(
+				[
 					'current_spider' => Utils::$context['id_spider'],
-				)
+				],
 			);
-			if ($row = Db::$db->fetch_assoc($request))
-			{
-				Utils::$context['spider'] = array(
+
+			if ($row = Db::$db->fetch_assoc($request)) {
+				Utils::$context['spider'] = [
 					'id' => $row['id_spider'],
 					'name' => $row['spider_name'],
 					'agent' => $row['user_agent'],
 					'ip_info' => $row['ip_info'],
-				);
+				];
 			}
 			Db::$db->free_result($request);
 		}
@@ -816,8 +804,9 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -837,12 +826,12 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$config_vars = array(
+		$config_vars = [
 			// How much detail?
-			array('select', 'spider_mode', 'subtext' => Lang::$txt['spider_mode_note'], array(Lang::$txt['spider_mode_off'], Lang::$txt['spider_mode_standard'], Lang::$txt['spider_mode_high'], Lang::$txt['spider_mode_vhigh']), 'onchange' => 'disableFields();'),
-			'spider_group' => array('select', 'spider_group', 'subtext' => Lang::$txt['spider_group_note'], array(Lang::$txt['spider_group_none'], Lang::$txt['membergroups_members'])),
-			array('select', 'show_spider_online', array(Lang::$txt['show_spider_online_no'], Lang::$txt['show_spider_online_summary'], Lang::$txt['show_spider_online_detail'], Lang::$txt['show_spider_online_detail_admin'])),
-		);
+			['select', 'spider_mode', 'subtext' => Lang::$txt['spider_mode_note'], [Lang::$txt['spider_mode_off'], Lang::$txt['spider_mode_standard'], Lang::$txt['spider_mode_high'], Lang::$txt['spider_mode_vhigh']], 'onchange' => 'disableFields();'],
+			'spider_group' => ['select', 'spider_group', 'subtext' => Lang::$txt['spider_group_note'], [Lang::$txt['spider_group_none'], Lang::$txt['membergroups_members']]],
+			['select', 'show_spider_online', [Lang::$txt['show_spider_online_no'], Lang::$txt['show_spider_online_summary'], Lang::$txt['show_spider_online_detail'], Lang::$txt['show_spider_online_detail_admin']]],
+		];
 
 		// Do some javascript.
 		self::$javascript_function = '
@@ -850,10 +839,8 @@ class SearchEngines implements ActionInterface
 			{
 				disabledState = document.getElementById(\'spider_mode\').value == 0;';
 
-		foreach ($config_vars as $variable)
-		{
-			if ($variable[1] != 'spider_mode')
-			{
+		foreach ($config_vars as $variable) {
+			if ($variable[1] != 'spider_mode') {
 				self::$javascript_function .= '
 				if (document.getElementById(\'' . $variable[1] . '\'))
 					document.getElementById(\'' . $variable[1] . '\').disabled = disabledState;';
@@ -864,7 +851,7 @@ class SearchEngines implements ActionInterface
 			}
 			disableFields();';
 
-		IntegrationHook::call('integrate_modify_search_engine_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_search_engine_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -874,74 +861,76 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function consolidateSpiderStats(): void
 	{
-		$spider_hits = array();
+		$spider_hits = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
+		$request = Db::$db->query(
+			'',
+			'SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
 			FROM {db_prefix}log_spider_hits
 			WHERE processed = {int:not_processed}
 			GROUP BY id_spider, MONTH(log_time), DAYOFMONTH(log_time)',
-			array(
+			[
 				'not_processed' => 0,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$spider_hits[] = $row;
 		}
 		Db::$db->free_result($request);
 
-		if (empty($spider_hits))
+		if (empty($spider_hits)) {
 			return;
+		}
 
 		// Attempt to update the master data.
-		$stat_inserts = array();
+		$stat_inserts = [];
 
-		foreach ($spider_hits as $stat)
-		{
+		foreach ($spider_hits as $stat) {
 			// We assume the max date is within the right day.
 			$date = Time::strftime('%Y-%m-%d', $stat['last_seen']);
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}log_spider_stats
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}log_spider_stats
 				SET page_hits = page_hits + {int:hits},
 					last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
 				WHERE id_spider = {int:current_spider}
 					AND stat_date = {date:last_seen_date}',
-				array(
+				[
 					'last_seen_date' => $date,
 					'last_seen' => $stat['last_seen'],
 					'current_spider' => $stat['id_spider'],
 					'hits' => $stat['num_hits'],
-				)
+				],
 			);
 
-			if (Db::$db->affected_rows() == 0)
-			{
-				$stat_inserts[] = array($date, $stat['id_spider'], $stat['num_hits'], $stat['last_seen']);
+			if (Db::$db->affected_rows() == 0) {
+				$stat_inserts[] = [$date, $stat['id_spider'], $stat['num_hits'], $stat['last_seen']];
 			}
 		}
 
 		// New stats?
-		if (!empty($stat_inserts))
-		{
-			Db::$db->insert('ignore',
+		if (!empty($stat_inserts)) {
+			Db::$db->insert(
+				'ignore',
 				'{db_prefix}log_spider_stats',
-				array('stat_date' => 'date', 'id_spider' => 'int', 'page_hits' => 'int', 'last_seen' => 'int'),
+				['stat_date' => 'date', 'id_spider' => 'int', 'page_hits' => 'int', 'last_seen' => 'int'],
 				$stat_inserts,
-				array('stat_date', 'id_spider')
+				['stat_date', 'id_spider'],
 			);
 		}
 
 		// All processed.
-		Db::$db->query('', '
-			UPDATE {db_prefix}log_spider_hits
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_spider_hits
 			SET processed = {int:is_processed}
 			WHERE processed = {int:not_processed}',
-			array(
+			[
 				'is_processed' => 1,
 				'not_processed' => 0,
-			)
+			],
 		);
 	}
 
@@ -955,21 +944,22 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function list_getSpiders($start, $items_per_page, $sort): array
 	{
-		$spiders = array();
+		$spiders = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_spider, spider_name, user_agent, ip_info
+		$request = Db::$db->query(
+			'',
+			'SELECT id_spider, spider_name, user_agent, ip_info
 			FROM {db_prefix}spiders
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items}',
-			array(
+			[
 				'sort' => $sort,
 				'start' => $start,
 				'items' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$spiders[$row['id_spider']] = $row;
 		}
 		Db::$db->free_result($request);
@@ -984,13 +974,14 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function list_getNumSpiders(): int
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*) AS num_spiders
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*) AS num_spiders
 			FROM {db_prefix}spiders',
-			array(
-			)
+			[
+			],
 		);
-		list ($numSpiders) = Db::$db->fetch_row($request);
+		list($numSpiders) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		return $numSpiders;
@@ -1006,22 +997,23 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function list_getSpiderLogs($start, $items_per_page, $sort): array
 	{
-		$spider_logs = array();
+		$spider_logs = [];
 
-		$request = Db::$db->query('', '
-			SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
+		$request = Db::$db->query(
+			'',
+			'SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 			FROM {db_prefix}log_spider_hits AS sl
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items}',
-			array(
+			[
 				'sort' => $sort,
 				'start' => $start,
 				'items' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$spider_logs[] = $row;
 		}
 		Db::$db->free_result($request);
@@ -1036,13 +1028,14 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function list_getNumSpiderLogs(): int
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*) AS num_logs
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*) AS num_logs
 			FROM {db_prefix}log_spider_hits',
-			array(
-			)
+			[
+			],
 		);
-		list ($numLogs) = Db::$db->fetch_row($request);
+		list($numLogs) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		return $numLogs;
@@ -1059,22 +1052,23 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function list_getSpiderStats($start, $items_per_page, $sort): array
 	{
-		$spider_stats = array();
+		$spider_stats = [];
 
-		$request = Db::$db->query('', '
-			SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
+		$request = Db::$db->query(
+			'',
+			'SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 			FROM {db_prefix}log_spider_stats AS ss
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items}',
-			array(
+			[
 				'sort' => $sort,
 				'start' => $start,
 				'items' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$spider_stats[] = $row;
 		}
 		Db::$db->free_result($request);
@@ -1090,13 +1084,14 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function list_getNumSpiderStats(): int
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*) AS num_stats
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*) AS num_stats
 			FROM {db_prefix}log_spider_stats',
-			array(
-			)
+			[
+			],
 		);
-		list ($numStats) = Db::$db->fetch_row($request);
+		list($numStats) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		return $numStats;
@@ -1107,20 +1102,21 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function recacheSpiderNames(): void
 	{
-		$spiders = array();
+		$spiders = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_spider, spider_name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_spider, spider_name
 			FROM {db_prefix}spiders',
-			array()
+			[],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$spiders[$row['id_spider']] = $row['spider_name'];
 		}
 		Db::$db->free_result($request);
 
-		Config::updateModSettings(array('spider_name_cache' => Utils::jsonEncode($spiders)));
+		Config::updateModSettings(['spider_name_cache' => Utils::jsonEncode($spiders)]);
 	}
 
 	/**
@@ -1161,8 +1157,9 @@ class SearchEngines implements ActionInterface
 	 */
 	public static function manageSearchEngineSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'settings';
@@ -1193,35 +1190,35 @@ class SearchEngines implements ActionInterface
 		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
-		if (empty(Config::$modSettings['spider_mode']))
-		{
-			self::$subactions = array_intersect_key(self::$subactions, array('settings' => true));
+		if (empty(Config::$modSettings['spider_mode'])) {
+			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
 		}
 
 		Utils::$context['page_title'] = Lang::$txt['search_engines'];
 
 		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data))
-		{
+		if (empty(Menu::$loaded['admin']->tab_data)) {
 			// Some more tab data.
-			Menu::$loaded['admin']->tab_data = array(
+			Menu::$loaded['admin']->tab_data = [
 				'title' => Lang::$txt['search_engines'],
 				'description' => Lang::$txt['search_engines_description'],
-			);
+			];
 		}
 
-		IntegrationHook::call('integrate_manage_search_engines', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_search_engines', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\SearchEngines::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\SearchEngines::exportStatic')) {
 	SearchEngines::exportStatic();
+}
 
 ?>

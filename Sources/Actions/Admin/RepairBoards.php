@@ -13,11 +13,11 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -26,7 +26,6 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This is here for the "repair any errors" feature in the admin center.
@@ -40,11 +39,11 @@ class RepairBoards implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'RepairBoards',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -98,9 +97,9 @@ class RepairBoards implements ActionInterface
 	 * MOD AUTHORS: If you want to add tests to this array so that SMF can fix
 	 * data for your mod, use the integrate_repair_boards hook.
 	 */
-	public array $errorTests = array(
+	public array $errorTests = [
 		// Make a last-ditch-effort check to get rid of topics with zeros..
-		'zero_topics' => array(
+		'zero_topics' => [
 			'check_query' => '
 				SELECT COUNT(*)
 				FROM {db_prefix}topics
@@ -111,9 +110,9 @@ class RepairBoards implements ActionInterface
 				SET id_topic = NULL
 				WHERE id_topic = 0',
 			'message' => 'repair_zero_ids',
-		),
+		],
 		// ... and same with messages.
-		'zero_messages' => array(
+		'zero_messages' => [
 			'check_query' => '
 				SELECT COUNT(*)
 				FROM {db_prefix}messages
@@ -124,15 +123,15 @@ class RepairBoards implements ActionInterface
 				SET id_msg = NULL
 				WHERE id_msg = 0',
 			'message' => 'repair_zero_ids',
-		),
+		],
 		// Find messages that don't have existing topics.
-		'missing_topics' => array(
-			'substeps' => array(
+		'missing_topics' => [
+			'substeps' => [
 				'step_size' => 1000,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}messages'
-			),
+					FROM {db_prefix}messages',
+			],
 			'check_query' => '
 				SELECT m.id_topic, m.id_msg
 				FROM {db_prefix}messages AS m
@@ -149,17 +148,17 @@ class RepairBoards implements ActionInterface
 				WHERE t.id_topic IS NULL
 				GROUP BY m.id_topic, m.id_board',
 			'fix_processing' => 'fixMissingTopics',
-			'force_fix' => array('stats_topics'),
-			'messages' => array('repair_missing_topics', 'id_msg', 'id_topic'),
-		),
+			'force_fix' => ['stats_topics'],
+			'messages' => ['repair_missing_topics', 'id_msg', 'id_topic'],
+		],
 		// Find topics with no messages.
-		'missing_messages' => array(
-			'substeps' => array(
+		'missing_messages' => [
+			'substeps' => [
 				'step_size' => 1000,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT t.id_topic, COUNT(m.id_msg) AS num_msg
 				FROM {db_prefix}topics AS t
@@ -168,19 +167,19 @@ class RepairBoards implements ActionInterface
 				GROUP BY t.id_topic
 				HAVING COUNT(m.id_msg) = 0',
 			// Remove all topics that have zero messages in the messages table.
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_topic',
 				'process' => 'fixMissingMessages',
-			),
-			'messages' => array('repair_missing_messages', 'id_topic'),
-		),
-		'poll_options_missing_poll' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_messages', 'id_topic'],
+		],
+		'poll_options_missing_poll' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_poll)
-					FROM {db_prefix}poll_choices'
-			),
+					FROM {db_prefix}poll_choices',
+			],
 			'check_query' => '
 				SELECT o.id_poll, count(*) as amount, t.id_topic, t.id_board, t.id_member_started AS id_poster, m.member_name AS poster_name
 				FROM {db_prefix}poll_choices AS o
@@ -191,16 +190,16 @@ class RepairBoards implements ActionInterface
 					AND p.id_poll IS NULL
 				GROUP BY o.id_poll, t.id_topic, t.id_board, t.id_member_started, m.member_name',
 			'fix_processing' => 'fixMissingPollOptions',
-			'force_fix' => array('stats_topics'),
-			'messages' => array('repair_poll_options_missing_poll', 'id_poll', 'amount'),
-		),
-		'polls_missing_topics' => array(
-			'substeps' => array(
+			'force_fix' => ['stats_topics'],
+			'messages' => ['repair_poll_options_missing_poll', 'id_poll', 'amount'],
+		],
+		'polls_missing_topics' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_poll)
-					FROM {db_prefix}polls'
-			),
+					FROM {db_prefix}polls',
+			],
 			'check_query' => '
 				SELECT p.id_poll, p.id_member, p.poster_name, t.id_board
 				FROM {db_prefix}polls AS p
@@ -208,16 +207,16 @@ class RepairBoards implements ActionInterface
 				WHERE p.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND t.id_poll IS NULL',
 			'fix_processing' => 'fixMissingPollTopics',
-			'force_fix' => array('stats_topics'),
-			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
-		),
-		'stats_topics' => array(
-			'substeps' => array(
+			'force_fix' => ['stats_topics'],
+			'messages' => ['repair_polls_missing_topics', 'id_poll', 'id_topic'],
+		],
+		'stats_topics' => [
+			'substeps' => [
 				'step_size' => 200,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT
 					t.id_topic, t.id_first_msg, t.id_last_msg,
@@ -237,15 +236,15 @@ class RepairBoards implements ActionInterface
 				ORDER BY t.id_topic',
 			'fix_processing' => 'fixTopicStats',
 			'message_function' => 'topicStatsMessage',
-		),
+		],
 		// Find topics with incorrect num_replies.
-		'stats_topics2' => array(
-			'substeps' => array(
+		'stats_topics2' => [
+			'substeps' => [
 				'step_size' => 300,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT
 					t.id_topic, t.num_replies, mf.approved,
@@ -258,15 +257,15 @@ class RepairBoards implements ActionInterface
 				ORDER BY t.id_topic',
 			'fix_processing' => 'fixTopicStats2',
 			'message_function' => 'topicStatsMessage2',
-		),
+		],
 		// Find topics with incorrect unapproved_posts.
-		'stats_topics3' => array(
-			'substeps' => array(
+		'stats_topics3' => [
+			'substeps' => [
 				'step_size' => 1000,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT
 					t.id_topic, t.unapproved_posts, COUNT(mu.id_msg) AS my_unapproved_posts
@@ -277,16 +276,16 @@ class RepairBoards implements ActionInterface
 				HAVING unapproved_posts != COUNT(mu.id_msg)
 				ORDER BY t.id_topic',
 			'fix_processing' => 'fixTopicStats3',
-			'messages' => array('repair_topic_wrong_unapproved_number', 'id_topic', 'unapproved_posts'),
-		),
+			'messages' => ['repair_topic_wrong_unapproved_number', 'id_topic', 'unapproved_posts'],
+		],
 		// Find topics with nonexistent boards.
-		'missing_boards' => array(
-			'substeps' => array(
+		'missing_boards' => [
+			'substeps' => [
 				'step_size' => 1000,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT t.id_topic, t.id_board
 				FROM {db_prefix}topics AS t
@@ -303,30 +302,30 @@ class RepairBoards implements ActionInterface
 					AND t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_board',
 			'fix_processing' => 'fixMissingBoards',
-			'messages' => array('repair_missing_boards', 'id_topic', 'id_board'),
-		),
+			'messages' => ['repair_missing_boards', 'id_topic', 'id_board'],
+		],
 		// Find boards with nonexistent categories.
-		'missing_categories' => array(
+		'missing_categories' => [
 			'check_query' => '
 				SELECT b.id_board, b.id_cat
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 				WHERE c.id_cat IS NULL
 				ORDER BY b.id_cat, b.id_board',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_cat',
 				'process' => 'fixMissingCategories',
-			),
-			'messages' => array('repair_missing_categories', 'id_board', 'id_cat'),
-		),
+			],
+			'messages' => ['repair_missing_categories', 'id_board', 'id_cat'],
+		],
 		// Find messages with nonexistent members.
-		'missing_posters' => array(
-			'substeps' => array(
+		'missing_posters' => [
+			'substeps' => [
 				'step_size' => 2000,
 				'step_max' => '
 					SELECT MAX(id_msg)
-					FROM {db_prefix}messages'
-			),
+					FROM {db_prefix}messages',
+			],
 			'check_query' => '
 				SELECT m.id_msg, m.id_member
 				FROM {db_prefix}messages AS m
@@ -336,14 +335,14 @@ class RepairBoards implements ActionInterface
 					AND m.id_msg BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				ORDER BY m.id_msg',
 			// Last step-make sure all non-guest posters still exist.
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_msg',
 				'process' => 'fixMissingPosters',
-			),
-			'messages' => array('repair_missing_posters', 'id_msg', 'id_member'),
-		),
+			],
+			'messages' => ['repair_missing_posters', 'id_msg', 'id_member'],
+		],
 		// Find boards with nonexistent parents.
-		'missing_parents' => array(
+		'missing_parents' => [
 			'check_query' => '
 				SELECT b.id_board, b.id_parent
 				FROM {db_prefix}boards AS b
@@ -351,19 +350,19 @@ class RepairBoards implements ActionInterface
 				WHERE b.id_parent != 0
 					AND (p.id_board IS NULL OR p.id_board = b.id_board)
 				ORDER BY b.id_parent, b.id_board',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_parent',
 				'process' => 'fixMissingParents',
-			),
-			'messages' => array('repair_missing_parents', 'id_board', 'id_parent'),
-		),
-		'missing_polls' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_parents', 'id_board', 'id_parent'],
+		],
+		'missing_polls' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_poll)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT t.id_poll, t.id_topic
 				FROM {db_prefix}topics AS t
@@ -371,19 +370,19 @@ class RepairBoards implements ActionInterface
 				WHERE t.id_poll != 0
 					AND t.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND p.id_poll IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_poll',
 				'process' => 'fixMissingPolls',
-			),
-			'messages' => array('repair_missing_polls', 'id_topic', 'id_poll'),
-		),
-		'missing_calendar_topics' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_polls', 'id_topic', 'id_poll'],
+		],
+		'missing_calendar_topics' => [
+			'substeps' => [
 				'step_size' => 1000,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}calendar'
-			),
+					FROM {db_prefix}calendar',
+			],
 			'check_query' => '
 				SELECT cal.id_topic, cal.id_event
 				FROM {db_prefix}calendar AS cal
@@ -392,38 +391,38 @@ class RepairBoards implements ActionInterface
 					AND cal.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND t.id_topic IS NULL
 				ORDER BY cal.id_topic',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_topic',
 				'process' => 'fixMissingCaledarTopics',
-			),
-			'messages' => array('repair_missing_calendar_topics', 'id_event', 'id_topic'),
-		),
-		'missing_log_topics' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_calendar_topics', 'id_event', 'id_topic'],
+		],
+		'missing_log_topics' => [
+			'substeps' => [
 				'step_size' => 150,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_topics'
-			),
+					FROM {db_prefix}log_topics',
+			],
 			'check_query' => '
 				SELECT lt.id_topic
 				FROM {db_prefix}log_topics AS lt
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = lt.id_topic)
 				WHERE t.id_topic IS NULL
 					AND lt.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_topic',
 				'process' => 'fixMissingLogTopics',
-			),
-			'messages' => array('repair_missing_log_topics', 'id_topic'),
-		),
-		'missing_log_topics_members' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_topics', 'id_topic'],
+		],
+		'missing_log_topics_members' => [
+			'substeps' => [
 				'step_size' => 150,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_topics'
-			),
+					FROM {db_prefix}log_topics',
+			],
 			'check_query' => '
 				SELECT lt.id_member
 				FROM {db_prefix}log_topics AS lt
@@ -431,19 +430,19 @@ class RepairBoards implements ActionInterface
 				WHERE mem.id_member IS NULL
 					AND lt.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY lt.id_member',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixMissingLogTopicsMembers',
-			),
-			'messages' => array('repair_missing_log_topics_members', 'id_member'),
-		),
-		'missing_log_boards' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_topics_members', 'id_member'],
+		],
+		'missing_log_boards' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_boards'
-			),
+					FROM {db_prefix}log_boards',
+			],
 			'check_query' => '
 				SELECT lb.id_board
 				FROM {db_prefix}log_boards AS lb
@@ -451,19 +450,19 @@ class RepairBoards implements ActionInterface
 				WHERE b.id_board IS NULL
 					AND lb.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY lb.id_board',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_board',
 				'process' => 'fixMissingLogBoards',
-			),
-			'messages' => array('repair_missing_log_boards', 'id_board'),
-		),
-		'missing_log_boards_members' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_boards', 'id_board'],
+		],
+		'missing_log_boards_members' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_boards'
-			),
+					FROM {db_prefix}log_boards',
+			],
 			'check_query' => '
 				SELECT lb.id_member
 				FROM {db_prefix}log_boards AS lb
@@ -471,19 +470,19 @@ class RepairBoards implements ActionInterface
 				WHERE mem.id_member IS NULL
 					AND lb.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY lb.id_member',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixMissingLogBoardsMembers',
-			),
-			'messages' => array('repair_missing_log_boards_members', 'id_member'),
-		),
-		'missing_log_mark_read' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_boards_members', 'id_member'],
+		],
+		'missing_log_mark_read' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_mark_read'
-			),
+					FROM {db_prefix}log_mark_read',
+			],
 			'check_query' => '
 				SELECT lmr.id_board
 				FROM {db_prefix}log_mark_read AS lmr
@@ -491,19 +490,19 @@ class RepairBoards implements ActionInterface
 				WHERE b.id_board IS NULL
 					AND lmr.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY lmr.id_board',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_board',
 				'process' => 'fixMissingLogMarkRead',
-			),
-			'messages' => array('repair_missing_log_mark_read', 'id_board'),
-		),
-		'missing_log_mark_read_members' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_mark_read', 'id_board'],
+		],
+		'missing_log_mark_read_members' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_mark_read'
-			),
+					FROM {db_prefix}log_mark_read',
+			],
 			'check_query' => '
 				SELECT lmr.id_member
 				FROM {db_prefix}log_mark_read AS lmr
@@ -511,19 +510,19 @@ class RepairBoards implements ActionInterface
 				WHERE mem.id_member IS NULL
 					AND lmr.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY lmr.id_member',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixMissingLogMarkReadMembers',
-			),
-			'messages' => array('repair_missing_log_mark_read_members', 'id_member'),
-		),
-		'missing_pms' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_mark_read_members', 'id_member'],
+		],
+		'missing_pms' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_pm)
-					FROM {db_prefix}pm_recipients'
-			),
+					FROM {db_prefix}pm_recipients',
+			],
 			'check_query' => '
 				SELECT pmr.id_pm
 				FROM {db_prefix}pm_recipients AS pmr
@@ -531,19 +530,19 @@ class RepairBoards implements ActionInterface
 				WHERE pm.id_pm IS NULL
 					AND pmr.id_pm BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY pmr.id_pm',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_pm',
 				'process' => 'fixMissingPMs',
-			),
-			'messages' => array('repair_missing_pms', 'id_pm'),
-		),
-		'missing_recipients' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_pms', 'id_pm'],
+		],
+		'missing_recipients' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}pm_recipients'
-			),
+					FROM {db_prefix}pm_recipients',
+			],
 			'check_query' => '
 				SELECT pmr.id_member
 				FROM {db_prefix}pm_recipients AS pmr
@@ -552,19 +551,19 @@ class RepairBoards implements ActionInterface
 					AND pmr.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND mem.id_member IS NULL
 				GROUP BY pmr.id_member',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixMissingRecipients',
-			),
-			'messages' => array('repair_missing_recipients', 'id_member'),
-		),
-		'missing_senders' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_recipients', 'id_member'],
+		],
+		'missing_senders' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_pm)
-					FROM {db_prefix}personal_messages'
-			),
+					FROM {db_prefix}personal_messages',
+			],
 			'check_query' => '
 				SELECT pm.id_pm, pm.id_member_from
 				FROM {db_prefix}personal_messages AS pm
@@ -572,19 +571,19 @@ class RepairBoards implements ActionInterface
 				WHERE pm.id_member_from != 0
 					AND pm.id_pm BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND mem.id_member IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_pm',
 				'process' => 'fixMissingSenders',
-			),
-			'messages' => array('repair_missing_senders', 'id_pm', 'id_member_from'),
-		),
-		'missing_notify_members' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_senders', 'id_pm', 'id_member_from'],
+		],
+		'missing_notify_members' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_notify'
-			),
+					FROM {db_prefix}log_notify',
+			],
 			'check_query' => '
 				SELECT ln.id_member
 				FROM {db_prefix}log_notify AS ln
@@ -592,19 +591,19 @@ class RepairBoards implements ActionInterface
 				WHERE ln.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND mem.id_member IS NULL
 				GROUP BY ln.id_member',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixMissingNotifyMembers',
-			),
-			'messages' => array('repair_missing_notify_members', 'id_member'),
-		),
-		'missing_cached_subject' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_notify_members', 'id_member'],
+		],
+		'missing_cached_subject' => [
+			'substeps' => [
 				'step_size' => 100,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}topics'
-			),
+					FROM {db_prefix}topics',
+			],
 			'check_query' => '
 				SELECT t.id_topic, fm.subject
 				FROM {db_prefix}topics AS t
@@ -614,33 +613,33 @@ class RepairBoards implements ActionInterface
 					AND lss.id_topic IS NULL',
 			'fix_full_processing' => 'fixMissingCachedSubject',
 			'message_function' => 'missingCachedSubjectMessage',
-		),
-		'missing_topic_for_cache' => array(
-			'substeps' => array(
+		],
+		'missing_topic_for_cache' => [
+			'substeps' => [
 				'step_size' => 50,
 				'step_max' => '
 					SELECT MAX(id_topic)
-					FROM {db_prefix}log_search_subjects'
-			),
+					FROM {db_prefix}log_search_subjects',
+			],
 			'check_query' => '
 				SELECT lss.id_topic, lss.word
 				FROM {db_prefix}log_search_subjects AS lss
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = lss.id_topic)
 				WHERE lss.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND t.id_topic IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_topic',
 				'process' => 'fixMissingTopicForCache',
-			),
-			'messages' => array('repair_missing_topic_for_cache', 'word'),
-		),
-		'missing_member_vote' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_topic_for_cache', 'word'],
+		],
+		'missing_member_vote' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_polls'
-			),
+					FROM {db_prefix}log_polls',
+			],
 			'check_query' => '
 				SELECT lp.id_poll, lp.id_member
 				FROM {db_prefix}log_polls AS lp
@@ -648,76 +647,76 @@ class RepairBoards implements ActionInterface
 				WHERE lp.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND lp.id_member > 0
 					AND mem.id_member IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixMissingMemberVote',
-			),
-			'messages' => array('repair_missing_log_poll_member', 'id_poll', 'id_member'),
-		),
-		'missing_log_poll_vote' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_poll_member', 'id_poll', 'id_member'],
+		],
+		'missing_log_poll_vote' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_poll)
-					FROM {db_prefix}log_polls'
-			),
+					FROM {db_prefix}log_polls',
+			],
 			'check_query' => '
 				SELECT lp.id_poll, lp.id_member
 				FROM {db_prefix}log_polls AS lp
 					LEFT JOIN {db_prefix}polls AS p ON (p.id_poll = lp.id_poll)
 				WHERE lp.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND p.id_poll IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_poll',
 				'process' => 'fixMissingLogPollVote',
-			),
-			'messages' => array('repair_missing_log_poll_vote', 'id_member', 'id_poll'),
-		),
-		'report_missing_comments' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_missing_log_poll_vote', 'id_member', 'id_poll'],
+		],
+		'report_missing_comments' => [
+			'substeps' => [
 				'step_size' => 500,
 				'step_max' => '
 					SELECT MAX(id_report)
-					FROM {db_prefix}log_reported'
-			),
+					FROM {db_prefix}log_reported',
+			],
 			'check_query' => '
 				SELECT lr.id_report, lr.subject
 				FROM {db_prefix}log_reported AS lr
 					LEFT JOIN {db_prefix}log_reported_comments AS lrc ON (lrc.id_report = lr.id_report)
 				WHERE lr.id_report BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND lrc.id_report IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_report',
 				'process' => 'fixReportMissingComments',
-			),
-			'messages' => array('repair_report_missing_comments', 'id_report', 'subject'),
-		),
-		'comments_missing_report' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_report_missing_comments', 'id_report', 'subject'],
+		],
+		'comments_missing_report' => [
+			'substeps' => [
 				'step_size' => 200,
 				'step_max' => '
 					SELECT MAX(id_report)
-					FROM {db_prefix}log_reported_comments'
-			),
+					FROM {db_prefix}log_reported_comments',
+			],
 			'check_query' => '
 				SELECT lrc.id_report, lrc.membername
 				FROM {db_prefix}log_reported_comments AS lrc
 					LEFT JOIN {db_prefix}log_reported AS lr ON (lr.id_report = lrc.id_report)
 				WHERE lrc.id_report BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND lr.id_report IS NULL',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_report',
 				'process' => 'fixCommentMissingReport',
-			),
-			'messages' => array('repair_comments_missing_report', 'id_report', 'membername'),
-		),
-		'group_request_missing_member' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_comments_missing_report', 'id_report', 'membername'],
+		],
+		'group_request_missing_member' => [
+			'substeps' => [
 				'step_size' => 200,
 				'step_max' => '
 					SELECT MAX(id_member)
-					FROM {db_prefix}log_group_requests'
-			),
+					FROM {db_prefix}log_group_requests',
+			],
 			'check_query' => '
 				SELECT lgr.id_member
 				FROM {db_prefix}log_group_requests AS lgr
@@ -725,19 +724,19 @@ class RepairBoards implements ActionInterface
 				WHERE lgr.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND mem.id_member IS NULL
 				GROUP BY lgr.id_member',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_member',
 				'process' => 'fixGroupRequestMissingMember',
-			),
-			'messages' => array('repair_group_request_missing_member', 'id_member'),
-		),
-		'group_request_missing_group' => array(
-			'substeps' => array(
+			],
+			'messages' => ['repair_group_request_missing_member', 'id_member'],
+		],
+		'group_request_missing_group' => [
+			'substeps' => [
 				'step_size' => 200,
 				'step_max' => '
 					SELECT MAX(id_group)
-					FROM {db_prefix}log_group_requests'
-			),
+					FROM {db_prefix}log_group_requests',
+			],
 			'check_query' => '
 				SELECT lgr.id_group
 				FROM {db_prefix}log_group_requests AS lgr
@@ -745,13 +744,13 @@ class RepairBoards implements ActionInterface
 				WHERE lgr.id_group BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND mg.id_group IS NULL
 				GROUP BY lgr.id_group',
-			'fix_collect' => array(
+			'fix_collect' => [
 				'index' => 'id_group',
 				'process' => 'fixGroupRequestMissingGroup',
-			),
-			'messages' => array('repair_group_request_missing_group', 'id_group'),
-		),
-	);
+			],
+			'messages' => ['repair_group_request_missing_group', 'id_group'],
+		],
+	];
 
 	/**
 	 * @var int
@@ -808,56 +807,53 @@ class RepairBoards implements ActionInterface
 		Config::setMemoryLimit('128M');
 
 		// Start displaying errors without fixing them.
-		if (isset($_GET['fixErrors']))
+		if (isset($_GET['fixErrors'])) {
 			User::$me->checkSession('get');
+		}
 
 		// Giant if/else. The first displays the forum errors if a variable is not set and asks
 		// if you would like to continue, the other fixes the errors.
-		if (!isset($_GET['fixErrors']))
-		{
+		if (!isset($_GET['fixErrors'])) {
 			Utils::$context['error_search'] = true;
-			Utils::$context['repair_errors'] = array();
+			Utils::$context['repair_errors'] = [];
 
 			Utils::$context['to_fix'] = $this->findForumErrors();
 
-			if (!empty(Utils::$context['to_fix']))
-			{
+			if (!empty(Utils::$context['to_fix'])) {
 				$_SESSION['repairboards_to_fix'] = Utils::$context['to_fix'];
 				$_SESSION['repairboards_to_fix2'] = null;
 
-				if (empty(Utils::$context['repair_errors']))
+				if (empty(Utils::$context['repair_errors'])) {
 					Utils::$context['repair_errors'][] = '???';
+				}
 			}
 
 			// Need a token here.
 			SecurityToken::create('admin-repairboards', 'request');
-		}
-		else
-		{
+		} else {
 			// Validate the token, create a new one and tell the not done template.
 			SecurityToken::validate('admin-repairboards', 'request');
 			SecurityToken::create('admin-repairboards', 'request');
 			Utils::$context['not_done_token'] = 'admin-repairboards';
 
 			Utils::$context['error_search'] = false;
-			Utils::$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
+			Utils::$context['to_fix'] = $_SESSION['repairboards_to_fix'] ?? [];
 
 			// Actually do the fix.
 			$this->findForumErrors(true);
 
 			// Note that we've changed everything possible ;)
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'settings_updated' => time(),
-			));
+			]);
 			Logging::updateStats('message');
 			Logging::updateStats('topic');
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'calendar_updated' => time(),
-			));
+			]);
 
 			// If we created a salvage area, we may need to recount stats properly.
-			if (!empty($this->salvage_board) || !empty($_SESSION['salvageBoardID']))
-			{
+			if (!empty($this->salvage_board) || !empty($_SESSION['salvageBoardID'])) {
 				unset($_SESSION['salvageBoardID']);
 				Utils::$context['redirect_to_recount'] = true;
 				SecurityToken::create('admin-maint');
@@ -882,8 +878,9 @@ class RepairBoards implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -914,12 +911,12 @@ class RepairBoards implements ActionInterface
 		Lang::load('ManageMaintenance');
 
 		// Make sure the tabs stay nice.
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['maintain_title'],
 			'help' => '',
 			'description' => Lang::$txt['maintain_info'],
-			'tabs' => array(),
-		);
+			'tabs' => [],
+		];
 	}
 
 	/**
@@ -936,49 +933,50 @@ class RepairBoards implements ActionInterface
 		// This may take some time...
 		@set_time_limit(600);
 
-		$to_fix = !empty($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
+		$to_fix = !empty($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : [];
 
-		Utils::$context['repair_errors'] = isset($_SESSION['repairboards_to_fix2']) ? $_SESSION['repairboards_to_fix2'] : array();
+		Utils::$context['repair_errors'] = $_SESSION['repairboards_to_fix2'] ?? [];
 
 		$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
 		$_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 		// Do mods want to add anything here to allow repairing their data?
-		IntegrationHook::call('integrate_repair_boards', array(&$this->errorTests));
+		IntegrationHook::call('integrate_repair_boards', [&$this->errorTests]);
 
 		// Don't allow the cache to get too full.
 		Utils::$context['db_cache'] = Db::$cache;
-		Db::$cache = array();
+		Db::$cache = [];
 
 		Utils::$context['total_steps'] = count($this->errorTests);
 
 		// For all the defined error types do the necessary tests.
 		$current_step = -1;
 		$total_queries = 0;
-		foreach ($this->errorTests as $error_type => $test)
-		{
+
+		foreach ($this->errorTests as $error_type => $test) {
 			$current_step++;
 
 			// Already done this?
-			if ($_GET['step'] > $current_step)
+			if ($_GET['step'] > $current_step) {
 				continue;
+			}
 
 			// If we're fixing it but it ain't broke why try?
-			if ($do_fix && !in_array($error_type, $to_fix))
-			{
+			if ($do_fix && !in_array($error_type, $to_fix)) {
 				$_GET['step']++;
+
 				continue;
 			}
 
 			// Has it got substeps?
-			if (isset($test['substeps']))
-			{
+			if (isset($test['substeps'])) {
 				$step_size = $test['substeps']['step_size'] ?? 100;
 
-				$request = Db::$db->query('',
+				$request = Db::$db->query(
+					'',
 					$test['substeps']['step_max'],
-					array(
-					)
+					[
+					],
 				);
 				list($step_max) = Db::$db->fetch_row($request);
 				$total_queries++;
@@ -987,60 +985,51 @@ class RepairBoards implements ActionInterface
 
 			// We in theory keep doing this... the substeps.
 			$done = false;
-			while (!$done)
-			{
+
+			while (!$done) {
 				// Make sure there's at least one ID to test.
-				if (isset($test['substeps']) && empty($step_max))
+				if (isset($test['substeps']) && empty($step_max)) {
 					break;
+				}
 
 				// What is the testing query (Changes if we are testing or fixing)
 				$test_query = $do_fix && isset($test['fix_query']) ? 'fix_query' : 'check_query';
 
 				// Do the test...
-				$request = Db::$db->query('',
-					isset($test['substeps']) ? strtr($test[$test_query], array('{STEP_LOW}' => $_GET['substep'], '{STEP_HIGH}' => $_GET['substep'] + $step_size - 1)) : $test[$test_query],
-					array(
-					)
+				$request = Db::$db->query(
+					'',
+					isset($test['substeps']) ? strtr($test[$test_query], ['{STEP_LOW}' => $_GET['substep'], '{STEP_HIGH}' => $_GET['substep'] + $step_size - 1]) : $test[$test_query],
+					[
+					],
 				);
+
 				// Does it need a fix?
-				if (!empty($test['check_type']) && $test['check_type'] == 'count')
-				{
+				if (!empty($test['check_type']) && $test['check_type'] == 'count') {
 					list($needs_fix) = Db::$db->fetch_row($request);
-				}
-				else
-				{
+				} else {
 					$needs_fix = Db::$db->num_rows($request);
 				}
 
 				$total_queries++;
 
-				if ($needs_fix)
-				{
+				if ($needs_fix) {
 					// What about a message to the user?
-					if (!$do_fix)
-					{
+					if (!$do_fix) {
 						// Assume need to fix.
 						$found_errors = true;
 
-						if (isset($test['message']))
-						{
+						if (isset($test['message'])) {
 							Utils::$context['repair_errors'][] = Lang::$txt[$test['message']];
 						}
 						// One per row!
-						elseif (isset($test['messages']))
-						{
-							while ($row = Db::$db->fetch_assoc($request))
-							{
+						elseif (isset($test['messages'])) {
+							while ($row = Db::$db->fetch_assoc($request)) {
 								$variables = $test['messages'];
 
-								foreach ($variables as $k => $v)
-								{
-									if ($k == 0 && isset(Lang::$txt[$v]))
-									{
+								foreach ($variables as $k => $v) {
+									if ($k == 0 && isset(Lang::$txt[$v])) {
 										$variables[$k] = Lang::$txt[$v];
-									}
-									elseif ($k > 0 && isset($row[$v]))
-									{
+									} elseif ($k > 0 && isset($row[$v])) {
 										$variables[$k] = $row[$v];
 									}
 								}
@@ -1049,72 +1038,69 @@ class RepairBoards implements ActionInterface
 							}
 						}
 						// A function to process?
-						elseif (isset($test['message_function']))
-						{
+						elseif (isset($test['message_function'])) {
 							// Find out if there are actually errors.
 							$found_errors = false;
 
-							$func = method_exists($this, $test['message_function']) ? array($this, $test['message_function']) : Utils::getCallable($test['message_function']);
+							$func = method_exists($this, $test['message_function']) ? [$this, $test['message_function']] : Utils::getCallable($test['message_function']);
 
-							while ($row = Db::$db->fetch_assoc($request))
+							while ($row = Db::$db->fetch_assoc($request)) {
 								$found_errors |= call_user_func($func, $row);
+							}
 						}
 
 						// Actually have something to fix?
-						if ($found_errors)
+						if ($found_errors) {
 							$to_fix[] = $error_type;
+						}
 					}
 					// We want to fix, we need to fix - so work out what exactly to do!
-					else
-					{
+					else {
 						// Are we simply getting a collection of ids?
-						if (isset($test['fix_collect']))
-						{
-							$ids = array();
+						if (isset($test['fix_collect'])) {
+							$ids = [];
 
-							while ($row = Db::$db->fetch_assoc($request))
+							while ($row = Db::$db->fetch_assoc($request)) {
 								$ids[] = $row[$test['fix_collect']['index']];
+							}
 
-							if (!empty($ids))
-							{
-								$func = method_exists($this, $test['fix_collect']['process']) ? array($this, $test['fix_collect']['process']) : Utils::getCallable($test['fix_collect']['process']);
+							if (!empty($ids)) {
+								$func = method_exists($this, $test['fix_collect']['process']) ? [$this, $test['fix_collect']['process']] : Utils::getCallable($test['fix_collect']['process']);
 
 								// Fix it!
 								call_user_func($func, $ids);
 							}
 						}
 						// Simply executing a fix it query?
-						elseif (isset($test['fix_it_query']))
-						{
-							Db::$db->query('',
+						elseif (isset($test['fix_it_query'])) {
+							Db::$db->query(
+								'',
 								$test['fix_it_query'],
-								array(
-								)
+								[
+								],
 							);
 						}
 						// Do we have some processing to do?
-						elseif (isset($test['fix_processing']))
-						{
-							$func = method_exists($this, $test['fix_processing']) ? array($this, $test['fix_processing']) : Utils::getCallable($test['fix_processing']);
+						elseif (isset($test['fix_processing'])) {
+							$func = method_exists($this, $test['fix_processing']) ? [$this, $test['fix_processing']] : Utils::getCallable($test['fix_processing']);
 
-							while ($row = Db::$db->fetch_assoc($request))
+							while ($row = Db::$db->fetch_assoc($request)) {
 								call_user_func($func, $row);
+							}
 						}
 						// What about the full set of processing?
-						elseif (isset($test['fix_full_processing']))
-						{
-							$func = method_exists($this, $test['fix_full_processing']) ? array($this, $test['fix_full_processing']) : Utils::getCallable($test['fix_full_processing']);
+						elseif (isset($test['fix_full_processing'])) {
+							$func = method_exists($this, $test['fix_full_processing']) ? [$this, $test['fix_full_processing']] : Utils::getCallable($test['fix_full_processing']);
 
 							call_user_func($func, $request);
 						}
 
 						// Do we have other things we need to fix as a result?
-						if (!empty($test['force_fix']))
-						{
-							foreach ($test['force_fix'] as $item)
-							{
-								if (!in_array($item, $to_fix))
+						if (!empty($test['force_fix'])) {
+							foreach ($test['force_fix'] as $item) {
+								if (!in_array($item, $to_fix)) {
 									$to_fix[] = $item;
+								}
 							}
 						}
 					}
@@ -1123,31 +1109,26 @@ class RepairBoards implements ActionInterface
 				Db::$db->free_result($request);
 
 				// Keep memory down.
-				Db::$cache = array();
+				Db::$cache = [];
 
 				// Are we done yet?
-				if (isset($test['substeps']))
-				{
+				if (isset($test['substeps'])) {
 					$_GET['substep'] += $step_size;
 
 					// Not done?
-					if ($_GET['substep'] <= $step_max)
-					{
+					if ($_GET['substep'] <= $step_max) {
 						$this->pauseRepairProcess($to_fix, $error_type, $step_max);
-					}
-					else
-					{
+					} else {
 						$done = true;
 					}
-				}
-				else
-				{
+				} else {
 					$done = true;
 				}
 
 				// Don't allow more than 1000 queries at a time.
-				if ($total_queries >= 1000)
+				if ($total_queries >= 1000) {
 					$this->pauseRepairProcess($to_fix, $error_type, $step_max, true);
+				}
 			}
 
 			// Keep going.
@@ -1157,12 +1138,12 @@ class RepairBoards implements ActionInterface
 			$to_fix = array_unique($to_fix);
 
 			// If we're doing fixes and this needed a fix and we're all done then don't do it again.
-			if ($do_fix)
-			{
+			if ($do_fix) {
 				$key = array_search($error_type, $to_fix);
 
-				if ($key !== false && isset($to_fix[$key]))
+				if ($key !== false && isset($to_fix[$key])) {
 					unset($to_fix[$key]);
+				}
 			}
 
 			// Are we done?
@@ -1192,43 +1173,40 @@ class RepairBoards implements ActionInterface
 		// More time, I need more time!
 		@set_time_limit(600);
 
-		if (function_exists('apache_reset_timeout'))
+		if (function_exists('apache_reset_timeout')) {
 			@apache_reset_timeout();
+		}
 
 		$return = true;
 
 		// If we are from a SSI/cron job, we can allow this through, if enabled.
-		if ((SMF === 'SSI' || SMF === 'BACKGROUND') && php_sapi_name() == 'cli' && !empty(Utils::$context['no_pause_process']))
-		{
+		if ((SMF === 'SSI' || SMF === 'BACKGROUND') && php_sapi_name() == 'cli' && !empty(Utils::$context['no_pause_process'])) {
 			$return = true;
-		}
-		elseif ($force)
-		{
+		} elseif ($force) {
 			$return = false;
 		}
 		// Try to stay under our memory limit.
-		elseif ((memory_get_usage() + 65536) > Config::memoryReturnBytes(ini_get('memory_limit')))
-		{
+		elseif ((memory_get_usage() + 65536) > Config::memoryReturnBytes(ini_get('memory_limit'))) {
 			$return = false;
 		}
 		// Errr, wait.  How much time has this taken already?
-		elseif ((time() - TIME_START) > 3)
-		{
+		elseif ((time() - TIME_START) > 3) {
 			$return = false;
 		}
 		// If we have a lot of errors, lets do smaller batches, to save on memory needs.
-		elseif (count(Utils::$context['repair_errors']) > 100000 && $this->loops > 50)
-		{
+		elseif (count(Utils::$context['repair_errors']) > 100000 && $this->loops > 50) {
 			$return = false;
 		}
 
 		// If we can return, lets do so.
-		if ($return)
+		if ($return) {
 			return;
+		}
 
 		// Restore the query cache if interested.
-		if (!empty(Utils::$context['db_cache']))
+		if (!empty(Utils::$context['db_cache'])) {
 			Db::$cache = Utils::$context['db_cache'];
+		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
@@ -1237,12 +1215,9 @@ class RepairBoards implements ActionInterface
 		Utils::$context['sub_template'] = 'not_done';
 
 		// Change these two if more steps are added!
-		if (empty($max_substep))
-		{
+		if (empty($max_substep)) {
 			Utils::$context['continue_percent'] = round(($_GET['step'] * 100) / Utils::$context['total_steps']);
-		}
-		else
-		{
+		} else {
 			Utils::$context['continue_percent'] = round((($_GET['step'] + ($_GET['substep'] / $max_substep)) * 100) / Utils::$context['total_steps']);
 		}
 
@@ -1251,7 +1226,7 @@ class RepairBoards implements ActionInterface
 
 		// What about substeps?
 		Utils::$context['substep_enabled'] = $max_substep != 0;
-		Utils::$context['substep_title'] = sprintf(Lang::$txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (isset(Lang::$txt['repair_operation_' . $current_step_description]) ? Lang::$txt['repair_operation_' . $current_step_description] : $current_step_description));
+		Utils::$context['substep_title'] = sprintf(Lang::$txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (Lang::$txt['repair_operation_' . $current_step_description] ?? $current_step_description));
 		Utils::$context['substep_continue_percent'] = $max_substep == 0 ? 0 : round(($_GET['substep'] * 100) / $max_substep, 1);
 
 		$_SESSION['repairboards_to_fix'] = $to_fix;
@@ -1267,8 +1242,9 @@ class RepairBoards implements ActionInterface
 	protected function createSalvageArea(): void
 	{
 		// Have we already created it?
-		if ($this->salvage_created)
+		if ($this->salvage_created) {
 			return;
+		}
 
 		$this->salvage_created = true;
 
@@ -1276,68 +1252,68 @@ class RepairBoards implements ActionInterface
 		Lang::load('Admin', Lang::$default);
 
 		// Check to see if a 'Salvage Category' exists, if not => insert one.
-		$result = Db::$db->query('', '
-			SELECT id_cat
+		$result = Db::$db->query(
+			'',
+			'SELECT id_cat
 			FROM {db_prefix}categories
 			WHERE name = {string:cat_name}
 			LIMIT 1',
-			array(
+			[
 				'cat_name' => Lang::$txt['salvaged_category_name'],
-			)
+			],
 		);
-		if (Db::$db->num_rows($result) != 0)
-		{
+
+		if (Db::$db->num_rows($result) != 0) {
 			list($this->salvage_category) = Db::$db->fetch_row($result);
 		}
 		Db::$db->free_result($result);
 
-		if (empty($this->salvage_category))
-		{
-			$this->salvage_category = Db::$db->insert('',
+		if (empty($this->salvage_category)) {
+			$this->salvage_category = Db::$db->insert(
+				'',
 				'{db_prefix}categories',
-				array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
-				array(Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']),
-				array('id_cat'),
-				1
+				['name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'],
+				[Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']],
+				['id_cat'],
+				1,
 			);
 
-			if (Db::$db->affected_rows() <= 0)
-			{
+			if (Db::$db->affected_rows() <= 0) {
 				Lang::load('Admin');
 				ErrorHandler::fatalLang('salvaged_category_error', false);
 			}
 		}
 
 		// Check to see if a 'Salvage Board' exists. If not, insert one.
-		$result = Db::$db->query('', '
-			SELECT id_board
+		$result = Db::$db->query(
+			'',
+			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_cat = {int:id_cat}
 				AND name = {string:board_name}
 			LIMIT 1',
-			array(
+			[
 				'id_cat' => $this->salvage_category,
 				'board_name' => Lang::$txt['salvaged_board_name'],
-			)
+			],
 		);
-		if (Db::$db->num_rows($result) != 0)
-		{
+
+		if (Db::$db->num_rows($result) != 0) {
 			list($this->salvage_board) = Db::$db->fetch_row($result);
 		}
 		Db::$db->free_result($result);
 
-		if (empty($this->salvage_board))
-		{
-			$this->salvage_board = Db::$db->insert('',
+		if (empty($this->salvage_board)) {
+			$this->salvage_board = Db::$db->insert(
+				'',
 				'{db_prefix}boards',
-				array('name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'),
-				array(Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $this->salvage_category, '1', -1, ''),
-				array('id_board'),
-				1
+				['name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'],
+				[Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $this->salvage_category, '1', -1, ''],
+				['id_board'],
+				1,
 			);
 
-			if (Db::$db->affected_rows() <= 0)
-			{
+			if (Db::$db->affected_rows() <= 0) {
 				Lang::load('Admin');
 				ErrorHandler::fatalLang('salvaged_board_error', false);
 			}
@@ -1353,64 +1329,67 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingTopics($row): void
 	{
 		// Only if we don't have a reasonable idea of where to put it.
-		if ($row['id_board'] == 0)
-		{
+		if ($row['id_board'] == 0) {
 			$this->createSalvageArea();
 			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
 		}
 
 		// Make sure that no topics claim the first/last message as theirs.
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET id_first_msg = 0
 			WHERE id_first_msg = {int:id_first_msg}',
-			array(
+			[
 				'id_first_msg' => $row['myid_first_msg'],
-			)
+			],
 		);
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET id_last_msg = 0
 			WHERE id_last_msg = {int:id_last_msg}',
-			array(
+			[
 				'id_last_msg' => $row['myid_last_msg'],
-			)
+			],
 		);
 
 		$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
 		$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
 
-		$newTopicID = Db::$db->insert('',
+		$newTopicID = Db::$db->insert(
+			'',
 			'{db_prefix}topics',
-			array(
+			[
 				'id_board' => 'int',
 				'id_member_started' => 'int',
 				'id_member_updated' => 'int',
 				'id_first_msg' => 'int',
 				'id_last_msg' => 'int',
-				'num_replies' => 'int'
-			),
-			array(
+				'num_replies' => 'int',
+			],
+			[
 				$row['id_board'],
 				$memberStartedID,
 				$memberUpdatedID,
 				$row['myid_first_msg'],
 				$row['myid_last_msg'],
-				$row['my_num_replies']
-			),
-			array('id_topic'),
-			1
+				$row['my_num_replies'],
+			],
+			['id_topic'],
+			1,
 		);
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}messages
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
 			SET id_topic = {int:newTopicID}, id_board = {int:board_id}
 			WHERE id_topic = {int:topic_id}',
-			array(
+			[
 				'board_id' => $row['id_board'],
 				'topic_id' => $row['id_topic'],
 				'newTopicID' => $newTopicID,
-			)
+			],
 		);
 	}
 
@@ -1420,20 +1399,22 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingMessages($topics): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}topics
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_topics
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
 	}
 
@@ -1445,18 +1426,17 @@ class RepairBoards implements ActionInterface
 		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
 		$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
 
-		if (empty($row['id_board']))
-		{
+		if (empty($row['id_board'])) {
 			// Only if we don't have a reasonable idea of where to put it.
 			$this->createSalvageArea();
 			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
 		}
 
-		if (empty($row['id_topic']))
-		{
-			$newMessageID = Db::$db->insert('',
+		if (empty($row['id_topic'])) {
+			$newMessageID = Db::$db->insert(
+				'',
 				'{db_prefix}messages',
-				array(
+				[
 					'id_board' => 'int',
 					'id_topic' => 'int',
 					'poster_time' => 'int',
@@ -1469,8 +1449,8 @@ class RepairBoards implements ActionInterface
 					'body' => 'string-65534',
 					'icon' => 'string-16',
 					'approved' => 'int',
-				),
-				array(
+				],
+				[
 					$row['id_board'],
 					0,
 					time(),
@@ -1483,14 +1463,15 @@ class RepairBoards implements ActionInterface
 					Lang::$txt['salvaged_poll_message_body'],
 					'xx',
 					1,
-				),
-				array('id_msg'),
-				1
+				],
+				['id_msg'],
+				1,
 			);
 
-			$row['id_topic'] = Db::$db->insert('',
+			$row['id_topic'] = Db::$db->insert(
+				'',
 				'{db_prefix}topics',
-				array(
+				[
 					'id_board' => 'int',
 					'id_poll' => 'int',
 					'id_member_started' => 'int',
@@ -1498,8 +1479,8 @@ class RepairBoards implements ActionInterface
 					'id_first_msg' => 'int',
 					'id_last_msg' => 'int',
 					'num_replies' => 'int',
-				),
-				array(
+				],
+				[
 					$row['id_board'],
 					$row['id_poll'],
 					$row['id_poster'],
@@ -1507,28 +1488,30 @@ class RepairBoards implements ActionInterface
 					$newMessageID,
 					$newMessageID,
 					0,
-				),
-				array('id_topic'),
-				1
+				],
+				['id_topic'],
+				1,
 			);
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}messages
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}messages
 				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 				WHERE id_msg = {int:newMessageID}',
-				array(
+				[
 					'id_board' => $row['id_board'],
 					'newTopicID' => $row['id_topic'],
 					'newMessageID' => $newMessageID,
-				)
+				],
 			);
 
 			Logging::updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
 		}
 
-		Db::$db->insert('',
+		Db::$db->insert(
+			'',
 			'{db_prefix}polls',
-			array(
+			[
 				'id_poll' => 'int',
 				'question' => 'string-255',
 				'voting_locked' => 'int',
@@ -1541,8 +1524,8 @@ class RepairBoards implements ActionInterface
 				'reset_poll' => 'int',
 				'id_member' => 'int',
 				'poster_name' => 'string-255',
-			),
-			array(
+			],
+			[
 				$row['id_poll'],
 				Lang::$txt['salvaged_poll_question'],
 				1,
@@ -1555,8 +1538,8 @@ class RepairBoards implements ActionInterface
 				0,
 				$row['id_poster'],
 				$row['poster_name'],
-			),
-			array()
+			],
+			[],
 		);
 	}
 
@@ -1566,17 +1549,17 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingPollTopics($row): void
 	{
 		// Only if we don't have a reasonable idea of where to put it.
-		if ($row['id_board'] == 0)
-		{
+		if ($row['id_board'] == 0) {
 			$this->createSalvageArea();
 			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
 		}
 
 		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
 
-		$newMessageID = Db::$db->insert('',
+		$newMessageID = Db::$db->insert(
+			'',
 			'{db_prefix}messages',
-			array(
+			[
 				'id_board' => 'int',
 				'id_topic' => 'int',
 				'poster_time' => 'int',
@@ -1589,8 +1572,8 @@ class RepairBoards implements ActionInterface
 				'body' => 'string-65534',
 				'icon' => 'string-16',
 				'approved' => 'int',
-			),
-			array(
+			],
+			[
 				$row['id_board'],
 				0,
 				time(),
@@ -1603,14 +1586,15 @@ class RepairBoards implements ActionInterface
 				Lang::$txt['salvaged_poll_message_body'],
 				'xx',
 				1,
-			),
-			array('id_msg'),
-			1
+			],
+			['id_msg'],
+			1,
 		);
 
-		$newTopicID = Db::$db->insert('',
+		$newTopicID = Db::$db->insert(
+			'',
 			'{db_prefix}topics',
-			array(
+			[
 				'id_board' => 'int',
 				'id_poll' => 'int',
 				'id_member_started' => 'int',
@@ -1618,8 +1602,8 @@ class RepairBoards implements ActionInterface
 				'id_first_msg' => 'int',
 				'id_last_msg' => 'int',
 				'num_replies' => 'int',
-			),
-			array(
+			],
+			[
 				$row['id_board'],
 				$row['id_poll'],
 				$row['id_member'],
@@ -1627,20 +1611,21 @@ class RepairBoards implements ActionInterface
 				$newMessageID,
 				$newMessageID,
 				0,
-			),
-			array('id_topic'),
-			1
+			],
+			['id_topic'],
+			1,
 		);
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}messages
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
 			SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 			WHERE id_msg = {int:newMessageID}',
-			array(
+			[
 				'id_board' => $row['id_board'],
 				'newTopicID' => $newTopicID,
 				'newMessageID' => $newMessageID,
-			)
+			],
 		);
 
 		Logging::updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
@@ -1656,28 +1641,28 @@ class RepairBoards implements ActionInterface
 		$row['myid_last_msg'] = (int) $row['myid_last_msg'];
 
 		// Not really a problem?
-		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
-		{
+		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved']) {
 			return false;
 		}
 
 		$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
 		$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET id_first_msg = {int:myid_first_msg},
 				id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
 				id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
 			WHERE id_topic = {int:topic_id}',
-			array(
+			[
 				'myid_first_msg' => $row['myid_first_msg'],
 				'memberStartedID' => $memberStartedID,
 				'myid_last_msg' => $row['myid_last_msg'],
 				'memberUpdatedID' => $memberUpdatedID,
 				'firstmsg_approved' => $row['firstmsg_approved'],
 				'topic_id' => $row['id_topic'],
-			)
+			],
 		);
 
 		return true;
@@ -1690,23 +1675,19 @@ class RepairBoards implements ActionInterface
 	protected function topicStatsMessage($row): bool
 	{
 		// A pretend error?
-		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
-		{
+		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved']) {
 			return false;
 		}
 
-		if ($row['id_first_msg'] != $row['myid_first_msg'])
-		{
+		if ($row['id_first_msg'] != $row['myid_first_msg']) {
 			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
 		}
 
-		if ($row['id_last_msg'] != $row['myid_last_msg'])
-		{
+		if ($row['id_last_msg'] != $row['myid_last_msg']) {
 			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
 		}
 
-		if ($row['approved'] != $row['firstmsg_approved'])
-		{
+		if ($row['approved'] != $row['firstmsg_approved']) {
 			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_approval'], $row['id_topic']);
 		}
 
@@ -1721,17 +1702,19 @@ class RepairBoards implements ActionInterface
 		$row['my_num_replies'] = (int) $row['my_num_replies'];
 
 		// Not really a problem?
-		if ($row['my_num_replies'] == $row['num_replies'])
+		if ($row['my_num_replies'] == $row['num_replies']) {
 			return false;
+		}
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET num_replies = {int:my_num_replies}
 			WHERE id_topic = {int:topic_id}',
-			array(
+			[
 				'my_num_replies' => $row['my_num_replies'],
 				'topic_id' => $row['id_topic'],
-			)
+			],
 		);
 
 		return true;
@@ -1744,11 +1727,11 @@ class RepairBoards implements ActionInterface
 	protected function topicStatsMessage2($row): bool
 	{
 		// Just joking?
-		if ($row['my_num_replies'] == $row['num_replies'])
+		if ($row['my_num_replies'] == $row['num_replies']) {
 			return false;
+		}
 
-		if ($row['num_replies'] != $row['my_num_replies'])
-		{
+		if ($row['num_replies'] != $row['my_num_replies']) {
 			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
 		}
 
@@ -1762,14 +1745,15 @@ class RepairBoards implements ActionInterface
 	{
 		$row['my_unapproved_posts'] = (int) $row['my_unapproved_posts'];
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET unapproved_posts = {int:my_unapproved_posts}
 			WHERE id_topic = {int:topic_id}',
-			array(
+			[
 				'my_unapproved_posts' => $row['my_unapproved_posts'],
 				'topic_id' => $row['id_topic'],
-			)
+			],
 		);
 	}
 
@@ -1783,31 +1767,34 @@ class RepairBoards implements ActionInterface
 		$row['my_num_topics'] = (int) $row['my_num_topics'];
 		$row['my_num_posts'] = (int) $row['my_num_posts'];
 
-		$newBoardID = Db::$db->insert('',
+		$newBoardID = Db::$db->insert(
+			'',
 			'{db_prefix}boards',
-			array('id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'),
-			array($this->salvage_category, Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
-			array('id_board'),
-			1
+			['id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'],
+			[$this->salvage_category, Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'],
+			['id_board'],
+			1,
 		);
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET id_board = {int:newBoardID}
 			WHERE id_board = {int:board_id}',
-			array(
+			[
 				'newBoardID' => $newBoardID,
 				'board_id' => $row['id_board'],
-			)
+			],
 		);
-		Db::$db->query('', '
-			UPDATE {db_prefix}messages
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
 			SET id_board = {int:newBoardID}
 			WHERE id_board = {int:board_id}',
-			array(
+			[
 				'newBoardID' => $newBoardID,
 				'board_id' => $row['id_board'],
-			)
+			],
 		);
 	}
 
@@ -1818,14 +1805,15 @@ class RepairBoards implements ActionInterface
 	{
 		$this->createSalvageArea();
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}boards
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}boards
 			SET id_cat = {int:salvage_category}
 			WHERE id_cat IN ({array_int:categories})',
-			array(
+			[
 				'salvage_category' => $this->salvage_category,
 				'categories' => $cats,
-			)
+			],
 		);
 	}
 
@@ -1834,14 +1822,15 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingPosters($msgs): void
 	{
-		Db::$db->query('', '
-			UPDATE {db_prefix}messages
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
 			SET id_member = {int:guest_id}
 			WHERE id_msg IN ({array_int:msgs})',
-			array(
+			[
 				'msgs' => $msgs,
 				'guest_id' => 0,
-			)
+			],
 		);
 	}
 
@@ -1853,15 +1842,16 @@ class RepairBoards implements ActionInterface
 		$this->createSalvageArea();
 		$_SESSION['salvageBoardID'] = $this->salvage_board;
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}boards
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}boards
 			SET id_parent = {int:salvage_board}, id_cat = {int:salvage_category}, child_level = 1
 			WHERE id_parent IN ({array_int:parents})',
-			array(
+			[
 				'salvage_board' => $this->salvage_board,
 				'salvage_category' => $this->salvage_category,
 				'parents' => $parents,
-			)
+			],
 		);
 	}
 
@@ -1870,13 +1860,14 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingPolls($polls): void
 	{
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
 			SET id_poll = 0
 			WHERE id_poll IN ({array_int:polls})',
-			array(
+			[
 				'polls' => $polls,
-			)
+			],
 		);
 	}
 
@@ -1885,13 +1876,14 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingCaledarTopics($events): void
 	{
-		Db::$db->query('', '
-			UPDATE {db_prefix}calendar
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}calendar
 			SET id_topic = 0, id_board = 0
 			WHERE id_topic IN ({array_int:events})',
-			array(
+			[
 				'events' => $events,
-			)
+			],
 		);
 	}
 
@@ -1900,12 +1892,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogTopics($topics): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_topics
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
-			array(
+			[
 				'topics' => $topics,
-			)
+			],
 		);
 	}
 
@@ -1914,12 +1907,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogTopicsMembers($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_topics
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -1928,12 +1922,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogBoards($boards): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_boards
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:boards})',
-			array(
+			[
 				'boards' => $boards,
-			)
+			],
 		);
 	}
 
@@ -1942,12 +1937,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogBoardsMembers($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_boards
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_boards
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -1956,12 +1952,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogMarkRead($boards): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_mark_read
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:boards})',
-			array(
+			[
 				'boards' => $boards,
-			)
+			],
 		);
 	}
 
@@ -1970,12 +1967,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogMarkReadMembers($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_mark_read
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -1985,12 +1983,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingPMs($pms): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}pm_recipients
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_pm IN ({array_int:pms})',
-			array(
+			[
 				'pms' => $pms,
-			)
+			],
 		);
 	}
 
@@ -1999,12 +1998,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingRecipients($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}pm_recipients
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -2014,13 +2014,14 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingSenders($guestMessages): void
 	{
-		Db::$db->query('', '
-			UPDATE {db_prefix}personal_messages
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}personal_messages
 			SET id_member_from = 0
 			WHERE id_pm IN ({array_int:guestMessages})',
-			array(
+			[
 				'guestMessages' => $guestMessages,
-			)
+			],
 		);
 	}
 
@@ -2029,12 +2030,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingNotifyMembers($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_notify
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_notify
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -2043,33 +2045,33 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingCachedSubject($result): void
 	{
-		$inserts = array();
+		$inserts = [];
 
-		while ($row = Db::$db->fetch_assoc($result))
-		{
-			foreach (Utils::text2words($row['subject']) as $word)
-				$inserts[] = array($word, $row['id_topic']);
+		while ($row = Db::$db->fetch_assoc($result)) {
+			foreach (Utils::text2words($row['subject']) as $word) {
+				$inserts[] = [$word, $row['id_topic']];
+			}
 
-			if (count($inserts) > 500)
-			{
-				Db::$db->insert('ignore',
+			if (count($inserts) > 500) {
+				Db::$db->insert(
+					'ignore',
 					'{db_prefix}log_search_subjects',
-					array('word' => 'string', 'id_topic' => 'int'),
+					['word' => 'string', 'id_topic' => 'int'],
 					$inserts,
-					array('word', 'id_topic')
+					['word', 'id_topic'],
 				);
 
-				$inserts = array();
+				$inserts = [];
 			}
 		}
 
-		if (!empty($inserts))
-		{
-			Db::$db->insert('ignore',
+		if (!empty($inserts)) {
+			Db::$db->insert(
+				'ignore',
 				'{db_prefix}log_search_subjects',
-				array('word' => 'string', 'id_topic' => 'int'),
+				['word' => 'string', 'id_topic' => 'int'],
 				$inserts,
-				array('word', 'id_topic')
+				['word', 'id_topic'],
 			);
 		}
 	}
@@ -2080,8 +2082,7 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function missingCachedSubjectMessage($row): bool
 	{
-		if (count(Utils::text2words($row['subject'])) != 0)
-		{
+		if (count(Utils::text2words($row['subject'])) != 0) {
 			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_missing_cached_subject'], $row['id_topic']);
 
 			return true;
@@ -2095,12 +2096,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingTopicForCache($deleteTopics): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_search_subjects
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic IN ({array_int:deleteTopics})',
-			array(
+			[
 				'deleteTopics' => $deleteTopics,
-			)
+			],
 		);
 	}
 
@@ -2109,12 +2111,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingMemberVote($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_polls
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -2123,12 +2126,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingLogPollVote($polls): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_polls
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll IN ({array_int:polls})',
-			array(
+			[
 				'polls' => $polls,
-			)
+			],
 		);
 	}
 
@@ -2137,12 +2141,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixReportMissingComments($reports): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_reported
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_reported
 			WHERE id_report IN ({array_int:reports})',
-			array(
+			[
 				'reports' => $reports,
-			)
+			],
 		);
 	}
 
@@ -2151,12 +2156,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixCommentMissingReport($reports): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_reported_comments
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_reported_comments
 			WHERE id_report IN ({array_int:reports})',
-			array(
+			[
 				'reports' => $reports,
-			)
+			],
 		);
 	}
 
@@ -2165,12 +2171,13 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixGroupRequestMissingMember($members): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_group_requests
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $members,
-			)
+			],
 		);
 	}
 
@@ -2179,18 +2186,20 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixGroupRequestMissingGroup($groups): void
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_group_requests
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_group IN ({array_int:groups})',
-			array(
+			[
 				'groups' => $groups,
-			)
+			],
 		);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\RepairBoards::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\RepairBoards::exportStatic')) {
 	RepairBoards::exportStatic();
+}
 
 ?>

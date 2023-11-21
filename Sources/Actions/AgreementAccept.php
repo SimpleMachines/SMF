@@ -14,12 +14,11 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Logging;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Records when the user accepted the registration agreement and privacy policy.
@@ -33,11 +32,11 @@ class AgreementAccept extends Agreement
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'AcceptAgreement',
-		),
-	);
+		],
+	];
 
 	/*********************
 	 * Internal properties
@@ -67,32 +66,31 @@ class AgreementAccept extends Agreement
 		$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && parent::canRequireAgreement();
 		$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && parent::canRequirePrivacyPolicy();
 
-		if ($can_accept_agreement || $can_accept_privacy_policy)
-		{
+		if ($can_accept_agreement || $can_accept_privacy_policy) {
 			User::$me->checkSession();
 
-			if ($can_accept_agreement)
-			{
-				Db::$db->insert('replace',
+			if ($can_accept_agreement) {
+				Db::$db->insert(
+					'replace',
 					'{db_prefix}themes',
-					array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-					array(User::$me->id, 1, 'agreement_accepted', time()),
-					array('id_member', 'id_theme', 'variable')
+					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
+					[User::$me->id, 1, 'agreement_accepted', time()],
+					['id_member', 'id_theme', 'variable'],
 				);
 
-				Logging::logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
+				Logging::logAction('agreement_accepted', ['applicator' => User::$me->id], 'user');
 			}
 
-			if ($can_accept_privacy_policy)
-			{
-				Db::$db->insert('replace',
+			if ($can_accept_privacy_policy) {
+				Db::$db->insert(
+					'replace',
 					'{db_prefix}themes',
-					array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-					array(User::$me->id, 1, 'policy_accepted', time()),
-					array('id_member', 'id_theme', 'variable')
+					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
+					[User::$me->id, 1, 'policy_accepted', time()],
+					['id_member', 'id_theme', 'variable'],
 				);
 
-				Logging::logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
+				Logging::logAction('policy_accepted', ['applicator' => User::$me->id], 'user');
 			}
 		}
 
@@ -111,8 +109,9 @@ class AgreementAccept extends Agreement
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -138,7 +137,8 @@ class AgreementAccept extends Agreement
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\AgreementAccept::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\AgreementAccept::exportStatic')) {
 	AgreementAccept::exportStatic();
+}
 
 ?>

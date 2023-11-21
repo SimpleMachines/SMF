@@ -13,13 +13,13 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
-use SMF\IP;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\SecurityToken;
@@ -27,7 +27,6 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Shows a list of all errors that were logged on the forum,
@@ -42,11 +41,11 @@ class ErrorLog implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ViewErrorLog',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -64,48 +63,48 @@ class ErrorLog implements ActionInterface
 	 *
 	 * Basic info about the available filters.
 	 */
-	public array $filters = array(
-		'id_member' => array(
+	public array $filters = [
+		'id_member' => [
 			'txt' => 'username',
 			'operator' => '=',
 			'datatype' => 'int',
-		),
-		'ip' => array(
+		],
+		'ip' => [
 			'txt' => 'ip_address',
 			'operator' => '=',
 			'datatype' => 'inet',
-		),
-		'session' => array(
+		],
+		'session' => [
 			'txt' => 'session',
 			'operator' => 'LIKE',
 			'datatype' => 'string',
-		),
-		'url' => array(
+		],
+		'url' => [
 			'txt' => 'error_url',
 			'operator' => 'LIKE',
 			'datatype' => 'string',
-		),
-		'message' => array(
+		],
+		'message' => [
 			'txt' => 'error_message',
 			'operator' => 'LIKE',
 			'datatype' => 'string',
-		),
-		'error_type' => array(
+		],
+		'error_type' => [
 			'txt' => 'error_type',
 			'operator' => 'LIKE',
 			'datatype' => 'string',
-		),
-		'file' => array(
+		],
+		'file' => [
 			'txt' => 'file',
 			'operator' => 'LIKE',
 			'datatype' => 'string',
-		),
-		'line' => array(
+		],
+		'line' => [
 			'txt' => 'line',
 			'operator' => '=',
 			'datatype' => 'int',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -132,18 +131,15 @@ class ErrorLog implements ActionInterface
 		User::$me->isAllowedTo('admin_forum');
 
 		// Viewing contents of a file?
-		if (isset($_GET['file']))
-		{
+		if (isset($_GET['file'])) {
 			$this->viewFile();
 		}
 		// Viewing contents of a backtrace?
-		elseif (isset($_GET['backtrace']))
-		{
+		elseif (isset($_GET['backtrace'])) {
 			$this->viewBacktrace();
 		}
 		// Viewing the log.
-		else
-		{
+		else {
 			$this->view();
 		}
 	}
@@ -158,43 +154,44 @@ class ErrorLog implements ActionInterface
 	public function view(): void
 	{
 		// Set up the filtering...
-		if (isset($_GET['value'], $_GET['filter']) && isset($this->filters[$_GET['filter']]))
-		{
-			$this->filter = array(
+		if (isset($_GET['value'], $_GET['filter'], $this->filters[$_GET['filter']])) {
+			$this->filter = [
 				'variable' => $_GET['filter'],
-				'value' => array(
-					'sql' => in_array($_GET['filter'], array('message', 'url', 'file')) ? base64_decode(strtr($_GET['value'], array(' ' => '+'))) : Db::$db->escape_wildcard_string($_GET['value']),
-				),
+				'value' => [
+					'sql' => in_array($_GET['filter'], ['message', 'url', 'file']) ? base64_decode(strtr($_GET['value'], [' ' => '+'])) : Db::$db->escape_wildcard_string($_GET['value']),
+				],
 				'href' => ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'],
-				'entity' => $this->filters[$_GET['filter']]['txt']
-			);
+				'entity' => $this->filters[$_GET['filter']]['txt'],
+			];
 		}
 
 		// Deleting, are we?
-		if (isset($_POST['delall']) || isset($_POST['delete']))
+		if (isset($_POST['delall']) || isset($_POST['delete'])) {
 			$this->deleteErrors();
+		}
 
 		// Just how many errors are there?
-		$result = Db::$db->query('', '
-			SELECT COUNT(*)
+		$result = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_errors' . (isset($this->filter) ? '
 			WHERE ' . $this->filter['variable'] . ' ' . $this->filters[$_GET['filter']]['operator'] . ' {' . $this->filters[$_GET['filter']]['datatype'] . ':filter}' : ''),
-			array(
+			[
 				'filter' => isset($this->filter) ? $this->filter['value']['sql'] : '',
-			)
+			],
 		);
 		list($num_errors) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
 
 		// If this filter is empty...
-		if ($num_errors == 0 && isset($this->filter))
-		{
+		if ($num_errors == 0 && isset($this->filter)) {
 			Utils::redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
 		}
 
 		// Clean up start.
-		if (!isset($_GET['start']) || $_GET['start'] < 0)
+		if (!isset($_GET['start']) || $_GET['start'] < 0) {
 			$_GET['start'] = 0;
+		}
 
 		// Do we want to reverse error listing?
 		Utils::$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
@@ -205,84 +202,83 @@ class ErrorLog implements ActionInterface
 		Utils::$context['start'] = $_GET['start'];
 
 		// Update the error count
-		if (!isset($this->filter))
-		{
+		if (!isset($this->filter)) {
 			Utils::$context['num_errors'] = $num_errors;
-		}
-		else
-		{
+		} else {
 			// We want all errors, not just the number of filtered messages...
-			$query = Db::$db->query('', '
-				SELECT COUNT(*)
+			$query = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
-				array()
+				[],
 			);
 			list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
 			Db::$db->free_result($query);
 		}
 
 		// Find and sort out the errors.
-		Utils::$context['errors'] = array();
-		$members = array();
+		Utils::$context['errors'] = [];
+		$members = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line
+		$request = Db::$db->query(
+			'',
+			'SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line
 			FROM {db_prefix}log_errors' . (isset($this->filter) ? '
 			WHERE ' . $this->filter['variable'] . ' ' . $this->filters[$_GET['filter']]['operator'] . ' {' . $this->filters[$_GET['filter']]['datatype'] . ':filter}' : '') . '
 			ORDER BY id_error ' . (Utils::$context['sort_direction'] == 'down' ? 'DESC' : '') . '
 			LIMIT {int:start}, {int:max}',
-			array(
+			[
 				'filter' => isset($this->filter) ? $this->filter['value']['sql'] : '',
 				'start' => $_GET['start'],
 				'max' => Config::$modSettings['defaultMaxListItems'],
-			)
+			],
 		);
-		for ($i = 0; $row = Db::$db->fetch_assoc($request); $i++)
-		{
+
+		for ($i = 0; $row = Db::$db->fetch_assoc($request); $i++) {
 			$search_message = preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '%', Db::$db->escape_wildcard_string($row['message']));
 
-			if (isset($this->filter) && $search_message == $this->filter['value']['sql'])
+			if (isset($this->filter) && $search_message == $this->filter['value']['sql']) {
 				$search_message = Db::$db->escape_wildcard_string($row['message']);
+			}
 
-			$show_message = strtr(strtr(preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '$1', $row['message']), array("\r" => '', '<br>' => "\n", '<' => '&lt;', '>' => '&gt;', '"' => '&quot;')), array("\n" => '<br>'));
+			$show_message = strtr(strtr(preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '$1', $row['message']), ["\r" => '', '<br>' => "\n", '<' => '&lt;', '>' => '&gt;', '"' => '&quot;']), ["\n" => '<br>']);
 
-			Utils::$context['errors'][$row['id_error']] = array(
-				'member' => array(
+			Utils::$context['errors'][$row['id_error']] = [
+				'member' => [
 					'id' => $row['id_member'],
 					'ip' => isset($row['ip']) ? new IP($row['ip']) : null,
-					'session' => $row['session']
-				),
+					'session' => $row['session'],
+				],
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
-				'url' => array(
+				'url' => [
 					'html' => Utils::htmlspecialchars(strpos($row['url'], 'cron.php') === false ? (substr($row['url'], 0, 1) == '?' ? Config::$scripturl : '') . $row['url'] : $row['url']),
-					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url']))
-				),
-				'message' => array(
+					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url'])),
+				],
+				'message' => [
 					'html' => $show_message,
-					'href' => base64_encode($search_message)
-				),
+					'href' => base64_encode($search_message),
+				],
 				'id' => $row['id_error'],
-				'error_type' => array(
+				'error_type' => [
 					'type' => $row['error_type'],
-					'name' => isset(Lang::$txt['errortype_' . $row['error_type']]) ? Lang::$txt['errortype_' . $row['error_type']] : $row['error_type'],
-				),
-				'file' => array(),
-			);
+					'name' => Lang::$txt['errortype_' . $row['error_type']] ?? $row['error_type'],
+				],
+				'file' => [],
+			];
 
-			if (!empty($row['file']) && !empty($row['line']))
-			{
+			if (!empty($row['file']) && !empty($row['line'])) {
 				// Eval'd files rarely point to the right location and cause
 				// havoc for linking, so don't link them.
 				$linkfile = strpos($row['file'], 'eval') !== false && strpos($row['file'], '?') !== false;
 
-				Utils::$context['errors'][$row['id_error']]['file'] = array(
+				Utils::$context['errors'][$row['id_error']]['file'] = [
 					'file' => $row['file'],
 					'line' => $row['line'],
 					'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;file=' . base64_encode($row['file']) . ';line=' . $row['line'],
 					'link' => $linkfile ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog;file=' . base64_encode($row['file']) . ';line=' . $row['line'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $row['file'] . '</a>' : $row['file'],
 					'search' => base64_encode($row['file']),
-				);
+				];
 			}
 
 			// Make a list of members to load later.
@@ -291,35 +287,34 @@ class ErrorLog implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Load the member data.
-		if (!empty($members))
-		{
+		if (!empty($members)) {
 			// Get some additional member info...
-			$request = Db::$db->query('', '
-				SELECT id_member, member_name, real_name
+			$request = Db::$db->query(
+				'',
+				'SELECT id_member, member_name, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
 				LIMIT {int:members}',
-				array(
+				[
 					'member_list' => $members,
 					'members' => count($members),
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$members[$row['id_member']] = $row;
 			}
 			Db::$db->free_result($request);
 
 			// This is a guest...
-			$members[0] = array(
+			$members[0] = [
 				'id_member' => 0,
 				'member_name' => '',
-				'real_name' => Lang::$txt['guest_title']
-			);
+				'real_name' => Lang::$txt['guest_title'],
+			];
 
 			// Go through each error and tack the data on.
-			foreach (Utils::$context['errors'] as $id => &$error)
-			{
+			foreach (Utils::$context['errors'] as $id => &$error) {
 				$memID = $error['member']['id'];
 
 				$error['member']['username'] = $members[$memID]['member_name'];
@@ -330,73 +325,64 @@ class ErrorLog implements ActionInterface
 		}
 
 		// Filtering anything?
-		if (isset($this->filter))
-		{
+		if (isset($this->filter)) {
 			Utils::$context['filter'] = &$this->filter;
 
 			// Set the filtering context.
-			if ($this->filter['variable'] == 'id_member')
-			{
+			if ($this->filter['variable'] == 'id_member') {
 				$id = $this->filter['value']['sql'];
 
 				User::load($id, self::LOAD_BY_ID, 'minimal');
 
 				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
-			}
-			elseif ($this->filter['variable'] == 'url')
-			{
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((substr($this->filter['value']['sql'], 0, 1) == '?' ? Config::$scripturl : '') . $this->filter['value']['sql']), array('\_' => '_')) . '\'';
-			}
-			elseif ($this->filter['variable'] == 'message')
-			{
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), array("\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\_' => '_', '\\%' => '%', '\\\\' => '\\')) . '\'';
+			} elseif ($this->filter['variable'] == 'url') {
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((substr($this->filter['value']['sql'], 0, 1) == '?' ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
+			} elseif ($this->filter['variable'] == 'message') {
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
 
 				Utils::$context['filter']['value']['html'] = preg_replace('~&amp;lt;span class=&amp;quot;remove&amp;quot;&amp;gt;(.+?)&amp;lt;/span&amp;gt;~', '$1', Utils::$context['filter']['value']['html']);
-			}
-			elseif ($this->filter['variable'] == 'error_type')
-			{
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), array("\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\_' => '_', '\\%' => '%', '\\\\' => '\\')) . '\'';
-			}
-			else
-			{
+			} elseif ($this->filter['variable'] == 'error_type') {
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
+			} else {
 				Utils::$context['filter']['value']['html'] = &$this->filter['value']['sql'];
 			}
 		}
 
-		Utils::$context['error_types'] = array();
+		Utils::$context['error_types'] = [];
 
-		Utils::$context['error_types']['all'] = array(
+		Utils::$context['error_types']['all'] = [
 			'label' => Lang::$txt['errortype_all'],
 			'error_type' => 'all',
-			'description' => isset(Lang::$txt['errortype_all_desc']) ? Lang::$txt['errortype_all_desc'] : '',
+			'description' => Lang::$txt['errortype_all_desc'] ?? '',
 			'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : ''),
 			'is_selected' => empty($this->filter),
-		);
+		];
 
 		// What type of errors do we have and how many do we have?
 		$sum = 0;
 
-		$request = Db::$db->query('', '
-			SELECT error_type, COUNT(*) AS num_errors
+		$request = Db::$db->query(
+			'',
+			'SELECT error_type, COUNT(*) AS num_errors
 			FROM {db_prefix}log_errors
 			GROUP BY error_type
 			ORDER BY error_type = {string:critical_type} DESC, error_type ASC',
-			array(
+			[
 				'critical_type' => 'critical',
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// Total errors so far?
 			$sum += $row['num_errors'];
 
-			Utils::$context['error_types'][$sum] = array(
-				'label' => (isset(Lang::$txt['errortype_' . $row['error_type']]) ? Lang::$txt['errortype_' . $row['error_type']] : $row['error_type']) . ' (' . $row['num_errors'] . ')',
+			Utils::$context['error_types'][$sum] = [
+				'label' => (Lang::$txt['errortype_' . $row['error_type']] ?? $row['error_type']) . ' (' . $row['num_errors'] . ')',
 				'error_type' => $row['error_type'],
-				'description' => isset(Lang::$txt['errortype_' . $row['error_type'] . '_desc']) ? Lang::$txt['errortype_' . $row['error_type'] . '_desc'] : '',
+				'description' => Lang::$txt['errortype_' . $row['error_type'] . '_desc'] ?? '',
 				'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . ';filter=error_type;value=' . $row['error_type'],
 				'is_selected' => isset($this->filter) && $this->filter['value']['sql'] == Db::$db->escape_wildcard_string($row['error_type']),
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -404,12 +390,9 @@ class ErrorLog implements ActionInterface
 		Utils::$context['error_types']['all']['label'] .= ' (' . $sum . ')';
 
 		// Finally, work out what is the last tab!
-		if (isset(Utils::$context['error_types'][$sum]))
-		{
+		if (isset(Utils::$context['error_types'][$sum])) {
 			Utils::$context['error_types'][$sum]['is_last'] = true;
-		}
-		else
-		{
+		} else {
 			Utils::$context['error_types']['all']['is_last'] = true;
 		}
 
@@ -454,9 +437,8 @@ class ErrorLog implements ActionInterface
 			|| $basename == strtolower(basename(SMF_SETTINGS_BACKUP_FILE))
 			|| strpos($file, $real_cache) !== false
 			|| !is_readable($file)
-		)
-		{
-			ErrorHandler::fatalLang('error_bad_file', true, array(Utils::htmlspecialchars($file)));
+		) {
+			ErrorHandler::fatalLang('error_bad_file', true, [Utils::htmlspecialchars($file)]);
 		}
 
 		// Get the min and max lines.
@@ -464,8 +446,9 @@ class ErrorLog implements ActionInterface
 		$min = max($line - 20, 1);
 		$max = $line + 21;
 
-		if ($max <= 0 || $min >= $max)
+		if ($max <= 0 || $min >= $max) {
 			ErrorHandler::fatalLang('error_bad_line');
+		}
 
 		$file_data = explode('<br />', BBCodeParser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
 
@@ -474,15 +457,15 @@ class ErrorLog implements ActionInterface
 
 		$file_data = array_slice($file_data, $min - 1, $max - $min);
 
-		Utils::$context['file_data'] = array(
+		Utils::$context['file_data'] = [
 			'contents' => $file_data,
 			'min' => $min,
 			'target' => $line,
-			'file' => strtr($file, array('"' => '\\"')),
-		);
+			'file' => strtr($file, ['"' => '\\"']),
+		];
 
 		Theme::loadTemplate('Errors');
-		Utils::$context['template_layers'] = array();
+		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'show_file';
 	}
 
@@ -496,26 +479,27 @@ class ErrorLog implements ActionInterface
 	{
 		$id_error = (int) $_REQUEST['backtrace'];
 
-		$request = Db::$db->query('', '
-			SELECT backtrace, error_type, message, file, line, url
+		$request = Db::$db->query(
+			'',
+			'SELECT backtrace, error_type, message, file, line, url
 			FROM {db_prefix}log_errors
 			WHERE id_error = {int:id_error}',
-			array(
+			[
 				'id_error' => $id_error,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['error_info'] = $row;
 			Utils::$context['error_info']['url'] = Config::$scripturl . $row['url'];
 			Utils::$context['error_info']['backtrace'] = Utils::jsonDecode($row['backtrace']);
 		}
 		Db::$db->free_result($request);
 
-		Theme::loadCSSFile('admin.css', array(), 'smf_admin');
+		Theme::loadCSSFile('admin.css', [], 'smf_admin');
 		Theme::loadTemplate('Errors');
 		Lang::load('ManageMaintenance');
-		Utils::$context['template_layers'] = array();
+		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'show_backtrace';
 	}
 
@@ -530,8 +514,9 @@ class ErrorLog implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -557,8 +542,9 @@ class ErrorLog implements ActionInterface
 		Lang::load('ManageMaintenance');
 		Theme::loadTemplate('Errors');
 
-		foreach ($this->filters as &$filter)
+		foreach ($this->filters as &$filter) {
 			$filter['txt'] = Lang::$txt[$filter['txt']];
+		}
 	}
 
 	/**
@@ -575,38 +561,38 @@ class ErrorLog implements ActionInterface
 		SecurityToken::validate('admin-el');
 
 		// Delete all or just some?
-		if (isset($_POST['delall']) && !isset($this->filter))
-		{
-			Db::$db->query('truncate_table', '
-				TRUNCATE {db_prefix}log_errors',
-				array(
-				)
+		if (isset($_POST['delall']) && !isset($this->filter)) {
+			Db::$db->query(
+				'truncate_table',
+				'TRUNCATE {db_prefix}log_errors',
+				[
+				],
 			);
 		}
 		// Deleting all with a filter?
-		elseif (isset($_POST['delall']) && isset($this->filter))
-		{
+		elseif (isset($_POST['delall'], $this->filter)) {
 			// IP addresses need a different placeholder type.
 			$filter_type = $this->filter['variable'] == 'ip' ? 'inet' : 'string';
 			$filter_op = $this->filter['variable'] == 'ip' ? '=' : 'LIKE';
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_errors
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_errors
 				WHERE ' . $this->filter['variable'] . ' ' . $filter_op . ' {' . $filter_type . ':filter}',
-				array(
+				[
 					'filter' => $this->filter['value']['sql'],
-				)
+				],
 			);
 		}
 		// Just specific errors?
-		elseif (!empty($_POST['delete']))
-		{
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_errors
+		elseif (!empty($_POST['delete'])) {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_errors
 				WHERE id_error IN ({array_int:error_list})',
-				array(
+				[
 					'error_list' => array_unique($_POST['delete']),
-				)
+				],
 			);
 
 			// Go back to where we were.
@@ -619,7 +605,8 @@ class ErrorLog implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ErrorLog::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ErrorLog::exportStatic')) {
 	ErrorLog::exportStatic();
+}
 
 ?>

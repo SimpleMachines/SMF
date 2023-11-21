@@ -13,15 +13,14 @@
 
 namespace SMF\Tasks;
 
+use SMF\Actions\Notify;
 use SMF\Alert;
 use SMF\Config;
-use SMF\Msg;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Notify;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class contains code used to notify moderators when there are posts that
@@ -42,55 +41,55 @@ class ApprovePost_Notify extends BackgroundTask
 		$posterOptions = $this->_details['posterOptions'];
 		$type = $this->_details['type'];
 
-		$members = array();
-		$alert_rows = array();
+		$members = [];
+		$alert_rows = [];
 
 		// We need to know who can approve this post.
 		$modMembers = User::membersAllowedTo('approve_posts', $topicOptions['board']);
 
-		$request = Db::$db->query('', '
-			SELECT id_member, email_address, lngfile
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, email_address, lngfile
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $modMembers,
-			)
+			],
 		);
 
-		$watched = array();
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+		$watched = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$members[] = $row['id_member'];
 			$watched[$row['id_member']] = $row;
 		}
 		Db::$db->free_result($request);
 
-		if (empty($members))
+		if (empty($members)) {
 			return true;
+		}
 
 		$members = array_unique($members);
 		$prefs = Notify::getNotifyPrefs($members, 'unapproved_post', true);
-		foreach ($watched as $member => $data)
-		{
+
+		foreach ($watched as $member => $data) {
 			$pref = !empty($prefs[$member]['unapproved_post']) ? $prefs[$member]['unapproved_post'] : 0;
 
-			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
-			{
+			if ($pref & self::RECEIVE_NOTIFY_EMAIL) {
 				// Emails are a bit complicated. We have to do language stuff.
 				Theme::loadEssential();
 
-				$replacements = array(
+				$replacements = [
 					'SUBJECT' => $msgOptions['subject'],
 					'LINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-				);
+				];
 
 				$emaildata = Mail::loadEmailTemplate('alert_unapproved_post', $replacements, empty($data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $data['lngfile']);
 				Mail::send($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
-			if ($pref & self::RECEIVE_NOTIFY_ALERT)
-			{
-				$alert_rows[] = array(
+			if ($pref & self::RECEIVE_NOTIFY_ALERT) {
+				$alert_rows[] = [
 					'alert_time' => time(),
 					'id_member' => $member,
 					'id_member_started' => $posterOptions['id'],
@@ -99,19 +98,20 @@ class ApprovePost_Notify extends BackgroundTask
 					'content_id' => $type == 'topic' ? $topicOptions['id'] : $msgOptions['id'],
 					'content_action' => 'unapproved_' . $type,
 					'is_read' => 0,
-					'extra' => Utils::jsonEncode(array(
+					'extra' => Utils::jsonEncode([
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.msg' . $msgOptions['id'] . '#msg' . $msgOptions['id'],
-					)),
-				);
+					]),
+				];
 			}
 		}
 
 		// Insert the alerts if any
-		if (!empty($alert_rows))
+		if (!empty($alert_rows)) {
 			Alert::createBatch($alert_rows);
+		}
 
 		return true;
 	}

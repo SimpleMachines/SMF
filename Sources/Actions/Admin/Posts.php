@@ -13,10 +13,10 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -26,7 +26,6 @@ use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class contains all the administration settings for topics and posts.
@@ -40,14 +39,14 @@ class Posts implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ManagePostSettings',
 			'modifyPostSettings' => 'ModifyPostSettings',
 			'modifyTopicSettings' => 'ModifyTopicSettings',
 			'modifyDraftSettings' => 'ModifyDraftSettings',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -70,12 +69,12 @@ class Posts implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'posts' => 'posts',
 		'censor' => 'censor',
 		'topics' => 'topics',
 		'drafts' => 'drafts',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -98,10 +97,11 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -115,80 +115,73 @@ class Posts implements ActionInterface
 	 */
 	public function censor(): void
 	{
-		if (!empty($_POST['save_censor']))
-		{
+		if (!empty($_POST['save_censor'])) {
 			// Make sure censoring is something they can do.
 			User::$me->checkSession();
 			SecurityToken::validate('admin-censor');
 
-			$censored_vulgar = array();
-			$censored_proper = array();
+			$censored_vulgar = [];
+			$censored_proper = [];
 
 			// Rip it apart, then split it into two arrays.
-			if (isset($_POST['censortext']))
-			{
-				$_POST['censortext'] = explode("\n", strtr($_POST['censortext'], array("\r" => '')));
+			if (isset($_POST['censortext'])) {
+				$_POST['censortext'] = explode("\n", strtr($_POST['censortext'], ["\r" => '']));
 
-				foreach ($_POST['censortext'] as $c)
-				{
-					list ($censored_vulgar[], $censored_proper[]) = array_pad(explode('=', trim($c)), 2, '');
+				foreach ($_POST['censortext'] as $c) {
+					list($censored_vulgar[], $censored_proper[]) = array_pad(explode('=', trim($c)), 2, '');
 				}
-			}
-			elseif (isset($_POST['censor_vulgar'], $_POST['censor_proper']))
-			{
-				if (is_array($_POST['censor_vulgar']))
-				{
-					foreach ($_POST['censor_vulgar'] as $i => $value)
-					{
-						if (trim(strtr($value, '*', ' ')) == '')
+			} elseif (isset($_POST['censor_vulgar'], $_POST['censor_proper'])) {
+				if (is_array($_POST['censor_vulgar'])) {
+					foreach ($_POST['censor_vulgar'] as $i => $value) {
+						if (trim(strtr($value, '*', ' ')) == '') {
 							unset($_POST['censor_vulgar'][$i], $_POST['censor_proper'][$i]);
+						}
 					}
 
 					$censored_vulgar = $_POST['censor_vulgar'];
 					$censored_proper = $_POST['censor_proper'];
-				}
-				else
-				{
-					$censored_vulgar = explode("\n", strtr($_POST['censor_vulgar'], array("\r" => '')));
-					$censored_proper = explode("\n", strtr($_POST['censor_proper'], array("\r" => '')));
+				} else {
+					$censored_vulgar = explode("\n", strtr($_POST['censor_vulgar'], ["\r" => '']));
+					$censored_proper = explode("\n", strtr($_POST['censor_proper'], ["\r" => '']));
 				}
 			}
 
 			// Set the new arrays and settings in the database.
-			$updates = array(
+			$updates = [
 				'censor_vulgar' => Utils::normalize(implode("\n", $censored_vulgar)),
 				'censor_proper' => Utils::normalize(implode("\n", $censored_proper)),
 				'allow_no_censored' => empty($_POST['allow_no_censored']) ? '0' : '1',
 				'censorWholeWord' => empty($_POST['censorWholeWord']) ? '0' : '1',
 				'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
-			);
+			];
 
-			IntegrationHook::call('integrate_save_censors', array(&$updates));
+			IntegrationHook::call('integrate_save_censors', [&$updates]);
 
 			Utils::$context['saved_successful'] = true;
 			Config::updateModSettings($updates);
 		}
 
-		if (isset($_POST['censortest']))
-		{
+		if (isset($_POST['censortest'])) {
 			$censorText = Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES);
 			Msg::preparsecode($censorText);
-			Utils::$context['censor_test'] = strtr(Lang::censorText($censorText), array('"' => '&quot;'));
+			Utils::$context['censor_test'] = strtr(Lang::censorText($censorText), ['"' => '&quot;']);
 		}
 
 		// Set everything up for the template to do its thang.
 		$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 		$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
-		Utils::$context['censored_words'] = array();
-		for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
-		{
-			if (empty($censor_vulgar[$i]))
+		Utils::$context['censored_words'] = [];
+
+		for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
+			if (empty($censor_vulgar[$i])) {
 				continue;
+			}
 
 			// Skip it, it's either spaces or stars only.
-			if (trim(strtr($censor_vulgar[$i], '*', ' ')) == '')
+			if (trim(strtr($censor_vulgar[$i], '*', ' ')) == '') {
 				continue;
+			}
 
 			Utils::$context['censored_words'][Utils::htmlspecialchars(trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? Utils::htmlspecialchars($censor_proper[$i]) : '';
 		}
@@ -218,30 +211,28 @@ class Posts implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			// If we're changing the message length (and we are using MySQL) let's check the column is big enough.
-			if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != Config::$modSettings['max_messageLength'] && (Config::$db_type == 'mysql'))
-			{
+			if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != Config::$modSettings['max_messageLength'] && (Config::$db_type == 'mysql')) {
 				$colData = Db::$db->list_columns('{db_prefix}messages', true);
 
-				foreach ($colData as $column)
-				{
-					if ($column['name'] == 'body')
+				foreach ($colData as $column) {
+					if ($column['name'] == 'body') {
 						$body_type = $column['type'];
+					}
 				}
 
-				if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text')
-				{
-					ErrorHandler::fatalLang('convert_to_mediumtext', false, array(Config::$scripturl . '?action=admin;area=maintain;sa=database'));
+				if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text') {
+					ErrorHandler::fatalLang('convert_to_mediumtext', false, [Config::$scripturl . '?action=admin;area=maintain;sa=database']);
 				}
 			}
 
 			// If we're changing the post preview length let's check its valid
-			if (!empty($_POST['preview_characters']))
+			if (!empty($_POST['preview_characters'])) {
 				$_POST['preview_characters'] = (int) min(max(0, $_POST['preview_characters']), 512);
+			}
 
 			IntegrationHook::call('integrate_save_post_settings');
 
@@ -272,8 +263,7 @@ class Posts implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 			IntegrationHook::call('integrate_save_topic_settings');
 
@@ -304,22 +294,22 @@ class Posts implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Saving them ?
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
 			// Protect them from themselves.
 			$_POST['drafts_autosave_frequency'] = !isset($_POST['drafts_autosave_frequency']) || $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
 
 			// Also disable the scheduled task if we're not using it.
-			Db::$db->query('', '
-				UPDATE {db_prefix}scheduled_tasks
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}scheduled_tasks
 				SET disabled = {int:disabled}
 				WHERE task = {string:task}',
-				array(
+				[
 					'disabled' => !empty($_POST['drafts_keep_days']) ? 0 : 1,
 					'task' => 'remove_old_drafts',
-				)
+				],
 			);
 
 			TaskRunner::calculateNextTrigger();
@@ -360,8 +350,9 @@ class Posts implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -382,38 +373,38 @@ class Posts implements ActionInterface
 	public static function postConfigVars(): array
 	{
 		// All the settings...
-		$config_vars = array(
+		$config_vars = [
 			// Simple post options...
-			array('check', 'removeNestedQuotes'),
-			array('check', 'disable_wysiwyg'),
-			array('check', 'additional_options_collapsable'),
-			array('check', 'guest_post_no_email'),
+			['check', 'removeNestedQuotes'],
+			['check', 'disable_wysiwyg'],
+			['check', 'additional_options_collapsable'],
+			['check', 'guest_post_no_email'],
 			'',
 
 			// Posting limits...
-			array('int', 'max_messageLength', 'subtext' => Lang::$txt['max_messageLength_zero'], 'postinput' => Lang::$txt['manageposts_characters']),
-			array('int', 'topicSummaryPosts', 'postinput' => Lang::$txt['manageposts_posts']),
+			['int', 'max_messageLength', 'subtext' => Lang::$txt['max_messageLength_zero'], 'postinput' => Lang::$txt['manageposts_characters']],
+			['int', 'topicSummaryPosts', 'postinput' => Lang::$txt['manageposts_posts']],
 			'',
 
 			// Posting time limits...
-			array('int', 'spamWaitTime', 'postinput' => Lang::$txt['manageposts_seconds']),
-			array('int', 'edit_wait_time', 'postinput' => Lang::$txt['manageposts_seconds']),
-			array('int', 'edit_disable_time', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['manageposts_minutes']),
+			['int', 'spamWaitTime', 'postinput' => Lang::$txt['manageposts_seconds']],
+			['int', 'edit_wait_time', 'postinput' => Lang::$txt['manageposts_seconds']],
+			['int', 'edit_disable_time', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['manageposts_minutes']],
 			'',
 
 			// Automagic image resizing.
-			array('int', 'max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']),
-			array('int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']),
+			['int', 'max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			['int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']],
 			'',
 
 			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']),
+			['int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']],
 
 			// Quote expand
-			array('int', 'quote_expand', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['quote_expand_pixels_units']),
-		);
+			['int', 'quote_expand', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['quote_expand_pixels_units']],
+		];
 
-		IntegrationHook::call('integrate_modify_post_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_post_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -426,39 +417,39 @@ class Posts implements ActionInterface
 	public static function topicConfigVars(): array
 	{
 		// Here are all the topic settings.
-		$config_vars = array(
+		$config_vars = [
 			// Some simple bools...
-			array('check', 'enableParticipation'),
+			['check', 'enableParticipation'],
 			'',
 
 			// Pagination etc...
-			array('int', 'oldTopicDays', 'postinput' => Lang::$txt['manageposts_days'], 'subtext' => Lang::$txt['zero_to_disable']),
-			array('int', 'defaultMaxTopics', 'postinput' => Lang::$txt['manageposts_topics']),
-			array('int', 'defaultMaxMessages', 'postinput' => Lang::$txt['manageposts_posts']),
-			array('check', 'disable_print_topic'),
+			['int', 'oldTopicDays', 'postinput' => Lang::$txt['manageposts_days'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'defaultMaxTopics', 'postinput' => Lang::$txt['manageposts_topics']],
+			['int', 'defaultMaxMessages', 'postinput' => Lang::$txt['manageposts_posts']],
+			['check', 'disable_print_topic'],
 			'',
 
 			// All, next/prev...
-			array('int', 'enableAllMessages', 'postinput' => Lang::$txt['manageposts_posts'], 'subtext' => Lang::$txt['enableAllMessages_zero']),
-			array('check', 'disableCustomPerPage'),
-			array('check', 'enablePreviousNext'),
+			['int', 'enableAllMessages', 'postinput' => Lang::$txt['manageposts_posts'], 'subtext' => Lang::$txt['enableAllMessages_zero']],
+			['check', 'disableCustomPerPage'],
+			['check', 'enablePreviousNext'],
 			'',
 
 			// Topic related settings (show gender icon/avatars etc...)
-			array('check', 'subject_toggle'),
-			array('check', 'show_modify'),
-			array('check', 'show_profile_buttons'),
-			array('check', 'show_user_images'),
-			array('check', 'show_blurb'),
-			array('check', 'hide_post_group', 'subtext' => Lang::$txt['hide_post_group_desc']),
+			['check', 'subject_toggle'],
+			['check', 'show_modify'],
+			['check', 'show_profile_buttons'],
+			['check', 'show_user_images'],
+			['check', 'show_blurb'],
+			['check', 'hide_post_group', 'subtext' => Lang::$txt['hide_post_group_desc']],
 			'',
 
 			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']),
-			array('check', 'message_index_preview_first', 'subtext' => Lang::$txt['message_index_preview_first_desc']),
-		);
+			['int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']],
+			['check', 'message_index_preview_first', 'subtext' => Lang::$txt['message_index_preview_first_desc']],
+		];
 
-		IntegrationHook::call('integrate_modify_topic_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_topic_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -471,18 +462,18 @@ class Posts implements ActionInterface
 	public static function draftConfigVars(): array
 	{
 		// Here are all the draft settings. A bit light for now, but we can add more :P
-		$config_vars = array(
+		$config_vars = [
 			// Draft settings ...
-			array('check', 'drafts_post_enabled'),
-			array('check', 'drafts_pm_enabled'),
-			array('check', 'drafts_show_saved_enabled', 'subtext' => Lang::$txt['drafts_show_saved_enabled_subnote']),
-			array('int', 'drafts_keep_days', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['drafts_keep_days_subnote']),
+			['check', 'drafts_post_enabled'],
+			['check', 'drafts_pm_enabled'],
+			['check', 'drafts_show_saved_enabled', 'subtext' => Lang::$txt['drafts_show_saved_enabled_subnote']],
+			['int', 'drafts_keep_days', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['drafts_keep_days_subnote']],
 			'',
-			array('check', 'drafts_autosave_enabled', 'subtext' => Lang::$txt['drafts_autosave_enabled_subnote']),
-			array('int', 'drafts_autosave_frequency', 'postinput' => Lang::$txt['manageposts_seconds'], 'subtext' => Lang::$txt['drafts_autosave_frequency_subnote']),
-		);
+			['check', 'drafts_autosave_enabled', 'subtext' => Lang::$txt['drafts_autosave_enabled_subnote']],
+			['int', 'drafts_autosave_frequency', 'postinput' => Lang::$txt['manageposts_seconds'], 'subtext' => Lang::$txt['drafts_autosave_frequency_subnote']],
+		];
 
-		IntegrationHook::call('integrate_modify_draft_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_draft_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -495,8 +486,9 @@ class Posts implements ActionInterface
 	 */
 	public static function modifyPostSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::postConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'posts';
@@ -511,8 +503,9 @@ class Posts implements ActionInterface
 	 */
 	public static function modifyTopicSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::topicConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'topics';
@@ -527,8 +520,9 @@ class Posts implements ActionInterface
 	 */
 	public static function modifyDraftSettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::draftConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'drafts';
@@ -551,35 +545,37 @@ class Posts implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
 
 		// Tabs for browsing the different post functions.
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['manageposts_title'],
 			'help' => 'posts_and_topics',
 			'description' => Lang::$txt['manageposts_description'],
-			'tabs' => array(
-				'posts' => array(
+			'tabs' => [
+				'posts' => [
 					'description' => Lang::$txt['manageposts_settings_description'],
-				),
-				'censor' => array(
+				],
+				'censor' => [
 					'description' => Lang::$txt['admin_censored_desc'],
-				),
-				'topics' => array(
+				],
+				'topics' => [
 					'description' => Lang::$txt['manageposts_topic_settings_description'],
-				),
-				'drafts' => array(
+				],
+				'drafts' => [
 					'description' => Lang::$txt['managedrafts_settings_description'],
-				),
-			),
-		);
+				],
+			],
+		];
 
-		IntegrationHook::call('integrate_manage_posts', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_posts', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Posts::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Posts::exportStatic')) {
 	Posts::exportStatic();
+}
 
 ?>

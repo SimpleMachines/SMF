@@ -13,11 +13,12 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\Actions\Notify;
 use SMF\Alert;
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -29,8 +30,6 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Notify;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Handles preferences related to notifications.
@@ -44,8 +43,8 @@ class Notification implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'notification',
 			'list_getTopicNotificationCount' => 'list_getTopicNotificationCount',
 			'list_getTopicNotifications' => 'list_getTopicNotifications',
@@ -55,8 +54,8 @@ class Notification implements ActionInterface
 			'alert_notifications_topics' => 'alert_notifications_topics',
 			'alert_notifications_boards' => 'alert_notifications_boards',
 			'makeNotificationChanges' => 'makeNotificationChanges',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -74,220 +73,220 @@ class Notification implements ActionInterface
 	 * @var array
 	 *
 	 * Defines all the types of alerts and their default values.
-	 * 
+	 *
 	 * The 'alert' and 'email' keys are required for each alert type.
 	 * The 'help' and 'permission' keys are optional.
-	 * 
+	 *
 	 * Valid values for 'alert' and 'email' keys are: 'always', 'yes', 'never'.
 	 * If using 'always' or 'never' you should add a help string.
 	 */
-	public array $alert_types = array(
-		'board' => array(
-			'topic_notify' => array(
-				'alert' => 'yes', 
+	public array $alert_types = [
+		'board' => [
+			'topic_notify' => [
+				'alert' => 'yes',
 				'email' => 'yes',
-			),
-			'board_notify' => array(
-				'alert' => 'yes', 
+			],
+			'board_notify' => [
+				'alert' => 'yes',
 				'email' => 'yes',
-			),
-		),
-		'msg' => array(
-			'msg_mention' => array(
-				'alert' => 'yes', 
+			],
+		],
+		'msg' => [
+			'msg_mention' => [
+				'alert' => 'yes',
 				'email' => 'yes',
-			),
-			'msg_quote' => array(
-				'alert' => 'yes', 
+			],
+			'msg_quote' => [
+				'alert' => 'yes',
 				'email' => 'yes',
-			),
-			'msg_like' => array(
-				'alert' => 'yes', 
+			],
+			'msg_like' => [
+				'alert' => 'yes',
 				'email' => 'never',
-			),
-			'unapproved_reply' => array(
-				'alert' => 'yes', 
+			],
+			'unapproved_reply' => [
+				'alert' => 'yes',
 				'email' => 'yes',
-			),
-		),
-		'pm' => array(
-			'pm_new' => array(
-				'alert' => 'never', 
-				'email' => 'yes', 
-				'help' => 'alert_pm_new', 
-				'permission' => array(
-					'name' => 'pm_read', 
-					'is_board' => false,
-				),
-			),
-			'pm_reply' => array(
+			],
+		],
+		'pm' => [
+			'pm_new' => [
 				'alert' => 'never',
 				'email' => 'yes',
 				'help' => 'alert_pm_new',
-				'permission' => array(
+				'permission' => [
+					'name' => 'pm_read',
+					'is_board' => false,
+				],
+			],
+			'pm_reply' => [
+				'alert' => 'never',
+				'email' => 'yes',
+				'help' => 'alert_pm_new',
+				'permission' => [
 					'name' => 'pm_send',
 					'is_board' => false,
-				),
-			),
-		),
-		'groupr' => array(
-			'groupr_approved' => array(
-				'alert' => 'yes', 
-				'email' => 'yes',
-			),
-			'groupr_rejected' => array(
-				'alert' => 'yes', 
-				'email' => 'yes',
-			),
-		),
-		'moderation' => array(
-			'unapproved_attachment' => array(
+				],
+			],
+		],
+		'groupr' => [
+			'groupr_approved' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+			],
+			'groupr_rejected' => [
+				'alert' => 'yes',
+				'email' => 'yes',
+			],
+		],
+		'moderation' => [
+			'unapproved_attachment' => [
+				'alert' => 'yes',
+				'email' => 'yes',
+				'permission' => [
 					'name' => 'approve_posts',
 					'is_board' => true,
-				),
-			),
-			'unapproved_post' => array(
+				],
+			],
+			'unapproved_post' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'approve_posts',
 					'is_board' => true,
-				),
-			),
-			'msg_report' => array(
+				],
+			],
+			'msg_report' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'moderate_board',
 					'is_board' => true,
-				),
-			),
-			'msg_report_reply' => array(
+				],
+			],
+			'msg_report_reply' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'moderate_board',
 					'is_board' => true,
-				),
-			),
-			'member_report' => array(
+				],
+			],
+			'member_report' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'moderate_forum',
 					'is_board' => false,
-				),
-			),
-			'member_report_reply' => array(
+				],
+			],
+			'member_report_reply' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'moderate_forum',
 					'is_board' => false,
-				),
-			),
-		),
-		'members' => array(
-			'member_register' => array(
+				],
+			],
+		],
+		'members' => [
+			'member_register' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'moderate_forum',
 					'is_board' => false,
-				),
-			),
-			'request_group' => array(
+				],
+			],
+			'request_group' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-			),
-			'warn_any' => array(
+			],
+			'warn_any' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-				'permission' => array(
+				'permission' => [
 					'name' => 'issue_warning',
 					'is_board' => false,
-				),
-			),
-			'buddy_request' => array(
+				],
+			],
+			'buddy_request' => [
 				'alert' => 'yes',
 				'email' => 'never',
-			),
-			'birthday' => array(
+			],
+			'birthday' => [
 				'alert' => 'yes',
 				'email' => 'yes',
-			),
-		),
-		'calendar' => array(
-			'event_new' => array(
+			],
+		],
+		'calendar' => [
+			'event_new' => [
 				'alert' => 'yes',
 				'email' => 'yes',
 				'help' => 'alert_event_new',
-			),
-		),
-		'paidsubs' => array(
-			'paidsubs_expiring' => array(
-				'alert' => 'yes', 
+			],
+		],
+		'paidsubs' => [
+			'paidsubs_expiring' => [
+				'alert' => 'yes',
 				'email' => 'yes',
-			),
-		),
-	);
+			],
+		],
+	];
 
 	/**
 	 * @var array
 	 *
 	 * The group level options.
 	 */
-	public array $group_options = array(
-		'board' => array(
-			'msg_auto_notify' => array(
-				'check', 
-				'msg_auto_notify', 
+	public array $group_options = [
+		'board' => [
+			'msg_auto_notify' => [
+				'check',
+				'msg_auto_notify',
 				'label' => 'after',
-			),
-			'msg_receive_body' => array(
-				'check', 
-				'msg_receive_body', 
+			],
+			'msg_receive_body' => [
+				'check',
+				'msg_receive_body',
 				'label' => 'after',
-			),
-			'msg_notify_pref' => array(
-				'select', 
-				'msg_notify_pref', 
-				'label' => 'before', 
-				'opts' => array(
+			],
+			'msg_notify_pref' => [
+				'select',
+				'msg_notify_pref',
+				'label' => 'before',
+				'opts' => [
 					0 => 'alert_opt_msg_notify_pref_never',
 					1 => 'alert_opt_msg_notify_pref_instant',
 					2 => 'alert_opt_msg_notify_pref_first',
 					3 => 'alert_opt_msg_notify_pref_daily',
 					4 => 'alert_opt_msg_notify_pref_weekly',
-				),
-			),
-			'msg_notify_type' => array(
-				'select', 
-				'msg_notify_type', 
-				'label' => 'before', 
-				'opts' => array(
+				],
+			],
+			'msg_notify_type' => [
+				'select',
+				'msg_notify_type',
+				'label' => 'before',
+				'opts' => [
 					1 => 'notify_send_type_everything',
 					2 => 'notify_send_type_everything_own',
 					3 => 'notify_send_type_only_replies',
 					4 => 'notify_send_type_nothing',
-				),
-			),
-		),
-		'pm' => array(
-			'pm_notify' => array(
-				'select', 
-				'pm_notify', 
-				'label' => 'before', 
-				'opts' => array(
+				],
+			],
+		],
+		'pm' => [
+			'pm_notify' => [
+				'select',
+				'pm_notify',
+				'label' => 'before',
+				'opts' => [
 					1 => 'email_notify_all',
 					2 => 'email_notify_buddies',
-				),
-			),
-		),
-	);
+				],
+			],
+		],
+	];
 
 	/**************************
 	 * Public static properties
@@ -298,24 +297,24 @@ class Notification implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'alerts' => 'configuration',
 		'markread' => 'markRead',
 		'topics' => 'topics',
 		'boards' => 'boards',
-	);
+	];
 
 	/**
 	 * @var array
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subtemplates = array(
+	public static array $subtemplates = [
 		'alerts' => 'alert_configuration',
 		'markread' => 'alert_markread',
 		'topics' => 'alert_notifications_topics',
 		'boards' => 'alert_notifications_boards',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -339,23 +338,23 @@ class Notification implements ActionInterface
 	public function execute(): void
 	{
 		// Going to want this for consistency.
-		Theme::loadCSSFile('admin.css', array(), 'smf_admin');
+		Theme::loadCSSFile('admin.css', [], 'smf_admin');
 
 		Utils::$context['sub_template'] = self::$subtemplates[$this->subaction];
 
-		if (isset(Menu::$loaded['profile']))
-		{
-			Menu::$loaded['profile']->tab_data = array(
+		if (isset(Menu::$loaded['profile'])) {
+			Menu::$loaded['profile']->tab_data = [
 				'title' => Lang::$txt['notification'],
 				'help' => '',
 				'description' => Lang::$txt['notification_info'],
-			);
+			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -363,100 +362,101 @@ class Notification implements ActionInterface
 	 *
 	 * @param bool $defaultSettings If true, we are loading default options.
 	 */
-	function configuration($defaultSettings = false)
+	public function configuration($defaultSettings = false)
 	{
-		if (!isset(Utils::$context['token_check']))
+		if (!isset(Utils::$context['token_check'])) {
 			Utils::$context['token_check'] = 'profile-nt' . Profile::$member->id;
+		}
 
 		User::$me->kickIfGuest();
 
-		if (!User::$me->is_owner)
+		if (!User::$me->is_owner) {
 			User::$me->isAllowedTo('profile_extra_any');
+		}
 
 		// Set the post action if we're coming from the profile...
-		if (!isset(Utils::$context['action']))
-		{
+		if (!isset(Utils::$context['action'])) {
 			Utils::$context['action'] = 'action=profile;area=notification;sa=alerts;u=' . Profile::$member->id;
 		}
 
 		// What options are set?
 		Profile::$member->loadThemeOptions($defaultSettings);
 
-		Theme::loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
+		Theme::loadJavaScriptFile('alertSettings.js', ['minimize' => true], 'smf_alertSettings');
 
 		// Now load all the values for this user.
 		$prefs = Notify::getNotifyPrefs(Profile::$member->id, '', Profile::$member->id != 0);
 
-		Utils::$context['alert_prefs'] = !empty($prefs[Profile::$member->id]) ? $prefs[Profile::$member->id] : array();
+		Utils::$context['alert_prefs'] = !empty($prefs[Profile::$member->id]) ? $prefs[Profile::$member->id] : [];
 
-		Utils::$context['member'] += array(
-			'alert_timeout' => isset(Utils::$context['alert_prefs']['alert_timeout']) ? Utils::$context['alert_prefs']['alert_timeout'] : 10,
-			'notify_announcements' => isset(Utils::$context['alert_prefs']['announcements']) ? Utils::$context['alert_prefs']['announcements'] : 0,
-		);
+		Utils::$context['member'] += [
+			'alert_timeout' => Utils::$context['alert_prefs']['alert_timeout'] ?? 10,
+			'notify_announcements' => Utils::$context['alert_prefs']['announcements'] ?? 0,
+		];
 
 		// There are certain things that are disabled at the group level.
-		if (empty(Config::$modSettings['cal_enabled']))
+		if (empty(Config::$modSettings['cal_enabled'])) {
 			unset($this->alert_types['calendar']);
+		}
 
 		// Disable paid subscriptions at group level if they're disabled.
-		if (empty(Config::$modSettings['paid_enabled']))
+		if (empty(Config::$modSettings['paid_enabled'])) {
 			unset($this->alert_types['paidsubs']);
+		}
 
 		// Disable membergroup requests at group level if they're disabled.
-		if (empty(Config::$modSettings['show_group_membership']))
+		if (empty(Config::$modSettings['show_group_membership'])) {
 			unset($this->alert_types['groupr'], $this->alert_types['members']['request_group']);
+		}
 
 		// Disable mentions if they're disabled.
-		if (empty(Config::$modSettings['enable_mentions']))
+		if (empty(Config::$modSettings['enable_mentions'])) {
 			unset($this->alert_types['msg']['msg_mention']);
+		}
 
 		// Disable likes if they're disabled.
-		if (empty(Config::$modSettings['enable_likes']))
+		if (empty(Config::$modSettings['enable_likes'])) {
 			unset($this->alert_types['msg']['msg_like']);
+		}
 
 		// Disable buddy requests if they're disabled.
-		if (empty(Config::$modSettings['enable_buddylist']))
+		if (empty(Config::$modSettings['enable_buddylist'])) {
 			unset($this->alert_types['members']['buddy_request']);
+		}
 
 		// Disable sending the body if it's disabled.
-		if (!empty(Config::$modSettings['disallow_sendBody']))
+		if (!empty(Config::$modSettings['disallow_sendBody'])) {
 			$this->group_options['board']['msg_receive_body'][0] = 'hide';
+		}
 
 		// Finalize the string values of the options.
-		foreach ($this->group_options as &$options)
-		{
-			foreach ($options as &$option)
-			{
-				if (!isset($option['opts']))
+		foreach ($this->group_options as &$options) {
+			foreach ($options as &$option) {
+				if (!isset($option['opts'])) {
 					continue;
+				}
 
-				foreach ($option['opts'] as &$value)
+				foreach ($option['opts'] as &$value) {
 					$value = Lang::$txt[$value] ?? $value;
+				}
 			}
 		}
 
 		// Now, now, we could pass this through global but we should really get into the habit of
 		// passing content to hooks, not expecting hooks to splatter everything everywhere.
-		IntegrationHook::call('integrate_alert_types', array(&$this->alert_types, &$this->group_options));
+		IntegrationHook::call('integrate_alert_types', [&$this->alert_types, &$this->group_options]);
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
-		if (!empty(Profile::$member->id))
-		{
-			$group_permissions = array('manage_membergroups');
-			$board_permissions = array();
+		if (!empty(Profile::$member->id)) {
+			$group_permissions = ['manage_membergroups'];
+			$board_permissions = [];
 
-			foreach ($this->alert_types as $group => $items)
-			{
-				foreach ($items as $alert_key => $alert_value)
-				{
-					if (isset($alert_value['permission']))
-					{
-						if (empty($alert_value['permission']['is_board']))
-						{
+			foreach ($this->alert_types as $group => $items) {
+				foreach ($items as $alert_key => $alert_value) {
+					if (isset($alert_value['permission'])) {
+						if (empty($alert_value['permission']['is_board'])) {
 							$group_permissions[] = $alert_value['permission']['name'];
-						}
-						else
-						{
+						} else {
 							$board_permissions[] = $alert_value['permission']['name'];
 						}
 					}
@@ -465,38 +465,38 @@ class Notification implements ActionInterface
 
 			$member_groups = User::getGroupsWithPermissions($group_permissions, $board_permissions);
 
-			if (empty($member_groups['manage_membergroups']['allowed']))
-			{
-				$request = Db::$db->query('', '
-					SELECT COUNT(*)
+			if (empty($member_groups['manage_membergroups']['allowed'])) {
+				$request = Db::$db->query(
+					'',
+					'SELECT COUNT(*)
 					FROM {db_prefix}group_moderators
 					WHERE id_member = {int:memID}',
-					array(
+					[
 						'memID' => Profile::$member->id,
-					)
+					],
 				);
 				list($is_group_moderator) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
 
-				if (empty($is_group_moderator))
+				if (empty($is_group_moderator)) {
 					unset($this->alert_types['members']['request_group']);
+				}
 			}
 
-			foreach ($this->alert_types as $group => $items)
-			{
-				foreach ($items as $alert_key => $alert_value)
-				{
-					if (isset($alert_value['permission']))
-					{
+			foreach ($this->alert_types as $group => $items) {
+				foreach ($items as $alert_key => $alert_value) {
+					if (isset($alert_value['permission'])) {
 						$allowed = count(array_intersect(Profile::$member->groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
 
-						if (!$allowed)
+						if (!$allowed) {
 							unset($this->alert_types[$group][$alert_key]);
+						}
 					}
 				}
 
-				if (empty($this->alert_types[$group]))
+				if (empty($this->alert_types[$group])) {
 					unset($this->alert_types[$group]);
+				}
 			}
 		}
 
@@ -504,37 +504,30 @@ class Notification implements ActionInterface
 		Utils::$context['alert_types'] = $this->alert_types;
 		Utils::$context['alert_group_options'] = $this->group_options;
 
-		Utils::$context['alert_bits'] = array(
+		Utils::$context['alert_bits'] = [
 			'alert' => 0b01,
 			'email' => 0b10,
-		);
+		];
 
-		if (isset($_POST['notify_submit']))
-		{
+		if (isset($_POST['notify_submit'])) {
 			User::$me->checkSession();
 			SecurityToken::validate(Utils::$context['token_check'], 'post');
 
 			// We need to step through the list of valid settings and figure out what the user has set.
-			$update_prefs = array();
+			$update_prefs = [];
 
 			// Now the group level options
-			foreach ($this->group_options as $opt_group => $group)
-			{
-				foreach ($group as $this_option)
-				{
-					switch ($this_option[0])
-					{
+			foreach ($this->group_options as $opt_group => $group) {
+				foreach ($group as $this_option) {
+					switch ($this_option[0]) {
 						case 'check':
 							$update_prefs[$this_option[1]] = !empty($_POST['opt_' . $this_option[1]]) ? 1 : 0;
 							break;
 
 						case 'select':
-							if (isset($_POST['opt_' . $this_option[1]], $this_option['opts'][$_POST['opt_' . $this_option[1]]]))
-							{
+							if (isset($_POST['opt_' . $this_option[1]], $this_option['opts'][$_POST['opt_' . $this_option[1]]])) {
 								$update_prefs[$this_option[1]] = $_POST['opt_' . $this_option[1]];
-							}
-							else
-							{
+							} else {
 								// We didn't have a sane value. Let's grab the first item from the possibles.
 								$keys = array_keys($this_option['opts']);
 								$first = array_shift($keys);
@@ -546,16 +539,12 @@ class Notification implements ActionInterface
 			}
 
 			// Now the individual options
-			foreach (Utils::$context['alert_types'] as $alert_group => $items)
-			{
-				foreach ($items as $item_key => $this_options)
-				{
+			foreach (Utils::$context['alert_types'] as $alert_group => $items) {
+				foreach ($items as $item_key => $this_options) {
 					$this_value = 0;
 
-					foreach (Utils::$context['alert_bits'] as $type => $bitvalue)
-					{
-						if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
-						{
+					foreach (Utils::$context['alert_bits'] as $type => $bitvalue) {
+						if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always') {
 							$this_value |= $bitvalue;
 						}
 					}
@@ -564,21 +553,15 @@ class Notification implements ActionInterface
 				}
 			}
 
-			if (isset($_POST['opt_alert_timeout']))
-			{
+			if (isset($_POST['opt_alert_timeout'])) {
 				$update_prefs['alert_timeout'] = Utils::$context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
-			}
-			else
-			{
+			} else {
 				$update_prefs['alert_timeout'] = Utils::$context['alert_prefs']['alert_timeout'];
 			}
 
-			if (isset($_POST['notify_announcements']))
-			{
+			if (isset($_POST['notify_announcements'])) {
 				$update_prefs['announcements'] = Utils::$context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
-			}
-			else
-			{
+			} else {
 				$update_prefs['announcements'] = Utils::$context['alert_prefs']['announcements'];
 			}
 
@@ -586,8 +569,9 @@ class Notification implements ActionInterface
 
 			Notify::setNotifyPrefs((int) Profile::$member->id, $update_prefs);
 
-			foreach ($update_prefs as $pref => $value)
+			foreach ($update_prefs as $pref => $value) {
 				Utils::$context['alert_prefs'][$pref] = $value;
+			}
 
 			$this->changeNotifications();
 
@@ -606,7 +590,7 @@ class Notification implements ActionInterface
 		Config::$db_show_debug = false;
 
 		// We only want to output our little layer here.
-		Utils::$context['template_layers'] = array();
+		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'alerts_all_read';
 
 		Lang::load('Alerts');
@@ -614,8 +598,9 @@ class Notification implements ActionInterface
 		// Now we're all set up.
 		User::$me->kickIfGuest();
 
-		if (!User::$me->is_owner)
+		if (!User::$me->is_owner) {
 			ErrorHandler::fatal('no_access');
+		}
 
 		User::$me->checkSession('get');
 
@@ -628,8 +613,7 @@ class Notification implements ActionInterface
 	public function topics()
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
-		if (isset($_POST['edit_notify_topics']) || isset($_POST['remove_notify_topics']))
-		{
+		if (isset($_POST['edit_notify_topics']) || isset($_POST['remove_notify_topics'])) {
 			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
@@ -642,7 +626,7 @@ class Notification implements ActionInterface
 		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		// Do the topic notifications.
-		$list_options = array(
+		$list_options = [
 			'id' => 'topic_notification_list',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
@@ -650,27 +634,25 @@ class Notification implements ActionInterface
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=topics',
 			'default_sort_col' => 'last_post',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getTopicNotifications',
-				'params' => array(),
-			),
-			'get_count' => array(
+				'params' => [],
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getTopicNotificationCount',
-				'params' => array(),
-			),
-			'columns' => array(
-				'subject' => array(
-					'header' => array(
+				'params' => [],
+			],
+			'columns' => [
+				'subject' => [
+					'header' => [
 						'value' => Lang::$txt['notifications_topics'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
-						'function' => function($topic)
-						{
+					],
+					'data' => [
+						'function' => function ($topic) {
 							$link = $topic['link'];
 
-							if ($topic['new'])
-							{
+							if ($topic['new']) {
 								$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
 							}
 
@@ -678,95 +660,95 @@ class Notification implements ActionInterface
 
 							return $link;
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'ms.subject',
 						'reverse' => 'ms.subject DESC',
-					),
-				),
-				'started_by' => array(
-					'header' => array(
+					],
+				],
+				'started_by' => [
+					'header' => [
 						'value' => Lang::$txt['started_by'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'poster_link',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'real_name_col',
 						'reverse' => 'real_name_col DESC',
-					),
-				),
-				'last_post' => array(
-					'header' => array(
+					],
+				],
+				'last_post' => [
+					'header' => [
 						'value' => Lang::$txt['last_post'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<span class="smalltext">%1$s<br>' . Lang::$txt['by'] . ' %2$s</span>',
-							'params' => array(
+							'params' => [
 								'updated' => false,
 								'poster_updated_link' => false,
-							),
-						),
-					),
-					'sort' => array(
+							],
+						],
+					],
+					'sort' => [
 						'default' => 'ml.id_msg DESC',
 						'reverse' => 'ml.id_msg',
-					),
-				),
-				'alert_pref' => array(
-					'header' => array(
+					],
+				],
+				'alert_pref' => [
+					'header' => [
 						'value' => Lang::$txt['notify_what_how'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
-						'function' => function($topic)
-						{
+					],
+					'data' => [
+						'function' => function ($topic) {
 							$pref = $topic['notify_pref'];
 							$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
+
 							return Lang::$txt['notify_topic_' . $mode];
 						},
-					),
-				),
-				'delete' => array(
-					'header' => array(
+					],
+				],
+				'delete' => [
+					'header' => [
 						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'style' => 'width: 4%;',
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
-							'params' => array(
+							'params' => [
 								'id' => false,
-							),
-						),
+							],
+						],
 						'class' => 'centercol',
-					),
-				),
-			),
-			'form' => array(
+					],
+				],
+			],
+			'form' => [
 				'href' => Config::$scripturl . '?action=profile;area=notification;sa=topics',
 				'include_sort' => true,
 				'include_start' => true,
-				'hidden_fields' => array(
+				'hidden_fields' => [
 					'u' => Profile::$member->id,
 					'sa' => Utils::$context['menu_item_selected'],
 					Utils::$context['session_var'] => Utils::$context['session_id'],
-				),
+				],
 				'token' => Utils::$context['token_check'],
-			),
-			'additional_rows' => array(
-				array(
+			],
+			'additional_rows' => [
+				[
 					'position' => 'bottom_of_list',
 					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::$txt['notifications_update'] . '" class="button">
 								<input type="submit" name="remove_notify_topics" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
 					'class' => 'floatright',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		// Create the notification list.
 		new ItemList($list_options);
@@ -778,8 +760,7 @@ class Notification implements ActionInterface
 	public function boards()
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
-		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
-		{
+		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards'])) {
 			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
@@ -792,92 +773,90 @@ class Notification implements ActionInterface
 		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		// Fine, start with the board list.
-		$list_options = array(
+		$list_options = [
 			'id' => 'board_notification_list',
 			'width' => '100%',
 			'no_items_label' => Lang::$txt['notifications_boards_none'] . '<br><br>' . Lang::$txt['notifications_boards_howto'],
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=boards',
 			'default_sort_col' => 'board_name',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getBoardNotifications',
-				'params' => array(),
-			),
-			'columns' => array(
-				'board_name' => array(
-					'header' => array(
+				'params' => [],
+			],
+			'columns' => [
+				'board_name' => [
+					'header' => [
 						'value' => Lang::$txt['notifications_boards'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
-						'function' => function($board)
-						{
+					],
+					'data' => [
+						'function' => function ($board) {
 							$link = $board['link'];
 
-							if ($board['new'])
-							{
+							if ($board['new']) {
 								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
 							}
 
 							return $link;
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'name',
 						'reverse' => 'name DESC',
-					),
-				),
-				'alert_pref' => array(
-					'header' => array(
+					],
+				],
+				'alert_pref' => [
+					'header' => [
 						'value' => Lang::$txt['notify_what_how'],
 						'class' => 'lefttext',
-					),
-					'data' => array(
-						'function' => function($board)
-						{
+					],
+					'data' => [
+						'function' => function ($board) {
 							$pref = $board['notify_pref'];
 							$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);
+
 							return Lang::$txt['notify_board_' . $mode];
 						},
-					),
-				),
-				'delete' => array(
-					'header' => array(
+					],
+				],
+				'delete' => [
+					'header' => [
 						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'style' => 'width: 4%;',
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d">',
-							'params' => array(
+							'params' => [
 								'id' => false,
-							),
-						),
+							],
+						],
 						'class' => 'centercol',
-					),
-				),
-			),
-			'form' => array(
+					],
+				],
+			],
+			'form' => [
 				'href' => Config::$scripturl . '?action=profile;area=notification;sa=boards',
 				'include_sort' => true,
 				'include_start' => true,
-				'hidden_fields' => array(
+				'hidden_fields' => [
 					'u' => Profile::$member->id,
 					'sa' => Utils::$context['menu_item_selected'],
 					Utils::$context['session_var'] => Utils::$context['session_id'],
-				),
+				],
 				'token' => Utils::$context['token_check'],
-			),
-			'additional_rows' => array(
-				array(
+			],
+			'additional_rows' => [
+				[
 					'position' => 'bottom_of_list',
 					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::$txt['notifications_update'] . '" class="button">
 								<input type="submit" name="remove_notify_boards" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
 					'class' => 'floatright',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		// Create the board notification list.
 		new ItemList($list_options);
@@ -894,8 +873,9 @@ class Notification implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -915,17 +895,18 @@ class Notification implements ActionInterface
 	 */
 	public static function list_getTopicNotificationCount()
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}log_notify AS ln' . (!Config::$modSettings['postmod_active'] && User::$me->query_see_board === '1=1' ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
 			WHERE ln.id_member = {int:selected_member}' . (User::$me->query_see_topic_board === '1=1' ? '' : '
 				AND {query_see_topic_board}') . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : ''),
-			array(
+			[
 				'selected_member' => Profile::$member->id,
 				'is_approved' => 1,
-			)
+			],
 		);
 		list($totalNotifications) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -944,13 +925,14 @@ class Notification implements ActionInterface
 	public static function list_getTopicNotifications($start, $items_per_page, $sort)
 	{
 		$prefs = Notify::getNotifyPrefs(Profile::$member->id);
-		$prefs = isset($prefs[Profile::$member->id]) ? $prefs[Profile::$member->id] : array();
+		$prefs = $prefs[Profile::$member->id] ?? [];
 
 		// All the topics with notification on...
-		$notification_topics = array();
+		$notification_topics = [];
 
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 				t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 				ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
@@ -968,20 +950,20 @@ class Notification implements ActionInterface
 			WHERE ln.id_member = {int:selected_member}
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:items_per_page}',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'is_approved' => 1,
 				'selected_member' => Profile::$member->id,
 				'sort' => $sort,
 				'offset' => $start,
 				'items_per_page' => $items_per_page,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Lang::censorText($row['subject']);
 
-			$notification_topics[] = array(
+			$notification_topics[] = [
 				'id' => $row['id_topic'],
 				'poster_link' => empty($row['id_member']) ? $row['real_name_col'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name_col'] . '</a>',
 				'poster_updated_link' => empty($row['id_member_updated']) ? $row['last_real_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['last_real_name'] . '</a>',
@@ -994,9 +976,9 @@ class Notification implements ActionInterface
 				'new_href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
 				'new_link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new">' . $row['subject'] . '</a>',
 				'board_link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>',
-				'notify_pref' => isset($prefs['topic_notify_' . $row['id_topic']]) ? $prefs['topic_notify_' . $row['id_topic']] : (!empty($prefs['topic_notify']) ? $prefs['topic_notify'] : 0),
+				'notify_pref' => $prefs['topic_notify_' . $row['id_topic']] ?? (!empty($prefs['topic_notify']) ? $prefs['topic_notify'] : 0),
 				'unwatched' => $row['unwatched'],
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -1014,34 +996,35 @@ class Notification implements ActionInterface
 	public static function list_getBoardNotifications($start, $items_per_page, $sort)
 	{
 		$prefs = Notify::getNotifyPrefs(Profile::$member->id);
-		$prefs = isset($prefs[Profile::$member->id]) ? $prefs[Profile::$member->id] : array();
+		$prefs = $prefs[Profile::$member->id] ?? [];
 
-		$notification_boards = array();
+		$notification_boards = [];
 
-		$request = Db::$db->query('', '
-			SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
+		$request = Db::$db->query(
+			'',
+			'SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 			WHERE ln.id_member = {int:selected_member}
 				AND {query_see_board}
 			ORDER BY {raw:sort}',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'selected_member' => Profile::$member->id,
 				'sort' => $sort,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$notification_boards[] = array(
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$notification_boards[] = [
 				'id' => $row['id_board'],
 				'name' => $row['name'],
 				'href' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 				'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>',
 				'new' => $row['board_read'] < $row['id_msg_updated'],
-				'notify_pref' => isset($prefs['board_notify_' . $row['id_board']]) ? $prefs['board_notify_' . $row['id_board']] : (!empty($prefs['board_notify']) ? $prefs['board_notify'] : 0),
-			);
+				'notify_pref' => $prefs['board_notify_' . $row['id_board']] ?? (!empty($prefs['board_notify']) ? $prefs['board_notify'] : 0),
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -1122,11 +1105,13 @@ class Notification implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 	}
 
 	/**
@@ -1135,77 +1120,79 @@ class Notification implements ActionInterface
 	protected function changeNotifications()
 	{
 		// Update the boards they are being notified about.
-		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards']))
-		{
+		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards'])) {
 			// Make sure only integers are deleted.
-			foreach ($_POST['notify_boards'] as $index => $id)
+			foreach ($_POST['notify_boards'] as $index => $id) {
 				$_POST['notify_boards'][$index] = (int) $id;
+			}
 
 			// id_board = 0 is reserved for topic notifications.
-			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], array(0));
+			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], [0]);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_notify
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:selected_member}',
-				array(
+				[
 					'board_list' => $_POST['notify_boards'],
 					'selected_member' => Profile::$member->id,
-				)
+				],
 			);
 		}
 
 		// Update the topics they are being notified about.
-		if (isset($_POST['edit_notify_topics']) && !empty($_POST['notify_topics']))
-		{
-			foreach ($_POST['notify_topics'] as $index => $id)
+		if (isset($_POST['edit_notify_topics']) && !empty($_POST['notify_topics'])) {
+			foreach ($_POST['notify_topics'] as $index => $id) {
 				$_POST['notify_topics'][$index] = (int) $id;
+			}
 
 			// Make sure there are no zeros left.
 			$_POST['notify_topics'] = array_filter($_POST['notify_topics']);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_notify
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}log_notify
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:selected_member}',
-				array(
+				[
 					'topic_list' => $_POST['notify_topics'],
 					'selected_member' => Profile::$member->id,
-				)
+				],
 			);
 
-			foreach ($_POST['notify_topics'] as $topic)
-			{
-				Notify::setNotifyPrefs(Profile::$member->id, array('topic_notify_' . $topic => 0));
+			foreach ($_POST['notify_topics'] as $topic) {
+				Notify::setNotifyPrefs(Profile::$member->id, ['topic_notify_' . $topic => 0]);
 			}
 		}
 
 		// Are we removing topic preferences?
-		if (isset($_POST['remove_notify_topics']) && !empty($_POST['notify_topics']))
-		{
-			$prefs = array();
+		if (isset($_POST['remove_notify_topics']) && !empty($_POST['notify_topics'])) {
+			$prefs = [];
 
-			foreach ($_POST['notify_topics'] as $topic)
+			foreach ($_POST['notify_topics'] as $topic) {
 				$prefs[] = 'topic_notify_' . $topic;
+			}
 
 			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
 		}
 
 		// Are we removing board preferences?
-		if (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards']))
-		{
-			$prefs = array();
+		if (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards'])) {
+			$prefs = [];
 
-			foreach ($_POST['notify_boards'] as $board)
+			foreach ($_POST['notify_boards'] as $board) {
 				$prefs[] = 'board_notify_' . $board;
-			
+			}
+
 			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
 		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Notification::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Notification::exportStatic')) {
 	Notification::exportStatic();
+}
 
 ?>

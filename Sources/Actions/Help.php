@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -33,12 +32,12 @@ class Help implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ShowHelp',
 			'HelpIndex' => 'HelpIndex',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -61,9 +60,9 @@ class Help implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'index' => 'index',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -86,10 +85,11 @@ class Help implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Help implements ActionInterface
 		Utils::$context['canonical_url'] = Config::$scripturl . '?action=help';
 
 		// Sections were are going to link...
-		Utils::$context['manual_sections'] = array(
+		Utils::$context['manual_sections'] = [
 			'registering' => 'Registering',
 			'logging_in' => 'Logging_In',
 			'profile' => 'Profile',
@@ -115,13 +115,13 @@ class Help implements ActionInterface
 			'memberlist' => 'Memberlist',
 			'calendar' => 'Calendar',
 			'features' => 'Features',
-		);
+		];
 
 		// Build the link tree.
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=help',
 			'name' => Lang::$txt['help'],
-		);
+		];
 
 		// Lastly, some minor template stuff.
 		Utils::$context['page_title'] = Lang::$txt['manual_smf_user_help'];
@@ -139,8 +139,9 @@ class Help implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -182,15 +183,17 @@ class Help implements ActionInterface
 		Lang::load('Manual');
 
 		// CRUD $subactions as needed.
-		IntegrationHook::call('integrate_manage_help', array(&$subactions));
+		IntegrationHook::call('integrate_manage_help', [&$subactions]);
 
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
+		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
 			$this->subaction = $_GET['sa'];
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Help::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Help::exportStatic')) {
 	Help::exportStatic();
+}
 
 ?>

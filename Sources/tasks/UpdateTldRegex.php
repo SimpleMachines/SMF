@@ -29,6 +29,7 @@ class UpdateTldRegex extends BackgroundTask
 	public function execute()
 	{
 		Url::setTldRegex(true);
+
 		return true;
 	}
 }

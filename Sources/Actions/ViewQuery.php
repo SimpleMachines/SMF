@@ -14,15 +14,14 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Provides a way to view database queries. Used for debugging.
@@ -36,11 +35,11 @@ class ViewQuery implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ViewQuery',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -69,8 +68,7 @@ class ViewQuery implements ActionInterface
 	public function execute(): void
 	{
 		// We should have debug mode enabled, as well as something to display!
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug']))
-		{
+		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -78,16 +76,12 @@ class ViewQuery implements ActionInterface
 		User::$me->isAllowedTo('admin_forum');
 
 		// If we're just hiding/showing, do it now.
-		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'hide')
-		{
+		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'hide') {
 			$_SESSION['view_queries'] = $_SESSION['view_queries'] == 1 ? 0 : 1;
 
-			if (strpos($_SESSION['old_url'], 'action=viewquery') !== false)
-			{
+			if (strpos($_SESSION['old_url'], 'action=viewquery') !== false) {
 				Utils::redirectexit();
-			}
-			else
-			{
+			} else {
 				Utils::redirectexit($_SESSION['old_url']);
 			}
 		}
@@ -119,56 +113,47 @@ class ViewQuery implements ActionInterface
 	<body id="help_popup">
 		<div class="tborder windowbg description">';
 
-		foreach ($_SESSION['debug'] as $q => $query_data)
-		{
+		foreach ($_SESSION['debug'] as $q => $query_data) {
 			// Fix the indentation....
 			$query_data['q'] = ltrim(str_replace("\r", '', $query_data['q']), "\n");
 			$query = explode("\n", $query_data['q']);
 			$min_indent = 0;
 
-			foreach ($query as $line)
-			{
-				preg_match('/^(\t*)/', $line, $temp);
+			foreach ($query as $line) {
+				preg_match('/^(\\t*)/', $line, $temp);
 
-				if (strlen($temp[0]) < $min_indent || $min_indent == 0)
+				if (strlen($temp[0]) < $min_indent || $min_indent == 0) {
 					$min_indent = strlen($temp[0]);
+				}
 			}
 
-			foreach ($query as $l => $dummy)
+			foreach ($query as $l => $dummy) {
 				$query[$l] = substr($dummy, $min_indent);
+			}
 
 			$query_data['q'] = implode("\n", $query);
 
 			// Make the filenames look a bit better.
-			if (isset($query_data['f']))
-			{
+			if (isset($query_data['f'])) {
 				$query_data['f'] = preg_replace('~^' . preg_quote(Config::$boarddir, '~') . '~', '...', $query_data['f']);
 			}
 
 			$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT' || substr(trim($query_data['q']), 0, 4) == 'WITH';
 
-			if ($is_select_query)
-			{
+			if ($is_select_query) {
 				$select = $query_data['q'];
-			}
-			elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)
-			{
+			} elseif (preg_match('~^INSERT(?: IGNORE)? INTO \\w+(?:\\s+\\([^)]+\\))?\\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {
 				$is_select_query = true;
 				$select = $matches[1];
-			}
-			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)
-			{
+			} elseif (preg_match('~^CREATE TEMPORARY TABLE .+?(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {
 				$is_select_query = true;
 				$select = $matches[1];
 			}
 
 			// Temporary tables created in earlier queries are not explainable.
-			if ($is_select_query)
-			{
-				foreach (array('log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages') as $tmp)
-				{
-					if (strpos($select, $tmp) !== false)
-					{
+			if ($is_select_query) {
+				foreach (['log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages'] as $tmp) {
+					if (strpos($select, $tmp) !== false) {
 						$is_select_query = false;
 						break;
 					}
@@ -181,17 +166,13 @@ class ViewQuery implements ActionInterface
 				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars($query_data['q']))), '
 			</a><br>';
 
-			if (!empty($query_data['f']) && !empty($query_data['l']))
-			{
+			if (!empty($query_data['f']) && !empty($query_data['l'])) {
 				echo sprintf(Lang::$txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
 			}
 
-			if (isset($query_data['s'], $query_data['t']) && isset(Lang::$txt['debug_query_which_took_at']))
-			{
+			if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
 				echo sprintf(Lang::$txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8));
-			}
-			else
-			{
+			} else {
 				echo sprintf(Lang::$txt['debug_query_which_took'], round($query_data['t'], 8));
 			}
 
@@ -199,20 +180,20 @@ class ViewQuery implements ActionInterface
 		</div>';
 
 			// Explain the query.
-			if ($query_id == $q && $is_select_query)
-			{
-				$result = Db::$db->query('', '
-					EXPLAIN ' . (Db::$db->title === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
-					array(
-					)
+			if ($query_id == $q && $is_select_query) {
+				$result = Db::$db->query(
+					'',
+					'EXPLAIN ' . (Db::$db->title === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
+					[
+					],
 				);
 
-				if ($result === false)
-				{
+				if ($result === false) {
 					echo '
 		<table>
 			<tr><td>', Db::$db->error(), '</td></tr>
 		</table>';
+
 					continue;
 				}
 
@@ -228,8 +209,8 @@ class ViewQuery implements ActionInterface
 			</tr>';
 
 				Db::$db->data_seek($result, 0);
-				while ($row = Db::$db->fetch_assoc($result))
-				{
+
+				while ($row = Db::$db->fetch_assoc($result)) {
 					echo '
 			<tr>
 				<td>' . implode('</td>
@@ -262,8 +243,9 @@ class ViewQuery implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -289,7 +271,8 @@ class ViewQuery implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ViewQuery::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\ViewQuery::exportStatic')) {
 	ViewQuery::exportStatic();
+}
 
 ?>

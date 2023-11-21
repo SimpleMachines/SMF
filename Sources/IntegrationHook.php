@@ -27,13 +27,13 @@ class IntegrationHook
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'call_integration_hook',
 			'add' => 'add_integration_function',
 			'remove' => 'remove_integration_function',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -58,7 +58,7 @@ class IntegrationHook
 	 *
 	 * The results from executing this hook.
 	 */
-	public array $results = array();
+	public array $results = [];
 
 	/*********************
 	 * Internal properties
@@ -69,7 +69,7 @@ class IntegrationHook
 	 *
 	 * The callables to execute for this hook.
 	 */
-	private array $callables = array();
+	private array $callables = [];
 
 	/****************
 	 * Public methods
@@ -82,27 +82,30 @@ class IntegrationHook
 	 * @param bool $ignore_errors If true, silently skip hooked functions that
 	 *    are not callable. Defaults to Utils::$context['ignore_hook_errors'].
 	 */
-	public function __construct(string $name, bool $ignore_errors = null)
+	public function __construct(string $name, ?bool $ignore_errors = null)
 	{
-		if (!class_exists('SMF\\Config', false) || !class_exists('SMF\\Utils', false))
+		if (!class_exists('SMF\\Config', false) || !class_exists('SMF\\Utils', false)) {
 			return;
+		}
 
 		$this->ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (Config::$db_show_debug === true)
+		if (Config::$db_show_debug === true) {
 			Utils::$context['debug']['hooks'][] = $name;
+		}
 
-		if (empty(Config::$modSettings[$name]))
+		if (empty(Config::$modSettings[$name])) {
 			return;
+		}
 
 		$func_strings = explode(',', Config::$modSettings[$name]);
 
 		// Loop through each one to get the callable for it.
-		foreach ($func_strings as $func_string)
-		{
+		foreach ($func_strings as $func_string) {
 			// Hook has been marked as disabled. Skip it!
-			if (strpos($func_string, '!') !== false)
+			if (strpos($func_string, '!') !== false) {
 				continue;
+			}
 
 			$this->callables[$func_string] = Utils::getCallable($func_string);
 		}
@@ -115,52 +118,46 @@ class IntegrationHook
 	 * @param array $parameters Parameters to pass to the hooked callables.
 	 * @return array The results returned by all the hooked callables.
 	 */
-	public function execute(array $parameters = array()): array
+	public function execute(array $parameters = []): array
 	{
-		if (empty($this->callables))
+		if (empty($this->callables)) {
 			return $this->results;
+		}
 
 		// Loop through each callable.
-		foreach ($this->callables as $func_string => $callable)
-		{
+		foreach ($this->callables as $func_string => $callable) {
 			// Is it valid?
-			if (is_callable($callable))
-			{
+			if (is_callable($callable)) {
 				$this->results[$func_string] = call_user_func_array($callable, $parameters);
 			}
 			// This failed, but we want to do so silently.
-			elseif ($this->ignore_errors)
-			{
+			elseif ($this->ignore_errors) {
 				// return $this->results;
 				continue;
 			}
 			// Whatever it was supposed to call, it failed :(
-			else
-			{
+			else {
 				Lang::load('Errors');
 
 				// Get a full path to show on error.
-				if (strpos($func_string, '|') !== false)
-				{
+				if (strpos($func_string, '|') !== false) {
 					list($file, $func) = explode('|', $func_string);
 
-					$path = strtr($file, array(
+					$path = strtr($file, [
 						'$boarddir' => Config::$boarddir,
 						'$sourcedir' => Config::$sourcedir,
-					));
+					]);
 
-					if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir']))
-					{
-						$path = strtr($path, array(
+					if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+						$path = strtr($path, [
 							'$themedir' => Theme::$current->settings['theme_dir'],
-						));
+						]);
 					}
 
 					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $func, $path), 'general');
 				}
 				// Assume the file resides on Config::$boarddir somewhere...
-				else
-				{
+				else {
 					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $func_string, Config::$boarddir), 'general');
 				}
 			}
@@ -180,9 +177,10 @@ class IntegrationHook
 	 * @param array $parameters Parameters to pass to the hooked callables.
 	 * @return array The results returned by all the hooked callables.
 	 */
-	public static function call($name, $parameters = array()): array
+	public static function call($name, $parameters = []): array
 	{
 		$hook = new self($name);
+
 		return $hook->execute($parameters);
 	}
 
@@ -205,12 +203,14 @@ class IntegrationHook
 	public static function add(string $name, string $function, bool $permanent = true, string $file = '', bool $object = false): void
 	{
 		// Any objects?
-		if ($object)
+		if ($object) {
 			$function = $function . '#';
+		}
 
 		// Any files  to load?
-		if (!empty($file) && is_string($file))
+		if (!empty($file) && is_string($file)) {
 			$function = $file . (!empty($function) ? '|' . $function : '');
+		}
 
 		// Get the correct string.
 		$integration_call = $function;
@@ -218,50 +218,47 @@ class IntegrationHook
 		$disabled_call = $enabled_call . '!';
 
 		// Is it going to be permanent?
-		if ($permanent)
-		{
-			$request = Db::$db->query('', '
-				SELECT value
+		if ($permanent) {
+			$request = Db::$db->query(
+				'',
+				'SELECT value
 				FROM {db_prefix}settings
 				WHERE variable = {string:variable}',
-				array(
+				[
 					'variable' => $name,
-				)
+				],
 			);
 			list($current_functions) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			if (!empty($current_functions))
-			{
+			if (!empty($current_functions)) {
 				$current_functions = explode(',', $current_functions);
 
 				// Cleanup enabled/disabled variants before taking action.
-				$current_functions = array_diff($current_functions, array($enabled_call, $disabled_call));
+				$current_functions = array_diff($current_functions, [$enabled_call, $disabled_call]);
 
-				$permanent_functions = array_unique(array_merge($current_functions, array($integration_call)));
-			}
-			else
-			{
-				$permanent_functions = array($integration_call);
+				$permanent_functions = array_unique(array_merge($current_functions, [$integration_call]));
+			} else {
+				$permanent_functions = [$integration_call];
 			}
 
-			Config::updateModSettings(array($name => implode(',', $permanent_functions)));
+			Config::updateModSettings([$name => implode(',', $permanent_functions)]);
 		}
 
 		// Make current function list usable.
-		$functions = empty(Config::$modSettings[$name]) ? array() : explode(',', Config::$modSettings[$name]);
+		$functions = empty(Config::$modSettings[$name]) ? [] : explode(',', Config::$modSettings[$name]);
 
 		// Cleanup enabled/disabled variants before taking action.
-		$functions = array_diff($functions, array($enabled_call, $disabled_call));
-		$functions = array_unique(array_merge($functions, array($integration_call)));
+		$functions = array_diff($functions, [$enabled_call, $disabled_call]);
+		$functions = array_unique(array_merge($functions, [$integration_call]));
 
 		Config::$modSettings[$name] = implode(',', $functions);
 
 		// It is handy to be able to know which hooks are temporary...
-		if ($permanent !== true)
-		{
-			if (!isset(Utils::$context['integration_hooks_temporary']))
-				Utils::$context['integration_hooks_temporary'] = array();
+		if ($permanent !== true) {
+			if (!isset(Utils::$context['integration_hooks_temporary'])) {
+				Utils::$context['integration_hooks_temporary'] = [];
+			}
 
 			Utils::$context['integration_hooks_temporary'][$name][$function] = true;
 		}
@@ -290,12 +287,14 @@ class IntegrationHook
 	public static function remove(string $name, string $function, bool $permanent = true, string $file = '', bool $object = false): void
 	{
 		// Any objects?
-		if ($object)
+		if ($object) {
 			$function = $function . '#';
+		}
 
 		// Any files  to load?
-		if (!empty($file) && is_string($file))
+		if (!empty($file) && is_string($file)) {
 			$function = $file . '|' . $function;
+		}
 
 		// Get the correct string.
 		$integration_call = $function;
@@ -303,39 +302,40 @@ class IntegrationHook
 		$disabled_call = $enabled_call . '!';
 
 		// Get the permanent functions.
-		$request = Db::$db->query('', '
-			SELECT value
+		$request = Db::$db->query(
+			'',
+			'SELECT value
 			FROM {db_prefix}settings
 			WHERE variable = {string:variable}',
-			array(
+			[
 				'variable' => $name,
-			)
+			],
 		);
 		list($current_functions) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		if (!empty($current_functions))
-		{
+		if (!empty($current_functions)) {
 			$current_functions = explode(',', $current_functions);
 
 			// Cleanup enabled and disabled variants.
-			$current_functions = array_unique(array_diff($current_functions, array($enabled_call, $disabled_call)));
+			$current_functions = array_unique(array_diff($current_functions, [$enabled_call, $disabled_call]));
 
-			Config::updateModSettings(array($name => implode(',', $current_functions)));
+			Config::updateModSettings([$name => implode(',', $current_functions)]);
 		}
 
 		// Turn the function list into something usable.
-		$functions = empty(Config::$modSettings[$name]) ? array() : explode(',', Config::$modSettings[$name]);
+		$functions = empty(Config::$modSettings[$name]) ? [] : explode(',', Config::$modSettings[$name]);
 
 		// Cleanup enabled and disabled variants.
-		$functions = array_unique(array_diff($functions, array($enabled_call, $disabled_call)));
+		$functions = array_unique(array_diff($functions, [$enabled_call, $disabled_call]));
 
 		Config::$modSettings[$name] = implode(',', $functions);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\IntegrationHook::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\IntegrationHook::exportStatic')) {
 	IntegrationHook::exportStatic();
+}
 
 ?>

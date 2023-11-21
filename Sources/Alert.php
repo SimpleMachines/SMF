@@ -20,22 +20,23 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Alert implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'fetch' => 'fetch_alerts',
 			'count' => 'alert_count',
 			'mark' => 'alert_mark',
 			'delete' => 'alert_delete',
 			'purge' => 'alert_purge',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -156,7 +157,7 @@ class Alert implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/**
 	 * @var array
@@ -169,28 +170,28 @@ class Alert implements \ArrayAccess
 	 * 'link' and 'text' are the sprintf formats that will be used when
 	 *     $this->show_links is true or false, respectively.
 	 */
-	public static $link_formats = array(
-		'msg_msg' => array(
-			'required' => array('content_subject', 'topic', 'msg'),
+	public static $link_formats = [
+		'msg_msg' => [
+			'required' => ['content_subject', 'topic', 'msg'],
 			'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
 			'text' => '<strong>%1$s</strong>',
-		),
-		'topic_msg' => array(
-			'required' => array('content_subject', 'topic', 'topic_suffix'),
+		],
+		'topic_msg' => [
+			'required' => ['content_subject', 'topic', 'topic_suffix'],
 			'link' => '<a href="{scripturl}?topic=%2$d.%3$s">%1$s</a>',
 			'text' => '<strong>%1$s</strong>',
-		),
-		'board_msg' => array(
-			'required' => array('board_name', 'board'),
+		],
+		'board_msg' => [
+			'required' => ['board_name', 'board'],
 			'link' => '<a href="{scripturl}?board=%2$d.0">%1$s</a>',
 			'text' => '<strong>%1$s</strong>',
-		),
-		'profile_msg' => array(
-			'required' => array('user_name', 'user_id'),
+		],
+		'profile_msg' => [
+			'required' => ['user_name', 'user_id'],
 			'link' => '<a href="{scripturl}?action=profile;u=%2$d">%1$s</a>',
 			'text' => '<strong>%1$s</strong>',
-		),
-	);
+		],
+	];
 
 	/*********************
 	 * Internal properties
@@ -201,14 +202,14 @@ class Alert implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_alert' => 'id',
 		'alert_time' => 'timestamp',
 		'id_member' => 'member',
 		'id_member_started' => 'member_started',
 		'sender_id' => 'member_started',
 		'sender_name' => 'member_name',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -219,7 +220,7 @@ class Alert implements \ArrayAccess
 	 *
 	 * The query_see_board data to use when checking access to content.
 	 */
-	protected static array $qb = array();
+	protected static array $qb = [];
 
 	/**
 	 * @var array
@@ -238,7 +239,7 @@ class Alert implements \ArrayAccess
 	 * @param int $id The ID number of the alert.
 	 * @param array $props Properties to set for this alert.
 	 */
-	public function __construct(int $id = 0, array $props = array())
+	public function __construct(int $id = 0, array $props = [])
 	{
 		$this->set($props);
 		$this->id = $id;
@@ -247,25 +248,23 @@ class Alert implements \ArrayAccess
 		$this->show_links = (bool) ($this->extra['show_links'] ?? false);
 		$this->initial_is_read = $this->is_read;
 
-		if ($this->id === 0)
-		{
-			while (isset(self::$loaded[$this->id]))
+		if ($this->id === 0) {
+			while (isset(self::$loaded[$this->id])) {
 				$this->id--;
+			}
 		}
 
 		self::$loaded[$this->id] = $this;
 
-		if (!isset($this->visible))
-		{
-			switch ($this->content_type)
-			{
+		if (!isset($this->visible)) {
+			switch ($this->content_type) {
 				case 'msg':
-					self::checkMsgAccess(array($this->id => $this->content_id), $this->member);
+					self::checkMsgAccess([$this->id => $this->content_id], $this->member);
 					break;
 
 				case 'topic':
 				case 'board':
-					self::checkTopicAccess(array($this->id => $this->content_id), $this->member);
+					self::checkTopicAccess([$this->id => $this->content_id], $this->member);
 					break;
 
 				default:
@@ -274,8 +273,9 @@ class Alert implements \ArrayAccess
 			}
 
 			// If not visible, remove from our static array.
-			if (!$this->visible)
+			if (!$this->visible) {
 				unset(self::$loaded[$this->id]);
+			}
 		}
 	}
 
@@ -291,129 +291,125 @@ class Alert implements \ArrayAccess
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
 		Lang::load('Alerts');
 
-		if (!$this->visible)
+		if (!$this->visible) {
 			return;
+		}
 
 		// Did a mod already take care of this one?
-		if (!empty($this->text))
+		if (!empty($this->text)) {
 			return;
+		}
 
 		self::finalizeLinkFormats();
 
 		// Are we forcing show_links to be true?
-		if ($show_links)
+		if ($show_links) {
 			$this->show_links = true;
+		}
 
 		// Make a nicely formatted version of the time.
 		$this->time = Time::create('@' . $this->timestamp)->format();
 
 		// Load the users we need.
 		User::load(
-			array_filter(array(
+			array_filter([
 				$this->member_started,
 				$this->content_type === 'profile' ? $this->content_id : null,
-			)),
+			]),
 			User::LOAD_BY_ID,
-			$with_avatar ? 'basic' : 'minimal'
+			$with_avatar ? 'basic' : 'minimal',
 		);
 
 		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
-		if (!empty($this->content_data))
-		{
+		if (!empty($this->content_data)) {
 			$data = $this->content_data;
 
 			// Make sure msg, topic, and board info are correct.
-			$patterns = array();
-			$replacements = array();
-			foreach (array('msg', 'topic', 'board') as $item)
-			{
-				if (isset($data['id_' . $item]))
-				{
+			$patterns = [];
+			$replacements = [];
+
+			foreach (['msg', 'topic', 'board'] as $item) {
+				if (isset($data['id_' . $item])) {
 					$separator = $item == 'msg' ? '=?' : '=';
 
-					if (isset($this->extra['content_link']) && strpos($this->extra['content_link'], $item . $separator) !== false && strpos($this->extra['content_link'], $item . $separator . $data['id_' . $item]) === false)
-					{
-						$patterns[] = '/\b' . $item . $separator . '\d+/';
+					if (isset($this->extra['content_link']) && strpos($this->extra['content_link'], $item . $separator) !== false && strpos($this->extra['content_link'], $item . $separator . $data['id_' . $item]) === false) {
+						$patterns[] = '/\\b' . $item . $separator . '\\d+/';
 						$replacements[] = $item . $separator . $data['id_' . $item];
 					}
 
 					$this->extra[$item] = $data['id_' . $item];
 				}
 			}
-			if (!empty($patterns))
+
+			if (!empty($patterns)) {
 				$this->extra['content_link'] = preg_replace($patterns, $replacements, $this->extra['content_link']);
+			}
 
 			// Make sure the subject is correct.
-			if (isset($data['subject']))
+			if (isset($data['subject'])) {
 				$this->extra['content_subject'] = $data['subject'];
+			}
 
 			// Keep track of this so we can use it below.
-			if (isset($data['board_name']))
+			if (isset($data['board_name'])) {
 				$this->extra['board_name'] = $data['board_name'];
+			}
 
 			unset($this->content_data);
 		}
 
 		// Do we want to link to the topic in general or the new messages specifically?
-		if (in_array($this->content_type, array('topic', 'board')) && in_array($this->content_action, array('reply', 'topic', 'unapproved_reply')))
-		{
+		if (in_array($this->content_type, ['topic', 'board']) && in_array($this->content_action, ['reply', 'topic', 'unapproved_reply'])) {
 			$this->extra['topic_suffix'] = 'new;topicseen#new';
-		}
-		elseif (isset($this->extra['topic']))
-		{
+		} elseif (isset($this->extra['topic'])) {
 			$this->extra['topic_suffix'] = '0';
 		}
 
 		// Make sure profile alerts have what they need.
-		if ($this->content_type === 'profile')
-		{
-			if (empty($this->extra['user_id']))
+		if ($this->content_type === 'profile') {
+			if (empty($this->extra['user_id'])) {
 				$this->extra['user_id'] = $this->content_id;
+			}
 
-			if (isset(User::$loaded[$this->extra['user_id']]))
+			if (isset(User::$loaded[$this->extra['user_id']])) {
 				$this->extra['user_name'] = User::$loaded[$this->content_id]->name;
+			}
 		}
 
 		// If we loaded the sender's profile, we may as well use it.
-		if (isset(User::$loaded[$this->member_started]))
-		{
+		if (isset(User::$loaded[$this->member_started])) {
 			$this->member_name = User::$loaded[$this->member_started]->name;
 
 			// If requested, include the sender's avatar data.
-			if ($with_avatar)
+			if ($with_avatar) {
 				$this->sender = User::$loaded[$this->member_started];
+			}
 		}
 
 		// Next, build the message strings.
-		foreach (self::$link_formats as $msg_type => $format_info)
-		{
+		foreach (self::$link_formats as $msg_type => $format_info) {
 			// Get the values to use in the formatted string, in the right order.
 			$msg_values = array_replace(
 				array_fill_keys($format_info['required'], ''),
-				array_intersect_key($this->extra, array_flip($format_info['required']))
+				array_intersect_key($this->extra, array_flip($format_info['required'])),
 			);
 
 			// Assuming all required values are present, build the message.
-			if (!in_array('', $msg_values))
-			{
+			if (!in_array('', $msg_values)) {
 				$this->extra[$msg_type] = vsprintf(self::$link_formats[$msg_type][$this->show_links ? 'link' : 'text'], $msg_values);
-			}
-			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
-			{
+			} elseif (in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
 				$this->extra[$msg_type] = Lang::$txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
-			}
-			else
-			{
+			} else {
 				$this->extra[$msg_type] = '(' . Lang::$txt['not_applicable'] . ')';
 			}
 		}
 
 		// Show the formatted time in alerts about subscriptions.
-		if ($this->content_type == 'paidsubs' && isset($this->extra['end_time']))
-		{
+		if ($this->content_type == 'paidsubs' && isset($this->extra['end_time'])) {
 			// If the subscription already expired, say so.
-			if ($this->extra['end_time'] < time())
+			if ($this->extra['end_time'] < time()) {
 				$this->content_action = 'expired';
+			}
 
 			// Present a nicely formatted date.
 			$this->extra['end_time'] = Time::create('@' . $this->extra['end_time'])->format();
@@ -423,20 +419,15 @@ class Alert implements \ArrayAccess
 		$this->target_href = '';
 
 		// Priority goes to explicitly specified links.
-		if (isset($this->extra['content_link']))
-		{
+		if (isset($this->extra['content_link'])) {
 			$this->target_href = $this->extra['content_link'];
-		}
-		elseif (isset($this->extra['report_link']))
-		{
+		} elseif (isset($this->extra['report_link'])) {
 			$this->target_href = Config::$scripturl . $this->extra['report_link'];
 		}
 
 		// Next, try determining the link based on the content action.
-		if (empty($this->target_href) && in_array($this->content_action, array('register_approval', 'group_request', 'buddy_request')))
-		{
-			switch ($this->content_action)
-			{
+		if (empty($this->target_href) && in_array($this->content_action, ['register_approval', 'group_request', 'buddy_request'])) {
+			switch ($this->content_action) {
 				case 'register_approval':
 					$this->target_href = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
 					break;
@@ -446,8 +437,7 @@ class Alert implements \ArrayAccess
 					break;
 
 				case 'buddy_request':
-					if (!empty($this->member_started))
-					{
+					if (!empty($this->member_started)) {
 						$this->target_href = Config::$scripturl . '?action=profile;u=' . $this->member_started;
 					}
 					break;
@@ -458,27 +448,22 @@ class Alert implements \ArrayAccess
 		}
 
 		// Or maybe we can determine the link based on the content type.
-		if (empty($this->target_href) && in_array($this->content_type, array('msg', 'member', 'event')))
-		{
-			switch ($this->content_type)
-			{
+		if (empty($this->target_href) && in_array($this->content_type, ['msg', 'member', 'event'])) {
+			switch ($this->content_type) {
 				case 'msg':
-					if (!empty($this->content_id))
-					{
+					if (!empty($this->content_id)) {
 						$this->target_href = Config::$scripturl . '?msg=' . $this->content_id;
 					}
 					break;
 
 				case 'member':
-					if (!empty($this->member_started))
-					{
+					if (!empty($this->member_started)) {
 						$this->target_href = Config::$scripturl . '?action=profile;u=' . $this->member_started;
 					}
 					break;
 
 				case 'event':
-					if (!empty($this->extra['event_id']))
-					{
+					if (!empty($this->extra['event_id'])) {
 						$this->target_href = Config::$scripturl . '?action=calendar;event=' . $this->extra['event_id'];
 					}
 					break;
@@ -491,17 +476,16 @@ class Alert implements \ArrayAccess
 		// Finally, set this alert's text string.
 		$txt_key = 'alert_' . $this->content_type . '_' . $this->content_action;
 
-		if (isset(Lang::$txt[$txt_key]))
-		{
-			$substitutions = array(
+		if (isset(Lang::$txt[$txt_key])) {
+			$substitutions = [
 				'{scripturl}' => Config::$scripturl,
 				'{member_link}' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
-			);
+			];
 
-			if (is_array($this->extra))
-			{
-				foreach ($this->extra as $k => $v)
+			if (is_array($this->extra)) {
+				foreach ($this->extra as $k => $v) {
 					$substitutions['{' . $k . '}'] = $v;
+				}
 			}
 
 			$this->text = strtr(Lang::$txt[$txt_key], $substitutions);
@@ -517,15 +501,16 @@ class Alert implements \ArrayAccess
 	public function save(bool $update_count = true): void
 	{
 		// Don't save it if the member can't see it.
-		if (empty($this->visible))
+		if (empty($this->visible)) {
 			return;
+		}
 
 		// Saving a new alert.
-		if ($this->id <= 0)
-		{
-			$this->id = Db::$db->insert('',
+		if ($this->id <= 0) {
+			$this->id = Db::$db->insert(
+				'',
 				'{db_prefix}user_alerts',
-				array(
+				[
 					'alert_time' => 'int',
 					'id_member' => 'int',
 					'id_member_started' => 'int',
@@ -535,8 +520,8 @@ class Alert implements \ArrayAccess
 					'content_action' => 'string',
 					'is_read' => 'int',
 					'extra' => 'string',
-				),
-				array(
+				],
+				[
 					$this->timestamp,
 					$this->member,
 					$this->member_started,
@@ -546,27 +531,26 @@ class Alert implements \ArrayAccess
 					$this->content_action,
 					0,
 					Utils::jsonEncode($this->extra),
-				),
-				array('id_alert'),
-				1
+				],
+				['id_alert'],
+				1,
 			);
 
 			// Update the keys in self::$loaded.
 			self::$loaded = array_combine(
-				array_map(fn($alert) => $alert->id, self::$loaded),
-				self::$loaded
+				array_map(fn ($alert) => $alert->id, self::$loaded),
+				self::$loaded,
 			);
 
-			if ($update_count)
-			{
-				User::updateMemberData($this->member, array('alerts' => '+'));
+			if ($update_count) {
+				User::updateMemberData($this->member, ['alerts' => '+']);
 			}
 		}
 		// Updating an existing alert.
-		else
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}user_alerts
+		else {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}user_alerts
 				SET
 					alert_time = {int:timestamp},
 					id_member = {int:member},
@@ -578,7 +562,7 @@ class Alert implements \ArrayAccess
 					is_read = {int:is_read},
 					extra = {string:extra}
 				WHERE id_alert = {int:id}',
-				array(
+				[
 					'id' => $this->id,
 					'timestamp' => $this->timestamp,
 					'member' => $this->member,
@@ -589,13 +573,12 @@ class Alert implements \ArrayAccess
 					'content_action' => $this->content_action,
 					'is_read' => (int) $this->is_read,
 					'extra' => Utils::jsonEncode($this->extra),
-				)
+				],
 			);
 
 			// Has the is_read value changed since we loaded this alert?
-			if ($update_count && $this->is_read !== $this->initial_is_read)
-			{
-				User::updateMemberData($this->member, array('alerts' => '+'));
+			if ($update_count && $this->is_read !== $this->initial_is_read) {
+				User::updateMemberData($this->member, ['alerts' => '+']);
 			}
 		}
 	}
@@ -608,8 +591,9 @@ class Alert implements \ArrayAccess
 	 */
 	public function __set(string $prop, $value): void
 	{
-		if ($prop === 'extra')
+		if ($prop === 'extra') {
 			$value = (array) Utils::jsonDecode($value ?? '', true);
+		}
 
 		$this->customPropertySet($prop, $value);
 	}
@@ -624,10 +608,11 @@ class Alert implements \ArrayAccess
 	 * @param array $props Properties to set for this alert.
 	 * @return object An instance of this class.
 	 */
-	public static function create(array $props = array()): object
+	public static function create(array $props = []): object
 	{
 		$alert = new self(0, $props);
 		$alert->save();
+
 		return $alert;
 	}
 
@@ -640,21 +625,19 @@ class Alert implements \ArrayAccess
 	 * @param array $props_batch Multiple sets of $props.
 	 * @return array An array of instances of this class.
 	 */
-	public static function createBatch(array $props_batch = array()): array
+	public static function createBatch(array $props_batch = []): array
 	{
-		$created = array();
-		$inserts = array();
-		$members = array();
-		$possible_msgs = array();
-		$possible_topics = array();
+		$created = [];
+		$inserts = [];
+		$members = [];
+		$possible_msgs = [];
+		$possible_topics = [];
 
 		// First, weed out any alerts that wouldn't be visible.
-		foreach ($props_batch as &$props)
-		{
+		foreach ($props_batch as &$props) {
 			$members[] = $props['id_member'];
 
-			switch ($props['content_type'])
-			{
+			switch ($props['content_type']) {
 				case 'msg':
 					$props['visible'] = false;
 					$props['simple_access_check'] = true;
@@ -676,34 +659,31 @@ class Alert implements \ArrayAccess
 
 		$members = array_unique($members);
 
-		foreach ($members as $memID)
-		{
-			foreach (array('checkMsgAccess' => 'possible_msgs', 'checkTopicAccess' => 'possible_topics') as $method => $variable)
-			{
-				$visibility = self::$method(${$variable}[$memID] ?? array(), $memID, true);
+		foreach ($members as $memID) {
+			foreach (['checkMsgAccess' => 'possible_msgs', 'checkTopicAccess' => 'possible_topics'] as $method => $variable) {
+				$visibility = self::$method(${$variable}[$memID] ?? [], $memID, true);
 
-				if (!empty($visibility))
-				{
-					foreach ($props_batch as &$props)
-					{
-						if (isset($visibility[$props['id_alert']]))
+				if (!empty($visibility)) {
+					foreach ($props_batch as &$props) {
+						if (isset($visibility[$props['id_alert']])) {
 							$props['visible'] = $visibility[$props['id_alert']];
+						}
 					}
 				}
 			}
 		}
 
 		// Now create the alert objects and populate the database insert rows.
-		foreach ($props_batch as $props)
-		{
-			if (!$props['visible'])
+		foreach ($props_batch as $props) {
+			if (!$props['visible']) {
 				continue;
+			}
 
 			$alert = new self(0, $props);
 
 			$created[$alert->id] = $alert;
 
-			$inserts[$alert->id] = array(
+			$inserts[$alert->id] = [
 				$alert->timestamp,
 				$alert->member,
 				$alert->member_started,
@@ -713,13 +693,14 @@ class Alert implements \ArrayAccess
 				$alert->content_action,
 				0,
 				Utils::jsonEncode($alert->extra),
-			);
+			];
 		}
 
 		// Insert the data into the database.
-		$ids = Db::$db->insert('',
+		$ids = Db::$db->insert(
+			'',
 			'{db_prefix}user_alerts',
-			array(
+			[
 				'alert_time' => 'int',
 				'id_member' => 'int',
 				'id_member_started' => 'int',
@@ -729,33 +710,34 @@ class Alert implements \ArrayAccess
 				'content_action' => 'string',
 				'is_read' => 'int',
 				'extra' => 'string',
-			),
+			],
 			$inserts,
-			array('id_alert'),
-			2
+			['id_alert'],
+			2,
 		);
 
 		// Map our temp IDs to the real IDs.
 		$ids = array_combine(array_keys($inserts), $ids);
 
 		// Change the IDs in the alert objects themselves.
-		foreach ($ids as $temp => $real)
+		foreach ($ids as $temp => $real) {
 			self::$loaded[$temp]->id = $real;
+		}
 
 		// Update the keys in self::$loaded.
 		self::$loaded = array_combine(
-			array_map(fn($alert) => $alert->id, self::$loaded),
-			self::$loaded
+			array_map(fn ($alert) => $alert->id, self::$loaded),
+			self::$loaded,
 		);
 
 		// Update the keys in $created.
 		$created = array_combine(
-			array_map(fn($alert) => $alert->id, $created),
-			$created
+			array_map(fn ($alert) => $alert->id, $created),
+			$created,
 		);
 
 		// Update the alert counts for the members.
-		User::updateMemberData($members, array('alerts' => '+'));
+		User::updateMemberData($members, ['alerts' => '+']);
 
 		return $created;
 	}
@@ -770,45 +752,43 @@ class Alert implements \ArrayAccess
 	 *    Default: false;
 	 * @return array An array of instances of this class.
 	 */
-	public static function load(int|array $ids = array(), array $query_customizations = array(), bool $simple_access_check = false): array
+	public static function load(int|array $ids = [], array $query_customizations = [], bool $simple_access_check = false): array
 	{
 		Lang::load('Alerts');
 
-		$loaded = array();
-		$possible_msgs = array();
-		$possible_topics = array();
-		$members = array();
+		$loaded = [];
+		$possible_msgs = [];
+		$possible_topics = [];
+		$members = [];
 
 		// Are we being asked for some specific alerts?
 		$ids = array_filter(array_map('intval', (array) $ids));
 
 		// Can't load anything without some sort of criteria.
-		if ($ids === array() && $query_customizations === array())
-			return array();
+		if ($ids === [] && $query_customizations === []) {
+			return [];
+		}
 
 		// Get the basic alert info.
-		$selects = $query_customizations['selects'] ?? array('a.*');
-		$joins = $query_customizations['joins'] ?? array();
-		$where = $query_customizations['where'] ?? array();
-		$order = $query_customizations['order'] ?? array('a.id_alert DESC');
+		$selects = $query_customizations['selects'] ?? ['a.*'];
+		$joins = $query_customizations['joins'] ?? [];
+		$where = $query_customizations['where'] ?? [];
+		$order = $query_customizations['order'] ?? ['a.id_alert DESC'];
 		$limit = $query_customizations['limit'] ?? min(!empty(Config::$modSettings['alerts_per_page']) ? Config::$modSettings['alerts_per_page'] : 1000, 1000);
-		$params = $query_customizations['params'] ?? array();
+		$params = $query_customizations['params'] ?? [];
 
-		if (!empty($ids))
-		{
+		if (!empty($ids)) {
 			$where[] = 'a.id_alert IN ({array_int:ids})';
 			$params['ids'] = $ids;
 		}
 
-		foreach (self::queryData($selects, $params, $joins, $where, $order, $limit) as $row)
-		{
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $limit) as $row) {
 			$row['id_alert'] = (int) $row['id_alert'];
 
 			$members[] = (int) $row['id_member'];
 
 			// For some types, we need to check whether they can actually see the content.
-			switch ($row['content_type'])
-			{
+			switch ($row['content_type']) {
 				case 'msg':
 					$row['visible'] = false;
 					$row['simple_access_check'] = $simple_access_check;
@@ -830,10 +810,9 @@ class Alert implements \ArrayAccess
 			$loaded[$row['id_alert']] = new self($row['id_alert'], $row);
 		}
 
-		foreach (array_unique($members) as $memID)
-		{
-			self::checkMsgAccess($possible_msgs[$memID] ?? array(), $memID, $simple_access_check);
-			self::checkTopicAccess($possible_topics[$memID] ?? array(), $memID, $simple_access_check);
+		foreach (array_unique($members) as $memID) {
+			self::checkMsgAccess($possible_msgs[$memID] ?? [], $memID, $simple_access_check);
+			self::checkTopicAccess($possible_topics[$memID] ?? [], $memID, $simple_access_check);
 			self::deleteInvisible($loaded, $memID);
 		}
 
@@ -854,39 +833,42 @@ class Alert implements \ArrayAccess
 	 */
 	public static function loadForMember(int $memID, bool|array $to_fetch = false, int $limit = 0, int $offset = 0, bool $simple_access_check = false): array
 	{
-		if (empty($memID))
-			return array();
+		if (empty($memID)) {
+			return [];
+		}
 
-		$loaded = array();
+		$loaded = [];
 
 		// We only want alerts for this member.
-		$query_customizations = array(
-			'where' => array(
+		$query_customizations = [
+			'where' => [
 				'a.id_member = {int:id_member}',
-			),
+			],
 			'limit' => min(!empty($limit) ? $limit : (!empty(Config::$modSettings['alerts_per_page']) ? Config::$modSettings['alerts_per_page'] : 1000), 1000),
-			'params' => array(
+			'params' => [
 				'id_member' => $memID,
-			),
-		);
+			],
+		];
 
 		// False means get only the unread alerts.
-		if ($to_fetch === false)
+		if ($to_fetch === false) {
 			$query_customizations['where'][] = 'a.is_read = 0';
+		}
 
 		// Are we being asked for some specific alerts?
-		$ids = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
+		$ids = is_bool($to_fetch) ? [] : array_filter(array_map('intval', (array) $to_fetch));
 
 		// Don't reload unnecessarily.
-		foreach (self::$loaded as $alert)
-		{
+		foreach (self::$loaded as $alert) {
 			// Ignore alerts that belong to a different member.
-			if ($alert->member !== $memID)
+			if ($alert->member !== $memID) {
 				continue;
+			}
 
 			// Reload this alert if we need to redo the access check.
-			if ((int) $simple_access_check < (int) ($alert->simple_access_check ?? 0))
+			if ((int) $simple_access_check < (int) ($alert->simple_access_check ?? 0)) {
 				continue;
+			}
 
 			// At this point, we can exclude this alert from the ones we need to load.
 			$loaded[$alert->id] = $alert;
@@ -894,8 +876,7 @@ class Alert implements \ArrayAccess
 
 		$ids = array_diff($ids, array_keys($loaded));
 
-		if (!empty($loaded))
-		{
+		if (!empty($loaded)) {
 			$query_customizations['where'][] = 'a.id_alert NOT IN ({array_int:already_loaded})';
 			$query_customizations['params']['already_loaded'] = array_keys($loaded);
 		}
@@ -903,8 +884,9 @@ class Alert implements \ArrayAccess
 		// Figure out the limit and offset.
 		$offset = !empty($ids) ? 0 : max(0, (int) $offset);
 
-		if (!empty($offset))
+		if (!empty($offset)) {
 			$query_customizations['limit'] = $offset . ', ' . $query_customizations['limit'];
+		}
 
 		// Load the alerts we need.
 		$loaded += self::load($ids, $query_customizations);
@@ -941,19 +923,20 @@ class Alert implements \ArrayAccess
 
 		// Hooks might want to do something snazzy with their own content types,
 		// including enforcing permissions if appropriate.
-		IntegrationHook::call('integrate_fetch_alerts', array(&$loaded, &self::$link_formats));
+		IntegrationHook::call('integrate_fetch_alerts', [&$loaded, &self::$link_formats]);
 
 		// Did a hook remove some of the alerts we loaded?
-		if ($loaded_ids !== array_keys($loaded))
-		{
+		if ($loaded_ids !== array_keys($loaded)) {
 			// Remove those alerts from our static array as well.
-			foreach (array_diff($loaded_ids, array_keys($loaded)) as $unloaded)
+			foreach (array_diff($loaded_ids, array_keys($loaded)) as $unloaded) {
 				unset(self::$loaded[$unloaded]);
+			}
 		}
 
 		// Prepare them for the templates.
-		foreach ($loaded as $alert)
+		foreach ($loaded as $alert) {
 			$alert->format($with_avatar, $show_links);
+		}
 
 		return $loaded;
 	}
@@ -974,13 +957,14 @@ class Alert implements \ArrayAccess
 
 		$count = 0;
 
-		foreach (self::$loaded as $alert)
-		{
-			if ($alert->member !== $memID)
+		foreach (self::$loaded as $alert) {
+			if ($alert->member !== $memID) {
 				continue;
+			}
 
-			if ($unread && $alert->is_read > 0)
+			if ($unread && $alert->is_read > 0) {
 				continue;
+			}
 
 			$count++;
 		}
@@ -1000,30 +984,32 @@ class Alert implements \ArrayAccess
 		$members = array_filter((array) $members);
 		$to_mark = array_filter((array) $to_mark);
 
-		if (empty($to_mark) || empty($members))
+		if (empty($to_mark) || empty($members)) {
 			return;
+		}
 
 		$time = $read ? time() : 0;
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}user_alerts
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_alert IN ({array_int:to_mark})',
-			array(
+			[
 				'read' => $time,
 				'to_mark' => $to_mark,
-			)
+			],
 		);
 
 		// First, make sure that all the loaded alerts have the right value.
-		foreach ($to_mark as $id)
-		{
-			if (isset(self::$loaded[$id]))
+		foreach ($to_mark as $id) {
+			if (isset(self::$loaded[$id])) {
 				self::$loaded[$id]->is_read = $time;
+			}
 		}
 
 		// Now update the members' alert counts in the database.
-		User::updateMemberData($members, array('alerts' => $read ? '-' : '+'));
+		User::updateMemberData($members, ['alerts' => $read ? '-' : '+']);
 	}
 
 	/**
@@ -1036,34 +1022,35 @@ class Alert implements \ArrayAccess
 	{
 		$members = array_filter((array) $members);
 
-		if (empty($members))
+		if (empty($members)) {
 			return;
+		}
 
 		$time = $read ? time() : 0;
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}user_alerts
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_member IN ({array_int:members})
 				AND {raw:condition}',
-			array(
+			[
 				'read' => $time,
 				'members' => $members,
 				'condition' => $read ? 'is_read = 0' : 'is_read != 0',
-			)
+			],
 		);
 
-		if (Db::$db->affected_rows() > 0)
-		{
+		if (Db::$db->affected_rows() > 0) {
 			// First, make sure that all the loaded alerts have the right value.
-			foreach (self::$loaded as $alert)
-			{
-				if (in_array($alert->member, $members) && (!$read || empty($alert->is_read)))
+			foreach (self::$loaded as $alert) {
+				if (in_array($alert->member, $members) && (!$read || empty($alert->is_read))) {
 					$alert->is_read = $time;
+				}
 			}
 
 			// Now update the members' alert counts in the database.
-			User::updateMemberData($members, array('alerts' => $read ? 0 : '+'));
+			User::updateMemberData($members, ['alerts' => $read ? 0 : '+']);
 		}
 	}
 
@@ -1076,28 +1063,28 @@ class Alert implements \ArrayAccess
 	 */
 	public static function markWhere(array $where, array $params, bool $read): void
 	{
-		$ids = array();
-		$members = array();
+		$ids = [];
+		$members = [];
 
-		$selects = array('a.id_alert', 'a.id_member');
+		$selects = ['a.id_alert', 'a.id_member'];
 
 		// Do we need to add the condition for is_read status?
 		$has_read_condition = false;
 
-		foreach ($where as &$condition)
-		{
+		foreach ($where as &$condition) {
 			$condition = trim($condition);
 
-			if (strpos($condition, 'is_read ') === 0)
+			if (strpos($condition, 'is_read ') === 0) {
 				$has_read_condition = true;
+			}
 		}
 
-		if (!$has_read_condition)
+		if (!$has_read_condition) {
 			$where[] = 'is_read ' . ($read ? '' : '!') . '= 0';
+		}
 
 		// Find the alerts that match the conditions.
-		foreach (self::queryData($selects, $params, array(), $where) as $row)
-		{
+		foreach (self::queryData($selects, $params, [], $where) as $row) {
 			$ids[] = (int) $row['id_alert'];
 			$members[] = (int) $row['id_member'];
 		}
@@ -1111,27 +1098,30 @@ class Alert implements \ArrayAccess
 	 * @param int|array $ids The IDs of one or more alerts.
 	 * @param int|array $members Members whose alert counts should be updated.
 	 */
-	public static function delete(int|array $ids, int|array $members = array()): void
+	public static function delete(int|array $ids, int|array $members = []): void
 	{
-		if (empty($ids))
+		if (empty($ids)) {
 			return;
+		}
 
 		$ids = (array) $ids;
 		$members = (array) $members;
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}user_alerts
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}user_alerts
 			WHERE id_alert IN ({array_int:ids})',
-			array(
+			[
 				'ids' => $ids,
-			)
+			],
 		);
 
-		foreach ($ids as $id)
+		foreach ($ids as $id) {
 			unset(self::$loaded[$id]);
+		}
 
 		// Gotta know how many unread alerts are left.
-		User::updateMemberData($members, array('alerts' => '-'));
+		User::updateMemberData($members, ['alerts' => '-']);
 	}
 
 	/**
@@ -1147,15 +1137,16 @@ class Alert implements \ArrayAccess
 		$memID = !empty($memID) ? $memID : User::$me->id;
 		$before = $before > 0 ? $before : time();
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}user_alerts
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}user_alerts
 			WHERE is_read > 0
 				AND is_read < {int:before}' . ($memID > 0 ? '
 				AND id_member = {int:memID}' : ''),
-			array(
+			[
 				'before' => $before,
 				'memID' => $memID,
-			)
+			],
 		);
 	}
 
@@ -1168,14 +1159,13 @@ class Alert implements \ArrayAccess
 	 */
 	public static function deleteWhere(array $where, array $params): void
 	{
-		$ids = array();
-		$members = array();
+		$ids = [];
+		$members = [];
 
-		$selects = array('a.id_alert', 'a.id_member');
+		$selects = ['a.id_alert', 'a.id_member'];
 
 		// Find the alerts that match the conditions.
-		foreach (self::queryData($selects, $params, array(), $where) as $row)
-		{
+		foreach (self::queryData($selects, $params, [], $where) as $row) {
 			$ids[] = (int) $row['id_alert'];
 			$members[] = (int) $row['id_member'];
 		}
@@ -1192,13 +1182,11 @@ class Alert implements \ArrayAccess
 	 */
 	protected function setIcon(): void
 	{
-		switch ($this->content_type)
-		{
+		switch ($this->content_type) {
 			case 'topic':
 			case 'board':
 				{
-					switch ($this->content_action)
-					{
+					switch ($this->content_action) {
 						case 'reply':
 						case 'topic':
 							$class = 'main_icons posts';
@@ -1244,8 +1232,7 @@ class Alert implements \ArrayAccess
 
 			case 'msg':
 				{
-					switch ($this->content_action)
-					{
+					switch ($this->content_action) {
 						case 'like':
 							$class = 'main_icons like';
 							break;
@@ -1276,8 +1263,7 @@ class Alert implements \ArrayAccess
 
 			case 'member':
 				{
-					switch ($this->content_action)
-					{
+					switch ($this->content_action) {
 						case 'register_standard':
 						case 'register_approval':
 						case 'register_activation':
@@ -1325,20 +1311,15 @@ class Alert implements \ArrayAccess
 				break;
 		}
 
-		if (isset($class))
-		{
+		if (isset($class)) {
 			$this->icon = '<span class="alert_icon ' . $class . '"></span>';
-		}
-		elseif (isset($src))
-		{
+		} elseif (isset($src)) {
 			$this->icon = '<img class="alert_icon" src="' . $src . '">';
-		}
-		else
-		{
+		} else {
 			$this->icon = '';
 		}
 
-		IntegrationHook::call('integrate_alert_icon', array(&$this->icon, (array) $this));
+		IntegrationHook::call('integrate_alert_icon', [&$this->icon, (array) $this]);
 	}
 	/*************************
 	 * Internal static methods
@@ -1349,18 +1330,18 @@ class Alert implements \ArrayAccess
 	 */
 	protected static function finalizeLinkFormats(): void
 	{
-		if (self::$formats_finalized)
+		if (self::$formats_finalized) {
 			return;
+		}
 
 		self::$link_formats = array_map(
-			function ($format)
-			{
+			function ($format) {
 				$format['link'] = str_replace('{scripturl}', Config::$scripturl, $format['link']);
 				$format['text'] = str_replace('{scripturl}', Config::$scripturl, $format['text']);
 
 				return $format;
 			},
-			self::$link_formats
+			self::$link_formats,
 		);
 	}
 
@@ -1379,15 +1360,13 @@ class Alert implements \ArrayAccess
 	 */
 	protected static function setQb(int $memID): void
 	{
-		if (!empty(self::$qb[$memID]))
+		if (!empty(self::$qb[$memID])) {
 			return;
-
-		if ((User::$me->id ?? NAN) != $memID || !isset(User::$me->query_see_board))
-		{
-			self::$qb[$memID] = User::buildQueryBoard($memID);
 		}
-		else
-		{
+
+		if ((User::$me->id ?? NAN) != $memID || !isset(User::$me->query_see_board)) {
+			self::$qb[$memID] = User::buildQueryBoard($memID);
+		} else {
 			self::$qb[$memID]['query_see_board'] = '{query_see_board}';
 			self::$qb[$memID]['query_see_topic_board'] = '{query_see_topic_board}';
 			self::$qb[$memID]['query_see_message_board'] = '{query_see_message_board}';
@@ -1406,59 +1385,59 @@ class Alert implements \ArrayAccess
 	 */
 	protected static function checkMsgAccess(array $possible_msgs, int $memID, bool $simple = false): array
 	{
-		if (empty($possible_msgs))
-			return array();
+		if (empty($possible_msgs)) {
+			return [];
+		}
 
 		self::setQb($memID);
 
-		$visibility = array();
-		$flipped_msgs = array();
-		foreach ($possible_msgs as $id_alert => $id_msg)
-		{
+		$visibility = [];
+		$flipped_msgs = [];
+
+		foreach ($possible_msgs as $id_alert => $id_msg) {
 			$visibility[$id_alert] = false;
 
-			if (!isset($flipped_msgs[$id_msg]))
-				$flipped_msgs[$id_msg] = array();
+			if (!isset($flipped_msgs[$id_msg])) {
+				$flipped_msgs[$id_msg] = [];
+			}
 
 			$flipped_msgs[$id_msg][] = $id_alert;
 		}
 
-		if ($simple)
-		{
-			$request = Db::$db->query('', '
-				SELECT m.id_msg
+		if ($simple) {
+			$request = Db::$db->query(
+				'',
+				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 				WHERE ' . self::$qb[$memID]['query_see_message_board'] . '
 					AND m.id_msg IN ({array_int:msgs})',
-				array(
+				[
 					'msgs' => $possible_msgs,
-				)
+				],
 			);
-		}
-		else
-		{
-			$request = Db::$db->query('', '
-				SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
+		} else {
+			$request = Db::$db->query(
+				'',
+				'SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 				WHERE m.id_msg IN ({array_int:msgs})
 					AND ' . self::$qb[$memID]['query_see_board'] . '
 				ORDER BY m.id_msg',
-				array(
+				[
 					'msgs' => $possible_msgs,
-				)
+				],
 			);
 		}
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
-			{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			foreach ($flipped_msgs[$row['id_msg']] as $id_alert) {
 				$visibility[$id_alert] = true;
 
-				if (isset(self::$loaded[$id_alert]))
-				{
-					if (!$simple)
+				if (isset(self::$loaded[$id_alert])) {
+					if (!$simple) {
 						self::$loaded[$id_alert]->content_data = $row;
+					}
 
 					self::$loaded[$id_alert]->visible = true;
 				}
@@ -1472,68 +1451,68 @@ class Alert implements \ArrayAccess
 	/**
 	 * Checks whether a member can see the topics that some alerts refer to.
 	 *
-	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @param int $memID ID of the member.
 	 * @param bool $simple If true, do nothing beyond checking the access.
 	 *    If false, also get some info about the topic in question.
 	 *    Default: false.
+	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @return array Key-value pairs of alert IDs and visibility status.
 	 */
 	protected static function checkTopicAccess($possible_topics, int $memID, bool $simple = false): array
 	{
-		if (empty($possible_topics))
-			return array();
+		if (empty($possible_topics)) {
+			return [];
+		}
 
 		self::setQb($memID);
 
-		$visibility = array();
-		$flipped_topics = array();
-		foreach ($possible_topics as $id_alert => $id_topic)
-		{
+		$visibility = [];
+		$flipped_topics = [];
+
+		foreach ($possible_topics as $id_alert => $id_topic) {
 			$visibility[$id_alert] = false;
 
-			if (!isset($flipped_topics[$id_topic]))
-				$flipped_topics[$id_topic] = array();
+			if (!isset($flipped_topics[$id_topic])) {
+				$flipped_topics[$id_topic] = [];
+			}
 
 			$flipped_topics[$id_topic][] = $id_alert;
 		}
 
-		if ($simple)
-		{
-			$request = Db::$db->query('', '
-				SELECT t.id_topic
+		if ($simple) {
+			$request = Db::$db->query(
+				'',
+				'SELECT t.id_topic
 				FROM {db_prefix}topics AS t
 				WHERE ' . self::$qb[$memID]['query_see_topic_board'] . '
 					AND t.id_topic IN ({array_int:topics})',
-				array(
+				[
 					'topics' => $possible_topics,
-				)
+				],
 			);
-		}
-		else
-		{
-			$request = Db::$db->query('', '
-				SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
+		} else {
+			$request = Db::$db->query(
+				'',
+				'SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 					INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 				WHERE t.id_topic IN ({array_int:topics})
 					AND ' . self::$qb[$memID]['query_see_board'],
-				array(
+				[
 					'topics' => $possible_topics,
-				)
+				],
 			);
 		}
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
-			{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			foreach ($flipped_topics[$row['id_topic']] as $id_alert) {
 				$visibility[$id_alert] = true;
 
-				if (isset(self::$loaded[$id_alert]))
-				{
-					if (!$simple)
+				if (isset(self::$loaded[$id_alert])) {
+					if (!$simple) {
 						self::$loaded[$id_alert]->content_data = $row;
+					}
 
 					self::$loaded[$id_alert]->visible = true;
 				}
@@ -1553,19 +1532,19 @@ class Alert implements \ArrayAccess
 	 */
 	protected static function deleteInvisible(array &$alerts, int $memID): void
 	{
-		$deletes = array();
+		$deletes = [];
 		$num_unread_deletes = 0;
 
-		foreach ($alerts as $id_alert => $alert)
-		{
+		foreach ($alerts as $id_alert => $alert) {
 			// Only act on the ones that belong to the given member.
-			if ($memID !== $alert->member)
+			if ($memID !== $alert->member) {
 				continue;
+			}
 
-			if (!$alert->visible)
-			{
-				if (!$alert->is_read)
+			if (!$alert->visible) {
+				if (!$alert->is_read) {
 					$num_unread_deletes++;
+				}
 
 				unset($alerts[$id_alert], self::$loaded[$id_alert]);
 				$deletes[] = $id_alert;
@@ -1575,29 +1554,29 @@ class Alert implements \ArrayAccess
 		// Delete these orphaned, invisible alerts, otherwise they might hang around forever.
 		// This can happen if they are deleted or moved to a board this user cannot access.
 		// Note that unread alerts are never purged.
-		if (!empty($deletes))
-		{
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}user_alerts
+		if (!empty($deletes)) {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}user_alerts
 				WHERE id_alert IN ({array_int:alerts})',
-				array(
+				[
 					'alerts' => $deletes,
-				)
+				],
 			);
 		}
 
 		// One last thing: tweak counter on member record.
 		// Do it directly to avoid creating a loop in User::updateMemberData().
-		if ($num_unread_deletes > 0)
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}members
+		if ($num_unread_deletes > 0) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}members
 				SET alerts = GREATEST({int:unread_deletes}, alerts) - {int:unread_deletes}
 				WHERE id_member = {int:member}',
-				array(
+				[
 					'unread_deletes' => $num_unread_deletes,
 					'member' => $memID,
-				)
+				],
 			);
 		}
 	}
@@ -1620,20 +1599,21 @@ class Alert implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = array(), array $joins = array(), array $where = array(), array $order = array(), int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], int|string $limit = 0)
 	{
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}user_alerts AS a' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
 			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
 			LIMIT ' . $limit : ''),
-			$params
+			$params,
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			yield $row;
 		}
 		Db::$db->free_result($request);
@@ -1641,7 +1621,8 @@ class Alert implements \ArrayAccess
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Alert::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Alert::exportStatic')) {
 	Alert::exportStatic();
+}
 
 ?>

@@ -14,7 +14,6 @@
 namespace SMF;
 
 use SMF\Actions\Admin\ACP;
-use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Image;
 
@@ -26,15 +25,16 @@ use SMF\Graphics\Image;
  */
 class Attachment implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'automanageCheckDirectory' => 'automanage_attachments_check_directory',
 			'automanageCreateDirectory' => 'automanage_attachments_create_directory',
 			'automanageBySpace' => 'automanage_attachments_by_space',
@@ -51,21 +51,21 @@ class Attachment implements \ArrayAccess
 			'createHash' => 'createHash',
 			'getFilePath' => 'getFilePath',
 			'getAttachmentFilename' => 'getAttachmentFilename',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
 	 *****************/
 
-	const APPROVED_ANY = -1;
-	const APPROVED_FALSE = 0;
-	const APPROVED_TRUE = 1;
+	public const APPROVED_ANY = -1;
+	public const APPROVED_FALSE = 0;
+	public const APPROVED_TRUE = 1;
 
-	const TYPE_ANY = -1;
-	const TYPE_STANDARD = 0;
-	const TYPE_AVATAR = 1;
-	const TYPE_THUMB = 3;
+	public const TYPE_ANY = -1;
+	public const TYPE_STANDARD = 0;
+	public const TYPE_AVATAR = 1;
+	public const TYPE_THUMB = 3;
 
 	/*******************
 	 * Public properties
@@ -291,21 +291,21 @@ class Attachment implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/**
 	 * @var array
 	 *
 	 * Loaded instances of this class, grouped by message.
 	 */
-	public static array $loadedByMsg = array();
+	public static array $loadedByMsg = [];
 
 	/**
 	 * @var array
 	 *
 	 * Loaded instances of this class, grouped by member.
 	 */
-	public static array $loadedByMember = array();
+	public static array $loadedByMember = [];
 
 	/*********************
 	 * Internal properties
@@ -316,7 +316,7 @@ class Attachment implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_attach' => 'id',
 		'attachID' => 'id',
 		'id_thumb' => 'thumb',
@@ -331,7 +331,7 @@ class Attachment implements \ArrayAccess
 		'filesize' => 'size',
 		'byte_size' => 'size',
 		'filePath' => 'path',
-	);
+	];
 
 	/****************
 	 * Public methods
@@ -344,26 +344,28 @@ class Attachment implements \ArrayAccess
 	 * @param array $props Properties to set for this attachment.
 	 * @return object An instance of this class.
 	 */
-	public function __construct(int $id = 0, array $props = array())
+	public function __construct(int $id = 0, array $props = [])
 	{
-		if (empty($id) && empty($props))
+		if (empty($id) && empty($props)) {
 			return;
+		}
 
 		// Given an ID but no properties, so query for the data.
-		if (!empty($id) && empty($props))
-		{
-			$request = Db::$db->query('', '
-				SELECT *
+		if (!empty($id) && empty($props)) {
+			$request = Db::$db->query(
+				'',
+				'SELECT *
 				FROM {db_prefix}attachments
 				WHERE id_attach = {int:id}
 				LIMIT 1',
-				array(
+				[
 					'id' => $this->id,
-				)
+				],
 			);
-			if (Db::$db->num_rows($request) !== 1)
-			{
+
+			if (Db::$db->num_rows($request) !== 1) {
 				Db::$db->free_result($request);
+
 				return;
 			}
 			$props = Db::$db->fetch_assoc($request);
@@ -376,8 +378,7 @@ class Attachment implements \ArrayAccess
 		// Is this an image attachment?
 		$image = new Image($this->path);
 
-		if (!empty($image->source))
-		{
+		if (!empty($image->source)) {
 			$this->is_image = true;
 			$this->mime_type = $image->mime_type;
 			$this->width = $image->width;
@@ -388,12 +389,12 @@ class Attachment implements \ArrayAccess
 		unset($image);
 
 		// If we still don't have a MIME type, get it now.
-		if (empty($this->mime_type))
+		if (empty($this->mime_type)) {
 			$this->mime_type = Utils::getMimeType($this->path, true);
+		}
 
 		// SVGs are special.
-		if ($this->mime_type === 'image/svg+xml')
-		{
+		if ($this->mime_type === 'image/svg+xml') {
 			// SVG is its own thumbnail.
 			$this->thumb = $id;
 
@@ -407,11 +408,13 @@ class Attachment implements \ArrayAccess
 
 		self::$loaded[$id] = $this;
 
-		if (!empty($this->msg))
+		if (!empty($this->msg)) {
 			self::$loadedByMsg[$this->msg][$id] = $this;
+		}
 
-		if (!empty($this->member))
+		if (!empty($this->member)) {
 			self::$loadedByMember[$this->member][$id] = $this;
+		}
 	}
 
 	/**
@@ -419,21 +422,23 @@ class Attachment implements \ArrayAccess
 	 */
 	public function setFileProperties(): void
 	{
-		if (!isset($this->path))
+		if (!isset($this->path)) {
 			$this->setPath();
+		}
 
-		if (!isset($this->path))
+		if (!isset($this->path)) {
 			return;
+		}
 
 		$this->exists = file_exists($this->path);
 
 		// Ensure variant attachment compatibility.
-		if (!$this->exists)
-		{
+		if (!$this->exists) {
 			$pathinfo = pathinfo($this->path);
 
-			if (isset($pathinfo['extension']))
+			if (isset($pathinfo['extension'])) {
 				$this->path = substr($this->path, 0, -(strlen($pathinfo['extension']) + 1));
+			}
 
 			$this->exists = file_exists($this->path);
 		}
@@ -455,17 +460,16 @@ class Attachment implements \ArrayAccess
 
 		$this->href = Config::$scripturl . '?action=dlattach;attach=' . $this->id;
 
-		if (in_array($this->prop_aliases[$prop] ?? $prop, array('id', 'file_hash', 'folder')))
+		if (in_array($this->prop_aliases[$prop] ?? $prop, ['id', 'file_hash', 'folder'])) {
 			$this->setPath();
+		}
 
-		if (($this->prop_aliases[$prop] ?? $prop) === 'filename')
-		{
+		if (($this->prop_aliases[$prop] ?? $prop) === 'filename') {
 			$this->name = Utils::htmlspecialchars($value);
 			$this->link = '<a href="' . $this->href . '" class="bbc_link">' . $this->name . '</a>';
 		}
 
-		if (($this->prop_aliases[$prop] ?? $prop) === 'size')
-		{
+		if (($this->prop_aliases[$prop] ?? $prop) === 'size') {
 			Lang::load('index');
 
 			$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
@@ -491,66 +495,60 @@ class Attachment implements \ArrayAccess
 	public static function load(array|int $ids, int $approval_status = self::APPROVED_ANY, int $type = self::TYPE_ANY, bool $get_thumbs = true): array
 	{
 		// Keep track of the ones we load during this call.
-		$loaded = array();
+		$loaded = [];
 
 		$ids = array_filter(array_map('intval', (array) $ids));
-		$approval_status = !in_array($approval_status, array(self::APPROVED_TRUE, self::APPROVED_FALSE)) ? self::APPROVED_ANY : $approval_status;
+		$approval_status = !in_array($approval_status, [self::APPROVED_TRUE, self::APPROVED_FALSE]) ? self::APPROVED_ANY : $approval_status;
 
-		if (empty($ids))
+		if (empty($ids)) {
 			return $loaded;
+		}
 
 		// Don't reload unnecessarily.
-		foreach ($ids as $key => $id)
-		{
-			if (isset(self::$loaded[$id]))
-			{
+		foreach ($ids as $key => $id) {
+			if (isset(self::$loaded[$id])) {
 				$loaded[$id] = self::$loaded[$id];
 				unset($ids[$key]);
 			}
 		}
 
 		// Load whatever hasn't been loaded already.
-		if (!empty($ids))
-		{
-			$selects = array(
+		if (!empty($ids)) {
+			$selects = [
 				'a.*',
 				'COALESCE (m.id_topic, 0) AS id_topic',
 				'COALESCE (m.id_board, 0) AS id_board',
-			);
+			];
 
 			$from = '{db_prefix}attachments AS a';
-			$joins = array('LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)');
-			$where = array('a.id_attach IN ({array_int:ids})');
-			$order = array();
+			$joins = ['LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)'];
+			$where = ['a.id_attach IN ({array_int:ids})'];
+			$order = [];
 			$limit = 0;
-			$params = array('ids' => $ids);
+			$params = ['ids' => $ids];
 
-			if ($type !== self::TYPE_ANY)
-			{
+			if ($type !== self::TYPE_ANY) {
 				$where[] = 'a.attachment_type = {int:type}';
 				$params['type'] = $type;
 			}
 
-			if ($approval_status !== self::APPROVED_ANY)
-			{
+			if ($approval_status !== self::APPROVED_ANY) {
 				$where[] = 'a.approved = {int:approved}';
 				$params['approved'] = $approval_status;
 			}
 
-			if ($get_thumbs)
-			{
+			if ($get_thumbs) {
 				$selects[] = 'thumb.width AS thumb_width';
 				$selects[] = 'thumb.height AS thumb_height';
 				$joins[] = 'LEFT JOIN {db_prefix}attachments AS thumb ON (a.id_thumb = thumb.id_attach)';
 			}
 
-			IntegrationHook::call('integrate_attachment_load', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
+			IntegrationHook::call('integrate_attachment_load', [&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit]);
 
-			foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props)
-			{
+			foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 				$id = (int) $props['id_attach'];
 
-				$props = array_filter($props, fn($prop) => !is_null($prop));
+				$props = array_filter($props, fn ($prop) => !is_null($prop));
 
 				$loaded[$id] = new self($id, $props);
 			}
@@ -577,61 +575,55 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function loadByMsg(array|int $msgs, int $approval_status = self::APPROVED_TRUE, int $type = self::TYPE_STANDARD, bool $get_thumbs = true): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		$msgs = array_filter(array_map('intval', (array) $msgs));
-		$approval_status = !in_array($approval_status, array(self::APPROVED_TRUE, self::APPROVED_FALSE)) ? self::APPROVED_ANY : $approval_status;
+		$approval_status = !in_array($approval_status, [self::APPROVED_TRUE, self::APPROVED_FALSE]) ? self::APPROVED_ANY : $approval_status;
 
-		if (empty($msgs))
+		if (empty($msgs)) {
 			return $loaded;
+		}
 
-		$selects = array(
+		$selects = [
 			'a.*',
 			'm.id_topic',
-			'm.id_board'
-		);
+			'm.id_board',
+		];
 
 		$from = '{db_prefix}attachments AS a';
-		$joins = array('INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)');
-		$where = array('a.id_msg IN ({array_int:msgs})');
-		$order = array();
+		$joins = ['INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)'];
+		$where = ['a.id_msg IN ({array_int:msgs})'];
+		$order = [];
 		$limit = 0;
-		$params = array('msgs' => $msgs);
+		$params = ['msgs' => $msgs];
 
-		if ($type !== self::TYPE_ANY)
-		{
+		if ($type !== self::TYPE_ANY) {
 			$where[] = 'a.attachment_type = {int:type}';
 			$params['type'] = $type;
 		}
 
-		if ($approval_status !== self::APPROVED_ANY)
-		{
+		if ($approval_status !== self::APPROVED_ANY) {
 			$where[] = 'a.approved = {int:approved}';
 			$params['approved'] = $approval_status;
 		}
 
-		if ($get_thumbs)
-		{
+		if ($get_thumbs) {
 			$selects[] = 'thumb.width AS thumb_width';
 			$selects[] = 'thumb.height AS thumb_height';
 			$joins[] = 'LEFT JOIN {db_prefix}attachments AS thumb ON (a.id_thumb = thumb.id_attach)';
 		}
 
-		IntegrationHook::call('integrate_attachment_loadbymsg', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
+		IntegrationHook::call('integrate_attachment_loadbymsg', [&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit]);
 
-		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props)
-		{
+		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 			$id = (int) $props['id_attach'];
 
-			$props = array_filter($props, fn($prop) => !is_null($prop));
+			$props = array_filter($props, fn ($prop) => !is_null($prop));
 
 			// Don't reload unnecessarily.
-			if (isset(self::$loaded[$id]))
-			{
+			if (isset(self::$loaded[$id])) {
 				$loaded[$id] = self::$loaded[$id];
-			}
-			else
-			{
+			} else {
 				$loaded[$id] = new self($id, $props);
 			}
 		}
@@ -644,59 +636,54 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Loads existing attachments by member ID.
 	 *
-	 * @param array|int $ids The ID numbers of one or more members.
 	 * @param int $approval_status One of this class's APPROVED_* constants.
 	 *     Default: self::APPROVED_TRUE.
 	 * @param bool $get_thumbs Whether to get the thumbnail image dimensions.
 	 *     Default: true.
+	 * @param array|int $ids The ID numbers of one or more members.
 	 * @return array Instances of this class for the loaded attachments.
 	 */
 	public static function loadByMember(array|int $members, int $approval_status = self::APPROVED_TRUE, bool $get_thumbs = true): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		$members = array_filter(array_map('intval', (array) $members));
-		$approval_status = !in_array($approval_status, array(self::APPROVED_TRUE, self::APPROVED_FALSE)) ? self::APPROVED_ANY : $approval_status;
+		$approval_status = !in_array($approval_status, [self::APPROVED_TRUE, self::APPROVED_FALSE]) ? self::APPROVED_ANY : $approval_status;
 
-		if (empty($members))
+		if (empty($members)) {
 			return $loaded;
+		}
 
-		$selects = array('a.*');
+		$selects = ['a.*'];
 		$from = '{db_prefix}attachments AS a';
-		$joins = array();
-		$where = array('a.id_member IN ({array_int:members})');
-		$order = array();
+		$joins = [];
+		$where = ['a.id_member IN ({array_int:members})'];
+		$order = [];
 		$limit = 0;
-		$params = array('members' => $members);
+		$params = ['members' => $members];
 
-		if ($approval_status !== self::APPROVED_ANY)
-		{
+		if ($approval_status !== self::APPROVED_ANY) {
 			$where[] = 'a.approved = {int:approved}';
 			$params['approved'] = $approval_status;
 		}
 
-		if ($get_thumbs)
-		{
+		if ($get_thumbs) {
 			$selects[] = 'thumb.width AS thumb_width';
 			$selects[] = 'thumb.height AS thumb_height';
 			$joins[] = 'LEFT JOIN {db_prefix}attachments AS thumb ON (a.id_thumb = thumb.id_attach)';
 		}
 
-		IntegrationHook::call('integrate_attachment_loadbymember', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
+		IntegrationHook::call('integrate_attachment_loadbymember', [&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit]);
 
-		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props)
-		{
+		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 			$id = (int) $props['id_attach'];
 
-			$props = array_filter($props, fn($prop) => !is_null($prop));
+			$props = array_filter($props, fn ($prop) => !is_null($prop));
 
 			// Don't reload unnecessarily.
-			if (isset(self::$loaded[$id]))
-			{
+			if (isset(self::$loaded[$id])) {
 				$loaded[$id] = self::$loaded[$id];
-			}
-			else
-			{
+			} else {
 				$loaded[$id] = new self($id, $props);
 			}
 		}
@@ -715,30 +702,24 @@ class Attachment implements \ArrayAccess
 	public static function automanageCheckDirectory()
 	{
 		// Not pretty, but since we don't want folders created for every post. It'll do unless a better solution can be found.
-		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin')
-		{
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin') {
 			$doit = true;
-		}
-		elseif (empty(Config::$modSettings['automanage_attachments']) || !isset($_FILES))
-		{
+		} elseif (empty(Config::$modSettings['automanage_attachments']) || !isset($_FILES)) {
 			$doit = false;
-		}
-		elseif (isset($_FILES['attachment']))
-		{
+		} elseif (isset($_FILES['attachment'])) {
 			$doit = false;
 
-			foreach ($_FILES['attachment']['tmp_name'] as $dummy)
-			{
-				if (!empty($dummy))
-				{
+			foreach ($_FILES['attachment']['tmp_name'] as $dummy) {
+				if (!empty($dummy)) {
 					$doit = true;
 					break;
 				}
 			}
 		}
 
-		if (!$doit)
+		if (!$doit) {
 			return;
+		}
 
 		$year = date('Y');
 		$month = date('m');
@@ -747,42 +728,39 @@ class Attachment implements \ArrayAccess
 		$rand1 = $rand[1];
 		$rand = $rand[0];
 
-		if (!empty(Config::$modSettings['attachment_basedirectories']) && !empty(Config::$modSettings['use_subdirectories_for_attachments']))
-		{
-			if (!is_array(Config::$modSettings['attachment_basedirectories']))
-			{
+		if (!empty(Config::$modSettings['attachment_basedirectories']) && !empty(Config::$modSettings['use_subdirectories_for_attachments'])) {
+			if (!is_array(Config::$modSettings['attachment_basedirectories'])) {
 				Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 			}
 
 			$base_dir = array_search(Config::$modSettings['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories']);
-		}
-		else
-		{
+		} else {
 			$base_dir = 0;
 		}
 
-		if (Config::$modSettings['automanage_attachments'] == 1)
-		{
-			if (!isset(Config::$modSettings['last_attachments_directory']))
-				Config::$modSettings['last_attachments_directory'] = array();
+		if (Config::$modSettings['automanage_attachments'] == 1) {
+			if (!isset(Config::$modSettings['last_attachments_directory'])) {
+				Config::$modSettings['last_attachments_directory'] = [];
+			}
 
-			if (!is_array(Config::$modSettings['last_attachments_directory']))
+			if (!is_array(Config::$modSettings['last_attachments_directory'])) {
 				Config::$modSettings['last_attachments_directory'] = Utils::jsonDecode(Config::$modSettings['last_attachments_directory'], true);
+			}
 
-			if (!isset(Config::$modSettings['last_attachments_directory'][$base_dir]))
+			if (!isset(Config::$modSettings['last_attachments_directory'][$base_dir])) {
 				Config::$modSettings['last_attachments_directory'][$base_dir] = 0;
+			}
 		}
 
 		$basedirectory = (!empty(Config::$modSettings['use_subdirectories_for_attachments']) ? (Config::$modSettings['basedirectory_for_attachments']) : Config::$boarddir);
 
-		//Just to be sure: I don't want directory separators at the end
-		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
+		// Just to be sure: I don't want directory separators at the end
+		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\\/' : DIRECTORY_SEPARATOR;
 		$basedirectory = rtrim($basedirectory, $sep);
 
-		switch (Config::$modSettings['automanage_attachments'])
-		{
+		switch (Config::$modSettings['automanage_attachments']) {
 			case 1:
-				$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . (isset(Config::$modSettings['last_attachments_directory'][$base_dir]) ? Config::$modSettings['last_attachments_directory'][$base_dir] : 0);
+				$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . (Config::$modSettings['last_attachments_directory'][$base_dir] ?? 0);
 				break;
 
 			case 2:
@@ -801,32 +779,27 @@ class Attachment implements \ArrayAccess
 				$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty(Config::$modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : 'random_') . $rand . DIRECTORY_SEPARATOR . $rand1;
 				break;
 
-			default :
+			default:
 				$updir = '';
 		}
 
-		if (!is_array(Config::$modSettings['attachmentUploadDir']))
-		{
+		if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
 			Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 		}
 
-		if (!in_array($updir, Config::$modSettings['attachmentUploadDir']) && !empty($updir))
-		{
+		if (!in_array($updir, Config::$modSettings['attachmentUploadDir']) && !empty($updir)) {
 			$outputCreation = self::automanageCreateDirectory($updir);
-		}
-		elseif (in_array($updir, Config::$modSettings['attachmentUploadDir']))
-		{
+		} elseif (in_array($updir, Config::$modSettings['attachmentUploadDir'])) {
 			$outputCreation = true;
 		}
 
-		if ($outputCreation)
-		{
+		if ($outputCreation) {
 			Config::$modSettings['currentAttachmentUploadDir'] = array_search($updir, Config::$modSettings['attachmentUploadDir']);
 			Utils::$context['attach_dir'] = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
 
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'currentAttachmentUploadDir' => Config::$modSettings['currentAttachmentUploadDir'],
-			));
+			]);
 		}
 
 		return $outputCreation;
@@ -845,27 +818,26 @@ class Attachment implements \ArrayAccess
 		$count = count($tree);
 
 		$directory = self::initDir($tree, $count);
-		if ($directory === false)
-		{
+
+		if ($directory === false) {
 			// Maybe it's just the folder name
 			$tree = self::getDirectoryTreeElements(Config::$boarddir . DIRECTORY_SEPARATOR . $updir);
 			$count = count($tree);
 
 			$directory = self::initDir($tree, $count);
 
-			if ($directory === false)
+			if ($directory === false) {
 				return false;
+			}
 		}
 
 		$directory .= DIRECTORY_SEPARATOR . array_shift($tree);
 
-		while ($count != -1)
-		{
-			if (self::isPathAllowed($directory) && !@is_dir($directory))
-			{
-				if (!@mkdir($directory, 0755))
-				{
+		while ($count != -1) {
+			if (self::isPathAllowed($directory) && !@is_dir($directory)) {
+				if (!@mkdir($directory, 0755)) {
 					Utils::$context['dir_creation_error'] = 'attachments_no_create';
+
 					return false;
 				}
 			}
@@ -875,30 +847,30 @@ class Attachment implements \ArrayAccess
 		}
 
 		// Check if the dir is writable.
-		if (!Utils::makeWritable($directory))
-		{
+		if (!Utils::makeWritable($directory)) {
 			Utils::$context['dir_creation_error'] = 'attachments_no_write';
+
 			return false;
 		}
 
 		// Everything seems fine...let's create the .htaccess
-		if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htaccess'))
+		if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htaccess')) {
 			Security::secureDirectory($updir, true);
+		}
 
-		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
+		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\\/' : DIRECTORY_SEPARATOR;
 		$updir = rtrim($updir, $sep);
 
 		// Only update if it's a new directory
-		if (!in_array($updir, Config::$modSettings['attachmentUploadDir']))
-		{
+		if (!in_array($updir, Config::$modSettings['attachmentUploadDir'])) {
 			Config::$modSettings['currentAttachmentUploadDir'] = max(array_keys(Config::$modSettings['attachmentUploadDir'])) + 1;
 
 			Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']] = $updir;
 
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'attachmentUploadDir' => Utils::jsonEncode(Config::$modSettings['attachmentUploadDir']),
 				'currentAttachmentUploadDir' => Config::$modSettings['currentAttachmentUploadDir'],
-			), true);
+			], true);
 
 			Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 		}
@@ -916,31 +888,26 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function automanageBySpace()
 	{
-		if (!isset(Config::$modSettings['automanage_attachments']) || (!empty(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] != 1))
-		{
+		if (!isset(Config::$modSettings['automanage_attachments']) || (!empty(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] != 1)) {
 			return;
 		}
 
 		$basedirectory = !empty(Config::$modSettings['use_subdirectories_for_attachments']) ? Config::$modSettings['basedirectory_for_attachments'] : Config::$boarddir;
 
 		// Just to be sure: I don't want directory separators at the end
-		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
+		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\\/' : DIRECTORY_SEPARATOR;
 		$basedirectory = rtrim($basedirectory, $sep);
 
 		// Get the current base directory
-		if (!empty(Config::$modSettings['use_subdirectories_for_attachments']) && !empty(Config::$modSettings['attachment_basedirectories']))
-		{
+		if (!empty(Config::$modSettings['use_subdirectories_for_attachments']) && !empty(Config::$modSettings['attachment_basedirectories'])) {
 			$base_dir = array_search(Config::$modSettings['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories']);
 			$base_dir = !empty(Config::$modSettings['automanage_attachments']) ? $base_dir : 0;
-		}
-		else
-		{
+		} else {
 			$base_dir = 0;
 		}
 
 		// Get the last attachment directory for that base directory
-		if (empty(Config::$modSettings['last_attachments_directory'][$base_dir]))
-		{
+		if (empty(Config::$modSettings['last_attachments_directory'][$base_dir])) {
 			Config::$modSettings['last_attachments_directory'][$base_dir] = 0;
 		}
 
@@ -949,23 +916,22 @@ class Attachment implements \ArrayAccess
 
 		$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . Config::$modSettings['last_attachments_directory'][$base_dir];
 
-		if (self::automanageCreateDirectory($updir))
-		{
+		if (self::automanageCreateDirectory($updir)) {
 			Config::$modSettings['currentAttachmentUploadDir'] = array_search($updir, Config::$modSettings['attachmentUploadDir']);
 
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'last_attachments_directory' => Utils::jsonEncode(Config::$modSettings['last_attachments_directory']),
 				'currentAttachmentUploadDir' => Config::$modSettings['currentAttachmentUploadDir'],
-			));
+			]);
 
 			Config::$modSettings['last_attachments_directory'] = Utils::jsonDecode(Config::$modSettings['last_attachments_directory'], true);
 
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+
+
+		return false;
+
 	}
 
 	/**
@@ -974,192 +940,178 @@ class Attachment implements \ArrayAccess
 	public static function process()
 	{
 		// Make sure we're uploading to the right place.
-		if (!empty(Config::$modSettings['automanage_attachments']))
+		if (!empty(Config::$modSettings['automanage_attachments'])) {
 			automanage_attachments_check_directory();
+		}
 
-		if (!is_array(Config::$modSettings['attachmentUploadDir']))
-		{
+		if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
 			Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 		}
 
 		Utils::$context['attach_dir'] = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
 
 		// Is the attachments folder actually there?
-		if (!empty(Utils::$context['dir_creation_error']))
-		{
+		if (!empty(Utils::$context['dir_creation_error'])) {
 			$initial_error = Utils::$context['dir_creation_error'];
-		}
-		elseif (!is_dir(Utils::$context['attach_dir']))
-		{
+		} elseif (!is_dir(Utils::$context['attach_dir'])) {
 			$initial_error = 'attach_folder_warning';
 			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
 		}
 
-		if (!isset($initial_error) && !isset(Utils::$context['attachments']))
-		{
+		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {
 			// If this isn't a new post, check the current attachments.
-			if (isset($_REQUEST['msg']))
-			{
-				$request = Db::$db->query('', '
-					SELECT COUNT(*), SUM(size)
+			if (isset($_REQUEST['msg'])) {
+				$request = Db::$db->query(
+					'',
+					'SELECT COUNT(*), SUM(size)
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
 						AND attachment_type = {int:attachment_type}',
-					array(
+					[
 						'id_msg' => (int) $_REQUEST['msg'],
 						'attachment_type' => 0,
-					)
+					],
 				);
-				list (Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);
+				list(Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
-			}
-			else
-			{
-				Utils::$context['attachments'] = array(
+			} else {
+				Utils::$context['attachments'] = [
 					'quantity' => 0,
 					'total_size' => 0,
-				);
+				];
 			}
 		}
 
 		// Hmm. There are still files in session.
 		$ignore_temp = false;
-		if (!empty($_SESSION['temp_attachments']['post']['files']) && count($_SESSION['temp_attachments']) > 1)
-		{
+
+		if (!empty($_SESSION['temp_attachments']['post']['files']) && count($_SESSION['temp_attachments']) > 1) {
 			// Let's try to keep them. But...
 			$ignore_temp = true;
 
 			// If new files are being added. We can't ignore those
-			foreach ($_FILES['attachment']['tmp_name'] as $dummy)
-			{
-				if (!empty($dummy))
-				{
+			foreach ($_FILES['attachment']['tmp_name'] as $dummy) {
+				if (!empty($dummy)) {
 					$ignore_temp = false;
 					break;
 				}
 			}
 
 			// Need to make space for the new files. So, bye bye.
-			if (!$ignore_temp)
-			{
-				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
-				{
-					if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false)
+			if (!$ignore_temp) {
+				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
+					if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
 						unlink($attachment['tmp_name']);
+					}
 				}
 
 				Utils::$context['we_are_history'] = Lang::$txt['error_temp_attachments_flushed'];
-				$_SESSION['temp_attachments'] = array();
+				$_SESSION['temp_attachments'] = [];
 			}
 		}
 
-		if (!isset($_FILES['attachment']['name']))
-			$_FILES['attachment']['tmp_name'] = array();
+		if (!isset($_FILES['attachment']['name'])) {
+			$_FILES['attachment']['tmp_name'] = [];
+		}
 
-		if (!isset($_SESSION['temp_attachments']))
-			$_SESSION['temp_attachments'] = array();
+		if (!isset($_SESSION['temp_attachments'])) {
+			$_SESSION['temp_attachments'] = [];
+		}
 
 		// Remember where we are at. If it's anywhere at all.
-		if (!$ignore_temp)
-		{
-			$_SESSION['temp_attachments']['post'] = array(
+		if (!$ignore_temp) {
+			$_SESSION['temp_attachments']['post'] = [
 				'msg' => !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0,
 				'last_msg' => !empty($_REQUEST['last_msg']) ? $_REQUEST['last_msg'] : 0,
 				'topic' => !empty($topic) ? $topic : 0,
 				'board' => !empty($board) ? $board : 0,
-			);
+			];
 		}
 
 		// If we have an initial error, lets just display it.
-		if (!empty($initial_error))
-		{
+		if (!empty($initial_error)) {
 			$_SESSION['temp_attachments']['initial_error'] = $initial_error;
 
 			// And delete the files 'cos they ain't going nowhere.
-			foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy)
-			{
-				if (file_exists($_FILES['attachment']['tmp_name'][$n]))
+			foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy) {
+				if (file_exists($_FILES['attachment']['tmp_name'][$n])) {
 					unlink($_FILES['attachment']['tmp_name'][$n]);
+				}
 			}
 
-			$_FILES['attachment']['tmp_name'] = array();
+			$_FILES['attachment']['tmp_name'] = [];
 		}
 
 		// Loop through $_FILES['attachment'] array and move each file to the current attachments folder.
-		foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy)
-		{
-			if ($_FILES['attachment']['name'][$n] == '')
+		foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy) {
+			if ($_FILES['attachment']['name'][$n] == '') {
 				continue;
+			}
 
 			// First, let's first check for PHP upload errors.
-			$errors = array();
-			if (!empty($_FILES['attachment']['error'][$n]))
-			{
-				if ($_FILES['attachment']['error'][$n] == 2)
-				{
-					$errors[] = array('file_too_big', array(Config::$modSettings['attachmentSizeLimit']));
-				}
-				elseif ($_FILES['attachment']['error'][$n] == 6)
-				{
+			$errors = [];
+
+			if (!empty($_FILES['attachment']['error'][$n])) {
+				if ($_FILES['attachment']['error'][$n] == 2) {
+					$errors[] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
+				} elseif ($_FILES['attachment']['error'][$n] == 6) {
 					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
-				}
-				else
-				{
+				} else {
 					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
 				}
 
-				if (empty($errors))
+				if (empty($errors)) {
 					$errors[] = 'attach_php_error';
+				}
 			}
 
 			// Try to move and rename the file before doing any more checks on it.
 			$attachID = 'post_tmp_' . User::$me->id . '_' . md5(mt_rand());
 			$destName = Utils::$context['attach_dir'] . '/' . $attachID;
 
-			if (empty($errors))
-			{
+			if (empty($errors)) {
 				// The reported MIME type of the attachment might not be reliable.
 				$detected_mime_type = Utils::getMimeType($_FILES['attachment']['tmp_name'][$n], true);
 
-				if ($detected_mime_type !== false)
+				if ($detected_mime_type !== false) {
 					$_FILES['attachment']['type'][$n] = $detected_mime_type;
+				}
 
-				$_SESSION['temp_attachments'][$attachID] = array(
+				$_SESSION['temp_attachments'][$attachID] = [
 					'name' => Utils::htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'size' => $_FILES['attachment']['size'][$n],
 					'type' => $_FILES['attachment']['type'][$n],
 					'id_folder' => Config::$modSettings['currentAttachmentUploadDir'],
-					'errors' => array(),
-				);
+					'errors' => [],
+				];
 
 				// Move the file to the attachments folder with a temp name for now.
-				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
-				{
+				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName)) {
 					Utils::makeWritable($destName, 0644);
-				}
-				else
-				{
+				} else {
 					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
 
-					if (file_exists($_FILES['attachment']['tmp_name'][$n]))
+					if (file_exists($_FILES['attachment']['tmp_name'][$n])) {
 						unlink($_FILES['attachment']['tmp_name'][$n]);
+					}
 				}
-			}
-			else
-			{
-				$_SESSION['temp_attachments'][$attachID] = array(
+			} else {
+				$_SESSION['temp_attachments'][$attachID] = [
 					'name' => Utils::htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'errors' => $errors,
-				);
+				];
 
-				if (file_exists($_FILES['attachment']['tmp_name'][$n]))
+				if (file_exists($_FILES['attachment']['tmp_name'][$n])) {
 					unlink($_FILES['attachment']['tmp_name'][$n]);
+				}
 			}
+
 			// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
-			if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
+			if (empty($_SESSION['temp_attachments'][$attachID]['errors'])) {
 				self::check($attachID);
+			}
 		}
 		// Mod authors, finally a hook to hang an alternate attachment upload system upon
 		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . User::$me->id . '_' . md5(mt_rand())
@@ -1171,7 +1123,7 @@ class Attachment implements \ArrayAccess
 		//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
 		//   errors => An array of errors (use the index of the Lang::$txt variable for that error).
 		// Template changes can be done using "integrate_upload_template".
-		IntegrationHook::call('integrate_attachment_upload', array());
+		IntegrationHook::call('integrate_attachment_upload', []);
 	}
 
 	/**
@@ -1184,31 +1136,25 @@ class Attachment implements \ArrayAccess
 	public static function check($attachID)
 	{
 		// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
-		if (empty($_SESSION['temp_attachments'][$attachID]))
-		{
+		if (empty($_SESSION['temp_attachments'][$attachID])) {
 			$error = '$_SESSION[\'temp_attachments\'][$attachID]';
-		}
-		elseif (empty($attachID))
-		{
+		} elseif (empty($attachID)) {
 			$error = '$attachID';
-		}
-		elseif (empty(Utils::$context['attachments']))
-		{
+		} elseif (empty(Utils::$context['attachments'])) {
 			$error = 'Utils::$context[\'attachments\']';
-		}
-		elseif (empty(Utils::$context['attach_dir']))
-		{
+		} elseif (empty(Utils::$context['attach_dir'])) {
 			$error = 'Utils::$context[\'attach_dir\']';
 		}
 
 		// Let's get their attention.
-		if (!empty($error))
-			ErrorHandler::fatalLang('attach_check_nag', 'debug', array($error));
+		if (!empty($error)) {
+			ErrorHandler::fatalLang('attach_check_nag', 'debug', [$error]);
+		}
 
 		// Just in case this slipped by the first checks, we stop it here and now
-		if ($_SESSION['temp_attachments'][$attachID]['size'] == 0)
-		{
+		if ($_SESSION['temp_attachments'][$attachID]['size'] == 0) {
 			$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_0_byte_file';
+
 			return false;
 		}
 
@@ -1216,13 +1162,12 @@ class Attachment implements \ArrayAccess
 		$image = new Image($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 
 		// Source will be empty if this attachment is not an image.
-		if (!empty($image->source) && !$image->check(!empty(Config::$modSettings['attachment_image_paranoid'])))
-		{
+		if (!empty($image->source) && !$image->check(!empty(Config::$modSettings['attachment_image_paranoid']))) {
 			// It's bad. Last chance, maybe we can re-encode it?
-			if (empty(Config::$modSettings['attachment_image_reencode']) || !$image->reencode())
-			{
+			if (empty(Config::$modSettings['attachment_image_reencode']) || !$image->reencode()) {
 				// Nothing to do: not allowed or not successful re-encoding it.
 				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
+
 				return false;
 			}
 
@@ -1234,20 +1179,19 @@ class Attachment implements \ArrayAccess
 		unset($image);
 
 		// Is there room for this sucker?
-		if (!empty(Config::$modSettings['attachmentDirSizeLimit']) || !empty(Config::$modSettings['attachmentDirFileLimit']))
-		{
+		if (!empty(Config::$modSettings['attachmentDirSizeLimit']) || !empty(Config::$modSettings['attachmentDirFileLimit'])) {
 			// Check the folder size and count. If it hasn't been done already.
-			if (empty(Utils::$context['dir_size']) || empty(Utils::$context['dir_files']))
-			{
-				$request = Db::$db->query('', '
-					SELECT COUNT(*), SUM(size)
+			if (empty(Utils::$context['dir_size']) || empty(Utils::$context['dir_files'])) {
+				$request = Db::$db->query(
+					'',
+					'SELECT COUNT(*), SUM(size)
 					FROM {db_prefix}attachments
 					WHERE id_folder = {int:folder_id}
 						AND attachment_type != {int:type}',
-					array(
+					[
 						'folder_id' => Config::$modSettings['currentAttachmentUploadDir'],
 						'type' => 1,
-					)
+					],
 				);
 				list(Utils::$context['dir_files'], Utils::$context['dir_size']) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
@@ -1266,10 +1210,9 @@ class Attachment implements \ArrayAccess
 					&& Config::$modSettings['attachmentDirFileLimit'] * .95 < Utils::$context['dir_files']
 					&& Config::$modSettings['attachmentDirFileLimit'] > 500
 				)
-			)
-			{
+			) {
 				ACP::emailAdmins('admin_attachments_full');
-				Config::updateModSettings(array('attachment_full_notified' => 1));
+				Config::updateModSettings(['attachment_full_notified' => 1]);
 			}
 
 			// // No room left.... What to do now???
@@ -1280,13 +1223,10 @@ class Attachment implements \ArrayAccess
 					!empty(Config::$modSettings['attachmentDirSizeLimit'])
 					&& Utils::$context['dir_size'] > Config::$modSettings['attachmentDirSizeLimit'] * 1024
 				)
-			)
-			{
-				if (!empty(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] == 1)
-				{
+			) {
+				if (!empty(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] == 1) {
 					// Move it to the new folder if we can.
-					if (self::automanageBySpace())
-					{
+					if (self::automanageBySpace()) {
 						rename($_SESSION['temp_attachments'][$attachID]['tmp_name'], Utils::$context['attach_dir'] . '/' . $attachID);
 						$_SESSION['temp_attachments'][$attachID]['tmp_name'] = Utils::$context['attach_dir'] . '/' . $attachID;
 						$_SESSION['temp_attachments'][$attachID]['id_folder'] = Config::$modSettings['currentAttachmentUploadDir'];
@@ -1294,20 +1234,14 @@ class Attachment implements \ArrayAccess
 						Utils::$context['dir_files'] = 0;
 					}
 					// Or, let the user know that it ain't gonna happen.
-					else
-					{
-						if (isset(Utils::$context['dir_creation_error']))
-						{
+					else {
+						if (isset(Utils::$context['dir_creation_error'])) {
 							$_SESSION['temp_attachments'][$attachID]['errors'][] = Utils::$context['dir_creation_error'];
-						}
-						else
-						{
+						} else {
 							$_SESSION['temp_attachments'][$attachID]['errors'][] = 'ran_out_of_space';
 						}
 					}
-				}
-				else
-				{
+				} else {
 					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'ran_out_of_space';
 				}
 			}
@@ -1316,54 +1250,50 @@ class Attachment implements \ArrayAccess
 		// Is the file too big?
 		Utils::$context['attachments']['total_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
 
-		if (!empty(Config::$modSettings['attachmentSizeLimit']) && $_SESSION['temp_attachments'][$attachID]['size'] > Config::$modSettings['attachmentSizeLimit'] * 1024)
-		{
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = array('file_too_big', array(Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)));
+		if (!empty(Config::$modSettings['attachmentSizeLimit']) && $_SESSION['temp_attachments'][$attachID]['size'] > Config::$modSettings['attachmentSizeLimit'] * 1024) {
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)]];
 		}
 
 		// Check the total upload size for this post...
-		if (!empty(Config::$modSettings['attachmentPostLimit']) && Utils::$context['attachments']['total_size'] > Config::$modSettings['attachmentPostLimit'] * 1024)
-		{
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = array('attach_max_total_file_size', array(Lang::numberFormat(Config::$modSettings['attachmentPostLimit'], 0), Lang::numberFormat(Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)));
+		if (!empty(Config::$modSettings['attachmentPostLimit']) && Utils::$context['attachments']['total_size'] > Config::$modSettings['attachmentPostLimit'] * 1024) {
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['attach_max_total_file_size', [Lang::numberFormat(Config::$modSettings['attachmentPostLimit'], 0), Lang::numberFormat(Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)]];
 		}
 
 		// Have we reached the maximum number of files we are allowed?
 		Utils::$context['attachments']['quantity']++;
 
 		// Set a max limit if none exists
-		if (empty(Config::$modSettings['attachmentNumPerPostLimit']) && Utils::$context['attachments']['quantity'] >= 50)
-		{
+		if (empty(Config::$modSettings['attachmentNumPerPostLimit']) && Utils::$context['attachments']['quantity'] >= 50) {
 			Config::$modSettings['attachmentNumPerPostLimit'] = 50;
 		}
 
-		if (!empty(Config::$modSettings['attachmentNumPerPostLimit']) && Utils::$context['attachments']['quantity'] > Config::$modSettings['attachmentNumPerPostLimit'])
-		{
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = array('attachments_limit_per_post', array(Config::$modSettings['attachmentNumPerPostLimit']));
+		if (!empty(Config::$modSettings['attachmentNumPerPostLimit']) && Utils::$context['attachments']['quantity'] > Config::$modSettings['attachmentNumPerPostLimit']) {
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['attachments_limit_per_post', [Config::$modSettings['attachmentNumPerPostLimit']]];
 		}
 
 		// File extension check
-		if (!empty(Config::$modSettings['attachmentCheckExtensions']))
-		{
+		if (!empty(Config::$modSettings['attachmentCheckExtensions'])) {
 			$allowed = explode(',', strtolower(Config::$modSettings['attachmentExtensions']));
 
-			foreach ($allowed as $k => $dummy)
+			foreach ($allowed as $k => $dummy) {
 				$allowed[$k] = trim($dummy);
+			}
 
-			if (!in_array(strtolower(substr(strrchr($_SESSION['temp_attachments'][$attachID]['name'], '.'), 1)), $allowed))
-			{
-				$allowed_extensions = strtr(strtolower(Config::$modSettings['attachmentExtensions']), array(',' => ', '));
-				$_SESSION['temp_attachments'][$attachID]['errors'][] = array('cant_upload_type', array($allowed_extensions));
+			if (!in_array(strtolower(substr(strrchr($_SESSION['temp_attachments'][$attachID]['name'], '.'), 1)), $allowed)) {
+				$allowed_extensions = strtr(strtolower(Config::$modSettings['attachmentExtensions']), [',' => ', ']);
+				$_SESSION['temp_attachments'][$attachID]['errors'][] = ['cant_upload_type', [$allowed_extensions]];
 			}
 		}
 
 		// Undo the math if there's an error
-		if (!empty($_SESSION['temp_attachments'][$attachID]['errors']))
-		{
-			if (isset(Utils::$context['dir_size']))
+		if (!empty($_SESSION['temp_attachments'][$attachID]['errors'])) {
+			if (isset(Utils::$context['dir_size'])) {
 				Utils::$context['dir_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
+			}
 
-			if (isset(Utils::$context['dir_files']))
+			if (isset(Utils::$context['dir_files'])) {
 				Utils::$context['dir_files']--;
+			}
 
 			Utils::$context['attachments']['total_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
 
@@ -1390,8 +1320,7 @@ class Attachment implements \ArrayAccess
 		$image = new Image($attachmentOptions['tmp_name']);
 
 		// Source is empty for non-images.
-		if (!empty($image->source))
-		{
+		if (!empty($image->source)) {
 			// Make sure the MIME type is correct.
 			$attachmentOptions['mime_type'] = $image->mime_type;
 
@@ -1399,8 +1328,7 @@ class Attachment implements \ArrayAccess
 			$attachmentOptions['width'] = $image->width;
 			$attachmentOptions['height'] = $image->height;
 
-			if (in_array($image->orientation, array(5, 6, 7, 8)))
-			{
+			if (in_array($image->orientation, [5, 6, 7, 8])) {
 				$attachmentOptions['width'] = $image->height;
 				$attachmentOptions['height'] = $image->width;
 			}
@@ -1409,13 +1337,10 @@ class Attachment implements \ArrayAccess
 			$attachmentOptions['fileext'] = ltrim(image_type_to_extension($image->type), '.');
 
 			// Special exception: allow both 'jpg' and 'jpeg'.
-			if ($attachmentOptions['fileext'] === 'jpeg' && strtolower(pathinfo($attachmentOptions['name'], PATHINFO_EXTENSION)) === 'jpg')
-			{
+			if ($attachmentOptions['fileext'] === 'jpeg' && strtolower(pathinfo($attachmentOptions['name'], PATHINFO_EXTENSION)) === 'jpg') {
 				$attachmentOptions['fileext'] = pathinfo($attachmentOptions['name'], PATHINFO_EXTENSION);
 			}
-		}
-		else
-		{
+		} else {
 			$attachmentOptions['width'] = 0;
 			$attachmentOptions['height'] = 0;
 		}
@@ -1425,90 +1350,86 @@ class Attachment implements \ArrayAccess
 		// Fix up the supplied file name and extension.
 		$name_info = array_filter(pathinfo($attachmentOptions['name']), 'strlen');
 
-		if (strlen($attachmentOptions['fileext'] ?? '') > 8)
+		if (strlen($attachmentOptions['fileext'] ?? '') > 8) {
 			$attachmentOptions['fileext'] = '';
+		}
 
-		if (strlen($attachmentOptions['fileext'] ?? '') === 0)
-		{
+		if (strlen($attachmentOptions['fileext'] ?? '') === 0) {
 			$attachmentOptions['fileext'] = isset($name_info['extension']) && strlen($name_info['extension']) <= 8 ? $name_info['extension'] : '';
 		}
 
 		$attachmentOptions['name'] = ($name_info['filename'] ?? bin2hex(Utils::randomBytes(4))) . (strlen($attachmentOptions['fileext']) > 0 ? '.' . $attachmentOptions['fileext'] : '');
 
 		// Get the hash if no hash has been given yet.
-		if (empty($attachmentOptions['file_hash']))
-		{
+		if (empty($attachmentOptions['file_hash'])) {
 			$attachmentOptions['file_hash'] = self::createHash($attachmentOptions['tmp_name']);
 		}
 
 		// This defines which options to use for which columns in the insert query.
 		// Mods using the hook can add columns and even change the properties of existing columns,
 		// but if they delete one of these columns, it will be reset to the default defined here.
-		$attachmentStandardInserts = $attachmentInserts = array(
+		$attachmentStandardInserts = $attachmentInserts = [
 			// Format: 'column' => array('type', 'option')
-			'id_folder' => array('int', 'id_folder'),
-			'id_msg' => array('int', 'post'),
-			'filename' => array('string-255', 'name'),
-			'file_hash' => array('string-40', 'file_hash'),
-			'fileext' => array('string-8', 'fileext'),
-			'size' => array('int', 'size'),
-			'width' => array('int', 'width'),
-			'height' => array('int', 'height'),
-			'mime_type' => array('string-20', 'mime_type'),
-			'approved' => array('int', 'approved'),
-		);
+			'id_folder' => ['int', 'id_folder'],
+			'id_msg' => ['int', 'post'],
+			'filename' => ['string-255', 'name'],
+			'file_hash' => ['string-40', 'file_hash'],
+			'fileext' => ['string-8', 'fileext'],
+			'size' => ['int', 'size'],
+			'width' => ['int', 'width'],
+			'height' => ['int', 'height'],
+			'mime_type' => ['string-20', 'mime_type'],
+			'approved' => ['int', 'approved'],
+		];
 
 		// Last chance to change stuff!
-		IntegrationHook::call('integrate_createAttachment', array(&$attachmentOptions, &$attachmentInserts));
+		IntegrationHook::call('integrate_createAttachment', [&$attachmentOptions, &$attachmentInserts]);
 
 		// Make sure the folder is valid...
 		$tmp = is_array(Config::$modSettings['attachmentUploadDir']) ? Config::$modSettings['attachmentUploadDir'] : Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 
 		$folders = array_keys($tmp);
 
-		if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
-		{
+		if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders)) {
 			$attachmentOptions['id_folder'] = Config::$modSettings['currentAttachmentUploadDir'];
 		}
 
 		// Make sure all required columns are present, in case a mod screwed up.
-		foreach ($attachmentStandardInserts as $column => $insert_info)
-		{
-			if (!isset($attachmentInserts[$column]))
+		foreach ($attachmentStandardInserts as $column => $insert_info) {
+			if (!isset($attachmentInserts[$column])) {
 				$attachmentInserts[$column] = $insert_info;
+			}
 		}
 
 		// Set up the columns and values to insert, in the correct order.
-		$attachmentColumns = array();
-		$attachmentValues = array();
-		foreach ($attachmentInserts as $column => $insert_info)
-		{
+		$attachmentColumns = [];
+		$attachmentValues = [];
+
+		foreach ($attachmentInserts as $column => $insert_info) {
 			$attachmentColumns[$column] = $insert_info[0];
 
-			if (!empty($insert_info[0]) && $insert_info[0] == 'int')
-			{
+			if (!empty($insert_info[0]) && $insert_info[0] == 'int') {
 				$attachmentValues[] = (int) $attachmentOptions[$insert_info[1]];
-			}
-			else
-			{
+			} else {
 				$attachmentValues[] = $attachmentOptions[$insert_info[1]];
 			}
 		}
 
 		// Create the attachment in the database.
-		$attachmentOptions['id'] = Db::$db->insert('',
+		$attachmentOptions['id'] = Db::$db->insert(
+			'',
 			'{db_prefix}attachments',
 			$attachmentColumns,
 			$attachmentValues,
-			array('id_attach'),
-			1
+			['id_attach'],
+			1,
 		);
 
 		// Attachment couldn't be created.
-		if (empty($attachmentOptions['id']))
-		{
+		if (empty($attachmentOptions['id'])) {
 			Lang::load('Errors');
 			ErrorHandler::log(Lang::$txt['attachment_not_created'], 'general');
+
 			return false;
 		}
 
@@ -1517,57 +1438,54 @@ class Attachment implements \ArrayAccess
 		rename($attachmentOptions['tmp_name'], $attachmentOptions['destination']);
 
 		// If it's not approved then add to the approval queue.
-		if (!$attachmentOptions['approved'])
-		{
-			Db::$db->insert('',
+		if (!$attachmentOptions['approved']) {
+			Db::$db->insert(
+				'',
 				'{db_prefix}approval_queue',
-				array(
+				[
 					'id_attach' => 'int', 'id_msg' => 'int',
-				),
-				array(
+				],
+				[
 					$attachmentOptions['id'], (int) $attachmentOptions['post'],
-				),
-				array()
+				],
+				[],
 			);
 
 			// Queue background notification task.
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}background_tasks',
-				array(
+				[
 					'task_file' => 'string',
 					'task_class' => 'string',
 					'task_data' => 'string',
-					'claimed_time' => 'int'
-				),
-				array(
-						'$sourcedir/tasks/CreateAttachment_Notify.php',
-						'SMF\Tasks\CreateAttachment_Notify',
-						Utils::jsonEncode(
-							array(
-								'id' => $attachmentOptions['id'],
-							)
-						),
-					0
-				),
-				array(
-					'id_task'
-				)
+					'claimed_time' => 'int',
+				],
+				[
+					'$sourcedir/tasks/CreateAttachment_Notify.php',
+					'SMF\\Tasks\\CreateAttachment_Notify',
+					Utils::jsonEncode(
+						[
+							'id' => $attachmentOptions['id'],
+						],
+					),
+					0,
+				],
+				[
+					'id_task',
+				],
 			);
 		}
 
-		if (!$this->is_image || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height'])))
-		{
+		if (!$this->is_image || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
 			return true;
 		}
 
 		// Like thumbnails, do we?
-		if (!empty(Config::$modSettings['attachmentThumbWidth']) && !empty(Config::$modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > Config::$modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > Config::$modSettings['attachmentThumbHeight']))
-		{
+		if (!empty(Config::$modSettings['attachmentThumbWidth']) && !empty(Config::$modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > Config::$modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > Config::$modSettings['attachmentThumbHeight'])) {
 			$image = new Image($attachmentOptions['destination'], true);
 
-			if (($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false)
-			{
+			if (($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false) {
 				// Propagate our special handling for JPEGs to the thumbnail's extension, too.
 				$thumb_ext = $image->type === $thumb->type ? $attachmentOptions['fileext'] : ltrim(image_type_to_extension($thumb->type), '.');
 
@@ -1577,17 +1495,14 @@ class Attachment implements \ArrayAccess
 					&& Config::$modSettings['automanage_attachments'] == 1
 					&& !empty(Config::$modSettings['attachmentDirSizeLimit'])
 					|| !empty(Config::$modSettings['attachmentDirFileLimit'])
-				)
-				{
+				) {
 					Utils::$context['dir_size'] = isset(Utils::$context['dir_size']) ? Utils::$context['dir_size'] += $thumb->filesize : Utils::$context['dir_size'] = 0;
 
 					Utils::$context['dir_files'] = isset(Utils::$context['dir_files']) ? Utils::$context['dir_files']++ : Utils::$context['dir_files'] = 0;
 
 					// If the folder is full, try to create a new one and move the thumb to it.
-					if (Utils::$context['dir_size'] > Config::$modSettings['attachmentDirSizeLimit'] * 1024 || Utils::$context['dir_files'] + 2 > Config::$modSettings['attachmentDirFileLimit'])
-					{
-						if (self::automanageBySpace())
-						{
+					if (Utils::$context['dir_size'] > Config::$modSettings['attachmentDirSizeLimit'] * 1024 || Utils::$context['dir_files'] + 2 > Config::$modSettings['attachmentDirFileLimit']) {
+						if (self::automanageBySpace()) {
 							$thumb->move(Utils::$context['attach_dir'] . '/' . $thumb->pathinfo['basename']);
 
 							Utils::$context['dir_size'] = 0;
@@ -1597,15 +1512,15 @@ class Attachment implements \ArrayAccess
 				}
 
 				// If a new folder has been already created. Gotta move this thumb there then.
-				if (Config::$modSettings['currentAttachmentUploadDir'] != $attachmentOptions['id_folder'])
-				{
+				if (Config::$modSettings['currentAttachmentUploadDir'] != $attachmentOptions['id_folder']) {
 					$thumb->move(Utils::$context['attach_dir'] . '/' . $thumb->pathinfo['basename']);
 				}
 
 				// To the database we go!
-				$attachmentOptions['thumb'] = Db::$db->insert('',
+				$attachmentOptions['thumb'] = Db::$db->insert(
+					'',
 					'{db_prefix}attachments',
-					array(
+					[
 						'id_folder' => 'int',
 						'id_msg' => 'int',
 						'attachment_type' => 'int',
@@ -1617,8 +1532,8 @@ class Attachment implements \ArrayAccess
 						'height' => 'int',
 						'mime_type' => 'string-20',
 						'approved' => 'int',
-					),
-					array(
+					],
+					[
 						Config::$modSettings['currentAttachmentUploadDir'],
 						(int) $attachmentOptions['post'],
 						3,
@@ -1630,21 +1545,21 @@ class Attachment implements \ArrayAccess
 						$thumb->height,
 						$thumb->mime_type,
 						(int) $attachmentOptions['approved'],
-					),
-					array('id_attach'),
-					1
+					],
+					['id_attach'],
+					1,
 				);
 
-				if (!empty($attachmentOptions['thumb']))
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}attachments
+				if (!empty($attachmentOptions['thumb'])) {
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}attachments
 						SET id_thumb = {int:id_thumb}
 						WHERE id_attach = {int:id_attach}',
-						array(
+						[
 							'id_thumb' => $attachmentOptions['thumb'],
 							'id_attach' => $attachmentOptions['id'],
-						)
+						],
 					);
 
 					$thumb->move(self::getFilePath($attachmentOptions['thumb']));
@@ -1661,30 +1576,33 @@ class Attachment implements \ArrayAccess
 	 * @param $attachIDs array of attachment IDs to assign.
 	 * @param $msgID integer the message ID.
 	 *
-	 * @return boolean false on error or missing params.
+	 * @return bool false on error or missing params.
 	 */
-	public static function assign($attachIDs = array(), $msgID = 0)
+	public static function assign($attachIDs = [], $msgID = 0)
 	{
 		// Oh, come on!
-		if (empty($attachIDs) || empty($msgID))
+		if (empty($attachIDs) || empty($msgID)) {
 			return false;
+		}
 
 		// "I see what is right and approve, but I do what is wrong."
-		IntegrationHook::call('integrate_assign_attachments', array(&$attachIDs, &$msgID));
+		IntegrationHook::call('integrate_assign_attachments', [&$attachIDs, &$msgID]);
 
 		// One last check
-		if (empty($attachIDs))
+		if (empty($attachIDs)) {
 			return false;
+		}
 
 		// Perform.
-		Db::$db->query('', '
-			UPDATE {db_prefix}attachments
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}attachments
 			SET id_msg = {int:id_msg}
 			WHERE id_attach IN ({array_int:attach_ids})',
-			array(
+			[
 				'id_msg' => $msgID,
 				'attach_ids' => $attachIDs,
-			)
+			],
 		);
 
 		return true;
@@ -1698,81 +1616,88 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function approve($attachments): bool
 	{
-		if (empty($attachments))
+		if (empty($attachments)) {
 			return false;
+		}
 
 		// For safety, check for thumbnails...
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				a.id_attach, a.id_member, COALESCE(thumb.id_attach, 0) AS id_thumb
 			FROM {db_prefix}attachments AS a
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)
 			WHERE a.id_attach IN ({array_int:attachments})
 				AND a.attachment_type = {int:attachment_type}',
-			array(
+			[
 				'attachments' => $attachments,
 				'attachment_type' => 0,
-			)
+			],
 		);
-		$attachments = array();
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+		$attachments = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// Update the thumbnail too...
-			if (!empty($row['id_thumb']))
+			if (!empty($row['id_thumb'])) {
 				$attachments[] = $row['id_thumb'];
+			}
 
 			$attachments[] = $row['id_attach'];
 		}
 		Db::$db->free_result($request);
 
-		if (empty($attachments))
+		if (empty($attachments)) {
 			return false;
+		}
 
 		// Approving an attachment is not hard - it's easy.
-		Db::$db->query('', '
-			UPDATE {db_prefix}attachments
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}attachments
 			SET approved = {int:is_approved}
 			WHERE id_attach IN ({array_int:attachments})',
-			array(
+			[
 				'attachments' => $attachments,
 				'is_approved' => 1,
-			)
+			],
 		);
 
 		// In order to log the attachments, we really need their message and filename
-		$request = Db::$db->query('', '
-			SELECT m.id_msg, a.filename
+		$request = Db::$db->query(
+			'',
+			'SELECT m.id_msg, a.filename
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
 			WHERE a.id_attach IN ({array_int:attachments})
 				AND a.attachment_type = {int:attachment_type}',
-			array(
+			[
 				'attachments' => $attachments,
 				'attachment_type' => 0,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Logging::logAction(
 				'approve_attach',
-				array(
+				[
 					'message' => $row['id_msg'],
 					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($row['filename'])),
-				)
+				],
 			);
 		}
 		Db::$db->free_result($request);
 
 		// Remove from the approval queue.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}approval_queue
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}approval_queue
 			WHERE id_attach IN ({array_int:attachments})',
-			array(
+			[
 				'attachments' => $attachments,
-			)
+			],
 		);
 
-		IntegrationHook::call('integrate_approve_attachments', array($attachments));
+		IntegrationHook::call('integrate_approve_attachments', [$attachments]);
 
 		return true;
 	}
@@ -1794,62 +1719,51 @@ class Attachment implements \ArrayAccess
 	public static function remove($condition, $query_type = '', $return_affected_messages = false, $autoThumbRemoval = true)
 	{
 		// @todo This might need more work!
-		$new_condition = array();
-		$query_parameter = array(
+		$new_condition = [];
+		$query_parameter = [
 			'thumb_attachment_type' => 3,
-		);
-		$do_logging = array();
+		];
+		$do_logging = [];
 
-		if (is_array($condition))
-		{
-			foreach ($condition as $real_type => $restriction)
-			{
+		if (is_array($condition)) {
+			foreach ($condition as $real_type => $restriction) {
 				// Doing a NOT?
 				$is_not = substr($real_type, 0, 4) == 'not_';
 				$type = $is_not ? substr($real_type, 4) : $real_type;
 
-				if (in_array($type, array('id_member', 'id_attach', 'id_msg')))
-				{
+				if (in_array($type, ['id_member', 'id_attach', 'id_msg'])) {
 					$new_condition[] = 'a.' . $type . ($is_not ? ' NOT' : '') . ' IN (' . (is_array($restriction) ? '{array_int:' . $real_type . '}' : '{int:' . $real_type . '}') . ')';
-				}
-				elseif ($type == 'attachment_type')
-				{
+				} elseif ($type == 'attachment_type') {
 					$new_condition[] = 'a.attachment_type = {int:' . $real_type . '}';
-				}
-				elseif ($type == 'poster_time')
-				{
+				} elseif ($type == 'poster_time') {
 					$new_condition[] = 'm.poster_time < {int:' . $real_type . '}';
-				}
-				elseif ($type == 'last_login')
-				{
+				} elseif ($type == 'last_login') {
 					$new_condition[] = 'mem.last_login < {int:' . $real_type . '}';
-				}
-				elseif ($type == 'size')
-				{
+				} elseif ($type == 'size') {
 					$new_condition[] = 'a.size > {int:' . $real_type . '}';
-				}
-				elseif ($type == 'id_topic')
-				{
+				} elseif ($type == 'id_topic') {
 					$new_condition[] = 'm.id_topic IN (' . (is_array($restriction) ? '{array_int:' . $real_type . '}' : '{int:' . $real_type . '}') . ')';
 				}
 
 				// Add the parameter!
 				$query_parameter[$real_type] = $restriction;
 
-				if ($type == 'do_logging')
+				if ($type == 'do_logging') {
 					$do_logging = $condition['id_attach'];
+				}
 			}
 			$condition = implode(' AND ', $new_condition);
 		}
 
 		// Delete it only if it exists...
-		$msgs = array();
-		$attach = array();
-		$parents = array();
+		$msgs = [];
+		$attach = [];
+		$parents = [];
 
 		// Get all the attachment names and id_msg's.
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				a.id_folder, a.filename, a.file_hash, a.attachment_type, a.id_attach, a.id_member' . ($query_type == 'messages' ? ', m.id_msg' : ', a.id_msg') . ',
 				thumb.id_folder AS thumb_folder, COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.filename AS thumb_filename, thumb.file_hash AS thumb_file_hash, thumb_parent.id_attach AS id_parent
 			FROM {db_prefix}attachments AS a' . ($query_type == 'members' ? '
@@ -1858,30 +1772,27 @@ class Attachment implements \ArrayAccess
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)
 				LEFT JOIN {db_prefix}attachments AS thumb_parent ON (thumb.attachment_type = {int:thumb_attachment_type} AND thumb_parent.id_thumb = a.id_attach)
 			WHERE ' . $condition,
-			$query_parameter
+			$query_parameter,
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			// Figure out the "encrypted" filename and unlink it ;).
-			if ($row['attachment_type'] == 1)
-			{
+			if ($row['attachment_type'] == 1) {
 				// if attachment_type = 1, it's... an avatar in a custom avatars directory.
 				// wasn't it obvious? :P
 				// @todo look again at this.
 				@unlink(Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename']);
-			}
-			else
-			{
+			} else {
 				$filename = Attachment::getFilePath($row['id_attach']);
 				@unlink($filename);
 
 				// If this was a thumb, the parent attachment should know about it.
-				if (!empty($row['id_parent']))
+				if (!empty($row['id_parent'])) {
 					$parents[] = $row['id_parent'];
+				}
 
 				// If this attachments has a thumb, remove it as well.
-				if (!empty($row['id_thumb']) && $autoThumbRemoval)
-				{
+				if (!empty($row['id_thumb']) && $autoThumbRemoval) {
 					$thumb_filename = Attachment::getFilePath($row['id_thumb']);
 					@unlink($thumb_filename);
 					$attach[] = $row['id_thumb'];
@@ -1889,8 +1800,9 @@ class Attachment implements \ArrayAccess
 			}
 
 			// Make a list.
-			if ($return_affected_messages && empty($row['attachment_type']))
+			if ($return_affected_messages && empty($row['attachment_type'])) {
 				$msgs[] = $row['id_msg'];
+			}
 
 			$attach[] = $row['id_attach'];
 		}
@@ -1899,61 +1811,62 @@ class Attachment implements \ArrayAccess
 		// Removed attachments don't have to be updated anymore.
 		$parents = array_diff($parents, $attach);
 
-		if (!empty($parents))
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}attachments
+		if (!empty($parents)) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}attachments
 				SET id_thumb = {int:no_thumb}
 				WHERE id_attach IN ({array_int:parent_attachments})',
-				array(
+				[
 					'parent_attachments' => $parents,
 					'no_thumb' => 0,
-				)
+				],
 			);
 		}
 
-		if (!empty($do_logging))
-		{
+		if (!empty($do_logging)) {
 			// In order to log the attachments, we really need their message and filename
-			$request = Db::$db->query('', '
-				SELECT m.id_msg, a.filename
+			$request = Db::$db->query(
+				'',
+				'SELECT m.id_msg, a.filename
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
 				WHERE a.id_attach IN ({array_int:attachments})
 					AND a.attachment_type = {int:attachment_type}',
-				array(
+				[
 					'attachments' => $do_logging,
 					'attachment_type' => 0,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				Logging::logAction(
 					'remove_attach',
-					array(
+					[
 						'message' => $row['id_msg'],
 						'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($row['filename'])),
-					)
+					],
 				);
 			}
 			Db::$db->free_result($request);
 		}
 
-		if (!empty($attach))
-		{
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}attachments
+		if (!empty($attach)) {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}attachments
 				WHERE id_attach IN ({array_int:attachment_list})',
-				array(
+				[
 					'attachment_list' => $attach,
-				)
+				],
 			);
 		}
 
-		IntegrationHook::call('integrate_remove_attachments', array($attach));
+		IntegrationHook::call('integrate_remove_attachments', [$attach]);
 
-		if ($return_affected_messages)
+		if ($return_affected_messages) {
 			return array_unique($msgs);
+		}
 	}
 
 	/**
@@ -1967,39 +1880,41 @@ class Attachment implements \ArrayAccess
 	{
 		static $view_attachment_boards;
 
-		if (!isset($view_attachment_boards))
+		if (!isset($view_attachment_boards)) {
 			$view_attachment_boards = User::$me->boardsAllowedTo('view_attachments');
+		}
 
 		// Meh...
-		if (empty($attachID))
+		if (empty($attachID)) {
 			return 'attachments_no_data_loaded';
+		}
 
 		// Make it easy.
 		$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
 
 		// Perhaps someone else wants to do the honors? Yes, this also includes dealing with previews ;)
-		$externalParse = IntegrationHook::call('integrate_pre_parseAttachBBC', array($attachID, $msgID));
+		$externalParse = IntegrationHook::call('integrate_pre_parseAttachBBC', [$attachID, $msgID]);
 
 		// "I am innocent of the blood of this just person: see ye to it."
-		if (!empty($externalParse) && (is_string($externalParse) || is_array($externalParse)))
+		if (!empty($externalParse) && (is_string($externalParse) || is_array($externalParse))) {
 			return $externalParse;
+		}
 
 		// Are attachments enabled?
-		if (empty(Config::$modSettings['attachmentEnable']))
+		if (empty(Config::$modSettings['attachmentEnable'])) {
 			return 'attachments_not_enable';
+		}
 
-		$check_board_perms = !isset($_SESSION['attachments_can_preview'][$attachID]) && $view_attachment_boards !== array(0);
+		$check_board_perms = !isset($_SESSION['attachments_can_preview'][$attachID]) && $view_attachment_boards !== [0];
 
 		// There is always the chance someone else has already done our dirty work...
 		// If so, all pertinent checks were already done. Hopefully...
-		if (!empty(Utils::$context['current_attachments']) && !empty(Utils::$context['current_attachments'][$attachID]))
-		{
+		if (!empty(Utils::$context['current_attachments']) && !empty(Utils::$context['current_attachments'][$attachID])) {
 			return Utils::$context['current_attachments'][$attachID];
 		}
 
 		// Can the user view attachments on this board?
-		if ($check_board_perms && !empty(Board::$info->id) && !in_array(Board::$info->id, $view_attachment_boards))
-		{
+		if ($check_board_perms && !empty(Board::$info->id) && !in_array(Board::$info->id, $view_attachment_boards)) {
 			return 'attachments_not_allowed_to_see';
 		}
 
@@ -2007,30 +1922,32 @@ class Attachment implements \ArrayAccess
 		$attachInfo = self::getAttachMsgInfo($attachID);
 
 		// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
-		if (!isset($attachInfo['id']))
+		if (!isset($attachInfo['id'])) {
 			return 'attachments_no_data_loaded';
+		}
 
-		if (empty($attachInfo['msg']) && empty(Utils::$context['preview_message']))
+		if (empty($attachInfo['msg']) && empty(Utils::$context['preview_message'])) {
 			return 'attachments_no_msg_associated';
+		}
 
 		// Can the user view attachments on the board that holds the attachment's original post?
 		// (This matters when one post quotes another on a different board.)
-		if ($check_board_perms && !in_array($attachInfo['board'], $view_attachment_boards))
+		if ($check_board_perms && !in_array($attachInfo['board'], $view_attachment_boards)) {
 			return 'attachments_not_allowed_to_see';
+		}
 
-		if (empty(Utils::$context['loaded_attachments'][$attachInfo['msg']]))
-			self::prepareByMsg(array($attachInfo['msg']));
+		if (empty(Utils::$context['loaded_attachments'][$attachInfo['msg']])) {
+			self::prepareByMsg([$attachInfo['msg']]);
+		}
 
-		if (isset(Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]))
+		if (isset(Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID])) {
 			$attachContext = Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID];
+		}
 
 		// In case the user manually typed the thumbnail's ID into the BBC
-		elseif (!empty(Utils::$context['loaded_attachments'][$attachInfo['msg']]))
-		{
-			foreach (Utils::$context['loaded_attachments'][$attachInfo['msg']] as $foundAttachID => $foundAttach)
-			{
-				if (array_key_exists('id_thumb', $foundAttach) && $foundAttach['id_thumb'] == $attachID)
-				{
+		elseif (!empty(Utils::$context['loaded_attachments'][$attachInfo['msg']])) {
+			foreach (Utils::$context['loaded_attachments'][$attachInfo['msg']] as $foundAttachID => $foundAttach) {
+				if (array_key_exists('id_thumb', $foundAttach) && $foundAttach['id_thumb'] == $attachID) {
 					$attachContext = Utils::$context['loaded_attachments'][$attachInfo['msg']][$foundAttachID];
 					$attachID = $foundAttachID;
 					break;
@@ -2039,48 +1956,44 @@ class Attachment implements \ArrayAccess
 		}
 
 		// Load this particular attach's context.
-		if (!empty($attachContext))
-		{
+		if (!empty($attachContext)) {
 			// Skip unapproved attachment, unless they belong to the user or the user can approve them.
 			if (
 				!Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['approved']
 				&& Config::$modSettings['postmod_active']
 				&& !User::$me->allowedTo('approve_posts')
 				&& Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['id_member'] != User::$me->id
-			)
-			{
+			) {
 				unset(Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]);
+
 				return 'attachments_unapproved';
 			}
 
 			$attachLoaded = self::loadAttachmentContext($attachContext['id_msg'], Utils::$context['loaded_attachments']);
-		}
-		else
-		{
+		} else {
 			return 'attachments_no_data_loaded';
 		}
 
-		if (empty($attachLoaded))
-		{
+		if (empty($attachLoaded)) {
 			return 'attachments_no_data_loaded';
 		}
-		else
-		{
-			$attachContext = $attachLoaded[$attachID];
-		}
+
+
+		$attachContext = $attachLoaded[$attachID];
+
 
 		// It's theoretically possible that prepareByMsg() changed the board id, so check again.
-		if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards))
+		if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards)) {
 			return 'attachments_not_allowed_to_see';
+		}
 
 		// You may or may not want to show this under the post.
-		if (!empty(Config::$modSettings['dont_show_attach_under_post']) && !isset(Utils::$context['show_attach_under_post'][$attachID]))
-		{
+		if (!empty(Config::$modSettings['dont_show_attach_under_post']) && !isset(Utils::$context['show_attach_under_post'][$attachID])) {
 			Utils::$context['show_attach_under_post'][$attachID] = $attachID;
 		}
 
 		// Last minute changes?
-		IntegrationHook::call('integrate_post_parseAttachBBC', array(&$attachContext));
+		IntegrationHook::call('integrate_post_parseAttachBBC', [&$attachContext]);
 
 		// Don't do any logic with the loaded data, leave it to whoever called this function.
 		return $attachContext;
@@ -2094,15 +2007,17 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function getAttachMsgInfo($attachID)
 	{
-		if (empty($attachID))
-			return array();
+		if (empty($attachID)) {
+			return [];
+		}
 
-		if (!isset(Utils::$context['loaded_attachments']))
-			Utils::$context['loaded_attachments'] = array();
+		if (!isset(Utils::$context['loaded_attachments'])) {
+			Utils::$context['loaded_attachments'] = [];
+		}
 
 		self::load($attachID);
 
-		return self::$loaded[$attachID] ?? array();
+		return self::$loaded[$attachID] ?? [];
 	}
 
 	/**
@@ -2117,18 +2032,17 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function loadAttachmentContext($id_msg, $attachments)
 	{
-		if (empty($attachments) || empty($attachments[$id_msg]))
-			return array();
+		if (empty($attachments) || empty($attachments[$id_msg])) {
+			return [];
+		}
 
 		// Set up the attachment info - based on code by Meriadoc.
-		$attachmentData = array();
+		$attachmentData = [];
 		$have_unapproved = false;
 
-		if (isset($attachments[$id_msg]) && !empty(Config::$modSettings['attachmentEnable']))
-		{
-			foreach ($attachments[$id_msg] as $i => $attachment)
-			{
-				$attachmentData[$i] = array(
+		if (isset($attachments[$id_msg]) && !empty(Config::$modSettings['attachmentEnable'])) {
+			foreach ($attachments[$id_msg] as $i => $attachment) {
+				$attachmentData[$i] = [
 					'id' => $attachment['id_attach'],
 					'name' => Utils::entityFix(Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename']))),
 					'downloads' => $attachment['downloads'],
@@ -2141,14 +2055,16 @@ class Attachment implements \ArrayAccess
 					'topic' => $attachment['topic'],
 					'board' => $attachment['board'],
 					'mime_type' => $attachment['mime_type'],
-				);
+				];
 
 				// If something is unapproved we'll note it so we can sort them.
-				if (!$attachment['approved'])
+				if (!$attachment['approved']) {
 					$have_unapproved = true;
+				}
 
-				if (!$attachmentData[$i]['is_image'])
+				if (!$attachmentData[$i]['is_image']) {
 					continue;
+				}
 
 				$attachmentData[$i]['real_width'] = $attachment['width'];
 				$attachmentData[$i]['width'] = $attachment['width'];
@@ -2165,8 +2081,7 @@ class Attachment implements \ArrayAccess
 						$attachment['width'] > Config::$modSettings['attachmentThumbWidth']
 						|| $attachment['height'] > Config::$modSettings['attachmentThumbHeight']
 					)
-					&& strlen($attachment['filename']) < 249)
-				{
+					&& strlen($attachment['filename']) < 249) {
 					// A proper thumb doesn't exist yet? Create one!
 					if (
 						empty($attachment['id_thumb'])
@@ -2176,26 +2091,20 @@ class Attachment implements \ArrayAccess
 							$attachment['thumb_width'] < Config::$modSettings['attachmentThumbWidth']
 							&& $attachment['thumb_height'] < Config::$modSettings['attachmentThumbHeight']
 						)
-					)
-					{
+					) {
 						$filename = self::getFilePath($attachment['id_attach']);
 
 						$image = new Image($filename, true);
 
-						if (!empty($image->source) && ($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false)
-						{
+						if (!empty($image->source) && ($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false) {
 							// So what folder are we putting this image in?
-							if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
-							{
-								if (!is_array(Config::$modSettings['attachmentUploadDir']))
-								{
+							if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
+								if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
 									Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 								}
 
 								$id_folder_thumb = Config::$modSettings['currentAttachmentUploadDir'];
-							}
-							else
-							{
+							} else {
 								$id_folder_thumb = 1;
 							}
 
@@ -2207,9 +2116,10 @@ class Attachment implements \ArrayAccess
 							$thumb_ext = $image->type === $thumb->type ? $attachment['fileext'] : ltrim(image_type_to_extension($thumb->type), '.');
 
 							// Add this beauty to the database.
-							$attachment['id_thumb'] = Db::$db->insert('',
+							$attachment['id_thumb'] = Db::$db->insert(
+								'',
 								'{db_prefix}attachments',
-								array(
+								[
 									'id_folder' => 'int',
 									'id_msg' => 'int',
 									'attachment_type' => 'int',
@@ -2220,8 +2130,8 @@ class Attachment implements \ArrayAccess
 									'height' => 'int',
 									'fileext' => 'string',
 									'mime_type' => 'string',
-								),
-								array(
+								],
+								[
 									$id_folder_thumb,
 									$id_msg,
 									3,
@@ -2232,48 +2142,45 @@ class Attachment implements \ArrayAccess
 									$thumb->height,
 									$thumb_ext,
 									$thumb->mime_type,
-								),
-								array('id_attach'),
-								1
+								],
+								['id_attach'],
+								1,
 							);
 
-							if (!empty($attachment['id_thumb']))
-							{
-								Db::$db->query('', '
-									UPDATE {db_prefix}attachments
+							if (!empty($attachment['id_thumb'])) {
+								Db::$db->query(
+									'',
+									'UPDATE {db_prefix}attachments
 									SET id_thumb = {int:id_thumb}
 									WHERE id_attach = {int:id_attach}',
-									array(
+									[
 										'id_thumb' => $attachment['id_thumb'],
 										'id_attach' => $attachment['id_attach'],
-									)
+									],
 								);
 
 								$thumb->move(self::getFilePath($attachment['id_thumb']));
 
 								// Do we need to remove an old thumbnail?
-								if (!empty($old_id_thumb))
-								{
-									self::remove(array('id_attach' => $old_id_thumb), '', false, false);
+								if (!empty($old_id_thumb)) {
+									self::remove(['id_attach' => $old_id_thumb], '', false, false);
 								}
 							}
 						}
 					}
 
 					// Only adjust dimensions on successful thumbnail creation.
-					if (!empty($attachment['thumb_width']) && !empty($attachment['thumb_height']))
-					{
+					if (!empty($attachment['thumb_width']) && !empty($attachment['thumb_height'])) {
 						$attachmentData[$i]['width'] = $attachment['thumb_width'];
 						$attachmentData[$i]['height'] = $attachment['thumb_height'];
 					}
 				}
 
-				if (!empty($attachment['id_thumb']))
-				{
-					$attachmentData[$i]['thumbnail'] = array(
+				if (!empty($attachment['id_thumb'])) {
+					$attachmentData[$i]['thumbnail'] = [
 						'id' => $attachment['id_thumb'],
 						'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_thumb'] . ';image;thumb',
-					);
+					];
 				}
 
 				$attachmentData[$i]['thumbnail']['has_thumb'] = !empty($attachment['id_thumb']);
@@ -2291,27 +2198,21 @@ class Attachment implements \ArrayAccess
 							&& $attachment['height'] > Config::$modSettings['max_image_height']
 						)
 					)
-				)
-				{
+				) {
 					if (
 						!empty(Config::$modSettings['max_image_width'])
 						&& (
 							empty(Config::$modSettings['max_image_height'])
 							|| $attachment['height'] * Config::$modSettings['max_image_width'] / $attachment['width'] <= Config::$modSettings['max_image_height']
 						)
-					)
-					{
+					) {
 						$attachmentData[$i]['width'] = Config::$modSettings['max_image_width'];
 						$attachmentData[$i]['height'] = floor($attachment['height'] * Config::$modSettings['max_image_width'] / $attachment['width']);
-					}
-					elseif (!empty(Config::$modSettings['max_image_width']))
-					{
+					} elseif (!empty(Config::$modSettings['max_image_width'])) {
 						$attachmentData[$i]['width'] = floor($attachment['width'] * Config::$modSettings['max_image_height'] / $attachment['height']);
 						$attachmentData[$i]['height'] = Config::$modSettings['max_image_height'];
 					}
-				}
-				elseif ($attachmentData[$i]['thumbnail']['has_thumb'])
-				{
+				} elseif ($attachmentData[$i]['thumbnail']['has_thumb']) {
 					// If the image is too large to show inline, make it a popup.
 					if (
 						(
@@ -2322,25 +2223,21 @@ class Attachment implements \ArrayAccess
 							!empty(Config::$modSettings['max_image_height'])
 							&& $attachmentData[$i]['real_height'] > Config::$modSettings['max_image_height']
 						)
-					)
-					{
+					) {
 						$attachmentData[$i]['thumbnail']['javascript'] = 'return reqWin(\'' . $attachmentData[$i]['href'] . ';image\', ' . ($attachment['width'] + 20) . ', ' . ($attachment['height'] + 20) . ', true);';
-					}
-					else
-					{
+					} else {
 						$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(' . $attachment['id_attach'] . ');';
 					}
 				}
 
-				if (!$attachmentData[$i]['thumbnail']['has_thumb'])
+				if (!$attachmentData[$i]['thumbnail']['has_thumb']) {
 					$attachmentData[$i]['downloads']++;
+				}
 
 				// Describe undefined dimensions as "unknown".
 				// This can happen if an uploaded SVG is missing some key data.
-				foreach (array('real_width', 'real_height') as $key)
-				{
-					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF)
-					{
+				foreach (['real_width', 'real_height'] as $key) {
+					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
 						loadLanguage('Admin');
 						$attachmentData[$i][$key] = ' (' . $txt['unknown'] . ') ';
 					}
@@ -2349,17 +2246,16 @@ class Attachment implements \ArrayAccess
 		}
 
 		// Do we need to instigate a sort?
-		if ($have_unapproved)
-		{
+		if ($have_unapproved) {
 			uasort(
 				$attachmentData,
-				function($a, $b)
-				{
-					if ($a['is_approved'] == $b['is_approved'])
+				function ($a, $b) {
+					if ($a['is_approved'] == $b['is_approved']) {
 						return 0;
+					}
 
 					return $a['is_approved'] > $b['is_approved'] ? -1 : 1;
-				}
+				},
 			);
 		}
 
@@ -2371,41 +2267,37 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @param int array $msgIDs the message ID to load info from.
 	 *
-	 * @return void
 	 */
 	public static function prepareByMsg($msgIDs)
 	{
-		if (empty(Utils::$context['loaded_attachments']))
-		{
-			Utils::$context['loaded_attachments'] = array();
+		if (empty(Utils::$context['loaded_attachments'])) {
+			Utils::$context['loaded_attachments'] = [];
 		}
 		// Remove all $msgIDs that we already processed
-		else
-		{
-			$msgIDs = array_diff($msgIDs, array_keys(Utils::$context['loaded_attachments']), array(0));
+		else {
+			$msgIDs = array_diff($msgIDs, array_keys(Utils::$context['loaded_attachments']), [0]);
 		}
 
 		// Ensure that $msgIDs doesn't contain zero or non-integers.
 		$msgIDs = array_filter(array_map('intval', $msgIDs));
 
-		if (!empty($msgIDs) || !empty($_SESSION['attachments_can_preview']))
-		{
+		if (!empty($msgIDs) || !empty($_SESSION['attachments_can_preview'])) {
 			$get_thumbs = !empty(Config::$modSettings['attachmentShowImages']) && !empty(Config::$modSettings['attachmentThumbnails']);
 
-			if (!empty($msgIDs))
-			{
+			if (!empty($msgIDs)) {
 				$loaded = self::loadByMsg($msgIDs, self::APPROVED_TRUE, self::TYPE_STANDARD, $get_thumbs);
 
-				foreach ($loaded as $id => $attachment)
+				foreach ($loaded as $id => $attachment) {
 					Utils::$context['loaded_attachments'][$attachment->msg][$id] = $attachment;
+				}
 			}
 
-			if (!empty($_SESSION['attachments_can_preview']))
-			{
+			if (!empty($_SESSION['attachments_can_preview'])) {
 				$loaded = self::load(array_keys(array_filter($_SESSION['attachments_can_preview'])), self::APPROVED_TRUE, self::TYPE_STANDARD, $get_thumbs);
 
-				foreach ($loaded as $id => $attachment)
+				foreach ($loaded as $id => $attachment) {
 					Utils::$context['loaded_attachments'][$attachment->msg][$id] = $attachment;
+				}
 			}
 		}
 	}
@@ -2422,16 +2314,11 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function createHash(string $input = ''): string
 	{
-		if (is_file($input))
-		{
+		if (is_file($input)) {
 			$hash = hash_hmac_file('sha1', $input, Config::$image_proxy_secret);
-		}
-		elseif (strlen($input) > 0)
-		{
+		} elseif (strlen($input) > 0) {
 			$hash = hash_hmac('sha1', $input, Config::$image_proxy_secret);
-		}
-		else
-		{
+		} else {
 			$hash = bin2hex(Utils::randomBytes(20));
 		}
 
@@ -2476,8 +2363,9 @@ class Attachment implements \ArrayAccess
 	public static function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = false, $file_hash = '')
 	{
 		// Just make up a nice hash...
-		if ($new || empty($attachment_id))
+		if ($new || empty($attachment_id)) {
 			return self::createHash();
+		}
 
 		return self::getFilePath($attachment_id);
 	}
@@ -2491,28 +2379,27 @@ class Attachment implements \ArrayAccess
 	 */
 	protected function setPath(): void
 	{
-		if (empty($this->id) || empty($this->file_hash))
+		if (empty($this->id) || empty($this->file_hash)) {
 			return;
+		}
 
 		// Decode the JSON string to an array.
-		if (!is_array(Config::$modSettings['attachmentUploadDir']))
-		{
+		if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
 			$temp = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 
-			if (!is_null($temp))
+			if (!is_null($temp)) {
 				Config::$modSettings['attachmentUploadDir'] = $temp;
+			}
 		}
 
 		// Are we using multiple directories?
-		if (is_array(Config::$modSettings['attachmentUploadDir']))
-		{
-			if (!isset(Config::$modSettings['attachmentUploadDir'][$this->folder]))
+		if (is_array(Config::$modSettings['attachmentUploadDir'])) {
+			if (!isset(Config::$modSettings['attachmentUploadDir'][$this->folder])) {
 				return;
+			}
 
 			$dir = Config::$modSettings['attachmentUploadDir'][$this->folder];
-		}
-		else
-		{
+		} else {
 			$dir = Config::$modSettings['attachmentUploadDir'];
 		}
 
@@ -2535,15 +2422,16 @@ class Attachment implements \ArrayAccess
 	{
 		$open_basedir = ini_get('open_basedir');
 
-		if (empty($open_basedir))
+		if (empty($open_basedir)) {
 			return true;
+		}
 
 		$restricted_paths = explode(PATH_SEPARATOR, $open_basedir);
 
-		foreach ($restricted_paths as $restricted_path)
-		{
-			if (mb_strpos($path, $restricted_path) === 0)
+		foreach ($restricted_paths as $restricted_path) {
+			if (mb_strpos($path, $restricted_path) === 0) {
 				return true;
+			}
 		}
 
 		return false;
@@ -2565,17 +2453,16 @@ class Attachment implements \ArrayAccess
 				* in Windows we need to explode for both \ and /
 				* while in linux should be safe to explode only for / (aka DIRECTORY_SEPARATOR)
 		*/
-		if (DIRECTORY_SEPARATOR === '\\')
-		{
-			$tree = preg_split('#[\\\/]#', $directory);
-		}
-		else
-		{
-			if (substr($directory, 0, 1) != DIRECTORY_SEPARATOR)
+		if (DIRECTORY_SEPARATOR === '\\') {
+			$tree = preg_split('#[\\\\/]#', $directory);
+		} else {
+			if (substr($directory, 0, 1) != DIRECTORY_SEPARATOR) {
 				return false;
+			}
 
 			$tree = explode(DIRECTORY_SEPARATOR, trim($directory, DIRECTORY_SEPARATOR));
 		}
+
 		return $tree;
 	}
 
@@ -2593,22 +2480,19 @@ class Attachment implements \ArrayAccess
 		$directory = '';
 
 		// If on Windows servers the first part of the path is the drive (e.g. "C:")
-		if (DIRECTORY_SEPARATOR === '\\')
-		{
+		if (DIRECTORY_SEPARATOR === '\\') {
 			// Better be sure that the first part of the path is actually a drive letter...
 			// ...even if, I should check this in the admin page...isn't it?
 			// ...NHAAA Let's leave space for users' complains! :P
-			if (preg_match('/^[a-z]:$/i', $tree[0]))
-			{
+			if (preg_match('/^[a-z]:$/i', $tree[0])) {
 				$directory = array_shift($tree);
-			}
-			else
-			{
+			} else {
 				return false;
 			}
 
 			$count--;
 		}
+
 		return $directory;
 	}
 
@@ -2630,18 +2514,19 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = array(), string $from = '{db_prefix}attachments AS a', array $joins = array(), array $where = array(), array $order = array(), int $limit = 0)
+	protected static function queryData(array $selects, array $params = [], string $from = '{db_prefix}attachments AS a', array $joins = [], array $where = [], array $order = [], int $limit = 0)
 	{
-		$request = Db::$db->query('', '
-			SELECT ' . implode(', ', $selects) . '
-			FROM ' . implode("\n\t\t\t\t\t", array_merge(array($from), $joins)) . (empty($where) ? '' : '
+		$request = Db::$db->query(
+			'',
+			'SELECT ' . implode(', ', $selects) . '
+			FROM ' . implode("\n\t\t\t\t\t", array_merge([$from], $joins)) . (empty($where) ? '' : '
 			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
 			LIMIT ' . $limit : ''),
-			$params
+			$params,
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			yield $row;
 		}
 		Db::$db->free_result($request);
@@ -2650,7 +2535,8 @@ class Attachment implements \ArrayAccess
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Attachment::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Attachment::exportStatic')) {
 	Attachment::exportStatic();
+}
 
 ?>

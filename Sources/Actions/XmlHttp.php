@@ -13,11 +13,12 @@
 
 namespace SMF\Actions;
 
+use SMF\Actions\Admin\News;
 use SMF\BackwardCompatibility;
-
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -27,8 +28,6 @@ use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Admin\News;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Handles XML-based interaction (mainly XMLhttp)
@@ -42,14 +41,14 @@ class XmlHttp implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'XMLhttpMain',
 			'GetJumpTo' => 'GetJumpTo',
 			'ListMessageIcons' => 'ListMessageIcons',
 			'RetrievePreview' => 'RetrievePreview',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -72,11 +71,11 @@ class XmlHttp implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = array(
+	public static array $subactions = [
 		'jumpto' => 'jumpTo',
 		'messageicons' => 'messageIcons',
 		'previews' => 'previews',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -99,34 +98,34 @@ class XmlHttp implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($this->subaction))
+		if (!isset($this->subaction)) {
 			ErrorHandler::fatalLang('no_access', false);
+		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
 	 * Get a list of boards and categories used for the jumpto dropdown.
 	 */
-	function jumpTo()
+	public function jumpTo()
 	{
 		// Find the boards/categories they can see.
-		$boardListOptions = array(
+		$boardListOptions = [
 			'use_permissions' => true,
-			'selected_board' => isset(Utils::$context['current_board']) ? Utils::$context['current_board'] : 0,
-		);
+			'selected_board' => Utils::$context['current_board'] ?? 0,
+		];
 		Utils::$context['jump_to'] = MessageIndex::getBoardList($boardListOptions);
 
 		// Make the board safe for display.
-		foreach (Utils::$context['jump_to'] as $id_cat => $cat)
-		{
+		foreach (Utils::$context['jump_to'] as $id_cat => $cat) {
 			Utils::$context['jump_to'][$id_cat]['name'] = Utils::htmlspecialcharsDecode(strip_tags($cat['name']));
 
-			foreach ($cat['boards'] as $id_board => $board)
-			{
+			foreach ($cat['boards'] as $id_board => $board) {
 				Utils::$context['jump_to'][$id_cat]['boards'][$id_board]['name'] = Utils::htmlspecialcharsDecode(strip_tags($board['name']));
 			}
 		}
@@ -137,7 +136,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Gets a list of available message icons and sends the info to the template for display
 	 */
-	function messageIcons()
+	public function messageIcons()
 	{
 		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 		Utils::$context['sub_template'] = 'message_icons';
@@ -149,73 +148,73 @@ class XmlHttp implements ActionInterface
 	 *
 	 * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
 	 */
-	function previews()
+	public function previews()
 	{
-		$items = array(
+		$items = [
 			'newspreview',
 			'newsletterpreview',
 			'sig_preview',
 			'warning_preview',
-		);
+		];
 
 		Utils::$context['sub_template'] = 'generic_xml';
 
-		if (!isset($_POST['item']) || !in_array($_POST['item'], $items))
+		if (!isset($_POST['item']) || !in_array($_POST['item'], $items)) {
 			return false;
+		}
 
-		call_user_func(array($this, $_POST['item']));
+		call_user_func([$this, $_POST['item']]);
 	}
 
 	/**
 	 * Handles previewing news items
 	 */
-	function newspreview()
+	public function newspreview()
 	{
-		$errors = array();
+		$errors = [];
 
 		$news = !isset($_POST['news']) ? '' : Utils::htmlspecialchars($_POST['news'], ENT_QUOTES);
 
-		if (empty($news))
-		{
-			$errors[] = array('value' => 'no_news');
-		}
-		else
-		{
+		if (empty($news)) {
+			$errors[] = ['value' => 'no_news'];
+		} else {
 			Msg::preparsecode($news);
 		}
 
-		Utils::$context['xml_data'] = array(
-			'news' => array(
+		Utils::$context['xml_data'] = [
+			'news' => [
 				'identifier' => 'parsedNews',
-				'children' => array(
-					array(
+				'children' => [
+					[
 						'value' => BBCodeParser::load()->parse($news),
-					),
-				),
-			),
-			'errors' => array(
+					],
+				],
+			],
+			'errors' => [
 				'identifier' => 'error',
-				'children' => $errors
-			),
-		);
+				'children' => $errors,
+			],
+		];
 	}
 
 	/**
 	 * Handles previewing newsletters
 	 */
-	function newsletterpreview()
+	public function newsletterpreview()
 	{
 		Lang::load('Errors');
 
-		Utils::$context['post_error']['messages'] = array();
+		Utils::$context['post_error']['messages'] = [];
 		Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 		Utils::$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
 
-		if (empty($_POST['subject']))
+		if (empty($_POST['subject'])) {
 			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_subject'];
+		}
 
-		if (empty($_POST['message']))
+		if (empty($_POST['message'])) {
 			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_message'];
+		}
 
 		News::prepareMailingForPreview();
 
@@ -225,9 +224,9 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing signatures
 	 */
-	function sig_preview()
+	public function sig_preview()
 	{
-		require_once(Config::$sourcedir . '/Profile-Modify.php');
+		require_once Config::$sourcedir . '/Profile-Modify.php';
 
 		Lang::load('Profile');
 		Lang::load('Errors');
@@ -237,20 +236,20 @@ class XmlHttp implements ActionInterface
 
 		// @todo Temporary
 		// Borrowed from loadAttachmentContext in Display.php
-		$can_change = $is_owner ? User::$me->allowedTo(array('profile_extra_any', 'profile_extra_own')) : User::$me->allowedTo('profile_extra_any');
+		$can_change = $is_owner ? User::$me->allowedTo(['profile_extra_any', 'profile_extra_own']) : User::$me->allowedTo('profile_extra_any');
 
-		$errors = array();
+		$errors = [];
 
-		if (!empty($user) && $can_change)
-		{
-			$request = Db::$db->query('', '
-				SELECT signature
+		if (!empty($user) && $can_change) {
+			$request = Db::$db->query(
+				'',
+				'SELECT signature
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
 				LIMIT 1',
-				array(
+				[
 					'id_member' => $user,
-				)
+				],
 			);
 			list($current_signature) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
@@ -265,99 +264,83 @@ class XmlHttp implements ActionInterface
 
 			$validation = Profile::validateSignature($preview_signature);
 
-			if ($validation !== true && $validation !== false)
-			{
-				$errors[] = array('value' => Lang::$txt['profile_error_' . $validation], 'attributes' => array('type' => 'error'));
+			if ($validation !== true && $validation !== false) {
+				$errors[] = ['value' => Lang::$txt['profile_error_' . $validation], 'attributes' => ['type' => 'error']];
 			}
 
 			Lang::censorText($preview_signature);
 
 			$preview_signature = BBCodeParser::load()->parse($preview_signature, true, 'sig' . $user, $allowedTags);
-		}
-		elseif (!$can_change)
-		{
-			if ($is_owner)
-			{
-				$errors[] = array('value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => array('type' => 'error'));
+		} elseif (!$can_change) {
+			if ($is_owner) {
+				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => ['type' => 'error']];
+			} else {
+				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_any'], 'attributes' => ['type' => 'error']];
 			}
-			else
-			{
-				$errors[] = array('value' => Lang::$txt['cannot_profile_extra_any'], 'attributes' => array('type' => 'error'));
-			}
-		}
-		else
-		{
-			$errors[] = array('value' => Lang::$txt['no_user_selected'], 'attributes' => array('type' => 'error'));
+		} else {
+			$errors[] = ['value' => Lang::$txt['no_user_selected'], 'attributes' => ['type' => 'error']];
 		}
 
-		Utils::$context['xml_data']['signatures'] = array(
+		Utils::$context['xml_data']['signatures'] = [
 			'identifier' => 'signature',
-			'children' => array()
-		);
+			'children' => [],
+		];
 
-		if (isset($current_signature))
-		{
-			Utils::$context['xml_data']['signatures']['children'][] = array(
+		if (isset($current_signature)) {
+			Utils::$context['xml_data']['signatures']['children'][] = [
 				'value' => $current_signature,
-				'attributes' => array('type' => 'current'),
-			);
+				'attributes' => ['type' => 'current'],
+			];
 		}
 
-		if (isset($preview_signature))
-		{
-			Utils::$context['xml_data']['signatures']['children'][] = array(
+		if (isset($preview_signature)) {
+			Utils::$context['xml_data']['signatures']['children'][] = [
 				'value' => $preview_signature,
-				'attributes' => array('type' => 'preview'),
-			);
+				'attributes' => ['type' => 'preview'],
+			];
 		}
 
-		if (!empty($errors))
-		{
-			Utils::$context['xml_data']['errors'] = array(
+		if (!empty($errors)) {
+			Utils::$context['xml_data']['errors'] = [
 				'identifier' => 'error',
 				'children' => array_merge(
-					array(
-						array(
+					[
+						[
 							'value' => Lang::$txt['profile_errors_occurred'],
-							'attributes' => array('type' => 'errors_occurred'),
-						),
-					),
-					$errors
+							'attributes' => ['type' => 'errors_occurred'],
+						],
+					],
+					$errors,
 				),
-			);
+			];
 		}
 	}
 
 	/**
 	 * Handles previewing user warnings
 	 */
-	function warning_preview()
+	public function warning_preview()
 	{
 		Lang::load('Errors');
 		Lang::load('ModerationCenter');
 
-		Utils::$context['post_error']['messages'] = array();
+		Utils::$context['post_error']['messages'] = [];
 
-		if (User::$me->allowedTo('issue_warning'))
-		{
+		if (User::$me->allowedTo('issue_warning')) {
 			$warning_body = !empty($_POST['body']) ? trim(Lang::censorText($_POST['body'])) : '';
 
 			Utils::$context['preview_subject'] = !empty($_POST['title']) ? trim(Utils::htmlspecialchars($_POST['title'])) : '';
 
-			if (isset($_POST['issuing']))
-			{
-				if (empty($_POST['title']) || empty($_POST['body']))
+			if (isset($_POST['issuing'])) {
+				if (empty($_POST['title']) || empty($_POST['body'])) {
 					Utils::$context['post_error']['messages'][] = Lang::$txt['warning_notify_blank'];
-			}
-			else
-			{
-				if (empty($_POST['title']))
-				{
+				}
+			} else {
+				if (empty($_POST['title'])) {
 					Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_title'];
 				}
 
-				if (empty($_POST['body']))
-				{
+				if (empty($_POST['body'])) {
 					Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_body'];
 				}
 
@@ -370,35 +353,32 @@ class XmlHttp implements ActionInterface
 				 * - {SCRIPTURL} - Web address of forum.
 				 * - {REGARDS} - Standard email sign-off.
 				 */
-				$find = array(
+				$find = [
 					'{MEMBER}',
 					'{FORUMNAME}',
 					'{SCRIPTURL}',
 					'{REGARDS}',
-				);
+				];
 
-				$replace = array(
+				$replace = [
 					User::$me->name,
 					Config::$mbname,
 					Config::$scripturl,
 					sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
-				);
+				];
 
 				$warning_body = str_replace($find, $replace, $warning_body);
 			}
 
-			if (!empty($_POST['body']))
-			{
+			if (!empty($_POST['body'])) {
 				Msg::preparsecode($warning_body);
 
 				$warning_body = BBCodeParser::load()->parse($warning_body);
 			}
 
 			Utils::$context['preview_message'] = $warning_body;
-		}
-		else
-		{
-			Utils::$context['post_error']['messages'][] = array('value' => Lang::$txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
+		} else {
+			Utils::$context['post_error']['messages'][] = ['value' => Lang::$txt['cannot_issue_warning'], 'attributes' => ['type' => 'error']];
 		}
 
 		Utils::$context['sub_template'] = 'warning';
@@ -415,8 +395,9 @@ class XmlHttp implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -471,15 +452,17 @@ class XmlHttp implements ActionInterface
 		Theme::loadTemplate('Xml');
 
 		// Easy adding of sub actions.
-		IntegrationHook::call('integrate_XMLhttpMain_subActions', array(&self::$subactions));
+		IntegrationHook::call('integrate_XMLhttpMain_subActions', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\XmlHttp::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\XmlHttp::exportStatic')) {
 	XmlHttp::exportStatic();
+}
 
 ?>

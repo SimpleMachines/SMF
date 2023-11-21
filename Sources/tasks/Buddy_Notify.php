@@ -13,11 +13,9 @@
 
 namespace SMF\Tasks;
 
-use SMF\Alert;
-use SMF\Config;
-use SMF\User;
 use SMF\Actions\Notify;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Alert;
+use SMF\User;
 
 /**
  * This class contains code used to notify members when they have been added to
@@ -36,9 +34,8 @@ class Buddy_Notify extends BackgroundTask
 		// Figure out if the user wants to be notified.
 		$prefs = Notify::getNotifyPrefs($this->_details['receiver_id'], 'buddy_request', true);
 
-		if ($prefs[$this->_details['receiver_id']]['buddy_request'])
-		{
-			Alert::create(array(
+		if ($prefs[$this->_details['receiver_id']]['buddy_request']) {
+			Alert::create([
 				'alert_time' => $this->_details['time'],
 				'id_member' => $this->_details['receiver_id'],
 				'id_member_started' => $this->_details['id_member'],
@@ -48,7 +45,7 @@ class Buddy_Notify extends BackgroundTask
 				'content_action' => 'buddy_request',
 				'is_read' => 0,
 				'extra' => '',
-			));
+			]);
 		}
 
 		return true;

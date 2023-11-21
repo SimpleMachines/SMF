@@ -14,19 +14,18 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
-use SMF\Lang;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
+use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.
@@ -40,27 +39,27 @@ class TrackIP implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'list_getIPMessages' => 'list_getIPMessages',
 			'list_getIPMessageCount' => 'list_getIPMessageCount',
 			'trackIP' => 'TrackIP',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
 	 *******************/
 
 	/**
-	 * @var int $memID
+	 * @var int
 	 *
 	 * ID of the member to track.
 	 */
 	public int $memID;
 
 	/**
-	 * @var bool $standalone
+	 * @var bool
 	 *
 	 * True if this was called via ?action=trackip.
 	 * False if this was called via ?action=profile;area=tracking;sa=ip.
@@ -91,16 +90,13 @@ class TrackIP implements ActionInterface
 		// Can the user do this?
 		User::$me->isAllowedTo('moderate_forum');
 
-		if ($this->standalone)
-		{
+		if ($this->standalone) {
 			Theme::loadTemplate('Profile');
 			Lang::load('Profile');
 			Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
 
 			Utils::$context['ip'] = IP::ip2range(User::$me->ip);
-		}
-		else
-		{
+		} else {
 			Utils::$context['base_url'] = Config::$scripturl . '?action=profile;area=tracking;sa=ip;u=' . $this->memID;
 
 			Utils::$context['ip'] = IP::ip2range(User::$loaded[$this->memID]->ip);
@@ -109,43 +105,44 @@ class TrackIP implements ActionInterface
 		Utils::$context['sub_template'] = 'trackIP';
 
 		// Searching?
-		if (isset($_REQUEST['searchip']))
+		if (isset($_REQUEST['searchip'])) {
 			Utils::$context['ip'] = IP::ip2range(trim($_REQUEST['searchip']));
+		}
 
-		if (count(Utils::$context['ip']) !== 2)
+		if (count(Utils::$context['ip']) !== 2) {
 			ErrorHandler::fatalLang('invalid_tracking_ip', false);
+		}
 
-		$ip_string = array('{inet:ip_address_low}', '{inet:ip_address_high}');
+		$ip_string = ['{inet:ip_address_low}', '{inet:ip_address_high}'];
 
-		$fields = array(
+		$fields = [
 			'ip_address_low' => Utils::$context['ip']['low'],
 			'ip_address_high' => Utils::$context['ip']['high'],
-		);
+		];
 
 		$ip_var = Utils::$context['ip'];
 
-		if (Utils::$context['ip']['low'] !== Utils::$context['ip']['high'])
-		{
+		if (Utils::$context['ip']['low'] !== Utils::$context['ip']['high']) {
 			Utils::$context['ip'] = Utils::$context['ip']['low'] . '-' . Utils::$context['ip']['high'];
-		}
-		else
-		{
+		} else {
 			Utils::$context['ip'] = Utils::$context['ip']['low'];
 		}
 
-		if ($this->standalone)
+		if ($this->standalone) {
 			Utils::$context['page_title'] = Lang::$txt['trackIP'] . ' - ' . Utils::$context['ip'];
+		}
 
-		Utils::$context['ips'] = array();
+		Utils::$context['ips'] = [];
 
-		$request = Db::$db->query('', '
-			SELECT id_member, real_name AS display_name, member_ip
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, real_name AS display_name, member_ip
 			FROM {db_prefix}members
 			WHERE member_ip >= ' . $ip_string[0] . ' and member_ip <= ' . $ip_string[1],
-			$fields
+			$fields,
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['ips'][(string) new IP($row['member_ip'])][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>';
 		}
 		Db::$db->free_result($request);
@@ -156,7 +153,7 @@ class TrackIP implements ActionInterface
 		$max_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 		// Start with the user messages.
-		$list_options = array(
+		$list_options = [
 			'id' => 'track_message_list',
 			'title' => Lang::$txt['messages_from_ip'] . ' ' . Utils::$context['ip'],
 			'start_var_name' => 'messageStart',
@@ -164,87 +161,87 @@ class TrackIP implements ActionInterface
 			'no_items_label' => Lang::$txt['no_messages_from_ip'],
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date',
-			'get_items' => array(
+			'get_items' => [
 				'function' => __CLASS__ . '::list_getIPMessages',
-				'params' => array(
+				'params' => [
 					'm.poster_ip >= ' . $ip_string[0] . ' and m.poster_ip <= ' . $ip_string[1],
 					$fields,
-				),
-			),
-			'get_count' => array(
+				],
+			],
+			'get_count' => [
 				'function' => __CLASS__ . '::list_getIPMessageCount',
-				'params' => array(
+				'params' => [
 					'm.poster_ip >= ' . $ip_string[0] . ' and m.poster_ip <= ' . $ip_string[1],
 					$fields,
-				),
-			),
-			'columns' => array(
-				'ip_address' => array(
-					'header' => array(
+				],
+			],
+			'columns' => [
+				'ip_address' => [
+					'header' => [
 						'value' => Lang::$txt['ip_address'],
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a>',
-							'params' => array(
+							'params' => [
 								'ip' => false,
-							),
-						),
-					),
-					'sort' => array(
+							],
+						],
+					],
+					'sort' => [
 						'default' => 'm.poster_ip',
 						'reverse' => 'm.poster_ip DESC',
-					),
-				),
-				'poster' => array(
-					'header' => array(
+					],
+				],
+				'poster' => [
+					'header' => [
 						'value' => Lang::$txt['poster'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'member_link',
-					),
-				),
-				'subject' => array(
-					'header' => array(
+					],
+				],
+				'subject' => [
+					'header' => [
 						'value' => Lang::$txt['subject'],
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?topic=%1$s.msg%2$s#msg%2$s" rel="nofollow">%3$s</a>',
-							'params' => array(
+							'params' => [
 								'topic' => false,
 								'id' => false,
 								'subject' => false,
-							),
-						),
-					),
-				),
-				'date' => array(
-					'header' => array(
+							],
+						],
+					],
+				],
+				'date' => [
+					'header' => [
 						'value' => Lang::$txt['date'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'time',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'm.id_msg DESC',
 						'reverse' => 'm.id_msg',
-					),
-				),
-			),
-			'additional_rows' => array(
-				array(
+					],
+				],
+			],
+			'additional_rows' => [
+				[
 					'position' => 'after_title',
 					'value' => Lang::$txt['messages_from_ip_desc'],
-				),
-			),
-		);
+				],
+			],
+		];
 
 		// Create the messages list.
 		new ItemList($list_options);
 
 		// Set the options for the error lists.
-		$list_options = array(
+		$list_options = [
 			'id' => 'track_user_list',
 			'title' => Lang::$txt['errors_from_ip'] . ' ' . Utils::$context['ip'],
 			'start_var_name' => 'errorStart',
@@ -252,111 +249,110 @@ class TrackIP implements ActionInterface
 			'no_items_label' => Lang::$txt['no_errors_from_ip'],
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
-			'get_items' => array(
+			'get_items' => [
 				'function' => 'list_getUserErrors',
-				'params' => array(
+				'params' => [
 					'le.ip >= ' . $ip_string[0] . ' and le.ip <= ' . $ip_string[1],
 					$fields,
-				),
-			),
-			'get_count' => array(
+				],
+			],
+			'get_count' => [
 				'function' => 'list_getUserErrorCount',
-				'params' => array(
+				'params' => [
 					'ip >= ' . $ip_string[0] . ' and ip <= ' . $ip_string[1],
 					$fields,
-				),
-			),
-			'columns' => array(
-				'ip_address2' => array(
-					'header' => array(
+				],
+			],
+			'columns' => [
+				'ip_address2' => [
+					'header' => [
 						'value' => Lang::$txt['ip_address'],
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a>',
-							'params' => array(
+							'params' => [
 								'ip' => false,
-							),
-						),
-					),
-					'sort' => array(
+							],
+						],
+					],
+					'sort' => [
 						'default' => 'le.ip',
 						'reverse' => 'le.ip DESC',
-					),
-				),
-				'display_name' => array(
-					'header' => array(
+					],
+				],
+				'display_name' => [
+					'header' => [
 						'value' => Lang::$txt['display_name'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'member_link',
-					),
-				),
-				'message' => array(
-					'header' => array(
+					],
+				],
+				'message' => [
+					'header' => [
 						'value' => Lang::$txt['message'],
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '%1$s<br><a href="%2$s">%2$s</a>',
-							'params' => array(
+							'params' => [
 								'message' => false,
 								'url' => false,
-							),
-						),
+							],
+						],
 						'class' => 'word_break',
-					),
-				),
-				'date2' => array(
-					'header' => array(
+					],
+				],
+				'date2' => [
+					'header' => [
 						'value' => Lang::$txt['date'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'time',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'le.id_error DESC',
 						'reverse' => 'le.id_error',
-					),
-				),
-			),
-			'additional_rows' => array(
-				array(
+					],
+				],
+			],
+			'additional_rows' => [
+				[
 					'position' => 'after_title',
 					'value' => Lang::$txt['errors_from_ip_desc'],
-				),
-			),
-		);
+				],
+			],
+		];
 
 		// Create the error list.
 		new ItemList($list_options);
 
 		// Allow 3rd party integrations to add in their own lists or whatever.
-		Utils::$context['additional_track_lists'] = array();
-		IntegrationHook::call('integrate_profile_trackip', array($ip_string, $ip_var));
+		Utils::$context['additional_track_lists'] = [];
+		IntegrationHook::call('integrate_profile_trackip', [$ip_string, $ip_var]);
 
 		Utils::$context['single_ip'] = ($ip_var['low'] === $ip_var['high']);
 
-		if (Utils::$context['single_ip'])
-		{
-			Utils::$context['whois_servers'] = array(
-				'apnic' => array(
+		if (Utils::$context['single_ip']) {
+			Utils::$context['whois_servers'] = [
+				'apnic' => [
 					'name' => Lang::$txt['whois_apnic'],
 					'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . Utils::$context['ip'],
-				),
-				'arin' => array(
+				],
+				'arin' => [
 					'name' => Lang::$txt['whois_arin'],
 					'url' => 'https://whois.arin.net/rest/ip/' . Utils::$context['ip'],
-				),
-				'lacnic' => array(
+				],
+				'lacnic' => [
 					'name' => Lang::$txt['whois_lacnic'],
 					'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . Utils::$context['ip'],
-				),
-				'ripe' => array(
+				],
+				'ripe' => [
 					'name' => Lang::$txt['whois_ripe'],
 					'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . Utils::$context['ip'],
-				),
-			);
+				],
+			];
 		}
 	}
 
@@ -371,8 +367,9 @@ class TrackIP implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -395,13 +392,14 @@ class TrackIP implements ActionInterface
 	 * @param array $where_vars An array of parameters for $where
 	 * @return array An array containing information about the posts
 	 */
-	public static function list_getIPMessages(int $start, int $items_per_page, string $sort, string $where, array $where_vars = array()): array
+	public static function list_getIPMessages(int $start, int $items_per_page, string $sort, string $where, array $where_vars = []): array
 	{
-		$messages = array();
+		$messages = [];
 
 		// Get all the messages fitting this where clause.
-		$request = Db::$db->query('', '
-			SELECT
+		$request = Db::$db->query(
+			'',
+			'SELECT
 				m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 				m.subject, m.poster_time, m.id_topic, m.id_board
 			FROM {db_prefix}messages AS m
@@ -409,27 +407,27 @@ class TrackIP implements ActionInterface
 			WHERE {query_see_message_board} AND ' . $where . '
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
-			array_merge($where_vars, array(
+			array_merge($where_vars, [
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,
-			))
+			]),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$messages[] = array(
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$messages[] = [
 				'ip' => new IP($row['poster_ip']),
 				'member_link' => empty($row['id_member']) ? $row['display_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>',
-				'board' => array(
+				'board' => [
 					'id' => $row['id_board'],
-					'href' => Config::$scripturl . '?board=' . $row['id_board']
-				),
+					'href' => Config::$scripturl . '?board=' . $row['id_board'],
+				],
 				'topic' => $row['id_topic'],
 				'id' => $row['id_msg'],
 				'subject' => $row['subject'],
 				'time' => Time::create('@' . $row['poster_time'])->format(),
-				'timestamp' => $row['poster_time']
-			);
+				'timestamp' => $row['poster_time'],
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -443,13 +441,14 @@ class TrackIP implements ActionInterface
 	 * @param array $where_vars The parameters for $where
 	 * @return int Count of messages matching the IP
 	 */
-	public static function list_getIPMessageCount(string $where, array $where_vars = array()): int
+	public static function list_getIPMessageCount(string $where, array $where_vars = []): int
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board} AND ' . $where,
-			$where_vars
+			$where_vars,
 		);
 		list($count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -482,14 +481,12 @@ class TrackIP implements ActionInterface
 		// have already been loaded. If it isn't, this was called directly.
 		$this->standalone = !class_exists(__NAMESPACE__ . '\\Profile\\Main', false);
 
-		if ($this->standalone)
-		{
+		if ($this->standalone) {
 			$this->memID = User::$me->id;
-		}
-		else
-		{
-			if (!isset(Profile::$member))
+		} else {
+			if (!isset(Profile::$member)) {
 				Profile::load();
+			}
 
 			$this->memID = Profile::$member->id;
 		}
@@ -497,7 +494,8 @@ class TrackIP implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\TrackIP::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\TrackIP::exportStatic')) {
 	TrackIP::exportStatic();
+}
 
 ?>

@@ -14,12 +14,11 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
+use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Suggests members, membergroups, or SMF versions in reply to AJAX requests.
@@ -33,14 +32,14 @@ class AutoSuggest implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'AutoSuggestHandler' => 'AutoSuggestHandler',
 			'AutoSuggest_Search_Member' => 'AutoSuggest_Search_Member',
 			'AutoSuggest_Search_MemberGroups' => 'AutoSuggest_Search_MemberGroups',
 			'AutoSuggest_Search_SMFVersions' => 'AutoSuggest_Search_SMFVersions',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -68,7 +67,7 @@ class AutoSuggest implements ActionInterface
 	 * Optional search parameters.
 	 * This should be set by the constructor.
 	 */
-	public array $search_param = array();
+	public array $search_param = [];
 
 	/**************************
 	 * Public static properties
@@ -79,11 +78,11 @@ class AutoSuggest implements ActionInterface
 	 *
 	 * Available suggestion types.
 	 */
-	public static array $suggest_types = array(
+	public static array $suggest_types = [
 		'member' => 'member',
 		'membergroups' => 'membergroups',
 		'versions' => 'versions',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -106,24 +105,20 @@ class AutoSuggest implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($this->suggest_type, $this->search, self::$suggest_types[$this->suggest_type]))
+		if (!isset($this->suggest_type, $this->search, self::$suggest_types[$this->suggest_type])) {
 			return;
+		}
 
 		User::$me->checkSession('get');
 
 		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'generic_xml';
 
-		if (method_exists($this, self::$suggest_types[$this->suggest_type]))
-		{
-			Utils::$context['xml_data'] = call_user_func(array($this, self::$suggest_types[$this->suggest_type]));
-		}
-		elseif (function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]))
-		{
+		if (method_exists($this, self::$suggest_types[$this->suggest_type])) {
+			Utils::$context['xml_data'] = call_user_func([$this, self::$suggest_types[$this->suggest_type]]);
+		} elseif (function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type])) {
 			Utils::$context['xml_data'] = call_user_func('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]);
-		}
-		elseif (function_exists('AutoSuggest_Search_' . $this->suggest_type))
-		{
+		} elseif (function_exists('AutoSuggest_Search_' . $this->suggest_type)) {
 			Utils::$context['xml_data'] = call_user_func('AutoSuggest_Search_' . $this->suggest_type);
 		}
 	}
@@ -137,37 +132,38 @@ class AutoSuggest implements ActionInterface
 	{
 		$this->sanitizeSearch();
 
-		$xml_data = array(
-			'items' => array(
+		$xml_data = [
+			'items' => [
 				'identifier' => 'item',
-				'children' => array(),
-			),
-		);
+				'children' => [],
+			],
+		];
 
 		// Find the member.
-		$request = Db::$db->query('', '
-			SELECT id_member, real_name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
 				AND is_activated IN (1, 11)
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
-			array(
+			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$row['real_name'] = strtr($row['real_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
 
-			$xml_data['items']['children'][] = array(
-				'attributes' => array(
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$row['real_name'] = strtr($row['real_name'], ['&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;']);
+
+			$xml_data['items']['children'][] = [
+				'attributes' => [
 					'id' => $row['id_member'],
-				),
+				],
 				'value' => $row['real_name'],
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -183,41 +179,42 @@ class AutoSuggest implements ActionInterface
 	{
 		$this->sanitizeSearch();
 
-		$xml_data = array(
-			'items' => array(
+		$xml_data = [
+			'items' => [
 				'identifier' => 'item',
-				'children' => array(),
-			),
-		);
+				'children' => [],
+			],
+		];
 
 		// Find the group.
 		// Only return groups which are not post-based and not "Hidden",
 		// but not the "Administrators" or "Moderators" groups.
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE {raw:group_name} LIKE {string:search}
 				AND min_posts = {int:min_posts}
 				AND id_group NOT IN ({array_int:invalid_groups})
 				AND hidden != {int:hidden}',
-			array(
+			[
 				'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
 				'min_posts' => -1,
-				'invalid_groups' => array(1, 3),
+				'invalid_groups' => [1, 3],
 				'hidden' => 2,
 				'search' => $this->search,
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$row['group_name'] = strtr($row['group_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
 
-			$xml_data['items']['children'][] = array(
-				'attributes' => array(
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$row['group_name'] = strtr($row['group_name'], ['&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;']);
+
+			$xml_data['items']['children'][] = [
+				'attributes' => [
 					'id' => $row['id_group'],
-				),
+				],
 				'value' => $row['group_name'],
-			);
+			];
 		}
 		Db::$db->free_result($request);
 
@@ -231,60 +228,57 @@ class AutoSuggest implements ActionInterface
 	 */
 	public function versions(): array
 	{
-		$xml_data = array(
-			'items' => array(
+		$xml_data = [
+			'items' => [
 				'identifier' => 'item',
-				'children' => array(),
-			),
-		);
+				'children' => [],
+			],
+		];
 
 		// First try and get it from the database.
-		$versions = array();
-		$request = Db::$db->query('', '
-			SELECT data
+		$versions = [];
+		$request = Db::$db->query(
+			'',
+			'SELECT data
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:latest_versions}
 				AND path = {string:path}',
-			array(
+			[
 				'latest_versions' => 'latest-versions.txt',
 				'path' => '/smf/',
-			)
+			],
 		);
 
-		if (Db::$db->num_rows($request))
-		{
-			$versions = array();
-		}
-		elseif ($row = Db::$db->fetch_assoc($request) && !empty($row['data']))
-		{
+		if (Db::$db->num_rows($request)) {
+			$versions = [];
+		} elseif ($row = Db::$db->fetch_assoc($request) && !empty($row['data'])) {
 			// The file can have either Windows or Linux line endings, but let's
 			// ensure we clean it as best we can.
 			$possible_versions = explode("\n", $row['data']);
 
-			foreach ($possible_versions as $ver)
-			{
+			foreach ($possible_versions as $ver) {
 				$ver = trim($ver);
 
-				if (strpos($ver, 'SMF') === 0)
+				if (strpos($ver, 'SMF') === 0) {
 					$versions[] = $ver;
+				}
 			}
 		}
 		Db::$db->free_result($request);
 
 		// Just in case we don't have anything.
-		if (empty($versions))
-			$versions = array(SMF_FULL_VERSION);
+		if (empty($versions)) {
+			$versions = [SMF_FULL_VERSION];
+		}
 
-		foreach ($versions as $id => $version)
-		{
-			if (strpos(strtoupper($version), strtoupper($this->search)) !== false)
-			{
-				$xml_data['items']['children'][] = array(
-					'attributes' => array(
+		foreach ($versions as $id => $version) {
+			if (strpos(strtoupper($version), strtoupper($this->search)) !== false) {
+				$xml_data['items']['children'][] = [
+					'attributes' => [
 						'id' => $id,
-					),
+					],
 					'value' => $version,
-				);
+				];
 			}
 		}
 
@@ -302,8 +296,9 @@ class AutoSuggest implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -323,7 +318,7 @@ class AutoSuggest implements ActionInterface
 	 */
 	public static function checkRegistered(string $suggest_type): bool
 	{
-		IntegrationHook::call('integrate_autosuggest', array(&$suggest_types));
+		IntegrationHook::call('integrate_autosuggest', [&$suggest_types]);
 
 		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
 	}
@@ -336,8 +331,9 @@ class AutoSuggest implements ActionInterface
 	 */
 	public static function AutoSuggestHandler($suggest_type = null)
 	{
-		if (isset($suggest_type))
+		if (isset($suggest_type)) {
 			return self::checkRegistered($suggest_type);
+		}
 
 		self::call();
 	}
@@ -381,17 +377,20 @@ class AutoSuggest implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		IntegrationHook::call('integrate_autosuggest', array(&self::$suggest_types));
+		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
-		if (!empty($_REQUEST['suggest_type']) && isset(self::$suggest_types[$_REQUEST['suggest_type']]))
+		if (!empty($_REQUEST['suggest_type']) && isset(self::$suggest_types[$_REQUEST['suggest_type']])) {
 			$this->suggest_type = $_REQUEST['suggest_type'];
+		}
 
 		// Any parameters?
-		if (isset($_REQUEST['search_param']))
+		if (isset($_REQUEST['search_param'])) {
 			$this->search_param = Utils::jsonDecode(base64_decode($_REQUEST['search_param']), true);
+		}
 
-		if (isset($_REQUEST['search']))
+		if (isset($_REQUEST['search'])) {
 			$this->search = $_REQUEST['search'];
+		}
 	}
 
 	/**
@@ -401,12 +400,13 @@ class AutoSuggest implements ActionInterface
 	{
 		$this->search = trim(Utils::strtolower($this->search)) . '*';
 
-		$this->search = strtr($this->search, array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
+		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\AutoSuggest::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\AutoSuggest::exportStatic')) {
 	AutoSuggest::exportStatic();
+}
 
 ?>

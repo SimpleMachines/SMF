@@ -31,13 +31,13 @@ class SecurityToken extends \ArrayObject
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'create' => 'createToken',
 			'validate' => 'validateToken',
 			'clean' => 'cleanTokens',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -46,7 +46,7 @@ class SecurityToken extends \ArrayObject
 	/**
 	 * How long (in seconds) a token is good for.
 	 */
-	const EXPIRY_TIME = 10800;
+	public const EXPIRY_TIME = 10800;
 
 	/*******************
 	 * Public properties
@@ -102,7 +102,7 @@ class SecurityToken extends \ArrayObject
 		// This is the backward compatibility part, so that the named properties
 		// can be accessed as the numeric keys of an array by any old mods that
 		// expect that deprecated format.
-		parent::__construct(array($this->var, $this->hash, $this->time, $this->val));
+		parent::__construct([$this->var, $this->hash, $this->time, $this->val]);
 	}
 
 	/***********************
@@ -130,10 +130,10 @@ class SecurityToken extends \ArrayObject
 		Utils::$context[$action . '_token_var'] = $_SESSION['token'][$type . '-' . $action]->var;
 		Utils::$context[$action . '_token'] = $_SESSION['token'][$type . '-' . $action]->val;
 
-		return array(
+		return [
 			$action . '_token_var' => $_SESSION['token'][$type . '-' . $action]->var,
 			$action . '_token' => $_SESSION['token'][$type . '-' . $action]->val,
-		);
+		];
 	}
 
 	/**
@@ -167,8 +167,7 @@ class SecurityToken extends \ArrayObject
 
 			// Is it recent enough?
 			&& $_SESSION['token'][$type . '-' . $action]->time + self::EXPIRY_TIME >= time()
-		)
-		{
+		) {
 			// Delete this token now.
 			unset($_SESSION['token'][$type . '-' . $action]);
 
@@ -176,8 +175,7 @@ class SecurityToken extends \ArrayObject
 		}
 
 		// Patrons with invalid tokens get the boot.
-		if ($reset)
-		{
+		if ($reset) {
 			// Might as well do some cleanup on this.
 			self::clean();
 
@@ -191,8 +189,9 @@ class SecurityToken extends \ArrayObject
 		unset($_SESSION['token'][$type . '-' . $action]);
 
 		// Randomly check if we should delete some older tokens.
-		if (mt_rand(0, 138) == 23)
+		if (mt_rand(0, 138) == 23) {
 			self::clean();
+		}
 
 		return false;
 	}
@@ -208,20 +207,21 @@ class SecurityToken extends \ArrayObject
 	public static function clean(bool $complete = false): void
 	{
 		// We appreciate cleaning up after yourselves.
-		if (empty($_SESSION['token']))
+		if (empty($_SESSION['token'])) {
 			return;
+		}
 
-		if ($complete)
-		{
-			$_SESSION['token'] = array();
+		if ($complete) {
+			$_SESSION['token'] = [];
+
 			return;
 		}
 
 		// Clean up tokens, trying to give enough time still.
-		foreach ($_SESSION['token'] as $key => $token)
-		{
-			if (!($token instanceof self) || $token->time + self::EXPIRY_TIME < time())
+		foreach ($_SESSION['token'] as $key => $token) {
+			if (!($token instanceof self) || $token->time + self::EXPIRY_TIME < time()) {
 				unset($_SESSION['token'][$key]);
+			}
 		}
 	}
 
@@ -252,7 +252,8 @@ class SecurityToken extends \ArrayObject
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\SecurityToken::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\SecurityToken::exportStatic')) {
 	SecurityToken::exportStatic();
+}
 
 ?>

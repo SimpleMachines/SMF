@@ -13,9 +13,8 @@
 
 namespace SMF\Actions\Profile;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
+use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;
@@ -33,11 +32,11 @@ class Account implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'account',
-		),
-	);
+		],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -62,34 +61,33 @@ class Account implements ActionInterface
 	{
 		Profile::$member->loadThemeOptions();
 
-		if (User::$me->allowedTo(array('profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any')))
-		{
+		if (User::$me->allowedTo(['profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any'])) {
 			Profile::$member->loadCustomFields('account');
 		}
 
 		Utils::$context['page_desc'] = Lang::$txt['account_info'];
 
 		Profile::$member->setupContext(
-			array(
-				'member_name', 
-				'real_name', 
-				'date_registered', 
-				'posts', 
-				'lngfile', 
-			'hr',
-				'id_group', 
-			'hr',
-				'email_address', 
-				'show_online', 
-			'hr',
-				'tfa', 
-			'hr',
-				'passwrd1', 
-				'passwrd2', 
-			'hr',
-				'secret_question', 
+			[
+				'member_name',
+				'real_name',
+				'date_registered',
+				'posts',
+				'lngfile',
+				'hr',
+				'id_group',
+				'hr',
+				'email_address',
+				'show_online',
+				'hr',
+				'tfa',
+				'hr',
+				'passwrd1',
+				'passwrd2',
+				'hr',
+				'secret_question',
 				'secret_answer',
-			),
+			],
 		);
 	}
 
@@ -104,8 +102,9 @@ class Account implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -127,13 +126,15 @@ class Account implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!isset(Profile::$member))
+		if (!isset(Profile::$member)) {
 			Profile::load();
+		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Account::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Account::exportStatic')) {
 	Account::exportStatic();
+}
 
 ?>

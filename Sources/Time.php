@@ -18,23 +18,24 @@ namespace SMF;
  */
 class Time extends \DateTime implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'create' => 'create',
 			'strftime' => 'smf_strftime',
 			'gmstrftime' => 'smf_gmstrftime',
 			'getDateOrTimeFormat' => 'get_date_or_time_format',
 			'timeformat' => 'timeformat',
 			'forumTime' => 'forum_time',
-		),
-	);
+		],
+	];
 
 	/*****************
 	 * Class constants
@@ -51,7 +52,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * library, but in this class its output will always use ISO 8601 format.
 	 * This is due to the lack of locale support in the base DateTime class.
 	 */
-	const FORMAT_EQUIVALENTS = array(
+	public const FORMAT_EQUIVALENTS = [
 		// Day
 		'a' => 'D', // Complex: prefer Lang::$txt strings if available.
 		'A' => 'l', // Complex: prefer Lang::$txt strings if available.
@@ -92,7 +93,7 @@ class Time extends \DateTime implements \ArrayAccess
 		'n' => "\n",
 		't' => "\t",
 		'%' => '%',
-	);
+	];
 
 	/**
 	 * Makes life easier when translating strftime format to DateTime format.
@@ -103,7 +104,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * library, but in this class their output will always use ISO 8601 format.
 	 * This is due to the lack of locale support in the base DateTime class.
 	 */
-	const FORMAT_SHORT_FORMS = array(
+	public const FORMAT_SHORT_FORMS = [
 		'%h' => '%b',
 		'%r' => '%I:%M:%S %p',
 		'%R' => '%H:%M',
@@ -112,12 +113,12 @@ class Time extends \DateTime implements \ArrayAccess
 		'%D' => '%m/%d/%y',
 		'%F' => '%Y-%m-%d',
 		'%x' => '%Y-%m-%d',
-	);
+	];
 
 	/**
 	 * A regular expression to match all known strftime format specifiers.
 	 */
-	const REGEX_STRFTIME = '%([ABCDFGHIMPRSTUVWXYZabcdeghjklmnprstuwxyz%])';
+	public const REGEX_STRFTIME = '%([ABCDFGHIMPRSTUVWXYZabcdeghjklmnprstuwxyz%])';
 
 	/****************************
 	 * Internal static properties
@@ -156,7 +157,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * Processed date and time format strings.
 	 */
-	protected static array $formats = array();
+	protected static array $formats = [];
 
 	/**
 	 * @var array
@@ -191,13 +192,15 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
 	 */
-	public function __construct(string $datetime = 'now', \DateTimeZone|string $timezone = null)
+	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
-		if (!isset(self::$user_tz))
+		if (!isset(self::$user_tz)) {
 			self::$user_tz = new \DateTimeZone(User::getTimezone());
+		}
 
-		if (is_string($timezone) && ($timezone = @timezone_open($timezone)) === false)
+		if (is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
 			unset($timezone);
+		}
 
 		parent::__construct($datetime, $timezone ?? self::$user_tz);
 
@@ -214,8 +217,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	public function __set(string $prop, $value): void
 	{
-		switch ($prop)
-		{
+		switch ($prop) {
 			case 'datetime':
 			case 'date':
 			case 'time':
@@ -236,7 +238,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setDate(
 					(int) $value,
 					$this->format('m', false, false),
-					$this->format('d', false, false)
+					$this->format('d', false, false),
 				);
 				break;
 
@@ -244,7 +246,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setDate(
 					$this->format('Y', false, false),
 					(int) $value,
-					$this->format('d', false, false)
+					$this->format('d', false, false),
 				);
 				break;
 
@@ -252,7 +254,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setDate(
 					$this->format('Y', false, false),
 					$this->format('m', false, false),
-					(int) $value
+					(int) $value,
 				);
 				break;
 
@@ -260,7 +262,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setTime(
 					(int) $value,
 					$this->format('i', false, false),
-					$this->format('s', false, false)
+					$this->format('s', false, false),
 				);
 				break;
 
@@ -268,7 +270,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setTime(
 					$this->format('H', false, false),
 					(int) $value,
-					$this->format('s', false, false)
+					$this->format('s', false, false),
 				);
 				break;
 
@@ -276,7 +278,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$this->setTime(
 					$this->format('H', false, false),
 					$this->format('i', false, false),
-					(int) $value
+					(int) $value,
 				);
 				break;
 
@@ -294,11 +296,12 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if (in_array($value, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)))
+				if (in_array($value, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 					$this->setTimezone(timezone_open($value));
+				}
 				break;
 
-			// Read only.
+				// Read only.
 			case 'tz_abbrev':
 				break;
 
@@ -315,8 +318,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	public function __get(string $prop): mixed
 	{
-		switch ($prop)
-		{
+		switch ($prop) {
 			case 'datetime':
 				$value = $this->format('Y-m-d H:i:s', false, false);
 				break;
@@ -402,8 +404,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	public function __isset(string $prop): bool
 	{
-		switch ($prop)
-		{
+		switch ($prop) {
 			case 'datetime':
 			case 'date':
 			case 'time':
@@ -453,15 +454,17 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    detect the format type automatically.
 	 * @return string The formatted date and time.
 	 */
-	public function format(?string $format = null, bool $relative = null, bool $strftime = null): string
+	public function format(?string $format = null, ?bool $relative = null, ?bool $strftime = null): string
 	{
 		// If given no format, assume $relative is true.
-		if (!isset($relative))
+		if (!isset($relative)) {
 			$relative = !isset($format);
+		}
 
 		// If were we explicitly told not to use strftime format, save ourselves some work.
-		if (isset($format) && !$relative && $strftime === false)
+		if (isset($format) && !$relative && $strftime === false) {
 			return date_format($this, $format);
+		}
 
 		// We need some sort of format.
 		$format = $format ?? User::$me->time_format ?? Config::$modSettings['time_format'] ?? '%F %k:%M';
@@ -470,32 +473,30 @@ class Time extends \DateTime implements \ArrayAccess
 		$strftime = $strftime ?? self::isStrftimeFormat($format);
 
 		// A few substitutions to make life easier.
-		if ($strftime)
+		if ($strftime) {
 			$format = strtr($format, self::FORMAT_SHORT_FORMS);
+		}
 
 		// Today and Yesterday?
 		$prefix = '';
 
-		if ($relative && Config::$modSettings['todayMod'] >= 1)
-		{
+		if ($relative && Config::$modSettings['todayMod'] >= 1) {
 			$tzid = date_format($this, 'e');
 
-			if (!isset(self::$today[$tzid]))
+			if (!isset(self::$today[$tzid])) {
 				self::$today[$tzid] = strtotime('today ' . $tzid);
+			}
 
 			// Tomorrow? We don't support the future. ;)
-			if ($this->getTimestamp() >= self::$today[$tzid] + 86400)
-			{
+			if ($this->getTimestamp() >= self::$today[$tzid] + 86400) {
 				$prefix = '';
 			}
 			// Today.
-			elseif ($this->getTimestamp() >= self::$today[$tzid])
-			{
+			elseif ($this->getTimestamp() >= self::$today[$tzid]) {
 				$prefix = Lang::$txt['today'] ?? '';
 			}
 			// Yesterday.
-			elseif (Config::$modSettings['todayMod'] > 1 && $this->getTimestamp() >= self::$today[$tzid] - 86400)
-			{
+			elseif (Config::$modSettings['todayMod'] > 1 && $this->getTimestamp() >= self::$today[$tzid] - 86400) {
 				$prefix = Lang::$txt['yesterday'] ?? '';
 			}
 		}
@@ -503,22 +504,22 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = !empty($prefix) ? self::getTimeFormat($format) : $format;
 
 		// If we aren't using strftime format, things are easy.
-		if (!$strftime)
+		if (!$strftime) {
 			return $prefix . date_format($this, $format);
+		}
 
 		// Translate from strftime format to DateTime format.
 		$parts = preg_split('/' . self::REGEX_STRFTIME . '/', $format, 0, PREG_SPLIT_DELIM_CAPTURE);
 
-		$placeholders = array();
+		$placeholders = [];
 		$complex = false;
 
-		for ($i = 0; $i < count($parts); $i++)
-		{
+		for ($i = 0; $i < count($parts); $i++) {
 			// Parts that are not strftime formats.
-			if ($i % 2 === 0 || !isset(self::FORMAT_EQUIVALENTS[$parts[$i]]))
-			{
-				if ($parts[$i] === '')
+			if ($i % 2 === 0 || !isset(self::FORMAT_EQUIVALENTS[$parts[$i]])) {
+				if ($parts[$i] === '') {
 					continue;
+				}
 
 				$placeholder = "\xEE\x84\x80" . $i . "\xEE\x84\x81";
 
@@ -526,17 +527,14 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that need localized strings.
-			elseif (in_array($parts[$i], array('a', 'A', 'b', 'B')))
-			{
-				switch ($parts[$i])
-				{
+			elseif (in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
+				switch ($parts[$i]) {
 					case 'a':
 						$min = 0;
 						$max = 6;
 						$key = 'days_short';
 						$f = 'w';
 						$placeholder_end = "\xEE\x84\x83";
-
 						break;
 
 					case 'A':
@@ -545,7 +543,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'days';
 						$f = 'w';
 						$placeholder_end = "\xEE\x84\x82";
-
 						break;
 
 					case 'b':
@@ -554,7 +551,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'months_short';
 						$f = 'n';
 						$placeholder_end = "\xEE\x84\x85";
-
 						break;
 
 					case 'B':
@@ -563,7 +559,6 @@ class Time extends \DateTime implements \ArrayAccess
 						$key = 'months';
 						$f = 'n';
 						$placeholder_end = "\xEE\x84\x84";
-
 						break;
 				}
 
@@ -572,37 +567,34 @@ class Time extends \DateTime implements \ArrayAccess
 				// Check whether Lang::$txt contains all expected strings.
 				// If not, use English default.
 				$txt_strings_exist = true;
-				for ($num = $min; $num <= $max; $num++)
-				{
-					if (!isset(Lang::$txt[$key][$num]))
-					{
+
+				for ($num = $min; $num <= $max; $num++) {
+					if (!isset(Lang::$txt[$key][$num])) {
 						$txt_strings_exist = false;
 						break;
 					}
-					else
-					{
-						$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
-					}
+
+
+					$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
+
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
-			}
-			elseif (in_array($parts[$i], array('p', 'P')))
-			{
-				if (!isset(Lang::$txt['time_am']) || !isset(Lang::$txt['time_pm']))
+			} elseif (in_array($parts[$i], ['p', 'P'])) {
+				if (!isset(Lang::$txt['time_am']) || !isset(Lang::$txt['time_pm'])) {
 					continue;
+				}
 
 				$placeholder = "\xEE\x84\x90" . self::FORMAT_EQUIVALENTS[$parts[$i]] . "\xEE\x84\x91";
 
-				switch ($parts[$i])
-				{
+				switch ($parts[$i]) {
 					// Upper case.
 					case 'p':
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_am']);
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_pm']);
 						break;
 
-					// Lower case.
+						// Lower case.
 					case 'P':
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::$txt['time_am']);
 						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::$txt['time_pm']);
@@ -612,12 +604,10 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that will need further processing.
-			elseif (in_array($parts[$i], array('j', 'C', 'U', 'W', 'G', 'g', 'e', 'l')))
-			{
+			elseif (in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
 				$complex = true;
 
-				switch ($parts[$i])
-				{
+				switch ($parts[$i]) {
 					case 'j':
 						$placeholder_end = "\xEE\x84\xA1";
 						break;
@@ -647,8 +637,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = "\xEE\x84\xA0" . self::FORMAT_EQUIVALENTS[$parts[$i]] . $placeholder_end;
 			}
 			// Parts with simple equivalents.
-			else
-			{
+			else {
 				$parts[$i] = self::FORMAT_EQUIVALENTS[$parts[$i]];
 			}
 		}
@@ -657,46 +646,43 @@ class Time extends \DateTime implements \ArrayAccess
 		$result = strtr(date_format($this, implode('', $parts)), $placeholders);
 
 		// Deal with the complicated ones.
-		if ($complex)
-		{
+		if ($complex) {
 			$result = preg_replace_callback(
-				'/\xEE\x84\xA0([\d_]+)(\xEE\x84(?:[\xA1-\xAF]))/',
-				function ($matches)
-				{
-					switch ($matches[2])
-					{
+				'/\\xEE\\x84\\xA0([\\d_]+)(\\xEE\\x84(?:[\\xA1-\\xAF]))/',
+				function ($matches) {
+					switch ($matches[2]) {
 						// %j
 						case "\xEE\x84\xA1":
 							$replacement = sprintf('%03d', (int) $matches[1] + 1);
 							break;
 
-						// %C
+							// %C
 						case "\xEE\x84\xA2":
 							$replacement = substr(sprintf('%04d', $matches[1]), 0, 2);
 							break;
 
-						// %U and %W
+							// %U and %W
 						case "\xEE\x84\xA3":
 							list($day_of_year, $day_of_week, $first_day) = explode('_', $matches[1]);
 							$replacement = sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
 							break;
 
-						// %G
+							// %G
 						case "\xEE\x84\xA4":
 							$replacement = sprintf('%04d', $matches[1]);
 							break;
 
-						// %g
+							// %g
 						case "\xEE\x84\xA5":
 							$replacement = substr(sprintf('%04d', $matches[1]), -2);
 							break;
 
-						// %e and %l
+							// %e and %l
 						case "\xEE\x84\xA6":
 							$replacement = sprintf('%2d', $matches[1]);
 							break;
 
-						// Shouldn't happen, but just in case...
+							// Shouldn't happen, but just in case...
 						default:
 							$replacement = $matches[1];
 							break;
@@ -704,7 +690,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 					return $replacement;
 				},
-				$result
+				$result,
 			);
 		}
 
@@ -726,7 +712,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
 	 */
-	public static function create(string $datetime = 'now', \DateTimeZone|string $timezone = null): object
+	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): object
 	{
 		return new self($datetime, $timezone);
 	}
@@ -741,14 +727,16 @@ class Time extends \DateTime implements \ArrayAccess
 	 *     If null, uses default time zone.
 	 * @return string The formatted date and time.
 	 */
-	public static function strftime(string $format, int $timestamp = null, string $tzid = null): string
+	public static function strftime(string $format, ?int $timestamp = null, ?string $tzid = null): string
 	{
 		// Set default values as necessary.
-		if (!isset($timestamp))
+		if (!isset($timestamp)) {
 			$timestamp = time();
+		}
 
-		if (!isset($tzid))
+		if (!isset($tzid)) {
 			$tzid = date_default_timezone_get();
+		}
 
 		$date = new self('@' . $timestamp);
 		$date->setTimezone(new \DateTimeZone($tzid));
@@ -766,7 +754,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *     If null, defaults to the current time.
 	 * @return string The formatted date and time.
 	 */
-	public static function gmstrftime(string $format, int $timestamp = null): string
+	public static function gmstrftime(string $format, ?int $timestamp = null): string
 	{
 		return self::strftime($format, $timestamp, 'UTC');
 	}
@@ -784,7 +772,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    detect the format type automatically.
 	 * @return string A strftime format or DateTime format string.
 	 */
-	public static function getDateFormat(string $format = '', bool $strftime = null): string
+	public static function getDateFormat(string $format = '', ?bool $strftime = null): string
 	{
 		return self::getDateOrTimeFormat('date', $format, $strftime);
 	}
@@ -802,7 +790,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    detect the format type automatically.
 	 * @return string A strftime format or DateTime format string.
 	 */
-	public static function getTimeFormat(string $format = '', bool $strftime = null): string
+	public static function getTimeFormat(string $format = '', ?bool $strftime = null): string
 	{
 		return self::getDateOrTimeFormat('time', $format, $strftime);
 	}
@@ -820,17 +808,17 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    detect the format type automatically.
 	 * @return string A strftime format or DateTime format string.
 	 */
-	public static function getShortDateFormat(string $format = '', bool $strftime = null): string
+	public static function getShortDateFormat(string $format = '', ?bool $strftime = null): string
 	{
-		if (isset(self::$short_date_format) && $format === '')
+		if (isset(self::$short_date_format) && $format === '') {
 			return self::$short_date_format;
+		}
 
 		$date_format = self::getDateFormat($format, $strftime);
 		$strftime = $strftime ?? self::isStrftimeFormat($date_format);
 
-		if ($strftime)
-		{
-			$substitutions = array(
+		if ($strftime) {
+			$substitutions = [
 				'%Y' => '',
 				'%y' => '',
 				'%G' => '',
@@ -840,25 +828,24 @@ class Time extends \DateTime implements \ArrayAccess
 				'%c' => '%m-%d',
 				'%F' => '%m-%d',
 				'%x' => '%m-%d',
-			);
+			];
 
 			$date_format = strtr($date_format, $substitutions);
 
-			$date_format = Utils::normalizeSpaces($date_format, true, true, array('replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true));
+			$date_format = Utils::normalizeSpaces($date_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$date_format = preg_replace('/^([\p{Z}\p{C}]|[^%\P{P}])*|[\p{Z}\p{C}\p{P}]*$/u', '', $date_format);
-		}
-		else
-		{
+			$date_format = preg_replace('/^([\\p{Z}\\p{C}]|[^%\\P{P}])*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $date_format);
+		} else {
 			$date_format = preg_replace('/(?<!\\\\)[LoXxYy]/', '', $date_format);
 
-			$date_format = Utils::normalizeSpaces($date_format, true, true, array('replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true));
+			$date_format = Utils::normalizeSpaces($date_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$date_format = preg_replace('/^[\p{Z}\p{C}\p{P}]*|[\p{Z}\p{C}\p{P}]*$/u', '', $date_format);
+			$date_format = preg_replace('/^[\\p{Z}\\p{C}\\p{P}]*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $date_format);
 		}
 
-		if ($format === '')
+		if ($format === '') {
 			self::$short_date_format = $date_format;
+		}
 
 		return $date_format;
 	}
@@ -876,58 +863,57 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    detect the format type automatically.
 	 * @return string A strftime format or DateTime format string.
 	 */
-	public static function getShortTimeFormat(string $format = '', bool $strftime = null): string
+	public static function getShortTimeFormat(string $format = '', ?bool $strftime = null): string
 	{
-		if (isset(self::$short_time_format) && $format === '')
+		if (isset(self::$short_time_format) && $format === '') {
 			return self::$short_time_format;
+		}
 
 		$time_format = self::getTimeFormat($format, $strftime);
 		$strftime = $strftime ?? self::isStrftimeFormat($time_format);
 
-		if ($strftime)
-		{
-			$substitutions = array(
+		if ($strftime) {
+			$substitutions = [
 				'%I' => '%l',
 				'%H' => '%k',
 				'%S' => '',
 				'%r' => '%l:%M %p',
 				'%R' => '%k:%M',
 				'%T' => '%l:%M',
-			);
+			];
 
 			$time_format = strtr($time_format, $substitutions);
 
-			$time_format = Utils::normalizeSpaces($time_format, true, true, array('replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true));
+			$time_format = Utils::normalizeSpaces($time_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$time_format = preg_replace('/:(?=\p{Z}|$|%[pPzZ])/u', '', $time_format);
+			$time_format = preg_replace('/:(?=\\p{Z}|$|%[pPzZ])/u', '', $time_format);
 
-			$time_format = preg_replace('/^([\p{Z}\p{C}]|[^%\P{P}])*|[\p{Z}\p{C}\p{P}]*$/u', '', $time_format);
-		}
-		else
-		{
-			$substitutions = array(
+			$time_format = preg_replace('/^([\\p{Z}\\p{C}]|[^%\\P{P}])*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $time_format);
+		} else {
+			$substitutions = [
 				'H' => 'G',
 				'h' => 'g',
 				's' => '',
 				'u' => '',
 				'v' => '',
-			);
+			];
 
 			$time_format = preg_replace_callback(
 				'/(?<!\\\\)[' . implode('', array_keys($substitutions)) . ']/',
-				fn($m) => $substitutions[$m],
-				$time_format
+				fn ($m) => $substitutions[$m],
+				$time_format,
 			);
 
-			$time_format = Utils::normalizeSpaces($time_format, true, true, array('replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true));
+			$time_format = Utils::normalizeSpaces($time_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$time_format = preg_replace('/:(?=\p{Z}|$|[aAeOPpTZ])/u', '', $time_format);
+			$time_format = preg_replace('/:(?=\\p{Z}|$|[aAeOPpTZ])/u', '', $time_format);
 
-			$time_format = preg_replace('/^[\p{Z}\p{C}\p{P}]*|[\p{Z}\p{C}\p{P}]*$/u', '', $time_format);
+			$time_format = preg_replace('/^[\\p{Z}\\p{C}\\p{P}]*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $time_format);
 		}
 
-		if ($format === '')
+		if ($format === '') {
 			self::$short_time_format = $time_format;
+		}
 
 		return $time_format;
 	}
@@ -944,11 +930,10 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    detect the format type automatically. Ignored if $format is empty.
 	 * @return string A strftime format or DateTime format string.
 	 */
-	public static function getDateOrTimeFormat(string $type = '', string $format = '', bool $strftime = null): string
+	public static function getDateOrTimeFormat(string $type = '', string $format = '', ?bool $strftime = null): string
 	{
 		// If the format is empty, fall back to defaults.
-		if ($format === '')
-		{
+		if ($format === '') {
 			$strftime = null;
 
 			$format = !empty(User::$me->time_format) ? User::$me->time_format : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %k:%M');
@@ -956,8 +941,9 @@ class Time extends \DateTime implements \ArrayAccess
 
 		$strftime = $strftime ?? self::isStrftimeFormat($format);
 
-		if ($strftime)
+		if ($strftime) {
 			return self::strftimePartialFormat($type, strtr($format, self::FORMAT_SHORT_FORMS));
+		}
 
 		return self::datetimePartialFormat($type, $format);
 	}
@@ -976,7 +962,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    be used.
 	 * @return string A formatted time string
 	 */
-	public static function timeformat(int $log_time, bool|string $show_today = true, string $tzid = null): string
+	public static function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
 	{
 		// For backward compatibility, replace empty values with the user's time
 		// zone and replace anything invalid with the forum's default time zone.
@@ -1018,12 +1004,12 @@ class Time extends \DateTime implements \ArrayAccess
 		$orig_format = $format;
 
 		// Have we already done this?
-		if (isset(self::$formats[$orig_format][$type]))
+		if (isset(self::$formats[$orig_format][$type])) {
 			return self::$formats[$orig_format][$type];
+		}
 
-		if ($type === 'date')
-		{
-			$specifications = array(
+		if ($type === 'date') {
+			$specifications = [
 				// Day
 				'%a' => '%a', '%A' => '%A', '%e' => '%e', '%d' => '%d',
 				'%j' => '%j', '%u' => '%u', '%w' => '%w',
@@ -1043,13 +1029,11 @@ class Time extends \DateTime implements \ArrayAccess
 				'%x' => '%x',
 				// Miscellaneous
 				'%n' => '', '%t' => '', '%%' => '%%',
-			);
+			];
 
 			$default_format = '%F';
-		}
-		elseif ($type === 'time')
-		{
-			$specifications = array(
+		} elseif ($type === 'time') {
+			$specifications = [
 				// Day
 				'%a' => '', '%A' => '', '%e' => '', '%d' => '', '%j' => '',
 				'%u' => '', '%w' => '',
@@ -1068,13 +1052,12 @@ class Time extends \DateTime implements \ArrayAccess
 				'%c' => '%X', '%D' => '', '%F' => '', '%s' => '%s', '%x' => '',
 				// Miscellaneous
 				'%n' => '', '%t' => '', '%%' => '%%',
-			);
+			];
 
 			$default_format = '%k:%M';
 		}
 		// Invalid type requests just get the full format string.
-		else
-		{
+		else {
 			return $format;
 		}
 
@@ -1086,12 +1069,12 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = strtr($format, $wanted);
 
 		// Next, strip out any specifications and literal text that we don't want.
-		$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), array('%' => ''))) . ']~u', $format);
+		$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), ['%' => ''])) . ']~u', $format);
 
-		foreach ($format_parts as $p => $f)
-		{
-			if (strpos($f, '%') === false)
+		foreach ($format_parts as $p => $f) {
+			if (strpos($f, '%') === false) {
 				unset($format_parts[$p]);
+			}
 		}
 
 		$format = implode('', $format_parts);
@@ -1099,33 +1082,34 @@ class Time extends \DateTime implements \ArrayAccess
 		// Finally, strip out any unwanted leftovers.
 		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
-			array(
+			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
-				'~(?<!%)\p{L}|[^\p{L}\p{P}\p{Z}]~u',
+				'~(?<!%)\\p{L}|[^\\p{L}\\p{P}\\p{Z}]~u',
 				// Repeated punctuation marks (except %), possibly separated by whitespace.
-				'~(?' . '>([^%\P{P}])\p{Z}*(?=\1))*~u',
-				'~([^%\P{P}])(?' . '>\1(?!$))*~u',
+				'~(?' . '>([^%\\P{P}])\\p{Z}*(?=\\1))*~u',
+				'~([^%\\P{P}])(?' . '>\\1(?!$))*~u',
 				// Unwanted trailing punctuation and whitespace.
-				'~(?' . '>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\p{Z}*)*$~u',
+				'~(?' . '>([\\p{Pd}\\p{Ps}\\p{Pi}\\p{Pc}]|[^%\\P{Po}])\\p{Z}*)*$~u',
 				// Unwanted opening punctuation and whitespace.
-				'~^\p{Z}*(?' . '>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\p{Z}*)*~u',
+				'~^\\p{Z}*(?' . '>([\\p{Pd}\\p{Pe}\\p{Pf}\\p{Pc}]|[^%\\P{Po}])\\p{Z}*)*~u',
 				// Runs of horizontal whitespace.
-				'~\p{Z}+~',
-			),
-			array(
+				'~\\p{Z}+~',
+			],
+			[
 				'',
 				'$1',
 				'$1$2',
 				'',
 				'',
 				' ',
-			),
-			$format
+			],
+			$format,
 		);
 
 		// Gotta have something...
-		if (empty($format))
+		if (empty($format)) {
 			$format = $default_format;
+		}
 
 		// Remember what we've done.
 		self::$formats[$orig_format][$type] = trim($format);
@@ -1146,12 +1130,12 @@ class Time extends \DateTime implements \ArrayAccess
 		$orig_format = $format;
 
 		// Have we already done this?
-		if (isset(self::$formats[$orig_format][$type]))
+		if (isset(self::$formats[$orig_format][$type])) {
 			return self::$formats[$orig_format][$type];
+		}
 
-		if ($type === 'date')
-		{
-			$specifications = array(
+		if ($type === 'date') {
+			$specifications = [
 				// Day
 				'd' => 'd', 'D' => 'D', 'j' => 'j', 'l' => 'l', 'N' => 'N',
 				'S' => 'S', 'w' => 'w', 'z' => 'z',
@@ -1171,13 +1155,11 @@ class Time extends \DateTime implements \ArrayAccess
 				'T' => '', 'Z' => '',
 				// Time and Date Stamps
 				'c' => 'Y-m-d', 'r' => 'D, d M Y', 'U' => 'U',
-			);
+			];
 
 			$default_format = 'Y-m-d';
-		}
-		elseif ($type === 'time')
-		{
-			$specifications = array(
+		} elseif ($type === 'time') {
+			$specifications = [
 				// Day
 				'd' => '', 'D' => '', 'j' => '', 'l' => '', 'N' => '',
 				'S' => '', 'w' => '', 'z' => '',
@@ -1197,13 +1179,12 @@ class Time extends \DateTime implements \ArrayAccess
 				'T' => 'T', 'Z' => 'Z',
 				// Time and Date Stamps
 				'c' => 'H:i:sP', 'r' => 'H:i:s O', 'U' => 'U',
-			);
+			];
 
 			$default_format = 'G:i';
 		}
 		// Invalid type requests just get the full format string.
-		else
-		{
+		else {
 			return $format;
 		}
 
@@ -1214,40 +1195,41 @@ class Time extends \DateTime implements \ArrayAccess
 		// Make any necessary substitutions in the format.
 		$format = preg_replace_callback(
 			'/(?<!\\\\)[' . implode('', array_keys($specifications)) . ']/',
-			fn($m) => $specifications[$m],
-			$format
+			fn ($m) => $specifications[$m],
+			$format,
 		);
 
 		// Finally, strip out any unwanted leftovers.
 		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
-			array(
+			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
-				'~\\\\\p{L}|[^\p{L}\p{P}\p{Z}]~u',
+				'~\\\\\\p{L}|[^\\p{L}\\p{P}\\p{Z}]~u',
 				// Repeated punctuation marks, possibly separated by whitespace.
-				'~(?' . '>(\p{P})\p{Z}*(?=\1))*~u',
-				'~(\p{P})(?' . '>\1(?!$))*~u',
+				'~(?' . '>(\\p{P})\\p{Z}*(?=\\1))*~u',
+				'~(\\p{P})(?' . '>\\1(?!$))*~u',
 				// Unwanted trailing punctuation and whitespace.
-				'~(?' . '>(\p{P})\p{Z}*)*$~u',
+				'~(?' . '>(\\p{P})\\p{Z}*)*$~u',
 				// Unwanted opening punctuation and whitespace.
-				'~^\p{Z}*(?' . '>(\p{P})\p{Z}*)*~u',
+				'~^\\p{Z}*(?' . '>(\\p{P})\\p{Z}*)*~u',
 				// Runs of horizontal whitespace.
-				'~\p{Z}+~',
-			),
-			array(
+				'~\\p{Z}+~',
+			],
+			[
 				'',
 				'$1',
 				'$1$2',
 				'',
 				'',
 				' ',
-			),
-			$format
+			],
+			$format,
 		);
 
 		// Gotta have something...
-		if (empty($format))
+		if (empty($format)) {
 			$format = $default_format;
+		}
 
 		// Remember what we've done.
 		self::$formats[$orig_format][$type] = trim($format);
@@ -1268,7 +1250,8 @@ class Time extends \DateTime implements \ArrayAccess
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Time::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Time::exportStatic')) {
 	Time::exportStatic();
+}
 
 ?>

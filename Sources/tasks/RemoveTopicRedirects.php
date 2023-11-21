@@ -13,8 +13,6 @@
 
 namespace SMF\Tasks;
 
-use SMF\Config;
-use SMF\Lang;
 use SMF\Theme;
 use SMF\Topic;
 
@@ -30,30 +28,32 @@ class RemoveTopicRedirects extends ScheduledTask
 	 */
 	public function execute()
 	{
-		$topics = array();
+		$topics = [];
 
 		// We will need this for language files.
 		Theme::loadEssential();
 
 		// Find all of the old moved topic notices that were set to expire.
-		$request = Db::$db->query('', '
-			SELECT id_topic
+		$request = Db::$db->query(
+			'',
+			'SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE redirect_expires <= {int:redirect_expires}
 				AND redirect_expires <> 0',
-			array(
+			[
 				'redirect_expires' => time(),
-			)
+			],
 		);
-		while ($row = Db::$db->fetch_row($request))
-		{
+
+		while ($row = Db::$db->fetch_row($request)) {
 			$topics[] = $row[0];
 		}
 		Db::$db->free_result($request);
 
 		// Zap, you're gone.
-		if (count($topics) > 0)
+		if (count($topics) > 0) {
 			Topic::remove($topics, false, true);
+		}
 
 		return true;
 	}

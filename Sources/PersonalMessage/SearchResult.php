@@ -28,11 +28,10 @@ class SearchResult extends PM
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return Generator<array> Iterating over result gives SearchResult instances.
 	 */
-	public static function getFormatted($ids, array $query_customizations = array())
+	public static function getFormatted($ids, array $query_customizations = [])
 	{
-		foreach (parent::get($ids, $query_customizations) as $pm)
-		{
-			$output = $pm->format(0, array('no_bcc' => true));
+		foreach (parent::get($ids, $query_customizations) as $pm) {
+			$output = $pm->format(0, ['no_bcc' => true]);
 
 			$output['body'] = SR::highlight($output['body'], Search::$to_mark);
 			$output['subject'] = SR::highlight($output['subject'], Search::$to_mark);
@@ -40,7 +39,7 @@ class SearchResult extends PM
 
 			unset($output['quickbuttons']['quickmod']);
 
-			IntegrationHook::call('integrate_pm_search_result', array(&$output));
+			IntegrationHook::call('integrate_pm_search_result', [&$output]);
 
 			yield $output;
 		}
