@@ -22,6 +22,7 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
+use SMF\Mail;
 use SMF\Profile;
 use SMF\Security;
 use SMF\SecurityToken;
