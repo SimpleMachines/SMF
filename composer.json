@@ -9,11 +9,11 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "simplemachines/build-tools": "dev-master"
+        "simplemachines/build-tools": "dev-release-3.0"
     },
     "config": {
         "platform": {
-            "php": "7.0.2"
+            "php": "8.0.0"
         }
     }
 }
