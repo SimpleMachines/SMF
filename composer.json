@@ -9,7 +9,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "simplemachines/build-tools": "dev-master"
+        "simplemachines/build-tools": "dev-release-2.1"
     },
     "config": {
         "platform": {
