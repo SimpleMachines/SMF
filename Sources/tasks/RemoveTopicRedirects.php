@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\Theme;
 use SMF\Topic;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Deletes moved topic notices that have passed their best-by date.
