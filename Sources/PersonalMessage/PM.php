@@ -1368,7 +1368,6 @@ class PM implements \ArrayAccess
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
 					continue;
-
 				}
 
 				// Do they have any of the allowed groups?
@@ -1378,7 +1377,6 @@ class PM implements \ArrayAccess
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
 					continue;
-
 				}
 			}
 
@@ -1554,7 +1552,6 @@ class PM implements \ArrayAccess
 				} else {
 					$notification_texts[$lang]['body'] = '';
 				}
-
 
 				if ($lang != User::$me->language) {
 					Lang::load('index+Modifications', User::$me->language, false);

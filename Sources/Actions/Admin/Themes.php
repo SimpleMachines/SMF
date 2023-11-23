@@ -1089,7 +1089,6 @@ class Themes implements ActionInterface
 			return;
 		}
 
-
 		if (substr($_REQUEST['filename'], 0, 1) == '.') {
 			$_REQUEST['filename'] = '';
 		} else {
@@ -1105,7 +1104,6 @@ class Themes implements ActionInterface
 		if (empty($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);
 		}
-
 
 		if (isset($_POST['save'])) {
 			if (User::$me->checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true) {
@@ -1578,9 +1576,7 @@ class Themes implements ActionInterface
 			return Utils::$context['to_install'];
 		}
 
-
 		ErrorHandler::fatalLang('theme_install_error_title', false);
-
 	}
 
 	/**

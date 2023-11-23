@@ -2278,7 +2278,6 @@ class Board implements \ArrayAccess
 				LIMIT ' . $limit : ''),
 				$params,
 			);
-
 		}
 
 		while ($row = Db::$db->fetch_assoc($request)) {

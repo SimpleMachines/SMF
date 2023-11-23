@@ -1164,9 +1164,8 @@ class ExportProfileData extends BackgroundTask
 						$delay = Taskrunner::MAX_CLAIM_THRESHOLD;
 						break;
 					}
+
 					// All went well.
-
-
 					// Track progress by ID where appropriate, and by time otherwise.
 					$progress[$datatype] = !isset($last_id) ? time() : $last_id;
 					file_put_contents($progressfile, Utils::jsonEncode($progress));
@@ -1187,7 +1186,6 @@ class ExportProfileData extends BackgroundTask
 						// Should we append more items to this file next time?
 						$new_item_count = isset($last_id) ? $prev_item_count + count($items) : 0;
 					}
-
 				}
 			}
 		}

@@ -629,7 +629,6 @@ class Event implements \ArrayAccess
 			return $not ? !$value : $value;
 		}
 
-
 		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
 			$prop = 'start_' . $prop;
 		}
@@ -767,7 +766,6 @@ class Event implements \ArrayAccess
 		}
 
 		return $value;
-
 	}
 
 	/**
@@ -790,11 +788,8 @@ class Event implements \ArrayAccess
 				return isset($this->{$real_prop[0]}[$real_prop[1]]);
 			}
 
-
 			return isset($this->{$real_prop});
-
 		}
-
 
 		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
 			$prop = 'start_' . $prop;
@@ -856,7 +851,6 @@ class Event implements \ArrayAccess
 			default:
 				return isset($this->custom[$prop]);
 		}
-
 	}
 
 	/***********************

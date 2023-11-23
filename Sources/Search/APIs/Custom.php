@@ -135,7 +135,6 @@ class Custom extends SearchApi
 			return;
 		}
 
-
 		foreach ($subwords as $subword) {
 			if (Utils::entityStrlen($subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords)) {
 				$wordsSearch['indexed_words'][] = $subword;
@@ -145,7 +144,6 @@ class Custom extends SearchApi
 				}
 			}
 		}
-
 	}
 
 	/**

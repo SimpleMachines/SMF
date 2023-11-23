@@ -2369,14 +2369,10 @@ class Smileys implements ActionInterface
 		// If customized smileys is disabled don't show the setting page
 		if (empty(Config::$modSettings['smiley_enable'])) {
 			unset(self::$subactions['addsmiley'], self::$subactions['editsmileys'], self::$subactions['setorder'], self::$subactions['modifysmiley']);
-
-
-
 		}
 
 		if (empty(Config::$modSettings['messageIcons_enable'])) {
 			unset(self::$subactions['editicon'], self::$subactions['editicons']);
-
 		}
 
 		// Load up all the tabs...

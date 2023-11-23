@@ -173,9 +173,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			return http_build_query($post_data, '', '&');
 		}
 
-
 		return trim($post_data);
-
 	}
 }
 

@@ -675,9 +675,7 @@ class Search implements ActionInterface
 						break;
 					}
 
-
 					Config::updateModSettings(['search_custom_index_resume' => Utils::jsonEncode(array_merge(Utils::$context['index_settings'], ['resume_at' => Utils::$context['start']]))]);
-
 				}
 
 				// Since there are still two steps to go, 80% is the maximum here.

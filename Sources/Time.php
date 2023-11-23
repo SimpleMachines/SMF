@@ -574,9 +574,7 @@ class Time extends \DateTime implements \ArrayAccess
 						break;
 					}
 
-
 					$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
-
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];

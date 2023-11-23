@@ -60,7 +60,6 @@ class QueryString
 		// Save some memory.. (since we don't use these anyway.)
 		unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_FILES'], $GLOBALS['HTTP_POST_FILES']);
 
-
 		// These keys shouldn't be set...ever.
 		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
 			die('Invalid request variable.');
@@ -555,7 +554,6 @@ class QueryString
 
 		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

@@ -158,7 +158,6 @@ class FindMember implements ActionInterface
 	protected function __construct()
 	{
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

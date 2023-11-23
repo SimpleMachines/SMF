@@ -2269,9 +2269,7 @@ class User implements \ArrayAccess
 			die;
 		}
 
-
 		ErrorHandler::fatalLang($error, isset($log_error) ? 'user' : false);
-
 
 		// We really should never fall through here, for very important reasons.  Let's make sure.
 		trigger_error('No direct access...', E_USER_ERROR);
@@ -2490,13 +2488,11 @@ class User implements \ArrayAccess
 				return [0];
 			}
 
-
 			foreach ($permissions as $permission) {
 				$boards[$permission] = [0];
 			}
 
 			return $boards;
-
 		}
 
 		// All groups the user is in except 'moderator'.
@@ -2891,16 +2887,14 @@ class User implements \ArrayAccess
 				'url' => $image,
 			];
 		}
+
 		// Fallback to make life easier for everyone...
-
-
 		return [
 			'name' => '',
 			'image' => '',
 			'href' => '',
 			'url' => '',
 		];
-
 	}
 
 	/**

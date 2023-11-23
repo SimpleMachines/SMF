@@ -187,7 +187,6 @@ class Search
 			'url' => Config::$scripturl . '?action=pm;sa=search',
 			'name' => Lang::$txt['pm_search_bar_title'],
 		];
-
 	}
 
 	/**
@@ -694,7 +693,6 @@ class Search
 			$this->search_query = implode(!empty($this->params['searchtype']) && $this->params['searchtype'] == 2 ? ' OR ' : ' AND ', $andQueryParts);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

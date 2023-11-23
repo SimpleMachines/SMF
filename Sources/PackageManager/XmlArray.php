@@ -164,7 +164,6 @@ class XmlArray
 					return $array[$el];
 				}
 
-
 				$trace = debug_backtrace();
 				$i = 0;
 
@@ -180,7 +179,6 @@ class XmlArray
 				}
 
 				return false;
-
 			} else {
 				$lvl = null;
 			}
@@ -462,10 +460,8 @@ class XmlArray
 						break;
 					}
 
-
 					$last_tag_end = $next_tag_end;
 					$offset = $next_tag_start + 1;
-
 				}
 				// Parse the insides.
 				$inner_match = substr($data, 0, $last_tag_end);
@@ -763,8 +759,8 @@ class XmlArray
 		if (count($results) == 1 || $level !== null) {
 			return $results[0];
 		}
-		// Return the result set.
 
+		// Return the result set.
 		return $results + ['name' => $path . '[]'];
 	}
 }

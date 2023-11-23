@@ -618,7 +618,6 @@ class Lang
 			self::$thousands_separator,
 		);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

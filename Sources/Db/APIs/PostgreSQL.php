@@ -1095,10 +1095,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$value = ini_get('pgsql.allow_persistent');
 
-		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
-
-
-		;
+		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
 
 	/*****************************************
@@ -1294,7 +1291,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'security_override' => true,
 			],
 		);
-
 
 		// If there's more attributes they need to be done via a change on PostgreSQL.
 		unset($column_info['type'], $column_info['size']);
@@ -1801,7 +1797,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				[],
 			);
 		}
-
 
 		// And the indexes...
 		foreach ($index_queries as $query) {

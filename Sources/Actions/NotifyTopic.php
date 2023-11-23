@@ -188,7 +188,6 @@ class NotifyTopic extends Notify implements ActionInterface
 	{
 		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

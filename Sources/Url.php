@@ -617,10 +617,7 @@ class Url implements \Stringable
 				function ($line) {
 					$line = trim($line);
 
-					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
-
-
-					;
+					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'));
 				},
 			);
 
@@ -819,7 +816,6 @@ class Url implements \Stringable
 	{
 		$this->is_ascii = mb_check_encoding($this->url, 'ASCII');
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

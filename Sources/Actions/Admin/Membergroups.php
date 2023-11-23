@@ -543,7 +543,6 @@ class Membergroups implements ActionInterface
 						['id_group', 'id_board', 'deny'],
 					);
 				}
-
 			}
 
 			// If this is joinable then set it to show group membership in people's profiles.

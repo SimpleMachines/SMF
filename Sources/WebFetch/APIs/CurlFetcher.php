@@ -273,11 +273,9 @@ class CurlFetcher extends WebFetchApi
 			return $this->response;
 		}
 
-
 		$response_number = min($response_number, count($this->response) - 1);
 
 		return $this->response[$response_number];
-
 	}
 
 	/******************

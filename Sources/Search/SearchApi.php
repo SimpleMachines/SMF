@@ -1198,7 +1198,6 @@ abstract class SearchApi implements SearchApiInterface
 			$this->searchWords[$orIndex]['indexed_words'] = array_slice($this->searchWords[$orIndex]['indexed_words'], 0, 7);
 			$this->searchWords[$orIndex]['subject_words'] = array_slice($this->searchWords[$orIndex]['subject_words'], 0, 7);
 			$this->searchWords[$orIndex]['words'] = array_slice($this->searchWords[$orIndex]['words'], 0, 4);
-
 		}
 	}
 

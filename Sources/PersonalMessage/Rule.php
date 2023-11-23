@@ -665,7 +665,6 @@ class Rule implements \ArrayAccess
 			Utils::redirectexit('action=pm;sa=manrules');
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

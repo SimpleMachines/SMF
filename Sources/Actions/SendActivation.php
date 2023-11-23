@@ -108,7 +108,6 @@ class SendActivation implements ActionInterface
 	 */
 	protected function __construct()
 	{
-
 	}
 }
 

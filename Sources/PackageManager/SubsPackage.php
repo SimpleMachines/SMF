@@ -1705,8 +1705,8 @@ class SubsPackage
 				if ($category == 'dev') {
 					return $versions[1]['dev'] ? ($versions[2]['type'] == 'stable' ? -1 : 0) : ($versions[1]['type'] == 'stable' ? 1 : 0);
 				}
-				// Otherwise a simple comparison.
 
+				// Otherwise a simple comparison.
 				return $versions[1][$category] > $versions[2][$category] ? 1 : -1;
 			}
 		}
@@ -1879,7 +1879,6 @@ class SubsPackage
 			return false;
 		}
 
-
 		@mkdir($strPath, $mode);
 		$test = @opendir($strPath);
 
@@ -1890,7 +1889,6 @@ class SubsPackage
 		}
 
 		return false;
-
 	}
 
 	/**

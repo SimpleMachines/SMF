@@ -1044,7 +1044,6 @@ class Msg implements \ArrayAccess
 			},
 			$message,
 		);
-
 	}
 
 	/**
@@ -2247,7 +2246,6 @@ class Msg implements \ArrayAccess
 			],
 			true,
 		);
-
 	}
 
 	/**
@@ -2896,10 +2894,8 @@ class Msg implements \ArrayAccess
 				return $enchant_link;
 			}
 
-
 			// Free up any resources used...
 			@enchant_broker_free(Utils::$context['enchant_broker']);
-
 		}
 
 		// Fall through to pspell if enchant didn't work
@@ -2988,9 +2984,7 @@ class Msg implements \ArrayAccess
 				return $suggestions;
 			}
 
-
 			return enchant_dict_suggest($dict, $word);
-
 		}
 
 		if (Utils::$context['provider'] == 'pspell') {

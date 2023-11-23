@@ -316,9 +316,8 @@ class Cookie
 
 			return new self($name, [$member, $hash], $expires, $domain, $path);
 		}
+
 		// Other cookies.
-
-
 		$data = Utils::jsonDecode($_COOKIE[$name], true, false);
 
 		if (json_last_error() !== JSON_ERROR_NONE) {
@@ -326,7 +325,6 @@ class Cookie
 		}
 
 		return new self($name, $data);
-
 	}
 
 	/**

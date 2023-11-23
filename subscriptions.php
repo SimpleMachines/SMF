@@ -291,7 +291,6 @@ elseif ($gatewayClass->isCancellation()) {
 	}
 }
 
-
 // Some other "valid" transaction such as:
 //
 // subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
@@ -299,7 +298,6 @@ elseif ($gatewayClass->isCancellation()) {
 // subscription is received (txn_type=subscr_payment) which is what we do process
 //
 // Should we log any of these ...
-
 
 // In case we have anything specific to do.
 $gatewayClass->close();

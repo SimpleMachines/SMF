@@ -338,7 +338,6 @@ class Menu implements \ArrayAccess
 				unset(Utils::$context['max_menu_id'], $this->data, $this->options);
 			}
 
-
 			$this->include_data = [];
 
 			return;
@@ -461,10 +460,7 @@ class Menu implements \ArrayAccess
 			return false;
 		}
 
-		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']))
-
-
-		;
+		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']));
 	}
 
 	/**
@@ -558,9 +554,8 @@ class Menu implements \ArrayAccess
 
 				return;
 			}
+
 			// Set which one is first, last, and selected in the group.
-
-
 			$first_sa = array_key_first($this_area['subsections']);
 			$last_sa = array_key_last($this_area['subsections']);
 
@@ -571,7 +566,6 @@ class Menu implements \ArrayAccess
 			if ($this->current_area == $this->area_id && empty($this->current_subsection)) {
 				$this->current_subsection = $first_sa;
 			}
-
 		}
 
 		$this->setCurrentSectionAndArea();
@@ -750,7 +744,6 @@ class Menu implements \ArrayAccess
 			$this->sections[$section_id]['url'] = $first_area['url'] ?? $this->base_url . ';area=' . array_key_first($section['areas']);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

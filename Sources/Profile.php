@@ -414,11 +414,9 @@ class Profile extends User implements \ArrayAccess
 						return true;
 					}
 
-
 					$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
 
 					return false;
-
 				},
 			],
 			'date_registered' => [
@@ -549,11 +547,9 @@ class Profile extends User implements \ArrayAccess
 						return true;
 					}
 
-
 					$value = $this->language;
 
 					return false;
-
 				},
 			],
 			// The username is not always editable - so adjust it as such.
@@ -1795,7 +1791,6 @@ class Profile extends User implements \ArrayAccess
 			default:
 				$result = $this->setAvatarNone();
 				break;
-
 		}
 
 		if (is_string($result)) {

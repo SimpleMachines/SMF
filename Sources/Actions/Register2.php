@@ -923,7 +923,6 @@ class Register2 extends Register
 	 */
 	protected function __construct()
 	{
-
 	}
 }
 

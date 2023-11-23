@@ -37,7 +37,6 @@ class FileHeader
 	public function __construct()
 	{
 		unset($this->m_lpVer, $this->m_nWidth, $this->m_nHeight, $this->m_bGlobalClr, $this->m_nColorRes, $this->m_bSorted, $this->m_nTableSize, $this->m_nBgColor, $this->m_nPixelRatio, $this->m_colorTable);
-
 	}
 
 	public function load($lpData, &$hdrLen)

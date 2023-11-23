@@ -199,7 +199,6 @@ class Find implements ActionInterface
 		}
 	}
 
-
 	/**
 	 * A complicated but relatively quick internal search.
 	 */
