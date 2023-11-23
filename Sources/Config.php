@@ -1796,9 +1796,7 @@ class Config
 					return 1;
 				}
 
-
 				return strcasecmp($b, $a);
-
 			},
 		);
 
@@ -2967,7 +2965,6 @@ class Config
 			}
 		}
 	}
-
 }
 
 ?>

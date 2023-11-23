@@ -728,7 +728,6 @@ class Tasks implements ActionInterface
 		self::$obj->execute();
 	}
 
-
 	/******************
 	 * Internal methods
 	 ******************/

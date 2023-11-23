@@ -73,7 +73,6 @@ class Apcu extends CacheApi implements CacheApiInterface
 			return apcu_delete($key . 'smf');
 		}
 
-
 		return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 

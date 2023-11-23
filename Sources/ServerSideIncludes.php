@@ -98,7 +98,6 @@ class ServerSideIncludes
 	 */
 	protected static $setup_done = false;
 
-
 	/******************************************************************
 	 * Properties that allow external scripts to control SSI behaviour.
 	 ******************************************************************/
@@ -194,7 +193,6 @@ class ServerSideIncludes
 	 * Whether to compress output using the GZip algorithm.
 	 */
 	public $gzip;
-
 
 	/****************************************************************
 	 * Static methods that allow external scripts to access SMF data.
@@ -1506,7 +1504,6 @@ class ServerSideIncludes
 					</tr>
 				</table>
 			</form>';
-
 	}
 
 	/**
@@ -2596,7 +2593,6 @@ class ServerSideIncludes
 		echo '
 			</table>';
 	}
-
 
 	/******************
 	 * Primary methods.

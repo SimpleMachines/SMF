@@ -463,7 +463,6 @@ class Login2 implements ActionInterface
 
 		// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
 		User::updateMemberData($id_member, ['passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries]);
-
 	}
 
 	/******************
@@ -836,7 +835,6 @@ class Login2 implements ActionInterface
 			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

@@ -1162,10 +1162,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$value = ini_get('mysqli.allow_persistent');
 
-		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
-
-
-		;
+		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
 
 	/*****************************************
@@ -1223,7 +1220,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function search_language()
 	{
-
 	}
 
 	/*******************************************
@@ -2280,7 +2276,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 					return implode(', ', $replacement);
 				}
-
 
 				$this->error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 

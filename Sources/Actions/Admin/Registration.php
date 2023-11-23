@@ -598,7 +598,6 @@ class Registration implements ActionInterface
 		self::$obj->execute();
 	}
 
-
 	/******************
 	 * Internal methods
 	 ******************/

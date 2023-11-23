@@ -183,8 +183,6 @@ class FtpConnection
 				break;
 			}
 
-
-
 			// Convert the chmod value from octal (0777) to text ("777").
 			fwrite($this->connection, 'SITE CHMOD ' . decoct($val) . ' ' . $ftp_file . "\r\n");
 
@@ -192,7 +190,6 @@ class FtpConnection
 				$this->error = 'bad_file';
 				break;
 			}
-
 		}
 
 		return $is_writable;

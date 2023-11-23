@@ -1512,7 +1512,6 @@ class Post implements ActionInterface
 					} elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0) {
 						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf(Lang::$txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
 					}
-
 				}
 			}
 		}

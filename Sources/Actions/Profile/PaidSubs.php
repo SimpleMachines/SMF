@@ -339,9 +339,7 @@ class PaidSubs implements ActionInterface
 			return;
 		}
 
-
 		Utils::$context['sub_template'] = 'user_subscription';
-
 	}
 
 	/***********************

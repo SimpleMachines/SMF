@@ -3118,7 +3118,6 @@ class Theme
 			die;
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

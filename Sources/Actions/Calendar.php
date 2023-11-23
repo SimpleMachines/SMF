@@ -1457,7 +1457,6 @@ class Calendar implements ActionInterface
 
 		Theme::addInlineJavaScript('
 		$("' . $container . '").datepair({' . $datepair_options . "\n\t});", true);
-
 	}
 
 	/**

@@ -96,7 +96,6 @@ class Delete implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['deleteAccount'] . ': ' . Profile::$member->name;
 	}
 
-
 	/**
 	 * Actually deletes the account.
 	 */

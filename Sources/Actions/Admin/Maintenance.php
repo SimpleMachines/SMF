@@ -2025,7 +2025,6 @@ class Maintenance implements ActionInterface
 								return $instance . Lang::$txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . Lang::$txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 							}
 
-
 							return $instance . $data['real_function'];
 						},
 						'class' => 'word_break',
@@ -2060,7 +2059,6 @@ class Maintenance implements ActionInterface
 								return '<span class="main_icons ' . ($data['hook_exists'] ? 'posts' : 'error') . '" title="' . $data['img_text'] . '"></span>';
 							}
 
-
 							$change_status = ['before' => '', 'after' => ''];
 
 							// Can only enable/disable if it exists...
@@ -2070,7 +2068,6 @@ class Maintenance implements ActionInterface
 							}
 
 							return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>' . $change_status['after'];
-
 						},
 						'class' => 'centertext',
 					],

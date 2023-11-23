@@ -929,9 +929,7 @@ class Attachment implements \ArrayAccess
 			return true;
 		}
 
-
 		return false;
-
 	}
 
 	/**
@@ -1978,9 +1976,7 @@ class Attachment implements \ArrayAccess
 			return 'attachments_no_data_loaded';
 		}
 
-
 		$attachContext = $attachLoaded[$attachID];
-
 
 		// It's theoretically possible that prepareByMsg() changed the board id, so check again.
 		if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards)) {
@@ -2531,7 +2527,6 @@ class Attachment implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

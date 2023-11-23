@@ -234,9 +234,7 @@ trait DynamicPropertyHelper
 			return $this->{$prop} ?? null;
 		}
 
-
 		return $this->custom[$prop] ?? null;
-
 	}
 
 	/**
@@ -261,23 +259,17 @@ trait DynamicPropertyHelper
 					return isset($this->{$real_prop[0]}->{$real_prop[1]});
 				}
 
-
 				return isset($this->{$real_prop[0]}[$real_prop[1]]);
-
 			}
 
-
 			return isset($this->{$real_prop});
-
 		}
 
 		if (property_exists($this, $prop)) {
 			return isset($this->{$prop});
 		}
 
-
 		return isset($this->custom[$prop]);
-
 	}
 
 	/**

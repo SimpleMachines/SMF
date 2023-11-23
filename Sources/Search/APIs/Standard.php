@@ -42,7 +42,6 @@ class Standard extends SearchApi
 	{
 		parent::__construct();
 	}
-
 }
 
 ?>

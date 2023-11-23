@@ -555,7 +555,6 @@ class Mail
 			}
 		}
 
-
 		// Any emails that didn't send?
 		if (!empty($failed_emails)) {
 			// Update the failed attempts check.
@@ -728,7 +727,6 @@ class Mail
 
 			return [$charset, $string, 'base64'];
 		}
-
 
 		return [$charset, $string, '7bit'];
 	}

@@ -674,9 +674,7 @@ class Who implements ActionInterface
 			return $data[0] ?? false;
 		}
 
-
 		return $data;
-
 	}
 
 	/******************

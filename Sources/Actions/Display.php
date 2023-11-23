@@ -904,7 +904,6 @@ class Display implements ActionInterface
 				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::$txt['all']);
 			}
 		}
-
 	}
 
 	/**

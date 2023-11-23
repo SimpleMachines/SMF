@@ -287,7 +287,6 @@ class Received implements \ArrayAccess
 				$inserts,
 				[],
 			);
-
 		}
 	}
 

@@ -317,9 +317,7 @@ class Utils
 					return $substitute;
 				}
 
-
 				return '&#' . $num . ';';
-
 			},
 			(string) $string,
 		);
@@ -591,7 +589,6 @@ class Utils
 			return is_int($result) ? $result + $offset : false;
 		}
 
-
 		$needle_arr = preg_split('~(' . self::ENT_LIST . '|\\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		$needle_size = count($needle_arr);
@@ -609,7 +606,6 @@ class Utils
 		}
 
 		return false;
-
 	}
 
 	/**

@@ -1391,7 +1391,6 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-
 				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
@@ -1399,7 +1398,6 @@ class UpdateUnicode extends BackgroundTask
 				}
 
 				$current_range = ['start' => $ord, 'end' => $ord];
-
 			}
 
 			if (isset($current_range['start'])) {
@@ -1699,9 +1697,7 @@ class UpdateUnicode extends BackgroundTask
 				return $b['stats']['count'] - $a['stats']['count'];
 			}
 
-
 			return $a['stats']['age'] - $b['stats']['age'];
-
 		});
 
 		foreach ($this->funcs['utf8_regex_joining_type']['data'] as $char_script => &$joining_types) {
@@ -1777,9 +1773,7 @@ class UpdateUnicode extends BackgroundTask
 				return $b['stats']['count'] - $a['stats']['count'];
 			}
 
-
 			return $a['stats']['age'] - $b['stats']['age'];
-
 		});
 
 		// We only want scripts with viramas.
@@ -1847,7 +1841,6 @@ class UpdateUnicode extends BackgroundTask
 						continue;
 					}
 
-
 					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
@@ -1855,7 +1848,6 @@ class UpdateUnicode extends BackgroundTask
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
-
 				}
 
 				if (isset($current_range['start'])) {

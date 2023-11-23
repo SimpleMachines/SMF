@@ -766,8 +766,8 @@ class Like implements ActionInterface
 
 			return;
 		}
-		// A like operation.
 
+		// A like operation.
 
 		// Not an AJAX request so send the user back to the previous
 		// location or the main page.
@@ -788,7 +788,6 @@ class Like implements ActionInterface
 			Utils::$context['sub_template'] = $this->subaction;
 			Utils::$context['data'] = $this->data;
 		}
-
 	}
 
 	/**

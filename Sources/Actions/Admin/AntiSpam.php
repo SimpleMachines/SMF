@@ -486,7 +486,6 @@ class AntiSpam implements ActionInterface
 	 */
 	protected function __construct()
 	{
-
 	}
 }
 

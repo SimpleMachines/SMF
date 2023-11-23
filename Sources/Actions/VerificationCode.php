@@ -167,7 +167,6 @@ class VerificationCode implements ActionInterface
 		$this->verification_id = $_GET['vid'] ?? '';
 
 		$this->code = $this->verification_id && isset($_SESSION[$this->verification_id . '_vv']) ? $_SESSION[$this->verification_id . '_vv']['code'] : ($_SESSION['visual_verification_code'] ?? '');
-
 	}
 
 	/**

@@ -490,7 +490,6 @@ class AttachmentUpload implements ActionInterface
 			// You don't need to know.
 			unset($attachmentOptions['tmp_name'], $attachmentOptions['destination']);
 
-
 			// Regardless of errors, pass the results.
 			$this->_attachResults[] = $attachmentOptions;
 		}

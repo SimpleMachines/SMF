@@ -726,7 +726,6 @@ class ACP implements ActionInterface
 		],
 	];
 
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -1981,7 +1980,6 @@ class ACP implements ActionInterface
 			return "\n" . '<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, ['"' => '&quot;', '<' => '&lt;', '>' => '&gt;']) . '">';
 		}
 
-
 		$ret = '';
 
 		foreach ($v as $k2 => $v2) {
@@ -1989,7 +1987,6 @@ class ACP implements ActionInterface
 		}
 
 		return $ret;
-
 	}
 
 	/**
@@ -2029,7 +2026,6 @@ class ACP implements ActionInterface
 
 		return $query_string;
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

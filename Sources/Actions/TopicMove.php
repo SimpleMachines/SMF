@@ -161,7 +161,6 @@ class TopicMove implements ActionInterface
 
 		// Register this form and get a sequence number in Utils::$context.
 		Security::checkSubmitOnce('register');
-
 	}
 
 	/***********************

@@ -380,7 +380,6 @@ class Verifier implements \ArrayAccess
 		<script>
 			var verification' . $this->id . 'Handle = new smfCaptcha("' . $this->image_href . '", "' . $this->id . '", ' . (Utils::$context['use_graphic_library'] ? 1 : 0) . ');
 		</script>';
-
 	}
 
 	/**

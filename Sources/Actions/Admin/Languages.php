@@ -981,7 +981,6 @@ class Languages implements ActionInterface
 									'string' => $this->cleanLangString($_POST['entry'][$k][$subk], false),
 								];
 							}
-
 						}
 					}
 				}

@@ -2919,9 +2919,7 @@ class BBCodeParser
 								return '[email=' . $url->path . ']' . $url . '[/email]';
 							}
 
-
 							return $url;
-
 						}
 
 						// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
@@ -3562,9 +3560,7 @@ class BBCodeParser
 					return Lang::$txt[substr($matches[1], 4)];
 				}
 
-
 				return $matches[0];
-
 			},
 			$string,
 		);

@@ -44,7 +44,6 @@ class Activate implements ActionInterface
 		],
 	];
 
-
 	/*******************
 	 * Public properties
 	 *******************/

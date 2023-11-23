@@ -59,12 +59,9 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 					return [$server, 0];
 				}
 
-
-
 				$server = explode(':', $server);
 
 				return [$server[0], isset($server[1]) ? (int) $server[1] : 11211];
-
 			},
 			array_map('trim', explode(',', Config::$cache_memcached)),
 		);

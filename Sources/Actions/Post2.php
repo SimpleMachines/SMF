@@ -285,7 +285,6 @@ class Post2 extends Post
 			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!User::$me->allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false)) {
 				$this->errors[] = 'no_message';
 			}
-
 		}
 
 		if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && Utils::htmlTrim($_POST['evtitle']) === '') {
@@ -1050,7 +1049,6 @@ class Post2 extends Post
 			$searchAPI->postRemoved($_REQUEST['msg']);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

@@ -108,13 +108,11 @@ class Security
 			return true;
 		}
 
-
 		$token = bin2hex(Utils::randomBytes(16));
 
 		$_SESSION['confirm_' . $action] = hash_hmac('md5', $_SERVER['HTTP_USER_AGENT'], $token);
 
 		return $token;
-
 	}
 
 	/**
@@ -316,7 +314,6 @@ class Security
 				continue;
 			}
 
-
 			$fh = @fopen($path . '/.htaccess', 'w');
 
 			if ($fh) {
@@ -326,14 +323,12 @@ class Security
 				$errors[] = 'htaccess_cannot_create_file';
 			}
 
-
 			// Next, the index.php file
 			if (file_exists($path . '/index.php')) {
 				$errors[] = 'index-php_exists';
 
 				continue;
 			}
-
 
 			$contents = <<<END
 				<?php
@@ -355,7 +350,6 @@ class Security
 			} else {
 				$errors[] = 'index-php_cannot_create_file';
 			}
-
 		}
 
 		return !empty($errors) ? $errors : true;

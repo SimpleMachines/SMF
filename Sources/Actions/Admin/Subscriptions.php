@@ -976,7 +976,6 @@ class Subscriptions implements ActionInterface
 						],
 						['id_sublog'],
 					);
-
 				}
 			}
 			// Updating.

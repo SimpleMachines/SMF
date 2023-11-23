@@ -537,10 +537,7 @@ class Image
 						return false;
 					}
 
-					return !($constant_name === 'IMAGETYPE_UNKNOWN' || $constant_name === 'IMAGETYPE_COUNT')
-
-
-					;
+					return !($constant_name === 'IMAGETYPE_UNKNOWN' || $constant_name === 'IMAGETYPE_COUNT');
 				},
 				ARRAY_FILTER_USE_KEY,
 			);
@@ -1219,9 +1216,7 @@ class Image
 			return imagejpeg($dst_img, $destination, !empty(Config::$modSettings['avatar_jpeg_quality']) ? Config::$modSettings['avatar_jpeg_quality'] : 82);
 		}
 
-
 		return $imagesave($dst_img, $destination);
-
 	}
 
 	/**
