@@ -15,6 +15,7 @@ namespace SMF\Subscriptions\PayPal;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Class of functions to validate a IPN response and provide details of the payment

@@ -417,7 +417,7 @@ class Register2 extends Register
 
 		// Don't update if the default is the same.
 		if ($var != $pref) {
-			setNotifyPrefs($member_id, ['announcements' => (int) !empty($_POST['notify_announcements'])]);
+			Notify::setNotifyPrefs($member_id, ['announcements' => (int) !empty($_POST['notify_announcements'])]);
 		}
 
 		// We'll do custom fields after as then we get to use the helper function!

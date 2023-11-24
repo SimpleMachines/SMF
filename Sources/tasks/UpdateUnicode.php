@@ -14,7 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
-use SMF\DatabaseApi as Db;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\TaskRunner;

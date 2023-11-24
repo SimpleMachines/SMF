@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
 use SMF\Board;
+use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Utils;

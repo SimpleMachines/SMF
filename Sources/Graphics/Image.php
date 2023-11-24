@@ -14,6 +14,7 @@
 namespace SMF\Graphics;
 
 use SMF\BackwardCompatibility;
+use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Url;

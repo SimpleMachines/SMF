@@ -543,7 +543,7 @@ class Post2 extends Post
 
 			// If you're not allowed to edit any and all events, you have to be the poster.
 			if (!User::$me->allowedTo('calendar_edit_any')) {
-				User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && self::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
+				User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && Calendar::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
 			}
 
 			// Delete it?

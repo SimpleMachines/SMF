@@ -14,10 +14,12 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Topic;
+use SMF\Utils;
 
 /**
  * Toggles email notification preferences for topics.

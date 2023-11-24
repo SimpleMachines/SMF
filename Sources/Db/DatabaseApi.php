@@ -363,7 +363,7 @@ abstract class DatabaseApi
 
 		// Double check that we found what we expected.
 		if (!(self::$db instanceof DatabaseApi)) {
-			unset($self::$db);
+			unset(self::$db);
 			ErrorHandler::displayDbError();
 		}
 

@@ -2046,7 +2046,7 @@ class PackageManager
 
 		// If we're submitting then let's move on to another function to keep things cleaner..
 		if (isset($_POST['action_changes'])) {
-			return PackagePermissionsAction();
+			return $this->PackagePermissionsAction();
 		}
 
 		Utils::$context['look_for'] = [];
