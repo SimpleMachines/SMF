@@ -194,7 +194,7 @@ class JavaScriptModify implements ActionInterface
 				'id' => $row['id_msg'],
 				'subject' => $_POST['subject'] ?? null,
 				'body' => $_POST['message'] ?? null,
-				'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
+				'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
 				'modify_reason' => ($_POST['modify_reason'] ?? ''),
 				'approved' => ($row['approved'] ?? null),
 			];

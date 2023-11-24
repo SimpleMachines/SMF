@@ -361,7 +361,7 @@ class Verifier implements \ArrayAccess
 		}
 
 		// Only allow 40 alphanumeric, underscore, and dash characters.
-		$this->recaptcha_site_key = substr(preg_replace('/\\W/', '', Config::$modSettings['recaptcha_site_key']), 0, 40);
+		$this->recaptcha_site_key = substr(preg_replace('/\W/', '', Config::$modSettings['recaptcha_site_key']), 0, 40);
 
 		// Light or dark theme...
 		$this->recaptcha_theme = Config::$modSettings['recaptcha_theme'] == 'dark' ? 'dark' : 'light';

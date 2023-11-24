@@ -262,18 +262,18 @@ class Mentions
 		}
 
 		// preparse code does a few things which might mess with our parsing
-		$body = htmlspecialchars_decode(preg_replace('~<br\\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
+		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
 
 		if (empty(self::$excluded_bbc_regex)) {
 			self::setExcludedBbcRegex();
 		}
 
 		// Exclude the content of various BBCodes.
-		$body = preg_replace('~\\[(' . self::$excluded_bbc_regex . ')[^\\]]*\\](?' . '>(?' . '>[^\\[]|\\[(?!/?\\1[^\\]]*\\]))|(?0))*\\[/\\1\\]~', '', $body);
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		$matches = [];
 		// Split before every Unicode character.
-		$string = preg_split('/(?=\\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
+		$string = preg_split('/(?=\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
 		$depth = 0;
 
 		foreach ($string as $k => $char) {
@@ -304,7 +304,7 @@ class Mentions
 
 		foreach ($matches as $match) {
 			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
-			$match = preg_split('/([^\\p{L}\\p{M}\\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$count = count($match);
 
 			for ($i = 1; $i <= $count; $i++) {
@@ -332,11 +332,11 @@ class Mentions
 		}
 
 		// Don't include mentions inside quotations, etc.
-		$body = preg_replace('~\\[(' . self::$excluded_bbc_regex . ')[^\\]]*\\](?' . '>(?' . '>[^\\[]|\\[(?!/?\\1[^\\]]*\\]))|(?0))*\\[/\\1\\]~', '', $body);
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		$existing_mentions = [];
 
-		preg_match_all('~\\[member=([0-9]+)\\]([^\\[]*)\\[/member\\]~', $body, $matches, PREG_SET_ORDER);
+		preg_match_all('~\[member=([0-9]+)\]([^\[]*)\[/member\]~', $body, $matches, PREG_SET_ORDER);
 
 		foreach ($matches as $match_set) {
 			$existing_mentions[$match_set[1]] = trim($match_set[2]);
@@ -367,7 +367,7 @@ class Mentions
 		}
 
 		// Don't include mentions inside quotations, etc.
-		$body = preg_replace('~\\[(' . self::$excluded_bbc_regex . ')[^\\]]*\\](?' . '>(?' . '>[^\\[]|\\[(?!/?\\1[^\\]]*\\]))|(?0))*\\[/\\1\\]~', '', $body);
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		foreach ($members as $member) {
 			if (strpos($body, '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]') === false) {
@@ -392,18 +392,18 @@ class Mentions
 			return [];
 		}
 
-		$blocks = preg_split('/(\\[quote.*?\\]|\\[\\/quote\\])/i', $body, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+		$blocks = preg_split('/(\[quote.*?\]|\[\/quote\])/i', $body, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 		$quote_level = 0;
 		$message = '';
 
 		foreach ($blocks as $block) {
-			if (preg_match('/\\[quote(.*)?\\]/i', $block, $matches)) {
+			if (preg_match('/\[quote(.*)?\]/i', $block, $matches)) {
 				if ($quote_level == 0) {
 					$message .= '[quote' . $matches[1] . ']';
 				}
 				$quote_level++;
-			} elseif (preg_match('/\\[\\/quote\\]/i', $block)) {
+			} elseif (preg_match('/\[\/quote\]/i', $block)) {
 				if ($quote_level <= 1) {
 					$message .= '[/quote]';
 				}
@@ -417,7 +417,7 @@ class Mentions
 			}
 		}
 
-		preg_match_all('/\\[quote.*?link=msg=([0-9]+).*?\\]/i', $message, $matches);
+		preg_match_all('/\[quote.*?link=msg=([0-9]+).*?\]/i', $message, $matches);
 
 		$id_msgs = $matches[1];
 

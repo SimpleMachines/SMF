@@ -418,7 +418,7 @@ class Group implements \ArrayAccess
 		if ($prop === 'icons' && is_string($value)) {
 			$prop = 'raw_icons';
 
-			if (preg_match('/^\\d+#/', $value)) {
+			if (preg_match('/^\d+#/', $value)) {
 				list($this->icon_count, $this->icon_image) = explode('#', $value);
 			} else {
 				$this->icon_count = 0;

@@ -115,11 +115,6 @@ return (new PhpCsFixer\Config())
 		'no_empty_statement' => true,
 		'multiline_whitespace_before_semicolons' => true,
 		'no_singleline_whitespace_before_semicolons' => true,
-		'escape_implicit_backslashes' => [
-			'double_quoted' => true,
-			'heredoc_syntax' => true,
-			'single_quoted' => true,
-		],
 		'explicit_string_variable' => true,
 		'simple_to_complex_string_variable' => true,
 		'single_quote' => true,

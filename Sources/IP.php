@@ -389,7 +389,7 @@ class IP implements \Stringable
 			// If they're still too short, pad them out.
 			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && count($range[$key]) < $max_parts) {
 				if (in_array('*', $range[$key])) {
-					$range[$key] = explode($mode, preg_replace('/\\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
+					$range[$key] = explode($mode, preg_replace('/\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
 				} else {
 					$range[$key][] = '*';
 				}
@@ -545,7 +545,7 @@ class IP implements \Stringable
 		if (Utils::$context['server']['is_mac']) {
 			$test = (string) @shell_exec('dscacheutil -q host -a ' . ($this->isValid(FILTER_FLAG_IPV6) ? 'ipv6_address' : 'ip_address') . ' ' . @escapeshellarg($this->ip));
 
-			if (preg_match('~name:\\s+([^\\s]+)~i', $test, $match)) {
+			if (preg_match('~name:\s+([^\s]+)~i', $test, $match)) {
 				$host = $match[1];
 			}
 		}
@@ -567,7 +567,7 @@ class IP implements \Stringable
 				Config::updateModSettings(['host_to_dis' => 1]);
 			}
 			// Maybe it found something, after all?
-			elseif (preg_match('~\\s([^\\s]+?)\\.\\s~', $test, $match)) {
+			elseif (preg_match('~\s([^\s]+?)\.\s~', $test, $match)) {
 				$host = $match[1];
 			}
 		}
@@ -578,7 +578,7 @@ class IP implements \Stringable
 
 			if (strpos($test, 'Non-existent domain') !== false) {
 				$host = '';
-			} elseif (preg_match('~Name\\s*(?:=|:)\\s+([^\\s]+)~i', $test, $match)) {
+			} elseif (preg_match('~Name\s*(?:=|:)\s+([^\s]+)~i', $test, $match)) {
 				$host = $match[1];
 			}
 		}

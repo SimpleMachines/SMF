@@ -574,7 +574,7 @@ class Punycode
 			return self::IDNA_ERROR_HYPHEN_3_4;
 		}
 
-		if (preg_match('/^\\p{M}/u', $label)) {
+		if (preg_match('/^\p{M}/u', $label)) {
 			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 

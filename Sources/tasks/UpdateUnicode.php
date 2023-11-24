@@ -83,7 +83,7 @@ class UpdateUnicode extends BackgroundTask
 	private $funcs = [
 		[
 			'file' => 'Metadata.php',
-			'regex' => '/if \\(!defined\\(\'SMF_UNICODE_VERSION\'\\)\\)(?:\s*{)?\\n\\tdefine\\(\'SMF_UNICODE_VERSION\', \'\\d+(\\.\\d+)*\'\\);(?:\n})?/',
+			'regex' => '/if \(!defined\(\'SMF_UNICODE_VERSION\'\)\)(?:\s*{)?\n\tdefine\(\'SMF_UNICODE_VERSION\', \'\d+(\.\d+)*\'\);(?:\n})?/',
 			'data' => [
 				// 0.0.0.0 will be replaced with correct value at runtime.
 				"if (!defined('SMF_UNICODE_VERSION')) {\n\tdefine('SMF_UNICODE_VERSION', '0.0.0.0');\n}",
@@ -571,7 +571,7 @@ class UpdateUnicode extends BackgroundTask
 				// Only move if the file has changed, discounting the license block.
 				foreach (['temp', 'real'] as $f) {
 					if (file_exists($file_paths[$f])) {
-						$file_contents[$f] = preg_replace('~/\\*\\*.*?@package\\h+SMF\\b.*?\\*/~s', '', file_get_contents($file_paths[$f]));
+						$file_contents[$f] = preg_replace('~/\*\*.*?@package\h+SMF\b.*?\*/~s', '', file_get_contents($file_paths[$f]));
 					} else {
 						$file_contents[$f] = '';
 					}
@@ -787,7 +787,7 @@ class UpdateUnicode extends BackgroundTask
 			$func_regex = $this->funcs[$func_name]['regex'] ?? '/' . preg_quote($func_code, '/') . '/';
 		} else {
 			// The regex to look for this function in the existing file content.
-			$func_regex = "/(\\/\\*([^*]|\\*(?!\\/))*\\*\\/\n)?function {$func_name}\\(\\)\n{.+?\n}/s";
+			$func_regex = '~(/\*([^*]|\*(?!/))*\*/\n)?function ' . $func_name . '\(\)\n{.+?\n}~s';
 
 			// The PHPDoc comment for this function.
 			$func_code = '/**' . implode("\n * ", array_merge(
@@ -827,7 +827,7 @@ class UpdateUnicode extends BackgroundTask
 
 		// Some final tidying.
 		$func_code = str_replace('""', "''", $func_code);
-		$func_code = preg_replace('/\\h+$/m', '', $func_code);
+		$func_code = preg_replace('/\h+$/m', '', $func_code);
 
 		return [$func_code, $func_regex];
 	}
@@ -939,7 +939,7 @@ class UpdateUnicode extends BackgroundTask
 			return false;
 		}
 
-		preg_match('/Version\\s+(\\d+(?:\\.\\d+)*)/', file_get_contents($local_file), $matches);
+		preg_match('/Version\s+(\d+(?:\.\d+)*)/', file_get_contents($local_file), $matches);
 
 		if (empty($matches[1])) {
 			return false;
@@ -1425,7 +1425,7 @@ class UpdateUnicode extends BackgroundTask
 		}
 
 		foreach ($this->funcs['utf8_regex_variation_selectors']['data'] as $variation_selector => $class_string) {
-			$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = array_unique(preg_split('/(?<=})(?=\\\\x{)/', $class_string));
+			$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = array_unique(preg_split('/(?<=})(?=\\\x{)/', $class_string));
 		}
 
 		krsort($this->funcs['utf8_regex_variation_selectors']['data']);
@@ -1858,7 +1858,7 @@ class UpdateUnicode extends BackgroundTask
 					}
 				}
 
-				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = array_unique(preg_split('/(?<=})(?=\\\\x{)/', $class_string));
+				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = array_unique(preg_split('/(?<=})(?=\\\x{)/', $class_string));
 			}
 
 			ksort($this->funcs['utf8_regex_indic']['data'][$char_script]);
@@ -1888,7 +1888,7 @@ class UpdateUnicode extends BackgroundTask
 			$fields = explode(';', $line);
 
 			foreach ($fields as $key => $value) {
-				$fields[$key] = preg_replace('/\\b(0(?!\\b))+/', '', trim($value));
+				$fields[$key] = preg_replace('/\b(0(?!\b))+/', '', trim($value));
 			}
 
 			if (strpos($fields[0], '..') === false) {

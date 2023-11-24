@@ -322,7 +322,7 @@ class Like implements ActionInterface
 		}
 
 		// Zerothly, they did indicate some kind of content to like, right?
-		preg_match('~^([a-z0-9\\-\\_]{1,6})~i', $this->type, $matches);
+		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->type, $matches);
 
 		$this->type = $matches[1] ?? '';
 

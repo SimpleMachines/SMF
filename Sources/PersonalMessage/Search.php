@@ -607,12 +607,12 @@ class Search
 	protected function setSearchQuery(): void
 	{
 		// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
-		preg_match_all('~(?:^|\\s)([-]?)"([^"]+)"(?:$|\\s)~' . (Utils::$context['utf8'] ? 'u' : ''), $this->params['search'], $matches, PREG_PATTERN_ORDER);
+		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), $this->params['search'], $matches, PREG_PATTERN_ORDER);
 
 		$searchArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$tempSearch = explode(' ', preg_replace('~(?:^|\\s)(?:[-]?)"(?:[^"]+)"(?:$|\\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']));
+		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']));
 
 		// A minus sign in front of a word excludes the word.... so...
 		$excludedWords = [];

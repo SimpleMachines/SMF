@@ -841,7 +841,7 @@ class Logging
 		$temp = ob_get_contents();
 		ob_clean();
 
-		echo preg_replace('~</body>\\s*</html>~', '', $temp), '
+		echo preg_replace('~</body>\s*</html>~', '', $temp), '
 	<div class="smalltext" style="text-align: left; margin: 1ex;">
 		', Lang::$txt['debug_browser'], Utils::$context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))), ')</em><br>
 		', Lang::$txt['debug_templates'], count(Utils::$context['debug']['templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['templates']), '</em>.<br>
@@ -892,7 +892,7 @@ class Logging
 
 		if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache)) {
 			foreach (Db::$cache as $q => $query_data) {
-				$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \\w+(?:\\s+\\([^)]+\\))?\\s+SELECT .+$~s', trim($query_data['q'])) != 0 || strpos(trim($query_data['q']), 'WITH') === 0;
+				$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($query_data['q'])) != 0 || strpos(trim($query_data['q']), 'WITH') === 0;
 
 				// Temporary tables created in earlier queries are not explainable.
 				if ($is_select) {

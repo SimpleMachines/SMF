@@ -1637,14 +1637,14 @@ class ExportProfileData extends BackgroundTask
 		if ($this->_details['format'] == 'XML_XSLT') {
 			$placeholders = [];
 
-			if (preg_match_all('/<!\\[CDATA\\[\\X*?\\]\\]>/u', $this->stylesheet, $matches)) {
+			if (preg_match_all('/<!\[CDATA\[\X*?\]\]>/u', $this->stylesheet, $matches)) {
 				foreach ($matches[0] as $cdata) {
 					$placeholders[$cdata] = md5($cdata);
 				}
 			}
 
 			$this->stylesheet = strtr($this->stylesheet, $placeholders);
-			$this->stylesheet = preg_replace('/^(?!\\n)/mu', "\t", $this->stylesheet);
+			$this->stylesheet = preg_replace('/^(?!\n)/mu', "\t", $this->stylesheet);
 			$this->stylesheet = strtr($this->stylesheet, array_flip($placeholders));
 		}
 
@@ -1813,7 +1813,7 @@ class ExportProfileData extends BackgroundTask
 
 		Utils::$context['javascript_inline']['defer'][] = implode("\n", [
 			'$("img.smiley").each(function() {',
-			'	var data_uri_var = $(this).attr("src").replace(/.*\\/(\\w+)\\.(\\w+)$/, "smf_smiley_$1_$2");',
+			'	var data_uri_var = $(this).attr("src").replace(/.*\/(\w+)\.(\w+)$/, "smf_smiley_$1_$2");',
 			'	$(this).attr("src", window[data_uri_var]);',
 			'});',
 		]);
@@ -1925,7 +1925,7 @@ class ExportProfileData extends BackgroundTask
 		foreach ($codes as &$code) {
 			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
 			if ($code['tag'] === 'code') {
-				$code['content'] = preg_replace('~<a class="codeoperation\\b.*?</a>~', '', $code['content']);
+				$code['content'] = preg_replace('~<a class="codeoperation\b.*?</a>~', '', $code['content']);
 			}
 		}
 	}
@@ -1962,7 +1962,7 @@ class ExportProfileData extends BackgroundTask
 		} elseif (!empty($currentAttachment['is_image'])) {
 			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
 				[
-					'thumbnail_toggle' => '~</?a\\b[^>]*>~',
+					'thumbnail_toggle' => '~</?a\b[^>]*>~',
 					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . ';image"~',
 				],
 				[
@@ -1988,7 +1988,7 @@ class ExportProfileData extends BackgroundTask
 		} elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0) {
 			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
 				[
-					'opening_tag' => '~^<audio\\b~',
+					'opening_tag' => '~^<audio\b~',
 				],
 				[
 					'opening_tag' => '<audio onerror="$(this).fadeTo(0, 0); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
@@ -1998,7 +1998,7 @@ class ExportProfileData extends BackgroundTask
 		} else {
 			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
 				[
-					'obj_opening' => '~^<object\\b~',
+					'obj_opening' => '~^<object\b~',
 					'link' => '~<a href="' . preg_quote($currentAttachment['href'], '~') . '" class="bbc_link">([^<]*)</a>~',
 				],
 				[

@@ -2209,15 +2209,15 @@ class User implements \ArrayAccess
 
 			// Are global cookies on?  If so, let's check them ;).
 			if (!empty(Config::$modSettings['globalCookies'])) {
-				if (preg_match('~(?:[^\\.]+\\.)?([^\\.]{3,}\\..+)\\z~i', $board_host, $parts)) {
+				if (preg_match('~(?:[^.]+\.)?([^.]{3,}\..+)\z~i', $board_host, $parts)) {
 					$board_host = $parts[1];
 				}
 
-				if (preg_match('~(?:[^\\.]+\\.)?([^\\.]{3,}\\..+)\\z~i', $referrer['host'], $parts)) {
+				if (preg_match('~(?:[^.]+\.)?([^.]{3,}\.+)\z~i', $referrer['host'], $parts)) {
 					$referrer['host'] = $parts[1];
 				}
 
-				if (preg_match('~(?:[^\\.]+\\.)?([^\\.]{3,}\\..+)\\z~i', $real_host, $parts)) {
+				if (preg_match('~(?:[^.]+\.)?([^.]{3,}\.+)\z~i', $real_host, $parts)) {
 					$real_host = $parts[1];
 				}
 			}
@@ -3040,7 +3040,7 @@ class User implements \ArrayAccess
 
 			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
 			if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-				if (preg_match('~^' . $var . ' (\\+ |- |\\+ -)(\\d+)~', $val, $match)) {
+				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', $val, $match)) {
 					if ($match[1] != '+ ') {
 						$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
 					}
@@ -3617,7 +3617,7 @@ class User implements \ArrayAccess
 		}
 
 		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (!preg_match('~\\b' . preg_quote($password, '~') . '\\b~', implode(' ', $restrict_in))) {
+		if (!preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
 			return 'restricted_words';
 		}
 
@@ -3631,7 +3631,7 @@ class User implements \ArrayAccess
 		}
 
 		// Check for both numbers and letters.
-		$good = preg_match('~\\p{N}~u', $password) && preg_match('~\\p{L}~u', $password);
+		$good = preg_match('~\p{N}~u', $password) && preg_match('~\p{L}~u', $password);
 
 		// If there are any letters from bicameral scripts (Latin, Greek, etc.),
 		// check that there are both lowercase and uppercase letters present.
@@ -3673,7 +3673,7 @@ class User implements \ArrayAccess
 			in_array($username, ['_', '|'])
 			|| strpos($username, '[code') !== false
 			|| strpos($username, '[/code') !== false
-			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
+			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
 		) {
 			$errors[] = ['lang', 'error_invalid_characters_username'];
 		}

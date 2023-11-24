@@ -1984,7 +1984,7 @@ class Bans implements ActionInterface
 						];
 					}
 				} elseif ($key == 'hostname') {
-					if (preg_match('/[^\\w.\\-*]/', $value) == 1) {
+					if (preg_match('/[^\w.\-*]/', $value) == 1) {
 						Utils::$context['ban_errors'][] = 'invalid_hostname';
 					} else {
 						// Replace the * wildcard by a MySQL wildcard %.
@@ -1993,7 +1993,7 @@ class Bans implements ActionInterface
 						$ban_triggers['hostname']['hostname'] = $value;
 					}
 				} elseif ($key == 'email') {
-					if (preg_match('/[^\\w.\\-\\+*@]/', $value) == 1) {
+					if (preg_match('/[^\w.\-\+*@]/', $value) == 1) {
 						Utils::$context['ban_errors'][] = 'invalid_email';
 					}
 
@@ -2020,7 +2020,7 @@ class Bans implements ActionInterface
 
 					$ban_triggers['email']['email_address'] = $value;
 				} elseif ($key == 'user') {
-					$user = preg_replace('~&amp;#(\\d{4,5}|[2-9]\\d{2,4}|1[2-9]\\d);~', '&#$1;', Utils::htmlspecialchars($value, ENT_QUOTES));
+					$user = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', Utils::htmlspecialchars($value, ENT_QUOTES));
 
 					$request = Db::$db->query(
 						'',

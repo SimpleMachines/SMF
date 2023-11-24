@@ -630,7 +630,7 @@ class Msg implements \ArrayAccess
 
 		// This line makes all languages *theoretically* work even with the wrong charset ;).
 		if (empty(Utils::$context['utf8'])) {
-			$message = preg_replace('~&amp;#(\\d{4,5}|[2-9]\\d{2,4}|1[2-9]\\d);~', '&#$1;', $message);
+			$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 		}
 		// Normalize Unicode characters for storage efficiency, better searching, etc.
 		else {
@@ -642,7 +642,7 @@ class Msg implements \ArrayAccess
 
 		// Clean up after nobbc ;).
 		$message = preg_replace_callback(
-			'~\\[nobbc\\](.+?)\\[/nobbc\\]~is',
+			'~\[nobbc\](.+?)\[/nobbc\]~is',
 			function ($a) {
 				return '[nobbc]' . strtr($a[1], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/nobbc]';
 			},
@@ -653,7 +653,7 @@ class Msg implements \ArrayAccess
 		$message = strtr($message, ["\r\n" => "\n", "\r" => "\n"]);
 
 		// You won't believe this - but too many periods upsets apache it seems!
-		$message = preg_replace('~\\.{100,}~', '...', $message);
+		$message = preg_replace('~\.{100,}~', '...', $message);
 
 		// Trim off trailing quotes - these often happen by accident.
 		while (substr($message, -7) == '[quote]') {
@@ -665,7 +665,7 @@ class Msg implements \ArrayAccess
 		}
 
 		if (strpos($message, '[cowsay') !== false && !User::$me->allowedTo('bbc_cowsay')) {
-			$message = preg_replace('~\\[(/?)cowsay[^\\]]*\\]~iu', '[$1pre]', $message);
+			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 		}
 
 		// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
@@ -673,7 +673,7 @@ class Msg implements \ArrayAccess
 		$had_tag = false;
 		$codeopen = 0;
 
-		if (preg_match_all('~(\\[(/)*code(?:=[^\\]]+)?\\])~is', $message, $matches)) {
+		if (preg_match_all('~(\[(/)*code(?:=[^\]]+)?\])~is', $message, $matches)) {
 			foreach ($matches[0] as $index => $dummy) {
 				// Closing?
 				if (!empty($matches[2][$index])) {
@@ -708,7 +708,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// Replace code BBC with placeholders. We'll restore them at the end.
-		$parts = preg_split('~(\\[/code\\]|\\[code(?:=[^\\]]+)?\\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		for ($i = 0, $n = count($parts); $i < $n; $i++) {
 			// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
@@ -723,22 +723,22 @@ class Msg implements \ArrayAccess
 		$message = implode('', $parts);
 
 		// The regular expression non breaking space has many versions.
-		$non_breaking_space = Utils::$context['utf8'] ? '\\x{A0}' : '\\xA0';
+		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
 		// Now that we've fixed all the code tags, let's fix the img and url tags...
 		fixTags($message);
 
 		// Replace /me.+?\n with [me=name]dsf[/me]\n.
 		if (strpos(User::$me->name, '[') !== false || strpos(User::$me->name, ']') !== false || strpos(User::$me->name, '\'') !== false || strpos(User::$me->name, '"') !== false) {
-			$message = preg_replace('~(\\A|\\n)/me(?: |&nbsp;)([^\\n]*)(?:\\z)?~i', '$1[me=&quot;' . User::$me->name . '&quot;]$2[/me]', $message);
+			$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=&quot;' . User::$me->name . '&quot;]$2[/me]', $message);
 		} else {
-			$message = preg_replace('~(\\A|\\n)/me(?: |&nbsp;)([^\\n]*)(?:\\z)?~i', '$1[me=' . User::$me->name . ']$2[/me]', $message);
+			$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=' . User::$me->name . ']$2[/me]', $message);
 		}
 
 		if (!$previewing && strpos($message, '[html]') !== false) {
 			if (User::$me->allowedTo('bbc_html')) {
 				$message = preg_replace_callback(
-					'~\\[html\\](.+?)\\[/html\\]~is',
+					'~\[html\](.+?)\[/html\]~is',
 					function ($m) {
 						return '[html]' . strtr(Utils::htmlspecialcharsDecode($m[1]), ["\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;']) . '[/html]';
 					},
@@ -748,14 +748,14 @@ class Msg implements \ArrayAccess
 			// We should edit them out, or else if an admin edits the message they will get shown...
 			else {
 				while (strpos($message, '[html]') !== false) {
-					$message = preg_replace('~\\[[/]?html\\]~i', '', $message);
+					$message = preg_replace('~\[[/]?html\]~i', '', $message);
 				}
 			}
 		}
 
 		// Let's look at the time tags...
 		$message = preg_replace_callback(
-			'~\\[time(?:=(absolute))*\\](.+?)\\[/time\\]~i',
+			'~\[time(?:=(absolute))*\](.+?)\[/time\]~i',
 			function ($m) {
 				return '[time]' . (is_numeric("{$m[2]}") || @strtotime("{$m[2]}") == 0 ? "{$m[2]}" : strtotime("{$m[2]}") - ("{$m[1]}" == 'absolute' ? 0 : ((Config::$modSettings['time_offset'] + User::$me->time_offset) * 3600))) . '[/time]';
 			},
@@ -764,10 +764,10 @@ class Msg implements \ArrayAccess
 
 		// Change the color specific tags to [color=the color].
 		// First do the opening tags.
-		$message = preg_replace('~\\[(black|blue|green|red|white)\\]~', '[color=$1]', $message);
+		$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message);
 
 		// And now do the closing tags
-		$message = preg_replace('~\\[/(black|blue|green|red|white)\\]~', '[/color]', $message);
+		$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message);
 
 		// Neutralize any BBC tags this member isn't permitted to use.
 		if (empty($disallowed_tags_regex)) {
@@ -791,12 +791,12 @@ class Msg implements \ArrayAccess
 		}
 
 		if (!empty($disallowed_tags_regex)) {
-			$message = preg_replace('~\\[(?=/?' . $disallowed_tags_regex . '\\b)~i', '&#91;', $message);
+			$message = preg_replace('~\[(?=/?' . $disallowed_tags_regex . '\b)~i', '&#91;', $message);
 		}
 
 		// Make sure all tags are lowercase.
 		$message = preg_replace_callback(
-			'~\\[(/?)(list|li|table|tr|td)\\b([^\\]]*)\\]~i',
+			'~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i',
 			function ($m) {
 				return "[{$m[1]}" . strtolower("{$m[2]}") . "{$m[3]}]";
 			},
@@ -816,48 +816,48 @@ class Msg implements \ArrayAccess
 
 		$mistake_fixes = [
 			// Find [table]s not followed by [tr].
-			'~\\[table\\](?![\\s' . $non_breaking_space . ']*\\[tr\\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[table][tr]',
+			'~\[table\](?![\s' . $non_breaking_space . ']*\[tr\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[table][tr]',
 			// Find [tr]s not followed by [td].
-			'~\\[tr\\](?![\\s' . $non_breaking_space . ']*\\[td\\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[tr][td]',
+			'~\[tr\](?![\s' . $non_breaking_space . ']*\[td\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[tr][td]',
 			// Find [/td]s not followed by something valid.
-			'~\\[/td\\](?![\\s' . $non_breaking_space . ']*(?:\\[td\\]|\\[/tr\\]|\\[/table\\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr]',
+			'~\[/td\](?![\s' . $non_breaking_space . ']*(?:\[td\]|\[/tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr]',
 			// Find [/tr]s not followed by something valid.
-			'~\\[/tr\\](?![\\s' . $non_breaking_space . ']*(?:\\[tr\\]|\\[/table\\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/tr][/table]',
+			'~\[/tr\](?![\s' . $non_breaking_space . ']*(?:\[tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/tr][/table]',
 			// Find [/td]s incorrectly followed by [/table].
-			'~\\[/td\\][\\s' . $non_breaking_space . ']*\\[/table\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr][/table]',
+			'~\[/td\][\s' . $non_breaking_space . ']*\[/table\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr][/table]',
 			// Find [table]s, [tr]s, and [/td]s (possibly correctly) followed by [td].
-			'~\\[(table|tr|/td)\\]([\\s' . $non_breaking_space . ']*)\\[td\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_td_]',
+			'~\[(table|tr|/td)\]([\s' . $non_breaking_space . ']*)\[td\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_td_]',
 			// Now, any [td]s left should have a [tr] before them.
-			'~\\[td\\]~s' => '[tr][td]',
+			'~\[td\]~s' => '[tr][td]',
 			// Look for [tr]s which are correctly placed.
-			'~\\[(table|/tr)\\]([\\s' . $non_breaking_space . ']*)\\[tr\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_tr_]',
+			'~\[(table|/tr)\]([\s' . $non_breaking_space . ']*)\[tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_tr_]',
 			// Any remaining [tr]s should have a [table] before them.
-			'~\\[tr\\]~s' => '[table][tr]',
+			'~\[tr\]~s' => '[table][tr]',
 			// Look for [/td]s followed by [/tr].
-			'~\\[/td\\]([\\s' . $non_breaking_space . ']*)\\[/tr\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td]$1[_/tr_]',
+			'~\[/td\]([\s' . $non_breaking_space . ']*)\[/tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td]$1[_/tr_]',
 			// Any remaining [/tr]s should have a [/td].
-			'~\\[/tr\\]~s' => '[/td][/tr]',
+			'~\[/tr\]~s' => '[/td][/tr]',
 			// Look for properly opened [li]s which aren't closed.
-			'~\\[li\\]([^\\[\\]]+?)\\[li\\]~s' => '[li]$1[_/li_][_li_]',
-			'~\\[li\\]([^\\[\\]]+?)\\[/list\\]~s' => '[_li_]$1[_/li_][/list]',
-			'~\\[li\\]([^\\[\\]]+?)$~s' => '[li]$1[/li]',
+			'~\[li\]([^\[\]]+?)\[li\]~s' => '[li]$1[_/li_][_li_]',
+			'~\[li\]([^\[\]]+?)\[/list\]~s' => '[_li_]$1[_/li_][/list]',
+			'~\[li\]([^\[\]]+?)$~s' => '[li]$1[/li]',
 			// Lists - find correctly closed items/lists.
-			'~\\[/li\\]([\\s' . $non_breaking_space . ']*)\\[/list\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[/list]',
+			'~\[/li\]([\s' . $non_breaking_space . ']*)\[/list\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[/list]',
 			// Find list items closed and then opened.
-			'~\\[/li\\]([\\s' . $non_breaking_space . ']*)\\[li\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[_li_]',
+			'~\[/li\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[_li_]',
 			// Now, find any [list]s or [/li]s followed by [li].
-			'~\\[(list(?: [^\\]]*?)?|/li)\\]([\\s' . $non_breaking_space . ']*)\\[li\\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_li_]',
+			'~\[(list(?: [^\]]*?)?|/li)\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_li_]',
 			// Allow for sub lists.
-			'~\\[/li\\]([\\s' . $non_breaking_space . ']*)\\[list\\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[list]',
-			'~\\[/list\\]([\\s' . $non_breaking_space . ']*)\\[li\\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[/list]$1[_li_]',
+			'~\[/li\]([\s' . $non_breaking_space . ']*)\[list\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[list]',
+			'~\[/list\]([\s' . $non_breaking_space . ']*)\[li\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[/list]$1[_li_]',
 			// Any remaining [li]s weren't inside a [list].
-			'~\\[li\\]~' => '[list][li]',
+			'~\[li\]~' => '[list][li]',
 			// Any remaining [/li]s weren't before a [/list].
-			'~\\[/li\\]~' => '[/li][/list]',
+			'~\[/li\]~' => '[/li][/list]',
 			// Put the correct ones back how we found them.
-			'~\\[_(li|/li|td|tr|/tr)_\\]~' => '[$1]',
+			'~\[_(li|/li|td|tr|/tr)_\]~' => '[$1]',
 			// Images with no real url.
-			'~\\[img\\]https?://.{0,7}\\[/img\\]~' => '',
+			'~\[img\]https?://.{0,7}\[/img\]~' => '',
 		];
 
 		// Fix up some use of tables without [tr]s, etc. (it has to be done more than once to catch it all.)
@@ -880,8 +880,8 @@ class Msg implements \ArrayAccess
 			$tags_regex = Utils::buildRegex($tags, '~');
 		}
 
-		while (preg_match('~\\[(' . $tags_regex . ')\\b[^\\]]*\\]\\s*\\[/\\1\\]\\s?~i', $message)) {
-			$message = preg_replace('~\\[(' . $tags_regex . ')[^\\]]*\\]\\s*\\[/\\1\\]\\s?~i', '', $message);
+		while (preg_match('~\[(' . $tags_regex . ')\b[^\]]*\]\s*\[/\1\]\s?~i', $message)) {
+			$message = preg_replace('~\[(' . $tags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
 		}
 
 		// Restore code blocks
@@ -914,7 +914,7 @@ class Msg implements \ArrayAccess
 		// Any hooks want to work here?
 		IntegrationHook::call('integrate_unpreparsecode', [&$message]);
 
-		$parts = preg_split('~(\\[/code\\]|\\[code(?:=[^\\]]+)?\\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		// We're going to unparse only the stuff outside [code]...
 		for ($i = 0, $n = count($parts); $i < $n; $i++) {
@@ -930,7 +930,7 @@ class Msg implements \ArrayAccess
 		$message = implode('', $parts);
 
 		$message = preg_replace_callback(
-			'~\\[html\\](.+?)\\[/html\\]~i',
+			'~\[html\](.+?)\[/html\]~i',
 			function ($matches) {
 				return '[html]' . strtr(Utils::htmlspecialchars($matches[1], ENT_QUOTES), ['\\&quot;' => '&quot;', '&amp;#13;' => '<br>', '&amp;#32;' => ' ', '&amp;#91;' => '[', '&amp;#93;' => ']']) . '[/html]';
 			},
@@ -938,12 +938,12 @@ class Msg implements \ArrayAccess
 		);
 
 		if (strpos($message, '[cowsay') !== false && !User::$me->allowedTo('bbc_cowsay')) {
-			$message = preg_replace('~\\[(/?)cowsay[^\\]]*\\]~iu', '[$1pre]', $message);
+			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 		}
 
 		// Attempt to un-parse the time to something less awful.
 		$message = preg_replace_callback(
-			'~\\[time\\](\\d{0,10})\\[/time\\]~i',
+			'~\[time\](\d{0,10})\[/time\]~i',
 			function ($matches) {
 				return '[time]' . Time::create('@' . $matches[1])->setTimezone(new \DateTimeZone(User::getTimezone()))->format(null, false) . '[/time]';
 			},
@@ -955,7 +955,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// Change breaks back to \n's and &nsbp; back to spaces.
-		return preg_replace('~<br\\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
+		return preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
 	}
 
 	/**
@@ -1038,7 +1038,7 @@ class Msg implements \ArrayAccess
 
 		// Now fix possible security problems with images loading links automatically...
 		$message = preg_replace_callback(
-			'~(\\[img.*?\\])(.+?)\\[/img\\]~is',
+			'~(\[img.*?\])(.+?)\[/img\]~is',
 			function ($m) {
 				return "{$m[1]}" . preg_replace('~action(=|%3d)(?!dlattach)~i', 'action-', "{$m[2]}") . '[/img]';
 			},
@@ -1075,13 +1075,13 @@ class Msg implements \ArrayAccess
 		$replaces = [];
 
 		if ($hasEqualSign && $embeddedUrl) {
-			$quoted = preg_match('~\\[(' . $myTag . ')=&quot;~', $message);
+			$quoted = preg_match('~\[(' . $myTag . ')=&quot;~', $message);
 
-			preg_match_all('~\\[(' . $myTag . ')=' . ($quoted ? '&quot;(.*?)&quot;' : '([^\\]]*?)') . '\\](?:(.+?)\\[/(' . $myTag . ')\\])?~is', $message, $matches);
+			preg_match_all('~\[(' . $myTag . ')=' . ($quoted ? '&quot;(.*?)&quot;' : '([^\]]*?)') . '\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
 		} elseif ($hasEqualSign) {
-			preg_match_all('~\\[(' . $myTag . ')=([^\\]]*?)\\](?:(.+?)\\[/(' . $myTag . ')\\])?~is', $message, $matches);
+			preg_match_all('~\[(' . $myTag . ')=([^\]]*?)\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
 		} else {
-			preg_match_all('~\\[(' . $myTag . ($hasExtra ? '(?:[^\\]]*?)' : '') . ')\\](.+?)\\[/(' . $myTag . ')\\]~is', $message, $matches);
+			preg_match_all('~\[(' . $myTag . ($hasExtra ? '(?:[^\]]*?)' : '') . ')\](.+?)\[/(' . $myTag . ')\]~is', $message, $matches);
 		}
 
 		foreach ($matches[0] as $k => $dummy) {
@@ -1115,7 +1115,7 @@ class Msg implements \ArrayAccess
 				}
 				// A fragment
 				elseif (substr($replace, 0, 1) == '#' && $embeddedUrl) {
-					$replace = '#' . preg_replace('~[^A-Za-z0-9_\\-#]~', '', substr($replace, 1));
+					$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 					$this_tag = 'iurl';
 					$this_close = 'iurl';
 				} elseif (substr($replace, 0, 2) != '//' && empty($current_protocol)) {

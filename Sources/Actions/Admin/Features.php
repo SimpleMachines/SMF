@@ -389,7 +389,7 @@ class Features implements ActionInterface
 						}
 					}
 
-					if (!empty($sig_limits[7]) && preg_match_all('~\\[size=([\\d\\.]+)?(px|pt|em|x-large|larger)~i', $sig, $matches) !== false && isset($matches[2])) {
+					if (!empty($sig_limits[7]) && preg_match_all('~\[size=([\d\.]+)?(px|pt|em|x-large|larger)~i', $sig, $matches) !== false && isset($matches[2])) {
 						foreach ($matches[1] as $ind => $size) {
 							$limit_broke = 0;
 
@@ -416,10 +416,10 @@ class Features implements ActionInterface
 						$img_count = 0;
 
 						// Get all BBC tags...
-						preg_match_all('~\\[img(\\s+width=([\\d]+))?(\\s+height=([\\d]+))?(\\s+width=([\\d]+))?\\s*\\](?:<br>)*([^<">]+?)(?:<br>)*\\[/img\\]~i', $sig, $matches);
+						preg_match_all('~\[img(\s+width=([\d]+))?(\s+height=([\d]+))?(\s+width=([\d]+))?\s*\](?:<br>)*([^<">]+?)(?:<br>)*\[/img\]~i', $sig, $matches);
 
 						// ... and all HTML ones.
-						preg_match_all('~&lt;img\\s+src=(?:&quot;)?((?:http://|ftp://|https://|ftps://).+?)(?:&quot;)?(?:\\s+alt=(?:&quot;)?(.*?)(?:&quot;)?)?(?:\\s?/)?&gt;~i', $sig, $matches2, PREG_PATTERN_ORDER);
+						preg_match_all('~&lt;img\s+src=(?:&quot;)?((?:http://|ftp://|https://|ftps://).+?)(?:&quot;)?(?:\s+alt=(?:&quot;)?(.*?)(?:&quot;)?)?(?:\s?/)?&gt;~i', $sig, $matches2, PREG_PATTERN_ORDER);
 
 						// And stick the HTML in the BBC.
 						if (!empty($matches2)) {
@@ -536,9 +536,9 @@ class Features implements ActionInterface
 
 					// Try to fix disabled tags.
 					if (!empty($disabledTags)) {
-						$sig = preg_replace('~\\[(?:' . implode('|', $disabledTags) . ').+?\\]~i', '', $sig);
+						$sig = preg_replace('~\[(?:' . implode('|', $disabledTags) . ').+?\]~i', '', $sig);
 
-						$sig = preg_replace('~\\[/(?:' . implode('|', $disabledTags) . ')\\]~i', '', $sig);
+						$sig = preg_replace('~\[/(?:' . implode('|', $disabledTags) . ')\]~i', '', $sig);
 					}
 
 					$sig = strtr($sig, ["\n" => '<br>']);
@@ -1172,7 +1172,7 @@ class Features implements ActionInterface
 			if (empty(Utils::$context['fid'])) {
 				$col_name = Utils::normalize($_POST['field_name'], 'kc_casefold');
 				$col_name = Utils::sanitizeChars($col_name, 2, '-');
-				$col_name = preg_replace('~[^\\w-]~u', '', $col_name);
+				$col_name = preg_replace('~[^\w-]~u', '', $col_name);
 				$col_name = trim($col_name, '-_');
 				$col_name = Utils::truncate($col_name, 6);
 

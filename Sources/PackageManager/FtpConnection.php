@@ -274,7 +274,7 @@ class FtpConnection
 		}
 
 		// Snatch the IP and port information, or die horribly trying...
-		if (preg_match('~\\((\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*(\\d+))\\)~', $response, $match) == 0) {
+		if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0) {
 			$this->error = 'bad_response';
 
 			return false;

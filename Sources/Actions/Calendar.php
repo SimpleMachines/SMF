@@ -1283,7 +1283,7 @@ class Calendar implements ActionInterface
 		foreach (['birthdays', 'holidays'] as $type) {
 			foreach ($calendarGrid[$type] as $date => $date_content) {
 				// Make sure to apply no offsets
-				$date_local = preg_replace('~(?<=\\s)0+(\\d)~', '$1', trim(Time::create($date)->format($date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+				$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(Time::create($date)->format($date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
 
 				$calendarGrid[$type][$date]['date_local'] = $date_local;
 			}
