@@ -111,7 +111,7 @@ class Display
 			$return_data['hidden']['p3'] = 1;
 			$return_data['hidden']['t3'] = strtoupper(substr($period, 0, 1));
 		} else {
-			preg_match('~(\\d*)(\\w)~', $sub_data['real_length'], $match);
+			preg_match('~(\d*)(\w)~', $sub_data['real_length'], $match);
 			$unit = $match[1];
 			$period = $match[2];
 

@@ -333,7 +333,7 @@ class Alert implements \ArrayAccess
 					$separator = $item == 'msg' ? '=?' : '=';
 
 					if (isset($this->extra['content_link']) && strpos($this->extra['content_link'], $item . $separator) !== false && strpos($this->extra['content_link'], $item . $separator . $data['id_' . $item]) === false) {
-						$patterns[] = '/\\b' . $item . $separator . '\\d+/';
+						$patterns[] = '/\b' . $item . $separator . '\d+/';
 						$replacements[] = $item . $separator . $data['id_' . $item];
 					}
 

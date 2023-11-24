@@ -229,7 +229,7 @@ class SearchResult extends \SMF\Msg
 						$keyword = Utils::htmlspecialcharsDecode($keyword);
 						$keyword = Utils::sanitizeEntities(Utils::entityFix(strtr($keyword, ['\\\'' => '\'', '&' => '&amp;'])));
 
-						if (preg_match('~[\'\\.,/@%&;:(){}\\[\\]_\\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\\.,/@%&;:(){}\\[\\]_\\-+\\\\]~', $keyword) != 0) {
+						if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword)) {
 							$force_partial_word = true;
 						}
 						$matchString .= strtr(preg_quote($keyword, '/'), ['\\*' => '.+?']) . '|';
@@ -239,9 +239,9 @@ class SearchResult extends \SMF\Msg
 					$this->body = Utils::htmlspecialcharsDecode(strtr($this->body, ['&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@']));
 
 					if (empty(Config::$modSettings['search_method']) || $force_partial_word) {
-						preg_match_all('/([^\\s\\W]{' . $charLimit . '}[\\s\\W]|[\\s\\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\\s\\W]|[^\\s\\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
+						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
 					} else {
-						preg_match_all('/([^\\s\\W]{' . $charLimit . '}[\\s\\W]|[\\s\\W].{0,' . $charLimit . '}?[\\s\\W]|^)(' . $matchString . ')([\\s\\W].{0,' . $charLimit . '}[\\s\\W]|[\\s\\W][^\\s\\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
+						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
 					}
 
 					$this->body = '';

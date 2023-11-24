@@ -1531,7 +1531,7 @@ class Smileys implements ActionInterface
 
 			// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
 			if (
-				!preg_match('~^https://[\\w_\\-]+\\.simplemachines\\.org/~', $_REQUEST['set_gz'])
+				!preg_match('~^https://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz'])
 				|| strpos($_REQUEST['set_gz'], 'dlattach') !== false
 			) {
 				ErrorHandler::fatalLang('not_on_simplemachines', false);
@@ -2861,11 +2861,11 @@ class Smileys implements ActionInterface
 		$pathinfo = pathinfo($string);
 
 		// Get rid of all whitespace and dots in the filename component.
-		$pathinfo['filename'] = preg_replace('/[\\s._]+/', '_', Utils::htmlTrim($pathinfo['filename']));
+		$pathinfo['filename'] = preg_replace('/[\s._]+/', '_', Utils::htmlTrim($pathinfo['filename']));
 
 		// Just in case there's something unexpected in the extension...
 		if (!empty($pathinfo['extension'])) {
-			$pathinfo['extension'] = preg_replace('/[\\s_]+/', '_', Utils::htmlTrim($pathinfo['extension']));
+			$pathinfo['extension'] = preg_replace('/[\s_]+/', '_', Utils::htmlTrim($pathinfo['extension']));
 		}
 
 		return $pathinfo['filename'] . (!empty($pathinfo['extension']) ? '.' . $pathinfo['extension'] : '');

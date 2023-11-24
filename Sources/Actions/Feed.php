@@ -544,7 +544,7 @@ class Feed implements ActionInterface
 
 		$filename[] = $this->format;
 
-		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\\p{L}\\p{M}\\p{N}\\-]+/u' : '/[\\s_,.\\/\\;:\'<>?|\\[\\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
+		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
 
 		$file = [
 			'filename' => $filename . '.xml',
@@ -1007,7 +1007,7 @@ class Feed implements ActionInterface
 								[
 									'tag' => 'name',
 									'attributes' => ['label' => Lang::$txt['name']],
-									'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
+									'content' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\1;', $attachment->name),
 								],
 								[
 									'tag' => 'downloads',
@@ -1439,7 +1439,7 @@ class Feed implements ActionInterface
 								[
 									'tag' => 'name',
 									'attributes' => ['label' => Lang::$txt['name']],
-									'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
+									'content' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\1;', $attachment->name),
 								],
 								[
 									'tag' => 'downloads',
@@ -2188,7 +2188,7 @@ class Feed implements ActionInterface
 								[
 									'tag' => 'name',
 									'attributes' => ['label' => Lang::$txt['name']],
-									'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
+									'content' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\1;', $attachment->name),
 								],
 								[
 									'tag' => 'downloads',
@@ -3147,7 +3147,7 @@ class Feed implements ActionInterface
 		}
 
 		$val = preg_replace_callback(
-			'~\\b' . preg_quote(Config::$scripturl, '~') . '\\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
+			'~\b' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
 			function ($m) {
 				return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . ($m[2] ?? '');
 			},

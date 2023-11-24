@@ -125,7 +125,7 @@ class QuoteFast implements ActionInterface
 
 			// Remove any nested quotes.
 			if (!empty(Config::$modSettings['removeNestedQuotes'])) {
-				$row['body'] = preg_replace(['~\\n?\\[quote.*?\\].+?\\[/quote\\]\\n?~is', '~^\\n~', '~\\[/quote\\]~'], '', $row['body']);
+				$row['body'] = preg_replace(['~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'], '', $row['body']);
 			}
 
 			$lb = "\n";

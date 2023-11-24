@@ -361,7 +361,7 @@ class Config
 				' * @version ' . SMF_VERSION . "\n" .
 				' */' . "\n" .
 				'',
-			'search_pattern' => '~/\\*\\*.*?@package\\h+SMF\\b.*?\\*/\\n{0,2}~s',
+			'search_pattern' => '~/\*\*.*?@package\h+SMF\b.*?\*/\n{0,2}~s',
 		],
 		'maintenance' => [
 			'text' => <<<'END'
@@ -784,7 +784,7 @@ class Config
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 					$cachedir = $boarddir . '/cache';
 				END,
-			'search_pattern' => '~\\n?(#[^\\n]+)?(?:\\n\\h*if\\s*\\((?:\\!file_exists\\(\\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\\)|\\!is_dir\\(realpath\\(\\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\\)\\))[^;]+\\n\\h*\\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'
@@ -829,7 +829,7 @@ class Config
 				}
 				END,
 			// Designed to match both 2.0 and 2.1 versions of this code.
-			'search_pattern' => '~\\n?#+ Error.Catching #+\\n[^\\n]*?settings\\.\\n(?:\\$db_last_error = \\d{1,11};|if \\(file_exists.*?\\$db_last_error = 0;(?' . '>\\s*}))(?=\\n|\\?' . '>|$)~s',
+			'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
 		],
 		// Temporary variable used during the upgrade process.
 		'upgradeData' => [
@@ -1118,7 +1118,7 @@ class Config
 
 				if (!empty(self::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', self::$modSettings['load_average'], $matches) != 0) {
 					self::$modSettings['load_average'] = (float) $matches[1];
-				} elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\\d+\\.\\d+)~i', self::$modSettings['load_average'], $matches) != 0) {
+				} elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0) {
 					self::$modSettings['load_average'] = (float) $matches[1];
 				} else {
 					unset(self::$modSettings['load_average']);
@@ -1504,21 +1504,21 @@ class Config
 					// match the opening quotation mark...
 					'(["\'])' .
 					// then any number of other characters or escaped quotation marks...
-					'(?:.(?!\\1)|\\\\(?=\\1))*.?' .
+					'(?:.(?!\\1)|\\\(?=\\1))*.?' .
 					// then the closing quotation mark.
 					'\\1' .
 					// Maybe there's a second string concatenated to this one.
-					'(?:\\s*\\.\\s*)*' .
+					'(?:\s*\.\s*)*' .
 				')+',
 			// Some numeric values might have been stored as strings.
-			'integer' =>  '["\']?[+-]?\\d+["\']?',
-			'double' =>  '["\']?[+-]?\\d+\\.\\d+([Ee][+-]\\d+)?["\']?',
+			'integer' =>  '["\']?[+-]?\d+["\']?',
+			'double' =>  '["\']?[+-]?\d+\.\d+([Ee][+-]\d+)?["\']?',
 			// Some boolean values might have been stored as integers.
-			'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\\b\\1)',
+			'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\b\\1)',
 			'NULL' =>  '(?i:NULL)',
 			// These use a PCRE subroutine to match nested arrays.
-			'array' =>  'array\\s*(\\((?' . '>[^()]|(?1))*\\))',
-			'object' =>  '\\w+::__set_state\\(array\\s*(\\((?' . '>[^()]|(?1))*\\))\\)',
+			'array' =>  'array\s*(\((?' . '>[^()]|(?1))*\))',
+			'object' =>  '\w+::__set_state\(array\s*(\((?' . '>[^()]|(?1))*\))\)',
 		];
 
 		/*
@@ -1539,26 +1539,26 @@ class Config
 		$neg_index = -1;
 		$substitutions = [
 			$neg_index-- => [
-				'search_pattern' => '~^\\s*<\\?(php\\b)?\\n?~',
+				'search_pattern' => '~^\s*<\?(php\b)?\n?~',
 				'placeholder' => '',
 				'replace_pattern' => '~^~',
 				'replacement' => '<' . "?php\n",
 			],
 			$neg_index-- => [
-				'search_pattern' => '~\\S\\K\\s*(\\?' . '>)?\\s*$~',
+				'search_pattern' => '~\S\K\s*(\?' . '>)?\s*$~',
 				'placeholder' => "\n" . md5($prefix . '?' . '>'),
 				'replacement' => "\n\n?" . '>',
 			],
 			// Remove the code that redirects to the installer.
 			$neg_index-- => [
-				'search_pattern' => '~^if\\s*\\(file_exists\\(dirname\\(__FILE__\\)\\s*\\.\\s*\'/install\\.php\'\\)\\)\\s*(?:({(?' . '>[^{}]|(?1))*})\\h*|header(\\((?' . '>[^()]|(?2))*\\));\\n)~m',
+				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 				'placeholder' => '',
 			],
 		];
 
 		if (defined('SMF_INSTALLING')) {
 			$substitutions[$neg_index--] = [
-				'search_pattern' => '~/\\*.*?SMF\\s+1\\.\\d.*?\\*/~s',
+				'search_pattern' => '~/\*.*?SMF\s+1\.\d.*?\*/~s',
 				'placeholder' => '',
 			];
 		}
@@ -1673,7 +1673,7 @@ class Config
 						$var_pattern[] = @$type_regex[gettype($config_vars[$var])];
 
 						if (is_string($config_vars[$var]) && strpos($config_vars[$var], dirname($settingsFile)) === 0) {
-							$var_pattern[] = '(?:__DIR__|dirname\\(__FILE__\\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $config_vars[$var]), '~')) . '\'';
+							$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $config_vars[$var]), '~')) . '\'';
 						}
 					}
 
@@ -1681,19 +1681,19 @@ class Config
 						$var_pattern[] = @$type_regex[gettype($settings_vars[$var])];
 
 						if (is_string($settings_vars[$var]) && strpos($settings_vars[$var], dirname($settingsFile)) === 0) {
-							$var_pattern[] = '(?:__DIR__|dirname\\(__FILE__\\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $settings_vars[$var]), '~')) . '\'';
+							$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $settings_vars[$var]), '~')) . '\'';
 						}
 					}
 
 					if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '') {
-						$var_pattern[] = preg_replace('/\\s+/', '\\s+', preg_quote($setting_def['default'], '~'));
+						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
 
 						if (strpos($setting_def['default'], 'dirname(__FILE__)') !== false) {
-							$var_pattern[] = preg_replace('/\\s+/', '\\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
+							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
 						}
 
 						if (strpos($setting_def['default'], '__DIR__') !== false) {
-							$var_pattern[] = preg_replace('/\\s+/', '\\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
+							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
 						}
 					}
 
@@ -1701,7 +1701,7 @@ class Config
 
 					$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
-					$substitutions[$var]['search_pattern'] = '~(?<=^|\\s)\\h*\\$' . preg_quote($var, '~') . '\\s*=\\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
+					$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 				}
 
 				// Next create the placeholder or replace_pattern.
@@ -1721,7 +1721,7 @@ class Config
 						$substitutions[$var]['placeholder'] = '';
 
 						// This is just for cosmetic purposes. Removes the blank line.
-						$substitutions[$var]['search_pattern'] = str_replace('(?<=^|\\s)', '\\n?', $substitutions[$var]['search_pattern']);
+						$substitutions[$var]['search_pattern'] = str_replace('(?<=^|\s)', '\n?', $substitutions[$var]['search_pattern']);
 					}
 				}
 				// Add this setting's value.
@@ -1762,20 +1762,20 @@ class Config
 
 			$placeholder = md5($prefix . $var);
 
-			$substitutions[$var]['search_pattern'] = '~(?<=^|\\s)\\h*\\$' . preg_quote($var, '~') . '\\s*=\\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 			$substitutions[$var]['placeholder'] = $placeholder;
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val, true) . ';';
 		}
 
 		// During an upgrade, some of the path variables may not have been declared yet.
 		if (defined('SMF_INSTALLING') && empty($rebuild)) {
-			preg_match_all('~^\\h*\\$(\\w+)\\s*=\\s*~m', $substitutions[$pathcode_var]['replacement'], $matches);
+			preg_match_all('~^\h*\$(\w+)\s*=\s*~m', $substitutions[$pathcode_var]['replacement'], $matches);
 
 			$missing_pathvars = array_diff($matches[1], array_keys($substitutions));
 
 			if (!empty($missing_pathvars)) {
 				foreach ($missing_pathvars as $var) {
-					$substitutions[$pathcode_var]['replacement'] = preg_replace('~\\nif[^\\n]+\\$' . $var . '[^\\n]+\\n\\h*\\$' . $var . ' = [^\\n]+~', '', $substitutions[$pathcode_var]['replacement']);
+					$substitutions[$pathcode_var]['replacement'] = preg_replace('~\nif[^\n]+\$' . $var . '[^\n]+\n\h*\$' . $var . ' = [^\n]+~', '', $substitutions[$pathcode_var]['replacement']);
 				}
 			}
 		}
@@ -1834,7 +1834,7 @@ class Config
 		}
 
 		// Settings.php is unlikely to contain any heredocs, but just in case...
-		if (preg_match_all('/<<<([\'"]?)(\\w+)\\1\\R(.*?)\\R\\h*\\2;$/ms', $settingsText, $matches)) {
+		if (preg_match_all('/<<<([\'"]?)(\w+)\1\R(.*?)\R\h*\2;$/ms', $settingsText, $matches)) {
 			foreach ($matches[0] as $mkey => $heredoc) {
 				if (!empty($matches[1][$mkey]) && $matches[1][$mkey] === '\'') {
 					$heredoc_replacements[$heredoc] = var_export($matches[3][$mkey], true) . ';';
@@ -1876,7 +1876,7 @@ class Config
 						// Maybe we can try something more interesting?
 						$sp = substr($substitution['search_pattern'], 1);
 
-						if (strpos($sp, '(?<=^|\\s)') === 0) {
+						if (strpos($sp, '(?<=^|\s)') === 0) {
 							$sp = substr($sp, 9);
 						}
 
@@ -1886,7 +1886,7 @@ class Config
 
 						// See if we can exclude `if` blocks, etc., to narrow down the matches.
 						// @todo Multiple layers of nested brackets might confuse this.
-						$sp = '~(?:^|//[^\\n]+c\\n|\\*/|[;}]|' . implode('|', array_filter($placeholders)) . ')\\s*' . (strpos($sp, '\\K') === false ? '\\K' : '') . $sp;
+						$sp = '~(?:^|//[^\n]+c\n|\*/|[;}]|' . implode('|', array_filter($placeholders)) . ')\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp;
 
 						preg_match_all($sp, $settingsText, $matches);
 					} else {
@@ -1919,7 +1919,7 @@ class Config
 					$in_s = in_array($var, array_keys($settings_vars));
 
 					// Is it in there at all?
-					if (!preg_match('~(^|\\s)\\$' . preg_quote($var, '~') . '\\s*=\\s*~', $bare_settingsText)) {
+					if (!preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $bare_settingsText)) {
 						// It's defined by Settings.php, but not by code in the file.
 						// Probably done via an include or something. Skip it.
 						if ($in_s) {
@@ -1953,8 +1953,8 @@ class Config
 							$sp = $type_regex['array'];
 						}
 
-						if (preg_match('~(^|\\s)\\$' . preg_quote($var, '~') . '\\s*=\\s*' . $sp . '~', $bare_settingsText, $derp)) {
-							$settingsText = preg_replace('~(^|\\s)\\$' . preg_quote($var, '~') . '\\s*=\\s*' . $sp . '~', $substitution['placeholder'], $settingsText);
+						if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $bare_settingsText, $derp)) {
+							$settingsText = preg_replace('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $substitution['placeholder'], $settingsText);
 
 							$found = true;
 
@@ -2004,7 +2004,7 @@ class Config
 				$bare_settingsText = str_replace([$placeholder . "\n\n", $placeholder], $placeholder . "\n", $bare_settingsText);
 			}
 
-			$bare_settingsText = preg_replace('/\\h+$/m', '', rtrim($bare_settingsText));
+			$bare_settingsText = preg_replace('/\h+$/m', '', rtrim($bare_settingsText));
 
 			/*
 			 * Divide the existing content into sections.
@@ -2172,7 +2172,7 @@ class Config
 
 		// Make absolutely sure that the path correction code is included.
 		if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false) {
-			$settingsText = preg_replace('~(?=\\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
+			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
 		}
 
 		// If we did not rebuild, do just enough to make sure the thing is viable.
@@ -2229,11 +2229,11 @@ class Config
 					continue;
 				}
 
-				$before = is_int($prev_var) ? preg_quote($settings_defs[$prev_var]['text'], '~') . '\\s*\\K' : '';
+				$before = is_int($prev_var) ? preg_quote($settings_defs[$prev_var]['text'], '~') . '\s*\K' : '';
 
 				// If this setting's comment is immediately preceded by another
 				// DocBlock comment, remove the preceding one.
-				$settingsText = preg_replace('~' . $before . '(#[^\\n]*\\s*)?/[*]{2}([^*]|[*](?!/))*[*]/\\s*' . preg_quote($setting_def['text'], '~') . '~', $setting_def['text'], $settingsText);
+				$settingsText = preg_replace('~' . $before . '(#[^\n]*\s*)?/[*]{2}([^*]|[*](?!/))*[*]/\s*' . preg_quote($setting_def['text'], '~') . '~', $setting_def['text'], $settingsText);
 
 				$prev_var = $var;
 			}
@@ -2243,15 +2243,15 @@ class Config
 		foreach ($new_settings_vars as $var => $val) {
 			if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText)) {
 				if (!isset($settings_defs[$var]) && strpos($settingsText, '# Custom Settings #') === false) {
-					$settingsText = preg_replace('~(?=\\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
+					$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
 				}
 
-				$settingsText = preg_replace('~(?=\\n#+ Error.Catching #+)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+				$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
 			}
 		}
 
 		// This is just cosmetic. Get rid of extra lines of whitespace.
-		$settingsText = preg_replace('~\\n\\s*\\n~', "\n\n", $settingsText);
+		$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
 
 		/**************************************
 		 * PART 4: Check syntax before saving *
@@ -2341,7 +2341,7 @@ class Config
 
 		// Prevents warnings about constants that are already defined.
 		$settingsText = preg_replace_callback(
-			'~\\bdefine\\s*\\(\\s*(["\'])(\\w+)\\1~',
+			'~\bdefine\s*\(\s*(["\'])(\w+)\1~',
 			function ($matches) {
 				return 'define(\'' . md5(mt_rand()) . '\'';
 			},
@@ -2535,9 +2535,9 @@ class Config
 		if (is_string($var) && (strpos($var, "\n") !== false || strpos($var, "\r") !== false)) {
 			return strtr(
 				preg_replace_callback(
-					'/[\\r\\n]+/',
+					'/[\r\n]+/',
 					function ($m) {
-						return '\' . "' . strtr($m[0], ["\r" => '\\r', "\n" => '\\n']) . '" . \'';
+						return '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n']) . '" . \'';
 					},
 					var_export($var, true),
 				),
@@ -2611,7 +2611,7 @@ class Config
 		// If the tokenizer extension has been disabled, do the job manually.
 
 		// Leave any heredocs alone.
-		if (preg_match_all('/<<<([\'"]?)(\\w+)\\1?\\R(.*?)\\R\\h*\\2;$/ms', $code_str, $matches)) {
+		if (preg_match_all('/<<<([\'"]?)(\w+)\1?\R(.*?)\R\h*\2;$/ms', $code_str, $matches)) {
 			$heredoc_replacements = [];
 
 			foreach ($matches[0] as $mkey => $heredoc) {
@@ -2622,7 +2622,7 @@ class Config
 		}
 
 		// Split before everything that could possibly delimit a comment or a string.
-		$parts = preg_split('~(?=#+|/(?=/|\\*)|\\*/|\\R|(?<!\\\\)[\'"])~m', $code_str);
+		$parts = preg_split('~(?=#+|/(?=/|\*)|\*/|\R|(?<!\\\)[\'"])~m', $code_str);
 
 		$in_string = 0;
 		$in_comment = 0;

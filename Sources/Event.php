@@ -710,7 +710,7 @@ class Event implements \ArrayAccess
 
 			case 'start_iso_gmdate':
 			case 'end_iso_gmdate':
-				$value = $this->allday ? preg_replace('/T\\d\\d:\\d\\d:\\d\\d/', 'T00:00:00', $this->{$start_end}->iso_gmdate) : $this->{$start_end}->iso_gmdate;
+				$value = $this->allday ? preg_replace('/T\d\d:\d\d:\d\d/', 'T00:00:00', $this->{$start_end}->iso_gmdate) : $this->{$start_end}->iso_gmdate;
 				break;
 
 			case 'tz':

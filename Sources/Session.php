@@ -211,7 +211,7 @@ class Session implements \SessionHandlerInterface
 		if (!empty(Config::$modSettings['globalCookies'])) {
 			$url = new Url(Config::$boardurl);
 
-			if (preg_match('~^\\d{1,3}(\\.\\d{1,3}){3}$~', $url->host) == 0 && preg_match('~(?:[^\\.]+\\.)?([^\\.]{2,}\\..+)\\z~i', $url->host, $parts) == 1) {
+			if (preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $url->host) == 0 && preg_match('~(?:[^.]+\.)?([^.]{2,}\..+)\z~i', $url->host, $parts) == 1) {
 				@ini_set('session.cookie_domain', '.' . $parts[1]);
 			}
 		}
@@ -264,7 +264,7 @@ class Session implements \SessionHandlerInterface
 		if (!isset($_SESSION['session_var'])) {
 			$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
 
-			$_SESSION['session_var'] = substr(preg_replace('~^\\d+~', '', sha1(Utils::randomInt() . session_id() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
+			$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(Utils::randomInt() . session_id() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
 		}
 
 		User::$sc = $_SESSION['session_value'];

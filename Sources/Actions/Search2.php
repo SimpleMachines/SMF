@@ -456,7 +456,7 @@ class Search2 implements ActionInterface
 				}
 
 				// Don't check phrases.
-				if (preg_match('~^\\w+$~', $word) === 0) {
+				if (preg_match('~^\w+$~', $word) === 0) {
 					$did_you_mean['search'][] = '"' . $word . '"';
 					$did_you_mean['display'][] = '&quot;' . Utils::htmlspecialchars($word) . '&quot;';
 
@@ -464,7 +464,7 @@ class Search2 implements ActionInterface
 				}
 
 				// For some strange reason spell check can crash PHP on decimals.
-				if (preg_match('~\\d~', $word) === 1) {
+				if (preg_match('~\d~', $word) === 1) {
 					$did_you_mean['search'][] = $word;
 					$did_you_mean['display'][] = Utils::htmlspecialchars($word);
 
@@ -509,7 +509,7 @@ class Search2 implements ActionInterface
 				$temp_excluded = ['search' => [], 'display' => []];
 
 				foreach (SearchApi::$loadedApi->excludedWords as $word) {
-					if (preg_match('~^\\w+$~', $word) == 0) {
+					if (preg_match('~^\w+$~', $word) == 0) {
 						$temp_excluded['search'][] = '-"' . $word . '"';
 						$temp_excluded['display'][] = '-&quot;' . Utils::htmlspecialchars($word) . '&quot;';
 					} else {

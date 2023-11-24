@@ -193,7 +193,7 @@ class PackageManager
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '') {
 			Utils::redirectexit('action=admin;area=packages');
 		}
-		Utils::$context['filename'] = preg_replace('~[\\.]+~', '.', $_REQUEST['package']);
+		Utils::$context['filename'] = preg_replace('~[\.]+~', '.', $_REQUEST['package']);
 
 		// Do we have an existing id, for uninstalls and the like.
 		Utils::$context['install_id'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 0;
@@ -431,7 +431,7 @@ class PackageManager
 				}
 
 				if (!empty($action['parse_bbc'])) {
-					Utils::$context[$type] = preg_replace('~\\[[/]?html\\]~i', '', Utils::$context[$type]);
+					Utils::$context[$type] = preg_replace('~\[[/]?html\]~i', '', Utils::$context[$type]);
 					Msg::preparsecode(Utils::$context[$type]);
 					Utils::$context[$type] = BBCodeParser::load()->parse(Utils::$context[$type]);
 				} else {
@@ -479,7 +479,7 @@ class PackageManager
 						// Lets get the last section of the file name.
 						if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php') {
 							$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
-						} elseif (isset($mod_action['filename']) && preg_match('~([\\w]*)/([\\w]*)\\.template\\.php$~', $mod_action['filename'], $matches)) {
+						} elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches)) {
 							$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
 						} else {
 							$actual_filename = $key;
@@ -552,7 +552,7 @@ class PackageManager
 						// Lets get the last section of the file name.
 						if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php') {
 							$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
-						} elseif (isset($mod_action['filename']) && preg_match('~([\\w]*)/([\\w]*)\\.template\\.php$~', $mod_action['filename'], $matches)) {
+						} elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches)) {
 							$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
 						} else {
 							$actual_filename = $key;
@@ -671,7 +671,7 @@ class PackageManager
 				];
 
 				// Could this be theme related?
-				if (!empty($action['unparsed_destination']) && preg_match('~^\\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_destination'], $matches)) {
+				if (!empty($action['unparsed_destination']) && preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_destination'], $matches)) {
 					// Is the action already stated?
 					$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], ['no', 'yes', 'auto']) ? $action['theme_action'] : 'auto';
 
@@ -705,7 +705,7 @@ class PackageManager
 				];
 
 				// Could this be theme related?
-				if (!empty($action['unparsed_filename']) && preg_match('~^\\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_filename'], $matches)) {
+				if (!empty($action['unparsed_filename']) && preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_filename'], $matches)) {
 					// Is the action already stated?
 					$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], ['no', 'yes', 'auto']) ? $action['theme_action'] : 'auto';
 					$action['unparsed_destination'] = $action['unparsed_filename'];
@@ -764,7 +764,7 @@ class PackageManager
 		if (!empty($themeFinds['candidates'])) {
 			foreach ($themeFinds['candidates'] as $action_data) {
 				// Get the part of the file we'll be dealing with.
-				preg_match('~^\\$(languagedir|languages_dir|imagesdir|themedir)(\\|/)*(.+)*~i', $action_data['unparsed_destination'], $matches);
+				preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir)(\\|/)*(.+)*~i', $action_data['unparsed_destination'], $matches);
 
 				if ($matches[1] == 'imagesdir') {
 					$path = '/' . basename(Theme::$current->settings['default_images_url']);
@@ -1185,7 +1185,7 @@ class PackageManager
 					Utils::$context['redirect_timeout'] = empty($action['redirect_timeout']) ? 5 : (int) ceil($action['redirect_timeout'] / 1000);
 
 					if (!empty($action['parse_bbc'])) {
-						Utils::$context['redirect_text'] = preg_replace('~\\[[/]?html\\]~i', '', Utils::$context['redirect_text']);
+						Utils::$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', Utils::$context['redirect_text']);
 						Msg::preparsecode(Utils::$context['redirect_text']);
 						Utils::$context['redirect_text'] = BBCodeParser::load()->parse(Utils::$context['redirect_text']);
 					}
@@ -1425,8 +1425,8 @@ class PackageManager
 			Utils::redirectexit('action=admin;area=packages');
 		}
 
-		$_REQUEST['package'] = preg_replace('~[\\.]+~', '.', strtr($_REQUEST['package'], ['/' => '_', '\\' => '_']));
-		$_REQUEST['file'] = preg_replace('~[\\.]+~', '.', $_REQUEST['file']);
+		$_REQUEST['package'] = preg_replace('~\.+~', '.', strtr($_REQUEST['package'], ['/' => '_', '\\' => '_']));
+		$_REQUEST['file'] = preg_replace('~\.+~', '.', $_REQUEST['file']);
 
 		if (isset($_REQUEST['raw'])) {
 			if (is_file(Config::$packagesdir . '/' . $_REQUEST['package'])) {
@@ -1477,7 +1477,7 @@ class PackageManager
 		if (!isset($_GET['package']) || $_GET['package'] == 'index.php' || $_GET['package'] == 'backups') {
 			Utils::redirectexit('action=admin;area=packages;sa=browse');
 		}
-		$_GET['package'] = preg_replace('~[\\.]+~', '.', strtr($_GET['package'], ['/' => '_', '\\' => '_']));
+		$_GET['package'] = preg_replace('~\.+~', '.', strtr($_GET['package'], ['/' => '_', '\\' => '_']));
 
 		// Can't delete what's not there.
 		if (file_exists(Config::$packagesdir . '/' . $_GET['package']) && (substr($_GET['package'], -4) == '.zip' || substr($_GET['package'], -4) == '.tgz' || substr($_GET['package'], -7) == '.tar.gz' || is_dir(Config::$packagesdir . '/' . $_GET['package'])) && $_GET['package'] != 'backups' && substr($_GET['package'], 0, 1) != '.') {
@@ -1664,7 +1664,7 @@ class PackageManager
 			Utils::redirectexit('action=admin;area=packages;sa=options');
 		}
 
-		if (preg_match('~^/home\\d*/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match)) {
+		if (preg_match('~^/home\d*/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match)) {
 			$default_username = $match[1];
 		} else {
 			$default_username = '';
@@ -1702,7 +1702,7 @@ class PackageManager
 		$reverse = isset($_REQUEST['reverse']) ? true : false;
 
 		// Get the base name.
-		Utils::$context['filename'] = preg_replace('~[\\.]+~', '.', $_REQUEST['package']);
+		Utils::$context['filename'] = preg_replace('~\.+~', '.', $_REQUEST['package']);
 
 		// We need to extract this again.
 		if (is_file(Config::$packagesdir . '/' . Utils::$context['filename'])) {
@@ -2092,7 +2092,7 @@ class PackageManager
 				'identifier' => 'root',
 				'children' => [
 					[
-						'value' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find']),
+						'value' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					],
 				],
 			],
@@ -2699,7 +2699,7 @@ class PackageManager
 					if ($package['description'] == '') {
 						$package['description'] = Lang::$txt['package_no_description'];
 					} else {
-						$package['description'] = BBCodeParser::load()->parse(preg_replace('~\\[[/]?html\\]~i', '', Utils::htmlspecialchars($package['description'])));
+						$package['description'] = BBCodeParser::load()->parse(preg_replace('~\[[/]?html\]~i', '', Utils::htmlspecialchars($package['description'])));
 					}
 
 					$package['is_installed'] = isset($installed_mods[$package['id']]);
@@ -2915,7 +2915,7 @@ class PackageManager
 
 		// Done!  Did we get this package automatically?
 		// @ TODO: These are usually update packages.  Allowing both for now until more testing has been done.
-		if (preg_match('~^https?://[\\w_\\-]+\\.simplemachines\\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto'])) {
+		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto'])) {
 			Utils::redirectexit('action=admin;area=packages;sa=install;package=' . $package_name);
 		}
 
@@ -2963,9 +2963,9 @@ class PackageManager
 		}
 
 		// Make sure it has a sane filename.
-		$_FILES['package']['name'] = preg_replace(['/\\s/', '/\\.[\\.]+/', '/[^\\w_\\.\\-]/'], ['_', '.', ''], $_FILES['package']['name']);
+		$_FILES['package']['name'] = preg_replace(['/\s/', '/\.+/', '/[^\w.-]/'], ['_', '.', ''], $_FILES['package']['name']);
 
-		$found_ext = preg_match('/\\.(zip|tgz|tar\\.gz)$/i', $_FILES['package']['name'], $match);
+		$found_ext = preg_match('/\.(zip|tgz|tar\.gz)$/i', $_FILES['package']['name'], $match);
 
 		if ($found_ext === 0) {
 			ErrorHandler::fatalLang('package_upload_error_supports', false, ['zip, tgz, tar.gz']);
@@ -3474,8 +3474,8 @@ class PackageManager
 						'level' => $level,
 						'more' => 0,
 						'offset' => Utils::$context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $folder),
-						'ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find']),
+						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $folder),
+						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					],
 					'value' => $folder,
 				];
@@ -3523,8 +3523,8 @@ class PackageManager
 						'level' => $level,
 						'more' => $counter == (Utils::$context['file_offset'] + Utils::$context['file_limit']) ? 1 : 0,
 						'offset' => Utils::$context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $file),
-						'ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find']),
+						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $file),
+						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					],
 					'value' => $file,
 				];

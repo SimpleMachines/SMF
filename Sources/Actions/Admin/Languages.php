@@ -219,7 +219,7 @@ class Languages implements ActionInterface
 			// Check writable status.
 			foreach ($_POST['copy_file'] as $file) {
 				// Check it's not very bad.
-				if (strpos($file, '..') !== false || (strpos($file, 'Themes') !== 0 && !preg_match('~agreement\\.[A-Za-z-_0-9]+\\.txt$~', $file))) {
+				if (strpos($file, '..') !== false || (strpos($file, 'Themes') !== 0 && !preg_match('~agreement\.[A-Za-z-_0-9]+\.txt$~', $file))) {
 					ErrorHandler::fatal(Lang::$txt['languages_download_illegal_paths']);
 				}
 
@@ -318,7 +318,7 @@ class Languages implements ActionInterface
 			}
 
 			// I love PHP files, that's why I'm a developer and not an artistic type spending my time drinking absinth and living a life of sin...
-			if ($extension == 'php' && preg_match('~\\w+\\.\\w+(?:-utf8)?\\.php~', $basename)) {
+			if ($extension == 'php' && preg_match('~\w+\.\w+(?:-utf8)?\.php~', $basename)) {
 				$context_data += [
 					'version' => '??',
 					'cur_version' => false,
@@ -328,7 +328,7 @@ class Languages implements ActionInterface
 				list($name, $language) = explode('.', $basename);
 
 				// Let's get the new version, I like versions, they tell me that I'm up to date.
-				if (preg_match('~\\s*Version:\\s+(.+?);\\s*' . preg_quote($name, '~') . '~i', $file['preview'], $match) == 1) {
+				if (preg_match('~\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '~i', $file['preview'], $match) == 1) {
 					$context_data['version'] = $match[1];
 				}
 
@@ -340,7 +340,7 @@ class Languages implements ActionInterface
 					fclose($fp);
 
 					// Find the version.
-					if (preg_match('~(?://|/\\*)\\s*Version:\\s+(.+?);\\s*' . preg_quote($name, '~') . '(?:[\\s]{2}|\\*/)~i', $header, $match) == 1) {
+					if (preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '(?:[\s]{2}|\*/)~i', $header, $match) == 1) {
 						$context_data['cur_version'] = $match[1];
 
 						// How does this compare?
@@ -778,7 +778,7 @@ class Languages implements ActionInterface
 
 			while ($entry = $dir->read()) {
 				// We're only after the files for this language.
-				if (!preg_match('~^([A-Za-z]+)\\.' . $lang_id . '\\.php$~', $entry, $matches)) {
+				if (!preg_match('~^([A-Za-z]+)\.' . $lang_id . '\.php$~', $entry, $matches)) {
 					continue;
 				}
 
@@ -902,7 +902,7 @@ class Languages implements ActionInterface
 			$replace_array = [];
 
 			foreach ($primary_settings as $setting => $type) {
-				$replace_array['~\\$txt\\[\'' . $setting . '\'\\]\\s*=\\s*[^\\r\\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+				$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
 			}
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
@@ -1020,12 +1020,12 @@ class Languages implements ActionInterface
 			// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 			$entries = [];
 
-			foreach (preg_split('~^(?=\\$(?:' . implode('|', $string_types) . ')\\[\'([^\\n]+?)\'\\])~m' . (Utils::$context['utf8'] ? 'u' : ''), preg_replace('~\\s*\\n(\\$(?!(?:' . implode('|', $string_types) . '))[^\\n]*)~', '', file_get_contents($current_file))) as $blob) {
+			foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . (Utils::$context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob) {
 				// Comment lines at the end of the blob can make terrible messes
-				$blob = preg_replace('~(\\n[ \\t]*//[^\\n]*)*$~' . (Utils::$context['utf8'] ? 'u' : ''), '', $blob);
+				$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . (Utils::$context['utf8'] ? 'u' : ''), '', $blob);
 
 				// Extract the variable
-				if (preg_match('~^\\$(' . implode('|', $string_types) . ')\\[\'([^\\n]+?)\'\\](?:\\[\'?([^\\n]+?)\'?\\])?\\s?=\\s?(.+);([ \\t]*(?://[^\\n]*)?)$~ms' . (Utils::$context['utf8'] ? 'u' : ''), strtr($blob, ["\r" => '']), $matches)) {
+				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . (Utils::$context['utf8'] ? 'u' : ''), strtr($blob, ["\r" => '']), $matches)) {
 					// If no valid subkey was found, we need it to be explicitly null
 					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
@@ -1070,29 +1070,29 @@ class Languages implements ActionInterface
 						# Optional explicit key assignment
 						(?:
 							(?:
-								\\d+
+								\d+
 								|
 								(?:
 									(?:
-										\'(?:[^\']|(?<=\\\\)\')*\'
+										\'(?:[^\']|(?<=\\\)\')*\'
 									)
 									|
 									(?:
-										"(?:[^"]|(?<=\\\\)")*"
+										"(?:[^"]|(?<=\\\)")*"
 									)
 								)
 							)
-							\\s*=>\\s*
+							\s*=>\s*
 						)?
 
 						# String value in single or double quotes
 						(?:
 							(?:
-								\'(?:[^\']|(?<=\\\\)\')*\'
+								\'(?:[^\']|(?<=\\\)\')*\'
 							)
 							|
 							(?:
-								"(?:[^"]|(?<=\\\\)")*"
+								"(?:[^"]|(?<=\\\)")*"
 							)
 						)
 
@@ -1116,7 +1116,7 @@ class Languages implements ActionInterface
 
 					foreach ($entryValue['entry'] as $id => $subValue) {
 						// Is this a new index?
-						if (preg_match('/^(\\d+|(?:(?:\'(?:[^\']|(?<=\\\\)\')*\')|(?:"(?:[^"]|(?<=\\\\)")*")))\\s*=>/', $subValue, $matches)) {
+						if (preg_match('/^(\d+|(?:(?:\'(?:[^\']|(?<=\\\)\')*\')|(?:"(?:[^"]|(?<=\\\)")*")))\s*=>/', $subValue, $matches)) {
 							$subKey = trim($matches[1], '\'"');
 
 							if (ctype_digit($subKey)) {
@@ -1295,7 +1295,7 @@ class Languages implements ActionInterface
 						}
 
 						$final_saves[$string_key] = [
-							'find' => '\\s*\\?' . '>$',
+							'find' => '\s*\?' . '>$',
 							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?" . '>',
 							'is_regex' => true,
 						];
@@ -1312,7 +1312,7 @@ class Languages implements ActionInterface
 							$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
 
 							$final_saves[$string_key . '[' . $substring_key . ']'] = [
-								'find' => '\\s*\\?' . '>$',
+								'find' => '\s*\?' . '>$',
 								'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?" . '>',
 								'is_regex' => true,
 							];
@@ -1362,7 +1362,7 @@ class Languages implements ActionInterface
 						if (key !== null) {
 							++entry_num;
 
-							var array_regex = /^(.*)(\\[[^\\[\\]]*\\])$/
+							var array_regex = /^(.*)(\[[^\[\]]*\])$/
 							var result = array_regex.exec(key);
 							if (result != null) {
 								key = result[1];
@@ -1371,7 +1371,7 @@ class Languages implements ActionInterface
 								var subkey = "";
 							}
 
-							var bracket_regex = /[\\[\\]]/
+							var bracket_regex = /[\[\]]/
 							if (bracket_regex.test(key)) {
 								alert("' . Lang::$txt['languages_invalid_key'] . '" + key + subkey);
 								return;
@@ -1799,7 +1799,7 @@ class Languages implements ActionInterface
 				// Start of a variable?
 				elseif ($in_string == 0 && $string[$i] == '$') {
 					// Find the whole of it!
-					preg_match('~([\\$A-Za-z0-9\'\\[\\]_-]+)~', substr($string, $i), $matches);
+					preg_match('~([\$A-Za-z0-9\'\[\]_-]+)~', substr($string, $i), $matches);
 
 					if (!empty($matches[1])) {
 						// Come up with some pseudo thing to indicate this is a var.
@@ -1850,7 +1850,7 @@ class Languages implements ActionInterface
 				// Is this a variable?
 				if ($string[$i] == '{' && $string[$i + 1] == '%' && $string[$i + 2] == '$') {
 					// Grab the variable.
-					preg_match('~\\{%([\\$A-Za-z0-9\'\\[\\]_-]+)%\\}~', substr($string, $i), $matches);
+					preg_match('~\{%([\$A-Za-z0-9\'\[\]_-]+)%\}~', substr($string, $i), $matches);
 
 					if (!empty($matches[1])) {
 						if ($in_string == 1) {
