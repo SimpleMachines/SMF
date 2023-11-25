@@ -412,8 +412,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			// Do the insert.
 			$this->query(
 				'',
-				'
-				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
+				$queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
 					' . implode(',
 					', $insertRows),
@@ -434,8 +433,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				$this->query(
 					'',
-					'
-					' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
+					$queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 					VALUES
 						' . $insertRows[$i],
 					[
@@ -468,8 +466,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 					$request = $this->query(
 						'',
-						'
-						SELECT `' . $keys[0] . '` FROM ' . $table . '
+						'SELECT `' . $keys[0] . '` FROM ' . $table . '
 						WHERE ' . $where_string . ' LIMIT 1',
 						[],
 					);
@@ -772,8 +769,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// First, get rid of the old table.
 		$this->query(
 			'',
-			'
-			DROP TABLE IF EXISTS {raw:backup_table}',
+			'DROP TABLE IF EXISTS {raw:backup_table}',
 			[
 				'backup_table' => $backup_table,
 			],
@@ -782,8 +778,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Can we do this the quick way?
 		$result = $this->query(
 			'',
-			'
-			CREATE TABLE {raw:backup_table} LIKE {raw:table}',
+			'CREATE TABLE {raw:backup_table} LIKE {raw:table}',
 			[
 				'backup_table' => $backup_table,
 				'table' => $table,
@@ -794,8 +789,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if ($result) {
 			$request = $this->query(
 				'',
-				'
-				INSERT INTO {raw:backup_table}
+				'INSERT INTO {raw:backup_table}
 				SELECT *
 				FROM {raw:table}',
 				[
@@ -813,8 +807,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// At this point, the quick method failed.
 		$result = $this->query(
 			'',
-			'
-			SHOW CREATE TABLE {raw:table}',
+			'SHOW CREATE TABLE {raw:table}',
 			[
 				'table' => $table,
 			],
@@ -874,8 +867,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$request = $this->query(
 			'',
-			'
-			CREATE TABLE {raw:backup_table} {raw:create}
+			'CREATE TABLE {raw:backup_table} {raw:create}
 			ENGINE={raw:engine}' . (empty($charset) ? '' : ' CHARACTER SET {raw:charset}' . (empty($collate) ? '' : ' COLLATE {raw:collate}')) . '
 			SELECT *
 			FROM {raw:table}',
@@ -896,8 +888,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			$this->query(
 				'',
-				'
-				ALTER TABLE {raw:backup_table}
+				'ALTER TABLE {raw:backup_table}
 				CHANGE COLUMN {raw:column_detail} {raw:auto_inc}',
 				[
 					'backup_table' => $backup_table,
@@ -920,8 +911,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Get how much overhead there is.
 		$request = $this->query(
 			'',
-			'
-			SHOW TABLE STATUS LIKE {string:table_name}',
+			'SHOW TABLE STATUS LIKE {string:table_name}',
 			[
 				'table_name' => str_replace('_', '\\_', $table),
 			],
@@ -932,8 +922,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$data_before = $row['Data_free'] ?? 0;
 		$request = $this->query(
 			'',
-			'
-			OPTIMIZE TABLE `{raw:table}`',
+			'OPTIMIZE TABLE `{raw:table}`',
 			[
 				'table' => $table,
 			],
@@ -946,8 +935,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// How much left?
 		$request = $this->query(
 			'',
-			'
-			SHOW TABLE STATUS LIKE {string:table}',
+			'SHOW TABLE STATUS LIKE {string:table}',
 			[
 				'table' => str_replace('_', '\\_', $table),
 			],
@@ -979,8 +967,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Find all the fields.
 		$result = $this->query(
 			'',
-			'
-			SHOW FIELDS
+			'SHOW FIELDS
 			FROM `{raw:table}`',
 			[
 				'table' => $tableName,
@@ -1018,8 +1005,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Find the keys.
 		$result = $this->query(
 			'',
-			'
-			SHOW KEYS
+			'SHOW KEYS
 			FROM `{raw:table}`',
 			[
 				'table' => $tableName,
@@ -1056,8 +1042,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Now just get the comment and engine... (MyISAM, etc.)
 		$result = $this->query(
 			'',
-			'
-			SHOW TABLE STATUS
+			'SHOW TABLE STATUS
 			LIKE {string:table}',
 			[
 				'table' => strtr($tableName, ['_' => '\\_', '%' => '\\%']),
@@ -1083,8 +1068,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$request = $this->query(
 			'',
-			'
-			SHOW TABLES
+			'SHOW TABLES
 			FROM `{raw:db}`
 			{raw:filter}',
 			[
@@ -1113,8 +1097,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$request = $this->query(
 			'',
-			'
-			SELECT VERSION()',
+			'SELECT VERSION()',
 			[
 			],
 		);
@@ -1202,8 +1185,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->query(
 			'',
-			'
-			CREATE TABLE {db_prefix}log_search_words (
+			'CREATE TABLE {db_prefix}log_search_words (
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_word, id_msg)
@@ -1257,8 +1239,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Now add the thing!
 		$this->query(
 			'',
-			'
-			ALTER TABLE ' . $short_table_name . '
+			'ALTER TABLE ' . $short_table_name . '
 			ADD ' . $this->create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'),
 			[
 				'security_override' => true,
@@ -1337,8 +1318,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (!empty($index_info['type']) && $index_info['type'] == 'primary') {
 			$this->query(
 				'',
-				'
-				ALTER TABLE ' . $short_table_name . '
+				'ALTER TABLE ' . $short_table_name . '
 				ADD PRIMARY KEY (' . $columns . ')',
 				[
 					'security_override' => true,
@@ -1347,8 +1327,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		} else {
 			$this->query(
 				'',
-				'
-				ALTER TABLE ' . $short_table_name . '
+				'ALTER TABLE ' . $short_table_name . '
 				ADD ' . (isset($index_info['type']) && $index_info['type'] == 'unique' ? 'UNIQUE' : 'INDEX') . ' ' . $index_info['name'] . ' (' . $columns . ')',
 				[
 					'security_override' => true,
@@ -1476,8 +1455,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if ($column_info['drop_default']) {
 			$this->query(
 				'',
-				'
-				ALTER TABLE ' . $short_table_name . '
+				'ALTER TABLE ' . $short_table_name . '
 				ALTER COLUMN `' . $old_column . '` DROP DEFAULT',
 				[
 					'security_override' => true,
@@ -1504,8 +1482,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->query(
 			'',
-			'
-			ALTER TABLE ' . $short_table_name . '
+			'ALTER TABLE ' . $short_table_name . '
 			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
 				(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
 				$default_clause . ' ' .
@@ -1553,8 +1530,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$this->drop_table($short_table_name . '_old');
 				$this->query(
 					'',
-					'
-					RENAME TABLE ' . $short_table_name . ' TO ' . $short_table_name . '_old',
+					'RENAME TABLE ' . $short_table_name . ' TO ' . $short_table_name . '_old',
 					[
 						'security_override' => true,
 					],
@@ -1658,8 +1634,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			$request = $this->query(
 				'',
-				'
-				SELECT count(*), column_name
+				'SELECT count(*), column_name
 				FROM information_schema.columns
 				WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
 				GROUP BY column_name
@@ -1677,8 +1652,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			$this->query(
 				'',
-				'
-				INSERT INTO ' . $short_table_name . '('
+				'INSERT INTO ' . $short_table_name . '('
 				. implode(',', $same_col) .
 				')
 				SELECT ' . implode(',', $same_col) . '
@@ -1743,8 +1717,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Find the table engine and add that to the info as well
 		$table_status = $this->query(
 			'',
-			'
-			SHOW TABLE STATUS
+			'SHOW TABLE STATUS
 			IN {raw:db}
 			LIKE {string:table}',
 			[
@@ -1777,8 +1750,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$result = $this->query(
 			'',
-			'
-			SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
+			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
 			FROM information_schema.columns
 			WHERE table_name = {string:table_name}
 				AND table_schema = {string:db_name}
@@ -1842,8 +1814,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$result = $this->query(
 			'',
-			'
-			SHOW KEYS
+			'SHOW KEYS
 			FROM {raw:table_name}
 			IN {raw:db}',
 			[
@@ -1904,8 +1875,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if ($column['name'] == $column_name) {
 				$this->query(
 					'',
-					'
-					ALTER TABLE ' . $short_table_name . '
+					'ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
 					[
 						'security_override' => true,
@@ -1936,8 +1906,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				// Dropping primary key?
 				$this->query(
 					'',
-					'
-					ALTER TABLE ' . $short_table_name . '
+					'ALTER TABLE ' . $short_table_name . '
 					DROP PRIMARY KEY',
 					[
 						'security_override' => true,
@@ -1951,8 +1920,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				// Drop the bugger...
 				$this->query(
 					'',
-					'
-					ALTER TABLE ' . $short_table_name . '
+					'ALTER TABLE ' . $short_table_name . '
 					DROP INDEX ' . $index_name,
 					[
 						'security_override' => true,
@@ -2027,8 +1995,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
 			'',
-			'
-			SET NAMES {string:db_character_set}',
+			'SET NAMES {string:db_character_set}',
 			[
 				'db_character_set' => $this->character_set,
 			],
