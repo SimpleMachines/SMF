@@ -305,6 +305,7 @@ class Home implements ActionInterface
 
 		// Grab the current notes. We can only use the cache for the first page of notes.
 		$offset = isset($_GET['notes']) && isset($_GET['start']) ? $_GET['start'] : 0;
+		$start = (int) ($_GET['start'] ?? 0);
 
 		if ($offset != 0 || ($moderator_notes = CacheApi::get('moderator_notes', 240)) === null) {
 			$moderator_notes = [];
@@ -334,8 +335,8 @@ class Home implements ActionInterface
 		}
 
 		// Lets construct a page index.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $_GET['start'], $moderator_notes_total, 10);
-		Utils::$context['start'] = $_GET['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $start, $moderator_notes_total, 10);
+		Utils::$context['start'] = $start;
 
 		Utils::$context['notes'] = [];
 
