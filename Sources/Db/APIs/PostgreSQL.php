@@ -2117,6 +2117,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			self::$db_connection = $this->connection;
 		}
 
+		// At this point, if we don't have a connection, nothing else can be done.
+		if (empty($this->connection)) {
+			return;
+		}
+
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
 			'',
