@@ -1308,12 +1308,12 @@ class User implements \ArrayAccess
 	public function logOnline(bool $force = false): void
 	{
 		// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
-		if (!empty(Theme::$current->settings['display_who_viewing']) && (Topic::$topic_id || Board::$info->id)) {
+		if (!empty(Theme::$current->settings['display_who_viewing']) && (!empty(Topic::$topic_id) || !empty(Board::$info->id))) {
 			// Take the opposite approach!
 			$force = true;
 
 			// Don't update for every page - this isn't wholly accurate but who cares.
-			if (Topic::$topic_id) {
+			if (!empty(Topic::$topic_id)) {
 				if (isset($_SESSION['last_topic_id']) && $_SESSION['last_topic_id'] == Topic::$topic_id) {
 					$force = false;
 				}
