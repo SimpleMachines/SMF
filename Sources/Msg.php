@@ -726,7 +726,7 @@ class Msg implements \ArrayAccess
 		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
 		// Now that we've fixed all the code tags, let's fix the img and url tags...
-		fixTags($message);
+		self::fixTags($message);
 
 		// Replace /me.+?\n with [me=name]dsf[/me]\n.
 		if (strpos(User::$me->name, '[') !== false || strpos(User::$me->name, ']') !== false || strpos(User::$me->name, '\'') !== false || strpos(User::$me->name, '"') !== false) {
@@ -1033,7 +1033,7 @@ class Msg implements \ArrayAccess
 
 		// Fix each type of tag.
 		foreach ($fixArray as $param) {
-			fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
+			self::fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 		}
 
 		// Now fix possible security problems with images loading links automatically...

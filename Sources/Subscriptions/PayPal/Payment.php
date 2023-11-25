@@ -14,6 +14,7 @@
 namespace SMF\Subscriptions\PayPal;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 
 /**

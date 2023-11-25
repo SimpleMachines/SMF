@@ -15,6 +15,7 @@ namespace SMF\WebFetch\APIs;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\PackageManager\FtpConnection;
 use SMF\Url;
 use SMF\WebFetch\WebFetchApi;
 
@@ -120,7 +121,7 @@ class FtpFetcher extends WebFetchApi
 		$this->port = !empty($url->port) ? $url->port : 21;
 
 		// Establish a connection and attempt to enable passive mode.
-		$ftp = new SMF\PackageManager\FtpConnection($this->host, $this->port, $this->user, $this->email);
+		$ftp = new FtpConnection($this->host, $this->port, $this->user, $this->email);
 
 		$this->error_message = !empty($ftp->error) ? (string) ($ftp->last_message ?? $ftp->error) : '';
 

@@ -508,7 +508,7 @@ class Memberlist implements ActionInterface
 				$_POST['fields'] = ['name'];
 			}
 
-			$_POST['fields'] = array_intersect($_POST['fields'], array_merge(['name', 'website', 'group', 'email'], array_keys($context['custom_search_fields'])));
+			$_POST['fields'] = array_intersect($_POST['fields'], array_merge(['name', 'website', 'group', 'email'], array_keys(Utils::$context['custom_search_fields'])));
 
 			// Set defaults for how the results are sorted
 			if (!isset($_REQUEST['sort']) || !isset(Utils::$context['columns'][$_REQUEST['sort']])) {

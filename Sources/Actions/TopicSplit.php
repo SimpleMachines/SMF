@@ -201,7 +201,7 @@ class TopicSplit implements ActionInterface
 
 		// Check if this is the first message in the topic (if so, the first and second option won't be available)
 		if ($id_first_msg == $_GET['at']) {
-			return select();
+			return $this->select();
 		}
 
 		// Basic template information....
@@ -271,7 +271,7 @@ class TopicSplit implements ActionInterface
 		}
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
-		Utils::$context['new_topic'] = splitTopic(Topic::$topic_id, $messagesToBeSplit, $_POST['subname']);
+		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $messagesToBeSplit, $_POST['subname']);
 		Utils::$context['page_title'] = Lang::$txt['split'];
 	}
 
@@ -591,7 +591,7 @@ class TopicSplit implements ActionInterface
 		}
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
-		Utils::$context['new_topic'] = splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
+		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
 		Utils::$context['page_title'] = Lang::$txt['split'];
 	}
 
