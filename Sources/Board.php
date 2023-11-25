@@ -2476,7 +2476,11 @@ class Board implements \ArrayAccess
 
 			if (!empty($temp)) {
 				foreach ($temp as $key => $value) {
-					$this->{$key} = $value;
+					if ($key === 'cat') {
+						$this->{$key} = Category::init($value['id'], $value);
+					} else {
+						$this->{$key} = $value;
+					}
 				}
 
 				self::$board_id = $this->id;
