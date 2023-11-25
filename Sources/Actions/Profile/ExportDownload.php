@@ -246,7 +246,7 @@ class ExportDownload implements ActionInterface
 		);
 
 		$dlfilename = array_merge([Utils::$context['forum_name'], Utils::$context['member']['username']], $included_desc);
-		$dlfilename = preg_replace('/[^\\p{L}\\p{M}\\p{N}_]+/u', '-', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('_', $dlfilename)))));
+		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('_', $dlfilename)))));
 
 		$suffix = ($this->part > 1 || file_exists($this->export_dir_slash . '2_' . $this->idhash . '.' . $this->extension)) ? '_' . $this->part : '';
 

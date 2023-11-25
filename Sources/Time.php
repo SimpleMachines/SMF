@@ -574,9 +574,7 @@ class Time extends \DateTime implements \ArrayAccess
 						break;
 					}
 
-
 					$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
-
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
@@ -648,7 +646,7 @@ class Time extends \DateTime implements \ArrayAccess
 		// Deal with the complicated ones.
 		if ($complex) {
 			$result = preg_replace_callback(
-				'/\\xEE\\x84\\xA0([\\d_]+)(\\xEE\\x84(?:[\\xA1-\\xAF]))/',
+				'/\xEE\x84\xA0([\d_]+)(\xEE\x84(?:[\xA1-\xAF]))/',
 				function ($matches) {
 					switch ($matches[2]) {
 						// %j
@@ -834,13 +832,13 @@ class Time extends \DateTime implements \ArrayAccess
 
 			$date_format = Utils::normalizeSpaces($date_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$date_format = preg_replace('/^([\\p{Z}\\p{C}]|[^%\\P{P}])*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $date_format);
+			$date_format = preg_replace('/^([\p{Z}\p{C}]|[^%\P{P}])*|[\p{Z}\p{C}\p{P}]*$/u', '', $date_format);
 		} else {
 			$date_format = preg_replace('/(?<!\\\\)[LoXxYy]/', '', $date_format);
 
 			$date_format = Utils::normalizeSpaces($date_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$date_format = preg_replace('/^[\\p{Z}\\p{C}\\p{P}]*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $date_format);
+			$date_format = preg_replace('/^[\p{Z}\p{C}\p{P}]*|[\p{Z}\p{C}\p{P}]*$/u', '', $date_format);
 		}
 
 		if ($format === '') {
@@ -886,9 +884,9 @@ class Time extends \DateTime implements \ArrayAccess
 
 			$time_format = Utils::normalizeSpaces($time_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$time_format = preg_replace('/:(?=\\p{Z}|$|%[pPzZ])/u', '', $time_format);
+			$time_format = preg_replace('/:(?=\p{Z}|$|%[pPzZ])/u', '', $time_format);
 
-			$time_format = preg_replace('/^([\\p{Z}\\p{C}]|[^%\\P{P}])*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $time_format);
+			$time_format = preg_replace('/^([\p{Z}\p{C}]|[^%\P{P}])*|[\p{Z}\p{C}\p{P}]*$/u', '', $time_format);
 		} else {
 			$substitutions = [
 				'H' => 'G',
@@ -906,9 +904,9 @@ class Time extends \DateTime implements \ArrayAccess
 
 			$time_format = Utils::normalizeSpaces($time_format, true, true, ['replace_tabs' => true, 'collapse_hspace' => true, 'no_breaks' => true]);
 
-			$time_format = preg_replace('/:(?=\\p{Z}|$|[aAeOPpTZ])/u', '', $time_format);
+			$time_format = preg_replace('/:(?=\p{Z}|$|[aAeOPpTZ])/u', '', $time_format);
 
-			$time_format = preg_replace('/^[\\p{Z}\\p{C}\\p{P}]*|[\\p{Z}\\p{C}\\p{P}]*$/u', '', $time_format);
+			$time_format = preg_replace('/^[\p{Z}\p{C}\p{P}]*|[\p{Z}\p{C}\p{P}]*$/u', '', $time_format);
 		}
 
 		if ($format === '') {
@@ -1084,16 +1082,16 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
-				'~(?<!%)\\p{L}|[^\\p{L}\\p{P}\\p{Z}]~u',
+				'~(?<!%)\p{L}|[^\p{L}\p{P}\p{Z}]~u',
 				// Repeated punctuation marks (except %), possibly separated by whitespace.
-				'~(?' . '>([^%\\P{P}])\\p{Z}*(?=\\1))*~u',
-				'~([^%\\P{P}])(?' . '>\\1(?!$))*~u',
+				'~(?' . '>([^%\P{P}])\p{Z}*(?=\1))*~u',
+				'~([^%\P{P}])(?' . '>\1(?!$))*~u',
 				// Unwanted trailing punctuation and whitespace.
-				'~(?' . '>([\\p{Pd}\\p{Ps}\\p{Pi}\\p{Pc}]|[^%\\P{Po}])\\p{Z}*)*$~u',
+				'~(?' . '>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\p{Z}*)*$~u',
 				// Unwanted opening punctuation and whitespace.
-				'~^\\p{Z}*(?' . '>([\\p{Pd}\\p{Pe}\\p{Pf}\\p{Pc}]|[^%\\P{Po}])\\p{Z}*)*~u',
+				'~^\p{Z}*(?' . '>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\p{Z}*)*~u',
 				// Runs of horizontal whitespace.
-				'~\\p{Z}+~',
+				'~\p{Z}+~',
 			],
 			[
 				'',
@@ -1204,16 +1202,16 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
-				'~\\\\\\p{L}|[^\\p{L}\\p{P}\\p{Z}]~u',
+				'~\\\\\p{L}|[^\p{L}\p{P}\p{Z}]~u',
 				// Repeated punctuation marks, possibly separated by whitespace.
-				'~(?' . '>(\\p{P})\\p{Z}*(?=\\1))*~u',
-				'~(\\p{P})(?' . '>\\1(?!$))*~u',
+				'~(?' . '>(\p{P})\p{Z}*(?=\1))*~u',
+				'~(\p{P})(?' . '>\1(?!$))*~u',
 				// Unwanted trailing punctuation and whitespace.
-				'~(?' . '>(\\p{P})\\p{Z}*)*$~u',
+				'~(?' . '>(\p{P})\p{Z}*)*$~u',
 				// Unwanted opening punctuation and whitespace.
-				'~^\\p{Z}*(?' . '>(\\p{P})\\p{Z}*)*~u',
+				'~^\p{Z}*(?' . '>(\p{P})\p{Z}*)*~u',
 				// Runs of horizontal whitespace.
-				'~\\p{Z}+~',
+				'~\p{Z}+~',
 			],
 			[
 				'',

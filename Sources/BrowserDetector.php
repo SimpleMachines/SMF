@@ -188,7 +188,7 @@ class BrowserDetector
 	{
 		// I'm IE, Yes I'm the real IE; All you other IEs are just imitating.
 		if (!isset($this->_browsers['is_ie'])) {
-			$this->_browsers['is_ie'] = !$this->isOpera() && !$this->isGecko() && !$this->isWebTv() && preg_match('~MSIE \\d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
+			$this->_browsers['is_ie'] = !$this->isOpera() && !$this->isGecko() && !$this->isWebTv() && preg_match('~MSIE \d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
 		}
 
 		return $this->_browsers['is_ie'];
@@ -385,7 +385,7 @@ class BrowserDetector
 		$this->_browsers['is_ie_compat_view'] = false;
 
 		// get the version of the browser from the msie tag
-		if (preg_match('~MSIE\\s?([0-9][0-9]?.[0-9])~i', $_SERVER['HTTP_USER_AGENT'], $msie_match) === 1) {
+		if (preg_match('~MSIE\s?([0-9][0-9]?.[0-9])~i', $_SERVER['HTTP_USER_AGENT'], $msie_match) === 1) {
 			$msie_match[1] = trim($msie_match[1]);
 			$msie_match[1] = (($msie_match[1] - (int) $msie_match[1]) == 0) ? (int) $msie_match[1] : $msie_match[1];
 			$this->_browsers['is_ie' . $msie_match[1]] = true;
@@ -431,7 +431,7 @@ class BrowserDetector
 	 */
 	private function setupFirefox()
 	{
-		if (preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)[\\/ \\(]([^ ;\\)]+)~', $_SERVER['HTTP_USER_AGENT'], $match) === 1) {
+		if (preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)[\/ \(]([^ ;\)]+)~', $_SERVER['HTTP_USER_AGENT'], $match) === 1) {
 			$this->_browsers['is_firefox' . (int) $match[1]] = true;
 		}
 	}
@@ -444,11 +444,11 @@ class BrowserDetector
 	private function setupOpera()
 	{
 		// Opera 10+ uses the version tag at the end of the string
-		if (preg_match('~\\sVersion/([0-9]+)\\.[0-9]+(?:\\s*|$)~', $_SERVER['HTTP_USER_AGENT'], $match)) {
+		if (preg_match('~\sVersion/([0-9]+)\.[0-9]+(?:\s*|$)~', $_SERVER['HTTP_USER_AGENT'], $match)) {
 			$this->_browsers['is_opera' . (int) $match[1]] = true;
 		}
 		// Opera pre 10 is supposed to uses the Opera tag alone, as do some spoofers
-		elseif (preg_match('~Opera[ /]([0-9]+)(?!\\.[89])~', $_SERVER['HTTP_USER_AGENT'], $match)) {
+		elseif (preg_match('~Opera[ /]([0-9]+)(?!\.[89])~', $_SERVER['HTTP_USER_AGENT'], $match)) {
 			$this->_browsers['is_opera' . (int) $match[1]] = true;
 		}
 
@@ -461,7 +461,7 @@ class BrowserDetector
 	 */
 	private function setupEdge()
 	{
-		if (preg_match('~Edge[\\/]([0-9][0-9]?[\\.][0-9][0-9])~i', $_SERVER['HTTP_USER_AGENT'], $match) === 1) {
+		if (preg_match('~Edge[\/]([0-9][0-9]?[\.][0-9][0-9])~i', $_SERVER['HTTP_USER_AGENT'], $match) === 1) {
 			$this->_browsers['is_edge' . (int) $match[1]] = true;
 		}
 	}

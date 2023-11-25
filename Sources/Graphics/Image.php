@@ -537,10 +537,7 @@ class Image
 						return false;
 					}
 
-					return !($constant_name === 'IMAGETYPE_UNKNOWN' || $constant_name === 'IMAGETYPE_COUNT')
-
-
-					;
+					return !($constant_name === 'IMAGETYPE_UNKNOWN' || $constant_name === 'IMAGETYPE_COUNT');
 				},
 				ARRAY_FILTER_USE_KEY,
 			);
@@ -900,7 +897,7 @@ class Image
 	 */
 	protected function getSvgDimensions(): void
 	{
-		preg_match('/<svg\\b[^>]*>/', file_get_contents($this->source, false, null, 0, 480), $matches);
+		preg_match('/<svg\b[^>]*>/', file_get_contents($this->source, false, null, 0, 480), $matches);
 
 		if (!isset($matches[0])) {
 			return;
@@ -912,7 +909,7 @@ class Image
 		// If attribute is missing, SVG spec says the default is '100%'.
 		// If no unit is supplied, spec says unit defaults to px.
 		foreach (['width', 'height'] as $dimension) {
-			if (preg_match("/\\b{$dimension}\\s*=\\s*([\"'])\\s*([\\d.]+)([\\D\\S]*)\\s*\\1/", $svg, $matches)) {
+			if (preg_match("/\b{$dimension}\s*=\s*([\"'])\s*([\d.]+)([\D\S]*)\s*\1/", $svg, $matches)) {
 				$$dimension = $matches[2];
 				$unit = !empty($matches[3]) ? $matches[3] : 'px';
 			} else {
@@ -978,7 +975,7 @@ class Image
 		}
 
 		// Width and/or height is missing or a percentage, so try the viewBox attribute.
-		if ((!isset($width) || !isset($height)) && preg_match('/\\bviewBox\\s*=\\s*(["\'])\\s*[\\d.]+[,\\s]+[\\d.]+[,\\s]+([\\d.]+)[,\\s]+([\\d.]+)\\s*\\1/', $svg, $matches)) {
+		if ((!isset($width) || !isset($height)) && preg_match('/\bviewBox\s*=\s*(["\'])\s*[\d.]+[,\s]+[\d.]+[,\s]+([\d.]+)[,\s]+([\d.]+)\s*\1/', $svg, $matches)) {
 			$vb_width = $matches[2];
 			$vb_height = $matches[3];
 
@@ -1031,7 +1028,7 @@ class Image
 			if (!empty($extensive)) {
 				// Paranoid check.
 				// Will result in MANY false positives, and is not suitable for photography sites.
-				if (preg_match('~(iframe|\\<\\?|\\<%|html|eval|body|script\\W|(?-i)[CFZ]WS[\\x01-\\x0E])~i', $prev_chunk . $cur_chunk) === 1) {
+				if (preg_match('~(iframe|\\<\\?|\\<%|html|eval|body|script\W|(?-i)[CFZ]WS[\x01-\x0E])~i', $prev_chunk . $cur_chunk) === 1) {
 					fclose($fp);
 
 					return false;
@@ -1039,7 +1036,7 @@ class Image
 			} else {
 				// Check for potential infection - focus on clues for inline PHP & flash.
 				// Will result in significantly fewer false positives than the paranoid check.
-				if (preg_match('~(\\<\\?php\\s|(?-i)[CFZ]WS[\\x01-\\x0E])~i', $prev_chunk . $cur_chunk) === 1) {
+				if (preg_match('~(\\<\\?php\s|(?-i)[CFZ]WS[\x01-\x0E])~i', $prev_chunk . $cur_chunk) === 1) {
 					fclose($fp);
 
 					return false;
@@ -1070,28 +1067,28 @@ class Image
 
 		$patterns = [
 			// No external or embedded scripts allowed.
-			'/<(\\S*:)?script\\b/i',
-			'/\\b(\\S:)?href\\s*=\\s*["\']\\s*javascript:/i',
+			'/<(\S*:)?script\b/i',
+			'/\b(\S:)?href\s*=\s*["\']\s*javascript:/i',
 
 			// No SVG event attributes allowed, since they execute scripts.
-			'/\\bon\\w+\\s*=\\s*["\']/',
-			'/<(\\S*:)?set\\b[^>]*\\battributeName\\s*=\\s*(["\'])\\s*on\\w+\\1/i',
+			'/\bon\w+\s*=\s*["\']/',
+			'/<(\S*:)?set\b[^>]*\battributeName\s*=\s*(["\'])\s*on\w+\1/i',
 
 			// No XML Events allowed, since they execute scripts.
-			'~\\bhttp://www\\.w3\\.org/2001/xml-events\\b~i',
+			'~\bhttp://www\.w3\.org/2001/xml-events\b~i',
 
 			// No data URIs allowed, since they contain arbitrary data.
-			'/\\b(\\S*:)?href\\s*=\\s*["\']\\s*data:/i',
+			'/\b(\S*:)?href\s*=\s*["\']\s*data:/i',
 
 			// No foreignObjects allowed, since they allow embedded HTML.
-			'/<(\\S*:)?foreignObject\\b/i',
+			'/<(\S*:)?foreignObject\b/i',
 
 			// No custom entities allowed, since they can be used for entity
 			// recursion attacks.
-			'/<!ENTITY\\b/',
+			'/<!ENTITY\b/',
 
 			// Embedded external images can't have custom cross-origin rules.
-			'/<\\b(\\S*:)?image\\b[^>]*\\bcrossorigin\\s*=/',
+			'/<\b(\S*:)?image\b[^>]*\bcrossorigin\s*=/',
 
 			// No embedded PHP tags allowed.
 			// Harmless if the SVG is just the src of an img element, but very
@@ -1219,9 +1216,7 @@ class Image
 			return imagejpeg($dst_img, $destination, !empty(Config::$modSettings['avatar_jpeg_quality']) ? Config::$modSettings['avatar_jpeg_quality'] : 82);
 		}
 
-
 		return $imagesave($dst_img, $destination);
-
 	}
 
 	/**

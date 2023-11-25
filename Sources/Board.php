@@ -2199,7 +2199,7 @@ class Board implements \ArrayAccess
 		// If we only want some child boards, use a CTE query for improved performance.
 		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
 			// Ensure we include all the necessary fields for the CTE query.
-			preg_match_all('/\\bb\\.(\\w+)/', implode(', ', $selects), $matches);
+			preg_match_all('/\bb\.(\w+)/', implode(', ', $selects), $matches);
 
 			$cte_fields = array_unique(array_merge(
 				$matches[1],
@@ -2278,7 +2278,6 @@ class Board implements \ArrayAccess
 				LIMIT ' . $limit : ''),
 				$params,
 			);
-
 		}
 
 		while ($row = Db::$db->fetch_assoc($request)) {

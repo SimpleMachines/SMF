@@ -818,7 +818,6 @@ class Warnings implements ActionInterface
 	 *************************/
 
 	// code...
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

@@ -207,7 +207,7 @@ class SocketFetcher extends WebFetchApi
 		$response = fgets($this->fp, 768);
 
 		// What response code was sent?
-		if (preg_match('~^HTTP/\\S+\\s+(\\d+)~i', $response, $matches)) {
+		if (preg_match('~^HTTP/\S+\s+(\d+)~i', $response, $matches)) {
 			$http_code = (int) $matches[1];
 			$this->response[$this->current_redirect]['code'] = $http_code;
 		}
@@ -255,9 +255,9 @@ class SocketFetcher extends WebFetchApi
 		while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '') {
 			$this->response[$this->current_redirect]['headers'][] = $header;
 
-			if (preg_match('~Content-Length:\\s*(\\d+)~i', $header, $match)) {
+			if (preg_match('~Content-Length:\s*(\d+)~i', $header, $match)) {
 				$content_length = $match[1];
-			} elseif (preg_match('~Connection:\\s*Close~i', $header)) {
+			} elseif (preg_match('~Connection:\s*Close~i', $header)) {
 				$this->keep_alive = false;
 			}
 
@@ -323,11 +323,9 @@ class SocketFetcher extends WebFetchApi
 			return $this->response;
 		}
 
-
 		$response_number = min($response_number, count($this->response) - 1);
 
 		return $this->response[$response_number];
-
 	}
 
 	/**

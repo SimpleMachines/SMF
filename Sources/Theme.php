@@ -2182,7 +2182,7 @@ class Theme
 			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
 				$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
 
-				if (preg_match('~((?:SMF\\\\)?Theme::\\$current(?:->|_)|\\$)settings\\[\'theme_variants\'\\]\\s*=(.+?);~', $file_contents, $matches)) {
+				if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
 					self::$current->settings['theme_variants'] = [];
 
 					// Fill settings up.
@@ -2602,7 +2602,7 @@ class Theme
 			}
 
 			// Okay, #4 - perhaps it's an IP address?  We're gonna want to use that one, then. (assuming it's the IP or something...)
-			if (!empty($do_fix) || preg_match('~^http[s]?://(?:[\\d\\.:]+|\\[[\\d:]+\\](?::\\d+)?)(?:$|/)~', $detected_url) == 1) {
+			if (!empty($do_fix) || preg_match('~^http[s]?://(?:[\d\.:]+|\[[\d:]+\](?::\d+)?)(?:$|/)~', $detected_url) == 1) {
 				// Caching is good ;).
 				$oldurl = Config::$boardurl;
 
@@ -3033,7 +3033,7 @@ class Theme
 				}
 
 				// I know, I know... this is VERY COMPLICATED.  Still, it's good.
-				if (preg_match('~ <strong>(\\d+)</strong><br( /)?' . '>$~i', $error, $match) != 0) {
+				if (preg_match('~ <strong>(\d+)</strong><br( /)?' . '>$~i', $error, $match) != 0) {
 					$data = file($filename);
 					$data2 = BBCodeParser::highlightPhpCode(implode('', $data));
 					$data2 = preg_split('~\\<br( /)?\\>~', $data2);
@@ -3118,7 +3118,6 @@ class Theme
 			die;
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

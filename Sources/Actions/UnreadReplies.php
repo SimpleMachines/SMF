@@ -395,7 +395,6 @@ class UnreadReplies extends Unread
 			],
 		);
 	}
-
 }
 
 ?>

@@ -73,7 +73,7 @@ class Utils
 	 * Regular expression to match named entities for HTML special characters
 	 * and any numeric entities.
 	 */
-	public const ENT_LIST = '&(?' . '>nbsp|quot|gt|lt|a(?' . '>pos|mp)|#(?' . '>\\d+|x[0-9a-fA-F]+));';
+	public const ENT_LIST = '&(?' . '>nbsp|quot|gt|lt|a(?' . '>pos|mp)|#(?' . '>\d+|x[0-9a-fA-F]+));';
 
 	/**
 	 * Regular expression to match all forms of the non-breaking space entity.
@@ -184,7 +184,7 @@ class Utils
 	{
 		// Used to force browsers to download fresh CSS and JavaScript when necessary
 		if (isset(Config::$modSettings['browser_cache'])) {
-			self::$context['browser_cache'] = '?' . preg_replace('~\\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . Config::$modSettings['browser_cache'];
+			self::$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . Config::$modSettings['browser_cache'];
 		}
 
 		// UTF-8?
@@ -295,7 +295,7 @@ class Utils
 
 		// Disallow entities for control characters, non-characters, etc.
 		return preg_replace_callback(
-			'~(&#(0*\\d{1,7}|x0*[0-9a-fA-F]{1,6});)~',
+			'~(&#(0*\d{1,7}|x0*[0-9a-fA-F]{1,6});)~',
 			function ($matches) use ($substitute) {
 				$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
 
@@ -317,9 +317,7 @@ class Utils
 					return $substitute;
 				}
 
-
 				return '&#' . $num . ';';
-
 			},
 			(string) $string,
 		);
@@ -396,7 +394,7 @@ class Utils
 		if (!empty(Utils::$context['utf8'])) {
 			$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
 		} else {
-			$string = preg_replace('/[^\\P{Cc}\\t\\r\\n]/', $substitute, $string);
+			$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
 		}
 
 		return $string;
@@ -436,13 +434,13 @@ class Utils
 
 		if ($vspace) {
 			// \R is like \v, except it handles "\r\n" as a single unit.
-			$patterns[] = '/\\R/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/\R/' . (Utils::$context['utf8'] ? 'u' : '');
 			$replacements[] = $options['no_breaks'] ? ' ' : "\n";
 		}
 
 		if ($hspace) {
 			// Interesting fact: Unicode properties like \p{Zs} work even when not in UTF-8 mode.
-			$patterns[] = '/' . ($options['replace_tabs'] ? '\\h' : '\\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . (Utils::$context['utf8'] ? 'u' : '');
 			$replacements[] = ' ';
 		}
 
@@ -525,7 +523,7 @@ class Utils
 	 */
 	public static function htmlTrim(string $string): string
 	{
-		return preg_replace('~^(?' . '>[\\p{Z}\\p{C}]|' . self::ENT_NBSP . ')+|(?' . '>[\\p{Z}\\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
+		return preg_replace('~^(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+|(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
 	}
 
 	/**
@@ -569,7 +567,7 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return strlen(preg_replace('~' . self::ENT_LIST . '|\\X~u', '_', self::sanitizeEntities($string)));
+		return strlen(preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
 	}
 
 	/**
@@ -583,7 +581,7 @@ class Utils
 	 */
 	public static function entityStrpos(string $haystack, string $needle, int $offset = 0): int|false
 	{
-		$haystack_arr = preg_split('~(' . self::ENT_LIST . '|\\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$haystack_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		if (strlen($needle) === 1) {
 			$result = array_search($needle, array_slice($haystack_arr, $offset));
@@ -591,8 +589,7 @@ class Utils
 			return is_int($result) ? $result + $offset : false;
 		}
 
-
-		$needle_arr = preg_split('~(' . self::ENT_LIST . '|\\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$needle_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		$needle_size = count($needle_arr);
 
@@ -609,7 +606,6 @@ class Utils
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -623,7 +619,7 @@ class Utils
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
 	{
-		$ent_arr = preg_split('~(' . self::ENT_LIST . '|\\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$ent_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		return $length === null ? implode('', array_slice($ent_arr, $offset)) : implode('', array_slice($ent_arr, $offset, $length));
 	}
@@ -646,7 +642,7 @@ class Utils
 		$string = self::sanitizeEntities($string);
 
 		while (strlen($string) > $length) {
-			$string = preg_replace('~(?:' . self::ENT_LIST . '|\\X)$~u', '', $string);
+			$string = preg_replace('~(?:' . self::ENT_LIST . '|\X)$~u', '', $string);
 		}
 
 		return $string;
@@ -1057,7 +1053,7 @@ class Utils
 		// The Unicode surrogate pair code points should never be present in our
 		// strings to begin with, but if any snuck in, they need to be removed.
 		if (!empty(Utils::$context['utf8']) && strpos($string, "\xED") !== false) {
-			$string = preg_replace('/\\xED[\\xA0-\\xBF][\\x80-\\xBF]/', '', $string);
+			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
 		}
 
 		return $string;
@@ -1477,7 +1473,7 @@ class Utils
 				} elseif ($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches)) {
 					$value = (int) $matches[1];
 					$str = $matches[2];
-				} elseif ($type == 'd' && preg_match('/^d:(-?[0-9]+\\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches)) {
+				} elseif ($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches)) {
 					$value = (float) $matches[1];
 					$str = $matches[3];
 				} elseif ($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int) $matches[1], 2) == '";') {
@@ -1669,7 +1665,7 @@ class Utils
 					// SVG sometimes needs a little extra help.
 					if ($mime_type === 'text/html' && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg') {
 						// Detection sometimes fails if the <svg> element isn't first.
-						$data = preg_replace('/^([^<]|<(?!svg\\b))*/i', '', $data);
+						$data = preg_replace('/^([^<]|<(?!svg\b))*/i', '', $data);
 
 						if (finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data) == 'image/svg+xml') {
 							$mime_type = 'image/svg+xml';
@@ -1825,7 +1821,7 @@ class Utils
 		$file['filename'] = !self::$context['utf8'] ? mb_convert_encoding($file['filename'], 'UTF-8', self::$context['character_set']) : $file['filename'];
 
 		// Also provide a plain ASCII name for the sake of old browsers.
-		$file['asciiname'] = preg_replace('/[\\x{80}-\\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename'], true));
+		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename'], true));
 
 		// Replace ASCII names like ??????.jpg with something more unique.
 		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
@@ -1964,7 +1960,7 @@ class Utils
 			503 => 'Service Unavailable',
 		];
 
-		$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\\s*(HTTP/[12]\\.\\d)\\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
+		$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 		// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
 		Security::frameOptionsHeader();
@@ -2037,11 +2033,11 @@ class Utils
 
 		// Put the session ID in.
 		if (defined('SID') && SID != '') {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\\?' . preg_quote(SID, '/') . ')\\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
+			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
 		}
 		// Keep that debug in their for template debugging!
 		elseif (isset($_GET['debug'])) {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\\??/', Config::$scripturl . '?debug;', $setLocation);
+			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\??/', Config::$scripturl . '?debug;', $setLocation);
 		}
 
 		if (
@@ -2059,7 +2055,7 @@ class Utils
 		) {
 			if (defined('SID') && SID != '') {
 				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 					function ($m) {
 						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "{$m[2]}" : '');
 					},
@@ -2067,7 +2063,7 @@ class Utils
 				);
 			} else {
 				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
+					'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
 					function ($m) {
 						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . (isset($m[2]) ? "{$m[2]}" : '');
 					},

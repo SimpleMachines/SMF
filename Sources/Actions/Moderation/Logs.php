@@ -663,7 +663,7 @@ class Logs implements ActionInterface
 			}
 
 			$entries[$k]['action_text'] = preg_replace_callback(
-				'~\\{([A-Za-z\\d_]+)\\}~i',
+				'~\{([A-Za-z\d_]+)\}~i',
 				function ($matches) use ($entries, $k) {
 					return $entries[$k]['extra'][$matches[1]] ?? '';
 				},
@@ -999,7 +999,6 @@ class Logs implements ActionInterface
 	 *************************/
 
 	// code...
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

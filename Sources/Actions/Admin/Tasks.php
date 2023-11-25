@@ -315,7 +315,7 @@ class Tasks implements ActionInterface
 			SecurityToken::validate('admin-st');
 
 			// Sanitize the offset. Prepend a '0' so that ':05' works as expected.
-			list($h, $m) = array_pad(preg_split('/:/', preg_replace('/[^\\d:]/', '', '0' . $_POST['offset']), -1, PREG_SPLIT_NO_EMPTY), 2, '00');
+			list($h, $m) = array_pad(preg_split('/:/', preg_replace('/[^\d:]/', '', '0' . $_POST['offset']), -1, PREG_SPLIT_NO_EMPTY), 2, '00');
 
 			// Now the offset is easy; easy peasy - except we need to offset by a few hours,
 			// take account of DST at this time of year, and... okay, not so easy.
@@ -727,7 +727,6 @@ class Tasks implements ActionInterface
 		self::$obj->subaction = 'settings';
 		self::$obj->execute();
 	}
-
 
 	/******************
 	 * Internal methods

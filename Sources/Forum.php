@@ -359,11 +359,9 @@ class Forum
 			if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], ['login2', 'logintfa', 'logout']))) {
 				return self::$actions[$_REQUEST['action']][1];
 			}
+
 			// Don't even try it, sonny.
-
-
 			return __CLASS__ . '::inMaintenance';
-
 		}
 
 		// If guest access is off, a guest can only do one of the very few following actions.

@@ -208,9 +208,7 @@ class FtpFetcher extends WebFetchApi
 			return $this->response;
 		}
 
-
 		return $this->response[0];
-
 	}
 }
 

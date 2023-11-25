@@ -742,7 +742,7 @@ class Themes implements ActionInterface
 		if (file_exists(Theme::$current->settings['theme_dir'] . '/index.template.php')) {
 			$file_contents = implode('', file(Theme::$current->settings['theme_dir'] . '/index.template.php'));
 
-			if (preg_match('~((?:SMF\\\\)?Theme::\\$current(?:->|_)|\\$)settings\\[\'theme_variants\'\\]\\s*=(.+?);~', $file_contents, $matches)) {
+			if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
 				eval('use SMF\\Theme; global $settings; ' . $matches[0]);
 			}
 		}
@@ -1048,7 +1048,7 @@ class Themes implements ActionInterface
 				if (substr($_GET['directory'], 0, 1) == '.') {
 					$_GET['directory'] = '';
 				} else {
-					$_GET['directory'] = preg_replace(['~^[\\./\\:\\0\\n\\r]+~', '~[\\\\]~', '~/[\\./]+~'], ['', '/', '/'], $_GET['directory']);
+					$_GET['directory'] = preg_replace(['~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'], ['', '/', '/'], $_GET['directory']);
 
 					$temp = realpath($currentTheme['theme_dir'] . '/' . $_GET['directory']);
 
@@ -1089,11 +1089,10 @@ class Themes implements ActionInterface
 			return;
 		}
 
-
 		if (substr($_REQUEST['filename'], 0, 1) == '.') {
 			$_REQUEST['filename'] = '';
 		} else {
-			$_REQUEST['filename'] = preg_replace(['~^[\\./\\:\\0\\n\\r]+~', '~[\\\\]~', '~/[\\./]+~'], ['', '/', '/'], $_REQUEST['filename']);
+			$_REQUEST['filename'] = preg_replace(['~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'], ['', '/', '/'], $_REQUEST['filename']);
 
 			$temp = realpath($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 
@@ -1105,7 +1104,6 @@ class Themes implements ActionInterface
 		if (empty($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);
 		}
-
 
 		if (isset($_POST['save'])) {
 			if (User::$me->checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true) {
@@ -1121,7 +1119,7 @@ class Themes implements ActionInterface
 
 					$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
 
-					if (preg_match('~ <b>(\\d+)</b><br( /)?' . '>$~i', $error) != 0) {
+					if (preg_match('~ <b>(\d+)</b><br( /)?' . '>$~i', $error) != 0) {
 						$error_file = $currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php';
 					} else {
 						unlink($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php');
@@ -1179,7 +1177,7 @@ class Themes implements ActionInterface
 			if (!isset($error_file)) {
 				$file_data = file($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 			} else {
-				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0) {
+				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0) {
 					Utils::$context['parse_error'] = $match[1] . $_REQUEST['filename'] . $match[2];
 				}
 
@@ -1238,7 +1236,7 @@ class Themes implements ActionInterface
 		$theme = $this->getSingleTheme($_GET['th']);
 		Utils::$context['theme_id'] = $theme['id'];
 
-		if (isset($_REQUEST['template']) && preg_match('~[\\./\\\\:\\0]~', $_REQUEST['template']) == 0) {
+		if (isset($_REQUEST['template']) && preg_match('~[\./\\\\:\0]~', $_REQUEST['template']) == 0) {
 			if (file_exists(Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php')) {
 				$filename = Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php';
 			} else {
@@ -1250,7 +1248,7 @@ class Themes implements ActionInterface
 			fclose($fp);
 
 			Utils::redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
-		} elseif (isset($_REQUEST['lang_file']) && preg_match('~^[^\\./\\\\:\\0]\\.[^\\./\\\\:\\0]$~', $_REQUEST['lang_file']) != 0) {
+		} elseif (isset($_REQUEST['lang_file']) && preg_match('~^[^\./\\\\:\0]\.[^\./\\\\:\0]$~', $_REQUEST['lang_file']) != 0) {
 			if (file_exists(Theme::$current->settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php')) {
 				$filename = Theme::$current->settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php';
 			} else {
@@ -1280,7 +1278,7 @@ class Themes implements ActionInterface
 		$dir = dir(Theme::$current->settings['default_theme_dir'] . '/languages');
 
 		while ($entry = $dir->read()) {
-			if (preg_match('~^([^\\.]+\\.[^\\.]+)\\.php$~', $entry, $matches)) {
+			if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches)) {
 				$lang_files[] = $matches[1];
 			}
 		}
@@ -1328,7 +1326,7 @@ class Themes implements ActionInterface
 			$dir = dir($theme['theme_dir'] . '/languages');
 
 			while ($entry = $dir->read()) {
-				if (preg_match('~^([^\\.]+\\.[^\\.]+)\\.php$~', $entry, $matches) && isset(Utils::$context['available_language_files'][$matches[1]])) {
+				if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches) && isset(Utils::$context['available_language_files'][$matches[1]])) {
 					Utils::$context['available_language_files'][$matches[1]]['already_exists'] = true;
 
 					Utils::$context['available_language_files'][$matches[1]]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
@@ -1550,7 +1548,7 @@ class Themes implements ActionInterface
 
 		// Get the theme's name.
 		$name = pathinfo($_FILES['theme_gz']['name'], PATHINFO_FILENAME);
-		$name = preg_replace(['/\\s/', '/\\.[\\.]+/', '/[^\\w_\\.\\-]/', '/\\.tar$/'], ['_', '.', '', ''], $name);
+		$name = preg_replace(['/\s/', '/\.[\.]+/', '/[^\w_\.\-]/', '/\.tar$/'], ['_', '.', '', ''], $name);
 
 		// Start setting some vars.
 		Utils::$context['to_install'] = [
@@ -1578,9 +1576,7 @@ class Themes implements ActionInterface
 			return Utils::$context['to_install'];
 		}
 
-
 		ErrorHandler::fatalLang('theme_install_error_title', false);
-
 	}
 
 	/**
@@ -1598,7 +1594,7 @@ class Themes implements ActionInterface
 		}
 
 		// Get a cleaner version.
-		$name = preg_replace('~[^A-Za-z0-9_\\- ]~', '', $_REQUEST['copy']);
+		$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 		// Is there a theme already named like this?
 		if (file_exists(Utils::$context['themedir'] . '/' . $name)) {
@@ -1727,7 +1723,7 @@ class Themes implements ActionInterface
 		}
 
 		$name = basename($_REQUEST['theme_dir']);
-		$name = preg_replace(['/\\s/', '/\\.[\\.]+/', '/[^\\w_\\.\\-]/'], ['_', '.', ''], $name);
+		$name = preg_replace(['/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'], ['_', '.', ''], $name);
 
 		// All good! set some needed vars.
 		Utils::$context['to_install'] = [
@@ -2107,7 +2103,7 @@ class Themes implements ActionInterface
 			}
 			// Custom theme based on another custom theme, lets get some info.
 			elseif (Utils::$context['to_install']['based_on'] != '') {
-				Utils::$context['to_install']['based_on'] = preg_replace('~[^A-Za-z0-9\\-_ ]~', '', Utils::$context['to_install']['based_on']);
+				Utils::$context['to_install']['based_on'] = preg_replace('~[^A-Za-z0-9\-_ ]~', '', Utils::$context['to_install']['based_on']);
 
 				// Get the theme info first.
 				$request = Db::$db->query(
@@ -2348,9 +2344,9 @@ class Themes implements ActionInterface
 					'filename' => $entry,
 					'is_writable' => is_writable($path . '/' . $entry),
 					'is_directory' => false,
-					'is_template' => preg_match('~\\.template\\.php$~', $entry) != 0,
-					'is_image' => preg_match('~\\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
-					'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
+					'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
+					'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
+					'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
 					'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 					'size' => $size,
 					'last_modified' => Time::create('@' . filemtime($path . '/' . $entry))->format(),

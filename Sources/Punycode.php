@@ -478,9 +478,7 @@ class Punycode
 			return (($code - 224) * 4096) + ((ord($char[1]) - 128) * 64) + (ord($char[2]) - 128);
 		}
 
-
 		return (($code - 240) * 262144) + ((ord($char[1]) - 128) * 4096) + ((ord($char[2]) - 128) * 64) + (ord($char[3]) - 128);
-
 	}
 
 	/**
@@ -503,9 +501,7 @@ class Punycode
 			return chr(($code >> 12) + 224) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
 		}
 
-
 		return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
-
 	}
 
 	/**
@@ -578,7 +574,7 @@ class Punycode
 			return self::IDNA_ERROR_HYPHEN_3_4;
 		}
 
-		if (preg_match('/^\\p{M}/u', $label)) {
+		if (preg_match('/^\p{M}/u', $label)) {
 			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 

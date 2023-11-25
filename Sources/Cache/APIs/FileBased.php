@@ -141,8 +141,6 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			@unlink($file);
 		}
-
-
 	}
 
 	/**

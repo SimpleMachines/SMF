@@ -80,7 +80,7 @@ class FindMember implements ActionInterface
 		}
 
 		// Allow the user to pass the input to be added to to the box.
-		Utils::$context['input_box_name'] = isset($_REQUEST['input']) && preg_match('~^[\\w-]+$~', $_REQUEST['input']) === 1 ? $_REQUEST['input'] : 'to';
+		Utils::$context['input_box_name'] = isset($_REQUEST['input']) && preg_match('~^[\w-]+$~', $_REQUEST['input']) === 1 ? $_REQUEST['input'] : 'to';
 
 		// Take the delimiter over GET in case it's \n or something.
 		Utils::$context['delimiter'] = isset($_REQUEST['delim']) ? ($_REQUEST['delim'] == 'LB' ? "\n" : $_REQUEST['delim']) : ', ';
@@ -158,7 +158,6 @@ class FindMember implements ActionInterface
 	protected function __construct()
 	{
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

@@ -929,9 +929,7 @@ class Attachment implements \ArrayAccess
 			return true;
 		}
 
-
 		return false;
-
 	}
 
 	/**
@@ -1681,7 +1679,7 @@ class Attachment implements \ArrayAccess
 				'approve_attach',
 				[
 					'message' => $row['id_msg'],
-					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($row['filename'])),
+					'filename' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($row['filename'])),
 				],
 			);
 		}
@@ -1844,7 +1842,7 @@ class Attachment implements \ArrayAccess
 					'remove_attach',
 					[
 						'message' => $row['id_msg'],
-						'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($row['filename'])),
+						'filename' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($row['filename'])),
 					],
 				);
 			}
@@ -1978,9 +1976,7 @@ class Attachment implements \ArrayAccess
 			return 'attachments_no_data_loaded';
 		}
 
-
 		$attachContext = $attachLoaded[$attachID];
-
 
 		// It's theoretically possible that prepareByMsg() changed the board id, so check again.
 		if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards)) {
@@ -2454,7 +2450,7 @@ class Attachment implements \ArrayAccess
 				* while in linux should be safe to explode only for / (aka DIRECTORY_SEPARATOR)
 		*/
 		if (DIRECTORY_SEPARATOR === '\\') {
-			$tree = preg_split('#[\\\\/]#', $directory);
+			$tree = preg_split('#[\\\/]#', $directory);
 		} else {
 			if (substr($directory, 0, 1) != DIRECTORY_SEPARATOR) {
 				return false;
@@ -2531,7 +2527,6 @@ class Attachment implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

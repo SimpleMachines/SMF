@@ -672,7 +672,7 @@ class PM implements \ArrayAccess
 				$form_message = preg_replace('~<br ?/?' . '>~i', "\n", $pm->body);
 
 				if (!empty(Config::$modSettings['removeNestedQuotes'])) {
-					$form_message = preg_replace(['~\\n?\\[quote.*?\\].+?\\[/quote\\]\\n?~is', '~^\\n~', '~\\[/quote\\]~'], '', $form_message);
+					$form_message = preg_replace(['~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'], '', $form_message);
 				}
 
 				if (empty($pm->member_from)) {
@@ -1184,7 +1184,7 @@ class PM implements \ArrayAccess
 		foreach ($recipients as $rec_type => $rec) {
 			foreach ($rec as $id => $member) {
 				if (!is_numeric($recipients[$rec_type][$id])) {
-					$recipients[$rec_type][$id] = Utils::strtolower(trim(preg_replace('~[<>&"\'=\\\\]~', '', $recipients[$rec_type][$id])));
+					$recipients[$rec_type][$id] = Utils::strtolower(trim(preg_replace('~[<>&"\'=\\\]~', '', $recipients[$rec_type][$id])));
 
 					$usernames[$recipients[$rec_type][$id]] = 0;
 				}
@@ -1368,7 +1368,6 @@ class PM implements \ArrayAccess
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
 					continue;
-
 				}
 
 				// Do they have any of the allowed groups?
@@ -1378,7 +1377,6 @@ class PM implements \ArrayAccess
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
 					continue;
-
 				}
 			}
 
@@ -1554,7 +1552,6 @@ class PM implements \ArrayAccess
 				} else {
 					$notification_texts[$lang]['body'] = '';
 				}
-
 
 				if ($lang != User::$me->language) {
 					Lang::load('index+Modifications', User::$me->language, false);

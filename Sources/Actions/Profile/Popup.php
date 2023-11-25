@@ -109,7 +109,6 @@ class Popup implements ActionInterface
 		],
 	];
 
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

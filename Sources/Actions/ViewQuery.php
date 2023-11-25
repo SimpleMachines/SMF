@@ -120,7 +120,7 @@ class ViewQuery implements ActionInterface
 			$min_indent = 0;
 
 			foreach ($query as $line) {
-				preg_match('/^(\\t*)/', $line, $temp);
+				preg_match('/^(\t*)/', $line, $temp);
 
 				if (strlen($temp[0]) < $min_indent || $min_indent == 0) {
 					$min_indent = strlen($temp[0]);
@@ -142,7 +142,7 @@ class ViewQuery implements ActionInterface
 
 			if ($is_select_query) {
 				$select = $query_data['q'];
-			} elseif (preg_match('~^INSERT(?: IGNORE)? INTO \\w+(?:\\s+\\([^)]+\\))?\\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {
+			} elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {
 				$is_select_query = true;
 				$select = $matches[1];
 			} elseif (preg_match('~^CREATE TEMPORARY TABLE .+?(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {

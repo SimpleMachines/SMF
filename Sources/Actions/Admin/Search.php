@@ -355,7 +355,7 @@ class Search implements ActionInterface
 
 		// Get some info about the messages table, to show its size and index size.
 		if (Config::$db_type == 'mysql') {
-			if (preg_match('~^`(.+?)`\\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
+			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
 					'SHOW TABLE STATUS
@@ -387,7 +387,7 @@ class Search implements ActionInterface
 			}
 
 			// Now check the custom index table, if it exists at all.
-			if (preg_match('~^`(.+?)`\\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
+			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
 					'SHOW TABLE STATUS
@@ -675,9 +675,7 @@ class Search implements ActionInterface
 						break;
 					}
 
-
 					Config::updateModSettings(['search_custom_index_resume' => Utils::jsonEncode(array_merge(Utils::$context['index_settings'], ['resume_at' => Utils::$context['start']]))]);
-
 				}
 
 				// Since there are still two steps to go, 80% is the maximum here.
@@ -813,7 +811,7 @@ class Search implements ActionInterface
 				}
 			}
 
-			if (preg_match('~^`(.+?)`\\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
+			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
 					'SHOW TABLE STATUS

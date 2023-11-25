@@ -726,7 +726,6 @@ class ACP implements ActionInterface
 		],
 	];
 
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -1095,7 +1094,7 @@ class ACP implements ActionInterface
 
 		// Fix the darn stupid cookiename! (more may not be allowed, but these for sure!)
 		if (isset($_POST['cookiename'])) {
-			$_POST['cookiename'] = preg_replace('~[,;\\s\\.$]+~' . (Utils::$context['utf8'] ? 'u' : ''), '', $_POST['cookiename']);
+			$_POST['cookiename'] = preg_replace('~[,;\s\.$]+~' . (Utils::$context['utf8'] ? 'u' : ''), '', $_POST['cookiename']);
 		}
 
 		// Fix the forum's URL if necessary.
@@ -1546,7 +1545,7 @@ class ACP implements ActionInterface
 			fclose($fp);
 
 			// The comment looks rougly like... that.
-			if (preg_match('~\\*\\s@version\\s+(.+)[\\s]{2}~i', $header, $match) == 1) {
+			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 				$version_info['file_versions']['SSI.php'] = $match[1];
 			}
 			// Not found!  This is bad.
@@ -1562,7 +1561,7 @@ class ACP implements ActionInterface
 			fclose($fp);
 
 			// Found it?
-			if (preg_match('~\\*\\s@version\\s+(.+)[\\s]{2}~i', $header, $match) == 1) {
+			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 				$version_info['file_versions']['subscriptions.php'] = $match[1];
 			}
 			// If we haven't how do we all get paid?
@@ -1582,7 +1581,7 @@ class ACP implements ActionInterface
 				fclose($fp);
 
 				// Look for the version comment in the file header.
-				if (preg_match('~\\*\\s@version\\s+(.+)[\\s]{2}~i', $header, $match) == 1) {
+				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 					$version_info['file_versions'][$entry] = $match[1];
 				}
 				// It wasn't found, but the file was... show a '??'.
@@ -1605,7 +1604,7 @@ class ACP implements ActionInterface
 					fclose($fp);
 
 					// Look for the version comment in the file header.
-					if (preg_match('~\\*\\s@version\\s+(.+)[\\s]{2}~i', $header, $match) == 1) {
+					if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 						$version_info['tasks_versions'][$entry] = $match[1];
 					}
 					// It wasn't found, but the file was... show a '??'.
@@ -1635,7 +1634,7 @@ class ACP implements ActionInterface
 					fclose($fp);
 
 					// Look for the version comment in the file header.
-					if (preg_match('~\\*\\s@version\\s+(.+)[\\s]{2}~i', $header, $match) == 1) {
+					if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 						$version_info[$type][$entry] = $match[1];
 					}
 					// It wasn't found, but the file was... show a '??'.
@@ -1661,7 +1660,7 @@ class ACP implements ActionInterface
 				list($name, $language) = explode('.', $entry);
 
 				// Look for the version comment in the file header.
-				if (preg_match('~(?://|/\\*)\\s*Version:\\s+(.+?);\\s*' . preg_quote($name, '~') . '(?:[\\s]{2}|\\*/)~i', $header, $match) == 1) {
+				if (preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '(?:[\s]{2}|\*/)~i', $header, $match) == 1) {
 					$version_info['default_language_versions'][$language][$name] = $match[1];
 				}
 				// It wasn't found, but the file was... show a '??'.
@@ -1981,7 +1980,6 @@ class ACP implements ActionInterface
 			return "\n" . '<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, ['"' => '&quot;', '<' => '&lt;', '>' => '&gt;']) . '">';
 		}
 
-
 		$ret = '';
 
 		foreach ($v as $k2 => $v2) {
@@ -1989,7 +1987,6 @@ class ACP implements ActionInterface
 		}
 
 		return $ret;
-
 	}
 
 	/**
@@ -2006,7 +2003,7 @@ class ACP implements ActionInterface
 		$q = strpos(Config::$scripturl, '?');
 
 		if ($q !== false) {
-			parse_str(preg_replace('/&(\\w+)(?=&|$)/', '&$1=', strtr(substr(Config::$scripturl, $q + 1), ';', '&')), $temp);
+			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(substr(Config::$scripturl, $q + 1), ';', '&')), $temp);
 
 			foreach ($get as $k => $v) {
 				// Only if it's not already in the Config::$scripturl!
@@ -2029,7 +2026,6 @@ class ACP implements ActionInterface
 
 		return $query_string;
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

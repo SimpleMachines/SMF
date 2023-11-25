@@ -1323,7 +1323,6 @@ class Attachments implements ActionInterface
 		// What stage are we at?
 		Utils::$context['completed'] = $fix_errors ? true : false;
 		Utils::$context['errors_found'] = !empty($to_fix) ? true : false;
-
 	}
 
 	/**
@@ -2036,13 +2035,11 @@ class Attachments implements ActionInterface
 								break;
 							}
 
-
 							// Hmm, not in auto. Time to bail out then...
 							$results[] = Lang::$txt['attachment_transfer_no_room'];
 							$break = true;
 
 							break;
-
 						}
 					}
 

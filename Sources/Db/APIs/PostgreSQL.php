@@ -146,7 +146,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Special queries that need processing.
 		$replacements = [
 			'profile_board_stats' => [
-				'~COUNT\\(\\*\\) \\/ MAX\\(b.num_posts\\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
+				'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 			],
 		];
 
@@ -165,7 +165,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Limits need to be a little different.
-		$db_string = preg_replace('~\\sLIMIT\\s(\\d+|{int:.+}),\\s*(\\d+|{int:.+})\\s*$~i', 'LIMIT $2 OFFSET $1', $db_string);
+		$db_string = preg_replace('~\sLIMIT\s(\d+|{int:.+}),\s*(\d+|{int:.+})\s*$~i', 'LIMIT $2 OFFSET $1', $db_string);
 
 		if (trim($db_string) == '') {
 			return false;
@@ -173,10 +173,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
-			'~\\s+~s',
-			'~/\\*!40001 SQL_NO_CACHE \\*/~',
-			'~/\\*!40000 USE INDEX \\([A-Za-z\\_]+?\\) \\*/~',
-			'~/\\*!40100 ON DUPLICATE KEY UPDATE id_msg = \\d+ \\*/~',
+			'~\s+~s',
+			'~/\*!40001 SQL_NO_CACHE \*/~',
+			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
+			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
 			' ',
@@ -195,7 +195,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\\s+SELECT~i', $db_string)) {
+		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
@@ -663,8 +663,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function escape_wildcard_string($string, $translate_human_wildcards = false)
 	{
 		$replacements = [
-			'%' => '\\%',
-			'_' => '\\_',
+			'%' => '\%',
+			'_' => '\_',
 			'\\' => '\\\\',
 		];
 
@@ -972,7 +972,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$schema_create .= ' default ' . $row['column_default'] . '';
 
 				// Auto increment?
-				if (preg_match('~nextval\\(\'(.+?)\'(.+?)*\\)~i', $row['column_default'], $matches) != 0) {
+				if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0) {
 					// Get to find the next variable first!
 					$count_req = $this->query(
 						'',
@@ -1095,10 +1095,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$value = ini_get('pgsql.allow_persistent');
 
-		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
-
-
-		;
+		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
 
 	/*****************************************
@@ -1118,26 +1115,26 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'~ENGINE=MEMORY~i' => '',
 			],
 			'insert_into_log_messages_fulltext' => [
-				'/NOT\\sLIKE/' => 'NOT ILIKE',
-				'/\\bLIKE\\b/' => 'ILIKE',
+				'/NOT\sLIKE/' => 'NOT ILIKE',
+				'/\bLIKE\b/' => 'ILIKE',
 				'/NOT RLIKE/' => '!~*',
 				'/RLIKE/' => '~*',
 			],
 			'insert_log_search_results_subject' => [
-				'/NOT\\sLIKE/' => 'NOT ILIKE',
-				'/\\bLIKE\\b/' => 'ILIKE',
+				'/NOT\sLIKE/' => 'NOT ILIKE',
+				'/\bLIKE\b/' => 'ILIKE',
 				'/NOT RLIKE/' => '!~*',
 				'/RLIKE/' => '~*',
 			],
 			'insert_log_search_topics' => [
-				'/NOT\\sLIKE/' => 'NOT ILIKE',
-				'/\\bLIKE\\b/' => 'ILIKE',
+				'/NOT\sLIKE/' => 'NOT ILIKE',
+				'/\bLIKE\b/' => 'ILIKE',
 				'/NOT RLIKE/' => '!~*',
 				'/RLIKE/' => '~*',
 			],
 			'insert_log_search_results_no_index' => [
-				'/NOT\\sLIKE/' => 'NOT ILIKE',
-				'/\\bLIKE\\b/' => 'ILIKE',
+				'/NOT\sLIKE/' => 'NOT ILIKE',
+				'/\bLIKE\b/' => 'ILIKE',
 				'/NOT RLIKE/' => '!~*',
 				'/RLIKE/' => '~*',
 			],
@@ -1147,8 +1144,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$db_string = preg_replace(array_keys($replacements[$identifier]), array_values($replacements[$identifier]), $db_string);
 		}
 
-		if (preg_match('~^\\s*INSERT\\s+IGNORE\\b~i', $db_string) != 0) {
-			$db_string = preg_replace('~^\\s*INSERT\\s+IGNORE\\b~i', 'INSERT', $db_string);
+		if (preg_match('~^\s*INSERT\s+IGNORE\b~i', $db_string) != 0) {
+			$db_string = preg_replace('~^\s*INSERT\s+IGNORE\b~i', 'INSERT', $db_string);
 
 			if ($this->support_ignore) {
 				// pg style "INSERT INTO.... ON CONFLICT DO NOTHING"
@@ -1295,7 +1292,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
-
 		// If there's more attributes they need to be done via a change on PostgreSQL.
 		unset($column_info['type'], $column_info['size']);
 
@@ -1323,7 +1319,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$cols = $this->list_columns($table_name, true);
 
 		foreach ($index_info['columns'] as &$c) {
-			$c = preg_replace('~\\s+(\\(\\d+\\))~', '', $c);
+			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 		}
 
 		$columns = implode(',', $index_info['columns']);
@@ -1334,7 +1330,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if (isset($index_info['type']) && $index_info['type'] == 'primary') {
 				$index_info['name'] = '';
 			} else {
-				$index_info['name'] = trim(implode('_', preg_replace('~(\\(\\d+\\))~', '', $index_info['columns'])));
+				$index_info['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index_info['columns'])));
 			}
 		}
 
@@ -1734,7 +1730,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($indexes as $index) {
 			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
-				$c = preg_replace('~\\s+(\\(\\d+\\))~', '', $c);
+				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 			}
 
 			$idx_columns = implode(',', $index['columns']);
@@ -1744,7 +1740,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$table_query .= "\n\t" . 'PRIMARY KEY (' . implode(',', $index['columns']) . '),';
 			} else {
 				if (empty($index['name'])) {
-					$index['name'] = trim(implode('_', preg_replace('~(\\(\\d+\\))~', '', $index['columns'])));
+					$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
 				}
 
 				$index_queries[] = 'CREATE ' . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $short_table_name . '_' . $index['name'] . ' ON ' . $short_table_name . ' (' . $idx_columns . ')';
@@ -1801,7 +1797,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				[],
 			);
 		}
-
 
 		// And the indexes...
 		foreach ($index_queries as $query) {
@@ -1928,7 +1923,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				// What is the default?
 				if ($row['column_default'] !== null) {
-					if (preg_match('~nextval\\(\'(.+?)\'(.+?)*\\)~i', $row['column_default'], $matches) != 0) {
+					if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0) {
 						$auto = true;
 					} elseif (substr($row['column_default'], 0, 4) != 'NULL' && trim($row['column_default']) != '') {
 						$pos = strpos($row['column_default'], '::');
@@ -1983,7 +1978,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		while ($row = $this->fetch_assoc($result)) {
 			// Try get the columns that make it up.
-			if (preg_match('~\\(([^\\)]+?)\\)~i', $row['inddef'], $matches) == 0) {
+			if (preg_match('~\(([^\)]+?)\)~i', $row['inddef'], $matches) == 0) {
 				continue;
 			}
 
@@ -2313,7 +2308,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'date':
-				if (preg_match('~^(\\d{4})-([0-1]?\\d)-([0-3]?\\d)$~', $replacement, $date_matches) === 1) {
+				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1) {
 					return sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]) . '::date';
 				}
 
@@ -2322,7 +2317,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'time':
-				if (preg_match('~^([0-1]?\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$~', $replacement, $time_matches) === 1) {
+				if (preg_match('~^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $time_matches) === 1) {
 					return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]) . '::time';
 				}
 
@@ -2331,7 +2326,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'datetime':
-				if (preg_match('~^(\\d{4})-([0-1]?\\d)-([0-3]?\\d) ([0-1]?\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$~', $replacement, $datetime_matches) === 1) {
+				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1) {
 					return 'to_timestamp(' .
 						sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5], $datetime_matches[6]) .
 						',\'YYYY-MM-DD HH24:MI:SS\')';

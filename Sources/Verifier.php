@@ -361,7 +361,7 @@ class Verifier implements \ArrayAccess
 		}
 
 		// Only allow 40 alphanumeric, underscore, and dash characters.
-		$this->recaptcha_site_key = substr(preg_replace('/\\W/', '', Config::$modSettings['recaptcha_site_key']), 0, 40);
+		$this->recaptcha_site_key = substr(preg_replace('/\W/', '', Config::$modSettings['recaptcha_site_key']), 0, 40);
 
 		// Light or dark theme...
 		$this->recaptcha_theme = Config::$modSettings['recaptcha_theme'] == 'dark' ? 'dark' : 'light';
@@ -380,7 +380,6 @@ class Verifier implements \ArrayAccess
 		<script>
 			var verification' . $this->id . 'Handle = new smfCaptcha("' . $this->image_href . '", "' . $this->id . '", ' . (Utils::$context['use_graphic_library'] ? 1 : 0) . ');
 		</script>';
-
 	}
 
 	/**

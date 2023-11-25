@@ -277,7 +277,6 @@ class Announce implements ActionInterface
 
 				Mail::send($member_email, $mail['subject'], $body, null, null, false, 5);
 			}
-
 		}
 
 		Utils::$context['percentage_done'] = round(100 * Utils::$context['start'] / Config::$modSettings['latestMember'], 1);

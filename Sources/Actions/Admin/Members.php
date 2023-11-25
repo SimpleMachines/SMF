@@ -398,7 +398,6 @@ class Members implements ActionInterface
 						$where_params[$param_name . '_low'] = $search_params[$param_name]['low'];
 						$where_params[$param_name . '_high'] = $search_params[$param_name]['high'];
 					}
-
 				} elseif ($param_info['type'] != 'groups') {
 					// Replace the wildcard characters ('*' and '?') into MySQL ones.
 					$parameter = strtolower(strtr(Utils::htmlspecialchars($search_params[$param_name], ENT_QUOTES), ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_']));
@@ -1426,7 +1425,6 @@ class Members implements ActionInterface
 		self::$obj->subaction = 'search';
 		self::$obj->execute();
 	}
-
 
 	/******************
 	 * Internal methods

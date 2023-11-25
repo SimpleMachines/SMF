@@ -1109,7 +1109,6 @@ class MessageIndex implements ActionInterface
 		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
-
 }
 
 // Export public static functions to global namespace for backward compatibility.

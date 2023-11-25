@@ -368,7 +368,6 @@ class TopicMove2 implements ActionInterface
 			return true;
 		}
 
-
 		$request = Db::$db->query(
 			'',
 			'SELECT m.subject, b.name
@@ -389,7 +388,6 @@ class TopicMove2 implements ActionInterface
 		$topic_link = '<a href="' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0">' . $topic_subject . '</a>';
 
 		ErrorHandler::fatalLang('topic_already_moved', false, [$topic_link, $board_link]);
-
 	}
 
 	/******************

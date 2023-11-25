@@ -377,7 +377,7 @@ class Lang
 
 				while ($entry = $dir->read()) {
 					// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-					if (!preg_match('~^index\\.((?:.(?!-utf8))+)\\.php$~', $entry, $matches)) {
+					if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches)) {
 						continue;
 					}
 
@@ -397,7 +397,7 @@ class Lang
 								continue;
 							}
 
-							preg_match('~\\$txt\\[\'native_name\'\\]\\s*=\\s*\'([^\']+)\';~', $line, $matchNative);
+							preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
 
 							// Set the language's name.
 							if (!empty($matchNative) && !empty($matchNative[1])) {
@@ -476,8 +476,8 @@ class Lang
 					$censor_vulgar[$i] = str_replace(['\\\\\\*', '\\*', '&', '\''], ['[*]', '[^\\s]*?', '&amp;', '&#039;'], preg_quote($censor_vulgar[$i], '/'));
 
 					// Use the faster \b if we can, or something more complex if we can't
-					$boundary_before = preg_match('/^\\w/', $censor_vulgar[$i]) ? '\\b' : ($charset === 'UTF-8' ? '(?<![\\p{L}\\p{M}\\p{N}_])' : '(?<!\\w)');
-					$boundary_after = preg_match('/\\w$/', $censor_vulgar[$i]) ? '\\b' : ($charset === 'UTF-8' ? '(?![\\p{L}\\p{M}\\p{N}_])' : '(?!\\w)');
+					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
+					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
 
 					$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
 				}
@@ -600,7 +600,7 @@ class Lang
 		// Cache these values...
 		if (!isset(self::$decimal_separator)) {
 			// Not set for whatever reason?
-			if (empty(Lang::$txt['number_format']) || preg_match('~^1(\\D*)234(\\D*)(0*)$~', Lang::$txt['number_format'], $matches) != 1) {
+			if (empty(Lang::$txt['number_format']) || preg_match('~^1(\D*)234(\D*)(0*)$~', Lang::$txt['number_format'], $matches) != 1) {
 				return (string) $number;
 			}
 
@@ -618,7 +618,6 @@ class Lang
 			self::$thousands_separator,
 		);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

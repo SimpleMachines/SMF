@@ -199,7 +199,6 @@ class Find implements ActionInterface
 		}
 	}
 
-
 	/**
 	 * A complicated but relatively quick internal search.
 	 */
@@ -293,7 +292,7 @@ class Find implements ActionInterface
 					// Format the name - and remove any descriptions the entry may have.
 					$name = Lang::$txt[$found] ?? (Lang::$txt['setting_' . $found] ?? (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 
-					$name = preg_replace('~<(?:div|span)\\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
+					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
 					Utils::$context['search_results'][] = [
 						'url' => (substr($item[1], 0, 4) == 'area' ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
@@ -345,7 +344,7 @@ class Find implements ActionInterface
 		$search_results = WebFetchApi::fetch(Utils::$context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
 
 		// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
-		if (!$search_results || preg_match('~<' . '\\?xml\\sversion="\\d+\\.\\d+"\\?' . '>\\s*(<api\\b[^>]*>.+?</api>)~is', $search_results, $matches) != true) {
+		if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?' . '>\s*(<api\b[^>]*>.+?</api>)~is', $search_results, $matches) != true) {
 			ErrorHandler::fatalLang('cannot_connect_doc_site');
 		}
 

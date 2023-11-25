@@ -408,17 +408,15 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_extra',
 				'input_validate' => function (&$value) {
 					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
-					if (preg_match('/(\\d{4})[\\-\\., ](\\d{2})[\\-\\., ](\\d{2})/', $value, $dates) === 1) {
+					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
 						$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
 
 						return true;
 					}
 
-
 					$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
 
 					return false;
-
 				},
 			],
 			'date_registered' => [
@@ -549,11 +547,9 @@ class Profile extends User implements \ArrayAccess
 						return true;
 					}
 
-
 					$value = $this->language;
 
 					return false;
-
 				},
 			],
 			// The username is not always editable - so adjust it as such.
@@ -1795,7 +1791,6 @@ class Profile extends User implements \ArrayAccess
 			default:
 				$result = $this->setAvatarNone();
 				break;
-
 		}
 
 		if (is_string($result)) {
@@ -1934,7 +1929,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Maybe we are abusing font sizes?
-			if (!empty($sig_limits[7]) && preg_match_all('~\\[size=([\\d\\.]+)?(px|pt|em|x-large|larger)~i', $unparsed_signature, $matches) !== false && isset($matches[2])) {
+			if (!empty($sig_limits[7]) && preg_match_all('~\[size=([\d.]+)?(px|pt|em|x-large|larger)~i', $unparsed_signature, $matches) !== false && isset($matches[2])) {
 				foreach ($matches[1] as $ind => $size) {
 					$limit_broke = 0;
 
@@ -1960,10 +1955,10 @@ class Profile extends User implements \ArrayAccess
 			// The difficult one - image sizes! Don't error on this - just fix it.
 			if ((!empty($sig_limits[5]) || !empty($sig_limits[6]))) {
 				// Get all BBC tags...
-				preg_match_all('~\\[img(\\s+width=([\\d]+))?(\\s+height=([\\d]+))?(\\s+width=([\\d]+))?\\s*\\](?:<br>)*([^<">]+?)(?:<br>)*\\[/img\\]~i', $unparsed_signature, $matches);
+				preg_match_all('~\[img(\s+width=(\d+))?(\s+height=(\d+))?(\s+width=(\d+))?\s*\](?:<br>)*([^<">]+?)(?:<br>)*\[/img\]~i', $unparsed_signature, $matches);
 
 				// ... and all HTML ones.
-				preg_match_all('~<img\\s+src=(?:")?((?:http://|ftp://|https://|ftps://).+?)(?:")?(?:\\s+alt=(?:")?(.*?)(?:")?)?(?:\\s?/)?' . '>~i', $unparsed_signature, $matches2, PREG_PATTERN_ORDER);
+				preg_match_all('~<img\s+src=(?:")?((?:http://|ftp://|https://|ftps://).+?)(?:")?(?:\s+alt=(?:")?(.*?)(?:")?)?(?:\s?/)?' . '>~i', $unparsed_signature, $matches2, PREG_PATTERN_ORDER);
 
 				// And stick the HTML in the BBC.
 				if (!empty($matches2)) {
@@ -2052,7 +2047,7 @@ class Profile extends User implements \ArrayAccess
 			$disabledSigBBC = implode('|', $disabledTags);
 
 			if (!empty($disabledSigBBC)) {
-				if (preg_match('~\\[(' . $disabledSigBBC . '[ =\\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1])) {
+				if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1])) {
 					$disabledTags = array_unique($disabledTags);
 
 					Lang::$txt['profile_error_signature_disabled_bbc'] = sprintf(Lang::$txt['profile_error_signature_disabled_bbc'], implode(', ', $disabledTags));
@@ -2469,7 +2464,7 @@ class Profile extends User implements \ArrayAccess
 						$value = '';
 					}
 
-					if ($cf_def['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != Utils::htmlspecialchars($value, ENT_NOQUOTES) || preg_match('/<(.+?)[\\s]*\\/?[\\s]*>/si', $valueReference))) {
+					if ($cf_def['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != Utils::htmlspecialchars($value, ENT_NOQUOTES) || preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference))) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
 					} elseif ($cf_def['mask'] == 'email' && !empty($value) && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255)) {
@@ -3066,7 +3061,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Generate a random password.
-		$new_password = implode('-', str_split(substr(preg_replace('/\\W/', '', base64_encode(Utils::randomBytes(18))), 0, 18), 6));
+		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(Utils::randomBytes(18))), 0, 18), 6));
 		$new_password_sha1 = Security::hashPassword($username ?? $this->username, $new_password);
 
 		// Do some checks on the username if needed.

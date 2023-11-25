@@ -244,7 +244,6 @@ class Warnings implements ActionInterface
 	 */
 	protected function __construct()
 	{
-
 	}
 }
 

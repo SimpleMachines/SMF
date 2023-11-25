@@ -94,7 +94,7 @@ class Mail
 			$hotmail_to = [];
 
 			foreach ($to_array as $i => $to_address) {
-				if (preg_match('~@(att|comcast|bellsouth)\\.[a-zA-Z\\.]{2,6}$~i', $to_address) === 1) {
+				if (preg_match('~@(att|comcast|bellsouth)\.[a-zA-Z\.]{2,6}$~i', $to_address) === 1) {
 					$hotmail_to[] = $to_address;
 					$to_array = array_diff($to_array, [$to_address]);
 				}
@@ -123,7 +123,7 @@ class Mail
 		if ($hotmail_fix && !$send_html) {
 			$send_html = true;
 			$message = strtr($message, [$line_break => '<br>' . $line_break]);
-			$message = preg_replace('~(' . preg_quote(Config::$scripturl, '~') . '(?:[?/][\\w\\-_%\\.,\\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
+			$message = preg_replace('~(' . preg_quote(Config::$scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 		}
 
 		list(, $from_name) = self::mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
@@ -555,7 +555,6 @@ class Mail
 			}
 		}
 
-
 		// Any emails that didn't send?
 		if (!empty($failed_emails)) {
 			// Update the failed attempts check.
@@ -639,7 +638,7 @@ class Mail
 		$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
 
 		// This is the fun part....
-		if (preg_match_all('~&#(\\d{3,8});~', $string, $matches) !== 0 && !$hotmail_fix) {
+		if (preg_match_all('~&#(\d{3,8});~', $string, $matches) !== 0 && !$hotmail_fix) {
 			// Let's, for now, assume there are only &#021;'ish characters.
 			$simple = true;
 
@@ -652,7 +651,7 @@ class Mail
 
 			if ($simple) {
 				$string = preg_replace_callback(
-					'~&#(\\d{3,8});~',
+					'~&#(\d{3,8});~',
 					function ($m) {
 						return chr("{$m[1]}");
 					},
@@ -708,11 +707,11 @@ class Mail
 			};
 
 			// Convert all 'special' characters to HTML entities.
-			return [$charset, preg_replace_callback('~([\\x80-\\x{10FFFF}])~u', $entityConvert, $string), '7bit'];
+			return [$charset, preg_replace_callback('~([\x80-\x{10FFFF}])~u', $entityConvert, $string), '7bit'];
 		}
 
 		// We don't need to mess with the subject line if no special characters were in it..
-		if (!$hotmail_fix && preg_match('~([^\\x09\\x0A\\x0D\\x20-\\x7F])~', $string) === 1) {
+		if (!$hotmail_fix && preg_match('~([^\x09\x0A\x0D\x20-\x7F])~', $string) === 1) {
 			// Base64 encode.
 			$string = base64_encode($string);
 
@@ -728,7 +727,6 @@ class Mail
 
 			return [$charset, $string, 'base64'];
 		}
-
 
 		return [$charset, $string, '7bit'];
 	}
@@ -816,7 +814,7 @@ class Mail
 				|| substr_compare($helo, '.local', -6) === 0
 				|| (
 					!empty(Config::$modSettings['tld_regex'])
-					&& !preg_match('/\\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)
+					&& !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)
 				)
 			) {
 				$url = new Url(Config::$boardurl);

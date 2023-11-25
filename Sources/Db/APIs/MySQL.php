@@ -122,10 +122,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
-			'~\\s+~s',
-			'~/\\*!40001 SQL_NO_CACHE \\*/~',
-			'~/\\*!40000 USE INDEX \\([A-Za-z\\_]+?\\) \\*/~',
-			'~/\\*!40100 ON DUPLICATE KEY UPDATE id_msg = \\d+ \\*/~',
+			'~\s+~s',
+			'~/\*!40001 SQL_NO_CACHE \*/~',
+			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
+			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
 			' ',
@@ -145,7 +145,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\\s+SELECT~i', $db_string)) {
+		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
@@ -620,8 +620,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function escape_wildcard_string($string, $translate_human_wildcards = false)
 	{
 		$replacements = [
-			'%' => '\\%',
-			'_' => '\\_',
+			'%' => '\%',
+			'_' => '\_',
 			'\\' => '\\\\',
 		];
 
@@ -822,7 +822,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		list(, $create) = $this->fetch_row($result);
 		$this->free_result($result);
 
-		$create = preg_split('/[\\n\\r]/', $create);
+		$create = preg_split('/[\n\r]/', $create);
 
 		$auto_inc = '';
 		// Default engine type.
@@ -839,7 +839,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			// For the engine type, see if we can work out what it is.
 			if (strpos($l, 'ENGINE') !== false || strpos($l, 'TYPE') !== false) {
 				// Extract the engine type.
-				preg_match('~(ENGINE|TYPE)=(\\w+)(\\sDEFAULT)?(\\sCHARSET=(\\w+))?(\\sCOLLATE=(\\w+))?~', $l, $match);
+				preg_match('~(ENGINE|TYPE)=(\w+)(\sDEFAULT)?(\sCHARSET=(\w+))?(\sCOLLATE=(\w+))?~', $l, $match);
 
 				if (!empty($match[1])) {
 					$engine = $match[1];
@@ -890,7 +890,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		);
 
 		if ($auto_inc != '') {
-			if (preg_match('~\\`(.+?)\\`\\s~', $auto_inc, $match) != 0 && substr($auto_inc, -1, 1) == ',') {
+			if (preg_match('~\`(.+?)\`\s~', $auto_inc, $match) != 0 && substr($auto_inc, -1, 1) == ',') {
 				$auto_inc = substr($auto_inc, 0, -1);
 			}
 
@@ -1162,10 +1162,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$value = ini_get('mysqli.allow_persistent');
 
-		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
-
-
-		;
+		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
 
 	/*****************************************
@@ -1223,7 +1220,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function search_language()
 	{
-
 	}
 
 	/*******************************************
@@ -1315,7 +1311,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (isset($index_info['type']) && $index_info['type'] == 'primary') {
 				$index_info['name'] = '';
 			} else {
-				$index_info['name'] = trim(implode('_', preg_replace('~(\\(\\d+\\))~', '', $index_info['columns'])));
+				$index_info['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index_info['columns'])));
 			}
 		}
 
@@ -1609,7 +1605,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$table_query .= "\n\t" . 'PRIMARY KEY (' . implode(',', $index['columns']) . '),';
 			} else {
 				if (empty($index['name'])) {
-					$index['name'] = trim(implode('_', preg_replace('~(\\(\\d+\\))~', '', $index['columns'])));
+					$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
 				}
 
 				$table_query .= "\n\t" . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : 'KEY') . ' ' . $index['name'] . ' (' . $idx_columns . '),';
@@ -1802,7 +1798,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$auto = strpos($row['Extra'], 'auto_increment') !== false ? true : false;
 
 				// Can we split out the size?
-				if (preg_match('~(.+?)\\s*\\((\\d+)\\)(?:(?:\\s*)?(unsigned))?~i', $row['Type'], $matches) === 1) {
+				if (preg_match('~(.+?)\s*\((\d+)\)(?:(?:\s*)?(unsigned))?~i', $row['Type'], $matches) === 1) {
 					$type = $matches[1];
 					$size = $matches[2];
 
@@ -2202,7 +2198,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'date':
-				if (preg_match('~^(\\d{4})-([0-1]?\\d)-([0-3]?\\d)$~', $replacement, $date_matches) === 1) {
+				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1) {
 					return sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]);
 				}
 
@@ -2211,7 +2207,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'time':
-				if (preg_match('~^([0-1]?\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$~', $replacement, $time_matches) === 1) {
+				if (preg_match('~^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $time_matches) === 1) {
 					return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]);
 				}
 
@@ -2220,7 +2216,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'datetime':
-				if (preg_match('~^(\\d{4})-([0-1]?\\d)-([0-3]?\\d) ([0-1]?\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$~', $replacement, $datetime_matches) === 1) {
+				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1) {
 					return 'str_to_date(' .
 						sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5], $datetime_matches[6]) .
 						',\'%Y-%m-%d %h:%i:%s\')';
@@ -2280,7 +2276,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 					return implode(', ', $replacement);
 				}
-
 
 				$this->error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 

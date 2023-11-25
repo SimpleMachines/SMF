@@ -543,7 +543,6 @@ class Membergroups implements ActionInterface
 						['id_group', 'id_board', 'deny'],
 					);
 				}
-
 			}
 
 			// If this is joinable then set it to show group membership in people's profiles.
@@ -731,7 +730,7 @@ class Membergroups implements ActionInterface
 				'hidden' => empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $group->id == Group::MOD ? Group::VISIBLE : (int) $_POST['group_hidden'],
 				'parent' => $group->id > Group::ADMIN && $group->id != Group::MOD && (empty($inherit_type) || $inherit_type != Group::TYPE_PROTECTED) ? (int) $_POST['group_inherit'] : Group::NONE,
 				'tfa_required' => (empty(Config::$modSettings['tfa_mode']) || Config::$modSettings['tfa_mode'] != 2 || empty($_POST['group_tfa_force'])) ? false : true,
-				'online_color' => (int) $group->id != Group::MOD && preg_match('/^#?\\w+$/', Utils::htmlTrim($_POST['online_color'])) ? Utils::htmlTrim($_POST['online_color']) : '',
+				'online_color' => (int) $group->id != Group::MOD && preg_match('/^#?\w+$/', Utils::htmlTrim($_POST['online_color'])) ? Utils::htmlTrim($_POST['online_color']) : '',
 			]);
 
 			// Does the group have any moderators?

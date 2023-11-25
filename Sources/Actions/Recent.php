@@ -111,7 +111,6 @@ class Recent implements ActionInterface
 		'any' => [],
 	];
 
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

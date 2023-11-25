@@ -73,7 +73,7 @@ class XmlArray
 		}
 
 		// Remove any xml declaration or doctype, and parse out comments and CDATA.
-		$data = preg_replace('/<!--.*?-->/s', '', $this->_to_cdata(preg_replace(['/^<\\?xml.+?\\?' . '>/is', '/<!DOCTYPE[^>]+?' . '>/s'], '', $data)));
+		$data = preg_replace('/<!--.*?-->/s', '', $this->_to_cdata(preg_replace(['/^<\?xml.+?\?' . '>/is', '/<!DOCTYPE[^>]+?' . '>/s'], '', $data)));
 
 		// Now parse the xml!
 		$this->array = $this->_parse($data);
@@ -164,7 +164,6 @@ class XmlArray
 					return $array[$el];
 				}
 
-
 				$trace = debug_backtrace();
 				$i = 0;
 
@@ -180,7 +179,6 @@ class XmlArray
 				}
 
 				return false;
-
 			} else {
 				$lvl = null;
 			}
@@ -369,7 +367,7 @@ class XmlArray
 		// Loop until we're out of data.
 		while ($data != '') {
 			// Find and remove the next tag.
-			preg_match('/\\A<([\\w\\-:]+)((?:\\s+.+?)?)([\\s]?\\/)?' . '>/', $data, $match);
+			preg_match('/\A<([\w\-:]+)((?:\s+.+?)?)([\s]?\/)?' . '>/', $data, $match);
 
 			if (isset($match[0])) {
 				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);
@@ -462,10 +460,8 @@ class XmlArray
 						break;
 					}
 
-
 					$last_tag_end = $next_tag_end;
 					$offset = $next_tag_start + 1;
-
 				}
 				// Parse the insides.
 				$inner_match = substr($data, 0, $last_tag_end);
@@ -492,7 +488,7 @@ class XmlArray
 			// If we're dealing with attributes as well, parse them out.
 			if (isset($match[2]) && $match[2] != '') {
 				// Find all the attribute pairs in the string.
-				preg_match_all('/([\\w:]+)="(.+?)"/', $match[2], $attr, PREG_SET_ORDER);
+				preg_match_all('/([\w:]+)="(.+?)"/', $match[2], $attr, PREG_SET_ORDER);
 
 				// Set them as @attribute-name.
 				foreach ($attr as $match_attr) {
@@ -604,7 +600,7 @@ class XmlArray
 		$inCdata = $inComment = false;
 		$output = '';
 
-		$parts = preg_split('~(<!\\[CDATA\\[|\\]\\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		foreach ($parts as $part) {
 			// Handle XML comments.
@@ -650,7 +646,7 @@ class XmlArray
 		// Translate all the entities out.
 		$data = strtr(
 			preg_replace_callback(
-				'~&#(\\d{1,4});~',
+				'~&#(\d{1,4});~',
 				function ($m) {
 					return chr("{$m[1]}");
 				},
@@ -763,8 +759,8 @@ class XmlArray
 		if (count($results) == 1 || $level !== null) {
 			return $results[0];
 		}
-		// Return the result set.
 
+		// Return the result set.
 		return $results + ['name' => $path . '[]'];
 	}
 }

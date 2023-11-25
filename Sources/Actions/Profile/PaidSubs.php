@@ -235,7 +235,7 @@ class PaidSubs implements ActionInterface
 				Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']);
 
 				// Recurring?
-				preg_match('~(\\d*)(\\w)~', Utils::$context['sub']['real_length'], $match);
+				preg_match('~(\d*)(\w)~', Utils::$context['sub']['real_length'], $match);
 				Utils::$context['paypal_unit'] = $match[1];
 				Utils::$context['paypal_period'] = $match[2];
 			}
@@ -339,9 +339,7 @@ class PaidSubs implements ActionInterface
 			return;
 		}
 
-
 		Utils::$context['sub_template'] = 'user_subscription';
-
 	}
 
 	/***********************

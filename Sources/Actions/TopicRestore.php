@@ -593,7 +593,6 @@ class TopicRestore implements ActionInterface
 
 		Msg::updateLastMessages([$from_board, $target_board]);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

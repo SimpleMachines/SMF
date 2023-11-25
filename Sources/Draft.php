@@ -644,7 +644,7 @@ class Draft
 		}
 
 		if (isset($_POST['subject'])) {
-			$this->subject = Utils::entitySubstr(trim(preg_replace('/(\\pZ|&nbsp;)+/u', ' ', Utils::htmlspecialchars($_POST['subject']))), 0, 100);
+			$this->subject = Utils::entitySubstr(trim(preg_replace('/(\pZ|&nbsp;)+/u', ' ', Utils::htmlspecialchars($_POST['subject']))), 0, 100);
 		}
 
 		if (empty($this->member)) {
@@ -663,7 +663,7 @@ class Draft
 			$this->locked = !empty($_POST['lock']);
 		}
 
-		if (!empty($_POST['icon']) && preg_match('/^\\w+$/', $_POST['icon'])) {
+		if (!empty($_POST['icon']) && preg_match('/^\w+$/', $_POST['icon'])) {
 			$this->icon = $_POST['icon'];
 		}
 

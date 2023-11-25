@@ -224,15 +224,15 @@ class Utf8String implements \Stringable
 			switch ($case) {
 				case 'title':
 					$this->convertCase($this->string, 'lower', $simple);
-					$regex = '/(?:^|[^\\w' . $prop_classes['Case_Ignorable'] . '])\\K(\\p{L})/u';
+					$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})/u';
 					break;
 
 				case 'ucwords':
-					$regex = '/(?:^|[^\\w' . $prop_classes['Case_Ignorable'] . '])\\K(\\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\\p{Lu})|\\w?))/u';
+					$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\p{Lu})|\w?))/u';
 					break;
 
 				case 'ucfirst':
-					$regex = '/^[^\\w' . $prop_classes['Case_Ignorable'] . ']*\\K(\\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\\p{Lu})|\\w?))/u';
+					$regex = '/^[^\w' . $prop_classes['Case_Ignorable'] . ']*\K(\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\p{Lu})|\w?))/u';
 					break;
 			}
 
@@ -271,7 +271,7 @@ class Utf8String implements \Stringable
 			$substitutions['ς'] = 'σ';
 
 			// Then convert any at the end of words to final form.
-			$replacements['/\\Bσ([' . $prop_classes['Case_Ignorable'] . ']*)(?!\\p{L})/u'] = 'ς$1';
+			$replacements['/\Bσ([' . $prop_classes['Case_Ignorable'] . ']*)(?!\p{L})/u'] = 'ς$1';
 		}
 
 		// Greek conditional casing, part 2: No accents on uppercase strings.
@@ -333,18 +333,18 @@ class Utf8String implements \Stringable
 			// Note: some fonts handle this incorrectly and show two dots,
 			// but that's a bug in those fonts and cannot be fixed here.
 			if ($case !== 'upper') {
-				$replacements['/(i\\x{328}?|\\x{12F}|j)([\\x{300}\\x{301}\\x{303}])/u'] = '$1' . "\xCC\x87" . '$2';
+				$replacements['/(i\x{328}?|\x{12F}|j)([\x{300}\x{301}\x{303}])/u'] = '$1' . "\xCC\x87" . '$2';
 			}
 
 			// Remove "COMBINING DOT ABOVE" after uppercase I and J.
 			if ($case !== 'lower') {
-				$replacements['/(I\\x{328}?|\\x{12E}|J)\\x{307}/u'] = '$1';
+				$replacements['/(I\x{328}?|\x{12E}|J)\x{307}/u'] = '$1';
 			}
 		}
 
 		// Dutch has a special titlecase rule.
 		if ($this->language === 'nl' && $case === 'title') {
-			$replacements['/\\bIj/u'] = 'IJ';
+			$replacements['/\bIj/u'] = 'IJ';
 		}
 
 		// Now perform whatever conditional casing fixes we need.
@@ -470,7 +470,7 @@ class Utf8String implements \Stringable
 		// That means the more thorough checks will occasionally be performed on
 		// strings that don't need them, but building and running a perfect regex
 		// would be more expensive in the vast majority of cases, so meh.
-		if (preg_match_all('/([\\p{M}\\p{Cn}])/u', $this->string, $matches, PREG_OFFSET_CAPTURE)) {
+		if (preg_match_all('/([\p{M}\p{Cn}])/u', $this->string, $matches, PREG_OFFSET_CAPTURE)) {
 			require_once __DIR__ . '/CombiningClasses.php';
 
 			$combining_classes = utf8_combining_classes();
@@ -526,46 +526,46 @@ class Utf8String implements \Stringable
 		$prop_classes = utf8_regex_properties();
 
 		// We never want non-whitespace control characters
-		$disallowed[] = '[^\\P{Cc}\\t\\r\\n]';
+		$disallowed[] = '[^\P{Cc}\t\r\n]';
 
 		// We never want private use characters or non-characters.
 		// Use our own version of \p{Cn} in order to avoid possible inconsistencies
 		// between our data and whichever version of PCRE happens to be installed
 		// on this server. Unlike \p{Cc} and \p{Co}, which never change, the value
 		// of \p{Cn} changes with every new version of Unicode.
-		$disallowed[] = '[\\p{Co}' . $prop_classes['Cn'] . ']';
+		$disallowed[] = '[\p{Co}' . $prop_classes['Cn'] . ']';
 
 		// Several more things we never want:
 		$disallowed[] = '[' . implode('', [
 			// Soft Hyphen.
-			'\\x{AD}',
+			'\x{AD}',
 			// Khmer Vowel Inherent AQ and Khmer Vowel Inherent AA.
 			// Unicode Standard ch. 16 says: "they are insufficient for [their]
 			// purpose and should be considered errors in the encoding."
-			'\\x{17B4}-\\x{17B5}',
+			'\x{17B4}-\x{17B5}',
 			// Invisible math characters.
-			'\\x{2061}-\\x{2064}',
+			'\x{2061}-\x{2064}',
 			// Deprecated formatting characters.
-			'\\x{206A}-\\x{206F}',
+			'\x{206A}-\x{206F}',
 			// Zero Width No-Break Space, a.k.a. Byte Order Mark.
-			'\\x{FEFF}',
+			'\x{FEFF}',
 			// Annotation characters and Object Replacement Character.
-			'\\x{FFF9}-\\x{FFFC}',
+			'\x{FFF9}-\x{FFFC}',
 		]) . ']';
 
 		switch ($level) {
 			case 2:
 				$disallowed[] = '[' . implode('', [
 					// Combining Grapheme Character.
-					'\\x{34F}',
+					'\x{34F}',
 					// Zero Width Non-Joiner.
-					'\\x{200C}',
+					'\x{200C}',
 					// Zero Width Joiner.
-					'\\x{200D}',
+					'\x{200D}',
 					// All variation selectors.
 					$prop_classes['Variation_Selector'],
 					// Tag characters.
-					'\\x{E0000}-\\x{E007F}',
+					'\x{E0000}-\x{E007F}',
 				]) . ']';
 
 				// no break
@@ -573,48 +573,48 @@ class Utf8String implements \Stringable
 			case 1:
 				$disallowed[] = '[' . implode('', [
 					// Zero Width Space.
-					'\\x{200B}',
+					'\x{200B}',
 					// Word Joiner.
-					'\\x{2060}',
+					'\x{2060}',
 					// "Bidi_Control" characters.
 					// Disallowing means that all characters will behave according
 					// to their default bidirectional text properties.
 					$prop_classes['Bidi_Control'],
 					// Hangul filler characters.
 					// Used as placeholders in incomplete ideographs.
-					'\\x{115F}\\x{1160}\\x{3164}\\x{FFA0}',
+					'\x{115F}\x{1160}\x{3164}\x{FFA0}',
 					// Shorthand formatting characters.
-					'\\x{1BCA0}-\\x{1BCA3}',
+					'\x{1BCA0}-\x{1BCA3}',
 					// Musical formatting characters.
-					'\\x{1D173}-\\x{1D17A}',
+					'\x{1D173}-\x{1D17A}',
 				]) . ']';
 
 				break;
 
 			default:
 				// Zero Width Space only allowed in certain scripts.
-				$disallowed[] = '(?<![\\p{Thai}\\p{Myanmar}\\p{Khmer}\\p{Hiragana}\\p{Katakana}])\\x{200B}';
+				$disallowed[] = '(?<![\p{Thai}\p{Myanmar}\p{Khmer}\p{Hiragana}\p{Katakana}])\x{200B}';
 
 				// Word Joiner disallowed inside words. (Yes, \w is Unicode safe.)
-				$disallowed[] = '(?<=\\w)\\x{2060}(?=\\w)';
+				$disallowed[] = '(?<=\w)\x{2060}(?=\w)';
 
 				// Hangul Choseong Filler and Hangul Jungseong Filler must followed
 				// by more Hangul Jamo characters.
-				$disallowed[] = '[\\x{115F}\\x{1160}](?![\\x{1100}-\\x{11FF}\\x{A960}-\\x{A97F}\\x{D7B0}-\\x{D7FF}])';
+				$disallowed[] = '[\x{115F}\x{1160}](?![\x{1100}-\x{11FF}\x{A960}-\x{A97F}\x{D7B0}-\x{D7FF}])';
 
 				// Hangul Filler for Hangul compatibility chars.
-				$disallowed[] = '\\x{3164}(?![\\x{3130}-\\x{318F}])';
+				$disallowed[] = '\x{3164}(?![\x{3130}-\x{318F}])';
 
 				// Halfwidth Hangul Filler for halfwidth Hangul compatibility chars.
-				$disallowed[] = '\\x{FFA0}(?![\\x{FFA1}-\\x{FFDC}])';
+				$disallowed[] = '\x{FFA0}(?![\x{FFA1}-\x{FFDC}])';
 
 				// Shorthand formatting characters only with other shorthand chars.
-				$disallowed[] = '[\\x{1BCA0}-\\x{1BCA3}](?![\\x{1BC00}-\\x{1BC9F}])';
-				$disallowed[] = '(?<![\\x{1BC00}-\\x{1BC9F}])[\\x{1BCA0}-\\x{1BCA3}]';
+				$disallowed[] = '[\x{1BCA0}-\x{1BCA3}](?![\x{1BC00}-\x{1BC9F}])';
+				$disallowed[] = '(?<![\x{1BC00}-\x{1BC9F}])[\x{1BCA0}-\x{1BCA3}]';
 
 				// Musical formatting characters only with other musical chars.
-				$disallowed[] = '[\\x{1D173}\\x{1D175}\\x{1D177}\\x{1D179}](?![\\x{1D100}-\\x{1D1FF}])';
-				$disallowed[] = '(?<![\\x{1D100}-\\x{1D1FF}])[\\x{1D174}\\x{1D176}\\x{1D178}\\x{1D17A}]';
+				$disallowed[] = '[\x{1D173}\x{1D175}\x{1D177}\x{1D179}](?![\x{1D100}-\x{1D1FF}])';
+				$disallowed[] = '(?<![\x{1D100}-\x{1D1FF}])[\x{1D174}\x{1D176}\x{1D178}\x{1D17A}]';
 
 				break;
 		}
@@ -628,10 +628,10 @@ class Utf8String implements \Stringable
 				simply test whether it is followed by a combining mark in order to
 				determine whether to allow it.
 			*/
-			$disallowed[] = '\\x{34F}(?!\\p{M})';
+			$disallowed[] = '\x{34F}(?!\p{M})';
 
 			// Tag characters not allowed inside words.
-			$disallowed[] = '(?<=\\w)[\\x{E0000}-\\x{E007F}](?=\\w)';
+			$disallowed[] = '(?<=\w)[\x{E0000}-\x{E007F}](?=\w)';
 		}
 
 		$this->string = preg_replace('/' . implode('|', $disallowed) . '/u', $substitute, $this->string);
@@ -733,13 +733,13 @@ class Utf8String implements \Stringable
 			 * the Unicode word break algorithm.
 			 * See https://www.unicode.org/reports/tr29/#Word_Boundaries
 			 */
-			$words = preg_split('/(?<![\\p{L}\\p{M}\\p{N}_])(?=[\\p{L}\\p{M}\\p{N}_])|(?<=[\\p{L}\\p{M}\\p{N}_])(?![\\p{L}\\p{M}\\p{N}_])/su', $this->string);
+			$words = preg_split('/(?<![\p{L}\p{M}\p{N}_])(?=[\p{L}\p{M}\p{N}_])|(?<=[\p{L}\p{M}\p{N}_])(?![\p{L}\p{M}\p{N}_])/su', $this->string);
 		}
 
 		foreach ($words as $key => $word) {
 			$word = trim($word);
 
-			if (preg_replace('/\\W/u', '', $word) === '') {
+			if (preg_replace('/\W/u', '', $word) === '') {
 				unset($words[$key]);
 
 				continue;
@@ -1282,20 +1282,20 @@ class Utf8String implements \Stringable
 			'(' .
 				'[' . $prop_classes['Emoji_Modifier'] . ']' .
 				'|' .
-				'\\x{FE0F}\\x{20E3}?' .
+				'\x{FE0F}\x{20E3}?' .
 				'|' .
-				'[\\x{E0020}-\\x{E007E}]+\\x{E007F}' .
+				'[\x{E0020}-\x{E007E}]+\x{E007F}' .
 			')?' .
 			// Possibly concatenated with Zero Width Joiner and more emojis
 			// (e.g. the "family" emoji sequences)
 			'(' .
-				'\\x{200D}[' . $prop_classes['Emoji'] . ']' .
+				'\x{200D}[' . $prop_classes['Emoji'] . ']' .
 				'(' .
 					'[' . $prop_classes['Emoji_Modifier'] . ']' .
 					'|' .
-					'\\x{FE0F}\\x{20E3}?' .
+					'\x{FE0F}\x{20E3}?' .
 					'|' .
-					'[\\x{E0020}-\\x{E007E}]+\\x{E007F}' .
+					'[\x{E0020}-\x{E007E}]+\x{E007F}' .
 				')?' .
 			')*' .
 			'/u',
@@ -1335,7 +1335,7 @@ class Utf8String implements \Stringable
 		require_once __DIR__ . '/RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
-		$patterns = ['/[' . $prop_classes['Ideographic'] . '][\\x{E0100}-\\x{E01EF}]/u'];
+		$patterns = ['/[' . $prop_classes['Ideographic'] . '][\x{E0100}-\x{E01EF}]/u'];
 
 		foreach (utf8_regex_variation_selectors() as $variation_selector => $allowed_base_chars) {
 			$patterns[] = '/[' . $allowed_base_chars . '][' . $variation_selector . ']/u';
@@ -1384,7 +1384,7 @@ class Utf8String implements \Stringable
 
 		// When not in strict mode, allow ZWJ at word boundaries.
 		if ($level === 0) {
-			$this->string = preg_replace('/\\b\\x{200D}|\\x{200D}\\b/u', $placeholders[$zwj], $this->string);
+			$this->string = preg_replace('/\b\x{200D}|\x{200D}\b/u', $placeholders[$zwj], $this->string);
 		}
 
 		// Tests for Zero Width Joiner and Zero Width Non-Joiner.
@@ -1426,14 +1426,14 @@ class Utf8String implements \Stringable
 				$nonspacing_combining_marks = '[' . $classes['Nonspacing_Combining_Mark'] . ']*';
 
 				// ZWNJ must be followed by another letter in the same script.
-				$zwnj_pattern = '\\x{200C}(?=' . $nonspacing_combining_marks . $letter . ')';
+				$zwnj_pattern = '\x{200C}(?=' . $nonspacing_combining_marks . $letter . ')';
 
 				// ZWJ must NOT be followed by a vowel dependent character in
 				// this script or by any character from a different script.
-				$zwj_pattern = '\\x{200D}(?!' . (!empty($classes['Vowel_Dependent']) ? '[' . $classes['Vowel_Dependent'] . ']|' : '') . '[^' . $classes['All'] . '])';
+				$zwj_pattern = '\x{200D}(?!' . (!empty($classes['Vowel_Dependent']) ? '[' . $classes['Vowel_Dependent'] . ']|' : '') . '[^' . $classes['All'] . '])';
 
 				// Now build the pattern for this script.
-				$pattern = $letter . $nonspacing_marks . '[' . $classes['Virama'] . ']' . $nonspacing_combining_marks . '\\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
+				$pattern = $letter . $nonspacing_marks . '[' . $classes['Virama'] . ']' . $nonspacing_combining_marks . '\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
 			}
 
 			// Do the thing.

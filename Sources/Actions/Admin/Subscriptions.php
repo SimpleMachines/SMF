@@ -787,7 +787,7 @@ class Subscriptions implements ActionInterface
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 				// Sort the date.
-				preg_match('~(\\d*)(\\w)~', $row['length'], $match);
+				preg_match('~(\d*)(\w)~', $row['length'], $match);
 
 				if (isset($match[2])) {
 					$_POST['span_value'] = $match[1];
@@ -976,7 +976,6 @@ class Subscriptions implements ActionInterface
 						],
 						['id_sublog'],
 					);
-
 				}
 			}
 			// Updating.
@@ -1493,7 +1492,7 @@ class Subscriptions implements ActionInterface
 			}
 
 			// Do the span.
-			preg_match('~(\\d*)(\\w)~', $row['length'], $match);
+			preg_match('~(\d*)(\w)~', $row['length'], $match);
 
 			if (isset($match[2])) {
 				$num_length = $match[1];
@@ -2110,7 +2109,7 @@ class Subscriptions implements ActionInterface
 
 		if ($dh = opendir(Config::$sourcedir)) {
 			while (($file = readdir($dh)) !== false) {
-				if (is_file(Config::$sourcedir . '/' . $file) && preg_match('~^Subscriptions-([A-Za-z\\d]+)\\.php$~', $file, $matches)) {
+				if (is_file(Config::$sourcedir . '/' . $file) && preg_match('~^Subscriptions-([A-Za-z\d]+)\.php$~', $file, $matches)) {
 					// Check this is definitely a valid gateway!
 					$fp = fopen(Config::$sourcedir . '/' . $file, 'rb');
 					$header = fread($fp, 4096);

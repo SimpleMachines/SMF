@@ -114,7 +114,7 @@ class HelpAdmin implements ActionInterface
 		}
 
 		// Does this text contain a link that we should fill in?
-		if (preg_match('~%([0-9]+\\$)?s\\?~', Utils::$context['help_text'], $match)) {
+		if (preg_match('~%([0-9]+\$)?s\?~', Utils::$context['help_text'], $match)) {
 			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Config::$scripturl, Utils::$context['session_id'], Utils::$context['session_var']);
 		}
 

@@ -300,7 +300,7 @@ class BBCodeParser
 		[
 			'tag' => 'anchor',
 			'type' => 'unparsed_equals',
-			'test' => '[#]?([A-Za-z][A-Za-z0-9_\\-]*)\\]',
+			'test' => '[#]?([A-Za-z][A-Za-z0-9_\-]*)\]',
 			'before' => '<span id="post_$1">',
 			'after' => '</span>',
 		],
@@ -308,10 +308,10 @@ class BBCodeParser
 			'tag' => 'attach',
 			'type' => 'unparsed_content',
 			'parameters' => [
-				'id' => ['match' => '(\\d+)'],
+				'id' => ['match' => '(\d+)'],
 				'alt' => ['optional' => true],
-				'width' => ['optional' => true, 'match' => '(\\d+)'],
-				'height' => ['optional' => true, 'match' => '(\\d+)'],
+				'width' => ['optional' => true, 'match' => '(\d+)'],
+				'height' => ['optional' => true, 'match' => '(\d+)'],
 				'display' => ['optional' => true, 'match' => '(link|embed)'],
 			],
 			'content' => '$1',
@@ -328,7 +328,7 @@ class BBCodeParser
 			'type' => 'unparsed_equals',
 			'before' => '<bdo dir="$1">',
 			'after' => '</bdo>',
-			'test' => '(rtl|ltr)\\]',
+			'test' => '(rtl|ltr)\]',
 			'block_level' => true,
 		],
 		// Legacy (alias of [color=black])
@@ -371,7 +371,7 @@ class BBCodeParser
 		[
 			'tag' => 'color',
 			'type' => 'unparsed_equals',
-			'test' => '(#[\\da-fA-F]{3}|#[\\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\\((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\s?,\\s?){2}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\))\\]',
+			'test' => '(#[\da-fA-F]{3}|#[\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\s?,\s?){2}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\))\]',
 			'before' => '<span style="color: $1;" class="bbc_color">',
 			'after' => '</span>',
 		],
@@ -393,14 +393,14 @@ class BBCodeParser
 		[
 			'tag' => 'flash',
 			'type' => 'unparsed_commas_content',
-			'test' => '\\d+,\\d+\\]',
+			'test' => '\d+,\d+\]',
 			'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 			'validate' => __CLASS__ . '::flashValidate',
 		],
 		[
 			'tag' => 'float',
 			'type' => 'unparsed_equals',
-			'test' => '(left|right)(\\s+max=\\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\\]',
+			'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
 			'before' => '<div $1>',
 			'after' => '</div>',
 			'validate' => __CLASS__ . '::floatValidate',
@@ -427,7 +427,7 @@ class BBCodeParser
 		[
 			'tag' => 'font',
 			'type' => 'unparsed_equals',
-			'test' => '[A-Za-z0-9_,\\-\\s]+?\\]',
+			'test' => '[A-Za-z0-9_,\-\s]+?\]',
 			'before' => '<span style="font-family: $1;" class="bbc_font">',
 			'after' => '</span>',
 		],
@@ -435,7 +435,7 @@ class BBCodeParser
 		[
 			'tag' => 'glow',
 			'type' => 'unparsed_commas',
-			'test' => '[#0-9a-zA-Z\\-]{3,12},([012]\\d{1,2}|\\d{1,2})(,[^]]+)?\\]',
+			'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
 			'before' => '<span style="text-shadow: $1 1px 1px 1px">',
 			'after' => '</span>',
 		],
@@ -469,8 +469,8 @@ class BBCodeParser
 			'parameters' => [
 				'alt' => ['optional' => true],
 				'title' => ['optional' => true],
-				'width' => ['optional' => true, 'value' => ' width="$1"', 'match' => '(\\d+)'],
-				'height' => ['optional' => true, 'value' => ' height="$1"', 'match' => '(\\d+)'],
+				'width' => ['optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'],
+				'height' => ['optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'],
 			],
 			'content' => '$1',
 			'validate' => __CLASS__ . '::imgValidate',
@@ -613,8 +613,8 @@ class BBCodeParser
 			'tag' => 'quote',
 			'parameters' => [
 				'author' => ['match' => '([^<>]{1,192}?)'],
-				'link' => ['match' => '(?:board=\\d+;)?((?:topic|threadid)=[\\dmsg#\\./]{1,40}(?:;start=[\\dmsg#\\./]{1,40})?|msg=\\d+?|action=profile;u=\\d+)'],
-				'date' => ['match' => '(\\d+)', 'validate' => 'timeformat'],
+				'link' => ['match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'],
+				'date' => ['match' => '(\d+)', 'validate' => 'timeformat'],
 			],
 			'before' => '<blockquote><cite><a href="{scripturl}?{link}">{txt_quote_from}: {author} {txt_search_on} {date}</a></cite>',
 			'after' => '</blockquote>',
@@ -658,7 +658,7 @@ class BBCodeParser
 		[
 			'tag' => 'shadow',
 			'type' => 'unparsed_commas',
-			'test' => '[#0-9a-zA-Z\\-]{3,12},(left|right|top|bottom|[0123]\\d{0,2})\\]',
+			'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
 			'before' => '<span style="text-shadow: $1 $2">',
 			'after' => '</span>',
 			'validate' => __CLASS__ . '::shadowValidate',
@@ -666,14 +666,14 @@ class BBCodeParser
 		[
 			'tag' => 'size',
 			'type' => 'unparsed_equals',
-			'test' => '([1-9][\\d]?p[xt]|small(?:er)?|large[r]?|x[x]?-(?:small|large)|medium|(0\\.[1-9]|[1-9](\\.[\\d][\\d]?)?)?em)\\]',
+			'test' => '([1-9][\d]?p[xt]|small(?:er)?|large[r]?|x[x]?-(?:small|large)|medium|(0\.[1-9]|[1-9](\.[\d][\d]?)?)?em)\]',
 			'before' => '<span style="font-size: $1;" class="bbc_size">',
 			'after' => '</span>',
 		],
 		[
 			'tag' => 'size',
 			'type' => 'unparsed_equals',
-			'test' => '[1-7]\\]',
+			'test' => '[1-7]\]',
 			'before' => '<span style="font-size: $1;" class="bbc_size">',
 			'after' => '</span>',
 			'validate' => __CLASS__ . '::sizeValidate',
@@ -814,13 +814,13 @@ class BBCodeParser
 	 * Regular expression character class to match all characters allowed to
 	 * appear in a domain name.
 	 */
-	public static $domain_label_chars = '0-9A-Za-z\\-' . '\\x{A0}-\\x{D7FF}' .
-		'\\x{F900}-\\x{FDCF}' . '\\x{FDF0}-\\x{FFEF}' . '\\x{10000}-\\x{1FFFD}' .
-		'\\x{20000}-\\x{2FFFD}' . '\\x{30000}-\\x{3FFFD}' . '\\x{40000}-\\x{4FFFD}' .
-		'\\x{50000}-\\x{5FFFD}' . '\\x{60000}-\\x{6FFFD}' . '\\x{70000}-\\x{7FFFD}' .
-		'\\x{80000}-\\x{8FFFD}' . '\\x{90000}-\\x{9FFFD}' . '\\x{A0000}-\\x{AFFFD}' .
-		'\\x{B0000}-\\x{BFFFD}' . '\\x{C0000}-\\x{CFFFD}' . '\\x{D0000}-\\x{DFFFD}' .
-		'\\x{E1000}-\\x{EFFFD}';
+	public static $domain_label_chars = '0-9A-Za-z\-' . '\x{A0}-\x{D7FF}' .
+		'\x{F900}-\x{FDCF}' . '\x{FDF0}-\x{FFEF}' . '\x{10000}-\x{1FFFD}' .
+		'\x{20000}-\x{2FFFD}' . '\x{30000}-\x{3FFFD}' . '\x{40000}-\x{4FFFD}' .
+		'\x{50000}-\x{5FFFD}' . '\x{60000}-\x{6FFFD}' . '\x{70000}-\x{7FFFD}' .
+		'\x{80000}-\x{8FFFD}' . '\x{90000}-\x{9FFFD}' . '\x{A0000}-\x{AFFFD}' .
+		'\x{B0000}-\x{BFFFD}' . '\x{C0000}-\x{CFFFD}' . '\x{D0000}-\x{DFFFD}' .
+		'\x{E1000}-\x{EFFFD}';
 
 	/**
 	 * @var array
@@ -1113,7 +1113,7 @@ class BBCodeParser
 		$this->autolink_enabled = !empty(Config::$modSettings['autoLinkUrls']);
 
 		if (!$this->utf8) {
-			self::$domain_label_chars = '0-9A-Za-z\\-';
+			self::$domain_label_chars = '0-9A-Za-z\-';
 		}
 
 		// In case a mod wants to control behaviour for a special URI scheme.
@@ -1302,7 +1302,7 @@ class BBCodeParser
 			}
 
 			// The non-breaking-space is a complex thing...
-			$non_breaking_space = $this->utf8 ? '\\x{A0}' : '\\xA0';
+			$non_breaking_space = $this->utf8 ? '\x{A0}' : '\xA0';
 
 			// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
 			$this->smiley_preg_replacements = [];
@@ -1323,7 +1323,7 @@ class BBCodeParser
 					$search_parts[] = $special_chars;
 
 					// Some 2.0 hex htmlchars are in there as 3 digits; allow for finding leading 0 or not
-					$special_chars2 = preg_replace('/&#(\\d{2});/', '&#0$1;', $special_chars);
+					$special_chars2 = preg_replace('/&#(\d{2});/', '&#0$1;', $special_chars);
 
 					if ($special_chars2 != $special_chars) {
 						$this->smiley_preg_replacements[$special_chars2] = $smiley_code;
@@ -1332,7 +1332,7 @@ class BBCodeParser
 				}
 			}
 
-			$this->smiley_preg_search = '~(?<=[>:\\?\\.\\s' . $non_breaking_space . '[\\]()*\\\\;]|(?<![a-zA-Z0-9])\\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($this->utf8 ? 'u' : '');
+			$this->smiley_preg_search = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($this->utf8 ? 'u' : '');
 		}
 
 		// If there are no smileys defined, no need to replace anything
@@ -1361,24 +1361,24 @@ class BBCodeParser
 	public function unparse(string $string): string
 	{
 		// Replace newlines with spaces, as that's how browsers usually interpret them.
-		$string = preg_replace("~\\s*[\r\n]+\\s*~", ' ', $string);
+		$string = preg_replace('~\s*[\r\n]+\s*~', ' ', $string);
 
 		// Though some of us love paragraphs, the parser will do better with breaks.
-		$string = preg_replace('~</p>\\s*?<p~i', '</p><br><p', $string);
-		$string = preg_replace('~</p>\\s*(?!<)~i', '</p><br>', $string);
+		$string = preg_replace('~</p>\s*?<p~i', '</p><br><p', $string);
+		$string = preg_replace('~</p>\s*(?!<)~i', '</p><br>', $string);
 
 		// Safari/webkit wraps lines in Wysiwyg in <div>'s.
 		if (BrowserDetector::isBrowser('webkit')) {
-			$string = preg_replace(['~<div(?:\\s(?:[^<>]*?))?' . '>~i', '</div>'], ['<br>', ''], $string);
+			$string = preg_replace(['~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'], ['<br>', ''], $string);
 		}
 
 		// If there's a trailing break get rid of it - Firefox tends to add one.
-		$string = preg_replace('~<br\\s?/?' . '>$~i', '', $string);
+		$string = preg_replace('~<br\s?/?' . '>$~i', '', $string);
 
 		// Remove any formatting within code tags.
 		if (strpos($string, '[code') !== false) {
-			$string = preg_replace('~<br\\s?/?' . '>~i', '#smf_br_spec_grudge_cool!#', $string);
-			$parts = preg_split('~(\\[/code\\]|\\[code(?:=[^\\]]+)?\\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$string = preg_replace('~<br\s?/?' . '>~i', '#smf_br_spec_grudge_cool!#', $string);
+			$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			// Only mess with stuff outside [code] tags.
 			for ($i = 0, $n = count($parts); $i < $n; $i++) {
@@ -1398,7 +1398,7 @@ class BBCodeParser
 		$string = preg_replace('~\\<\\!\\[CDATA\\[.*?\\]\\]\\>~i', '', $string);
 
 		// Do the smileys ultra first!
-		preg_match_all('~<img\\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\\s)?~i', $string, $matches);
+		preg_match_all('~<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\s)?~i', $string, $matches);
 
 		if (!empty($matches[0])) {
 			// Get all our smiley codes
@@ -1434,13 +1434,13 @@ class BBCodeParser
 			@apache_reset_timeout();
 		}
 
-		$parts = preg_split('~(<[A-Za-z]+\\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('~(<[A-Za-z]+\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$replacement = '';
 		$stack = [];
 
 		foreach ($parts as $part) {
 			// Opening tag.
-			if (preg_match('~(<([A-Za-z]+)\\s*[^<>]*?)style="?([^<>"]+)"?([^<>]*?(/?)>)~', $part, $matches) === 1) {
+			if (preg_match('~(<([A-Za-z]+)\s*[^<>]*?)style="?([^<>"]+)"?([^<>]*?(/?)>)~', $part, $matches) === 1) {
 				// If it's being closed instantly, we can't deal with it...yet.
 				if ($matches[5] === '/') {
 					continue;
@@ -1513,7 +1513,7 @@ class BBCodeParser
 
 						case 'font-size':
 							// Sometimes people put decimals where decimals should not be.
-							if (preg_match('~(\\d)+\\.\\d+(p[xt])~i', $style_value, $dec_matches) === 1) {
+							if (preg_match('~(\d)+\.\d+(p[xt])~i', $style_value, $dec_matches) === 1) {
 								$style_value = $dec_matches[1] . $dec_matches[2];
 							}
 
@@ -1534,7 +1534,7 @@ class BBCodeParser
 							// This is a hack for images with dimensions embedded.
 						case 'width':
 						case 'height':
-							if (preg_match('~[1-9]\\d*~i', $style_value, $dimension) === 1) {
+							if (preg_match('~[1-9]\d*~i', $style_value, $dimension) === 1) {
 								$extra_attr .= ' ' . $style_type . '="' . $dimension[0] . '"';
 							}
 							break;
@@ -1593,7 +1593,7 @@ class BBCodeParser
 		}
 
 		// Let's pull out any legacy alignments.
-		while (preg_match('~<([A-Za-z]+)\\s+[^<>]*?(align="*(left|center|right)"*)[^<>]*?(/?)>~i', $string, $matches) === 1) {
+		while (preg_match('~<([A-Za-z]+)\s+[^<>]*?(align="*(left|center|right)"*)[^<>]*?(/?)>~i', $string, $matches) === 1) {
 			// Find the position in the text of this tag over again.
 			$start_pos = strpos($string, $matches[0]);
 
@@ -1619,7 +1619,7 @@ class BBCodeParser
 		}
 
 		// Let's do some special stuff for fonts - cause we all love fonts.
-		while (preg_match('~<font\\s+([^<>]*)>~i', $string, $matches) === 1) {
+		while (preg_match('~<font\s+([^<>]*)>~i', $string, $matches) === 1) {
 			// Find the position of this again.
 			$start_pos = strpos($string, $matches[0]);
 			$end_pos = false;
@@ -1842,7 +1842,7 @@ class BBCodeParser
 								$parts[$i + 3] = '';
 							} else {
 								// Remove the trailing breaks from the list item.
-								$parts[$i] = preg_replace('~\\s*<br\\s*' . '/?' . '>\\s*$~', '', $parts[$i]);
+								$parts[$i] = preg_replace('~\s*<br\s*' . '/?' . '>\s*$~', '', $parts[$i]);
 								$parts[$i + 1] = '';
 								$parts[$i + 2] = '[/li]' . "\n";
 								$parts[$i + 3] = '';
@@ -1855,7 +1855,7 @@ class BBCodeParser
 				}
 
 				// If we're in the [list] space, no content is allowed.
-				if ($inList && trim(preg_replace('~\\s*<br\\s*' . '/?' . '>\\s*~', '', $parts[$i + 4])) !== '') {
+				if ($inList && trim(preg_replace('~\s*<br\s*' . '/?' . '>\s*~', '', $parts[$i + 4])) !== '') {
 					// Fix it by injecting an extra list item.
 					array_splice($parts, $i + 4, 0, [
 						'', // No content.
@@ -1881,7 +1881,7 @@ class BBCodeParser
 		}
 
 		// I love my own image...
-		while (preg_match('~<img\\s+([^<>]*)/*>~i', $string, $matches) === 1) {
+		while (preg_match('~<img\s+([^<>]*)/*>~i', $string, $matches) === 1) {
 			// Find the position of the image.
 			$start_pos = strpos($string, $matches[0]);
 
@@ -1918,7 +1918,7 @@ class BBCodeParser
 					if (substr($src, 0, 1) === '/') {
 						$src = $base_url . $src;
 					} else {
-						$src = $base_url . (empty($src->path) ? '/' : preg_replace('~/(?:index\\.php)?$~', '', $src->path)) . '/' . $src;
+						$src = $base_url . (empty($src->path) ? '/' : preg_replace('~/(?:index\.php)?$~', '', $src->path)) . '/' . $src;
 					}
 				}
 
@@ -1931,124 +1931,124 @@ class BBCodeParser
 
 		// The final bits are the easy ones - tags which map to tags which map to tags - etc etc.
 		$tags = [
-			'~<b(\\s(.)*?)*?' . '>~i' => function () {
+			'~<b(\s(.)*?)*?' . '>~i' => function () {
 				return '[b]';
 			},
 			'~</b>~i' => function () {
 				return '[/b]';
 			},
-			'~<i(\\s(.)*?)*?' . '>~i' => function () {
+			'~<i(\s(.)*?)*?' . '>~i' => function () {
 				return '[i]';
 			},
 			'~</i>~i' => function () {
 				return '[/i]';
 			},
-			'~<u(\\s(.)*?)*?' . '>~i' => function () {
+			'~<u(\s(.)*?)*?' . '>~i' => function () {
 				return '[u]';
 			},
 			'~</u>~i' => function () {
 				return '[/u]';
 			},
-			'~<strong(\\s(.)*?)*?' . '>~i' => function () {
+			'~<strong(\s(.)*?)*?' . '>~i' => function () {
 				return '[b]';
 			},
 			'~</strong>~i' => function () {
 				return '[/b]';
 			},
-			'~<em(\\s(.)*?)*?' . '>~i' => function () {
+			'~<em(\s(.)*?)*?' . '>~i' => function () {
 				return '[i]';
 			},
 			'~</em>~i' => function () {
 				return '[i]';
 			},
-			'~<s(\\s(.)*?)*?' . '>~i' => function () {
+			'~<s(\s(.)*?)*?' . '>~i' => function () {
 				return '[s]';
 			},
 			'~</s>~i' => function () {
 				return '[/s]';
 			},
-			'~<strike(\\s(.)*?)*?' . '>~i' => function () {
+			'~<strike(\s(.)*?)*?' . '>~i' => function () {
 				return '[s]';
 			},
 			'~</strike>~i' => function () {
 				return '[/s]';
 			},
-			'~<del(\\s(.)*?)*?' . '>~i' => function () {
+			'~<del(\s(.)*?)*?' . '>~i' => function () {
 				return '[s]';
 			},
 			'~</del>~i' => function () {
 				return '[/s]';
 			},
-			'~<center(\\s(.)*?)*?' . '>~i' => function () {
+			'~<center(\s(.)*?)*?' . '>~i' => function () {
 				return '[center]';
 			},
 			'~</center>~i' => function () {
 				return '[/center]';
 			},
-			'~<pre(\\s(.)*?)*?' . '>~i' => function () {
+			'~<pre(\s(.)*?)*?' . '>~i' => function () {
 				return '[pre]';
 			},
 			'~</pre>~i' => function () {
 				return '[/pre]';
 			},
-			'~<sub(\\s(.)*?)*?' . '>~i' => function () {
+			'~<sub(\s(.)*?)*?' . '>~i' => function () {
 				return '[sub]';
 			},
 			'~</sub>~i' => function () {
 				return '[/sub]';
 			},
-			'~<sup(\\s(.)*?)*?' . '>~i' => function () {
+			'~<sup(\s(.)*?)*?' . '>~i' => function () {
 				return '[sup]';
 			},
 			'~</sup>~i' => function () {
 				return '[/sup]';
 			},
-			'~<tt(\\s(.)*?)*?' . '>~i' => function () {
+			'~<tt(\s(.)*?)*?' . '>~i' => function () {
 				return '[tt]';
 			},
 			'~</tt>~i' => function () {
 				return '[/tt]';
 			},
-			'~<table(\\s(.)*?)*?' . '>~i' => function () {
+			'~<table(\s(.)*?)*?' . '>~i' => function () {
 				return '[table]';
 			},
 			'~</table>~i' => function () {
 				return '[/table]';
 			},
-			'~<tr(\\s(.)*?)*?' . '>~i' => function () {
+			'~<tr(\s(.)*?)*?' . '>~i' => function () {
 				return '[tr]';
 			},
 			'~</tr>~i' => function () {
 				return '[/tr]';
 			},
-			'~<(td|th)\\s[^<>]*?colspan="?(\\d{1,2})"?.*?' . '>~i' => function ($matches) {
+			'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function ($matches) {
 				return str_repeat('[td][/td]', $matches[2] - 1) . '[td]';
 			},
-			'~<(td|th)(\\s(.)*?)*?' . '>~i' => function () {
+			'~<(td|th)(\s(.)*?)*?' . '>~i' => function () {
 				return '[td]';
 			},
 			'~</(td|th)>~i' => function () {
 				return '[/td]';
 			},
-			'~<br(?:\\s[^<>]*?)?' . '>~i' => function () {
+			'~<br(?:\s[^<>]*?)?' . '>~i' => function () {
 				return "\n";
 			},
-			'~<hr[^<>]*>(\\n)?~i' => function ($matches) {
+			'~<hr[^<>]*>(\n)?~i' => function ($matches) {
 				return "[hr]\n" . $matches[0];
 			},
-			'~(\\n)?\\[hr\\]~i' => function () {
+			'~(\n)?\[hr\]~i' => function () {
 				return "\n[hr]";
 			},
-			'~^\\n\\[hr\\]~i' => function () {
+			'~^\n\[hr\]~i' => function () {
 				return '[hr]';
 			},
-			'~<blockquote(\\s(.)*?)*?' . '>~i' => function () {
+			'~<blockquote(\s(.)*?)*?' . '>~i' => function () {
 				return '&lt;blockquote&gt;';
 			},
 			'~</blockquote>~i' => function () {
 				return '&lt;/blockquote&gt;';
 			},
-			'~<ins(\\s(.)*?)*?' . '>~i' => function () {
+			'~<ins(\s(.)*?)*?' . '>~i' => function () {
 				return '&lt;ins&gt;';
 			},
 			'~</ins>~i' => function () {
@@ -2066,7 +2066,7 @@ class BBCodeParser
 		}
 
 		// What about URL's - the pain in the ass of the tag world.
-		while (preg_match('~<a\\s+([^<>]*)>([^<>]*)</a>~i', $string, $matches) === 1) {
+		while (preg_match('~<a\s+([^<>]*)>([^<>]*)</a>~i', $string, $matches) === 1) {
 			// Find the position of the URL.
 			$start_pos = strpos($string, $matches[0]);
 
@@ -2132,7 +2132,7 @@ class BBCodeParser
 		$string = strip_tags($string);
 
 		// Some tags often end up as just dummy tags - remove those.
-		$string = preg_replace('~\\[[bisu]\\]\\s*\\[/[bisu]\\]~', '', $string);
+		$string = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $string);
 
 		// Fix up entities.
 		$string = preg_replace('~&#0*38;~i', '&#38;#38;', $string);
@@ -2233,7 +2233,7 @@ class BBCodeParser
 		error_reporting($oldlevel);
 
 		// Yes, I know this is kludging it, but this is the best way to preserve tabs from PHP :P.
-		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\\(\\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
+		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
 
 		return strtr($buffer, ['\'' => '&#039;', '<code>' => '', '</code>' => '']);
 	}
@@ -2460,7 +2460,7 @@ class BBCodeParser
 		if (!isset($disabled['code'])) {
 			$code = is_array($data) ? $data[0] : $data;
 
-			$php_parts = preg_split('~(&lt;\\?php|\\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++) {
 				// Do PHP code coloring?
@@ -2540,7 +2540,7 @@ class BBCodeParser
 	{
 		$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
 
-		if (preg_match('~\\bmax=(\\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)~', $data, $matches)) {
+		if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)~', $data, $matches)) {
 			$css = ' style="max-width:' . $matches[1] . (is_numeric($matches[1]) ? 'px' : '') . '"';
 		} else {
 			$css = '';
@@ -2653,7 +2653,7 @@ class BBCodeParser
 			$data = self::highlightPhpCode($add_begin ? '&lt;?php ' . $data . '?&gt;' : $data);
 
 			if ($add_begin) {
-				$data = preg_replace(['~^(.+?)&lt;\\?.{0,40}?php(?:&nbsp;|\\s)~', '~\\?&gt;((?:</(font|span)>)*)$~'], '$1', $data, 2);
+				$data = preg_replace(['~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~', '~\?&gt;((?:</(font|span)>)*)$~'], '$1', $data, 2);
 			}
 		}
 	}
@@ -2729,7 +2729,7 @@ class BBCodeParser
 		while ($this->pos !== false) {
 			$this->last_pos = isset($this->last_pos) ? max($this->pos, $this->last_pos) : $this->pos;
 
-			preg_match('~\\[/?(?=' . $this->alltags_regex . ')~i', $this->message, $matches, PREG_OFFSET_CAPTURE, $this->pos + 1);
+			preg_match('~\[/?(?=' . $this->alltags_regex . ')~i', $this->message, $matches, PREG_OFFSET_CAPTURE, $this->pos + 1);
 
 			$this->pos = $matches[0][1] ?? false;
 
@@ -2919,9 +2919,7 @@ class BBCodeParser
 								return '[email=' . $url->path . ']' . $url . '[/email]';
 							}
 
-
 							return $url;
-
 						}
 
 						// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
@@ -3182,21 +3180,21 @@ class BBCodeParser
 		$pcre_subroutines = [
 			'tlds' => $this->tld_regex,
 			'pct' => '%[0-9A-Fa-f]{2}',
-			'space_lookahead' => '(?=$|\\s|<br>)',
-			'space_lookbehind' => '(?<=^|\\s|<br>)',
+			'space_lookahead' => '(?=$|\s|<br>)',
+			'space_lookbehind' => '(?<=^|\s|<br>)',
 			'domain_label_char' => '[' . self::$domain_label_chars . ']',
 			'not_domain_label_char' => '[^' . self::$domain_label_chars . ']',
-			'domain' => '(?:(?P>domain_label_char)+\\.)+(?P>tlds)(?!\\.(?P>domain_label_char))',
+			'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)(?!\.(?P>domain_label_char))',
 			'no_domain' => '(?:(?P>domain_label_char)|[._\\~!$&\'()*+,;=:@]|(?P>pct))+',
 			'scheme_need_domain' => Utils::buildRegex(self::$schemes['need_domain'], '~'),
 			'scheme_empty_authority' => Utils::buildRegex(self::$schemes['empty_authority'], '~'),
 			'scheme_no_authority' => Utils::buildRegex(self::$schemes['no_authority'], '~'),
-			'scheme_any' => '[A-Za-z][0-9A-Za-z+\\-.]*',
+			'scheme_any' => '[A-Za-z][0-9A-Za-z+\-.]*',
 			'user_info' => '(?:(?P>domain_label_char)|[._\\~!$&\'()*+,;=:]|(?P>pct))+',
-			'dec_octet' => '(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)',
+			'dec_octet' => '(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)',
 			'h16' => '[0-9A-Fa-f]{1,4}',
-			'ipv4' => '(?:\\b(?:(?P>dec_octet)\\.){3}(?P>dec_octet)\\b)',
-			'ipv6' => '\\[(?:' . implode('|', [
+			'ipv4' => '(?:\b(?:(?P>dec_octet)\.){3}(?P>dec_octet)\b)',
+			'ipv6' => '\[(?:' . implode('|', [
 				'(?:(?P>h16):){7}(?P>h16)',
 				'(?:(?P>h16):){1,7}:',
 				'(?:(?P>h16):){1,6}(?::(?P>h16))',
@@ -3209,14 +3207,14 @@ class BBCodeParser
 				'fe80:(?::(?P>h16)){0,4}%[0-9A-Za-z]+',
 				'::(ffff(:0{1,4})?:)?(?P>ipv4)',
 				'(?:(?P>h16):){1,4}:(?P>ipv4)',
-			]) . ')\\]',
+			]) . ')\]',
 			'host' => '(?:' . implode('|', [
 				'localhost',
 				'(?P>domain)',
 				'(?P>ipv4)',
 				'(?P>ipv6)',
 			]) . ')',
-			'authority' => '(?:(?P>user_info)@)?(?P>host)(?::\\d+)?',
+			'authority' => '(?:(?P>user_info)@)?(?P>host)(?::\d+)?',
 		];
 
 		// Brackets and quotation marks are problematic at the end of an IRI.
@@ -3265,7 +3263,7 @@ class BBCodeParser
 				}
 			}
 		}
-		$bracket_quote_chars = str_replace(['[', ']'], ['\\[', '\\]'], $bracket_quote_chars);
+		$bracket_quote_chars = str_replace(['[', ']'], ['\[', '\]'], $bracket_quote_chars);
 
 		$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . Utils::buildRegex($bracket_quote_entities, '~');
 		$pcre_subroutines['allowed_entities'] = '&(?!' . Utils::buildRegex(array_merge($bracket_quote_entities, ['lt;', 'gt;']), '~') . ')';
@@ -3274,17 +3272,17 @@ class BBCodeParser
 		foreach (['path', 'query', 'fragment'] as $part) {
 			switch ($part) {
 				case 'path':
-					$part_disallowed_chars = '\\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '/#&';
+					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '/#&';
 					$part_excluded_trailing_chars = str_replace('?', '', self::$excluded_trailing_chars);
 					break;
 
 				case 'query':
-					$part_disallowed_chars = '\\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '#&';
+					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '#&';
 					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
 					break;
 
 				default:
-					$part_disallowed_chars = '\\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '&';
+					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '&';
 					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
 					break;
 			}
@@ -3323,7 +3321,7 @@ class BBCodeParser
 				// URI scheme (or lack thereof for schemeless URLs)
 				'(?' . '>' .
 					// URI scheme and colon
-					'\\b' .
+					'\b' .
 					'(?:' .
 						// Either a scheme that need a domain in the authority
 						// (Remember for later that we need a domain)
@@ -3396,7 +3394,7 @@ class BBCodeParser
 					// A run of IRI characters
 					'(?P>no_domain)' .
 					// If scheme needs a domain, require a dot and a TLD
-					'(?(<need_domain>)\\.(?P>tlds))' .
+					'(?(<need_domain>)\.(?P>tlds))' .
 					// Followed by a non-domain character or end of line
 					'(?=(?P>not_domain_label_char)|$)' .
 				')' .
@@ -3459,7 +3457,7 @@ class BBCodeParser
 			// 2.b. Query component, if any.
 			'(?:' .
 				// Initial "?" that is not last character.
-				'\\?' . '(?=(?P>bracket_quote)*(?P>query_allowed))' .
+				'\?' . '(?=(?P>bracket_quote)*(?P>query_allowed))' .
 				// Then a run of allowed query characters
 				'(?P>query_segment)*+' .
 			')?' .
@@ -3495,13 +3493,13 @@ class BBCodeParser
 		$this->setTldRegex();
 
 		// Preceded by a space or start of line
-		$this->email_regex = '(?<=^|\\s|<br>)' .
+		$this->email_regex = '(?<=^|\s|<br>)' .
 
 		// An email address
 		'[' . self::$domain_label_chars . '_.]{1,80}' .
 		'@' .
 		'[' . self::$domain_label_chars . '.]+' .
-		'\\.' . $this->tld_regex .
+		'\.' . $this->tld_regex .
 
 		// Followed by a non-domain character or end of line
 		'(?=[^' . self::$domain_label_chars . ']|$)';
@@ -3520,7 +3518,7 @@ class BBCodeParser
 			}
 		}
 
-		$this->alltags_regex = '(?' . '>\\b' . Utils::buildRegex(array_unique($alltags)) . '\\b|' . Utils::buildRegex(array_keys(self::$itemcodes)) . ')';
+		$this->alltags_regex = '(?' . '>\b' . Utils::buildRegex(array_unique($alltags)) . '\b|' . Utils::buildRegex(array_keys(self::$itemcodes)) . ')';
 	}
 
 	/**
@@ -3562,9 +3560,7 @@ class BBCodeParser
 					return Lang::$txt[substr($matches[1], 4)];
 				}
 
-
 				return $matches[0];
-
 			},
 			$string,
 		);
@@ -3582,7 +3578,7 @@ class BBCodeParser
 			return $data;
 		}
 
-		$data = preg_replace('~&lt;a\\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:|tel:)\\S+?)\\1&gt;(.*?)&lt;/a&gt;~i', '[url=&quot;$2&quot;]$3[/url]', $data);
+		$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:|tel:)\S+?)\1&gt;(.*?)&lt;/a&gt;~i', '[url=&quot;$2&quot;]$3[/url]', $data);
 
 		// <br> should be empty.
 		$empty_tags = ['br', 'hr'];
@@ -3605,7 +3601,7 @@ class BBCodeParser
 		}
 
 		// Do <img ...> - with security... action= -> action-.
-		preg_match_all('~&lt;img\\s+src=((?:&quot;)?)((?:https?://|ftps?://)\\S+?)\\1(?:\\s+alt=(&quot;.*?&quot;|\\S*?))?(?:\\s?/)?&gt;~i', $data, $matches, PREG_PATTERN_ORDER);
+		preg_match_all('~&lt;img\s+src=((?:&quot;)?)((?:https?://|ftps?://)\S+?)\1(?:\s+alt=(&quot;.*?&quot;|\S*?))?(?:\s?/)?&gt;~i', $data, $matches, PREG_PATTERN_ORDER);
 
 		if (!empty($matches[0])) {
 			$replaces = [];
@@ -3721,12 +3717,12 @@ class BBCodeParser
 			$whitespace_regex = '';
 
 			if (!empty($tag['block_level'])) {
-				$whitespace_regex .= '(&nbsp;|\\s)*(<br\\s*/?' . '>)?';
+				$whitespace_regex .= '(&nbsp;|\s)*(<br\s*/?' . '>)?';
 			}
 
 			// Trim one line of whitespace after unnested tags, but all of it after nested ones
 			if (!empty($tag['trim']) && $tag['trim'] != 'inside') {
-				$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\\s)*' : '(<br>|&nbsp;|\\s)*';
+				$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
 			}
 
 			if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($this->message, $this->pos), $matches) != 0) {
@@ -3850,13 +3846,13 @@ class BBCodeParser
 					$params_regexes[$regex_key] = '';
 
 					foreach ($possible['parameters'] as $p => $info) {
-						$params_regexes[$regex_key] .= '(\\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . ($info['match'] ?? '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\\s*)' . (empty($info['optional']) ? '' : '?');
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . ($info['match'] ?? '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
 					}
 				}
 
 				// Extract the string that potentially holds our parameters.
-				$blob = preg_split('~\\[/?(?:' . $this->alltags_regex . ')~i', substr($this->message, $this->pos));
-				$blobs = preg_split('~\\]~i', $blob[1]);
+				$blob = preg_split('~\[/?(?:' . $this->alltags_regex . ')~i', substr($this->message, $this->pos));
+				$blobs = preg_split('~\]~i', $blob[1]);
 
 				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
@@ -3866,7 +3862,7 @@ class BBCodeParser
 				while ($blob_counter <= count($blobs)) {
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
 
-					$given_params = preg_split('~\\s(?=(' . $splitters . '))~i', $given_param_string);
+					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
 
 					$match = preg_match('~^' . $params_regexes[$regex_key] . '$~i', implode(' ', $given_params), $matches) !== 0;
@@ -3995,7 +3991,7 @@ class BBCodeParser
 		$pos3 = strpos($this->message, '[/', $this->pos);
 
 		if ($pos2 !== false && ($pos2 <= $pos3 || $pos3 === false)) {
-			preg_match('~^(<br>|&nbsp;|\\s|\\[)+~', substr($this->message, $pos2 + 4), $matches);
+			preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($this->message, $pos2 + 4), $matches);
 
 			$this->message = substr($this->message, 0, $pos2) . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . substr($this->message, $pos2);
 
@@ -4055,11 +4051,11 @@ class BBCodeParser
 			$whitespace_regex = '';
 
 			if (!empty($tag['block_level'])) {
-				$whitespace_regex .= '(&nbsp;|\\s)*(<br>)?';
+				$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
 			}
 
 			if (!empty($tag['trim']) && $tag['trim'] != 'inside') {
-				$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\\s)*' : '(<br>|&nbsp;|\\s)*';
+				$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
 			}
 
 			if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($this->message, $this->pos), $matches) != 0) {
@@ -4342,7 +4338,7 @@ class BBCodeParser
 		}
 
 		// Are we trimming outside this tag?
-		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
+		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
 			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + strlen($matches[0]));
 		}
 	}
@@ -4448,7 +4444,7 @@ class BBCodeParser
 		$align_tags = array_intersect($align_tags, array_keys($valid_tags));
 
 		// These keep track of where we are!
-		if (!empty($align_tags) && count($matches = preg_split('~(\\[/?(?:' . implode('|', $align_tags) . ')\\])~', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (!empty($align_tags) && count($matches = preg_split('~(\[/?(?:' . implode('|', $align_tags) . ')\])~', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// The first one is never a tag.
 			$is_tag = false;
 
@@ -4489,7 +4485,7 @@ class BBCodeParser
 		}
 
 		// Quickly remove any tags which are back to back.
-		$back_to_back_pattern = '~\\[(' . implode('|', array_diff(array_keys($valid_tags), ['td', 'anchor'])) . ')[^<>\\[\\]]*\\]\\s*\\[/\\1\\]~';
+		$back_to_back_pattern = '~\[(' . implode('|', array_diff(array_keys($valid_tags), ['td', 'anchor'])) . ')[^<>\[\]]*\]\s*\[/\1\]~';
 
 		$lastlen = 0;
 
@@ -4512,7 +4508,7 @@ class BBCodeParser
 		];
 
 		// These keep track of where we are!
-		if (count($parts = preg_split(sprintf('~(\\[)(/?)(%1$s)((?:[\\s=][^\\]\\[]*)?\\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (count($parts = preg_split(sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// Start outside [nobbc] or [code] blocks.
 			$in_code = false;
 			$in_nobbc = false;

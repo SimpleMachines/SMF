@@ -326,7 +326,6 @@ abstract class CacheApi
 			return substr($class_name, $position + 1);
 		}
 
-
 		return get_class($this);
 	}
 

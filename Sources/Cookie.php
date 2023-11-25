@@ -268,11 +268,11 @@ class Cookie
 		// Special case for the login cookie.
 		if ($name === Config::$cookiename) {
 			// First check for JSON-format cookie
-			if (preg_match('~^{"0":\\d+,"1":"[0-9a-f]*","2":\\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name])) {
+			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name])) {
 				$data = Utils::jsonDecode($_COOKIE[$name], true);
 			}
 			// Legacy format (for recent upgrades from SMF 2.0.x)
-			elseif (preg_match('~^a:[34]:\\{i:0;i:\\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\\d+;(i:3;i:\\d;)?~', $_COOKIE[$name])) {
+			elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$name])) {
 				$data = Utils::safeUnserialize($_COOKIE[$name]);
 
 				list(, , , $state) = $data;
@@ -316,9 +316,8 @@ class Cookie
 
 			return new self($name, [$member, $hash], $expires, $domain, $path);
 		}
+
 		// Other cookies.
-
-
 		$data = Utils::jsonDecode($_COOKIE[$name], true, false);
 
 		if (json_last_error() !== JSON_ERROR_NONE) {
@@ -326,7 +325,6 @@ class Cookie
 		}
 
 		return new self($name, $data);
-
 	}
 
 	/**
@@ -497,7 +495,7 @@ class Cookie
 			$host = Config::$modSettings['globalCookiesDomain'];
 		}
 		// Globalize cookies across domains? (filter out IP-addresses)
-		elseif ($global && preg_match('~^\\d{1,3}(\\.\\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\\.]+\\.)?([^\\.]{2,}\\..+)\\z~i', $host, $parts) == 1) {
+		elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1) {
 			$host = '.' . $parts[1];
 		}
 		// We shouldn't use a host at all if both options are off.

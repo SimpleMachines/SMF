@@ -60,7 +60,6 @@ class QueryString
 		// Save some memory.. (since we don't use these anyway.)
 		unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_FILES'], $GLOBALS['HTTP_POST_FILES']);
 
-
 		// These keys shouldn't be set...ever.
 		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
 			die('Invalid request variable.');
@@ -103,7 +102,7 @@ class QueryString
 
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 			// @todo smflib
-			parse_str(preg_replace('/&(\\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
+			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
 
 			// Magic quotes still applies with parse_str - so clean it up.
 			if ($magicQuotesEnabled) {
@@ -149,7 +148,7 @@ class QueryString
 			// @todo smflib.
 			// Replace 'index.php/a,b,c/d/e,f' with 'a=b,c&d=&e=f' and parse it into $_GET.
 			if (strpos($request, basename(Config::$scripturl) . '/') !== false) {
-				parse_str(substr(preg_replace('/&(\\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename(Config::$scripturl)) + strlen(basename(Config::$scripturl)))), '/', '&')), 1), $temp);
+				parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename(Config::$scripturl)) + strlen(basename(Config::$scripturl)))), '/', '&')), 1), $temp);
 
 				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty(Config::$modSettings['integrate_magic_quotes'])) {
 					$temp = $removeMagicQuoteFunction($temp);
@@ -288,7 +287,7 @@ class QueryString
 		}
 		// Perhaps we have a IPv6 address.
 		elseif (IP::create($_SERVER['REMOTE_ADDR'])->isValid()) {
-			$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)~', '\\1', $_SERVER['REMOTE_ADDR']);
+			$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER['REMOTE_ADDR']);
 		}
 
 		// Try to calculate their most likely IP for those people behind proxies (And the like).
@@ -337,13 +336,13 @@ class QueryString
 				// Go through each IP...
 				foreach ($ips as $i => $ip) {
 					// Make sure it's in a valid range...
-					if (preg_match('~^((0|10|172\\.(1[6-9]|2[0-9]|3[01])|192\\.168|255|127)\\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\\.(1[6-9]|2[0-9]|3[01])|192\\.168|255|127)\\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0) {
-						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\\d+\\.\\d+\\.\\d+\\.\\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)~', '\\1', $_SERVER[$proxyIPheader]);
+					if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0) {
+						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
+							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
 
 							// Just incase we have a legacy IPv4 address.
 							// @ TODO: Convert to IPv6.
-							if (preg_match('~^((([1]?\\d)?\\d|2[0-4]\\d|25[0-5])\\.){3}(([1]?\\d)?\\d|2[0-4]\\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
+							if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
 								continue;
 							}
 						}
@@ -358,14 +357,14 @@ class QueryString
 				}
 			}
 			// Otherwise just use the only one.
-			elseif (preg_match('~^((0|10|172\\.(1[6-9]|2[0-9]|3[01])|192\\.168|255|127)\\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\\.(1[6-9]|2[0-9]|3[01])|192\\.168|255|127)\\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
+			elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
 				$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
-			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\\d+\\.\\d+\\.\\d+\\.\\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)~', '\\1', $_SERVER[$proxyIPheader]);
+			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
+				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
 
 				// Just incase we have a legacy IPv4 address.
 				// @ TODO: Convert to IPv6.
-				if (preg_match('~^((([1]?\\d)?\\d|2[0-4]\\d|25[0-5])\\.){3}(([1]?\\d)?\\d|2[0-4]\\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
+				if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
 					continue;
 				}
 			}
@@ -465,11 +464,11 @@ class QueryString
 
 		// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().
 		if (empty($_COOKIE) && SID != '' && !BrowserDetector::isBrowser('possibly_robot')) {
-			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\\?' . preg_quote(SID, '/') . ')\\??/', '"' . Config::$scripturl . '?' . SID . '&amp;', $buffer);
+			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\??/', '"' . Config::$scripturl . '?' . SID . '&amp;', $buffer);
 		}
 		// Debugging templates, are we?
 		elseif (isset($_GET['debug'])) {
-			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '\\??/', '"' . Config::$scripturl . '?debug;', $buffer);
+			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '\??/', '"' . Config::$scripturl . '?debug;', $buffer);
 		}
 
 		// More work needed if using "queryless" URLS.
@@ -489,7 +488,7 @@ class QueryString
 			// Let's do something special for session ids!
 			if (defined('SID') && SID != '') {
 				$buffer = preg_replace_callback(
-					'~"' . preg_quote(Config::$scripturl, '~') . '\\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+					'~"' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 					function ($m) {
 						return '"' . Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . SID . ($m[2] ?? '') . '"';
 					},
@@ -497,7 +496,7 @@ class QueryString
 				);
 			} else {
 				$buffer = preg_replace_callback(
-					'~"' . preg_quote(Config::$scripturl, '~') . '\\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+					'~"' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 					function ($m) {
 						return '"' . Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . ($m[2] ?? '') . '"';
 					},
@@ -555,7 +554,6 @@ class QueryString
 
 		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

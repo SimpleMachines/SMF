@@ -98,7 +98,6 @@ class ServerSideIncludes
 	 */
 	protected static $setup_done = false;
 
-
 	/******************************************************************
 	 * Properties that allow external scripts to control SSI behaviour.
 	 ******************************************************************/
@@ -194,7 +193,6 @@ class ServerSideIncludes
 	 * Whether to compress output using the GZip algorithm.
 	 */
 	public $gzip;
-
 
 	/****************************************************************
 	 * Static methods that allow external scripts to access SMF data.
@@ -1506,7 +1504,6 @@ class ServerSideIncludes
 					</tr>
 				</table>
 			</form>';
-
 	}
 
 	/**
@@ -2524,7 +2521,7 @@ class ServerSideIncludes
 		$attachments = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$filename = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', htmlspecialchars($row['filename']));
+			$filename = preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', htmlspecialchars($row['filename']));
 
 			// Is it an image?
 			$attachments[$row['id_attach']] = [
@@ -2596,7 +2593,6 @@ class ServerSideIncludes
 		echo '
 			</table>';
 	}
-
 
 	/******************
 	 * Primary methods.

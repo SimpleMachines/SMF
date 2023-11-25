@@ -516,7 +516,7 @@ class SubsPackage
 		$head = fread($fid, 1024);
 		fclose($fid);
 
-		return preg_match('~^HTTP/.+\\s+(20[01]|30[127])~i', $head) == 1;
+		return preg_match('~^HTTP/.+\s+(20[01]|30[127])~i', $head) == 1;
 	}
 
 	/**
@@ -1668,7 +1668,7 @@ class SubsPackage
 		foreach ([1 => $version1, $version2] as $id => $version) {
 			// Clean the version and extract the version parts.
 			$clean = str_replace([' ', '2.0rc1-1'], ['', '2.0rc1.1'], strtolower($version));
-			preg_match('~(\\d+)(?:\\.(\\d+|))?(?:\\.)?(\\d+|)(?:(alpha|beta|rc)(\\d+|)(?:\\.)?(\\d+|))?(?:(dev))?(\\d+|)~', $clean, $parts);
+			preg_match('~(\d+)(?:\.(\d+|))?(?:\.)?(\d+|)(?:(alpha|beta|rc)(\d+|)(?:\.)?(\d+|))?(?:(dev))?(\d+|)~', $clean, $parts);
 
 			// Build an array of parts.
 			$versions[$id] = [
@@ -1705,8 +1705,8 @@ class SubsPackage
 				if ($category == 'dev') {
 					return $versions[1]['dev'] ? ($versions[2]['type'] == 'stable' ? -1 : 0) : ($versions[1]['type'] == 'stable' ? 1 : 0);
 				}
-				// Otherwise a simple comparison.
 
+				// Otherwise a simple comparison.
 				return $versions[1][$category] > $versions[2][$category] ? 1 : -1;
 			}
 		}
@@ -1879,7 +1879,6 @@ class SubsPackage
 			return false;
 		}
 
-
 		@mkdir($strPath, $mode);
 		$test = @opendir($strPath);
 
@@ -1890,7 +1889,6 @@ class SubsPackage
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2219,7 +2217,7 @@ class SubsPackage
 
 							// Using 'loose', a random amount of tabs and spaces may be used.
 							if ($search['loose_whitespace']) {
-								$actual_operation['searches'][$i]['preg_search'] = preg_replace('~[ \\t]+~', '[ \\t]+', $actual_operation['searches'][$i]['preg_search']);
+								$actual_operation['searches'][$i]['preg_search'] = preg_replace('~[ \t]+~', '[ \t]+', $actual_operation['searches'][$i]['preg_search']);
 							}
 						}
 
@@ -2386,7 +2384,7 @@ class SubsPackage
 		$step_counter = 0;
 
 		// Before we do *anything*, let's build a list of what we're editing, as it's going to be used for other theme edits.
-		while (preg_match('~<(edit file|file|search|search for|add|add after|replace|add before|add above|above|before)>\\n(.*?)\\n</\\1>~is', $temp_file, $code_match) != 0) {
+		while (preg_match('~<(edit file|file|search|search for|add|add after|replace|add before|add above|above|before)>\n(.*?)\n</\\1>~is', $temp_file, $code_match) != 0) {
 			$counter++;
 
 			// Get rid of the old stuff.
@@ -2453,7 +2451,7 @@ class SubsPackage
 		$counter = 0;
 		$is_custom = 0;
 
-		while (preg_match('~<(edit file|file|search|search for|add|add after|replace|add before|add above|above|before)>\\n(.*?)\\n</\\1>~is', $file, $code_match) != 0) {
+		while (preg_match('~<(edit file|file|search|search for|add|add after|replace|add before|add above|above|before)>\n(.*?)\n</\\1>~is', $file, $code_match) != 0) {
 			// This is for working out what we should be editing.
 			$counter++;
 
@@ -3023,7 +3021,7 @@ class SubsPackage
 						continue;
 					}
 
-					if (preg_match('~^(\\.{1,2}|CVS|backup.*|help|images|.*\\~|.*minified_[a-z0-9]{32}\\.(js|css))$~', $entry) != 0) {
+					if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~|.*minified_[a-z0-9]{32}\.(js|css))$~', $entry) != 0) {
 						continue;
 					}
 
@@ -3338,8 +3336,8 @@ class SubsPackage
 						'level' => $level,
 						'more' => 0,
 						'offset' => Utils::$context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $folder),
-						'ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find']),
+						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $folder),
+						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					],
 					'value' => $folder,
 				];
@@ -3387,8 +3385,8 @@ class SubsPackage
 						'level' => $level,
 						'more' => $counter == (Utils::$context['file_offset'] + Utils::$context['file_limit']) ? 1 : 0,
 						'offset' => Utils::$context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $file),
-						'ident' => preg_replace('~[^A-Za-z0-9_\\-=:]~', ':-:', Utils::$context['only_find']),
+						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $file),
+						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					],
 					'value' => $file,
 				];

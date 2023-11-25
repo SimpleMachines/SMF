@@ -128,19 +128,19 @@ class Login2 implements ActionInterface
 		}
 
 		// First check for 2.1 json-format cookie in $_COOKIE
-		if (isset($_COOKIE[Config::$cookiename]) && preg_match('~^{"0":\\d+,"1":"[0-9a-f]*","2":\\d+~', $_COOKIE[Config::$cookiename]) === 1) {
+		if (isset($_COOKIE[Config::$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_COOKIE[Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::jsonDecode($_COOKIE[Config::$cookiename], true);
 		}
 		// Try checking for 2.1 json-format cookie in $_SESSION
-		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^{"0":\\d+,"1":"[0-9a-f]*","2":\\d+~', $_SESSION['login_' . Config::$cookiename]) === 1) {
+		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_SESSION['login_' . Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::jsonDecode($_SESSION['login_' . Config::$cookiename]);
 		}
 		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
-		elseif (isset($_COOKIE[Config::$cookiename]) && preg_match('~^a:[34]:\\{i:0;i:\\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\\d+;~', $_COOKIE[Config::$cookiename]) === 1) {
+		elseif (isset($_COOKIE[Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_COOKIE[Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::safeUnserialize($_COOKIE[Config::$cookiename]);
 		}
 		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
-		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\\{i:0;i:\\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1) {
+		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 		} else {
 			Lang::load('Errors');
@@ -259,7 +259,7 @@ class Login2 implements ActionInterface
 		SecurityToken::create('login');
 
 		// Set up the default/fallback stuff.
-		Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($_POST['user'])) : '';
+		Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($_POST['user'])) : '';
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = Config::$modSettings['cookieTime'] <= 525600;
 		Utils::$context['login_errors'] = [Lang::$txt['error_occured']];
@@ -463,7 +463,6 @@ class Login2 implements ActionInterface
 
 		// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
 		User::updateMemberData($id_member, ['passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries]);
-
 	}
 
 	/******************
@@ -502,7 +501,7 @@ class Login2 implements ActionInterface
 		}
 
 		// No funky symbols either.
-		if (preg_match('~[<>&"\'=\\\\]~', preg_replace('~(&#(\\d{1,7}|x[0-9a-fA-F]{1,6});)~', '', $_POST['user'])) != 0) {
+		if (preg_match('~[<>&"\'=\\\]~', preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', '', $_POST['user'])) != 0) {
 			Utils::$context['login_errors'] = [Lang::$txt['error_invalid_characters_username']];
 
 			return false;
@@ -511,7 +510,7 @@ class Login2 implements ActionInterface
 		// And if it's too long, trim it back.
 		if (Utils::entityStrlen($_POST['user']) > 80) {
 			$_POST['user'] = Utils::entitySubstr($_POST['user'], 0, 79);
-			Utils::$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($_POST['user']));
+			Utils::$context['default_username'] = preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($_POST['user']));
 		}
 
 		return true;
@@ -836,7 +835,6 @@ class Login2 implements ActionInterface
 			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

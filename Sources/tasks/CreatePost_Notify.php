@@ -161,10 +161,8 @@ class CreatePost_Notify extends BackgroundTask
 				continue;
 			}
 
-
 			$row['groups'] = $groups;
 			unset($row['id_group'], $row['id_post_group'], $row['additional_groups']);
-
 
 			$this->members['watching'][$row['id_member']] = $row;
 		}
@@ -200,7 +198,6 @@ class CreatePost_Notify extends BackgroundTask
 		$unnotified = array_filter($this->members['watching'], function ($member) {
 			return empty($member['sent']);
 		});
-
 
 		// Modified post, or dealing with delayed mention and quote notifications.
 		if ($type == 'edit' || !empty($this->_details['respawns'])) {
@@ -726,7 +723,6 @@ class CreatePost_Notify extends BackgroundTask
 					]),
 				];
 			}
-
 
 			// Bitwise check: Receiving a email notification?
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {

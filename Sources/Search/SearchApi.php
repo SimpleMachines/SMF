@@ -838,7 +838,7 @@ abstract class SearchApi implements SearchApiInterface
 			}
 
 			// Skip if file name doesn't match.
-			if (!preg_match('~^SearchAPI-([A-Za-z\\d_]+)\\.php$~', $file_info->getFilename(), $matches)) {
+			if (!preg_match('~^SearchAPI-([A-Za-z\d_]+)\.php$~', $file_info->getFilename(), $matches)) {
 				continue;
 			}
 
@@ -1042,7 +1042,7 @@ abstract class SearchApi implements SearchApiInterface
 	protected function setSearchTerms(): void
 	{
 		// Change non-word characters into spaces.
-		$stripped_query = preg_replace('~(?:[\\x0B\\0' . (Utils::$context['utf8'] ? '\\x{A0}' : '\\xA0') . '\\t\\r\\s\\n(){}\\[\\]<>!@$%^*.,:+=`\\~\\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
+		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
 		// Make the query lower case. It's gonna be case insensitive anyway.
 		$stripped_query = Utils::htmlspecialcharsDecode(Utils::strtolower($stripped_query));
@@ -1053,15 +1053,15 @@ abstract class SearchApi implements SearchApiInterface
 		}
 
 		// Specify the function to search with. Regex is for word boundaries.
-		$this->query_match_type = !empty(Config::$modSettings['search_match_words']) && !preg_match('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', $stripped_query) ? 'RLIKE' : 'LIKE';
+		$this->query_match_type = !empty(Config::$modSettings['search_match_words']) && !preg_match('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', $stripped_query) ? 'RLIKE' : 'LIKE';
 
 		// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
-		preg_match_all('/(?:^|\\s)([-]?)"([^"]+)"(?:$|\\s)/', $stripped_query, $matches, PREG_PATTERN_ORDER);
+		preg_match_all('/(?:^|\s)([-]?)"([^"]+)"(?:$|\s)/', $stripped_query, $matches, PREG_PATTERN_ORDER);
 
 		$phraseArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$wordArray = preg_replace('~(?:^|\\s)[-]?"[^"]+"(?:$|\\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
+		$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
 		$wordArray = explode(' ', Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($wordArray), ENT_QUOTES));
 
@@ -1198,7 +1198,6 @@ abstract class SearchApi implements SearchApiInterface
 			$this->searchWords[$orIndex]['indexed_words'] = array_slice($this->searchWords[$orIndex]['indexed_words'], 0, 7);
 			$this->searchWords[$orIndex]['subject_words'] = array_slice($this->searchWords[$orIndex]['subject_words'], 0, 7);
 			$this->searchWords[$orIndex]['words'] = array_slice($this->searchWords[$orIndex]['words'], 0, 4);
-
 		}
 	}
 
@@ -1215,7 +1214,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function escapeSqlRegex(string $str): string
 	{
-		return addcslashes(preg_replace('/[\\[\\]$.+*?&^|{}()]/', '[$0]', $str), '\\\'');
+		return addcslashes(preg_replace('/[\[\]$.+*?&^|{}()]/', '[$0]', $str), '\\\'');
 	}
 
 	/**

@@ -167,7 +167,6 @@ class VerificationCode implements ActionInterface
 		$this->verification_id = $_GET['vid'] ?? '';
 
 		$this->code = $this->verification_id && isset($_SESSION[$this->verification_id . '_vv']) ? $_SESSION[$this->verification_id . '_vv']['code'] : ($_SESSION['visual_verification_code'] ?? '');
-
 	}
 
 	/**
@@ -270,11 +269,11 @@ class VerificationCode implements ActionInterface
 		$font_dir = dir(Theme::$current->settings['default_theme_dir'] . '/fonts');
 
 		while ($entry = $font_dir->read()) {
-			if (preg_match('~^(.+)\\.gdf$~', $entry, $matches) === 1) {
+			if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1) {
 				if ($endian ^ (strpos($entry, '_end.gdf') === false)) {
 					$font_list[] = $entry;
 				}
-			} elseif (preg_match('~^(.+)\\.ttf$~', $entry, $matches) === 1) {
+			} elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1) {
 				$ttfont_list[] = $entry;
 			}
 		}

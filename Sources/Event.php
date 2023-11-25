@@ -629,7 +629,6 @@ class Event implements \ArrayAccess
 			return $not ? !$value : $value;
 		}
 
-
 		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
 			$prop = 'start_' . $prop;
 		}
@@ -711,7 +710,7 @@ class Event implements \ArrayAccess
 
 			case 'start_iso_gmdate':
 			case 'end_iso_gmdate':
-				$value = $this->allday ? preg_replace('/T\\d\\d:\\d\\d:\\d\\d/', 'T00:00:00', $this->{$start_end}->iso_gmdate) : $this->{$start_end}->iso_gmdate;
+				$value = $this->allday ? preg_replace('/T\d\d:\d\d:\d\d/', 'T00:00:00', $this->{$start_end}->iso_gmdate) : $this->{$start_end}->iso_gmdate;
 				break;
 
 			case 'tz':
@@ -767,7 +766,6 @@ class Event implements \ArrayAccess
 		}
 
 		return $value;
-
 	}
 
 	/**
@@ -790,11 +788,8 @@ class Event implements \ArrayAccess
 				return isset($this->{$real_prop[0]}[$real_prop[1]]);
 			}
 
-
 			return isset($this->{$real_prop});
-
 		}
-
 
 		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
 			$prop = 'start_' . $prop;
@@ -856,7 +851,6 @@ class Event implements \ArrayAccess
 			default:
 				return isset($this->custom[$prop]);
 		}
-
 	}
 
 	/***********************

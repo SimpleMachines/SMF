@@ -1393,7 +1393,6 @@ class RepairBoards implements ActionInterface
 		);
 	}
 
-
 	/**
 	 * Callback to remove all topics that have zero messages in the messages table.
 	 */

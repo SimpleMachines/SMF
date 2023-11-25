@@ -53,9 +53,7 @@ class Payment
 			return false;
 		}
 
-		return !(strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', Config::$modSettings['paypal_additional_emails']))))
-
-		;
+		return !(strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', Config::$modSettings['paypal_additional_emails']))));
 	}
 
 	/**
@@ -187,10 +185,7 @@ class Payment
 	 */
 	public function isRefund()
 	{
-		return (bool) ($_POST['payment_status'] === 'Refunded' || $_POST['payment_status'] === 'Reversed' || $_POST['txn_type'] === 'Refunded' || ($_POST['txn_type'] === 'reversal' && $_POST['payment_status'] === 'Completed'))
-
-
-		;
+		return (bool) ($_POST['payment_status'] === 'Refunded' || $_POST['payment_status'] === 'Reversed' || $_POST['txn_type'] === 'Refunded' || ($_POST['txn_type'] === 'reversal' && $_POST['payment_status'] === 'Completed'));
 	}
 
 	/**
@@ -200,10 +195,7 @@ class Payment
 	 */
 	public function isSubscription()
 	{
-		return (bool) (substr($_POST['txn_type'], 0, 14) === 'subscr_payment' && $_POST['payment_status'] === 'Completed')
-
-
-		;
+		return (bool) (substr($_POST['txn_type'], 0, 14) === 'subscr_payment' && $_POST['payment_status'] === 'Completed');
 	}
 
 	/**
@@ -213,10 +205,7 @@ class Payment
 	 */
 	public function isPayment()
 	{
-		return (bool) ($_POST['payment_status'] === 'Completed' && $_POST['txn_type'] === 'web_accept')
-
-
-		;
+		return (bool) ($_POST['payment_status'] === 'Completed' && $_POST['txn_type'] === 'web_accept');
 	}
 
 	/**
@@ -229,10 +218,7 @@ class Payment
 		// subscr_cancel is sent when the user cancels, subscr_eot is sent when the subscription reaches final payment
 		// Neither require us to *do* anything as per performCancel().
 		// subscr_eot, if sent, indicates an end of payments term.
-		return (bool) (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel' || substr($_POST['txn_type'], 0, 10) === 'subscr_eot')
-
-
-		;
+		return (bool) (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel' || substr($_POST['txn_type'], 0, 10) === 'subscr_eot');
 	}
 
 	/**

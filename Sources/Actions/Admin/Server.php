@@ -389,7 +389,7 @@ class Server implements ActionInterface
 			if (!empty($_POST['globalCookiesDomain'])) {
 				$_POST['globalCookiesDomain'] = Url::create((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.'), true)->host;
 
-				if (!preg_match('/(?:^|\\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', Url::create(Config::$boardurl))->host) {
+				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', Url::create(Config::$boardurl))->host) {
 					ErrorHandler::fatalLang('invalid_cookie_domain', false);
 				}
 			}
@@ -1089,7 +1089,7 @@ class Server implements ActionInterface
 			Config::$modSettings['load_average'] = (float) $matches[1];
 		}
 		// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
-		elseif ((Config::$modSettings['load_average'] = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\\d+\\.\\d+)~i', Config::$modSettings['load_average'], $matches) !== 0) {
+		elseif ((Config::$modSettings['load_average'] = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', Config::$modSettings['load_average'], $matches) !== 0) {
 			Config::$modSettings['load_average'] = (float) $matches[1];
 		}
 		// No shell_exec('uptime') and no /proc/loadavg, so we can't check.
@@ -1578,7 +1578,7 @@ class Server implements ActionInterface
 			fclose($fp);
 
 			// Get the unique site ID.
-			preg_match('~SITE-ID:\\s(\\w{10})~', $return_data, $ID);
+			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 			if (!empty($ID[1])) {
 				Db::$db->insert(

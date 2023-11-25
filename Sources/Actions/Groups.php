@@ -850,9 +850,7 @@ class Groups implements ActionInterface
 			return true;
 		}
 
-
 		return false;
-
 	}
 
 	/**

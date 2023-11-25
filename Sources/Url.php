@@ -309,7 +309,7 @@ class Url implements \Stringable
 		// Encode any non-ASCII characters (but not space or control characters of any sort)
 		// Also encode '%' in order to preserve anything that is already percent-encoded.
 		$url = preg_replace_callback(
-			'~[^\\x00-\\x7F\\pZ\\pC]|%~u',
+			'~[^\x00-\x7F\pZ\pC]|%~u',
 			function ($matches) {
 				return rawurlencode($matches[0]);
 			},
@@ -375,7 +375,7 @@ class Url implements \Stringable
 	public function parse(int $component = -1): mixed
 	{
 		$url = preg_replace_callback(
-			'~[^\\x00-\\x7F\\pZ\\pC]|%~u',
+			'~[^\x00-\x7F\pZ\pC]|%~u',
 			function ($matches) {
 				return rawurlencode($matches[0]);
 			},
@@ -617,10 +617,7 @@ class Url implements \Stringable
 				function ($line) {
 					$line = trim($line);
 
-					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
-
-
-					;
+					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'));
 				},
 			);
 
@@ -819,7 +816,6 @@ class Url implements \Stringable
 	{
 		$this->is_ascii = mb_check_encoding($this->url, 'ASCII');
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
