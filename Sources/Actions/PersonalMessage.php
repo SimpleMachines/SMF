@@ -381,7 +381,10 @@ class PersonalMessage implements ActionInterface
 	 */
 	public function send2(): void
 	{
-		PM::compose2();
+		// Message sent successfully?
+		if (PM::compose2()) {
+			Utils::redirectexit($this->current_label_redirect . ';done=sent');
+		}
 	}
 
 	/**
