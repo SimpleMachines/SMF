@@ -978,7 +978,7 @@ class Config
 			$GLOBALS['scripturl'] = &self::$scripturl;
 
 			eval('function reloadSettings() { return ' . __CLASS__ . '::reloadModSettings(); }');
-			eval('function updateSettings() { return ' . __CLASS__ . '::updateModSettings(); }');
+			eval('function updateSettings(...$args) { return ' . __CLASS__ . '::updateModSettings(...$args); }');
 			eval('function get_auth_secret() { return ' . __CLASS__ . '::getAuthSecret(); }');
 			eval('function get_settings_defs() { return ' . __CLASS__ . '::getSettingsDefs(); }');
 			eval('function updateSettingsFile(...$args) { return ' . __CLASS__ . '::updateSettingsFile(...$args); }');
