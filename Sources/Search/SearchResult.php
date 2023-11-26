@@ -317,7 +317,7 @@ class SearchResult extends \SMF\Msg
 			$colorClass .= ' locked';
 		}
 
-		$output = array_merge(SearchApi::$loadedApi->results[$this->id_msg], [
+		$output = array_merge(SearchApi::$loadedApi->results[$this->id], [
 			'id' => $this->id_topic,
 			'is_sticky' => !empty($this->is_sticky),
 			'is_locked' => !empty($this->locked),
@@ -521,12 +521,10 @@ class SearchResult extends \SMF\Msg
 	 */
 	public static function getNumResults(): int
 	{
-		// @todo Should this trigger an error instead?
-		if (!isset(self::$messages_request)) {
-			return 0;
-		}
+		// Initialize the generator in order to set self::$messages_request.
+		self::$getter->current();
 
-		return Db::$db->num_rows(self::$messages_request);
+		return Db::$db->num_rows(self::$messages_request) + (int) $_REQUEST['start'];
 	}
 
 	/**
