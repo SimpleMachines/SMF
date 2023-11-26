@@ -1984,14 +1984,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$this->prefixReservedTables();
 		}
 
-		// For backward compatibility.
-		if (!is_object(self::$db_connection)) {
-			self::$db_connection = $this->connection;
-		}
-
 		// At this point, if we don't have a connection, nothing else can be done.
 		if (empty($this->connection)) {
 			return;
+		}
+
+		// For backward compatibility.
+		if (!is_object(self::$db_connection)) {
+			self::$db_connection = $this->connection;
 		}
 
 		$this->get_version();
@@ -2000,8 +2000,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
 			'',
-			'
-			SET NAMES {string:db_character_set}',
+			'SET NAMES {string:db_character_set}',
 			[
 				'db_character_set' => $this->character_set,
 			],

@@ -2112,14 +2112,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
-		// For backward compatibility.
-		if (!is_object(self::$db_connection)) {
-			self::$db_connection = $this->connection;
-		}
-
 		// At this point, if we don't have a connection, nothing else can be done.
 		if (empty($this->connection)) {
 			return;
+		}
+
+		// For backward compatibility.
+		if (!is_object(self::$db_connection)) {
+			self::$db_connection = $this->connection;
 		}
 
 		// Ensure database has UTF-8 as its default input charset.
