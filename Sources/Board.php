@@ -1627,7 +1627,7 @@ class Board implements \ArrayAccess
 
 		// Log the changes unless told otherwise.
 		if (empty($boardOptions['dont_log'])) {
-			Logging::logAction('edit_board', ['board' => $this->id], 'admin');
+			Logging::logAction('edit_board', ['board' => $board->id], 'admin');
 		}
 	}
 
