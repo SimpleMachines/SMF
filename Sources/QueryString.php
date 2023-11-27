@@ -28,10 +28,11 @@ class QueryString
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		// Public static methods not listed here will keep the same name when
-		// exported to global namespace.
 		'func_names' => [
+			'cleanRequest' => 'cleanRequest',
 			'isFilteredRequest' => 'is_filtered_request',
+			'ob_sessrewrite' => 'ob_sessrewrite',
+			'matchIPtoCIDR' => 'matchIPtoCIDR',
 		],
 	];
 
