@@ -251,9 +251,7 @@ class Search2 implements ActionInterface
 		// Number of pages hard maximum - normally not set at all.
 		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
 
-		if (isset($_REQUEST['start'])) {
-			$_REQUEST['start'] = (int) $_REQUEST['start'];
-		}
+		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
 
 		Lang::load('Search');
 
