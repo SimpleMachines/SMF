@@ -1995,12 +1995,12 @@ class Theme
 			// -1 means we are setting the forum's default theme.
 			if ($_REQUEST['u'] === -1) {
 				Config::updateModSettings(['theme_guests' => $id_theme]);
-				Utils::redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+				Utils::redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 			}
 			// 0 means we are resetting everyone's theme.
 			elseif ($_REQUEST['u'] === 0) {
 				User::updateMemberData(null, ['id_theme' => $id_theme]);
-				Utils::redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+				Utils::redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 			}
 			// Setting a particular user's theme.
 			elseif (self::canPickTheme($_REQUEST['u'], $id_theme)) {
