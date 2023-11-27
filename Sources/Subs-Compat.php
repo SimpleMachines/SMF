@@ -2,9 +2,7 @@
 
 /**
  * This file provides compatibility functions and code for older versions of
- * PHP, such as the sha1() function, missing extensions, or 64-bit vs 32-bit
- * systems. It is only included for those older versions or when the respective
- * extension or function cannot be found.
+ * SMF and PHP, such as missing extensions or 64-bit vs 32-bit systems.
  *
  * Simple Machines Forum (SMF)
  *
@@ -118,31 +116,31 @@ if (!function_exists('smf_crc32')) {
  * Polyfills, etc.
  *****************/
 
-// This is wrapped in a closure to keep the global namespace clean.
-call_user_func(function () {
-	/**
-	 * IDNA_* constants used as flags for the idn_to_* functions.
-	 */
-	$idna_constants = [
-		'IDNA_DEFAULT' => 0,
-		'IDNA_ALLOW_UNASSIGNED' => 1,
-		'IDNA_USE_STD3_RULES' => 2,
-		'IDNA_CHECK_BIDI' => 4,
-		'IDNA_CHECK_CONTEXTJ' => 8,
-		'IDNA_NONTRANSITIONAL_TO_ASCII' => 16,
-		'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
-		'INTL_IDNA_VARIANT_2003' => 0,
-		'INTL_IDNA_VARIANT_UTS46' => 1,
-	];
-
-	foreach ($idna_constants as $name => $value) {
-		if (!defined($name)) {
-			define($name, $value);
-		}
-	}
-});
-
 if (!function_exists('idn_to_ascii')) {
+	// This is wrapped in a closure to keep the global namespace clean.
+	call_user_func(function () {
+		/**
+		 * IDNA_* constants used as flags for the idn_to_* functions.
+		 */
+		$idna_constants = [
+			'IDNA_DEFAULT' => 0,
+			'IDNA_ALLOW_UNASSIGNED' => 1,
+			'IDNA_USE_STD3_RULES' => 2,
+			'IDNA_CHECK_BIDI' => 4,
+			'IDNA_CHECK_CONTEXTJ' => 8,
+			'IDNA_NONTRANSITIONAL_TO_ASCII' => 16,
+			'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
+			'INTL_IDNA_VARIANT_2003' => 0,
+			'INTL_IDNA_VARIANT_UTS46' => 1,
+		];
+
+		foreach ($idna_constants as $name => $value) {
+			if (!defined($name)) {
+				define($name, $value);
+			}
+		}
+	});
+
 	/**
 	 * Compatibility function.
 	 *
@@ -177,9 +175,7 @@ if (!function_exists('idn_to_ascii')) {
 
 		return $Punycode->encode($domain);
 	}
-}
 
-if (!function_exists('idn_to_utf8')) {
 	/**
 	 * Compatibility function.
 	 *
