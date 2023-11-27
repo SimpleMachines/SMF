@@ -1306,10 +1306,6 @@ class Config
 	public static function getAuthSecret(): string
 	{
 		if (empty(self::$auth_secret)) {
-			if (!is_callable('random_bytes')) {
-				require_once self::$sourcedir . '/random_compat/random.php';
-			}
-
 			self::$auth_secret = bin2hex(random_bytes(32));
 
 			// It is important to store this in Settings.php, not the database.
@@ -2928,7 +2924,7 @@ class Config
 	 */
 	public static function generateSeed(): void
 	{
-		self::updateModSettings(['rand_seed' => Utils::randomInt(0, 2 ** 31 - 1)]);
+		self::updateModSettings(['rand_seed' => random_int(0, 2 ** 31 - 1)]);
 	}
 
 	/**

@@ -1357,7 +1357,7 @@ class Attachment implements \ArrayAccess
 			$attachmentOptions['fileext'] = isset($name_info['extension']) && strlen($name_info['extension']) <= 8 ? $name_info['extension'] : '';
 		}
 
-		$attachmentOptions['name'] = ($name_info['filename'] ?? bin2hex(Utils::randomBytes(4))) . (strlen($attachmentOptions['fileext']) > 0 ? '.' . $attachmentOptions['fileext'] : '');
+		$attachmentOptions['name'] = ($name_info['filename'] ?? bin2hex(random_bytes(4))) . (strlen($attachmentOptions['fileext']) > 0 ? '.' . $attachmentOptions['fileext'] : '');
 
 		// Get the hash if no hash has been given yet.
 		if (empty($attachmentOptions['file_hash'])) {
@@ -2310,7 +2310,7 @@ class Attachment implements \ArrayAccess
 		} elseif (strlen($input) > 0) {
 			$hash = hash_hmac('sha1', $input, Config::$image_proxy_secret);
 		} else {
-			$hash = bin2hex(Utils::randomBytes(20));
+			$hash = bin2hex(random_bytes(20));
 		}
 
 		return $hash;

@@ -157,7 +157,7 @@ class TFASetup implements ActionInterface
 		$valid_code = strlen($code) == $this->totp->getCodeLength() && $this->totp->validateCode($code);
 
 		if (empty(Utils::$context['password_auth_failed']) && $valid_code) {
-			$backup = substr(sha1(Utils::randomInt()), 0, 16);
+			$backup = bin2hex(random_bytes(8));
 			$backup_encrypted = Security::hashPassword(User::$me->username, $backup);
 
 			User::updateMemberData(Profile::$member->id, [

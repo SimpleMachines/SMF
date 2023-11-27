@@ -1295,9 +1295,6 @@ function checkLogin()
 				$upcontext['user']['name'] = 'Administrator';
 			}
 
-			if (!is_callable('random_int'))
-				require_once('Sources/random_compat/random.php');
-
 			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];

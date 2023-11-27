@@ -2697,8 +2697,9 @@ class ServerSideIncludes
 			}
 
 			if (!isset($_SESSION['session_value'])) {
-				$_SESSION['session_var'] = substr(md5(Utils::randomInt() . session_id() . Utils::randomInt()), 0, rand(7, 12));
-				$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
+				// Ensure session_var always starts with a letter.
+				$_SESSION['session_var'] = dechex(random_int(0xA000000000, 0xFFFFFFFFFF));
+				$_SESSION['session_value'] = bin2hex(random_bytes(16));
 			}
 			User::$sc = $_SESSION['session_value'];
 		}

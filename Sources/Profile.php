@@ -3061,7 +3061,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Generate a random password.
-		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(Utils::randomBytes(18))), 0, 18), 6));
+		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
 		$new_password_sha1 = Security::hashPassword($username ?? $this->username, $new_password);
 
 		// Do some checks on the username if needed.
