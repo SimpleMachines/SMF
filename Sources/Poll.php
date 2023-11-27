@@ -1778,6 +1778,7 @@ class Poll implements \ArrayAccess
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
 			WHERE (' . (implode(")\n\t\t\t\tAND (", $this->where)) . ')
+			GROUP BY p.id_poll
 			ORDER BY ' . (implode(', ', $this->order)),
 			$this->params,
 		);
