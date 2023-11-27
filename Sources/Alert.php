@@ -774,6 +774,7 @@ class Alert implements \ArrayAccess
 		$joins = $query_customizations['joins'] ?? [];
 		$where = $query_customizations['where'] ?? [];
 		$order = $query_customizations['order'] ?? ['a.id_alert DESC'];
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? min(!empty(Config::$modSettings['alerts_per_page']) ? Config::$modSettings['alerts_per_page'] : 1000, 1000);
 		$params = $query_customizations['params'] ?? [];
 
@@ -1594,12 +1595,14 @@ class Alert implements \ArrayAccess
 	 *    If this is left empty, no WHERE clause will be used.
 	 * @param array $order Zero or more conditions for the ORDER BY clause.
 	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
 		$request = Db::$db->query(
 			'',
@@ -1607,7 +1610,8 @@ class Alert implements \ArrayAccess
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}user_alerts AS a' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
-			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($group) ? '' : '
+			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
 			LIMIT ' . $limit : ''),
 			$params,

@@ -955,6 +955,7 @@ class Event implements \ArrayAccess
 			'cal.end_date >= {date:low_date}',
 		];
 		$order = $query_customizations['order'] ?? [];
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
 		$params = $query_customizations['params'] ?? [
 			'high_date' => $high_date,
@@ -966,9 +967,9 @@ class Event implements \ArrayAccess
 			$where[] = '(cal.id_board = {int:no_board_link} OR {query_wanna_see_board})';
 		}
 
-		IntegrationHook::call('integrate_query_event', [&$selects, &$params, &$joins, &$where, &$order, &$limit]);
+		IntegrationHook::call('integrate_query_event', [&$selects, &$params, &$joins, &$where, &$order, &$group, &$limit]);
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $limit) as $row) {
+		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			// If the attached topic is not approved then for the moment pretend it doesn't exist.
 			if (!empty($row['id_first_msg']) && Config::$modSettings['postmod_active'] && !$row['approved']) {
 				continue;
@@ -1169,12 +1170,14 @@ class Event implements \ArrayAccess
 	 *    If this is left empty, no WHERE clause will be used.
 	 * @param array $order Zero or more conditions for the ORDER BY clause.
 	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
 		$request = Db::$db->query(
 			'',
@@ -1182,7 +1185,8 @@ class Event implements \ArrayAccess
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}calendar AS cal' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
-			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($group) ? '' : '
+			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
 			LIMIT ' . $limit : ''),
 			$params,
