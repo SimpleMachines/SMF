@@ -29,12 +29,9 @@
  * @version 3.0 Alpha 1
  */
 
-// Don't do anything if SMF is already loaded.
-if (defined('SMF')) {
-	return true;
+if (!defined('SMF')) {
+	define('SMF', 'SSI');
 }
-
-define('SMF', 'SSI');
 
 // Initialize.
 require_once __DIR__ . '/index.php';
