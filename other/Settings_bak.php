@@ -220,15 +220,15 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  *
  * Path to the tasks directory.
  */
-$tasksdir = $sourcedir . '/tasks';
+$tasksdir = $sourcedir . '/Tasks';
 
 # Make sure the paths are correct... at least try to fix them.
 if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);
 if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
-if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
-	$tasksdir = $sourcedir . '/tasks';
+if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
+	$tasksdir = $sourcedir . '/Tasks';
 if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 	$packagesdir = $boarddir . '/Packages';
 if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))

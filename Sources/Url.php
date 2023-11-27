@@ -661,8 +661,16 @@ class Url implements \Stringable
 				Db::$db->insert(
 					'insert',
 					'{db_prefix}background_tasks',
-					['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-					['$sourcedir/tasks/UpdateTldRegex.php', 'SMF\\Tasks\\UpdateTldRegex', '', 0],
+					[
+						'task_class' => 'string-255',
+						'task_data' => 'string',
+						'claimed_time' => 'int',
+					],
+					[
+						'SMF\\Tasks\\UpdateTldRegex',
+						'',
+						0,
+					],
 					[],
 				);
 			}

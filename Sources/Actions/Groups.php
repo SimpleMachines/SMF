@@ -555,13 +555,11 @@ class Groups implements ActionInterface
 					'insert',
 					'{db_prefix}background_tasks',
 					[
-						'task_file' => 'string-255',
 						'task_class' => 'string-255',
 						'task_data' => 'string',
 						'claimed_time' => 'int',
 					],
 					[
-						'$sourcedir/tasks/GroupAct_Notify.php',
 						'SMF\\Tasks\\GroupAct_Notify',
 						$data,
 						0,

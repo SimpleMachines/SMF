@@ -1013,13 +1013,11 @@ class Event implements \ArrayAccess
 				'insert',
 				'{db_prefix}background_tasks',
 				[
-					'task_file' => 'string',
 					'task_class' => 'string',
 					'task_data' => 'string',
 					'claimed_time' => 'int',
 				],
 				[
-					'$sourcedir/tasks/EventNew_Notify.php',
 					'SMF\\Tasks\\EventNew_Notify',
 					Utils::jsonEncode([
 						'event_title' => $event->title,

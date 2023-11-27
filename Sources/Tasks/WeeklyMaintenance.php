@@ -235,13 +235,11 @@ class WeeklyMaintenance extends ScheduledTask
 			'insert',
 			'{db_prefix}background_tasks',
 			[
-				'task_file' => 'string-255',
 				'task_class' => 'string-255',
 				'task_data' => 'string',
 				'claimed_time' => 'int',
 			],
 			[
-				'$sourcedir/tasks/UpdateTldRegex.php',
 				'SMF\\Tasks\\UpdateTldRegex',
 				'',
 				0,
@@ -254,12 +252,10 @@ class WeeklyMaintenance extends ScheduledTask
 			'insert',
 			'{db_prefix}background_tasks',
 			[
-				'task_file' => 'string-255',
 				'task_class' => 'string-255',
 				'task_data' => 'string',
 				'claimed_time' => 'int'],
 			[
-				'$sourcedir/tasks/UpdateUnicode.php',
 				'SMF\\Tasks\\UpdateUnicode',
 				'',
 				0,

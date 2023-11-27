@@ -1523,7 +1523,7 @@ function UpgradeOptions()
 
 	// Add support for $tasksdir var.
 	if (empty(Config::$tasksdir))
-		$changes['tasksdir'] = fixRelativePath(Config::$sourcedir) . '/tasks';
+		$changes['tasksdir'] = fixRelativePath(Config::$sourcedir) . '/Tasks';
 
 	// Make sure we fix the language as well.
 	if (stristr(Config::$language, '-utf8'))

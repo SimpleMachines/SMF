@@ -95,13 +95,21 @@ class BuddyListToggle implements ActionInterface
 				Db::$db->insert(
 					'insert',
 					'{db_prefix}background_tasks',
-					['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-					['$sourcedir/tasks/Buddy_Notify.php', 'SMF\\Tasks\\Buddy_Notify', Utils::jsonEncode([
-						'receiver_id' => $this->userReceiver,
-						'id_member' => User::$me->id,
-						'member_name' => User::$me->username,
-						'time' => time(),
-					]), 0],
+					[
+						'task_class' => 'string',
+						'task_data' => 'string',
+						'claimed_time' => 'int',
+					],
+					[
+						'SMF\\Tasks\\Buddy_Notify',
+						Utils::jsonEncode([
+							'receiver_id' => $this->userReceiver,
+							'id_member' => User::$me->id,
+							'member_name' => User::$me->username,
+							'time' => time(),
+						]),
+						0,
+					],
 					['id_task'],
 				);
 

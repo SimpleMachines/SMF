@@ -529,17 +529,25 @@ class ReportToMod implements ActionInterface
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-				['$sourcedir/tasks/MsgReport_Notify.php', 'SMF\\Tasks\\MsgReport_Notify', Utils::jsonEncode([
-					'report_id' => $id_report,
-					'msg_id' => $msg,
-					'topic_id' => $message['id_topic'],
-					'board_id' => $message['id_board'],
-					'sender_id' => User::$me->id,
-					'sender_name' => User::$me->name,
-					'time' => time(),
-					'comment_id' => $id_comment,
-				]), 0],
+				[
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\MsgReport_Notify',
+					Utils::jsonEncode([
+						'report_id' => $id_report,
+						'msg_id' => $msg,
+						'topic_id' => $message['id_topic'],
+						'board_id' => $message['id_board'],
+						'sender_id' => User::$me->id,
+						'sender_name' => User::$me->name,
+						'time' => time(),
+						'comment_id' => $id_comment,
+					]),
+					0,
+				],
 				['id_task'],
 			);
 		}
@@ -658,16 +666,24 @@ class ReportToMod implements ActionInterface
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-				['$sourcedir/tasks/MemberReport_Notify.php', 'SMF\\Tasks\\MemberReport_Notify', Utils::jsonEncode([
-					'report_id' => $id_report,
-					'user_id' => $user['id_member'],
-					'user_name' => $user_name,
-					'sender_id' => User::$me->id,
-					'sender_name' => User::$me->name,
-					'comment' => Utils::htmlspecialchars($this->comment),
-					'time' => time(),
-				]), 0],
+				[
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\MemberReport_Notify',
+					Utils::jsonEncode([
+						'report_id' => $id_report,
+						'user_id' => $user['id_member'],
+						'user_name' => $user_name,
+						'sender_id' => User::$me->id,
+						'sender_name' => User::$me->name,
+						'comment' => Utils::htmlspecialchars($this->comment),
+						'time' => time(),
+					]),
+					0,
+				],
 				['id_task'],
 			);
 		}
