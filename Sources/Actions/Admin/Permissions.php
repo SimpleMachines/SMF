@@ -1775,19 +1775,19 @@ class Permissions implements ActionInterface
 		foreach (self::getPermissions() as $permission => $perm_info) {
 			if (isset($perm_info['group_level'])) {
 				switch ($perm_info['group_level']) {
-					case GROUP_LEVEL_RESTRICT:
+					case self::GROUP_LEVEL_RESTRICT:
 						$group_levels[$perm_info['scope']]['restrict'][] = $permission;
 						// no break
 
-					case GROUP_LEVEL_STANDARD:
+					case self::GROUP_LEVEL_STANDARD:
 						$group_levels[$perm_info['scope']]['standard'][] = $permission;
 						// no break
 
-					case GROUP_LEVEL_MODERATOR:
+					case self::GROUP_LEVEL_MODERATOR:
 						$group_levels[$perm_info['scope']]['moderator'][] = $permission;
 						// no break
 
-					case GROUP_LEVEL_MAINTENANCE:
+					case self::GROUP_LEVEL_MAINTENANCE:
 						$group_levels[$perm_info['scope']]['maintenance'][] = $permission;
 						break;
 				}
@@ -1795,19 +1795,19 @@ class Permissions implements ActionInterface
 
 			if (isset($perm_info['board_level'])) {
 				switch ($perm_info['board_level']) {
-					case BOARD_LEVEL_STANDARD:
+					case self::BOARD_LEVEL_STANDARD:
 						$group_levels[$perm_info['scope']]['standard'][] = $permission;
 						// no break
 
-					case BOARD_LEVEL_LOCKED:
+					case self::BOARD_LEVEL_LOCKED:
 						$group_levels[$perm_info['scope']]['locked'][] = $permission;
 						// no break
 
-					case BOARD_LEVEL_PUBLISH:
+					case self::BOARD_LEVEL_PUBLISH:
 						$group_levels[$perm_info['scope']]['publish'][] = $permission;
 						// no break
 
-					case BOARD_LEVEL_FREE:
+					case self::BOARD_LEVEL_FREE:
 						$group_levels[$perm_info['scope']]['free'][] = $permission;
 						break;
 				}
