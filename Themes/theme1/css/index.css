@@ -1,0 +1,5439 @@
+:root {
+
+	/* Admin CP Stuff */
+
+    /* Styles for the file permissions section. */
+
+	--perm_read_bg_color: hsl(101, 78%, 86%);
+	--perm_writable_bg_color: hsl(0, 100%, 87%);
+	--perm_execute_bg_color: hsl(31, 95%, 84%);
+	--perm_custom_bg_color: hsl(100, 5%, 76%);
+	--perm_no_change_bg_color: hsl(0, 0%, 93%);
+	--perm_groups_bg_color: hsl(0, 0%, 100%);
+	--manage_boards_li_recycle_board_bg_color: hsl(180, 33%, 90%);
+	--manage_boards_li_redirect_board_bg_color: hsl(60, 33%, 90%);
+	--move_smileys_link_hover_img_border_color: hsl(208, 44%, 61%);
+	--move_smileys_selected_item_border_color: hsl(39, 100%, 59%);
+
+	/* Alternating colors */
+
+	--stripes_even_bg_color: hsl(0, 0%, 95%);
+	--stripes_odd_bg_color: hsl(206, 30%, 95%);
+	--alternative_bg_color: hsl(0, 0%, 95%);
+	--alternative_bg_2_color: hsl(202, 21%, 93%);
+
+	/* AJAX Notification Bar */
+
+	--ajax_in_progress_bg_color: hsl(0, 0%, 100%);
+	--ajax_in_progress_border_color: hsl(27, 100%, 49%);
+	--ajax_in_progress_border_style: solid;
+	--ajax_in_progress_border_width: 4px;
+	--ajax_in_progress_link_color: hsl(39, 100%, 50%);
+	--ajax_in_progress_txt_color: hsl(27, 100%, 49%);
+
+	/* Auto Suggest Control */
+
+	--auto_suggest_border_color: hsl(0, 0%, 73%);
+	--auto_suggest_border_style: solid;
+	--auto_suggest_border_width: 1px;
+	--auto_suggest_border_radius: 3px;
+	--auto_suggest_item_bg_color: hsl(0, 0%, 87%);
+	--auto_suggest_item_hover_bg_color: hsl(0, 0%, 53%);
+	--auto_suggest_item_hover_txt_color: hsl(0, 0%, 93%);
+
+    /* Body */
+
+	--body_bg_color: hsl(214, 36%, 91%);
+	--body_txt_color: hsl(0, 0%, 30%);
+	--body_font_family: "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+	--body_font_size: 85%;
+	--body_line_height: 150%;
+	--border_color: hsl(0, 0%, 93%);
+	--border_style: solid;
+	--border_width: 1px;
+	--html_bg_color: hsl(211, 32%, 36%);
+	--heading_font_size: 1em;
+	--heading_txt_color: hsl(0, 0%, 27%);
+	--highlight_txt_color: hsl(27, 100%, 50%) !important;
+	--horizontal_rule_bg_color: hsl(0, 0%, 100%);
+	--horizontal_rule_box_shadow: 0 1px 0 hsl(0, 0%, 73%)inset;
+	--link: hsl(213, 58%, 37%);
+	--link_hover: hsl(213, 58%, 37%);
+	--moderation_link_bg_color: hsl(39, 100%, 48%);
+	--moderation_link_border_radius: 50%;
+	--strong_txt_color: hsl(0, 0%, 27%);
+	--option_bg_hover_color: hsl(214, 36%, 91%);
+	--wrapper_bg_color: hsl(0, 0%, 100%);
+	--wrapper_border_color: hsl(0, 0%, 72%);
+	--wrapper_border_style: solid;
+	--wrapper_border_width: 1px;
+	--wrapper_border_radius: 8px;
+	--wrapper_box_shadow: 0 2px 3px hsla(0, 0%, 0%, 0.14);
+	--inner_section_bg_color: linear-gradient(hsl(215, 41%, 92%) 0%, hsl(0, 0%, 100%) 70%);
+    --inner_section_border_radius: 6px 6px 0px 0px;
+	--inner_wrap_bg_color: hsl(0, 0%, 100%);
+	--inner_wrap_border_color: hsl(0, 0%, 73%);
+	--inner_wrap_border_style: solid;
+	--inner_wrap_border_width: 1px;
+	--selection_bg_color: hsl(205, 100%, 80%);
+	--selection_txt_color: hsla(0, 0%, 0%, 0.6);
+
+	/* Breadcrumb */
+
+	--breadcrumb_bg_color: hsl(0, 0%, 97%);
+	--breadcrumb_border_color: hsl(0, 0%, 87%);
+	--breadcrumb_border_style: solid;
+	--breadcrumb_border_width: 1px;
+	--breadcrumb_border_radius: 5px;
+	--breadcrumb_box_shadow: 0px 0px 1px 1px rgb(255,255,255) inset;
+	--breadcrumb_divider_color: hsl(206, 38%, 40%);
+	--breadcrumb_divider_font_family: Arial, sans-serif;
+	--breadcrumb_divider_font_size: 83.33%;
+	--breadcrumb_divider_line_height: 150%;
+	--breadcrumb_font_size: 0.9em;
+	--breadcrumb_link_color: hsl(213, 58%, 37%);
+	--breadcrumb_txt_color: hsl(0, 0%, 27%);
+
+	/* Buttons */
+
+	--button_bg_color: hsl(0, 0%, 95%);
+	--button_bg_hover: hsl(0, 0%, 95%);
+	--button_bg_active: hsl(207, 31%, 32%);
+	--button_bg_focus: hsl(207, 31%, 32%);
+	--button_border_color: hsl(0, 0%, 87%) hsl(0, 0%, 73%) hsl(0, 0%, 67%) hsl(0, 0%, 87%);
+	--button_border_style: solid;
+	--button_border_width: 1px;
+	--button_border_radius: 3px;
+	--button_box_shadow: none;
+	--button_font_size: 0.7rem;
+	--button_line_height: 2em;
+	--button_padding: 1px 8px;
+	--button_min_height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
+	--button_active_border_color: hsl(180, 20%, 42%);
+	--button_active_border_style: solid;
+	--button_active_border_width: 1px;
+	--button_active_font_weight: bold;
+	--button_hover_border_color: hsl(0, 0%, 67%) hsl(0, 0%, 87%) hsl(0, 0%, 87%) hsl(0, 0%, 73%);
+	--button_hover_box_shadow: none;
+	--button_txt_color: hsl(213, 58%, 34%);
+	--button_txt_color_active: hsl(0, 0%, 100%);
+	--button_txt_color_hover: hsl(35, 100%, 50%);
+	--button_txt_color_focus: hsl(35, 100%, 50%);
+	--button_txt_color_active_and_focus: hsl(35, 100%, 50%);
+	--button_txt_color_hover_and_focus: hsl(35, 100%, 50%);
+
+    /* Board Index */
+
+	--forum_title_link_color: hsl(213, 58%, 37%);
+	--forum_title_font_size: 1.8em;
+	--forum_title_font_family: "Tahoma", sans-serif;
+	--children_bg_color: hsl(0, 0%, 97%);
+	--children_padding: 4px 5px 4px 5px;
+	--sub_bar_link_color: hsl(0, 0%, 33%);
+	--up_contain_bg_color: hsl(0, 0%, 100%);
+	--information_bg_color: hsl(0, 0%, 97%);
+	--information_border_color: hsl(0, 0%, 93%);
+	--information_border_style: solid;
+	--information_border_width: 1px;
+	--information_border_radius: 0 0 7px 7px;
+	--moderationbuttons_check_focus_box_shadow: 0 0 4px hsl(205, 65%, 57%);
+
+	/* Category */
+
+	--cat_bg_color: hsl(207, 31%, 32%);
+	--cat_bar_border_radius: 6px 6px 0 0;
+	--cat_bar_collapsed_border_radius: 6px;
+	--cat_bar_desc_txt_color: hsl(0, 0%, 100%);
+	--cat_bar_link_color: hsl(0, 0%, 100%);
+	--cat_bar_strong_txt_color: hsl(0, 0%, 100%);
+	--cat_bar_inner_padding: 8px 12px 6px 12px;
+	--cat_bar_outer_padding: 0px 0px 2px 0px;
+
+	/* Calendar */
+	--calendar_day_days_hover_bg_color: hsla(0, 0%, 100%, 0.4);
+	--calendar_td_events_bg_color: hsla(117, 92%, 52%, 0.1);
+	--calendar_td_events_bg_color_hover: hsla(117, 92%, 52%, 0.2);
+	--calendar_td_holidays_bg_color: hsla(216, 92%, 53%, 0.1);
+	--calendar_td_holidays_bg_color_hover: hsla(216, 92%, 53%, 0.2);
+	--calendar_td_birthdays_bg_color: hsla(264, 100%, 50%, 0.1);
+	--calendar_td_birthdays_bg_color_hover: hsla(270, 100%, 60%, 0.2);
+	--calendar_event_time_text_color: hsl(0, 0%, 47%);
+	--calendar_td_days_link_hover_bg_color: hsla(207, 28%, 52%, 0.2);
+
+	/* Info Center*/
+
+	--info_block_information_bg_color: hsl(0, 0%, 100%);
+    --info_center_container_bg_color: hsl(0, 0%, 96%);
+	--info_center_border_radius: 3px;
+	--info_center_box_shadow: 0px 2px 0px hsl(210, 11%, 85%);
+	--roundframe_bg_color: hsl(0, 0%, 96%);
+	--roundframe_border_radius: 7px;
+
+	/* Title Bar */
+
+	--title_bar_bg_color: hsl(0, 0%, 100%);
+	--title_bar_border_bottom_color: hsl(35, 100%, 50%);
+	--title_bar_border_bottom_style: solid;
+	--title_bar_border_bottom_width: 2px;
+	--title_bar_border_top_color: hsl(35, 100%, 50%);
+	--title_bar_border_top_style: solid;
+	--title_bar_border_top_width: 2px;
+	--title_bar_border_radius: 2px 2px 0 0;
+	--title_bar_link: hsl(0, 0%, 33%);
+	--title_bar_inner_padding: 8px 12px 6px 12px;
+	--title_bar_outer_padding: 0px;
+
+	/* Calendar colors for birthdays, events and holidays */
+
+	--birthday_txt_color: hsl(284, 90%, 40%);
+	--event_txt_color: hsl(120, 90%, 28%);
+	--holiday_txt_color: hsl(218, 100%, 50%);
+	--warn_moderate_txt_color: hsl(39, 100%, 50%);
+	--warn_watch_txt_color: hsl(120, 100%, 25%);
+
+	/*Error, Info, and Notice Boxes. */
+
+    --error_box_bg_color: hsl(0, 100%, 97%);
+	--error_box_border_color: hsl(353, 60%, 50%);
+	--error_box_border_style: solid;
+	--error_box_border_width: 2px;
+	--notice_box_bg_color: hsl(50, 100%, 90%);
+	--notice_box_border_color: hsl(48, 100%, 57%);
+	--notice_box_border_style: solid;
+	--notice_box_border_width: 1px;
+	--notice_box_txt_color: hsl(0, 0%, 40%);
+	--info_box_bg_color: hsl(120, 100%, 90%);
+	--info_box_border_color: hsl(120, 100%, 25%);
+	--info_box_border_style: solid;
+	--info_box_border_width: 1px;
+	--info_box_txt_color: hsl(0, 0%, 13%);
+	--desc_box_border_color: hsl(0, 0%, 77%);
+	--desc_box_border_style: solid;
+	--desc_box_border_width: 1px;
+
+	/* File Error */
+
+    --errorfile_table_td_bg_color: hsl(0, 0%, 98%);
+	--errorfile_table_current_bg_color: hsl(0, 87%, 88%);
+	--errorfile_table_file_line_bg_color: hsl(0, 0%, 93%);
+	--errorfile_table_file_line_current_bg_color: hsl(0, 93%, 77%);
+
+	/* Code Blocks */
+
+	--code_bg_color: hsl(0, 0%, 95%);
+	--code_border_color: hsl(0, 0%, 87%);
+	--code_border_top_color: hsl(0, 0%, 73%);
+	--code_border_bottom_color: hsl(0, 0%, 67%);
+	--code_border_radius: 2px;
+	--code_font_size: 0.78rem;
+	--code_header_font_size: 0.9em;
+	--code_header_txt_color: hsl(0, 0%, 40%);
+
+	/* Colors for background of posts requiring approval */
+
+	--approve_bg_color: hsl(0, 100%, 96%);
+	--approve_bg_color_2: hsl(0, 100%, 97%);
+	--approve_txt_color: hsl(0, 0%, 13%);
+
+	/* FieldSet */
+
+    --fieldset_legend_txt_color: hsl(0, 0%, 33%);
+    --fieldset_border_color: hsl(0, 0%, 93%);
+	--fieldset_border_style: solid;
+	--fieldset_border_width: 1px;
+	--fieldset_border_radius: 3px;
+	--fieldset_padding: 18px;
+	--fieldset_margin: 0px 0px 6px 0px;
+
+	/* Footer */
+
+	--footer_bg_color: hsl(207, 31%, 32%);
+	--footer_font_size: 0.9em;
+	--footer_txt_color: hsl(0, 0%, 100%);
+	--footer_padding: 10px 0;
+	--footer_margin: 4em 0px 0px 0px;
+
+	/* Generic & Progress Bar */
+
+    --generic_bar_bar_bg_color: hsl(39, 100%, 50%);
+	--generic_bar_bar_box_shadow: 4px -4px 8px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 8px hsla(0, 0%, 100%, 0.3) inset;
+	--generic_bar_bar_border_radius: 1px;
+	--generic_bar_border_color: hsl(0, 4%, 80%);
+	--generic_bar_border_style: solid;
+	--generic_bar_border_width: 1px;
+	--generic_bar_border_radius: 2px;
+    --generic_bar_bg_color: hsl(0, 0%, 100%);
+	--generic_bar_txt_color: hsla(0, 0%, 0%, 0.6);
+	--generic_bar_span_txt_shadow: 1px 1px hsla(0, 0%, 100%, 0.4);
+	--generic_bar_vertical_bar_box_shadow: 4px -4px 4px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 4px hsla(0, 0%, 100%, 0.3) inset;
+	--progress_bar_border_radius: 4px;
+	--progress_bar_txt_color: hsla(0, 0%, 0%, 0.8);
+	--progress_bar_bar_bg_color: hsl(100, 67%, 55%);
+	--progress_bar_bar_bg_image: linear-gradient(135deg, hsla(0, 0%, 100%, 0.15) 25%, transparent 25%, transparent 50%, hsla(0, 0%, 100%, 0.15) 50%, hsla(0, 0%, 100%, 0.15) 75%, transparent 75%, transparent);
+    --progress_bar_bar_box_shadow: -1px 1px 0 hsla(0, 0%, 100%, 0.25) inset, 1px -1px 0 hsla(0, 0%, 0%, 0.1) inset;
+	--progress_yellow_bar_bg_color: hsl(47, 92%, 54%);
+	--progress_green_bar_bg_color: hsl(100, 67%, 55%);
+	--progress_red_bar_bg_color: hsl(6, 88%, 63%);
+	--progress_blue_bar_bg_color: hsl(191, 76%, 55%);
+
+	/* Header */
+
+	--header_bg_color: hsl(0, 0%, 100%);
+	--top_info_border_color: hsl(210, 31%, 42%);
+	--top_info_border_style: solid;
+	--top_info_border_width: 1px;
+	--top_info_button_login_link_font_size: 1em;
+	--top_info_button_signup_link_font_size: 1em;
+	--top_info_link_hover_bg_color: hsl(35, 100%, 50%);
+	--top_info_link_active_bg_color: hsl(35, 100%, 50%);
+	--top_info_link_focus_bg_color: hsl(211, 28%, 49%);
+	--top_info_link_hover_txt_color: hsl(0, 0%, 0%);
+	--top_info_link_txt_color: hsl(0, 0%, 10%);
+	--top_info_link_txt_open_color: hsl(0, 0%, 100%);
+	--top_info_link_border_radius: 4px;
+	--top_info_link_border_color: transparent;
+	--top_info_link_border_style: solid;
+	--top_info_link_border_width: 1px;
+	--top_info_link_padding: 5px 7px 5px 7px;
+	--top_info_link_font_size: 1.5em;
+	--top_info_active_link_color: hsl(0, 0%, 10%);
+	--top_info_hover_link_color: hsl(39, 100%, 50%);
+	--top_info_link_hover_border_color: hsl(0, 0%, 0%);
+	--top_info_link_focus_border_color: hsl(210, 31%, 42%);
+	--top_menu_bg_color: hsl(0, 0%, 100%);
+	--top_menu_box_shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+	--top_menu_border_radius: 3px;
+
+	/* News Section */
+	--news_bg_color: hsl(222, 100%, 95%);
+	--news_left_bg_color: hsl(222, 100%, 91%);
+	--news_left_font_size: 20px;
+	--news_left_padding: 0px 10px;
+	--news_right_padding: 0px 5px 0px 5px;
+	--news_font_size: 0.9em;
+
+	/* Input, Button, Select, Textarea */
+
+    --ibst_txt_color: hsl(0, 0%, 13%);
+	--ibst_bg_color: hsl(0, 0%, 100%);
+	--ibst_box_shadow: 1px 2px 1px hsla(213, 47%, 75%, 0.2) inset;
+	--ibst_border_color: hsl(0, 0%, 73%);
+	--ibst_border_style: solid;
+	--ibst_border_width: 1px;
+	--ibst_border_radius: 3px;
+	--ibst_disabled_bg_color: hsl(0, 0%, 93%);
+	--ibst_disabled_border_color: hsl(0, 0%, 71%);
+	--ibst_disabled_txt_color: hsl(0, 0%, 60%);
+	--ibst_focus_bg_color: hsl(0, 0%, 100%);
+	--ibst_focus_border_color: hsl(207, 53%, 67%);
+	--ibst_font_family: "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+	--ibst_font_size: 85%;
+	--ibst_font_line_height: 150%;
+	--ibst_hover_border_color: hsl(207, 30%, 62%);
+	--ibst_textarea_hover_bg_color: hsl(0, 0%, 98%);
+	--ibst_padding: 0.3em 0.4em;
+
+	/* Maintenance Mode */
+
+    --errorfile_table_bg_color: hsl(206, 30%, 95%);
+	--errorfile_table_td_current_bg_color: hsla(33, 92%, 51%, 0.2);
+	--errorfile_table_td_current_border_color: hsla(0, 0%, 0%, 0.2);
+	--errorfile_table_td_current_border_style: solid;
+	--errorfile_table_td_current_border_width: 1px;
+
+	/* Menu */
+
+    --amt_active_bg_color: hsla(0, 0%, 0%, 0.2);
+	--amt_bg_color: hsl(39, 100%, 48%);
+	--amt_border_radius: 50%;
+	--amt_padding: 0px 6px;
+	--amt_txt_color: hsl(0, 0%, 100%);
+	--amt_font_size: 0.7em;
+	--dropmenu_amt_font_size: 1em;
+	--dropmenu_amt_padding: 2px 5px;
+	--dropmenu_bg_color: hsl(0, 0%, 100%);
+	--dropmenu_box_shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+	--dropmenu_hover_bg_color: hsl(214, 36%, 91%);
+	--dropmenu_link_color: hsl(0, 0%, 17%);
+	--dropmenu_link_hover_color: hsl(0, 0%, 0%);
+	--dropmenu_link_border_radius: 4px;
+	--dropmenu_link_border_color: transparent;
+	--dropmenu_link_border_style: solid;
+	--dropmenu_link_border_width: 1px;
+	--dropmenu_link_padding: 4px 8px;
+	--dropmenu_li_font_size: 0.9em;
+	--dropmenu_li_li_font_size: 1em;
+	--dropmenu_strong_txt_color: hsl(0, 0%, 20%);
+	--dropmenu_subsections_font_family: Arial, sans-serif;
+	--dropmenu_subsections_font_size: 83.33%;
+	--dropmenu_subsections_line_height: 150%;
+	--menu_bg_color: hsl(207, 31%, 32%);
+	--menu_border_color: hsl(208, 16%, 81%);
+	--menu_border_style: solid;
+	--menu_border_width: 2px;
+	--menu_link_bg_hover_color: hsl(0, 0%, 100%);
+	--menu_link_color: hsl(0, 0%, 100%);
+	--menu_link_bg_active_color: hsl(0, 0%, 100%);
+	--menu_link_bg_active_hover_color: hsl(0, 0%, 100%);
+	--menu_link_bg_focus_color: hsl(0, 0%, 100%);
+	--menu_link_bg_hover_color: hsl(0, 0%, 100%);
+	--menu_link_color: hsl(0, 0%, 100%);
+	--menu_link_active_color: hsl(0, 0%, 0%);
+	--menu_link_active_hover_color: hsl(0, 0%, 0%);
+	--menu_link_focus_color: hsl(0, 0%, 100%);
+	--menu_link_hover_color: hsl(0, 0%, 100%);
+    --unread_links_font_size: 0.9em;
+	--unread_links_link_color: hsl(0, 0%, 100%);
+	--unread_links_link_padding: 4px 6px;
+	--unread_links_border_radius: 4px;
+	--unread_links_li_padding: 10px 8px;
+
+	/* Mentions */
+
+	--atwho_view_bg_color: hsl(0, 0%, 100%);
+	--atwho_view_border_color: hsl(0, 0%, 93%);
+	--atwho_view_border_style: solid;
+	--atwho_view_border_width: 1px;
+	--atwho_view_box_shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+	--atwho_view_border_radius: 3px;
+	--atwho_view_small_txt_color: hsl(0, 0%, 47%);
+	--atwho_view_strong_text: hsl(225, 100%, 60%);
+	--atwho_view_cur_bg_color: hsl(225, 100%, 60%);
+	--atwho_view_cur_txt_color: hsl(0, 0%, 100%);
+	--atwho_view_cur_small_txt_color: hsl(0, 0%, 100%);
+	--atwho_view_cur_strong_txt_color: hsl(0, 0%, 100%);
+
+	/* On/Off Icons (User) */
+
+    --on_off_border_radius: 50%;
+	--on_bg_color: hsl(100, 75%, 63%);
+	--on_border_color: hsl(100, 61%, 55%);
+	--off_bg_color: hsl(0, 3%, 65%);
+	--off_border_color: hsl(0, 2%, 58%);
+
+	/* Pagination */
+
+	--current_page_txt_color: hsl(32, 100%, 35%);
+
+
+	/* Popup Windows */
+
+	--popup_container_bg_color: hsla(204, 33%, 24%, 0.5);
+	--popup_content_bg_color: linear-gradient(to bottom, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 95%) 100%);
+	--popup_content_txt_color: #222;
+	--popup_content_border_color: hsl(0, 0%, 73%);
+	--popup_content_border_style: solid;
+	--popup_content_border_width: 1px;
+	--popup_content_border_radius: 6px 6px 2px 2px;
+	--popup_content_box_shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
+	--popup_content_padding: 10px 8px;
+	--popup_heading_txt_color: hsl(0, 0%, 100%);
+	--popup_heading_padding: 10px 8px;
+	--popup_window_bg_color: hsl(207, 31%, 32%);
+	--popup_window_box_shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+	--popup_window_border_color: hsl(0, 0%, 47%);
+	--popup_window_border_radius: 7px 7px 3px 3px;
+	--popup_window_padding: 0px 6px 6px 6px;
+
+	/* Post Bit Section */
+
+    --display_head_txt_color: hsl(0, 0%, 58%);
+	--poster_online_link_color: hsl(30, 98%, 38%);
+	--key_post_info_link_color: hsl(30, 65%, 41%);
+	--keyinfo_postinfo_modified_txt_color: hsl(0, 0%, 20%);
+	--subject_title_link_color: hsl(0, 0%, 20%);
+	--page_number_txt_color: hsl(30, 65%, 41%);
+	--inner_border_color: hsl(0, 0%, 75%);
+	--inner_border_style: solid;
+	--inner_border_width: 1px;
+	--inner_box_shadow: 0 1px 0 hsl(0, 0%, 100%) inset;
+	--signature_border_color: hsl(0, 0%, 75%);
+	--signature_box_shadow: 0 1px 0 hsl(0, 0%, 100%) inset;
+
+	/* Post Draft Options */
+
+	--post_draft_options_bg_color: hsl(0, 0%, 99%);
+	--post_draft_options_border_color: hsl(0, 0%, 67%);
+	--post_draft_options_border_style: solid;
+	--post_draft_options_border_width: 1px;
+	--post_draft_options_border_left_color: hsl(0, 0%, 73%);
+	--post_draft_options_border_left_style: solid;
+	--post_draft_options_border_left_width: 1px;
+	--post_draft_options_border_radius: 0 0 4px 4px;
+	--post_draft_options_settings_border_color: hsl(0, 0%, 89%);
+	--post_draft_options_settings_border_style: solid;
+	--post_draft_options_settings_border_width: 1px;
+	--post_draft_options_settings_strong_txt_color: hsl(0, 0%, 33%);
+
+	/* Post Options */
+
+	--post_options_bg_color: hsl(0, 0%, 100%);
+	--post_options_border_color: hsl(0, 0%, 60%);
+	--post_options_border_style: solid;
+	--post_options_border_width: 1px;
+	--post_options_border_radius: 4px 0px 4px 4px;
+	--post_options_border_color_hover: hsl(212, 15%, 80%);
+	--post_options_link_border_radius: 3px;
+	--post_options_font_weight: normal;
+
+	/* Post BBC Links */
+
+	--bbc_link_border_color: hsl(218, 29%, 74%);
+	--bbc_link_hover_border_color: hsl(220, 33%, 30%);
+	--bbc_link_hover_border_style: solid;
+	--bbc_link_hover_border_width: 1px;
+
+	/* Profile Section */
+
+    --activity_stats_bg_color: hsl(0, 0%, 93%);
+	--activity_stats_border_color: hsl(0, 0%, 40%);
+	--activity_stats_border_style: solid;
+	--activity_stats_border_width: 1px;
+	--detailedinfo_border_color: hsl(0, 0%, 80%);
+	--detailedinfo_border_style: solid;
+	--detailedinfo_border_width: 1px;
+	--detailedinfo_txt_color: hsl(0, 0%, 27%);
+	--counter_txt_color: hsl(0, 0%, 25%);
+	--list_posts_box_shadow: 0 1px 0 hsl(0, 0%, 100%) inset;
+    --pick_theme_selected_bg_color: hsl(206, 33%, 85%);
+	--unread_pm_bg_color: hsl(120, 100%, 90%);
+	--unread_notify_hover_bg_color: hsl(0, 0%, 93%);
+
+	/* User information. */
+
+	--profile_user_links_li_font_size: .8rem;
+	--profile_user_links_li_padding: 10px;
+	--profile_username_font_size: 150%;
+
+	/* Progress Bars & Generic Bars & Warning Bars & Personal Message Bar*/
+
+	--personal_messages_capcity_bar_bg_color: hsl(206, 30%, 95%);
+	--personal_messages_capcity_bar_border_color: hsl(0, 0%, 68%);
+	--personal_messages_capcity_bar_border_style: solid;
+	--personal_messages_capcity_bar_border_width: 1px;
+    --personal_messages_empty_capacity_bar_bg_color: hsl(111, 41%, 73%);
+    --personal_messages_filled_capacity_bar_bg_color: hsl(42, 100%, 47%);
+    --personal_messages_full_capacity_bar_bg_color: hsl(0, 93%, 49%);
+	--warning_level_none_bar_bg_color: hsl(100, 67%, 55%);
+	--warning_level_watched_bar_bg_color: hsl(51, 100%, 50%);
+	--warning_level_moderated_bar_bg_color: hsl(39, 100%, 50%);
+	--warning_level_muted_bar_bg_color: hsl(6, 88%, 63%);
+
+	/* Quote Blocks */
+
+	--quote_block_alt_bg: hsl(198, 48%, 95%);
+	--quote_block_standard_bg: hsl(224, 55%, 92%);
+	--quote_block_border_color: hsl(195, 17%, 86%);
+	--quote_block_border_style: solid;
+	--quote_block_border_width: 1px;
+	--quote_block_border_lr_color: hsl(0, 0%, 67%);
+	--quote_block_border_lr_style: solid;
+	--quote_block_border_lr_width: 2px;
+	--quote_block_font_size: 0.85rem;
+	--quote_cite_border_color: hsla(0, 0%, 0%, 0.1);
+	--quote_cite_border_style: solid;
+	--quote_cite_border_width: 1px;
+	--quote_cite_before_font_size: 22px;
+	--quote_cite_before_font_style: normal;
+	--quote_cite_font_size: 0.9em;
+	--quote_header_txt_color: hsl(0, 0%, 40%);
+	--quote_header_font_size: 0.9em;
+	--quote_txt_color: hsl(0, 0%, 67%);
+
+	/* Registration Section */
+
+	--coppa_contact_bg_color: hsl(0, 0%, 100%);
+	--coppa_contact_border_color: hsl(0, 0%, 13%);
+	--coppa_contact_border_style: solid;
+	--coppa_contact_border_width: 1px;
+	--coppa_contact_txt_color: hsl(0, 0%, 13%);
+	--valid_input_bg_color: hsl(100, 100%, 97%);
+	--invalid_input_bg_color: hsl(0, 100%, 97%);
+
+	/* Two Factor Auth Code Container */
+
+	--tfacode_bg_color: hsl(206, 74%, 89%);
+
+    /* The "new" button */
+
+    --new_posts_button_bg_color: hsl(39, 100%, 48%);
+	--new_posts_button_border_color: hsl(0, 0%, 0%);
+	--new_posts_button_border_style: solid;
+	--new_posts_button_border_width: 1px;
+	--new_posts_button_border_radius: 2px;
+	--new_posts_button_font_family: verdana, sans-serif;
+	--new_posts_button_font_size: 9px;
+	--new_posts_button_font_weight: 700;
+	--new_posts_button_line_height: 15px;
+	--new_posts_button_txt_color: hsl(0, 0%, 0%);
+	--new_posts_button_txt_color_visited: hsl(0, 0%, 13%);
+	--new_posts_button_txt_color_hover: hsl(0, 0%, 13%);
+
+    /* Toggle */
+
+	--toggle_bg: #f7f7f7 url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
+	--toggle_bg_hover: hsl(208, 45%, 83%);
+	--toggle_border_color: hsl(0, 0%, 77%);
+	--toggle_border_style: solid;
+	--toggle_border_width: 1px;
+	--toggle_border_radius: 4px;
+	--toggle_box_shadow: 0 1px 2px rgba(0, 0, 0, .2), 0 1px 1px #fff inset, 0 -5px 4px rgba(0,0,0,.1) inset;
+	--toggle_box_shadow_hover: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
+
+	/* ToolTips */
+
+    --tooltip_bg_color: hsl(0, 0%, 100%);
+	--tooltip_border_color: hsl(0, 0%, 67%);
+	--tooltip_border_style: solid;
+	--tooltip_border_width: 1px;
+	--tooltip_txt_color: hsl(0, 0%, 20%);
+	--tooltip_border_radius: 4px;
+	--tooltip_box_shadow: 1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
+
+	/* Window Backgrounds */
+
+	--window_approve_topic_bg_color: hsl(0, 100%, 90%);
+	--window_approve_post_bg_color: hsl(0, 100%, 90%);
+	--window_bg_color: hsl(0, 0%, 100%);
+	--window_bg_even_color: hsl(0, 0%, 100%);
+	--window_bg_odd_color: hsl(0, 0%, 97%);
+	--window_locked_bg_color: hsl(218, 20%, 92%);
+	--window_sticky_bg_color: hsl(209, 35%, 86%);
+	--window_sticky_locked_bg_color: hsl(22, 35%, 86%);
+	--window_target_bg_color: hsl(60, 100%, 94%);
+	--window_table_row_bg_hover_color: hsl(214, 36%, 91%);
+
+	/* Video Container */
+
+	--video_container_bg_color: hsl(0, 0%, 0%);
+
+	/* Basic Colors */
+	--black: hsl(0, 0%, 0%);
+	--white: hsl(0, 0%, 100%);
+	--red: hsl(0, 100%, 50%);
+	--blue: hsl(240, 100%, 50%);
+	--green: hsl(120, 100%, 25%);
+ }
+/* You can find detailed information at https://wiki.simplemachines.org/smf/Curve2_CSS
+/* Index */
+html {
+	background: var(--html_bg_color);
+	scroll-padding-top: 3rem;
+}
+body {
+	background: var(--body_bg_color);
+	font-family: var(--body_font_family);
+	font-size: var(--body_font_size);
+    line-height: var(--body_line_height);
+	color: var(--body_txt_color);
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+::selection {
+	text-shadow: none;
+	background: var(--selection_bg_color);
+	color: var(--selection_txt_color);
+}
+/* General reset */
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+ul, ol {
+	list-style: none;
+}
+ul.normallist {
+	list-style-type: disc;
+	padding: 0 0 0 15px;
+}
+table {
+	empty-cells: show;
+}
+abbr {
+	border-bottom: 0.1em dotted;
+}
+input, button, select, textarea {
+	color: var(--ibst_txt_color);
+	font-family: var(--ibst_font_family);
+	font-size: var(--ibst_font_size);
+	line-height: var(--ibst_font_line_height);
+	background: var(--ibst_bg_color);
+	outline: none;
+	border: var(--ibst_border_width) var(--ibst_border_style) var(--ibst_border_color);
+	vertical-align: middle;
+	border-radius: var(--ibst_border_radius);
+	box-shadow: var(--ibst_box_shadow_color);
+	padding: var(--ibst_padding);
+}
+input:hover, textarea:hover, button:hover, select:hover {
+	outline: none;
+	border-color: var(--ibst_hover_border_color);
+}
+textarea:hover {
+	background: var(--ibst_textarea_hover_bg_color);
+}
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
+	border-color: var(--ibst_focus_border_color);
+	background: var(--ibst_focus_bg_color);
+}
+input, button, select {
+	padding: 0 0.4em;
+	height: 2em;
+	line-height: 2em;
+}
+select {
+	padding: 0.22em 0.2em; /* selects don't apply line-height */
+}
+/* Selects with more than one line */
+select[size] {
+	height: auto;
+}
+input[type="file"] {
+	padding: 2px;
+	height: auto;
+}
+/* Remove default mozilla dotted borders */
+input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
+	border: 0;
+}
+/* Prevent inputs and images overflowing */
+img, input, select, textarea {
+	max-width: 100%;
+}
+/* This is a specific issue on Ubuntu - Chrome */
+#chrome input {
+	font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+}
+/* The following is necessary */
+textarea {
+	font-size: 1em;
+}
+
+/* Use a consistent monospace font everywhere */
+.monospace, .bbc_code, .phpcode, pre {
+	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+.sceditor-container textarea, .sceditor-container textarea:focus {
+	box-shadow: none;
+}
+#quick_edit_body_container textarea,
+.move_topic textarea,
+dd textarea {
+	width: 100%;
+	min-height: 100px;
+}
+/* Apply the font only to these elements */
+input, button, select {
+	font-size: 0.75rem;
+}
+/* Number inputs don't support size nor width, so add some common ones here and set a default... */
+input[type="number"] {
+	padding-right: 0; /* Removes weird white space after arrows in some browsers */
+	width: calc(4ch + 15px + 0.8em);
+}
+input[type="number"][size="2"], input[type="number"][size="1"] {
+	width: calc(2ch + 15px + 0.8em);
+}
+input[type="number"][size="3"] {
+	width: calc(3ch + 15px + 0.8em);
+}
+input[type="number"][size="5"] {
+	width: calc(5ch + 15px + 0.8em);
+}
+input[type="number"][size="6"] {
+	width: calc(6ch + 15px + 0.8em);
+}
+select option {
+	padding: 0 4px;
+}
+option:hover {
+	background: var(--option_bg_hover_color);
+}
+/* Fieldsets are used to group elements */
+fieldset {
+	padding: var(--fieldset_padding);
+	margin: var(--fieldset_margin);
+	border: var(--fieldset_border_width) var(--fieldset_border_style) var(--fieldset_border_color);
+	border-radius: var(--fieldset_border_radius);
+}
+fieldset legend {
+	font-weight: bold;
+	color: var(--fieldset_legend_txt_color);
+	box-shadow: none;
+	border: none;
+}
+summary {
+	margin: 5px 0;
+}
+
+/* Define strong as bold, and em as italics */
+/* Note: in some particular places, strong has been redefined as font-weight: 600; */
+/* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight */
+strong, .strong {
+	font-weight: bold;
+	color: var(--strong_txt_color);
+}
+.cat_bar strong {
+	color: var(--cat_bar_strong_txt_color);
+}
+em, .em {
+	font-style: italic;
+}
+/* Default <strong> color on these tags */
+h1, h2, h3, h4, h5, h6 {
+	font-size: var(--heading_font_size);
+	color: var(--heading_txt_color);
+}
+/* All input elements that are checkboxes or radio buttons shouldn't have a border around them */
+input[type="checkbox"], input[type="radio"] {
+	border: none;
+	background: none;
+	vertical-align: middle;
+	box-shadow: none;
+	margin: 0 3px;
+}
+.moderationbuttons_mobile_check {
+	display: none;
+}
+/* Give disabled input elements a different style */
+input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
+	background: var(--ibst_disabled_bg_color);
+	color: var(--ibst_disabled_txt_color);
+	border-color: var(--ibst_disabled_border_color);
+	opacity: 0.8;
+	cursor: default;
+}
+/* Standard horizontal rule.. ([hr], etc.) */
+hr {
+	border: none;
+	margin: 12px 0;
+	height: 2px;
+	background: var(--horizontal_rule_bg_color);
+	box-shadow: var(--horizontal_rule_box_shadow);
+}
+/* This is about links */
+a, a:visited {
+	color: var(--link);
+	text-decoration: none;
+	transition: ease 0.35s;
+}
+a:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Help popups require a different styling of the body element. */
+/* Deprecated? */
+body#help_popup {
+	padding: 12px;
+}
+
+#likes li {
+	clear: both;
+	padding: 1px 0;
+	display: flex;
+	align-items: center;
+}
+#likes .avatar {
+	height: 5em;
+	width: 5em;
+	margin: 0 10px 0 0;
+}
+#likes li .like_profile {
+	flex: 1 0 auto;
+}
+#likes li .like_time {
+	padding: 4px 0;
+}
+#likes .description {
+	font-style: italic;
+	opacity: 0.4;
+	font-size: 0.9em;
+	display: block;
+}
+
+/* The "new" button */
+.new_posts, a.new_posts {
+	display: inline-block;
+	position: relative;
+	top: -2px;
+	padding: 0 4px;
+	background: var(--new_posts_button_bg_color);
+	color: var(--new_posts_button_txt_color);
+	font-family: var(--new_posts_button_font_family);
+	font-size: var(--new_posts_button_font_size);
+	font-weight: var(--new_posts_button_font_weight);
+	line-height: var(--new_posts_button_line_height);
+	border-radius: var(--new_posts_button_border_radius);
+	opacity: 0.8;
+}
+a.new_posts:visited {
+	color: var(--new_posts_button_txt_color_visited);
+}
+.new_posts:hover, .new_posts:focus {
+	color: var(--new_posts_button_txt_color_visited);
+	text-decoration: none;
+	opacity: 1;
+}
+
+/* Common classes to easy styling.
+------------------------------------------------------- */
+.floatright {
+	float: right;
+}
+.floatleft {
+	float: left;
+}
+.floatnone {
+	float: none;
+}
+.flow_auto {
+	overflow: auto;
+}
+.flow_hidden {
+	overflow: hidden;
+}
+.clear {
+	clear: both;
+}
+.clear_left {
+	clear: left;
+}
+.clear_right {
+	clear: right;
+}
+
+/* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
+.smalltext, tr.smalltext th {
+	font-size: 0.9em;
+}
+.largetext {
+	font-size: 1.4em;
+}
+h3.largetext {
+	font-size: large;
+}
+.xlargetext {
+	font-size: x-large;
+}
+.centertext, .centercol {
+	margin: 0 auto;
+	text-align: center;
+}
+.righttext {
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+.lefttext {
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+.justifytext {
+	text-align: justify;
+}
+.double_height {
+	line-height: 2em;
+}
+/* some common padding styles */
+.padding {
+	padding: 8px;
+}
+.main_section, .lower_padding {
+	padding-bottom: 6px;
+}
+.half_content {
+	width: 50%;
+	display: inline-block;
+	vertical-align: top;
+}
+.half_content:nth-of-type(odd) {
+	margin-right: -0.25em;
+	padding-right: 0.3%;
+}
+.half_content:nth-of-type(even) {
+	margin-left: -0.2em;
+	padding-left: 0.3%;
+}
+
+/* Blockquote stylings */
+blockquote {
+	margin: 0 0 8px 0;
+	padding: 6px 10px;
+	font-size: var(--quote_block_font_size);
+	border: var(--quote_block_border_width) var(--quote_block_border_style) var(--quote_block_border_color);
+	border-left: var(--quote_block_border_lr_width) var(--quote_block_border_lr_style) var(--quote_block_border_lr_color);
+	border-right: var(--quote_block_border_lr_width) var(--quote_block_border_lr_style) var(--quote_block_border_lr_color);
+}
+blockquote cite {
+	display: block;
+	border-bottom: var(--quote_cite_border_width) var(--quote_cite_border_style) var(--quote_cite_border_color);
+	font-size: var(--quote_cite_font_size);
+	margin-bottom: 3px;
+}
+blockquote cite::before {
+	color: var(--quote_txt_color);
+	font-size: var(--quote_cite_before_font_size);
+	font-style: var(--quote_cite_before_font_style);
+	content: "\275D";
+	margin-right: 3px;
+	vertical-align: middle;
+}
+.bbc_standard_quote {
+	background-color: var(--quote_block_standard_bg);
+}
+.bbc_alternate_quote {
+	background-color: var(--quote_block_alt_bg);
+}
+
+/* A code block - maybe PHP ;). */
+.bbc_code {
+	display: block;
+	font-size: var(--code_font_size);
+	background: var(--code_bg_color);
+	border: 1px solid var(--code_border_color);
+	border-top: 2px solid var(--code_border_top_color);
+	border-bottom: 3px solid var(--code_border_bottom_color);
+	border-radius: var(--code_border_radius);
+	margin: 1px 0 6px 0;
+	padding: 3px 12px;
+	overflow: auto;
+	white-space: nowrap;
+	max-height: 25em;
+}
+/* The "Quote:" and "Code:" header parts... */
+.codeheader {
+	color: var(--code_header_txt_color);
+	font-size: var(--code_header_font_size);
+	padding: 0 2px;
+}
+.quoteheader {
+	color: var(--quote_header_txt_color);
+	font-size: var(--quote_header_font_size);
+	padding: 0 2px;
+}
+/* For links to change the code stuff... */
+.codeoperation {
+	font-weight: normal;
+}
+/* Expand code bbc */
+.expand_code {
+	max-height: none;
+}
+/* Styling for BBC tags */
+.bbc_link {
+	border-bottom: var(--bbc_link_hover_border_width) var(--bbc_link_hover_border_style) var(--bbc_link_hover_border_color);
+}
+.bbc_link:hover {
+	text-decoration: none;
+	border-bottom: var(--bbc_link_hover_border_width) var(--bbc_link_hover_border_style) var(--bbc_link_hover_border_color);
+}
+.bbc_size {
+	line-height: 1.4em;
+}
+.bbc_color a {
+	color: inherit;
+}
+.bbc_table {
+	font: inherit;
+	color: inherit;
+}
+.bbc_table td {
+	font: inherit;
+	color: inherit;
+	vertical-align: top;
+}
+.bbc_list {
+	text-align: left;
+	padding: 0 0 0 35px;
+	list-style-type: inherit;
+}
+.bbc_float {
+	margin-bottom: 1em;
+	/* default max-width to use if none was specified in the BBC */
+	max-width: 45%;
+}
+.bbc_float.floatleft {
+	margin-right: 1em;
+	clear: left;
+}
+.bbc_float.floatright {
+	margin-left: 1em;
+	clear: right;
+}
+.bbc_img {
+	object-fit: contain;
+}
+.postarea .bbc_img.resized:hover {
+	cursor: pointer;
+}
+.bbc_img.original_size {
+	height: auto !important;
+	width: auto !important;
+	max-height: none;
+	max-width: 100%;
+}
+/* No image should have a border when linked. */
+a img {
+	border: 0;
+}
+
+/* Those collapse and expand icons are wonderful. */
+.toggle_up::before, .toggle_down::before {
+	width: 17px;
+	height: 17px;
+	display: inline-block;
+	background: var(--toggle_bg);
+	overflow: hidden;
+	content: "";
+	vertical-align: middle;
+	margin: 0 5px 0 5px;
+	border: var(--toggle_border_width) var(--toggle_border_style) var(--toggle_border_color);
+	border-radius: var(--toggle_border_radius);
+	box-shadow: var(--toggle_box_shadow);
+	transition: background-color 0.25s;
+}
+.toggle_down::before {
+	background-position: 0 -17px;
+}
+
+.toggle_up:hover:before, .toggle_down:hover:before {
+	background-color: var(--toggle_bg_hover);
+	box-shadow: var(--toggle_box_shadow_hover);
+	transition: background-color 0.25s;
+}
+
+/* Generally, those [?] icons. This makes your cursor a help icon. */
+.help {
+	cursor: help;
+	opacity: 0.9;
+}
+.help:hover {
+	opacity: 1;
+}
+
+/* Highlighted text - such as search results. */
+.highlight {
+	font-weight: bold;
+	color: var(--highlight_txt_color);
+	font-size: 1.1em;
+	background-color: inherit;
+}
+
+/* the page navigation area */
+.pagesection {
+	padding: 2px 0;
+	overflow: hidden;
+}
+.pagesection .pagelinks {
+	display: inline-block;
+}
+.pages::after, .jump_to::after, .code::after,
+strong[id^='child_list_']::after {
+	content: ": ";
+}
+.pages {
+	font-size: 0.9em;
+	margin-left: 7px;
+}
+#main_content_section .pagesection {
+	margin: 4px 0 0 0;
+}
+.pagelinks .button {
+	padding: 0 5px;
+}
+.nav_page {
+	padding: 0 1px;
+}
+.expand_pages {
+	font-weight: bold;
+	cursor: pointer;
+}
+.current_page {
+	padding: 0px;
+	color: var(--current_page_txt_color);
+	font-weight: bold;
+}
+.current_page::before, .codeoperation::before {
+	content: "[";
+}
+.current_page::after, .codeoperation::after {
+	content: "]";
+}
+
+/* Posts and personal messages displayed throughout the forum. */
+.post {
+	overflow: auto;
+	line-height: 1.4em;
+	padding: 1px 0;
+}
+
+/* Calendar colors for birthdays, events and holidays */
+.birthday {
+	color: var(--birthday_txt_color);
+}
+
+.event {
+	color: var(--event_txt_color);
+}
+
+.holiday > span {
+	color: var(--holiday_txt_color);
+}
+/* Events that are currently selected on the calendar. Won't see it much, probably. */
+.sel_event {
+	font-weight: bold;
+}
+
+.warn_moderate {
+	color: var(--warn_moderate_txt_color);
+}
+
+.warn_watch, .success {
+	color: var(--warn_watch_txt_color);
+}
+
+a.moderation_link, a.moderation_link:visited {
+	font-weight: bold;
+	padding: 2px 8px;
+	background: var(--moderation_link_bg_color);
+	border-radius: var(--moderation_link_border_radius);
+	border-radius: 50%;
+}
+/* AJAX notification bar
+------------------------------------------------------- */
+#ajax_in_progress {
+	background: var(--ajax_in_progress_bg_color);
+	border-bottom: var(--ajax_in_progress_border_width) var(--ajax_in_progress_border_style) var(--ajax_in_progress_border_color);
+	color: var(--ajax_in_progress_txt_color);
+	text-align: center;
+	font-size: 1.6em;
+	padding: 8px;
+	width: 100%;
+	line-height: 25px;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#ajax_in_progress a {
+	color: var(--ajax_in_progress_link_color);
+	text-decoration: underline;
+	font-size: 0.9em;
+	float: right;
+	margin-right: 20px;
+}
+
+/* Lists with settings use these a lot.
+------------------------------------------------------- */
+dl.settings {
+	clear: right;
+	overflow: auto;
+	margin: 0 0 10px 0;
+	padding: 5px;
+}
+dl.settings dt {
+	width: 56%;
+	float: left;
+	margin: 0 0 10px 0;
+	clear: both;
+}
+dl.settings dt.windowbg {
+	width: 98%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0 0 5px 0;
+	clear: both;
+}
+dl.settings dd {
+	width: 42%;
+	float: right;
+	margin: 0 0 3px 0;
+}
+dl.settings img {
+	margin: 0 10px 0 0;
+	vertical-align: middle;
+}
+
+/* a general table class */
+table.table_grid {
+	border-collapse: collapse;
+	margin: 0;
+	width: 100%;
+}
+table.table_grid td {
+	padding: 3px;
+}
+/* Some predefined widths (mostly for tables) */
+.table_grid.half_content, .half_table {
+	width: 50%;
+}
+.equal_table {
+	width: 33%;
+}
+.quarter_table {
+	width: 25%;
+}
+.small_table {
+	width: 10%;
+}
+.table_icon {
+	width: 5%;
+}
+
+.title_bar th, .windowbg th {
+	padding: 4px 8px;
+}
+.title_bar .sort_down, .title_bar .sort_up {
+	margin: -3px 0 0 2px;
+}
+
+/* GenericList */
+.additional_row {
+	padding: 6px 0 6px 0;
+}
+.additional_row::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+img.sort, .sort {
+	margin-bottom: -4px;
+	margin-left: 4px;
+}
+
+/* table_grid styles for Profile > Show Permissions. */
+#permissions table.table_grid td {
+	padding: 5px 10px;
+	cursor: default;
+}
+
+.postbg {
+	border-left: var(--border_width) var(--border_style) var(--border_color);
+	border-right: var(--border_width) var(--border_style) var(--border_color);
+}
+
+/* Styles used by the auto suggest control.
+------------------------------------------------------- */
+.auto_suggest_div {
+	position: absolute;
+	visibility: hidden;
+	border-radius: var(--auto_suggest_border_radius);
+	outline: none !important;
+	border: var(--auto_suggest_border_width) var(--auto_suggest_border_style) var(--auto_suggest_border_color);
+	z-index: 100;
+}
+.auto_suggest_item {
+	background: var(--auto_suggest_item_bg_color);
+	padding: 1px 4px;
+}
+.auto_suggest_item_hover {
+	background: var(--auto_suggest_item_hover_bg_color);
+	cursor: pointer;
+	color: var(--auto_suggest_item_hover_txt_color);
+	padding: 1px 4px;
+}
+
+/* Styles for the standard dropdown menus.
+------------------------------------------------------- */
+.dropmenu, #top_info {
+	position: relative;
+}
+/* Level 1 button background. */
+.dropmenu > li {
+	display: inline-block;
+	margin: 0 1px 0 1px;
+	font-size: var(--dropmenu_li_font_size);
+	line-height: 1.9em;
+	padding: 10px 0px;
+}
+
+#top_info > li {
+	display: inline-block;
+	margin: 0 1px 0 1px;
+	line-height: 1em;
+	padding: 0px 0px;
+}
+/* Disable default focus outlines */
+.dropmenu a {
+	outline: 0;
+}
+/* For cases where we want to spotlight something specific to an item, e.g. an amount */
+.amt {
+	margin: 0px;
+	padding: var(--amt_padding);
+	color: var(--amt_txt_color);
+	background: var(--amt_bg_color);
+	border-radius: var(--amt_border_radius);
+	font-size: var(--amt_font_size);
+	vertical-align: top;
+}
+
+.dropmenu span.amt {
+	font-size: var(--dropmenu_amt_font_size);
+	padding: var(--dropmenu_amt_padding);
+  }
+.dropmenu li .active .amt, #top_info li .active .amt {
+	background: var(--amt_active_bg_color);
+	color: inherit;
+}
+#top_info .top_menu.visible {
+	display: block;
+}
+/* Needed for new PM notifications. */
+.dropmenu li strong {
+	color: var(--dropmenu_strong_txt_color);
+}
+
+.dropmenu li a {
+	padding: var(--dropmenu_link_padding);
+	display: block;
+	border: var(--dropmenu_link_border_width) var(--dropmenu_link_border_style) var(--dropmenu_link_border_color);
+	border-radius: var(--dropmenu_link_border_radius);
+	color: var(--menu_link_color);
+}
+
+#top_info > li > a {
+	padding: var(--top_info_link_padding);
+	display: block;
+	border: var(--top_info_link_border_width) var(--top_info_link_border_style) var(--top_info_link_border_color);
+	border-radius: var(--top_info_link_border_radius);
+	font-size: var(--top_info_link_font_size);
+}
+
+#top_info > li.button_login > a {
+    font-size: var(--top_info_button_login_link_font_size);
+}
+
+#top_info > li.button_signup > a {
+    font-size: var(--top_info_button_signup_link_font_size);
+}
+/* Level 1 active button. */
+.dropmenu a.active {
+	background: var(--menu_link_bg_active_color);
+	color: var(--menu_link_active_color);
+	font-weight: bold;
+}
+
+#top_info a.active {
+	background: var(--top_info_link_active_bg_color);
+	color: var(--top_info_active_link_color);
+	font-weight: bold;
+}
+/* Level 1 hover effects. */
+.dropmenu > li:hover > a, .dropmenu > li > a:focus {
+	color: var(--dropmenu_link_hover_color);
+	cursor: pointer;
+	text-decoration: none;
+	background: var(--menu_link_bg_hover_color);
+}
+
+#top_info > li > a:focus {
+	background: var(--top_info_link_focus_bg_color);
+	border: var(--top_info_border_width) var(--top_info_border_style) var(--top_info_link_focus_border_color);
+	color: var(--top_info_link_txt_color);
+	cursor: pointer;
+	text-decoration: none;
+}
+
+#top_info > li > a.open {
+	background: var(--top_info_link_focus_bg_color);
+	border: var(--top_info_border_width) var(--top_info_border_style) var(--top_info_link_focus_border_color);
+	color: var(--top_info_link_txt_open_color);
+	cursor: pointer;
+	text-decoration: none;
+}
+
+#top_info > li:hover > a {
+	background: var(--top_info_hover_link_color);
+	border: var(--top_info_border_width) var(--top_info_border_style) var(--top_info_link_hover_border_color);
+	color: var(--top_info_link_hover_txt_color);
+	text-decoration: none;
+
+}
+/* Level 1 active button. */
+.dropmenu li a.active:hover, .dropmenu li:hover a.active {
+	background: var(--menu_link_bg_active_hover_color);
+	color: var(--menu_link_active_hover_color);
+	text-shadow: none;
+}
+
+a.mobile_user_menu,
+a[class^="mobile_generic_menu_"] {
+	display: none;
+}
+
+#main_menu {
+	background: var(--menu_bg_color);
+	border-top: var(--menu_border_width) var(--menu_border_style) var(--menu_border_color);
+	border-bottom: var(--menu_border_width) var(--menu_border_style) var(--menu_border_color);
+}
+.unread_links {
+    position: relative;
+    z-index: 100;
+}
+.unread_links li {
+	display: inline-block;
+	font-size: var(--unread_links_font_size);
+    line-height: 2.2em;
+	padding: var(--unread_links_li_padding);
+}
+.unread_links a {
+	display: block;
+	color: var(--unread_links_link_color);
+    padding: var(--unread_links_link_padding);
+	border-radius: var(--unread_links_border_radius);
+	text-decoration: none;
+}
+.unread_links a:hover {
+	background: var(--menu_link_bg_hover_color);
+	color: var(--dropmenu_link_hover_color);
+}
+.unread_links a:focus {
+	background: var(--menu_link_bg_hover_color);
+	color: var(--dropmenu_link_hover_color);
+}
+/* User information. */
+#profile_menu_top::after {
+	content: " \25BC";
+}
+.profile_user_info, .profile_user_avatar {
+	display: inline-block;
+	margin: 0 9px;
+	vertical-align: middle;
+}
+.profile_user_avatar img.avatar {
+	max-width: 100px;
+}
+.profile_username {
+	font-size: var(--profile_username_font_size);
+	display: block;
+	margin-bottom: 3px;
+}
+.profile_user_links ol {
+	margin-left: 0;
+	clear: both;
+	column-count: 2;
+}
+.profile_user_links li {
+	font-size: var(--profile_user_links_li_font_size);
+	line-height: 2em;
+	padding-left: var(--profile_user_links_li_padding);
+	-webkit-hyphens: auto;
+	hyphens: auto;
+}
+/* Fixes bug with border-box on scrollable js */
+.scrollable,
+.scrollable *,
+#profile_menu {
+	box-sizing: content-box;
+}
+.top_menu.scrollable {
+	max-height: 30em;
+}
+.pm_unread, .alerts_unread {
+	margin-top: 5px;
+	border-top: var(--border_width) var(--border_style) var(--border_color);
+}
+.unread_notify {
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+}
+.no_unread {
+	margin-top: 5px;
+	text-align: center;
+}
+.unread_notify:hover {
+	background: var(--unread_notify_hover_bg_color);
+	text-decoration: none;
+}
+.unread_notify:last-child {
+	border-bottom: none;
+}
+.unread_notify {
+	display: flex;
+	align-items: center;
+	padding: 6px 5px;
+	line-height: 20px;
+}
+.unread_notify.alert_read {
+	opacity: 0.5;
+	outline: none;
+	filter: grayscale(1);
+}
+.unread_notify strong {
+	font-weight: 600;
+}
+.unread_notify .avatar {
+	width: 40px;
+	height: 40px;
+	object-fit: scale-down;
+	margin: 4px 4px 4px 0;
+	display: inline-block;
+	color: transparent; /* For broken images */
+	vertical-align: bottom;
+}
+.unread_notify_image {
+	position: relative;
+	width: 44px;
+	margin-right: 4px;
+	text-align: center;
+}
+.unread_notify_image span.alert_icon {
+	display: block;
+	line-height: 1em;
+}
+.unread_notify_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.unread_notify .details {
+	display: inline-block;
+	vertical-align: top;
+	max-width: calc(100% - 48px);
+}
+#pm_menu .subject {
+	font-weight: bold;
+}
+/* Levels 2 and 3 submenu wrapper. */
+.dropmenu li ul {
+	z-index: 90;
+	position: absolute;
+	top: 54px;
+	display: none;
+	min-width: 18.2em;
+	padding: 0.5em;
+	font-weight: normal;
+	border: none;
+	box-shadow: var(--dropmenu_box_shadow);
+	background: var(--dropmenu_bg_color);
+}
+
+.top_menu {
+	z-index: 90;
+	position: absolute;
+	display: none;
+	min-width: 18.2em;
+	padding: 0.5em;
+	font-weight: normal;
+	border: none;
+	border-radius: var(--top_menu_border_radius);
+	box-shadow: var(--top_menu_box_shadow);
+	background: var(--top_menu_bg_color);
+}
+/* Level 2 link background. */
+.dropmenu li li {
+	margin: 0;
+	padding: 0;
+	width: 17em;
+	font-size: var(--dropmenu_li_li_font_size);
+	border-radius: var(--top_menu_border_radius);
+	border: none;
+}
+/* Necessary to allow highlighting of 1st level while hovering over submenu. */
+.dropmenu li:hover li a, .dropmenu li li a {
+	background: none;
+	padding: 4px 9px;
+	color: var(--dropmenu_link_color);
+	border: none;
+	line-height: 2.2em;
+}
+
+.dropmenu li li a > img {
+	vertical-align: middle;
+}
+/* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
+.top_menu {
+	min-width: 25em;
+}
+.top_menu .login {
+	width: 100%;
+}
+.top_menu .login dt {
+	text-align: left;
+	width: 55%;
+}
+.top_menu .login dd {
+	width: 43%;
+}
+.top_menu .login input {
+	width: 90%;
+}
+/* Level 3 submenu wrapper positioning. */
+.dropmenu li ul ul {
+	margin: -2em 0 0 15.3em;
+}
+/* Level 3 maintains font-size the same as Level 2. */
+.dropmenu li li li a {
+	font-size: 1em;
+}
+/* Levels 2 and 3 hover effects. */
+.dropmenu li li:hover {
+	border: none;
+}
+
+.dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover {
+	background: var(--dropmenu_hover_bg_color);
+	color: var(--dropmenu_link_hover_color);
+	text-decoration: none;
+	border: none;
+}
+/* Reposition Level 2 submenu as visible on hover. */
+.dropmenu li:hover ul {
+	display: block;
+}
+/* Hiding Level 3 submenu off hover. */
+.dropmenu li:hover ul ul, .dropmenu li ul ul, .dropmenu li:hover ul ul ul, .dropmenu li ul ul ul {
+	left: -9999px;
+}
+/* Reposition as visible on hover. */
+.dropmenu li li:hover ul, .dropmenu li li ul {
+	left: -14px;
+}
+.dropmenu li li.subsections > a::after {
+	position: absolute;
+	padding: 5px 0;
+	right: 10px;
+	font-family: var(--dropmenu_subsections_font_family);
+	font-size: var(--dropmenu_subsections_font_size);
+	line-height: var(--dropmenu_subsections_line_height);
+	content: "\25ba";
+}
+/* Highlighting of current section */
+.dropmenu li li a.chosen {
+	font-weight: bold;
+}
+
+/* The extra menu rows for admin sections, etc. */
+#adm_submenus {
+	margin: 0 0 6px 0;
+	overflow: hidden;
+}
+
+/* Styles for the standard button lists.
+------------------------------------------------------- */
+.buttonlist, .buttonrow, .pagelinks {
+	z-index: 100;
+	padding: 5px 0 5px 0;
+}
+.button, .quickbuttons > li > a, .inline_mod_check {
+	display: inline-block;
+	padding: var(--button_padding);
+	color: var(--button_txt_color);
+	font-size: var(--button_font_size);
+	line-height: var(--button_line_height);
+	text-transform: uppercase;
+	cursor: pointer;
+	min-height: var(--button_min_height);
+	border: var(--button_border_width) var(--button_border_style);
+	border-color: var(--button_border_color);
+	border-radius: var(--button_border_radius);
+	box-sizing: border-box;
+	vertical-align: middle;
+	background: var(--button_bg_color);
+}
+html[lang="el-GR"] .button,
+html[lang="el-GR"] .quickbuttons > li > a,
+html[lang="el-GR"] .inline_mod_check {
+	text-transform: capitalize;
+}
+.pagesection .button {
+	color: var(--button_txt_color);
+}
+.button:hover, .button:focus,
+.quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
+	color: var(--button_txt_color_hover_and_focus);
+	border-color: var(--button_hover_border_color);
+
+	text-decoration: none;
+}
+.button:hover, .button:focus {
+	color: var(--button_txt_color_hover);
+}
+.button:hover, #search_form .button:hover, .quickbuttons li:hover {
+	background: var(--button_bg_color);
+}
+/* the active one */
+.button.active {
+	background: var(--button_bg_active);
+	color: var(--button_txt_color_active);
+	font-weight: var(--button_active_font_weight);
+	border: var(--button_active_border_width) var(--button_active_border_style) var(--button_active_border_color);
+}
+.button.active:hover, .button.active:focus {
+	color: var(--button_txt_color_active_and_focus);
+	background: var(--button_bg_focus);
+	box-shadow: none;
+}
+.cat_bar .button {
+	box-shadow: none;
+}
+/* In a .buttonrow, the buttons are joined together */
+.buttonrow {
+	margin: 0 5px;
+}
+.buttonrow .button {
+	display: table-cell;
+	border-radius: 0;
+}
+.buttonrow .button:first-child {
+	border-radius: 3px 0 0 3px;
+}
+.buttonrow .button:last-child {
+	border-radius: 0 3px 3px 0;
+}
+/* in a titlebg, the buttonlist is of small height */
+.titlebg .buttonlist {
+	margin: 0;
+	padding: 0;
+}
+
+/* Styles for the general looks of the theme.
+------------------------------------------------------- */
+
+/* Box-shadow only on this one. */
+#wrapper {
+	clear: both;
+	border-radius: 8px;
+}
+
+/* Set maximum width limit for content */
+#top_section .inner_wrap, #wrapper, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
+	max-width: 1200px;
+	margin: 0 auto;
+	width: 90%;
+}
+
+/* The framing graphics */
+/* The top bar. */
+#top_info {
+	padding: 0px;
+	line-height: 1em;
+	max-width: 100%;
+}
+#pm_menu, #alerts_menu, #profile_menu {
+	right: 0;
+	padding-right: 10px;
+}
+#profile_menu_top > img.avatar {
+	height: 1em;
+	width: 1em;
+	margin: -3px 2px 0px 0px;
+	float: left;
+}
+.notice {
+	font-weight: bold;
+}
+
+#languages_form, #search_form {
+	padding: 5px 0;
+}
+#languages_form {
+	margin: 0 0 0 10px;
+}
+/* The logo and slogan. */
+#header {
+	background: var(--header_bg_color);
+	padding: 0px;
+	min-height: 80px;
+}
+#header .inner_wrap {
+	display: flex;
+	justify-content: space-between;
+	min-height: 80px;
+	align-items: center;
+}
+#header::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+/* The main title. */
+h1.forumtitle {
+	font-size: var(--forum_title_font_size);
+	font-family: var(--forum_title_font_family);
+	padding: 0px;
+	font-weight: normal;
+	display: inline-flex;
+}
+h1.forumtitle a {
+	color: var(--forum_title_link_color);
+}
+
+/* Even guests need to be aligned */
+.welcome {
+	padding: 0 10px;
+	line-height: 2.5em;
+}
+.user_panel {
+    padding: 0px;
+	margin: 0px;
+	display: inline-flex;
+}
+/*
+/* The user info, news, etc.*/
+#upper_section {
+	padding: 0px;
+}
+#inner_section {
+	padding: 0px;
+	border-radius: 6px 6px 0 0;
+}
+#inner_section::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+/* The upper_section, float the two each way */
+#inner_wrap {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+ul li.greeting {
+	font-weight: bold;
+}
+/* The login form. */
+#guest_form {
+	overflow: hidden;
+	font-size: 0.9em;
+	margin-left: -2px;
+}
+/* News section. */
+.news_section {
+	padding: 0px;
+	margin: 8px 0px;
+	font-size: var(--news_font_size);
+	display: flex;
+	max-width: 100%;
+	background: var(--news_bg_color);
+	height: max-content;
+}
+.news_section_left {
+	margin: 0px;
+	padding: var(--news_left_padding);
+	background: var(--news_left_bg_color);
+	font-size: var(--news_left_font_size);
+}
+.news_section_right {
+	margin: 0px;
+	padding: var(--news_right_padding);
+	width: 100%;
+}
+.news_section h2 {
+	line-height: initial;
+	padding: 2px 5px;
+}
+
+.news_section p {
+	display: inline;
+}
+
+/* The navigation list (i.e. linktree) */
+.navigate_section {
+	padding: 0px;
+	margin: 5px 0px;
+	width: 100%;
+}
+#main_content_section .navigate_section {
+	margin: 4px 0 0 0;
+	padding: 0;
+}
+.navigate_section ul {
+	background: var(--breadcrumb_bg_color);
+	display: flex;
+	margin: 0px;
+	padding: 5px 8px;
+	font-size: var(--breadcrumb_font_size);
+	overflow: hidden;
+	border: var(--breadcrumb_border_width) var(--breadcrumb_border_style) var(--breadcrumb_border_color);
+	border-radius: var(--breadcrumb_border_radius);
+	box-shadow: var(--breadcrumb_box_shadow);
+}
+.navigate_section ul:before {
+	font-family: "Font Awesome 6 Free";
+	content: "\f015";
+	font-weight: 700;
+	margin: 0px;
+}
+.navigate_section ul li {
+	display: inline-flex;
+	color: var(--breadcrumb_txt_color);
+}
+.navigate_section ul li a, .navigate_section ul li em {
+	padding: 0px 4px 0px 4px;
+	display: inline-flex;
+	color: var(--breadcrumb_link_color);
+}
+
+.navigate_section ul li span {
+	display: inline-block;
+}
+.navigate_section ul li .dividers {
+	color: var(--breadcrumb_divider_color);
+	font-family: var(--breadcrumb_divider_font_family);
+	font-size: var(--breadcrumb_divider_font_size);
+	line-height: var(--breadcrumb_divider_line_height);
+	margin-top: 3px;
+}
+.navigate_section ul li .board_moderators a {
+	padding: 4px 0;
+}
+
+.navigate_section a:hover span {
+	text-decoration: underline;
+}
+
+/* The content section */
+#content_section {
+	margin: 0 auto;
+	clear: both;
+}
+#main_content_section {
+	padding: 0px;
+}
+#main_content_section::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+/* Footer is now full-width by default. */
+/* The footer with copyright links etc. */
+#footer {
+	margin: var(--footer_margin);
+	padding: var(--footer_padding);
+	background: var(--footer_bg_color);
+	flex: none;
+}
+#footer li, #footer p, #footer a {
+	font-size: var(--footer_font_size);
+	color: var(--footer_txt_color);
+}
+
+#footer .inner_wrap ul li a i {
+	margin-left: 4px;
+}
+#footer li.copyright {
+	display: block;
+	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
+}
+#footerfix {
+	flex: 1 0 auto;
+}
+
+/* The posting icons */
+#postbuttons_upper ul li a span {
+	line-height: 19px;
+	padding: 0 0 0 6px;
+}
+.mark_read {
+	margin: -5px 0 16px 0;
+	float: right;
+}
+.mark_read .buttonlist {
+	margin: 0;
+	padding: 0;
+}
+
+.fix_rtl_names {
+	display: inline-block;
+}
+
+/* The quick buttons */
+.quickbuttons {
+	margin: 0 0 5px;
+	clear: right;
+	float: right;
+	text-align: right;
+}
+#recent .quickbuttons {
+	margin: 0;
+}
+.quickbuttons > li {
+	float: left;
+}
+.quickbuttons > li > a, .inline_mod_check {
+	display: block;
+	height: auto;
+	padding: 0 4px;
+	line-height: 1.375rem;
+	border-radius: 0;
+}
+.quickbuttons > li:first-child > a {
+	border-radius: 4px 0 0 4px;
+}
+.quickbuttons > li:last-child > a, .inline_mod_check:last-child {
+	border-radius: 0 4px 4px 0;
+}
+.quickbuttons > li:only-child > a, .inline_mod_check:only-child {
+	border-radius: 4px;
+	margin: 2px;
+	height: 23px;
+}
+.inline_mod_check input {
+	position: relative;
+	top: -1px;
+	height: auto;
+}
+.moderationbuttons_check:focus {
+	box-shadow: var(--moderationbuttons_check_focus_box_shadow);
+}
+.quick_edit, .post_options {
+	position: relative;
+}
+/* Drop part of QuickButtons */
+.post_options ul {
+	display: none;
+	position: absolute;
+	top: 100%;
+	right: -1px;
+	z-index: 90;
+	padding: 6px;
+	background: var(--post_options_bg_color);
+	font-weight: var(--post_options_font_weight);
+	text-align: left;
+	border: var(--post_options_border_width) var(--post_options_border_style) var(--post_options_border_color);
+	border-radius: var(--post_options_border_radius);
+}
+.post_options:hover ul {
+	display: block;
+}
+.post_options ul a {
+	display: block;
+	width: 12em;
+	padding: 0 6px;
+	line-height: 2.2em;
+	text-decoration: none;
+	border: 1px solid transparent;
+	border-radius: var(--post_options_link_border_radius);
+}
+.post_options ul a:hover, .post_options ul a:focus {
+	border-color: var(--post_options_border_color_hover);
+}
+/* Note: The next declarations are for keyboard access with js disabled. */
+.quickbuttons ul li a:focus {
+	margin: 0 -9910px 0 9910px;
+}
+/* Cancel for hover and/or js access. */
+.quickbuttons ul li:hover a:focus, .quickbuttons ul li a:focus {
+	margin: 0;
+}
+/* Fixes for quickbuttons
+   Fix for quote on reply box */
+#post_modify {
+	border-radius: 4px;
+}
+
+/* The jump to box */
+#display_jump_to {
+	padding: 5px 0;
+	margin: 4px 0;
+	float: right;
+	font-size: 1em;
+}
+#topic_icons #message_index_jump_to {
+	padding: 0;
+	float: right;
+}
+
+/* The category separator string is 29 dashes */
+#display_jump_to_select,
+#message_index_jump_to_select,
+#search_jump_to_select,
+#quick_mod_jump_to_select {
+	width: 29ch;
+}
+
+.quickModifyMargin {
+	margin: 10px 0 5px 0;
+	padding-bottom: 5px;
+}
+
+/* Styles for edit event section
+---------------------------------------------------- */
+#post_event .roundframe {
+	padding: 12px 12%;
+	overflow: auto;
+}
+#post_event fieldset {
+	padding: 6px;
+	clear: both;
+}
+#post_event span.label {
+	margin: 0 0.5em 0 2px;
+	min-width: 60px;
+	display: inline-block;
+}
+
+.event_options {
+	line-height: 25px;
+	display: flex;
+	flex-flow: row wrap;
+}
+.event_options div {
+	min-height: 25px;
+	margin-bottom: 5px;
+	flex: 1 0 auto;
+}
+.event_options_left {
+	box-sizing: border-box;
+	width: 55%;
+	min-width: 238px;
+}
+.event_options_right {
+	box-sizing: border-box;
+	width: 45%;
+	min-width: 270px;
+}
+.event_options_left div,
+.event_options_right div {
+	white-space: nowrap;
+}
+
+#post_event #event_main input {
+	margin: 0;
+}
+#event_time_input {
+	clear: left;
+}
+#event_time_input > div {
+	display: flex;
+}
+#event_time_input input.date_input {
+	width: 40%;
+	margin: 2px 0.5ch 0;
+	flex: 1 1 auto;
+}
+#event_time_input input.time_input {
+	width: 13ch;
+	margin: 2px 0.5ch 0;
+	flex: 0 1 auto;
+}
+#post_event input[type="checkbox"] {
+	height: auto;
+}
+#post_event input[type="text"][disabled] {
+	color: transparent;
+}
+#post_event select, #event_options input[type="text"], #tz {
+	max-width: calc(100% - 75px);
+}
+#post_event select, #evtitle, #event_location {
+	width: calc(100% - 75px);
+}
+#post_event input[type="checkbox"] + select {
+	max-width: calc(100% - 95px);
+}
+
+/* Styles for the recent messages section.
+---------------------------------------------------- */
+
+#readbuttons_top .pagelinks, #readbuttons .pagelinks {
+	padding-bottom: 12px;
+	width: 60%;
+}
+#readbuttons .pagelinks {
+	padding-top: 12px;
+}
+#recent {
+	clear: both;
+}
+
+/* Styles for the move topic section. */
+.move_topic {
+	width: 710px;
+	margin: auto;
+	text-align: left;
+}
+div.move_topic fieldset {
+	margin-top: 1ex;
+	padding: 6px;
+}
+/* Styles for the report topic/user section. */
+#report_form dl.settings dt {
+	width: 20%;
+}
+#report_form dl.settings dd {
+	width: 79%;
+}
+#report_comment {
+	width: 70%;
+}
+/* Styles for the split topic section. */
+div#selected, div#not_selected {
+	width: 49%;
+}
+ul.split_messages li a.split_icon {
+	padding: 0 6px;
+	opacity: 0.8;
+}
+ul.split_messages li a.split_icon:hover {
+	opacity: 1;
+}
+.split_messages, .message_header {
+	margin-bottom: 8px;
+}
+/* Styles for the merge topic section. */
+ul.merge_topics li {
+	list-style-type: none;
+}
+dl.merge_topic dt {
+	width: 25%;
+}
+dl.merge_topic dd {
+	width: 74%;
+}
+fieldset.merge_options {
+	clear: both;
+}
+.custom_subject {
+	margin: 6px 0;
+}
+
+/* Styles for the login areas.
+------------------------------------------------------- */
+.login {
+	width: 540px;
+	max-width: 100%;
+	margin: 0 auto;
+}
+.popup_content .login {
+	width: 100%;
+}
+.login dl {
+	overflow: auto;
+	clear: right;
+}
+.login dt, .login dd {
+	margin: 0 0 5px 0;
+	width: 44%;
+	padding: 1px;
+}
+.login dt {
+	float: left;
+	clear: both;
+	text-align: right;
+	font-weight: bold;
+}
+.login dd {
+	width: 54%;
+	float: right;
+	text-align: left;
+}
+.login p {
+	text-align: center;
+}
+
+.login input[type="submit"] {
+	margin: 1em 0 0 1em;
+}
+.login p:not(:last-of-type) input[type="submit"] {
+	margin-bottom: 1em;
+}
+
+/* Additional register fields */
+#registration fieldset {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+#registration .roundframe {
+	border-top: none;
+}
+dl.register_form {
+	margin: 0;
+	clear: right;
+}
+dl.register_form dt {
+	font-weight: normal;
+	float: left;
+	clear: both;
+	width: 50%;
+	margin: 6px 0 0 0;
+}
+dl.register_form dt span {
+	display: block;
+}
+dl.register_form dd {
+	float: left;
+	width: 49%;
+	margin: 6px 0 0 0;
+}
+#confirm_buttons {
+	text-align: center;
+	padding: 12px 0;
+}
+.coppa_contact {
+	padding: 4px;
+	width: 32ex;
+	background: var(--coppa_contact_bg_color);
+	color: var(--coppa_contact_txt_color);
+	margin-left: 5ex;
+	border: var(--coppa_contact_border_width) var(--coppa_contact_border_style) var(--coppa_contact_border_color);
+}
+.valid_input {
+	background: var(--valid_input_bg_color);
+}
+.invalid_input {
+	background: var(--invalid_input_bg_color);
+}
+
+/* Styles for maintenance mode.
+------------------------------------------------------- */
+#maintenance_mode img.floatleft {
+	margin-right: 12px;
+}
+
+/* Custom profile fields like to play with us some times. */
+#admin_content .custom_field {
+	margin-bottom: 15px;
+}
+#admin_login .centertext {
+	padding: 12px;
+}
+#admin_login .centertext .error {
+	padding: 0 0 12px 0;
+}
+#admin_login .centertext a.help img, .custom_field a img {
+	vertical-align: middle;
+}
+
+tr.windowbg td, tr.bg td, .table_grid tr td {
+	padding: 4px 8px;
+}
+#credits p {
+	font-style: italic;
+}
+
+.errorfile_table {
+	background: var(--errorfile_table_bg_color);
+	border-collapse: collapse;
+}
+.errorfile_table .file_line {
+	text-align: right;
+	padding-right: 6px;
+}
+.errorfile_table td.current {
+	font-weight: bold;
+	border-top: var(--errorfile_table_td_current_border_width) var(--errorfile_table_td_current_border_style) var(--errorfile_table_td_current_border_color);
+	border-bottom: var(--errorfile_table_td_current_border_width) var(--errorfile_table_td_current_border_style) var(--errorfile_table_td_current_border_color);
+	border-width: 1px 0 1px 1px;
+	background: var(--errorfile_table_td_current_bg_color);
+}
+
+.generic_menu {
+	margin: 5px 0;
+	background: var(--menu_bg_color);
+}
+
+/* Styles for (fatal) errors.
+------------------------------------------------- */
+
+#fatal_error {
+	width: 80%;
+	margin: 0 auto 10px auto;
+}
+.errorbox::before, .noticebox::before, .infobox::before {
+	width: 16px;
+	height: 16px;
+	background: url(../images/icons/main_icons_sprite.png) no-repeat -57px -83px;
+	left: 10px;
+	content: "";
+	position: absolute;
+	top: 50%;
+	margin-top: -8px;
+}
+.errorbox, .noticebox, .infobox {
+	padding: 7px 10px 7px 35px;
+	margin-bottom: 12px;
+	position: relative;
+}
+.errorbox {
+	background-color: var(--error_box_bg_color);
+	border-top: var(--error_box_border_width) var(--error_box_border_style) var(--error_box_border_color);
+	border-bottom: var(--error_box_border_width) var(--error_box_border_style) var(--error_box_border_color);
+}
+.errorbox h3 {
+	padding: 0;
+	margin: 0;
+	font-size: 1.1em;
+	text-decoration: underline;
+}
+.errorbox p {
+	margin: 12px 0 0 0;
+}
+.errorbox p.alert {
+	padding: 0;
+	margin: 0 4px 0 0;
+	float: left;
+	width: 12px;
+	font-size: 1.5em;
+}
+.errorbox span {
+	text-decoration: underline;
+}
+
+/* Styles for info boxes
+------------------------------------------------- */
+
+.noticebox::before {
+	background-position: -83px -83px;
+}
+.infobox::before {
+	background-position: -161px -83px;
+}
+.noticebox {
+	color: var(--notice_box_txt_color);
+	background: var(--notice_box_bg_color);
+	border-top: var(--notice_box_border_width) var(--notice_box_border_style) var(--notice_box_border_color);
+	border-bottom: var(--notice_box_border_width) var(--notice_box_border_style) var(--notice_box_border_color);
+}
+.infobox {
+	color: var(--info_box_txt_color);
+	background: var(--info_box_bg_color);
+	border-top: var(--info_box_border_width) var(--info_box_border_style) var(--info_box_border_color);
+	border-bottom: var(--info_box_border_width) var(--info_box_border_style) var(--info_box_border_color);
+}
+.descbox {
+	padding: 7px 10px 7px 10px;
+	border: var(--desc_box_border_width) var(--desc_box_border_style) var(--desc_box_border_color);
+	margin: 6px 0;
+}
+
+/* Styles for stats bars and progress bars.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.generic_bar, .progress_bar {
+	border: var(--generic_bar_border_width) var(--generic_bar_border_style) var(--generic_bar_border_color);
+	background: var(--generic_bar_bg_color);
+	min-height: 16px;
+	line-height: 1.4em;
+	border-radius: var(--generic_bar_border_radius);
+	position: relative;
+	overflow: hidden;
+	color: var(--generic_bar_txt_color);
+}
+.generic_bar span, .progress_bar span {
+	position: relative;
+	z-index: 2;
+	text-shadow: var(--generic_bar_span_txt_shadow);
+	display: inline-block;
+	padding: 0 5px;
+}
+.generic_bar .bar, .progress_bar .bar {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	background: var(--generic_bar_bar_bg_color);
+	transition: width .3s;
+	border-radius: var(--generic_bar_bar_border_radius);
+	box-shadow: var(--generic_bar_bar_box_shadow);
+	display: block;
+}
+.generic_bar.vertical {
+	width: 15px;
+}
+.generic_bar.vertical .bar {
+	right: 0;
+	top: auto;
+	box-shadow: var(--generic_bar_vertical_bar_box_shadow);
+}
+
+.progress_bar {
+	border-radius: var(--progress_bar_border_radius);
+	text-align: center;
+	font-weight: bold;
+	color: var(--progress_bar_txt_color);
+}
+.progress_bar .bar {
+	box-shadow: var(--progress_bar_bar_box_shadow);
+	background-color: var(--progress_bar_bar_bg_color);
+	background-size: 30px 30px;
+	background-image: var(--progress_bar_bar_bg_image);
+}
+.progress_yellow .bar {
+	background-color: var(--progress_yellow_bar_bg_color);
+}
+.progress_green .bar {
+	background-color: var(--progress_green_bar_bg_color);
+}
+.progress_red .bar {
+	background-color: var(--progress_red_bar_bg_color);
+}
+.progress_blue .bar {
+	background-color: var(--progress_blue_bar_bg_color);
+}
+
+/* Styles for the profile section.
+------------------------------------------------- */
+
+dl {
+	overflow: auto;
+}
+
+/* The basic user info on the left */
+#basicinfo {
+	width: 20%;
+	float: left;
+}
+#detailedinfo {
+	width: 79.5%;
+	float: right;
+}
+#basicinfo > * {
+	margin-bottom: 3px;
+}
+#basicinfo h4 {
+	font-size: 1.4em;
+	font-weight: normal;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
+}
+#basicinfo h4 span.position {
+	font-size: 0.8em;
+	display: block;
+}
+#basicinfo img.avatar, dl.settings img.avatar {
+	display: block;
+	max-width: 160px;
+	height: auto !important;
+}
+#basicinfo ul {
+	list-style-type: none;
+}
+#basicinfo .icon_fields li {
+	display: block;
+	float: left;
+	margin-right: 5px;
+	height: 20px;
+}
+#basicinfo #userstatus {
+	display: block;
+	clear: both;
+}
+#basicinfo #userstatus img {
+	vertical-align: middle;
+}
+#detailedinfo dl, #tracking dl {
+	clear: right;
+	overflow: auto;
+	margin: 0 0 18px 0;
+	padding: 0 0 15px 0;
+	border-bottom: var(--detailedinfo_border_width) var(--detailedinfo_border_style) var(--detailedinfo_border_color);
+}
+#detailedinfo dt, #tracking dt {
+	width: 35%;
+	margin: 0 0 3px 0;
+	font-weight: bold;
+	color: var(--detailedinfo_txt_color);
+}
+#detailedinfo dd, #tracking dd {
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+}
+#detailedinfo .noborder {
+	border-bottom: 0;
+}
+#detailedinfo dt.clear {
+	width: 100%;
+}
+#personal_picture {
+	display: block;
+	margin-bottom: 4px;
+}
+#avatar_server_stored div {
+	float: left;
+}
+#avatar_upload {
+	overflow: auto;
+}
+#smileypr {
+	margin-left: 10px;
+}
+.edit_avatar_img {
+	margin: 0 0 1em;
+}
+
+/* Activity by time */
+#activitytime {
+	margin: 6px 0;
+}
+.activity_stats {
+	margin: 10px 0;
+}
+.activity_stats li {
+	width: 4.16%;
+	float: left;
+	text-align: center;
+}
+.activity_stats li span {
+	display: block;
+	border: var(--activity_stats_border_width) var(--activity_stats_border_style) var(--activity_stats_border_color);
+	border-left: none;
+	border-right: none;
+	background: var(--activity_stats_bg_color);
+}
+.activity_stats li.last span {
+	border-right: none;
+}
+.activity_stats li .generic_bar {
+	height: 100px;
+	border-bottom: none;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	margin: 0 auto;
+}
+.activity_stats li .generic_bar span {
+	position: absolute;
+	top: -1000em;
+	left: -1000em;
+}
+
+.profile_pie {
+	background: url(../images/stats_pie.png);
+	background-size: auto 20px;
+	float: left;
+	height: 20px;
+	width: 20px;
+	margin: 0 12px 0 0;
+	text-indent: -1000em;
+}
+
+/* View posts */
+.topic .time {
+	float: right;
+}
+.counter {
+	padding: 5px 6px 1px 2px;
+	font-size: 2.2em;
+	font-weight: bold;
+	color: var(--counter_txt_color);
+	float: left;
+}
+.topic_details {
+	padding: 0 4px 4px 4px;
+}
+.counter + .topic_details {
+	margin-left: 25px;
+}
+.list_posts {
+	border-top: var(--border_width) var(--border_style) var(--border_color);
+	box-shadow: var(--list_posts_box_shadow);
+	padding-top: 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	clear: both;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	overflow-wrap: break-word;
+}
+.topic h4 {
+	margin: 3px 0;
+}
+.topic .post {
+	margin: 0 12px;
+	min-height: 80px;
+	height: auto !important;
+	height: 80px;
+}
+.topic .mod_icons {
+	text-align: right;
+	margin-right: 12px;
+}
+
+#creator dt {
+	width: 40%;
+}
+#creator dd {
+	width: 55%;
+	margin: 0 0 10px 2px;
+}
+.centericon {
+	vertical-align: middle;
+}
+.sizefix {
+	width: 16px;
+	height: 16px;
+}
+
+.boardslist > ul > li {
+	margin: 12px;
+}
+.boardslist > ul > li > ul {
+	columns: 2 250px;
+}
+.boardslist > ul > li > ul > li {
+	break-inside: avoid;
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
+}
+.boardslist a {
+	font-weight: bold;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+	display: block;
+	margin-bottom: 0.5em;
+}
+.boardslist a:hover {
+	text-decoration: none;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+}
+.boardslist label {
+	display: inline-block;
+	text-indent: -3ch;
+	margin: 0 3ch;
+}
+
+#theme_settings {
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+#theme_settings li {
+	margin: 10px 0;
+	padding: 0;
+}
+/* Paid Subscriptions */
+#paid_subscription {
+	width: 100%;
+}
+#paid_subscription dl.settings {
+	margin-bottom: 0;
+}
+#paid_subscription dl.settings dd, #paid_subscription dl.settings dt {
+	margin-bottom: 4px;
+}
+/* Pick theme */
+#pick_theme {
+	width: 100%;
+	float: left;
+}
+#pick_theme .selected {
+	background: var(--pick_theme_selected_bg_color);
+}
+
+/* Signature preview */
+
+#preview_signature, #preview_signature_display {
+	width: 100%;
+	overflow: hidden;
+}
+
+/* Issue a warning */
+#warn_body {
+	width: 100%;
+	font-size: 0.9em;
+}
+#warn_temp {
+	font-size: smaller;
+}
+
+/* Warning level bar */
+.warning_level {
+	text-align: center;
+	font-weight: bold;
+	max-width: 250px;
+}
+.warning_level.none .bar {
+	background-color: var(--warning_level_none_bar_bg_color);
+}
+.warning_level.watched .bar {
+	background-color: var(--warning_level_watched_bar_bg_color);
+}
+.warning_level.moderated .bar {
+	background-color: var(--warning_level_moderated_bar_bg_color);
+}
+.warning_level.muted .bar {
+	background-color: var(--warning_level_muted_bar_bg_color);
+}
+
+/* Styles for the statistics center.
+------------------------------------------------- */
+#statistics .roundframe {
+	margin: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+dl.stats dt {
+	width: 50%;
+	float: left;
+	margin: 0 0 4px 0;
+	line-height: 1.5em;
+	clear: both;
+	font-size: 1em;
+	overflow: hidden;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
+}
+dl.stats dd {
+	width: 48%;
+	font-size: 1em;
+	float: left;
+	margin: 0 0 4px 2%;
+}
+dl.stats {
+	padding: 5px;
+}
+
+/* Forum history table. */
+#stats td, #stats th {
+	width: 15%;
+	padding: 4px;
+	text-align: center;
+}
+#stats tr.windowbg th.lefttext {
+	text-align: left;
+}
+#stats tr.windowbg th.stats_month {
+	width: 25%;
+	padding: 0 2em;
+	text-align: left;
+}
+#stats tr.windowbg td.stats_day {
+	padding: 0 3.5em;
+	text-align: left;
+}
+
+/* Styles for the personal messages section.
+------------------------------------------------- */
+
+#personal_messages h3 span#author, #personal_messages h3 span#topic_title {
+	float: left;
+}
+#personal_messages h3 span#author {
+	margin: 0 0 0 6px;
+}
+#personal_messages h3 span#topic_title {
+	margin: 0 0 0 9em;
+}
+#personal_messages div.labels {
+	padding: 0 12px 0 0;
+}
+#personal_messages .capacity_bar {
+	background: var(--personal_messages_capcity_bar_bg_color);
+	display: block;
+	margin: 6px 0 0 12px;
+	height: 12px;
+	border: var(--personal_messages_capcity_bar_border_width) var(--personal_messages_capcity_bar_border_style) var(--personal_messages_capcity_bar_border_color);
+	width: 10em;
+}
+#personal_messages .capacity_bar span {
+	border-right: var(--personal_messages_capcity_bar_border_width) var(--personal_messages_capcity_bar_border_style) var(--personal_messages_capcity_bar_border_color);
+	display: block;
+	height: 12px;
+}
+#personal_messages .capacity_bar span.empty {
+	background: var(--personal_messages_empty_capacity_bar_bg_color);
+}
+#personal_messages .capacity_bar span.filled {
+	background: var(--personal_messages_filled_capacity_bar_bg_color);
+}
+#personal_messages .capacity_bar span.full {
+	background: var(--personal_messages_full_capacity_bar_bg_color);
+}
+#personal_messages .reportlinks {
+	padding: 6px 1.3em;
+}
+#personal_messages .pm_inline_time {
+	display: none;
+}
+#search_labels li {
+	padding: 4px 6px;
+}
+#manrules div.righttext {
+	padding: 4px 1px;
+}
+dl.addrules dt.floatleft {
+	width: 15em;
+	padding: 0 15px 6px 15px;
+}
+#addrule fieldset {
+	clear: both;
+}
+#to_item_list_container div, #bcc_item_list_container div {
+	float: left;
+	margin-right: 10px;
+}
+.unread_pm {
+	background: var(--unread_pm_bg_color);
+}
+/* Styles for the show alerts section.
+------------------------------------------------- */
+#alerts .alert_inline_time {
+	display: none;
+}
+#alerts .quickbuttons {
+	display: flex;
+	margin: 4px 0;
+}
+#alerts .quickbuttons li, #alerts .alert_time {
+	white-space: nowrap;
+}
+#alerts .alert_image {
+	width: 65px;
+	padding: 6px 0;
+	text-align: center;
+	vertical-align: middle;
+}
+#alerts .alert_image > div {
+	position: relative;
+}
+#alerts .alert_image .avatar {
+	max-width: 80%;
+	max-height: 80%;
+	margin-top: 4px;
+	vertical-align: bottom;
+}
+#alerts .alert_image span.alert_icon {
+	display: block;
+	width: 100%;
+	line-height: 1em;
+}
+#alerts .alert_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+/* Styles for the memberlist section.
+------------------------------------------------- */
+#mlist_search {
+	margin: auto;
+	max-width: 500px;
+}
+#mlist .selected {
+	white-space: nowrap;
+}
+#mlist .is_online {
+	width: 60px;
+}
+#mlist .email_address {
+	width: 25px;
+}
+#mlist .website_url {
+	width: 70px;
+}
+#mlist .icq, #mlist .skype {
+	width: 30px;
+}
+#mlist .post_count {
+	width: 115px;
+}
+
+/* Styles for the search section.
+------------------------------------------------- */
+#searchform fieldset {
+	text-align: left;
+	padding: 0;
+	border: none;
+}
+#searchform .roundframe {
+	border-radius: 0;
+	margin: 0;
+	padding: 32px;
+}
+#searchform .alt {
+	border-top: 0;
+	border-bottom-left-radius: 7px;
+	border-bottom-right-radius: 7px;
+}
+#searchform p.clear {
+	clear: both;
+}
+#advanced_search {
+	text-align: center !important;
+}
+#advanced_search dl#search_options {
+	margin: 0 auto;
+	width: 600px;
+	padding-top: 12px;
+	overflow: hidden;
+}
+#advanced_search dt {
+	padding: 2px;
+	text-align: right;
+	width: 20%;
+}
+#advanced_search dd {
+	width: 75%;
+	float: left;
+	padding: 2px;
+	margin: 0 0 0 6px;
+	text-align: left;
+}
+#search_results {
+	margin-bottom: 5px;
+}
+
+/* Styles for the help section.
+------------------------------------------------- */
+
+#help_container {
+	padding: 0 0 8px 0;
+}
+#helpmain {
+	margin: 12px 0 0 0;
+	padding: 8px 20px 12px 20px;
+	border: var(--border_width) var(--border_style) var(--border_color);
+	overflow: auto;
+}
+#helpmain p {
+	margin: 10px 0;
+	line-height: 1.5em;
+}
+#helpmain ul {
+	line-height: 2em;
+	margin: 0 0 0 25px;
+}
+#helpmain ul li {
+	list-style-type: disc;
+}
+#helpmain ul li a {
+	font-weight: bold;
+}
+
+/* Styles for the tooltips
+------------------------------------------------------- */
+.tooltip {
+	position: absolute;
+	z-index: 999;
+	left: -9999px;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
+	max-width: 350px;
+	padding: 6px 9px;
+	color: var(--tooltip_txt_color);
+	background: var(--tooltip_bg_color);
+	border: var(--tooltip_border_width) var(--tooltip_border_style) var(--tooltip_border_color);
+	border-radius: var(--tooltip_border_radius);
+	box-shadow: var(--tooltip_box_shadow);
+}
+
+/* Styles for popup windows */
+.popup_container {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--popup_container_bg_color);
+	z-index: 6;
+}
+#genericmenu > .popup_container {
+	z-index: 5;
+}
+#adm_submenus > .popup_container {
+	z-index: 4;
+}
+.popup_window,
+#main_menu .popup_window,
+#genericmenu .popup_window,
+#adm_submenus .popup_window {
+	position: relative;
+	width: auto;
+	z-index: 99;
+	box-shadow: var(--popup_window_box_shadow);
+	border: 1px solid var(--popup_window_border_color);
+	border-radius: var(--popup_window_border_radius);
+	margin: 0 auto;
+	padding: 0;
+}
+.popup_window {
+	top: 15%;
+	width: 480px;
+	padding: var(--popup_window_padding);
+	background: var(--popup_window_bg_color);
+}
+.popup_heading {
+	padding: var(--popup_heading_padding);
+	color: var(--popup_heading_txt_color);
+}
+.popup_content {
+	color: var(--popup_content_txt_color);
+	line-height: 1.6em;
+	max-height: 30em;
+	overflow: auto;
+	padding: var(--popup_content_padding);
+	background: var(--popup_content_bg_color);
+	border: var(--popup_content_border_width) var(--popup_content_border_style) var(--popup_content_border_color);
+	border-radius: var(--popup_content_border_radius);
+	box-shadow: var(--popup_content_box_shadow);
+}
+#main_menu .popup_heading,
+#genericmenu .popup_heading,
+#adm_submenus .popup_heading {
+	display: none;
+}
+#main_menu .popup_container,
+#genericmenu > .popup_container,
+#adm_submenus > .popup_container {
+	display: block;
+	position: relative;
+	background: none;
+	margin: 0;
+	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
+}
+.main_icons.hide_popup {
+	float: right;
+	color: var(--white);
+}
+.popup_heading .icon {
+	vertical-align: middle;
+	margin: -4px 4px 0 0;
+}
+
+.generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
+	background: var(--window_bg_color);
+	margin: 12px 0 0 0;
+	padding: 12px 16px;
+	border: var(--border_width) var(--border_style) var(--border_color);
+	overflow: auto;
+}
+/* Here comes the glory... */
+.windowbg:nth-of-type(even), .bg.even {
+	background: var(--window_bg_even_color);
+}
+.windowbg:nth-of-type(odd), .bg.odd {
+	background: var(--window_bg_odd_color);
+}
+
+/* Highlight the target item */
+.windowbg:target {
+	background: var(--window_target_bg_color);
+}
+
+/* Add some hover on table rows */
+tr.windowbg:hover {
+	background: var(--window_table_row_bg_hover_color);
+}
+
+/* Special treatment for #forumposts area */
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2, #pmFolder .windowbg {
+	overflow: visible;
+}
+/* Nobody wants locked topics to stand out much. */
+.windowbg.locked {
+	background: var(--window_locked_bg_color);
+}
+/* Sticky topics get a different background */
+.windowbg.sticky {
+	background: var(--window_sticky_bg_color);
+}
+/* Locked AND sticky are a bit more technical */
+.windowbg.sticky.locked {
+	background: var(--window_sticky_locked_bg_color);
+}
+/* Awaiting approval is a bit special, topics first */
+.windowbg.approvetopic {
+	background: var(--window_approve_topic_bg_color);
+}
+/* Unapproved posts in approved topics */
+.windowbg.approvepost {
+	background: var(--window_approve_post_bg_color);
+}
+.generic_list_wrapper .additional_row {
+	margin: 0;
+	padding: 5px 0;
+	border-radius: 0;
+}
+.generic_list_wrapper table.table_grid {
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+}
+div#editlang_desc {
+	margin-bottom: 8px;
+}
+.topic_details .smalltext {
+	font-size: 0.9em;
+}
+.table_grid tr.windowbg td.centercol {
+	text-align: center;
+}
+tr.windowbg {
+	box-shadow: none;
+}
+#postmodify #message {
+	width: 100%;
+}
+#postmodify .lastedit {
+	font-weight: bold;
+}
+
+/* Colors for background of posts requiring approval */
+.approvebg {
+	color: var(--approve_txt_color);
+	background: var(--approve_bg_color);
+}
+.approvebg2 {
+	color: var(--approve_txt_color);
+	background: var(--approve_bg_color_2);
+}
+
+div#manage_boards dl dd textarea[name=desc] {
+	margin-top: 1px;
+}
+
+.bold_text {
+	font-weight: bold;
+}
+
+/* Profile > This needed for responsive (get rid of <br>) */
+.infolinks {
+	display: block;
+}
+#groups .windowbg {
+	box-shadow: none;
+	border-radius: 0;
+	border-top: 0;
+	margin: 0;
+}
+#groups .padding {
+	margin: 0 0 25px 0;
+}
+.groupmembership textarea {
+	width: 100%;
+}
+.groupmembership .righttext {
+	margin-top: 1ex;
+}
+
+/* BoardIndex */
+/* This place covers board places (boardindex/messageindex/recent) */
+.boardindex_table:not(:last-child) {
+	margin-bottom: 15px;
+}
+h3 .collapse {
+	float: right;
+	margin: 4px 4px 0 0;
+}
+.board_icon {
+    text-align: center;
+    padding: 8px 4px 0px 4px;
+	width: 60px;
+	flex-shrink: 0;
+}
+.board_icon a {
+	display: inline;
+	text-decoration: none;
+}
+.board_icon a:hover, .board_icon a:focus {
+    display: inline;
+	text-decoration: none;
+}
+.board_icon a::before {
+    display: inline;
+    font-family: "Font Awesome 6 Free";
+    font-size: 2em;
+    content: "\f086";
+	color: var(--link);
+}
+.board_icon a.board_on::before {
+    font-weight: 900;
+}
+.board_icon a:hover::before {
+    color: var(--link_hover);
+	text-decoration: none;
+}
+.board_icon a.board_on2::before {
+	font-weight: 900;
+}
+.board_icon a.board_off::before {
+	font-weight: 400;
+}
+.board_icon a.board_redirect::before {
+	font-weight: 900;
+	content: "\f0a9";
+}
+.boardindex_table .board_icon {
+	width: 80px;
+}
+.boardindex_table .info {
+	width: calc(70% - 80px);
+}
+.boardindex_table .board_stats {
+	padding: 13px 10px 10px;
+}
+.boardindex_table .board_stats p {
+	border: none;
+	text-align: right;
+	font-weight: 600;
+}
+.boardindex_table .board_stats_number {
+    font-size: 1.4em;
+	font-weight: 700;
+}
+.info {
+	overflow: hidden;
+	overflow-wrap: break-word;
+	padding: 5px 5px 5px 0;
+	flex-grow: 1;
+}
+.info .subject {
+	font-weight: 700;
+	font-size: 1em;
+	color: var(--link);
+}
+.board_stats {
+	width: 10%;
+	font-size: 0.9em;
+	margin: 0 0 0 auto;
+	text-align: center;
+}
+.board_icon, .info, .board_stats, .lastpost {
+	display: inline-block;
+	align-self: center;
+}
+.lastpost {
+	width: 20%;
+	font-size: 0.9em;
+	position: relative;
+	display: inline-flex;
+}
+.lastpost .board_avatar {
+    padding-top: 7px;
+}
+.board_avatar {
+	display: inline-flex;
+	justify-content: center;
+    align-items: center;
+	margin-right: 2px;
+}
+.board_avatar img{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+@media (max-width: 855px) {
+.board_avatar {
+    display: none;
+}
+}
+
+.board_lastpost {
+    padding: 7px 0px 0px 0px;
+}
+.main_container {
+	margin-bottom: 20px;
+}
+.up_contain {
+	background: var(--up_contain_bg_color);
+	overflow: hidden;
+	border: var(--border_width) var(--border_style) var(--border_color);
+	margin: 0px 0px 0px 0px;
+	display: flex;
+	flex-wrap: wrap;
+}
+/* Child boards */
+.children {
+	background: var(--children_bg_color);
+	border-top: var(--border_width) var(--border_style) var(--border_color);
+	padding: var(--children_padding);
+	width: 100%;
+}
+.children p {
+	font-size: 0.9em;
+}
+.children span::after {
+	content: ", ";
+}
+.children span:last-of-type::after {
+	content: "";
+}
+p.moderators {
+	font-size: 0.9em;
+	font-weight: bold;
+}
+span.postby {
+	display: block;
+}
+/* Info Center */
+#info_center {
+	clear: both;
+	padding: 0px;
+}
+#info_center .sub_bar {
+	border-top: var(--border_width) var(--border_style) var(--border_color);
+}
+#info_center .sub_bar:first-child {
+	border-top: none;
+}
+#upshrink_stats {
+	margin-top: 0px;
+}
+#ic_recentposts {
+	line-height: 1.6em;
+	width: 100%;
+	margin: 0px 0px 0px 4px;
+	font-size: 0.9em;
+}
+#ic_recentposts th {
+	text-align: left;
+	padding: 0 4px 0 0;
+}
+#ic_recentposts td {
+	border-top: var(--border_width) var(--border_style) var(--border_color);
+	padding: 0 4px 0 0;
+	vertical-align: top;
+}
+#ic_recentposts tr:first-child td {
+	border-top: none;
+}
+#ic_recentposts .recentpost strong {
+	width: 40%;
+}
+#ic_recentposts .recentposter {
+	width: 15%;
+}
+#ic_recentposts .recentboard {
+	width: 20%;
+}
+#ic_recentposts .recenttime {
+	width: 25%;
+}
+#ic_recentposts .recenttime strong {
+	color: var(--body_txt_color);
+}
+#ic_recentposts .windowbg {
+	background: none;
+}
+#upshrink_stats p.inline {
+	border: none;
+	margin: 0;
+	padding: 0px 6px;
+	line-height: 1.6em;
+	font-size: 0.9em;
+}
+#upshrink_stats p.inline span {
+	margin: 0;
+	padding: 4px 0 0 0;
+}
+#upshrink_stats span.membergroups {
+	display: block;
+}
+
+/* Info Center Blocks */
+.info_center_container {
+	background: var(--info_center_container_bg_color);
+	margin: 5px 0px;
+	box-shadow: var(--info_center_box_shadow);
+	border-radius: var(--info_center_border_radius);
+}
+
+.info_block_icon {
+	display: block;
+	min-height: 100%;
+	padding: 3px 10px 3px 8px;
+	min-width: 30px;
+}
+
+.info_block_icon.column._0 .main_icons::before {
+	vertical-align: middle;
+}
+.info_block_information {
+	background: var(--info_block_information_bg_color);
+	border-radius: var(--info_center_border_radius);
+}
+.row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+  }
+
+.column {
+	flex-basis: 100%;
+	flex: 1;
+}
+
+._0 {
+	flex: 0;
+}
+._100 {
+    flex: 10;
+}
+
+/* MessageIndex */
+/* Start with description and other things */
+#description_board, .filter_row {
+	padding: 8px 10px;
+	border-radius: 6px 6px 0 0;
+	border-bottom: none;
+	box-shadow: none;
+}
+#description_board h3, #description_board div {
+	display: inline-block;
+}
+#description_board h3::after {
+	content: " - ";
+}
+/* Topic list */
+#topic_header {
+	margin: 0;
+	border-radius: 0;
+	display: flex;
+}
+#topic_header div {
+	font-weight: bold;
+	font-size: 1em;
+	padding: 0;
+}
+#topic_header input {
+	margin-top: 5px !important;
+}
+#topic_container .windowbg {
+	border: var(--border_width) var(--border_style) var(--border_color);
+	border-top: none;
+	display: flex;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+}
+#topic_container .lastpost, #topic_header .lastpost {
+	width: 20%;
+}
+#topic_container .lastpost, #topic_container .board_stats {
+	flex-shrink: 0;
+}
+.icon img, .moderation input {
+	margin-top: 15px;
+}
+.moderation {
+	display: inline-block;
+	width: 35px;
+	flex-shrink: 0;
+	vertical-align: middle;
+	text-align: center;
+}
+/* Quick moderation selects and submit */
+#quick_actions {
+	margin: 6px 0;
+}
+/* Icons and jump to */
+#topic_icons::before {
+	display: block;
+	height: 8px;
+	clear: both;
+	content: "";
+}
+#topic_icons .information {
+	font-size: .9em;
+	border-radius: 4px;
+}
+#topic_icons p {
+	padding: 0 12px 0 4px;
+	line-height: 2em;
+}
+/* Should lose this before RC1. It's a kludge. Can be fixed by new image */
+#topic_icons .floatleft img:first-child {
+	padding: 0 2px;
+}
+
+/* Display */
+/* Poll question */
+#poll {
+	overflow: hidden;
+}
+
+/* Poll vote options */
+#poll_options ul.options li {
+	padding: 6px 0 6px 25px;
+}
+
+/* Poll results */
+#poll_options dl.options {
+	padding: 12px 0 12px 25px;
+	line-height: 1.4em;
+}
+#poll_options dl.options dt {
+	padding: 4px 0;
+	width: 30%;
+	max-width: 30em;
+	float: left;
+	clear: left;
+}
+#poll_options dl.options .voted {
+	font-weight: bold;
+}
+#poll_options dl.options dd {
+	width: 60%;
+	max-width: 45em;
+	float: left;
+	margin: 0 0 4px 0;
+	text-align: right;
+}
+
+/* Poll notices */
+#poll_options p {
+	margin: 0 18px 2px 18px;
+	padding: 0 6px 6px 6px;
+}
+
+div#pollmoderation {
+	overflow: auto;
+}
+
+/* Styles for edit poll section. */
+#edit_poll dl.poll_options dt {
+	width: 33%;
+}
+#edit_poll dl.poll_options dd {
+	width: 65%;
+}
+
+/* Linked events */
+.event_title {
+	font-size: larger;
+	vertical-align: middle;
+}
+.event_title + a {
+	margin-left: 1em;
+}
+
+/* On to the posts */
+#forumposts {
+	clear: both;
+	margin: 8px 0 0 0;
+}
+#forumposts .cat_bar {
+	margin: 0 0 -4px 0;
+}
+/* Topic information */
+#forumposts .catbg img {
+	margin: 0 4px -2px 0;
+}
+#forumposts .catbg span {
+	white-space: pre;
+	/* Specific sizing for clarity without ClearType. */
+	font-size: 0.818em;
+	font-weight: normal;
+	padding: 2px 0;
+}
+/* poster and postarea + moderation area underneath */
+.post_wrapper::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+/* poster details and list of items */
+.poster {
+	float: left;
+	/* Don't set this in em.It will eat too much space if people need to set large text sizes. */
+	width: 160px;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
+}
+.poster h4 {
+	font-size: 1.2em;
+}
+.poster h4, .poster h4 a, .poster li:hover h4 a, .poster h4 a:hover .poster li h4 a, .poster h4 a:focus {
+	margin: 0;
+	padding: 0;
+}
+
+.poster .profile .profile_icons li, .poster .im_icons li {
+	display: table-cell;
+	padding-right: 5px;
+}
+
+/* The visible stuff below the avatar. */
+.user_info > li {
+	margin: 3px 0 0 0;
+}
+.poster li.membergroup {
+	font-weight: bold;
+}
+/* @todo Re-code this a bit to give background on anchor. */
+.poster li.poster_online, .poster li.poster_online:hover {
+	padding: 1px 1px 1px 1px;
+	margin: 3px 10px;
+}
+.poster li.poster_online a {
+	color: var(--poster_online_link_color);
+	line-height: 1.6em;
+}
+.poster li.poster_online:hover, .poster li.poster_online:hover a {
+	text-decoration: underline;
+}
+.poster li.warning a img {
+	vertical-align: bottom;
+	padding: 0 2px;
+}
+.poster img {
+	vertical-align: middle;
+}
+img.avatar {
+	object-fit: scale-down;
+}
+.poster img.avatar {
+	max-width: 100%;
+}
+.postarea, .moderatorbar {
+	margin: 0 0 0 175px;
+}
+.postarea div.flow_hidden {
+	width: 100%;
+}
+.moderatorbar {
+	clear: right;
+}
+.messageicon {
+	display: inline-block;
+}
+.messageicon img, #iconList img {
+	vertical-align: middle;
+}
+.keyinfo .postinfo {
+	padding: 1px 0 5px 0;
+	line-height: 1.5em;
+	font-size: 0.9em;
+	font-weight: bold;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+}
+.keyinfo .postinfo::after, .under_message::after {
+	content: "";
+	clear: right;
+	display: block;
+}
+.keyinfo .postinfo a, .keyinfo .postinfo a strong {
+	color: var(--key_post_info_link_color);
+}
+.keyinfo .postinfo .spacer {
+	flex: 1 1 auto;
+}
+.keyinfo .postinfo .modified {
+	color: var(--keyinfo_postinfo_modified_txt_color);
+	font-weight: normal;
+	font-style: italic;
+	padding: 2px 4px 0 4px;
+}
+/* PMs postinfo */
+#personal_messages .keyinfo .postinfo {
+	flex-direction: column;
+	align-items: flex-start;
+	font-weight: normal;
+}
+#reason::before {
+	content: " - ";
+}
+.subject_title a {
+	font-size: 0.9em;
+	color: var(--subject_title_link_color);
+	font-weight: bold;
+}
+.subject_hidden a {
+	display: none;
+}
+.page_number {
+	color: var(--page_number_txt_color);
+	font-weight: bold;
+	padding: 4px 0 0 4px;
+	line-height: 1.5em;
+}
+.inner {
+	padding: 7px 8px 2px 2px;
+	margin: 0;
+	border-top: var(--inner_border_width) var(--inner_border_style) var(--inner_border_color);
+	box-shadow: var(--inner_box_shadow);
+	min-height: 85px;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
+}
+img.smiley {
+	vertical-align: bottom;
+}
+.attachments {
+	padding: 12px 0 0 0;
+}
+.attached {
+	padding: 0 6px 8px 6px;
+	max-width: 100%;
+	display: inline-block;
+	vertical-align: top;
+}
+.attachments_top {
+	margin: 0 auto;
+	text-align: center;
+}
+.attachments hr {
+	clear: both;
+	margin: 12px 0;
+}
+.show_on_hover:hover span {
+	display:none;
+}
+.show_on_hover:hover:before {
+	content:attr(data-hover);
+}
+/* Separator of posts. More useful in the print stylesheet. */
+#forumposts .post_separator {
+	display: none;
+}
+/* Next and previous topic links */
+.nextlinks {
+	text-transform: capitalize;
+}
+/* Styles for the quick reply area. */
+#quickreply {
+	clear: both;
+}
+#quickreply_options .roundframe {
+	margin: 0;
+	padding: 8px 10% 12px 10%;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+#quickReplyExpand {
+	float: right;
+	margin: 2px 2px 0 2px;
+}
+/* Styles for edit post section */
+form#postmodify .roundframe {
+	padding: 12px 12%;
+	margin: 12px 0 0 0;
+}
+#post_header {
+	padding: 6px;
+	overflow: hidden;
+}
+#post_header dt {
+	float: left;
+	padding: 0;
+	width: 15%;
+	margin: 6px 0 0 0;
+	font-weight: bold;
+}
+#post_header dd {
+	float: left;
+	padding: 0;
+	width: 83%;
+	margin: 4px 0;
+}
+#post_header img {
+	vertical-align: middle;
+}
+ul.post_options {
+	margin: 0 0 0 12px;
+	padding: 0;
+	overflow: hidden;
+}
+ul.post_options li {
+	margin: 2px 0;
+	width: 49%;
+	float: left;
+}
+#post_additional_options_header {
+	margin-top: 0.5em;
+}
+#post_additional_options {
+	overflow: hidden;
+}
+#post_additional_options .progress_bar {
+	height: 22px;
+}
+#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
+	padding: 10px 0;
+}
+#postAttachment dd, #postAttachment2 dd {
+	margin: 4px 0;
+}
+#postAttachment dd {
+	width: 45%;
+	float: left;
+}
+#postAttachment dt, #postAttachment2 dt {
+	font-weight: bold;
+}
+#post_draft_options {
+	background: var(--post_draft_options_bg_color);
+	border: var(--post_draft_options_border_width) var(--post_draft_options_border_style) var(--post_draft_options_border_color);
+	border-left: var(--post_draft_options_border_left_width) var(--post_draft_options_border_left_style) var(--post_draft_options_border_left_color);
+	border-top: none;
+	border-radius: var(--post_draft_options_border_radius);
+}
+#post_draft_options .settings dd, #post_draft_options .settings dt {
+	width: 50%;
+	border-top: var(--post_draft_options_settings_border_width) var(--post_draft_options_settings_border_style) var(--post_draft_options_settings_border_color);
+	padding: 5px 10px;
+	margin: 0;
+}
+#post_draft_options .settings dd:first-of-type, #post_draft_options .settings dt:first-child {
+	border-top: none; /* Some people are OCD, like me. :P */
+}
+#post_draft_options .settings strong {
+	color: var(--post_draft_options_settings_strong_txt_color);
+}
+#post_confirm_buttons {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	width: 100%;
+}
+#post_confirm_buttons, #shortcuts {
+	padding: 12px 0;
+}
+#post_confirm_buttons .smalltext {
+	flex: 1;
+	word-break: break-word;
+	margin: 0 5px 0 0;
+}
+#post_confirm_buttons .post_button_container {
+	vertical-align: top;
+}
+#post_confirm_buttons .padding {
+	flex: 1 100%;
+}
+.post_verification {
+	margin-top: 6px;
+}
+.post_verification #verification_control {
+	margin: 4px 0 4px 12px;
+}
+/* The BBC buttons */
+#bbcBox_message {
+	margin: 10px 6px;
+}
+#bbcBox_message div {
+	margin: 2px 0;
+	vertical-align: top;
+}
+#bbcBox_message div img {
+	margin: 0 1px 0 0;
+	vertical-align: top;
+}
+#bbcBox_message select {
+	margin: 0 2px;
+}
+/* The smiley strip */
+#smileyBox_message {
+	margin: 6px;
+}
+/* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
+.signature, .attachments, .under_message,
+.custom_fields_above_signature,
+.custom_fields_below_signature {
+	width: 100%;
+	overflow: auto;
+	clear: right;
+	padding: 12px 0 3px 0;
+	border-top: 1px solid var(--signature_border_color);
+	box-shadow: 0 1px 0 var(--signature_box_shadow) inset;
+	line-height: 1.4em;
+	font-size: 0.9em;
+}
+.under_message {
+	overflow: visible;
+	border: none;
+	box-shadow: none;
+}
+.smflikebutton {
+	margin-top: 4px;
+}
+.like_count,
+.smflikebutton:last-child {
+	margin-bottom: 4px;
+}
+/* Events */
+.edit_event {
+	margin: 0 10px;
+	vertical-align: top;
+}
+/* ModerationButtons */
+#moderationbuttons {
+	float: left;
+}
+#moderationbuttons_strip {
+	float: left;
+	margin: 4px 0 4px;
+}
+#moderationbuttons ul li {
+	padding: 0 6px 4px 0;
+	margin: 0;
+}
+
+/* File error */
+.errorfile_table {
+	font-family: monospace;
+	border-spacing: 1px;
+}
+.errorfile_table td {
+	background: var(--errorfile_table_td_bg_color);
+}
+.errorfile_table .current {
+	background: var(--errorfile_table_current_bg_color);
+}
+.errorfile_table .file_line.current {
+	background: var(--errorfile_table_file_line_current_bg_color);
+}
+.errorfile_table .file_line {
+	background: var(--errorfile_table_file_line_bg_color);
+}
+
+/* General Classes */
+/* Cat_bar / catbg */
+div.cat_bar {
+	background: var(--cat_bg_color);
+	padding: var(--cat_bar_outer_padding);
+	border-radius: var(--cat_bar_border_radius);
+}
+.cat_bar.collapsed,
+.cat_bar.cat_bar_round {
+	border-radius: var(--cat_bar_collapsed_border_radius);
+}
+.cat_bar h3 {
+	padding: var(--cat_bar_inner_padding);
+}
+/* Styles for rounded headers. */
+.cat_bar .desc {
+	color: var(--cat_bar_desc_txt_color);
+	font-size: 13px;
+	line-height: 1.3em;
+	font-weight: normal;
+	margin: -8px 0 4px 12px;
+}
+.cat_bar .desc a {
+	color: var(--cat_bar_link_color);
+	font-weight: 600;
+}
+h3.catbg {
+	overflow: hidden;
+	font-size: 1.1em;
+}
+h3.catbg, h3.catbg a, h3.catbg a:hover {
+	color: var(--cat_bar_link_color);
+}
+h3.catbg a:hover {
+	text-decoration: none;
+}
+h3.catbg .main_icons::before, h3.catbg .icon {
+	margin: 0 5px 0 0;
+}
+.cat_bar + .windowbg, .cat_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+.cat_bar + .title_bar {
+	margin-top: 0;
+}
+/* Roundframe */
+.roundframe {
+	margin: 10px 0 0 0;
+	padding: 12px 16px;
+	background: var(--roundframe_bg_color);
+	border: none;
+	border-radius: var(--roundframe_border_radius);
+	overflow: auto;
+}
+/* TitleBar & SubBar */
+.title_bar {
+	border-top: var(--title_bar_border_top_width) var(--title_bar_border_top_style) var(--title_bar_border_top_color);
+	border-bottom: var(--title_bar_border_bottom_width) var(--title_bar_border_bottom_style) var(--title_bar_border_bottom_color);
+	background: var(--title_bar_bg_color);
+	color: var(--title_bar_link);
+	border-radius: var(--title_bar_border_radius);
+	margin: 0px;
+}
+.sub_bar {
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+	background: none;
+	clear: both;
+}
+h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
+	background: none;
+	color: var(--title_bar_link);
+	font-weight: bold;
+	overflow: hidden;
+	padding: vaR(--title_bar_inner_padding);
+}
+.titlebg a {
+	background: none;
+	color: var(--title_bar_link);
+	text-decoration: none;
+}
+
+.subbg a {
+	background: none;
+	color: var(--sub_bar_link_color);
+	text-decoration: none;
+}
+.title_bar + .windowbg, .title_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+/* Other */
+/* Information */
+.information {
+	background: var(--information_bg_color);
+	overflow: auto;
+	padding-bottom: .5em;
+	border: var(--information_border_width) var(--information_border_style) var(--information_border_color);
+	border-top: none;
+	border-radius: var(--information_border_radius);
+	margin: 0 0 10px 0;
+	padding: 12px 9px 8px 9px;
+}
+.generic_list_wrapper .information div {
+	background: none;
+}
+.information a:not(.button) {
+	font-weight: bold;
+}
+p.information img {
+	vertical-align: middle;
+}
+#messageindex .information {
+	border-radius: 0;
+	margin: 0;
+}
+#topic_icons .information,
+#messageindex .information {
+	border-top: var(--information_border_width) var(--information_border_style) var(--information_border_color);
+}
+.topic_pages {
+	font-size: 0.75em;
+	margin: 0 0 0 5px;
+}
+.topic_pages::before {
+	content: "\00ab ";
+}
+.topic_pages::after {
+	content: " \00bb"
+}
+/* Mentions */
+.atwho-view {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: none;
+	margin-top: 18px;
+	background: var(--atwho_view_bg_color);
+	border: var(--atwho_view_border_width) var(--atwho_view_border_style) var(--atwho_view_border_color);
+	border-radius: var(--atwho_view_border_radius);
+	box-shadow: var(--atwho_view_box_shadow);
+	min-width: 120px;
+	z-index: 11110 !important;
+}
+.atwho-view .cur {
+	background: var(--atwho_view_cur_bg_color);
+	color: var(--atwho_view_cur_txt_color);
+}
+.atwho-view .cur small {
+	color: var(--atwho_view_cur_small_txt_color);
+}
+.atwho-view strong {
+	color: var(--atwho_view_strong_tex);
+}
+.atwho-view .cur strong {
+	color: var(--atwho_view_cur_strong_txt_color);
+	font-weight: bold;
+}
+.atwho-view ul {
+	list-style: none;
+	padding: 0;
+	margin: auto;
+}
+.atwho-view ul li {
+	display: block;
+	padding: 5px 10px;
+	border-bottom: var(--atwho_view_border_width) var(--atwho_view_border_style) var(--atwho_view_border_color);
+	cursor: pointer;
+}
+.atwho-view small {
+	font-size: smaller;
+	color: var(--atwho_view_small_txt_color);
+	font-weight: normal;
+}
+/* On/Off Icons (User) */
+.on, .off {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: var(--on_off_border_radius);
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+.on {
+	background: var(--on_bg_color);
+	border-color: var(--on_border_color);
+}
+.off {
+	background: var(--off_bg_color);
+	border-color: var(--off_border_color);
+}
+#userstatus .smalltext {
+	margin: 0 0 0 5px !important;
+}
+
+/* Styles for print media. */
+@media print {
+	#headerarea {
+		display: none;
+	}
+
+	.tborder {
+		border: none;
+	}
+}
+/* Who */
+.action_who #upper_show {
+	margin-top: 6px;
+}
+.action_who #lower_pagesection {
+	margin-top: 4px;
+}
+.action_who #lower_pagelinks {
+	margin-top: -4px;
+}
+.action_who select {
+	margin-top: -1px !important;
+}
+span.member.hidden {
+	display: inline-block;
+	font-style: italic;
+}
+
+/* Icons (converted from img to css) */
+/* Stay here till I find a better place for you guys */
+h3.profile_hd::before {
+	vertical-align: middle;
+}
+h3.profile_hd::before,
+.main_icons.profile_hd::before {
+	content: "";
+	background: url(../images/icons/profile_hd.png) no-repeat;
+	height: 24px;
+	width: 24px;
+	display: inline-block;
+}
+.main_icons.profile_sm::before {
+	background: url(../images/icons/profile_sm.png) no-repeat;
+}
+.xx {
+	background: url(../images/post/xx.png) 2px no-repeat;
+	padding: 25px 6px 25px 18px;
+}
+
+/* Topic/Board follow-alert menu */
+.notify_dropdown strong {
+	font-size: 1.1em;
+}
+.notify_dropdown a {
+	display: block;
+	padding: 0.5em;
+	text-decoration: none;
+	border: 1px solid transparent;
+	border-radius: 3px;
+}
+.notify_dropdown a:hover, .notify_dropdown a:focus {
+	border-color: var(--border_color);
+}
+.notify_dropdown span {
+	font-size: 0.9em;
+}
+
+/* Some new stuff */
+#display_head {
+	clear: both;
+	margin: -7px 0 15px 0;
+}
+#display_head p {
+	color: var(--display_head_txt_color);
+}
+#display_head span {
+	margin: -4px 0 0 0;
+}
+.display_title {
+	font-weight: normal;
+	font-size: 26px;
+	margin-bottom: 0.25em;
+	line-height: 1.05em;
+	overflow-wrap: break-word;
+}
+
+#reported_posts .main_icons,
+#reported_members .main_icons {
+	margin: -3px 1px 0 0;
+}
+#reported_posts .quickbuttons li a,
+#reported_members .quickbuttons li a {
+	background: none;
+}
+
+/* Some colors for generic usage */
+/* Sometimes there will be an error when you post */
+/* Messages that somehow need to attract the attention. */
+.red, .meaction,
+.error, .alert, .warn_mute {
+	color: var(--red);
+}
+.blue {
+	color: var(--blue);
+}
+.green {
+	color: var(--green);
+}
+
+/* Adding some classes for generic usage and JS rules */
+.hidden {
+	display: none;
+}
+.inline_block {
+	display: inline-block;
+}
+.block {
+	display: block;
+	margin: 0 0 5px 0;
+}
+
+/* Alternating colors */
+.stripes:nth-of-type(even) {
+	background-color: var(--stripes_even_bg_color);
+}
+.stripes:nth-of-type(odd) {
+	background-color: var(--stripes_odd_bg_color);
+}
+.alternative {
+	background-color: var(--alternative_bg_color);
+}
+.alternative2 {
+	background-color: var(--alternative_bg_2_color);
+}
+
+.centerbox {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.dz-image-preview {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 12px;
+}
+#attachment_previews {
+    display: none;
+}
+#attachment_previews div.descbox > div,
+#attachment_previews div.errorbox > div,
+#attachment_previews div.infobox > div {
+	padding: 10px;
+}
+#attachment_previews .attach-preview {
+	flex: 0 0 auto;
+	width: 170px;
+}
+#attachment_previews .attachment_info {
+	flex: 1 1 auto;
+	width: 250px;
+}
+#attachment_previews .attach-ui {
+	min-height: 36px;
+	padding: 10px 0;
+	float: right;
+}
+input[name="attachBBC"] {
+	width: 100%;
+	margin-top: 10px;
+}
+.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all, .attach-ui {
+	display: none;
+}
+.attachment_info .progress_bar {
+	margin: 6px 0;
+}
+.attached_BBC_width_height label {
+	min-width: 100px;
+	display: inline-block;
+}
+.attached_BBC_width, .attached_BBC_height {
+	margin: 10px 1em 0 0;
+	display: inline-block;
+}
+.attachment_info input[type="number"] {
+	width: 5em;
+}
+#attachment_upload {
+	min-height: 50px;
+}
+#drop_zone_ui {
+	display: none;
+}
+#total_progress {
+	width: 50%;
+	display: none;
+}
+#max_files_progress, #max_files_progress_text {
+	display: none;
+}
+
+/* Hide this from desktop users sshh... our little sekrit */
+.mobile_buttons, .mobile_display {
+	display: none;
+}
+
+/* Two-Factor Auth code container */
+.tfacode {
+	background: var(--tfacode_bg_color);
+	padding: 5px;
+	display: inline-block;
+}
+
+/* TFA QR block */
+.tfa_qrcode {
+	padding: 6% 8%;
+}
+
+.tfa_qrcode img {
+	width: 140px;
+}
+
+/* This was named as "winfo" before, but its better named noup */
+.noup {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	margin: 0 0 10px 0 !important;
+}
+.information.noup {
+	border-radius: 0;
+	margin: 0 !important;
+	border-bottom: none;
+}
+.windowbg.noup {
+	box-shadow: none;
+}
+
+/* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
+.g-recaptcha {
+	display: inline-block;
+}
+
+/* If its collapsed you know what to do */
+.collapsed {
+	opacity: 0.5;
+	transition: 1s;
+}
+.collapsed:hover {
+	opacity: 1;
+}
+
+/* Lets not allow our textarea in news section overflow too much to left */
+tr[id^='list_news_lists_'] textarea {
+	width: 100%;
+	resize: vertical;
+	min-height: 100px;
+}
+
+/* Responsive Youtube embed */
+.videocontainer {
+	max-width: 560px;
+}
+.centertext .videocontainer,
+.justifytext .videocontainer {
+	margin: 0 auto;
+}
+.righttext .videocontainer {
+	margin: 0 0 0 auto;
+}
+.lefttext .videocontainer {
+	margin: 0 auto 0 0;
+}
+.videocontainer > div {
+	position: relative;
+	padding-bottom: 56.25%;
+}
+.videocontainer iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100% !important;
+	height: 100% !important;
+}
+.videocontainer video {
+	object-fit: contain;
+	background: var(--video_container_bg_color);
+	max-width: 100%;
+}
+
+.backtrace:not(:last-child) {
+	padding-bottom: 0.5em;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+	margin-bottom: 0.5em;
+}
+
+/* To break or not to break that is the question indeed */
+.word_break {
+	word-break: break-all;
+}
+
+div.sceditor-container:not(.sceditor-maximize) {
+	z-index: 4;
+}
+
+#attach_current_directory {
+	word-break: break-word;
+}
+/* Add max-width for theme thumbnails */
+img.theme_thumbnail {
+	max-width: 250px;
+}
+
+#lang_main_files_list .name, #member_list .email, #approve_list .email {
+	word-break: break-word;
+}
+
+/*Light&Dark Mode Switcher*/
+.theme-switch-wrapper {
+	padding: 0px;
+}
+
+.theme-switch {
+	color: var(--link);
+	position: absolute;
+    top: 5px;
+}
+
+.theme-switch input {
+    display:none;
+}
+
+.slider {
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.slider:before {
+    background-color: transparent;
+    content: "\f186";
+    transition: .4s;
+    font-family: "Font Awesome 6 Free";
+	font-weight: 700;
+}
+
+input:checked + .slider {
+	background-color: transparent;
+}
+
+input:checked + .slider:before {
+	background-color: transparent;
+}
+
+input:checked + .slider:before {
+	content: "\f185";
+	font-weight: 700;
+	font-family: "Font Awesome 6 Free";
+}
+
+/**
+ * @package Theme Customs
+ * @author Diego Andrés <diegoandres_cortes@outlook.com>
+ * @copyright Copyright (c) 2023, SMF Tricks
+ * @license MIT
+ */
+
+/* Replace SMF Icons */
+.main_icons::before,
+h3.profile_hd::before,
+.large_admin_menu_icon::before {
+	font-family: "Font Awesome 6 Free";
+	display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+	font-weight: 900;
+	background: none !important;
+	width: auto;
+	height: auto;
+	font-size: 0.95em;
+	margin: 0;
+	vertical-align: top;
+}
+/* Menu Icons Adjustment */
+.dropmenu .main_icons::before, #profile_menu .main_icons::before, .dropmenu img {
+	margin: -3px 8px 0 0;
+	vertical-align: middle;
+}
+/* Bigger Icons */
+.large_admin_menu_icon::before {
+	font-size: 2.5em;
+	width: auto !important;
+	height: auto !important;
+}
+/* Remove height and width? */
+h3.profile_hd::before,
+.main_icons.profile_hd::before {
+	width: auto;
+	height: auto;
+}
+/* don't center these icons.... */
+.main_icons.centericon,
+h3.catbg .icon {
+	vertical-align: top;
+}
+
+/* Search */
+.main_icons.search::before,
+.large_admin_menu_icon.search::before {
+	content: "\f002";
+}
+/* Seach Engines */
+.main_icons.engines::before,
+.large_admin_menu_icon.engines::before {
+	content: "\f00e";
+}
+/* Check */
+.main_icons.check::before,
+.main_icons.valid::before,
+.fa-solve_topic::before {
+	content: "\f00c";
+}
+/* Invalid */
+.main_icons.invalid::before,
+.fa-warn_button::before,
+.main_icons.warn_button::before {
+	content: "\f071";
+}
+/* Gender 1 */
+.main_icons.gender_1::before {
+	content: "\f222";
+}
+/* Gender 2 */
+.main_icons.gender_2::before {
+	content: "\f221";
+}
+/* Watch */
+.main_icons.watch::before,
+.main_icons.topics_views::before,
+.main_icons.views::before {
+	content: "\f06e";
+}
+/* Next Page */
+.main_icons.next_page::before {
+	content: "\f061";
+}
+/* Previous Page */
+.main_icons.previous_page::before {
+	content: "\f060";
+}
+/* Boards */
+.main_icons.boards::before,
+.large_admin_menu_icon.boards::before,
+.fa-forum::before,
+.main_icons.menu_tpforum::before {
+	content: "\f07c";
+}
+/* General */
+.main_icons.general::before,
+.fa-forum_stats::before  {
+	content: "\f200";
+}
+/* Features */
+.main_icons.features::before {
+	content: "\f03a";
+}
+/* Security */
+.main_icons.security::before,
+.large_admin_menu_icon.security::before {
+	content: "\f544";
+}
+/* Posters */
+.main_icons.posters::before {
+	content: "\f091";
+}
+/* Replies */
+/* Im On */
+.main_icons.replies::before,
+.main_icons.topics_replies::before {
+	content: "\f4ad";
+}
+/* History */
+.main_icons.history::before {
+	content: "\f1da";
+}
+/* Time Online */
+.main_icons.time_online::before {
+	content: "\f253";
+}
+/* Scheduled */
+.main_icons.scheduled::before,
+.large_admin_menu_icon.scheduled::before {
+	content: "\f017";
+}
+/* Last Post */
+.main_icons.last_post::before {
+	content: "\f051";
+}
+/* Starters */
+.main_icons.starters::before {
+	content: "\f507";
+}
+/* Membergroups */
+.main_icons.membergroups::before,
+.large_admin_menu_icon.membergroups::before,
+.fa-team::before,
+.main_icons.team::before {
+	content: "\f509";
+}
+/* Www */
+.main_icons.www::before {
+	content: "\f57d";
+}
+/* Switch */
+.main_icons.switch::before {
+	content: "\f074";
+}
+/* Replied */
+.main_icons.replied::before {
+	content: "\f4fd";
+}
+/* Send */
+.main_icons.send::before {
+	content: "\f14d";
+}
+/*  Im On */
+.main_icons.profile_sm::before,
+.main_icons.im_on::before {
+	content: "\f4ff";
+}
+/* Im Off */
+.main_icons.im_off::before {
+	content: "\f27a";
+}
+/* Split DeSelect */
+.main_icons.split_desel::before {
+	content: "\f359";
+}
+/* Split Select */
+.main_icons.split_sel::before {
+	content: "\f35a";
+}
+/* Mail */
+.main_icons.mail::before,
+.large_admin_menu_icon.mail::before {
+	content: "\f0e0";
+}
+/* Mail New */
+.main_icons.mail_new::before {
+	content: "\f658";
+}
+/* Warning Statuses */
+.main_icons.warning_mute::before,
+.main_icons.warning_moderate::before,
+.main_icons.warning_watch::before {
+	content: "\f06a";
+}
+/* Warning Mute */
+.main_icons.warning_mute::before,
+.errorbox::before {
+	color: red;
+}
+/* Warning Moderate */
+.main_icons.warning_moderate::before,
+.noticebox::before {
+	color: orange;
+}
+/* Warning Watch */
+.main_icons.warning_watch::before,
+.infobox::before {
+	color: green;
+}
+/* Drafts */
+.main_icons.drafts::before {
+	content: "\f3a1";
+}
+/* Calendar Export */
+.main_icons.calendar_export::before {
+	content: "\f271";
+}
+/* Calendar Modify */
+.main_icons.calendar_modify::before {
+	content: "\f784";
+}
+/* Plus */
+.main_icons.plus::before {
+	content: "\f067";
+}
+/* Warning */
+.main_icons.warning::before,
+.large_admin_menu_icon.warning::before {
+	content: "\f637";
+}
+/* Themes */
+.main_icons.themes::before,
+.fa-features::before,
+.large_admin_menu_icon.themes::before {
+	content: "\f5fd";
+}
+/* Support */
+.main_icons.support::before,
+.large_admin_menu_icon.support::before {
+	content: "\f1cd";
+}
+/* Likes */
+.main_icons.liked::before,
+.main_icons.liked_users::before,
+.main_icons.liked_messages::before,
+.main_icons.like::before,
+.fa-like::before {
+	content: "\f164";
+}
+/* Unlike */
+.main_icons.unliked::before,
+.main_icons.unlike::before,
+.fa-unlike::before {
+	content: "\f165";
+}
+/* Current Theme */
+.main_icons.current_theme::before,
+.large_admin_menu_icon.current_theme::before {
+	content: "\f53f";
+}
+/* Stats */
+.main_icons.stats::before {
+	content: "\f080";
+}
+/* Right Arrow */
+.main_icons.right_arrow::before {
+	content: "\f152";
+}
+/* Left Arrow */
+.main_icons.left_arrow::before {
+	content: "\f153";
+}
+/* Smiley */
+.main_icons.smiley::before,
+.large_admin_menu_icon.smiley::before {
+	content: "\f118";
+}
+/* Server */
+.main_icons.server::before,
+.large_admin_menu_icon.server::before {
+	content: "\f233";
+}
+/* Ban */
+.main_icons.ban::before,
+.large_admin_menu_icon.ban::before {
+	content: "\f05e";
+}
+/* Ignore */
+.fa-frenemy::before,
+.fa-ignore::before,
+.main_icons.ignore::before,
+.main_icons.frenemy::before,
+.main_icons.disable::before {
+	content: "\f506";
+}
+/* Posts */
+.main_icons.posts::before,
+.large_admin_menu_icon.posts::before {
+	content: "\f0c5";
+}
+/* Sort */
+.main_icons.sort_down::before,
+.main_icons.sort_up::before {
+	margin: 0 8px;
+}
+/* Sort Down */
+.main_icons.sort_down::before {
+	content: "\f160";
+}
+/* Sort Up */
+.main_icons.sort_up::before {
+	content: "\f161";
+}
+/* Sent */
+.main_icons.sent::before {
+	content: "\f064";
+}
+/* Post Moderation Moderate */
+.main_icons.post_moderation_moderate::before {
+	content: "\f6e3";
+}
+/* Post Moderation Deny */
+.main_icons.post_moderation_deny::before {
+	content: "\f502";
+}
+/* Post Moderation Attach */
+.main_icons.post_moderation_attach::before {
+	content: "\f127";
+}
+/* Permissions */
+.main_icons.permissions::before,
+.large_admin_menu_icon.permissions::before {
+	content: "\f084";
+}
+/* Paid */
+.main_icons.paid::before,
+.large_admin_menu_icon.paid::before,
+.fa-paid::before {
+	content: "\f155";
+}
+/* Packages */
+.main_icons.packages::before,
+.large_admin_menu_icon.packages::before {
+	content: "\f466";
+}
+/* Filter */
+.main_icons.filter::before {
+	content: "\f0b0";
+}
+/* Package_ops */
+.main_icons.package_ops::before {
+	content: "\f362";
+}
+/* Reports */
+.main_icons.reports::before,
+.large_admin_menu_icon.reports::before {
+	content: "\f573";
+}
+/* News */
+.main_icons.news::before,
+.large_admin_menu_icon.news::before  {
+	content: "\f1ea";
+}
+/* Hide Popup */
+.main_icons.hide_popup::before {
+	content: "\f056";
+}
+/* Prune */
+.main_icons.prune::before {
+	content: "\f55a";
+}
+/* Modifications */
+.main_icons.modifications::before,
+.large_admin_menu_icon.modifications::before {
+	content: "\f12e";
+}
+/* Maintain */
+.main_icons.maintain::before,
+.large_admin_menu_icon.maintain::before {
+	content: "\f0ad";
+}
+/* Administration */
+.main_icons.administration::before {
+	content: "\f552";
+}
+/* Attachment */
+.main_icons.attachment::before,
+.large_admin_menu_icon.attachment::before {
+	content: "\f0c6";
+}
+/* Error */
+.main_icons.error::before {
+	content: "\f12a";
+}
+/* Languages */
+.main_icons.languages::before,
+.large_admin_menu_icon.languages::before {
+	content: "\f1ab";
+}
+/* Members Request */
+.main_icons.members_request::before {
+	content: "\f508";
+}
+/* Members Delete */
+.main_icons.members_delete::before {
+	content: "\f503";
+}
+/* Members Watched */
+.main_icons.members_watched::before {
+	content: "\f21b";
+}
+/* Logs */
+.main_icons.logs::before,
+.large_admin_menu_icon.logs::before {
+	content: "\f46d";
+}
+/* Features */
+.main_icons.features::before,
+.fa-tasksmanager::before,
+.large_admin_menu_icon.features::before {
+	content: "\f0ae";
+}
+/* Settings */
+.main_icons.settings::before {
+	content: "\f1de";
+}
+/* Enable */
+.main_icons.enable::before {
+	content: "\f205";
+}
+/* Close */
+.main_icons.close::before {
+	content: "\f410";
+}
+/* Folder */
+.main_icons.folder::before {
+	content: "\f07b";
+}
+/* Select Here */
+.main_icons.select_here::before {
+	content: "\f101";
+}
+/* Select Above */
+.main_icons.select_above::before {
+	content: "\f102";
+}
+/* Select Below */
+.main_icons.select_below::before {
+	content: "\f103";
+}
+
+/* Mark All Read */
+.fa-markread::before,
+.fa-readall::before,
+.fa-read_button::before,
+.fa-mark_read_short::before,
+.fa-mark_as_read::before,
+.main_icons.read_button::before {
+	content: "\f560";
+}
+/* Mark Selected */
+.fa-markselectread::before,
+.fa-quick_mod_markread::before,
+.fa-TopicSolved_mark_solved::before {
+	content: "\f058";
+}
+/* Not Read */
+.fa-mark_unread::before,
+.fa-unread_button::before,
+.fa-unsolve_topic::before,
+.fa-TopicSolved_mark_unsolved::before,
+.main_icons.unread_button::before {
+	content: "\f00d";
+}
+/* Send Topic */
+.fa-send::before {
+	content: "\f1d8";
+}
+/* Unnotify */
+.fa-unnotify::before {
+	content: "\f1f6";
+}
+/* New Poll */
+.fa-post_poll::before,
+.fa-new_poll::before,
+.fa-add_poll::before,
+.main_icons.poll::before {
+	content: "\f682";
+}
+/* Delete */
+.fa-remove_poll::before,
+.fa-delete::before,
+.fa-remove_topic::before,
+.fa-remove_button::before,
+.fa-collections_remove::before,
+.main_icons.remove_button::before,
+.main_icons.delete::before,
+.main_icons.collections_remove::before {
+	content: "\f2ed";
+}
+/* Restore */
+.fa-restore_topic::before,
+.fa-restore_button::before,
+.main_icons.restore_button::before {
+	content: "\f829";
+}
+/* New Topic */
+.fa-new_topic::before {
+	content: "\f15b";
+}
+/* Move Topic */
+.fa-move::before,
+.fa-move_topic::before,
+.main_icons.move::before {
+	content: "\f0b2";
+}
+/* Sticky Topic */
+.fa-set_sticky::before,
+.fa-set_nonsticky::before,
+.main_icons.sticky::before {
+	content: "\f08d";
+}
+/* Lock Topic */
+.fa-set_lock::before,
+.main_icons.lock::before {
+	content: "\f023";
+}
+/* Unlock Topic */
+.fa-set_unlock::before,
+.main_icons.unlock::before,
+.main_icons.post_moderation_allow::before {
+	content: "\f3c1";
+}
+/* Merge Topic */
+.fa-merge::before,
+.main_icons.merge::before {
+	content: "\f248";
+}
+/* Link Calendar */
+.fa-calendar_link::before {
+	content: "\f274";
+}
+/* Members */
+.fa-view_all_members::before,
+.fa-mlist::before,
+.fa-people::before,
+.main_icons.mlist::before,
+.main_icons.people::before {
+	content: "\f0c0";
+}
+/* Find Member */
+.fa-mlist_search::before {
+	content: "\f4fc";
+}
+/* Calendar */
+.fa-calendar::before,
+.fa-calendar_upcoming::before,
+.main_icons.calendar::before,
+.large_admin_menu_icon.calendar::before {
+	content: "\f073";
+}
+/* Post Event */
+.fa-calendar_post_event::before {
+	content: "\f783";
+}
+/* Register */
+.main_icons.main_icons.regcenter::before,
+.large_admin_menu_icon.regcenter::before,
+.fa-register::before,
+.fa-signup::before {
+	content: "\f234";
+}
+/* Login */
+.main_icons.login {
+	width: auto;
+}
+.fa-login::before,
+.main_icons.login::before {
+	content: "\f2f6";
+}
+/* Logout */
+.main_icons.logout::before,
+.fa-logout::before,
+.main_icons.exit::before,
+.large_admin_menu_icon.exit::before {
+	content: "\f2f5";
+}
+/* Notifications */
+.fa-notifications::before,
+.fa-alerts::before,
+.fa-mail::before,
+.fa-notify::before,
+.main_icons.notify::before,
+.main_icons.alerts::before {
+	content: "\f0f3";
+}
+/* Pokes */
+.fa-pokes::before,
+.fa-poke::before,
+.main_icons.poke::before {
+	content: "\f0a4";
+}
+/* Posts */
+.fa-posts::before {
+	content: "\f086";
+}
+/* Drafts */
+.main_icons.drafts::before,
+.fa-drafts::before {
+	content: "\f0ea";
+}
+/* Details */
+.fa-details::before,
+.main_icons.details::before {
+	content: "\f05a";
+}
+/* Reply */
+.fa-reply_button::before,
+.main_icons.reply_button::before {
+	content: "\f3e5";
+}
+/* Reply to all */
+.fa-reply_all_button::before,
+.main_icons.reply_all_button::before {
+	content: "\f122";
+}
+/* Quote */
+.fa-quote::before,
+.main_icons.quote::before {
+	content: "\f10e";
+}
+/* Quote Selected */
+.fa-quote_selected::before,
+.main_icons.quote_selected::before {
+	content: "\f10d";
+}
+/* Edit */
+.fa-quick_edit_button::before,
+.fa-modify_button::before,
+.main_icons.quick_edit_button::before,
+.main_icons.modify_button::before,
+.main_icons.collections_edit::before {
+	content: "\f044";
+}
+/* Report */
+.fa-error::before,
+.fa-report::before {
+	content: "\f024";
+}
+/* Approve */
+.fa-approve_button::before,
+.fa-approve::before,
+.main_icons.approve::before,
+.main_icons.approve_button::before {
+	content: "\f14a";
+}
+/* Disapprove */
+.fa-unapprove_button::before,
+.main_icons.unapprove_button::before {
+	content: "\f057";
+}
+/* Split */
+.fa-split_button::before,
+.main_icons.split_button::before {
+	content: "\f0db";
+}
+
+/* Community */
+.fa-community::before,
+.main_icons.fa-community::before {
+	content: "\f022";
+}
+/* FA Nav */
+.fa-portal::before,
+.main_icons.home::before {
+	content: "\f015";
+}
+/* Help */
+.fa-help::before,
+.main_icons.help::before {
+	content: "\f128";
+}
+/* Admin */
+.fa-admin::before,
+.main_icons.admin::before {
+	content: "\f085";
+}
+/* Mod */
+.fa-moderate::before,
+.main_icons.moderate::before {
+	content: "\f7d9";
+}
+/* Profile */
+h3.profile_hd::before,
+.main_icons.profile_hd::before,
+.fa-profile::before,
+.main_icons.members::before,
+.large_admin_menu_icon.members::before {
+	content: "\f007";
+}
+/* PM */
+.fa-pm::before,
+.main_icons.personal_message::before,
+.main_icons.inbox::before {
+	content: "\f0e0";
+}
+/* Shop */
+.main_icons.shop::before,
+.fa-shop::before {
+	content: "\f07a";
+}
+/* Store */
+.fa-store::before,
+.main_icons.store::before {
+	content: "\f54e";
+}
+/* Info Center icons */
+.fa-recent_posts::before,
+.main_icons.recent_posts::before {
+	content: "\f550";
+}
+.fa-online_users::before {
+	content: "\f500";
+}
+/* Profile Account */
+.fa-maintain::before {
+	content: "\f505";
+}
+/* Profile Details */
+.fa-members::before {
+	content: "\f2c2";
+}
+/* Optimus */
+.main_icons.optimus::before,
+.large_admin_menu_icon.optimus::before,
+.fa-optimus::before {
+	content: "\f0e8";
+	background: none !important;
+}
+/* Topic Collections */
+.main_icons.collections::before,
+.fa-collections::before {
+	content: "\e0bb";
+}
+.main_icons.collections_save::before,
+.fa-collections_save::before,
+.main_icons.bookmarks::before,
+.fa-sticky::before,
+.main_icons.sticky::before {
+	content: "\f02e";
+}
+.main_icons.collections_bookmark::before,
+.fa-collections_bookmark::before {
+	content: "\f518";
+}
+/* Quiz */
+.main_icons.quiz::before,
+.fa-quiz::before {
+	content: "\f559";
+}
+/* Affiliates */
+.main_icons.affiliates::before,
+.fa-affiliates::before {
+	content: "\f0ac";
+}
+/* Gallery */
+.main_icons.media::before,
+.fa-media::before,
+.main_icons.gallery::before,
+.fa-gallery::before {
+	content: "\f87c";
+}
+/* Arcade */
+.main_icons.arcade::before,
+.fa-arcade::before {
+	content: "\f11b";
+}
+/* Battle */
+.main_icons.battle::before,
+.fa-battle::before {
+	content: "\f66d";
+}
