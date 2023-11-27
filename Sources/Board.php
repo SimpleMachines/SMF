@@ -53,7 +53,6 @@ class Board implements \ArrayAccess
 			'getModeratorGroups' => 'getBoardModeratorGroups',
 			'isChildOf' => 'isChildOf',
 			'getParents' => 'getBoardParents',
-			'queryData' => 'queryData',
 		],
 		'prop_names' => [
 			'board_id' => 'board',
@@ -2189,12 +2188,14 @@ class Board implements \ArrayAccess
 	 *    If this is left empty, no WHERE clause will be used.
 	 * @param array $order Zero or more conditions for the ORDER BY clause.
 	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
 	 * @param int $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], int $limit = 0)
+	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0)
 	{
 		// If we only want some child boards, use a CTE query for improved performance.
 		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {

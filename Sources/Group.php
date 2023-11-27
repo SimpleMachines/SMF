@@ -2611,6 +2611,8 @@ class Group implements \ArrayAccess
 	 *    If this is left empty, no WHERE clause will be used.
 	 * @param array $order Zero or more conditions for the ORDER BY clause.
 	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *

@@ -462,6 +462,7 @@ class SearchResult extends \SMF\Msg
 			Db::$db->custom_order('m.id_msg', $ids),
 		];
 
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? '{int:limit}';
 
 		$params = $query_customizations['params'] ?? [
@@ -475,7 +476,7 @@ class SearchResult extends \SMF\Msg
 			$params['message_list'] = self::$messages_to_get = array_filter(array_unique(array_map('intval', (array) $ids)));
 		}
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $limit) as $row) {
+		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_msg'];
 
 			yield (new self($id, $row));

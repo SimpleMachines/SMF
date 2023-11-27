@@ -262,11 +262,11 @@ class Category implements \ArrayAccess
 	/**
 	 * Loads categories by ID number and/or by custom query.
 	 *
-	 * If both arguments are empty, loads nothing.
+	 * If both arguments are empty, loads all categories.
 	 *
-	 * @param array|int $ids The ID numbers of zero or more boards.
+	 * @param array|int $ids The ID numbers of zero or more categories.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return array Instances of this class for the loaded boards.
+	 * @return array Instances of this class for the loaded categories.
 	 */
 	public static function load(array|int $ids = [], array $query_customizations = []): array
 	{
@@ -274,14 +274,10 @@ class Category implements \ArrayAccess
 
 		$ids = array_unique(array_map('intval', (array) $ids));
 
-		if (empty($query_customizations) && empty($ids)) {
-			return $loaded;
-		}
-
 		$selects = $query_customizations['selects'] ?? ['c.*'];
 		$joins = $query_customizations['joins'] ?? [];
 		$where = $query_customizations['where'] ?? [];
-		$order = $query_customizations['order'] ?? [];
+		$order = $query_customizations['order'] ?? ['c.cat_order'];
 		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
 		$params = $query_customizations['params'] ?? [];
@@ -291,7 +287,7 @@ class Category implements \ArrayAccess
 			$params['ids'] = $ids;
 		}
 
-		foreach (Board::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$row['id_cat'] = (int) $row['id_cat'];
 
 			if (isset(self::$loaded[$row['id_cat']])) {
@@ -674,7 +670,7 @@ class Category implements \ArrayAccess
 			'c.name AS cat_name', 'c.description AS cat_desc',
 		];
 		$params = [];
-		$joins = ['LEFT JOIN {db_prefix}categories AS c ON (b.id_cat = c.id_cat)'];
+		$joins = ['LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)'];
 		$where = ['{query_see_board}'];
 		$order = ['c.cat_order', 'b.child_level', 'b.board_order'];
 
@@ -690,8 +686,10 @@ class Category implements \ArrayAccess
 		// Getting all the board and category information you'd ever wanted.
 		self::$loaded = [];
 		$last_board_order = 0;
+		$prevBoard = 0;
+		$curLevel = 0;
 
-		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
 			if (!isset(self::$loaded[$row['id_cat']])) {
 				self::init($row['id_cat'], [
 					'name' => $row['cat_name'],
@@ -844,6 +842,52 @@ class Category implements \ArrayAccess
 		} else {
 			$this->is_first = true;
 		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Generator that runs queries about category data and yields the result rows.
+	 *
+	 * @param array $selects Table columns to select.
+	 * @param array $params Parameters to substitute into query text.
+	 * @param array $joins Zero or more *complete* JOIN clauses.
+	 *    E.g.: 'LEFT JOIN {db_prefix}boards AS b ON (c.id_cat = b.id_cat)'
+	 *    Note: 'FROM {db_prefix}categories AS c' is always part of the query.
+	 * @param array $where Zero or more conditions for the WHERE clause.
+	 *    Conditions will be placed in parentheses and concatenated with AND.
+	 *    If this is left empty, no WHERE clause will be used.
+	 * @param array $order Zero or more conditions for the ORDER BY clause.
+	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
+	 * @param int|string $limit Maximum number of results to retrieve.
+	 *    If this is left empty, all results will be retrieved.
+	 *
+	 * @return Generator<array> Iterating over the result gives database rows.
+	 */
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	{
+		$request = Db::$db->query(
+			'',
+			'SELECT
+				' . implode(', ', $selects) . '
+			FROM {db_prefix}categories AS c' . (empty($joins) ? '' : '
+				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($group) ? '' : '
+			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
+			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
+			LIMIT ' . $limit : ''),
+			$params,
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			yield $row;
+		}
+
+		Db::$db->free_result($request);
 	}
 }
 

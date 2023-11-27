@@ -575,6 +575,7 @@ class Msg implements \ArrayAccess
 		$order = $query_customizations['order'] ?? [
 			'm.id_msg' . (empty(Theme::$current->options['view_newest_first']) ? '' : ' DESC'),
 		];
+		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
 		$params = $query_customizations['params'] ?? [
 			'new_from' => Topic::$info->new_from ?? Config::$modSettings['maxMsgID'] + 1,
@@ -587,9 +588,9 @@ class Msg implements \ArrayAccess
 		// Just FYI, for historical reasons the order in which the arguments are
 		// passed to this hook is different than the order in which they are
 		// passed to the queryData() method.
-		IntegrationHook::call('integrate_query_message', [&$selects, &$joins, &$params, &$where, &$order, &$limit]);
+		IntegrationHook::call('integrate_query_message', [&$selects, &$joins, &$params, &$where, &$order, &$group, &$limit]);
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $limit) as $row) {
+		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_msg'];
 
 			yield (new self($id, $row));
@@ -3009,12 +3010,14 @@ class Msg implements \ArrayAccess
 	 *    If this is left empty, no WHERE clause will be used.
 	 * @param array $order Zero or more conditions for the ORDER BY clause.
 	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
 		self::$messages_request = Db::$db->query(
 			'',
@@ -3022,7 +3025,8 @@ class Msg implements \ArrayAccess
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}messages AS m' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
-			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($group) ? '' : '
+			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
 			LIMIT ' . $limit : ''),
 			$params,
