@@ -1984,13 +1984,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$this->prefixReservedTables();
 		}
 
-		$this->get_version();
-		$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
+		// At this point, if we don't have a connection, nothing else can be done.
+		if (empty($this->connection)) {
+			return;
+		}
 
 		// For backward compatibility.
 		if (!is_object(self::$db_connection)) {
 			self::$db_connection = $this->connection;
 		}
+
+		$this->get_version();
+		$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
 
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(

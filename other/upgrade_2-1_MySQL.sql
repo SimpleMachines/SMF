@@ -321,7 +321,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
-		array('bcrypt_hash_cost', Security::hashVerifyPassword()),
+		array('bcrypt_hash_cost', Security::hashBenchmark()),
 		array('variable')
 	);
 ---}

@@ -326,33 +326,7 @@ abstract class DatabaseApi
 		}
 
 		// Figure out what type of database we are using.
-		switch (!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql') {
-			// PostgreSQL is known by many names.
-			case 'postgresql':
-			case 'postgres':
-			case 'postgre':
-			case 'pg':
-				$class = POSTGRE_TITLE;
-				break;
-
-				// MySQL and its forks.
-			case 'mysql':
-			case 'mariadb':
-			case 'percona':
-				$class = MYSQL_TITLE;
-				break;
-
-				// Something else?
-			default:
-				$class = ucwords(Config::$db_type);
-
-				// If the necessary class doesn't exist, fall back to MySQL.
-				if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class)) {
-					$class = MYSQL_TITLE;
-				}
-
-				break;
-		}
+		$class = self::getClass(!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql');
 
 		if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class)) {
 			ErrorHandler::displayDbError();
@@ -368,6 +342,39 @@ abstract class DatabaseApi
 		}
 
 		return self::$db;
+	}
+
+	public static function getClass($db_type)
+	{
+		switch (strtolower($db_type)) {
+			// PostgreSQL is known by many names.
+			case 'postgresql':
+			case 'postgres':
+			case 'postgre':
+			case 'pg':
+				$class = POSTGRE_TITLE;
+				break;
+
+			// MySQL and its forks.
+			case 'mysql':
+			case 'mariadb':
+			case 'percona':
+				$class = MYSQL_TITLE;
+				break;
+
+			// Something else?
+			default:
+				$class = ucwords(Config::$db_type);
+
+				// If the necessary class doesn't exist, fall back to MySQL.
+				if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class)) {
+					$class = MYSQL_TITLE;
+				}
+
+				break;
+		}
+
+		return $class;
 	}
 
 	/**

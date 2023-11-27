@@ -2112,6 +2112,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
+		// At this point, if we don't have a connection, nothing else can be done.
+		if (empty($this->connection)) {
+			return;
+		}
+
 		// For backward compatibility.
 		if (!is_object(self::$db_connection)) {
 			self::$db_connection = $this->connection;

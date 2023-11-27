@@ -2089,7 +2089,7 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
-		array('bcrypt_hash_cost', Security::hashVerifyPassword()),
+		array('bcrypt_hash_cost', Security::hashBenchmark()),
 		array('variable')
 	);
 ---}

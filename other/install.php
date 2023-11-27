@@ -254,7 +254,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				$ftp->unlink('install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
+				$ftp->unlink('install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
 			}
 
 			$ftp->close();
@@ -268,7 +268,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				@unlink(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
+				@unlink(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
 			}
 		}
 
@@ -479,11 +479,11 @@ function Welcome()
 		if ($db['supported'])
 		{
 			$type = ($key == 'mysqli') ? 'mysql' : $key;
-			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql'))
+			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql'))
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				Lang::$txt['error_db_script_missing'] = sprintf(Lang::$txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
+				Lang::$txt['error_db_script_missing'] = sprintf(Lang::$txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
 			}
 			else
 				$incontext['supported_databases'][] = $db;
@@ -868,9 +868,9 @@ function DatabaseSettings()
 		Config::load();
 
 		// Better find the database file!
-		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Config::$db_type . '.php'))
+		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php'))
 		{
-			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Config::$db_type . '.php');
+			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
 			return false;
 		}
 
@@ -1222,7 +1222,7 @@ function DatabasePopulation()
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
 	$type = (Config::$db_type == 'mysqli' ? 'mysql' : Config::$db_type);
-	$sql_lines = explode("\n", strtr(implode(' ', file(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql')), $replaces));
+	$sql_lines = explode("\n", strtr(implode(' ', file(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';

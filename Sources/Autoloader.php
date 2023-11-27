@@ -41,7 +41,7 @@ spl_autoload_register(function ($class) {
 	}
 
 	// Do any third-party scripts want in on the fun?
-	if (class_exists('SMF\\Config', false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
+	if (!defined('SMF_INSTALLING') && class_exists('SMF\\Config', false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
 		if (!class_exists('SMF\\IntegrationHook', false) && is_file($sourcedir . '/IntegrationHook.php')) {
 			require_once $sourcedir . '/IntegrationHook.php';
 		}
