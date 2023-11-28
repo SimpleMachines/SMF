@@ -358,7 +358,7 @@ class AttachmentUpload implements ActionInterface
 			}
 
 			// Try to move and rename the file before doing any more checks on it.
-			$attachID = 'post_tmp_' . User::$me->id . '_' . md5(mt_rand());
+			$attachID = 'post_tmp_' . User::$me->id . '_' . bin2hex(random_bytes(16));
 			$destName = $this->_attchDir . '/' . $attachID;
 
 			// No errors, YAY!
@@ -413,7 +413,7 @@ class AttachmentUpload implements ActionInterface
 		}
 
 		// Mod authors, finally a hook to hang an alternate attachment upload system upon
-		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . User::$me->id . '_' . md5(mt_rand())
+		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . User::$me->id . '_' . bin2hex(random_bytes(16))
 		// Populate $_SESSION['temp_attachments'][$attachID] with the following:
 		//   name => The file name
 		//   tmp_name => Path to the temp file ($this->_attchDir . '/' . $attachID).

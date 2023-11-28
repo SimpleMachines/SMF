@@ -1435,7 +1435,7 @@ function UpgradeOptions()
 
 	// Add proxy settings.
 	if (!isset(Config::$image_proxy_secret) || Config::$image_proxy_secret == 'smfisawesome')
-		$changes['image_proxy_secret'] = substr(sha1(mt_rand()), 0, 20);
+		$changes['image_proxy_secret'] = bin2hex(random_bytes(10));
 	if (!isset(Config::$image_proxy_maxsize))
 		$changes['image_proxy_maxsize'] = 5190;
 	if (!isset(Config::$image_proxy_enabled))

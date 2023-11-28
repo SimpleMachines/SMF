@@ -2339,7 +2339,7 @@ class Config
 		$settingsText = preg_replace_callback(
 			'~\bdefine\s*\(\s*(["\'])(\w+)\1~',
 			function ($matches) {
-				return 'define(\'' . md5(mt_rand()) . '\'';
+				return 'define(\'' . bin2hex(random_bytes(16)) . '\'';
 			},
 			$settingsText,
 		);

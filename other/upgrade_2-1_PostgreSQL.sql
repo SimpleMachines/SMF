@@ -639,7 +639,7 @@ while (!$is_done)
 			$row['filename'] = preg_replace(array('/\s/', '/[^\w_\.\-]/'), array('_', ''), $row['filename']);
 
 			// Create a nice hash.
-			$fileHash = sha1(md5($row['filename'] . time()) . mt_rand());
+			$fileHash = hash_hmac('sha1', $row['filename'] . time(), Config::$image_proxy_secret);
 
 			// Iterate through the possible attachment names until we find the one that exists
 			$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
