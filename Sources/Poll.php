@@ -1111,12 +1111,12 @@ class Poll implements \ArrayAccess
 
 				break;
 
-				// Was locked by a regular user, so unlock it.
+			// Was locked by a regular user, so unlock it.
 			case 1:
 				$poll->voting_locked = 0;
 				break;
 
-				// Not locked, so lock it.
+			// Not locked, so lock it.
 			default:
 				// Remember whether this was locked by moderator or a regular user.
 				$poll->voting_locked = User::$me->allowedTo('moderate_board') ? 2 : 1;

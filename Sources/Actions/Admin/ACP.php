@@ -1153,8 +1153,8 @@ class ACP implements ActionInterface
 				switch ($type) {
 					case 'multiple':
 						$config_multis[$var] = $def['type'];
-
 						// no break
+
 					case 'double':
 						$config_nums[] = $var;
 						break;

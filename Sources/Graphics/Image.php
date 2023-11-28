@@ -924,51 +924,51 @@ class Image
 				case 'px':
 					break;
 
-					// Points.
+				// Points.
 				case 'pt':
 					$$dimension *= 0.75;
 					break;
 
-					// Picas.
+				// Picas.
 				case 'pc':
 					$$dimension *= 16;
 					break;
 
-					// Inches.
+				// Inches.
 				case 'in':
 					$$dimension *= 96;
 					break;
 
-					// Centimetres.
+				// Centimetres.
 				case 'cm':
 					$$dimension *= 37.8;
 					break;
 
-					// Millimetres.
+				// Millimetres.
 				case 'mm':
 					$$dimension *= 3.78;
 					break;
 
-					// Font height.
-					// Assume browser default of 1em = 1pc.
+				// Font height.
+				// Assume browser default of 1em = 1pc.
 				case 'em':
 					$$dimension *= 16;
 					break;
 
-					// Font x-height.
-					// Assume half of font height.
+				// Font x-height.
+				// Assume half of font height.
 				case 'ex':
 					$$dimension *= 8;
 					break;
 
-					// Font '0' character width.
-					// Assume a typical monospace font at 1em = 1pc.
+				// Font '0' character width.
+				// Assume a typical monospace font at 1em = 1pc.
 				case 'ch':
 					$$dimension *= 9.6;
 					break;
 
-					// Percentage.
-					// SVG spec says to use viewBox dimensions in this case.
+				// Percentage.
+				// SVG spec says to use viewBox dimensions in this case.
 				default:
 					unset($$dimension);
 					break;

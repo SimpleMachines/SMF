@@ -71,7 +71,7 @@ class Fulltext extends SearchApi
 				$return = true;
 				break;
 
-				// All other methods, too bad dunno you.
+			// All other methods, too bad dunno you.
 			default:
 				$return = false;
 				break;

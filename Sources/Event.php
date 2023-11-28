@@ -546,8 +546,8 @@ class Event implements \ArrayAccess
 				case 'start_second':
 				case 'end_second':
 					$this->{$start_end}->second = $value;
-
 					// no break
+
 				case 'start_timestamp':
 				case 'end_timestamp':
 					$this->{$start_end}->timestamp = $value;
@@ -576,7 +576,7 @@ class Event implements \ArrayAccess
 					$value = $this->setNumDays($value);
 					break;
 
-					// These computed properties are read-only.
+				// These computed properties are read-only.
 				case 'tz_abbrev':
 				case 'new':
 				case 'is_selected':

@@ -62,7 +62,7 @@ class Image
 
 					break;
 
-					// Image...
+				// Image...
 				case 0x2C:
 					// Load the header and color table.
 					$len = 0;
@@ -117,16 +117,16 @@ class Image
 				$this->m_nTrans = ord($data[4]);
 				break;
 
-				// Comment...
+			// Comment...
 			case 0xFE:
 				$this->m_lpComm = substr($data, 1, ord($data[0]));
 				break;
 
-				// Plain text...
+			// Plain text...
 			case 0x01:
 				break;
 
-				// Application...
+			// Application...
 			case 0xFF:
 				break;
 		}

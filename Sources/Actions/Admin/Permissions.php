@@ -2868,7 +2868,7 @@ class Permissions implements ActionInterface
 				Utils::$context['group']['name'] = Lang::$txt['membergroups_members'];
 				break;
 
-				// Can't set permissions for admins.
+			// Can't set permissions for admins.
 			case 1:
 				Utils::redirectexit('action=admin;area=permissions');
 				break;

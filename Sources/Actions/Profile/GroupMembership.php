@@ -226,7 +226,7 @@ class GroupMembership implements ActionInterface
 
 				return;
 
-				// Leaving/joining a group.
+			// Leaving/joining a group.
 			case 'free':
 				// Are they leaving?
 				if (Profile::$member->group_id == $new_group_id) {
@@ -249,7 +249,7 @@ class GroupMembership implements ActionInterface
 
 				break;
 
-				// Finally, we must be setting the primary.
+			// Finally, we must be setting the primary.
 			default:
 				if (Profile::$member->group_id != 0) {
 					$new_additional_groups[] = Profile::$member->group_id;
