@@ -328,8 +328,16 @@ class Export implements ActionInterface
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				['$sourcedir/tasks/ExportProfileData.php', 'SMF\\Tasks\\ExportProfileData', $data, 0],
+				[
+					'task_class' => 'string-255',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\ExportProfileData',
+					$data,
+					0,
+				],
 				[],
 			);
 

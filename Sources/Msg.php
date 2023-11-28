@@ -1549,14 +1549,19 @@ class Msg implements \ArrayAccess
 			Db::$db->insert(
 				'',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
 				[
-					'$sourcedir/tasks/ApprovePost_Notify.php', 'SMF\\Tasks\\ApprovePost_Notify', Utils::jsonEncode([
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int'],
+				[
+					'SMF\\Tasks\\ApprovePost_Notify',
+					Utils::jsonEncode([
 						'msgOptions' => $msgOptions,
 						'topicOptions' => $topicOptions,
 						'posterOptions' => $posterOptions,
 						'type' => $new_topic ? 'topic' : 'post',
-					]), 0,
+					]),
+					0,
 				],
 				['id_task'],
 			);
@@ -1597,13 +1602,19 @@ class Msg implements \ArrayAccess
 			Db::$db->insert(
 				'',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
 				[
-					'$sourcedir/tasks/ApproveReply_Notify.php', 'SMF\\Tasks\\ApproveReply_Notify', Utils::jsonEncode([
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\ApproveReply_Notify',
+					Utils::jsonEncode([
 						'msgOptions' => $msgOptions,
 						'topicOptions' => $topicOptions,
 						'posterOptions' => $posterOptions,
-					]), 0,
+					]),
+					0,
 				],
 				['id_task'],
 			);
@@ -1656,13 +1667,21 @@ class Msg implements \ArrayAccess
 			Db::$db->insert(
 				'',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-				['$sourcedir/tasks/CreatePost_Notify.php', 'SMF\\Tasks\\CreatePost_Notify', Utils::jsonEncode([
-					'msgOptions' => $msgOptions,
-					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions,
-					'type' => $new_topic ? 'topic' : 'reply',
-				]), 0],
+				[
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\CreatePost_Notify',
+					Utils::jsonEncode([
+						'msgOptions' => $msgOptions,
+						'topicOptions' => $topicOptions,
+						'posterOptions' => $posterOptions,
+						'type' => $new_topic ? 'topic' : 'reply',
+					]),
+					0,
+				],
 				['id_task'],
 			);
 		}
@@ -1872,13 +1891,21 @@ class Msg implements \ArrayAccess
 			Db::$db->insert(
 				'',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-				['$sourcedir/tasks/CreatePost_Notify.php', 'SMF\\Tasks\\CreatePost_Notify', Utils::jsonEncode([
-					'msgOptions' => $msgOptions,
-					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions,
-					'type' => 'edit',
-				]), 0],
+				[
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\CreatePost_Notify',
+					Utils::jsonEncode([
+						'msgOptions' => $msgOptions,
+						'topicOptions' => $topicOptions,
+						'posterOptions' => $posterOptions,
+						'type' => 'edit',
+					]),
+					0,
+				],
 				['id_task'],
 			);
 		}
@@ -2117,7 +2144,6 @@ class Msg implements \ArrayAccess
 
 			foreach (array_merge($notification_topics, $notification_posts) as $topic) {
 				$task_rows[] = [
-					'$sourcedir/tasks/CreatePost_Notify.php',
 					'SMF\\Tasks\\CreatePost_Notify',
 					Utils::jsonEncode([
 						'msgOptions' => [
@@ -2144,7 +2170,6 @@ class Msg implements \ArrayAccess
 					'',
 					'{db_prefix}background_tasks',
 					[
-						'task_file' => 'string',
 						'task_class' => 'string',
 						'task_data' => 'string',
 						'claimed_time' => 'int',

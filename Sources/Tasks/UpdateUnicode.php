@@ -491,14 +491,12 @@ class UpdateUnicode extends BackgroundTask
 						'',
 						'{db_prefix}background_tasks',
 						[
-							'task_file' => 'string',
 							'task_class' => 'string',
 							'task_data' => 'string',
 							'claimed_time' => 'int',
 						],
 						[
-							'$sourcedir/tasks/UpdateUnicode.php',
-							'Update_Unicode',
+							'SMF\\Tasks\\Update_Unicode',
 							'',
 							time() - MAX_CLAIM_THRESHOLD,
 						],

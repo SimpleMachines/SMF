@@ -1454,19 +1454,13 @@ class Attachment implements \ArrayAccess
 				'insert',
 				'{db_prefix}background_tasks',
 				[
-					'task_file' => 'string',
 					'task_class' => 'string',
 					'task_data' => 'string',
 					'claimed_time' => 'int',
 				],
 				[
-					'$sourcedir/tasks/CreateAttachment_Notify.php',
 					'SMF\\Tasks\\CreateAttachment_Notify',
-					Utils::jsonEncode(
-						[
-							'id' => $attachmentOptions['id'],
-						],
-					),
+					Utils::jsonEncode(['id' => $attachmentOptions['id']]),
 					0,
 				],
 				[

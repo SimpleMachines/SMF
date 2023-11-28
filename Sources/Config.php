@@ -765,7 +765,7 @@ class Config
 				 * Path to the tasks directory.
 				 */
 				END,
-			'default' => '$sourcedir . \'/tasks\'',
+			'default' => '$sourcedir . \'/Tasks\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -777,8 +777,8 @@ class Config
 					$boarddir = dirname(__FILE__);
 				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
-					$tasksdir = $sourcedir . '/tasks';
+				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
+					$tasksdir = $sourcedir . '/Tasks';
 				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 					$packagesdir = $boarddir . '/Packages';
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
@@ -942,8 +942,8 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
-		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/tasks')) {
-			self::$tasksdir = self::$sourcedir . '/tasks';
+		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/Tasks')) {
+			self::$tasksdir = self::$sourcedir . '/Tasks';
 		}
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {

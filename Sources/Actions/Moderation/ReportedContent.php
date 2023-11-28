@@ -1354,8 +1354,16 @@ class ReportedContent implements ActionInterface
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-				['$sourcedir/tasks/' . $prefix . 'ReportReply-Notify.php', 'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify', Utils::jsonEncode($data), 0],
+				[
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
+				[
+					'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
+					Utils::jsonEncode($data),
+					0,
+				],
 				['id_task'],
 			);
 		}

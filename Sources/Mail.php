@@ -1037,7 +1037,8 @@ class Mail
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			$task_rows[] = [
-				'$sourcedir/tasks/CreatePost_Notify.php', 'SMF\\Tasks\\CreatePost_Notify', Utils::jsonEncode([
+				'SMF\\Tasks\\CreatePost_Notify',
+				Utils::jsonEncode([
 					'msgOptions' => [
 						'id' => $row['id_msg'],
 						'subject' => $row['subject'],
@@ -1054,7 +1055,8 @@ class Mail
 					],
 					'type' => $type,
 					'members_only' => $members_only,
-				]), 0,
+				]),
+				0,
 			];
 		}
 		Db::$db->free_result($result);
@@ -1063,7 +1065,11 @@ class Mail
 			Db::$db->insert(
 				'',
 				'{db_prefix}background_tasks',
-				['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
+				[
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				],
 				$task_rows,
 				['id_task'],
 			);
@@ -1104,13 +1110,21 @@ class Mail
 		Db::$db->insert(
 			'insert',
 			'{db_prefix}background_tasks',
-			['task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'],
-			['$sourcedir/tasks/Register_Notify.php', 'SMF\\Tasks\\Register_Notify', Utils::jsonEncode([
-				'new_member_id' => $memberID,
-				'new_member_name' => $member_name,
-				'notify_type' => $type,
-				'time' => time(),
-			]), 0],
+			[
+				'task_class' => 'string',
+				'task_data' => 'string',
+				'claimed_time' => 'int',
+			],
+			[
+				'SMF\\Tasks\\Register_Notify',
+				Utils::jsonEncode([
+					'new_member_id' => $memberID,
+					'new_member_name' => $member_name,
+					'notify_type' => $type,
+					'time' => time(),
+				]),
+				0,
+			],
 			['id_task'],
 		);
 	}

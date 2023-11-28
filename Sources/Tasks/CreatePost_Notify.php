@@ -335,13 +335,11 @@ class CreatePost_Notify extends BackgroundTask
 					'',
 					'{db_prefix}background_tasks',
 					[
-						'task_file' => 'string',
 						'task_class' => 'string',
 						'task_data' => 'string',
 						'claimed_time' => 'int',
 					],
 					[
-						'$sourcedir/tasks/CreatePost_Notify.php',
 						'SMF\\Tasks\\CreatePost_Notify',
 						Utils::jsonEncode($new_details),
 						max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),

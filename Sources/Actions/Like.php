@@ -519,13 +519,11 @@ class Like implements ActionInterface
 				'insert',
 				'{db_prefix}background_tasks',
 				[
-					'task_file' => 'string',
 					'task_class' => 'string',
 					'task_data' => 'string',
 					'claimed_time' => 'int',
 				],
 				[
-					'$sourcedir/tasks/Likes_Notify.php',
 					'SMF\\Tasks\\Likes_Notify',
 					Utils::jsonEncode([
 						'content_id' => $content,
