@@ -19,6 +19,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Graphics\Gif;
 
 class ColorTable
@@ -31,7 +33,7 @@ class ColorTable
 		unset($this->m_nColors, $this->m_arColors);
 	}
 
-	public function load($lpData, $num)
+	public function load(string $lpData, int $num): bool
 	{
 		$this->m_nColors = 0;
 		$this->m_arColors = [];

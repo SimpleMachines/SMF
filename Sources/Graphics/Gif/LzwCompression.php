@@ -19,6 +19,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Graphics\Gif;
 
 /**
@@ -59,7 +61,7 @@ class LzwCompression
 		$this->Buf = range(0, 279);
 	}
 
-	public function decompress($data, &$datLen)
+	public function decompress(string $data, int &$datLen): string|bool
 	{
 		$stLen = strlen($data);
 		$datLen = 0;
@@ -80,7 +82,7 @@ class LzwCompression
 		return $ret;
 	}
 
-	public function LZWCommand(&$data, $bInit)
+	public function LZWCommand(string &$data, int|bool $bInit): int
 	{
 		if ($bInit) {
 			$this->SetCodeSize = ord($data[0]);
@@ -200,7 +202,7 @@ class LzwCompression
 		return $Code;
 	}
 
-	public function GetCode(&$data, $bInit)
+	public function GetCode(string &$data, int $bInit): int
 	{
 		if ($bInit) {
 			$this->CurBit = 0;

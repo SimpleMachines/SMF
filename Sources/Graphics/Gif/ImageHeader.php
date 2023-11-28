@@ -19,6 +19,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Graphics\Gif;
 
 class ImageHeader
@@ -38,7 +40,7 @@ class ImageHeader
 		unset($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight, $this->m_bLocalClr, $this->m_bInterlace, $this->m_bSorted, $this->m_nTableSize, $this->m_colorTable);
 	}
 
-	public function load($lpData, &$hdrLen)
+	public function load(string $lpData, int &$hdrLen): bool
 	{
 		$hdrLen = 0;
 
