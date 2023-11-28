@@ -1531,7 +1531,7 @@ class BBCodeParser
 							$replacement .= '[font=' . strtr($style_value, ["'" => '']) . ']';
 							break;
 
-							// This is a hack for images with dimensions embedded.
+						// This is a hack for images with dimensions embedded.
 						case 'width':
 						case 'height':
 							if (preg_match('~[1-9]\d*~i', $style_value, $dimension) === 1) {

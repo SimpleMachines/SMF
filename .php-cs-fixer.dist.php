@@ -32,24 +32,27 @@ $finder = (new PhpCsFixer\Finder())
 return (new PhpCsFixer\Config())
 	->setRules([
 		'@PSR12' => true,
+
+		// PSR12 overrides.
 		'no_closing_tag' => false,
-		'concat_space' => ['spacing' => 'one'],
+		'no_break_comment' => false,  // A bit buggy with comments.
+		'statement_indentation' => false, // A bit buggy with comments.
+
+		// Array notation.
 		'array_syntax' => ['syntax' => 'short'],
-		'ordered_imports' => [
-			'imports_order' => [
-				'class',
-				'function',
-				'const',
-			],
-			'sort_algorithm' => 'alpha',
-		],
-		'no_leading_namespace_whitespace' => true,
-		'no_trailing_comma_in_singleline' => true,
 		'normalize_index_brace' => true,
 		'whitespace_after_comma_in_array' => true,
+
+		// Basic.
+		'no_trailing_comma_in_singleline' => true,
+
+		// Casing.
 		'class_reference_name_casing' => true,
+
+		// Cast notation.
 		'cast_spaces' => ['space' => 'single'],
-		'single_line_comment_spacing' => true,
+
+		// Control structure.
 		'include' => true,
 		'no_superfluous_elseif' => true,
 		'no_useless_else' => true,
@@ -63,18 +66,40 @@ return (new PhpCsFixer\Config())
 				'parameters',
 			],
 		],
+
+		// Function notation.
 		'lambda_not_used_import' => true,
 		'nullable_type_declaration_for_default_null_value' => true,
-		'nullable_type_declaration' => ['syntax' => 'question_mark'],
+
+		// Import.
 		'no_unused_imports' => true,
+		'ordered_imports' => [
+			'imports_order' => [
+				'class',
+				'function',
+				'const',
+			],
+			'sort_algorithm' => 'alpha',
+		],
+
+		// Language construct.
 		'combine_consecutive_issets' => true,
 		'combine_consecutive_unsets' => true,
+		'nullable_type_declaration' => ['syntax' => 'question_mark'],
+
+		// Namespace notation.
+		'no_leading_namespace_whitespace' => true,
+
+		// Operator.
+		'concat_space' => ['spacing' => 'one'],
 		'operator_linebreak' => [
 			'only_booleans' => true,
 			'position' => 'beginning',
 		],
 		'standardize_not_equals' => true,
 		'ternary_to_null_coalescing' => true,
+
+		// PHPDoc.
 		'phpdoc_indent' => true,
 		'phpdoc_line_span' => [
 			'const' => 'multi',
@@ -110,14 +135,22 @@ return (new PhpCsFixer\Config())
 			'groups' => ['alias', 'meta', 'simple'],
 		],
 		'phpdoc_var_without_name' => true,
+
+		// Return notation.
 		'no_useless_return' => true,
 		'simplified_null_return' => true,
-		'no_empty_statement' => true,
+
+		// Semicolon.
 		'multiline_whitespace_before_semicolons' => true,
+		'no_empty_statement' => true,
 		'no_singleline_whitespace_before_semicolons' => true,
+
+		// String notation.
 		'explicit_string_variable' => true,
 		'simple_to_complex_string_variable' => true,
 		'single_quote' => true,
+
+		// Whitespace.
 		'array_indentation' => true,
 		'blank_line_before_statement' => [
 			'statements' => [

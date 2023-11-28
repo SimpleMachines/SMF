@@ -1511,7 +1511,7 @@ class Utils
 						$out = false;
 						break 2;
 
-						// In array, expecting end of array or a key.
+					// In array, expecting end of array or a key.
 					case 2:
 						if ($type == '}') {
 							// Array size is less than expected.
@@ -1549,7 +1549,7 @@ class Utils
 						$out = false;
 						break 2;
 
-						// Expecting array or value.
+					// Expecting array or value.
 					case 0:
 						if ($type == 'a') {
 							$data = [];

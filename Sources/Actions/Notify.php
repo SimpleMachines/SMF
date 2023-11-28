@@ -435,8 +435,8 @@ abstract class Notify
 				$this->alert_pref = self::PREF_BOTH;
 				break;
 
-				// self::MODE_NO_EMAIL is used to turn off email notifications
-				// while leaving the alert preference unchanged.
+			// self::MODE_NO_EMAIL is used to turn off email notifications
+			// while leaving the alert preference unchanged.
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
 				$this->alert_pref = self::getNotifyPrefs($this->member_info['id'], [$this->type . '_notify_' . $this->id], true) & self::PREF_ALERT;

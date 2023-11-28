@@ -2895,12 +2895,12 @@ class Config
 		switch ($last) {
 			case 'g':
 				$num *= 1024;
-
 				// no break
+
 			case 'm':
 				$num *= 1024;
-
 				// no break
+
 			case 'k':
 				$num *= 1024;
 		}

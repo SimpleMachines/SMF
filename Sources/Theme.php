@@ -705,12 +705,12 @@ class Theme
 				case 'resource':
 					break;
 
-					// Convert PHP objects to arrays before processing.
+				// Convert PHP objects to arrays before processing.
 				case 'object':
 					$value = (array) $value;
-
-					// Apply Utils::JavaScriptEscape() to any strings in the array.
 					// no break
+
+				// Apply Utils::JavaScriptEscape() to any strings in the array.
 				case 'array':
 					$replacements = [];
 					array_walk_recursive(

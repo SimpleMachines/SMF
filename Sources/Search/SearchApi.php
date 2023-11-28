@@ -410,7 +410,7 @@ abstract class SearchApi implements SearchApiInterface
 			case 'getQueryParams':
 				return true;
 
-				// All other methods, too bad dunno you.
+			// All other methods, too bad dunno you.
 			default:
 				return false;
 		}

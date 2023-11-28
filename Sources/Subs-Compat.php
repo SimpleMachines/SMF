@@ -14,8 +14,6 @@
  * @version 3.0 Alpha 1
  */
 
-use SMF\Config;
-use SMF\Lang;
 use SMF\Punycode;
 
 if (!defined('SMF')) {
