@@ -52,7 +52,7 @@ class ColorTable
 		return true;
 	}
 
-	public function toString()
+	public function toString(): string
 	{
 		$ret = '';
 
@@ -66,7 +66,7 @@ class ColorTable
 		return $ret;
 	}
 
-	public function colorIndex($rgb)
+	public function colorIndex(string $rgb): int
 	{
 		$dif = 0;
 		$rgb = intval($rgb) & 0xFFFFFF;
