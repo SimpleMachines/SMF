@@ -2604,6 +2604,21 @@ class ServerSideIncludes
 	 */
 	public function __construct()
 	{
+		// SSI isn't meant to be used from within the forum,
+		// but apparently someone is doing so anyway...
+		if (defined('SMF') && SMF !== 'SSI') {
+			if (!self::$setup_done) {
+				IntegrationHook::call('integrate_SSI');
+			}
+
+			self::$setup_done = true;
+		}
+
+		// Don't do the setup steps more than once.
+		if (self::$setup_done) {
+			return;
+		}
+
 		foreach ($this->ssi_globals as $var) {
 			if (isset($GLOBALS[$var])) {
 				if ($var === 'ssi_on_error_method') {
