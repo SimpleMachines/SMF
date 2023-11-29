@@ -1917,4 +1917,8 @@ function utf8_regex_quick_check(): array
 			'\\x{1F250}-\\x{1F251}' .
 			'\\x{1FBF0}-\\x{1FBF9}' .
 			'\\x{2F800}-\\x{2FA1D}' .
-			'\\x{E00
+			'\\x{E0000}-\\x{E0FFF}',
+	];
+}
+
+?>

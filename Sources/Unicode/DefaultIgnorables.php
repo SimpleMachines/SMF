@@ -4203,4 +4203,8 @@ function utf8_default_ignorables(): array
 		"\xF3\xA0\xBF\xBC",
 		"\xF3\xA0\xBF\xBD",
 		"\xF3\xA0\xBF\xBE",
-		"\x
+		"\xF3\xA0\xBF\xBF",
+	];
+}
+
+?>

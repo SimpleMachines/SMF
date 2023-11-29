@@ -4534,4 +4534,9 @@ function utf8_regex_indic(): array
 			'Vowel_Dependent' =>
 				'\\x{11C2F}' .
 				'\\x{11C30}-\\x{11C36}' .
-				'\\x{11C38}-\
+				'\\x{11C38}-\\x{11C3B}',
+		],
+	];
+}
+
+?>

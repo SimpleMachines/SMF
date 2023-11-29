@@ -7413,4 +7413,8 @@ function idna_regex(): array
 		'deviation' =>
 			'\\x{DF}' .
 			'\\x{3C2}' .
-			'\\x{2
+			'\\x{200C}-\\x{200D}',
+	];
+}
+
+?>
