@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -18,7 +20,4 @@ if (!defined('SMF')) {
 }
 
 if (!defined('SMF_UNICODE_VERSION')) {
-	define('SMF_UNICODE_VERSION', '15.1.0.0');
-}
-
-?>
+	define('SMF_UNICODE_VE

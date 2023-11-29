@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Canonical Decomposition maps for Unicode normalization.
  */
-function utf8_normalize_d_maps()
+function utf8_normalize_d_maps(): array
 {
 	return [
 		"\xC3\x80" => "\x41\xCC\x80",
