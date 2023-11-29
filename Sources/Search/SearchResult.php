@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Search;
 
 use SMF\BackwardCompatibility;
@@ -409,7 +411,7 @@ class SearchResult extends \SMF\Msg
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return Generator<array> Iterating over result gives SearchResult instances.
 	 */
-	public static function get($ids, array $query_customizations = [])
+	public static function get(/*int|array*/ $ids, array $query_customizations = [])/*: Generator*/
 	{
 		$selects = $query_customizations['selects'] ?? [
 			'm.*',

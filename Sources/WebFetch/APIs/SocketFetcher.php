@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\WebFetch\APIs;
 
 use SMF\Lang;
@@ -156,14 +158,16 @@ class SocketFetcher extends WebFetchApi
 	 *  - Optionally will post data to the page form if $post_data is supplied.
 	 *    Passed arrays will be converted to a POST string joined with &'s.
 	 *
-	 * @param string $url the site we are going to fetch
+	 * @param string|Url $url the site we are going to fetch
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = []): object
+	public function request(string|Url $url, array|string $post_data = []): object
 	{
-		$url = new Url($url, true);
-		$url->toAscii();
+		if (!$url instanceof Url){
+			$url = new Url($url, true);
+			$url->toAscii();
+		}
 
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
@@ -264,7 +268,7 @@ class SocketFetcher extends WebFetchApi
 
 			$this->current_redirect++;
 
-			return $this->request($location, $post_data);
+			return $this->request(strval($location), $post_data);
 		}
 
 		// Make sure we get a 200 OK.
