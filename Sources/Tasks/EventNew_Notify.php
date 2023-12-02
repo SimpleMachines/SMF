@@ -37,7 +37,7 @@ class EventNew_Notify extends BackgroundTask
 
 		// Don't alert the event creator
 		if (!empty($this->_details['sender_id'])) {
-			$members = array_diff($members, $this->_details['sender_id']);
+			$members = array_diff($members, [$this->_details['sender_id']]);
 		}
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
