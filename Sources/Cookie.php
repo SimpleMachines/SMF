@@ -393,8 +393,8 @@ class Cookie
 				}
 
 				$alias_cookie = clone $cookie;
-				$alias_cookie->data[3] = $alias_cookie->domain = $domain;
-				$alias_cookie->data[4] = $alias_cookie->path = $path;
+				$alias_cookie->domain = $domain;
+				$alias_cookie->path = $path;
 				$alias_cookie->set();
 			}
 

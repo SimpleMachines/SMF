@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use SMF\Db\DatabaseApi AS Db;
+
 /**
  * Holds some widely used stuff, like $context and $smcFunc.
  */
@@ -1217,7 +1219,7 @@ class Utils
 			array_walk_recursive(
 				$temp,
 				function (&$value) use ($param_length) {
-					$value = truncate(strval($value), $param_length);
+					$value = self::truncate(strval($value), $param_length);
 				},
 			);
 
@@ -1398,7 +1400,7 @@ class Utils
 					$out = '';
 
 					foreach ($value as $k => $v) {
-						$out .= self::safe_serialize($k) . self::safe_serialize($v);
+						$out .= self::safeSerialize($k) . self::safeSerialize($v);
 					}
 
 					$out = 'a:' . count($value) . ':{' . $out . '}';
@@ -2221,7 +2223,7 @@ class Utils
 
 		// An array? should be a "callable" array IE array(object/class, valid_callable).
 		// A closure? should be a callable one.
-		if (is_array($input) || $input instanceof Closure) {
+		if (is_array($input) || $input instanceof \Closure) {
 			return is_callable($input) ? $input : false;
 		}
 
@@ -2319,7 +2321,7 @@ class Utils
 			return $callable;
 		}
 
-		call_user_func($func);
+		call_user_func($callable);
 	}
 
 	/**
@@ -2400,7 +2402,7 @@ class Utils
 	 */
 	final protected static function fixUtf8mb4(string $string): string
 	{
-		if (class_exists('SMF\\Db\\DatabaseApi', false) && isset(Db\DatabaseApi::$db) && Db\DatabaseApi::$db->mb4) {
+		if (class_exists('SMF\\Db\\DatabaseApi', false) && isset(Db::$db) && Db::$db->mb4) {
 			return $string;
 		}
 

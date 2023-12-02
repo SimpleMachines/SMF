@@ -1143,7 +1143,7 @@ class BBCodeParser
 	 *
 	 * @param string|bool $message The string to parse.
 	 * @param bool $smileys Whether to parse smileys. Default: true.
-	 * @param string $cache_id The cache ID.
+	 * @param string|int $cache_id The cache ID.
 	 *    If $cache_id is left empty, an ID will be generated automatically.
 	 *    Manually specifiying a ID is helpful in cases when an integration hook
 	 *    wants to identify particular strings to act upon, but is otherwise
@@ -1151,7 +1151,7 @@ class BBCodeParser
 	 * @param array $parse_tags If set, only parses these tags rather than all of them.
 	 * @return string The parsed string.
 	 */
-	public function parse(string $message, bool $smileys = true, string $cache_id = '', array $parse_tags = []): string
+	public function parse(string $message, bool $smileys = true, string|int $cache_id = '', array $parse_tags = []): string
 	{
 		// Don't waste cycles
 		if (strval($message) === '') {
@@ -2940,7 +2940,7 @@ class BBCodeParser
 							return $url;
 						}
 
-						return '[url=&quot;' . str_replace(['[', ']'], ['&#91;', '&#93;'], $full_url->toAscii()) . '&quot;]' . $url . '[/url]';
+						return '[url=&quot;' . str_replace(['[', ']'], ['&#91;', '&#93;'], strval($full_url->toAscii())) . '&quot;]' . $url . '[/url]';
 					},
 					$data,
 				);

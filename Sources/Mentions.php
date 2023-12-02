@@ -419,7 +419,7 @@ class Mentions
 
 		preg_match_all('/\[quote.*?link=msg=([0-9]+).*?\]/i', $message, $matches);
 
-		$id_msgs = $matches[1];
+		$id_msgs = (array) $matches[1];
 
 		foreach ($id_msgs as $k => $id_msg) {
 			$id_msgs[$k] = (int) $id_msg;

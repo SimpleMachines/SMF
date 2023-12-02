@@ -443,6 +443,8 @@ class Url implements \Stringable
 			return $proxied;
 		}
 
+		$parsed = $this->parse();
+
 		// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs.
 		if (empty($parsed->scheme) || empty($parsed->host) || empty($parsed->path) || $parsed->scheme === 'https') {
 			return $proxied;
@@ -779,7 +781,7 @@ class Url implements \Stringable
 	 * @param string $url The original URL of the requested resource.
 	 * @return object A new instance of this class for the proxied URL.
 	 */
-	public static function getProxiedUrl(string $url): string
+	public static function getProxiedUrl(string $url): object
 	{
 		$url = new self($url);
 

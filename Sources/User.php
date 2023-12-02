@@ -19,6 +19,8 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;
+use SMF\Actions\Admin\Bans;
+use SMF\Actions\Logout;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -3124,7 +3126,7 @@ class User implements \ArrayAccess
 		}
 
 		// If it is invalid, fall back to the default.
-		if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) {
+		if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 			$timezone = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 		}
 
@@ -3174,9 +3176,9 @@ class User implements \ArrayAccess
 			list($user) = $users;
 
 			if ($user == User::$me->id) {
-				isAllowedTo('profile_remove_own');
+				self::isAllowedTo('profile_remove_own');
 			} else {
-				isAllowedTo('profile_remove_any');
+				self::isAllowedTo('profile_remove_any');
 			}
 		} else {
 			foreach ($users as $k => $v) {
@@ -3184,7 +3186,7 @@ class User implements \ArrayAccess
 			}
 
 			// Deleting more than one?  You can't have more than one account...
-			isAllowedTo('profile_remove_any');
+			self::isAllowedTo('profile_remove_any');
 		}
 
 		// Get their names for logging purposes.
@@ -3880,7 +3882,7 @@ class User implements \ArrayAccess
 
 		// You're in biiig trouble.  Banned for the rest of this session!
 		if (isset($_SESSION['ban']['cannot_access'])) {
-			$this->logBan($_SESSION['ban']['cannot_access']['ids']);
+			User::$me->logBan($_SESSION['ban']['cannot_access']['ids']);
 
 			$_SESSION['ban']['last_checked'] = time();
 
@@ -3889,7 +3891,7 @@ class User implements \ArrayAccess
 
 		if (!empty($ban_ids)) {
 			// Log this ban for future reference.
-			$this->logBan($ban_ids, $email);
+			User::$me->logBan($ban_ids, $email);
 
 			ErrorHandler::fatal($error . $ban_reason, false);
 		}
