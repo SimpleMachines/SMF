@@ -1512,8 +1512,7 @@ class ACP implements ActionInterface
 		}
 
 		// Why not have a look at ImageMagick? If it's installed, we should show version information for it too.
-		if (in_array('imagemagick', $checkFor) && class_exists('Imagick'))
-		{
+		if (in_array('imagemagick', $checkFor) && class_exists('Imagick')) {
 			$temp = new \Imagick();
 			$temp2 = $temp->getVersion();
 			$im_version = $temp2['versionString'];
