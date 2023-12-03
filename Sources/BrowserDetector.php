@@ -28,8 +28,6 @@ namespace SMF;
  */
 class BrowserDetector
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

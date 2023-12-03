@@ -27,7 +27,6 @@ use SMF\Search\SearchApi;
  */
 class Msg implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

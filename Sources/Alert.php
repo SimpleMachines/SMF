@@ -20,7 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Alert implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

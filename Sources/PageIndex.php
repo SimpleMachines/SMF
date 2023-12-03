@@ -20,8 +20,6 @@ namespace SMF;
  */
 class PageIndex implements \Stringable
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

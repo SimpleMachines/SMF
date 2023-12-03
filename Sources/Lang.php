@@ -20,8 +20,6 @@ use SMF\Cache\CacheApi;
  */
 class Lang
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

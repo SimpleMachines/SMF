@@ -37,35 +37,6 @@ use SMF\Utils;
  */
 class Attachments implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageAttachments',
-			'list_getFiles' => 'list_getFiles',
-			'list_getNumFiles' => 'list_getNumFiles',
-			'list_getAttachDirs' => 'list_getAttachDirs',
-			'list_getBaseDirs' => 'list_getBaseDirs',
-			'attachDirStatus' => 'attachDirStatus',
-			'manageAttachmentSettings' => 'ManageAttachmentSettings',
-			'manageAvatarSettings' => 'ManageAvatarSettings',
-			'browseFiles' => 'BrowseFiles',
-			'maintainFiles' => 'MaintainFiles',
-			'removeAttachment' => 'RemoveAttachment',
-			'removeAttachmentByAge' => 'RemoveAttachmentByAge',
-			'removeAttachmentBySize' => 'RemoveAttachmentBySize',
-			'removeAllAttachments' => 'RemoveAllAttachments',
-			'repairAttachments' => 'RepairAttachments',
-			'manageAttachmentPaths' => 'ManageAttachmentPaths',
-			'transferAttachments' => 'TransferAttachments',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -2577,7 +2548,7 @@ class Attachments implements ActionInterface
 	 * @param int $expected_files How many files should be in that directory
 	 * @return array An array containing the status of the directory, whether the number of files was what we expected and how many were in the directory
 	 */
-	public static function attachDirStatus($dir, $expected_files): array
+	public static function attachDirStatus(string $dir, int $expected_files): array
 	{
 		if (!is_dir($dir)) {
 			return ['does_not_exist', true, ''];
@@ -2621,7 +2592,7 @@ class Attachments implements ActionInterface
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
 	 */
-	public static function manageAttachmentSettings($return_config = false)
+	public static function manageAttachmentSettings(bool $return_config = false)
 	{
 		if (!empty($return_config)) {
 			return self::attachConfigVars();
@@ -2822,14 +2793,6 @@ class Attachments implements ActionInterface
 
 		Utils::obExit();
 	}
-}
-
-// Some functions have been migrated from here to the Attachment class.
-class_exists('SMF\\Attachment');
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Attachments::exportStatic')) {
-	Attachments::exportStatic();
 }
 
 ?>

@@ -18,8 +18,6 @@ namespace SMF;
  */
 class Utils
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *
@@ -27,7 +25,7 @@ class Utils
 	 */
 	private static $backcompat = [
 		'func_names' => [
-			'sanitizeChars' => 'sanitize_chars',
+			//'sanitizeChars' => 'sanitize_chars',
 			'normalizeSpaces' => 'normalize_spaces',
 			'htmlspecialcharsRecursive' => 'htmlspecialchars__recursive',
 			'htmlspecialcharsDecode' => 'un_htmlspecialchars',

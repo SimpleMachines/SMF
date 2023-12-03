@@ -24,8 +24,6 @@ namespace SMF;
  */
 class SecurityToken extends \ArrayObject
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

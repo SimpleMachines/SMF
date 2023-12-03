@@ -96,7 +96,6 @@ namespace SMF;
  */
 class Menu implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

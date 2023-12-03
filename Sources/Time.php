@@ -18,7 +18,6 @@ namespace SMF;
  */
 class Time extends \DateTime implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

@@ -26,8 +26,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Session implements \SessionHandlerInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

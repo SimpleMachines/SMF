@@ -38,8 +38,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

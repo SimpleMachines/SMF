@@ -27,7 +27,6 @@ use SMF\Search\SearchApi;
  */
 class Topic implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

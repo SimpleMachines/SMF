@@ -20,8 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Security
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

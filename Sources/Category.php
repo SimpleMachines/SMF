@@ -28,7 +28,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Category implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

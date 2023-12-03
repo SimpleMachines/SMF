@@ -34,8 +34,6 @@ use SMF\Utils;
  */
 class ErrorLog implements ActionInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

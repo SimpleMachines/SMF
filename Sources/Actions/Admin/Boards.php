@@ -36,8 +36,6 @@ use SMF\Utils;
  */
 class Boards implements ActionInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

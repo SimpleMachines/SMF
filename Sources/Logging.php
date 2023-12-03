@@ -25,8 +25,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Logging
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

@@ -38,8 +38,6 @@ use SMF\Utils;
  */
 class ReportedContent implements ActionInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

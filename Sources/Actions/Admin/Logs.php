@@ -29,8 +29,6 @@ use SMF\Utils;
  */
 class Logs implements ActionInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

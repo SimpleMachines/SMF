@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -31,19 +30,6 @@ use SMF\Utils;
  */
 class Activate implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Activate',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -287,11 +273,6 @@ class Activate implements ActionInterface
 		Lang::load('Login');
 		Theme::loadTemplate('Login');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Activate::exportStatic')) {
-	Activate::exportStatic();
 }
 
 ?>

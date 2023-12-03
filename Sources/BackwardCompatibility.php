@@ -13,84 +13,220 @@
 
 namespace SMF;
 
-/**
- * Assists in providing backward compatibility with code written for earlier
- * versions of SMF.
- */
-trait BackwardCompatibility
+function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
 {
-	/**
-	 * Provides a way to export a class's public static properties and methods
-	 * to global namespace.
-	 *
-	 * To do so:
-	 *
-	 *  1. Use this trait in the class.
-	 *  2. At the *END* of the class's file, call its exportStatic() method.
-	 *
-	 * Although it might not seem that way at first glance, this approach
-	 * conforms to section 2.3 of PSR 1, since executing this method is simply a
-	 * dynamic means of declaring functions when the file is included; it has no
-	 * other side effects.
-	 *
-	 * Regarding the $backcompat items:
-	 *
-	 * A class's static properties are not exported to global variables unless
-	 * explicitly included in $backcompat['prop_names']. Likewise, a class's
-	 * static methods are not exported as global functions unless explicitly
-	 * included in $backcompat['func_names'].
-	 *
-	 * $backcompat['prop_names'] is a simple array where the keys are the names
-	 * of one or more of a class's static properties, and the values are the
-	 * names of global variables. In each case, the global variable will be set
-	 * to a reference to the static property. Static properties that are not
-	 * named in this array will not be exported.
-	 *
-	 * $backcompat['func_names'] is a simple array where the keys are the names
-	 * of one or more of a class's static methods, and the values are the names
-	 * that should be used for global functions that will encapsulate those
-	 * methods. Methods that are not named in this array will not be exported.
-	 *
-	 * Adding non-static properties or methods to the $backcompat arrays will
-	 * produce runtime errors. It is the responsibility of the developer to make
-	 * sure not to do this.
-	 */
-	public static function exportStatic(): void
-	{
-		// Do nothing if backward compatibility has been turned off.
-		if (empty(\SMF\Config::$backward_compatibility)) {
-			return;
-		}
+	return Utils::sanitizeChars($string, $level, $substitute);
+}
+function Activate()
+{
+	return Actions\Activate::call();
+}
+/**
+ * Begin
+ * Sources\Admin\ACP
+ * */
+function AdminMain()
+{
+	return Actions\Admin\ACP::call();
+}
+function prepareDBSettingContext(&$config_vars): void
+{
+	Actions\Admin\ACP::prepareDBSettingContext($config_vars);
+}
+function saveSettings(&$config_vars): void
+{
+	Actions\Admin\ACP::saveSettings($config_vars);
+}
+function saveDbSettings(&$config_vars): void
+{
+	Actions\Admin\ACP::saveDBSettings($config_vars);
+}
+function getServerVersions(array $checkFor): array
+{
+	return Actions\Admin\ACP::getServerVersions($checkFor);
+}
+function getFileVersions(array &$versionOptions): array
+{
+	return Actions\Admin\ACP::getFileVersions($versionOptions);
+}
+function updateAdminPreferences(): void
+{
+	Actions\Admin\ACP::updateAdminPreferences();
+}
+function emailAdmins(string $template, array $replacements = [], array $additional_recipients = []): void
+{
+	Actions\Admin\ACP::emailAdmins($template, $replacements, $additional_recipients);
+}
+function adminLogin(string $type = 'admin'): void
+{
+	Actions\Admin\ACP::adminLogin($type);
+}
+/**
+ * End
+ * Actions\Admin\ACP
+ *
+ * Begin
+ * Actions\Admin\AntiSpam
+ */
+function ModifyAntispamSettings(bool $return_config = false)
+{
+	return Actions\Admin\AntiSpam::modifyAntispamSettings($return_config);
+}
+/**
+ * End
+ * Actions\Admin\AntiSpam
+ *
+ * Begin
+ * Actions\Admin\Attachments
+ */
+function ManageAttachments()
+{
+	return Actions\Admin\Attachments::call();
+}
+function list_getFiles(int $start, int $items_per_page, string $sort, string $browse_type): array
+{
+	return Actions\Admin\Attachments::list_getFiles($start, $items_per_page, $sort, $browse_type);
+}
+function list_getNumFiles(string $browse_type): int
+{
+	return Actions\Admin\Attachments::list_getNumFiles($browse_type);
+}
+function list_getAttachDirs(): array
+{
+	return Actions\Admin\Attachments::list_getAttachDirs();
+}
+function list_getBaseDirs(): array
+{
+	return Actions\Admin\Attachments::list_getBaseDirs();
+}
+function attachDirStatus(string $dir, int $expected_files): array
+{
+	return Actions\Admin\Attachments::attachDirStatus($dir, $expected_files);
+}
+function ManageAttachmentSettings(bool $return_config = false)
+{
+	return Actions\Admin\Attachments::manageAttachmentSettings($return_config);
+}
+function ManageAvatarSettings(bool $return_config = false)
+{
+	return Actions\Admin\Attachments::manageAvatarSettings($return_config);
+}
+function BrowseFiles(): void
+{
+	Actions\Admin\Attachments::browseFiles();
+}
+function MaintainFiles(): void
+{
+	Actions\Admin\Attachments::maintainFiles();
+}
+function RemoveAttachment(): void
+{
+	Actions\Admin\Attachments::removeAttachment();
+}
+function RemoveAttachmentByAge(): void
+{
+	Actions\Admin\Attachments::removeAttachmentByAge();
+}
+function RemoveAttachmentBySize(): void
+{
+	Actions\Admin\Attachments::removeAttachmentBySize();
+}
+function RemoveAllAttachments(): void
+{
+	Actions\Admin\Attachments::removeAllAttachments();
+}
+function RepairAttachments(): void
+{
+	Actions\Admin\Attachments::repairAttachments();
+}
+function ManageAttachmentPaths(): void
+{
+	Actions\Admin\Attachments::manageAttachmentPaths();
+}
+function TransferAttachments(): void
+{
+	Actions\Admin\Attachments::transferAttachments();
+}
+/**
+ * End
+ * Actions\Admin\Attachments
+ *
+ * Begin
+ * Actions\Admin\Bans
+ */
+function Ban(): void
+{
+	Actions\Admin\Bans::call();
+}
+function updateBanMembers(): void
+{
+	Actions\Admin\Bans::updateBanMembers();
+}
+function list_getBans(int $start, int $items_per_page, string $sort): array
+{
+	return Actions\Admin\Bans::list_getBans($start, $items_per_page, $sort);
+}
+function list_getNumBans(): int
+{
+	return Actions\Admin\Bans::list_getNumBans();
+}
+function list_getBanItems(int $start = 0, int $items_per_page = 0, int $sort = 0, int $ban_group_id = 0): array
+{
+	return Actions\Admin\Bans::list_getBanItems($start, $items_per_page, $sort, $ban_group_id);
+}
+function list_getNumBanItems(): int
+{
+	return Actions\Admin\Bans::list_getNumBanItems();
+}
+function list_getBanTriggers(int $start, int $items_per_page, string $sort, string $trigger_type): array
+{
+	return Actions\Admin\Bans::list_getBanTriggers($start, $items_per_page, $sort, $trigger_type);
+}
+function list_getNumBanTriggers(string $trigger_type): int
+{
+	return Actions\Admin\Bans::list_getNumBanTriggers($trigger_type);
+}
+function list_getBanLogEntries(int $start, int $items_per_page, string $sort): array
+{
+	return Actions\Admin\Bans::list_getBanLogEntries($start, $items_per_page, $sort);
+}
+function list_getNumBanLogEntries(): int
+{
+	return Actions\Admin\Bans::list_getNumBanLogEntries();
+}
+function BanList(): void
+{
+	Actions\Admin\Bans::banList();
+}
+function BanEdit(): void
+{
+	Actions\Admin\Bans::banEdit();
+}
+function BanBrowseTriggers(): void
+{
+	Actions\Admin\Bans::banBrowseTriggers();
+}
+function BanEditTrigger(): void
+{
+	Actions\Admin\Bans::banEditTrigger();
+}
+function BanLog(): void
+{
+	Actions\Admin\Bans::banLog();
+}
+/**
+ * End
+ * Actions\Admin\Bans
+ *
+ * Begin Actions\Admin\Boards
+ */
+function ManageBoards(): void
+{
+	Actions\Admin\Boards::call();
+}
+function EditBoardSettings(bool $return_config = false)
+{
 
-		if (!isset(self::$backcompat)) {
-			return;
-		}
-
-		// Get any backward compatibility settings.
-		self::$backcompat['func_names'] = self::$backcompat['func_names'] ?? [];
-		self::$backcompat['prop_names'] = self::$backcompat['prop_names'] ?? [];
-
-		// The property names are simple enough to deal with...
-		foreach (self::$backcompat['prop_names'] as $static => $global) {
-			$GLOBALS[$global] = &self::${$static};
-		}
-
-		// The method names are slightly more complicated...
-		foreach (self::$backcompat['func_names'] as $method => $func) {
-			// If the name is manually set to false (or anything invalid), skip this method.
-			if (!is_string($func)) {
-				continue;
-			}
-
-			// If function already exists, die violently.
-			if (function_exists($func)) {
-				throw new \Exception("Function {$func} already exists", 1);
-			}
-
-			// Here's where the magic happens.
-			eval('function ' . $func . '(...$args) { return ' . __CLASS__ . '::' . $method . '(...$args); }');
-		}
-	}
 }
 
 ?>

@@ -13,6 +13,16 @@
 
 namespace SMF;
 
+use function basename;
+use function class_exists;
+use function is_dir;
+use function is_file;
+use function spl_autoload_register;
+use function strlen;
+use function strncmp;
+use function strtr;
+use function substr;
+
 /*
  * An autoloader for certain classes.
  *
@@ -69,7 +79,7 @@ spl_autoload_register(function ($class) {
 		$filename = $dirname . strtr($relative_class, '\\', '/') . '.php';
 
 		// Failsafe: Never load a file named index.php.
-		if (basename($filename) === 'index.php') {
+		if (basename($filename) === 'index.php' || basename($filename) === 'BackwardCompatibility.php') {
 			return;
 		}
 

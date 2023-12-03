@@ -38,8 +38,6 @@ use SMF\Utils;
  */
 class BoardIndex implements ActionInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

@@ -25,7 +25,6 @@ use SMF\Graphics\Image;
  */
 class Attachment implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

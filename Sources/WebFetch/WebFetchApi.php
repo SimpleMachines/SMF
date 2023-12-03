@@ -22,8 +22,6 @@ use SMF\Url;
  */
 abstract class WebFetchApi implements WebFetchApiInterface
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

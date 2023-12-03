@@ -13,7 +13,6 @@
 
 namespace SMF\Graphics;
 
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\ErrorHandler;
@@ -32,8 +31,6 @@ if (!defined('IMAGETYPE_AVIF')) {
  */
 class Image
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

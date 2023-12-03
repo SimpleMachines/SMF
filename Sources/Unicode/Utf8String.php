@@ -28,8 +28,6 @@ use SMF\User;
  */
 class Utf8String implements \Stringable
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

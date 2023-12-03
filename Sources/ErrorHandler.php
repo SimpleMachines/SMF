@@ -28,8 +28,6 @@ use SMF\ServerSideIncludes as SSI;
  */
 class ErrorHandler
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

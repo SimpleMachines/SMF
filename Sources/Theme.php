@@ -34,8 +34,6 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Theme
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

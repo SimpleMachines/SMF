@@ -16,7 +16,6 @@ namespace SMF\Actions\Admin;
 use SMF\Actions\ActionInterface;
 use SMF\Actions\MessageIndex;
 use SMF\Actions\Notify;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -37,27 +36,6 @@ use SMF\Utils;
  */
 class ACP implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AdminMain',
-			'prepareDBSettingContext' => 'prepareDBSettingContext',
-			'saveSettings' => 'saveSettings',
-			'saveDBSettings' => 'saveDBSettings',
-			'getServerVersions' => 'getServerVersions',
-			'getFileVersions' => 'getFileVersions',
-			'updateAdminPreferences' => 'updateAdminPreferences',
-			'emailAdmins' => 'emailAdmins',
-			'adminLogin' => 'adminLogin',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1434,7 +1412,7 @@ class ACP implements ActionInterface
 	 * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'php' or 'server'
 	 * @return array An array of versions (keys are same as what was in $checkFor, values are the versions)
 	 */
-	public static function getServerVersions($checkFor)
+	public static function getServerVersions(array $checkFor)
 	{
 		Lang::load('Admin');
 		Lang::load('ManageSettings');
@@ -2026,11 +2004,6 @@ class ACP implements ActionInterface
 
 		return $query_string;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ACP::exportStatic')) {
-	ACP::exportStatic();
 }
 
 ?>

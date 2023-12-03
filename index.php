@@ -132,6 +132,10 @@ if (SMF === 1) {
 
 require_once SMF\Config::$sourcedir . '/Autoloader.php';
 
+if (!empty(SMF\Config::$backward_compatibility)) {
+	require_once SMF\Config::$sourcedir . '/BackwardCompatibility.php';
+}
+
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 

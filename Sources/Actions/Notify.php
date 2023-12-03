@@ -32,8 +32,6 @@ use SMF\Utils;
  */
 abstract class Notify
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

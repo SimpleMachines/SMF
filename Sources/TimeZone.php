@@ -18,8 +18,6 @@ namespace SMF;
  */
 class TimeZone extends \DateTimeZone
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

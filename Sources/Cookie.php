@@ -18,8 +18,6 @@ namespace SMF;
  */
 class Cookie
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

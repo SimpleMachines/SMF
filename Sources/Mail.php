@@ -20,8 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Mail
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

@@ -51,8 +51,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class BBCodeParser
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *

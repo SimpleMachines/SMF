@@ -64,7 +64,6 @@ use SMF\PersonalMessage\PM;
  */
 class User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

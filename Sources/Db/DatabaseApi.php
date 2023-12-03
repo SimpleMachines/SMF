@@ -23,8 +23,6 @@ use SMF\Utils;
  */
 abstract class DatabaseApi
 {
-	use BackwardCompatibility;
-
 	/**
 	 * @var array
 	 *
