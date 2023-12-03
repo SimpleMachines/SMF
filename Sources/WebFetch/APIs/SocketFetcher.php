@@ -302,7 +302,7 @@ class SocketFetcher extends WebFetchApi
 				// Try to see if this is a chunked data
 				$length = hexdec($line);
 				if (!is_int($length)) {
-					die ('error');
+					break;
 				}
 		
 				// We ran out of data.
