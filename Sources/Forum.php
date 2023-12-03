@@ -14,7 +14,6 @@
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
-//use function SMF\sanitize_chars;
 
 /**
  * The root Forum class. Used when browsing the forum normally.
@@ -194,7 +193,6 @@ class Forum
 	 */
 	public function __construct()
 	{
-		$test = sanitize_chars('testing');
 		// If Config::$maintenance is set specifically to 2, then we're upgrading or something.
 		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
 			ErrorHandler::displayMaintenanceMessage();
