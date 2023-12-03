@@ -17,13 +17,14 @@
  */
 
 // Don't do anything if SMF is already loaded.
-if (defined('SMF'))
+if (defined('SMF')) {
 	return true;
+}
 
 define('SMF', 'BACKGROUND');
 
 // Initialize.
-require_once(__DIR__ . '/index.php');
+require_once __DIR__ . '/index.php';
 
 $task_runner = new SMF\TaskRunner();
 $task_runner->execute();

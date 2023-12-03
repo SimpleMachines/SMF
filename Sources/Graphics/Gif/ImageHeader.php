@@ -23,13 +23,19 @@ namespace SMF\Graphics\Gif;
 
 class ImageHeader
 {
-	public $m_nLeft, $m_nTop, $m_nWidth, $m_nHeight, $m_bLocalClr;
-	public $m_bInterlace, $m_bSorted, $m_nTableSize, $m_colorTable;
+	public $m_nLeft;
+	public $m_nTop;
+	public $m_nWidth;
+	public $m_nHeight;
+	public $m_bLocalClr;
+	public $m_bInterlace;
+	public $m_bSorted;
+	public $m_nTableSize;
+	public $m_colorTable;
 
 	public function __construct()
 	{
-		unset($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight, $this->m_bLocalClr);
-		unset($this->m_bInterlace, $this->m_bSorted, $this->m_nTableSize, $this->m_colorTable);
+		unset($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight, $this->m_bLocalClr, $this->m_bInterlace, $this->m_bSorted, $this->m_nTableSize, $this->m_colorTable);
 	}
 
 	public function load($lpData, &$hdrLen)
@@ -37,10 +43,11 @@ class ImageHeader
 		$hdrLen = 0;
 
 		// Get the width/height/etc. from the header.
-		list ($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight) = array_values(unpack('v4', substr($lpData, 0, 8)));
+		list($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight) = array_values(unpack('v4', substr($lpData, 0, 8)));
 
-		if (!$this->m_nWidth || !$this->m_nHeight)
+		if (!$this->m_nWidth || !$this->m_nHeight) {
 			return false;
+		}
 
 		$b = ord($lpData[8]);
 		$this->m_bLocalClr = ($b & 0x80) ? true : false;
@@ -49,11 +56,12 @@ class ImageHeader
 		$this->m_nTableSize = 2 << ($b & 0x07);
 		$hdrLen = 9;
 
-		if ($this->m_bLocalClr)
-		{
+		if ($this->m_bLocalClr) {
 			$this->m_colorTable = new ColorTable();
-			if (!$this->m_colorTable->load(substr($lpData, $hdrLen), $this->m_nTableSize))
+
+			if (!$this->m_colorTable->load(substr($lpData, $hdrLen), $this->m_nTableSize)) {
 				return false;
+			}
 
 			$hdrLen += 3 * $this->m_nTableSize;
 		}

@@ -13,16 +13,17 @@
 
 namespace SMF\Cache\APIs;
 
-use GlobIterator;
 use FilesystemIterator;
+use GlobIterator;
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Our Cache API class
@@ -32,7 +33,7 @@ if (!defined('SMF'))
 class FileBased extends CacheApi implements CacheApiInterface
 {
 	/**
-	 * @var string The path to the current $cachedir directory.
+	 * @var string The path to the current directory.
 	 */
 	private $cachedir = null;
 
@@ -54,24 +55,26 @@ class FileBased extends CacheApi implements CacheApiInterface
 	{
 		$supported = is_writable($this->cachedir);
 
-		if ($test)
+		if ($test) {
 			return $supported;
+		}
 
 		return parent::isSupported() && $supported;
 	}
 
 	private function readFile($file)
 	{
-		if (($fp = @fopen($file, 'rb')) !== false)
-		{
-			if (!flock($fp, LOCK_SH))
-			{
+		if (($fp = @fopen($file, 'rb')) !== false) {
+			if (!flock($fp, LOCK_SH)) {
 				fclose($fp);
+
 				return false;
 			}
 			$string = '';
-			while (!feof($fp))
+
+			while (!feof($fp)) {
 				$string .= fread($fp, 8192);
+			}
 
 			flock($fp, LOCK_UN);
 			fclose($fp);
@@ -84,22 +87,22 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 	private function writeFile($file, $string)
 	{
-		if (($fp = fopen($file, 'cb')) !== false)
-		{
-			if (!flock($fp, LOCK_EX))
-			{
+		if (($fp = fopen($file, 'cb')) !== false) {
+			if (!flock($fp, LOCK_EX)) {
 				fclose($fp);
+
 				return false;
 			}
 			ftruncate($fp, 0);
 			$bytes = 0;
 			$pieces = str_split($string, 8192);
-			foreach ($pieces as $piece)
-			{
-				if (($val = fwrite($fp, $piece, 8192)) !== false)
+
+			foreach ($pieces as $piece) {
+				if (($val = fwrite($fp, $piece, 8192)) !== false) {
 					$bytes += $val;
-				else
+				} else {
 					return false;
+				}
 			}
 			fflush($fp);
 			flock($fp, LOCK_UN);
@@ -124,21 +127,20 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$file = sprintf('%s/data_%s.cache',
+		$file = sprintf(
+			'%s/data_%s.cache',
 			$this->cachedir,
-			$this->prefix . strtr($key, ':/', '-_')
+			$this->prefix . strtr($key, ':/', '-_'),
 		);
 
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
-		if (file_exists($file) && ($raw = $this->readFile($file)) !== false)
-		{
-			if (($value = Utils::jsonDecode($raw, true, false)) !== array() && isset($value['expiration']) && $value['expiration'] >= time())
+		if (file_exists($file) && ($raw = $this->readFile($file)) !== false) {
+			if (($value = Utils::jsonDecode($raw, true, false)) !== [] && isset($value['expiration']) && $value['expiration'] >= time()) {
 				return $value['value'];
-			else
-				@unlink($file);
-		}
+			}
 
-		return null;
+			@unlink($file);
+		}
 	}
 
 	/**
@@ -146,33 +148,33 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$file = sprintf('%s/data_%s.cache',
+		$file = sprintf(
+			'%s/data_%s.cache',
 			$this->cachedir,
-			$this->prefix . strtr($key, ':/', '-_')
+			$this->prefix . strtr($key, ':/', '-_'),
 		);
 		$ttl = $ttl !== null ? $ttl : $this->ttl;
 
-		if ($value === null)
+		if ($value === null) {
 			@unlink($file);
-		else
-		{
+		} else {
 			$cache_data = json_encode(
-				array(
+				[
 					'expiration' => time() + $ttl,
-					'value' => $value
-				),
-				JSON_NUMERIC_CHECK
+					'value' => $value,
+				],
+				JSON_NUMERIC_CHECK,
 			);
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
-			if ($this->writeFile($file, $cache_data) !== strlen($cache_data))
-			{
+			if ($this->writeFile($file, $cache_data) !== strlen($cache_data)) {
 				@unlink($file);
+
 				return false;
 			}
-			else
-				return true;
+
+			return true;
 		}
 	}
 
@@ -182,14 +184,16 @@ class FileBased extends CacheApi implements CacheApiInterface
 	public function cleanCache($type = '')
 	{
 		// No directory = no game.
-		if (!is_dir($this->cachedir))
+		if (!is_dir($this->cachedir)) {
 			return;
+		}
 
 		// Remove the files in SMF's own disk cache, if any
 		$files = new GlobIterator($this->cachedir . '/' . $type . '*.cache', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
-		foreach ($files as $file => $info)
+		foreach ($files as $file => $info) {
 			unlink($this->cachedir . '/' . $file);
+		}
 
 		// Make this invalid.
 		$this->invalidateCache();
@@ -219,41 +223,41 @@ class FileBased extends CacheApi implements CacheApiInterface
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = Lang::$txt['cache_'. $class_name_txt_key .'_settings'];
-		$config_vars[] = array('cachedir', Lang::$txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
+		$config_vars[] = Lang::$txt['cache_' . $class_name_txt_key . '_settings'];
+		$config_vars[] = ['cachedir', Lang::$txt['cachedir'], 'file', 'text', 36, 'cache_cachedir'];
 
-		if (!isset(Utils::$context['settings_post_javascript']))
+		if (!isset(Utils::$context['settings_post_javascript'])) {
 			Utils::$context['settings_post_javascript'] = '';
+		}
 
-		if (empty(Utils::$context['settings_not_writable']))
+		if (empty(Utils::$context['settings_not_writable'])) {
 			Utils::$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir").prop("disabled", cache_type != "'. $class_name .'");
+				$("#cachedir").prop("disabled", cache_type != "' . $class_name . '");
 			});';
+		}
 	}
 
 	/**
 	 * Sets the $cachedir or uses the SMF default $cachedir..
 	 *
-	 * @access public
 	 * @param string $dir A valid path
-	 * @return boolean If this was successful or not.
+	 * @return bool If this was successful or not.
 	 */
 	public function setCachedir($dir = null)
 	{
 		// If its invalid, use SMF's.
-		if (is_null($dir) || !is_writable($dir))
+		if (is_null($dir) || !is_writable($dir)) {
 			$this->cachedir = Config::$cachedir;
-
-		else
+		} else {
 			$this->cachedir = $dir;
+		}
 	}
 
 	/**
 	 * Gets the current $cachedir.
 	 *
-	 * @access public
 	 * @return string the value of $ttl.
 	 */
 	public function getCachedir()

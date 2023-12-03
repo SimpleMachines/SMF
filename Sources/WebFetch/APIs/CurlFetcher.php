@@ -83,7 +83,7 @@ class CurlFetcher extends WebFetchApi
 	 *
 	 * An array of curl options.
 	 */
-	public $user_options = array();
+	public $user_options = [];
 
 	/**
 	 * @var string
@@ -111,7 +111,7 @@ class CurlFetcher extends WebFetchApi
 	 *
 	 * Stores responses (url, code, error, headers, body, size).
 	 */
-	public $response = array();
+	public $response = [];
 
 	/**
 	 * @var string
@@ -129,7 +129,7 @@ class CurlFetcher extends WebFetchApi
 	 *
 	 * The default curl options to use.
 	 */
-	private $default_options = array(
+	private $default_options = [
 		// Get returned value as a string (don't output it).
 		CURLOPT_RETURNTRANSFER  => 1,
 
@@ -163,7 +163,7 @@ class CurlFetcher extends WebFetchApi
 
 		// No post data. This will change if some is passed to request().
 		CURLOPT_POST            => 0,
-	);
+	];
 
 	/****************
 	 * Public methods
@@ -177,7 +177,7 @@ class CurlFetcher extends WebFetchApi
 	 * @param array $options An array of curl options.
 	 * @param int $max_redirect Maximum number of redirects.
 	 */
-	public function __construct(array $options = array(), int $max_redirect = 3)
+	public function __construct(array $options = [], int $max_redirect = 3)
 	{
 		// Initialize class variables
 		$this->max_redirect = intval($max_redirect);
@@ -197,38 +197,38 @@ class CurlFetcher extends WebFetchApi
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = array()): object
+	public function request(string $url, array|string $post_data = []): object
 	{
 		$url = new Url($url, true);
 		$url->toAscii();
 
 		// If we can't do it, bail out.
-		if (!function_exists('curl_init'))
-		{
-			$this->response[] = array(
+		if (!function_exists('curl_init')) {
+			$this->response[] = [
 				'url' => (string) $url,
 				'success' => false,
 				'code' => null,
 				'error' => null,
-				'headers' => array(),
+				'headers' => [],
 				'body' => null,
 				'size' => 0,
-			);
+			];
 
 			return $this;
 		}
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, array('http', 'https')))
-		{
+		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
 			Lang::load('Errors');
 			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
+
 			return $this;
 		}
 
 		// POSTing some data perhaps?
-		if (!empty($post_data))
+		if (!empty($post_data)) {
 			$this->post_data = $this->buildPostData($post_data);
+		}
 
 		// Set the options and get it.
 		$this->setOptions();
@@ -246,15 +246,16 @@ class CurlFetcher extends WebFetchApi
 	 * @param string $area Used to return an area such as body, header, error.
 	 * @return mixed The response
 	 */
-	public function result(string $area = null): mixed
+	public function result(?string $area = null): mixed
 	{
 		$max_result = count($this->response) - 1;
 
 		// Just return a specifed area or the entire result?
-		if (empty($area))
+		if (empty($area)) {
 			return $this->response[$max_result];
+		}
 
-		return isset($this->response[$max_result][$area]) ? $this->response[$max_result][$area] : $this->response[$max_result];
+		return $this->response[$max_result][$area] ?? $this->response[$max_result];
 	}
 
 	/**
@@ -266,17 +267,15 @@ class CurlFetcher extends WebFetchApi
 	 * @param int $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
-	public function resultRaw(int $response_number = null): array
+	public function resultRaw(?int $response_number = null): array
 	{
-		if (!isset($response_number))
-		{
+		if (!isset($response_number)) {
 			return $this->response;
 		}
-		else
-		{
-			$response_number = min($response_number, count($this->response) - 1);
-			return $this->response[$response_number];
-		}
+
+		$response_number = min($response_number, count($this->response) - 1);
+
+		return $this->response[$response_number];
 	}
 
 	/******************
@@ -297,16 +296,16 @@ class CurlFetcher extends WebFetchApi
 	private function sendRequest(string $url, bool $redirect = false): void
 	{
 		// We do have a url, I hope.
-		if ($url == '')
+		if ($url == '') {
 			return;
+		}
 
 		$this->options[CURLOPT_URL] = $url;
 
 		// If we have not already been redirected, set it up so we can if needed.
-		if (!$redirect)
-		{
+		if (!$redirect) {
 			$this->current_redirect = 1;
-			$this->response = array();
+			$this->response = [];
 		}
 
 		// Initialize the curl object and make the call.
@@ -326,19 +325,18 @@ class CurlFetcher extends WebFetchApi
 		curl_close($cr);
 
 		// Store this loop's data, someone may want all of these. :O
-		$this->response[] = array(
+		$this->response[] = [
 			'url' => $url,
 			'success' => $error === false && $body !== false,
 			'code' => $http_code,
 			'error' => $error,
-			'headers' => isset($this->headers) ? $this->headers : array(),
+			'headers' => $this->headers ?? [],
 			'body' => $body,
 			'size' => $curl_info['download_content_length'],
-		);
+		];
 
 		// If this a redirect with a location header and we have not given up, then do it again.
-		if (preg_match('~30[127]~i', $http_code) === 1 && $this->headers['location'] != '' && $this->current_redirect <= $this->max_redirect)
-		{
+		if (preg_match('~30[127]~i', $http_code) === 1 && $this->headers['location'] != '' && $this->current_redirect <= $this->max_redirect) {
 			$this->current_redirect++;
 			$header_location = $this->getRedirectUrl($url, $this->headers['location']);
 			$this->redirect($header_location, $url);
@@ -359,10 +357,10 @@ class CurlFetcher extends WebFetchApi
 		$new_url_parse = parse_url($new_url);
 
 		// Redirect headers are often incomplete or relative so we need to make sure they are fully qualified.
-		$new_url_parse['scheme'] = isset($new_url_parse['scheme']) ? $new_url_parse['scheme'] : $last_url_parse['scheme'];
-		$new_url_parse['host'] = isset($new_url_parse['host']) ? $new_url_parse['host'] : $last_url_parse['host'];
-		$new_url_parse['path'] = isset($new_url_parse['path']) ? $new_url_parse['path'] : $last_url_parse['path'];
-		$new_url_parse['query'] = isset($new_url_parse['query']) ? $new_url_parse['query'] : '';
+		$new_url_parse['scheme'] = $new_url_parse['scheme'] ?? $last_url_parse['scheme'];
+		$new_url_parse['host'] = $new_url_parse['host'] ?? $last_url_parse['host'];
+		$new_url_parse['path'] = $new_url_parse['path'] ?? $last_url_parse['path'];
+		$new_url_parse['query'] = $new_url_parse['query'] ?? '';
 
 		// Build the new URL that was in the http header.
 		return $new_url_parse['scheme'] . '://' . $new_url_parse['host'] . $new_url_parse['path'] . (!empty($new_url_parse['query']) ? '?' . $new_url_parse['query'] : '');
@@ -378,23 +376,19 @@ class CurlFetcher extends WebFetchApi
 	private function setOptions(): void
 	{
 		// Callback to parse the returned headers, if any.
-		$this->default_options[CURLOPT_HEADERFUNCTION] = array($this, 'headerCallback');
+		$this->default_options[CURLOPT_HEADERFUNCTION] = [$this, 'headerCallback'];
 
 		// Any user options to account for.
-		if (is_array($this->user_options))
-		{
+		if (is_array($this->user_options)) {
 			$keys = array_merge(array_keys($this->default_options), array_keys($this->user_options));
 			$vals = array_merge($this->default_options, $this->user_options);
 			$this->options = array_combine($keys, $vals);
-		}
-		else
-		{
+		} else {
 			$this->options = $this->default_options;
 		}
 
 		// POST data options, here we don't allow any override.
-		if (isset($this->post_data))
-		{
+		if (isset($this->post_data)) {
 			$this->options[CURLOPT_POST] = 1;
 			$this->options[CURLOPT_POSTFIELDS] = $this->post_data;
 		}
@@ -430,8 +424,9 @@ class CurlFetcher extends WebFetchApi
 		$temp = explode(': ', trim($header), 2);
 
 		// Set proper headers only.
-		if (isset($temp[0]) && isset($temp[1]))
+		if (isset($temp[0], $temp[1])) {
 			$this->headers[strtolower($temp[0])] = strtolower(trim($temp[1]));
+		}
 
 		// Return the length of what was passed unless you want a Failed writing header error ;)
 		return strlen($header);

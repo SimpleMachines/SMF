@@ -16,8 +16,9 @@ namespace SMF\Cache\APIs;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Our Cache API class
@@ -33,8 +34,9 @@ class Apcu extends CacheApi implements CacheApiInterface
 	{
 		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
 
-		if ($test)
+		if ($test) {
 			return $supported;
+		}
 
 		return parent::isSupported() && $supported;
 	}
@@ -67,11 +69,11 @@ class Apcu extends CacheApi implements CacheApiInterface
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		// An extended key is needed to counteract a bug in APC.
-		if ($value === null)
+		if ($value === null) {
 			return apcu_delete($key . 'smf');
+		}
 
-		else
-			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
+		return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**

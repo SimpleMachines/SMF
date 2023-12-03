@@ -14,7 +14,6 @@
 namespace SMF\Cache;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Utils;
@@ -23,32 +22,32 @@ abstract class CacheApi
 {
 	use BackwardCompatibility;
 
-	const APIS_FOLDER = __DIR__ . '/APIs';
-	const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
-	const APIS_DEFAULT = 'FileBased';
+	public const APIS_FOLDER = __DIR__ . '/APIs';
+	public const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
+	public const APIS_DEFAULT = 'FileBased';
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'load' => 'loadCacheAccelerator',
 			'detect' => 'loadCacheAPIs',
 			'clean' => 'clean_cache',
 			'quickGet' => 'cache_quick_get',
 			'put' => 'cache_put_data',
 			'get' => 'cache_get_data',
-		),
-		'prop_names' => array(
+		],
+		'prop_names' => [
 			'loadedApi' => 'cacheAPI',
 			'hits' => 'cache_hits',
 			'count_hits' => 'cache_count',
 			'misses' => 'cache_misses',
 			'count_misses' => 'cache_count_misses',
-		),
-	);
+		],
+	];
 
 	/**************************
 	 * Public static properties
@@ -88,7 +87,7 @@ abstract class CacheApi
 	 *
 	 * For backward compatibilty, also referenced as global $cache_hits.
 	 */
-	public static array $hits = array();
+	public static array $hits = [];
 
 	/**
 	 * @var int
@@ -106,7 +105,7 @@ abstract class CacheApi
 	 *
 	 * For backward compatibilty, also referenced as global $cache_misses.
 	 */
-	public static array $misses = array();
+	public static array $misses = [];
 
 	/**
 	 * @var int
@@ -148,7 +147,6 @@ abstract class CacheApi
 	/**
 	 * Does basic setup of a cache method when we create the object but before we call connect.
 	 *
-	 * @access public
 	 */
 	public function __construct()
 	{
@@ -158,14 +156,14 @@ abstract class CacheApi
 	/**
 	 * Checks whether we can use the cache method performed by this API.
 	 *
-	 * @access public
 	 * @param bool $test Test if this is supported or enabled.
 	 * @return bool Whether or not the cache is supported
 	 */
 	public function isSupported($test = false)
 	{
-		if ($test)
+		if ($test) {
 			return true;
+		}
 
 		return !empty(self::$enable);
 	}
@@ -173,37 +171,33 @@ abstract class CacheApi
 	/**
 	 * Sets the cache prefix.
 	 *
-	 * @access public
 	 * @param string $prefix The prefix to use.
 	 *     If empty, the prefix will be generated automatically.
 	 * @return bool If this was successful or not.
 	 */
 	public function setPrefix($prefix = '')
 	{
-		if (!is_string($prefix))
+		if (!is_string($prefix)) {
 			$prefix = '';
+		}
 
 		// Use the supplied prefix, if there is one.
-		if (!empty($prefix))
-		{
+		if (!empty($prefix)) {
 			$this->prefix = $prefix;
 
 			return true;
 		}
 
 		// Ideally the prefix should reflect the last time the cache was reset.
-		if (!empty(Config::$cachedir) && file_exists(Config::$cachedir . '/index.php'))
-		{
+		if (!empty(Config::$cachedir) && file_exists(Config::$cachedir . '/index.php')) {
 			$mtime = filemtime(Config::$cachedir . '/index.php');
 		}
 		// Fall back to the last time that Settings.php was updated.
-		elseif (!empty(Config::$boarddir) && file_exists(SMF_SETTINGS_FILE))
-		{
+		elseif (!empty(Config::$boarddir) && file_exists(SMF_SETTINGS_FILE)) {
 			$mtime = filemtime(SMF_SETTINGS_FILE);
 		}
 		// This should never happen, but just in case...
-		else
-		{
+		else {
 			$mtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		}
 
@@ -215,7 +209,6 @@ abstract class CacheApi
 	/**
 	 * Gets the prefix as defined from set or the default.
 	 *
-	 * @access public
 	 * @return string the value of $key.
 	 */
 	public function getPrefix()
@@ -226,7 +219,6 @@ abstract class CacheApi
 	/**
 	 * Sets a default Time To Live, if this isn't specified we let the class define it.
 	 *
-	 * @access public
 	 * @param int $ttl The default TTL
 	 * @return bool If this was successful or not.
 	 */
@@ -240,7 +232,6 @@ abstract class CacheApi
 	/**
 	 * Gets the TTL as defined from set or the default.
 	 *
-	 * @access public
 	 * @return int the value of $ttl.
 	 */
 	public function getDefaultTTL()
@@ -257,8 +248,9 @@ abstract class CacheApi
 	{
 		// Invalidate cache, to be sure!
 		// ... as long as index.php can be modified, anyway.
-		if (is_writable(Config::$cachedir . '/' . 'index.php'))
+		if (is_writable(Config::$cachedir . '/' . 'index.php')) {
 			@touch(Config::$cachedir . '/' . 'index.php');
+		}
 
 		return true;
 	}
@@ -266,7 +258,6 @@ abstract class CacheApi
 	/**
 	 * Closes connections to the cache method.
 	 *
-	 * @access public
 	 * @return bool Whether the connections were closed.
 	 */
 	public function quit()
@@ -277,7 +268,6 @@ abstract class CacheApi
 	/**
 	 * Specify custom settings that the cache API supports.
 	 *
-	 * @access public
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
 	 */
 	public function cacheSettings(array &$config_vars)
@@ -287,7 +277,6 @@ abstract class CacheApi
 	/**
 	 * Gets the latest version of SMF this is compatible with.
 	 *
-	 * @access public
 	 * @return string the value of $key.
 	 */
 	public function getCompatibleVersion()
@@ -298,7 +287,6 @@ abstract class CacheApi
 	/**
 	 * Gets the min version that we support.
 	 *
-	 * @access public
 	 * @return string the value of $key.
 	 */
 	public function getMinimumVersion()
@@ -309,7 +297,6 @@ abstract class CacheApi
 	/**
 	 * Gets the Version of the Caching API.
 	 *
-	 * @access public
 	 * @return string the value of $key.
 	 */
 	public function getVersion()
@@ -321,8 +308,6 @@ abstract class CacheApi
 	 * Run housekeeping of this cache
 	 * exp. clean up old data or do optimization
 	 *
-	 * @access public
-	 * @return void
 	 */
 	public function housekeeping()
 	{
@@ -331,18 +316,17 @@ abstract class CacheApi
 	/**
 	 * Gets the class identifier of the current caching API implementation.
 	 *
-	 * @access public
 	 * @return string the unique identifier for the current class implementation.
 	 */
 	public function getImplementationClassKeyName()
 	{
 		$class_name = get_class($this);
 
-		if ($position = strrpos($class_name, '\\'))
+		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
+		}
 
-		else
-			return get_class($this);
+		return get_class($this);
 	}
 
 	/***********************
@@ -361,22 +345,27 @@ abstract class CacheApi
 	 */
 	final public static function load($overrideCache = '', $fallbackSMF = true)
 	{
-		if (!isset(self::$enable))
+		if (!isset(self::$enable)) {
 			self::$enable = min(max((int) Config::$cache_enable, 0), 3);
+		}
 
-		if (!isset(self::$accelerator))
+		if (!isset(self::$accelerator)) {
 			self::$accelerator = Config::$cache_accelerator;
+		}
 
 		// Is caching enabled?
-		if (empty(self::$enable) && empty($overrideCache))
+		if (empty(self::$enable) && empty($overrideCache)) {
 			return false;
+		}
 
 		// Not overriding this and we have a cacheAPI, send it back.
-		if (empty($overrideCache) && is_object(self::$loadedApi))
+		if (empty($overrideCache) && is_object(self::$loadedApi)) {
 			return self::$loadedApi;
+		}
 
-		elseif (is_null(self::$loadedApi))
+		if (is_null(self::$loadedApi)) {
 			self::$loadedApi = false;
+		}
 
 		// What accelerator we are going to try.
 		$cache_class_name = !empty(self::$accelerator) ? self::$accelerator : self::APIS_DEFAULT;
@@ -385,35 +374,39 @@ abstract class CacheApi
 
 		// Do some basic tests.
 		$cache_api = false;
-		if (class_exists($fully_qualified_class_name))
-		{
+
+		if (class_exists($fully_qualified_class_name)) {
 			$cache_api = new $fully_qualified_class_name();
 
 			// There are rules you know...
-			if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi)) {
 				$cache_api = false;
+			}
 
 			// No Support?  NEXT!
-			if ($cache_api && !$cache_api->isSupported())
-			{
+			if ($cache_api && !$cache_api->isSupported()) {
 				// Can we save ourselves?
-				if (!empty($fallbackSMF) && $overrideCache == '' && $cache_class_name !== self::APIS_DEFAULT)
+				if (!empty($fallbackSMF) && $overrideCache == '' && $cache_class_name !== self::APIS_DEFAULT) {
 					return self::load(self::APIS_NAMESPACE . self::APIS_DEFAULT, false);
+				}
 
 				$cache_api = false;
 			}
 
 			// Connect up to the accelerator.
-			if ($cache_api && $cache_api->connect() === false)
+			if ($cache_api && $cache_api->connect() === false) {
 				$cache_api = false;
+			}
 
 			// Don't set this if we are overriding the cache.
-			if ($cache_api && empty($overrideCache))
+			if ($cache_api && empty($overrideCache)) {
 				self::$loadedApi = $cache_api;
+			}
 		}
 
-		if (!$cache_api && !empty($fallbackSMF) && $overrideCache == '' && $cache_class_name !== self::APIS_DEFAULT)
+		if (!$cache_api && !empty($fallbackSMF) && $overrideCache == '' && $cache_class_name !== self::APIS_DEFAULT) {
 			$cache_api = self::load(self::APIS_NAMESPACE . self::APIS_DEFAULT, false);
+		}
 
 		return $cache_api;
 	}
@@ -423,33 +416,35 @@ abstract class CacheApi
 	 */
 	final public static function detect()
 	{
-		$loadedApis = array();
+		$loadedApis = [];
 
 		$api_classes = new \GlobIterator(self::APIS_FOLDER . '/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
-		foreach ($api_classes as $file_path => $file_info)
-		{
+		foreach ($api_classes as $file_path => $file_info) {
 			$class_name = $file_info->getBasename('.php');
 			$fully_qualified_class_name = self::APIS_NAMESPACE . $class_name;
 
-			if (!class_exists($fully_qualified_class_name))
+			if (!class_exists($fully_qualified_class_name)) {
 				continue;
+			}
 
 			/* @var CacheApiInterface $cache_api */
 			$cache_api = new $fully_qualified_class_name();
 
 			// Deal with it!
-			if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi)) {
 				continue;
+			}
 
 			// No Support?  NEXT!
-			if (!$cache_api->isSupported(true))
+			if (!$cache_api->isSupported(true)) {
 				continue;
+			}
 
 			$loadedApis[$class_name] = $cache_api;
 		}
 
-		IntegrationHook::call('integrate_load_cache_apis', array(&$loadedApis));
+		IntegrationHook::call('integrate_load_cache_apis', [&$loadedApis]);
 
 		return $loadedApis;
 	}
@@ -469,8 +464,9 @@ abstract class CacheApi
 	final public static function clean($type = '')
 	{
 		// If we can't get to the API, can't do this.
-		if (empty(self::$loadedApi))
+		if (empty(self::$loadedApi)) {
 			return;
+		}
 
 		// Ask the API to do the heavy lifting. cleanCache also calls invalidateCache to be sure.
 		self::$loadedApi->cleanCache($type);
@@ -492,8 +488,9 @@ abstract class CacheApi
 	 */
 	final public static function quickGet($key, $file, $function, $params, $level = 1)
 	{
-		if (class_exists('SMF\\IntegrationHook', false))
-			IntegrationHook::call('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
+		if (class_exists('SMF\\IntegrationHook', false)) {
+			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
+		}
 
 		/* Refresh the cache if either:
 			1. Caching is disabled.
@@ -502,23 +499,26 @@ abstract class CacheApi
 			4. The cached item has a custom expiration condition evaluating to true.
 			5. The expire time set in the cache item has passed (needed for Zend).
 		*/
-		if (empty(self::$enable) || self::$enable < $level || !is_array($cache_block = self::get($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
-		{
-			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file))
-				require_once(Config::$sourcedir . '/' . $file);
+		if (empty(self::$enable) || self::$enable < $level || !is_array($cache_block = self::get($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time())) {
+			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file)) {
+				require_once Config::$sourcedir . '/' . $file;
+			}
 
 			$cache_block = call_user_func_array($function, $params);
 
-			if (!empty(self::$enable) && self::$enable >= $level)
+			if (!empty(self::$enable) && self::$enable >= $level) {
 				self::put($key, $cache_block, $cache_block['expires'] - time());
+			}
 		}
 
 		// Some cached data may need a freshening up after retrieval.
-		if (!empty($cache_block['post_retri_eval']))
+		if (!empty($cache_block['post_retri_eval'])) {
 			eval($cache_block['post_retri_eval']);
+		}
 
-		if (class_exists('SMF\\IntegrationHook', false))
-			IntegrationHook::call('post_cache_quick_get', array(&$cache_block));
+		if (class_exists('SMF\\IntegrationHook', false)) {
+			IntegrationHook::call('post_cache_quick_get', [&$cache_block]);
+		}
 
 		return $cache_block['data'];
 	}
@@ -540,13 +540,14 @@ abstract class CacheApi
 	 */
 	final public static function put($key, $value, $ttl = 120)
 	{
-		if (empty(self::$enable) || empty(self::$loadedApi))
+		if (empty(self::$enable) || empty(self::$loadedApi)) {
 			return;
+		}
 
 		self::$count_hits++;
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
-		{
-			self::$hits[self::$count_hits] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(Utils::jsonEncode($value)));
+
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(Utils::jsonEncode($value))];
 			$st = microtime(true);
 		}
 
@@ -554,11 +555,13 @@ abstract class CacheApi
 		$value = $value === null ? null : Utils::jsonEncode($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
-		if (class_exists('SMF\\IntegrationHook', false))
-			IntegrationHook::call('cache_put_data', array(&$key, &$value, &$ttl));
+		if (class_exists('SMF\\IntegrationHook', false)) {
+			IntegrationHook::call('cache_put_data', [&$key, &$value, &$ttl]);
+		}
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
+		}
 	}
 
 	/**
@@ -572,13 +575,14 @@ abstract class CacheApi
 	 */
 	final public static function get($key, $ttl = 120)
 	{
-		if (empty(self::$enable) || empty(self::$loadedApi))
-			return null;
+		if (empty(self::$enable) || empty(self::$loadedApi)) {
+			return;
+		}
 
 		self::$count_hits++;
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
-		{
-			self::$hits[self::$count_hits] = array('k' => $key, 'd' => 'get');
+
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'get'];
 			$st = microtime(true);
 			$original_key = $key;
 		}
@@ -586,27 +590,27 @@ abstract class CacheApi
 		// Ask the API to get the data.
 		$value = self::$loadedApi->getData($key, $ttl);
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
-		{
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
 			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen($value) : 0;
 
-			if (empty($value))
-			{
+			if (empty($value)) {
 				self::$count_misses++;
-				self::$misses[self::$count_misses] = array('k' => $original_key, 'd' => 'get');
+				self::$misses[self::$count_misses] = ['k' => $original_key, 'd' => 'get'];
 			}
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false) && isset($value))
-			IntegrationHook::call('cache_get_data', array(&$key, &$ttl, &$value));
+		if (class_exists('SMF\\IntegrationHook', false) && isset($value)) {
+			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
+		}
 
 		return empty($value) ? null : Utils::jsonDecode($value, true);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\CacheApi::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\CacheApi::exportStatic')) {
 	CacheApi::exportStatic();
+}
 
 ?>

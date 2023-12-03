@@ -14,51 +14,55 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Subscriptions;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Time;
 use SMF\Utils;
-use SMF\Actions\Admin\ACP;
-use SMF\Actions\Admin\Subscriptions;
-use SMF\Db\DatabaseApi as Db;
 
 // Set this to true to always log $_POST info received from payment gateways.
 $paid_debug = false;
 
 // Start things rolling by getting SMF alive...
 $ssi_guest_access = true;
-if (!file_exists(dirname(__FILE__) . '/SSI.php'))
-	die('Cannot find SSI.php');
 
-require_once(dirname(__FILE__) . '/SSI.php');
+if (!file_exists(__DIR__ . '/SSI.php')) {
+	die('Cannot find SSI.php');
+}
+
+require_once __DIR__ . '/SSI.php';
 
 // Ensure we don't trip over disabled internal functions
-require_once(Config::$sourcedir . '/Subs-Compat.php');
+require_once Config::$sourcedir . '/Subs-Compat.php';
 
 Lang::load('ManagePaid');
 
 // If there's literally nothing coming in, let's take flight!
-if (empty($_POST))
-{
+if (empty($_POST)) {
 	header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+
 	die(Lang::$txt['paid_no_data']);
 }
 
 // I assume we're even active?
-if (empty(Config::$modSettings['paid_enabled']))
+if (empty(Config::$modSettings['paid_enabled'])) {
 	exit;
+}
 
 // If we have some custom people who find out about problems load them here.
-$notify_users = array();
-if (!empty(Config::$modSettings['paid_email_to']))
-{
-	foreach (explode(',', Config::$modSettings['paid_email_to']) as $email)
-		$notify_users[] = array(
+$notify_users = [];
+
+if (!empty(Config::$modSettings['paid_email_to'])) {
+	foreach (explode(',', Config::$modSettings['paid_email_to']) as $email) {
+		$notify_users[] = [
 			'email' => $email,
 			'name' => Lang::$txt['who_member'],
 			'id' => 0,
-		);
+		];
+	}
 }
 
 // We need to see whether we can find the correct payment gateway,
@@ -66,18 +70,19 @@ if (!empty(Config::$modSettings['paid_email_to']))
 // if they are happy with what we have.
 $txnType = '';
 $gatewayHandles = Subscriptions::loadPaymentGateways();
-foreach ($gatewayHandles as $gateway)
-{
+
+foreach ($gatewayHandles as $gateway) {
 	$gatewayClass = new $gateway['payment_class']();
-	if ($gatewayClass->isValid())
-	{
+
+	if ($gatewayClass->isValid()) {
 		$txnType = $gateway['code'];
 		break;
 	}
 }
 
-if (empty($txnType))
+if (empty($txnType)) {
 	generateSubscriptionError(Lang::$txt['paid_unknown_transaction_type']);
+}
 
 // Get the subscription and member ID, amongst others...
 @list($subscription_id, $member_id) = $gatewayClass->precheck();
@@ -87,173 +92,177 @@ $subscription_id = (int) $subscription_id;
 $member_id = (int) $member_id;
 
 // This would be bad...
-if (empty($member_id))
+if (empty($member_id)) {
 	generateSubscriptionError(Lang::$txt['paid_empty_member']);
+}
 
 // Verify the member.
-$request = Db::$db->query('', '
-	SELECT id_member, member_name, real_name, email_address
+$request = Db::$db->query(
+	'',
+	'SELECT id_member, member_name, real_name, email_address
 	FROM {db_prefix}members
 	WHERE id_member = {int:current_member}',
-	array(
+	[
 		'current_member' => $member_id,
-	)
+	],
 );
+
 // Didn't find them?
-if (Db::$db->num_rows($request) === 0)
+if (Db::$db->num_rows($request) === 0) {
 	generateSubscriptionError(sprintf(Lang::$txt['paid_could_not_find_member'], $member_id));
+}
 $member_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
 
 // Get the subscription details.
-$request = Db::$db->query('', '
-	SELECT cost, length, name
+$request = Db::$db->query(
+	'',
+	'SELECT cost, length, name
 	FROM {db_prefix}subscriptions
 	WHERE id_subscribe = {int:current_subscription}',
-	array(
+	[
 		'current_subscription' => $subscription_id,
-	)
+	],
 );
 
 // Didn't find it?
-if (Db::$db->num_rows($request) === 0)
+if (Db::$db->num_rows($request) === 0) {
 	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription'], $member_id, $subscription_id));
+}
 
 $subscription_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
 
 // We wish to check the pending payments to make sure we are expecting this.
-$request = Db::$db->query('', '
-	SELECT id_sublog, payments_pending, pending_details, end_time
+$request = Db::$db->query(
+	'',
+	'SELECT id_sublog, payments_pending, pending_details, end_time
 	FROM {db_prefix}log_subscribed
 	WHERE id_subscribe = {int:current_subscription}
 		AND id_member = {int:current_member}
 	LIMIT 1',
-	array(
+	[
 		'current_subscription' => $subscription_id,
 		'current_member' => $member_id,
-	)
+	],
 );
-if (Db::$db->num_rows($request) === 0)
+
+if (Db::$db->num_rows($request) === 0) {
 	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription_log'], $member_id, $subscription_id));
+}
 $subscription_info += Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
 
 // Is this a refund etc?
-if ($gatewayClass->isRefund())
-{
+if ($gatewayClass->isRefund()) {
 	// If the end time subtracted by current time, is not greater
 	// than the duration (ie length of subscription), then we close it.
-	if ($subscription_info['end_time'] - time() < $subscription_info['length'])
-	{
+	if ($subscription_info['end_time'] - time() < $subscription_info['length']) {
 		// Delete user subscription.
 		Subscriptions::remove($subscription_id, $member_id);
 		$subscription_act = time();
 		$status = 0;
-	}
-	else
-	{
+	} else {
 		Subscriptions::getAll();
 		$subscription_act = $subscription_info['end_time'] - Subscriptions::$all[$subscription_id]['num_length'];
 		$status = 1;
 	}
 
 	// Mark it as complete so we have a record.
-	Db::$db->query('', '
-		UPDATE {db_prefix}log_subscribed
+	Db::$db->query(
+		'',
+		'UPDATE {db_prefix}log_subscribed
 		SET end_time = {int:current_time}
 		WHERE id_subscribe = {int:current_subscription}
 			AND id_member = {int:current_member}
 			AND status = {int:status}',
-		array(
+		[
 			'current_time' => $subscription_act,
 			'current_subscription' => $subscription_id,
 			'current_member' => $member_id,
 			'status' => $status,
-		)
+		],
 	);
 
 	// Receipt?
-	if (!empty(Config::$modSettings['paid_email']) && Config::$modSettings['paid_email'] == 2)
-	{
-		$replacements = array(
+	if (!empty(Config::$modSettings['paid_email']) && Config::$modSettings['paid_email'] == 2) {
+		$replacements = [
 			'NAME' => $subscription_info['name'],
 			'REFUNDNAME' => $member_info['member_name'],
 			'REFUNDUSER' => $member_info['real_name'],
 			'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member_id,
 			'DATE' => Time::create('now')->format(null, false),
-		);
+		];
 
 		ACP::emailAdmins('paid_subscription_refund', $replacements, $notify_users);
 	}
 
 }
 // Otherwise is it what we want, a purchase?
-elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
-{
+elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription()) {
 	$cost = Utils::jsonDecode($subscription_info['cost'], true);
 	$total_cost = $gatewayClass->getCost();
 	$notify = false;
 
 	// For one off's we want to only capture them once!
-	if (!$gatewayClass->isSubscription())
-	{
+	if (!$gatewayClass->isSubscription()) {
 		$real_details = Utils::jsonDecode($subscription_info['pending_details'], true);
-		if (empty($real_details))
+
+		if (empty($real_details)) {
 			generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
+		}
 
 		// Now we just try to find anything pending.
 		// We don't really care which it is as security happens later.
-		foreach ($real_details as $id => $detail)
-		{
+		foreach ($real_details as $id => $detail) {
 			unset($real_details[$id]);
-			if ($detail[3] == 'payback' && $subscription_info['payments_pending'])
+
+			if ($detail[3] == 'payback' && $subscription_info['payments_pending']) {
 				$subscription_info['payments_pending']--;
+			}
 			break;
 		}
 
 		$subscription_info['pending_details'] = empty($real_details) ? '' : Utils::jsonEncode($real_details);
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}log_subscribed
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_subscribed
 			SET payments_pending = {int:payments_pending}, pending_details = {string:pending_details}
 			WHERE id_sublog = {int:current_subscription_item}',
-			array(
+			[
 				'payments_pending' => $subscription_info['payments_pending'],
 				'current_subscription_item' => $subscription_info['id_sublog'],
 				'pending_details' => $subscription_info['pending_details'],
-			)
+			],
 		);
 	}
 
 	// Is this flexible?
-	if ($subscription_info['length'] == 'F')
-	{
+	if ($subscription_info['length'] == 'F') {
 		$found_duration = 0;
 
 		// This is a little harder, can we find the right duration?
-		foreach ($cost as $duration => $value)
-		{
-			if ($duration == 'fixed')
+		foreach ($cost as $duration => $value) {
+			if ($duration == 'fixed') {
 				continue;
-			elseif ((float) $value == (float) $total_cost)
+			}
+
+			if ((float) $value == (float) $total_cost) {
 				$found_duration = strtoupper(substr($duration, 0, 1));
+			}
 		}
 
 		// If we have the duration then we're done.
-		if ($found_duration !== 0)
-		{
+		if ($found_duration !== 0) {
 			$notify = true;
 			Subscriptions::add($subscription_id, $member_id, $found_duration);
 		}
-	}
-	else
-	{
+	} else {
 		$actual_cost = $cost['fixed'];
 
 		// It must be at least the right amount.
-		if ($total_cost != 0 && $total_cost >= $actual_cost)
-		{
+		if ($total_cost != 0 && $total_cost >= $actual_cost) {
 			// Add the subscription.
 			$notify = true;
 			Subscriptions::add($subscription_id, $member_id);
@@ -261,9 +270,8 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 	}
 
 	// Send a receipt?
-	if (!empty(Config::$modSettings['paid_email']) && Config::$modSettings['paid_email'] == 2 && $notify)
-	{
-		$replacements = array(
+	if (!empty(Config::$modSettings['paid_email']) && Config::$modSettings['paid_email'] == 2 && $notify) {
+		$replacements = [
 			'NAME' => $subscription_info['name'],
 			'SUBNAME' => $member_info['member_name'],
 			'SUBUSER' => $member_info['real_name'],
@@ -271,61 +279,58 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 			'PRICE' => sprintf(Config::$modSettings['paid_currency_symbol'], $total_cost),
 			'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member_id,
 			'DATE' => Time::create('now')->format(null, false),
-		);
+		];
 
 		ACP::emailAdmins('paid_subscription_new', $replacements, $notify_users);
 	}
 }
 // Maybe they're cancelling. Some subscriptions may require actively doing something, but PayPal doesn't, for example.
-elseif ($gatewayClass->isCancellation())
-{
-	if (method_exists($gatewayClass, 'performCancel'))
+elseif ($gatewayClass->isCancellation()) {
+	if (method_exists($gatewayClass, 'performCancel')) {
 		$gatewayClass->performCancel($subscription_id, $member_id, $subscription_info);
+	}
 }
-else
-{
-	// Some other "valid" transaction such as:
-	//
-	// subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
-	// It then does not fire in any event later. This response is received somewhere before or after the first payment of
-	// subscription is received (txn_type=subscr_payment) which is what we do process
-	//
-	// Should we log any of these ...
-}
+
+// Some other "valid" transaction such as:
+//
+// subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
+// It then does not fire in any event later. This response is received somewhere before or after the first payment of
+// subscription is received (txn_type=subscr_payment) which is what we do process
+//
+// Should we log any of these ...
 
 // In case we have anything specific to do.
 $gatewayClass->close();
 
 // Hidden setting to log the IPN info for debugging purposes.
-if ($paid_debug === true)
+if ($paid_debug === true) {
 	generateSubscriptionError(Lang::$txt['subscription'], true);
+}
 
 /**
  * Log an error then exit
  *
  * @param string $text The error to log
  * @param bool $debug If true, won't send an email if Config::$modSettings['paid_email'] isn't set
- * @return void
  */
 function generateSubscriptionError($text, $debug = false)
 {
 	global $notify_users;
 
 	// Send an email?
-	if (!empty(Config::$modSettings['paid_email']) && !$debug)
-	{
-		$replacements = array(
+	if (!empty(Config::$modSettings['paid_email']) && !$debug) {
+		$replacements = [
 			'ERROR' => $text,
-		);
+		];
 
 		ACP::emailAdmins('paid_subscription_error', $replacements, $notify_users);
 	}
 
 	// Maybe we can try to give them the post data?
-	if (!empty($_POST))
-	{
-		foreach ($_POST as $key => $val)
+	if (!empty($_POST)) {
+		foreach ($_POST as $key => $val) {
 			$text .= '<br>' . Utils::htmlspecialchars($key) . ': ' . Utils::htmlspecialchars($val);
+		}
 	}
 
 	// Then just log and die.

@@ -30,7 +30,7 @@ class Config
 	 */
 	public static bool $backward_compatibility = true;
 
-	########## Maintenance ##########
+	# ######### Maintenance ##########
 	/**
 	 * @var int 0, 1, 2
 	 *
@@ -53,7 +53,7 @@ class Config
 	 */
 	public static $mmessage;
 
-	########## Forum info ##########
+	# ######### Forum info ##########
 	/**
 	 * @var string
 	 *
@@ -85,7 +85,7 @@ class Config
 	 */
 	public static $cookiename;
 
-	########## Database info ##########
+	# ######### Database info ##########
 	/**
 	 * @var string
 	 *
@@ -163,7 +163,7 @@ class Config
 	 */
 	public static $db_mb4;
 
-	########## Cache info ##########
+	# ######### Cache info ##########
 	/**
 	 * @var string
 	 *
@@ -199,7 +199,7 @@ class Config
 	 */
 	public static $cachedir_sqlite;
 
-	########## Image proxy ##########
+	# ######### Image proxy ##########
 	/**
 	 * @var bool
 	 *
@@ -219,7 +219,7 @@ class Config
 	 */
 	public static $image_proxy_maxsize;
 
-	########## Directories/Files ##########
+	# ######### Directories/Files ##########
 	# Note: These directories do not have to be changed unless you move things.
 	/**
 	 * @var string
@@ -246,7 +246,7 @@ class Config
 	 */
 	public static $tasksdir;
 
-	######### Legacy settings #########
+	# ######## Legacy settings #########
 	/**
 	 * @var string
 	 *
@@ -254,7 +254,7 @@ class Config
 	 */
 	public static $db_character_set;
 
-	######### Developer settings #########
+	# ######## Developer settings #########
 	/**
 	 * @var bool
 	 *
@@ -269,21 +269,21 @@ class Config
 	 */
 	public static $db_last_error;
 
-	######### Custom settings #########
+	# ######## Custom settings #########
 	/**
 	 * @var array
 	 *
 	 * Holds any custom settings found in Settings.php.
 	 */
-	public static $custom = array();
+	public static $custom = [];
 
-	######### Runtime configuration values #########
+	# ######## Runtime configuration values #########
 	/**
 	 * @var array
 	 *
 	 * Holds settings loaded from the settings table in the database.
 	 */
-	public static $modSettings = array();
+	public static $modSettings = [];
 
 	/**
 	 * @var string
@@ -344,8 +344,8 @@ class Config
 	 *   expression to decide where the replacement entry should be inserted.
 	 *   Note: 'replace_pattern' should be avoided unless ABSOLUTELY necessary.
 	 */
-	protected static $settings_defs = array(
-		array(
+	protected static $settings_defs = [
+		[
 			'text' =>
 				"\n" .
 				'/**' . "\n" .
@@ -362,8 +362,8 @@ class Config
 				' */' . "\n" .
 				'',
 			'search_pattern' => '~/\*\*.*?@package\h+SMF\b.*?\*/\n{0,2}~s',
-		),
-		'maintenance' => array(
+		],
+		'maintenance' => [
 			'text' => <<<'END'
 
 				########## Maintenance ##########
@@ -378,8 +378,8 @@ class Config
 				END,
 			'default' => 0,
 			'type' => 'integer',
-		),
-		'mtitle' => array(
+		],
+		'mtitle' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -389,8 +389,8 @@ class Config
 				END,
 			'default' => 'Maintenance Mode',
 			'type' => 'string',
-		),
-		'mmessage' => array(
+		],
+		'mmessage' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -400,8 +400,8 @@ class Config
 				END,
 			'default' => 'Okay faithful users...we\'re attempting to restore an older backup of the database...news will be posted once we\'re back!',
 			'type' => 'string',
-		),
-		'mbname' => array(
+		],
+		'mbname' => [
 			'text' => <<<'END'
 
 				########## Forum Info ##########
@@ -413,8 +413,8 @@ class Config
 				END,
 			'default' => 'My Community',
 			'type' => 'string',
-		),
-		'language' => array(
+		],
+		'language' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -424,8 +424,8 @@ class Config
 				END,
 			'default' => 'english',
 			'type' => 'string',
-		),
-		'boardurl' => array(
+		],
+		'boardurl' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -435,8 +435,8 @@ class Config
 				END,
 			'default' => 'http://127.0.0.1/smf',
 			'type' => 'string',
-		),
-		'webmaster_email' => array(
+		],
+		'webmaster_email' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -446,8 +446,8 @@ class Config
 				END,
 			'default' => 'noreply@myserver.com',
 			'type' => 'string',
-		),
-		'cookiename' => array(
+		],
+		'cookiename' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -457,8 +457,8 @@ class Config
 				END,
 			'default' => 'SMFCookie11',
 			'type' => 'string',
-		),
-		'auth_secret' => array(
+		],
+		'auth_secret' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -474,8 +474,8 @@ class Config
 			'default' => null,
 			'auto_delete' => 1,
 			'type' => 'string',
-		),
-		'db_type' => array(
+		],
+		'db_type' => [
 			'text' => <<<'END'
 
 				########## Database Info ##########
@@ -488,8 +488,8 @@ class Config
 				END,
 			'default' => 'mysql',
 			'type' => 'string',
-		),
-		'db_port' => array(
+		],
+		'db_port' => [
 			'text' => <<<'END'
 				/**
 				 * @var int
@@ -500,8 +500,8 @@ class Config
 				END,
 			'default' => 0,
 			'type' => 'integer',
-		),
-		'db_server' => array(
+		],
+		'db_server' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -512,8 +512,8 @@ class Config
 			'default' => 'localhost',
 			'required' => true,
 			'type' => 'string',
-		),
-		'db_name' => array(
+		],
+		'db_name' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -524,8 +524,8 @@ class Config
 			'default' => 'smf',
 			'required' => true,
 			'type' => 'string',
-		),
-		'db_user' => array(
+		],
+		'db_user' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -536,8 +536,8 @@ class Config
 			'default' => 'root',
 			'required' => true,
 			'type' => 'string',
-		),
-		'db_passwd' => array(
+		],
+		'db_passwd' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -549,8 +549,8 @@ class Config
 			'required' => true,
 			'type' => 'string',
 			'is_password' => true,
-		),
-		'ssi_db_user' => array(
+		],
+		'ssi_db_user' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -560,8 +560,8 @@ class Config
 				END,
 			'default' => '',
 			'type' => 'string',
-		),
-		'ssi_db_passwd' => array(
+		],
+		'ssi_db_passwd' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -572,8 +572,8 @@ class Config
 			'default' => '',
 			'type' => 'string',
 			'is_password' => true,
-		),
-		'db_prefix' => array(
+		],
+		'db_prefix' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -585,8 +585,8 @@ class Config
 			'default' => 'smf_',
 			'required' => true,
 			'type' => 'string',
-		),
-		'db_persist' => array(
+		],
+		'db_persist' => [
 			'text' => <<<'END'
 				/**
 				 * @var bool
@@ -596,8 +596,8 @@ class Config
 				END,
 			'default' => false,
 			'type' => 'boolean',
-		),
-		'db_error_send' => array(
+		],
+		'db_error_send' => [
 			'text' => <<<'END'
 				/**
 				 * @var bool
@@ -607,8 +607,8 @@ class Config
 				END,
 			'default' => false,
 			'type' => 'boolean',
-		),
-		'db_mb4' => array(
+		],
+		'db_mb4' => [
 			'text' => <<<'END'
 				/**
 				 * @var null|bool
@@ -618,9 +618,9 @@ class Config
 				 */
 				END,
 			'default' => null,
-			'type' => array('NULL', 'boolean'),
-		),
-		'cache_accelerator' => array(
+			'type' => ['NULL', 'boolean'],
+		],
+		'cache_accelerator' => [
 			'text' => <<<'END'
 
 				########## Cache Info ##########
@@ -633,8 +633,8 @@ class Config
 				END,
 			'default' => '',
 			'type' => 'string',
-		),
-		'cache_enable' => array(
+		],
+		'cache_enable' => [
 			'text' => <<<'END'
 				/**
 				 * @var int
@@ -645,8 +645,8 @@ class Config
 				END,
 			'default' => 0,
 			'type' => 'integer',
-		),
-		'cache_memcached' => array(
+		],
+		'cache_memcached' => [
 			'text' => <<<'END'
 				/**
 				 * @var array
@@ -657,8 +657,8 @@ class Config
 				END,
 			'default' => '',
 			'type' => 'string',
-		),
-		'cachedir' => array(
+		],
+		'cachedir' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -669,8 +669,8 @@ class Config
 			'default' => 'dirname(__FILE__) . \'/cache\'',
 			'raw_default' => true,
 			'type' => 'string',
-		),
-		'cachedir_sqlite' => array(
+		],
+		'cachedir_sqlite' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -682,8 +682,8 @@ class Config
 			'default' => '',
 			'auto_delete' => 2,
 			'type' => 'string',
-		),
-		'image_proxy_enabled' => array(
+		],
+		'image_proxy_enabled' => [
 			'text' => <<<'END'
 
 				########## Image Proxy ##########
@@ -695,8 +695,8 @@ class Config
 				END,
 			'default' => true,
 			'type' => 'boolean',
-		),
-		'image_proxy_secret' => array(
+		],
+		'image_proxy_secret' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -706,8 +706,8 @@ class Config
 				END,
 			'default' => 'smfisawesome',
 			'type' => 'string',
-		),
-		'image_proxy_maxsize' => array(
+		],
+		'image_proxy_maxsize' => [
 			'text' => <<<'END'
 				/**
 				 * @var int
@@ -717,8 +717,8 @@ class Config
 				END,
 			'default' => 5192,
 			'type' => 'integer',
-		),
-		'boarddir' => array(
+		],
+		'boarddir' => [
 			'text' => <<<'END'
 
 				########## Directories/Files ##########
@@ -732,8 +732,8 @@ class Config
 			'default' => 'dirname(__FILE__)',
 			'raw_default' => true,
 			'type' => 'string',
-		),
-		'sourcedir' => array(
+		],
+		'sourcedir' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -744,8 +744,8 @@ class Config
 			'default' => 'dirname(__FILE__) . \'/Sources\'',
 			'raw_default' => true,
 			'type' => 'string',
-		),
-		'packagesdir' => array(
+		],
+		'packagesdir' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -756,8 +756,8 @@ class Config
 			'default' => 'dirname(__FILE__) . \'/Packages\'',
 			'raw_default' => true,
 			'type' => 'string',
-		),
-		'tasksdir' => array(
+		],
+		'tasksdir' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
@@ -765,11 +765,11 @@ class Config
 				 * Path to the tasks directory.
 				 */
 				END,
-			'default' => '$sourcedir . \'/tasks\'',
+			'default' => '$sourcedir . \'/Tasks\'',
 			'raw_default' => true,
 			'type' => 'string',
-		),
-		array(
+		],
+		[
 			'text' => <<<'END'
 
 				# Make sure the paths are correct... at least try to fix them.
@@ -777,16 +777,16 @@ class Config
 					$boarddir = dirname(__FILE__);
 				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
-					$tasksdir = $sourcedir . '/tasks';
+				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
+					$tasksdir = $sourcedir . '/Tasks';
 				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 					$packagesdir = $boarddir . '/Packages';
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 					$cachedir = $boarddir . '/cache';
 				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
-		),
-		'db_character_set' => array(
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
+		],
+		'db_character_set' => [
 			'text' => <<<'END'
 
 				######### Legacy Settings #########
@@ -798,8 +798,8 @@ class Config
 				END,
 			'default' => 'utf8',
 			'type' => 'string',
-		),
-		'db_show_debug' => array(
+		],
+		'db_show_debug' => [
 			'text' => <<<'END'
 
 				######### Developer Settings #########
@@ -812,8 +812,8 @@ class Config
 			'default' => false,
 			'auto_delete' => 2,
 			'type' => 'boolean',
-		),
-		array(
+		],
+		[
 			'text' => <<<'END'
 
 				########## Error-Catching ##########
@@ -830,20 +830,20 @@ class Config
 				END,
 			// Designed to match both 2.0 and 2.1 versions of this code.
 			'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
-		),
+		],
 		// Temporary variable used during the upgrade process.
-		'upgradeData' => array(
+		'upgradeData' => [
 			'default' => '',
 			'auto_delete' => 1,
 			'type' => 'string',
-		),
+		],
 		// This should be removed if found.
-		'db_last_error' => array(
+		'db_last_error' => [
 			'default' => 0,
 			'auto_delete' => 1,
 			'type' => 'integer',
-		),
-	);
+		],
+	];
 
 	/**
 	 * @var string
@@ -878,14 +878,12 @@ class Config
 	public static function load(): void
 	{
 		// Load Settings.php.
-		if (!in_array(SMF_SETTINGS_FILE, get_included_files()))
-		{
-			require(SMF_SETTINGS_FILE);
+		if (!in_array(SMF_SETTINGS_FILE, get_included_files())) {
+			require SMF_SETTINGS_FILE;
 		}
 		// If it has already been included, make sure to avoid possible problems
 		// with already defined constants, etc.
-		else
-		{
+		else {
 			extract((array) self::getCurrentSettings(filemtime(SMF_SETTINGS_FILE), SMF_SETTINGS_FILE));
 		}
 
@@ -900,31 +898,27 @@ class Config
 	 */
 	public static function set(array $settings): void
 	{
-		foreach ($settings as $var => $val)
-		{
-			if (property_exists(__CLASS__, $var))
+		foreach ($settings as $var => $val) {
+			if (property_exists(__CLASS__, $var)) {
 				self::${$var} = $val;
-			else
+			} else {
 				self::$custom[$var] = $val;
+			}
 		}
 
 		// Anything missing?
 		$class_vars = get_class_vars(__CLASS__);
-		foreach ($class_vars['settings_defs'] as $var => $def)
-		{
-			if (is_string($var) && property_exists(__CLASS__, $var) && !isset(self::${$var}))
-			{
-				if (!empty($def['raw_default']))
-				{
-					$default = strtr($def['default'], array(
+
+		foreach ($class_vars['settings_defs'] as $var => $def) {
+			if (is_string($var) && property_exists(__CLASS__, $var) && !isset(self::${$var})) {
+				if (!empty($def['raw_default'])) {
+					$default = strtr($def['default'], [
 						'__FILE__' => var_export(SMF_SETTINGS_FILE, true),
 						'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
-					));
+					]);
 
 					self::${$var} = eval($default);
-				}
-				else
-				{
+				} else {
 					self::${$var} = $def['default'];
 				}
 
@@ -934,42 +928,33 @@ class Config
 		}
 
 		// Ensure there are no trailing slashes in these settings.
-		foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir') as $var)
-		{
-			self::${$var} = rtrim(self::${$var}, "\\/");
+		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir'] as $var) {
+			self::${$var} = rtrim(self::${$var}, '\\/');
 		}
 
 		// Make sure the paths are correct... at least try to fix them.
 		// @todo Remove similar path correction code from Settings.php.
-		if (empty(self::$boarddir) || !is_dir(realpath(self::$boarddir)))
-		{
+		if (empty(self::$boarddir) || !is_dir(realpath(self::$boarddir))) {
 			self::$boarddir = !empty($_SERVER['SCRIPT_FILENAME']) ? dirname(realpath($_SERVER['SCRIPT_FILENAME'])) : dirname(__DIR__);
 		}
 
-		if ((empty(self::$sourcedir) || !is_dir(realpath(self::$sourcedir))) && is_dir(self::$boarddir . '/Sources'))
-		{
+		if ((empty(self::$sourcedir) || !is_dir(realpath(self::$sourcedir))) && is_dir(self::$boarddir . '/Sources')) {
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
-		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/tasks'))
-		{
-			self::$tasksdir = self::$sourcedir . '/tasks';
+		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/Tasks')) {
+			self::$tasksdir = self::$sourcedir . '/Tasks';
 		}
 
-		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages'))
-		{
+		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
 		}
 
 		// Make absolutely sure the cache directory is defined and writable.
-		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir))
-		{
-			if (is_dir(self::$boarddir . '/cache') && is_writable(self::$boarddir . '/cache'))
-			{
+		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
+			if (is_dir(self::$boarddir . '/cache') && is_writable(self::$boarddir . '/cache')) {
 				self::$cachedir = self::$boarddir . '/cache';
-			}
-			else
-			{
+			} else {
 				self::$cachedir = self::getTempDir() . '/smf_cache_' . md5(self::$boarddir);
 				@mkdir(self::$cachedir, 0750);
 			}
@@ -980,16 +965,11 @@ class Config
 
 		// For backward compatibility, make settings available as global variables.
 		// Must do this manually because SMF\BackwardCompatibility is not loaded yet.
-		if (self::$backward_compatibility && !self::$exported)
-		{
-			foreach ($settings as $var => $val)
-			{
-				if (property_exists(__CLASS__, $var))
-				{
+		if (self::$backward_compatibility && !self::$exported) {
+			foreach ($settings as $var => $val) {
+				if (property_exists(__CLASS__, $var)) {
 					$GLOBALS[$var] = &self::${$var};
-				}
-				else
-				{
+				} else {
 					$GLOBALS[$var] = &self::$custom[$var];
 				}
 			}
@@ -998,7 +978,7 @@ class Config
 			$GLOBALS['scripturl'] = &self::$scripturl;
 
 			eval('function reloadSettings() { return ' . __CLASS__ . '::reloadModSettings(); }');
-			eval('function updateSettings() { return ' . __CLASS__ . '::updateModSettings(); }');
+			eval('function updateSettings(...$args) { return ' . __CLASS__ . '::updateModSettings(...$args); }');
 			eval('function get_auth_secret() { return ' . __CLASS__ . '::getAuthSecret(); }');
 			eval('function get_settings_defs() { return ' . __CLASS__ . '::getSettingsDefs(); }');
 			eval('function updateSettingsFile(...$args) { return ' . __CLASS__ . '::updateSettingsFile(...$args); }');
@@ -1024,56 +1004,52 @@ class Config
 		Cache\CacheApi::load();
 
 		// Try to load it from the cache first; it'll never get cached if the setting is off.
-		if ((self::$modSettings = Cache\CacheApi::get('modSettings', 90)) == null)
-		{
-			self::$modSettings = array();
+		if ((self::$modSettings = Cache\CacheApi::get('modSettings', 90)) == null) {
+			self::$modSettings = [];
 
-			$request = Db\DatabaseApi::$db->query('', '
-				SELECT variable, value
+			$request = Db\DatabaseApi::$db->query(
+				'',
+				'SELECT variable, value
 				FROM {db_prefix}settings',
-				array(
-				)
+				[
+				],
 			);
-			if (!$request)
-			{
+
+			if (!$request) {
 				ErrorHandler::displayDbError();
 			}
-			foreach (Db\DatabaseApi::$db->fetch_all($request) as $row)
-			{
+
+			foreach (Db\DatabaseApi::$db->fetch_all($request) as $row) {
 				self::$modSettings[$row['variable']] = $row['value'];
 			}
 			Db\DatabaseApi::$db->free_result($request);
 
 			// Do a few things to protect against missing settings or settings with invalid values...
-			if (empty(self::$modSettings['defaultMaxTopics']) || self::$modSettings['defaultMaxTopics'] <= 0 || self::$modSettings['defaultMaxTopics'] > 999)
-			{
+			if (empty(self::$modSettings['defaultMaxTopics']) || self::$modSettings['defaultMaxTopics'] <= 0 || self::$modSettings['defaultMaxTopics'] > 999) {
 				self::$modSettings['defaultMaxTopics'] = 20;
 			}
 
-			if (empty(self::$modSettings['defaultMaxMessages']) || self::$modSettings['defaultMaxMessages'] <= 0 || self::$modSettings['defaultMaxMessages'] > 999)
-			{
+			if (empty(self::$modSettings['defaultMaxMessages']) || self::$modSettings['defaultMaxMessages'] <= 0 || self::$modSettings['defaultMaxMessages'] > 999) {
 				self::$modSettings['defaultMaxMessages'] = 15;
 			}
 
-			if (empty(self::$modSettings['defaultMaxMembers']) || self::$modSettings['defaultMaxMembers'] <= 0 || self::$modSettings['defaultMaxMembers'] > 999)
-			{
+			if (empty(self::$modSettings['defaultMaxMembers']) || self::$modSettings['defaultMaxMembers'] <= 0 || self::$modSettings['defaultMaxMembers'] > 999) {
 				self::$modSettings['defaultMaxMembers'] = 30;
 			}
 
-			if (empty(self::$modSettings['defaultMaxListItems']) || self::$modSettings['defaultMaxListItems'] <= 0 || self::$modSettings['defaultMaxListItems'] > 999)
-			{
+			if (empty(self::$modSettings['defaultMaxListItems']) || self::$modSettings['defaultMaxListItems'] <= 0 || self::$modSettings['defaultMaxListItems'] > 999) {
 				self::$modSettings['defaultMaxListItems'] = 15;
 			}
 
-			if (!is_array(self::$modSettings['attachmentUploadDir']))
-			{
+			if (!is_array(self::$modSettings['attachmentUploadDir'])) {
 				$attachmentUploadDir = Utils::jsonDecode(self::$modSettings['attachmentUploadDir'], true, false);
 
 				self::$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : self::$modSettings['attachmentUploadDir'];
 			}
 
-			if (!empty(Cache\CacheApi::$enable))
+			if (!empty(Cache\CacheApi::$enable)) {
 				Cache\CacheApi::put('modSettings', self::$modSettings, 90);
+			}
 		}
 
 		// Going anything further when the files don't match the database can make nasty messes (unless we're actively installing or upgrading)
@@ -1087,18 +1063,18 @@ class Config
 			)
 			&& !empty(self::$modSettings['smfVersion'])
 			&& version_compare(
-				strtolower(strtr(self::$modSettings['smfVersion'], array(' ' => '.'))),
-				strtolower(strtr(SMF_VERSION, array(' ' => '.'))),
-				'!='
+				strtolower(strtr(self::$modSettings['smfVersion'], [' ' => '.'])),
+				strtolower(strtr(SMF_VERSION, [' ' => '.'])),
+				'!=',
 			)
-		)
-		{
+		) {
 			// Wipe the cached self::$modSettings values so they don't interfere with anything later.
 			Cache\CacheApi::put('modSettings', null);
 
 			// Redirect to the upgrader if we can.
-			if (file_exists(self::$boarddir . '/upgrade.php'))
+			if (file_exists(self::$boarddir . '/upgrade.php')) {
 				header('location: ' . self::$boardurl . '/upgrade.php');
+			}
 
 			die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . self::$modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 		}
@@ -1109,77 +1085,64 @@ class Config
 		self::$modSettings['browser_cache'] = !empty(self::$modSettings['browser_cache']) ? (int) self::$modSettings['browser_cache'] : 0;
 
 		// Disable image proxy if we don't have SSL enabled
-		if (empty(self::$modSettings['force_ssl']))
+		if (empty(self::$modSettings['force_ssl'])) {
 			self::$image_proxy_enabled = false;
+		}
 
 		// Setting the timezone is a requirement for some functions.
-		if (isset(self::$modSettings['default_timezone']) && in_array(self::$modSettings['default_timezone'], timezone_identifiers_list()))
-		{
+		if (isset(self::$modSettings['default_timezone']) && in_array(self::$modSettings['default_timezone'], timezone_identifiers_list())) {
 			date_default_timezone_set(self::$modSettings['default_timezone']);
-		}
-		else
-		{
+		} else {
 			// Get PHP's default timezone, if set
 			$ini_tz = ini_get('date.timezone');
 
 			self::$modSettings['default_timezone'] = !empty($ini_tz) ? $ini_tz : '';
 
 			// If date.timezone is unset, invalid, or just plain weird, make a best guess
-			if (!in_array(self::$modSettings['default_timezone'], timezone_identifiers_list()))
-			{
+			if (!in_array(self::$modSettings['default_timezone'], timezone_identifiers_list())) {
 				$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 				self::$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
 
-				if (empty(self::$modSettings['default_timezone']))
+				if (empty(self::$modSettings['default_timezone'])) {
 					self::$modSettings['default_timezone'] = 'UTC';
+				}
 			}
 
 			date_default_timezone_set(self::$modSettings['default_timezone']);
 		}
 
 		// Check the load averages?
-		if (!empty(self::$modSettings['loadavg_enable']))
-		{
-			if ((self::$modSettings['load_average'] = Cache\CacheApi::get('loadavg', 90)) == null)
-			{
+		if (!empty(self::$modSettings['loadavg_enable'])) {
+			if ((self::$modSettings['load_average'] = Cache\CacheApi::get('loadavg', 90)) == null) {
 				self::$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 
-				if (!empty(self::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', self::$modSettings['load_average'], $matches) != 0)
-				{
+				if (!empty(self::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', self::$modSettings['load_average'], $matches) != 0) {
 					self::$modSettings['load_average'] = (float) $matches[1];
-				}
-				elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0)
-				{
+				} elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0) {
 					self::$modSettings['load_average'] = (float) $matches[1];
-				}
-				else
-				{
+				} else {
 					unset(self::$modSettings['load_average']);
 				}
 
-				if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0)
-				{
+				if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0) {
 					Cache\CacheApi::put('loadavg', self::$modSettings['load_average'], 90);
 				}
 			}
 
-			if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0)
-			{
-				IntegrationHook::call('integrate_load_average', array(self::$modSettings['load_average']));
+			if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0) {
+				IntegrationHook::call('integrate_load_average', [self::$modSettings['load_average']]);
 			}
 
-			if (!empty(self::$modSettings['loadavg_forum']) && !empty(self::$modSettings['load_average']) && self::$modSettings['load_average'] >= self::$modSettings['loadavg_forum'])
-			{
+			if (!empty(self::$modSettings['loadavg_forum']) && !empty(self::$modSettings['load_average']) && self::$modSettings['load_average'] >= self::$modSettings['loadavg_forum']) {
 				ErrorHandler::displayLoadAvgError();
 			}
 		}
 
 		// Ensure we know who can manage boards.
-		if (!isset(self::$modSettings['board_manager_groups']))
-		{
+		if (!isset(self::$modSettings['board_manager_groups'])) {
 			$board_managers = User::groupsAllowedTo('manage_boards', null);
 			$board_managers = implode(',', $board_managers['allowed']);
-			Config::updateModSettings(array('board_manager_groups' => $board_managers));
+			Config::updateModSettings(['board_manager_groups' => $board_managers]);
 		}
 
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
@@ -1188,12 +1151,11 @@ class Config
 		// Here to justify the name of this function. :P
 		// It should be added to the install and upgrade scripts.
 		// But since the converters need to be updated also. This is easier.
-		if (empty(self::$modSettings['currentAttachmentUploadDir']))
-		{
-			Config::updateModSettings(array(
-				'attachmentUploadDir' => Utils::jsonEncode(array(1 => self::$modSettings['attachmentUploadDir'])),
+		if (empty(self::$modSettings['currentAttachmentUploadDir'])) {
+			Config::updateModSettings([
+				'attachmentUploadDir' => Utils::jsonEncode([1 => self::$modSettings['attachmentUploadDir']]),
 				'currentAttachmentUploadDir' => 1,
-			));
+			]);
 		}
 
 		// Respect PHP's limits.
@@ -1204,25 +1166,24 @@ class Config
 		self::$modSettings['attachmentNumPerPostLimit'] = !isset(self::$modSettings['attachmentNumPerPostLimit']) ? 4 : self::$modSettings['attachmentNumPerPostLimit'];
 
 		// Integration is cool.
-		if (defined('SMF_INTEGRATION_SETTINGS'))
-		{
+		if (defined('SMF_INTEGRATION_SETTINGS')) {
 			$integration_settings = Utils::jsonDecode(SMF_INTEGRATION_SETTINGS, true);
 
-			foreach ($integration_settings as $hook => $function)
+			foreach ($integration_settings as $hook => $function) {
 				IntegrationHook::add($hook, $function, false);
+			}
 		}
 
 		// Any files to pre include?
-		if (!empty(self::$modSettings['integrate_pre_include']))
-		{
+		if (!empty(self::$modSettings['integrate_pre_include'])) {
 			$pre_includes = explode(',', self::$modSettings['integrate_pre_include']);
 
-			foreach ($pre_includes as $include)
-			{
-				$include = strtr(trim($include), array('$boarddir' => self::$boarddir, '$sourcedir' => self::$sourcedir));
+			foreach ($pre_includes as $include) {
+				$include = strtr(trim($include), ['$boarddir' => self::$boarddir, '$sourcedir' => self::$sourcedir]);
 
-				if (file_exists($include))
-					require_once($include);
+				if (file_exists($include)) {
+					require_once $include;
+				}
 			}
 		}
 
@@ -1252,16 +1213,15 @@ class Config
 	 */
 	public static function updateModSettings(array $change_array, bool $update = false): void
 	{
-		if (empty($change_array) || !is_array($change_array))
+		if (empty($change_array) || !is_array($change_array)) {
 			return;
+		}
 
-		$to_remove = array();
+		$to_remove = [];
 
 		// Go check if there is any setting to be removed.
-		foreach ($change_array as $k => $v)
-		{
-			if ($v === null)
-			{
+		foreach ($change_array as $k => $v) {
+			if ($v === null) {
 				// Found some, remove them from the original array and add them to ours.
 				unset($change_array[$k]);
 				$to_remove[] = $k;
@@ -1269,30 +1229,29 @@ class Config
 		}
 
 		// Proceed with the deletion.
-		if (!empty($to_remove))
-		{
-			Db\DatabaseApi::$db->query('', '
-				DELETE FROM {db_prefix}settings
+		if (!empty($to_remove)) {
+			Db\DatabaseApi::$db->query(
+				'',
+				'DELETE FROM {db_prefix}settings
 				WHERE variable IN ({array_string:remove})',
-				array(
+				[
 					'remove' => $to_remove,
-				)
+				],
 			);
 		}
 
 		// In some cases, this may be better and faster, but for large sets we don't want so many UPDATEs.
-		if ($update)
-		{
-			foreach ($change_array as $variable => $value)
-			{
-				Db\DatabaseApi::$db->query('', '
-					UPDATE {db_prefix}settings
+		if ($update) {
+			foreach ($change_array as $variable => $value) {
+				Db\DatabaseApi::$db->query(
+					'',
+					'UPDATE {db_prefix}settings
 					SET value = {' . ($value === false || $value === true ? 'raw' : 'string') . ':value}
 					WHERE variable = {string:variable}',
-					array(
+					[
 						'value' => $value === true ? 'value + 1' : ($value === false ? 'value - 1' : $value),
 						'variable' => $variable,
-					)
+					],
 				);
 
 				self::$modSettings[$variable] = $value === true ? self::$modSettings[$variable] + 1 : ($value === false ? self::$modSettings[$variable] - 1 : $value);
@@ -1304,30 +1263,34 @@ class Config
 			return;
 		}
 
-		$replace_array = array();
-		foreach ($change_array as $variable => $value)
-		{
+		$replace_array = [];
+
+		foreach ($change_array as $variable => $value) {
 			// Don't bother if it's already like that ;).
-			if ((self::$modSettings[$variable] ?? null) == $value)
+			if ((self::$modSettings[$variable] ?? null) == $value) {
 				continue;
+			}
 
 			// If the variable isn't set, but would only be set to nothingness, then don't bother setting it.
-			if (!isset(self::$modSettings[$variable]) && empty($value))
+			if (!isset(self::$modSettings[$variable]) && empty($value)) {
 				continue;
+			}
 
-			$replace_array[] = array($variable, $value);
+			$replace_array[] = [$variable, $value];
 
 			self::$modSettings[$variable] = $value;
 		}
 
-		if (empty($replace_array))
+		if (empty($replace_array)) {
 			return;
+		}
 
-		Db\DatabaseApi::$db->insert('replace',
+		Db\DatabaseApi::$db->insert(
+			'replace',
 			'{db_prefix}settings',
-			array('variable' => 'string-255', 'value' => 'string-65534'),
+			['variable' => 'string-255', 'value' => 'string-65534'],
 			$replace_array,
-			array('variable')
+			['variable'],
 		);
 
 		// Kill the cache - it needs redoing now, but we won't bother ourselves with that here.
@@ -1342,25 +1305,24 @@ class Config
 	 */
 	public static function getAuthSecret(): string
 	{
-		if (empty(self::$auth_secret))
-		{
-			if (!is_callable('random_bytes'))
-				require_once(self::$sourcedir . '/random_compat/random.php');
+		if (empty(self::$auth_secret)) {
+			if (!is_callable('random_bytes')) {
+				require_once self::$sourcedir . '/random_compat/random.php';
+			}
 
 			self::$auth_secret = bin2hex(random_bytes(32));
 
 			// It is important to store this in Settings.php, not the database.
 			// If saving fails, we should alert, log, and set a static value.
-			if (!self::updateSettingsFile(array('auth_secret' => self::$auth_secret)))
-			{
-				if (class_exists('SMF\\Utils', false))
+			if (!self::updateSettingsFile(['auth_secret' => self::$auth_secret])) {
+				if (class_exists('SMF\\Utils', false)) {
 					Utils::$context['auth_secret_missing'] = true;
+				}
 
 				self::$auth_secret = hash_file('sha256', SMF_SETTINGS_FILE);
 
 				// Set the last error to now, but only every 15 minutes. Don't need to flood the logs.
-				if (empty(self::$db_last_error) || (self::$db_last_error + 60*15) <= time())
-				{
+				if (empty(self::$db_last_error) || (self::$db_last_error + 60 * 15) <= time()) {
 					self::updateDbLastError(time());
 					Lang::load('Errors');
 					ErrorHandler::log(Lang::$txt['auth_secret_missing'], 'critical');
@@ -1385,8 +1347,9 @@ class Config
 
 		// Allow mods the option to define comments, defaults, etc., for their settings.
 		// Check if IntegrationHook exists, in case we are calling from installer or upgrader.
-		if (class_exists('SMF\\IntegrationHook', false))
-			IntegrationHook::call('integrate_update_settings_file', array(&self::$settings_defs));
+		if (class_exists('SMF\\IntegrationHook', false)) {
+			IntegrationHook::call('integrate_update_settings_file', [&self::$settings_defs]);
+		}
 
 		// Return the setting definitions, including any added by mods.
 		return self::$settings_defs;
@@ -1425,37 +1388,35 @@ class Config
 	 *     Default false.
 	 * @return bool True on success, false on failure.
 	 */
-	public static function updateSettingsFile(array $config_vars, bool|null $keep_quotes = null, bool $rebuild = false): bool
+	public static function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
 	{
 		static $mtime;
 
 		// Should we try to unescape the strings?
-		if (empty($keep_quotes))
-		{
-			foreach ($config_vars as $var => $val)
-			{
-				if (is_string($val) && ($keep_quotes === false || strpos($val, '\'') === 0 && strrpos($val, '\'') === strlen($val) - 1))
-				{
+		if (empty($keep_quotes)) {
+			foreach ($config_vars as $var => $val) {
+				if (is_string($val) && ($keep_quotes === false || strpos($val, '\'') === 0 && strrpos($val, '\'') === strlen($val) - 1)) {
 					$config_vars[$var] = trim(stripcslashes($val), '\'');
 				}
 			}
 		}
 
 		// Updating the db_last_error, then don't mess around with Settings.php
-		if (isset($config_vars['db_last_error']))
-		{
+		if (isset($config_vars['db_last_error'])) {
 			self::updateDbLastError($config_vars['db_last_error']);
 
-			if (count($config_vars) === 1 && empty($rebuild))
+			if (count($config_vars) === 1 && empty($rebuild)) {
 				return true;
+			}
 
 			// Make sure we delete this from Settings.php, if present.
 			$config_vars['db_last_error'] = 0;
 		}
 
 		// Rebuilding should not be undertaken lightly, so we're picky about the parameter.
-		if (!is_bool($rebuild))
+		if (!is_bool($rebuild)) {
 			$rebuild = false;
+		}
 
 		$mtime = isset($mtime) ? (int) $mtime : (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']);
 
@@ -1464,23 +1425,19 @@ class Config
 		 *****************/
 
 		// Is Settings.php where we expect it to be, or do we need to find it?
-		if (defined('SMF_SETTINGS_FILE') && is_file(SMF_SETTINGS_FILE))
-		{
+		if (defined('SMF_SETTINGS_FILE') && is_file(SMF_SETTINGS_FILE)) {
 			$settingsFile = SMF_SETTINGS_FILE;
 
 			$backupFile = defined('SMF_SETTINGS_BACKUP_FILE') ? SMF_SETTINGS_BACKUP_FILE : dirname(SMF_SETTINGS_FILE) . DIRECTORY_SEPARATOR . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php';
-		}
-		else
-		{
-			foreach (get_included_files() as $settingsFile)
-			{
-				if (basename($settingsFile) === 'Settings.php')
+		} else {
+			foreach (get_included_files() as $settingsFile) {
+				if (basename($settingsFile) === 'Settings.php') {
 					break;
+				}
 			}
 
 			// Fallback in case Settings.php isn't loaded (e.g. while installing)
-			if (basename($settingsFile) !== 'Settings.php')
-			{
+			if (basename($settingsFile) !== 'Settings.php') {
 				$settingsFile = (!empty(self::$boarddir) && @realpath(self::$boarddir) ? self::$boarddir : (!empty($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'Settings.php';
 			}
 
@@ -1488,8 +1445,9 @@ class Config
 		}
 
 		// File not found? Attempt an emergency on-the-fly fix!
-		if (!file_exists($settingsFile))
+		if (!file_exists($settingsFile)) {
 			@touch($settingsFile);
+		}
 
 		// When was Settings.php last changed?
 		$last_settings_change = filemtime($settingsFile);
@@ -1498,12 +1456,14 @@ class Config
 		$settings_vars = self::getCurrentSettings($mtime, $settingsFile);
 
 		// If Settings.php is empty for some reason, see if we can use the backup.
-		if (empty($settings_vars) && file_exists($backupFile))
+		if (empty($settings_vars) && file_exists($backupFile)) {
 			$settings_vars = self::getCurrentSettings($mtime, $backupFile);
+		}
 
 		// False means there was a problem with the file and we can't safely continue.
-		if ($settings_vars === false)
+		if ($settings_vars === false) {
 			return false;
+		}
 
 		// It works best to set everything afresh.
 		$new_settings_vars = array_merge($settings_vars, $config_vars);
@@ -1515,24 +1475,22 @@ class Config
 		$settings_defs = self::getSettingsDefs();
 
 		// If Settings.php is empty or invalid, try to recover using whatever we have now.
-		if ($settings_vars === array())
-		{
-			foreach ($settings_defs as $var => $setting_def)
-			{
-				if (isset(self::${$var}) || isset(self::$custom[$var]))
+		if ($settings_vars === []) {
+			foreach ($settings_defs as $var => $setting_def) {
+				if (isset(self::${$var}) || isset(self::$custom[$var])) {
 					$settings_vars[$var] = self::${$var} ?? self::$custom[$var];
+				}
 			}
 
 			$new_settings_vars = array_merge($settings_vars, $config_vars);
 		}
 
 		// During install/upgrade, don't set anything until we're ready for it.
-		if (defined('SMF_INSTALLING') && empty($rebuild))
-		{
-			foreach ($settings_defs as $var => $setting_def)
-			{
-				if (!in_array($var, array_keys($new_settings_vars)) && !is_int($var))
+		if (defined('SMF_INSTALLING') && empty($rebuild)) {
+			foreach ($settings_defs as $var => $setting_def) {
+				if (!in_array($var, array_keys($new_settings_vars)) && !is_int($var)) {
 					unset($settings_defs[$var]);
+				}
 			}
 		}
 
@@ -1540,7 +1498,7 @@ class Config
 		 * PART 2: Build substitutions *
 		 *******************************/
 
-		$type_regex = array(
+		$type_regex = [
 			'string' =>
 				'(?:' .
 					// match the opening quotation mark...
@@ -1559,9 +1517,9 @@ class Config
 			'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\b\\1)',
 			'NULL' =>  '(?i:NULL)',
 			// These use a PCRE subroutine to match nested arrays.
-			'array' =>  'array\s*(\((?'.'>[^()]|(?1))*\))',
-			'object' =>  '\w+::__set_state\(array\s*(\((?'.'>[^()]|(?1))*\))\)',
-		);
+			'array' =>  'array\s*(\((?' . '>[^()]|(?1))*\))',
+			'object' =>  '\w+::__set_state\(array\s*(\((?' . '>[^()]|(?1))*\))\)',
+		];
 
 		/*
 		 * The substitutions take place in one of two ways:
@@ -1579,68 +1537,60 @@ class Config
 		 */
 		$prefix = mt_rand() . '-';
 		$neg_index = -1;
-		$substitutions = array(
-			$neg_index-- => array(
+		$substitutions = [
+			$neg_index-- => [
 				'search_pattern' => '~^\s*<\?(php\b)?\n?~',
 				'placeholder' => '',
 				'replace_pattern' => '~^~',
 				'replacement' => '<' . "?php\n",
-			),
-			$neg_index-- => array(
+			],
+			$neg_index-- => [
 				'search_pattern' => '~\S\K\s*(\?' . '>)?\s*$~',
 				'placeholder' => "\n" . md5($prefix . '?' . '>'),
 				'replacement' => "\n\n?" . '>',
-			),
+			],
 			// Remove the code that redirects to the installer.
-			$neg_index-- => array(
-				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?'.'>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
+			$neg_index-- => [
+				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 				'placeholder' => '',
-			),
-		);
+			],
+		];
 
-		if (defined('SMF_INSTALLING'))
-		{
-			$substitutions[$neg_index--] = array(
+		if (defined('SMF_INSTALLING')) {
+			$substitutions[$neg_index--] = [
 				'search_pattern' => '~/\*.*?SMF\s+1\.\d.*?\*/~s',
 				'placeholder' => '',
-			);
+			];
 		}
 
-		foreach ($settings_defs as $var => $setting_def)
-		{
+		foreach ($settings_defs as $var => $setting_def) {
 			$placeholder = md5($prefix . $var);
 			$replacement = '';
 
-			if (!empty($setting_def['text']))
-			{
+			if (!empty($setting_def['text'])) {
 				// Special handling for the license block: always at the beginning.
-				if (strpos($setting_def['text'], "* @package SMF\n") !== false)
-				{
+				if (strpos($setting_def['text'], "* @package SMF\n") !== false) {
 					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					$substitutions[$var]['placeholder'] = '';
 					$substitutions[-1]['replacement'] .= $setting_def['text'] . "\n";
 				}
 				// Special handling for the Error-Catching block: always at the end.
-				elseif (strpos($setting_def['text'], 'Error-Catching') !== false)
-				{
+				elseif (strpos($setting_def['text'], 'Error-Catching') !== false) {
 					$errcatch_var = $var;
 					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					$substitutions[$var]['placeholder'] = '';
 					$substitutions[-2]['replacement'] = "\n" . $setting_def['text'] . $substitutions[-2]['replacement'];
 				}
 				// The text is the whole thing (code blocks, etc.)
-				elseif (is_int($var))
-				{
+				elseif (is_int($var)) {
 					// Remember the path correcting code for later.
-					if (strpos($setting_def['text'], '# Make sure the paths are correct') !== false)
+					if (strpos($setting_def['text'], '# Make sure the paths are correct') !== false) {
 						$pathcode_var = $var;
-
-					if (!empty($setting_def['search_pattern']))
-					{
-						$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					}
-					else
-					{
+
+					if (!empty($setting_def['search_pattern'])) {
+						$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
+					} else {
 						$substitutions[$var]['search_pattern'] = '~' . preg_quote($setting_def['text'], '~') . '~';
 					}
 
@@ -1649,67 +1599,52 @@ class Config
 					$replacement .= $setting_def['text'] . "\n";
 				}
 				// We only include comments when rebuilding.
-				elseif (!empty($rebuild))
-				{
+				elseif (!empty($rebuild)) {
 					$replacement .= $setting_def['text'] . "\n";
 				}
 			}
 
-			if (is_string($var))
-			{
+			if (is_string($var)) {
 				// Ensure the value is good.
-				if (in_array($var, array_keys($new_settings_vars)))
-				{
+				if (in_array($var, array_keys($new_settings_vars))) {
 					// Objects without a __set_state method need a fallback.
-					if (is_object($new_settings_vars[$var]) && !method_exists($new_settings_vars[$var], '__set_state'))
-					{
-						if (method_exists($new_settings_vars[$var], '__toString'))
-						{
+					if (is_object($new_settings_vars[$var]) && !method_exists($new_settings_vars[$var], '__set_state')) {
+						if (method_exists($new_settings_vars[$var], '__toString')) {
 							$new_settings_vars[$var] = (string) $new_settings_vars[$var];
-						}
-						else
-						{
+						} else {
 							$new_settings_vars[$var] = (array) $new_settings_vars[$var];
 						}
 					}
 
 					// Normalize the type if necessary.
-					if (isset($setting_def['type']))
-					{
+					if (isset($setting_def['type'])) {
 						$expected_types = (array) $setting_def['type'];
 						$var_type = gettype($new_settings_vars[$var]);
 
 						// Variable is not of an expected type.
-						if (!in_array($var_type, $expected_types))
-						{
+						if (!in_array($var_type, $expected_types)) {
 							// Passed in an unexpected array.
-							if ($var_type == 'array')
-							{
+							if ($var_type == 'array') {
 								$temp = reset($new_settings_vars[$var]);
 
 								// Use the first element if there's only one and it is a scalar.
-								if (count($new_settings_vars[$var]) === 1 && is_scalar($temp))
-								{
+								if (count($new_settings_vars[$var]) === 1 && is_scalar($temp)) {
 									$new_settings_vars[$var] = $temp;
 								}
 								// Or keep the old value, if that is good.
-								elseif (isset($settings_vars[$var]) && in_array(gettype($settings_vars[$var]), $expected_types))
-								{
+								elseif (isset($settings_vars[$var]) && in_array(gettype($settings_vars[$var]), $expected_types)) {
 									$new_settings_vars[$var] = $settings_vars[$var];
 								}
 								// Fall back to the default
-								else
-								{
+								else {
 									$new_settings_vars[$var] = $setting_def['default'];
 								}
 							}
 
 							// Cast it to whatever type was expected.
 							// Note: the order of the types in this loop matters.
-							foreach (array('boolean', 'integer', 'double', 'string', 'array') as $to_type)
-							{
-								if (in_array($to_type, $expected_types))
-								{
+							foreach (['boolean', 'integer', 'double', 'string', 'array'] as $to_type) {
+								if (in_array($to_type, $expected_types)) {
 									settype($new_settings_vars[$var], $to_type);
 									break;
 								}
@@ -1718,57 +1653,46 @@ class Config
 					}
 				}
 				// Abort if a required one is undefined (unless we're installing).
-				elseif (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
-				{
+				elseif (!empty($setting_def['required']) && !defined('SMF_INSTALLING')) {
 					return false;
 				}
 
 				// Create the search pattern.
-				if (!empty($setting_def['search_pattern']))
-				{
+				if (!empty($setting_def['search_pattern'])) {
 					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
-				}
-				else
-				{
-					$var_pattern = array();
+				} else {
+					$var_pattern = [];
 
-					if (isset($setting_def['type']))
-					{
-						foreach ((array) $setting_def['type'] as $type)
+					if (isset($setting_def['type'])) {
+						foreach ((array) $setting_def['type'] as $type) {
 							$var_pattern[] = $type_regex[$type];
+						}
 					}
 
-					if (in_array($var, array_keys($config_vars)))
-					{
+					if (in_array($var, array_keys($config_vars))) {
 						$var_pattern[] = @$type_regex[gettype($config_vars[$var])];
 
-						if (is_string($config_vars[$var]) && strpos($config_vars[$var], dirname($settingsFile)) === 0)
-						{
+						if (is_string($config_vars[$var]) && strpos($config_vars[$var], dirname($settingsFile)) === 0) {
 							$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $config_vars[$var]), '~')) . '\'';
 						}
 					}
 
-					if (in_array($var, array_keys($settings_vars)))
-					{
+					if (in_array($var, array_keys($settings_vars))) {
 						$var_pattern[] = @$type_regex[gettype($settings_vars[$var])];
 
-						if (is_string($settings_vars[$var]) && strpos($settings_vars[$var], dirname($settingsFile)) === 0)
-						{
+						if (is_string($settings_vars[$var]) && strpos($settings_vars[$var], dirname($settingsFile)) === 0) {
 							$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $settings_vars[$var]), '~')) . '\'';
 						}
 					}
 
-					if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '')
-					{
+					if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '') {
 						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
 
-						if (strpos($setting_def['default'], 'dirname(__FILE__)') !== false)
-						{
+						if (strpos($setting_def['default'], 'dirname(__FILE__)') !== false) {
 							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
 						}
 
-						if (strpos($setting_def['default'], '__DIR__') !== false)
-						{
+						if (strpos($setting_def['default'], '__DIR__') !== false) {
 							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
 						}
 					}
@@ -1781,25 +1705,18 @@ class Config
 				}
 
 				// Next create the placeholder or replace_pattern.
-				if (!empty($setting_def['replace_pattern']))
-				{
+				if (!empty($setting_def['replace_pattern'])) {
 					$substitutions[$var]['replace_pattern'] = $setting_def['replace_pattern'];
-				}
-				else
-				{
+				} else {
 					$substitutions[$var]['placeholder'] = $placeholder;
 				}
 
 				// Now create the replacement.
 				// A setting to delete.
-				if (!empty($setting_def['auto_delete']) && empty($new_settings_vars[$var]))
-				{
-					if ($setting_def['auto_delete'] === 2 && empty($rebuild) && in_array($var, array_keys($new_settings_vars)))
-					{
-						$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ";";
-					}
-					else
-					{
+				if (!empty($setting_def['auto_delete']) && empty($new_settings_vars[$var])) {
+					if ($setting_def['auto_delete'] === 2 && empty($rebuild) && in_array($var, array_keys($new_settings_vars))) {
+						$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ';';
+					} else {
 						$replacement = '';
 						$substitutions[$var]['placeholder'] = '';
 
@@ -1808,18 +1725,15 @@ class Config
 					}
 				}
 				// Add this setting's value.
-				elseif (in_array($var, array_keys($new_settings_vars)))
-				{
-					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ";";
+				elseif (in_array($var, array_keys($new_settings_vars))) {
+					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ';';
 				}
 				// Fall back to the default value.
-				elseif (isset($setting_def['default']))
-				{
+				elseif (isset($setting_def['default'])) {
 					$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : self::varExport($setting_def['default'], true)) . ';';
 				}
 				// This shouldn't happen, but we've got nothing.
-				else
-				{
+				else {
 					$replacement .= '$' . $var . ' = null;';
 				}
 			}
@@ -1831,15 +1745,16 @@ class Config
 		}
 
 		// Any leftovers to deal with?
-		foreach ($new_settings_vars as $var => $val)
-		{
-			$var_pattern = array();
+		foreach ($new_settings_vars as $var => $val) {
+			$var_pattern = [];
 
-			if (in_array($var, array_keys($config_vars)))
+			if (in_array($var, array_keys($config_vars))) {
 				$var_pattern[] = $type_regex[gettype($config_vars[$var])];
+			}
 
-			if (in_array($var, array_keys($settings_vars)))
+			if (in_array($var, array_keys($settings_vars))) {
 				$var_pattern[] = $type_regex[gettype($settings_vars[$var])];
+			}
 
 			$var_pattern = array_unique($var_pattern);
 
@@ -1849,20 +1764,17 @@ class Config
 
 			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 			$substitutions[$var]['placeholder'] = $placeholder;
-			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val, true) . ";";
+			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val, true) . ';';
 		}
 
 		// During an upgrade, some of the path variables may not have been declared yet.
-		if (defined('SMF_INSTALLING') && empty($rebuild))
-		{
+		if (defined('SMF_INSTALLING') && empty($rebuild)) {
 			preg_match_all('~^\h*\$(\w+)\s*=\s*~m', $substitutions[$pathcode_var]['replacement'], $matches);
 
 			$missing_pathvars = array_diff($matches[1], array_keys($substitutions));
 
-			if (!empty($missing_pathvars))
-			{
-				foreach ($missing_pathvars as $var)
-				{
+			if (!empty($missing_pathvars)) {
+				foreach ($missing_pathvars as $var) {
 					$substitutions[$pathcode_var]['replacement'] = preg_replace('~\nif[^\n]+\$' . $var . '[^\n]+\n\h*\$' . $var . ' = [^\n]+~', '', $substitutions[$pathcode_var]['replacement']);
 				}
 			}
@@ -1871,24 +1783,21 @@ class Config
 		// It's important to do the numbered ones before the named ones, or messes happen.
 		uksort(
 			$substitutions,
-			function($a, $b) {
-				if (is_int($a) && is_int($b))
-				{
+			function ($a, $b) {
+				if (is_int($a) && is_int($b)) {
 					return $a > $b ? 1 : ($a < $b ? -1 : 0);
 				}
-				elseif (is_int($a))
-				{
+
+				if (is_int($a)) {
 					return -1;
 				}
-				elseif (is_int($b))
-				{
+
+				if (is_int($b)) {
 					return 1;
 				}
-				else
-				{
-					return strcasecmp($b, $a);
-				}
-			}
+
+				return strcasecmp($b, $a);
+			},
 		);
 
 		/******************************
@@ -1898,26 +1807,21 @@ class Config
 		/* 3.a: Get the content of Settings.php and make sure it is good. */
 
 		// Retrieve the contents of Settings.php and normalize the line endings.
-		$settingsText = trim(strtr(file_get_contents($settingsFile), array("\r\n" => "\n", "\r" => "\n")));
+		$settingsText = trim(strtr(file_get_contents($settingsFile), ["\r\n" => "\n", "\r" => "\n"]));
 
 		// If Settings.php is empty or corrupt for some reason, see if we can recover.
-		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php')
-		{
+		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
 			// Try restoring from the backup.
-			if (file_exists($backupFile))
-			{
-				$settingsText = strtr(file_get_contents($backupFile), array("\r\n" => "\n", "\r" => "\n"));
+			if (file_exists($backupFile)) {
+				$settingsText = strtr(file_get_contents($backupFile), ["\r\n" => "\n", "\r" => "\n"]);
 			}
 
 			// Backup is bad too? Our only option is to create one from scratch.
-			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>')
-			{
+			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>') {
 				$settingsText = '<' . "?php\n";
 
-				foreach ($settings_defs as $var => $setting_def)
-				{
-					if (is_string($var) && !empty($setting_def['text']) && strpos($substitutions[$var]['replacement'], $setting_def['text']) === false)
-					{
+				foreach ($settings_defs as $var => $setting_def) {
+					if (is_string($var) && !empty($setting_def['text']) && strpos($substitutions[$var]['replacement'], $setting_def['text']) === false) {
 						$substitutions[$var]['replacement'] = $setting_def['text'] . "\n" . $substitutions[$var]['replacement'];
 					}
 
@@ -1930,17 +1834,12 @@ class Config
 		}
 
 		// Settings.php is unlikely to contain any heredocs, but just in case...
-		if (preg_match_all('/<<<([\'"]?)(\w+)\1\R(.*?)\R\h*\2;$/ms', $settingsText, $matches))
-		{
-			foreach ($matches[0] as $mkey => $heredoc)
-			{
-				if (!empty($matches[1][$mkey]) && $matches[1][$mkey] === '\'')
-				{
+		if (preg_match_all('/<<<([\'"]?)(\w+)\1\R(.*?)\R\h*\2;$/ms', $settingsText, $matches)) {
+			foreach ($matches[0] as $mkey => $heredoc) {
+				if (!empty($matches[1][$mkey]) && $matches[1][$mkey] === '\'') {
 					$heredoc_replacements[$heredoc] = var_export($matches[3][$mkey], true) . ';';
-				}
-				else
-				{
-					$heredoc_replacements[$heredoc] = '"' . strtr(substr(var_export($matches[3][$mkey], true), 1, -1), array("\\'" => "'", '"' => '\"')) . '";';
+				} else {
+					$heredoc_replacements[$heredoc] = '"' . strtr(substr(var_export($matches[3][$mkey], true), 1, -1), ["\\'" => "'", '"' => '\\"']) . '";';
 				}
 			}
 
@@ -1951,58 +1850,53 @@ class Config
 
 		$last_var = null;
 		$bare_settingsText = $settingsText;
-		$force_before_pathcode = array();
-		foreach ($substitutions as $var => $substitution)
-		{
+		$force_before_pathcode = [];
+
+		foreach ($substitutions as $var => $substitution) {
 			$placeholders[$var] = $substitution['placeholder'];
 
-			if (!empty($substitution['placeholder']))
-			{
+			if (!empty($substitution['placeholder'])) {
 				$simple_replacements[$substitution['placeholder']] = $substitution['replacement'];
-			}
-			elseif (!empty($substitution['replace_pattern']))
-			{
+			} elseif (!empty($substitution['replace_pattern'])) {
 				$replace_patterns[$var] = $substitution['replace_pattern'];
 				$replace_strings[$var] = $substitution['replacement'];
 			}
 
-			if (strpos($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ') !== false)
+			if (strpos($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ') !== false) {
 				$force_before_pathcode[] = $var;
+			}
 
 			// Look before you leap.
 			preg_match_all($substitution['search_pattern'], $bare_settingsText, $matches);
 
-			if ((is_string($var) || $var === $pathcode_var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '')
-			{
+			if ((is_string($var) || $var === $pathcode_var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '') {
 				// More than one instance of the variable = not good.
-				if (count($matches[0]) > 1)
-				{
-					if (is_string($var))
-					{
+				if (count($matches[0]) > 1) {
+					if (is_string($var)) {
 						// Maybe we can try something more interesting?
 						$sp = substr($substitution['search_pattern'], 1);
 
-						if (strpos($sp, '(?<=^|\s)') === 0)
+						if (strpos($sp, '(?<=^|\s)') === 0) {
 							$sp = substr($sp, 9);
+						}
 
-						if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
+						if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0) {
 							return false;
+						}
 
 						// See if we can exclude `if` blocks, etc., to narrow down the matches.
 						// @todo Multiple layers of nested brackets might confuse this.
 						$sp = '~(?:^|//[^\n]+c\n|\*/|[;}]|' . implode('|', array_filter($placeholders)) . ')\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp;
 
 						preg_match_all($sp, $settingsText, $matches);
-					}
-					else
+					} else {
 						$sp = $substitution['search_pattern'];
+					}
 
 					// Found at least some that are simple assignment statements.
-					if (count($matches[0]) > 0)
-					{
+					if (count($matches[0]) > 0) {
 						// Remove any duplicates.
-						if (count($matches[0]) > 1)
-						{
+						if (count($matches[0]) > 1) {
 							$settingsText = preg_replace($sp, '', $settingsText, count($matches[0]) - 1);
 						}
 
@@ -2011,8 +1905,7 @@ class Config
 					}
 
 					// All instances are inside more complex code structures.
-					else
-					{
+					else {
 						// Only safe option at this point is to skip it.
 						unset($substitutions[$var], $new_settings_vars[$var], $settings_defs[$var], $simple_replacements[$substitution['placeholder']], $replace_patterns[$var], $replace_strings[$var]);
 
@@ -2020,25 +1913,21 @@ class Config
 					}
 				}
 				// No matches found.
-				elseif (count($matches[0]) === 0)
-				{
+				elseif (count($matches[0]) === 0) {
 					$found = false;
 					$in_c = in_array($var, array_keys($config_vars));
 					$in_s = in_array($var, array_keys($settings_vars));
 
 					// Is it in there at all?
-					if (!preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $bare_settingsText))
-					{
+					if (!preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $bare_settingsText)) {
 						// It's defined by Settings.php, but not by code in the file.
 						// Probably done via an include or something. Skip it.
-						if ($in_s)
-						{
+						if ($in_s) {
 							unset($substitutions[$var], $settings_defs[$var]);
 						}
 						// Admin is explicitly trying to set this one, so we'll handle
 						// it as if it were a new custom setting being added.
-						elseif ($in_c)
-						{
+						elseif ($in_c) {
 							$new_settings_vars[$var] = $config_vars[$var];
 						}
 
@@ -2046,29 +1935,25 @@ class Config
 					}
 
 					// It's in there somewhere, so check if the value changed type.
-					foreach (array('scalar', 'object', 'array') as $type)
-					{
+					foreach (['scalar', 'object', 'array'] as $type) {
 						// Try all the other scalar types first.
-						if ($type == 'scalar')
-						{
-							$sp = '(?:' . (implode('|', array_diff_key($type_regex, array($in_c ? gettype($config_vars[$var]) : ($in_s ? gettype($settings_vars[$var]) : PHP_INT_MAX) => '', 'array' => '', 'object' => '')))) . ')';
+						if ($type == 'scalar') {
+							$sp = '(?:' . (implode('|', array_diff_key($type_regex, [$in_c ? gettype($config_vars[$var]) : ($in_s ? gettype($settings_vars[$var]) : PHP_INT_MAX) => '', 'array' => '', 'object' => '']))) . ')';
 						}
 						// Maybe it's an object? (Probably not, but we should check.)
-						elseif ($type == 'object')
-						{
-							if (strpos($settingsText, '__set_state') === false)
+						elseif ($type == 'object') {
+							if (strpos($settingsText, '__set_state') === false) {
 								continue;
+							}
 
 							$sp = $type_regex['object'];
 						}
 						// Maybe it's an array?
-						else
-						{
+						else {
 							$sp = $type_regex['array'];
 						}
 
-						if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $bare_settingsText, $derp))
-						{
+						if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $bare_settingsText, $derp)) {
 							$settingsText = preg_replace('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $substitution['placeholder'], $settingsText);
 
 							$found = true;
@@ -2078,8 +1963,7 @@ class Config
 					}
 
 					// Something weird is going on. Better just leave it alone.
-					if (!$found)
-					{
+					if (!$found) {
 						// $var? What $var? Never heard of it.
 						unset($substitutions[$var], $new_settings_vars[$var], $settings_defs[$var], $simple_replacements[$substitution['placeholder']], $replace_patterns[$var], $replace_strings[$var]);
 
@@ -2088,30 +1972,27 @@ class Config
 				}
 			}
 			// Good to go, so insert our placeholder.
-			else
-			{
+			else {
 				$settingsText = preg_replace($substitution['search_pattern'], $substitution['placeholder'], $settingsText);
 			}
 
 			// Once the code blocks are done, we want to compare to a version without comments.
-			if (is_int($last_var) && is_string($var))
+			if (is_int($last_var) && is_string($var)) {
 				$bare_settingsText = self::stripPhpComments($settingsText);
+			}
 
 			$last_var = $var;
 		}
 
 		// Rebuilding requires more work.
-		if (!empty($rebuild))
-		{
+		if (!empty($rebuild)) {
 			// Strip out the leading and trailing placeholders to prevent duplication.
-			$settingsText = str_replace(array($substitutions[-1]['placeholder'], $substitutions[-2]['placeholder']), '', $settingsText);
+			$settingsText = str_replace([$substitutions[-1]['placeholder'], $substitutions[-2]['placeholder']], '', $settingsText);
 
 			// Strip out all our standard comments.
-			foreach ($settings_defs as $var => $setting_def)
-			{
-				if (isset($setting_def['text']))
-				{
-					$settingsText = strtr($settingsText, array($setting_def['text'] . "\n" => '', $setting_def['text'] => '',));
+			foreach ($settings_defs as $var => $setting_def) {
+				if (isset($setting_def['text'])) {
+					$settingsText = strtr($settingsText, [$setting_def['text'] . "\n" => '', $setting_def['text'] => '']);
 				}
 			}
 
@@ -2119,9 +2000,8 @@ class Config
 			$bare_settingsText = self::stripPhpComments($settingsText);
 
 			// Fix up whitespace to make comparison easier.
-			foreach ($placeholders as $placeholder)
-			{
-				$bare_settingsText = str_replace(array($placeholder . "\n\n", $placeholder), $placeholder . "\n", $bare_settingsText);
+			foreach ($placeholders as $placeholder) {
+				$bare_settingsText = str_replace([$placeholder . "\n\n", $placeholder], $placeholder . "\n", $bare_settingsText);
 			}
 
 			$bare_settingsText = preg_replace('/\h+$/m', '', rtrim($bare_settingsText));
@@ -2133,121 +2013,118 @@ class Config
 			 * each section, however, we'll reorganize the content to match the
 			 * default layout as closely as we can.
 			 */
-			$sections = array(array());
+			$sections = [[]];
 			$section_num = 0;
 			$trimmed_placeholders = array_filter(array_map('trim', $placeholders));
-			$newsection_placeholders = array();
+			$newsection_placeholders = [];
 			$all_custom_content = '';
 
-			foreach ($substitutions as $var => $substitution)
-			{
-				if (is_int($var) && ($var === -2 || $var > 0) && isset($trimmed_placeholders[$var]) && strpos($bare_settingsText, $trimmed_placeholders[$var]) !== false)
-				{
+			foreach ($substitutions as $var => $substitution) {
+				if (is_int($var) && ($var === -2 || $var > 0) && isset($trimmed_placeholders[$var]) && strpos($bare_settingsText, $trimmed_placeholders[$var]) !== false) {
 					$newsection_placeholders[$var] = $trimmed_placeholders[$var];
 				}
 			}
 
-			foreach (preg_split('~(?<=' . implode('|', $trimmed_placeholders) . ')|(?=' . implode('|', $trimmed_placeholders) . ')~', $bare_settingsText) as $part)
-			{
+			foreach (preg_split('~(?<=' . implode('|', $trimmed_placeholders) . ')|(?=' . implode('|', $trimmed_placeholders) . ')~', $bare_settingsText) as $part) {
 				$part = trim($part);
 
-				if (empty($part))
+				if (empty($part)) {
 					continue;
+				}
 
 				// Build a list of placeholders for this section.
-				if (in_array($part, $trimmed_placeholders) && !in_array($part, $newsection_placeholders))
-				{
+				if (in_array($part, $trimmed_placeholders) && !in_array($part, $newsection_placeholders)) {
 					$sections[$section_num][] = $part;
 				}
 				// Custom content and newsection_placeholders get their own sections.
-				else
-				{
-					if (!empty($sections[$section_num]))
+				else {
+					if (!empty($sections[$section_num])) {
 						++$section_num;
+					}
 
 					$sections[$section_num][] = $part;
 
 					++$section_num;
 
-					if (!in_array($part, $trimmed_placeholders))
+					if (!in_array($part, $trimmed_placeholders)) {
 						$all_custom_content .= "\n" . $part;
+					}
 				}
 			}
 
 			// And now, rebuild the content!
 			$new_settingsText = '';
-			$done_defs = array();
+			$done_defs = [];
 			$sectionkeys = array_keys($sections);
 
-			foreach ($sections as $sectionkey => $section)
-			{
+			foreach ($sections as $sectionkey => $section) {
 				// Custom content needs to be preserved.
-				if (count($section) === 1 && !in_array($section[0], $trimmed_placeholders))
-				{
+				if (count($section) === 1 && !in_array($section[0], $trimmed_placeholders)) {
 					$prev_section_end = $sectionkey < 1 ? 0 : strpos($settingsText, end($sections[$sectionkey - 1])) + strlen(end($sections[$sectionkey - 1]));
 					$next_section_start = $sectionkey == end($sectionkeys) ? strlen($settingsText) : strpos($settingsText, $sections[$sectionkey + 1][0]);
 
 					$new_settingsText .= "\n" . substr($settingsText, $prev_section_end, $next_section_start - $prev_section_end) . "\n";
 				}
 				// Put the placeholders in this section into canonical order.
-				else
-				{
+				else {
 					$section_parts = array_flip($section);
 					$pathcode_reached = false;
-					foreach ($settings_defs as $var => $setting_def)
-					{
-						if ($var === $pathcode_var)
+
+					foreach ($settings_defs as $var => $setting_def) {
+						if ($var === $pathcode_var) {
 							$pathcode_reached = true;
+						}
 
 						// Already did this setting, so move on to the next.
-						if (in_array($var, $done_defs))
+						if (in_array($var, $done_defs)) {
 							continue;
+						}
 
 						// Stop when we hit a setting definition that will start a later section.
-						if (isset($newsection_placeholders[$var]) && count($section) !== 1)
+						if (isset($newsection_placeholders[$var]) && count($section) !== 1) {
 							break;
+						}
 
 						// Stop when everything in this section is done, unless it's the last.
 						// This helps maintain the relative position of any custom content.
-						if (empty($section_parts) && $sectionkey < (count($sections) - 1))
+						if (empty($section_parts) && $sectionkey < (count($sections) - 1)) {
 							break;
+						}
 
 						$p = trim($substitutions[$var]['placeholder']);
 
 						// Can't do anything with an empty placeholder.
-						if ($p === '')
+						if ($p === '') {
 							continue;
+						}
 
 						// Does this need to be inserted before the path correction code?
-						if (strpos($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) !== false && in_array($var, $force_before_pathcode))
-						{
-							$new_settingsText = strtr($new_settingsText, array($substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']));
+						if (strpos($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) !== false && in_array($var, $force_before_pathcode)) {
+							$new_settingsText = strtr($new_settingsText, [$substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']]);
 
 							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 						}
 						// If it's in this section, add it to the new text now.
-						elseif (in_array($p, $section))
-						{
+						elseif (in_array($p, $section)) {
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 						}
 						// Perhaps it is safe to reposition it anyway.
-						elseif (is_string($var) && strpos($new_settingsText, $p) === false && strpos($all_custom_content, '$' . $var) === false)
-						{
+						elseif (is_string($var) && strpos($new_settingsText, $p) === false && strpos($all_custom_content, '$' . $var) === false) {
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 						}
 						// If this setting is missing entirely, fix it.
-						elseif (strpos($bare_settingsText, $p) === false)
-						{
+						elseif (strpos($bare_settingsText, $p) === false) {
 							// Special case if the path code is missing. Put it near the end,
 							// and also anything else that is missing that normally follows it.
-							if (!isset($newsection_placeholders[$pathcode_var]) && $pathcode_reached === true && $sectionkey < (count($sections) - 1))
+							if (!isset($newsection_placeholders[$pathcode_var]) && $pathcode_reached === true && $sectionkey < (count($sections) - 1)) {
 								break;
+							}
 
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
@@ -2260,8 +2137,7 @@ class Config
 			$settingsText = $new_settingsText;
 
 			// Restore the leading and trailing placeholders as necessary.
-			foreach (array(-1, -2) as $var)
-			{
+			foreach ([-1, -2] as $var) {
 				if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) === false);
 				{
 					$settingsText = ($var == -1 ? $substitutions[$var]['placeholder'] : '') . $settingsText . ($var == -2 ? $substitutions[$var]['placeholder'] : '');
@@ -2269,20 +2145,16 @@ class Config
 			}
 		}
 		// Even if not rebuilding, there are a few variables that may need to be moved around.
-		else
-		{
+		else {
 			$pathcode_pos = strpos($settingsText, $substitutions[$pathcode_var]['placeholder']);
 
-			if ($pathcode_pos !== false)
-			{
-				foreach ($force_before_pathcode as $var)
-				{
-					if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos)
-					{
-						$settingsText = strtr($settingsText, array(
+			if ($pathcode_pos !== false) {
+				foreach ($force_before_pathcode as $var) {
+					if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos) {
+						$settingsText = strtr($settingsText, [
 							$substitutions[$var]['placeholder'] => '',
 							$substitutions[$pathcode_var]['placeholder'] => $substitutions[$var]['placeholder'] . "\n" . $substitutions[$pathcode_var]['placeholder'],
-						));
+						]);
 					}
 				}
 			}
@@ -2294,30 +2166,26 @@ class Config
 		$settingsText = strtr($settingsText, $simple_replacements);
 
 		// Deal with any complicated ones.
-		if (!empty($replace_patterns))
-		{
+		if (!empty($replace_patterns)) {
 			$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
 		}
 
 		// Make absolutely sure that the path correction code is included.
-		if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false)
-		{
+		if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false) {
 			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
 		}
 
 		// If we did not rebuild, do just enough to make sure the thing is viable.
-		if (empty($rebuild))
-		{
+		if (empty($rebuild)) {
 			// We need to refresh $bare_settingsText again, and remove the code blocks from it.
 			$bare_settingsText = $settingsText;
 
-			foreach ($substitutions as $var => $substitution)
-			{
-				if (!is_int($var))
+			foreach ($substitutions as $var => $substitution) {
+				if (!is_int($var)) {
 					break;
+				}
 
-				if (isset($substitution['replacement']))
-				{
+				if (isset($substitution['replacement'])) {
 					$bare_settingsText = str_replace($substitution['replacement'], '', $bare_settingsText);
 				}
 			}
@@ -2327,41 +2195,37 @@ class Config
 			// Now insert any defined settings that are missing.
 			$pathcode_reached = false;
 
-			foreach ($settings_defs as $var => $setting_def)
-			{
-				if ($var === $pathcode_var)
+			foreach ($settings_defs as $var => $setting_def) {
+				if ($var === $pathcode_var) {
 					$pathcode_reached = true;
+				}
 
-				if (is_int($var))
+				if (is_int($var)) {
 					continue;
+				}
 
 				// Do nothing if it is already in there.
-				if (preg_match($substitutions[$var]['search_pattern'], $bare_settingsText))
+				if (preg_match($substitutions[$var]['search_pattern'], $bare_settingsText)) {
 					continue;
+				}
 
 				// Insert it either before or after the path correction code, whichever is appropriate.
-				if (!$pathcode_reached || in_array($var, $force_before_pathcode))
-				{
+				if (!$pathcode_reached || in_array($var, $force_before_pathcode)) {
 					$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
-				}
-				else
-				{
+				} else {
 					$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n\n" . $substitutions[$var]['replacement'], $settingsText);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			// If the comments for some variables have changed since the last
 			// time we rebuilt, we could have orphan copies of the old comments
 			// still laying around.
 			$prev_var = null;
 
-			foreach ($settings_defs as $var => $setting_def)
-			{
-				if (!isset($setting_def['text']))
-				{
+			foreach ($settings_defs as $var => $setting_def) {
+				if (!isset($setting_def['text'])) {
 					$prev_var = $var;
+
 					continue;
 				}
 
@@ -2376,12 +2240,9 @@ class Config
 		}
 
 		// If we have any brand new settings to add, do so.
-		foreach ($new_settings_vars as $var => $val)
-		{
-			if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText))
-			{
-				if (!isset($settings_defs[$var]) && strpos($settingsText, '# Custom Settings #') === false)
-				{
+		foreach ($new_settings_vars as $var => $val) {
+			if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText)) {
+				if (!isset($settings_defs[$var]) && strpos($settingsText, '# Custom Settings #') === false) {
 					$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
 				}
 
@@ -2404,8 +2265,7 @@ class Config
 		unlink($temp_sfile);
 
 		// If the syntax is borked, try rebuilding to see if that fixes it.
-		if ($result === false)
-		{
+		if ($result === false) {
 			return empty($rebuild) ? self::updateSettingsFile($config_vars, $keep_quotes, true) : false;
 		}
 
@@ -2435,74 +2295,74 @@ class Config
 	 * @return array|bool An array of name/value pairs for all settings in the
 	 *    file, or false on error.
 	 */
-	public static function getCurrentSettings(int|float $mtime = null, string $settingsFile = SMF_SETTINGS_FILE): array|bool
+	public static function getCurrentSettings(int|float|null $mtime = null, string $settingsFile = SMF_SETTINGS_FILE): array|bool
 	{
 		$mtime = is_null($mtime) ? (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']) : (int) $mtime;
 
-		if (!is_file($settingsFile))
-		{
-			if ($settingsFile !== SMF_SETTINGS_FILE && is_file(SMF_SETTINGS_FILE))
-			{
+		if (!is_file($settingsFile)) {
+			if ($settingsFile !== SMF_SETTINGS_FILE && is_file(SMF_SETTINGS_FILE)) {
 				$settingsFile = SMF_SETTINGS_FILE;
-			}
-			else
-			{
-				foreach (get_included_files() as $settingsFile)
-				{
-					if (basename($settingsFile) === basename(SMF_SETTINGS_FILE))
+			} else {
+				foreach (get_included_files() as $settingsFile) {
+					if (basename($settingsFile) === basename(SMF_SETTINGS_FILE)) {
 						break;
+					}
 				}
 
-				if (basename($settingsFile) !== basename(SMF_SETTINGS_FILE))
+				if (basename($settingsFile) !== basename(SMF_SETTINGS_FILE)) {
 					return false;
+				}
 			}
 		}
 
 		// If the file has been changed since the last known good configuration, bail out.
 		clearstatcache();
 
-		if (filemtime($settingsFile) > $mtime)
+		if (filemtime($settingsFile) > $mtime) {
 			return false;
+		}
 
 		// Strip out opening and closing PHP tags.
 		$settingsText = trim(file_get_contents($settingsFile));
 
-		if (substr($settingsText, 0, 5) == '<' . '?php')
+		if (substr($settingsText, 0, 5) == '<' . '?php') {
 			$settingsText = substr($settingsText, 5);
+		}
 
-		if (substr($settingsText, -2) == '?' . '>')
+		if (substr($settingsText, -2) == '?' . '>') {
 			$settingsText = substr($settingsText, 0, -2);
+		}
 
 		// Since we're using eval, we need to manually replace these with strings.
-		$settingsText = strtr($settingsText, array(
+		$settingsText = strtr($settingsText, [
 			'__FILE__' => var_export($settingsFile, true),
 			'__DIR__' => var_export(dirname($settingsFile), true),
-		));
+		]);
 
 		// Prevents warnings about constants that are already defined.
 		$settingsText = preg_replace_callback(
 			'~\bdefine\s*\(\s*(["\'])(\w+)\1~',
-			function ($matches)
-			{
+			function ($matches) {
 				return 'define(\'' . md5(mt_rand()) . '\'';
 			},
-			$settingsText
+			$settingsText,
 		);
 
 		// Handle eval errors gracefully in all PHP versions.
-		try
-		{
-			if ($settingsText !== '' && @eval($settingsText) === false)
+		try {
+			if ($settingsText !== '' && @eval($settingsText) === false) {
 				throw new ErrorException('eval error');
+			}
 
 			unset($mtime, $settingsFile, $settingsText);
 			$defined_vars = get_defined_vars();
+		} catch (Throwable $e) {
+		} catch (ErrorException $e) {
 		}
-		catch (Throwable $e) {}
-		catch (ErrorException $e) {}
 
-		if (isset($e))
+		if (isset($e)) {
 			return false;
+		}
 
 		return $defined_vars;
 	}
@@ -2523,69 +2383,68 @@ class Config
 	 *    overwriting the existing content of the file. Default false.
 	 * @return bool Whether the write operation succeeded or not.
 	 */
-	public static function safeFileWrite(string $file, string $data, string|null $backup_file = null, int|null $mtime = null, bool $append = false): bool
+	public static function safeFileWrite(string $file, string $data, ?string $backup_file = null, ?int $mtime = null, bool $append = false): bool
 	{
 		// Sanity checks.
-		if (!file_exists($file) && !is_dir(dirname($file)))
+		if (!file_exists($file) && !is_dir(dirname($file))) {
 			return false;
+		}
 
-		if (!is_int($mtime))
+		if (!is_int($mtime)) {
 			$mtime = defined('TIME_START') ? (int) TIME_START : $_SERVER['REQUEST_TIME'];
+		}
 
-		if (!isset(self::$temp_dir))
+		if (!isset(self::$temp_dir)) {
 			self::getTempDir();
+		}
 
 		// Our temp files.
 		$temp_sfile = tempnam(self::$temp_dir . DIRECTORY_SEPARATOR, pathinfo($file, PATHINFO_FILENAME) . '.');
 
-		if (!empty($backup_file))
-		{
+		if (!empty($backup_file)) {
 			$temp_bfile = tempnam(self::$temp_dir, pathinfo($backup_file, PATHINFO_FILENAME) . '.');
 		}
 
 		// We need write permissions.
 		$failed = false;
 
-		foreach (array($file, $backup_file) as $sf)
-		{
-			if (empty($sf))
+		foreach ([$file, $backup_file] as $sf) {
+			if (empty($sf)) {
 				continue;
-
-			if (!file_exists($sf))
-			{
-				touch($sf);
 			}
-			elseif (!is_file($sf))
-			{
+
+			if (!file_exists($sf)) {
+				touch($sf);
+			} elseif (!is_file($sf)) {
 				$failed = true;
 			}
 
-			if (!$failed)
+			if (!$failed) {
 				$failed = !is_writable($sf);
+			}
 		}
 
 		// Now let's see if writing to a temp file succeeds.
-		if (!$failed && file_put_contents($temp_sfile, $data, LOCK_EX) !== strlen($data))
+		if (!$failed && file_put_contents($temp_sfile, $data, LOCK_EX) !== strlen($data)) {
 			$failed = true;
+		}
 
 		// Tests passed, so it's time to do the job.
-		if (!$failed)
-		{
+		if (!$failed) {
 			// Back up the backup, just in case.
-			if (!empty($backup_file) && file_exists($backup_file))
+			if (!empty($backup_file) && file_exists($backup_file)) {
 				$temp_bfile_saved = @copy($backup_file, $temp_bfile);
+			}
 
 			// Make sure no one changed the file while we weren't looking.
 			clearstatcache();
 
-			if ((int) filemtime($file) <= $mtime)
-			{
+			if ((int) filemtime($file) <= $mtime) {
 				// Attempt to open the file.
 				$sfhandle = @fopen($file, 'c');
 
 				// Let's do this thing!
-				if ($sfhandle !== false)
-				{
+				if ($sfhandle !== false) {
 					// Immediately get a lock.
 					flock($sfhandle, LOCK_EX);
 
@@ -2593,33 +2452,29 @@ class Config
 					$temp_sfile_saved = @copy($file, $temp_sfile);
 
 					// Now write our data to the file.
-					if ($temp_sfile_saved)
-					{
-						if (empty($append))
-						{
+					if ($temp_sfile_saved) {
+						if (empty($append)) {
 							ftruncate($sfhandle, 0);
 							rewind($sfhandle);
 						}
 
 						$failed = fwrite($sfhandle, $data) !== strlen($data);
-					}
-					else
-					{
+					} else {
 						$failed = true;
 					}
 
 					// If writing failed, put everything back the way it was.
-					if ($failed)
-					{
-						if (!empty($temp_sfile_saved))
+					if ($failed) {
+						if (!empty($temp_sfile_saved)) {
 							@rename($temp_sfile, $file);
+						}
 
-						if (!empty($temp_bfile_saved))
+						if (!empty($temp_bfile_saved)) {
 							@rename($temp_bfile, $backup_file);
+						}
 					}
 					// It worked, so make our temp backup the new permanent backup.
-					elseif (!empty($backup_file))
-					{
+					elseif (!empty($backup_file)) {
 						@rename($temp_sfile, $backup_file);
 					}
 
@@ -2633,17 +2488,20 @@ class Config
 		// We're done with these.
 		@unlink($temp_sfile);
 
-		if (!empty($temp_bfile))
+		if (!empty($temp_bfile)) {
 			@unlink($temp_bfile);
+		}
 
-		if ($failed)
+		if ($failed) {
 			return false;
+		}
 
 		// Even though on normal installations the filemtime should invalidate
 		// any cached version, it seems that there are times it might not.
 		// So let's MAKE it dump the cache.
-		if (function_exists('opcache_invalidate'))
+		if (function_exists('opcache_invalidate')) {
 			opcache_invalidate($file, true);
+		}
 
 		return true;
 	}
@@ -2663,38 +2521,35 @@ class Config
 		 * Even though technically we can now, we'll keep arrays on one line for
 		 * the sake of backwards compatibility.
 		 */
-		if (is_array($var))
-		{
-			$return = array();
+		if (is_array($var)) {
+			$return = [];
 
-			foreach ($var as $key => $value)
+			foreach ($var as $key => $value) {
 				$return[] = var_export($key, true) . ' => ' . self::varExport($value);
+			}
 
 			return 'array(' . implode(', ', $return) . ')';
 		}
+
 		// For the same reason, replace literal returns and newlines with "\r" and "\n"
-		elseif (is_string($var) && (strpos($var, "\n") !== false || strpos($var, "\r") !== false))
-		{
+		if (is_string($var) && (strpos($var, "\n") !== false || strpos($var, "\r") !== false)) {
 			return strtr(
 				preg_replace_callback(
 					'/[\r\n]+/',
-					function($m)
-					{
-						return '\' . "' . strtr($m[0], array("\r" => '\r', "\n" => '\n')) . '" . \'';
+					function ($m) {
+						return '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n']) . '" . \'';
 					},
-					var_export($var, true)
+					var_export($var, true),
 				),
-				array("'' . " => '', " . ''" => '')
+				["'' . " => '', " . ''" => ''],
 			);
 		}
 		// We typically use lowercase true/false/null.
-		elseif (in_array(gettype($var), array('boolean', 'NULL')))
-		{
+		elseif (in_array(gettype($var), ['boolean', 'NULL'])) {
 			return strtolower(var_export($var, true));
 		}
 		// Nothing special.
-		else
-		{
+		else {
 			return var_export($var, true);
 		}
 	}
@@ -2708,24 +2563,18 @@ class Config
 	public static function stripPhpComments(string $code_str): string
 	{
 		// This is the faster, better way.
-		if (is_callable('token_get_all'))
-		{
+		if (is_callable('token_get_all')) {
 			$tokens = token_get_all($code_str);
 
-			$parts = array();
+			$parts = [];
 
-			foreach ($tokens as $token)
-			{
-				if (is_string($token))
-				{
+			foreach ($tokens as $token) {
+				if (is_string($token)) {
 					$parts[] = $token;
-				}
-				else
-				{
+				} else {
 					list($id, $text) = $token;
 
-					switch ($id)
-					{
+					switch ($id) {
 						case T_COMMENT:
 						case T_DOC_COMMENT:
 							end($parts);
@@ -2737,14 +2586,10 @@ class Config
 
 							// For 'C' style comments, also trim one preceding
 							// line break, if present.
-							if (strpos($text, '/*') === 0)
-							{
-								if (substr($parts[$prev_part], -2) === "\r\n")
-								{
+							if (strpos($text, '/*') === 0) {
+								if (substr($parts[$prev_part], -2) === "\r\n") {
 									$parts[$prev_part] = substr($parts[$prev_part], 0, -2);
-								}
-								elseif (in_array(substr($parts[$prev_part], -1), array("\r", "\n")))
-								{
+								} elseif (in_array(substr($parts[$prev_part], -1), ["\r", "\n"])) {
 									$parts[$prev_part] = substr($parts[$prev_part], 0, -1);
 								}
 							}
@@ -2766,12 +2611,10 @@ class Config
 		// If the tokenizer extension has been disabled, do the job manually.
 
 		// Leave any heredocs alone.
-		if (preg_match_all('/<<<([\'"]?)(\w+)\1?\R(.*?)\R\h*\2;$/ms', $code_str, $matches))
-		{
-			$heredoc_replacements = array();
+		if (preg_match_all('/<<<([\'"]?)(\w+)\1?\R(.*?)\R\h*\2;$/ms', $code_str, $matches)) {
+			$heredoc_replacements = [];
 
-			foreach ($matches[0] as $mkey => $heredoc)
-			{
+			foreach ($matches[0] as $mkey => $heredoc) {
 				$heredoc_replacements[$heredoc] = var_export(md5($matches[3][$mkey]), true) . ';';
 			}
 
@@ -2783,8 +2626,8 @@ class Config
 
 		$in_string = 0;
 		$in_comment = 0;
-		foreach ($parts as $partkey => $part)
-		{
+
+		foreach ($parts as $partkey => $part) {
 			$one_char = substr($part, 0, 1);
 			$two_char = substr($part, 0, 2);
 			$to_remove = 0;
@@ -2795,25 +2638,16 @@ class Config
 			 *	1: in a single quote string
 			 *	2: in a double quote string
 			 */
-			if ($one_char == "'")
-			{
-				if (!empty($in_comment))
-				{
+			if ($one_char == "'") {
+				if (!empty($in_comment)) {
 					$in_string = 0;
-				}
-				elseif (in_array($in_string, array(0, 1)))
-				{
+				} elseif (in_array($in_string, [0, 1])) {
 					$in_string = ($in_string ^ 1);
 				}
-			}
-			elseif ($one_char == '"')
-			{
-				if (!empty($in_comment))
-				{
+			} elseif ($one_char == '"') {
+				if (!empty($in_comment)) {
 					$in_string = 0;
-				}
-				elseif (in_array($in_string, array(0, 2)))
-				{
+				} elseif (in_array($in_string, [0, 2])) {
 					$in_string = ($in_string ^ 2);
 				}
 			}
@@ -2824,51 +2658,36 @@ class Config
 			 *	1: in a single line comment
 			 *	2: in a multi-line comment
 			 */
-			elseif ($one_char == '#' || $two_char == '//')
-			{
+			elseif ($one_char == '#' || $two_char == '//') {
 				$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 1 : $in_comment);
 
-				if ($in_comment == 1)
-				{
+				if ($in_comment == 1) {
 					$parts[$partkey - 1] = rtrim($parts[$partkey - 1], "\t ");
 
-					if (substr($parts[$partkey - 1], -2) === "\r\n")
-					{
+					if (substr($parts[$partkey - 1], -2) === "\r\n") {
 						$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -2);
-					}
-					elseif (in_array(substr($parts[$partkey - 1], -1), array("\r", "\n")))
-					{
+					} elseif (in_array(substr($parts[$partkey - 1], -1), ["\r", "\n"])) {
 						$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -1);
 					}
 				}
-			}
-			elseif ($two_char === "\r\n" || $one_char === "\r" || $one_char === "\n")
-			{
-				if ($in_comment == 1)
+			} elseif ($two_char === "\r\n" || $one_char === "\r" || $one_char === "\n") {
+				if ($in_comment == 1) {
 					$in_comment = 0;
-			}
-			elseif ($two_char == '/*')
-			{
+				}
+			} elseif ($two_char == '/*') {
 				$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 2 : $in_comment);
 
-				if ($in_comment == 2)
-				{
+				if ($in_comment == 2) {
 					$parts[$partkey - 1] = rtrim($parts[$partkey - 1], "\t ");
 
-					if (substr($parts[$partkey - 1], -2) === "\r\n")
-					{
+					if (substr($parts[$partkey - 1], -2) === "\r\n") {
 						$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -2);
-					}
-					elseif (in_array(substr($parts[$partkey - 1], -1), array("\r", "\n")))
-					{
+					} elseif (in_array(substr($parts[$partkey - 1], -1), ["\r", "\n"])) {
 						$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -1);
 					}
 				}
-			}
-			elseif ($two_char == '*/')
-			{
-				if ($in_comment == 2)
-				{
+			} elseif ($two_char == '*/') {
+				if ($in_comment == 2) {
 					$in_comment = 0;
 
 					// Delete the comment closing.
@@ -2876,20 +2695,18 @@ class Config
 				}
 			}
 
-			if (empty($in_comment))
-			{
+			if (empty($in_comment)) {
 				$parts[$partkey] = strlen($part) > $to_remove ? substr($part, $to_remove) : '';
-			}
-			else
-			{
+			} else {
 				$parts[$partkey] = '';
 			}
 		}
 
 		$code_str = implode('', $parts);
 
-		if (!empty($heredoc_replacements))
+		if (!empty($heredoc_replacements)) {
 			$code_str = strtr($code_str, array_flip($heredoc_replacements));
+		}
 
 		return $code_str;
 	}
@@ -2909,16 +2726,11 @@ class Config
 	public static function updateDbLastError(int $time, bool $update = true): bool
 	{
 		// Write out the db_last_error file with the error timestamp
-		if (!empty(self::$cachedir) && is_writable(self::$cachedir))
-		{
+		if (!empty(self::$cachedir) && is_writable(self::$cachedir)) {
 			$errorfile = self::$cachedir . '/db_last_error.php';
-		}
-		elseif (file_exists(dirname(__DIR__) . '/cache'))
-		{
+		} elseif (file_exists(dirname(__DIR__) . '/cache')) {
 			$errorfile = dirname(__DIR__) . '/cache/db_last_error.php';
-		}
-		else
-		{
+		} else {
 			$errorfile = dirname(__DIR__) . '/db_last_error.php';
 		}
 
@@ -2927,8 +2739,9 @@ class Config
 		@touch(SMF_SETTINGS_FILE);
 
 		// Unless requested, we should update self::$db_last_error as well.
-		if ($update)
+		if ($update) {
 			self::$db_last_error = $time;
+		}
 
 		// We  do a loose match here rather than strict (!==) as 0 is also false.
 		return $result != false;
@@ -2956,21 +2769,21 @@ class Config
 	public static function getTempDir(): string
 	{
 		// Already did this.
-		if (!empty(self::$temp_dir))
+		if (!empty(self::$temp_dir)) {
 			return self::$temp_dir;
+		}
 
 		// Temp Directory options order.
-		$temp_dir_options = array(
+		$temp_dir_options = [
 			0 => 'sys_get_temp_dir',
 			1 => 'upload_tmp_dir',
 			2 => 'session.save_path',
 			3 => 'cachedir',
-		);
+		];
 
 		// Is self::$cachedir a valid option?
-		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir))
-		{
-			$temp_dir_options = array_diff($temp_dir_options, array('cachedir'));
+		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
+			$temp_dir_options = array_diff($temp_dir_options, ['cachedir']);
 		}
 
 		// Determine if we should detect a restriction and what restrictions that may be.
@@ -2981,10 +2794,8 @@ class Config
 		$old_error_reporting = error_reporting(0);
 
 		// Search for a working temp directory.
-		foreach ($temp_dir_options as $id_temp => $temp_option)
-		{
-			switch ($temp_option)
-			{
+		foreach ($temp_dir_options as $id_temp => $temp_option) {
+			switch ($temp_option) {
 				case 'cachedir':
 					$possible_temp = rtrim(self::$cachedir, '\\/');
 					break;
@@ -3003,28 +2814,25 @@ class Config
 			}
 
 			// Check if we have a restriction preventing this from working.
-			if ($restriction)
-			{
-				foreach ($restriction as $dir)
-				{
-					if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
-					{
+			if ($restriction) {
+				foreach ($restriction as $dir) {
+					if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp)) {
 						self::$temp_dir = $possible_temp;
 						break;
 					}
 				}
 			}
 			// No restrictions, but need to check for writable status.
-			elseif (is_writable($possible_temp))
-			{
+			elseif (is_writable($possible_temp)) {
 				self::$temp_dir = $possible_temp;
 				break;
 			}
 		}
 
 		// Fall back to sys_get_temp_dir even though it won't work, so we have something.
-		if (empty(self::$temp_dir))
+		if (empty(self::$temp_dir)) {
 			self::$temp_dir = sys_get_temp_dir();
+		}
 
 		// Put things back.
 		error_reporting($old_error_reporting);
@@ -3050,12 +2858,12 @@ class Config
 		$memory_needed = self::memoryReturnBytes($needed);
 
 		// Should we account for how much is currently being used?
-		if ($in_use)
+		if ($in_use) {
 			$memory_needed += memory_get_usage();
+		}
 
 		// If more is needed, request it.
-		if ($memory_current < $memory_needed)
-		{
+		if ($memory_current < $memory_needed) {
 			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
 			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
 		}
@@ -3070,12 +2878,13 @@ class Config
 	 * Helper function to convert memory string settings to bytes
 	 *
 	 * @param string $val The byte string, like '256M' or '1G'.
-	 * @return integer The string converted to a proper integer in bytes.
+	 * @return int The string converted to a proper integer in bytes.
 	 */
 	public static function memoryReturnBytes(string $val): int
 	{
-		if (is_integer($val))
+		if (is_integer($val)) {
 			return $val;
+		}
 
 		// Separate the number from the designator.
 		$val = trim($val);
@@ -3083,12 +2892,15 @@ class Config
 		$last = strtolower(substr($val, -1));
 
 		// Convert to bytes.
-		switch ($last)
-		{
+		switch ($last) {
 			case 'g':
 				$num *= 1024;
+				// no break
+
 			case 'm':
 				$num *= 1024;
+				// no break
+
 			case 'k':
 				$num *= 1024;
 		}
@@ -3116,7 +2928,7 @@ class Config
 	 */
 	public static function generateSeed(): void
 	{
-		self::updateModSettings(array('rand_seed' => Utils::randomInt(0, 2**31 - 1)));
+		self::updateModSettings(['rand_seed' => Utils::randomInt(0, 2 ** 31 - 1)]);
 	}
 
 	/**
@@ -3128,35 +2940,31 @@ class Config
 	 */
 	public static function checkCron()
 	{
-		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 84600)
-		{
-			$request = Db\DatabaseApi::$db->query('', '
-				SELECT COUNT(*)
+		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 86400) {
+			$request = Db\DatabaseApi::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}scheduled_tasks
 				WHERE disabled = {int:not_disabled}
 					AND next_time < {int:yesterday}',
-				array(
+				[
 					'not_disabled' => 0,
-					'yesterday' => time() - 84600,
-				)
+					'yesterday' => time() - 86400,
+				],
 			);
 			list($overdue) = Db\DatabaseApi::$db->fetch_row($request);
 			Db\DatabaseApi::$db->free_result($request);
 
 			// If we have tasks more than a day overdue, cron isn't doing its job.
-			if (!empty($overdue))
-			{
+			if (!empty($overdue)) {
 				Lang::load('ManageScheduledTasks');
 				ErrorHandler::log(Lang::$txt['cron_not_working']);
-				self::updateModSettings(array('cron_is_real_cron' => 0));
-			}
-			else
-			{
-				self::updateModSettings(array('cron_last_checked' => time()));
+				self::updateModSettings(['cron_is_real_cron' => 0]);
+			} else {
+				self::updateModSettings(['cron_last_checked' => time()]);
 			}
 		}
 	}
-
 }
 
 ?>

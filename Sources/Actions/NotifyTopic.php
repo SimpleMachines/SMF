@@ -14,11 +14,12 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Topic;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Utils;
 
 /**
  * Toggles email notification preferences for topics.
@@ -32,12 +33,11 @@ class NotifyTopic extends Notify implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
-			'load' => false,
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'TopicNotify',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -73,8 +73,9 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -103,8 +104,9 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	protected function setId()
 	{
-		if (empty(Topic::$topic_id))
+		if (empty(Topic::$topic_id)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
+		}
 
 		$this->id = Topic::$topic_id;
 	}
@@ -116,8 +118,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	protected function saToMode()
 	{
-		if (!isset($_GET['mode']) && isset($_GET['sa']))
-		{
+		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : -1;
 			unset($_GET['sa']);
 		}
@@ -139,42 +140,42 @@ class NotifyTopic extends Notify implements ActionInterface
 	{
 		$this->setAlertPref();
 
-		$request = Db::$db->query('', '
-			SELECT id_member, id_topic, id_msg, unwatched
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, id_topic, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:member}
 				AND {raw:column} = {int:id}',
-			array(
+			[
 				'column' => 'id_' . $this->type,
 				'id' => $this->id,
 				'member' => $this->member_info['id'],
-			)
+			],
 		);
 		$log = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
-		if (empty($log))
-		{
+
+		if (empty($log)) {
 			$insert = true;
-			$log = array(
+			$log = [
 				'id_member' => $this->member_info['id'],
 				'id_topic' => $this->id,
 				'id_msg' => 0,
 				'unwatched' => (int) ($this->mode === parent::MODE_IGNORE),
-			);
-		}
-		else
-		{
+			];
+		} else {
 			$insert = false;
 			$log['unwatched'] = (int) ($this->mode === parent::MODE_IGNORE);
 		}
 
-		Db::$db->insert($insert ? 'insert' : 'replace',
+		Db::$db->insert(
+			$insert ? 'insert' : 'replace',
 			'{db_prefix}log_topics',
-			array(
+			[
 				'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
-			),
+			],
 			$log,
-			array('id_member', 'id_topic')
+			['id_member', 'id_topic'],
 		);
 
 		$this->changeBoardTopicPref();
@@ -187,11 +188,11 @@ class NotifyTopic extends Notify implements ActionInterface
 	{
 		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\NotifyTopic::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\NotifyTopic::exportStatic')) {
 	NotifyTopic::exportStatic();
+}
 
 ?>

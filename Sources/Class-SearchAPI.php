@@ -13,8 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 class_alias('SMF\\Search\\SearchApiInterface', '\\search_api_interface');
 class_alias('SMF\\Search\\SearchApi', '\\search_api');

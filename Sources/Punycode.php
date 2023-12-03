@@ -32,57 +32,57 @@ class Punycode
 	 * Bootstring parameter values
 	 *
 	 */
-	const BASE = 36;
-	const TMIN = 1;
-	const TMAX = 26;
-	const SKEW = 38;
-	const DAMP = 700;
-	const INITIAL_BIAS = 72;
-	const INITIAL_N = 128;
-	const PREFIX = 'xn--';
-	const DELIMITER = '-';
+	public const BASE = 36;
+	public const TMIN = 1;
+	public const TMAX = 26;
+	public const SKEW = 38;
+	public const DAMP = 700;
+	public const INITIAL_BIAS = 72;
+	public const INITIAL_N = 128;
+	public const PREFIX = 'xn--';
+	public const DELIMITER = '-';
 
 	/**
 	 * IDNA Error constants
 	 */
-	const IDNA_ERROR_EMPTY_LABEL = 1;
-	const IDNA_ERROR_LABEL_TOO_LONG = 2;
-	const IDNA_ERROR_DOMAIN_NAME_TOO_LONG = 4;
-	const IDNA_ERROR_LEADING_HYPHEN = 8;
-	const IDNA_ERROR_TRAILING_HYPHEN = 16;
-	const IDNA_ERROR_HYPHEN_3_4 = 32;
-	const IDNA_ERROR_LEADING_COMBINING_MARK = 64;
-	const IDNA_ERROR_DISALLOWED = 128;
-	const IDNA_ERROR_PUNYCODE = 256;
-	const IDNA_ERROR_LABEL_HAS_DOT = 512;
-	const IDNA_ERROR_INVALID_ACE_LABEL = 1024;
-	const IDNA_ERROR_BIDI = 2048;
-	const IDNA_ERROR_CONTEXTJ = 4096;
+	public const IDNA_ERROR_EMPTY_LABEL = 1;
+	public const IDNA_ERROR_LABEL_TOO_LONG = 2;
+	public const IDNA_ERROR_DOMAIN_NAME_TOO_LONG = 4;
+	public const IDNA_ERROR_LEADING_HYPHEN = 8;
+	public const IDNA_ERROR_TRAILING_HYPHEN = 16;
+	public const IDNA_ERROR_HYPHEN_3_4 = 32;
+	public const IDNA_ERROR_LEADING_COMBINING_MARK = 64;
+	public const IDNA_ERROR_DISALLOWED = 128;
+	public const IDNA_ERROR_PUNYCODE = 256;
+	public const IDNA_ERROR_LABEL_HAS_DOT = 512;
+	public const IDNA_ERROR_INVALID_ACE_LABEL = 1024;
+	public const IDNA_ERROR_BIDI = 2048;
+	public const IDNA_ERROR_CONTEXTJ = 4096;
 
 	/**
 	 * Encode table
 	 *
 	 * @param array
 	 */
-	protected static $encodeTable = array(
+	protected static $encodeTable = [
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
 		'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
 		'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	);
+	];
 
 	/**
 	 * Decode table
 	 *
 	 * @param array
 	 */
-	protected static $decodeTable = array(
+	protected static $decodeTable = [
 		'a' => 0, 'b' => 1, 'c' => 2, 'd' => 3, 'e' => 4, 'f' => 5,
 		'g' => 6, 'h' => 7, 'i' => 8, 'j' => 9, 'k' => 10, 'l' => 11,
 		'm' => 12, 'n' => 13, 'o' => 14, 'p' => 15, 'q' => 16, 'r' => 17,
 		's' => 18, 't' => 19, 'u' => 20, 'v' => 21, 'w' => 22, 'x' => 23,
 		'y' => 24, 'z' => 25, '0' => 26, '1' => 27, '2' => 28, '3' => 29,
-		'4' => 30, '5' => 31, '6' => 32, '7' => 33, '8' => 34, '9' => 35
-	);
+		'4' => 30, '5' => 31, '6' => 32, '7' => 33, '8' => 34, '9' => 35,
+	];
 
 	/**
 	 * Character encoding
@@ -145,18 +145,19 @@ class Punycode
 	public function encode($input)
 	{
 		// For compatibility with idn_to_* functions
-		if ($this->decode($input) === false)
+		if ($this->decode($input) === false) {
 			return false;
+		}
 
-		$errors = array();
+		$errors = [];
 		$preprocessed = $this->preprocess($input, $errors);
 
-		if (!empty($errors))
-		{
+		if (!empty($errors)) {
 			return false;
 		}
 
 		$parts = explode('.', $preprocessed);
+
 		foreach ($parts as $p => &$part) {
 			$part = $this->encodePart($part);
 
@@ -174,7 +175,6 @@ class Punycode
 				case self::IDNA_ERROR_BIDI:
 				case self::IDNA_ERROR_CONTEXTJ:
 					return false;
-					break;
 
 				case self::IDNA_ERROR_HYPHEN_3_4:
 					$part = $parts[$p];
@@ -182,8 +182,11 @@ class Punycode
 
 				case self::IDNA_ERROR_EMPTY_LABEL:
 					$parts_count = count($parts);
-					if ($parts_count === 1 || $p !== $parts_count - 1)
+
+					if ($parts_count === 1 || $p !== $parts_count - 1) {
 						return false;
+					}
+
 					break;
 
 				default:
@@ -193,8 +196,9 @@ class Punycode
 		$output = implode('.', $parts);
 
 		// IDNA_ERROR_DOMAIN_NAME_TOO_LONG
-		if (strlen(rtrim($output, '.')) > 253)
+		if (strlen(rtrim($output, '.')) > 253) {
 			return false;
+		}
 
 		return $output;
 	}
@@ -215,12 +219,15 @@ class Punycode
 		$h = $b = count($codePoints['basic']);
 
 		$output = '';
+
 		foreach ($codePoints['basic'] as $code) {
 			$output .= $this->codePointToChar($code);
 		}
+
 		if ($input === $output) {
 			return $output;
 		}
+
 		if ($b > 0) {
 			$output .= static::DELIMITER;
 		}
@@ -230,6 +237,7 @@ class Punycode
 
 		$i = 0;
 		$length = mb_strlen($input, $this->encoding);
+
 		while ($h < $length) {
 			$m = $codePoints['nonBasic'][$i++];
 			$delta = $delta + ($m - $n) * ($h + 1);
@@ -239,10 +247,13 @@ class Punycode
 				if ($c < $n || $c < static::INITIAL_N) {
 					$delta++;
 				}
+
 				if ($c === $n) {
 					$q = $delta;
+
 					for ($k = static::BASE;; $k += static::BASE) {
 						$t = $this->calculateThreshold($k, $bias);
+
 						if ($q < $t) {
 							break;
 						}
@@ -276,37 +287,35 @@ class Punycode
 	 */
 	public function decode($input)
 	{
-		$errors = array();
+		$errors = [];
 		$preprocessed = $this->preprocess($input, $errors);
 
-		if (!empty($errors))
-		{
+		if (!empty($errors)) {
 			return false;
 		}
 
 		$parts = explode('.', $preprocessed);
-		foreach ($parts as $p => &$part)
-		{
-			if (strpos($part, static::PREFIX) === 0)
-			{
+
+		foreach ($parts as $p => &$part) {
+			if (strpos($part, static::PREFIX) === 0) {
 				$part = substr($part, strlen(static::PREFIX));
 				$part = $this->decodePart($part);
 
-				if ($part === false)
+				if ($part === false) {
 					return false;
+				}
 			}
 
-			if ($this->validateLabel($part, false) !== 0)
-			{
-				if ($part === '')
-				{
+			if ($this->validateLabel($part, false) !== 0) {
+				if ($part === '') {
 					$parts_count = count($parts);
 
-					if ($parts_count === 1 || $p !== $parts_count - 1)
+					if ($parts_count === 1 || $p !== $parts_count - 1) {
 						return false;
-				}
-				else
+					}
+				} else {
 					return false;
+				}
 			}
 		}
 		$output = implode('.', $parts);
@@ -328,33 +337,30 @@ class Punycode
 		$output = '';
 
 		$pos = strrpos($input, static::DELIMITER);
-		if ($pos !== false)
-		{
+
+		if ($pos !== false) {
 			$output = substr($input, 0, $pos++);
-		}
-		else
-		{
+		} else {
 			$pos = 0;
 		}
 
 		$outputLength = strlen($output);
 		$inputLength = strlen($input);
-		while ($pos < $inputLength)
-		{
+
+		while ($pos < $inputLength) {
 			$oldi = $i;
 			$w = 1;
 
-			for ($k = static::BASE;; $k += static::BASE)
-			{
-				if (!isset($input[$pos]) || !isset(static::$decodeTable[$input[$pos]]))
+			for ($k = static::BASE;; $k += static::BASE) {
+				if (!isset($input[$pos]) || !isset(static::$decodeTable[$input[$pos]])) {
 					return false;
+				}
 
 				$digit = static::$decodeTable[$input[$pos++]];
 				$i = $i + ($digit * $w);
 				$t = $this->calculateThreshold($k, $bias);
 
-				if ($digit < $t)
-				{
+				if ($digit < $t) {
 					break;
 				}
 
@@ -375,30 +381,30 @@ class Punycode
 	/**
 	 * Calculate the bias threshold to fall between TMIN and TMAX
 	 *
-	 * @param integer $k
-	 * @param integer $bias
-	 * @return integer
+	 * @param int $k
+	 * @param int $bias
+	 * @return int
 	 */
 	protected function calculateThreshold($k, $bias)
 	{
-		if ($k <= $bias + static::TMIN)
-		{
+		if ($k <= $bias + static::TMIN) {
 			return static::TMIN;
 		}
-		elseif ($k >= $bias + static::TMAX)
-		{
+
+		if ($k >= $bias + static::TMAX) {
 			return static::TMAX;
 		}
+
 		return $k - $bias;
 	}
 
 	/**
 	 * Bias adaptation
 	 *
-	 * @param integer $delta
-	 * @param integer $numPoints
-	 * @param boolean $firstTime
-	 * @return integer
+	 * @param int $delta
+	 * @param int $numPoints
+	 * @param bool $firstTime
+	 * @return int
 	 */
 	protected function adapt($delta, $numPoints, $firstTime)
 	{
@@ -410,8 +416,8 @@ class Punycode
 		$delta += (int) ($delta / $numPoints);
 
 		$k = 0;
-		while ($delta > ((static::BASE - static::TMIN) * static::TMAX) / 2)
-		{
+
+		while ($delta > ((static::BASE - static::TMIN) * static::TMAX) / 2) {
 			$delta = (int) ($delta / (static::BASE - static::TMIN));
 			$k = $k + static::BASE;
 		}
@@ -428,23 +434,21 @@ class Punycode
 	 */
 	protected function listCodePoints($input)
 	{
-		$codePoints = array(
-			'all' => array(),
-			'basic' => array(),
-			'nonBasic' => array(),
-		);
+		$codePoints = [
+			'all' => [],
+			'basic' => [],
+			'nonBasic' => [],
+		];
 
 		$length = mb_strlen($input, $this->encoding);
-		for ($i = 0; $i < $length; $i++)
-		{
+
+		for ($i = 0; $i < $length; $i++) {
 			$char = mb_substr($input, $i, 1, $this->encoding);
 			$code = $this->charToCodePoint($char);
-			if ($code < 128)
-			{
+
+			if ($code < 128) {
 				$codePoints['all'][] = $codePoints['basic'][] = $code;
-			}
-			else
-			{
+			} else {
 				$codePoints['all'][] = $codePoints['nonBasic'][] = $code;
 			}
 		}
@@ -456,53 +460,48 @@ class Punycode
 	 * Convert a single or multi-byte character to its code point
 	 *
 	 * @param string $char
-	 * @return integer
+	 * @return int
 	 */
 	protected function charToCodePoint($char)
 	{
 		$code = ord($char[0]);
-		if ($code < 128)
-		{
+
+		if ($code < 128) {
 			return $code;
 		}
-		elseif ($code < 224)
-		{
+
+		if ($code < 224) {
 			return (($code - 192) * 64) + (ord($char[1]) - 128);
 		}
-		elseif ($code < 240)
-		{
+
+		if ($code < 240) {
 			return (($code - 224) * 4096) + ((ord($char[1]) - 128) * 64) + (ord($char[2]) - 128);
 		}
-		else
-		{
-			return (($code - 240) * 262144) + ((ord($char[1]) - 128) * 4096) + ((ord($char[2]) - 128) * 64) + (ord($char[3]) - 128);
-		}
+
+		return (($code - 240) * 262144) + ((ord($char[1]) - 128) * 4096) + ((ord($char[2]) - 128) * 64) + (ord($char[3]) - 128);
 	}
 
 	/**
 	 * Convert a code point to its single or multi-byte character
 	 *
-	 * @param integer $code
+	 * @param int $code
 	 * @return string
 	 */
 	protected function codePointToChar($code)
 	{
-		if ($code <= 0x7F)
-		{
+		if ($code <= 0x7F) {
 			return chr($code);
 		}
-		elseif ($code <= 0x7FF)
-		{
+
+		if ($code <= 0x7FF) {
 			return chr(($code >> 6) + 192) . chr(($code & 63) + 128);
 		}
-		elseif ($code <= 0xFFFF)
-		{
+
+		if ($code <= 0xFFFF) {
 			return chr(($code >> 12) + 224) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
 		}
-		else
-		{
-			return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
-		}
+
+		return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
 	}
 
 	/**
@@ -512,14 +511,15 @@ class Punycode
 	 * @param string $domain A domain name
 	 * @param array $errors Will record any errors encountered during preprocessing
 	 */
-	protected function preprocess(string $domain, array &$errors = array())
+	protected function preprocess(string $domain, array &$errors = [])
 	{
-		require_once(Config::$sourcedir . '/Unicode/Idna.php');
+		require_once Config::$sourcedir . '/Unicode/Idna.php';
 
 		$regexes = Unicode\idna_regex();
 
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain))
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain)) {
 			$errors[] = 'disallowed';
+		}
 
 		$domain = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $domain);
 
@@ -527,11 +527,13 @@ class Punycode
 
 		$maps = idna_maps();
 
-		if (!$this->nonTransitional)
+		if (!$this->nonTransitional) {
 			$maps = array_merge($maps, idna_maps_deviation());
+		}
 
-		if (!$this->std3)
+		if (!$this->std3) {
 			$maps = array_merge($maps, idna_maps_not_std3());
+		}
 
 		return Utils::normalize(strtr($domain, $maps));
 	}
@@ -546,55 +548,45 @@ class Punycode
 	{
 		$length = strlen($label);
 
-		if ($length === 0)
-		{
+		if ($length === 0) {
 			return self::IDNA_ERROR_EMPTY_LABEL;
 		}
 
-		if ($toPunycode)
-		{
-			if ($length > 63)
-			{
+		if ($toPunycode) {
+			if ($length > 63) {
 				return self::IDNA_ERROR_LABEL_TOO_LONG;
 			}
 
-			if ($this->std3 && $length !== strspn($label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-'))
-			{
+			if ($this->std3 && $length !== strspn($label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-')) {
 				return self::IDNA_ERROR_PUNYCODE;
 			}
 		}
 
-		if (strpos($label, '-') === 0)
-		{
+		if (strpos($label, '-') === 0) {
 			return self::IDNA_ERROR_LEADING_HYPHEN;
 		}
 
-		if (strrpos($label, '-') === $length - 1)
-		{
+		if (strrpos($label, '-') === $length - 1) {
 			return self::IDNA_ERROR_TRAILING_HYPHEN;
 		}
 
-		if (substr($label, 2, 2) === '--')
-		{
+		if (substr($label, 2, 2) === '--') {
 			return self::IDNA_ERROR_HYPHEN_3_4;
 		}
 
-		if (preg_match('/^\p{M}/u', $label))
-		{
+		if (preg_match('/^\p{M}/u', $label)) {
 			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 
-		require_once(Config::$sourcedir . '/Unicode/Idna.php');
+		require_once Config::$sourcedir . '/Unicode/Idna.php';
 
 		$regexes = Unicode\idna_regex();
 
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label))
-		{
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label)) {
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 
-		if (!$toPunycode && $label !== Utils::normalize($label, 'kc'))
-		{
+		if (!$toPunycode && $label !== Utils::normalize($label, 'kc')) {
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 

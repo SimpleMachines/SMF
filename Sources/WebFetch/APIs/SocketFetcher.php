@@ -80,7 +80,7 @@ class SocketFetcher extends WebFetchApi
 	 *
 	 * Stores responses (url, code, error, headers, body, size).
 	 */
-	public $response = array();
+	public $response = [];
 
 	/*********************
 	 * Internal properties
@@ -139,16 +139,16 @@ class SocketFetcher extends WebFetchApi
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = array()): object
+	public function request(string $url, array|string $post_data = []): object
 	{
 		$url = new Url($url, true);
 		$url->toAscii();
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, array('http', 'https')))
-		{
+		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
 			Lang::load('Errors');
 			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
+
 			return $this;
 		}
 
@@ -161,19 +161,18 @@ class SocketFetcher extends WebFetchApi
 		$post_data = $this->buildPostData($post_data);
 
 		// We can start building our response data now.
-		$this->response[$this->current_redirect] = array(
+		$this->response[$this->current_redirect] = [
 			'url' => (string) $url,
 			'success' => false,
 			'code' => null,
 			'error' => null,
-			'headers' => array(),
+			'headers' => [],
 			'body' => null,
 			'size' => 0,
-		);
+		];
 
 		// Do we already have an open connection to the socket? If not, open one.
-		if (!is_resource($this->fp ?? null) || !$this->keep_alive || $this->host != $host || $this->port != $port)
-		{
+		if (!is_resource($this->fp ?? null) || !$this->keep_alive || $this->host != $host || $this->port != $port) {
 			$this->host = $host;
 			$this->port = $port;
 
@@ -181,23 +180,20 @@ class SocketFetcher extends WebFetchApi
 		}
 
 		// Uh-oh...
-		if (!is_resource($this->fp))
-		{
+		if (!is_resource($this->fp)) {
 			$this->closeConnection();
+
 			return $this;
 		}
 
 		// I want this, from there, and I may or may not bother you for more later.
-		if (empty($post_data))
-		{
+		if (empty($post_data)) {
 			fwrite($this->fp, 'GET ' . $path_and_query . ' HTTP/1.1' . "\r\n");
 			fwrite($this->fp, 'Host: ' . $url->host . "\r\n");
 			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . "\r\n");
 			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . "\r\n");
 			fwrite($this->fp, "\r\n");
-		}
-		else
-		{
+		} else {
 			fwrite($this->fp, 'POST ' . $path_and_query . ' HTTP/1.1' . "\r\n");
 			fwrite($this->fp, 'Host: ' . $url->host . "\r\n");
 			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . "\r\n");
@@ -211,62 +207,57 @@ class SocketFetcher extends WebFetchApi
 		$response = fgets($this->fp, 768);
 
 		// What response code was sent?
-		if (preg_match('~^HTTP/\S+\s+(\d+)~i', $response, $matches))
-		{
+		if (preg_match('~^HTTP/\S+\s+(\d+)~i', $response, $matches)) {
 			$http_code = (int) $matches[1];
 			$this->response[$this->current_redirect]['code'] = $http_code;
 		}
 		// No response code? Bail out.
-		else
-		{
+		else {
 			$this->closeConnection();
+
 			return $this;
 		}
 
 		// Redirect if the resource has been permanently or temporarily moved.
-		if ($this->current_redirect < $this->max_redirect && in_array($http_code, array(301, 302, 307)))
-		{
-			while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '')
-			{
+		if ($this->current_redirect < $this->max_redirect && in_array($http_code, [301, 302, 307])) {
+			while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '') {
 				$this->response[$this->current_redirect]['headers'][] = $header;
 
-				if (stripos($header, 'location:') !== false)
+				if (stripos($header, 'location:') !== false) {
 					$location = trim(substr($header, strpos($header, ':') + 1));
+				}
 			}
 
 			$location = new Url($location ?? '');
 
-			if (!$location->isValid())
-			{
+			if (!$location->isValid()) {
 				$this->closeConnection();
+
 				return $this;
 			}
 
 			// Close if it moved to a different host.
-			if ($location->$host !== $url->host)
+			if ($location->$host !== $url->host) {
 				$this->closeConnection();
+			}
 
 			$this->current_redirect++;
 
 			return $this->request($location, $post_data);
 		}
+
 		// Make sure we get a 200 OK.
-		elseif (!in_array($http_code, array(200, 201)))
-		{
+		if (!in_array($http_code, [200, 201])) {
 			return $this;
 		}
 
 		// Skip the headers...
-		while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '')
-		{
+		while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '') {
 			$this->response[$this->current_redirect]['headers'][] = $header;
 
-			if (preg_match('~Content-Length:\s*(\d+)~i', $header, $match))
-			{
+			if (preg_match('~Content-Length:\s*(\d+)~i', $header, $match)) {
 				$content_length = $match[1];
-			}
-			elseif (preg_match('~Connection:\s*Close~i', $header))
-			{
+			} elseif (preg_match('~Connection:\s*Close~i', $header)) {
 				$this->keep_alive = false;
 			}
 
@@ -275,23 +266,23 @@ class SocketFetcher extends WebFetchApi
 
 		$body = '';
 
-		if (isset($content_length))
-		{
-			while (!feof($this->fp) && strlen($body) < $content_length)
+		if (isset($content_length)) {
+			while (!feof($this->fp) && strlen($body) < $content_length) {
 				$body .= fread($this->fp, $content_length - strlen($body));
-		}
-		else
-		{
-			while (!feof($this->fp))
+			}
+		} else {
+			while (!feof($this->fp)) {
 				$body .= fread($this->fp, 4096);
+			}
 		}
 
 		$this->response[$this->current_redirect]['success'] = true;
 		$this->response[$this->current_redirect]['body'] = $body;
 		$this->response[$this->current_redirect]['size'] = strlen($body);
 
-		if (!$this->keep_alive)
+		if (!$this->keep_alive) {
 			$this->closeConnection();
+		}
 
 		return $this;
 	}
@@ -305,15 +296,16 @@ class SocketFetcher extends WebFetchApi
 	 * @param string $area Used to return an area such as body, header, error.
 	 * @return mixed The response.
 	 */
-	public function result(string $area = null): mixed
+	public function result(?string $area = null): mixed
 	{
 		$max_result = count($this->response) - 1;
 
 		// Just return a specifed area or the entire result?
-		if (is_null($area))
+		if (is_null($area)) {
 			return $this->response[$max_result];
+		}
 
-		return isset($this->response[$max_result][$area]) ? $this->response[$max_result][$area] : $this->response[$max_result];
+		return $this->response[$max_result][$area] ?? $this->response[$max_result];
 	}
 
 	/**
@@ -325,17 +317,15 @@ class SocketFetcher extends WebFetchApi
 	 * @param int $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
-	public function resultRaw(int $response_number = null): array
+	public function resultRaw(?int $response_number = null): array
 	{
-		if (!isset($response_number))
-		{
+		if (!isset($response_number)) {
 			return $this->response;
 		}
-		else
-		{
-			$response_number = min($response_number, count($this->response) - 1);
-			return $this->response[$response_number];
-		}
+
+		$response_number = min($response_number, count($this->response) - 1);
+
+		return $this->response[$response_number];
 	}
 
 	/**
@@ -343,11 +333,13 @@ class SocketFetcher extends WebFetchApi
 	 */
 	public function closeConnection(): void
 	{
-		if (!isset($this->fp))
+		if (!isset($this->fp)) {
 			return;
+		}
 
-		if (is_resource($this->fp))
+		if (is_resource($this->fp)) {
 			fclose($this->fp);
+		}
 
 		unset($this->fp);
 	}

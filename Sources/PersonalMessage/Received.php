@@ -14,12 +14,10 @@
 namespace SMF\PersonalMessage;
 
 use SMF\ArrayAccessHelper;
-
-use SMF\Lang;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class represents the received copy of a personal message in a member's
@@ -32,7 +30,7 @@ use SMF\Db\DatabaseApi as Db;
  * misleading.
  */
 class Received implements \ArrayAccess
-{  
+{
 	use ArrayAccessHelper;
 
 	/*******************
@@ -110,7 +108,7 @@ class Received implements \ArrayAccess
 	 *
 	 * Labels assigned to this PM by the recipent.
 	 */
-	public array $labels = array();
+	public array $labels = [];
 
 	/**************************
 	 * Public static properties
@@ -121,7 +119,7 @@ class Received implements \ArrayAccess
 	 *
 	 * All loaded instances of this class.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/*********************
 	 * Internal properties
@@ -132,11 +130,11 @@ class Received implements \ArrayAccess
 	 *
 	 * Alternate names for some object properties.
 	 */
-	protected array $prop_aliases = array(
+	protected array $prop_aliases = [
 		'id_pm' => 'id',
 		'id_member' => 'member',
 		'real_name' => 'name',
-	);
+	];
 
 	/****************************
 	 * Internal static properties
@@ -158,7 +156,7 @@ class Received implements \ArrayAccess
 	 * Received::getRecent() was called with. The values are lists of PM IDs
 	 * that match those parameters.
 	 */
-	protected static array $recent = array();
+	protected static array $recent = [];
 
 	/****************
 	 * Public methods
@@ -169,13 +167,14 @@ class Received implements \ArrayAccess
 	 *
 	 * @param array $props Properties to set for this message.
 	 */
-	public function __construct(array $props = array())
+	public function __construct(array $props = [])
 	{
 		$this->set($props);
 		$this->getLabels();
 
-		if (isset($this->id, $this->member))
+		if (isset($this->id, $this->member)) {
 			self::$loaded[$this->id][$this->member] = $this;
+		}
 	}
 
 	/**
@@ -187,14 +186,14 @@ class Received implements \ArrayAccess
 	{
 		Label::load();
 
-		if (isset(Label::$loaded[$label_id]))
+		if (isset(Label::$loaded[$label_id])) {
 			$this->labels[] = $label_id;
+		}
 
 		// Some people want to remove the inbox label when adding a different label.
-		if (!empty(Theme::$current->options['pm_remove_inbox_label']) && $label_id !== -1)
-		{
+		if (!empty(Theme::$current->options['pm_remove_inbox_label']) && $label_id !== -1) {
 			$this->in_inbox = false;
-			$this->labels = array_diff($this->labels, array(-1));
+			$this->labels = array_diff($this->labels, [-1]);
 		}
 
 		$this->labels = array_unique($this->labels);
@@ -211,11 +210,10 @@ class Received implements \ArrayAccess
 	 */
 	public function removeLabel(int $label_id): void
 	{
-		$this->labels = array_diff($this->labels, array($label_id));
+		$this->labels = array_diff($this->labels, [$label_id]);
 
 		// If it has no labels, put it back in the inbox.
-		if (empty($this->labels) || in_array(-1, $this->labels))
-		{
+		if (empty($this->labels) || in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
 			$this->labels[] = -1;
 		}
@@ -236,11 +234,13 @@ class Received implements \ArrayAccess
 
 		$this->$labels = array_map('intval', $this->$labels);
 
-		if (empty($this->labels) || in_array(-1, $this->labels))
+		if (empty($this->labels) || in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
+		}
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}pm_recipients
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}pm_recipients
 			SET
 				id_member = {int:member},
 				bcc = {int:bcc},
@@ -249,7 +249,7 @@ class Received implements \ArrayAccess
 				deleted = {int:deleted},
 				in_inbox = {int:in_inbox}
 			WHERE id_pm = {int:id}',
-			array(
+			[
 				'id' => (int) $this->id,
 				'member' => (int) $this->member,
 				'bcc' => (int) $this->bcc,
@@ -257,35 +257,36 @@ class Received implements \ArrayAccess
 				'is_new' => (int) $this->is_new,
 				'deleted' => (int) $this->deleted,
 				'in_inbox' => (int) $this->in_inbox,
-			)
+			],
 		);
 
-		$labels = array_diff($this->labels, array(-1));
+		$labels = array_diff($this->labels, [-1]);
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}pm_labeled_messages
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}pm_labeled_messages
 			WHERE id_pm = {int:current_pm}' . (empty($labels) ? '' : '
 				AND id_label NOT IN ({array_int:labels})'),
-			array(
+			[
 				'current_pm' => $this->id,
 				'labels' => $labels,
-			)
+			],
 		);
 
-		if (!empty($labels))
-		{
-			$inserts = array();
+		if (!empty($labels)) {
+			$inserts = [];
 
-			foreach ($labels as $label)
-				$inserts[] = array($this->id, $label);
+			foreach ($labels as $label) {
+				$inserts[] = [$this->id, $label];
+			}
 
-			Db::$db->insert('ignore',
+			Db::$db->insert(
+				'ignore',
 				'{db_prefix}pm_labeled_messages',
-				array('id_pm' => 'int', 'id_label' => 'int'),
+				['id_pm' => 'int', 'id_label' => 'int'],
 				$inserts,
-				array()
+				[],
 			);
-
 		}
 	}
 
@@ -299,13 +300,10 @@ class Received implements \ArrayAccess
 	{
 		// This is a bitmap where the lowest bit is the read status and the
 		// second bit is the replied status.
-		if ($prop == 'is_read')
-		{
+		if ($prop == 'is_read') {
 			$this->unread = !($value & 0b01);
 			$this->replied = $value & 0b10;
-		}
-		else
-		{
+		} else {
 			$this->customPropertySet($prop, $value);
 		}
 	}
@@ -325,50 +323,51 @@ class Received implements \ArrayAccess
 	 */
 	public static function loadByPm(int|array $ids): array
 	{
-		$loaded = array();
+		$loaded = [];
 
 		$ids = (array) $ids;
 
 		// Have we already loaded these?
-		foreach ($ids as $key => $id)
-		{
-			if (isset(self::$loaded[$id]))
-			{
-				foreach (self::$loaded[$id] as $received)
+		foreach ($ids as $key => $id) {
+			if (isset(self::$loaded[$id])) {
+				foreach (self::$loaded[$id] as $received) {
 					$loaded[$id] = $received;
+				}
 
 				unset($ids[$key]);
 			}
 		}
 
-		if (empty($ids))
-		{
+		if (empty($ids)) {
 			ksort($loaded);
+
 			return $loaded;
 		}
 
 		// We have new ones that we need to load.
-		$selects = array(
+		$selects = [
 			'pmr.*',
-			'COALESCE(mem.real_name, "") AS real_name'
-		);
+			'COALESCE(mem.real_name, "") AS real_name',
+		];
 
-		$joins = array(
+		$joins = [
 			'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)',
-		);
+		];
 
-		$where = array(
+		$where = [
 			'pmr.id_pm IN ({array_int:ids})',
-		);
+		];
 
-		$params = array(
+		$params = [
 			'ids' => $ids,
-		);
+		];
 
-		foreach (self::queryData($selects, $params, $joins, $where) as $row)
+		foreach (self::queryData($selects, $params, $joins, $where) as $row) {
 			$loaded[(int) $row['id_pm']] = new self($row);
+		}
 
 		ksort($loaded);
+
 		return $loaded;
 	}
 
@@ -377,28 +376,27 @@ class Received implements \ArrayAccess
 	 */
 	public static function loadUnread(): array
 	{
-		$loaded = array();
+		$loaded = [];
 
-		$selects = array(
+		$selects = [
 			'pmr.*',
-		);
+		];
 
-		$joins = array();
+		$joins = [];
 
-		$where = array(
+		$where = [
 			'pmr.id_member = {int:me}',
 			'pmr.is_read = {int:not_read}',
 			'pmr.deleted = {int:not_deleted}',
-		);
+		];
 
-		$params = array(
+		$params = [
 			'me' => User::$me->id,
 			'not_read' => 0,
 			'not_deleted' => 0,
-		);
+		];
 
-		foreach (self::queryData($selects, $params, $joins, $where) as $row)
-		{
+		foreach (self::queryData($selects, $params, $joins, $where) as $row) {
 			$loaded[] = new self($row);
 		}
 
@@ -413,30 +411,31 @@ class Received implements \ArrayAccess
 	 */
 	public static function old(int $time): array
 	{
-		$ids = array();
+		$ids = [];
 
-		$selects = array(
+		$selects = [
 			'pmr.id_pm',
-		);
+		];
 
-		$joins = array(
+		$joins = [
 			'INNER JOIN {db_prefix}personal_messages AS pm ON (pm.id_pm = pmr.id_pm)',
-		);
+		];
 
-		$where = array(
+		$where = [
 			'pmr.id_member = {int:me}',
 			'pmr.deleted = {int:not_deleted}',
 			'pm.msgtime < {int:time}',
-		);
+		];
 
-		$params = array(
+		$params = [
 			'me' => User::$me->id,
 			'not_deleted' => 0,
 			'time' => $time,
-		);
+		];
 
-		foreach (self::queryData($selects, $params, $joins, $where) as $row)
+		foreach (self::queryData($selects, $params, $joins, $where) as $row) {
 			$ids[] = $row['id_pm'];
+		}
 
 		return $loaded;
 	}
@@ -453,41 +452,36 @@ class Received implements \ArrayAccess
 	{
 		$num = 0;
 
-		$selects = array(
+		$selects = [
 			'COUNT(*)',
-		);
+		];
 
-		$joins = array();
+		$joins = [];
 
-		$where = array(
+		$where = [
 			'pmr.id_member = {int:me}',
 			'pmr.deleted = {int:not_deleted}',
-		);
+		];
 
-		$params = array(
+		$params = [
 			'me' => User::$me->id,
 			'not_deleted' => 0,
-		);
+		];
 
-		if ($label === -1)
-		{
+		if ($label === -1) {
 			$where[] = 'pmr.in_inbox = 1';
-		}
-		else
-		{
+		} else {
 			$joins[] = 'INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pmr.id_pm)';
 			$where[] = 'pl.id_label = {int:label}';
 			$params['label'] = $label;
 		}
 
-		if (!empty($boundary))
-		{
+		if (!empty($boundary)) {
 			$where[] = 'pmr.id_pm ' . ($greater_than ? '>' : '<') . ' {int:boundary}';
 			$params['boundary'] = $boundary;
 		}
 
-		foreach (self::queryData($selects, $params, $joins, $where) as $row)
-		{
+		foreach (self::queryData($selects, $params, $joins, $where) as $row) {
 			$num += reset($row);
 		}
 
@@ -503,6 +497,7 @@ class Received implements \ArrayAccess
 	public static function getLatest(int $label = -1): int
 	{
 		$latest = self::getRecent($label, 'pmr.id_pm', true, 1);
+
 		return reset($latest);
 	}
 
@@ -521,53 +516,52 @@ class Received implements \ArrayAccess
 	 *    Default: 0.
 	 * @return array The IDs of the most recent PMs.
 	 */
-	public static function getRecent(int $label = -1, string $sort = 'pmr.id_pm', bool $descending = true, int $limit = 0, int $offset = 0,): array
+	public static function getRecent(int $label = -1, string $sort = 'pmr.id_pm', bool $descending = true, int $limit = 0, int $offset = 0): array
 	{
-		$paramskey = Utils::jsonEncode(array($label, $sort, $descending, $limit, $offset));
+		$paramskey = Utils::jsonEncode([$label, $sort, $descending, $limit, $offset]);
 
-		if (isset(self::$recent[$paramskey]))
+		if (isset(self::$recent[$paramskey])) {
 			return self::$recent[$paramskey];
+		}
 
-		$joins = array();
+		$joins = [];
 
-		$where = array(
+		$where = [
 			'pmr.id_member = {int:me}',
 			'pmr.deleted = 0',
-		);
+		];
 
-		$params = array(
+		$params = [
 			'me' => User::$me->id,
-		);
+		];
 
-		if ($label === -1)
-		{
+		if ($label === -1) {
 			$where[] = 'pmr.in_inbox = 1';
 		}
 		// If you're viewing a label, it's still the inbox, but filtered
 		// to only show the PMs that have that label.
-		else
-		{
+		else {
 			$joins[] = 'INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pmr.id_pm)';
 			$where[] = 'pl.id_label = {int:label}';
 			$params['label'] = $label;
 		}
 
-		if ($sort == 'COALESCE(mem.real_name, \'\')')
-		{
+		if ($sort == 'COALESCE(mem.real_name, \'\')') {
 			$joins[] = 'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)';
 		}
 
-		$request = Db::$db->query('', '
-			SELECT pmr.id_pm
+		$request = Db::$db->query(
+			'',
+			'SELECT pmr.id_pm
 			FROM {db_prefix}pm_recipients AS pmr' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
 			WHERE (' . implode(') AND (', $where) . ')
 			ORDER BY ' . ($sort == 'pm.id_pm' ? 'pmr.id_pm' : $sort) . ($descending ? ' DESC' : ' ASC') . (!empty($limit) ? '
 			LIMIT ' . $offset . ', ' . $limit : ''),
-			$params
+			$params,
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			self::$recent[$paramskey][] = $row['id_pm'];
 		}
 		Db::$db->free_result($request);
@@ -580,16 +574,17 @@ class Received implements \ArrayAccess
 	 */
 	public static function setNotNew(): void
 	{
-		User::updateMemberData(User::$me->id, array('new_pm' => 0));
+		User::updateMemberData(User::$me->id, ['new_pm' => 0]);
 
-		Db::$db->query('', '
-			UPDATE {db_prefix}pm_recipients
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}pm_recipients
 			SET is_new = {int:not_new}
 			WHERE id_member = {int:me}',
-			array(
+			[
 				'me' => User::$me->id,
 				'not_new' => 0,
-			)
+			],
 		);
 	}
 
@@ -604,17 +599,19 @@ class Received implements \ArrayAccess
 	 */
 	protected function getLabels(): void
 	{
-		if ($this->in_inbox)
+		if ($this->in_inbox) {
 			$this->labels[] = -1;
-
-		foreach (Label::load() as $label)
-		{
-			if (in_array($this->id, $label->pms))
-				$this->labels[] = $label->id;
 		}
 
-		if (empty($this->labels) || in_array(-1, $this->labels))
+		foreach (Label::load() as $label) {
+			if (in_array($this->id, $label->pms)) {
+				$this->labels[] = $label->id;
+			}
+		}
+
+		if (empty($this->labels) || in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
+		}
 
 		sort($this->labels);
 	}
@@ -643,20 +640,21 @@ class Received implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = array(), array $joins = array(), array $where = array(), array $order = array(), array $group = array(), int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
-		self::$messages_request = Db::$db->query('', '
-			SELECT
+		self::$messages_request = Db::$db->query(
+			'',
+			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}pm_recipients AS pmr' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
 			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
 			ORDER BY ' . implode(', ', $order)) . (empty($group) ? '' : '
 			LIMIT ' . $limit),
-			$params
+			$params,
 		);
-		while ($row = Db::$db->fetch_assoc(self::$messages_request))
-		{
+
+		while ($row = Db::$db->fetch_assoc(self::$messages_request)) {
 			yield $row;
 		}
 		Db::$db->free_result(self::$messages_request);

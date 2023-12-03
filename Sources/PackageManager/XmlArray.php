@@ -61,18 +61,19 @@ class XmlArray
 		$this->trim = $auto_trim;
 
 		// Is the data already parsed?
-		if ($is_clone)
-		{
+		if ($is_clone) {
 			$this->array = $data;
+
 			return;
 		}
 
 		// Is the input an array? (ie. passed from file()?)
-		if (is_array($data))
+		if (is_array($data)) {
 			$data = implode('', $data);
+		}
 
 		// Remove any xml declaration or doctype, and parse out comments and CDATA.
-		$data = preg_replace('/<!--.*?-->/s', '', $this->_to_cdata(preg_replace(array('/^<\?xml.+?\?' . '>/is', '/<!DOCTYPE[^>]+?' . '>/s'), '', $data)));
+		$data = preg_replace('/<!--.*?-->/s', '', $this->_to_cdata(preg_replace(['/^<\?xml.+?\?' . '>/is', '/<!DOCTYPE[^>]+?' . '>/s'], '', $data)));
 
 		// Now parse the xml!
 		$this->array = $this->_parse($data);
@@ -87,7 +88,7 @@ class XmlArray
 	 */
 	public function name()
 	{
-		return isset($this->array['name']) ? $this->array['name'] : '';
+		return $this->array['name'] ?? '';
 	}
 
 	/**
@@ -106,20 +107,20 @@ class XmlArray
 		// Get the element, in array form.
 		$array = $this->path($path);
 
-		if ($array === false)
+		if ($array === false) {
 			return false;
+		}
 
 		// Getting elements into this is a bit complicated...
-		if ($get_elements && !is_string($array))
-		{
+		if ($get_elements && !is_string($array)) {
 			$temp = '';
 
 			// Use the _xml() function to get the xml data.
-			foreach ($array->array as $val)
-			{
+			foreach ($array->array as $val) {
 				// Skip the name and any attributes.
-				if (is_array($val))
+				if (is_array($val)) {
 					$temp .= $this->_xml($val, null);
+				}
 			}
 
 			// Just get the XML data and then take out the CDATAs.
@@ -150,47 +151,46 @@ class XmlArray
 		$array = $this->array;
 
 		// For each element in the path.
-		foreach ($path as $el)
-		{
+		foreach ($path as $el) {
 			// Deal with sets....
-			if (strpos($el, '[') !== false)
-			{
+			if (strpos($el, '[') !== false) {
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@')
-			{
+			elseif (substr($el, 0, 1) == '@') {
 				// It simplifies things if the attribute is already there ;).
-				if (isset($array[$el]))
+				if (isset($array[$el])) {
 					return $array[$el];
-				else
-				{
-					$trace = debug_backtrace();
-					$i = 0;
-					while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this))
-						$i++;
-					$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
-
-					// Cause an error.
-					if ($this->debug_level & E_NOTICE)
-					{
-						Lang::load('Errors');
-						trigger_error(sprintf(Lang::$txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
-					}
-					return false;
 				}
-			}
-			else
+
+				$trace = debug_backtrace();
+				$i = 0;
+
+				while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this)) {
+					$i++;
+				}
+				$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
+
+				// Cause an error.
+				if ($this->debug_level & E_NOTICE) {
+					Lang::load('Errors');
+					trigger_error(sprintf(Lang::$txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
+				}
+
+				return false;
+			} else {
 				$lvl = null;
+			}
 
 			// Find this element.
 			$array = $this->_path($array, $el, $lvl);
 		}
 
 		// Clean up after $lvl, for $return_full.
-		if ($return_full && (!isset($array['name']) || substr($array['name'], -1) != ']'))
-			$array = array('name' => $el . '[]', $array);
+		if ($return_full && (!isset($array['name']) || substr($array['name'], -1) != ']')) {
+			$array = ['name' => $el . '[]', $array];
+		}
 
 		// Create the right type of class...
 		$newClass = get_class($this);
@@ -205,7 +205,7 @@ class XmlArray
 	 *  echo $xml->exists('html/body') ? 'y' : 'n';
 	 *
 	 * @param string $path The path to the element to get.
-	 * @return boolean Whether the specified path exists
+	 * @return bool Whether the specified path exists
 	 */
 	public function exists($path)
 	{
@@ -216,19 +216,18 @@ class XmlArray
 		$array = $this->array;
 
 		// For each element in the path.
-		foreach ($path as $el)
-		{
+		foreach ($path as $el) {
 			// Deal with sets....
-			if (strpos($el, '[') !== false)
-			{
+			if (strpos($el, '[') !== false) {
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@')
+			elseif (substr($el, 0, 1) == '@') {
 				return isset($array[$el]);
-			else
+			} else {
 				$lvl = null;
+			}
 
 			// Find this element.
 			$array = $this->_path($array, $el, $lvl, true);
@@ -252,10 +251,11 @@ class XmlArray
 
 		// Start at zero, then count up all the numeric keys.
 		$i = 0;
-		foreach ($temp->array as $item)
-		{
-			if (is_array($item))
+
+		foreach ($temp->array as $item) {
+			if (is_array($item)) {
 				$i++;
+			}
 		}
 
 		return $i;
@@ -274,14 +274,14 @@ class XmlArray
 	public function set($path)
 	{
 		// None as yet, just get the path.
-		$array = array();
+		$array = [];
 		$xml = $this->path($path, true);
 
-		foreach ($xml->array as $val)
-		{
+		foreach ($xml->array as $val) {
 			// Skip these, they aren't elements.
-			if (!is_array($val) || $val['name'] == '!')
+			if (!is_array($val) || $val['name'] == '!') {
 				continue;
+			}
 
 			// Create the right type of class...
 			$newClass = get_class($this);
@@ -304,19 +304,20 @@ class XmlArray
 	public function create_xml($path = null)
 	{
 		// Was a path specified?  If so, use that array.
-		if ($path !== null)
-		{
+		if ($path !== null) {
 			$path = $this->path($path);
 
 			// The path was not found
-			if ($path === false)
+			if ($path === false) {
 				return false;
+			}
 
 			$path = $path->array;
 		}
 		// Just use the current array.
-		else
+		else {
 			$path = $this->array;
+		}
 
 		// Add the xml declaration to the front.
 		return '<?xml version="1.0"?' . '>' . $this->_xml($path, 0);
@@ -333,19 +334,20 @@ class XmlArray
 	public function to_array($path = null)
 	{
 		// Are we doing a specific path?
-		if ($path !== null)
-		{
+		if ($path !== null) {
 			$path = $this->path($path);
 
 			// The path was not found
-			if ($path === false)
+			if ($path === false) {
 				return false;
+			}
 
 			$path = $path->array;
 		}
 		// No, so just use the current array.
-		else
+		else {
 			$path = $this->array;
+		}
 
 		return $this->_array($path);
 	}
@@ -359,68 +361,66 @@ class XmlArray
 	protected function _parse($data)
 	{
 		// Start with an 'empty' array with no data.
-		$current = array(
-		);
+		$current = [
+		];
 
 		// Loop until we're out of data.
-		while ($data != '')
-		{
+		while ($data != '') {
 			// Find and remove the next tag.
 			preg_match('/\A<([\w\-:]+)((?:\s+.+?)?)([\s]?\/)?' . '>/', $data, $match);
-			if (isset($match[0]))
+
+			if (isset($match[0])) {
 				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);
+			}
 
 			// Didn't find a tag?  Keep looping....
-			if (!isset($match[1]) || $match[1] == '')
-			{
+			if (!isset($match[1]) || $match[1] == '') {
 				// If there's no <, the rest is data.
-				if (strpos($data, '<') === false)
-				{
+				if (strpos($data, '<') === false) {
 					$text_value = $this->_from_cdata($data);
 					$data = '';
 
-					if ($text_value != '')
-						$current[] = array(
+					if ($text_value != '') {
+						$current[] = [
 							'name' => '!',
-							'value' => $text_value
-						);
+							'value' => $text_value,
+						];
+					}
 				}
 				// If the < isn't immediately next to the current position... more data.
-				elseif (strpos($data, '<') > 0)
-				{
+				elseif (strpos($data, '<') > 0) {
 					$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<')));
 					$data = substr($data, strpos($data, '<'));
 
-					if ($text_value != '')
-						$current[] = array(
+					if ($text_value != '') {
+						$current[] = [
 							'name' => '!',
-							'value' => $text_value
-						);
+							'value' => $text_value,
+						];
+					}
 				}
 				// If we're looking at a </something> with no start, kill it.
-				elseif (strpos($data, '<') !== false && strpos($data, '<') == 0)
-				{
-					if (strpos($data, '<', 1) !== false)
-					{
+				elseif (strpos($data, '<') !== false && strpos($data, '<') == 0) {
+					if (strpos($data, '<', 1) !== false) {
 						$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<', 1)));
 						$data = substr($data, strpos($data, '<', 1));
 
-						if ($text_value != '')
-							$current[] = array(
+						if ($text_value != '') {
+							$current[] = [
 								'name' => '!',
-								'value' => $text_value
-							);
-					}
-					else
-					{
+								'value' => $text_value,
+							];
+						}
+					} else {
 						$text_value = $this->_from_cdata($data);
 						$data = '';
 
-						if ($text_value != '')
-							$current[] = array(
+						if ($text_value != '') {
+							$current[] = [
 								'name' => '!',
-								'value' => $text_value
-							);
+								'value' => $text_value,
+							];
+						}
 					}
 				}
 
@@ -433,65 +433,67 @@ class XmlArray
 			$el['name'] = $match[1];
 
 			// If this ISN'T empty, remove the close tag and parse the inner data.
-			if ((!isset($match[3]) || trim($match[3]) != '/') && (!isset($match[2]) || trim($match[2]) != '/'))
-			{
+			if ((!isset($match[3]) || trim($match[3]) != '/') && (!isset($match[2]) || trim($match[2]) != '/')) {
 				// Because PHP 5.2.0+ seems to croak using regex, we'll have to do this the less fun way.
 				$last_tag_end = strpos($data, '</' . $match[1] . '>');
-				if ($last_tag_end === false)
+
+				if ($last_tag_end === false) {
 					continue;
+				}
 
 				$offset = 0;
-				while (1 == 1)
-				{
+
+				while (1 == 1) {
 					// Where is the next start tag?
 					$next_tag_start = strpos($data, '<' . $match[1], $offset);
+
 					// If the next start tag is after the last end tag then we've found the right close.
-					if ($next_tag_start === false || $next_tag_start > $last_tag_end)
+					if ($next_tag_start === false || $next_tag_start > $last_tag_end) {
 						break;
+					}
 
 					// If not then find the next ending tag.
 					$next_tag_end = strpos($data, '</' . $match[1] . '>', $offset);
 
 					// Didn't find one? Then just use the last and sod it.
-					if ($next_tag_end === false)
+					if ($next_tag_end === false) {
 						break;
-					else
-					{
-						$last_tag_end = $next_tag_end;
-						$offset = $next_tag_start + 1;
 					}
+
+					$last_tag_end = $next_tag_end;
+					$offset = $next_tag_start + 1;
 				}
 				// Parse the insides.
 				$inner_match = substr($data, 0, $last_tag_end);
 				// Data now starts from where this section ends.
 				$data = substr($data, $last_tag_end + strlen('</' . $match[1] . '>'));
 
-				if (!empty($inner_match))
-				{
+				if (!empty($inner_match)) {
 					// Parse the inner data.
-					if (strpos($inner_match, '<') !== false)
+					if (strpos($inner_match, '<') !== false) {
 						$el += $this->_parse($inner_match);
-					elseif (trim($inner_match) != '')
-					{
+					} elseif (trim($inner_match) != '') {
 						$text_value = $this->_from_cdata($inner_match);
-						if ($text_value != '')
-							$el[] = array(
+
+						if ($text_value != '') {
+							$el[] = [
 								'name' => '!',
-								'value' => $text_value
-							);
+								'value' => $text_value,
+							];
+						}
 					}
 				}
 			}
 
 			// If we're dealing with attributes as well, parse them out.
-			if (isset($match[2]) && $match[2] != '')
-			{
+			if (isset($match[2]) && $match[2] != '') {
 				// Find all the attribute pairs in the string.
 				preg_match_all('/([\w:]+)="(.+?)"/', $match[2], $attr, PREG_SET_ORDER);
 
 				// Set them as @attribute-name.
-				foreach ($attr as $match_attr)
+				foreach ($attr as $match_attr) {
 					$el['@' . $match_attr[1]] = $match_attr[2];
+				}
 			}
 		}
 
@@ -512,19 +514,24 @@ class XmlArray
 ' . str_repeat('	', $indent) : '';
 
 		// This is a set of elements, with no name...
-		if (is_array($array) && !isset($array['name']))
-		{
+		if (is_array($array) && !isset($array['name'])) {
 			$temp = '';
-			foreach ($array as $val)
+
+			foreach ($array as $val) {
 				$temp .= $this->_xml($val, $indent);
+			}
+
 			return $temp;
 		}
 
 		// This is just text!
-		if ($array['name'] == '!')
+		if ($array['name'] == '!') {
 			return $indentation . '<![CDATA[' . $array['value'] . ']]>';
-		elseif (substr($array['name'], -2) == '[]')
+		}
+
+		if (substr($array['name'], -2) == '[]') {
 			$array['name'] = substr($array['name'], 0, -2);
+		}
 
 		// Start the element.
 		$output = $indentation . '<' . $array['name'];
@@ -533,22 +540,21 @@ class XmlArray
 		$output_el = '';
 
 		// Run through and recursively output all the elements or attributes inside this.
-		foreach ($array as $k => $v)
-		{
-			if (substr($k, 0, 1) == '@')
+		foreach ($array as $k => $v) {
+			if (substr($k, 0, 1) == '@') {
 				$output .= ' ' . substr($k, 1) . '="' . $v . '"';
-			elseif (is_array($v))
-			{
+			} elseif (is_array($v)) {
 				$output_el .= $this->_xml($v, $indent === null ? null : $indent + 1);
 				$inside_elements = true;
 			}
 		}
 
 		// Indent, if necessary.... then close the tag.
-		if ($inside_elements)
+		if ($inside_elements) {
 			$output .= '>' . $output_el . $indentation . '</' . $array['name'] . '>';
-		else
+		} else {
 			$output .= ' />';
+		}
 
 		return $output;
 	}
@@ -561,23 +567,26 @@ class XmlArray
 	 */
 	protected function _array($array)
 	{
-		$return = array();
+		$return = [];
 		$text = '';
-		foreach ($array as $value)
-		{
-			if (!is_array($value) || !isset($value['name']))
-				continue;
 
-			if ($value['name'] == '!')
+		foreach ($array as $value) {
+			if (!is_array($value) || !isset($value['name'])) {
+				continue;
+			}
+
+			if ($value['name'] == '!') {
 				$text .= $value['value'];
-			else
+			} else {
 				$return[$value['name']] = $this->_array($value);
+			}
 		}
 
-		if (empty($return))
+		if (empty($return)) {
 			return $text;
-		else
-			return $return;
+		}
+
+		return $return;
 	}
 
 	/**
@@ -586,33 +595,38 @@ class XmlArray
 	 * @param string $data The data with CDATA tags included
 	 * @return string The data contained within CDATA tags
 	 */
-	function _to_cdata($data)
+	public function _to_cdata($data)
 	{
 		$inCdata = $inComment = false;
 		$output = '';
 
 		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
-		foreach ($parts as $part)
-		{
+
+		foreach ($parts as $part) {
 			// Handle XML comments.
-			if (!$inCdata && $part === '<!--')
+			if (!$inCdata && $part === '<!--') {
 				$inComment = true;
-			if ($inComment && $part === '-->')
+			}
+
+			if ($inComment && $part === '-->') {
 				$inComment = false;
-			elseif ($inComment)
+			} elseif ($inComment) {
 				continue;
+			}
 
 			// Handle Cdata blocks.
-			elseif (!$inComment && $part === '<![CDATA[')
+			elseif (!$inComment && $part === '<![CDATA[') {
 				$inCdata = true;
-			elseif ($inCdata && $part === ']]>')
+			} elseif ($inCdata && $part === ']]>') {
 				$inCdata = false;
-			elseif ($inCdata)
+			} elseif ($inCdata) {
 				$output .= htmlentities($part, ENT_QUOTES);
+			}
 
 			// Everything else is kept as is.
-			else
+			else {
 				$output .= $part;
+			}
 		}
 
 		return $output;
@@ -633,13 +647,12 @@ class XmlArray
 		$data = strtr(
 			preg_replace_callback(
 				'~&#(\d{1,4});~',
-				function($m)
-				{
-					return chr("$m[1]");
+				function ($m) {
+					return chr("{$m[1]}");
 				},
-				$data
+				$data,
 			),
-			$trans_tbl
+			$trans_tbl,
 		);
 
 		return $this->trim ? trim($data) : $data;
@@ -654,22 +667,26 @@ class XmlArray
 	protected function _fetch($array)
 	{
 		// Don't return anything if this is just a string.
-		if (is_string($array))
+		if (is_string($array)) {
 			return '';
+		}
 
 		$temp = '';
-		foreach ($array as $text)
-		{
+
+		foreach ($array as $text) {
 			// This means it's most likely an attribute or the name itself.
-			if (!isset($text['name']))
+			if (!isset($text['name'])) {
 				continue;
+			}
 
 			// This is text!
-			if ($text['name'] == '!')
+			if ($text['name'] == '!') {
 				$temp .= $text['value'];
+			}
 			// Another element - dive in ;).
-			else
+			else {
 				$temp .= $this->_fetch($text);
+			}
 		}
 
 		// Return all the bits and pieces we've put together.
@@ -688,58 +705,63 @@ class XmlArray
 	protected function _path($array, $path, $level, $no_error = false)
 	{
 		// Is $array even an array?  It might be false!
-		if (!is_array($array))
+		if (!is_array($array)) {
 			return false;
+		}
 
 		// Asking for *no* path?
-		if ($path == '' || $path == '.')
+		if ($path == '' || $path == '.') {
 			return $array;
+		}
 		$paths = explode('|', $path);
 
 		// A * means all elements of any name.
 		$show_all = in_array('*', $paths);
 
-		$results = array();
+		$results = [];
 
 		// Check each element.
-		foreach ($array as $value)
-		{
-			if (!is_array($value) || $value['name'] === '!')
+		foreach ($array as $value) {
+			if (!is_array($value) || $value['name'] === '!') {
 				continue;
+			}
 
-			if ($show_all || in_array($value['name'], $paths))
-			{
+			if ($show_all || in_array($value['name'], $paths)) {
 				// Skip elements before "the one".
-				if ($level !== null && $level > 0)
+				if ($level !== null && $level > 0) {
 					$level--;
-				else
+				} else {
 					$results[] = $value;
+				}
 			}
 		}
 
 		// No results found...
-		if (empty($results))
-		{
+		if (empty($results)) {
 			$trace = debug_backtrace();
 			$i = 0;
-			while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this))
+
+			while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this)) {
 				$i++;
+			}
 			$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
 
 			// Cause an error.
-			if ($this->debug_level & E_NOTICE && !$no_error)
-			{
+			if ($this->debug_level & E_NOTICE && !$no_error) {
 				Lang::load('Errors');
 				trigger_error(sprintf(Lang::$txt['undefined_xml_element'], $path . $debug), E_USER_NOTICE);
 			}
+
 			return false;
 		}
+
 		// Only one result.
-		elseif (count($results) == 1 || $level !== null)
+		if (count($results) == 1 || $level !== null) {
 			return $results[0];
+		}
+
 		// Return the result set.
-		else
-			return $results + array('name' => $path . '[]');
+		return $results + ['name' => $path . '[]'];
 	}
 }
 

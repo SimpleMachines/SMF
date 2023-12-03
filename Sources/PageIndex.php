@@ -27,11 +27,11 @@ class PageIndex implements \Stringable
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'load' => 'constructPageIndex',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -39,14 +39,14 @@ class PageIndex implements \Stringable
 
 	/**
 	 * @var string
-	 * 
+	 *
 	 * The base URL for all the page index links.
 	 */
 	public string $base_url;
 
 	/**
 	 * @var int
-	 * 
+	 *
 	 * The value we are starting at.
 	 *
 	 * Should be the number of a specific item in the overall paginated list.
@@ -55,28 +55,28 @@ class PageIndex implements \Stringable
 
 	/**
 	 * @var int
-	 * 
+	 *
 	 * The total number of items in the overall paginated list.
 	 */
 	public int $max_value;
 
 	/**
 	 * @var int
-	 * 
+	 *
 	 * How many items to show per page.
 	 */
 	public int $num_per_page;
 
 	/**
 	 * @var bool
-	 * 
+	 *
 	 * Whether to use "url.offset" format instead of "url;start=offset" format.
 	 */
 	public bool $short_format = false;
 
 	/**
 	 * @var bool
-	 * 
+	 *
 	 * Set this to false to hide the previous page and next page arrow links.
 	 */
 	public bool $show_prevnext = true;
@@ -225,17 +225,17 @@ class PageIndex implements \Stringable
 
 		$this->extra_before = str_replace('{txt_pages}', Lang::$txt['pages'], $this->extra_before);
 
-		if (isset(Theme::$current->settings['page_index']))
-		{
-			foreach (Theme::$current->settings['page_index'] as $key => $value)
-			{
-				if (property_exists($this, $key))
+		if (isset(Theme::$current->settings['page_index'])) {
+			foreach (Theme::$current->settings['page_index'] as $key => $value) {
+				if (property_exists($this, $key)) {
 					$this->{$key} = $value;
+				}
 			}
 		}
 
-		if (!isset(Utils::$context['current_page']))
+		if (!isset(Utils::$context['current_page'])) {
 			Utils::$context['current_page'] = $this->start / $this->num_per_page;
+		}
 	}
 
 	/**
@@ -254,7 +254,7 @@ class PageIndex implements \Stringable
 		$this->last_page_value = $this->max_value - $this->max_value % $this->num_per_page;
 		$this->current_page_num = $this->start / $this->num_per_page + 1;
 		$this->last_page_num = $this->last_page_value / $this->num_per_page + 1;
-		$this->base_link = strtr($this->page, array('{URL}' => $this->short_format ? $this->base_url : strtr($this->base_url, array('%' => '%%')) . ';start=%1$d'));
+		$this->base_link = strtr($this->page, ['{URL}' => $this->short_format ? $this->base_url : strtr($this->base_url, ['%' => '%%']) . ';start=%1$d']);
 
 		// If they didn't enter an odd value, pretend they did.
 		$this->page_contiguous = (int) ((Config::$modSettings['compactTopicPagesContiguous'] ?? 5) - ((Config::$modSettings['compactTopicPagesContiguous'] ?? 5) % 2)) / 2;
@@ -264,12 +264,9 @@ class PageIndex implements \Stringable
 		$pageindex .= $this->prevPage();
 
 		// Compact pages is off or on?
-		if (empty(Config::$modSettings['compactTopicPagesEnable']))
-		{
+		if (empty(Config::$modSettings['compactTopicPagesEnable'])) {
 			$pageindex .= $this->pageRange(1, $this->last_page_num);
-		}
-		else
-		{
+		} else {
 			$pageindex .= $this->firstPage();
 			$pageindex .= $this->expandPages();
 			$pageindex .= $this->pageRange($this->current_page_num - $this->page_contiguous, $this->current_page_num + $this->page_contiguous);
@@ -326,8 +323,7 @@ class PageIndex implements \Stringable
 	 */
 	protected function prevPage(): string
 	{
-		if ($this->start != 0 && !$this->start_invalid && $this->show_prevnext)
-		{
+		if ($this->start != 0 && !$this->start_invalid && $this->show_prevnext) {
 			return sprintf($this->base_link, $this->start - $this->num_per_page, $this->previous_page);
 		}
 
@@ -340,8 +336,7 @@ class PageIndex implements \Stringable
 	 */
 	protected function nextPage(): string
 	{
-		if ($this->start != $this->last_page_value && !$this->start_invalid && $this->show_prevnext)
-		{
+		if ($this->start != $this->last_page_value && !$this->start_invalid && $this->show_prevnext) {
 			return sprintf($this->base_link, $this->start + $this->num_per_page, $this->next_page);
 		}
 
@@ -354,8 +349,9 @@ class PageIndex implements \Stringable
 	 */
 	protected function firstPage(): string
 	{
-		if ($this->current_page_num - $this->page_contiguous > 1)
+		if ($this->current_page_num - $this->page_contiguous > 1) {
 			return sprintf($this->base_link, 0, '1');
+		}
 
 		return '';
 	}
@@ -366,8 +362,9 @@ class PageIndex implements \Stringable
 	 */
 	protected function lastPage(): string
 	{
-		if ($this->current_page_num + $this->page_contiguous < $this->last_page_num)
+		if ($this->current_page_num + $this->page_contiguous < $this->last_page_num) {
 			return sprintf($this->base_link, $this->last_page_value, $this->last_page_num);
+		}
 
 		return '';
 	}
@@ -385,25 +382,20 @@ class PageIndex implements \Stringable
 		$min = max(1, $min);
 		$max = min($this->last_page_num, $max);
 
-		for ($counter = $min; $counter <= $max; $counter++)
-		{
+		for ($counter = $min; $counter <= $max; $counter++) {
 			// Show the current page. (prev page 1 ... 6 7 >[8]< 9 10 ... 15 next page)
-			if ($counter == $this->current_page_num)
-			{
+			if ($counter == $this->current_page_num) {
 				// If start was invalid, show page number as a link to the proper start value.
-				if ($this->start_invalid)
-				{
+				if ($this->start_invalid) {
 					$page_range .= sprintf($this->base_link, $this->start, $this->current_page_num);
 				}
 				// Show page number as plain text.
-				else
-				{
+				else {
 					$page_range .= sprintf($this->current_page, $this->current_page_num);
 				}
 			}
 			// Show other pages.
-			else
-			{
+			else {
 				$page_range .= sprintf($this->base_link, ($counter - 1) * $this->num_per_page, $counter);
 			}
 		}
@@ -426,36 +418,36 @@ class PageIndex implements \Stringable
 	 */
 	protected function expandPages(bool $after = false): string
 	{
-		if (empty(Config::$modSettings['compactTopicPagesEnable']))
+		if (empty(Config::$modSettings['compactTopicPagesEnable'])) {
 			return '';
+		}
 
-		if (!$after)
-		{
+		if (!$after) {
 			$should_show = $this->start > $this->num_per_page * ($this->page_contiguous + 1);
 			$first_page = $this->num_per_page;
 			$last_page = $this->start - $this->num_per_page * $this->page_contiguous;
-		}
-		else
-		{
+		} else {
 			$should_show = $this->start + $this->num_per_page * ($this->page_contiguous + 1) < $this->last_page_value;
 			$first_page = $this->start + $this->num_per_page * ($this->page_contiguous + 1);
 			$last_page = $this->last_page_value;
 		}
 
-		if (!$should_show)
+		if (!$should_show) {
 			return '';
+		}
 
-		return strtr($this->expand_pages, array(
+		return strtr($this->expand_pages, [
 			'{LINK}' => Utils::JavaScriptEscape(Utils::htmlspecialchars($this->base_link)),
 			'{FIRST_PAGE}' => $first_page,
 			'{LAST_PAGE}' => $last_page,
 			'{PER_PAGE}' => $this->num_per_page,
-		));
+		]);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\PageIndex::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\PageIndex::exportStatic')) {
 	PageIndex::exportStatic();
+}
 
 ?>

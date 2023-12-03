@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_strtolower.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_strtolower_simple_maps()
 {
-	return array(
+	return [
 		"\x41" => "\x61",
 		"\x42" => "\x62",
 		"\x43" => "\x63",
@@ -1460,7 +1461,7 @@ function utf8_strtolower_simple_maps()
 		"\xF0\x9E\xA4\x9F" => "\xF0\x9E\xA5\x81",
 		"\xF0\x9E\xA4\xA0" => "\xF0\x9E\xA5\x82",
 		"\xF0\x9E\xA4\xA1" => "\xF0\x9E\xA5\x83",
-	);
+	];
 }
 
 /**
@@ -1473,7 +1474,7 @@ function utf8_strtolower_simple_maps()
  */
 function utf8_strtolower_maps()
 {
-	return array(
+	return [
 		"\x41" => "\x61",
 		"\x42" => "\x62",
 		"\x43" => "\x63",
@@ -2982,7 +2983,7 @@ function utf8_strtolower_maps()
 		"\xEF\xBC\xB8" => "\xEF\xBD\x98",
 		"\xEF\xBC\xB9" => "\xEF\xBD\x99",
 		"\xEF\xBC\xBA" => "\xEF\xBD\x9A",
-	);
+	];
 }
 
 ?>

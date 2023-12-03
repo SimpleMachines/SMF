@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_casefold.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_casefold_simple_maps()
 {
-	return array(
+	return [
 		"\x41" => "\x61",
 		"\x42" => "\x62",
 		"\x43" => "\x63",
@@ -815,10 +816,12 @@ function utf8_casefold_simple_maps()
 		"\xE1\xBF\x8A" => "\xE1\xBD\xB4",
 		"\xE1\xBF\x8B" => "\xE1\xBD\xB5",
 		"\xE1\xBF\x8C" => "\xE1\xBF\x83",
+		"\xE1\xBF\x93" => "\xCE\x90",
 		"\xE1\xBF\x98" => "\xE1\xBF\x90",
 		"\xE1\xBF\x99" => "\xE1\xBF\x91",
 		"\xE1\xBF\x9A" => "\xE1\xBD\xB6",
 		"\xE1\xBF\x9B" => "\xE1\xBD\xB7",
+		"\xE1\xBF\xA3" => "\xCE\xB0",
 		"\xE1\xBF\xA8" => "\xE1\xBF\xA0",
 		"\xE1\xBF\xA9" => "\xE1\xBF\xA1",
 		"\xE1\xBF\xAA" => "\xE1\xBD\xBA",
@@ -1195,6 +1198,7 @@ function utf8_casefold_simple_maps()
 		"\xEA\xAE\xBD" => "\xE1\x8F\xAD",
 		"\xEA\xAE\xBE" => "\xE1\x8F\xAE",
 		"\xEA\xAE\xBF" => "\xE1\x8F\xAF",
+		"\xEF\xAC\x85" => "\xEF\xAC\x86",
 		"\xEF\xBC\xA1" => "\xEF\xBD\x81",
 		"\xEF\xBC\xA2" => "\xEF\xBD\x82",
 		"\xEF\xBC\xA3" => "\xEF\xBD\x83",
@@ -1481,7 +1485,7 @@ function utf8_casefold_simple_maps()
 		"\xF0\x9E\xA4\x9F" => "\xF0\x9E\xA5\x81",
 		"\xF0\x9E\xA4\xA0" => "\xF0\x9E\xA5\x82",
 		"\xF0\x9E\xA4\xA1" => "\xF0\x9E\xA5\x83",
-	);
+	];
 }
 
 /**
@@ -1494,7 +1498,7 @@ function utf8_casefold_simple_maps()
  */
 function utf8_casefold_maps()
 {
-	return array(
+	return [
 		"\x41" => "\x61",
 		"\x42" => "\x62",
 		"\x43" => "\x63",
@@ -3025,7 +3029,7 @@ function utf8_casefold_maps()
 		"\xF0\x9E\xA4\x9F" => "\xF0\x9E\xA5\x81",
 		"\xF0\x9E\xA4\xA0" => "\xF0\x9E\xA5\x82",
 		"\xF0\x9E\xA4\xA1" => "\xF0\x9E\xA5\x83",
-	);
+	];
 }
 
 ?>

@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_compose.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_compose_maps()
 {
-	return array(
+	return [
 		"\x41\xCC\x80" => "\xC3\x80",
 		"\x41\xCC\x81" => "\xC3\x81",
 		"\x41\xCC\x82" => "\xC3\x82",
@@ -968,7 +969,7 @@ function utf8_compose_maps()
 		"\xF0\x91\x96\xB8\xF0\x91\x96\xAF" => "\xF0\x91\x96\xBA",
 		"\xF0\x91\x96\xB9\xF0\x91\x96\xAF" => "\xF0\x91\x96\xBB",
 		"\xF0\x91\xA4\xB5\xF0\x91\xA4\xB0" => "\xF0\x91\xA4\xB8",
-	);
+	];
 }
 
 ?>

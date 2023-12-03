@@ -35,7 +35,7 @@ class Auth
 	/**
 	 * @var array Internal lookup table
 	 */
-	private $lookup = array();
+	private $lookup = [];
 
 	/**
 	 * @var string Initialization key
@@ -43,17 +43,17 @@ class Auth
 	private $initKey = null;
 
 	/**
-	 * @var integer Seconds between key refreshes
+	 * @var int Seconds between key refreshes
 	 */
 	private $refreshSeconds = 30;
 
 	/**
-	 * @var integer The length of codes to generate
+	 * @var int The length of codes to generate
 	 */
 	private $codeLength = 6;
 
 	/**
-	 * @var integer Range plus/minus for "window of opportunity" on allowed codes
+	 * @var int Range plus/minus for "window of opportunity" on allowed codes
 	 */
 	private $range = 2;
 
@@ -67,8 +67,7 @@ class Auth
 	{
 		$this->buildLookup();
 
-		if ($initKey !== null)
-		{
+		if ($initKey !== null) {
 			$this->setInitKey($initKey);
 		}
 	}
@@ -80,7 +79,7 @@ class Auth
 	{
 		$lookup = array_combine(
 			array_merge(range('A', 'Z'), range(2, 7)),
-			range(0, 31)
+			range(0, 31),
 		);
 		$this->setLookup($lookup);
 	}
@@ -88,7 +87,7 @@ class Auth
 	/**
 	 * Get the current "range" value
 	 *
-	 * @return integer Range value
+	 * @return int Range value
 	 */
 	public function getRange()
 	{
@@ -98,16 +97,16 @@ class Auth
 	/**
 	 * Set the "range" value
 	 *
-	 * @param integer $range Range value
+	 * @param int $range Range value
 	 * @return \SMF\TOTP\Auth instance
 	 */
 	public function setRange($range)
 	{
-		if (!is_numeric($range))
-		{
+		if (!is_numeric($range)) {
 			throw new \InvalidArgumentException('Invalid window range');
 		}
 		$this->range = $range;
+
 		return $this;
 	}
 
@@ -120,11 +119,11 @@ class Auth
 	 */
 	public function setInitKey($key)
 	{
-		if (preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key) == false)
-		{
+		if (preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key) == false) {
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 		$this->initKey = $key;
+
 		return $this;
 	}
 
@@ -147,11 +146,11 @@ class Auth
 	 */
 	public function setLookup($lookup)
 	{
-		if (!is_array($lookup))
-		{
+		if (!is_array($lookup)) {
 			throw new \InvalidArgumentException('Lookup value must be an array');
 		}
 		$this->lookup = $lookup;
+
 		return $this;
 	}
 
@@ -168,7 +167,7 @@ class Auth
 	/**
 	 * Get the number of seconds for code refresh currently set
 	 *
-	 * @return integer Refresh in seconds
+	 * @return int Refresh in seconds
 	 */
 	public function getRefresh()
 	{
@@ -178,24 +177,24 @@ class Auth
 	/**
 	 * Set the number of seconds to refresh codes
 	 *
-	 * @param integer $seconds Seconds to refresh
+	 * @param int $seconds Seconds to refresh
 	 * @throws \InvalidArgumentException If seconds value is not numeric
 	 * @return \SMF\TOTP\Auth instance
 	 */
 	public function setRefresh($seconds)
 	{
-		if (!is_numeric($seconds))
-		{
+		if (!is_numeric($seconds)) {
 			throw new \InvalidArgumentException('Seconds must be numeric');
 		}
 		$this->refreshSeconds = $seconds;
+
 		return $this;
 	}
 
 	/**
 	 * Get the current length for generated codes
 	 *
-	 * @return integer Code length
+	 * @return int Code length
 	 */
 	public function getCodeLength()
 	{
@@ -205,12 +204,13 @@ class Auth
 	/**
 	 * Set the length of the generated codes
 	 *
-	 * @param integer $length Code length
+	 * @param int $length Code length
 	 * @return \SMF\TOTP\Auth instance
 	 */
 	public function setCodeLength($length)
 	{
 		$this->codeLength = $length;
+
 		return $this;
 	}
 
@@ -220,14 +220,13 @@ class Auth
 	 * @param string $code Code entered by user
 	 * @param string $initKey Initialization key
 	 * @param string $timestamp Timestamp for calculation
-	 * @param integer $range Seconds before/after to validate hash against
+	 * @param int $range Seconds before/after to validate hash against
 	 * @throws \InvalidArgumentException If incorrect code length
-	 * @return boolean Pass/fail of validation
+	 * @return bool Pass/fail of validation
 	 */
 	public function validateCode($code, $initKey = null, $timestamp = null, $range = null)
 	{
-		if (strlen($code) !== $this->getCodeLength())
-		{
+		if (strlen($code) !== $this->getCodeLength()) {
 			throw new \InvalidArgumentException('Incorrect code length');
 		}
 
@@ -237,13 +236,12 @@ class Auth
 
 		$binary = $this->base32_decode($initKey);
 
-		for ($time = ($timestamp - $range); $time <= ($timestamp + $range); $time++)
-		{
-			if ($this->generateOneTime($binary, $time) == $code)
-			{
+		for ($time = ($timestamp - $range); $time <= ($timestamp + $range); $time++) {
+			if ($this->generateOneTime($binary, $time) == $code) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -263,7 +261,7 @@ class Auth
 			'sha1',
 			pack('N*', 0) . pack('N*', $timestamp),
 			$initKey,
-			true
+			true,
 		);
 
 		return str_pad($this->truncateHash($hash), $this->getCodeLength(), '0', STR_PAD_LEFT);
@@ -273,7 +271,7 @@ class Auth
 	 * Generate a code/hash
 	 *     Useful for making Initialization codes
 	 *
-	 * @param integer $length Length for the generated code
+	 * @param int $length Length for the generated code
 	 * @return string Generated code
 	 */
 	public function generateCode($length = 16)
@@ -281,8 +279,7 @@ class Auth
 		$lookup = implode('', array_keys($this->getLookup()));
 		$code = '';
 
-		for ($i = 0; $i < $length; $i++)
-		{
+		for ($i = 0; $i < $length; $i++) {
 			$code .= $lookup[Utils::randomInt(0, strlen($lookup) - 1)];
 		}
 
@@ -292,7 +289,7 @@ class Auth
 	/**
 	 * Generate the timestamp for the calculation
 	 *
-	 * @return integer Timestamp
+	 * @return int Timestamp
 	 */
 	public function generateTimestamp()
 	{
@@ -328,8 +325,7 @@ class Auth
 	{
 		$lookup = $this->getLookup();
 
-		if (preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash) == false)
-		{
+		if (preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash) == false) {
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 
@@ -338,14 +334,12 @@ class Auth
 		$length = 0;
 		$binary = '';
 
-		for ($i = 0; $i < strlen($hash); $i++)
-		{
+		for ($i = 0; $i < strlen($hash); $i++) {
 			$buffer = $buffer << 5;
 			$buffer += $lookup[$hash[$i]];
 			$length += 5;
 
-			if ($length >= 8)
-			{
+			if ($length >= 8) {
 				$length -= 8;
 				$binary .= chr(($buffer & (0xFF << $length)) >> $length);
 			}
@@ -364,6 +358,7 @@ class Auth
 	public function getQrCodeUrl($name, $code)
 	{
 		$url = 'otpauth://totp/' . urlencode($name) . '?secret=' . $code;
+
 		return $url;
 	}
 }

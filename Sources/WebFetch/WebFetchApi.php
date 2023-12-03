@@ -14,7 +14,6 @@
 namespace SMF\WebFetch;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Lang;
 use SMF\Url;
 
@@ -30,11 +29,11 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'fetch' => 'fetch_web_data',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -52,7 +51,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 *
 	 * Stores responses (url, code, error, headers, body, size).
 	 */
-	public $response = array();
+	public $response = [];
 
 	/**************************
 	 * Public static properties
@@ -67,12 +66,12 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 *
 	 * Class names will be prepended with __NAMESPACE__ . '\APIs\'.
 	 */
-	public static $scheme_handlers = array(
-		'ftp' => array('FtpFetcher'),
-		'ftps' => array('FtpFetcher'),
-		'http' => array('SocketFetcher', 'CurlFetcher'),
-		'https' => array('SocketFetcher', 'CurlFetcher'),
-	);
+	public static $scheme_handlers = [
+		'ftp' => ['FtpFetcher'],
+		'ftps' => ['FtpFetcher'],
+		'http' => ['SocketFetcher', 'CurlFetcher'],
+		'https' => ['SocketFetcher', 'CurlFetcher'],
+	];
 
 	/****************
 	 * Public methods
@@ -81,21 +80,21 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function request(string $url, array|string $post_data = array()): object
+	public function request(string $url, array|string $post_data = []): object
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function result(string $area = null): mixed
+	public function result(?string $area = null): mixed
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function resultRaw(int $response_number = null): array
+	public function resultRaw(?int $response_number = null): array
 	{
 	}
 
@@ -118,31 +117,31 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 *    requests. Not applicable to FTP requests.
 	 * @return string|false The fetched data or false on failure.
 	 */
-	public static function fetch(string $url, string|array $post_data = array(), bool $keep_alive = false): string|false
+	public static function fetch(string $url, string|array $post_data = [], bool $keep_alive = false): string|false
 	{
 		$url = Url::create($url, true)->validate()->toAscii();
 
 		// No scheme? No data for you!
-		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme]))
-		{
+		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
 			Lang::load('Errors');
 			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
 			$data = false;
 		}
 
-		foreach (self::$scheme_handlers[$url->scheme] as $class)
-		{
+		foreach (self::$scheme_handlers[$url->scheme] as $class) {
 			$class = __NAMESPACE__ . '\\APIs\\' . $class;
 
 			$fetcher = new $class();
 			$fetcher->request($url);
 
-			if ($fetcher->result('success'))
+			if ($fetcher->result('success')) {
 				break;
+			}
 		}
 
-		if (!$fetcher->result('success'))
+		if (!$fetcher->result('success')) {
 			return false;
+		}
 
 		return $fetcher->result('body');
 	}
@@ -162,27 +161,25 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	protected function buildPostData(array|string $post_data): string
 	{
-		if (is_array($post_data))
-		{
+		if (is_array($post_data)) {
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
-			foreach ($post_data as $name => $value)
-			{
-				if (strpos($value, '@') === 0)
+			foreach ($post_data as $name => $value) {
+				if (strpos($value, '@') === 0) {
 					$post_data[$name] = null;
+				}
 			}
 
 			return http_build_query($post_data, '', '&');
 		}
-		else
-		{
-			return trim($post_data);
-		}
+
+		return trim($post_data);
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\WebFetchApi::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\WebFetchApi::exportStatic')) {
 	WebFetchApi::exportStatic();
+}
 
 ?>

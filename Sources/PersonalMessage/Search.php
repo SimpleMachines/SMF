@@ -13,18 +13,17 @@
 
 namespace SMF\PersonalMessage;
 
-use SMF\Category;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Search\SearchApi;
 
 /**
  * Shows the search form.
@@ -56,7 +55,7 @@ class Search
 	 *
 	 * The user-specified search parameters.
 	 */
-	public array $params = array();
+	public array $params = [];
 
 	/**
 	 * @var string
@@ -86,9 +85,9 @@ class Search
 	 *
 	 * @todo Add more here?
 	 */
-	public array $sort_columns = array(
+	public array $sort_columns = [
 		'pm.id_pm',
-	);
+	];
 
 	/**
 	 * @var int
@@ -107,7 +106,7 @@ class Search
 	 * Words to highlight in search results.
 	 * This is static for the sake of easy access by SearchResult.
 	 */
-	public static array $to_mark = array();
+	public static array $to_mark = [];
 
 	/*********************
 	 * Internal properties
@@ -118,7 +117,7 @@ class Search
 	 *
 	 * Collection of runtime parameters for performing the search.
 	 */
-	protected array $searchq_parameters = array();
+	protected array $searchq_parameters = [];
 
 	/**
 	 * @var string
@@ -184,11 +183,10 @@ class Search
 
 		Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
 		Menu::$loaded['pm']['current_area'] = 'search';
-		Utils::$context['linktree'][] = array(
+		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=search',
 			'name' => Lang::$txt['pm_search_bar_title'],
-		);
-
+		];
 	}
 
 	/**
@@ -198,41 +196,38 @@ class Search
 	{
 		$this->setParams();
 
-		if (isset($_REQUEST['search']))
-		{
+		if (isset($_REQUEST['search'])) {
 			$this->params['search'] = Utils::htmlspecialcharsDecode($_REQUEST['search']);
 		}
 
 		$this->setContextualParams();
 
 		// Create the array of labels to be searched.
-		Utils::$context['search_labels'] = array();
+		Utils::$context['search_labels'] = [];
 
-		$searchedLabels = isset($this->params['labels']) && $this->params['labels'] != '' ? explode(',', $this->params['labels']) : array();
+		$searchedLabels = isset($this->params['labels']) && $this->params['labels'] != '' ? explode(',', $this->params['labels']) : [];
 
-		foreach (Label::$loaded as $label)
-		{
-			Utils::$context['search_labels'][] = array(
+		foreach (Label::$loaded as $label) {
+			Utils::$context['search_labels'][] = [
 				'id' => $label['id'],
 				'name' => $label['name'],
 				'checked' => !empty($searchedLabels) ? in_array($label['id'], $searchedLabels) : true,
-			);
+			];
 		}
 
 		// Are all the labels checked?
 		Utils::$context['check_all'] = empty($searchedLabels) || count(Utils::$context['search_labels']) == count($searchedLabels);
 
 		// Load the error text strings if there were errors in the search.
-		if (!empty(Utils::$context['search_errors']))
-		{
+		if (!empty(Utils::$context['search_errors'])) {
 			Lang::load('Errors');
 
-			Utils::$context['search_errors']['messages'] = array();
+			Utils::$context['search_errors']['messages'] = [];
 
-			foreach (Utils::$context['search_errors'] as $search_error => $dummy)
-			{
-				if ($search_error == 'messages')
+			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
+				if ($search_error == 'messages') {
 					continue;
+				}
 
 				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
 			}
@@ -246,8 +241,7 @@ class Search
 	 */
 	public function performSearch(): void
 	{
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
-		{
+		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
@@ -257,11 +251,12 @@ class Search
 		$this->setParams();
 
 		// What are we actually searching for?
-		$this->params['search'] = !empty($this->params['search']) ? $this->params['search'] : (isset($_REQUEST['search']) ? $_REQUEST['search'] : '');
+		$this->params['search'] = !empty($this->params['search']) ? $this->params['search'] : ($_REQUEST['search'] ?? '');
 
 		// If we ain't got nothing, we should error!
-		if (!isset($this->params['search']) || $this->params['search'] == '')
+		if (!isset($this->params['search']) || $this->params['search'] == '') {
 			Utils::$context['search_errors']['invalid_search_string'] = true;
+		}
 
 		$this->setTimeQuery();
 		$this->setUserQuery();
@@ -275,21 +270,22 @@ class Search
 		$this->setSearchQuery();
 
 		// If we have errors, return to the form...
-		if (!empty(Utils::$context['search_errors']))
-		{
+		if (!empty(Utils::$context['search_errors'])) {
 			$_REQUEST['params'] = $this->compressed_params;
 
 			$this->showForm();
+
 			return;
 		}
 
 		// Get all the matching messages... using standard search only (No caching and the like!)
-		$pms = array();
-		$posters = array();
+		$pms = [];
+		$posters = [];
 
 		// @todo This doesn't support sent item searching yet.
-		$request = Db::$db->query('', '
-			SELECT pm.id_pm, pm.id_member_from
+		$request = Db::$db->query(
+			'',
+			'SELECT pm.id_pm, pm.id_member_from
 			FROM {db_prefix}pm_recipients AS pmr
 				INNER JOIN {db_prefix}personal_messages AS pm ON (pm.id_pm = pmr.id_pm)
 				' . $this->label_join . '
@@ -301,15 +297,15 @@ class Search
 				' . $this->user_query . $this->label_query . $this->time_query . '
 				AND (' . $this->search_query . ')
 			ORDER BY {raw:sort} {raw:sort_dir}',
-			array_merge($this->searchq_parameters, array(
+			array_merge($this->searchq_parameters, [
 				'me' => User::$me->id,
 				'not_deleted' => 0,
 				'sort' => $this->params['sort'],
 				'sort_dir' => $this->params['sort_dir'],
-			))
+			]),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$pms[] = $row['id_pm'];
 			$posters[] = $row['id_member_from'];
 		}
@@ -328,7 +324,7 @@ class Search
 			$_GET['start'],
 			Utils::$context['num_results'],
 			$this->per_page,
-			false
+			false,
 		);
 
 		Utils::$context['sub_template'] = 'search_results';
@@ -356,44 +352,37 @@ class Search
 	protected function setParams(): void
 	{
 		// Extract all the search parameters.
-		if (isset($_REQUEST['params']))
-		{
-			$temp_params = explode('|"|', base64_decode(strtr($_REQUEST['params'], array(' ' => '+'))));
+		if (isset($_REQUEST['params'])) {
+			$temp_params = explode('|"|', base64_decode(strtr($_REQUEST['params'], [' ' => '+'])));
 
-			foreach ($temp_params as $i => $data)
-			{
+			foreach ($temp_params as $i => $data) {
 				@list($k, $v) = explode('|\'|', $data);
 				$this->params[$k] = $v;
 			}
 		}
 
 		// Store whether simple search was used (needed if the user wants to do another query).
-		if (!isset($this->params['advanced']))
-		{
+		if (!isset($this->params['advanced'])) {
 			$this->params['advanced'] = empty($_REQUEST['advanced']) ? 0 : 1;
 		}
 
 		// 1 => 'allwords' (default, don't set as param) / 2 => 'anywords'.
-		if (!empty($this->params['searchtype']) || (!empty($_REQUEST['searchtype']) && $_REQUEST['searchtype'] == 2))
-		{
+		if (!empty($this->params['searchtype']) || (!empty($_REQUEST['searchtype']) && $_REQUEST['searchtype'] == 2)) {
 			$this->params['searchtype'] = 2;
 		}
 
 		// Default the user name to a wildcard matching every user (*).
-		if (!empty($this->params['user_spec']) || (!empty($_REQUEST['userspec']) && $_REQUEST['userspec'] != '*'))
-		{
-			$this->params['userspec'] = isset($this->params['userspec']) ? $this->params['userspec'] : $_REQUEST['userspec'];
+		if (!empty($this->params['user_spec']) || (!empty($_REQUEST['userspec']) && $_REQUEST['userspec'] != '*')) {
+			$this->params['userspec'] = $this->params['userspec'] ?? $_REQUEST['userspec'];
 		}
 
 		// Minimum age of messages. Default to zero (don't set param in that case).
-		if (!empty($this->params['minage']) || (!empty($_REQUEST['minage']) && $_REQUEST['minage'] > 0))
-		{
+		if (!empty($this->params['minage']) || (!empty($_REQUEST['minage']) && $_REQUEST['minage'] > 0)) {
 			$this->params['minage'] = !empty($this->params['minage']) ? (int) $this->params['minage'] : (int) $_REQUEST['minage'];
 		}
 
 		// Maximum age of messages. Default to infinite (9999 days: param not set).
-		if (!empty($this->params['maxage']) || (!empty($_REQUEST['maxage']) && $_REQUEST['maxage'] < 9999))
-		{
+		if (!empty($this->params['maxage']) || (!empty($_REQUEST['maxage']) && $_REQUEST['maxage'] < 9999)) {
 			$this->params['maxage'] = !empty($this->params['maxage']) ? (int) $this->params['maxage'] : (int) $_REQUEST['maxage'];
 		}
 
@@ -401,8 +390,7 @@ class Search
 
 		$this->params['show_complete'] = !empty($this->params['show_complete']) || !empty($_REQUEST['show_complete']);
 
-		if (empty($this->params['sort']) && !empty($_REQUEST['sort']))
-		{
+		if (empty($this->params['sort']) && !empty($_REQUEST['sort'])) {
 			list($this->params['sort'], $this->params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 		}
 
@@ -418,10 +406,10 @@ class Search
 	{
 		Utils::$context['search_params'] = $this->params;
 
-		foreach (array('search', 'userspec') as $key)
-		{
-			if (!isset(Utils::$context['search_params'][$key]))
+		foreach (['search', 'userspec'] as $key) {
+			if (!isset(Utils::$context['search_params'][$key])) {
 				continue;
+			}
 
 			Utils::$context['search_params'][$key] = Utils::htmlspecialchars(Utils::$context['search_params'][$key]);
 		}
@@ -434,10 +422,11 @@ class Search
 	 */
 	protected function compressParams(): string
 	{
-		$temp = array();
+		$temp = [];
 
-		foreach ($this->params as $k => $v)
+		foreach ($this->params as $k => $v) {
 			$temp[] = $k . '|\'|' . $v;
+		}
 
 		$this->compressed_params = base64_encode(implode('|"|', $temp));
 
@@ -450,76 +439,69 @@ class Search
 	protected function setUserQuery(): void
 	{
 		// If there's no specific user, then don't mention it in the main query.
-		if (empty($this->params['userspec']))
-		{
+		if (empty($this->params['userspec'])) {
 			$this->user_query = '';
+
 			return;
 		}
 
-		$userString = strtr(Utils::htmlspecialchars($this->params['userspec'], ENT_QUOTES), array('&quot;' => '"'));
-		$userString = strtr($userString, array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_'));
+		$userString = strtr(Utils::htmlspecialchars($this->params['userspec'], ENT_QUOTES), ['&quot;' => '"']);
+		$userString = strtr($userString, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_']);
 
 		preg_match_all('~"([^"]+)"~', $userString, $matches);
 
 		$possible_users = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $userString)));
 
-		for ($k = 0, $n = count($possible_users); $k < $n; $k++)
-		{
+		for ($k = 0, $n = count($possible_users); $k < $n; $k++) {
 			$possible_users[$k] = trim($possible_users[$k]);
 
-			if (strlen($possible_users[$k]) == 0)
+			if (strlen($possible_users[$k]) == 0) {
 				unset($possible_users[$k]);
+			}
 		}
 
-		if (empty($possible_users))
-		{
+		if (empty($possible_users)) {
 			$this->user_query = '';
+
 			return;
 		}
 
 		// We need to bring this into the query and do it nice and cleanly.
-		$where_params = array();
-		$where_clause = array();
+		$where_params = [];
+		$where_clause = [];
 
-		foreach ($possible_users as $k => $v)
-		{
+		foreach ($possible_users as $k => $v) {
 			$where_params['name_' . $k] = $v;
 			$where_clause[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
 
-			if (!isset($where_params['real_name']))
-			{
+			if (!isset($where_params['real_name'])) {
 				$where_params['real_name'] = Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name';
 			}
 		}
 
 		// Who matches those criteria?
 		// @todo This doesn't support sent item searching.
-		$request = Db::$db->query('', '
-			SELECT id_member
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . implode(' OR ', $where_clause),
-			$where_params
+			$where_params,
 		);
 
 		// Simply do nothing if there're too many members matching the criteria.
-		if (Db::$db->num_rows($request) > $this->max_members_to_search)
-		{
+		if (Db::$db->num_rows($request) > $this->max_members_to_search) {
 			$this->user_query = '';
-		}
-		elseif (Db::$db->num_rows($request) == 0)
-		{
+		} elseif (Db::$db->num_rows($request) == 0) {
 			$this->user_query = 'AND pm.id_member_from = 0 AND ({raw:pm_from_name} LIKE {raw:guest_user_name_implode})';
 
 			$this->searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR ' . (Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name') . ' LIKE \'', $possible_users) . '\'';
 
 			$this->searchq_parameters['pm_from_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
-		}
-		else
-		{
-			$memberlist = array();
+		} else {
+			$memberlist = [];
 
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$memberlist[] = $row['id_member'];
 			}
 
@@ -540,59 +522,49 @@ class Search
 	protected function setLabelQuery(): void
 	{
 		// This is used by the template to tell the user where we searched.
-		Utils::$context['search_in'] = array();
+		Utils::$context['search_in'] = [];
 
-		if ($this->folder === 'inbox' && !empty($this->params['advanced']) && !empty(Label::$loaded))
-		{
+		if ($this->folder === 'inbox' && !empty($this->params['advanced']) && !empty(Label::$loaded)) {
 			// Came here from pagination?  Put them back into $_REQUEST for sanitization.
-			if (isset($this->params['labels']))
+			if (isset($this->params['labels'])) {
 				$_REQUEST['searchlabel'] = explode(',', $this->params['labels']);
+			}
 
 			// Assuming we have some labels - make them all integers.
-			if (!empty($_REQUEST['searchlabel']) && is_array($_REQUEST['searchlabel']))
-			{
+			if (!empty($_REQUEST['searchlabel']) && is_array($_REQUEST['searchlabel'])) {
 				$_REQUEST['searchlabel'] = array_map('intval', $_REQUEST['searchlabel']);
-			}
-			else
-			{
-				$_REQUEST['searchlabel'] = array();
+			} else {
+				$_REQUEST['searchlabel'] = [];
 			}
 
 			// Now that everything is cleaned up a bit, make the labels a param.
 			$this->params['labels'] = implode(',', $_REQUEST['searchlabel']);
 
 			// No labels selected? That must be an error!
-			if (empty($_REQUEST['searchlabel']))
-			{
+			if (empty($_REQUEST['searchlabel'])) {
 				Utils::$context['search_errors']['no_labels_selected'] = true;
 			}
 			// Otherwise prepare the query!
-			elseif (count($_REQUEST['searchlabel']) != count(Label::$loaded))
-			{
+			elseif (count($_REQUEST['searchlabel']) != count(Label::$loaded)) {
 				// Special case here... "inbox" isn't a real label...
-				if (in_array(-1, $_REQUEST['searchlabel']))
-				{
+				if (in_array(-1, $_REQUEST['searchlabel'])) {
 					Utils::$context['search_in'][] = Label::$loaded[-1]['name'];
 
 					$this->label_query = '	AND pmr.in_inbox = {int:in_inbox}';
 					$this->searchq_parameters['in_inbox'] = 1;
 
 					// Now we get rid of that...
-					$temp = array_diff($_REQUEST['searchlabel'], array(-1));
+					$temp = array_diff($_REQUEST['searchlabel'], [-1]);
 					$_REQUEST['searchlabel'] = $temp;
 				}
 
 				// Still have something?
-				if (!empty($_REQUEST['searchlabel']))
-				{
-					if ($this->label_query == '')
-					{
+				if (!empty($_REQUEST['searchlabel'])) {
+					if ($this->label_query == '') {
 						// Not searching the inbox - PM must be labeled
 						$this->label_query = ' AND pml.id_label IN ({array_int:labels})';
 						$this->label_join = ' INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_pm = pmr.id_pm)';
-					}
-					else
-					{
+					} else {
 						// Searching the inbox - PM doesn't have to be labeled
 						$this->label_query = ' AND (' . substr($this->label_query, 5) . ' OR pml.id_label IN ({array_int:labels}))';
 						$this->label_join = ' LEFT JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_pm = pmr.id_pm)';
@@ -600,16 +572,16 @@ class Search
 
 					$this->searchq_parameters['labels'] = $_REQUEST['searchlabel'];
 
-					foreach ($_REQUEST['searchlabel'] as $label_key)
-					{
+					foreach ($_REQUEST['searchlabel'] as $label_key) {
 						Utils::$context['search_in'][] = Label::$loaded[$label_key]['name'];
 					}
 				}
 			}
 		}
 
-		if (empty(Utils::$context['search_in']))
+		if (empty(Utils::$context['search_in'])) {
 			Utils::$context['search_in'][] = $this->folder;
+		}
 	}
 
 	/**
@@ -619,13 +591,11 @@ class Search
 	{
 		$this->time_query = '';
 
-		if (!empty($this->params['minage']))
-		{
+		if (!empty($this->params['minage'])) {
 			$this->time_query .= ' AND pm.msgtime < ' . (time() - $this->params['minage'] * 86400);
 		}
 
-		if (!empty($this->params['maxage']))
-		{
+		if (!empty($this->params['maxage'])) {
 			$this->time_query .= ' AND pm.msgtime > ' . (time() - $this->params['maxage'] * 86400);
 		}
 	}
@@ -645,31 +615,29 @@ class Search
 		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']));
 
 		// A minus sign in front of a word excludes the word.... so...
-		$excludedWords = array();
+		$excludedWords = [];
 
 		// .. first, we check for things like -"some words", but not "-some words".
-		foreach ($matches[1] as $index => $word)
-		{
-			if ($word == '-')
-			{
+		foreach ($matches[1] as $index => $word) {
+			if ($word == '-') {
 				$word = Utils::strtolower(trim($searchArray[$index]));
 
-				if (strlen($word) > 0)
+				if (strlen($word) > 0) {
 					$excludedWords[] = $word;
+				}
 
 				unset($searchArray[$index]);
 			}
 		}
 
 		// Now we look for -test, etc.... normaller.
-		foreach ($tempSearch as $index => $word)
-		{
-			if (strpos(trim($word), '-') === 0)
-			{
+		foreach ($tempSearch as $index => $word) {
+			if (strpos(trim($word), '-') === 0) {
 				$word = substr(Utils::strtolower($word), 1);
 
-				if (strlen($word) > 0)
+				if (strlen($word) > 0) {
 					$excludedWords[] = $word;
+				}
 
 				unset($tempSearch[$index]);
 			}
@@ -678,16 +646,12 @@ class Search
 		$searchArray = array_merge($searchArray, $tempSearch);
 
 		// Trim everything and make sure there are no words that are the same.
-		foreach ($searchArray as $index => $value)
-		{
+		foreach ($searchArray as $index => $value) {
 			$searchArray[$index] = Utils::strtolower(trim($value));
 
-			if ($searchArray[$index] == '')
-			{
+			if ($searchArray[$index] == '') {
 				unset($searchArray[$index]);
-			}
-			else
-			{
+			} else {
 				// Sort out entities first.
 				$searchArray[$index] = Utils::htmlspecialchars($searchArray[$index]);
 			}
@@ -702,43 +666,38 @@ class Search
 		$searchWords = array_merge($searchArray, $excludedWords);
 
 		// Make sure at least one word is being searched for.
-		if (empty($searchArray))
-		{
+		if (empty($searchArray)) {
 			Utils::$context['search_errors']['invalid_search_string'] = true;
 		}
 
 		// Compile the subject query part.
-		$andQueryParts = array();
+		$andQueryParts = [];
 
-		foreach ($searchWords as $index => $word)
-		{
-			if ($word == '')
+		foreach ($searchWords as $index => $word) {
+			if ($word == '') {
 				continue;
-
-			if ($this->params['subject_only'])
-			{
-				$andQueryParts[] = 'pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '}';
 			}
-			else
-			{
+
+			if ($this->params['subject_only']) {
+				$andQueryParts[] = 'pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '}';
+			} else {
 				$andQueryParts[] = '(pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '} ' . (in_array($word, $excludedWords) ? 'AND pm.body NOT' : 'OR pm.body') . ' LIKE {string:search_' . $index . '})';
 			}
 
-			$this->searchq_parameters['search_' . $index] = '%' . strtr($word, array('_' => '\\_', '%' => '\\%')) . '%';
+			$this->searchq_parameters['search_' . $index] = '%' . strtr($word, ['_' => '\\_', '%' => '\\%']) . '%';
 		}
 
 		$this->search_query = ' 1=1';
 
-		if (!empty($andQueryParts))
-		{
+		if (!empty($andQueryParts)) {
 			$this->search_query = implode(!empty($this->params['searchtype']) && $this->params['searchtype'] == 2 ? ' OR ' : ' AND ', $andQueryParts);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Search::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Search::exportStatic')) {
 	Search::exportStatic();
+}
 
 ?>

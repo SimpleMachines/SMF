@@ -11,8 +11,9 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 // Just an alias to help people looking for the action in the wrong namespace.
 class_alias('SMF\\Actions\\Groups', 'SMF\\Actions\\Moderation\\Groups');

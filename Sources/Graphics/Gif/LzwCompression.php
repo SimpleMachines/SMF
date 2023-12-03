@@ -29,8 +29,24 @@ namespace SMF\Graphics\Gif;
 class LzwCompression
 {
 	public $MAX_LZW_BITS;
-	public $Fresh, $CodeSize, $SetCodeSize, $MaxCode, $MaxCodeSize, $FirstCode, $OldCode;
-	public $ClearCode, $EndCode, $Next, $Vals, $Stack, $sp, $Buf, $CurBit, $LastBit, $Done, $LastByte;
+	public $Fresh;
+	public $CodeSize;
+	public $SetCodeSize;
+	public $MaxCode;
+	public $MaxCodeSize;
+	public $FirstCode;
+	public $OldCode;
+	public $ClearCode;
+	public $EndCode;
+	public $Next;
+	public $Vals;
+	public $Stack;
+	public $sp;
+	public $Buf;
+	public $CurBit;
+	public $LastBit;
+	public $Done;
+	public $LastByte;
 
 	public function __construct()
 	{
@@ -51,21 +67,22 @@ class LzwCompression
 
 		$this->LZWCommand($data, true);
 
-		while (($iIndex = $this->LZWCommand($data, false)) >= 0)
+		while (($iIndex = $this->LZWCommand($data, false)) >= 0) {
 			$ret .= chr($iIndex);
+		}
 
 		$datLen = $stLen - strlen($data);
 
-		if ($iIndex != -2)
+		if ($iIndex != -2) {
 			return false;
+		}
 
 		return $ret;
 	}
 
 	public function LZWCommand(&$data, $bInit)
 	{
-		if ($bInit)
-		{
+		if ($bInit) {
 			$this->SetCodeSize = ord($data[0]);
 			$data = substr($data, 1);
 
@@ -78,53 +95,47 @@ class LzwCompression
 			$this->GetCode($data, $bInit);
 
 			$this->Fresh = 1;
-			for ($i = 0; $i < $this->ClearCode; $i++)
-			{
+
+			for ($i = 0; $i < $this->ClearCode; $i++) {
 				$this->Next[$i] = 0;
 				$this->Vals[$i] = $i;
 			}
 
-			for (; $i < (1 << $this->MAX_LZW_BITS); $i++)
-			{
+			for (; $i < (1 << $this->MAX_LZW_BITS); $i++) {
 				$this->Next[$i] = 0;
 				$this->Vals[$i] = 0;
 			}
 
 			$this->sp = 0;
+
 			return 1;
 		}
 
-		if ($this->Fresh)
-		{
+		if ($this->Fresh) {
 			$this->Fresh = 0;
-			do
-			{
+
+			do {
 				$this->FirstCode = $this->GetCode($data, $bInit);
 				$this->OldCode = $this->FirstCode;
-			}
-			while ($this->FirstCode == $this->ClearCode);
+			} while ($this->FirstCode == $this->ClearCode);
 
 			return $this->FirstCode;
 		}
 
-		if ($this->sp > 0)
-		{
+		if ($this->sp > 0) {
 			$this->sp--;
+
 			return $this->Stack[$this->sp];
 		}
 
-		while (($Code = $this->GetCode($data, $bInit)) >= 0)
-		{
-			if ($Code == $this->ClearCode)
-			{
-				for ($i = 0; $i < $this->ClearCode; $i++)
-				{
+		while (($Code = $this->GetCode($data, $bInit)) >= 0) {
+			if ($Code == $this->ClearCode) {
+				for ($i = 0; $i < $this->ClearCode; $i++) {
 					$this->Next[$i] = 0;
 					$this->Vals[$i] = $i;
 				}
 
-				for (; $i < (1 << $this->MAX_LZW_BITS); $i++)
-				{
+				for (; $i < (1 << $this->MAX_LZW_BITS); $i++) {
 					$this->Next[$i] = 0;
 					$this->Vals[$i] = 0;
 				}
@@ -139,24 +150,25 @@ class LzwCompression
 				return $this->FirstCode;
 			}
 
-			if ($Code == $this->EndCode)
+			if ($Code == $this->EndCode) {
 				return -2;
+			}
 
 			$InCode = $Code;
-			if ($Code >= $this->MaxCode)
-			{
+
+			if ($Code >= $this->MaxCode) {
 				$this->Stack[$this->sp] = $this->FirstCode;
 				$this->sp++;
 				$Code = $this->OldCode;
 			}
 
-			while ($Code >= $this->ClearCode)
-			{
+			while ($Code >= $this->ClearCode) {
 				$this->Stack[$this->sp] = $this->Vals[$Code];
 				$this->sp++;
 
-				if ($Code == $this->Next[$Code]) // Circular table entry, big GIF Error!
+				if ($Code == $this->Next[$Code]) { // Circular table entry, big GIF Error!
 					return -1;
+				}
 
 				$Code = $this->Next[$Code];
 			}
@@ -165,23 +177,22 @@ class LzwCompression
 			$this->Stack[$this->sp] = $this->FirstCode;
 			$this->sp++;
 
-			if (($Code = $this->MaxCode) < (1 << $this->MAX_LZW_BITS))
-			{
+			if (($Code = $this->MaxCode) < (1 << $this->MAX_LZW_BITS)) {
 				$this->Next[$Code] = $this->OldCode;
 				$this->Vals[$Code] = $this->FirstCode;
 				$this->MaxCode++;
 
-				if (($this->MaxCode >= $this->MaxCodeSize) && ($this->MaxCodeSize < (1 << $this->MAX_LZW_BITS)))
-				{
+				if (($this->MaxCode >= $this->MaxCodeSize) && ($this->MaxCodeSize < (1 << $this->MAX_LZW_BITS))) {
 					$this->MaxCodeSize *= 2;
 					$this->CodeSize++;
 				}
 			}
 
 			$this->OldCode = $InCode;
-			if ($this->sp > 0)
-			{
+
+			if ($this->sp > 0) {
 				$this->sp--;
+
 				return $this->Stack[$this->sp];
 			}
 		}
@@ -191,8 +202,7 @@ class LzwCompression
 
 	public function GetCode(&$data, $bInit)
 	{
-		if ($bInit)
-		{
+		if ($bInit) {
 			$this->CurBit = 0;
 			$this->LastBit = 0;
 			$this->Done = 0;
@@ -201,13 +211,12 @@ class LzwCompression
 			return 1;
 		}
 
-		if (($this->CurBit + $this->CodeSize) >= $this->LastBit)
-		{
-			if ($this->Done)
-			{
+		if (($this->CurBit + $this->CodeSize) >= $this->LastBit) {
+			if ($this->Done) {
 				// Ran off the end of my bits...
-				if ($this->CurBit >= $this->LastBit)
+				if ($this->CurBit >= $this->LastBit) {
 					return 0;
+				}
 
 				return -1;
 			}
@@ -218,15 +227,15 @@ class LzwCompression
 			$count = ord($data[0]);
 			$data = substr($data, 1);
 
-			if ($count)
-			{
-				for ($i = 0; $i < $count; $i++)
+			if ($count) {
+				for ($i = 0; $i < $count; $i++) {
 					$this->Buf[2 + $i] = ord($data[$i]);
+				}
 
 				$data = substr($data, $count);
-			}
-			else
+			} else {
 				$this->Done = 1;
+			}
 
 			$this->LastByte = 2 + $count;
 			$this->CurBit = ($this->CurBit - $this->LastBit) + 16;
@@ -234,10 +243,13 @@ class LzwCompression
 		}
 
 		$iRet = 0;
-		for ($i = $this->CurBit, $j = 0; $j < $this->CodeSize; $i++, $j++)
+
+		for ($i = $this->CurBit, $j = 0; $j < $this->CodeSize; $i++, $j++) {
 			$iRet |= (($this->Buf[intval($i / 8)] & (1 << ($i % 8))) != 0) << $j;
+		}
 
 		$this->CurBit += $this->CodeSize;
+
 		return $iRet;
 	}
 }

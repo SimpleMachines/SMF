@@ -96,19 +96,20 @@ namespace SMF;
  */
 class Menu implements \ArrayAccess
 {
-	use BackwardCompatibility, ArrayAccessHelper;
+	use BackwardCompatibility;
+	use ArrayAccessHelper;
 
 	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
+	private static $backcompat = [
+		'func_names' => [
 			'create' => 'createMenu',
 			'destroy' => 'destroyMenu',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -202,7 +203,7 @@ class Menu implements \ArrayAccess
 	 *
 	 * The constructed hierarchical menu data.
 	 */
-	public array $sections = array();
+	public array $sections = [];
 
 	/**
 	 * @var array
@@ -210,7 +211,7 @@ class Menu implements \ArrayAccess
 	 * Data about files to include, functions to call, etc., in order to make
 	 * the current area work.
 	 */
-	public array $include_data = array();
+	public array $include_data = [];
 
 	/**
 	 * @var array
@@ -221,7 +222,7 @@ class Menu implements \ArrayAccess
 	 * The tab buttons typically (but not always) correspond to the menu items
 	 * in the current subsection.
 	 */
-	public array $tab_data = array();
+	public array $tab_data = [];
 
 	/**************************
 	 * Public static properties
@@ -240,7 +241,7 @@ class Menu implements \ArrayAccess
 	 * All loaded instances of this class.
 	 * Keys are action names.
 	 */
-	public static array $loaded = array();
+	public static array $loaded = [];
 
 	/*********************
 	 * Internal properties
@@ -251,14 +252,14 @@ class Menu implements \ArrayAccess
 	 *
 	 * Holds the $data parameter passed to the constructor.
 	 */
-	protected array $data = array();
+	protected array $data = [];
 
 	/**
 	 * @var array
 	 *
 	 * Holds the $options parameter passed to the constructor.
 	 */
-	protected array $options = array();
+	protected array $options = [];
 
 	/**
 	 * @var bool
@@ -286,7 +287,7 @@ class Menu implements \ArrayAccess
 	 * @param array $data An array of menu data.
 	 * @param array $options An array of menu options.
 	 */
-	public function __construct(array $data, array $options = array())
+	public function __construct(array $data, array $options = [])
 	{
 		// Let other methods access the passed data and options.
 		$this->data = $data;
@@ -310,51 +311,50 @@ class Menu implements \ArrayAccess
 		 *		integrate_moderate_areas
 		 *		integrate_pm_areas
 		 */
-		if (!empty($this->current_action) && empty($this->options['disable_hook_call']))
-		{
-			IntegrationHook::call('integrate_' . $this->current_action . '_areas', array(&$this->data));
+		if (!empty($this->current_action) && empty($this->options['disable_hook_call'])) {
+			IntegrationHook::call('integrate_' . $this->current_action . '_areas', [&$this->data]);
 		}
 
 		// Should we use a custom base url, or use the default?
-		$this->base_url = isset($this->options['base_url']) ? $this->options['base_url'] : Config::$scripturl . '?action=' . $this->current_action;
+		$this->base_url = $this->options['base_url'] ?? Config::$scripturl . '?action=' . $this->current_action;
 
 		// What is the current area selected?
-		if (isset($this->options['current_area']) || isset($_GET['area']))
+		if (isset($this->options['current_area']) || isset($_GET['area'])) {
 			$this->current_area = $this->options['current_area'] ?? $_GET['area'];
+		}
 
 		$this->buildExtraParameters();
 
 		// Now setup the context correctly.
-		foreach ($this->data as $section_id => $section)
-		{
+		foreach ($this->data as $section_id => $section) {
 			$this->section_id = $section_id;
 			$this->buildSection($section);
 		}
 
 		// If still no data then return - nothing to show!
-		if (empty($this->sections))
-		{
+		if (empty($this->sections)) {
 			// Never happened!
-			if (--self::$max_id == 0)
-				unset(Utils::$context['max_menu_id']);
+			if (--self::$max_id == 0) {
+				unset(Utils::$context['max_menu_id'], $this->data, $this->options);
+			}
 
-			unset($this->data, $this->options);
-			$this->include_data = array();
+			$this->include_data = [];
 
 			return;
 		}
 
 		// If we didn't find the area we were looking for go to a default one.
-		if (isset($this->backup_area) && empty($this->found_section))
+		if (isset($this->backup_area) && empty($this->found_section)) {
 			$this->current_area = $this->backup_area;
+		}
 
 		$this->setSelected();
 		$this->checkBaseUrl();
 
 		// Almost there - load the template and add to the template layers.
-		Theme::loadTemplate(isset($this->options['template_name']) ? $this->options['template_name'] : 'GenericMenu');
+		Theme::loadTemplate($this->options['template_name'] ?? 'GenericMenu');
 
-		$this->layer_name = (isset($this->options['layer_name']) ? $this->options['layer_name'] : 'generic_menu') . '_dropdown';
+		$this->layer_name = ($this->options['layer_name'] ?? 'generic_menu') . '_dropdown';
 
 		Utils::$context['template_layers'][] = $this->layer_name;
 
@@ -362,16 +362,17 @@ class Menu implements \ArrayAccess
 		unset($this->data, $this->options);
 
 		// Check we had something - for sanity sake.
-		if (empty($this->include_data))
+		if (empty($this->include_data)) {
 			return;
+		}
 
 		// Finally - return information on the selected item.
-		$this->include_data += array(
+		$this->include_data += [
 			'current_action' => $this->current_action,
 			'current_section' => $this->current_section,
 			'current_area' => $this->current_area,
 			'current_subsection' => $this->current_subsection,
-		);
+		];
 
 		// Backward compatibility...
 		Utils::$context['max_menu_id'] = &self::$max_id;
@@ -389,7 +390,7 @@ class Menu implements \ArrayAccess
 	 * @param array $options An array of menu options.
 	 * @return array|false Info about the selected menu item, or false if nothing to show.
 	 */
-	public static function create(array $data, array $options = array()): array|false
+	public static function create(array $data, array $options = []): array|false
 	{
 		$menu = new self($data, $options);
 
@@ -403,28 +404,26 @@ class Menu implements \ArrayAccess
 	 */
 	public static function destroy(int|string $id = 'last'): void
 	{
-		if ($id === 'last')
+		if ($id === 'last') {
 			$id = self::$max_id;
-
-		if (!is_int($id))
-		{
-			$to_delete = $id;
 		}
-		else
-		{
-			foreach (self::$loaded as $action => $menu)
-			{
-				if ($menu->id == $id)
+
+		if (!is_int($id)) {
+			$to_delete = $id;
+		} else {
+			foreach (self::$loaded as $action => $menu) {
+				if ($menu->id == $id) {
 					$to_delete = $action;
+				}
 			}
 		}
 
-		if (!isset(self::$loaded[$to_delete]))
+		if (!isset(self::$loaded[$to_delete])) {
 			return;
+		}
 
-		if (isset(self::$loaded[$to_delete]->layer_name))
-		{
-			Utils::$context['template_layers'] = array_diff(Utils::$context['template_layers'], array(self::$loaded[$to_delete]->layer_name));
+		if (isset(self::$loaded[$to_delete]->layer_name)) {
+			Utils::$context['template_layers'] = array_diff(Utils::$context['template_layers'], [self::$loaded[$to_delete]->layer_name]);
 		}
 
 		unset(Utils::$context[self::$loaded[$to_delete]->name], self::$loaded[$to_delete]);
@@ -439,15 +438,14 @@ class Menu implements \ArrayAccess
 	 */
 	protected function buildExtraParameters(): void
 	{
-		if (!empty($this->options['extra_url_parameters']))
-		{
-			foreach ($this->options['extra_url_parameters'] as $key => $value)
+		if (!empty($this->options['extra_url_parameters'])) {
+			foreach ($this->options['extra_url_parameters'] as $key => $value) {
 				$this->extra_parameters .= ';' . $key . '=' . $value;
+			}
 		}
 
 		// Only include the session ID in the URL if it's strictly necessary.
-		if (empty($this->options['disable_url_session_check']))
-		{
+		if (empty($this->options['disable_url_session_check'])) {
 			$this->extra_parameters .= ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 		}
 	}
@@ -458,13 +456,11 @@ class Menu implements \ArrayAccess
 	 */
 	protected function enabledAndAllowed($menu_item): bool
 	{
-		if (isset($menu_item['enabled']) && $menu_item['enabled'] == false)
+		if (isset($menu_item['enabled']) && $menu_item['enabled'] == false) {
 			return false;
+		}
 
-		if (isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']))
-			return false;
-
-		return true;
+		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']));
 	}
 
 	/**
@@ -473,27 +469,28 @@ class Menu implements \ArrayAccess
 	protected function buildSection($section): void
 	{
 		// Is this enabled - or has as permission check - which fails?
-		if (!$this->enabledAndAllowed($section))
+		if (!$this->enabledAndAllowed($section)) {
 			return;
+		}
 
-		$this->sections[$this->section_id] = array(
+		$this->sections[$this->section_id] = [
 			'id' => $this->section_id,
 			'title' => $section['title'],
 			'amt' => $section['amt'] ?? null,
-			'areas' => array(),
+			'areas' => [],
 			'selected' => false,
-		);
+		];
 
 		// Now we cycle through the sections to pick the right area.
-		foreach ($section['areas'] as $area_id => $area)
-		{
+		foreach ($section['areas'] as $area_id => $area) {
 			$this->area_id = $area_id;
 			$this->buildArea($area);
 		}
 
 		// Delete the section if it contains no visible areas.
-		if (empty($this->sections[$this->section_id]['areas']))
+		if (empty($this->sections[$this->section_id]['areas'])) {
 			unset($this->sections[$this->section_id]);
+		}
 	}
 
 	/**
@@ -502,39 +499,41 @@ class Menu implements \ArrayAccess
 	protected function buildArea($area): void
 	{
 		// Can we do this?
-		if (!$this->enabledAndAllowed($area))
+		if (!$this->enabledAndAllowed($area)) {
 			return;
+		}
 
-		if (!isset($area['label']) && (!isset(Lang::$txt[$this->area_id]) || isset($area['select'])))
-		{
+		if (!isset($area['label']) && (!isset(Lang::$txt[$this->area_id]) || isset($area['select']))) {
 			$this->setCurrentSectionAndArea();
+
 			return;
 		}
 
 		// If we haven't got an area then the first valid one is our choice.
-		if (empty($this->current_area))
+		if (empty($this->current_area)) {
 			$this->current_area = $this->area_id;
+		}
 
 		// If this is hidden from view don't do the rest.
-		if (!empty($area['hidden']))
-		{
+		if (!empty($area['hidden'])) {
 			$this->setCurrentSectionAndArea();
+
 			return;
 		}
 
 		// Define the new area.
-		$this->sections[$this->section_id]['areas'][$this->area_id] = array(
+		$this->sections[$this->section_id]['areas'][$this->area_id] = [
 			'id' => $this->area_id,
 			'label' => $area['label'] ?? (Lang::$txt[$this->area_id] ?? $this->area_id),
 			'url' => $area['custom_url'] ?? $this->base_url . ';area=' . $this->area_id,
 			'amt' => $area['amt'] ?? null,
-			'subsections' => array(),
+			'subsections' => [],
 			'selected' => false,
 			// Some areas may be listed but not active, which we show as greyed out.
 			'inactive' => !empty($area['inactive']),
 			// This will usually change when we build the subsections.
 			'hide_subsections' => true,
-		);
+		];
 
 		// A reference to keep things legible.
 		$this_area = &$this->sections[$this->section_id]['areas'][$this->area_id];
@@ -543,32 +542,29 @@ class Menu implements \ArrayAccess
 		$this->setAreaIcon($area);
 
 		// Did it have subsections?
-		if (!empty($area['subsections']))
-		{
-			foreach ($area['subsections'] as $sa => $subsection)
-			{
+		if (!empty($area['subsections'])) {
+			foreach ($area['subsections'] as $sa => $subsection) {
 				$this->subsection_id = $sa;
 				$this->buildSubsection($subsection);
 			}
 
 			// If permissions removed/disabled for all submenu items, remove the menu item
-			if (empty($this_area['subsections']))
-			{
+			if (empty($this_area['subsections'])) {
 				unset($this_area, $this->sections[$this->section_id]['areas'][$this->area_id]);
+
 				return;
 			}
+
 			// Set which one is first, last, and selected in the group.
-			else
-			{
-				$first_sa = array_key_first($this_area['subsections']);
-				$last_sa = array_key_last($this_area['subsections']);
+			$first_sa = array_key_first($this_area['subsections']);
+			$last_sa = array_key_last($this_area['subsections']);
 
-				$this_area['subsections'][Utils::$context['right_to_left'] ? $last_sa : $first_sa]['is_first'] = true;
+			$this_area['subsections'][Utils::$context['right_to_left'] ? $last_sa : $first_sa]['is_first'] = true;
 
-				$this_area['subsections'][Utils::$context['right_to_left'] ? $first_sa : $last_sa]['is_last'] = true;
+			$this_area['subsections'][Utils::$context['right_to_left'] ? $first_sa : $last_sa]['is_last'] = true;
 
-				if ($this->current_area == $this->area_id && empty($this->current_subsection))
-					$this->current_subsection = $first_sa;
+			if ($this->current_area == $this->area_id && empty($this->current_subsection)) {
+				$this->current_subsection = $first_sa;
 			}
 		}
 
@@ -583,45 +579,45 @@ class Menu implements \ArrayAccess
 		$this_area = &$this->sections[$this->section_id]['areas'][$this->area_id];
 
 		// In SMF 2.x, the subsection label and permission keys were just 0 and 1.
-		if (!isset($subsection['label']) && !empty($subsection[0]))
+		if (!isset($subsection['label']) && !empty($subsection[0])) {
 			$subsection['label'] = $subsection[0];
+		}
 
-		if (!isset($subsection['permission']) && !empty($subsection[1]))
+		if (!isset($subsection['permission']) && !empty($subsection[1])) {
 			$subsection['permission'] = $subsection[1];
+		}
 
-		if (!isset($subsection['is_default']) && !empty($subsection[2]))
+		if (!isset($subsection['is_default']) && !empty($subsection[2])) {
 			$subsection['is_default'] = $subsection[2];
+		}
 
 		// Define the new subsection.
-		$this_area['subsections'][$this->subsection_id] = array(
+		$this_area['subsections'][$this->subsection_id] = [
 			'id' => $this->subsection_id,
 			'label' => $subsection['label'],
 			'url' => $subsection['url'] ?? $this->base_url . ';area=' . $this->area_id . ';sa=' . $this->subsection_id,
 			'amt' => $subsection['amt'] ?? null,
 			'selected' => false,
-		);
+		];
 
 		// Another reference to keep things legible.
 		$this_subsection = &$this_area['subsections'][$this->subsection_id];
 
 		// If not enabled, mark it as disabled...
-		if (!$this->enabledAndAllowed($subsection))
-		{
+		if (!$this->enabledAndAllowed($subsection)) {
 			$this_subsection['disabled'] = true;
+
 			return;
 		}
 
 		// A bit complicated - but is this set?
-		if ($this->current_area == $this->area_id)
-		{
+		if ($this->current_area == $this->area_id) {
 			// Is this the current subsection?
-			if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == $this->subsection_id)
-			{
+			if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == $this->subsection_id) {
 				$this->current_subsection = $this->subsection_id;
 			}
 			// Otherwise is it the default?
-			elseif (empty($this->current_subsection) && !empty($subsection['is_default']))
-			{
+			elseif (empty($this->current_subsection) && !empty($subsection['is_default'])) {
 				$this->current_subsection = $this->subsection_id;
 			}
 		}
@@ -638,32 +634,28 @@ class Menu implements \ArrayAccess
 		$area = $this->data[$this->section_id]['areas'][$this->area_id];
 
 		// Is this the current section?
-		if (!empty($this->current_area) && $this->current_area == $this->area_id && empty($this->found_section))
-		{
+		if (!empty($this->current_area) && $this->current_area == $this->area_id && empty($this->found_section)) {
 			// Only do this once?
 			$this->found_section = true;
 
 			// Update the context if required - as we can have areas pretending to be others. ;)
 			$this->current_section = $this->section_id;
-			$this->current_area = isset($area['select']) ? $area['select'] : $this->area_id;
+			$this->current_area = $area['select'] ?? $this->area_id;
 
 			// This will be the data we return.
 			$this->include_data = $area;
 
-			if (isset($this->sections[$this->section_id]['areas'][$this->area_id]['subsections']))
-			{
+			if (isset($this->sections[$this->section_id]['areas'][$this->area_id]['subsections'])) {
 				$this->include_data['subsections'] = $this->sections[$this->section_id]['areas'][$this->area_id]['subsections'];
 			}
 		}
 		// Make sure we have something in case it's an invalid area.
-		elseif (empty($this->found_section) && empty($this->include_data))
-		{
+		elseif (empty($this->found_section) && empty($this->include_data)) {
 			$this->current_section = $this->section_id;
-			$this->backup_area = isset($area['select']) ? $area['select'] : $this->area_id;
+			$this->backup_area = $area['select'] ?? $this->area_id;
 			$this->include_data = $area;
 
-			if (isset($this->sections[$this->section_id]['areas'][$this->area_id]['subsections']))
-			{
+			if (isset($this->sections[$this->section_id]['areas'][$this->area_id]['subsections'])) {
 				$this->include_data['subsections'] = $this->sections[$this->section_id]['areas'][$this->area_id]['subsections'];
 			}
 		}
@@ -674,12 +666,13 @@ class Menu implements \ArrayAccess
 	 */
 	protected function setAreaIcon($area): void
 	{
-		$dirs = array('theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url');
-		$icon_paths = array('icon' => 'admin');
+		$dirs = ['theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url'];
+		$icon_paths = ['icon' => 'admin'];
 
 		// Big icons are for the admin home page.
-		if (!empty($this->options['do_big_icons']))
+		if (!empty($this->options['do_big_icons'])) {
 			$icon_paths['icon_file'] = 'admin/big';
+		}
 
 		// For convenience.
 		$this_area = &$this->sections[$this->section_id]['areas'][$this->area_id];
@@ -688,32 +681,28 @@ class Menu implements \ArrayAccess
 		$area['icon'] = $area['icon'] ?? $this->area_id;
 
 		// Icon is a file name.
-		if (($ext = pathinfo($area['icon'], PATHINFO_EXTENSION)) !== '')
-		{
+		if (($ext = pathinfo($area['icon'], PATHINFO_EXTENSION)) !== '') {
 			$no_ext = str_replace('.' . $ext, '', $area['icon']);
 
 			// The icon_class never uses the extension.
 			$this_area['icon_class'] = $this->current_action . '_menu_icon ' . $no_ext;
 
 			// Try to find the files.
-			foreach ($dirs as $dir => $url)
-			{
-				foreach ($icon_paths as $key => $path)
-				{
-					if (file_exists(Theme::$current->settings[$dir] . '/images/' . $path . '/' . $area['icon']))
-					{
+			foreach ($dirs as $dir => $url) {
+				foreach ($icon_paths as $key => $path) {
+					if (file_exists(Theme::$current->settings[$dir] . '/images/' . $path . '/' . $area['icon'])) {
 						$this_area[$key] = '<img src="' . Theme::$current->settings[$url] . '/' . $path . '/' . $area['icon'] . '" alt="">';
 					}
 				}
 			}
 
 			// File not found, so fall back to a class name.
-			if (!isset($this_area['icon']))
+			if (!isset($this_area['icon'])) {
 				$this_area['icon'] = '<span class="main_icons ' . $no_ext . '"></span>';
+			}
 		}
 		// Icon is a class name.
-		else
-		{
+		else {
 			$this_area['icon'] = '<span class="main_icons ' . $area['icon'] . '"></span>';
 			$this_area['icon_class'] = $this->current_action . '_menu_icon ' . $area['icon'];
 		}
@@ -727,18 +716,15 @@ class Menu implements \ArrayAccess
 	 */
 	protected function setSelected(): void
 	{
-		if (!empty($this->current_section) && isset($this->sections[$this->current_section]))
-		{
+		if (!empty($this->current_section) && isset($this->sections[$this->current_section])) {
 			$this->sections[$this->current_section]['selected'] = true;
 		}
 
-		if (!empty($this->current_area) && isset($this->sections[$this->current_section]['areas'][$this->current_area]))
-		{
+		if (!empty($this->current_area) && isset($this->sections[$this->current_section]['areas'][$this->current_area])) {
 			$this->sections[$this->current_section]['areas'][$this->current_area]['selected'] = true;
 		}
 
-		if (!empty($this->current_subsection) && isset($this->sections[$this->current_section]['areas'][$this->current_area]['subsections'][$this->current_subsection]))
-		{
+		if (!empty($this->current_subsection) && isset($this->sections[$this->current_section]['areas'][$this->current_area]['subsections'][$this->current_subsection])) {
 			$this->sections[$this->current_section]['areas'][$this->current_area]['subsections'][$this->current_subsection]['selected'] = true;
 		}
 	}
@@ -748,21 +734,21 @@ class Menu implements \ArrayAccess
 	 */
 	protected function checkBaseUrl(): void
 	{
-		foreach ($this->sections as $section_id => $section)
-		{
-			if (isset($section['url']))
+		foreach ($this->sections as $section_id => $section) {
+			if (isset($section['url'])) {
 				continue;
+			}
 
 			$first_area = reset($section['areas']);
 
-			$this->sections[$section_id]['url'] = isset($first_area['url']) ? $first_area['url'] : $this->base_url . ';area=' . array_key_first($section['areas']);
+			$this->sections[$section_id]['url'] = $first_area['url'] ?? $this->base_url . ';area=' . array_key_first($section['areas']);
 		}
 	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Menu::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Menu::exportStatic')) {
 	Menu::exportStatic();
+}
 
 ?>

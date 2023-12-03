@@ -14,8 +14,8 @@
 namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Board;
+use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Utils;
@@ -32,12 +32,11 @@ class NotifyBoard extends Notify implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
-			'load' => false,
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'BoardNotify',
-		),
-	);
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -73,8 +72,9 @@ class NotifyBoard extends Notify implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -103,8 +103,9 @@ class NotifyBoard extends Notify implements ActionInterface
 	 */
 	protected function setId()
 	{
-		if (empty(Board::$info->id))
+		if (empty(Board::$info->id)) {
 			ErrorHandler::fatalLang('no_board', false);
+		}
 
 		$this->id = Board::$info->id;
 	}
@@ -116,8 +117,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	 */
 	protected function saToMode()
 	{
-		if (!isset($_GET['mode']) && isset($_GET['sa']))
-		{
+		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : -1;
 			unset($_GET['sa']);
 		}
@@ -156,11 +156,11 @@ class NotifyBoard extends Notify implements ActionInterface
 	 *************************/
 
 	// code...
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\NotifyBoard::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\NotifyBoard::exportStatic')) {
 	NotifyBoard::exportStatic();
+}
 
 ?>

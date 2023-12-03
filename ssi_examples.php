@@ -20,12 +20,12 @@
 $ssi_guest_access = false;
 
 // Include the SSI file.
-require(dirname(__FILE__) . '/SSI.php');
+require __DIR__ . '/SSI.php';
 
 // Viewing the homepage sample?
-if (isset($_GET['view']) && $_GET['view'] == 'home1')
-{
+if (isset($_GET['view']) && $_GET['view'] == 'home1') {
 	template_homepage_sample1('output');
+
 	exit;
 }
 
@@ -408,8 +408,6 @@ template_ssi_below();
 
 /**
  * Displays the header for this file
- *
- * @return void
  */
 function template_ssi_above()
 {
@@ -515,8 +513,6 @@ function template_ssi_above()
 
 /**
  * Displays the footer for this file
- *
- * @return void
  */
 function template_ssi_below()
 {
@@ -590,32 +586,28 @@ function template_homepage_sample1($method = 'source')
 </body>
 </html>';
 
-	if ($method == 'source')
-	{
+	if ($method == 'source') {
 		$header = '<?php require("' . (SMF\User::$me->is_admin ? addslashes(realpath(SMF\Config::$boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
+
 		return $header . template_homepage_sample1_html() . $footer;
 	}
-	else
-	{
-		echo $header;
-		template_homepage_sample1_php();
-		echo $footer;
-	}
 
+	echo $header;
+	template_homepage_sample1_php();
+	echo $footer;
 }
 
 /**
  * Generates the sample homepage. Used with template_homepage_sample1 if $method isn't 'source'.
- *
- * @return void
  */
 function template_homepage_sample1_php()
 {
 	$topics = SMF\ServerSideIncludes::recentTopics(8, null, null, 'array');
 
-	foreach ($topics as $topic)
+	foreach ($topics as $topic) {
 		echo '
 			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::$txt['by'], ' ', $topic['poster']['link'], '</li>';
+	}
 
 	unset($topics);
 
@@ -641,7 +633,6 @@ function template_homepage_sample1_php()
 
 	echo '
 	</div>';
-
 }
 
 /**
@@ -654,7 +645,7 @@ function template_homepage_sample1_html()
 	$result = '
 <?php
 // Using array method to show shorter display style.
-$topics = SMF\ServerSideIncludes::recentTopics(8, null, null, \'array\');
+$topics = SMF\\ServerSideIncludes::recentTopics(8, null, null, \'array\');
 
 foreach ($topics as $topic)
 {
@@ -662,19 +653,19 @@ foreach ($topics as $topic)
 	// echo \'<pre>\', print_r($topic), \'</pre>\';
 
 	echo \'
-			<li><a href=\"\', $topic[\'href\'], \'\">\', $topic[\'subject\'], \'</a> \', SMF\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
+			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
 }
 
 unset($topics);
 ?>
 		</ul><br>
 		<h3>Online Users</h3>
-		<?php SMF\ServerSideIncludes::logOnline(); ?>
+		<?php SMF\\ServerSideIncludes::logOnline(); ?>
 	</div>
 	<div id="content">
-		<?php SMF\ServerSideIncludes::welcome(); ?><br><br>
+		<?php SMF\\ServerSideIncludes::welcome(); ?><br><br>
 		<h2>News</h2>
-		<?php SMF\ServerSideIncludes::boardNews(); ?>
+		<?php SMF\\ServerSideIncludes::boardNews(); ?>
 	</div>';
 
 	return $result;

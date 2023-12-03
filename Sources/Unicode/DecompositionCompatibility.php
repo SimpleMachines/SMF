@@ -13,8 +13,9 @@
 
 namespace SMF\Unicode;
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('No direct access...');
+}
 
 /**
  * Helper function for utf8_normalize_kd.
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_normalize_kd_maps()
 {
-	return array(
+	return [
 		"\xC2\xA0" => "\x20",
 		"\xC2\xA8" => "\x20\xCC\x88",
 		"\xC2\xAA" => "\x61",
@@ -3839,7 +3840,7 @@ function utf8_normalize_kd_maps()
 		"\xF0\x9F\xAF\xB7" => "\x37",
 		"\xF0\x9F\xAF\xB8" => "\x38",
 		"\xF0\x9F\xAF\xB9" => "\x39",
-	);
+	];
 }
 
 ?>

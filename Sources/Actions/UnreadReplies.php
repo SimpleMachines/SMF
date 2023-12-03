@@ -15,12 +15,12 @@ namespace SMF\Actions;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Finds and retrieves information about replies to the user's posts.
@@ -75,8 +75,9 @@ class UnreadReplies extends Unread
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -113,14 +114,17 @@ class UnreadReplies extends Unread
 	 */
 	protected function checkLoadAverage()
 	{
-		if (empty(Utils::$context['load_average']))
+		if (empty(Utils::$context['load_average'])) {
 			return;
+		}
 
-		if (empty(Config::$modSettings['loadavg_unreadreplies']))
+		if (empty(Config::$modSettings['loadavg_unreadreplies'])) {
 			return;
+		}
 
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unreadreplies'])
+		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unreadreplies']) {
 			ErrorHandler::fatalLang('loadavg_unreadreplies_disabled', false);
+		}
 	}
 
 	/**
@@ -128,15 +132,13 @@ class UnreadReplies extends Unread
 	 */
 	protected function setTopicRequest()
 	{
-		if (Config::$modSettings['totalMessages'] > 100000)
+		if (Config::$modSettings['totalMessages'] > 100000) {
 			$this->makeTempTable();
-
-		if ($this->have_temp_table)
-		{
-			$this->getTopicRequestWithTempTable();
 		}
-		else
-		{
+
+		if ($this->have_temp_table) {
+			$this->getTopicRequestWithTempTable();
+		} else {
 			$this->getTopicRequestWithoutTempTable();
 		}
 	}
@@ -146,69 +148,72 @@ class UnreadReplies extends Unread
 	 */
 	protected function makeTempTable()
 	{
-		Db::$db->query('', '
-			DROP TABLE IF EXISTS {db_prefix}topics_posted_in',
-			array(
-			)
+		Db::$db->query(
+			'',
+			'DROP TABLE IF EXISTS {db_prefix}topics_posted_in',
+			[
+			],
 		);
 
-		Db::$db->query('', '
-			DROP TABLE IF EXISTS {db_prefix}log_topics_posted_in',
-			array(
-			)
+		Db::$db->query(
+			'',
+			'DROP TABLE IF EXISTS {db_prefix}log_topics_posted_in',
+			[
+			],
 		);
 
-		$sortKey_joins = array(
+		$sortKey_joins = [
 			'ms.subject' => '
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)',
 			'COALESCE(mems.real_name, ms.poster_name)' => '
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)',
-		);
+		];
 
 		// The main benefit of this temporary table is not that it's faster; it's that it avoids locks later.
-		$this->have_temp_table = false !== Db::$db->query('', '
-			CREATE TEMPORARY TABLE {db_prefix}topics_posted_in (
+		$this->have_temp_table = false !== Db::$db->query(
+			'',
+			'CREATE TEMPORARY TABLE {db_prefix}topics_posted_in (
 				id_topic mediumint(8) unsigned NOT NULL default {string:string_zero},
 				id_board smallint(5) unsigned NOT NULL default {string:string_zero},
 				id_last_msg int(10) unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_topic)
 			)
-			SELECT t.id_topic, t.id_board, t.id_last_msg, COALESCE(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], array('t.id_last_msg', 't.id_topic')) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
+			SELECT t.id_topic, t.id_board, t.id_last_msg, COALESCE(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], ['t.id_last_msg', 't.id_topic']) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
-				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
+				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . ($sortKey_joins[$_REQUEST['sort']] ?? '') . '
 			WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND t.id_board = {int:current_board}' : '') . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 				AND COALESCE(lt.unwatched, 0) != 1
 			GROUP BY m.id_topic',
-			array(
+			[
 				'current_board' => Board::$info->id,
 				'current_member' => User::$me->id,
 				'is_approved' => 1,
 				'string_zero' => '0',
 				'db_error_skip' => true,
-			)
+			],
 		);
 
 		// If that worked, create a sample of the log_topics table too.
-		if ($this->have_temp_table)
-		{
-			$this->have_temp_table = false !== Db::$db->query('', '
-				CREATE TEMPORARY TABLE {db_prefix}log_topics_posted_in (
+		if ($this->have_temp_table) {
+			$this->have_temp_table = false !== Db::$db->query(
+				'',
+				'CREATE TEMPORARY TABLE {db_prefix}log_topics_posted_in (
 					PRIMARY KEY (id_topic)
 				)
 				SELECT lt.id_topic, lt.id_msg
 				FROM {db_prefix}log_topics AS lt
 					INNER JOIN {db_prefix}topics_posted_in AS pi ON (pi.id_topic = lt.id_topic)
 				WHERE lt.id_member = {int:current_member}',
-				array(
+				[
 					'current_member' => User::$me->id,
 					'db_error_skip' => true,
-				)
+				],
 			);
 		}
 	}
@@ -218,54 +223,57 @@ class UnreadReplies extends Unread
 	 */
 	protected function getTopicRequestWithTempTable()
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'',
+			'SELECT COUNT(*)
 			FROM {db_prefix}topics_posted_in AS pi
 				LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = pi.id_topic)
 			WHERE pi.' . $this->query_this_board . '
 				AND COALESCE(lt.id_msg, pi.id_msg) < pi.id_last_msg',
-			array_merge($this->query_parameters, array(
-			))
+			array_merge($this->query_parameters, [
+			]),
 		);
 		list($this->num_topics) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		if ($this->num_topics == 0)
-		{
+		if ($this->num_topics == 0) {
 			$this->setNoTopics();
+
 			return;
 		}
 
-		$topics = array();
-		$request = Db::$db->query('', '
-			SELECT t.id_topic
+		$topics = [];
+		$request = Db::$db->query(
+			'',
+			'SELECT t.id_topic
 			FROM {db_prefix}topics_posted_in AS t
 				LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = t.id_topic)
 			WHERE t.' . $this->query_this_board . '
 				AND COALESCE(lt.id_msg, t.id_msg) < t.id_last_msg
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
-			array_merge($this->query_parameters, array(
-				'order' => (in_array($_REQUEST['sort'], array('t.id_last_msg', 't.id_topic')) ? $_REQUEST['sort'] : 't.sort_key') . ($this->ascending ? '' : ' DESC'),
+			array_merge($this->query_parameters, [
+				'order' => (in_array($_REQUEST['sort'], ['t.id_last_msg', 't.id_topic']) ? $_REQUEST['sort'] : 't.sort_key') . ($this->ascending ? '' : ' DESC'),
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
-			))
+			]),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$topics[] = $row['id_topic'];
 		}
 		Db::$db->free_result($request);
 
 		// Sanity... where have you gone?
-		if (empty($topics))
-		{
+		if (empty($topics)) {
 			$this->setNoTopics();
+
 			return;
 		}
 
-		$this->topic_request = Db::$db->query('substring', '
-			SELECT ' . implode(', ', $this->selects) . '
+		$this->topic_request = Db::$db->query(
+			'substring',
+			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_topic = t.id_topic AND ms.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -279,12 +287,12 @@ class UnreadReplies extends Unread
 			WHERE t.id_topic IN ({array_int:topic_list})
 			ORDER BY {raw:sort}' . ($this->ascending ? '' : ' DESC') . '
 			LIMIT {int:limit}',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'topic_list' => $topics,
 				'sort' => $_REQUEST['sort'],
 				'limit' => count($topics),
-			)
+			],
 		);
 	}
 
@@ -293,8 +301,9 @@ class UnreadReplies extends Unread
 	 */
 	protected function getTopicRequestWithoutTempTable()
 	{
-		$request = Db::$db->query('unread_fetch_topic_count', '
-			SELECT COUNT(DISTINCT t.id_topic), MIN(t.id_last_msg)
+		$request = Db::$db->query(
+			'unread_fetch_topic_count',
+			'SELECT COUNT(DISTINCT t.id_topic), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic)
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -304,10 +313,10 @@ class UnreadReplies extends Unread
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 				AND COALESCE(lt.unwatched, 0) != 1',
-			array_merge($this->query_parameters, array(
+			array_merge($this->query_parameters, [
 				'current_member' => User::$me->id,
 				'is_approved' => 1,
-			))
+			]),
 		);
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -315,16 +324,17 @@ class UnreadReplies extends Unread
 		$this->num_topics = $num_topics ?? 0;
 		$this->min_message = $min_message ?? 0;
 
-		if ($this->num_topics == 0)
-		{
+		if ($this->num_topics == 0) {
 			$this->setNoTopics();
+
 			return;
 		}
 
-		$topics = array();
+		$topics = [];
 
-		$request = Db::$db->query('', '
-			SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
+		$request = Db::$db->query(
+			'',
+			'SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (strpos($_REQUEST['sort'], 'ms.') === false ? '' : '
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (strpos($_REQUEST['sort'], 'mems.') === false ? '' : '
@@ -338,7 +348,7 @@ class UnreadReplies extends Unread
 				AND COALESCE(lt.unwatched, 0) != 1
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
-			array_merge($this->query_parameters, array(
+			array_merge($this->query_parameters, [
 				'current_member' => User::$me->id,
 				'min_message' => (int) $this->min_message,
 				'is_approved' => 1,
@@ -346,23 +356,24 @@ class UnreadReplies extends Unread
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
 				'sort' => $_REQUEST['sort'],
-			))
+			]),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			$topics[] = $row['id_topic'];
 		}
 		Db::$db->free_result($request);
 
 		// Sanity... where have you gone?
-		if (empty($topics))
-		{
+		if (empty($topics)) {
 			$this->setNoTopics();
+
 			return;
 		}
 
-		$this->topic_request = Db::$db->query('substring', '
-			SELECT ' . implode(', ', $this->selects) . '
+		$this->topic_request = Db::$db->query(
+			'substring',
+			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_topic = t.id_topic AND ms.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -376,15 +387,14 @@ class UnreadReplies extends Unread
 			WHERE t.id_topic IN ({array_int:topic_list})
 			ORDER BY {raw:sort}' . ($this->ascending ? '' : ' DESC') . '
 			LIMIT {int:limit}',
-			array(
+			[
 				'current_member' => User::$me->id,
 				'topic_list' => $topics,
 				'sort' => $_REQUEST['sort'],
 				'limit' => count($topics),
-			)
+			],
 		);
 	}
-
 }
 
 ?>

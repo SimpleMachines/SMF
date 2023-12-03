@@ -33,23 +33,23 @@ class Display
 	 */
 	public function getGatewaySettings()
 	{
-		$setting_data = array(
-			array(
+		$setting_data = [
+			[
 				'email', 'paypal_email',
 				'subtext' => Lang::$txt['paypal_email_desc'],
-				'size' => 60
-			),
-			array(
+				'size' => 60,
+			],
+			[
 				'email', 'paypal_additional_emails',
 				'subtext' => Lang::$txt['paypal_additional_emails_desc'],
-				'size' => 60
-			),
-			array(
+				'size' => 60,
+			],
+			[
 				'email', 'paypal_sandbox_email',
 				'subtext' => Lang::$txt['paypal_sandbox_email_desc'],
-				'size' => 60
-			),
-		);
+				'size' => 60,
+			],
+		];
 
 		return $setting_data;
 	}
@@ -57,7 +57,7 @@ class Display
 	/**
 	 * Is this enabled for new payments?
 	 *
-	 * @return boolean Whether this gateway is enabled (for PayPal, whether the PayPal email is set)
+	 * @return bool Whether this gateway is enabled (for PayPal, whether the PayPal email is set)
 	 */
 	public function gatewayEnabled()
 	{
@@ -79,15 +79,15 @@ class Display
 	 */
 	public function fetchGatewayFields($unique_id, $sub_data, $value, $period, $return_url)
 	{
-		$return_data = array(
+		$return_data = [
 			'form' => 'https://www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr',
 			'id' => 'paypal',
-			'hidden' => array(),
+			'hidden' => [],
 			'title' => Lang::$txt['paypal'],
 			'desc' => Lang::$txt['paid_confirm_paypal'],
 			'submit' => Lang::$txt['paid_paypal_order'],
 			'javascript' => '',
-		);
+		];
 
 		// All the standard bits.
 		$return_data['hidden']['business'] = Config::$modSettings['paypal_email'];
@@ -107,13 +107,10 @@ class Display
 		$return_data['hidden']['lc'] = !empty(Lang::$txt['lang_paypal']) ? Lang::$txt['lang_paypal'] : 'US';
 
 		// Now stuff dependant on what we're doing.
-		if ($sub_data['flexible'])
-		{
+		if ($sub_data['flexible']) {
 			$return_data['hidden']['p3'] = 1;
 			$return_data['hidden']['t3'] = strtoupper(substr($period, 0, 1));
-		}
-		else
-		{
+		} else {
 			preg_match('~(\d*)(\w)~', $sub_data['real_length'], $match);
 			$unit = $match[1];
 			$period = $match[2];
@@ -123,7 +120,7 @@ class Display
 		}
 
 		// If it's repeatable do some javascript to respect this idea.
-		if (!empty($sub_data['repeatable']))
+		if (!empty($sub_data['repeatable'])) {
 			$return_data['javascript'] = '
 				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();">' . Lang::$txt['paid_make_recurring'] . '</label><br>\');
 
@@ -131,6 +128,7 @@ class Display
 				{
 					document.getElementById("paypal_cmd").value = document.getElementById("do_paypal_recur").checked ? "_xclick-subscriptions" : "_xclick";
 				}';
+		}
 
 		return $return_data;
 	}

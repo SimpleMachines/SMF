@@ -88,7 +88,7 @@ trait DynamicPropertyHelper
 	 *
 	 * Arbitrary custom data about this object.
 	 */
-	protected array $custom = array();
+	protected array $custom = [];
 
 	/****************
 	 * Public methods
@@ -99,11 +99,12 @@ trait DynamicPropertyHelper
 	 *
 	 * @param array $props Array of properties to set.
 	 */
-	public function set(array $props = array()): void
+	public function set(array $props = []): void
 	{
 		// The magic method already has robust logic for this job, so use that.
-		foreach ($props as $prop => $value)
+		foreach ($props as $prop => $value) {
 			$this->__set($prop, $value);
+		}
 	}
 
 	/**
@@ -159,48 +160,38 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertySet(mixed $prop, mixed $value): void
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases))
-		{
+		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
-			if (is_null($value))
+			if (is_null($value)) {
 				return;
+			}
 
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties can't be set.
-			if (is_callable($real_prop))
+			if (is_callable($real_prop)) {
 				return;
+			}
 
-			if (strpos($real_prop, '!') === 0)
-			{
+			if (strpos($real_prop, '!') === 0) {
 				$real_prop = ltrim($real_prop, '!');
 				$value = !$value;
 			}
 
-			if (strpos($real_prop, '[') !== false)
-			{
+			if (strpos($real_prop, '[') !== false) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]}))
-				{
+				if (is_object($this->{$real_prop[0]})) {
 					$this->{$real_prop[0]}->{$real_prop[1]} = $value;
-				}
-				else
-				{
+				} else {
 					$this->{$real_prop[0]}[$real_prop[1]] = $value;
 				}
-			}
-			else
-			{
+			} else {
 				$this->{$real_prop} = $value;
 			}
-		}
-		elseif (property_exists($this, $prop))
-		{
+		} elseif (property_exists($this, $prop)) {
 			$this->{$prop} = $value;
-		}
-		else
-		{
+		} else {
 			$this->custom[$prop] = $value;
 		}
 	}
@@ -212,45 +203,38 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertyGet(mixed $prop): mixed
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases))
-		{
+		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties are calculated dynamically.
-			if (is_callable($real_prop))
+			if (is_callable($real_prop)) {
 				return call_user_func($real_prop, $this);
+			}
 
-			if (($not = strpos($real_prop, '!') === 0))
+			if (($not = strpos($real_prop, '!') === 0)) {
 				$real_prop = ltrim($real_prop, '!');
+			}
 
-			if (strpos($real_prop, '[') !== false)
-			{
+			if (strpos($real_prop, '[') !== false) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]}))
-				{
+				if (is_object($this->{$real_prop[0]})) {
 					$value = $this->{$real_prop[0]}->{$real_prop[1]};
-				}
-				else
-				{
+				} else {
 					$value = $this->{$real_prop[0]}[$real_prop[1]];
 				}
-			}
-			else
-			{
+			} else {
 				$value = $this->{$real_prop};
 			}
 
 			return $not ? !$value : $value;
 		}
-		elseif (property_exists($this, $prop))
-		{
+
+		if (property_exists($this, $prop)) {
 			return $this->{$prop} ?? null;
 		}
-		else
-		{
-			return $this->custom[$prop] ?? null;
-		}
+
+		return $this->custom[$prop] ?? null;
 	}
 
 	/**
@@ -260,40 +244,32 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertyIsset(mixed $prop): bool
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases))
-		{
+		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
 			$real_prop = ltrim($this->prop_aliases[$prop], '!');
 
 			// A callable property is set if it returns a non-null value.
-			if (is_callable($real_prop))
+			if (is_callable($real_prop)) {
 				return call_user_func($real_prop, $this) !== null;
+			}
 
-			if (strpos($real_prop, '[') !== false)
-			{
+			if (strpos($real_prop, '[') !== false) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]}))
-				{
+				if (is_object($this->{$real_prop[0]})) {
 					return isset($this->{$real_prop[0]}->{$real_prop[1]});
 				}
-				else
-				{
-					return isset($this->{$real_prop[0]}[$real_prop[1]]);
-				}
+
+				return isset($this->{$real_prop[0]}[$real_prop[1]]);
 			}
-			else
-			{
-				return isset($this->{$real_prop});
-			}
+
+			return isset($this->{$real_prop});
 		}
-		elseif (property_exists($this, $prop))
-		{
+
+		if (property_exists($this, $prop)) {
 			return isset($this->{$prop});
 		}
-		else
-		{
-			return isset($this->custom[$prop]);
-		}
+
+		return isset($this->custom[$prop]);
 	}
 
 	/**
@@ -303,17 +279,14 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertyUnset(mixed $prop): void
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases))
-		{
+		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
 			return;
 		}
-		elseif (property_exists($this, $prop))
-		{
+
+		if (property_exists($this, $prop)) {
 			unset($this->{$prop});
-		}
-		else
-		{
+		} else {
 			unset($this->custom[$prop]);
 		}
 	}

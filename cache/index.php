@@ -1,15 +1,8 @@
 <?php
 
-// This file is here solely to protect your cache directory.
-
-// Look for Settings.php....
-if (file_exists(dirname(dirname(__FILE__)) . '/Settings.php'))
-{
-	// Found it!
-	require(dirname(dirname(__FILE__)) . '/Settings.php');
-	header('location: ' . $boardurl);
-}
-// Can't find it... just forget it.
+// Try to handle it with the upper level index.php. (it should know what to do.)
+if (file_exists(dirname(__DIR__) . '/index.php'))
+	include (dirname(__DIR__) . '/index.php');
 else
 	exit;
 

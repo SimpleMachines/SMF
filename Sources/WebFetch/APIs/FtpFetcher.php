@@ -15,9 +15,9 @@ namespace SMF\WebFetch\APIs;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\PackageManager\FtpConnection;
 use SMF\Url;
 use SMF\WebFetch\WebFetchApi;
-use SMF\PackageManager\FtpConnection;
 
 /**
  * Fetches data from FTP URLs.
@@ -75,7 +75,7 @@ class FtpFetcher extends WebFetchApi
 	 *
 	 * Stores responses (url, code, error, headers, body, size).
 	 */
-	public $response = array();
+	public $response = [];
 
 	/****************
 	 * Public methods
@@ -104,16 +104,16 @@ class FtpFetcher extends WebFetchApi
 	 * @param string $url the site we are going to fetch
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = array()): object
+	public function request(string $url, array|string $post_data = []): object
 	{
 		$url = new Url($url, true);
 		$url->toAscii();
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, array('ftp', 'ftps')))
-		{
+		if (empty($url->scheme) || !in_array($url->scheme, ['ftp', 'ftps'])) {
 			Lang::load('Errors');
 			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
+
 			return $this;
 		}
 
@@ -121,16 +121,17 @@ class FtpFetcher extends WebFetchApi
 		$this->port = !empty($url->port) ? $url->port : 21;
 
 		// Establish a connection and attempt to enable passive mode.
-		$ftp = new SMF\PackageManager\FtpConnection($this->host, $this->port, $this->user, $this->email);
+		$ftp = new FtpConnection($this->host, $this->port, $this->user, $this->email);
 
 		$this->error_message = !empty($ftp->error) ? (string) ($ftp->last_message ?? $ftp->error) : '';
 
-		if ($ftp->error !== false)
+		if ($ftp->error !== false) {
 			return $this;
+		}
 
-		if (!$ftp->passive())
-		{
+		if (!$ftp->passive()) {
 			$this->error_message = (string) ($ftp->last_message ?? $ftp->error);
+
 			return $this;
 		}
 
@@ -141,18 +142,19 @@ class FtpFetcher extends WebFetchApi
 		$fp = @fsockopen($ftp->pasv['ip'], $ftp->pasv['port'], $this->error_code, $this->error_message, 5);
 
 		// We can start building our response data now.
-		$this->response[0] = array(
+		$this->response[0] = [
 			'url' => (string) $url,
 			'success' => false,
 			'code' => null,
 			'error' => $this->error_message ?? null,
-			'headers' => array(),
+			'headers' => [],
 			'body' => null,
 			'size' => 0,
-		);
+		];
 
-		if (!$fp)
+		if (!$fp) {
 			return $this;
+		}
 
 		// The server should now say something in acknowledgement.
 		$ftp->check_response(150);
@@ -160,8 +162,9 @@ class FtpFetcher extends WebFetchApi
 
 		$body = '';
 
-		while (!feof($fp))
+		while (!feof($fp)) {
 			$body .= fread($fp, 4096);
+		}
 
 		fclose($fp);
 
@@ -183,13 +186,14 @@ class FtpFetcher extends WebFetchApi
 	 * @param string $area Used to return an area such as body, header, error.
 	 * @return mixed The response
 	 */
-	public function result(string $area = null): mixed
+	public function result(?string $area = null): mixed
 	{
 		// Just return a specifed area or the entire result?
-		if (empty($area))
+		if (empty($area)) {
 			return $this->response[0];
+		}
 
-		return isset($this->response[0][$area]) ? $this->response[0][$area] : $this->response[0];
+		return $this->response[0][$area] ?? $this->response[0];
 	}
 
 	/**
@@ -199,16 +203,13 @@ class FtpFetcher extends WebFetchApi
 	 * @param int $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
-	public function resultRaw(int $response_number = null): array
+	public function resultRaw(?int $response_number = null): array
 	{
-		if (!isset($response_number))
-		{
+		if (!isset($response_number)) {
 			return $this->response;
 		}
-		else
-		{
-			return $this->response[0];
-		}
+
+		return $this->response[0];
 	}
 }
 

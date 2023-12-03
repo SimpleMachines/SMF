@@ -106,37 +106,40 @@ class ProxyServer
 	 */
 	public function checkRequest(): bool
 	{
-		if (!$this->enabled)
+		if (!$this->enabled) {
 			return false;
+		}
 
 		// Try to create the image cache directory if it doesn't exist
-		if (!file_exists($this->cache))
-		{
-			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php'))
-			{
+		if (!file_exists($this->cache)) {
+			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
 				return false;
 			}
 		}
 
 		// We aren't going anywhere without these
-		if (empty($_GET['hash']) || empty($_GET['request']))
+		if (empty($_GET['hash']) || empty($_GET['request'])) {
 			return false;
+		}
 
 		$request = new Url($_GET['request']);
 
 		// Basic sanity check.
-		if (!$request->isValid())
+		if (!$request->isValid()) {
 			return false;
+		}
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly
 		$request = $request->toAscii();
 
-		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash'])
+		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash']) {
 			return false;
+		}
 
 		// Attempt to cache the request if it doesn't exist
-		if (!$this->isCached($request))
+		if (!$this->isCached($request)) {
 			return $this->cacheImage($request);
+		}
 
 		return true;
 	}
@@ -151,10 +154,10 @@ class ProxyServer
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
 
-		if (!$response)
-		{
+		if (!$response) {
 			// Throw a 404
 			Utils::sendHttpStatus(404);
+
 			exit;
 		}
 
@@ -162,8 +165,7 @@ class ProxyServer
 		$cached_file = $this->getCachedPath($request);
 
 		// Read from cache if you need to...
-		if ($this->cachedbody === null)
-		{
+		if ($this->cachedbody === null) {
 			$cached = json_decode(file_get_contents($cached_file), true);
 			$this->cachedtime = $cached['time'];
 			$this->cachedtype = $cached['content_type'];
@@ -174,29 +176,30 @@ class ProxyServer
 		$time = time();
 
 		// Is the cache expired? Delete and reload.
-		if ($time - $this->cachedtime > ($this->maxDays * 86400))
-		{
+		if ($time - $this->cachedtime > ($this->maxDays * 86400)) {
 			@unlink($cached_file);
 
-			if ($this->checkRequest())
+			if ($this->checkRequest()) {
 				$this->serve();
+			}
 
 			$this->redirectexit($request);
 		}
 
 		$eTag = '"' . substr(sha1($request) . $this->cachedtime, 0, 64) . '"';
 
-		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
-		{
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false) {
 			Utils::sendHttpStatus(304);
+
 			exit;
 		}
 
 		// Make sure we're serving an image
 		$contentParts = explode('/', !empty($this->cachedtype) ? $this->cachedtype : '');
 
-		if ($contentParts[0] != 'image')
+		if ($contentParts[0] != 'image') {
 			exit;
+		}
 
 		$max_age = $time - $this->cachedtime + (5 * 86400);
 		header('content-type: ' . $this->cachedtype);
@@ -250,28 +253,30 @@ class ProxyServer
 		$image = WebFetchApi::fetch($request);
 
 		// Looks like nobody was home
-		if (empty($image))
+		if (empty($image)) {
 			$this->redirectexit($request);
+		}
 
 		// What kind of file did they give us?
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if ($ext == 'svg' && in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
-		{
+		if ($ext == 'svg' && in_array($mime_type, ['text/plain', 'text/xml']) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false) {
 			$mime_type = 'image/svg+xml';
 		}
 
 		// Make sure the url is returning an image
-		if (strpos($mime_type, 'image/') !== 0)
+		if (strpos($mime_type, 'image/') !== 0) {
 			$this->redirectexit($request);
+		}
 
 		// Validate the filesize
 		$size = strlen($image);
 
-		if ($size > ($this->maxSize * 1024))
+		if ($size > ($this->maxSize * 1024)) {
 			$this->redirectexit($request);
+		}
 
 		// Populate object for current serve execution (so you don't have to read it again...)
 		$this->cachedtime = time();
@@ -280,12 +285,12 @@ class ProxyServer
 		$this->cachedbody = base64_encode($image);
 
 		// Cache it for later
-		return file_put_contents($dest, json_encode(array(
+		return file_put_contents($dest, json_encode([
 			'content_type' => $this->cachedtype,
 			'size' => $this->cachedsize,
 			'time' => $this->cachedtime,
 			'body' => $this->cachedbody,
-		))) !== false;
+		])) !== false;
 	}
 
 	/**
@@ -296,6 +301,7 @@ class ProxyServer
 	private function redirectexit(string $request): void
 	{
 		header('Location: ' . Utils::htmlspecialcharsDecode($request), false, 301);
+
 		exit;
 	}
 
@@ -306,12 +312,9 @@ class ProxyServer
 	{
 		$path = $this->cache . '/';
 
-		if ($handle = opendir($path))
-		{
-			while (false !== ($file = readdir($handle)))
-			{
-				if (is_file($path . $file) && !in_array($file, array('index.php', '.htaccess')) && time() - filemtime($path . $file) > $this->maxDays * 86400)
-				{
+		if ($handle = opendir($path)) {
+			while (false !== ($file = readdir($handle))) {
+				if (is_file($path . $file) && !in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
 					unlink($path . $file);
 				}
 			}

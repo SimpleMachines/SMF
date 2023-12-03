@@ -13,11 +13,10 @@
 
 namespace SMF\Actions\Admin;
 
-use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
-
-use SMF\BBCodeParser;
+use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
@@ -29,7 +28,6 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class is concerned with anything in the Manage Membergroups admin screen.
@@ -43,13 +41,16 @@ class Membergroups implements ActionInterface
 	 *
 	 * BackwardCompatibility settings for this class.
 	 */
-	private static $backcompat = array(
-		'func_names' => array(
-			'load' => false,
+	private static $backcompat = [
+		'func_names' => [
 			'call' => 'ModifyMembergroups',
-			'getConfigVars' => false,
-		),
-	);
+			'AddMembergroup' => 'AddMembergroup',
+			'DeleteMembergroup' => 'DeleteMembergroup',
+			'EditMembergroup' => 'EditMembergroup',
+			'MembergroupIndex' => 'MembergroupIndex',
+			'ModifyMembergroupsettings' => 'ModifyMembergroupsettings',
+		],
+	];
 
 	/*******************
 	 * Public properties
@@ -74,15 +75,15 @@ class Membergroups implements ActionInterface
 	 *
 	 * Format: 'sa' => array('method', 'required_permission')
 	 */
-	public static array $subactions = array(
-		'index' => array('index', 'manage_membergroups'),
-		'add' => array('add', 'manage_membergroups'),
-		'edit' => array('edit', 'manage_membergroups'),
-		'settings' => array('settings', 'admin_forum'),
+	public static array $subactions = [
+		'index' => ['index', 'manage_membergroups'],
+		'add' => ['add', 'manage_membergroups'],
+		'edit' => ['edit', 'manage_membergroups'],
+		'settings' => ['settings', 'admin_forum'],
 
 		// This subaction is handled by the Groups action.
-		'members' => array('SMF\\Actions\\Groups::call', 'manage_membergroups'),
-	);
+		'members' => ['SMF\\Actions\\Groups::call', 'manage_membergroups'],
+	];
 
 	/****************************
 	 * Internal static properties
@@ -108,10 +109,11 @@ class Membergroups implements ActionInterface
 		// Do the permission check, you might not be allowed here.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
-		if (!empty($call))
+		if (!empty($call)) {
 			call_user_func($call);
+		}
 	}
 
 	/**
@@ -127,212 +129,203 @@ class Membergroups implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['membergroups_title'];
 
 		// The first list shows the regular membergroups.
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'regular_membergroups_list',
 			'title' => Lang::$txt['membergroups_regular'],
 			'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort2']) ? ';sort2=' . urlencode($_REQUEST['sort2']) : ''),
 			'default_sort_col' => 'name',
-			'get_items' => array(
+			'get_items' => [
 				'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
-				'params' => array(
+				'params' => [
 					'regular',
-				),
-			),
-			'columns' => array(
-				'name' => array(
-					'header' => array(
+				],
+			],
+			'columns' => [
+				'name' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_name'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							// Since the moderator group has no explicit members, no link is needed.
-							if ($rowData['id_group'] == 3)
-							{
+							if ($rowData['id_group'] == 3) {
 								$group_name = $rowData['group_name'];
-							}
-							else
-							{
+							} else {
 								$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
 								$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 
 							// Add a help option for moderator and administrator.
-							if ($rowData['id_group'] == 1)
-							{
+							if ($rowData['id_group'] == 1) {
 								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
-							}
-							elseif ($rowData['id_group'] == 3)
-							{
+							} elseif ($rowData['id_group'] == 3) {
 								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							}
 
 							return $group_name;
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name',
 						'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name DESC',
-					),
-				),
-				'icons' => array(
-					'header' => array(
+					],
+				],
+				'icons' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_icons'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'icons',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mg.icons',
 						'reverse' => 'mg.icons DESC',
-					)
-				),
-				'members' => array(
-					'header' => array(
+					],
+				],
+				'members' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_members_top'],
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							// No explicit members for the moderator group.
 							return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
 						},
 						'class' => 'centercol',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, 1',
 						'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, 1 DESC',
-					),
-				),
-				'modify' => array(
-					'header' => array(
+					],
+				],
+				'modify' => [
+					'header' => [
 						'value' => Lang::$txt['modify'],
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::$txt['membergroups_modify'] . '</a>',
-							'params' => array(
+							'params' => [
 								'id_group' => false,
-							),
-						),
+							],
+						],
 						'class' => 'centercol',
-					),
-				),
-			),
-			'additional_rows' => array(
-				array(
+					],
+				],
+			],
+			'additional_rows' => [
+				[
 					'position' => 'above_column_headers',
 					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
-				),
-				array(
+				],
+				[
 					'position' => 'below_table_data',
 					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		new ItemList($listOptions);
 
 		// The second list shows the post count based groups.
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'post_count_membergroups_list',
 			'title' => Lang::$txt['membergroups_post'],
 			'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort']) ? ';sort=' . urlencode($_REQUEST['sort']) : ''),
 			'default_sort_col' => 'required_posts',
-			'request_vars' => array(
+			'request_vars' => [
 				'sort' => 'sort2',
 				'desc' => 'desc2',
-			),
-			'get_items' => array(
+			],
+			'get_items' => [
 				'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
-				'params' => array(
+				'params' => [
 					'post_count',
-				),
-			),
-			'columns' => array(
-				'name' => array(
-					'header' => array(
+				],
+			],
+			'columns' => [
+				'name' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_name'],
-					),
-					'data' => array(
-						'function' => function($rowData)
-						{
+					],
+					'data' => [
+						'function' => function ($rowData) {
 							$colorStyle = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
 							return sprintf('<a href="%1$s?action=moderate;area=viewgroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $colorStyle, $rowData['group_name']);
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mg.group_name',
 						'reverse' => 'mg.group_name DESC',
-					),
-				),
-				'icons' => array(
-					'header' => array(
+					],
+				],
+				'icons' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_icons'],
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'icons',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, icons',
 						'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, icons DESC',
-					)
-				),
-				'members' => array(
-					'header' => array(
+					],
+				],
+				'members' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_members_top'],
 						'class' => 'centercol',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'num_members',
 						'class' => 'centercol',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => '1 DESC',
 						'reverse' => '1',
-					),
-				),
-				'required_posts' => array(
-					'header' => array(
+					],
+				],
+				'required_posts' => [
+					'header' => [
 						'value' => Lang::$txt['membergroups_min_posts'],
 						'class' => 'centercol',
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db' => 'min_posts',
 						'class' => 'centercol',
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mg.min_posts',
 						'reverse' => 'mg.min_posts DESC',
-					),
-				),
-				'modify' => array(
-					'header' => array(
+					],
+				],
+				'modify' => [
+					'header' => [
 						'value' => Lang::$txt['modify'],
 						'class' => 'centercol',
-					),
-					'data' => array(
-						'sprintf' => array(
+					],
+					'data' => [
+						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::$txt['membergroups_modify'] . '</a>',
-							'params' => array(
+							'params' => [
 								'id_group' => false,
-							),
-						),
+							],
+						],
 						'class' => 'centercol',
-					),
-				),
-			),
-			'additional_rows' => array(
-				array(
+					],
+				],
+			],
+			'additional_rows' => [
+				[
 					'position' => 'below_table_data',
 					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		new ItemList($listOptions);
 	}
@@ -348,8 +341,7 @@ class Membergroups implements ActionInterface
 	public function add(): void
 	{
 		// A form was submitted, we can start adding.
-		if (isset($_POST['group_name']) && trim($_POST['group_name']) != '')
-		{
+		if (isset($_POST['group_name']) && trim($_POST['group_name']) != '') {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-mmg');
 
@@ -357,211 +349,214 @@ class Membergroups implements ActionInterface
 
 			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !User::$me->allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
-			IntegrationHook::call('integrate_pre_add_membergroup', array());
+			IntegrationHook::call('integrate_pre_add_membergroup', []);
 
-			$id_group = Db::$db->insert('',
+			$id_group = Db::$db->insert(
+				'',
 				'{db_prefix}membergroups',
-				array(
+				[
 					'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
 					'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
-				),
-				array(
+				],
+				[
 					'', Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
 					'1#icon.png', '', $_POST['group_type'],
-				),
-				array('id_group'),
-				1
+				],
+				['id_group'],
+				1,
 			);
 
-			IntegrationHook::call('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
+			IntegrationHook::call('integrate_add_membergroup', [$id_group, $postCountBasedGroup]);
 
 			// Update the post groups now, if this is a post group!
-			if (isset($_POST['min_posts']))
+			if (isset($_POST['min_posts'])) {
 				Logging::updateStats('postgroups');
+			}
 
 			// You cannot set permissions for post groups if they are disabled.
-			if ($postCountBasedGroup && empty(Config::$modSettings['permission_enable_postgroups']))
-			{
+			if ($postCountBasedGroup && empty(Config::$modSettings['permission_enable_postgroups'])) {
 				$_POST['perm_type'] = '';
 			}
 
-			if ($_POST['perm_type'] == 'predefined')
-			{
+			if ($_POST['perm_type'] == 'predefined') {
 				// Set default permission level.
 				Permissions::setPermissionLevel($_POST['level'], $id_group, 'null');
 			}
 			// Copy or inherit the permissions!
-			elseif ($_POST['perm_type'] == 'copy' || $_POST['perm_type'] == 'inherit')
-			{
+			elseif ($_POST['perm_type'] == 'copy' || $_POST['perm_type'] == 'inherit') {
 				$copy_id = $_POST['perm_type'] == 'copy' ? (int) $_POST['copyperm'] : (int) $_POST['inheritperm'];
 
 				@list($copy_from) = Group::load($copy_id);
 
-				if (!isset($copy_from))
+				if (!isset($copy_from)) {
 					ErrorHandler::fatalLang('membergroup_does_not_exist');
+				}
 
 				// Protected groups are... well, protected!
-				if (!User::$me->allowedTo('admin_forum') && $copy_from->type == Group::TYPE_PROTECTED)
-				{
+				if (!User::$me->allowedTo('admin_forum') && $copy_from->type == Group::TYPE_PROTECTED) {
 					ErrorHandler::fatalLang('membergroup_does_not_exist');
 				}
 
 				// Don't allow copying of a real privileged person!
 				$illegal_permissions = Permissions::loadIllegalPermissions();
 
-				$inserts = array();
-				$request = Db::$db->query('', '
-					SELECT permission, add_deny
+				$inserts = [];
+				$request = Db::$db->query(
+					'',
+					'SELECT permission, add_deny
 					FROM {db_prefix}permissions
 					WHERE id_group = {int:copy_from}',
-					array(
+					[
 						'copy_from' => $copy_id,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					if (empty($illegal_permissions) || !in_array($row['permission'], $illegal_permissions))
-					{
-						$inserts[] = array($id_group, $row['permission'], $row['add_deny']);
+
+				while ($row = Db::$db->fetch_assoc($request)) {
+					if (empty($illegal_permissions) || !in_array($row['permission'], $illegal_permissions)) {
+						$inserts[] = [$id_group, $row['permission'], $row['add_deny']];
 					}
 				}
 				Db::$db->free_result($request);
 
-				if (!empty($inserts))
-				{
-					Db::$db->insert('insert',
+				if (!empty($inserts)) {
+					Db::$db->insert(
+						'insert',
 						'{db_prefix}permissions',
-						array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+						['id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
 						$inserts,
-						array('id_group', 'permission')
+						['id_group', 'permission'],
 					);
 				}
 
-				$inserts = array();
-				$request = Db::$db->query('', '
-					SELECT id_profile, permission, add_deny
+				$inserts = [];
+				$request = Db::$db->query(
+					'',
+					'SELECT id_profile, permission, add_deny
 					FROM {db_prefix}board_permissions
 					WHERE id_group = {int:copy_from}',
-					array(
+					[
 						'copy_from' => $copy_id,
-					)
+					],
 				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					$inserts[] = array($id_group, $row['id_profile'], $row['permission'], $row['add_deny']);
+
+				while ($row = Db::$db->fetch_assoc($request)) {
+					$inserts[] = [$id_group, $row['id_profile'], $row['permission'], $row['add_deny']];
 				}
 				Db::$db->free_result($request);
 
-				if (!empty($inserts))
-				{
-					Db::$db->insert('insert',
+				if (!empty($inserts)) {
+					Db::$db->insert(
+						'insert',
 						'{db_prefix}board_permissions',
-						array('id_group' => 'int', 'id_profile' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+						['id_group' => 'int', 'id_profile' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
 						$inserts,
-						array('id_group', 'id_profile', 'permission')
+						['id_group', 'id_profile', 'permission'],
 					);
 				}
 
 				// Also get some membergroup information if we're copying and not copying from guests...
-				if ($copy_id > 0 && $_POST['perm_type'] == 'copy')
-				{
+				if ($copy_id > 0 && $_POST['perm_type'] == 'copy') {
 					// ...and update the new membergroup with it.
-					Db::$db->query('', '
-						UPDATE {db_prefix}membergroups
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}membergroups
 						SET
 							online_color = {string:online_color},
 							max_messages = {int:max_messages},
 							icons = {string:icons}
 						WHERE id_group = {int:current_group}',
-						array(
+						[
 							'max_messages' => $copy_from->max_messages,
 							'current_group' => $id_group,
 							'online_color' => $copy_from->online_color,
 							'icons' => $copy_from->icons,
-						)
+						],
 					);
 				}
 				// If inheriting say so...
-				elseif ($_POST['perm_type'] == 'inherit')
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}membergroups
+				elseif ($_POST['perm_type'] == 'inherit') {
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}membergroups
 						SET id_parent = {int:copy_from}
 						WHERE id_group = {int:current_group}',
-						array(
+						[
 							'copy_from' => $copy_id,
 							'current_group' => $id_group,
-						)
+						],
 					);
 				}
 			}
 
 			// Make sure all boards selected are stored in a proper array.
-			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
+			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess'];
 
-			$changed_boards['allow'] = array();
-			$changed_boards['deny'] = array();
-			$changed_boards['ignore'] = array();
+			$changed_boards['allow'] = [];
+			$changed_boards['deny'] = [];
+			$changed_boards['ignore'] = [];
 
-			foreach ($accesses as $group_id => $action)
+			foreach ($accesses as $group_id => $action) {
 				$changed_boards[$action][] = (int) $group_id;
+			}
 
-			foreach (array('allow', 'deny') as $board_action)
-			{
+			foreach (['allow', 'deny'] as $board_action) {
 				// Only do this if they have special access requirements.
-				if (!empty($changed_boards[$board_action]))
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}boards
+				if (!empty($changed_boards[$board_action])) {
+					Db::$db->query(
+						'',
+						'UPDATE {db_prefix}boards
 						SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
 						WHERE id_board IN ({array_int:board_list})',
-						array(
+						[
 							'board_list' => $changed_boards[$board_action],
 							'blank_string' => '',
 							'group_id_string' => (string) $id_group,
 							'comma_group' => ',' . $id_group,
 							'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
-						)
+						],
 					);
 
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}board_permissions_view
+					Db::$db->query(
+						'',
+						'DELETE FROM {db_prefix}board_permissions_view
 						WHERE id_board IN ({array_int:board_list})
 							AND id_group = {int:group_id}
 							AND deny = {int:deny}',
-						array(
+						[
 							'board_list' => $changed_boards[$board_action],
 							'group_id' => $id_group,
 							'deny' => $board_action == 'allow' ? 0 : 1,
-						)
+						],
 					);
 
-					$insert = array();
+					$insert = [];
 
-					foreach ($changed_boards[$board_action] as $board_id)
-						$insert[] = array($id_group, $board_id, $board_action == 'allow' ? 0 : 1);
+					foreach ($changed_boards[$board_action] as $board_id) {
+						$insert[] = [$id_group, $board_id, $board_action == 'allow' ? 0 : 1];
+					}
 
-					Db::$db->insert('insert',
+					Db::$db->insert(
+						'insert',
 						'{db_prefix}board_permissions_view',
-						array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+						['id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'],
 						$insert,
-						array('id_group', 'id_board', 'deny')
+						['id_group', 'id_board', 'deny'],
 					);
 				}
-
 			}
 
 			// If this is joinable then set it to show group membership in people's profiles.
-			if (empty(Config::$modSettings['show_group_membership']) && $_POST['group_type'] > 1)
-				Config::updateModSettings(array('show_group_membership' => 1));
+			if (empty(Config::$modSettings['show_group_membership']) && $_POST['group_type'] > 1) {
+				Config::updateModSettings(['show_group_membership' => 1]);
+			}
 
 			// Rebuild the group cache.
-			Config::updateModSettings(array(
+			Config::updateModSettings([
 				'settings_updated' => time(),
-			));
+			]);
 
 			// We did it.
-			Logging::logAction('add_group', array('group' => Utils::htmlspecialchars($_POST['group_name'])), 'admin');
+			Logging::logAction('add_group', ['group' => Utils::htmlspecialchars($_POST['group_name'])], 'admin');
 
 			// Go change some more settings.
 			Utils::redirectexit('action=admin;area=membergroups;sa=edit;group=' . $id_group);
@@ -574,61 +569,62 @@ class Membergroups implements ActionInterface
 		Utils::$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);
 		Utils::$context['allow_protected'] = User::$me->allowedTo('admin_forum');
 
-		if (!empty(Config::$modSettings['deny_boards_access']))
+		if (!empty(Config::$modSettings['deny_boards_access'])) {
 			Lang::load('ManagePermissions');
+		}
 
 		// Load all the relevant member groups. Start with a clean slate.
-		Group::$loaded = array();
+		Group::$loaded = [];
 
 		Utils::$context['groups'] = Group::loadSimple(
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
-			array(Group::GUEST, Group::REGULAR, Group::ADMIN, Group::MOD),
+			[Group::GUEST, Group::REGULAR, Group::ADMIN, Group::MOD],
 		);
 
 		Utils::$context['num_boards'] = 0;
-		Utils::$context['categories'] = array();
+		Utils::$context['categories'] = [];
 
-		$request = Db::$db->query('', '
-			SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
+		$request = Db::$db->query(
+			'',
+			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			ORDER BY board_order',
-			array(
-			)
+			[
+			],
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
+
+		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['num_boards']++;
 
 			// This category hasn't been set up yet..
-			if (!isset(Utils::$context['categories'][$row['id_cat']]))
-			{
-				Utils::$context['categories'][$row['id_cat']] = array(
+			if (!isset(Utils::$context['categories'][$row['id_cat']])) {
+				Utils::$context['categories'][$row['id_cat']] = [
 					'id' => $row['id_cat'],
 					'name' => $row['cat_name'],
-					'boards' => array()
-				);
+					'boards' => [],
+				];
 			}
 
 			// Set this board up, and let the template know when it's a child.  (indent them..)
-			Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
+			Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = [
 				'id' => $row['id_board'],
 				'name' => $row['name'],
 				'child_level' => $row['child_level'],
 				'allow' => false,
-				'deny' => false
-			);
+				'deny' => false,
+			];
 		}
 		Db::$db->free_result($request);
 
 		// Now, let's sort the list of categories into the boards for templates that like that.
-		$temp_boards = array();
-		foreach (Utils::$context['categories'] as $category)
-		{
-			$temp_boards[] = array(
+		$temp_boards = [];
+
+		foreach (Utils::$context['categories'] as $category) {
+			$temp_boards[] = [
 				'name' => $category['name'],
-				'child_ids' => array_keys($category['boards'])
-			);
+				'child_ids' => array_keys($category['boards']),
+			];
 
 			$temp_boards = array_merge($temp_boards, array_values($category['boards']));
 
@@ -652,19 +648,23 @@ class Membergroups implements ActionInterface
 	{
 		$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
 
-		if (!empty(Config::$modSettings['deny_boards_access']))
+		if (!empty(Config::$modSettings['deny_boards_access'])) {
 			Lang::load('ManagePermissions');
+		}
 
-		if (empty($_REQUEST['group']))
+		if (empty($_REQUEST['group'])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
 		@list($group) = Group::load($_REQUEST['group']);
 
-		if (!isset($group) || !($group instanceof Group))
+		if (!isset($group) || !($group instanceof Group)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
-		if (!User::$me->allowedTo('admin_forum') && $group->type === Group::TYPE_PROTECTED)
+		if (!User::$me->allowedTo('admin_forum') && $group->type === Group::TYPE_PROTECTED) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
 		// People who can manage boards are a bit special.
 		$board_managers = User::groupsAllowedTo('manage_boards', null);
@@ -675,53 +675,52 @@ class Membergroups implements ActionInterface
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
 
 		// Get a list of all the image formats we can select for icons.
-		$imageExts = array('png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg');
+		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg'];
 
 		// Scan the icons directory.
-		Utils::$context['possible_icons'] = array();
+		Utils::$context['possible_icons'] = [];
 
-		if ($files = scandir(Theme::$current->settings['default_theme_dir'] . '/images/membericons'))
-		{
+		if ($files = scandir(Theme::$current->settings['default_theme_dir'] . '/images/membericons')) {
 			// Loop through every file in the directory.
-			foreach ($files as $value)
-			{
+			foreach ($files as $value) {
 				// Grab the image extension.
 				$ext = pathinfo(Theme::$current->settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
 
 				// If the extension is not empty, and it is valid.
-				if (!empty($ext) && in_array($ext, $imageExts))
+				if (!empty($ext) && in_array($ext, $imageExts)) {
 					Utils::$context['possible_icons'][] = $value;
+				}
 			}
 		}
 
 		// The delete this membergroup button was pressed.
-		if (isset($_POST['delete']))
-		{
+		if (isset($_POST['delete'])) {
 			$result = $group->delete();
 
 			// Need to throw a warning if it went wrong, but this is the only one we have a message for...
-			if ($result === 'group_cannot_delete_sub')
+			if ($result === 'group_cannot_delete_sub') {
 				ErrorHandler::fatalLang('membergroups_cannot_delete_paid', false);
+			}
 
 			Utils::redirectexit('action=admin;area=membergroups;');
 		}
 		// A form was submitted with the new membergroup settings.
-		elseif (isset($_POST['save']))
-		{
+		elseif (isset($_POST['save'])) {
 			// Can they really inherit from this group?
-			if ($group->id > Group::ADMIN && $group->id != Group::MOD && isset($_POST['group_inherit']) && $_POST['group_inherit'] != Group::NONE && !User::$me->allowedTo('admin_forum'))
-			{
+			if ($group->id > Group::ADMIN && $group->id != Group::MOD && isset($_POST['group_inherit']) && $_POST['group_inherit'] != Group::NONE && !User::$me->allowedTo('admin_forum')) {
 				$_POST['group_inherit'] = (int) $_POST['group_inherit'];
 
-				if ($_POST['group_inherit'] > Group::ADMIN)
+				if ($_POST['group_inherit'] > Group::ADMIN) {
 					@list($inherit_from) = Group::load($_POST['group_inherit']);
+				}
 
-				if (isset($inherit_from) && ($inherit_from instanceof Group))
+				if (isset($inherit_from) && ($inherit_from instanceof Group)) {
 					$inherit_type = $inherit_from->type;
+				}
 			}
 
 			// Set variables to their proper value.
-			$group->set(array(
+			$group->set([
 				'max_messages' => isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0,
 				'min_posts' => isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $group->id > Group::MOD ? abs($_POST['min_posts']) : ($group->id == Group::NEWBIE ? 0 : -1),
 				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
@@ -732,39 +731,37 @@ class Membergroups implements ActionInterface
 				'parent' => $group->id > Group::ADMIN && $group->id != Group::MOD && (empty($inherit_type) || $inherit_type != Group::TYPE_PROTECTED) ? (int) $_POST['group_inherit'] : Group::NONE,
 				'tfa_required' => (empty(Config::$modSettings['tfa_mode']) || Config::$modSettings['tfa_mode'] != 2 || empty($_POST['group_tfa_force'])) ? false : true,
 				'online_color' => (int) $group->id != Group::MOD && preg_match('/^#?\w+$/', Utils::htmlTrim($_POST['online_color'])) ? Utils::htmlTrim($_POST['online_color']) : '',
-			));
+			]);
 
 			// Does the group have any moderators?
 			$moderator_string = isset($_POST['group_moderators']) ? trim($_POST['group_moderators']) : '';
-			if ((!empty($moderator_string) || !empty($_POST['moderator_list'])) && ($_POST['min_posts'] ?? -1) == -1 && $group->id != Group::MOD)
-			{
-				$group->moderator_ids = array();
+
+			if ((!empty($moderator_string) || !empty($_POST['moderator_list'])) && ($_POST['min_posts'] ?? -1) == -1 && $group->id != Group::MOD) {
+				$group->moderator_ids = [];
 
 				// Get all the usernames from the string.
-				if (!empty($moderator_string))
-				{
-					$moderator_string = strtr(Utils::entityFix(Utils::htmlspecialchars($moderator_string, ENT_QUOTES)), array('&quot;' => '"'));
+				if (!empty($moderator_string)) {
+					$moderator_string = strtr(Utils::entityFix(Utils::htmlspecialchars($moderator_string, ENT_QUOTES)), ['&quot;' => '"']);
 
 					preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
 
 					$moderators = array_filter(array_map('trim', array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)))), 'strlen');
 
 					// Get the IDs of the named members.
-					if (!empty($moderators))
-					{
-						foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator)
+					if (!empty($moderators)) {
+						foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator) {
 							$group->moderator_ids[] = $moderator->id;
+						}
 					}
 				}
 
-				if (!empty($_POST['moderator_list']))
-				{
+				if (!empty($_POST['moderator_list'])) {
 					$moderators = array_filter(array_map('intval', $_POST['moderator_list']));
 
-					if (!empty($moderators))
-					{
-						foreach (User::load($moderators, User::LOAD_BY_ID, 'minimal') as $moderator)
+					if (!empty($moderators)) {
+						foreach (User::load($moderators, User::LOAD_BY_ID, 'minimal') as $moderator) {
 							$group->moderator_ids[] = $moderator->id;
+						}
 					}
 				}
 
@@ -776,24 +773,24 @@ class Membergroups implements ActionInterface
 			$group->save();
 
 			// Time to update the boards this membergroup has access to.
-			$group->updateBoardAccess(empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess']);
+			$group->updateBoardAccess(empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess']);
 
 			// Let's check whether our "show group membership" setting is correct.
-			$request = Db::$db->query('', '
-				SELECT COUNT(*)
+			$request = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
 				FROM {db_prefix}membergroups
 				WHERE group_type > {int:non_joinable}',
-				array(
+				[
 					'non_joinable' => Group::TYPE_PROTECTED,
-				)
+				],
 			);
 			list($have_joinable) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
 			// Do we need to update the setting?
-			if ((empty(Config::$modSettings['show_group_membership']) && $have_joinable) || (!empty(Config::$modSettings['show_group_membership']) && !$have_joinable))
-			{
-				Config::updateModSettings(array('show_group_membership' => $have_joinable ? 1 : 0));
+			if ((empty(Config::$modSettings['show_group_membership']) && $have_joinable) || (!empty(Config::$modSettings['show_group_membership']) && !$have_joinable)) {
+				Config::updateModSettings(['show_group_membership' => $have_joinable ? 1 : 0]);
 			}
 
 			Utils::redirectexit('action=admin;area=membergroups');
@@ -802,8 +799,9 @@ class Membergroups implements ActionInterface
 		// Fetch the current group information.
 		unset(Group::$loaded[$group->id]);
 
-		if (Group::load($group->id) === array())
+		if (Group::load($group->id) === []) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+		}
 
 		$group = Group::$loaded[$group->id];
 
@@ -812,64 +810,64 @@ class Membergroups implements ActionInterface
 		// Get any moderators for this group.
 		$group->loadModerators();
 
-		foreach ($group->moderator_ids as $mod_id)
+		foreach ($group->moderator_ids as $mod_id) {
 			$group->moderators[$mod_id] = User::$loaded[$mod_id]->name;
+		}
 
 		$group->moderator_list = empty($group->moderators) ? '' : '&quot;' . implode('&quot;, &quot;', $group->moderators) . '&quot;';
 
-		if (!empty($group->moderators))
-		{
+		if (!empty($group->moderators)) {
 			list($group->last_moderator_id) = array_slice(array_keys($group->moderators), -1);
 		}
 
 		Utils::$context['group'] = $group;
 
 		// Get a list of boards this membergroup is allowed to see.
-		Utils::$context['boards'] = array();
-		if ($group->id == Group::GLOBAL_MOD || $group->id >= Group::NEWBIE)
-		{
-			Utils::$context['categories'] = array();
-			$request = Db::$db->query('', '
-				SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level,
+		Utils::$context['boards'] = [];
+
+		if ($group->id == Group::GLOBAL_MOD || $group->id >= Group::NEWBIE) {
+			Utils::$context['categories'] = [];
+			$request = Db::$db->query(
+				'',
+				'SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level,
 				FIND_IN_SET({string:current_group}, b.member_groups) != 0 AS can_access, FIND_IN_SET({string:current_group}, b.deny_member_groups) != 0 AS cannot_access
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 				ORDER BY board_order',
-				array(
+				[
 					'current_group' => $group->id,
-				)
+				],
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				// This category hasn't been set up yet..
-				if (!isset(Utils::$context['categories'][$row['id_cat']]))
-				{
-					Utils::$context['categories'][$row['id_cat']] = array(
+				if (!isset(Utils::$context['categories'][$row['id_cat']])) {
+					Utils::$context['categories'][$row['id_cat']] = [
 						'id' => $row['id_cat'],
 						'name' => $row['cat_name'],
-						'boards' => array()
-					);
+						'boards' => [],
+					];
 				}
 
 				// Set this board up, and let the template know when it's a child.  (indent them..)
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
+				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = [
 					'id' => $row['id_board'],
 					'name' => $row['name'],
 					'child_level' => $row['child_level'],
 					'allow' => !(empty($row['can_access']) || $row['can_access'] == 'f'),
 					'deny' => !(empty($row['cannot_access']) || $row['cannot_access'] == 'f'),
-				);
+				];
 			}
 			Db::$db->free_result($request);
 
 			// Now, let's sort the list of categories into the boards for templates that like that.
-			$temp_boards = array();
-			foreach (Utils::$context['categories'] as $category)
-			{
-				$temp_boards[] = array(
+			$temp_boards = [];
+
+			foreach (Utils::$context['categories'] as $category) {
+				$temp_boards[] = [
 					'name' => $category['name'],
-					'child_ids' => array_keys($category['boards'])
-				);
+					'child_ids' => array_keys($category['boards']),
+				];
 				$temp_boards = array_merge($temp_boards, array_values($category['boards']));
 
 				// Include a list of boards per category for easy toggling.
@@ -878,35 +876,33 @@ class Membergroups implements ActionInterface
 		}
 
 		// Insert our JS, if we have possible icons.
-		if (!empty(Utils::$context['possible_icons']))
-		{
-			Theme::loadJavaScriptFile('icondropdown.js', array('validate' => true, 'minimize' => true), 'smf_icondropdown');
+		if (!empty(Utils::$context['possible_icons'])) {
+			Theme::loadJavaScriptFile('icondropdown.js', ['validate' => true, 'minimize' => true], 'smf_icondropdown');
 		}
 
-		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 
 		// Finally, get all the groups this could inherit from.
-		Utils::$context['inheritable_groups'] = array();
+		Utils::$context['inheritable_groups'] = [];
 
-		$query_customizations = array(
-			'where' => array(
+		$query_customizations = [
+			'where' => [
 				'id_group != {int:current_group}',
 				'id_group NOT IN ({array_int:disallowed})',
 				'id_parent = {int:not_inherited}',
 				empty(Config::$modSettings['permission_enable_postgroups']) ? 'min_posts = {int:min_posts}' : '1=1',
 				User::$me->allowedTo('admin_forum') ? '1=1' : 'group_type != {int:is_protected}',
-			),
-			'params' => array(
+			],
+			'params' => [
 				'current_group' => $group->id,
 				'min_posts' => -1,
-				'disallowed' => array(Group::ADMIN, Group::MOD),
+				'disallowed' => [Group::ADMIN, Group::MOD],
 				'not_inherited' => Group::NONE,
 				'is_protected' => Group::TYPE_PROTECTED,
-			),
-		);
+			],
+		];
 
-		foreach (Group::load(array(), $query_customizations) as $inheritable_group)
-		{
+		foreach (Group::load([], $query_customizations) as $inheritable_group) {
 			Utils::$context['inheritable_groups'][$inheritable_group->id] = $inheritable_group->name;
 		}
 
@@ -932,8 +928,7 @@ class Membergroups implements ActionInterface
 
 		$config_vars = self::getConfigVars();
 
-		if (isset($_REQUEST['save']))
-		{
+		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
 			IntegrationHook::call('integrate_save_membergroup_settings');
 
@@ -965,8 +960,9 @@ class Membergroups implements ActionInterface
 	 */
 	public static function load(): object
 	{
-		if (!isset(self::$obj))
+		if (!isset(self::$obj)) {
 			self::$obj = new self();
+		}
 
 		return self::$obj;
 	}
@@ -987,11 +983,11 @@ class Membergroups implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		// Only one thing here!
-		$config_vars = array(
-			array('permissions', 'manage_membergroups'),
-		);
+		$config_vars = [
+			['permissions', 'manage_membergroups'],
+		];
 
-		IntegrationHook::call('integrate_modify_membergroup_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_membergroup_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
@@ -1044,8 +1040,9 @@ class Membergroups implements ActionInterface
 	 */
 	public static function ModifyMembergroupsettings($return_config = false)
 	{
-		if (!empty($return_config))
+		if (!empty($return_config)) {
 			return self::getConfigVars();
+		}
 
 		self::load();
 		self::$obj->subaction = 'settings';
@@ -1066,27 +1063,25 @@ class Membergroups implements ActionInterface
 		Theme::loadTemplate('ManageMembergroups');
 
 		// Setup the admin tabs.
-		Menu::$loaded['admin']->tab_data = array(
+		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['membergroups_title'],
 			'help' => 'membergroups',
 			'description' => Lang::$txt['membergroups_description'],
-		);
+		];
 
-		IntegrationHook::call('integrate_manage_membergroups', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_membergroups', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
-		{
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
-		}
-		elseif (!User::$me->allowedTo('manage_membergroups'))
-		{
+		} elseif (!User::$me->allowedTo('manage_membergroups')) {
 			$this->subaction = 'settings';
 		}
 	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\Membergroups::exportStatic'))
+if (is_callable(__NAMESPACE__ . '\\Membergroups::exportStatic')) {
 	Membergroups::exportStatic();
+}
 
 ?>

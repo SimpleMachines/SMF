@@ -25,17 +25,15 @@ interface SearchApiInterface
 	 * The operations are the functions listed in the interface, if not supported
 	 * they need not be declared
 	 *
-	 * @access public
 	 * @param string $methodName The method
 	 * @param array $query_params Any parameters for the query
-	 * @return boolean Whether or not the specified method is supported
+	 * @return bool Whether or not the specified method is supported
 	 */
-	public function supportsMethod($methodName, $query_params = array()): bool;
+	public function supportsMethod($methodName, $query_params = []): bool;
 
 	/**
 	 * Whether this method is valid for implementation or not.
 	 *
-	 * @access public
 	 * @return bool Whether or not this method is valid
 	 */
 	public function isValid(): bool;
@@ -45,7 +43,6 @@ interface SearchApiInterface
 	 * the order of sorting is: large words, small words, large words that
 	 * are excluded from the search, small words that are excluded.
 	 *
-	 * @access public
 	 * @param string $a Word A
 	 * @param string $b Word B
 	 * @return int An integer indicating how the words should be sorted
@@ -55,7 +52,6 @@ interface SearchApiInterface
 	/**
 	 * Callback while preparing indexes for searching.
 	 *
-	 * @access public
 	 * @param string $word A word to index
 	 * @param array $wordsSearch Search words
 	 * @param array $wordsExclude Words to exclude
@@ -66,7 +62,6 @@ interface SearchApiInterface
 	/**
 	 * Search for indexed words.
 	 *
-	 * @access public
 	 * @param array $words An array of words
 	 * @param array $search_data An array of search data
 	 * @return mixed
@@ -78,11 +73,9 @@ interface SearchApiInterface
 	 *
 	 * @see Msg::create()
 	 *
-	 * @access public
 	 * @param array $msgOptions An array of post data
 	 * @param array $topicOptions An array of topic data
 	 * @param array $posterOptions An array of info about the person who made this post
-	 * @return void
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void;
 
@@ -91,39 +84,31 @@ interface SearchApiInterface
 	 *
 	 * @see Msg::modify()
 	 *
-	 * @access public
 	 * @param array $msgOptions An array of post data
 	 * @param array $topicOptions An array of topic data
 	 * @param array $posterOptions An array of info about the person who made this post
-	 * @return void
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void;
 
 	/**
 	 * Callback when a post is removed.
 	 *
-	 * @access public
 	 * @param int $id_msg The ID of the post that was removed
-	 * @return void
 	 */
 	public function postRemoved($id_msg): void;
 
 	/**
 	 * Callback when a topic is removed.
 	 *
-	 * @access public
 	 * @param array $topics The ID(s) of the removed topic(s)
-	 * @return void
 	 */
 	public function topicsRemoved(array $topics): void;
 
 	/**
 	 * Callback when a topic is moved.
 	 *
-	 * @access public
 	 * @param array $topics The ID(s) of the moved topic(s)
 	 * @param int $board_to The board that the topics were moved to
-	 * @return void
 	 */
 	public function topicsMoved(array $topics, $board_to): void;
 
@@ -133,7 +118,6 @@ interface SearchApiInterface
 	 * This is separate from the constructor because there are a number of other
 	 * places where the search API will be loaded for other purposes.
 	 *
-	 * @return void
 	 */
 	public function initializeSearch(): void;
 
@@ -143,7 +127,6 @@ interface SearchApiInterface
 	 * All of the arguments for this method are deprecated as of SMF 3.0.
 	 * The relevant data is directly accessible in the properties of SearchApi.
 	 *
-	 * @access public
 	 * @param array $query_params An array of parameters for the query
 	 * @param array $searchWords The words that were searched for
 	 * @param array $excludedIndexWords Indexed words that should be excluded
@@ -156,7 +139,6 @@ interface SearchApiInterface
 	/**
 	 * Figures out which search result topics the user participated in.
 	 *
-	 * @return void
 	 */
 	public function setParticipants(): void;
 
