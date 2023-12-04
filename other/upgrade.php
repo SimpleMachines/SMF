@@ -1839,6 +1839,18 @@ function DeleteUpgrade()
 		'upgradeData' => null,
 	);
 
+	// Fix case of Tasks directory.
+	if (
+		is_dir(Config::$tasksdir)
+		&& realpath(Config::$tasksdir) !== realpath(dirname(Config::$tasksdir) . '/Tasks')
+		&& is_writable(Config::$tasksdir)
+		&& is_writable(dirname(Config::$tasksdir))
+	) {
+		rename(Config::$tasksdir, dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp');
+		rename(dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks');
+		$changes['tasksdir'] = dirname(Config::$tasksdir) . '/Tasks';
+	}
+
 	// Are we in maintenance mode?
 	if (isset($upcontext['user']['main']))
 	{
