@@ -3176,9 +3176,9 @@ class User implements \ArrayAccess
 			list($user) = $users;
 
 			if ($user == User::$me->id) {
-				self::isAllowedTo('profile_remove_own');
+				self::$me->isAllowedTo('profile_remove_own');
 			} else {
-				self::isAllowedTo('profile_remove_any');
+				self::$me->isAllowedTo('profile_remove_any');
 			}
 		} else {
 			foreach ($users as $k => $v) {
@@ -3186,7 +3186,7 @@ class User implements \ArrayAccess
 			}
 
 			// Deleting more than one?  You can't have more than one account...
-			self::isAllowedTo('profile_remove_any');
+			self::$me->isAllowedTo('profile_remove_any');
 		}
 
 		// Get their names for logging purposes.
