@@ -14,7 +14,6 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Cookie;
@@ -80,30 +79,6 @@ use SMF\Utils;
  */
 class Server implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModifySettings',
-			'getLoadAverageDisabled' => 'getLoadAverageDisabled',
-			'prepareServerSettingsContext' => 'prepareServerSettingsContext',
-			'checkSettingsFileWriteSafe' => 'checkSettingsFileWriteSafe',
-			'modifyGeneralSettings' => 'ModifyGeneralSettings',
-			'modifyDatabaseSettings' => 'ModifyDatabaseSettings',
-			'modifyCookieSettings' => 'ModifyCookieSettings',
-			'modifyGeneralSecuritySettings' => 'ModifyGeneralSecuritySettings',
-			'modifyCacheSettings' => 'ModifyCacheSettings',
-			'modifyExportSettings' => 'ModifyExportSettings',
-			'modifyLoadBalancingSettings' => 'ModifyLoadBalancingSettings',
-			'showPHPinfoSettings' => 'ShowPHPinfoSettings',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -1595,11 +1570,6 @@ class Server implements ActionInterface
 
 		return false;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Server::exportStatic')) {
-	Server::exportStatic();
 }
 
 ?>

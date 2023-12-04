@@ -14,7 +14,6 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -27,25 +26,12 @@ use SMF\Utils;
  */
 class Warnings implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'modifyWarningSettings' => 'ModifyWarningSettings',
-		],
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
@@ -76,6 +62,7 @@ class Warnings implements ActionInterface
 			User::$me->checkSession();
 
 			// Make sure these don't have an effect.
+			// todo: fix $currently_enabled
 			if (!$currently_enabled && empty($_POST['warning_enable'])) {
 				$_POST['warning_watch'] = 0;
 				$_POST['warning_moderate'] = 0;
@@ -245,11 +232,6 @@ class Warnings implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Warnings::exportStatic')) {
-	Warnings::exportStatic();
 }
 
 ?>

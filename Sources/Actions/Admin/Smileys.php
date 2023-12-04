@@ -17,7 +17,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\MessageIndex;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -41,35 +40,6 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Smileys implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageSmileys',
-			'list_getSmileySets' => 'list_getSmileySets',
-			'list_getNumSmileySets' => 'list_getNumSmileySets',
-			'list_getSmileys' => 'list_getSmileys',
-			'list_getNumSmileys' => 'list_getNumSmileys',
-			'list_getMessageIcons' => 'list_getMessageIcons',
-			'addSmiley' => 'AddSmiley',
-			'editSmileys' => 'EditSmileys',
-			'editSmileyOrder' => 'EditSmileyOrder',
-			'installSmileySet' => 'InstallSmileySet',
-			'editMessageIcons' => 'EditMessageIcons',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -2881,11 +2851,6 @@ class Smileys implements ActionInterface
 			CacheApi::put('posting_smileys_' . $smiley_set['raw_path'], null, 480);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Smileys::exportStatic')) {
-	Smileys::exportStatic();
 }
 
 ?>

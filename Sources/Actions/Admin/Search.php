@@ -14,7 +14,6 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -31,22 +30,6 @@ use SMF\Utils;
  */
 class Search implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageSearch',
-			'editWeights' => 'EditWeights',
-			'editSearchMethod' => 'EditSearchMethod',
-			'createMessageIndex' => 'CreateMessageIndex',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -986,11 +969,6 @@ class Search implements ActionInterface
 
 		Utils::$context['sub_action'] = $this->subaction;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Search::exportStatic')) {
-	Search::exportStatic();
 }
 
 ?>

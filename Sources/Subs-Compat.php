@@ -24,6 +24,7 @@ if (!defined('SMF')) {
  * SMF\Config::$backward_compatibility support
  *********************************************/
 
+
 if (!empty(Config::$backward_compatibility)) {
 	/*
 	 * In SMF 2.x, there was a file named Subs.php that was always loaded early in
@@ -481,7 +482,793 @@ if (!empty(Config::$backward_compatibility)) {
 	 * Begin
 	 * Actions\Admin\Maintenance
 	 */
-
+	function ManageMaintenance(): void
+	{
+		Actions\Admin\Maintenance::call();
+	}
+	function getIntegrationHooksData(
+		int $start,
+		int $per_page,
+		string $sort,
+		array $filtered_hooks,
+		string $normalized_boarddir,
+		string $normalized_sourcedir,
+	): array {
+		return Actions\Admin\Maintenance::getIntegrationHooksData(
+			$start,
+			$per_page,
+			$sort,
+			$filtered_hooks,
+			$normalized_boarddir,
+			$normalized_sourcedir,
+		);
+	}
+	function reattributePosts(
+		int $memID,
+		?string $email = null,
+		?string $membername = null,
+		bool $post_count = false,
+	): array {
+		return Actions\Admin\Maintenance::reattributePosts($memID, $email, $membername, $post_count);
+	}
+	function MaintainRoutine(): void
+	{
+		Actions\Admin\Maintenance::maintainRoutine();
+	}
+	function MaintainDatabase(): void
+	{
+		Actions\Admin\Maintenance::maintainDatabase();
+	}
+	function MaintainMembers(): void
+	{
+		Actions\Admin\Maintenance::maintainMembers();
+	}
+	function MaintainTopics(): void
+	{
+		Actions\Admin\Maintenance::maintainTopics();
+	}
+	function list_integration_hooks(): void
+	{
+		Actions\Admin\Maintenance::list_integration_hooks();
+	}
+	function VersionDetail(): void
+	{
+		Actions\Admin\Maintenance::versionDetail();
+	}
+	function MaintainFindFixErrors(): void
+	{
+		Actions\Admin\Maintenance::maintainFindFixErrors();
+	}
+	function AdminBoardRecount(): void
+	{
+		Actions\Admin\Maintenance::adminBoardRecount();
+	}
+	function RebuildSettingsFile(): void
+	{
+		Actions\Admin\Maintenance::rebuildSettingsFile();
+	}
+	function MaintainEmptyUnimportantLogs(): void
+	{
+		Actions\Admin\Maintenance::maintainEmptyUnimportantLogs();
+	}
+	function MaintainCleanCache(): void
+	{
+		Actions\Admin\Maintenance::maintainCleanCache();
+	}
+	function OptimizeTables(): void
+	{
+		Actions\Admin\Maintenance::optimizeTables();
+	}
+	function ConvertEntities(): void
+	{
+		Actions\Admin\Maintenance::convertEntities();
+	}
+	function ConvertMsgBody(): void
+	{
+		Actions\Admin\Maintenance::convertMsgBody();
+	}
+	function MaintainReattributePosts(): void
+	{
+		Actions\Admin\Maintenance::maintainReattributePosts();
+	}
+	function MaintainPurgeInactiveMembers(): void
+	{
+		Actions\Admin\Maintenance::maintainPurgeInactiveMembers();
+	}
+	function MaintainRecountPosts(): void
+	{
+		Actions\Admin\Maintenance::maintainRecountPosts();
+	}
+	function MaintainMassMoveTopics(): void
+	{
+		Actions\Admin\Maintenance::maintainMassMoveTopics();
+	}
+	function MaintainRemoveOldPosts(): void
+	{
+		Actions\Admin\Maintenance::maintainRemoveOldPosts();
+	}
+	function MaintainRemoveOldDrafts(): void
+	{
+		Actions\Admin\Maintenance::maintainRemoveOldDrafts();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Maintainence
+	 *
+	 * Begin
+	 * Actions\Admin\Membergroups
+	 */
+	function ModifyMembergroups(): void
+	{
+		Actions\Admin\Membergroups::call();
+	}
+	function AddMemberGroup(): void
+	{
+		Actions\Admin\Membergroups::AddMembergroup();
+	}
+	function DeleteMembergroup(): void
+	{
+		Actions\Admin\Membergroups::DeleteMembergroup();
+	}
+	function EditMembergroup(): void
+	{
+		Actions\Admin\Membergroups::EditMembergroup();
+	}
+	function MembergroupIndex(): void
+	{
+		Actions\Admin\Membergroups::MembergroupIndex();
+	}
+	function ModifyMembergroupsettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Membergroups::ModifyMembergroupsettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Membergoups
+	 *
+	 * Begin
+	 * Actions\Admin\Members
+	 */
+	function ViewMembers(): void
+	{
+		Actions\Admin\Members::call();
+	}
+	function list_getMembers(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $where,
+		array $where_params = [],
+		bool $get_duplicates = false,
+	): array {
+		return Actions\Admin\Members::list_getMembers(
+			$start,
+			$items_per_page,
+			$sort,
+			$where,
+			$where_params,
+			$get_duplicates,
+		);
+	}
+	function list_getNumMembers(string $where, array $where_params = []): int
+	{
+		return Actions\Admin\Members::list_getNumMembers($where, $where_params);
+	}
+	function ViewMemberlist(): void
+	{
+		Actions\Admin\Members::viewMemberlist();
+	}
+	function AdminApprove(): void
+	{
+		Actions\Admin\Members::adminApprove();
+	}
+	function MembersAwaitingActivation(): void
+	{
+		Actions\Admin\Members::membersAwaitingActivation();
+	}
+	function SearchMembers(): void
+	{
+		Actions\Admin\Members::searchMembers();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Members
+	 *
+	 * Begin
+	 * Actions\Admin\Mods
+	 */
+	function ModifyModSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Mods::modifyModSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Mods
+	 *
+	 * Begin
+	 * Actions\Admin\News
+	 */
+	function ManageNews(): void
+	{
+		Actions\Admin\News::call();
+	}
+	function list_getNews(): array
+	{
+		return Actions\Admin\News::list_getNews();
+	}
+	function list_getNewsTextarea(array $news): string
+	{
+		return Actions\Admin\News::list_getNewsTextarea($news);
+	}
+	function list_getNewsPreview(array $news): string
+	{
+		return Actions\Admin\News::list_getNewsPreview($news);
+	}
+	function list_getNewsCheckbox(array $news): string
+	{
+		return Actions\Admin\News::list_getNewsCheckbox($news);
+	}
+	function prepareMailingForPreview(): void
+	{
+		Actions\Admin\News::prepareMailingForPreview();
+	}
+	function EditNews(): void
+	{
+		Actions\Admin\News::editNews();
+	}
+	function SelectMailingMembers(): void
+	{
+		Actions\Admin\News::selectMailingMembers();
+	}
+	function ComposeMailing(): void
+	{
+		Actions\Admin\News::composeMailing();
+	}
+	function SendMailing(): void
+	{
+		Actions\Admin\News::sendMailing();
+	}
+	function ModifyNewsSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\News::modifyNewsSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\News
+	 *
+	 * Begin
+	 * Actions\Admin\Permissions
+	 */
+	function ModifyPermissions(): void
+	{
+		Actions\Admin\Permissions::call();
+	}
+	function getPermissions(): array
+	{
+		return Actions\Admin\Permissions::getPermissions();
+	}
+	function setPermissionLevel(string $level, int $group, string|int $profile = 'null'): void
+	{
+		Actions\Admin\Permissions::setPermissionLevel($level, $group, $profile);
+	}
+	function init_inline_permissions(array $permissions, array $excluded_groups = []): void
+	{
+		Actions\Admin\Permissions::init_inline_permissions($permissions, $excluded_groups);
+	}
+	function theme_inline_permissions(string $permission): void
+	{
+		Actions\Admin\Permissions::theme_inline_permissions($permission);
+	}
+	function save_inline_permissions(array $permissions): void
+	{
+		Actions\Admin\Permissions::save_inline_permissions($permissions);
+	}
+	function loadPermissionProfiles(): void
+	{
+		Actions\Admin\Permissions::loadPermissionProfiles();
+	}
+	function updateChildPermissions(int|array|null $parents = null, ?int $profile = null)
+	{
+		return Actions\Admin\Permissions::updateChildPermissions($parents, $profile);
+	}
+	function loadIllegalPermissions(): array
+	{
+		return Actions\Admin\Permissions::loadIllegalPermissions();
+	}
+	function buildHidden(): void
+	{
+		Actions\Admin\Permissions::buildHidden();
+	}
+	function PermissionIndex(): void
+	{
+		Actions\Admin\Permissions::permissionIndex();
+	}
+	function PermissionsByBoard(): void
+	{
+		Actions\Admin\Permissions::permissionByBoard();
+	}
+	function ModifyMembergroup(): void
+	{
+		Actions\Admin\Permissions::modifyMembergroup();
+	}
+	function ModifyMembergroup2(): void
+	{
+		Actions\Admin\Permissions::modifyMembergroup2();
+	}
+	function SetQuickGroups(): void
+	{
+		Actions\Admin\Permissions::setQuickGroups();
+	}
+	function ModifyPostModeration(): void
+	{
+		Actions\Admin\Permissions::modifyPostModeration();
+	}
+	function EditPermissionProfiles(): void
+	{
+		Actions\Admin\Permissions::editPermissionProfiles();
+	}
+	function GeneralPermissionSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Permissions::generalPermissionSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Permissions
+	 *
+	 * Begin
+	 * Actions\Admin\Post
+	 */
+	function ManagePostSettings(): void
+	{
+		Actions\Admin\Posts::call();
+	}
+	function ModifyPostSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Posts::modifyPostSettings($return_config);
+	}
+	function ModifyTopicSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Posts::modifyTopicSettings($return_config);
+	}
+	function ModifyDraftSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Posts::modifyDraftSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Posts
+	 *
+	 * Begin
+	 * Actions\Admin\Registration
+	 */
+	function RegCenter(): void
+	{
+		Actions\Admin\Registration::call();
+	}
+	function AdminRegister(): void
+	{
+		Actions\Admin\Registration::adminRegister();
+	}
+	function EditAgreement(): void
+	{
+		Actions\Admin\Registration::editAgreement();
+	}
+	function EditPrivacyPolicy(): void
+	{
+		Actions\Admin\Registration::editPrivacyPolicy();
+	}
+	function SetReserved(): void
+	{
+		Actions\Admin\Registration::setReserved();
+	}
+	function ModifyRegistrationSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Registration::modifyRegistrationSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Registration
+	 *
+	 * Begin
+	 * Actions\Admin\RepairBoards
+	 */
+	function RepairBoards(): void
+	{
+		Actions\Admin\RepairBoards::call();
+	}
+	/**
+	 * End
+	 * Actions\Admin\RepairBoards
+	 *
+	 * Begin
+	 * Actions\Admin\Reports
+	 */
+	function ReportsMain(): void
+	{
+		Actions\Admin\Reports::call();
+	}
+	function BoardReport(): void
+	{
+		Actions\Admin\Reports::boardReport();
+	}
+	function BoardPermissionsReport(): void
+	{
+		Actions\Admin\Reports::boardPermissionsReport();
+	}
+	function MemberGroupsReport(): void
+	{
+		Actions\Admin\Reports::memberGroupsReport();
+	}
+	function GroupPermissionsReport(): void
+	{
+		Actions\Admin\Reports::groupPermissionsReport();
+	}
+	function StaffReport(): void
+	{
+		Actions\Admin\Reports::staffReport();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Reports
+	 *
+	 * Begin
+	 * Actions\Admin\Search
+	 */
+	function ManageSearch(): void
+	{
+		Actions\Admin\Search::call();
+	}
+	function EditWeights(): void
+	{
+		Actions\Admin\Search::editWeights();
+	}
+	function EditSearchMethod(): void
+	{
+		Actions\Admin\Search::editSearchMethod();
+	}
+	function CreateMessageIndex(): void
+	{
+		Actions\Admin\Search::createMessageIndex();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Search
+	 *
+	 * Begin
+	 * Actions\Admin\SearchEngines
+	 */
+	function SearchEngines(): void
+	{
+		Actions\Admin\SearchEngines::call();
+	}
+	function consolidateSpiderStats(): void
+	{
+		Actions\Admin\SearchEngines::consolidateSpiderStats();
+	}
+	function list_getSpiders(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\SearchEngines::list_getSpiders($start, $items_per_page, $sort);
+	}
+	function list_getNumSpiders(): int
+	{
+		return Actions\Admin\SearchEngines::list_getNumSpiders();
+	}
+	function list_getSpiderLogs(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\SearchEngines::list_getSpiderLogs($start, $items_per_page, $sort);
+	}
+	function list_getNumSpiderLogs(): int
+	{
+		return Actions\Admin\SearchEngines::list_getNumSpiderLogs();
+	}
+	function list_getSpiderStats(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\SearchEngines::list_getSpiderStats($start, $items_per_page, $sort);
+	}
+	function list_getNumSpiderStats(): int
+	{
+		return Actions\Admin\SearchEngines::list_getNumSpiderStats();
+	}
+	function recacheSpiderNames(): void
+	{
+		Actions\Admin\SearchEngines::recacheSpiderNames();
+	}
+	function SpiderStats(): void
+	{
+		Actions\Admin\SearchEngines::spiderStats();
+	}
+	function SpiderLogs(): void
+	{
+		Actions\Admin\SearchEngines::spiderLogs();
+	}
+	function ViewSpiders(): void
+	{
+		Actions\Admin\SearchEngines::viewSpiders();
+	}
+	function ManageSearchEngineSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\SearchEngines::manageSearchEngineSettings($return_config);
+	}
+	function EditSpider(): void
+	{
+		Actions\Admin\SearchEngines::editSpider();
+	}
+	/**
+	 * End
+	 * Actions\Admin\SearchEngine
+	 *
+	 * Begin
+	 * Actions\Admin\Server
+	 */
+	function ModifySettings(): void
+	{
+		Actions\Admin\Server::call();
+	}
+	function getLoadAverageDisabled(): bool
+	{
+		return Actions\Admin\Server::getLoadAverageDisabled();
+	}
+	function prepareServerSettingsContext(&$config_vars)
+	{
+		Actions\Admin\Server::prepareServerSettingsContext($config_vars);
+	}
+	function checkSettingsFileWriteSafe(): bool
+	{
+		return Actions\Admin\Server::checkSettingsFileWriteSafe();
+	}
+	function ModifyGeneralSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyGeneralSettings($return_config);
+	}
+	function ModifyDatabaseSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyDatabaseSettings($return_config);
+	}
+	function ModifyCookieSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyCookieSettings($return_config);
+	}
+	function ModifyGeneralSecuritySettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyGeneralSecuritySettings($return_config);
+	}
+	function ModifyCacheSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyCacheSettings($return_config);
+	}
+	function ModifyExportSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyExportSettings($return_config);
+	}
+	function ModifyLoadBalancingSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Server::modifyLoadBalancingSettings($return_config);
+	}
+	function ShowPHPinfoSettings():void
+	{
+		return Actions\Admin\Server::showPHPinfoSettings();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Server
+	 *
+	 * Begin
+	 * Actions\Admin\Smileys
+	 */
+	function ManageSmileys(): void
+	{
+		Actions\Admin\Smileys::call();
+	}
+	function list_getSmileySets(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\Smileys::list_getSmileySets($start, $items_per_page, $sort);
+	}
+	function list_getNumSmileySets(): int
+	{
+		return Actions\Admin\Smileys::list_getNumSmileySets();
+	}
+	function list_getSmileys(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\Smileys::list_getSmileys($start, $items_per_page, $sort);
+	}
+	function list_getNumSmileys(): int
+	{
+		return Actions\Admin\Smileys::list_getNumSmileys();
+	}
+	function list_getMessageIcons($start, $items_per_page, $sort): array
+	{
+		return Actions\Admin\Smileys::list_getMessageIcons($start, $items_per_page, $sort);
+	}
+	function AddSmiley(): void
+	{
+		Actions\Admin\Smileys::addSmiley();
+	}
+	function EditSmileys(): void
+	{
+		Actions\Admin\Smileys::editSmileys();
+	}
+	function EditSmileyOrder(): void
+	{
+		Actions\Admin\Smileys::editSmileyOrder();
+	}
+	function InstallSmileySet(): void
+	{
+		Actions\Admin\Smileys::installSmileySet();
+	}
+	function EditMessageIcons(): void
+	{
+		Actions\Admin\Smileys::editMessageIcons();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Smileys
+	 *
+	 * Begin
+	 * Actions\Admin\Subscriptions
+	 */
+	function ManagePaidSubscriptions(): void
+	{
+		Actions\Admin\Subscriptions::call();
+	}
+	function loadSubscriptions(): array
+	{
+		return Actions\Admin\Subscriptions::getSubs();
+	}
+	function addSubscription(
+		int $id_subscribe,
+		int $id_member,
+		int|string $renewal = 0,
+		int $forceStartTime = 0,
+		int $forceEndTime = 0
+	): void {
+		Actions\Admin\Subscriptions::add($id_subscribe, $id_member, $renewal, $forceStartTime, $forceEndTime);
+	}
+	function removeSubscription(int $id_subscribe, int $id_member, bool $delete = false): void
+	{
+		Actions\Admin\Subscriptions::remove($id_subscribe, $id_member, $delete);
+	}
+	function reapplySubscriptions(array $users): void
+	{
+		Actions\Admin\Subscriptions::reapply($users);
+	}
+	function loadPaymentGateways(): array
+	{
+		return Actions\Admin\Subscriptions::loadPaymentGateways();
+	}
+	function list_getSubscribedUserCount(int $id_sub, string $search_string, array $search_vars = []): int
+	{
+		return Actions\Admin\Subscriptions::list_getSubscribedUserCount($id_sub, $search_string, $search_vars);
+	}
+	function list_getSubscribedUsers(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		int $id_sub,
+		string $search_string,
+		array $search_vars = []
+	): array {
+		return Actions\Admin\Subscriptions::list_getSubscribedUsers(
+			$start,
+			$items_per_page,
+			$sort,
+			$id_sub,
+			$search_string,
+			$search_vars
+		);
+	}
+	function ViewSubscriptions(): void
+	{
+		Actions\Admin\Subscriptions::viewSubscriptions();
+	}
+	function ViewSubscribedUsers(): void
+	{
+		Actions\Admin\Subscriptions::viewSubscribedUsers();
+	}
+	function ModifySubscription(): void
+	{
+		Actions\Admin\Subscriptions::modifySubscription();
+	}
+	function ModifyUserSubscription(): void
+	{
+		Actions\Admin\Subscriptions::modifyUserSubscription();
+	}
+	function ModifySubscriptionSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Subscriptions::modifySubscriptionSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Subscriptions
+	 *
+	 * Begin
+	 * Actions\Admin\Task
+	 */
+	function ManageScheduledTasks(): void
+	{
+		Actions\Admin\Tasks::call();
+	}
+	function list_getScheduledTasks(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\Tasks::list_getScheduledTasks($start, $items_per_page, $sort);
+	}
+	function list_getTaskLogEntries(int $start, int $items_per_page, int $sort): array
+	{
+		return Actions\Admin\Tasks::list_getTaskLogEntries($start, $items_per_page, $sort);
+	}
+	function list_getNumTaskLogEntries(): int
+	{
+		return Actions\Admin\Tasks::list_getNumTaskLogEntries();
+	}
+	function ScheduledTasks(): void
+	{
+		Actions\Admin\Tasks::scheduledTasks();
+	}
+	function EditTask(): void
+	{
+		Actions\Admin\Tasks::editTask();
+	}
+	function TaskLog(): void
+	{
+		Actions\Admin\Tasks::taskLog();
+	}
+	function TaskSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Tasks::taskSettings($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Tasks
+	 *
+	 * Begin
+	 * Actions\Admin\Themes
+	 */
+	function ThemesMain(): void
+	{
+		Actions\Admin\Themes::call();
+	}
+	function ThemeAdmin(): void
+	{
+		Actions\Admin\Themes::themeAdmin();
+	}
+	function ThemeList(): void
+	{
+		Actions\Admin\Themes::themeList();
+	}
+	function SetThemeOptions(): void
+	{
+		Actions\Admin\Themes::setThemeOptions();
+	}
+	function RemoveTheme(): void
+	{
+		Actions\Admin\Themes::removeTheme();
+	}
+	function EnableTheme(): void
+	{
+		Actions\Admin\Themes::enableTheme();
+	}
+	function ThemeInstall(): void
+	{
+		Actions\Admin\Themes::themeInstall();
+	}
+	function EditTheme(): void
+	{
+		Actions\Admin\Themes::editTheme();
+	}
+	function CopyTemplate(): void
+	{
+		Actions\Admin\Themes::copyTemplate();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Themes
+	 *
+	 * Begin
+	 * Actions\Admin\Warnings
+	 */
+	function ModifyWarningSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Warnings::modifyWarningSettings($return_config);
+	}
 }
 
 /***************************

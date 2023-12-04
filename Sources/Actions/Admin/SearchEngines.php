@@ -15,7 +15,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Who;
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -35,38 +34,6 @@ use SMF\Utils;
  */
 class SearchEngines implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SearchEngines',
-			'consolidateSpiderStats' => 'consolidateSpiderStats',
-			'list_getSpiders' => 'list_getSpiders',
-			'list_getNumSpiders' => 'list_getNumSpiders',
-			'list_getSpiderLogs' => 'list_getSpiderLogs',
-			'list_getNumSpiderLogs' => 'list_getNumSpiderLogs',
-			'list_getSpiderStats' => 'list_getSpiderStats',
-			'list_getNumSpiderStats' => 'list_getNumSpiderStats',
-			'recacheSpiderNames' => 'recacheSpiderNames',
-			'spiderStats' => 'SpiderStats',
-			'spiderLogs' => 'SpiderLogs',
-			'viewSpiders' => 'ViewSpiders',
-			'manageSearchEngineSettings' => 'ManageSearchEngineSettings',
-			'editSpider' => 'EditSpider',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1214,11 +1181,6 @@ class SearchEngines implements ActionInterface
 
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SearchEngines::exportStatic')) {
-	SearchEngines::exportStatic();
 }
 
 ?>

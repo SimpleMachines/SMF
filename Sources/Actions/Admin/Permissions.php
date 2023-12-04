@@ -15,7 +15,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Moderation\Posts as PostMod;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -35,36 +34,6 @@ use SMF\Utils;
  */
 class Permissions implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModifyPermissions',
-			'getPermissions' => 'getPermissions',
-			'setPermissionLevel' => 'setPermissionLevel',
-			'init_inline_permissions' => 'init_inline_permissions',
-			'theme_inline_permissions' => 'theme_inline_permissions',
-			'save_inline_permissions' => 'save_inline_permissions',
-			'loadPermissionProfiles' => 'loadPermissionProfiles',
-			'updateChildPermissions' => 'updateChildPermissions',
-			'loadIllegalPermissions' => 'loadIllegalPermissions',
-			'buildHidden' => 'buildHidden',
-			'permissionIndex' => 'PermissionIndex',
-			'permissionByBoard' => 'PermissionByBoard',
-			'modifyMembergroup' => 'ModifyMembergroup',
-			'modifyMembergroup2' => 'ModifyMembergroup2',
-			'setQuickGroups' => 'SetQuickGroups',
-			'modifyPostModeration' => 'ModifyPostModeration',
-			'editPermissionProfiles' => 'EditPermissionProfiles',
-			'generalPermissionSettings' => 'GeneralPermissionSettings',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -3698,11 +3667,6 @@ class Permissions implements ActionInterface
 		// We don't need this anymore.
 		unset(Utils::$context['non_guest_permissions']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Permissions::exportStatic')) {
-	Permissions::exportStatic();
 }
 
 ?>

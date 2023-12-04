@@ -14,7 +14,6 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -50,27 +49,6 @@ use SMF\Utils;
  */
 class Themes implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ThemesMain',
-			'themeAdmin' => 'ThemeAdmin',
-			'themeList' => 'ThemeList',
-			'setThemeOptions' => 'SetThemeOptions',
-			'removeTheme' => 'RemoveTheme',
-			'enableTheme' => 'EnableTheme',
-			'themeInstall' => 'ThemeInstall',
-			'editTheme' => 'EditTheme',
-			'copyTemplate' => 'CopyTemplate',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -2356,11 +2334,6 @@ class Themes implements ActionInterface
 
 		return array_merge($list1, $list2);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Themes::exportStatic')) {
-	Themes::exportStatic();
 }
 
 ?>

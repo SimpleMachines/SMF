@@ -15,7 +15,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Register2;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -36,24 +35,6 @@ use SMF\Utils;
  */
 class Registration implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RegCenter',
-			'adminRegister' => 'AdminRegister',
-			'editAgreement' => 'EditAgreement',
-			'editPrivacyPolicy' => 'EditPrivacyPolicy',
-			'setReserved' => 'SetReserved',
-			'modifyRegistrationSettings' => 'ModifyRegistrationSettings',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -646,11 +627,6 @@ class Registration implements ActionInterface
 		// @todo Is this context variable necessary?
 		Utils::$context['sub_action'] = $this->subaction;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Registration::exportStatic')) {
-	Registration::exportStatic();
 }
 
 ?>

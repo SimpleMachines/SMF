@@ -14,7 +14,6 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -33,24 +32,6 @@ use SMF\Utils;
  */
 class Reports implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ReportsMain',
-			'boardReport' => 'BoardReport',
-			'boardPermissionsReport' => 'BoardPermissionsReport',
-			'memberGroupsReport' => 'MemberGroupsReport',
-			'groupPermissionsReport' => 'GroupPermissionsReport',
-			'staffReport' => 'StaffReport',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1292,11 +1273,6 @@ class Reports implements ActionInterface
 		// Rows or columns?
 		$this->key_method = $method == 'rows' ? 'rows' : 'cols';
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Reports::exportStatic')) {
-	Reports::exportStatic();
 }
 
 ?>
