@@ -20,6 +20,7 @@ use SMF\Utils;
 
 abstract class CacheApi
 {
+	use BackwardCompatibility;
 
 	public const APIS_FOLDER = __DIR__ . '/APIs';
 	public const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';

@@ -13,7 +13,6 @@
 
 namespace SMF\WebFetch;
 
-use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Url;
 
@@ -173,11 +172,6 @@ abstract class WebFetchApi implements WebFetchApiInterface
 
 		return trim($post_data);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\WebFetchApi::exportStatic')) {
-	WebFetchApi::exportStatic();
 }
 
 ?>

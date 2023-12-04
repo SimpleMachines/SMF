@@ -29,6 +29,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Board implements \ArrayAccess
 {
+	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**

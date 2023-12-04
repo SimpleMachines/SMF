@@ -550,13 +550,4 @@ class Security
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Security::exportStatic')) {
-	Security::exportStatic();
-}
-
-// Some functions have moved.
-class_exists('SMF\\SecurityToken');
-class_exists('SMF\\User');
-
 ?>

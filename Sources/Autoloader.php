@@ -79,7 +79,7 @@ spl_autoload_register(function ($class) {
 		$filename = $dirname . strtr($relative_class, '\\', '/') . '.php';
 
 		// Failsafe: Never load a file named index.php.
-		if (basename($filename) === 'index.php' || basename($filename) === 'BackwardCompatibility.php') {
+		if (basename($filename) === 'index.php') {
 			return;
 		}
 

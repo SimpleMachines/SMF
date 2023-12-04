@@ -1216,9 +1216,4 @@ class Mail
 	}
 }
 
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Mail::exportStatic')) {
-	Mail::exportStatic();
-}
-
 ?>

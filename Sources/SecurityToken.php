@@ -249,9 +249,4 @@ class SecurityToken extends \ArrayObject
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SecurityToken::exportStatic')) {
-	SecurityToken::exportStatic();
-}
-
 ?>

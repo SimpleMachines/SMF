@@ -27,6 +27,7 @@ use SMF\Search\SearchApi;
  */
 class Topic implements \ArrayAccess
 {
+	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**
@@ -1503,7 +1504,7 @@ class Topic implements \ArrayAccess
 	protected function loadTopicInfo(): void
 	{
 		if (empty($this->id)) {
-			ErrorHandler::fatalLang('not_a_topic', false, 404);
+			ErrorHandler::fatalLang('not_a_topic', false, [], 404);
 		}
 
 		// Basic stuff we always want.

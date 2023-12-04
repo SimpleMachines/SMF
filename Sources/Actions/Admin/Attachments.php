@@ -19,7 +19,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -31,6 +30,8 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Maintains and manages attachments and avatars.
@@ -2440,7 +2441,7 @@ class Attachments implements ActionInterface
 			}
 
 			// Check if the directory is doing okay.
-			list($status, $error, $files) = attachDirStatus($dir, $expected_files[$id]);
+			list($status, $error, $files) = self::attachDirStatus($dir, $expected_files[$id]);
 
 			// If it is one, let's show that it's a base directory.
 			$sub_dirs = 0;

@@ -936,9 +936,4 @@ class Logging
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logging::exportStatic')) {
-	Logging::exportStatic();
-}
-
 ?>

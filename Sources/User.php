@@ -14,7 +14,9 @@
 namespace SMF;
 
 use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Bans;
 use SMF\Actions\Login2;
+use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -64,6 +66,7 @@ use SMF\PersonalMessage\PM;
  */
 class User implements \ArrayAccess
 {
+	use BackwardCompatibility;
 	use ArrayAccessHelper;
 
 	/**
@@ -3173,9 +3176,9 @@ class User implements \ArrayAccess
 			list($user) = $users;
 
 			if ($user == User::$me->id) {
-				isAllowedTo('profile_remove_own');
+				self::isAllowedTo('profile_remove_own');
 			} else {
-				isAllowedTo('profile_remove_any');
+				self::isAllowedTo('profile_remove_any');
 			}
 		} else {
 			foreach ($users as $k => $v) {
@@ -3183,7 +3186,7 @@ class User implements \ArrayAccess
 			}
 
 			// Deleting more than one?  You can't have more than one account...
-			isAllowedTo('profile_remove_any');
+			self::isAllowedTo('profile_remove_any');
 		}
 
 		// Get their names for logging purposes.

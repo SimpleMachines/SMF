@@ -13,8 +13,6 @@
 
 namespace SMF\Unicode;
 
-use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -1452,11 +1450,6 @@ class Utf8String implements \Stringable
 		// Apart from the exceptions above, ZWNJ and ZWJ are not allowed.
 		$this->string = str_replace([$zwj, $zwnj], $substitute, $this->string);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Utf8String::exportStatic')) {
-	Utf8String::exportStatic();
 }
 
 ?>
