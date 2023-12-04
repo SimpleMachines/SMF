@@ -13,7 +13,7 @@
         "friendsofphp/php-cs-fixer": "^3.40"
     },
     "scripts": {
-        "lint": "php-cs-fixer fix -v"
+        "lint": "php-cs-fixer check -v"
     },
     "config": {
         "platform": {
