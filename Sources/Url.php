@@ -777,9 +777,9 @@ class Url implements \Stringable
 	 * Backward compatibility wrapper for the proxied method.
 	 *
 	 * @param string $url The original URL of the requested resource.
-	 * @return object A new instance of this class for the proxied URL.
+	 * @return Url A new instance of this class for the proxied URL.
 	 */
-	public static function getProxiedUrl(string $url): object
+	public static function getProxiedUrl(string $url): Url
 	{
 		$url = new self($url);
 
