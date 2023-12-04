@@ -1046,7 +1046,7 @@ if (!empty(Config::$backward_compatibility)) {
 	}
 	function ShowPHPinfoSettings():void
 	{
-		return Actions\Admin\Server::showPHPinfoSettings();
+		Actions\Admin\Server::showPHPinfoSettings();
 	}
 	/**
 	 * End
