@@ -102,7 +102,7 @@ if (!empty(Config::$backward_compatibility)) {
 	 * Begin
 	 * Actions\Admin\AntiSpam
 	 */
-	function ModifyAntispamSettings(bool $return_config = false)
+	function ModifyAntispamSettings(bool $return_config = false): ?array
 	{
 		return Actions\Admin\AntiSpam::modifyAntispamSettings($return_config);
 	}
@@ -137,11 +137,11 @@ if (!empty(Config::$backward_compatibility)) {
 	{
 		return Actions\Admin\Attachments::attachDirStatus($dir, $expected_files);
 	}
-	function ManageAttachmentSettings(bool $return_config = false)
+	function ManageAttachmentSettings(bool $return_config = false): ?array
 	{
 		return Actions\Admin\Attachments::manageAttachmentSettings($return_config);
 	}
-	function ManageAvatarSettings(bool $return_config = false)
+	function ManageAvatarSettings(bool $return_config = false): ?array
 	{
 		return Actions\Admin\Attachments::manageAvatarSettings($return_config);
 	}
@@ -252,16 +252,236 @@ if (!empty(Config::$backward_compatibility)) {
 	 * End
 	 * Actions\Admin\Bans
 	 *
-	 * Begin Actions\Admin\Boards
+	 * Begin
+	 * Actions\Admin\Boards
 	 */
 	function ManageBoards(): void
 	{
 		Actions\Admin\Boards::call();
 	}
-	function EditBoardSettings(bool $return_config = false)
+	function EditBoardSettings(bool $return_config = false): ?array
 	{
-
+		return Actions\Admin\Boards::editBoardSettings($return_config);
 	}
+	/**
+	 * End
+	 * Actions\Admin\Boards
+	 *
+	 * Begin
+	 * Actions\Admin\Calendar
+	 */
+	function ManageCalendar(): void
+	{
+		Actions\Admin\Calendar::call();
+	}
+	function ModifyHolidays(): void
+	{
+		Actions\Admin\Calendar::modifyHolidays();
+	}
+	function EditHoliday(): void
+	{
+		Actions\Admin\Calendar::editHoliday();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Calendar
+	 *
+	 * Begin
+	 * Actions\Admin\EndSession
+	 */
+	function AdminEndSession(): void
+	{
+		Actions\Admin\EndSession::call();
+	}
+	/**
+	 * End
+	 * Actions\Admin\EndSession
+	 *
+	 * Begin
+	 * Actions\Admin\ErrorLog
+	 */
+	function ViewErrorLog(): void
+	{
+		Actions\Admin\ErrorLog::call();
+	}
+	/**
+	 * End
+	 * Actions\Admin\ErrorLog
+	 *
+	 * Begin
+	 * Actions\Admin\Features
+	 */
+	function ModifyFeatureSettings(): void
+	{
+		Actions\Admin\Features::call();
+	}
+	function list_getProfileFields(int $start, int $items_per_page, string $sort, bool $standardFields): array
+	{
+		return Actions\Admin\Features::list_getProfileFields($start, $items_per_page, $sort, $standardFields);
+	}
+	function list_getProfileFieldSize(): int
+	{
+		return Actions\Admin\Features::list_getProfileFieldSize();
+	}
+	function ModifyBasicSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Features::modifyBasicSettings($return_config);
+	}
+	function ModifyBBCSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Features::modifyBBCSettings($return_config);
+	}
+	function ModifyLayoutSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Features::modifyLayoutSettings($return_config);
+	}
+	function ModifySignatureSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Features::modifySignatureSettings($return_config);
+	}
+	function ShowCustomProfiles(): void
+	{
+		Actions\Admin\Features::showCustomProfiles();
+	}
+	function EditCustomProfiles(): void
+	{
+		Actions\Admin\Features::editCustomProfiles();
+	}
+	function ModifyLikesSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Features::modifyLikesSettings($return_config);
+	}
+	function ModifyMentionsSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Features::modifyMentionsSettings($return_config);
+	}
+	function ModifyAlertsSettings(): void
+	{
+		Actions\Admin\Features::modifyAlertsSettings();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Features
+	 *
+	 * Begin
+	 * Actions\Admin\Find
+	 */
+	function AdminSearch(): void
+	{
+		Actions\Admin\Find::call();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Find
+	 *
+	 * Begin
+	 * Actions\Admin\Home
+	 */
+	function AdminHome(): void
+	{
+		Actions\Admin\Home::call();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Home
+	 *
+	 * Begin
+	 * Actions\Admin\Languages
+	 */
+	function ManageLanguages(): void
+	{
+		Actions\Admin\Languages::call();
+	}
+	function list_getLanguagesList(): array
+	{
+		return Actions\Admin\Languages::list_getLanguagesList();
+	}
+	function list_getNumLanguages(): int
+	{
+		return Actions\Admin\Languages::list_getNumLanguages();
+	}
+	function list_getLanguages(): array
+	{
+		return Actions\Admin\Languages::list_getLanguages();
+	}
+	function ModifyLanguages(): void
+	{
+		Actions\Admin\Languages::modifyLanguages();
+	}
+	function AddLanguage(): void
+	{
+		Actions\Admin\Languages::addLanguage();
+	}
+	function ModifyLanguageSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Languages::modifyLanguageSettings($return_config);
+	}
+	function DownloadLanguage(): void
+	{
+		Actions\Admin\Languages::downloadLanguage();
+	}
+	function ModifyLanguage(): void
+	{
+		Actions\Admin\Languages::modifyLanguage();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Languages
+	 *
+	 * Begin
+	 * Actions\Admin\Logs
+	 */
+	function AdminLogs(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Logs::adminLogs($return_config);
+	}
+	/**
+	 * End
+	 * Actions\Admin\Logs
+	 *
+	 * Begin
+	 * Actions\Admin\Mail
+	 */
+	function ManageMail(): void
+	{
+		Actions\Admin\Mail::call();
+	}
+	function list_getMailQueue(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Admin\Mail::list_getMailQueue($start, $items_per_page, $sort);
+	}
+	function list_getMailQueueSize(): int
+	{
+		return Actions\Admin\Mail::list_getMailQueueSize();
+	}
+	function timeSince(int $time_diff): string
+	{
+		return Actions\Admin\Mail::timeSince($time_diff);
+	}
+	function BrowseMailQueue(): void
+	{
+		Actions\Admin\Mail::browseMailQueue();
+	}
+	function ClearMailQueue(): void
+	{
+		Actions\Admin\Mail::clearMailQueue();
+	}
+	function ModifyMailSettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Mail::modifyMailSettings($return_config);
+	}
+	function TestMailSend(): void
+	{
+		Actions\Admin\Mail::testMailSend();
+	}
+	/**
+	 * End
+	 * Actions\Admin\Mail
+	 *
+	 * Begin
+	 * Actions\Admin\Maintenance
+	 */
+
 }
 
 /***************************

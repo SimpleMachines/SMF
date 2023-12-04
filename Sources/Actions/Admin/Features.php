@@ -15,7 +15,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Profile\Notification;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -37,30 +36,6 @@ use SMF\Utils;
  */
 class Features implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModifyFeatureSettings',
-			'list_getProfileFields' => 'list_getProfileFields',
-			'list_getProfileFieldSize' => 'list_getProfileFieldSize',
-			'modifyBasicSettings' => 'ModifyBasicSettings',
-			'modifyBBCSettings' => 'ModifyBBCSettings',
-			'modifyLayoutSettings' => 'ModifyLayoutSettings',
-			'modifySignatureSettings' => 'ModifySignatureSettings',
-			'showCustomProfiles' => 'ShowCustomProfiles',
-			'editCustomProfiles' => 'EditCustomProfiles',
-			'modifyLikesSettings' => 'ModifyLikesSettings',
-			'modifyMentionsSettings' => 'ModifyMentionsSettings',
-			'modifyAlertsSettings' => 'ModifyAlertsSettings',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -2095,11 +2070,6 @@ class Features implements ActionInterface
 
 		return (int) $order_count;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Features::exportStatic')) {
-	Features::exportStatic();
 }
 
 ?>

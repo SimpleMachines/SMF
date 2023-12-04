@@ -15,7 +15,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Moderation\Logs as Modlog;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -29,17 +28,6 @@ use SMF\Utils;
  */
 class Logs implements ActionInterface
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'adminLogs' => 'AdminLogs',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -439,11 +427,6 @@ class Logs implements ActionInterface
 
 		$this->subaction = isset($_REQUEST['sa'], self::$subactions[$_REQUEST['sa']])   && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logs::exportStatic')) {
-	Logs::exportStatic();
 }
 
 ?>

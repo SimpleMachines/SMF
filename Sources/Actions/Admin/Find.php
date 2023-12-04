@@ -14,7 +14,6 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -29,19 +28,6 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Find implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AdminSearch',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -412,11 +398,6 @@ class Find implements ActionInterface
 	{
 		$this->subaction = !isset($_REQUEST['search_type']) || !isset(self::$subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Find::exportStatic')) {
-	Find::exportStatic();
 }
 
 ?>
