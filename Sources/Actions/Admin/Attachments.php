@@ -2151,7 +2151,7 @@ class Attachments implements ActionInterface
 		Lang::$txt['basedirectory_for_attachments_warning'] = Lang::$txt['basedirectory_for_attachments_current'] . Lang::$txt['basedirectory_for_attachments_warning'];
 
 		// Perform a test to see if the GD module or ImageMagick are installed.
-		$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
+		$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
 		// See if we can find if the server is set up to support the attachment limits
 		$post_max_kb = floor(Config::memoryReturnBytes(ini_get('post_max_size')) / 1024);

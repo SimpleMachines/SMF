@@ -1426,16 +1426,11 @@ class ACP implements ActionInterface
 		}
 
 		// Why not have a look at ImageMagick? If it's installed, we should show version information for it too.
-		if (in_array('imagemagick', $checkFor) && (class_exists('Imagick') || function_exists('MagickGetVersionString'))) {
-			if (class_exists('Imagick')) {
-				$temp = new \Imagick();
-				$temp2 = $temp->getVersion();
-				$im_version = $temp2['versionString'];
-				$extension_version = 'Imagick ' . phpversion('Imagick');
-			} else {
-				$im_version = MagickGetVersionString();
-				$extension_version = 'MagickWand ' . phpversion('MagickWand');
-			}
+		if (in_array('imagemagick', $checkFor) && class_exists('Imagick')) {
+			$temp = new \Imagick();
+			$temp2 = $temp->getVersion();
+			$im_version = $temp2['versionString'];
+			$extension_version = 'Imagick ' . phpversion('Imagick');
 
 			// We already know it's ImageMagick and the website isn't needed...
 			$im_version = str_replace(['ImageMagick ', ' https://www.imagemagick.org'], '', $im_version);
