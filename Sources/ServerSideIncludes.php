@@ -1894,7 +1894,7 @@ class ServerSideIncludes
 			return $return['calendar_birthdays'];
 		}
 
-		foreach ($return['calendar_birthdays'] as $member) {
+		foreach ((array) $return['calendar_birthdays'] as $member) {
 			echo '
 				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
 		}
@@ -2372,7 +2372,7 @@ class ServerSideIncludes
 				$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
 			}
 
-			$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
+			$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) ? true : false;
 
 			$return[$date][] = [
 				'id' => $row['id_event'],
@@ -2667,7 +2667,7 @@ class ServerSideIncludes
 			die('No direct access...');
 		}
 
-		if (isset($_REQUEST['ssi_layers'], $this->layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $this->layers) {
+		if (isset($_REQUEST['ssi_layers'], $this->layers) && $_REQUEST['ssi_layers'] == $this->layers) {
 			die('No direct access...');
 		}
 
@@ -2732,7 +2732,7 @@ class ServerSideIncludes
 
 		// Do we allow guests in here?
 		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php') {
-			User::kickIfGuest();
+			User::$me->kickIfGuest();
 			Utils::obExit(null, true);
 		}
 

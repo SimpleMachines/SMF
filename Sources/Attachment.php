@@ -717,7 +717,7 @@ class Attachment implements \ArrayAccess
 			}
 		}
 
-		if (!$doit) {
+		if (empty($doit)) {
 			return;
 		}
 
@@ -939,7 +939,7 @@ class Attachment implements \ArrayAccess
 	{
 		// Make sure we're uploading to the right place.
 		if (!empty(Config::$modSettings['automanage_attachments'])) {
-			automanage_attachments_check_directory();
+			self::automanageCheckDirectory();
 		}
 
 		if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
@@ -1316,6 +1316,7 @@ class Attachment implements \ArrayAccess
 	{
 		// If this is an image we need to set a few additional parameters.
 		$image = new Image($attachmentOptions['tmp_name']);
+		$is_image = !empty($image);
 
 		// Source is empty for non-images.
 		if (!empty($image->source)) {
@@ -1469,7 +1470,7 @@ class Attachment implements \ArrayAccess
 			);
 		}
 
-		if (!$this->is_image || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
+		if (empty($is_image) || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
 			return true;
 		}
 
@@ -2228,8 +2229,8 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						loadLanguage('Admin');
-						$attachmentData[$i][$key] = ' (' . $txt['unknown'] . ') ';
+						Lang::load('Admin');
+						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
 					}
 				}
 			}

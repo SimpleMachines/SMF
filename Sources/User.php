@@ -19,6 +19,8 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;
+use SMF\Actions\Admin\Bans;
+use SMF\Actions\Logout;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -1141,7 +1143,7 @@ class User implements \ArrayAccess
 			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
 			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->name) . '">' . $this->name . '</a>',
 			'email' => $this->email,
-			'show_email' => !User::$me->is_guest && (User::$me->id == $this->id || User::$me->allowedTo('moderate_forum')),
+			'show_email' => !self::$me->is_guest && (self::$me->id == $this->id || self::$me->allowedTo('moderate_forum')),
 			'registered' => empty($this->date_registered) ? Lang::$txt['not_applicable'] : Time::create('@' . $this->date_registered)->format(),
 			'registered_timestamp' => $this->date_registered,
 		];
@@ -1171,15 +1173,15 @@ class User implements \ArrayAccess
 			}
 
 			// Is this user online, and if so, is their online status visible?
-			$is_visibly_online = (!empty($this->show_online) || User::$me->allowedTo('moderate_forum')) && $this->is_online > 0;
+			$is_visibly_online = (!empty($this->show_online) || self::$me->allowedTo('moderate_forum')) && $this->is_online > 0;
 
 			// Now append all the rest of the data.
 			$this->formatted += [
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
 				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->name) . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
-				'is_buddy' => in_array($this->id, User::$me->buddies),
-				'is_reverse_buddy' => in_array(User::$me->id, $this->buddies),
+				'is_buddy' => in_array($this->id, self::$me->buddies),
+				'is_reverse_buddy' => in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
 				'title' => !empty(Config::$modSettings['titlesEnable']) ? $this->title : '',
 				'blurb' => $this->personal_text,
@@ -1215,7 +1217,7 @@ class User implements \ArrayAccess
 				'post_group' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
 				'post_group_name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
 				'post_group_color' => $this->is_guest ? '' : $this->post_group_color,
-				'group_icons' => str_repeat('<img src="' . str_replace('$language', User::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : $this->icons[0]),
+				'group_icons' => str_repeat('<img src="' . str_replace('$language', self::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : $this->icons[0]),
 				'warning' => $this->warning,
 				'warning_status' => !empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning ? 'mute' : (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning ? 'moderate' : (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= $this->warning ? 'watch' : '')),
 				'local_time' => Time::create('now', $this->timezone)->format(null, false),
@@ -3124,7 +3126,7 @@ class User implements \ArrayAccess
 		}
 
 		// If it is invalid, fall back to the default.
-		if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) {
+		if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 			$timezone = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 		}
 
@@ -3173,10 +3175,10 @@ class User implements \ArrayAccess
 		if (count($users) == 1) {
 			list($user) = $users;
 
-			if ($user == User::$me->id) {
-				isAllowedTo('profile_remove_own');
+			if ($user == self::$me->id) {
+				self::$me->isAllowedTo('profile_remove_own');
 			} else {
-				isAllowedTo('profile_remove_any');
+				self::$me->isAllowedTo('profile_remove_any');
 			}
 		} else {
 			foreach ($users as $k => $v) {
@@ -3184,7 +3186,7 @@ class User implements \ArrayAccess
 			}
 
 			// Deleting more than one?  You can't have more than one account...
-			isAllowedTo('profile_remove_any');
+			self::$me->isAllowedTo('profile_remove_any');
 		}
 
 		// Get their names for logging purposes.
@@ -3218,7 +3220,7 @@ class User implements \ArrayAccess
 		}
 
 		// Make sure they aren't trying to delete administrators if they aren't one.  But don't bother checking if it's just themself.
-		if (!empty($admins) && ($check_not_admin || (!User::$me->allowedTo('admin_forum') && (count($users) != 1 || $users[0] != self::$me->id)))) {
+		if (!empty($admins) && ($check_not_admin || (!self::$me->allowedTo('admin_forum') && (count($users) != 1 || $users[0] != self::$me->id)))) {
 			$users = array_diff($users, $admins);
 
 			foreach ($admins as $id) {
@@ -3702,7 +3704,7 @@ class User implements \ArrayAccess
 
 		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
 
-		ErrorHandler::fatal($message, empty($error[2]) || User::$me->is_admin ? false : $error[2]);
+		ErrorHandler::fatal($message, empty($error[2]) || self::$me->is_admin ? false : $error[2]);
 	}
 
 	/**
@@ -3725,7 +3727,7 @@ class User implements \ArrayAccess
 		$checkName = Utils::strtolower($name);
 
 		// Administrators are never restricted ;).
-		if (!User::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name)) {
+		if (!self::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name)) {
 			$reservedNames = explode("\n", Config::$modSettings['reserveNames']);
 
 			// Case sensitive check?
@@ -3880,7 +3882,7 @@ class User implements \ArrayAccess
 
 		// You're in biiig trouble.  Banned for the rest of this session!
 		if (isset($_SESSION['ban']['cannot_access'])) {
-			$this->logBan($_SESSION['ban']['cannot_access']['ids']);
+			self::$me->logBan($_SESSION['ban']['cannot_access']['ids']);
 
 			$_SESSION['ban']['last_checked'] = time();
 
@@ -3889,7 +3891,7 @@ class User implements \ArrayAccess
 
 		if (!empty($ban_ids)) {
 			// Log this ban for future reference.
-			$this->logBan($ban_ids, $email);
+			self::$me->logBan($ban_ids, $email);
 
 			ErrorHandler::fatal($error . $ban_reason, false);
 		}
@@ -3945,7 +3947,7 @@ class User implements \ArrayAccess
 		$results = [];
 
 		// This ensures you can't search someones email address if you can't see it.
-		if (($use_wildcards || $maybe_email) && User::$me->allowedTo('moderate_forum')) {
+		if (($use_wildcards || $maybe_email) && self::$me->allowedTo('moderate_forum')) {
 			$email_condition = '
 				OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
 		} else {
@@ -3972,7 +3974,7 @@ class User implements \ArrayAccess
 				AND is_activated IN (1, 11)
 			LIMIT {int:limit}',
 			array_merge($where_params, [
-				'buddy_list' => User::$me->buddies,
+				'buddy_list' => self::$me->buddies,
 				'limit' => $max,
 			]),
 		);
@@ -3982,7 +3984,7 @@ class User implements \ArrayAccess
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
 				'username' => $row['member_name'],
-				'email' => User::$me->allowedTo('moderate_forum') ? $row['email_address'] : '',
+				'email' => self::$me->allowedTo('moderate_forum') ? $row['email_address'] : '',
 				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			];

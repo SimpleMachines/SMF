@@ -612,7 +612,7 @@ class Group implements \ArrayAccess
 		if (!empty($subscriptions)) {
 			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
 			Lang::load('ManageMembers');
-			Lang::$txt['membergroups_cannot_delete_paid'] = sprintf(Lang::$txt['membergroups_cannot_delete_paid'], sentence_list($subscriptions));
+			Lang::$txt['membergroups_cannot_delete_paid'] = sprintf(Lang::$txt['membergroups_cannot_delete_paid'], Lang::sentenceList($subscriptions));
 
 			return 'group_cannot_delete_sub';
 		}
@@ -2585,17 +2585,17 @@ class Group implements \ArrayAccess
 	 */
 	protected static function getLink(object $group): string
 	{
-		$href = $this->getHref();
+		$href = $group->getHref();
 
 		if ($href === '') {
 			return '';
 		}
 
-		if (!isset($this->num_members)) {
-			$this->countMembers();
+		if (!isset($group->num_members)) {
+			$group->countMembers();
 		}
 
-		return '<a href="' . $href . '">' . $this->num_members . '</a>';
+		return '<a href="' . $href . '">' . $group->num_members . '</a>';
 	}
 
 	/**

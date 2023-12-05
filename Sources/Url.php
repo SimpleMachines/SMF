@@ -444,12 +444,12 @@ class Url implements \Stringable
 		}
 
 		// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs.
-		if (empty($parsed->scheme) || empty($parsed->host) || empty($parsed->path) || $parsed->scheme === 'https') {
+		if (empty($proxied->scheme) || empty($proxied->host) || empty($proxied->path) || $proxied->scheme === 'https') {
 			return $proxied;
 		}
 
 		// We don't need to proxy our own resources.
-		if ($parsed->host === Url::create(Config::$boardurl)->host) {
+		if ($proxied->host === Url::create(Config::$boardurl)->host) {
 			$proxied->url = strtr($this->url, ['http://' => 'https://']);
 
 			return $proxied;
@@ -777,9 +777,9 @@ class Url implements \Stringable
 	 * Backward compatibility wrapper for the proxied method.
 	 *
 	 * @param string $url The original URL of the requested resource.
-	 * @return object A new instance of this class for the proxied URL.
+	 * @return Url A new instance of this class for the proxied URL.
 	 */
-	public static function getProxiedUrl(string $url): string
+	public static function getProxiedUrl(string $url): Url
 	{
 		$url = new self($url);
 

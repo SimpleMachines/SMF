@@ -770,7 +770,7 @@ class Category implements \ArrayAccess
 	 * Used by self::getTree().
 	 *
 	 * @param array &$list The board list
-	 * @param array &$tree The board tree
+	 * @param SMF\Category &$tree The board tree
 	 */
 	public static function recursiveBoards(&$list, &$tree): void
 	{

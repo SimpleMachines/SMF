@@ -130,7 +130,7 @@ class ProxyServer
 		}
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly
-		$request = $request->toAscii();
+		$request = strval($request->toAscii());
 
 		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash']) {
 			return false;

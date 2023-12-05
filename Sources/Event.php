@@ -70,14 +70,14 @@ class Event implements \ArrayAccess
 	public int $type = self::TYPE_EVENT_SIMPLE;
 
 	/**
-	 * @var object
+	 * @var SMF\Time
 	 *
 	 * An SMF\Time object representing the start of the event.
 	 */
 	public object $start;
 
 	/**
-	 * @var object
+	 * @var SMF\Time
 	 *
 	 * An SMF\Time object representing the end of the event.
 	 */
@@ -433,7 +433,7 @@ class Event implements \ArrayAccess
 
 			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
 			if (!$found) {
-				$all_timezones = [$this->timezone => '[UTC' . $this->start->format($d, 'P') . '] - ' . $this->timezone] + $all_timezones;
+				$all_timezones = [$this->timezone => '[UTC' . $this->start->format('P') . '] - ' . $this->timezone] + $all_timezones;
 			}
 		}
 	}
@@ -1102,7 +1102,7 @@ class Event implements \ArrayAccess
 			return 0;
 		}
 
-		return date_interval_format(date_diff($this->start, $this->end), '%a') + ($end->format('H') < $start->format('H') ? 2 : 1);
+		return date_interval_format(date_diff($this->start, $this->end), '%a') + ($this->end->format('H') < $this->start->format('H') ? 2 : 1);
 	}
 
 	/**
@@ -1383,7 +1383,7 @@ class Event implements \ArrayAccess
 			if (isset($datetime_string)) {
 				$datetime_string_parsed = date_parse(str_replace(',', '', Calendar::convertDateToEnglish($datetime_string)));
 
-				if (empty($datetime_string_parsed['error_count']) && empty($datetime_string_parsed['warning_count'])) {
+				if (is_array($datetime_string_parsed) && empty($datetime_string_parsed['error_count']) && empty($datetime_string_parsed['warning_count'])) {
 					$datetime_string_parsed = array_filter(
 						$datetime_string_parsed,
 						function ($key) {

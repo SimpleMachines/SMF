@@ -275,7 +275,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionOpen(string $path, string $name): bool
 	{
-		return (new self())->open();
+		return (new self())->open($path, $name);
 	}
 
 	/**
@@ -291,7 +291,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionRead(string $session_id): string
 	{
-		return (string) (new self())->read();
+		return (string) (new self())->read($session_id);
 	}
 
 	/**
@@ -299,7 +299,7 @@ class Session implements \SessionHandlerInterface
 	 */
 	public static function sessionWrite(string $session_id, string $data): bool
 	{
-		return (new self())->write();
+		return (new self())->write($session_id, $data);
 	}
 
 	/**

@@ -1044,7 +1044,7 @@ class Poll implements \ArrayAccess
 			$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
 
 			// ;id,timestamp,[vote,vote...]; etc
-			$_COOKIE['guest_poll_vote'] .= ';' . $row['id_poll'] . ',' . time() . ',' . implode(',', $choices);
+			$_COOKIE['guest_poll_vote'] .= ';' . $poll->id . ',' . time() . ',' . implode(',', $choices);
 
 			$cookie = new Cookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000);
 			$cookie->set();
@@ -1654,7 +1654,7 @@ class Poll implements \ArrayAccess
 				}
 
 				// Has the poll been reset since guest voted?
-				if ($pollinfo->reset_poll > $guestvoted[1]) {
+				if ($this->reset_poll > $guestvoted[1]) {
 					// Remove the poll info from the cookie to allow guest to vote again
 					unset($guestinfo[$i]);
 
@@ -1667,9 +1667,9 @@ class Poll implements \ArrayAccess
 					// What did they vote for?
 					unset($guestvoted[0], $guestvoted[1]);
 
-					foreach ($pollinfo->choices as $choice => $details) {
-						$choice->voted_this = in_array($choice, $guestvoted);
-						$pollinfo->has_voted |= $choice->voted_this;
+					foreach ($this->choices as $choice => $details) {
+						$details->voted_this = in_array($choice, $guestvoted);
+						$this->has_voted |= $details->voted_this;
 					}
 				}
 				unset($guestinfo, $guestvoted, $i);
@@ -1759,7 +1759,7 @@ class Poll implements \ArrayAccess
 	/**
 	 * Gets the ID of the most recent poll.
 	 *
-	 * @param array &$options The query options passed to the constructor.
+	 * @param int &$options The query options passed to the constructor.
 	 * @return int ID of the most recent poll.
 	 */
 	protected function getMostRecent(&$options): int
@@ -1793,7 +1793,7 @@ class Poll implements \ArrayAccess
 	/**
 	 * Gets the ID of the poll with the most voting activity.
 	 *
-	 * @param array &$options The query options passed to the constructor.
+	 * @param int &$options The query options passed to the constructor.
 	 * @return int ID of the most active poll.
 	 */
 	protected function getMostActive(&$options): int

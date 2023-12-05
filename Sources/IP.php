@@ -418,8 +418,8 @@ class IP implements \Stringable
 	 * Convert a range of IP addresses into a single string.
 	 * It's practically the reverse function of ip2range().
 	 *
-	 * @param array $low The low end of the range.
-	 * @param array $high The high end of the range.
+	 * @param string $low The low end of the range.
+	 * @param string $high The high end of the range.
 	 * @return string A string indicating the range.
 	 */
 	public static function range2ip($low, $high): string
@@ -574,7 +574,7 @@ class IP implements \Stringable
 
 		// This is nslookup; available on Windows and Macs.
 		if (!isset($host) && (Utils::$context['server']['is_windows'] || Utils::$context['server']['is_mac'])) {
-			$test = (string) @shell_exec('nslookup -timeout=' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($ip));
+			$test = (string) @shell_exec('nslookup -timeout=' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
 
 			if (strpos($test, 'Non-existent domain') !== false) {
 				$host = '';
