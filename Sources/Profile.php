@@ -2170,7 +2170,7 @@ class Profile extends User implements \ArrayAccess
 		self::$member->save();
 
 		if (!empty($return_errors)) {
-			return self::$cf_save_errors;
+			return self::$member->cf_save_errors;
 		}
 	}
 	/**
