@@ -817,6 +817,7 @@ function initialize_inputs()
 		deleteFile(dirname(__FILE__) . '/upgrade_1-1.sql');
 		deleteFile(dirname(__FILE__) . '/upgrade_2-0_' . Db::getClass(Config::$db_type) . '.sql');
 		deleteFile(dirname(__FILE__) . '/upgrade_2-1_' . Db::getClass(Config::$db_type) . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_3-0_' . Db::getClass(Config::$db_type) . '.sql');
 		deleteFile(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
@@ -874,9 +875,11 @@ function WelcomeLogin()
 	$check = @file_exists(Config::$modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists(Config::$sourcedir . '/QueryString.php')
 		&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
-		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . Db::getClass(Config::$db_type) . '.sql');
+		&& @file_exists(dirname(__FILE__) . '/upgrade_3-0_' . Db::getClass(Config::$db_type) . '.sql');
 
 	// Need legacy scripts?
+	if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 3.0)
+		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . Db::getClass(Config::$db_type) . '.sql');
 	if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 2.1)
 		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . Db::getClass(Config::$db_type) . '.sql');
 	if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 2.0)
@@ -1678,7 +1681,8 @@ function DatabaseChanges()
 		array('upgrade_1-0.sql', '1.1', '1.1 RC0', false),
 		array('upgrade_1-1.sql', '2.0', '2.0 a', false),
 		array('upgrade_2-0_' . Db::getClass(Config::$db_type) . '.sql', '2.1', '2.1 dev0', false),
-		array('upgrade_2-1_' . Db::getClass(Config::$db_type) . '.sql', '3.0', SMF_VERSION, true),
+		array('upgrade_2-1_' . Db::getClass(Config::$db_type) . '.sql', '3.0', '3.0 dev0', true),
+		array('upgrade_3-0_' . Db::getClass(Config::$db_type) . '.sql', '3.1', SMF_VERSION, true),
 	);
 
 	// How many files are there in total?

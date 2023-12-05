@@ -28,7 +28,7 @@ use SMF\PackageManager\FtpConnection;
 define('SMF_VERSION', '3.0 Alpha 1');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2023');
-define('DB_SCRIPT_VERSION', '2-1');
+define('DB_SCRIPT_VERSION', '3-0');
 define('SMF_INSTALLING', 1);
 
 define('JQUERY_VERSION', '3.6.3');
