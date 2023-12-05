@@ -193,7 +193,6 @@ class Forum
 	 */
 	public function __construct()
 	{
-		$test = sanitize_chars('testing');
 		// If Config::$maintenance is set specifically to 2, then we're upgrading or something.
 		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
 			ErrorHandler::displayMaintenanceMessage();

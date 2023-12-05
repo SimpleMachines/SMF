@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Logging;
@@ -25,18 +24,6 @@ use SMF\Utils;
  */
 class AgreementAccept extends Agreement
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AcceptAgreement',
-		],
-	];
 
 	/*********************
 	 * Internal properties
@@ -134,11 +121,6 @@ class AgreementAccept extends Agreement
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\AgreementAccept::exportStatic')) {
-	AgreementAccept::exportStatic();
 }
 
 ?>

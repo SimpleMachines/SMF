@@ -1980,8 +1980,58 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Actions\Profile\ViewWarning
 	 *
 	 * Begin
-	 * Actions
+	 * Actions\Agreement
 	 */
+	function Agreement(): void
+	{
+		Actions\Agreement::call();
+	}
+	function canRequireAgreement(): bool
+	{
+		return Actions\Agreement::canRequireAgreement();
+	}
+	function canRequirePrivacyPolicy(): bool
+	{
+		return Actions\Agreement::canRequirePrivacyPolicy();
+	}
+	/**
+	 * End
+	 * Actions\Agreement
+	 *
+	 * Begin
+	 * Actions\AgreementAccept
+	 */
+	function AcceptAgreement(): void
+	{
+		Actions\AgreementAccept::call();
+	}
+	/**
+	 * End
+	 * Actions\AgreementAccept
+	 *
+	 * Begin
+	 * Actions\Announce
+	 */
+	function AnnounceTopic(): void
+	{
+		Actions\Announce::call();
+	}
+	function AnnouncementSelectMembergroup(): void
+	{
+		Actions\Announce::selectGroup();
+	}
+	function AnnouncementSend(): void
+	{
+		Actions\Announce::announcementSend();
+	}
+	/**
+	 * End
+	 * Actions\Announce
+	 *
+	 * Begin
+	 * Actions\AttachmentApprove
+	 */
+
 }
 
 /***************************
