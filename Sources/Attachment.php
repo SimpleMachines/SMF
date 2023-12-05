@@ -1469,7 +1469,7 @@ class Attachment implements \ArrayAccess
 			);
 		}
 
-		if (empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
+		if (empty($image) || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
 			return true;
 		}
 
