@@ -1316,6 +1316,7 @@ class Attachment implements \ArrayAccess
 	{
 		// If this is an image we need to set a few additional parameters.
 		$image = new Image($attachmentOptions['tmp_name']);
+		$is_image = !empty($image);
 
 		// Source is empty for non-images.
 		if (!empty($image->source)) {
@@ -1469,7 +1470,7 @@ class Attachment implements \ArrayAccess
 			);
 		}
 
-		if (empty($image) || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
+		if (empty($is_image) || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height']))) {
 			return true;
 		}
 
