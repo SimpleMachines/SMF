@@ -2940,7 +2940,7 @@ class BBCodeParser
 							return $url;
 						}
 
-						return '[url=&quot;' . str_replace(['[', ']'], ['&#91;', '&#93;'], strval($full_url->toAscii())) . '&quot;]' . $url . '[/url]';
+						return '[url=&quot;' . str_replace(['[', ']'], ['&#91;', '&#93;'], $full_url->toAscii()) . '&quot;]' . $url . '[/url]';
 					},
 					$data,
 				);
