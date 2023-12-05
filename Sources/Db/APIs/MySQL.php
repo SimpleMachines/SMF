@@ -240,7 +240,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
 
 		if ($ret === false && empty($db_values['db_error_skip'])) {
-			$ret = $this->error($db_string, $connection);
+			$ret = $this->error($connection);
 		}
 
 		// Debugging.
