@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\TrackIP;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -34,30 +33,6 @@ use SMF\Utils;
  */
 class Tracking implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'tracking',
-			'list_getUserErrors' => 'list_getUserErrors',
-			'list_getUserErrorCount' => 'list_getUserErrorCount',
-			'list_getProfileEdits' => 'list_getProfileEdits',
-			'list_getProfileEditCount' => 'list_getProfileEditCount',
-			'list_getGroupRequests' => 'list_getGroupRequests',
-			'list_getGroupRequestsCount' => 'list_getGroupRequestsCount',
-			'list_getLogins' => 'list_getLogins',
-			'list_getLoginCount' => 'list_getLoginCount',
-			'trackActivity' => 'trackActivity',
-			'trackEdits' => 'trackEdits',
-			'trackGroupReq' => 'trackGroupReq',
-			'trackLogins' => 'TrackLogins',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -1111,11 +1086,6 @@ class Tracking implements ActionInterface
 			$this->subaction = array_key_first(self::$subactions);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Tracking::exportStatic')) {
-	Tracking::exportStatic();
 }
 
 ?>

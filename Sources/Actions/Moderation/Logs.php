@@ -14,7 +14,6 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -34,27 +33,6 @@ use SMF\Utils;
  */
 class Logs implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewModlog',
-			'list_getModLogEntryCount' => 'list_getModLogEntryCount',
-			'list_getModLogEntries' => 'list_getModLogEntries',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -993,17 +971,6 @@ class Logs implements ActionInterface
 			];
 		}
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logs::exportStatic')) {
-	Logs::exportStatic();
 }
 
 ?>

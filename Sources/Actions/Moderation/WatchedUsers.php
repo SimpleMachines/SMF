@@ -14,7 +14,6 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -32,23 +31,6 @@ use SMF\Utils;
  */
 class WatchedUsers implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewWatchedUsers',
-			'list_getWatchedUserCount' => 'list_getWatchedUserCount',
-			'list_getWatchedUsers' => 'list_getWatchedUsers',
-			'list_getWatchedUserPostsCount' => 'list_getWatchedUserPostsCount',
-			'list_getWatchedUserPosts' => 'list_getWatchedUserPosts',
-		],
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -516,11 +498,6 @@ class WatchedUsers implements ActionInterface
 			'description' => Lang::$txt['mc_watched_users_desc'],
 		];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\WatchedUsers::exportStatic')) {
-	WatchedUsers::exportStatic();
 }
 
 ?>

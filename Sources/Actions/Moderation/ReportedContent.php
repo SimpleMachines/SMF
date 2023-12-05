@@ -15,7 +15,6 @@ namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -38,24 +37,6 @@ use SMF\Utils;
  */
 class ReportedContent implements ActionInterface
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ReportedContent',
-			'recountOpenReports' => 'recountOpenReports',
-			'showReports' => 'ShowReports',
-			'showClosedReports' => 'ShowClosedReports',
-			'reportDetails' => 'ReportDetails',
-			'handleReport' => 'HandleReport',
-			'handleComment' => 'HandleComment',
-			'editComment' => 'EditComment',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1473,11 +1454,6 @@ class ReportedContent implements ActionInterface
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ReportedContent::exportStatic')) {
-	ReportedContent::exportStatic();
 }
 
 ?>

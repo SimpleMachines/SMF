@@ -14,7 +14,6 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -34,19 +33,6 @@ use SMF\Utils;
  */
 class Home implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModerationHome',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -590,11 +576,6 @@ class Home implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Home::exportStatic')) {
-	Home::exportStatic();
 }
 
 ?>

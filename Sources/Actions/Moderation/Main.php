@@ -16,7 +16,6 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
@@ -30,20 +29,6 @@ use SMF\Utils;
  */
 class Main implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'checkAccessPermissions' => 'checkAccessPermissions',
-			'ModerationMain' => 'ModerationMain',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -459,11 +444,6 @@ class Main implements ActionInterface
 
 		$this->moderation_areas['members']['areas']['reportedmembers']['enabled'] = Utils::$context['can_moderate_users'];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Main::exportStatic')) {
-	Main::exportStatic();
 }
 
 ?>

@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;
@@ -25,19 +24,6 @@ use SMF\Utils;
  */
 class Account implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'account',
-		],
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -130,11 +116,6 @@ class Account implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Account::exportStatic')) {
-	Account::exportStatic();
 }
 
 ?>

@@ -14,13 +14,11 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Profile;
-use SMF\User;
 use SMF\Utils;
 
 /**
@@ -28,18 +26,6 @@ use SMF\Utils;
  */
 class IgnoreBoards implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ignoreboards',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -181,11 +167,6 @@ class IgnoreBoards implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\IgnoreBoards::exportStatic')) {
-	IgnoreBoards::exportStatic();
 }
 
 ?>

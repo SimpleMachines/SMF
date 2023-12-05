@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Admin\Subscriptions;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -30,18 +29,6 @@ use SMF\Utils;
  */
 class PaidSubs implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'subscriptions',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -381,11 +368,6 @@ class PaidSubs implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\PaidSubs::exportStatic')) {
-	PaidSubs::exportStatic();
 }
 
 ?>

@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Admin\Permissions;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
@@ -29,18 +28,6 @@ use SMF\Utils;
  */
 class ShowPermissions implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'showPermissions' => 'showPermissions',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -316,11 +303,6 @@ class ShowPermissions implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ShowPermissions::exportStatic')) {
-	ShowPermissions::exportStatic();
 }
 
 ?>

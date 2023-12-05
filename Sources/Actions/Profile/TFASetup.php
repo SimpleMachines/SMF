@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
@@ -30,18 +29,6 @@ use SMF\Utils;
  */
 class TFASetup implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'tfasetup',
-		],
-	];
 
 	/*********************
 	 * Internal properties
@@ -190,11 +177,6 @@ class TFASetup implements ActionInterface
 		Utils::$context['tfa_secret'] = $secret;
 		Utils::$context['tfa_backup'] = isset($_REQUEST['backup']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TFASetup::exportStatic')) {
-	TFASetup::exportStatic();
 }
 
 ?>

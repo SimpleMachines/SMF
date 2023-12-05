@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Who;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IP;
@@ -32,18 +31,6 @@ use SMF\Utils;
  */
 class Summary implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'summary' => 'summary',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -313,11 +300,6 @@ class Summary implements ActionInterface
 		// Can the viewer see this member's IP address?
 		Utils::$context['can_see_ip'] = User::$me->allowedTo('moderate_forum');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Summary::exportStatic')) {
-	Summary::exportStatic();
 }
 
 ?>

@@ -35,18 +35,6 @@ use SMF\Utils;
  */
 class Main implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'modifyProfile' => 'ModifyProfile',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -998,11 +986,6 @@ class Main implements ActionInterface
 
 		Utils::$context['require_password'] = $this->check_password;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Main::exportStatic')) {
-	Main::exportStatic();
 }
 
 ?>

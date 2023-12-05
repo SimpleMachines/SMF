@@ -19,6 +19,7 @@ namespace SMF;
 class Utils
 {
 	use BackwardCompatibility;
+
 	/**
 	 * @var array
 	 *

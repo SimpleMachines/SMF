@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\AttachmentDownload;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Profile;
@@ -26,18 +25,6 @@ use SMF\Utils;
  */
 class ExportAttachment implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'export_attachment',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -177,11 +164,6 @@ class ExportAttachment implements ActionInterface
 
 		$this->attach = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ExportAttachment::exportStatic')) {
-	ExportAttachment::exportStatic();
 }
 
 ?>

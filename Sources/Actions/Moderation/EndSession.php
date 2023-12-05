@@ -14,7 +14,6 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Utils;
 
 /**
@@ -23,19 +22,6 @@ use SMF\Utils;
  */
 class EndSession implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModEndSession',
-		],
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -106,11 +92,6 @@ class EndSession implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\EndSession::exportStatic')) {
-	EndSession::exportStatic();
 }
 
 ?>

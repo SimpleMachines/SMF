@@ -29,19 +29,6 @@ use SMF\Utils;
  */
 class GroupMembership implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'groupMembership',
-			'groupMembership2' => 'groupMembership2',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -303,6 +290,7 @@ class GroupMembership implements ActionInterface
 	 */
 	public static function groupMembership2(int $memID): string
 	{
+		// todo: fix return type
 		$u = $_REQUEST['u'] ?? null;
 		$_REQUEST['u'] = $memID;
 
@@ -482,11 +470,6 @@ class GroupMembership implements ActionInterface
 			[],
 		);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\GroupMembership::exportStatic')) {
-	GroupMembership::exportStatic();
 }
 
 ?>

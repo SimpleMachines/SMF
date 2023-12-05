@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\PageIndex;
@@ -29,18 +28,6 @@ use SMF\Utils;
  */
 class ShowAlerts implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'showAlerts' => 'showAlerts',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -267,11 +254,6 @@ class ShowAlerts implements ActionInterface
 			Utils::redirectexit('action=profile;u=' . Profile::$member->id);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ShowAlerts::exportStatic')) {
-	ShowAlerts::exportStatic();
 }
 
 ?>

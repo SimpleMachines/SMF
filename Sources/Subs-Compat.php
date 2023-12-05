@@ -13,7 +13,7 @@
  *
  * @version 3.0 Alpha 1
  */
-namespace SMF;
+use SMF\Actions;
 use SMF\Punycode;
 
 if (!defined('SMF')) {
@@ -25,7 +25,7 @@ if (!defined('SMF')) {
  *********************************************/
 
 
-if (!empty(Config::$backward_compatibility)) {
+if (!empty(SMF\Config::$backward_compatibility)) {
 	/*
 	 * In SMF 2.x, there was a file named Subs.php that was always loaded early in
 	 * the startup process and that contained many utility functions. Everything
@@ -50,7 +50,7 @@ if (!empty(Config::$backward_compatibility)) {
 
 	function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
 	{
-		return Utils::sanitizeChars($string, $level, $substitute);
+		return SMF\Utils::sanitizeChars($string, $level, $substitute);
 	}
 	function Activate()
 	{
@@ -1044,7 +1044,7 @@ if (!empty(Config::$backward_compatibility)) {
 	{
 		return Actions\Admin\Server::modifyLoadBalancingSettings($return_config);
 	}
-	function ShowPHPinfoSettings():void
+	function ShowPHPinfoSettings(): void
 	{
 		Actions\Admin\Server::showPHPinfoSettings();
 	}
@@ -1269,6 +1269,719 @@ if (!empty(Config::$backward_compatibility)) {
 	{
 		return Actions\Admin\Warnings::modifyWarningSettings($return_config);
 	}
+	/**
+	 * End
+	 * Actions\Admin\Warnings
+	 *
+	 * Begin
+	 * Actions\Moderation\EndSession
+	 */
+	function ModEndSession(): void
+	{
+		Actions\Moderation\EndSession::call();
+	}
+	/**
+	 * End
+	 * Actions\Moderation\EndSession
+	 *
+	 * Begin
+	 * Actions\Moderation\Home
+	 */
+	function ModerationHome(): void
+	{
+		Actions\Moderation\Home::call();
+	}
+	/**
+	 * End
+	 * Actions\Moderation\Home
+	 *
+	 * Begin
+	 * Actions\Moderation\Logs
+	 */
+	function ViewModlog(): void
+	{
+		Actions\Moderation\Logs::call();
+	}
+	function list_getModLogEntryCount(
+		string $query_string = '',
+		array $query_params = [],
+		int $log_type = 1,
+		bool $ignore_boards = false
+	): int {
+		return Actions\Moderation\Logs::list_getModLogEntryCount(
+			$query_string,
+			$query_params,
+			$log_type,
+			$ignore_boards
+		);
+	}
+	function list_getModLogEntries(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $query_string = '',
+		array $query_params = [],
+		int $log_type = 1,
+		bool $ignore_boards = false
+	): array {
+		return Actions\Moderation\Logs::list_getModLogEntries(
+			$start,
+			$items_per_page,
+			$sort,
+			$query_string,
+			$query_params,
+			$log_type,
+			$ignore_boards
+		);
+	}
+	/**
+	 * End
+	 * Actions\Moderation\Logs
+	 *
+	 * Begin
+	 * Actions\Moderation\Main
+	 */
+	function checkAccessPermissions(): void
+	{
+		Actions\Moderation\Main::checkAccessPermissions();
+	}
+	function ModerationMail(bool $dont_call = false): void
+	{
+		Actions\Moderation\Main::ModerationMain($dont_call);
+	}
+	/**
+	 * End
+	 * Actions\Moderation\Main
+	 *
+	 * Begin
+	 * Actions\Moderation\Posts
+	 */
+	function PostModerationMain(): void
+	{
+		Actions\Moderation\Posts::call();
+	}
+	function approveAllData(): void
+	{
+		Actions\Moderation\Posts::approveAllData();
+	}
+	function list_getUnapprovedAttachments(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $approve_query
+	): array {
+		return Actions\Moderation\Posts::list_getUnapprovedAttachments(
+			$start,
+			$items_per_page,
+			$sort,
+			$approve_query
+		);
+	}
+	function list_getNumUnapprovedAttachments(string $approve_query): int
+	{
+		return Actions\Moderation\Posts::list_getNumUnapprovedAttachments($approve_query);
+	}
+	function UnapprovedPosts(): void
+	{
+		Actions\Moderation\Posts::unapprovedPosts();
+	}
+	function UnapprovedAttachments(): void
+	{
+		Actions\Moderation\Posts::unapprovedAttachments();
+	}
+	function ApproveMessage(): void
+	{
+		Actions\Moderation\Posts::approveMessage();
+	}
+	/**
+	 * End
+	 * Actions\Moderation\Posts
+	 *
+	 * Begin
+	 * Actions\Moderation\ReportedContent
+	 */
+	function ReportedContent(): void
+	{
+		Actions\Moderation\ReportedContent::call();
+	}
+	function recountOpenReports(string $type): int
+	{
+		return Actions\Moderation\ReportedContent::recountOpenReports($type);
+	}
+	function ShowReports(): void
+	{
+		Actions\Moderation\ReportedContent::showReports();
+	}
+	function ShowClosedReports(): void
+	{
+		Actions\Moderation\ReportedContent::showClosedReports();
+	}
+	function ReportDetails(): void
+	{
+		Actions\Moderation\ReportedContent::reportDetails();
+	}
+	function HandleReport(): void
+	{
+		Actions\Moderation\ReportedContent::handleReport();
+	}
+	function HandleComment(): void
+	{
+		Actions\Moderation\ReportedContent::handleComment();
+	}
+	function EditComment(): void
+	{
+		Actions\Moderation\ReportedContent::editComment();
+	}
+	/**
+	 * End
+	 * Actions\Moderation\ReportedContent
+	 *
+	 * Begin
+	 * Actions\Moderation\ShowNotice
+	 */
+	function ShowNotice(): void
+	{
+		Actions\Moderation\ShowNotice::call();
+	}
+	/**
+	 * End
+	 * Actions\Moderation\ShowNotice
+	 *
+	 * Begin
+	 * Actions\Moderation\Warnings
+	 */
+	function ViewWarnings(): void
+	{
+		Actions\Moderation\Warnings::call();
+	}
+	function list_getWarningCount(): int
+	{
+		return Actions\Moderation\Warnings::list_getWarningCount();
+	}
+	function list_getWarnings(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Moderation\Warnings::list_getWarnings($start, $items_per_page, $sort);
+	}
+	function list_getWarningTemplateCount(): int
+	{
+		return Actions\Moderation\Warnings::list_getWarningTemplateCount();
+	}
+	function list_getWarningTemplates(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Moderation\Warnings::list_getWarningTemplates($start, $items_per_page, $sort);
+	}
+	function ViewWarningLog(): void
+	{
+		Actions\Moderation\Warnings::ViewWarningLog();
+	}
+	function ViewWarningTemplates(): void
+	{
+		Actions\Moderation\Warnings::ViewWarningTemplates();
+	}
+	function ModifyWarningTemplate(): void
+	{
+		Actions\Moderation\Warnings::ModifyWarningTemplate();
+	}
+	/**
+	 * End
+	 * Actions\Moderation\Warnings
+	 *
+	 * Begin
+	 * Actions\Moderation\WatchedUsers
+	 */
+	function ViewWatchedUsers(): void
+	{
+		Actions\Moderation\WatchedUsers::call();
+	}
+	function list_getWatchedUserCount(string $approve_query): int
+	{
+		return Actions\Moderation\WatchedUsers::list_getWatchedUserCount($approve_query);
+	}
+	function list_getWatchedUsers(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $approve_query,
+		string $dummy
+	): array {
+		return Actions\Moderation\WatchedUsers::list_getWatchedUsers(
+			$start,
+			$items_per_page,
+			$sort,
+			$approve_query,
+			$dummy
+		);
+	}
+	function list_getWatchedUserPostsCount(string $approve_query): int
+	{
+		return Actions\Moderation\WatchedUsers::list_getWatchedUserPostsCount($approve_query);
+	}
+	function list_getWatchedUserPosts(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $approve_query,
+		array $delete_boards
+	): array {
+		return Actions\Moderation\WatchedUsers::list_getWatchedUserPosts(
+			$start,
+			$items_per_page,
+			$sort,
+			$approve_query,
+			$delete_boards
+		);
+	}
+	/**
+	 * End
+	 * Actions\Moderation\WatchedUsers
+	 *
+	 * Begin
+	 * Actions\Profile\Account
+	 */
+	function account(): void
+	{
+		Actions\Profile\Account::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\Account
+	 *
+	 * Begin
+	 * Actions\Profile\Activate
+	 */
+	function activateAccount(): void
+	{
+		Actions\Profile\Activate::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\Activate
+	 *
+	 * Begin
+	 * Actions\Profile\AlertsPopup
+	 */
+	function alerts_popup(): void
+	{
+		Actions\Profile\AlertsPopup::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\AlertsPopup
+	 *
+	 * Begin
+	 * Actions\Profile\BuddyIgnoreLists
+	 */
+	function editBuddyIgnoreLists(): void
+	{
+		Actions\Profile\BuddyIgnoreLists::call();
+	}
+	function editBuddies(int $memID): void
+	{
+		Actions\Profile\BuddyIgnoreLists::editBuddies($memID);
+	}
+	function editIgnoreList(int $memID): void
+	{
+		Actions\Profile\BuddyIgnoreLists::editIgnoreList($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\BuddyIgnoreLists
+	 *
+	 * Begin
+	 * Actions\Profile\Delete
+	 */
+	function deleteAccount(): void
+	{
+		Actions\Profile\Delete::call();
+	}
+	function deleteAccount2(int $memID): void
+	{
+		Actions\Profile\Delete::deleteAccount2($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\Delete
+	 *
+	 * Begin
+	 * Actions\Profile\Export
+	 */
+	function export_profile_data(): void
+	{
+		Actions\Profile\Export::call();
+	}
+	function create_export_dir(string $fallback = ''): string|bool
+	{
+		return Actions\Profile\Export::createDir($fallback);
+	}
+	function get_export_formats(): array
+	{
+		return Actions\Profile\Export::getFormats();
+	}
+	/**
+	 * End
+	 * Actions\Profile\Export
+	 *
+	 * Begin
+	 * Actions\Profile\ExportAttachment
+	 */
+	function export_attachment(): void
+	{
+		Actions\Profile\ExportAttachment::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\ExportAttachment
+	 *
+	 * Begin
+	 * Actions\Profile\ExportDownload
+	 */
+	function download_export_file(): void
+	{
+		Actions\Profile\ExportDownload::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\ExportDownload
+	 *
+	 * Begin
+	 * Actions\Profile\ForumProfile
+	 */
+	function forumProfile(): void
+	{
+		Actions\Profile\ForumProfile::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\ForumProfile
+	 *
+	 * Begin
+	 * Actions\Profile\GroupMembership
+	 */
+	function groupMembership(): void
+	{
+		Actions\Profile\GroupMembership::call();
+	}
+	function groupMembership2(int $memID): string
+	{
+		return Actions\Profile\GroupMembership::groupMembership2($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\GroupMembership
+	 *
+	 * Begin
+	 * Actions\Profile\IgnoreBoards
+	 */
+	function ignoreboards(): void
+	{
+		Actions\Profile\IgnoreBoards::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\IgnoreBoards
+	 *
+	 * Begin
+	 * Actions\Profile\IssueWarning
+	 */
+	function list_getUserWarnings(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Profile\IssueWarning::list_getUserWarnings($start, $items_per_page, $sort);
+	}
+	function list_getUserWarningCount(): int
+	{
+		return Actions\Profile\IssueWarning::list_getUserWarningCount();
+	}
+	function issueWarning(int $memID): void
+	{
+		Actions\Profile\IssueWarning::issueWarning($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\IssueWarning
+	 *
+	 * Begin
+	 * Actions\Profile\Main
+	 */
+	function ModifyProfile(): void
+	{
+		Actions\Profile\Main::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\Main
+	 *
+	 * Begin
+	 * Actions\Profile\Notification
+	 */
+	function notification(): void
+	{
+		Actions\Profile\Notification::call();
+	}
+	function list_getTopicNotificationCount(): int
+	{
+		return Actions\Profile\Notification::list_getTopicNotificationCount();
+	}
+	function list_getTopicNotifications(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Profile\Notification::list_getTopicNotifications($start, $items_per_page, $sort);
+	}
+	function list_getBoardNotifications(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Profile\Notification::list_getBoardNotifications($start, $items_per_page, $sort);
+	}
+	function alert_configuration(int $memID, bool $defaultSettings = false): void
+	{
+		Actions\Profile\Notification::alert_configuration($memID, $defaultSettings);
+	}
+	function alert_markread(int $memID):  void
+	{
+		Actions\Profile\Notification::alert_markread($memID);
+	}
+	function alert_notifications_topics(int $memID): void
+	{
+		Actions\Profile\Notification::alert_notifications_topics($memID);
+	}
+	function alert_notifications_boards(int $memID): void
+	{
+		Actions\Profile\Notification::alert_notifications_boards($memID);
+	}
+	function makeNotificationChanges(int $memID): void
+	{
+		Actions\Profile\Notification::makeNotificationChanges($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\Notification
+	 *
+	 * Begin
+	 * Actions\Profile\PaidSubs
+	 */
+	function subscriptions(): void
+	{
+		Actions\Profile\PaidSubs::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\PaidSubs
+	 *
+	 * Begin
+	 * Actions\Profile\Popup
+	 */
+	function profile_popup(): void
+	{
+		Actions\Profile\Popup::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\Popup
+	 *
+	 * Begin
+	 * Actions\Profile\ShowAlerts
+	 */
+	function showAlerts(int $memID): void
+	{
+		Actions\Profile\ShowAlerts::showAlerts($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\ShowAlerts
+	 *
+	 * Begin
+	 * Actions\Profile\ShowPermissions
+	 */
+	function showPermissions(int $memID): void
+	{
+		Actions\Profile\ShowPermissions::showPermissions($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\ShowPermissions
+	 *
+	 * Begin
+	 * Actions\Profile\ShowPost
+	 */
+	function list_getUnwatched(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Profile\ShowPosts::list_getUnwatched($start, $items_per_page, $sort);
+	}
+	function list_getNumUnwatched(): int
+	{
+		return Actions\Profile\ShowPosts::list_getNumUnwatched();
+	}
+	function list_getAttachments(int $start, int $items_per_page, string $sort, array $boards_allowed): array
+	{
+		return Actions\Profile\ShowPosts::list_getAttachments($start, $items_per_page, $sort, $boards_allowed);
+	}
+	function list_getNumAttachments(array $boards_allowed): int
+	{
+		return Actions\Profile\ShowPosts::list_getNumAttachments($boards_allowed);
+	}
+	function showPosts(int $memID): void
+	{
+		Actions\Profile\ShowPosts::showPosts($memID);
+	}
+	function showUnwatched(int $memID): void
+	{
+		Actions\Profile\ShowPosts::showUnwatched($memID);
+	}
+	function showAttachments(int $memID): void
+	{
+		Actions\Profile\ShowPosts::showAttachments($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\ShowPosts
+	 *
+	 * Begin
+	 * Actions\Profile\StatPanel
+	 */
+	function statPanel(int $memID): void
+	{
+		Actions\Profile\StatPanel::statPanel($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\StatPanel
+	 *
+	 * Begin
+	 * Actions\Profile\Summary
+	 */
+	function summary(int $memID): void
+	{
+		Actions\Profile\Summary::summary($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\Summary
+	 *
+	 * Begin
+	 * Actions\Profile\TFADisable
+	 */
+	function tfadisable(): void
+	{
+		Actions\Profile\TFADisable::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\TFDADisable
+	 *
+	 * Begin
+	 * Actions\Profile\TFASetup
+	 */
+	function tfasetup(): void
+	{
+		Actions\Profile\TFASetup::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\TFASetup
+	 *
+	 * Begin
+	 * Actions\Profile\ThemeOptions
+	 */
+	function theme(): void
+	{
+		Actions\Profile\ThemeOptions::call();
+	}
+	/**
+	 * End
+	 * Actions\Profile\ThemeOptions
+	 *
+	 * Begin
+	 * Actions\Profile\Tracking
+	 */
+	function tracking(): void
+	{
+		Actions\Profile\Tracking::call();
+	}
+	function list_getUserErrors(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $where,
+		array $where_vars = []
+	): array {
+		return Actions\Profile\Tracking::list_getUserErrors(
+			$start,
+			$items_per_page,
+			$sort,
+			$where,
+			$where_vars
+		);
+	}
+	function list_getUserErrorCount(string $where, array $where_vars = []): int
+	{
+		return Actions\Profile\Tracking::list_getUserErrorCount($where, $where_vars);
+	}
+	function list_getProfileEdits(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Profile\Tracking::list_getProfileEdits($start, $items_per_page, $sort);
+	}
+	function list_getProfileEditCount(): int
+	{
+		return Actions\Profile\Tracking::list_getProfileEditCount();
+	}
+	function list_getGroupRequests(int $start, int $items_per_page, string $sort): array
+	{
+		return Actions\Profile\Tracking::list_getGroupRequests($start, $items_per_page, $sort);
+	}
+	function list_getGroupRequestsCount(): int
+	{
+		return Actions\Profile\Tracking::list_getGroupRequestsCount();
+	}
+	function list_getLogins(
+		int $start,
+		int $items_per_page,
+		string $sort,
+		string $where,
+		array $where_vars = []
+	): array {
+		return Actions\Profile\Tracking::list_getLogins(
+			$start,
+			$items_per_page,
+			$sort,
+			$where,
+			$where_vars
+		);
+	}
+	function list_getLoginCount(string $where, array $where_vars = []): int
+	{
+		return Actions\Profile\Tracking::list_getLoginCount($where, $where_vars);
+	}
+	function trackActivity(int $memID): void
+	{
+		Actions\Profile\Tracking::trackActivity($memID);
+	}
+	function trackEdits(int $memID): void
+	{
+		Actions\Profile\Tracking::trackEdits($memID);
+	}
+	function trackGroupReq(int $memID): void
+	{
+		Actions\Profile\Tracking::trackGroupReq($memID);
+	}
+	function TrackLogins(int $memID): void
+	{
+		Actions\Profile\Tracking::trackLogins($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\Tracking
+	 *
+	 * Begin
+	 * Actions\Profile\ViewWarning
+	 */
+	function viewWarning(int $memID): void
+	{
+		Actions\Profile\ViewWarning::viewWarning($memID);
+	}
+	/**
+	 * End
+	 * Actions\Profile\ViewWarning
+	 *
+	 * Begin
+	 * Actions
+	 */
 }
 
 /***************************

@@ -16,7 +16,6 @@ namespace SMF\Actions\Profile;
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Notify;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -36,26 +35,6 @@ use SMF\Utils;
  */
 class Notification implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'notification',
-			'list_getTopicNotificationCount' => 'list_getTopicNotificationCount',
-			'list_getTopicNotifications' => 'list_getTopicNotifications',
-			'list_getBoardNotifications' => 'list_getBoardNotifications',
-			'alert_configuration' => 'alert_configuration',
-			'alert_markread' => 'alert_markread',
-			'alert_notifications_topics' => 'alert_notifications_topics',
-			'alert_notifications_boards' => 'alert_notifications_boards',
-			'makeNotificationChanges' => 'makeNotificationChanges',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -617,7 +596,7 @@ class Notification implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
-			$thid->changeNotifications();
+			$this->changeNotifications();
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 		}
 
@@ -1188,11 +1167,6 @@ class Notification implements ActionInterface
 			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Notification::exportStatic')) {
-	Notification::exportStatic();
 }
 
 ?>

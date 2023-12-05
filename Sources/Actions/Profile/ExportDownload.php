@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -24,19 +23,6 @@ use SMF\Utils;
  */
 class ExportDownload implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'download_export_file',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -252,11 +238,6 @@ class ExportDownload implements ActionInterface
 
 		return $dlfilename . $suffix . '.' . $this->extension;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ExportDownload::exportStatic')) {
-	ExportDownload::exportStatic();
 }
 
 ?>

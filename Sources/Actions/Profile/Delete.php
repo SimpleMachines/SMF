@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Logout;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -31,20 +30,6 @@ use SMF\Utils;
  */
 class Delete implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'deleteAccount',
-			'deleteAccount2' => 'deleteAccount2',
-		],
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -320,11 +305,6 @@ class Delete implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Delete::exportStatic')) {
-	Delete::exportStatic();
 }
 
 ?>

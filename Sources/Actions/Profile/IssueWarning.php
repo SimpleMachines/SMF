@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -33,20 +32,6 @@ use SMF\Utils;
  */
 class IssueWarning implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'list_getUserWarnings' => 'list_getUserWarnings',
-			'list_getUserWarningCount' => 'list_getUserWarningCount',
-			'issueWarning' => 'issueWarning',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -605,11 +590,6 @@ class IssueWarning implements ActionInterface
 			'body_preview' => $warning_body,
 		];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\IssueWarning::exportStatic')) {
-	IssueWarning::exportStatic();
 }
 
 ?>
