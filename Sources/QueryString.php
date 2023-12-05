@@ -51,11 +51,6 @@ class QueryString
 	 */
 	public static function cleanRequest(): void
 	{
-		// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
-		$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'SMF\\Utils::unescapestringRecursive' : 'SMF\\Utils::stripslashesRecursive';
-
-		$magicQuotesEnabled = version_compare(PHP_VERSION, '7.4.0') == -1 && function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty(Config::$modSettings['integrate_magic_quotes']);
-
 		// Save some memory.. (since we don't use these anyway.)
 		unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_FILES'], $GLOBALS['HTTP_POST_FILES']);
 
@@ -102,16 +97,7 @@ class QueryString
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 			// @todo smflib
 			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
-
-			// Magic quotes still applies with parse_str - so clean it up.
-			if ($magicQuotesEnabled) {
-				$_GET = $removeMagicQuoteFunction($_GET);
-			}
 		} elseif (strpos(ini_get('arg_separator.input'), ';') !== false) {
-			if ($magicQuotesEnabled) {
-				$_GET = $removeMagicQuoteFunction($_GET);
-			}
-
 			// Search engines will send action=profile%3Bu=1, which confuses PHP.
 			foreach ($_GET as $k => $v) {
 				if ((string) $v === $v && strpos($k, ';') !== false) {
@@ -149,24 +135,7 @@ class QueryString
 			if (strpos($request, basename(Config::$scripturl) . '/') !== false) {
 				parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename(Config::$scripturl)) + strlen(basename(Config::$scripturl)))), '/', '&')), 1), $temp);
 
-				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty(Config::$modSettings['integrate_magic_quotes'])) {
-					$temp = $removeMagicQuoteFunction($temp);
-				}
-
 				$_GET += $temp;
-			}
-		}
-
-		// If magic quotes is on we have some work...
-		if ($magicQuotesEnabled) {
-			$_ENV = $removeMagicQuoteFunction($_ENV);
-			$_POST = $removeMagicQuoteFunction($_POST);
-			$_COOKIE = $removeMagicQuoteFunction($_COOKIE);
-
-			foreach ($_FILES as $k => $dummy) {
-				if (isset($_FILES[$k]['name'])) {
-					$_FILES[$k]['name'] = $removeMagicQuoteFunction($_FILES[$k]['name']);
-				}
 			}
 		}
 
@@ -317,7 +286,7 @@ class QueryString
 				$valid_sender = false;
 
 				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
-					if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy)) {
+					if ($proxy == $_SERVER['REMOTE_ADDR'] || self::matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy)) {
 						$valid_sender = true;
 						break;
 					}

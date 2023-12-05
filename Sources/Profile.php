@@ -1689,19 +1689,19 @@ class Profile extends User implements \ArrayAccess
 		$additional_groups = array_unique($additional_groups);
 
 		// Do we need to protect some groups?
-		Group::getUnassignable();
+		$unassignable = Group::getUnassignable();
 
 		// The account page allows you to change your id_group - but not to a protected group!
-		if (!empty(Group::$unassignable) && in_array($value, Group::$unassignable) && !in_array($value, $this->groups)) {
+		if (!empty($unassignable) && in_array($value, $unassignable) && !in_array($value, $this->groups)) {
 			$value = $this->data['id_group'];
 		}
 
 		// Find the additional membergroups (if any).
 		// Never add group 0 or any protected groups that the user isn't already in.
-		$additional_groups = array_diff(array_filter(array_map('intval', $additional_groups)), array_diff(Group::$unassignable, $this->groups));
+		$additional_groups = array_diff(array_filter(array_map('intval', $additional_groups)), array_diff($unassignable, $this->groups));
 
 		// Put the protected groups back in there if you don't have permission to take them away.
-		$additional_groups = array_unique(array_merge($additional_groups, array_intersect($this->additional_groups, Group::$unassignable)));
+		$additional_groups = array_unique(array_merge($additional_groups, array_intersect($this->additional_groups, $unassignable)));
 
 		// Don't include the primary group in the additional groups.
 		$additional_groups = array_diff($additional_groups, [$value]);
@@ -2170,7 +2170,7 @@ class Profile extends User implements \ArrayAccess
 		self::$member->save();
 
 		if (!empty($return_errors)) {
-			return $this->cf_save_errors;
+			return self::$member->cf_save_errors;
 		}
 	}
 	/**
@@ -3084,7 +3084,7 @@ class Profile extends User implements \ArrayAccess
 		$emaildata = Mail::loadEmailTemplate('change_password', $replacements, $this->language);
 
 		// Send them the email informing them of the change - then we're done!
-		Mail::send($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $this->id, $emaildata['is_html'], 0);
+		Mail::send($this->email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $this->id, $emaildata['is_html'], 0);
 	}
 
 	/*************************

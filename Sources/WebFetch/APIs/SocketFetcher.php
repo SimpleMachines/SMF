@@ -94,6 +94,27 @@ class SocketFetcher extends WebFetchApi
 	private bool $keep_alive;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether the response is transfered as chunked data.
+	 */
+	private bool $is_chunked = false;
+
+	/**
+	 * @var int
+	 *
+	 * Whether to keep the socket connection open after the initial request.
+	 */
+	private int $buffer_size = 4096;
+
+	/**
+	 * @var string
+	 *
+	 * The line break
+	 */
+	private string $line_break = "\r\n";
+
+	/**
 	 * @var resource
 	 *
 	 * File pointer for the open socket connection.
@@ -188,19 +209,19 @@ class SocketFetcher extends WebFetchApi
 
 		// I want this, from there, and I may or may not bother you for more later.
 		if (empty($post_data)) {
-			fwrite($this->fp, 'GET ' . $path_and_query . ' HTTP/1.1' . "\r\n");
-			fwrite($this->fp, 'Host: ' . $url->host . "\r\n");
-			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . "\r\n");
-			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . "\r\n");
-			fwrite($this->fp, "\r\n");
+			fwrite($this->fp, 'GET ' . $path_and_query . ' HTTP/1.1' . $this->line_break);
+			fwrite($this->fp, 'Host: ' . $url->host . $this->line_break);
+			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break);
+			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break);
+			fwrite($this->fp, $this->line_break);
 		} else {
-			fwrite($this->fp, 'POST ' . $path_and_query . ' HTTP/1.1' . "\r\n");
-			fwrite($this->fp, 'Host: ' . $url->host . "\r\n");
-			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . "\r\n");
-			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . "\r\n");
-			fwrite($this->fp, 'Content-Type: application/x-www-form-urlencoded' . "\r\n");
-			fwrite($this->fp, 'Content-Length: ' . strlen($post_data) . "\r\n");
-			fwrite($this->fp, "\r\n");
+			fwrite($this->fp, 'POST ' . $path_and_query . ' HTTP/1.1' . $this->line_break);
+			fwrite($this->fp, 'Host: ' . $url->host . $this->line_break);
+			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break);
+			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break);
+			fwrite($this->fp, 'Content-Type: application/x-www-form-urlencoded' . $this->line_break);
+			fwrite($this->fp, 'Content-Length: ' . strlen($post_data) . $this->line_break);
+			fwrite($this->fp, $this->line_break);
 			fwrite($this->fp, $post_data);
 		}
 
@@ -220,7 +241,7 @@ class SocketFetcher extends WebFetchApi
 
 		// Redirect if the resource has been permanently or temporarily moved.
 		if ($this->current_redirect < $this->max_redirect && in_array($http_code, [301, 302, 307])) {
-			while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '') {
+			while (!feof($this->fp) && trim($header = fgets($this->fp, $this->buffer_size)) != '') {
 				$this->response[$this->current_redirect]['headers'][] = $header;
 
 				if (stripos($header, 'location:') !== false) {
@@ -252,13 +273,15 @@ class SocketFetcher extends WebFetchApi
 		}
 
 		// Skip the headers...
-		while (!feof($this->fp) && trim($header = fgets($this->fp, 4096)) != '') {
+		while (!feof($this->fp) && trim($header = fgets($this->fp, $this->buffer_size)) != '') {
 			$this->response[$this->current_redirect]['headers'][] = $header;
 
 			if (preg_match('~Content-Length:\s*(\d+)~i', $header, $match)) {
 				$content_length = $match[1];
 			} elseif (preg_match('~Connection:\s*Close~i', $header)) {
 				$this->keep_alive = false;
+			} elseif (preg_match('~Transfer-Encoding:\s*[\w,\s]+chunked~i', $header)) {
+				$this->is_chunked = true;
 			}
 
 			continue;
@@ -266,14 +289,61 @@ class SocketFetcher extends WebFetchApi
 
 		$body = '';
 
-		if (isset($content_length)) {
-			while (!feof($this->fp) && strlen($body) < $content_length) {
-				$body .= fread($this->fp, $content_length - strlen($body));
+		// Chunky soup.
+		if ($this->is_chunked) {
+			do {
+				$line = fgets($this->fp, $this->buffer_size);
+		
+				// Encounted a line feed, skip.
+				if ($line === $this->line_break) {
+					continue;
+				}
+		
+				// Try to see if this is a chunked data
+				$length = hexdec($line);
+				if (!is_int($length)) {
+					break;
+				}
+		
+				// We ran out of data.
+				if ($line === false || $length < 1 || feof($this->fp)) {
+					break;
+				}
+		
+				// Read the next chunk.
+				do {
+					if (isset($content_length)) {
+						$data = fread($this->fp, $content_length);
+					}
+					else {
+						$data = fread($this->fp, $length);	
+					}
+
+					$body .= $data;
+					$length -= strlen($data);
+
+					if (isset($content_length)) {
+						$content_length -= strlen($data);
+					}
+		
+					// No more chunked data.
+					if ($length <= 0 || feof($this->fp)) {
+						break;
+					}
+				}
+				while (true);
 			}
+			while (true);		
 		} else {
-			while (!feof($this->fp)) {
-				$body .= fread($this->fp, 4096);
-			}
+			if (isset($content_length)) {
+				while (!feof($this->fp) && strlen($body) < $content_length) {
+					$body .= fread($this->fp, $content_length - strlen($body));
+				}
+			} else {
+				while (!feof($this->fp)) {
+					$body .= fread($this->fp, $this->buffer_size);
+				}
+			}	
 		}
 
 		$this->response[$this->current_redirect]['success'] = true;

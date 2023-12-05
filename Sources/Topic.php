@@ -288,7 +288,7 @@ class Topic implements \ArrayAccess
 	public static $topic_id;
 
 	/**
-	 * @var int
+	 * @var SMF\Topic
 	 *
 	 * Instance of this class for the requested topic.
 	 */
@@ -549,7 +549,7 @@ class Topic implements \ArrayAccess
 	{
 		if (!isset($id)) {
 			if (empty(self::$topic_id)) {
-				ErrorHandler::fatalLang('not_a_topic', false, 404);
+				ErrorHandler::fatalLang('not_a_topic', false, [], 404);
 			}
 
 			$id = self::$topic_id;
@@ -1555,7 +1555,7 @@ class Topic implements \ArrayAccess
 		);
 
 		if (Db::$db->num_rows($request) == 0) {
-			ErrorHandler::fatalLang('not_a_topic', false, 404);
+			ErrorHandler::fatalLang('not_a_topic', false, [], 404);
 		}
 		$this->set(Db::$db->fetch_assoc($request));
 		Db::$db->free_result($request);

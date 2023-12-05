@@ -222,7 +222,7 @@ class Mail
 							return false;
 						}
 
-						throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+						throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 					},
 				);
 
@@ -231,7 +231,7 @@ class Mail
 						ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
 						$mail_result = false;
 					}
-				} catch (ErrorException $e) {
+				} catch (\ErrorException $e) {
 					ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
 					ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
 					$mail_result = false;

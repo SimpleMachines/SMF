@@ -2351,13 +2351,13 @@ class Config
 		// Handle eval errors gracefully in all PHP versions.
 		try {
 			if ($settingsText !== '' && @eval($settingsText) === false) {
-				throw new ErrorException('eval error');
+				throw new \ErrorException('eval error');
 			}
 
 			unset($mtime, $settingsFile, $settingsText);
 			$defined_vars = get_defined_vars();
-		} catch (Throwable $e) {
-		} catch (ErrorException $e) {
+		} catch (\Throwable $e) {
+		} catch (\ErrorException $e) {
 		}
 
 		if (isset($e)) {

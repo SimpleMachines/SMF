@@ -75,7 +75,7 @@ class Logging
 	 */
 	public static function logAction($action, array $extra = [], $log_type = 'moderate'): int
 	{
-		return logActions([[
+		return self::logActions([[
 			'action' => $action,
 			'log_type' => $log_type,
 			'extra' => $extra,
