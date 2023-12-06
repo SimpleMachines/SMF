@@ -263,6 +263,7 @@ $txt['theme_current_settings'] = 'Current Theme';
 
 $txt['dvc_your'] = 'Your version';
 $txt['dvc_current'] = 'Current version';
+$txt['dvc_root'] = 'Root';
 $txt['dvc_sources'] = 'Sources';
 $txt['dvc_default'] = 'Default Templates';
 $txt['dvc_templates'] = 'Current Templates';

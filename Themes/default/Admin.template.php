@@ -331,8 +331,46 @@ function template_view_versions()
 										</td>
 									</tr>';
 
+	// Now list all the root file versions, starting with the overall version (if all match!).
+	echo '
+									<tr class="windowbg">
+										<td class="half_table">
+											<a href="#" id="Root-link">', Lang::$txt['dvc_root'], '</a>
+										</td>
+										<td class="quarter_table">
+											<em id="yourRoot">??</em>
+										</td>
+										<td class="quarter_table">
+											<em id="currentRoot">??</em>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<table id="Root" class="table_grid">
+								<tbody>';
+
+	// Loop through every source file displaying its version - using javascript.
+	foreach (Utils::$context['root_versions'] as $filename => $version)
+		echo '
+									<tr class="windowbg">
+										<td class="half_table">
+											', $filename, '
+										</td>
+										<td class="quarter_table">
+											<em id="yourRoot', $filename, '">', $version, '</em>
+										</td>
+										<td class="quarter_table">
+											<em id="currentRoot', $filename, '">??</em>
+										</td>
+									</tr>';
+
 	// Now list all the source file versions, starting with the overall version (if all match!).
 	echo '
+								</tbody>
+							</table>
+							<table id="Root" class="table_grid">
+								<tbody>
 									<tr class="windowbg">
 										<td class="half_table">
 											<a href="#" id="Sources-link">', Lang::$txt['dvc_sources'], '</a>
