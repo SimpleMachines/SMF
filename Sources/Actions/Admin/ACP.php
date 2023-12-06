@@ -1558,12 +1558,12 @@ class ACP implements ActionInterface
 				}
 				// Not found!  This is bad.
 				else {
-					$version_info['file_versions'][$file] = '??';
+					$version_info['root_versions'][$file] = '??';
 				}
 			}
 		}
 
-		// Load all the files in the Sources directory, except this file and the redirect.
+		// Load all the files in the Sources directory, except some vendor libraires, index place holderes and non php files.
 		$sources_dir = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(
 				Config::$sourcedir,
