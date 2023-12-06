@@ -1578,8 +1578,9 @@ class ACP implements ActionInterface
 		];
 
 		foreach ($sources_dir as $filename => $file) {
-			if (!$file->isFile() || $file->getFilename() === 'index.php' || $file->getExtension() !== 'php')
+			if (!$file->isFile() || $file->getFilename() === 'index.php' || $file->getExtension() !== 'php') {
 				continue;
+			}
 			foreach ($ignore_sources as $if)
 				if (preg_match('~' . $if . '~i', $filename)){
 					continue 2;
