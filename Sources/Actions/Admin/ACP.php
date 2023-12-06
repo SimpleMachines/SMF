@@ -1551,7 +1551,7 @@ class ACP implements ActionInterface
 				$fp = fopen(Config::$boarddir . '/' . $file, 'rb');
 				$header = fread($fp, 4096);
 				fclose($fp);
-	
+
 				// The comment looks rougly like... that.
 				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 					$version_info['root_versions'][$file] = $match[1];
@@ -1576,7 +1576,7 @@ class ACP implements ActionInterface
 			Config::$sourcedir . '/ReCaptcha/*',
 			Config::$sourcedir . '/Tasks/*'
 		];
-		
+
 		foreach ($sources_dir as $filename => $file) {
 			if (!$file->isFile() || $file->getFilename() === 'index.php' || $file->getExtension() !== 'php')
 				continue;
