@@ -70,7 +70,7 @@ class AntiSpam implements ActionInterface
 		User::$me->isAllowedTo('admin_forum');
 
 		// Generate a sample registration image.
-		Utils::$context['verification_image_href'] = Config::$scripturl . '?action=verificationcode;rand=' . md5(mt_rand());
+		Utils::$context['verification_image_href'] = Config::$scripturl . '?action=verificationcode;rand=' . bin2hex(random_bytes(16));
 
 		// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
 		Lang::get();

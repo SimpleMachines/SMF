@@ -129,7 +129,7 @@ class Logout extends Login2
 		Cookie::setLoginCookie(-3600, 0);
 
 		// And some other housekeeping while we're at it.
-		$salt = bin2hex(Utils::randomBytes(16));
+		$salt = bin2hex(random_bytes(16));
 
 		if (!empty(User::$me->id)) {
 			User::updateMemberData(User::$me->id, ['password_salt' => $salt]);

@@ -1295,9 +1295,6 @@ function checkLogin()
 				$upcontext['user']['name'] = 'Administrator';
 			}
 
-			if (!is_callable('random_int'))
-				require_once('Sources/random_compat/random.php');
-
 			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
@@ -1438,7 +1435,7 @@ function UpgradeOptions()
 
 	// Add proxy settings.
 	if (!isset(Config::$image_proxy_secret) || Config::$image_proxy_secret == 'smfisawesome')
-		$changes['image_proxy_secret'] = substr(sha1(mt_rand()), 0, 20);
+		$changes['image_proxy_secret'] = bin2hex(random_bytes(10));
 	if (!isset(Config::$image_proxy_maxsize))
 		$changes['image_proxy_maxsize'] = 5190;
 	if (!isset(Config::$image_proxy_enabled))

@@ -4254,7 +4254,7 @@ class User implements \ArrayAccess
 	 */
 	public static function generateValidationCode(): string
 	{
-		return bin2hex(Utils::randomBytes(5));
+		return bin2hex(random_bytes(5));
 	}
 
 	/**
