@@ -13,8 +13,9 @@
  * This file contains helper functions for upgrade.php
  */
 
-if (!defined('SMF_VERSION'))
+if (!defined('SMF_VERSION')) {
 	die('No direct access!');
+}
 
 /**
  * Clean the cache using the SMF 2.1 CacheAPI.
@@ -34,36 +35,41 @@ function upgrade_clean_cache()
  */
 function getMemberGroups()
 {
-	static $member_groups = array();
+	static $member_groups = [];
 
-	if (!empty($member_groups))
+	if (!empty($member_groups)) {
 		return $member_groups;
+	}
 
-	$request = SMF\Db\DatabaseApi::$db->query('', '
-		SELECT groupName, id_group
+	$request = SMF\Db\DatabaseApi::$db->query(
+		'',
+		'SELECT groupName, id_group
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
-		array(
+		[
 			'admin_group' => 1,
 			'old_group' => 7,
 			'db_error_skip' => true,
-		)
+		],
 	);
-	if ($request === false)
-	{
-		$request = SMF\Db\DatabaseApi::$db->query('', '
-			SELECT membergroup, id_group
+
+	if ($request === false) {
+		$request = SMF\Db\DatabaseApi::$db->query(
+			'',
+			'SELECT membergroup, id_group
 			FROM {db_prefix}membergroups
 			WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
-			array(
+			[
 				'admin_group' => 1,
 				'old_group' => 7,
 				'db_error_skip' => true,
-			)
+			],
 		);
 	}
-	while ($row = SMF\Db\DatabaseApi::$db->fetch_row($request))
+
+	while ($row = SMF\Db\DatabaseApi::$db->fetch_row($request)) {
 		$member_groups[trim($row[0])] = $row[1];
+	}
 	SMF\Db\DatabaseApi::$db->free_result($request);
 
 	return $member_groups;
@@ -79,85 +85,89 @@ function makeFilesWritable(&$files)
 {
 	global $upcontext;
 
-	if (empty($files))
+	if (empty($files)) {
 		return true;
+	}
 
 	$failure = false;
+
 	// On linux, it's easy - just use is_writable!
-	if (substr(__FILE__, 1, 2) != ':\\')
-	{
+	if (substr(__FILE__, 1, 2) != ':\\') {
 		$upcontext['systemos'] = 'linux';
 
-		foreach ($files as $k => $file)
-		{
+		foreach ($files as $k => $file) {
 			// Some files won't exist, try to address up front
-			if (!file_exists($file))
+			if (!file_exists($file)) {
 				@touch($file);
+			}
+
 			// NOW do the writable check...
-			if (!is_writable($file))
-			{
+			if (!is_writable($file)) {
 				@chmod($file, 0755);
 
 				// Well, 755 hopefully worked... if not, try 777.
-				if (!is_writable($file) && !@chmod($file, 0777))
+				if (!is_writable($file) && !@chmod($file, 0777)) {
 					$failure = true;
+				}
 				// Otherwise remove it as it's good!
-				else
+				else {
 					unset($files[$k]);
-			}
-			else
+				}
+			} else {
 				unset($files[$k]);
+			}
 		}
 	}
 	// Windows is trickier.  Let's try opening for r+...
-	else
-	{
+	else {
 		$upcontext['systemos'] = 'windows';
 
-		foreach ($files as $k => $file)
-		{
+		foreach ($files as $k => $file) {
 			// Folders can't be opened for write... but the index.php in them can ;).
-			if (is_dir($file))
+			if (is_dir($file)) {
 				$file .= '/index.php';
+			}
 
 			// Funny enough, chmod actually does do something on windows - it removes the read only attribute.
 			@chmod($file, 0777);
 			$fp = @fopen($file, 'r+');
 
 			// Hmm, okay, try just for write in that case...
-			if (!$fp)
+			if (!$fp) {
 				$fp = @fopen($file, 'w');
+			}
 
-			if (!$fp)
+			if (!$fp) {
 				$failure = true;
-			else
+			} else {
 				unset($files[$k]);
+			}
 			@fclose($fp);
 		}
 	}
 
-	if (empty($files))
+	if (empty($files)) {
 		return true;
+	}
 
-	if (!isset($_SERVER))
+	if (!isset($_SERVER)) {
 		return !$failure;
+	}
 
 	// What still needs to be done?
 	$upcontext['chmod']['files'] = $files;
 
 	// If it's windows it's a mess...
-	if ($failure && substr(__FILE__, 1, 2) == ':\\')
-	{
+	if ($failure && substr(__FILE__, 1, 2) == ':\\') {
 		$upcontext['chmod']['ftp_error'] = 'total_mess';
 
 		return false;
 	}
+
 	// We're going to have to use... FTP!
-	elseif ($failure)
-	{
+	if ($failure) {
 		// Load any session data we might have...
-		if (!isset($_POST['ftp_username']) && isset($_SESSION['installer_temp_ftp']))
-		{
+		if (!isset($_POST['ftp_username']) && isset($_SESSION['installer_temp_ftp'])) {
 			$upcontext['chmod']['server'] = $_SESSION['installer_temp_ftp']['server'];
 			$upcontext['chmod']['port'] = $_SESSION['installer_temp_ftp']['port'];
 			$upcontext['chmod']['username'] = $_SESSION['installer_temp_ftp']['username'];
@@ -165,8 +175,7 @@ function makeFilesWritable(&$files)
 			$upcontext['chmod']['path'] = $_SESSION['installer_temp_ftp']['path'];
 		}
 		// Or have we submitted?
-		elseif (isset($_POST['ftp_username']))
-		{
+		elseif (isset($_POST['ftp_username'])) {
 			$upcontext['chmod']['server'] = $_POST['ftp_server'];
 			$upcontext['chmod']['port'] = $_POST['ftp_port'];
 			$upcontext['chmod']['username'] = $_POST['ftp_username'];
@@ -174,105 +183,111 @@ function makeFilesWritable(&$files)
 			$upcontext['chmod']['path'] = $_POST['ftp_path'];
 		}
 
-		require_once(\SMF\Config::$sourcedir . '/PackageManager/FtpConnection.php');
-		if (isset($upcontext['chmod']['username']))
-		{
+		require_once \SMF\Config::$sourcedir . '/PackageManager/FtpConnection.php';
+
+		if (isset($upcontext['chmod']['username'])) {
 			$ftp = new \SMF\PackageManager\FtpConnection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
 
-			if ($ftp->error === false)
-			{
+			if ($ftp->error === false) {
 				// Try it without /home/abc just in case they messed up.
-				if (!$ftp->chdir($upcontext['chmod']['path']))
-				{
+				if (!$ftp->chdir($upcontext['chmod']['path'])) {
 					$upcontext['chmod']['ftp_error'] = $ftp->last_message;
 					$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $upcontext['chmod']['path']));
 				}
 			}
 		}
 
-		if (!isset($ftp) || $ftp->error !== false)
-		{
-			if (!isset($ftp))
+		if (!isset($ftp) || $ftp->error !== false) {
+			if (!isset($ftp)) {
 				$ftp = new \SMF\PackageManager\FtpConnection(null);
+			}
 			// Save the error so we can mess with listing...
-			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error']))
+			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error'])) {
 				$upcontext['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
+			}
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+			list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
 
-			if ($found_path || !isset($upcontext['chmod']['path']))
+			if ($found_path || !isset($upcontext['chmod']['path'])) {
 				$upcontext['chmod']['path'] = $detect_path;
+			}
 
-			if (!isset($upcontext['chmod']['username']))
+			if (!isset($upcontext['chmod']['username'])) {
 				$upcontext['chmod']['username'] = $username;
+			}
 
 			// Don't forget the login token.
 			$upcontext += \SMF\SecurityToken::create('login');
 
 			return false;
 		}
-		else
-		{
+
+
 			// We want to do a relative path for FTP.
-			if (!in_array($upcontext['chmod']['path'], array('', '/')))
-			{
-				$ftp_root = strtr(\SMF\Config::$boarddir, array($upcontext['chmod']['path'] => ''));
-				if (substr($ftp_root, -1) == '/' && ($upcontext['chmod']['path'] == '' || $upcontext['chmod']['path'][0] === '/'))
+			if (!in_array($upcontext['chmod']['path'], ['', '/'])) {
+				$ftp_root = strtr(\SMF\Config::$boarddir, [$upcontext['chmod']['path'] => '']);
+
+				if (substr($ftp_root, -1) == '/' && ($upcontext['chmod']['path'] == '' || $upcontext['chmod']['path'][0] === '/')) {
 					$ftp_root = substr($ftp_root, 0, -1);
-			}
-			else
+				}
+			} else {
 				$ftp_root = \SMF\Config::$boarddir;
+			}
 
 			// Save the info for next time!
-			$_SESSION['installer_temp_ftp'] = array(
+			$_SESSION['installer_temp_ftp'] = [
 				'server' => $upcontext['chmod']['server'],
 				'port' => $upcontext['chmod']['port'],
 				'username' => $upcontext['chmod']['username'],
 				'password' => $upcontext['chmod']['password'],
 				'path' => $upcontext['chmod']['path'],
 				'root' => $ftp_root,
-			);
+			];
 
-			foreach ($files as $k => $file)
-			{
-				if (!is_writable($file))
+			foreach ($files as $k => $file) {
+				if (!is_writable($file)) {
 					$ftp->chmod($file, 0755);
-				if (!is_writable($file))
+				}
+
+				if (!is_writable($file)) {
 					$ftp->chmod($file, 0777);
+				}
 
 				// Assuming that didn't work calculate the path without the boarddir.
-				if (!is_writable($file))
-				{
-					if (strpos($file, \SMF\Config::$boarddir) === 0)
-					{
-						$ftp_file = strtr($file, array($_SESSION['installer_temp_ftp']['root'] => ''));
+				if (!is_writable($file)) {
+					if (strpos($file, \SMF\Config::$boarddir) === 0) {
+						$ftp_file = strtr($file, [$_SESSION['installer_temp_ftp']['root'] => '']);
 						$ftp->chmod($ftp_file, 0755);
-						if (!is_writable($file))
+
+						if (!is_writable($file)) {
 							$ftp->chmod($ftp_file, 0777);
+						}
 						// Sometimes an extra slash can help...
 						$ftp_file = '/' . $ftp_file;
-						if (!is_writable($file))
+
+						if (!is_writable($file)) {
 							$ftp->chmod($ftp_file, 0755);
-						if (!is_writable($file))
+						}
+
+						if (!is_writable($file)) {
 							$ftp->chmod($ftp_file, 0777);
+						}
 					}
 				}
 
-				if (is_writable($file))
+				if (is_writable($file)) {
 					unset($files[$k]);
+				}
 			}
 
 			$ftp->close();
-		}
+
 	}
 
 	// What remains?
 	$upcontext['chmod']['files'] = $files;
 
-	if (empty($files))
-		return true;
-
-	return false;
+	return (bool) (empty($files));
 }
 
 /**
@@ -284,25 +299,27 @@ function makeFilesWritable(&$files)
 function quickFileWritable($file)
 {
 	// Some files won't exist, try to address up front
-	if (!file_exists($file))
+	if (!file_exists($file)) {
 		@touch($file);
+	}
 
 	// NOW do the writable check...
-	if (is_writable($file))
+	if (is_writable($file)) {
 		return true;
+	}
 
 	@chmod($file, 0755);
 
 	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
-	$chmod_values = array(0755, 0775, 0777);
+	$chmod_values = [0755, 0775, 0777];
 
-	foreach ($chmod_values as $val)
-	{
+	foreach ($chmod_values as $val) {
 		// If it's writable, break out of the loop
-		if (is_writable($file))
+		if (is_writable($file)) {
 			break;
+		}
 
-		else
+
 			@chmod($file, $val);
 	}
 
@@ -316,14 +333,15 @@ function quickFileWritable($file)
  */
 function deleteFile($file)
 {
-	if (!file_exists($file))
+	if (!file_exists($file)) {
 		return;
+	}
 
 	quickFileWritable($file);
 
 	@unlink($file);
 
-	return;
+
 }
 
 /**
@@ -336,13 +354,15 @@ function print_error($message, $fatal = false)
 {
 	static $fp = null;
 
-	if ($fp === null)
+	if ($fp === null) {
 		$fp = fopen('php://stderr', 'wb');
+	}
 
 	fwrite($fp, $message . "\n");
 
-	if ($fatal)
+	if ($fatal) {
 		exit;
+	}
 }
 
 /**
@@ -416,7 +436,7 @@ function smf_mysql_real_escape_string($string)
 	return mysqli_real_escape_string(SMF\Db\DatabaseApi::$db_connection, $string);
 }
 
-/**
+/*
  * Substitute for array_column() for use in php 5.4
  *
  * @param $array to search
@@ -424,35 +444,33 @@ function smf_mysql_real_escape_string($string)
  * @param $index to use as index if specified
  * @return array of values of specified $col from $array
  */
-if (!function_exists('array_column'))
-{
+if (!function_exists('array_column')) {
 	function array_column($input, $column_key, $index_key = null)
 	{
 		$arr = array_map(
-			function($d) use ($column_key, $index_key)
-			{
-				if (!isset($d[$column_key]))
-				{
-					return null;
+			function ($d) use ($column_key, $index_key) {
+				if (!isset($d[$column_key])) {
+					return;
 				}
-				if ($index_key !== null)
-				{
-					return array($d[$index_key] => $d[$column_key]);
+
+				if ($index_key !== null) {
+					return [$d[$index_key] => $d[$column_key]];
 				}
+
 				return $d[$column_key];
 			},
-			$input
+			$input,
 		);
 
-		if ($index_key !== null)
-		{
-			$tmp = array();
-			foreach ($arr as $ar)
-			{
+		if ($index_key !== null) {
+			$tmp = [];
+
+			foreach ($arr as $ar) {
 				$tmp[key($ar)] = current($ar);
 			}
 			$arr = $tmp;
 		}
+
 		return $arr;
 	}
 }
@@ -464,7 +482,7 @@ if (!function_exists('array_column'))
  */
 function upgradeCacheSettings()
 {
-	$cache_options = array(
+	$cache_options = [
 		'smf' => 'FileBase',
 		'apc' => 'FileBase',
 		'apcu' => 'Apcu',
@@ -474,7 +492,7 @@ function upgradeCacheSettings()
 		'sqlite' => 'Sqlite',
 		'xcache' => 'FileBase',
 		'zend' => 'Zend',
-	);
+	];
 
 	$current_cache = !empty($GLOBALS['cache_accelerator']) ? $GLOBALS['cache_accelerator'] : 'smf';
 
