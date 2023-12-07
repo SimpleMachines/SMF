@@ -271,7 +271,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 			case 'iso_gmdate':
 				$tz = $this->getTimezone();
-				$this->setTimezone(timezone_open('UTC'));
+				$this->setTimezone(new \DateTimeZone('UTC'));
 				$this->modify($value);
 				$this->setTimezone($tz);
 				break;
@@ -283,8 +283,8 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if (in_array($value, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-					$this->setTimezone(timezone_open($value));
+				if ($value instanceof \DateTimeZone || (is_string($value) && in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
+					$this->setTimezone($value);
 				}
 				break;
 
@@ -680,6 +680,26 @@ class Time extends \DateTime implements \ArrayAccess
 		}
 
 		return $prefix . $result;
+	}
+
+	/**
+	 * Sets the time zone for the SMF\Time object.
+	 *
+	 * @param \DateTimeZone|string $timezone The desired time zone. Can be a
+	 *    \DateTimeZone object or a valid time zone identifier string.
+	 * @return staitc An reference to this object.
+	 */
+	public function setTimezone(\DateTimeZone|string $timezone): static
+	{
+		if ($timezone instanceof \DateTimeZone) {
+			date_timezone_set($this, $timezone);
+		} elseif (in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
+			date_timezone_set($this, new \DateTimeZone($timezone));
+		} else {
+			throw new \ValueError();
+		}
+
+		return $this;
 	}
 
 	/***********************
