@@ -89,3 +89,78 @@ foreach (Config::$modSettings as $variable => $value) {
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Adding support for recurring events...
+/******************************************************************************/
+
+---# Add duration, rrule, rdates, and exdates columns to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN IF NOT EXISTS duration varchar(32) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS rrule varchar(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1';
+ADD COLUMN IF NOT EXISTS rdates text NOT NULL;
+ADD COLUMN IF NOT EXISTS exdates text NOT NULL;
+ADD COLUMN IF NOT EXISTS adjustments jsonb DEFAULT NULL;
+ADD COLUMN IF NOT EXISTS sequence smallint NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS uid varchar(255) NOT NULL DEFAULT '',
+ADD COLUMN IF NOT EXISTS type smallint NOT NULL DEFAULT '0';
+
+---#
+
+---# Set duration and rrule values and change end_date
+---{
+	$updates = [];
+
+	$request = Db::$db->query(
+		'',
+		'SELECT id_event, start_date, end_date, start_time, end_time, timezone
+		FROM {db_prefix}calendar',
+		[]
+	);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		$row = array_diff($row, array_filter($row, 'is_null'));
+
+		$allday = !isset($row['start_time']) || !isset($row['end_time']) || !isset($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+
+		$start = new \DateTime($row['start_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ''));
+		$end = new \DateTime($row['end_date'] . (!$allday ? ' ' . $row['end_time'] . ' ' . $row['timezone'] : ''));
+
+		if ($allday) {
+			$end->modify('+1 day');
+		}
+
+		$duration = date_diff($start, $end);
+
+		$format = '';
+		foreach (['y', 'm', 'd', 'h', 'i', 's'] as $part) {
+			if ($part === 'h') {
+				$format .= 'T';
+			}
+
+			if (!empty($duration->{$part})) {
+				$format .= '%' . $part . ($part === 'i' ? 'M' : strtoupper($part));
+			}
+		}
+		$format = rtrim('P' . $format, 'PT');
+
+		$updates[$row['id_event']] = [
+			'id_event' => $row['id_event'],
+			'duration' => $duration->format($format),
+			'end_date' => $end->format('Y-m-d'),
+			'rrule' => 'FREQ=YEARLY;COUNT=1',
+		];
+	}
+	Db::$db->free_result($request);
+
+	foreach ($updates as $id_event => $changes) {
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}calendar
+			SET duration = {string:duration}, end_date = {date:end_date}, rrule = {string:rrule}
+			WHERE id_event = {int:id_event}',
+			$changes
+		);
+	}
+---}
+---#

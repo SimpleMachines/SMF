@@ -324,16 +324,24 @@ CREATE SEQUENCE {$db_prefix}calendar_seq;
 
 CREATE TABLE {$db_prefix}calendar (
 	id_event smallint DEFAULT nextval('{$db_prefix}calendar_seq'),
-	start_date date NOT NULL DEFAULT '1004-01-01',
-	end_date date NOT NULL DEFAULT '1004-01-01',
 	id_board smallint NOT NULL DEFAULT '0',
 	id_topic int NOT NULL DEFAULT '0',
 	title varchar(255) NOT NULL DEFAULT '',
 	id_member int NOT NULL DEFAULT '0',
+	start_date date NOT NULL DEFAULT '1004-01-01',
+	end_date date NOT NULL DEFAULT '1004-01-01',
 	start_time time,
 	end_time time,
 	timezone varchar(80),
-	location VARCHAR(255) NOT NULL DEFAULT '',
+	location varchar(255) NOT NULL DEFAULT '',
+	duration varchar(32) NOT NULL DEFAULT '',
+	rrule varchar(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1',
+	rdates text NOT NULL,
+	exdates text NOT NULL,
+	adjustments jsonb DEFAULT NULL;
+	sequence smallint NOT NULL DEFAULT '0';
+	uid VARCHAR(255) NOT NULL DEFAULT '',
+	type smallint NOT NULL DEFAULT '0';
 	PRIMARY KEY (id_event)
 );
 
@@ -2547,8 +2555,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('boardindex_max_depth', '5'),
 	('cal_enabled', '0'),
 	('cal_showInTopic', '1'),
-	('cal_maxyear', '2030'),
-	('cal_minyear', '2008'),
+	('cal_maxyear', '2040'),
+	('cal_minyear', '2018'),
 	('cal_daysaslink', '0'),
 	('cal_defaultboard', ''),
 	('cal_showholidays', '1'),
