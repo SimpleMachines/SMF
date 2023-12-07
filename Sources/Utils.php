@@ -1585,11 +1585,9 @@ class Utils
 	}
 
 	/**
-	 * Wrapper for random_int() that transparently loads a compatibility library
-	 * if necessary.
+	 * Wrapper for random_int() that sets default values.
 	 *
-	 * @todo Compatibility library is no longer necessary since we don't support
-	 * PHP 5 any more.
+	 * Only exists for backward compatibility purposes.
 	 *
 	 * @param int $min Minumum value. Default: 0.
 	 * @param int $max Maximum value. Default: PHP_INT_MAX.
@@ -1597,30 +1595,19 @@ class Utils
 	 */
 	public static function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
 	{
-		// Oh, wouldn't it be great if I *was* crazy? Then the world would be okay.
-		if (!is_callable('random_int')) {
-			require_once Config::$sourcedir . '/random_compat/random.php';
-		}
-
 		return random_int($min, $max);
 	}
 
 	/**
-	 * Wrapper for random_bytes() that transparently loads a compatibility
-	 * library if necessary.
+	 * Wrapper for random_bytes() that sets a default length.
 	 *
-	 * @todo Compatibility library is no longer necessary since we don't support
-	 * PHP 5 any more.
+	 * Only exists for backward compatibility purposes.
 	 *
 	 * @param int $length Number of bytes to return. Default: 64.
 	 * @return string A string of random bytes.
 	 */
 	public static function randomBytes(int $length = 64): string
 	{
-		if (!is_callable('random_bytes')) {
-			require_once Config::$sourcedir . '/random_compat/random.php';
-		}
-
 		// Make sure length is valid
 		$length = max(1, $length);
 

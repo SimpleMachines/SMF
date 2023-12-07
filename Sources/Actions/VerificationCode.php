@@ -92,7 +92,7 @@ class VerificationCode implements ActionInterface
 			Lang::load('Login');
 			Theme::loadTemplate('Register');
 
-			Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . Utils::randomBytes(16) . ($this->verification_id ? ';vid=' . $this->verification_id : '') . ';format=.wav';
+			Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . bin2hex(random_bytes(16)) . ($this->verification_id ? ';vid=' . $this->verification_id : '') . ';format=.wav';
 			Utils::$context['sub_template'] = 'verification_sound';
 			Utils::$context['template_layers'] = [];
 
@@ -347,7 +347,7 @@ class VerificationCode implements ActionInterface
 
 		// Randomize the foreground color a little.
 		for ($i = 0; $i < 3; $i++) {
-			$foreground_color[$i] = Utils::randomInt(max($foreground_color[$i] - 3, 0), min($foreground_color[$i] + 3, 255));
+			$foreground_color[$i] = random_int(max($foreground_color[$i] - 3, 0), min($foreground_color[$i] + 3, 255));
 		}
 
 		$fg_color = imagecolorallocate(
@@ -360,9 +360,9 @@ class VerificationCode implements ActionInterface
 		// Color for the dots.
 		for ($i = 0; $i < 3; $i++) {
 			if ($background_color[$i] < $foreground_color[$i]) {
-				$dotbgcolor[$i] = Utils::randomInt(0, max($foreground_color[$i] - 20, 0));
+				$dotbgcolor[$i] = random_int(0, max($foreground_color[$i] - 20, 0));
 			} else {
-				$dotbgcolor[$i] = Utils::randomInt(min($foreground_color[$i] + 20, 255), 255);
+				$dotbgcolor[$i] = random_int(min($foreground_color[$i] + 20, 255), 255);
 			}
 		}
 
@@ -375,10 +375,10 @@ class VerificationCode implements ActionInterface
 
 		// Some squares/rectangles for new extreme level
 		if ($noise_type == 'extreme') {
-			for ($i = 0; $i < Utils::randomInt(1, 5); $i++) {
-				$x1 = Utils::randomInt(0, $total_width / 4);
+			for ($i = 0; $i < random_int(1, 5); $i++) {
+				$x1 = random_int(0, $total_width / 4);
 				$x2 = $x1 + round(rand($total_width / 4, $total_width));
-				$y1 = Utils::randomInt(0, $max_height);
+				$y1 = random_int(0, $max_height);
 				$y2 = $y1 + round(rand(0, $max_height / 3));
 
 				imagefilledrectangle(
@@ -387,7 +387,7 @@ class VerificationCode implements ActionInterface
 					$y1,
 					$x2,
 					$y2,
-					Utils::randomInt(0, 1) ? $fg_color : $randomness_color,
+					random_int(0, 1) ? $fg_color : $randomness_color,
 				);
 			}
 		}
@@ -404,7 +404,7 @@ class VerificationCode implements ActionInterface
 				if ($rotation_type == 'none') {
 					$angle = 0;
 				} else {
-					$angle = Utils::randomInt(-100, 100) / ($rotation_type == 'high' ? 6 : 10);
+					$angle = random_int(-100, 100) / ($rotation_type == 'high' ? 6 : 10);
 				}
 
 				// What color shall we do it?
@@ -426,16 +426,16 @@ class VerificationCode implements ActionInterface
 					$new_index = $last_index;
 
 					while ($last_index == $new_index) {
-						$new_index = Utils::randomInt(0, count($colors) - 1);
+						$new_index = random_int(0, count($colors) - 1);
 					}
 
 					$char_fg_color = $colors[$new_index];
 					$last_index = $new_index;
 				} elseif ($font_color_type == 'random') {
 					$char_fg_color = [
-						Utils::randomInt(max($foreground_color[0] - 2, 0), $foreground_color[0]),
-						Utils::randomInt(max($foreground_color[1] - 2, 0), $foreground_color[1]),
-						Utils::randomInt(max($foreground_color[2] - 2, 0), $foreground_color[2]),
+						random_int(max($foreground_color[0] - 2, 0), $foreground_color[0]),
+						random_int(max($foreground_color[1] - 2, 0), $foreground_color[1]),
+						random_int(max($foreground_color[2] - 2, 0), $foreground_color[2]),
 					];
 				} else {
 					$char_fg_color = [
@@ -446,19 +446,19 @@ class VerificationCode implements ActionInterface
 				}
 
 				if (!empty($can_do_ttf)) {
-					$font_size = $font_size_random ? Utils::randomInt(17, 19) : 18;
+					$font_size = $font_size_random ? random_int(17, 19) : 18;
 
 					// Work out the sizes - also fix the character width cause TTF not quite so wide!
 					$font_x = $font_horz_space == 'minus' && $cur_x > 0 ? $cur_x - 3 : $cur_x + 5;
-					$font_y = $max_height - ($font_vert_pos == 'vrandom' ? Utils::randomInt(2, 8) : ($font_vert_pos == 'random' ? Utils::randomInt(3, 5) : 5));
+					$font_y = $max_height - ($font_vert_pos == 'vrandom' ? random_int(2, 8) : ($font_vert_pos == 'random' ? random_int(3, 5) : 5));
 
 					// What font face?
 					if (!empty($ttfont_list)) {
-						$fontface = Theme::$current->settings['default_theme_dir'] . '/fonts/' . $ttfont_list[Utils::randomInt(0, count($ttfont_list) - 1)];
+						$fontface = Theme::$current->settings['default_theme_dir'] . '/fonts/' . $ttfont_list[random_int(0, count($ttfont_list) - 1)];
 					}
 
 					// What color are we to do it in?
-					$is_reverse = $show_reverse_chars ? Utils::randomInt(0, 1) : false;
+					$is_reverse = $show_reverse_chars ? random_int(0, 1) : false;
 
 					if (function_exists('imagecolorallocatealpha') && $font_transparent) {
 						$char_color = imagecolorallocatealpha(
@@ -551,7 +551,7 @@ class VerificationCode implements ActionInterface
 
 						$rotated_char = imagerotate(
 							$char_image,
-							Utils::randomInt(-100, 100) / 10,
+							random_int(-100, 100) / 10,
 							$char_bgcolor,
 						);
 
@@ -605,30 +605,30 @@ class VerificationCode implements ActionInterface
 
 		// Add some noise to the background?
 		if ($noise_type != 'none') {
-			for ($i = Utils::randomInt(0, 2); $i < $max_height; $i += Utils::randomInt(1, 2)) {
-				for ($j = Utils::randomInt(0, 10); $j < $total_width; $j += Utils::randomInt(1, 10)) {
-					imagesetpixel($code_image, $j, $i, Utils::randomInt(0, 1) ? $fg_color : $randomness_color);
+			for ($i = random_int(0, 2); $i < $max_height; $i += random_int(1, 2)) {
+				for ($j = random_int(0, 10); $j < $total_width; $j += random_int(1, 10)) {
+					imagesetpixel($code_image, $j, $i, random_int(0, 1) ? $fg_color : $randomness_color);
 				}
 			}
 
 			// Put in some lines too?
 			if ($noise_type != 'extreme') {
-				$num_lines = $noise_type == 'high' ? Utils::randomInt(3, 7) : Utils::randomInt(2, 5);
+				$num_lines = $noise_type == 'high' ? random_int(3, 7) : random_int(2, 5);
 
 				for ($i = 0; $i < $num_lines; $i++) {
-					if (Utils::randomInt(0, 1)) {
-						$x1 = Utils::randomInt(0, $total_width);
-						$x2 = Utils::randomInt(0, $total_width);
+					if (random_int(0, 1)) {
+						$x1 = random_int(0, $total_width);
+						$x2 = random_int(0, $total_width);
 						$y1 = 0;
 						$y2 = $max_height;
 					} else {
-						$y1 = Utils::randomInt(0, $max_height);
-						$y2 = Utils::randomInt(0, $max_height);
+						$y1 = random_int(0, $max_height);
+						$y2 = random_int(0, $max_height);
 						$x1 = 0;
 						$x2 = $total_width;
 					}
 
-					imagesetthickness($code_image, Utils::randomInt(1, 2));
+					imagesetthickness($code_image, random_int(1, 2));
 
 					imageline(
 						$code_image,
@@ -636,12 +636,12 @@ class VerificationCode implements ActionInterface
 						$y1,
 						$x2,
 						$y2,
-						Utils::randomInt(0, 1) ? $fg_color : $randomness_color,
+						random_int(0, 1) ? $fg_color : $randomness_color,
 					);
 				}
 			} else {
 				// Put in some ellipse
-				$num_ellipse = $noise_type == 'extreme' ? Utils::randomInt(6, 12) : Utils::randomInt(2, 6);
+				$num_ellipse = $noise_type == 'extreme' ? random_int(6, 12) : random_int(2, 6);
 
 				for ($i = 0; $i < $num_ellipse; $i++) {
 					$x1 = round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
@@ -655,7 +655,7 @@ class VerificationCode implements ActionInterface
 						$y1,
 						$x2,
 						$y2,
-						Utils::randomInt(0, 1) ? $fg_color : $randomness_color,
+						random_int(0, 1) ? $fg_color : $randomness_color,
 					);
 				}
 			}

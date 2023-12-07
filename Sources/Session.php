@@ -224,7 +224,7 @@ class Session implements \SessionHandlerInterface
 
 			// This is here to stop people from using bad junky PHPSESSIDs.
 			if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()])) {
-				$session_id = md5(md5('smf_sess_' . time()) . Utils::randomInt());
+				$session_id = bin2hex(random_bytes(16));
 				$_REQUEST[session_name()] = $session_id;
 				$_GET[session_name()] = $session_id;
 				$_POST[session_name()] = $session_id;
@@ -260,9 +260,9 @@ class Session implements \SessionHandlerInterface
 
 		// Set the randomly generated code.
 		if (!isset($_SESSION['session_var'])) {
-			$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
-
-			$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(Utils::randomInt() . session_id() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
+			// Ensure session_var always starts with a letter.
+			$_SESSION['session_var'] = dechex(random_int(0xA000000000, 0xFFFFFFFFFF));
+			$_SESSION['session_value'] = bin2hex(random_bytes(16));
 		}
 
 		User::$sc = $_SESSION['session_value'];

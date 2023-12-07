@@ -1152,7 +1152,7 @@ class Features implements ActionInterface
 				$col_name = Utils::truncate($col_name, 6);
 
 				// If there is nothing to the name, then let's make out own.
-				$col_name = $initial_col_name = 'cust_' . (!empty($col_name) ? $col_name : bin2hex(Utils::randomBytes(3)));
+				$col_name = $initial_col_name = 'cust_' . (!empty($col_name) ? $col_name : bin2hex(random_bytes(3)));
 
 				// Make sure this is unique.
 				$current_fields = [];
@@ -1176,7 +1176,7 @@ class Features implements ActionInterface
 					}
 					// Still not a unique column name? Use a random one, then.
 					else {
-						$col_name = substr('cust_' . bin2hex(Utils::randomBytes(4)), 0, 12);
+						$col_name = substr('cust_' . bin2hex(random_bytes(4)), 0, 12);
 					}
 
 					// In this extremely unlikely event, bail out.
