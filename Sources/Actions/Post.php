@@ -19,12 +19,12 @@ use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\Editor;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -732,7 +732,7 @@ class Post implements ActionInterface
 
 		// Start loading up the event info.
 		if (isset($_REQUEST['eventid'])) {
-			list(Utils::$context['event']) = Event::load((int) $_REQUEST['eventid']);
+			Utils::$context['event'] = current(Event::load((int) $_REQUEST['eventid']));
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {

@@ -13,10 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Calendar;
 
 use SMF\Actions\Calendar;
+use SMF\ArrayAccessHelper;
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\ErrorHandler;
+use SMF\IntegrationHook;
+use SMF\Time;
+use SMF\TimeZone;
+use SMF\User;
+use SMF\Utils;
 
 /**
  * Represents a calendar event.
@@ -845,7 +853,7 @@ class Event implements \ArrayAccess
 	/**
 	 * Loads events by ID number or by topic.
 	 *
-	 * @param int|array $id ID number of the event or topic.
+	 * @param int $id ID number of the event or topic.
 	 * @param bool $is_topic If true, $id is the topic ID. Default: false.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
 	 * @return array|bool Instances of this class for the loaded events.
@@ -1292,21 +1300,21 @@ class Event implements \ArrayAccess
 
 		$input['timezone'] = $tz->getName();
 
-		foreach (['start', 'end'] as $var) {
+		foreach (['start', 'end'] as $prefix) {
 			// Input might come as individual parameters...
-			$year = $input[$var . '_year'] ?? null;
-			$month = $input[$var . '_month'] ?? null;
-			$day = $input[$var . '_day'] ?? null;
-			$hour = $input[$var . '_hour'] ?? null;
-			$minute = $input[$var . '_minute'] ?? null;
-			$second = $input[$var . '_second'] ?? null;
+			$year = $input[$prefix . '_year'] ?? null;
+			$month = $input[$prefix . '_month'] ?? null;
+			$day = $input[$prefix . '_day'] ?? null;
+			$hour = $input[$prefix . '_hour'] ?? null;
+			$minute = $input[$prefix . '_minute'] ?? null;
+			$second = $input[$prefix . '_second'] ?? null;
 
 			// ... or as datetime strings ...
-			$datetime_string = $input[$var . '_datetime'] ?? null;
+			$datetime_string = $input[$prefix . '_datetime'] ?? null;
 
 			// ... or as date strings and time strings.
-			$date_string = $input[$var . '_date'] ?? null;
-			$time_string = $input[$var . '_time'] ?? null;
+			$date_string = $input[$prefix . '_date'] ?? null;
+			$time_string = $input[$prefix . '_time'] ?? null;
 
 			// If the date and time were given in individual parameters, combine them.
 			if (empty($time_string) && isset($hour, $minute, $second)) {
@@ -1357,16 +1365,16 @@ class Event implements \ArrayAccess
 			$time_is_valid = isset($hour, $minute, $second) && $hour >= 0 && $hour < 25 && $minute >= 0 && $minute < 60 && $second >= 0 && $second < 60;
 
 			// Replace whatever was supplied with our validated strings.
-			foreach (['year', 'month', 'day', 'hour', 'minute', 'second', 'date', 'time', 'datetime'] as $key) {
-				unset($input[$var . '_' . $key]);
+			foreach (['year', 'month', 'day', 'hour', 'minute', 'second', 'date', 'time', 'datetime'] as $var) {
+				unset($input[$prefix . '_' . $var]);
 			}
 
 			if ($date_is_valid) {
-				$input[$var . '_date'] = sprintf('%04d-%02d-%02d', $year, $month, $day);
+				$input[$prefix . '_date'] = sprintf('%04d-%02d-%02d', $year, $month, $day);
 			}
 
 			if ($time_is_valid && !$input['allday']) {
-				$input[$var . '_time'] = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+				$input[$prefix . '_time'] = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
 			}
 		}
 
@@ -1383,7 +1391,7 @@ class Event implements \ArrayAccess
 
 		if (!isset($input['end_date'])) {
 			if (isset($input['span'])) {
-				$start = new \DateTimeImmutable($input['start_date'] . (empty($input['allday']) ? ' ' . $input['start_time'] . ' ' .  $input['timezone'] : ''));
+				$start = new \DateTimeImmutable($input['start_date'] . (empty($input['allday']) ? ' ' . $input['start_time'] . ' ' . $input['timezone'] : ''));
 
 				$end = $start->modify('+' . max(0, (int) ($input['span'] - 1)) . ' days');
 
