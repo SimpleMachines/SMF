@@ -170,7 +170,7 @@ class Reminder implements ActionInterface
 			Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 			// Set the validation code in the database.
-			User::updateMemberData($this->member->id, ['validation_code' => substr(md5($code), 0, 10)]);
+			User::updateMemberData($this->member->id, ['validation_code' => $code]);
 
 			// Set up the template.
 			Utils::$context['description'] = Lang::$txt['reminder_sent'];
@@ -258,7 +258,7 @@ class Reminder implements ActionInterface
 		}
 
 		// Quit if this code is not right.
-		if (empty($_POST['code']) || substr($this->member->validation_code, 0, 10) !== substr(md5($_POST['code']), 0, 10)) {
+		if (empty($_POST['code']) || $this->member->validation_code !== $_POST['code']) {
 			// Stop brute force attacks like this.
 			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 

@@ -1058,11 +1058,6 @@ function ForumSettings()
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
 
-		// Load the compatibility library if necessary.
-		if (!is_callable('random_bytes')) {
-			require_once 'Sources/random_compat/random.php';
-		}
-
 		// Save these variables.
 		$vars = [
 			'boardurl' => $_POST['boardurl'],
@@ -1641,10 +1636,6 @@ function AdminAccount()
 
 			return false;
 		} elseif ($_POST['username'] != '') {
-			if (!is_callable('random_int')) {
-				require_once 'Sources/random_compat/random.php';
-			}
-
 			$incontext['member_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.

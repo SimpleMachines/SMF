@@ -657,7 +657,7 @@ class Register2 extends Register
 			'member_name' => $reg_options['username'],
 			'email_address' => $reg_options['email'],
 			'passwd' => Security::hashPassword($reg_options['username'], $reg_options['password']),
-			'password_salt' => bin2hex(Utils::randomBytes(16)),
+			'password_salt' => bin2hex(random_bytes(16)),
 			'posts' => 0,
 			'date_registered' => time(),
 			'member_ip' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip,
