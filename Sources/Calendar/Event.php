@@ -869,7 +869,6 @@ class Event implements \ArrayAccess
 		self::$keep_all = true;
 
 		$query_customizations['where'][] = 'cal.id_' . ($is_topic ? 'topic' : 'event') . ' = {int:id}';
-		$query_customizations['limit'] = 1;
 		$query_customizations['params']['id'] = $id;
 
 		if ($use_permissions) {
@@ -947,7 +946,7 @@ class Event implements \ArrayAccess
 			'cal.start_date <= {date:high_date}',
 			'cal.end_date >= {date:low_date}',
 		];
-		$order = $query_customizations['order'] ?? [];
+		$order = $query_customizations['order'] ?? ['cal.start_date'];
 		$group = $query_customizations['group'] ?? [];
 		$limit = $query_customizations['limit'] ?? 0;
 		$params = $query_customizations['params'] ?? [

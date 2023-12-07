@@ -180,7 +180,7 @@ function template_main()
 		<div class="title_bar">
 			<h3 class="titlebg">', Lang::$txt['calendar_linked_events'], '</h3>
 		</div>
-		<div class="information">
+		<div class="information events">
 			<ul>';
 
 		foreach (Utils::$context['linked_calendar_events'] as $event)

@@ -3796,6 +3796,17 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 p.information img {
 	vertical-align: middle;
 }
+.information.events {
+	padding: 0;
+}
+.information.events ul {
+	display: flex;
+	flex-flow: row wrap;
+}
+.information.events li {
+	margin: 12px;
+	flex: 1 0 auto;
+}
 #messageindex .information {
 	border-radius: 0;
 	margin: 0;
