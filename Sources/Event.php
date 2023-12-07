@@ -570,11 +570,6 @@ class Event implements \ArrayAccess
 
 					break;
 
-				case 'span':
-				case 'num_days':
-					$this->setNumDays($value);
-					break;
-
 				// These computed properties are read-only.
 				case 'tz_abbrev':
 				case 'new':
@@ -722,11 +717,6 @@ class Event implements \ArrayAccess
 				$value = $this->start->tz_abbrev;
 				break;
 
-			case 'span':
-			case 'num_days':
-				$value = $this->getNumDays();
-				break;
-
 			case 'new':
 				$value = !isset($this->id) || $this->id < 1;
 				break;
@@ -832,10 +822,6 @@ class Event implements \ArrayAccess
 			case 'end_timestamp':
 			case 'end_iso_gmdate':
 				return property_exists($this, 'end');
-
-			case 'span':
-			case 'num_days':
-				return property_exists($this, 'start') && property_exists($this, 'end');
 
 			case 'new':
 			case 'is_selected':
@@ -1088,48 +1074,6 @@ class Event implements \ArrayAccess
 	 ******************/
 
 	/**
-	 * Gets the number of days across which this event occurs.
-	 *
-	 * For example, if the event starts and ends on the same day, span is 1.
-	 * If the event starts Monday night and ends Wednesday morning, span is 3.
-	 *
-	 * @return int Number of days that this event spans, or 0 on error.
-	 */
-	protected function getNumDays(): int
-	{
-		if (!($this->start instanceof \DateTimeInterface) || !($this->end instanceof \DateTimeInterface) || $this->end->getTimestamp() < $this->start->getTimestamp()) {
-			return 0;
-		}
-
-		return ((int) $this->start->diff($this->end)->format('%a')) + ($this->end->format('H') < $this->start->format('H') ? 2 : 1);
-	}
-
-	/**
-	 * Adjusts the end date so that the number of days across which this event
-	 * occurs will be $num_days.
-	 *
-	 * @param int $num_days The target number of days the event should span.
-	 *    If $num_days is set to a value less than 1, no change will be made.
-	 *    This method imposes no upper limit on $num_days, but if $num_days
-	 *    exceeds the value of Config::$modSettings['cal_maxspan'], other parts
-	 *    of this class will impose that limit.
-	 */
-	protected function setNumDays(int $num_days): void
-	{
-		if (!($this->start instanceof \DateTimeInterface) || !($this->end instanceof \DateTimeInterface) || $num_days < 1) {
-			return;
-		}
-
-		$current_span = $this->getNumDays();
-
-		if ($current_span == $num_days) {
-			return;
-		}
-
-		$this->end->modify($current_span < $num_days ? '+' : '-' . ($num_days - $current_span) . ' days');
-	}
-
-	/**
 	 * Ensures that the start and end dates have a sane relationship.
 	 */
 	protected function fixEndDate(): void
@@ -1145,8 +1089,8 @@ class Event implements \ArrayAccess
 		}
 
 		// If the event is too long, cap it at the max.
-		if (!empty(Config::$modSettings['cal_maxspan']) && $this->getNumDays() > Config::$modSettings['cal_maxspan']) {
-			$this->setNumDays(Config::$modSettings['cal_maxspan']);
+		if (!empty(Config::$modSettings['cal_maxspan']) && $this->start->diff($this->end)->format('%a') > Config::$modSettings['cal_maxspan']) {
+			$this->end = (clone $this->start)->modify('+' . Config::$modSettings['cal_maxspan'] . ' days');
 		}
 	}
 
@@ -1432,13 +1376,25 @@ class Event implements \ArrayAccess
 		}
 
 		// Make sure we use valid values for everything
-		if (!isset($input['end_date'])) {
-			$input['end_date'] = $input['start_date'];
-		}
-
 		if ($input['allday'] || !isset($input['start_time'])) {
 			$input['allday'] = true;
 			$input['start_time'] = '00:00:00';
+		}
+
+		if (!isset($input['end_date'])) {
+			if (isset($input['span'])) {
+				$start = new \DateTimeImmutable($input['start_date'] . (empty($input['allday']) ? ' ' . $input['start_time'] . ' ' .  $input['timezone'] : ''));
+
+				$end = $start->modify('+' . max(0, (int) ($input['span'] - 1)) . ' days');
+
+				$input['end_date'] = $end->format('Y-m-d');
+
+				if (!$input['allday']) {
+					$input['end_time'] = $end->format('H:i:s');
+				}
+			} else {
+				$input['end_date'] = $input['start_date'];
+			}
 		}
 
 		if ($input['allday'] || !isset($input['end_time'])) {
