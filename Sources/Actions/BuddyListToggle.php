@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -28,18 +27,6 @@ use SMF\Utils;
  */
 class BuddyListToggle implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'BuddyListToggle',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -162,11 +149,6 @@ class BuddyListToggle implements ActionInterface
 	{
 		$this->userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\BuddyListToggle::exportStatic')) {
-	BuddyListToggle::exportStatic();
 }
 
 ?>

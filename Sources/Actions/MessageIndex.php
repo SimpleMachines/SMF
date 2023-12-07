@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
@@ -36,20 +35,6 @@ use SMF\Utils;
  */
 class MessageIndex implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static array $backcompat = [
-		'func_names' => [
-			'call' => 'MessageIndex',
-			'getBoardList' => 'getBoardList',
-			'buildTopicContext' => 'buildTopicContext',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -1109,11 +1094,6 @@ class MessageIndex implements ActionInterface
 		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\MessageIndex::exportStatic')) {
-	MessageIndex::exportStatic();
 }
 
 ?>

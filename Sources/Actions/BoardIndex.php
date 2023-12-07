@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Category;
@@ -38,18 +37,6 @@ use SMF\Utils;
  */
 class BoardIndex implements ActionInterface
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static array $backcompat = [
-		'func_names' => [
-			'load' => 'BoardIndex',
-			'call' => 'call',
-			'get' => 'getBoardIndex',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -254,9 +241,9 @@ class BoardIndex implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -763,11 +750,6 @@ class BoardIndex implements ActionInterface
 
 		return $last_post;
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\BoardIndex::exportStatic')) {
-	BoardIndex::exportStatic();
 }
 
 ?>

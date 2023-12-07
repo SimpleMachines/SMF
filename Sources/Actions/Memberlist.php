@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -32,22 +31,6 @@ use SMF\Utils;
  */
 class Memberlist implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Memberlist',
-			'MLAll' => 'MLAll',
-			'MLSearch' => 'MLSearch',
-			'printRows' => 'printMemberListRows',
-			'getCustFields' => 'getCustFieldsMList',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -880,11 +863,6 @@ class Memberlist implements ActionInterface
 			$this->subaction = $_GET['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Memberlist::exportStatic')) {
-	Memberlist::exportStatic();
 }
 
 ?>

@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\User;
@@ -25,18 +24,6 @@ use SMF\Utils;
  */
 class AttachmentApprove implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ApproveAttach',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -180,11 +167,6 @@ class AttachmentApprove implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\AttachmentApprove::exportStatic')) {
-	AttachmentApprove::exportStatic();
 }
 
 ?>

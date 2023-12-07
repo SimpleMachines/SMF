@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -27,18 +26,6 @@ use SMF\Utils;
  */
 class CoppaForm implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'CoppaForm',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -172,11 +159,6 @@ class CoppaForm implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\CoppaForm::exportStatic')) {
-	CoppaForm::exportStatic();
 }
 
 ?>

@@ -25,21 +25,6 @@ use SMF\Utils;
  */
 class AutoSuggest implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'AutoSuggestHandler' => 'AutoSuggestHandler',
-			'AutoSuggest_Search_Member' => 'AutoSuggest_Search_Member',
-			'AutoSuggest_Search_MemberGroups' => 'AutoSuggest_Search_MemberGroups',
-			'AutoSuggest_Search_SMFVersions' => 'AutoSuggest_Search_SMFVersions',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -318,9 +303,9 @@ class AutoSuggest implements ActionInterface
 	 */
 	public static function checkRegistered(string $suggest_type): bool
 	{
-		IntegrationHook::call('integrate_autosuggest', [&$suggest_types]);
+		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
-		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
+		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
 	}
 
 	/**
@@ -329,7 +314,7 @@ class AutoSuggest implements ActionInterface
 	 *
 	 * @param mixed $suggest_type Either a suggestion type, or null.
 	 */
-	public static function AutoSuggestHandler($suggest_type = null)
+	public static function AutoSuggestHandler(?string $suggest_type = null)
 	{
 		if (isset($suggest_type)) {
 			return self::checkRegistered($suggest_type);
@@ -402,11 +387,6 @@ class AutoSuggest implements ActionInterface
 
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\AutoSuggest::exportStatic')) {
-	AutoSuggest::exportStatic();
 }
 
 ?>

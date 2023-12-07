@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -34,18 +33,6 @@ use SMF\Utils;
  */
 class AttachmentDownload implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'showAttachment',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -377,11 +364,6 @@ class AttachmentDownload implements ActionInterface
 		// A thumbnail has been requested? madness! madness I say!
 		$this->showThumb = isset($_REQUEST['thumb']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\AttachmentDownload::exportStatic')) {
-	AttachmentDownload::exportStatic();
 }
 
 ?>

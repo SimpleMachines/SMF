@@ -15,7 +15,6 @@ namespace SMF\Actions;
 
 use SMF\Alert;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -50,18 +49,6 @@ use SMF\Verifier;
  */
 class Display implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static array $backcompat = [
-		'func_names' => [
-			'call' => 'Display',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -1375,11 +1362,6 @@ class Display implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Display::exportStatic')) {
-	Display::exportStatic();
 }
 
 ?>

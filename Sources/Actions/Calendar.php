@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
@@ -36,39 +35,6 @@ use SMF\Utils;
  */
 class Calendar implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'CalendarMain',
-			'iCalDownload' => 'iCalDownload',
-			'CalendarPost' => 'CalendarPost',
-			'getBirthdayRange' => 'getBirthdayRange',
-			'getEventRange' => 'getEventRange',
-			'getHolidayRange' => 'getHolidayRange',
-			'canLinkEvent' => 'canLinkEvent',
-			'getTodayInfo' => 'getTodayInfo',
-			'getCalendarGrid' => 'getCalendarGrid',
-			'getCalendarWeek' => 'getCalendarWeek',
-			'getCalendarList' => 'getCalendarList',
-			'loadDatePicker' => 'loadDatePicker',
-			'loadTimePicker' => 'loadTimePicker',
-			'loadDatePair' => 'loadDatePair',
-			'cache_getOffsetIndependentEvents' => 'cache_getOffsetIndependentEvents',
-			'cache_getRecentEvents' => 'cache_getRecentEvents',
-			'validateEventPost' => 'validateEventPost',
-			'getEventPoster' => 'getEventPoster',
-			'list_getHolidays' => 'list_getHolidays',
-			'list_getNumHolidays' => 'list_getNumHolidays',
-			'removeHolidays' => 'removeHolidays',
-			'convertDateToEnglish' => 'convertDateToEnglish',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -595,6 +561,7 @@ class Calendar implements ActionInterface
 		header('content-disposition: attachment; filename="' . $event->title . '.ics"');
 
 		if (empty(Config::$modSettings['enableCompressedOutput'])) {
+			// todo: correctly handle $filecontents before passing to string function
 			header('content-length: ' . Utils::entityStrlen($filecontents));
 		}
 
@@ -1895,11 +1862,6 @@ class Calendar implements ActionInterface
 			'max_year' => Config::$modSettings['cal_maxyear'],
 		];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Calendar::exportStatic')) {
-	Calendar::exportStatic();
 }
 
 ?>

@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -31,20 +30,6 @@ use SMF\Utils;
  */
 class Login2 implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Login2',
-			'checkAjax' => 'checkAjax',
-			'validatePasswordFlood' => 'validatePasswordFlood',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -835,11 +820,6 @@ class Login2 implements ActionInterface
 			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Login2::exportStatic')) {
-	Login2::exportStatic();
 }
 
 ?>

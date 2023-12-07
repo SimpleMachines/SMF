@@ -118,22 +118,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		return Actions\Admin\Attachments::call();
 	}
-	function list_getFiles(int $start, int $items_per_page, string $sort, string $browse_type): array
-	{
-		return Actions\Admin\Attachments::list_getFiles($start, $items_per_page, $sort, $browse_type);
-	}
-	function list_getNumFiles(string $browse_type): int
-	{
-		return Actions\Admin\Attachments::list_getNumFiles($browse_type);
-	}
-	function list_getAttachDirs(): array
-	{
-		return Actions\Admin\Attachments::list_getAttachDirs();
-	}
-	function list_getBaseDirs(): array
-	{
-		return Actions\Admin\Attachments::list_getBaseDirs();
-	}
 	function attachDirStatus(string $dir, int $expected_files): array
 	{
 		return Actions\Admin\Attachments::attachDirStatus($dir, $expected_files);
@@ -196,38 +180,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function updateBanMembers(): void
 	{
 		Actions\Admin\Bans::updateBanMembers();
-	}
-	function list_getBans(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\Bans::list_getBans($start, $items_per_page, $sort);
-	}
-	function list_getNumBans(): int
-	{
-		return Actions\Admin\Bans::list_getNumBans();
-	}
-	function list_getBanItems(int $start = 0, int $items_per_page = 0, int $sort = 0, int $ban_group_id = 0): array
-	{
-		return Actions\Admin\Bans::list_getBanItems($start, $items_per_page, $sort, $ban_group_id);
-	}
-	function list_getNumBanItems(): int
-	{
-		return Actions\Admin\Bans::list_getNumBanItems();
-	}
-	function list_getBanTriggers(int $start, int $items_per_page, string $sort, string $trigger_type): array
-	{
-		return Actions\Admin\Bans::list_getBanTriggers($start, $items_per_page, $sort, $trigger_type);
-	}
-	function list_getNumBanTriggers(string $trigger_type): int
-	{
-		return Actions\Admin\Bans::list_getNumBanTriggers($trigger_type);
-	}
-	function list_getBanLogEntries(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\Bans::list_getBanLogEntries($start, $items_per_page, $sort);
-	}
-	function list_getNumBanLogEntries(): int
-	{
-		return Actions\Admin\Bans::list_getNumBanLogEntries();
 	}
 	function BanList(): void
 	{
@@ -316,14 +268,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Admin\Features::call();
 	}
-	function list_getProfileFields(int $start, int $items_per_page, string $sort, bool $standardFields): array
-	{
-		return Actions\Admin\Features::list_getProfileFields($start, $items_per_page, $sort, $standardFields);
-	}
-	function list_getProfileFieldSize(): int
-	{
-		return Actions\Admin\Features::list_getProfileFieldSize();
-	}
 	function ModifyBasicSettings(bool $return_config = false): ?array
 	{
 		return Actions\Admin\Features::modifyBasicSettings($return_config);
@@ -393,18 +337,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Admin\Languages::call();
 	}
-	function list_getLanguagesList(): array
-	{
-		return Actions\Admin\Languages::list_getLanguagesList();
-	}
-	function list_getNumLanguages(): int
-	{
-		return Actions\Admin\Languages::list_getNumLanguages();
-	}
-	function list_getLanguages(): array
-	{
-		return Actions\Admin\Languages::list_getLanguages();
-	}
 	function ModifyLanguages(): void
 	{
 		Actions\Admin\Languages::modifyLanguages();
@@ -446,14 +378,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ManageMail(): void
 	{
 		Actions\Admin\Mail::call();
-	}
-	function list_getMailQueue(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\Mail::list_getMailQueue($start, $items_per_page, $sort);
-	}
-	function list_getMailQueueSize(): int
-	{
-		return Actions\Admin\Mail::list_getMailQueueSize();
 	}
 	function timeSince(int $time_diff): string
 	{
@@ -526,10 +450,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function MaintainTopics(): void
 	{
 		Actions\Admin\Maintenance::maintainTopics();
-	}
-	function list_integration_hooks(): void
-	{
-		Actions\Admin\Maintenance::list_integration_hooks();
 	}
 	function VersionDetail(): void
 	{
@@ -633,27 +553,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Admin\Members::call();
 	}
-	function list_getMembers(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $where,
-		array $where_params = [],
-		bool $get_duplicates = false,
-	): array {
-		return Actions\Admin\Members::list_getMembers(
-			$start,
-			$items_per_page,
-			$sort,
-			$where,
-			$where_params,
-			$get_duplicates,
-		);
-	}
-	function list_getNumMembers(string $where, array $where_params = []): int
-	{
-		return Actions\Admin\Members::list_getNumMembers($where, $where_params);
-	}
 	function ViewMemberlist(): void
 	{
 		Actions\Admin\Members::viewMemberlist();
@@ -691,22 +590,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ManageNews(): void
 	{
 		Actions\Admin\News::call();
-	}
-	function list_getNews(): array
-	{
-		return Actions\Admin\News::list_getNews();
-	}
-	function list_getNewsTextarea(array $news): string
-	{
-		return Actions\Admin\News::list_getNewsTextarea($news);
-	}
-	function list_getNewsPreview(array $news): string
-	{
-		return Actions\Admin\News::list_getNewsPreview($news);
-	}
-	function list_getNewsCheckbox(array $news): string
-	{
-		return Actions\Admin\News::list_getNewsCheckbox($news);
 	}
 	function prepareMailingForPreview(): void
 	{
@@ -945,30 +828,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Admin\SearchEngines::consolidateSpiderStats();
 	}
-	function list_getSpiders(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\SearchEngines::list_getSpiders($start, $items_per_page, $sort);
-	}
-	function list_getNumSpiders(): int
-	{
-		return Actions\Admin\SearchEngines::list_getNumSpiders();
-	}
-	function list_getSpiderLogs(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\SearchEngines::list_getSpiderLogs($start, $items_per_page, $sort);
-	}
-	function list_getNumSpiderLogs(): int
-	{
-		return Actions\Admin\SearchEngines::list_getNumSpiderLogs();
-	}
-	function list_getSpiderStats(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\SearchEngines::list_getSpiderStats($start, $items_per_page, $sort);
-	}
-	function list_getNumSpiderStats(): int
-	{
-		return Actions\Admin\SearchEngines::list_getNumSpiderStats();
-	}
 	function recacheSpiderNames(): void
 	{
 		Actions\Admin\SearchEngines::recacheSpiderNames();
@@ -1059,26 +918,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Admin\Smileys::call();
 	}
-	function list_getSmileySets(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\Smileys::list_getSmileySets($start, $items_per_page, $sort);
-	}
-	function list_getNumSmileySets(): int
-	{
-		return Actions\Admin\Smileys::list_getNumSmileySets();
-	}
-	function list_getSmileys(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\Smileys::list_getSmileys($start, $items_per_page, $sort);
-	}
-	function list_getNumSmileys(): int
-	{
-		return Actions\Admin\Smileys::list_getNumSmileys();
-	}
-	function list_getMessageIcons($start, $items_per_page, $sort): array
-	{
-		return Actions\Admin\Smileys::list_getMessageIcons($start, $items_per_page, $sort);
-	}
 	function AddSmiley(): void
 	{
 		Actions\Admin\Smileys::addSmiley();
@@ -1135,27 +974,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		return Actions\Admin\Subscriptions::loadPaymentGateways();
 	}
-	function list_getSubscribedUserCount(int $id_sub, string $search_string, array $search_vars = []): int
-	{
-		return Actions\Admin\Subscriptions::list_getSubscribedUserCount($id_sub, $search_string, $search_vars);
-	}
-	function list_getSubscribedUsers(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		int $id_sub,
-		string $search_string,
-		array $search_vars = []
-	): array {
-		return Actions\Admin\Subscriptions::list_getSubscribedUsers(
-			$start,
-			$items_per_page,
-			$sort,
-			$id_sub,
-			$search_string,
-			$search_vars
-		);
-	}
 	function ViewSubscriptions(): void
 	{
 		Actions\Admin\Subscriptions::viewSubscriptions();
@@ -1186,18 +1004,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ManageScheduledTasks(): void
 	{
 		Actions\Admin\Tasks::call();
-	}
-	function list_getScheduledTasks(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Admin\Tasks::list_getScheduledTasks($start, $items_per_page, $sort);
-	}
-	function list_getTaskLogEntries(int $start, int $items_per_page, int $sort): array
-	{
-		return Actions\Admin\Tasks::list_getTaskLogEntries($start, $items_per_page, $sort);
-	}
-	function list_getNumTaskLogEntries(): int
-	{
-		return Actions\Admin\Tasks::list_getNumTaskLogEntries();
 	}
 	function ScheduledTasks(): void
 	{
@@ -1302,38 +1108,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Moderation\Logs::call();
 	}
-	function list_getModLogEntryCount(
-		string $query_string = '',
-		array $query_params = [],
-		int $log_type = 1,
-		bool $ignore_boards = false
-	): int {
-		return Actions\Moderation\Logs::list_getModLogEntryCount(
-			$query_string,
-			$query_params,
-			$log_type,
-			$ignore_boards
-		);
-	}
-	function list_getModLogEntries(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $query_string = '',
-		array $query_params = [],
-		int $log_type = 1,
-		bool $ignore_boards = false
-	): array {
-		return Actions\Moderation\Logs::list_getModLogEntries(
-			$start,
-			$items_per_page,
-			$sort,
-			$query_string,
-			$query_params,
-			$log_type,
-			$ignore_boards
-		);
-	}
 	/**
 	 * End
 	 * Actions\Moderation\Logs
@@ -1363,23 +1137,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function approveAllData(): void
 	{
 		Actions\Moderation\Posts::approveAllData();
-	}
-	function list_getUnapprovedAttachments(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $approve_query
-	): array {
-		return Actions\Moderation\Posts::list_getUnapprovedAttachments(
-			$start,
-			$items_per_page,
-			$sort,
-			$approve_query
-		);
-	}
-	function list_getNumUnapprovedAttachments(string $approve_query): int
-	{
-		return Actions\Moderation\Posts::list_getNumUnapprovedAttachments($approve_query);
 	}
 	function UnapprovedPosts(): void
 	{
@@ -1454,22 +1211,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Moderation\Warnings::call();
 	}
-	function list_getWarningCount(): int
-	{
-		return Actions\Moderation\Warnings::list_getWarningCount();
-	}
-	function list_getWarnings(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Moderation\Warnings::list_getWarnings($start, $items_per_page, $sort);
-	}
-	function list_getWarningTemplateCount(): int
-	{
-		return Actions\Moderation\Warnings::list_getWarningTemplateCount();
-	}
-	function list_getWarningTemplates(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Moderation\Warnings::list_getWarningTemplates($start, $items_per_page, $sort);
-	}
 	function ViewWarningLog(): void
 	{
 		Actions\Moderation\Warnings::ViewWarningLog();
@@ -1492,44 +1233,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ViewWatchedUsers(): void
 	{
 		Actions\Moderation\WatchedUsers::call();
-	}
-	function list_getWatchedUserCount(string $approve_query): int
-	{
-		return Actions\Moderation\WatchedUsers::list_getWatchedUserCount($approve_query);
-	}
-	function list_getWatchedUsers(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $approve_query,
-		string $dummy
-	): array {
-		return Actions\Moderation\WatchedUsers::list_getWatchedUsers(
-			$start,
-			$items_per_page,
-			$sort,
-			$approve_query,
-			$dummy
-		);
-	}
-	function list_getWatchedUserPostsCount(string $approve_query): int
-	{
-		return Actions\Moderation\WatchedUsers::list_getWatchedUserPostsCount($approve_query);
-	}
-	function list_getWatchedUserPosts(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $approve_query,
-		array $delete_boards
-	): array {
-		return Actions\Moderation\WatchedUsers::list_getWatchedUserPosts(
-			$start,
-			$items_per_page,
-			$sort,
-			$approve_query,
-			$delete_boards
-		);
 	}
 	/**
 	 * End
@@ -1683,14 +1386,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Begin
 	 * Actions\Profile\IssueWarning
 	 */
-	function list_getUserWarnings(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Profile\IssueWarning::list_getUserWarnings($start, $items_per_page, $sort);
-	}
-	function list_getUserWarningCount(): int
-	{
-		return Actions\Profile\IssueWarning::list_getUserWarningCount();
-	}
 	function issueWarning(int $memID): void
 	{
 		Actions\Profile\IssueWarning::issueWarning($memID);
@@ -1716,18 +1411,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function notification(): void
 	{
 		Actions\Profile\Notification::call();
-	}
-	function list_getTopicNotificationCount(): int
-	{
-		return Actions\Profile\Notification::list_getTopicNotificationCount();
-	}
-	function list_getTopicNotifications(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Profile\Notification::list_getTopicNotifications($start, $items_per_page, $sort);
-	}
-	function list_getBoardNotifications(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Profile\Notification::list_getBoardNotifications($start, $items_per_page, $sort);
 	}
 	function alert_configuration(int $memID, bool $defaultSettings = false): void
 	{
@@ -1800,22 +1483,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Begin
 	 * Actions\Profile\ShowPost
 	 */
-	function list_getUnwatched(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Profile\ShowPosts::list_getUnwatched($start, $items_per_page, $sort);
-	}
-	function list_getNumUnwatched(): int
-	{
-		return Actions\Profile\ShowPosts::list_getNumUnwatched();
-	}
-	function list_getAttachments(int $start, int $items_per_page, string $sort, array $boards_allowed): array
-	{
-		return Actions\Profile\ShowPosts::list_getAttachments($start, $items_per_page, $sort, $boards_allowed);
-	}
-	function list_getNumAttachments(array $boards_allowed): int
-	{
-		return Actions\Profile\ShowPosts::list_getNumAttachments($boards_allowed);
-	}
 	function showPosts(int $memID): void
 	{
 		Actions\Profile\ShowPosts::showPosts($memID);
@@ -1893,60 +1560,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function tracking(): void
 	{
 		Actions\Profile\Tracking::call();
-	}
-	function list_getUserErrors(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $where,
-		array $where_vars = []
-	): array {
-		return Actions\Profile\Tracking::list_getUserErrors(
-			$start,
-			$items_per_page,
-			$sort,
-			$where,
-			$where_vars
-		);
-	}
-	function list_getUserErrorCount(string $where, array $where_vars = []): int
-	{
-		return Actions\Profile\Tracking::list_getUserErrorCount($where, $where_vars);
-	}
-	function list_getProfileEdits(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Profile\Tracking::list_getProfileEdits($start, $items_per_page, $sort);
-	}
-	function list_getProfileEditCount(): int
-	{
-		return Actions\Profile\Tracking::list_getProfileEditCount();
-	}
-	function list_getGroupRequests(int $start, int $items_per_page, string $sort): array
-	{
-		return Actions\Profile\Tracking::list_getGroupRequests($start, $items_per_page, $sort);
-	}
-	function list_getGroupRequestsCount(): int
-	{
-		return Actions\Profile\Tracking::list_getGroupRequestsCount();
-	}
-	function list_getLogins(
-		int $start,
-		int $items_per_page,
-		string $sort,
-		string $where,
-		array $where_vars = []
-	): array {
-		return Actions\Profile\Tracking::list_getLogins(
-			$start,
-			$items_per_page,
-			$sort,
-			$where,
-			$where_vars
-		);
-	}
-	function list_getLoginCount(string $where, array $where_vars = []): int
-	{
-		return Actions\Profile\Tracking::list_getLoginCount($where, $where_vars);
 	}
 	function trackActivity(int $memID): void
 	{
@@ -2030,6 +1643,425 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * Begin
 	 * Actions\AttachmentApprove
+	 */
+	function ApproveAttach(): void
+	{
+		Actions\AttachmentApprove::call();
+	}
+	/**
+	 * End
+	 * Actions\AttachmentApprove
+	 *
+	 * Begin
+	 * Actions\AttachmentDownload
+	 */
+	function showAttachment(): void
+	{
+		Actions\AttachmentDownload::call();
+	}
+	/**
+	 * End
+	 * Actions\AttachementDownload
+	 *
+	 * Begin
+	 * Actions\AutoSuggest
+	 */
+	function AutoSuggestHandler(?string $suggest_type = null): ?bool
+	{
+		return Actions\AutoSuggest::AutoSuggestHandler($suggest_type);
+	}
+	function AutoSuggest_Search_Member(): void
+	{
+		Actions\AutoSuggest::AutoSuggest_Search_Member();
+	}
+	function AutoSuggest_Search_MemberGroups(): void
+	{
+		Actions\AutoSuggest::AutoSuggest_Search_MemberGroups();
+	}
+	function AutoSuggest_Search_SMFVersions(): void
+	{
+		Actions\AutoSuggest::AutoSuggest_Search_SMFVersions();
+	}
+	/**
+	 * End
+	 * Actions\AutoSuggest
+	 *
+	 * Begin
+	 * Actions\BoardIndex
+	 */
+	function BoardIndex(): Actions\BoardIndex
+	{
+		return Actions\BoardIndex::load();
+	}
+	function call(): void
+	{
+		Actions\BoardIndex::call();
+	}
+	function getBoardIndex(array $board_index_options): array
+	{
+		return Actions\BoardIndex::get($board_index_options);
+	}
+	/**
+	 * End
+	 * Actions\BoardIndex
+	 *
+	 * Begin
+	 * Actions\BuddyListToggle
+	 */
+	function BuddyListToggle(): void
+	{
+		Actions\BuddyListToggle::call();
+	}
+	/**
+	 * End
+	 * Actions\BuddyListToggle
+	 *
+	 * Begin
+	 * Actions\Calendar
+	 */
+	function CalendarMain(): void
+	{
+		Actions\Calendar::call();
+	}
+	function iCalDownload(): void
+	{
+		Actions\Calendar::iCalDownload();
+	}
+	function CalendarPost(): void
+	{
+		Actions\Calendar::CalendarPost();
+	}
+	function getBirthdayRange(string $low_date, string $high_date): array
+	{
+		return Actions\Calendar::getBirthdayRange($low_date, $high_date);
+	}
+	function getEventRange(string $low_date, string $high_date, bool $use_permissions = true): array
+	{
+		return Actions\Calendar::getEventRange($low_date, $high_date, $use_permissions);
+	}
+	function getHolidayRange(string $low_date, string $high_date): array
+	{
+		return Actions\Calendar::getHolidayRange($low_date, $high_date);
+	}
+	function canLinkEvent(): void
+	{
+		Actions\Calendar::canLinkEvent();
+	}
+	function getTodayInfo(): array
+	{
+		return Actions\Calendar::getTodayInfo();
+	}
+	function getCalendarGrid(
+		string $selected_date,
+		array $calendarOptions,
+		bool $is_previous = false,
+		bool $has_picker = true
+	): array {
+		return Actions\Calendar::getCalendarGrid(
+			$selected_date,
+			$calendarOptions,
+			$is_previous,
+			$has_picker
+		);
+	}
+	function getCalendarWeek(string $selected_date, array $calendarOptions): array
+	{
+		return Actions\Calendar::getCalendarWeek($selected_date, $calendarOptions);
+	}
+	function getCalendarList(string $start_date, string $end_date, array $calendarOptions): array
+	{
+		return Actions\Calendar::getCalendarList($start_date, $end_date, $calendarOptions);
+	}
+	function loadDatePicker(string $selector = 'input.date_input', string $date_format = ''): void
+	{
+		Actions\Calendar::loadDatePicker($selector, $date_format);
+	}
+	function loadTimePicker(string $selector = 'input.time_input', string $time_format = ''): void
+	{
+		Actions\Calendar::loadTimePicker($selector, $time_format);
+	}
+	function loadDatePair(string $container, string $date_class = '', string $time_class = ''): void
+	{
+		Actions\Calendar::loadDatePair($container, $date_class, $time_class);
+	}
+	function cache_getOffsetIndependentEvents(array $eventOptions): array
+	{
+		return Actions\Calendar::cache_getOffsetIndependentEvents($eventOptions);
+	}
+	function cache_getRecentEvents(array $eventOptions): array
+	{
+		return Actions\Calendar::cache_getRecentEvents($eventOptions);
+	}
+	function validateEventPost(): void
+	{
+		Actions\Calendar::validateEventPost();
+	}
+	function getEventPoster(int $event_id): int|bool
+	{
+		return Actions\Calendar::getEventPoster($event_id);
+	}
+	function removeHolidays(array $holiday_ids): void
+	{
+		Actions\Calendar::removeHolidays($holiday_ids);
+	}
+	function convertDateToEnglish(string $date): string
+	{
+		return Actions\Calendar::convertDateToEnglish($date);
+	}
+	/**
+	 * End
+	 * Actions\Calendar
+	 *
+	 * Begin
+	 * Actions\CoppaForm
+	 */
+	function CoppaForm(): void
+	{
+		Actions\CoppaForm::call();
+	}
+	/**
+	 * End
+	 * Actions\CoppaForm
+	 *
+	 * Begin
+	 * Actions\Credits
+	 */
+	function Credits(bool $in_admin = false): void
+	{
+		Actions\Credits::call($in_admin);
+	}
+	/**
+	 * End
+	 * Actions\Credits
+	 *
+	 * Begin
+	 * Actions\Display
+	 */
+	function Display(): void
+	{
+		Actions\Display::call();
+	}
+	/**
+	 * End
+	 * Actions\Display
+	 *
+	 * Begin
+	 * Actions\DisplayAdminFile
+	 */
+	function DisplayAdminFile(): void
+	{
+		Actions\DisplayAdminFile::call();
+	}
+	/**
+	 * End
+	 * Actions\DisplayAdminFile
+	 *
+	 * Begin
+	 * Actions\Feed
+	 */
+	function ShowXmlFeed(): void
+	{
+		Actions\Feed::call();
+	}
+	function buildXmlFeed(string $format, array $data, array $metadata, string $subaction): array
+	{
+		return Actions\Feed::build($format, $data, $metadata, $subaction);
+	}
+	function cdata_parse(string $data, string $ns = '', bool $force = false): string
+	{
+		return Actions\Feed::cdataParse($data, $ns, $force);
+	}
+	/**
+	 * End
+	 * Actions\Feed
+	 *
+	 * Begin
+	 * Actions\FindMember
+	 * @deprecated
+	 */
+	function JSMembers(): void
+	{
+		Actions\FindMember::call();
+	}
+	/**
+	 * End
+	 * Actions\FindMember
+	 *
+	 * Begin
+	 * Actions\Groups
+	 */
+	function Groups(): void
+	{
+		Actions\Groups::call();
+	}
+	function listMembergroupMembers_Href(array &$members, int $membergroup, int $limit = null): bool
+	{
+		return Actions\Groups::listMembergroupMembers_Href($members, $membergroup, $limit);
+	}
+	function GroupList(): void
+	{
+		Actions\Groups::GroupList();
+	}
+	function MembergroupMembers(): void
+	{
+		Actions\Groups::MembergroupMembers();
+	}
+	function GroupRequests(): void
+	{
+		Actions\Groups::GroupRequests();
+	}
+	/**
+	 * End
+	 * Actions\Groups
+	 *
+	 * Begin
+	 * Actions\Help
+	 */
+	function ShowHelp(): void
+	{
+		Actions\Help::call();
+	}
+	function HelpIndex(): void
+	{
+		Actions\Help::HelpIndex();
+	}
+	/**
+	 * End
+	 * Actions\Help
+	 *
+	 * Begin
+	 * Actions\HelpAdmin
+	 */
+	function ShowAdminHelp(): void
+	{
+		Actions\HelpAdmin::call();
+	}
+	/**
+	 * End
+	 * Actions\HelpAdmin
+	 *
+	 * Begin
+	 * Actions\JavaScriptModify
+	 */
+	function JavaScriptModify(): void
+	{
+		Actions\JavaScriptModify::call();
+	}
+	/**
+	 * End
+	 * Actions\JavaScriptModify
+	 *
+	 * Begin
+	 * Actions\Login
+	 */
+	function Login(): void
+	{
+		Actions\Login::call();
+	}
+	/**
+	 * End
+	 * Actions\Login
+	 *
+	 * Begin
+	 * Actions\Login2
+	 */
+	function Login2(): void
+	{
+		Actions\Login2::call();
+	}
+	function checkAjax(): void
+	{
+		Actions\Login2::checkAjax();
+	}
+	function validatePasswordFlood(
+		int $id_member,
+		string $member_name,
+		bool|string $password_flood_value = false,
+		bool $was_correct = false,
+		bool $tfa = false
+	): void {
+		Actions\Login2::validatePasswordFlood(
+			$id_member,
+			$member_name,
+			$password_flood_value,
+			$was_correct,
+			$tfa
+		);
+	}
+	/**
+	 * End
+	 * Actions\Login2
+	 *
+	 * Begin
+	 * Actions\LoginTFA
+	 */
+	function LoginTFA(): void
+	{
+		Actions\LoginTFA::call();
+	}
+	/**
+	 * End
+	 * Actions\LoginTFA
+	 *
+	 * Begin
+	 * Actions\Logout
+	 */
+	function Logout(): void
+	{
+		Actions\Logout::call();
+	}
+	/**
+	 * End
+	 * Actions\Logout
+	 *
+	 * Begin
+	 * Actions\Memberlist
+	 */
+	function Memberlist(): void
+	{
+		Actions\Memberlist::call();
+	}
+	function MLAll(): void
+	{
+		Actions\Memberlist::MLAll();
+	}
+	function MLSearch(): void
+	{
+		Actions\Memberlist::MLSearch();
+	}
+	function printMemberListRows($request): void
+	{
+		Actions\Memberlist::printRows($request);
+	}
+	function getCustFieldsMList(): array
+	{
+		return Actions\Memberlist::getCustFields();
+	}
+	/**
+	 * End
+	 * Actions\Memberlist
+	 *
+	 * Begin
+	 * Actions\MessageIndex
+	 */
+	function MessageIndex(): void
+	{
+		Actions\MessageIndex::call();
+	}
+	function getBoardList(array $boardListOptions = []): array
+	{
+		return Actions\MessageIndex::getBoardList($boardListOptions);
+	}
+	function buildTopicContext(array $row): void
+	{
+		Actions\MessageIndex::buildTopicContext($row);
+	}
+	/**
+	 * End
+	 * Actions\MessageIndex
+	 *
+	 * Begin
+	 * Actions\MsgDelete
 	 */
 
 }

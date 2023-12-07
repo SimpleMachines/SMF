@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Actions\Moderation\Main as ModCenter;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -36,25 +35,6 @@ use SMF\Utils;
  */
 class Groups implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Groups',
-			'list_getMembergroups' => 'list_getMembergroups',
-			'listMembergroupMembers_Href' => 'listMembergroupMembers_Href',
-			'list_getGroupRequestCount' => 'list_getGroupRequestCount',
-			'list_getGroupRequests' => 'list_getGroupRequests',
-			'GroupList' => 'GroupList',
-			'MembergroupMembers' => 'MembergroupMembers',
-			'GroupRequests' => 'GroupRequests',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -881,7 +861,7 @@ class Groups implements ActionInterface
 	 * @param int $items_per_page The number of items per page.
 	 * @param string $sort An SQL sort expression (column/direction).
 	 * @param string $where Data for the WHERE clause.
-	 * @param string $where_parameters Parameter values to be inserted into the WHERE clause.
+	 * @param array $where_parameters Parameter values to be inserted into the WHERE clause.
 	 * @return array An array of group requests.
 	 * Each group request has:
 	 * 		'id'
@@ -992,11 +972,6 @@ class Groups implements ActionInterface
 			$this->subaction = $_GET['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Groups::exportStatic')) {
-	Groups::exportStatic();
 }
 
 ?>

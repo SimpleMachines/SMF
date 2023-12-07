@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,18 +29,6 @@ use SMF\Utils;
  */
 class Credits implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Credits',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -462,11 +449,6 @@ class Credits implements ActionInterface
 		// Don't blink. Don't even blink. Blink and you're dead.
 		Lang::load('Who');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Credits::exportStatic')) {
-	Credits::exportStatic();
 }
 
 ?>

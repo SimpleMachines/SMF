@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\PageIndex;
 use SMF\Theme;
@@ -31,18 +30,6 @@ use SMF\Utils;
  */
 class FindMember implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'JSMembers',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -158,11 +145,6 @@ class FindMember implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\FindMember::exportStatic')) {
-	FindMember::exportStatic();
 }
 
 ?>
