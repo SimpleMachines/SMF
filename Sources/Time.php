@@ -419,8 +419,8 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Like DateTime::format(), except that it can accept both DateTime format
-	 * specifiers and strftime format specifiers (but not both at once).
+	 * Like DateTime::format(), except that it can accept either DateTime format
+	 * specifiers or strftime format specifiers (but not both at once).
 	 *
 	 * This does not use the system's strftime library or locale setting when
 	 * formatting using strftime format specifiers, so results may vary in a few
@@ -721,6 +721,39 @@ class Time extends \DateTime implements \ArrayAccess
 	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): self
 	{
 		return new self($datetime, $timezone);
+	}
+
+	/**
+	 * Convert a \DateTimeInterface object to a Time object.
+	 *
+	 * @param string $object A \DateTimeInterface object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromInterface(\DateTimeInterface $object): static
+	{
+		return new self($object->format('Y-m-d H:i:s.u e'));
+	}
+
+	/**
+	 * Convert a \DateTime object to a Time object.
+	 *
+	 * @param string $object A \DateTime object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromMutable(\DateTime $object): static
+	{
+		return self::createFromInterface($object);
+	}
+
+	/**
+	 * Convert a \DateTimeImmutable object to a Time object.
+	 *
+	 * @param string $object A \DateTimeImmutable object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromImmutable(\DateTimeImmutable $object): static
+	{
+		return self::createFromInterface($object);
 	}
 
 	/**
@@ -1088,7 +1121,6 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = implode('', $format_parts);
 
 		// Finally, strip out any unwanted leftovers.
-		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
@@ -1208,7 +1240,6 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 
 		// Finally, strip out any unwanted leftovers.
-		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
