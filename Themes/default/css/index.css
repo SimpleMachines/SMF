@@ -2364,7 +2364,7 @@ fieldset.merge_options {
 
 /* Styles for the login areas.
 ------------------------------------------------------- */
-.login {
+.login:not(.main_icons) {
 	width: 540px;
 	max-width: 100%;
 	margin: 0 auto;
