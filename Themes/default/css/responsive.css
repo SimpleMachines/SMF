@@ -836,15 +836,3 @@
 		display: inline-block;
 	}
 }
-
-/* iPhone Tests */
-@media (max-width: 320px) {
-
-}
-
-/*Unread Links Hide*/
-@media (max-width: 770px) {
-    .unread_links {
-		display: none;
-	}
-}

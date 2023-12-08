@@ -363,21 +363,19 @@ function template_body_above()
 						<div class="popup_window description">
 							<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
 								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-							</div>';
+							</div>
+							', template_menu(), '';
 							if (User::$me->is_logged)
-							echo '
-							    <div class="unread_links floatright">
-									<ul class="unread_links">
+								echo '
+									<ul class="dropmenu">
 										<li>
 											<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
 										</li>
 										<li>
 											<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
 										</li>
-									</ul>
-							    </div>';
+									</ul>';
                             echo '
-							', template_menu(), '
 						</div>
 					</div>
 		        </div>
