@@ -383,11 +383,6 @@
 	--menu_link_active_hover_color: hsl(0, 0%, 0%);
 	--menu_link_focus_color: hsl(0, 0%, 100%);
 	--menu_link_hover_color: hsl(0, 0%, 100%);
-	--unread_links_font_size: 0.9em;
-	--unread_links_link_color: hsl(0, 0%, 100%);
-	--unread_links_link_padding: 4px 6px;
-	--unread_links_border_radius: 4px;
-	--unread_links_li_padding: 10px 8px;
 
 	/* Mentions */
 
