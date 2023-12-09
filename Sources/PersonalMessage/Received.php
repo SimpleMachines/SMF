@@ -525,6 +525,7 @@ class Received implements \ArrayAccess
 		}
 
 		$joins = [];
+		self::$recent[$paramskey] = [];
 
 		$where = [
 			'pmr.id_member = {int:me}',
