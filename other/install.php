@@ -13,30 +13,31 @@
 
 use SMF\Config;
 use SMF\Cookie;
-use SMF\ErrorHandler;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Logging;
+use SMF\PackageManager\FtpConnection;
 use SMF\Security;
 use SMF\TaskRunner;
 use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
-use SMF\PackageManager\FtpConnection;
 
 define('SMF_VERSION', '3.0 Alpha 1');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2023');
-define('DB_SCRIPT_VERSION', '2-1');
+define('DB_SCRIPT_VERSION', '3-0');
 define('SMF_INSTALLING', 1);
 
 define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
-if (!defined('TIME_START'))
+
+if (!defined('TIME_START')) {
 	define('TIME_START', microtime(true));
+}
 
 define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
 define('SMF_SETTINGS_BACKUP_FILE', __DIR__ . '/Settings_bak.php');
@@ -46,11 +47,12 @@ $GLOBALS['required_php_version'] = '8.0.0';
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	define('SMF', 1);
+}
 
 // Let's pull in useful classes
-require_once('Sources/Autoloader.php');
+require_once 'Sources/Autoloader.php';
 
 // Get the current settings, without affecting global namespace.
 Config::$backward_compatibility = false;
@@ -59,16 +61,18 @@ Config::$backward_compatibility = true;
 
 Utils::load();
 
-require_once(Config::$sourcedir . '/Subs-Compat.php');
+require_once Config::$sourcedir . '/Subs-Compat.php';
 
 // Database info.
-$databases = array(
-	'mysql' => array(
+$databases = [
+	'mysql' => [
 		'name' => 'MySQL',
 		'version' => '5.6.0',
-		'version_check' => function() {
-			if (!function_exists('mysqli_fetch_row'))
+		'version_check' => function () {
+			if (!function_exists('mysqli_fetch_row')) {
 				return false;
+			}
+
 			return mysqli_fetch_row(mysqli_query(Db::$db->connection, 'SELECT VERSION();'))[0];
 		},
 		'supported' => function_exists('mysqli_connect'),
@@ -76,66 +80,64 @@ $databases = array(
 		'default_password' => 'mysql.default_password',
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
-		'utf8_support' => function()
-		{
+		'utf8_support' => function () {
 			return true;
 		},
 		'utf8_version' => '5.0.22',
-		'utf8_version_check' => function() {
+		'utf8_version_check' => function () {
 			return mysqli_get_server_info(Db::$db->connection);
 		},
 		'alter_support' => true,
-		'validate_prefix' => function(&$value)
-		{
+		'validate_prefix' => function (&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
+
 			return true;
 		},
-	),
-	'postgresql' => array(
+	],
+	'postgresql' => [
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
-		'version_check' => function() {
+		'version_check' => function () {
 			$request = pg_query(Db::$db->connection, 'SELECT version()');
-			list ($version) = pg_fetch_row($request);
+			list($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
+
 			return $version;
 		},
 		'supported' => function_exists('pg_connect'),
 		'always_has_db' => true,
-		'utf8_support' => function()
-		{
+		'utf8_support' => function () {
 			$request = pg_query(Db::$db->connection, 'SHOW SERVER_ENCODING');
 
-			list ($charcode) = pg_fetch_row($request);
+			list($charcode) = pg_fetch_row($request);
 
-			if ($charcode == 'UTF8')
-				return true;
-			else
-				return false;
+			return (bool) ($charcode == 'UTF8');
 		},
 		'utf8_version' => '8.0',
-		'utf8_version_check' => function (){
+		'utf8_version_check' => function () {
 			$request = pg_query(Db::$db->connection, 'SELECT version()');
-			list ($version) = pg_fetch_row($request);
+			list($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
+
 			return $version;
 		},
-		'validate_prefix' => function(&$value)
-		{
+		'validate_prefix' => function (&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
 			// Is it reserved?
-			if ($value == 'pg_')
+			if ($value == 'pg_') {
 				return Lang::$txt['error_db_prefix_reserved'];
+			}
 
 			// Is the prefix numeric?
-			if (preg_match('~^\d~', $value))
+			if (preg_match('~^\d~', $value)) {
 				return Lang::$txt['error_db_prefix_numeric'];
+			}
 
 			return true;
 		},
-	),
-);
+	],
+];
 
 // Initialize everything and load the language files.
 initialize_inputs();
@@ -146,15 +148,15 @@ $installurl = $_SERVER['PHP_SELF'];
 
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
-$incontext['steps'] = array(
-	0 => array(1, Lang::$txt['install_step_welcome'], 'Welcome', 0),
-	1 => array(2, Lang::$txt['install_step_writable'], 'CheckFilesWritable', 10),
-	2 => array(3, Lang::$txt['install_step_databaseset'], 'DatabaseSettings', 15),
-	3 => array(4, Lang::$txt['install_step_forum'], 'ForumSettings', 40),
-	4 => array(5, Lang::$txt['install_step_databasechange'], 'DatabasePopulation', 15),
-	5 => array(6, Lang::$txt['install_step_admin'], 'AdminAccount', 20),
-	6 => array(7, Lang::$txt['install_step_delete'], 'DeleteInstall', 0),
-);
+$incontext['steps'] = [
+	0 => [1, Lang::$txt['install_step_welcome'], 'Welcome', 0],
+	1 => [2, Lang::$txt['install_step_writable'], 'CheckFilesWritable', 10],
+	2 => [3, Lang::$txt['install_step_databaseset'], 'DatabaseSettings', 15],
+	3 => [4, Lang::$txt['install_step_forum'], 'ForumSettings', 40],
+	4 => [5, Lang::$txt['install_step_databasechange'], 'DatabasePopulation', 15],
+	5 => [6, Lang::$txt['install_step_admin'], 'AdminAccount', 20],
+	6 => [7, Lang::$txt['install_step_delete'], 'DeleteInstall', 0],
+];
 
 // Default title...
 $incontext['page_title'] = Lang::$txt['smf_installer'];
@@ -165,20 +167,21 @@ $incontext['current_step'] = isset($_GET['step']) ? (int) $_GET['step'] : 0;
 // Loop through all the steps doing each one as required.
 $incontext['overall_percent'] = 0;
 
-foreach ($incontext['steps'] as $num => $step)
-{
-	if ($num >= $incontext['current_step'])
-	{
+foreach ($incontext['steps'] as $num => $step) {
+	if ($num >= $incontext['current_step']) {
 		// The current weight of this step in terms of overall progress.
 		$incontext['step_weight'] = $step[3];
 		// Make sure we reset the skip button.
 		$incontext['skip'] = false;
 
 		// Call the step and if it returns false that means pause!
-		if (function_exists($step[2]) && $step[2]() === false)
+		if (function_exists($step[2]) && $step[2]() === false) {
 			break;
-		elseif (function_exists($step[2]))
+		}
+
+		if (function_exists($step[2])) {
 			$incontext['current_step']++;
+		}
 
 		// No warnings pass on.
 		$incontext['warning'] = '';
@@ -194,41 +197,45 @@ function initialize_inputs()
 	global $databases;
 
 	// Just so people using older versions of PHP aren't left in the cold.
-	if (!isset($_SERVER['PHP_SELF']))
-		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
+	if (!isset($_SERVER['PHP_SELF'])) {
+		$_SERVER['PHP_SELF'] = $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] ?? 'install.php';
+	}
 
 	// In pre-release versions, report all errors.
-	if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
+	if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 		error_reporting(E_ALL);
+	}
 	// Otherwise, report all errors except for deprecation notices.
-	else
+	else {
 		error_reporting(E_ALL & ~E_DEPRECATED);
+	}
 
 	// Fun.  Low PHP version...
-	if (!isset($_GET))
-	{
+	if (!isset($_GET)) {
 		$GLOBALS['_GET']['step'] = 0;
+
 		return;
 	}
 
-	if (!isset($_GET['obgz']))
-	{
+	if (!isset($_GET['obgz'])) {
 		ob_start();
 
-		if (ini_get('session.save_handler') == 'user')
+		if (ini_get('session.save_handler') == 'user') {
 			@ini_set('session.save_handler', 'files');
-		if (function_exists('session_start'))
+		}
+
+		if (function_exists('session_start')) {
 			@session_start();
-	}
-	else
-	{
+		}
+	} else {
 		ob_start('ob_gzhandler');
 
-		if (ini_get('session.save_handler') == 'user')
+		if (ini_get('session.save_handler') == 'user') {
 			@ini_set('session.save_handler', 'files');
+		}
 		session_start();
 
-		if (!headers_sent())
+		if (!headers_sent()) {
 			echo '<!DOCTYPE html>
 <html>
 	<head>
@@ -238,21 +245,20 @@ function initialize_inputs()
 		<strong>', htmlspecialchars($_GET['pass_string']), '</strong>
 	</body>
 </html>';
+		}
+
 		exit;
 	}
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
-	if (isset($_GET['delete']))
-	{
-		if (isset($_SESSION['installer_temp_ftp']))
-		{
+	if (isset($_GET['delete'])) {
+		if (isset($_SESSION['installer_temp_ftp'])) {
 			$ftp = new FtpConnection($_SESSION['installer_temp_ftp']['server'], $_SESSION['installer_temp_ftp']['port'], $_SESSION['installer_temp_ftp']['username'], $_SESSION['installer_temp_ftp']['password']);
 			$ftp->chdir($_SESSION['installer_temp_ftp']['path']);
 
 			$ftp->unlink('install.php');
 
-			foreach ($databases as $key => $dummy)
-			{
+			foreach ($databases as $key => $dummy) {
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
 				$ftp->unlink('install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
 			}
@@ -260,13 +266,10 @@ function initialize_inputs()
 			$ftp->close();
 
 			unset($_SESSION['installer_temp_ftp']);
-		}
-		else
-		{
+		} else {
 			@unlink(__FILE__);
 
-			foreach ($databases as $key => $dummy)
-			{
+			foreach ($databases as $key => $dummy) {
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
 				@unlink(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
 			}
@@ -275,33 +278,36 @@ function initialize_inputs()
 		// Now just redirect to a blank.png...
 		$secure = false;
 
-		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
 			$secure = true;
-		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
 			$secure = true;
+		}
 
-		header('location: http' . ($secure ? 's' : '') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		header('location: http' . ($secure ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+
 		exit;
 	}
 
 	// PHP 5 might cry if we don't do this now.
-	if (function_exists('date_default_timezone_set'))
-	{
+	if (function_exists('date_default_timezone_set')) {
 		// Get PHP's default timezone, if set
 		$ini_tz = ini_get('date.timezone');
-		if (!empty($ini_tz))
+
+		if (!empty($ini_tz)) {
 			$timezone_id = $ini_tz;
-		else
+		} else {
 			$timezone_id = '';
+		}
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
-		if (!in_array($timezone_id, timezone_identifiers_list()))
-		{
+		if (!in_array($timezone_id, timezone_identifiers_list())) {
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
 
-			if (empty($timezone_id))
+			if (empty($timezone_id)) {
 				$timezone_id = 'UTC';
+			}
 		}
 
 		date_default_timezone_set($timezone_id);
@@ -319,24 +325,23 @@ function load_lang_file()
 {
 	global $incontext;
 
-	$incontext['detected_languages'] = array();
+	$incontext['detected_languages'] = [];
 
 	// Make sure the languages directory actually exists.
-	if (file_exists(Config::$boarddir . '/Themes/default/languages'))
-	{
+	if (file_exists(Config::$boarddir . '/Themes/default/languages')) {
 		// Find all the "Install" language files in the directory.
 		$dir = dir(Config::$boarddir . '/Themes/default/languages');
-		while ($entry = $dir->read())
-		{
-			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php')
+
+		while ($entry = $dir->read()) {
+			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
 				$incontext['detected_languages'][$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+			}
 		}
 		$dir->close();
 	}
 
 	// Didn't find any, show an error message!
-	if (empty($incontext['detected_languages']))
-	{
+	if (empty($incontext['detected_languages'])) {
 		// Let's not cache this message, eh?
 		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
 		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -372,24 +377,26 @@ function load_lang_file()
 		<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
 	</div></body>
 </html>';
+
 		die;
 	}
 
 	// Override the language file?
-	if (isset($_GET['lang_file']))
+	if (isset($_GET['lang_file'])) {
 		$_SESSION['installer_temp_lang'] = $_GET['lang_file'];
-	elseif (isset($GLOBALS['HTTP_GET_VARS']['lang_file']))
+	} elseif (isset($GLOBALS['HTTP_GET_VARS']['lang_file'])) {
 		$_SESSION['installer_temp_lang'] = $GLOBALS['HTTP_GET_VARS']['lang_file'];
+	}
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
-	{
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang'])) {
 		// Use the first one...
-		list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
-		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1)
-			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1) {
+			list(, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		}
 	}
 
 	// Which language are we loading? Assume that the admin likes that language.
@@ -408,8 +415,9 @@ function load_database()
 	Config::$modSettings['disableQueryCheck'] = true;
 
 	// Connect the database.
-	if (empty(Db::$db->connection))
+	if (empty(Db::$db->connection)) {
 		Db::load();
+	}
 }
 
 // This is called upon exiting the installer, for template etc.
@@ -418,26 +426,24 @@ function installExit($fallThrough = false)
 	global $incontext, $installurl;
 
 	// Send character set.
-	header('content-type: text/html; charset=' . (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8'));
+	header('content-type: text/html; charset=' . (Lang::$txt['lang_character_set'] ?? 'UTF-8'));
 
 	// We usually dump our templates out.
-	if (!$fallThrough)
-	{
+	if (!$fallThrough) {
 		// The top install bit.
 		template_install_above();
 
 		// Call the template.
-		if (isset($incontext['sub_template']))
-		{
+		if (isset($incontext['sub_template'])) {
 			$incontext['form_url'] = $installurl . '?step=' . $incontext['current_step'];
 
 			call_user_func('template_' . $incontext['sub_template']);
 		}
 		// @todo REMOVE THIS!!
-		else
-		{
-			if (function_exists('doStep' . $_GET['step']))
+		else {
+			if (function_exists('doStep' . $_GET['step'])) {
 				call_user_func('doStep' . $_GET['step']);
+			}
 		}
 		// Show the footer.
 		template_install_below();
@@ -455,88 +461,90 @@ function Welcome()
 	$incontext['sub_template'] = 'welcome_message';
 
 	// Done the submission?
-	if (isset($_POST['contbutt']))
+	if (isset($_POST['contbutt'])) {
 		return true;
+	}
 
 	// See if we think they have already installed it?
 	$probably_installed = 0;
 
 	$settingsDefs = Config::getSettingsDefs();
 
-	foreach (array('db_passwd', 'boardurl') as $var)
-	{
-		if (!empty(Config::${$var}) && Config::${$var} != $settingsDefs[$var]['default'])
+	foreach (['db_passwd', 'boardurl'] as $var) {
+		if (!empty(Config::${$var}) && Config::${$var} != $settingsDefs[$var]['default']) {
 			$probably_installed++;
+		}
 	}
 
-	if ($probably_installed == 2)
+	if ($probably_installed == 2) {
 		$incontext['warning'] = Lang::$txt['error_already_installed'];
+	}
 
 	// Is some database support even compiled in?
-	$incontext['supported_databases'] = array();
-	foreach ($databases as $key => $db)
-	{
-		if ($db['supported'])
-		{
+	$incontext['supported_databases'] = [];
+
+	foreach ($databases as $key => $db) {
+		if ($db['supported']) {
 			$type = ($key == 'mysqli') ? 'mysql' : $key;
-			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql'))
-			{
+
+			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql')) {
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
 				Lang::$txt['error_db_script_missing'] = sprintf(Lang::$txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
-			}
-			else
+			} else {
 				$incontext['supported_databases'][] = $db;
+			}
 		}
 	}
 
 	// Check the PHP version.
-	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>=')))
-	{
+	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>='))) {
 		$error = 'error_php_too_low';
 	}
 	// Make sure we have a supported database
-	elseif (empty($incontext['supported_databases']))
-	{
+	elseif (empty($incontext['supported_databases'])) {
 		$error = empty($notFoundSQLFile) ? 'error_db_missing' : 'error_db_script_missing';
 	}
 	// How about session support?  Some crazy sysadmin remove it?
-	elseif (!function_exists('session_start'))
-	{
+	elseif (!function_exists('session_start')) {
 		$error = 'error_session_missing';
 	}
 	// Make sure they uploaded all the files.
-	elseif (!file_exists(Config::$boarddir . '/index.php'))
-	{
+	elseif (!file_exists(Config::$boarddir . '/index.php')) {
 		$error = 'error_missing_files';
 	}
 	// Very simple check on the session.save_path for Windows.
 	// @todo Move this down later if they don't use database-driven sessions?
-	elseif (@ini_get('session.save_path') == '/tmp' && substr(__FILE__, 1, 2) == ':\\')
-	{
+	elseif (@ini_get('session.save_path') == '/tmp' && substr(__FILE__, 1, 2) == ':\\') {
 		$error = 'error_session_save_path';
 	}
 
 	// Since each of the three messages would look the same, anyway...
-	if (isset($error))
+	if (isset($error)) {
 		$incontext['error'] = Lang::$txt[$error];
+	}
 
 	// Mod_security blocks everything that smells funny. Let SMF handle security.
-	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
+	if (!fixModSecurity() && !isset($_GET['overmodsecurity'])) {
 		$incontext['error'] = Lang::$txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . Lang::$txt['error_message_click'] . '</a> ' . Lang::$txt['error_message_bad_try_again'];
+	}
 
 	// Confirm mbstring is loaded...
-	if (!extension_loaded('mbstring'))
+	if (!extension_loaded('mbstring')) {
 		$incontext['error'] = Lang::$txt['install_no_mbstring'];
+	}
 
 	// Confirm fileinfo is loaded...
-	if (!extension_loaded('fileinfo'))
+	if (!extension_loaded('fileinfo')) {
 		$incontext['error'] = Lang::$txt['install_no_fileinfo'];
+	}
 
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
-	if (!in_array('https', $supported_streams))
+
+	if (!in_array('https', $supported_streams)) {
 		$incontext['warning'] = Lang::$txt['install_no_https'];
+	}
 
 	return false;
 }
@@ -548,7 +556,7 @@ function CheckFilesWritable()
 	$incontext['page_title'] = Lang::$txt['ftp_checking_writable'];
 	$incontext['sub_template'] = 'chmod_files';
 
-	$writable_files = array(
+	$writable_files = [
 		'attachments',
 		'avatars',
 		'custom_avatar',
@@ -560,84 +568,86 @@ function CheckFilesWritable()
 		'Settings.php',
 		'Settings_bak.php',
 		'cache/db_last_error.php',
-	);
+	];
 
-	foreach ($incontext['detected_languages'] as $lang => $temp)
+	foreach ($incontext['detected_languages'] as $lang => $temp) {
 		$extra_files[] = 'Themes/default/languages/' . $lang;
+	}
 
 	// With mod_security installed, we could attempt to fix it with .htaccess.
-	if (function_exists('apache_get_modules') && in_array('mod_security', apache_get_modules()))
-	{
+	if (function_exists('apache_get_modules') && in_array('mod_security', apache_get_modules())) {
 		$writable_files[] = file_exists(Config::$boarddir . '/.htaccess') ? '.htaccess' : '.';
 	}
 
-	$failed_files = array();
+	$failed_files = [];
 
 	// On linux, it's easy - just use is_writable!
-	if (substr(__FILE__, 1, 2) != ':\\')
-	{
+	if (substr(__FILE__, 1, 2) != ':\\') {
 		$incontext['systemos'] = 'linux';
 
-		foreach ($writable_files as $file)
-		{
+		foreach ($writable_files as $file) {
 			// Some files won't exist, try to address up front
-			if (!file_exists(Config::$boarddir . '/' . $file))
+			if (!file_exists(Config::$boarddir . '/' . $file)) {
 				@touch(Config::$boarddir . '/' . $file);
+			}
 
 			// NOW do the writable check...
-			if (!is_writable(Config::$boarddir . '/' . $file))
-			{
+			if (!is_writable(Config::$boarddir . '/' . $file)) {
 				@chmod(Config::$boarddir . '/' . $file, 0755);
 
 				// Well, 755 hopefully worked... if not, try 777.
-				if (!is_writable(Config::$boarddir . '/' . $file) && !@chmod(Config::$boarddir . '/' . $file, 0777))
+				if (!is_writable(Config::$boarddir . '/' . $file) && !@chmod(Config::$boarddir . '/' . $file, 0777)) {
 					$failed_files[] = $file;
+				}
 			}
 		}
 
-		foreach ($extra_files as $file)
+		foreach ($extra_files as $file) {
 			@chmod(Config::$boarddir . (empty($file) ? '' : '/' . $file), 0777);
+		}
 	}
 	// Windows is trickier.  Let's try opening for r+...
-	else
-	{
+	else {
 		$incontext['systemos'] = 'windows';
 
-		foreach ($writable_files as $file)
-		{
+		foreach ($writable_files as $file) {
 			// Folders can't be opened for write... but the index.php in them can ;)
-			if (is_dir(Config::$boarddir . '/' . $file))
+			if (is_dir(Config::$boarddir . '/' . $file)) {
 				$file .= '/index.php';
+			}
 
 			// Funny enough, chmod actually does do something on windows - it removes the read only attribute.
 			@chmod(Config::$boarddir . '/' . $file, 0777);
 			$fp = @fopen(Config::$boarddir . '/' . $file, 'r+');
 
 			// Hmm, okay, try just for write in that case...
-			if (!is_resource($fp))
+			if (!is_resource($fp)) {
 				$fp = @fopen(Config::$boarddir . '/' . $file, 'w');
+			}
 
-			if (!is_resource($fp))
+			if (!is_resource($fp)) {
 				$failed_files[] = $file;
+			}
 
 			@fclose($fp);
 		}
 
-		foreach ($extra_files as $file)
+		foreach ($extra_files as $file) {
 			@chmod(Config::$boarddir . (empty($file) ? '' : '/' . $file), 0777);
+		}
 	}
 
 	$failure = count($failed_files) >= 1;
 
-	if (!isset($_SERVER))
+	if (!isset($_SERVER)) {
 		return !$failure;
+	}
 
 	// Put the list into context.
 	$incontext['failed_files'] = $failed_files;
 
 	// It's not going to be possible to use FTP on windows to solve the problem...
-	if ($failure && substr(__FILE__, 1, 2) == ':\\')
-	{
+	if ($failure && substr(__FILE__, 1, 2) == ':\\') {
 		$incontext['error'] = Lang::$txt['error_windows_chmod'] . '
 					<ul class="error_content">
 						<li>' . implode('</li>
@@ -646,12 +656,11 @@ function CheckFilesWritable()
 
 		return false;
 	}
+
 	// We're going to have to use... FTP!
-	elseif ($failure)
-	{
+	if ($failure) {
 		// Load any session data we might have...
-		if (!isset($_POST['ftp_username']) && isset($_SESSION['installer_temp_ftp']))
-		{
+		if (!isset($_POST['ftp_username']) && isset($_SESSION['installer_temp_ftp'])) {
 			$_POST['ftp_server'] = $_SESSION['installer_temp_ftp']['server'];
 			$_POST['ftp_port'] = $_SESSION['installer_temp_ftp']['port'];
 			$_POST['ftp_username'] = $_SESSION['installer_temp_ftp']['username'];
@@ -659,76 +668,72 @@ function CheckFilesWritable()
 			$_POST['ftp_path'] = $_SESSION['installer_temp_ftp']['path'];
 		}
 
-		$incontext['ftp_errors'] = array();
+		$incontext['ftp_errors'] = [];
 
-		if (isset($_POST['ftp_username']))
-		{
+		if (isset($_POST['ftp_username'])) {
 			$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
-			if ($ftp->error === false)
-			{
+			if ($ftp->error === false) {
 				// Try it without /home/abc just in case they messed up.
-				if (!$ftp->chdir($_POST['ftp_path']))
-				{
+				if (!$ftp->chdir($_POST['ftp_path'])) {
 					$incontext['ftp_errors'][] = $ftp->last_message;
 					$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['ftp_path']));
 				}
 			}
 		}
 
-		if (!isset($ftp) || $ftp->error !== false)
-		{
-			if (!isset($ftp))
-			{
+		if (!isset($ftp) || $ftp->error !== false) {
+			if (!isset($ftp)) {
 				$ftp = new FtpConnection(null);
 			}
 			// Save the error so we can mess with listing...
-			elseif ($ftp->error !== false && empty($incontext['ftp_errors']) && !empty($ftp->last_message))
-			{
+			elseif ($ftp->error !== false && empty($incontext['ftp_errors']) && !empty($ftp->last_message)) {
 				$incontext['ftp_errors'][] = $ftp->last_message;
 			}
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
+			list($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
 
-			if (empty($_POST['ftp_path']) && $found_path)
+			if (empty($_POST['ftp_path']) && $found_path) {
 				$_POST['ftp_path'] = $detect_path;
+			}
 
-			if (!isset($_POST['ftp_username']))
+			if (!isset($_POST['ftp_username'])) {
 				$_POST['ftp_username'] = $username;
+			}
 
 			// Set the username etc, into context.
-			$incontext['ftp'] = array(
-				'server' => isset($_POST['ftp_server']) ? $_POST['ftp_server'] : 'localhost',
-				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : '21',
-				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : '',
-				'path' => isset($_POST['ftp_path']) ? $_POST['ftp_path'] : '/',
+			$incontext['ftp'] = [
+				'server' => $_POST['ftp_server'] ?? 'localhost',
+				'port' => $_POST['ftp_port'] ?? '21',
+				'username' => $_POST['ftp_username'] ?? '',
+				'path' => $_POST['ftp_path'] ?? '/',
 				'path_msg' => !empty($found_path) ? Lang::$txt['ftp_path_found_info'] : Lang::$txt['ftp_path_info'],
-			);
+			];
 
 			return false;
 		}
-		else
-		{
-			$_SESSION['installer_temp_ftp'] = array(
+
+
+			$_SESSION['installer_temp_ftp'] = [
 				'server' => $_POST['ftp_server'],
 				'port' => $_POST['ftp_port'],
 				'username' => $_POST['ftp_username'],
 				'password' => $_POST['ftp_password'],
-				'path' => $_POST['ftp_path']
-			);
+				'path' => $_POST['ftp_path'],
+			];
 
-			$failed_files_updated = array();
+			$failed_files_updated = [];
 
-			foreach ($failed_files as $file)
-			{
-				if (!is_writable(Config::$boarddir . '/' . $file))
+			foreach ($failed_files as $file) {
+				if (!is_writable(Config::$boarddir . '/' . $file)) {
 					$ftp->chmod($file, 0755);
+				}
 
-				if (!is_writable(Config::$boarddir . '/' . $file))
+				if (!is_writable(Config::$boarddir . '/' . $file)) {
 					$ftp->chmod($file, 0777);
+				}
 
-				if (!is_writable(Config::$boarddir . '/' . $file))
-				{
+				if (!is_writable(Config::$boarddir . '/' . $file)) {
 					$failed_files_updated[] = $file;
 					$incontext['ftp_errors'][] = rtrim($ftp->last_message) . ' -> ' . $file . "\n";
 				}
@@ -737,19 +742,18 @@ function CheckFilesWritable()
 			$ftp->close();
 
 			// Are there any errors left?
-			if (count($failed_files_updated) >= 1)
-			{
+			if (count($failed_files_updated) >= 1) {
 				// Guess there are...
 				$incontext['failed_files'] = $failed_files_updated;
 
 				// Set the username etc, into context.
-				$incontext['ftp'] = $_SESSION['installer_temp_ftp'] += array(
+				$incontext['ftp'] = $_SESSION['installer_temp_ftp'] += [
 					'path_msg' => Lang::$txt['ftp_path_info'],
-				);
+				];
 
 				return false;
 			}
-		}
+
 	}
 
 	return true;
@@ -769,27 +773,28 @@ function DatabaseSettings()
 	$incontext['db']['name'] = '';
 	$incontext['db']['pass'] = '';
 	$incontext['db']['type'] = '';
-	$incontext['supported_databases'] = array();
+	$incontext['supported_databases'] = [];
 
 	$foundOne = false;
-	foreach ($databases as $key => $db)
-	{
+
+	foreach ($databases as $key => $db) {
 		// Override with the defaults for this DB if appropriate.
-		if ($db['supported'])
-		{
+		if ($db['supported']) {
 			$incontext['supported_databases'][$key] = $db;
 
-			if (!$foundOne)
-			{
-				if (isset($db['default_host']))
+			if (!$foundOne) {
+				if (isset($db['default_host'])) {
 					$incontext['db']['server'] = ini_get($db['default_host']) or $incontext['db']['server'] = 'localhost';
-				if (isset($db['default_user']))
-				{
+				}
+
+				if (isset($db['default_user'])) {
 					$incontext['db']['user'] = ini_get($db['default_user']);
 					$incontext['db']['name'] = ini_get($db['default_user']);
 				}
-				if (isset($db['default_password']))
+
+				if (isset($db['default_password'])) {
 					$incontext['db']['pass'] = ini_get($db['default_password']);
+				}
 
 				// For simplicity and less confusion, leave the port blank by default
 				$incontext['db']['port'] = '';
@@ -801,66 +806,59 @@ function DatabaseSettings()
 	}
 
 	// Override for repost.
-	if (isset($_POST['db_user']))
-	{
+	if (isset($_POST['db_user'])) {
 		$incontext['db']['user'] = $_POST['db_user'];
 		$incontext['db']['name'] = $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
 
-		if (!empty($_POST['db_port']))
+		if (!empty($_POST['db_port'])) {
 			$incontext['db']['port'] = $_POST['db_port'];
-	}
-	else
-	{
+		}
+	} else {
 		$incontext['db']['prefix'] = 'smf_';
 	}
 
 	// Are we submitting?
-	if (isset($_POST['db_type']))
-	{
+	if (isset($_POST['db_type'])) {
 		// What type are they trying?
 		$db_type = preg_replace('~[^A-Za-z0-9]~', '', $_POST['db_type']);
 		$db_prefix = $_POST['db_prefix'];
 		// Validate the prefix.
 		$valid_prefix = $databases[$db_type]['validate_prefix']($db_prefix);
 
-		if ($valid_prefix !== true)
-		{
+		if ($valid_prefix !== true) {
 			$incontext['error'] = $valid_prefix;
+
 			return false;
 		}
 
 		// Take care of these variables...
-		$vars = array(
+		$vars = [
 			'db_type' => $db_type,
 			'db_name' => $_POST['db_name'],
 			'db_user' => $_POST['db_user'],
-			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
+			'db_passwd' => $_POST['db_passwd'] ?? '',
 			'db_server' => $_POST['db_server'],
 			'db_prefix' => $db_prefix,
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
-		);
+		];
 
 		// Only set the port if we're not using the default
-		if (!empty($_POST['db_port']))
-		{
+		if (!empty($_POST['db_port'])) {
 			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
-			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
-			{
+			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port')) {
 				$vars['db_port'] = (int) $_POST['db_port'];
-			}
-			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
-			{
+			} elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432) {
 				$vars['db_port'] = (int) $_POST['db_port'];
 			}
 		}
 
 		// God I hope it saved!
-		if (!installer_updateSettingsFile($vars))
-		{
+		if (!installer_updateSettingsFile($vars)) {
 			$incontext['error'] = Lang::$txt['settings_error'];
+
 			return false;
 		}
 
@@ -868,9 +866,9 @@ function DatabaseSettings()
 		Config::load();
 
 		// Better find the database file!
-		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php'))
-		{
+		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')) {
 			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
+
 			return false;
 		}
 
@@ -879,67 +877,70 @@ function DatabaseSettings()
 		// Attempt a connection.
 		$needsDB = !empty($databases[Config::$db_type]['always_has_db']);
 
-		Db::load(array('non_fatal' => true, 'dont_select_db' => !$needsDB));
+		Db::load(['non_fatal' => true, 'dont_select_db' => !$needsDB]);
 
 		// Still no connection?  Big fat error message :P.
-		if (!Db::$db->connection)
-		{
+		if (!Db::$db->connection) {
 			// Get error info...  Recast just in case we get false or 0...
 			$error_message = Db::$db->connect_error();
-			if (empty($error_message))
+
+			if (empty($error_message)) {
 				$error_message = '';
+			}
 			$error_number = Db::$db->connect_errno();
-			if (empty($error_number))
+
+			if (empty($error_number)) {
 				$error_number = '';
+			}
 			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
 
 			$incontext['error'] = Lang::$txt['error_db_connect'] . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
+
 			return false;
 		}
 
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
-		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0)
-		{
+		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0) {
 			$incontext['error'] = Lang::$txt['error_db_too_low'];
+
 			return false;
 		}
 
 		// Let's try that database on for size... assuming we haven't already lost the opportunity.
-		if (Db::$db->name != '' && !$needsDB)
-		{
-			Db::$db->query('', "
-				CREATE DATABASE IF NOT EXISTS `" . Db::$db->name . "`",
-				array(
+		if (Db::$db->name != '' && !$needsDB) {
+			Db::$db->query(
+				'',
+				'CREATE DATABASE IF NOT EXISTS `' . Db::$db->name . '`',
+				[
 					'security_override' => true,
 					'db_error_skip' => true,
-				),
-				Db::$db->connection
+				],
+				Db::$db->connection,
 			);
 
 			// Okay, let's try the prefix if it didn't work...
-			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '')
-			{
-				Db::$db->query('', "
-					CREATE DATABASE IF NOT EXISTS `" . Db::$db->prefix . Db::$db->name . "`",
-					array(
+			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
+				Db::$db->query(
+					'',
+					'CREATE DATABASE IF NOT EXISTS `' . Db::$db->prefix . Db::$db->name . '`',
+					[
 						'security_override' => true,
 						'db_error_skip' => true,
-					),
-					Db::$db->connection
+					],
+					Db::$db->connection,
 				);
 
-				if (Db::$db->select(Db::$db->prefix . Db::$db->name, Db::$db->connection))
-				{
+				if (Db::$db->select(Db::$db->prefix . Db::$db->name, Db::$db->connection)) {
 					Db::$db->name = Db::$db->prefix . Db::$db->name;
-					installer_updateSettingsFile(array('db_name' => Db::$db->name));
+					installer_updateSettingsFile(['db_name' => Db::$db->name]);
 				}
 			}
 
 			// Okay, now let's try to connect...
-			if (!Db::$db->select(Db::$db->name, Db::$db->connection))
-			{
+			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
 				$incontext['error'] = sprintf(Lang::$txt['error_db_database'], Db::$db->name);
+
 				return false;
 			}
 		}
@@ -959,24 +960,27 @@ function ForumSettings()
 	$incontext['page_title'] = Lang::$txt['install_settings'];
 
 	// Let's see if we got the database type correct.
-	if (isset($_POST['db_type'], $databases[$_POST['db_type']]))
+	if (isset($_POST['db_type'], $databases[$_POST['db_type']])) {
 		Config::$db_type = $_POST['db_type'];
+	}
 
 	// Else we'd better be able to get the connection.
-	else
+	else {
 		load_database();
+	}
 
-	Config::$db_type = isset($_POST['db_type']) ? $_POST['db_type'] : Config::$db_type;
+	Config::$db_type = $_POST['db_type'] ?? Config::$db_type;
 
 	// What host and port are we on?
 	$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 
 	$secure = false;
 
-	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
 		$secure = true;
-	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+	} elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
 		$secure = true;
+	}
 
 	// Now, to put what we've learned together... and add a path.
 	$incontext['detected_url'] = 'http' . ($secure ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
@@ -987,21 +991,20 @@ function ForumSettings()
 	$incontext['continue'] = 1;
 
 	// Check Postgres setting
-	if (Config::$db_type === 'postgresql')
-	{
+	if (Config::$db_type === 'postgresql') {
 		load_database();
-		$result = Db::$db->query('', '
-			show standard_conforming_strings',
-			array(
+		$result = Db::$db->query(
+			'',
+			'show standard_conforming_strings',
+			[
 				'db_error_skip' => true,
-			)
+			],
 		);
 
-		if ($result !== false)
-		{
+		if ($result !== false) {
 			$row = Db::$db->fetch_assoc($result);
-			if ($row['standard_conforming_strings'] !== 'on')
-				{
+
+			if ($row['standard_conforming_strings'] !== 'on') {
 					$incontext['continue'] = 0;
 					$incontext['error'] = Lang::$txt['error_pg_scs'];
 				}
@@ -1016,61 +1019,64 @@ function ForumSettings()
 	// If redirect in effect, force SSL ON.
 	$url = new Url($incontext['detected_url']);
 
-	if ($url->redirectsToHttps())
-	{
+	if ($url->redirectsToHttps()) {
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = true;
 		$_POST['force_ssl'] = true;
 	}
+
 	// If no cert, make sure SSL stays OFF.
-	if (!$url->hasSSL())
-	{
+	if (!$url->hasSSL()) {
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = false;
 	}
 
 	// Submitting?
-	if (isset($_POST['boardurl']))
-	{
-		if (substr($_POST['boardurl'], -10) == '/index.php')
+	if (isset($_POST['boardurl'])) {
+		if (substr($_POST['boardurl'], -10) == '/index.php') {
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -10);
-		elseif (substr($_POST['boardurl'], -1) == '/')
+		} elseif (substr($_POST['boardurl'], -1) == '/') {
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
-		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://')
+		}
+
+		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://') {
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
+		}
 
 		// Make sure boardurl is aligned with ssl setting
-		if (empty($_POST['force_ssl']))
-			$_POST['boardurl'] = strtr($_POST['boardurl'], array('https://' => 'http://'));
-		else
-			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));
+		if (empty($_POST['force_ssl'])) {
+			$_POST['boardurl'] = strtr($_POST['boardurl'], ['https://' => 'http://']);
+		} else {
+			$_POST['boardurl'] = strtr($_POST['boardurl'], ['http://' => 'https://']);
+		}
 
 		// Make sure international domain names are normalized correctly.
-		if (Lang::$txt['lang_character_set'] == 'UTF-8')
+		if (Lang::$txt['lang_character_set'] == 'UTF-8') {
 			$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
+		}
 
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
 
 		// Save these variables.
-		$vars = array(
+		$vars = [
 			'boardurl' => $_POST['boardurl'],
 			'boarddir' => $path,
 			'sourcedir' => $path . '/Sources',
 			'cachedir' => $path . '/cache',
 			'packagesdir' => $path . '/Packages',
 			'tasksdir' => $path . '/Sources/Tasks',
-			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
+			'mbname' => strtr($_POST['mbname'], ['\"' => '"']),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
 			'image_proxy_secret' => bin2hex(random_bytes(10)),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 			'auth_secret' => bin2hex(random_bytes(32)),
-		);
+		];
 
 		// Must save!
-		if (!installer_updateSettingsFile($vars))
-		{
+		if (!installer_updateSettingsFile($vars)) {
 			$incontext['error'] = Lang::$txt['settings_error'];
+
 			return false;
 		}
 
@@ -1078,20 +1084,20 @@ function ForumSettings()
 		Config::load();
 
 		// UTF-8 requires a setting to override the language charset.
-		if (!$databases[Config::$db_type]['utf8_support']())
-		{
+		if (!$databases[Config::$db_type]['utf8_support']()) {
 			$incontext['error'] = sprintf(Lang::$txt['error_utf8_support']);
+
 			return false;
 		}
 
-		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>'))
-		{
+		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>')) {
 			$incontext['error'] = sprintf(Lang::$txt['error_utf8_version'], $databases[Config::$db_type]['utf8_version']);
+
 			return false;
 		}
 
 		// Set the character set here.
-		installer_updateSettingsFile(array('db_character_set' => 'utf8'), true);
+		installer_updateSettingsFile(['db_character_set' => 'utf8'], true);
 
 		// Good, skip on.
 		return true;
@@ -1110,56 +1116,61 @@ function DatabasePopulation()
 	$incontext['continue'] = 1;
 
 	// Already done?
-	if (isset($_POST['pop_done']))
+	if (isset($_POST['pop_done'])) {
 		return true;
+	}
 
 	// Reload settings.
 	Config::load();
 	load_database();
 
 	// Before running any of the queries, let's make sure another version isn't already installed.
-	$result = Db::$db->query('', '
-		SELECT variable, value
+	$result = Db::$db->query(
+		'',
+		'SELECT variable, value
 		FROM {db_prefix}settings',
-		array(
+		[
 			'db_error_skip' => true,
-		)
+		],
 	);
-	$newSettings = array();
-	if ($result !== false)
-	{
-		while ($row = Db::$db->fetch_assoc($result))
+	$newSettings = [];
+
+	if ($result !== false) {
+		while ($row = Db::$db->fetch_assoc($result)) {
 			Config::$modSettings[$row['variable']] = $row['value'];
+		}
 
 		Db::$db->free_result($result);
 
 		// Do they match?  If so, this is just a refresh so charge on!
-		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION)
-		{
+		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION) {
 			$incontext['error'] = Lang::$txt['error_versions_do_not_match'];
+
 			return false;
 		}
 	}
 	Config::$modSettings['disableQueryCheck'] = true;
 
 	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
-	Db::$db->query('', '
-		SET NAMES {string:utf8}',
-		array(
+	Db::$db->query(
+		'',
+		'SET NAMES {string:utf8}',
+		[
 			'db_error_skip' => true,
 			'utf8' => 'utf8',
-		)
+		],
 	);
 
 	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
-	if (substr(__DIR__, -1) == '\\')
+	if (substr(__DIR__, -1) == '\\') {
 		$attachdir = __DIR__ . 'attachments';
-	else
+	} else {
 		$attachdir = __DIR__ . '/attachments';
+	}
 
-	$replaces = array(
+	$replaces = [
 		'{$db_prefix}' => Db::$db->prefix,
-		'{$attachdir}' => json_encode(array(1 => Db::$db->escape_string($attachdir))),
+		'{$attachdir}' => json_encode([1 => Db::$db->escape_string($attachdir)]),
 		'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
 		'{$boardurl}' => Config::$boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
@@ -1167,29 +1178,28 @@ function DatabasePopulation()
 		'{$smf_version}' => SMF_VERSION,
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
-		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
-	);
+		'{$registration_method}' => $_POST['reg_mode'] ?? 0,
+	];
 
-	foreach (Lang::$txt as $key => $value)
-	{
-		if (substr($key, 0, 8) == 'default_')
+	foreach (Lang::$txt as $key => $value) {
+		if (substr($key, 0, 8) == 'default_') {
 			$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
+		}
 	}
-	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
+	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], ['\\\\n' => '\\n']);
 
 	// MySQL-specific stuff - storage engine and UTF8 handling
-	if (substr(Config::$db_type, 0, 5) == 'mysql')
-	{
+	if (substr(Config::$db_type, 0, 5) == 'mysql') {
 		// Just in case the query fails for some reason...
-		$engines = array();
+		$engines = [];
 
 		// Figure out storage engines - what do we have, etc.
-		$get_engines = Db::$db->query('', 'SHOW ENGINES', array());
+		$get_engines = Db::$db->query('', 'SHOW ENGINES', []);
 
-		while ($row = Db::$db->fetch_assoc($get_engines))
-		{
-			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
+		while ($row = Db::$db->fetch_assoc($get_engines)) {
+			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
 				$engines[] = $row['Engine'];
+			}
 		}
 
 		// Done with this now
@@ -1205,14 +1215,11 @@ function DatabasePopulation()
 		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 
 		// One last thing - if we don't have InnoDB, we can't do transactions...
-		if (!$has_innodb)
-		{
+		if (!$has_innodb) {
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
-	}
-	else
-	{
+	} else {
 		$has_innodb = false;
 	}
 
@@ -1222,64 +1229,64 @@ function DatabasePopulation()
 
 	// Execute the SQL.
 	$current_statement = '';
-	$exists = array();
-	$incontext['failures'] = array();
-	$incontext['sql_results'] = array(
+	$exists = [];
+	$incontext['failures'] = [];
+	$incontext['sql_results'] = [
 		'tables' => 0,
 		'inserts' => 0,
 		'table_dups' => 0,
 		'insert_dups' => 0,
-	);
-	foreach ($sql_lines as $count => $line)
-	{
+	];
+
+	foreach ($sql_lines as $count => $line) {
 		// No comments allowed!
-		if (substr(trim($line), 0, 1) != '#')
+		if (substr(trim($line), 0, 1) != '#') {
 			$current_statement .= "\n" . rtrim($line);
+		}
 
 		// Is this the end of the query string?
-		if (empty($current_statement) || (preg_match('~;[\s]*$~s', $line) == 0 && $count != count($sql_lines)))
-			continue;
-
-		// Does this table already exist?  If so, don't insert more data into it!
-		if (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) != 0 && in_array($match[1], $exists))
-		{
-			preg_match_all('~\)[,;]~', $current_statement, $matches);
-			if (!empty($matches[0]))
-				$incontext['sql_results']['insert_dups'] += count($matches[0]);
-			else
-				$incontext['sql_results']['insert_dups']++;
-
-			$current_statement = '';
+		if (empty($current_statement) || (preg_match('~;[\s]*$~s', $line) == 0 && $count != count($sql_lines))) {
 			continue;
 		}
 
-		if (Db::$db->query('', $current_statement, array('security_override' => true, 'db_error_skip' => true), Db::$db->connection) === false)
-		{
+		// Does this table already exist?  If so, don't insert more data into it!
+		if (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) != 0 && in_array($match[1], $exists)) {
+			preg_match_all('~\)[,;]~', $current_statement, $matches);
+
+			if (!empty($matches[0])) {
+				$incontext['sql_results']['insert_dups'] += count($matches[0]);
+			} else {
+				$incontext['sql_results']['insert_dups']++;
+			}
+
+			$current_statement = '';
+
+			continue;
+		}
+
+		if (Db::$db->query('', $current_statement, ['security_override' => true, 'db_error_skip' => true], Db::$db->connection) === false) {
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
-			if (((Config::$db_type != 'mysql' && Config::$db_type != 'mysqli') || mysqli_errno(Db::$db->connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
-			{
+			if (((Config::$db_type != 'mysql' && Config::$db_type != 'mysqli') || mysqli_errno(Db::$db->connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1) {
 				$exists[] = $match[1];
 				$incontext['sql_results']['table_dups']++;
 			}
 			// Don't error on duplicate indexes (or duplicate operators in PostgreSQL.)
-			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !(Config::$db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match)))
-			{
+			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !(Config::$db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match))) {
 				// MySQLi requires a connection object. It's optional with MySQL and Postgres
 				$incontext['failures'][$count] = Db::$db->error(Db::$db->connection);
 			}
-		}
-		else
-		{
-			if (preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
+		} else {
+			if (preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1) {
 				$incontext['sql_results']['tables']++;
-			elseif (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) == 1)
-			{
+			} elseif (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) == 1) {
 				preg_match_all('~\)[,;]~', $current_statement, $matches);
-				if (!empty($matches[0]))
+
+				if (!empty($matches[0])) {
 					$incontext['sql_results']['inserts'] += count($matches[0]);
-				else
+				} else {
 					$incontext['sql_results']['inserts']++;
+				}
 			}
 		}
 
@@ -1290,106 +1297,116 @@ function DatabasePopulation()
 	}
 
 	// Sort out the context for the SQL.
-	foreach ($incontext['sql_results'] as $key => $number)
-	{
-		if ($number == 0)
+	foreach ($incontext['sql_results'] as $key => $number) {
+		if ($number == 0) {
 			unset($incontext['sql_results'][$key]);
-		else
+		} else {
 			$incontext['sql_results'][$key] = sprintf(Lang::$txt['db_populate_' . $key], $number);
+		}
 	}
 
 	// Make sure UTF will be used globally.
-	$newSettings[] = array('global_character_set', 'UTF-8');
+	$newSettings[] = ['global_character_set', 'UTF-8'];
 
 	// Are we allowing stat collection?
-	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']))
-	{
+	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
 		$incontext['allow_sm_stats'] = true;
 
 		// Attempt to register the site etc.
 		$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
-		if (!$fp)
+
+		if (!$fp) {
 			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
-		if ($fp)
-		{
+		}
+
+		if ($fp) {
 			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
 			$out .= 'Host: www.simplemachines.org' . "\r\n";
 			$out .= 'Connection: Close' . "\r\n\r\n";
 			fwrite($fp, $out);
 
 			$return_data = '';
-			while (!feof($fp))
+
+			while (!feof($fp)) {
 				$return_data .= fgets($fp, 128);
+			}
 
 			fclose($fp);
 
 			// Get the unique site ID.
 			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
-			if (!empty($ID[1]))
-				Db::$db->insert('replace',
+			if (!empty($ID[1])) {
+				Db::$db->insert(
+					'replace',
 					Db::$db->prefix . 'settings',
-					array('variable' => 'string', 'value' => 'string'),
-					array(
-						array('sm_stats_key', $ID[1]),
-						array('enable_sm_stats', 1),
-					),
-					array('variable')
+					['variable' => 'string', 'value' => 'string'],
+					[
+						['sm_stats_key', $ID[1]],
+						['enable_sm_stats', 1],
+					],
+					['variable'],
 				);
+			}
 		}
 	}
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
-	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats']))
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}settings
+	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats'])) {
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
-			array(
+			[
 				'enable_sm_stats' => 'enable_sm_stats',
 				'db_error_skip' => true,
-			)
+			],
 		);
+	}
 
 	// Are we enabling SSL?
-	if (!empty($_POST['force_ssl']))
-		$newSettings[] = array('force_ssl', 1);
+	if (!empty($_POST['force_ssl'])) {
+		$newSettings[] = ['force_ssl', 1];
+	}
 
 	// Setting a timezone is required.
-	if (!isset(Config::$modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
-	{
+	if (!isset(Config::$modSettings['default_timezone']) && function_exists('date_default_timezone_set')) {
 		// Get PHP's default timezone, if set
 		$ini_tz = ini_get('date.timezone');
-		if (!empty($ini_tz))
+
+		if (!empty($ini_tz)) {
 			$timezone_id = $ini_tz;
-		else
+		} else {
 			$timezone_id = '';
+		}
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
-		if (!in_array($timezone_id, timezone_identifiers_list()))
-		{
+		if (!in_array($timezone_id, timezone_identifiers_list())) {
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
 
-			if (empty($timezone_id))
+			if (empty($timezone_id)) {
 				$timezone_id = 'UTC';
+			}
 		}
 
-		if (date_default_timezone_set($timezone_id))
-			$newSettings[] = array('default_timezone', $timezone_id);
+		if (date_default_timezone_set($timezone_id)) {
+			$newSettings[] = ['default_timezone', $timezone_id];
+		}
 	}
 
-	if (!empty($newSettings))
-	{
-		Db::$db->insert('replace',
+	if (!empty($newSettings)) {
+		Db::$db->insert(
+			'replace',
 			'{db_prefix}settings',
-			array('variable' => 'string-255', 'value' => 'string-65534'),
+			['variable' => 'string-255', 'value' => 'string-65534'],
 			$newSettings,
-			array('variable')
+			['variable'],
 		);
 	}
 
 	// Populate the smiley_files table.
 	// Can't just dump this data in the SQL file because we need to know the id for each smiley.
-	$smiley_filenames = array(
+	$smiley_filenames = [
 		':)' => 'smiley',
 		';)' => 'wink',
 		':D' => 'cheesy',
@@ -1411,40 +1428,41 @@ function DatabasePopulation()
 		'O0' => 'afro',
 		':))' => 'laugh',
 		'C:-)' => 'police',
-		'O:-)' => 'angel'
-	);
-	$smiley_set_extensions = array('fugue' => '.png', 'alienine' => '.png');
+		'O:-)' => 'angel',
+	];
+	$smiley_set_extensions = ['fugue' => '.png', 'alienine' => '.png'];
 
-	$smiley_inserts = array();
-	$request = Db::$db->query('', '
-		SELECT id_smiley, code
+	$smiley_inserts = [];
+	$request = Db::$db->query(
+		'',
+		'SELECT id_smiley, code
 		FROM {db_prefix}smileys',
-		array()
+		[],
 	);
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		foreach ($smiley_set_extensions as $set => $ext)
-			$smiley_inserts[] = array($row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		foreach ($smiley_set_extensions as $set => $ext) {
+			$smiley_inserts[] = [$row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext];
+		}
 	}
 	Db::$db->free_result($request);
 
-	Db::$db->insert('ignore',
+	Db::$db->insert(
+		'ignore',
 		'{db_prefix}smiley_files',
-		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+		['id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'],
 		$smiley_inserts,
-		array('id_smiley', 'smiley_set')
+		['id_smiley', 'smiley_set'],
 	);
 
 	// Let's optimize those new tables, but not on InnoDB, ok?
-	if (!$has_innodb)
-	{
+	if (!$has_innodb) {
 		$tables = Db::$db->list_tables(Db::$db->name, Db::$db->prefix . '%');
-		foreach ($tables as $table)
-		{
+
+		foreach ($tables as $table) {
 			Db::$db->optimize_table($table) != -1 or $db_messed = true;
 
-			if (!empty($db_messed))
-			{
+			if (!empty($db_messed)) {
 				$incontext['failures'][-1] = Db::$db->error();
 				break;
 			}
@@ -1452,28 +1470,29 @@ function DatabasePopulation()
 	}
 
 	// MySQL specific stuff
-	if (substr(Config::$db_type, 0, 5) != 'mysql')
+	if (substr(Config::$db_type, 0, 5) != 'mysql') {
 		return false;
+	}
 
 	// Find database user privileges.
-	$privs = array();
-	$get_privs = Db::$db->query('', 'SHOW PRIVILEGES', array());
-	while ($row = Db::$db->fetch_assoc($get_privs))
-	{
-		if ($row['Privilege'] == 'Alter')
+	$privs = [];
+	$get_privs = Db::$db->query('', 'SHOW PRIVILEGES', []);
+
+	while ($row = Db::$db->fetch_assoc($get_privs)) {
+		if ($row['Privilege'] == 'Alter') {
 			$privs[] = $row['Privilege'];
+		}
 	}
 	Db::$db->free_result($get_privs);
 
 	// Check for the ALTER privilege.
-	if (!empty($databases[Config::$db_type]['alter_support']) && !in_array('Alter', $privs))
-	{
+	if (!empty($databases[Config::$db_type]['alter_support']) && !in_array('Alter', $privs)) {
 		$incontext['error'] = Lang::$txt['error_db_alter_priv'];
+
 		return false;
 	}
 
-	if (!empty($exists))
-	{
+	if (!empty($exists)) {
 		$incontext['page_title'] = Lang::$txt['user_refresh_install'];
 		$incontext['was_refresh'] = true;
 	}
@@ -1491,8 +1510,9 @@ function AdminAccount()
 	$incontext['continue'] = 1;
 
 	// Skipping?
-	if (!empty($_POST['skip']))
+	if (!empty($_POST['skip'])) {
 		return true;
+	}
 
 	// Need this to check whether we need the database password.
 	Config::load();
@@ -1503,14 +1523,17 @@ function AdminAccount()
 	// Reload $modSettings.
 	Config::reloadModSettings();
 
-	if (!isset($_POST['username']))
+	if (!isset($_POST['username'])) {
 		$_POST['username'] = '';
+	}
 
-	if (!isset($_POST['email']))
+	if (!isset($_POST['email'])) {
 		$_POST['email'] = '';
+	}
 
-	if (!isset($_POST['server_email']))
+	if (!isset($_POST['server_email'])) {
 		$_POST['server_email'] = '';
+	}
 
 	$incontext['username'] = htmlspecialchars($_POST['username']);
 	$incontext['email'] = htmlspecialchars($_POST['email']);
@@ -1519,101 +1542,100 @@ function AdminAccount()
 	$incontext['require_db_confirm'] = empty(Config::$db_type);
 
 	// Only allow skipping if we think they already have an account setup.
-	$request = Db::$db->query('', '
-		SELECT id_member
+	$request = Db::$db->query(
+		'',
+		'SELECT id_member
 		FROM {db_prefix}members
 		WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
 		LIMIT 1',
-		array(
+		[
 			'db_error_skip' => true,
 			'admin_group' => 1,
-		)
+		],
 	);
-	if (Db::$db->num_rows($request) != 0)
+
+	if (Db::$db->num_rows($request) != 0) {
 		$incontext['skip'] = 1;
+	}
 	Db::$db->free_result($request);
 
 	// Trying to create an account?
-	if (isset($_POST['password1']) && !empty($_POST['contbutt']))
-	{
+	if (isset($_POST['password1']) && !empty($_POST['contbutt'])) {
 		// Wrong password?
-		if ($incontext['require_db_confirm'] && $_POST['password3'] != Config::$db_passwd)
-		{
+		if ($incontext['require_db_confirm'] && $_POST['password3'] != Config::$db_passwd) {
 			$incontext['error'] = Lang::$txt['error_db_connect'];
+
 			return false;
 		}
+
 		// Not matching passwords?
-		if ($_POST['password1'] != $_POST['password2'])
-		{
+		if ($_POST['password1'] != $_POST['password2']) {
 			$incontext['error'] = Lang::$txt['error_user_settings_again_match'];
+
 			return false;
 		}
+
 		// No password?
-		if (strlen($_POST['password1']) < 4)
-		{
+		if (strlen($_POST['password1']) < 4) {
 			$incontext['error'] = Lang::$txt['error_user_settings_no_password'];
+
 			return false;
 		}
-		if (!file_exists(Config::$sourcedir . '/Utils.php'))
-		{
+
+		if (!file_exists(Config::$sourcedir . '/Utils.php')) {
 			$incontext['error'] = sprintf(Lang::$txt['error_sourcefile_missing'], 'Utils.php');
+
 			return false;
 		}
 
 		// Update the webmaster's email?
-		if (!empty($_POST['server_email']) && (empty(Config::$webmaster_email) || Config::$webmaster_email == $settingsDefs['webmaster_email']['default']))
-		{
-			installer_updateSettingsFile(array('webmaster_email' => $_POST['server_email']));
+		if (!empty($_POST['server_email']) && (empty(Config::$webmaster_email) || Config::$webmaster_email == $settingsDefs['webmaster_email']['default'])) {
+			installer_updateSettingsFile(['webmaster_email' => $_POST['server_email']]);
 		}
 
 		// Work out whether we're going to have dodgy characters and remove them.
 		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
 		$_POST['username'] = preg_replace('~[<>&"\'=\\\]~', '', $_POST['username']);
 
-		$result = Db::$db->query('', '
-			SELECT id_member, password_salt
+		$result = Db::$db->query(
+			'',
+			'SELECT id_member, password_salt
 			FROM {db_prefix}members
 			WHERE member_name = {string:username} OR email_address = {string:email}
 			LIMIT 1',
-			array(
+			[
 				'username' => $_POST['username'],
 				'email' => $_POST['email'],
 				'db_error_skip' => true,
-			)
+			],
 		);
-		if (Db::$db->num_rows($result) != 0)
-		{
-			list ($incontext['member_id'], $incontext['member_salt']) = Db::$db->fetch_row($result);
+
+		if (Db::$db->num_rows($result) != 0) {
+			list($incontext['member_id'], $incontext['member_salt']) = Db::$db->fetch_row($result);
 			Db::$db->free_result($result);
 
 			$incontext['account_existed'] = Lang::$txt['error_user_settings_taken'];
-		}
-		elseif ($_POST['username'] == '' || strlen($_POST['username']) > 25)
-		{
+		} elseif ($_POST['username'] == '' || strlen($_POST['username']) > 25) {
 			// Try the previous step again.
 			$incontext['error'] = $_POST['username'] == '' ? Lang::$txt['error_username_left_empty'] : Lang::$txt['error_username_too_long'];
+
 			return false;
-		}
-		elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false)
-		{
+		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false) {
 			// Try the previous step again.
 			$incontext['error'] = Lang::$txt['error_invalid_characters_username'];
+
 			return false;
-		}
-		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255)
-		{
+		} elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = sprintf(Lang::$txt['error_valid_admin_email_needed'], $_POST['username']);
+
 			return false;
-		}
-		elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255)
-		{
+		} elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = Lang::$txt['error_valid_server_email_needed'];
+
 			return false;
-		}
-		elseif ($_POST['username'] != '')
-		{
+		} elseif ($_POST['username'] != '') {
 			$incontext['member_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.
@@ -1622,9 +1644,10 @@ function AdminAccount()
 
 			$_POST['password1'] = Security::hashPassword($_POST['username'], $_POST['password1']);
 
-			$incontext['member_id'] = Db::$db->insert('',
+			$incontext['member_id'] = Db::$db->insert(
+				'',
 				Db::$db->prefix . 'members',
-				array(
+				[
 					'member_name' => 'string-25',
 					'real_name' => 'string-25',
 					'passwd' => 'string',
@@ -1647,8 +1670,8 @@ function AdminAccount()
 					'secret_question' => 'string',
 					'additional_groups' => 'string',
 					'ignore_boards' => 'string',
-				),
-				array(
+				],
+				[
 					$_POST['username'],
 					$_POST['username'],
 					$_POST['password1'],
@@ -1671,9 +1694,9 @@ function AdminAccount()
 					'',
 					'',
 					'',
-				),
-				array('id_member'),
-				1
+				],
+				['id_member'],
+				1,
 			);
 		}
 
@@ -1703,73 +1726,82 @@ function DeleteInstall()
 	Config::reloadModSettings();
 
 	// Bring a warning over.
-	if (!empty($incontext['account_existed']))
+	if (!empty($incontext['account_existed'])) {
 		$incontext['warning'] = $incontext['account_existed'];
+	}
 
-	Db::$db->query('', '
-		SET NAMES {string:db_character_set}',
-		array(
+	Db::$db->query(
+		'',
+		'SET NAMES {string:db_character_set}',
+		[
 			'db_character_set' => Config::$db_character_set,
 			'db_error_skip' => true,
-		)
+		],
 	);
 
 	// As track stats is by default enabled let's add some activity.
-	Db::$db->insert('ignore',
+	Db::$db->insert(
+		'ignore',
 		'{db_prefix}log_activity',
-		array('date' => 'date', 'topics' => 'int', 'posts' => 'int', 'registers' => 'int'),
-		array(Time::strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)),
-		array('date')
+		['date' => 'date', 'topics' => 'int', 'posts' => 'int', 'registers' => 'int'],
+		[Time::strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)],
+		['date'],
 	);
 
 	// We're going to want our lovely Config::$modSettings now.
-	$request = Db::$db->query('', '
-		SELECT variable, value
+	$request = Db::$db->query(
+		'',
+		'SELECT variable, value
 		FROM {db_prefix}settings',
-		array(
+		[
 			'db_error_skip' => true,
-		)
+		],
 	);
+
 	// Only proceed if we can load the data.
-	if ($request)
-	{
-		while ($row = Db::$db->fetch_row($request))
+	if ($request) {
+		while ($row = Db::$db->fetch_row($request)) {
 			Config::$modSettings[$row[0]] = $row[1];
+		}
 		Db::$db->free_result($request);
 	}
 
 	// Automatically log them in ;)
-	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
+	if (isset($incontext['member_id'], $incontext['member_salt'])) {
 		Cookie::setLoginCookie(3153600 * 60, $incontext['member_id'], Cookie::encrypt($_POST['password1'], $incontext['member_salt']));
+	}
 
-	$result = Db::$db->query('', '
-		SELECT value
+	$result = Db::$db->query(
+		'',
+		'SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {string:db_sessions}',
-		array(
+		[
 			'db_sessions' => 'databaseSession_enable',
 			'db_error_skip' => true,
-		)
+		],
 	);
-	if (Db::$db->num_rows($result) != 0)
-		list ($db_sessions) = Db::$db->fetch_row($result);
+
+	if (Db::$db->num_rows($result) != 0) {
+		list($db_sessions) = Db::$db->fetch_row($result);
+	}
 	Db::$db->free_result($result);
 
-	if (empty($db_sessions))
+	if (empty($db_sessions)) {
 		$_SESSION['admin_time'] = time();
-	else
-	{
+	} else {
 		$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
 
-		Db::$db->insert('replace',
+		Db::$db->insert(
+			'replace',
 			'{db_prefix}sessions',
-			array(
+			[
 				'session_id' => 'string', 'last_update' => 'int', 'data' => 'string',
-			),
-			array(
+			],
+			[
 				session_id(), time(), 'USER_AGENT|s:' . strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
-			),
-			array('session_id')
+			],
+			['session_id'],
 		);
 	}
 
@@ -1777,63 +1809,66 @@ function DeleteInstall()
 	Logging::updateStats('message');
 	Logging::updateStats('topic');
 
-	$request = Db::$db->query('', '
-		SELECT id_msg
+	$request = Db::$db->query(
+		'',
+		'SELECT id_msg
 		FROM {db_prefix}messages
 		WHERE id_msg = 1
 			AND modified_time = 0
 		LIMIT 1',
-		array(
+		[
 			'db_error_skip' => true,
-		)
+		],
 	);
 	Utils::$context['utf8'] = true;
-	if (Db::$db->num_rows($request) > 0)
+
+	if (Db::$db->num_rows($request) > 0) {
 		Logging::updateStats('subject', 1, htmlspecialchars(Lang::$txt['default_topic_subject']));
+	}
 	Db::$db->free_result($request);
 
 	// Now is the perfect time to fetch the SM files.
 	// Sanity check that they loaded earlier!
-	if (isset(Config::$modSettings['recycle_board']))
-	{
-		(new TaskRunner())->runScheduledTasks(array('fetchSMfiles')); // Now go get those files!
+	if (isset(Config::$modSettings['recycle_board'])) {
+		(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
 		// We've just installed!
-		if (isset($incontext['member_id']))
+		if (isset($incontext['member_id'])) {
 			User::setMe($incontext['member_id']);
-		else
+		} else {
 			User::load();
+		}
 
 		User::$me->ip = $_SERVER['REMOTE_ADDR'];
 
-		Logging::logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
+		Logging::logAction('install', ['version' => SMF_FULL_VERSION], 'admin');
 	}
 
 	// Disable the legacy BBC by default for new installs
-	Config::updateModSettings(array(
+	Config::updateModSettings([
 		'disabledBBC' => implode(',', Utils::$context['legacy_bbc']),
-	));
+	]);
 
 	// Some final context for the template.
 	$incontext['dir_still_writable'] = is_writable(Config::$boarddir) && substr(__FILE__, 1, 2) != ':\\';
 	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(Config::$boarddir) || is_writable(__FILE__);
 
 	// Update hash's cost to an appropriate setting
-	Config::updateModSettings(array(
+	Config::updateModSettings([
 		'bcrypt_hash_cost' => Security::hashBenchmark(),
-	));
+	]);
 
 	return false;
 }
 
 function installer_updateSettingsFile($vars, $rebuild = false)
 {
-	if (!is_writable(SMF_SETTINGS_FILE))
-	{
+	if (!is_writable(SMF_SETTINGS_FILE)) {
 		@chmod(SMF_SETTINGS_FILE, 0777);
 
-		if (!is_writable(SMF_SETTINGS_FILE))
+		if (!is_writable(SMF_SETTINGS_FILE)) {
 			return false;
+		}
 	}
 
 	return Config::updateSettingsFile($vars, false, $rebuild);
@@ -1851,41 +1886,39 @@ function fixModSecurity()
 	SecFilterScanPOST Off
 </IfModule>';
 
-	if (!function_exists('apache_get_modules') || !in_array('mod_security', apache_get_modules()))
+	if (!function_exists('apache_get_modules') || !in_array('mod_security', apache_get_modules())) {
 		return true;
-	elseif (file_exists(Config::$boarddir . '/.htaccess') && is_writable(Config::$boarddir . '/.htaccess'))
-	{
+	}
+
+	if (file_exists(Config::$boarddir . '/.htaccess') && is_writable(Config::$boarddir . '/.htaccess')) {
 		$current_htaccess = implode('', file(Config::$boarddir . '/.htaccess'));
 
 		// Only change something if mod_security hasn't been addressed yet.
-		if (strpos($current_htaccess, '<IfModule mod_security.c>') === false)
-		{
-			if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'a'))
-			{
+		if (strpos($current_htaccess, '<IfModule mod_security.c>') === false) {
+			if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'a')) {
 				fwrite($ht_handle, $htaccess_addition);
 				fclose($ht_handle);
+
 				return true;
 			}
-			else
+
 				return false;
 		}
-		else
+
 			return true;
-	}
-	elseif (file_exists(Config::$boarddir . '/.htaccess'))
+	} elseif (file_exists(Config::$boarddir . '/.htaccess')) {
 		return strpos(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>') !== false;
-	elseif (is_writable(Config::$boarddir))
-	{
-		if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'w'))
-		{
+	} elseif (is_writable(Config::$boarddir)) {
+		if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'w')) {
 			fwrite($ht_handle, $htaccess_addition);
 			fclose($ht_handle);
+
 			return true;
 		}
-		else
+
 			return false;
 	}
-	else
+
 		return false;
 }
 
@@ -1896,7 +1929,7 @@ function template_install_above()
 	echo '<!DOCTYPE html>
 <html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8', '">
+	<meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', Lang::$txt['smf_installer'], '</title>
 	<link rel="stylesheet" href="Themes/default/css/index.css">
@@ -1915,8 +1948,7 @@ function template_install_above()
 	<div id="wrapper">';
 
 	// Have we got a language drop down - if so do it on the first step only.
-	if (!empty($incontext['detected_languages']) && count($incontext['detected_languages']) > 1 && $incontext['current_step'] == 0)
-	{
+	if (!empty($incontext['detected_languages']) && count($incontext['detected_languages']) > 1 && $incontext['current_step'] == 0) {
 		echo '
 		<div id="upper_section">
 			<div id="inner_section">
@@ -1926,9 +1958,10 @@ function template_install_above()
 							<label for="installer_language">', Lang::$txt['installer_language'], ':</label>
 							<select id="installer_language" name="lang_file" onchange="location.href = \'', $installurl, '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
-		foreach ($incontext['detected_languages'] as $lang => $name)
+		foreach ($incontext['detected_languages'] as $lang => $name) {
 			echo '
 								<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
+		}
 
 		echo '
 							</select>
@@ -1948,18 +1981,19 @@ function template_install_above()
 					<h2>', Lang::$txt['upgrade_progress'], '</h2>
 					<ul class="steps_list">';
 
-	foreach ($incontext['steps'] as $num => $step)
+	foreach ($incontext['steps'] as $num => $step) {
 		echo '
 						<li', $num == $incontext['current_step'] ? ' class="stepcurrent"' : '', '>
 							', Lang::$txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
 						</li>';
+	}
 
 	echo '
 					</ul>
 				</div>
 				<div id="install_progress">
 					<div id="progress_bar" class="progress_bar progress_green">
-						<h3>'. Lang::$txt['upgrade_overall_progress'], '</h3>
+						<h3>' . Lang::$txt['upgrade_overall_progress'], '</h3>
 						<span id="overall_text">', $incontext['overall_percent'], '%</span>
 						<div id="overall_progress" class="bar" style="width: ', $incontext['overall_percent'], '%;"></div>
 					</div>
@@ -1973,25 +2007,28 @@ function template_install_below()
 {
 	global $incontext;
 
-	if (!empty($incontext['continue']) || !empty($incontext['skip']))
-	{
+	if (!empty($incontext['continue']) || !empty($incontext['skip'])) {
 		echo '
 							<div class="floatright">';
 
-		if (!empty($incontext['continue']))
+		if (!empty($incontext['continue'])) {
 			echo '
 								<input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
-		if (!empty($incontext['skip']))
+		}
+
+		if (!empty($incontext['skip'])) {
 			echo '
 								<input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
+		}
 		echo '
 							</div>';
 	}
 
 	// Show the closing form tag and other data only if not in the last step
-	if (count($incontext['steps']) - 1 !== (int) $incontext['current_step'])
+	if (count($incontext['steps']) - 1 !== (int) $incontext['current_step']) {
 		echo '
 						</form>';
+	}
 
 	echo '
 					</div><!-- .panel -->
@@ -2024,13 +2061,15 @@ function template_welcome_message()
 		</div>';
 
 	// Show the warnings, or not.
-	if (template_warning_divs())
+	if (template_warning_divs()) {
 		echo '
 		<h3>', Lang::$txt['install_all_lovely'], '</h3>';
+	}
 
 	// Say we want the continue button!
-	if (empty($incontext['error']))
+	if (empty($incontext['error'])) {
 		$incontext['continue'] = 1;
+	}
 
 	// For the latest version stuff.
 	echo '
@@ -2064,19 +2103,21 @@ function template_warning_divs()
 	global $incontext;
 
 	// Errors are very serious..
-	if (!empty($incontext['error']))
+	if (!empty($incontext['error'])) {
 		echo '
 		<div class="errorbox">
 			<h3>', Lang::$txt['upgrade_critical_error'], '</h3>
 			', $incontext['error'], '
 		</div>';
+	}
 	// A warning message?
-	elseif (!empty($incontext['warning']))
+	elseif (!empty($incontext['warning'])) {
 		echo '
 		<div class="errorbox">
 			<h3>', Lang::$txt['upgrade_warning'], '</h3>
 			', $incontext['warning'], '
 		</div>';
+	}
 
 	return empty($incontext['error']) && empty($incontext['warning']);
 }
@@ -2092,26 +2133,29 @@ function template_chmod_files()
 			<li>', $incontext['failed_files']), '</li>
 		</ul>';
 
-	if (isset($incontext['systemos'], $incontext['detected_path']) && $incontext['systemos'] == 'linux')
+	if (isset($incontext['systemos'], $incontext['detected_path']) && $incontext['systemos'] == 'linux') {
 		echo '
 		<hr>
 		<p>', Lang::$txt['chmod_linux_info'], '</p>
 		<samp># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</samp>';
+	}
 
 	// This is serious!
-	if (!template_warning_divs())
+	if (!template_warning_divs()) {
 		return;
+	}
 
 	echo '
 		<hr>
 		<p>', Lang::$txt['ftp_setup_info'], '</p>';
 
-	if (!empty($incontext['ftp_errors']))
+	if (!empty($incontext['ftp_errors'])) {
 		echo '
 		<div class="error_message">
 			', Lang::$txt['error_ftp_no_connect'], '<br><br>
 			<code>', implode('<br>', $incontext['ftp_errors']), '</code>
 		</div>';
+	}
 
 	echo '
 		<form action="', $incontext['form_url'], '" method="post">
@@ -2171,8 +2215,7 @@ function template_database_settings()
 		<dl class="settings">';
 
 	// More than one database type?
-	if (count($incontext['supported_databases']) > 1)
-	{
+	if (count($incontext['supported_databases']) > 1) {
 		echo '
 			<dt>
 				<label for="db_type_input">', Lang::$txt['db_settings_type'], ':</label>
@@ -2180,17 +2223,16 @@ function template_database_settings()
 			<dd>
 				<select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
 
-		foreach ($incontext['supported_databases'] as $key => $db)
+		foreach ($incontext['supported_databases'] as $key => $db) {
 			echo '
 					<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
+		}
 
 		echo '
 				</select>
 				<div class="smalltext">', Lang::$txt['db_settings_type_info'], '</div>
 			</dd>';
-	}
-	else
-	{
+	} else {
 		echo '
 			<dd>
 				<input type="hidden" name="db_type" value="', $incontext['db']['type'], '">
@@ -2337,23 +2379,22 @@ function template_populate_database()
 	<form action="', $incontext['form_url'], '" method="post">
 		<p>', !empty($incontext['was_refresh']) ? Lang::$txt['user_refresh_install_desc'] : Lang::$txt['db_populate_info'], '</p>';
 
-	if (!empty($incontext['sql_results']))
-	{
+	if (!empty($incontext['sql_results'])) {
 		echo '
 		<ul>
 			<li>', implode('</li><li>', $incontext['sql_results']), '</li>
 		</ul>';
 	}
 
-	if (!empty($incontext['failures']))
-	{
+	if (!empty($incontext['failures'])) {
 		echo '
 		<div class="red">', Lang::$txt['error_db_queries'], '</div>
 		<ul>';
 
-		foreach ($incontext['failures'] as $line => $fail)
+		foreach ($incontext['failures'] as $line => $fail) {
 			echo '
 			<li><strong>', Lang::$txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
+		}
 
 		echo '
 		</ul>';
@@ -2418,7 +2459,7 @@ function template_admin_account()
 			</dd>
 		</dl>';
 
-	if ($incontext['require_db_confirm'])
+	if ($incontext['require_db_confirm']) {
 		echo '
 		<h2>', Lang::$txt['user_settings_database'], '</h2>
 		<p>', Lang::$txt['user_settings_database_info'], '</p>
@@ -2426,6 +2467,7 @@ function template_admin_account()
 		<div class="lefttext">
 			<input type="password" name="password3" size="30">
 		</div>';
+	}
 }
 
 // Tell them it's done, and to delete.
@@ -2439,12 +2481,13 @@ function template_delete_install()
 	template_warning_divs();
 
 	// Install directory still writable?
-	if ($incontext['dir_still_writable'])
+	if ($incontext['dir_still_writable']) {
 		echo '
 		<p><em>', Lang::$txt['still_writable'], '</em></p>';
+	}
 
 	// Don't show the box if it's like 99% sure it won't work :P.
-	if ($incontext['probably_delete_install'])
+	if ($incontext['probably_delete_install']) {
 		echo '
 		<label>
 			<input type="checkbox" id="delete_self" onclick="doTheDelete();">
@@ -2461,6 +2504,7 @@ function template_delete_install()
 				theCheck.disabled = true;
 			}
 		</script>';
+	}
 
 	echo '
 		<p>', sprintf(Lang::$txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
