@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,18 +29,6 @@ use SMF\Utils;
  */
 class TopicMove implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'MoveTopic',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -199,11 +186,6 @@ class TopicMove implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicMove::exportStatic')) {
-	TopicMove::exportStatic();
 }
 
 ?>

@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,18 +29,6 @@ use SMF\Utils;
  */
 class Unread implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'UnreadTopics',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -1056,11 +1043,6 @@ class Unread implements ActionInterface
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_recent_buttons');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Unread::exportStatic')) {
-	Unread::exportStatic();
 }
 
 ?>

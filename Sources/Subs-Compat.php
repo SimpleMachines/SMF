@@ -132,7 +132,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function BrowseFiles(): void
 	{
-		Actions\Admin\Attachments::browseFiles();
+		Actions\Admin\Attachments::subActionProvider('browse', false);
 	}
 	function MaintainFiles(): void
 	{
@@ -2063,9 +2063,545 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Begin
 	 * Actions\MsgDelete
 	 */
-
+	function DeleteMessage(): void
+	{
+		Actions\MsgDelete::call();
+	}
+	/**
+	 * End
+	 * Actions\MsgDelete
+	 *
+	 * Begin
+	 * Actions\Notify
+	 */
+	function getNotifyPrefs(int|array $members, string|array $prefs = '', bool $process_defaults = false): array
+	{
+		return Actions\Notify::getNotifyPrefs($members, $prefs, $process_defaults);
+	}
+	function setNotifyPrefs(int $memID, array $prefs = [])
+	{
+		return Actions\Notify::setNotifyPrefs($memID, $prefs);
+	}
+	function deleteNotifyPrefs(int $memID, array $prefs)
+	{
+		return Actions\Notify::deleteNotifyPrefs($memID, $prefs);
+	}
+	function getMemberWithToken(string $type): array
+	{
+		return Actions\Notify::getMemberWithToken($type);
+	}
+	function createUnsubscribeToken(int $memID, string $email, string $type = '', int $itemID = 0): string
+	{
+		return Actions\Notify::createUnsubscribeToken($memID, $email, $type, $itemID);
+	}
+	/**
+	 * End
+	 * Actions\Notify
+	 *
+	 * Begin
+	 * Actions\NotifyAnnouncements
+	 */
+	function AnnouncementsNotify(): void
+	{
+		Actions\NotifyAnnouncements::call();
+	}
+	/**
+	 * End
+	 * Actions\NotifyAnnouncements
+	 *
+	 * Begin\NotifyBoard
+	 */
+	function BoardNotify(): void
+	{
+		Actions\NotifyBoard::call();
+	}
+	/**
+	 * End
+	 * Actions\NotifyBoard
+	 *
+	 * Begin
+	 * Actions\NotifyTopic
+	 */
+	function TopicNotify(): void
+	{
+		Actions\NotifyTopic::call();
+	}
+	/**
+	 * End
+	 * Actions\NotifyTopic
+	 *
+	 * Begin
+	 * Actions\PersonalMessage
+	 */
+	function MessageMain(): void
+	{
+		Actions\PersonalMessage::call();
+	}
+	function MessageFolder(): void
+	{
+		Actions\PersonalMessage::messageFolder();
+	}
+	function MessagePopup(): void
+	{
+		Actions\PersonalMessage::messagePopup();
+	}
+	function ManageLabels(): void
+	{
+		Actions\PersonalMessage::manageLabels();
+	}
+	function ManageRules(): void
+	{
+		Actions\PersonalMessage::manageRules();
+	}
+	function MessageActionsApply(): void
+	{
+		Actions\PersonalMessage::messageActionsApply();
+	}
+	function MessagePrune()
+	{
+		Actions\PersonalMessage::messagePrune();
+	}
+	function MessageKillAll(): void
+	{
+		Actions\PersonalMessage::messageKillAll();
+	}
+	function ReportMessage(): void
+	{
+		Actions\PersonalMessage::messageSearch();
+	}
+	function MessageSearch(): void
+	{
+		Actions\PersonalMessage::messageSearch();
+	}
+	function MessageSearch2(): void
+	{
+		Actions\PersonalMessage::messageSearch2();
+	}
+	function MessagePost(): void
+	{
+		Actions\PersonalMessage::messagePost();
+	}
+	function MessagePost2(): void
+	{
+		Actions\PersonalMessage::messagePost2();
+	}
+	function MessageSettings(): void
+	{
+		Actions\PersonalMessage::messageSettings();
+	}
+	function MessageDrafts(): void
+	{
+		Actions\PersonalMessage::messageDrafts();
+	}
+	/**
+	 * End
+	 * Actions\PersonalMessage
+	 *
+	 * Begin
+	 * Actions\Post
+	 */
+	function Post(): void
+	{
+		Actions\Post::call();
+	}
+	/**
+	 * End
+	 * Actions\Post
+	 *
+	 * Begin
+	 * Actions\Post2
+	 */
+	function Post2(): void
+	{
+		Actions\Post2::call();
+	}
+	/**
+	 * End
+	 * Actions\Post2
+	 *
+	 * Begin
+	 * Actions\QuickModeration
+	 */
+	function QuickModeration(): void
+	{
+		Actions\QuickModeration::call();
+	}
+	/**
+	 * End
+	 * Actions\QuickModeration
+	 *
+	 * Begin
+	 * Actions\QuickModerationInTopic
+	 */
+	function QuickInTopicModeration(): void
+	{
+		Actions\QuickModerationInTopic::call();
+	}
+	/**
+	 * End
+	 * Actions\QuickModerationInTopic
+	 *
+	 * Begin
+	 * Actions\QuoteFast
+	 */
+	function QuoteFast(): void
+	{
+		Actions\QuoteFast::call();
+	}
+	/**
+	 * End
+	 * Actions\QuoteFast
+	 *
+	 * Begin
+	 * Actions\Recent
+	 */
+	function RecentPosts(): void
+	{
+		Actions\Recent::call();
+	}
+	function getLastPost(): array
+	{
+		return Actions\Recent::getLastPost();
+	}
+	/**
+	 * End
+	 * Actions\Recent
+	 *
+	 * Begin
+	 * Actions\Register
+	 */
+	function Register(array $reg_errors = []): void
+	{
+		Actions\Register::register($reg_errors);
+	}
+	/**
+	 * End
+	 * Actions\Register
+	 *
+	 * Begin
+	 * Actions\Register2
+	 */
+	function Register2(): void
+	{
+		Actions\Register2::call();
+	}
+	function registerMember(array &$reg_options, bool $return_errors = false): int|array
+	{
+		return Actions\Register2::registerMember($reg_options, $return_errors);
+	}
+	/**
+	 * End
+	 * Actions\Register2
+	 *
+	 * Begin
+	 * Actions\Reminder
+	 */
+	function RemindMe(): void
+	{
+		Actions\Reminder::call();
+	}
+	/**
+	 * End
+	 * Actions\Reminder
+	 *
+	 * Begin
+	 * Actions\ReportToMod
+	 */
+	function ReportToModerator(): void
+	{
+		Actions\ReportToMod::call();
+	}
+	function ReportToModerator2(): void
+	{
+		Actions\ReportToMod::ReportToModerator2();
+	}
+	function reportPost($msg, $reason): void
+	{
+		Actions\ReportToMod::reportPost($msg, $reason);
+	}
+	function reportUser($id_member, $reason): void
+	{
+		Actions\ReportToMod::reportUser($id_member, $reason);
+	}
+	/**
+	 * End
+	 * Actions\ReportToMod
+	 *
+	 * Begin
+	 * Actions\RequestMembers
+	 */
+	function RequestMembers(): void
+	{
+		Actions\RequestMembers::call();
+	}
+	/**
+	 * End
+	 * Actions\RequestMembers
+	 *
+	 * Begin
+	 * Actions\Search
+	 */
+	function PlushSearch1(): void
+	{
+		Actions\Search::call();
+	}
+	/**
+	 * End
+	 * Actions\Search
+	 *
+	 * Begin
+	 * Actions\Search2
+	 */
+	function PlushSearch2(): void
+	{
+		Actions\Search2::call();
+	}
+	/**
+	 * End
+	 * Actions\Search2
+	 *
+	 * Begin
+	 * Actions\SendActivation
+	 */
+	function SendActivation(): void
+	{
+		Actions\SendActivation::call();
+	}
+	/**
+	 * End
+	 * Actions\SendActivation
+	 *
+	 * Begin
+	 * Actions\SmStats
+	 */
+	function SMStats(): void
+	{
+		Actions\SmStats::call();
+	}
+	/**
+	 * End
+	 * Actions\SmStats
+	 *
+	 * Begin
+	 * Actions\Stats
+	 */
+	function DisplayStats(): void
+	{
+		Actions\Stats::call();
+	}
+	/**
+	 * End
+	 * Actions\Stats
+	 *
+	 * Begin
+	 * Actions\TopicMerge
+	 */
+	function MergeTopics(): void
+	{
+		Actions\TopicMerge::call();
+	}
+	function MergeIndex(): void
+	{
+		Actions\TopicMerge::mergeIndex();
+	}
+	function MergeExecute(array $topics = []): void
+	{
+		Actions\TopicMerge::mergeExecute($topics);
+	}
+	function MergeDone(): void
+	{
+		Actions\TopicMerge::mergeDone();
+	}
+	/**
+	 * End
+	 * Actions\TopicMerge
+	 *
+	 * Begin
+	 * Actions\TopicMove
+	 */
+	function MoveTopic(): void
+	{
+		Actions\TopicMove::call();
+	}
+	/**
+	 * End
+	 * Actions\TopicMove
+	 *
+	 * Begin
+	 * Actions\TopicMove2
+	 */
+	function MoveTopic2(): void
+	{
+		Actions\TopicMove2::call();
+	}
+	function moveTopicConcurrence()
+	{
+		Actions\TopicMove2::moveTopicConcurrence();
+	}
+	/**
+	 * End
+	 * Actions\TopicMove2
+	 *
+	 * Begin
+	 * Actions\TopicPrint
+	 */
+	function PrintTopic(): void
+	{
+		Actions\TopicPrint::call();
+	}
+	/**
+	 * End
+	 * Actions\TopicPrint
+	 *
+	 * Begin
+	 * Actions\TopicRemove
+	 */
+	function RemoveTopic2(): void
+	{
+		Actions\TopicRemove::call();
+	}
+	function removeDeleteConcurrence(): bool
+	{
+		return Actions\TopicRemove::removeDeleteConcurrence();
+	}
+	function RemoveOldTopics2()
+	{
+		Actions\TopicRemove::old();
+	}
+	/**
+	 * End
+	 * Actions\TopicRemove
+	 *
+	 * Begin
+	 * Actions\TopicRestore
+	 */
+	function RestoreTopic(): void
+	{
+		Actions\TopicRestore::call();
+	}
+	/**
+	 * End
+	 * Actions\TopicRestore
+	 *
+	 * Begin
+	 * Actions\TopicSplit
+	 */
+	function SplitTopics(): void
+	{
+		Actions\TopicSplit::call();
+	}
+	function splitTopic(int $split1_ID_TOPIC, array $splitMessages, string $new_subject): int
+	{
+		return Actions\TopicSplit::splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject);
+	}
+	function SplitIndex(): void
+	{
+		Actions\TopicSplit::splitIndex();
+	}
+	function SplitExecute(): void
+	{
+		Actions\TopicSplit::splitExecute();
+	}
+	function SplitSelectTopics(): void
+	{
+		Actions\TopicSplit::splitSelectTopics();
+	}
+	function SplitSelectionExecute(): void
+	{
+		// todo: fix function name
+		Actions\TopicSplit::SplitSelectionExecute();
+	}
+	/**
+	 * End
+	 * Actions\TopicSplit
+	 *
+	 * Begin
+	 * Actions\TrackIP
+	 */
+	function TrackIP(int $memID = 0): void
+	{
+		Actions\TrackIP::trackIP($memID);
+	}
+	/**
+	 * End
+	 * Actions\TrackIP
+	 *
+	 * Begin
+	 * Actions\Unread
+	 */
+	function UnreadTopics(): void
+	{
+		Actions\Unread::call();
+	}
+	/**
+	 * End
+	 * Actions\Unread
+	 *
+	 * Begin
+	 * Actions\VerificationCode
+	 */
+	function VerificationCode(): void
+	{
+		Actions\VerificationCode::call();
+	}
+	/**
+	 * End
+	 * Actions\VerificationCode
+	 *
+	 * Begin
+	 * Actions\ViewQUery
+	 */
+	function ViewQuery(): void
+	{
+		Actions\ViewQuery::call();
+	}
+	/**
+	 * End
+	 * Actions\ViewQUery
+	 *
+	 * Begin
+	 * Actions\Who
+	 */
+	function Who(): void
+	{
+		Actions\Who::call();
+	}
+	function determineActions(string|array $urls, string|bool $preferred_prefix = false): array
+	{
+		return Actions\Who::determineActions($urls, $preferred_prefix);
+	}
+	/**
+	 * End
+	 * Actions\Who
+	 *
+	 * Begin
+	 * Actions\XmlHttp
+	 */
+	function XMLhttpMain(): void
+	{
+		Actions\XmlHttp::call();
+	}
+	function GetJumpTo(): void
+	{
+		Actions\XmlHttp::GetJumpTo();
+	}
+	function ListMessageIcons(): void
+	{
+		Actions\XmlHttp::ListMessageIcons();
+	}
+	function RetrievePreview(): void
+	{
+		Actions\XmlHttp::RetrievePreview();
+	}
+	/**
+	 * End
+	 * Actions\XmlHttp
+	 * End Actions\*
+	 *
+	 * Begin
+	 * Cache\CacheApi
+	 */
 }
-
 /***************************
  * PHP version compatibility
  ***************************/

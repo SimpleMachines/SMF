@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Actions\Admin\ACP;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\User;
 
@@ -23,18 +22,6 @@ use SMF\User;
  */
 class SmStats implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SMStats',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -177,11 +164,6 @@ class SmStats implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SmStats::exportStatic')) {
-	SmStats::exportStatic();
 }
 
 ?>

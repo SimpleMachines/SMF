@@ -13,6 +13,9 @@
 
 namespace SMF;
 
+use function array_key_exists;
+use function strtolower;
+
 /**
  * Assists in providing backward compatibility with code written for earlier
  * versions of SMF.

@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -31,18 +30,6 @@ use SMF\Utils;
  */
 class QuickModerationInTopic implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'QuickInTopicModeration',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -256,11 +243,6 @@ class QuickModerationInTopic implements ActionInterface
 
 		Utils::redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\QuickModerationInTopic::exportStatic')) {
-	QuickModerationInTopic::exportStatic();
 }
 
 ?>

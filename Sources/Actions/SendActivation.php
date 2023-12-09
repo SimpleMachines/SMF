@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -25,18 +24,6 @@ use SMF\Utils;
  */
 class SendActivation implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SendActivation',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -109,11 +96,6 @@ class SendActivation implements ActionInterface
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SendActivation::exportStatic')) {
-	SendActivation::exportStatic();
 }
 
 ?>

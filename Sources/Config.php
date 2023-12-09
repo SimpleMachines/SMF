@@ -260,7 +260,7 @@ class Config
 	 *
 	 * Whether to show debug info.
 	 */
-	public static $db_show_debug = true;
+	public static $db_show_debug;
 
 	/**
 	 * @var string

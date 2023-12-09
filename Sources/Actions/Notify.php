@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -32,20 +31,6 @@ use SMF\Utils;
  */
 abstract class Notify
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'getNotifyPrefs' => 'getNotifyPrefs',
-			'setNotifyPrefs' => 'setNotifyPrefs',
-			'deleteNotifyPrefs' => 'deleteNotifyPrefs',
-			'getMemberWithToken' => 'getMemberWithToken',
-			'createUnsubscribeToken' => 'createUnsubscribeToken',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -296,6 +281,7 @@ abstract class Notify
 		if (Db::$db->num_rows($request) == 0) {
 			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 		}
+		// todo: fix $this usage
 		$this->member_info = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
@@ -509,11 +495,6 @@ abstract class Notify
 	 * Gets the success message to display.
 	 */
 	abstract protected function getSuccessMsg();
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Notify::exportStatic')) {
-	Notify::exportStatic();
 }
 
 ?>

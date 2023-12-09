@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
@@ -25,18 +24,6 @@ use SMF\Utils;
  */
 class NotifyBoard extends Notify implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'BoardNotify',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -150,17 +137,6 @@ class NotifyBoard extends Notify implements ActionInterface
 	{
 		return sprintf(Lang::$txt['notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\NotifyBoard::exportStatic')) {
-	NotifyBoard::exportStatic();
 }
 
 ?>

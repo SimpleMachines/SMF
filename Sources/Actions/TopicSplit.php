@@ -15,7 +15,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -39,23 +38,6 @@ use SMF\Utils;
  */
 class TopicSplit implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SplitTopics',
-			'splitTopic' => 'splitTopic',
-			'splitIndex' => 'SplitIndex',
-			'splitExecute' => 'SplitExecute',
-			'splitSelectTopics' => 'SplitSelectTopics',
-			'SplitSelectionExecute' => 'SplitSelectionExecute',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -1054,11 +1036,6 @@ class TopicSplit implements ActionInterface
 			$this->subaction = $_GET['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicSplit::exportStatic')) {
-	TopicSplit::exportStatic();
 }
 
 ?>

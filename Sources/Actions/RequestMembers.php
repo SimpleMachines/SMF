@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Db\DatabaseApi as Db;
 use SMF\User;
 use SMF\Utils;
@@ -28,18 +27,6 @@ use SMF\Utils;
  */
 class RequestMembers implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RequestMembers',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -153,11 +140,6 @@ class RequestMembers implements ActionInterface
 		$this->search = trim(Utils::strtolower($this->search)) . '*';
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\RequestMembers::exportStatic')) {
-	RequestMembers::exportStatic();
 }
 
 ?>

@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -29,18 +28,6 @@ use SMF\Utils;
  */
 class TopicRestore implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RestoreTopic',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -594,11 +581,6 @@ class TopicRestore implements ActionInterface
 
 		Msg::updateLastMessages([$from_board, $target_board]);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicRestore::exportStatic')) {
-	TopicRestore::exportStatic();
 }
 
 ?>

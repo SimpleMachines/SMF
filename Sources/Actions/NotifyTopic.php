@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -26,18 +25,6 @@ use SMF\Utils;
  */
 class NotifyTopic extends Notify implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'TopicNotify',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -188,11 +175,6 @@ class NotifyTopic extends Notify implements ActionInterface
 	{
 		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\NotifyTopic::exportStatic')) {
-	NotifyTopic::exportStatic();
 }
 
 ?>

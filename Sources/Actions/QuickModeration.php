@@ -29,18 +29,6 @@ use SMF\Utils;
  */
 class QuickModeration implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'QuickModeration',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -976,11 +964,6 @@ class QuickModeration implements ActionInterface
 
 		Utils::redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\QuickModeration::exportStatic')) {
-	QuickModeration::exportStatic();
 }
 
 ?>

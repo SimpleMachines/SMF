@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -29,20 +28,6 @@ use SMF\Utils;
  */
 class TopicRemove implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RemoveTopic2',
-			'removeDeleteConcurrence' => 'removeDeleteConcurrence',
-			'old' => 'RemoveOldTopics2',
-		],
-	];
 
 	/****************************
 	 * Internal static properties
@@ -279,11 +264,6 @@ class TopicRemove implements ActionInterface
 	/*************************
 	 * Internal static methods
 	 *************************/
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicRemove::exportStatic')) {
-	TopicRemove::exportStatic();
 }
 
 ?>

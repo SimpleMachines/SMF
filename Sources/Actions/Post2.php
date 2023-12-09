@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -42,18 +41,6 @@ use SMF\Verifier;
  */
 class Post2 extends Post
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Post2',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -1049,11 +1036,6 @@ class Post2 extends Post
 			$searchAPI->postRemoved($_REQUEST['msg']);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Post2::exportStatic')) {
-	Post2::exportStatic();
 }
 
 ?>

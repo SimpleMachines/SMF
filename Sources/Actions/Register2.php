@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -39,19 +38,6 @@ use SMF\Verifier;
  */
 class Register2 extends Register
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Register2',
-			'registerMember' => 'registerMember',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -924,11 +910,6 @@ class Register2 extends Register
 	protected function __construct()
 	{
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Register2::exportStatic')) {
-	Register2::exportStatic();
 }
 
 ?>

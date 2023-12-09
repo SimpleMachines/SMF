@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Utils;
 
@@ -22,18 +21,6 @@ use SMF\Utils;
  */
 class NotifyAnnouncements extends Notify implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AnnouncementsNotify',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -162,11 +149,6 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	{
 		return sprintf(Lang::$txt['notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\NotifyAnnouncements::exportStatic')) {
-	NotifyAnnouncements::exportStatic();
 }
 
 ?>

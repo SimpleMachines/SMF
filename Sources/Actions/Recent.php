@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -34,19 +33,6 @@ use SMF\Utils;
  */
 class Recent implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RecentPosts',
-			'getLastPost' => 'getLastPost',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -698,11 +684,6 @@ class Recent implements ActionInterface
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Recent::exportStatic')) {
-	Recent::exportStatic();
 }
 
 ?>

@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -30,18 +29,6 @@ use SMF\Utils;
  */
 class Reminder implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RemindMe',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -487,11 +474,6 @@ class Reminder implements ActionInterface
 
 		$this->member = reset($loaded);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Reminder::exportStatic')) {
-	Reminder::exportStatic();
 }
 
 ?>

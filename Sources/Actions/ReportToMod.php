@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -30,21 +29,6 @@ use SMF\Utils;
  */
 class ReportToMod implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ReportToModerator',
-			'ReportToModerator2' => 'ReportToModerator2',
-			'reportPost' => 'reportPost',
-			'reportUser' => 'reportUser',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -694,11 +678,6 @@ class ReportToMod implements ActionInterface
 		// Back to the profile we reported!
 		Utils::redirectexit('reportsent;action=profile;u=' . $id_member);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ReportToMod::exportStatic')) {
-	ReportToMod::exportStatic();
 }
 
 ?>
