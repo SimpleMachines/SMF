@@ -644,7 +644,7 @@ class Image
 	 * @param string $background_color The background color.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function gifOutputAsPng(Gif\File $gif, string $lpszFileName, string $background_color = -1): bool
+	public static function gifOutputAsPng(Gif\File $gif, string $lpszFileName, string $background_color = '-1'): bool
 	{
 		if (!is_a($gif, Gif\File::class) || $lpszFileName == '') {
 			return false;

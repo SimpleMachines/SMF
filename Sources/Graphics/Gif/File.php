@@ -88,22 +88,22 @@ class File
 			$colors = $this->image->m_gih->m_nTableSize;
 			$pal = $this->image->m_gih->m_colorTable->toString();
 
-			if ($background_color != -1) {
+			if ($background_color != '-1') {
 				$background_color = $this->image->m_gih->m_colorTable->colorIndex($background_color);
 			}
 		} elseif ($this->header->m_bGlobalClr) {
 			$colors = $this->header->m_nTableSize;
 			$pal = $this->header->m_colorTable->toString();
 
-			if ($background_color != -1) {
+			if ($background_color != '-1') {
 				$background_color = $this->header->m_colorTable->colorIndex($background_color);
 			}
 		} else {
 			$colors = 0;
-			$background_color = -1;
+			$background_color = '-1';
 		}
 
-		if ($background_color == -1) {
+		if ($background_color == '-1') {
 			$background_color = $this->header->m_nBgColor;
 		}
 
