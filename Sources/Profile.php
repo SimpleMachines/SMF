@@ -1212,12 +1212,12 @@ class Profile extends User implements \ArrayAccess
 			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']),
 		];
 
-		// Gravatar?
 		if (
 			$this->formatted['avatar']['allow_gravatar']
 			&& (
 				stristr($this->avatar['url'], 'gravatar://')
 				|| !empty(Config::$modSettings['gravatarOverride'])
+				// Gravatar?
 			)
 		) {
 			$this->formatted['avatar'] += [
@@ -1388,7 +1388,18 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// For the templates.
-		Utils::$context['member_groups'] = $this->assignable_groups;
+		Utils::$context['member_groups'] = array_merge(
+			[
+				0 => [
+					'id' => 0,
+					'name' => Lang::$txt['no_primary_membergroup'],
+					'is_primary' => $this->data['id_group'] == 0,
+					'can_be_additional' => false,
+					'can_be_primary' => true,
+				]
+			],
+			$this->assignable_groups
+		);
 
 		return true;
 	}
