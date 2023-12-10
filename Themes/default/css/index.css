@@ -1543,14 +1543,11 @@ a[class^="mobile_generic_menu_"] {
 	-webkit-hyphens: auto;
 	hyphens: auto;
 }
-/* Fixes bug with border-box on scrollable js */
-.scrollable,
-.scrollable *,
-#profile_menu {
-	box-sizing: content-box;
-}
-.top_menu.scrollable {
-	max-height: 30em;
+@media (hover) {
+	.top_menu.scrollable {
+		max-height: 30em;
+		overflow: auto;
+	}
 }
 .pm_unread, .alerts_unread {
 	margin-top: 5px;

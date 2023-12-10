@@ -428,18 +428,9 @@ smc_PopupMenu.prototype.open = function (sItem)
 			},
 			type: "GET",
 			dataType: "html",
-			beforeSend: function () {
-			},
 			context: this.opt.menus[sItem].menuObj,
 			success: function (data, textStatus, xhr) {
 				this.html(data);
-
-				if ($(this).hasClass('scrollable'))
-					$(this).customScrollbar({
-						skin: "default-skin",
-						hScroll: false,
-						updateOnWindowResize: true
-					});
 			}
 		});
 
