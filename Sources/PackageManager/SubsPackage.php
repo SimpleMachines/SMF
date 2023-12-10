@@ -342,7 +342,7 @@ class SubsPackage
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, array$files_to_extract = null): mixed
+	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, array $files_to_extract = null): mixed
 	{
 		umask(0);
 
@@ -762,7 +762,7 @@ class SubsPackage
 				'notwritable' => [],
 			],
 		];
-		
+
 		// Otherwise, it's entirely irrelevant?
 		if ($restore_write_status) {
 			return $$return_data;
