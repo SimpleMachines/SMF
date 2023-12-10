@@ -96,8 +96,6 @@ class Image
 					return false;
 			}
 		}
-
-		return false;
 	}
 
 	public function skipExt(string &$data, int &$extLen): bool

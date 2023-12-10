@@ -297,30 +297,30 @@ class SocketFetcher extends WebFetchApi
 		if ($this->is_chunked) {
 			do {
 				$line = fgets($this->fp, $this->buffer_size);
-		
+
 				// Encounted a line feed, skip.
 				if ($line === $this->line_break) {
 					continue;
 				}
-		
+
 				// Try to see if this is a chunked data
 				$length = hexdec($line);
 				if (!is_int($length)) {
 					break;
 				}
-		
+
 				// We ran out of data.
 				if ($line === false || $length < 1 || feof($this->fp)) {
 					break;
 				}
-		
+
 				// Read the next chunk.
 				do {
 					if (isset($content_length)) {
 						$data = fread($this->fp, $content_length);
 					}
 					else {
-						$data = fread($this->fp, $length);	
+						$data = fread($this->fp, $length);
 					}
 
 					$body .= $data;
@@ -329,7 +329,7 @@ class SocketFetcher extends WebFetchApi
 					if (isset($content_length)) {
 						$content_length -= strlen($data);
 					}
-		
+
 					// No more chunked data.
 					if ($length <= 0 || feof($this->fp)) {
 						break;
@@ -337,17 +337,17 @@ class SocketFetcher extends WebFetchApi
 				}
 				while (true);
 			}
-			while (true);		
+			while (true);
 		} else {
 			if (isset($content_length)) {
 				while (!feof($this->fp) && strlen($body) < $content_length) {
-					$body .= fread($this->fp, $content_length - strlen($body));
+					$body .= fread($this->fp, (int) $content_length - strlen($body));
 				}
 			} else {
 				while (!feof($this->fp)) {
 					$body .= fread($this->fp, $this->buffer_size);
 				}
-			}	
+			}
 		}
 
 		$this->response[$this->current_redirect]['success'] = true;

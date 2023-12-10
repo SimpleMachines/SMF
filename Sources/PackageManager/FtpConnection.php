@@ -24,7 +24,7 @@ namespace SMF\PackageManager;
 class FtpConnection
 {
 	/**
-	 * @var string Holds the connection response
+	 * @var resource Holds the connection response
 	 */
 	public $connection;
 
@@ -242,10 +242,10 @@ class FtpConnection
 	/**
 	 * Reads the response to the command from the server
 	 *
-	 * @param string|array $desired The desired response
+	 * @param int|string|array $desired The desired response
 	 * @return bool Whether or not we got the desired response
 	 */
-	public function check_response(string|int|array $desired): bool
+	public function check_response(int|string|array $desired): bool
 	{
 		// Wait for a response that isn't continued with -, but don't wait too long.
 		$time = time();

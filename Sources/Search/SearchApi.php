@@ -447,6 +447,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
+		return null;
 	}
 
 	/**
@@ -751,7 +752,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * Creates a search API and returns the object.
 	 *
-	 * @return SMF\Search\SearchApiInterface An instance of the search API interface.
+	 * @return \SMF\Search\SearchApiInterface An instance of the search API interface.
 	 */
 	final public static function load(): object
 	{

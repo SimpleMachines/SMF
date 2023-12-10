@@ -754,10 +754,6 @@ class SubsPackage
 				Utils::obExit();
 			}
 		}
-		// Otherwise, it's entirely irrelevant?
-		elseif ($restore_write_status) {
-			return true;
-		}
 
 		// This is where we report what we got up to.
 		$return_data = [
@@ -766,6 +762,11 @@ class SubsPackage
 				'notwritable' => [],
 			],
 		];
+		
+		// Otherwise, it's entirely irrelevant?
+		if ($restore_write_status) {
+			return $$return_data;
+		}
 
 		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
 		if (!empty($_SESSION['pack_ftp']['connected'])) {
@@ -880,9 +881,9 @@ class SubsPackage
 	/**
 	 * Get a listing of files that will need to be set back to the original state
 	 *
-	 * @param null $dummy1
-	 * @param null $dummy2
-	 * @param null $dummy3
+	 * @param mixed $dummy1
+	 * @param mixed $dummy2
+	 * @param mixed $dummy3
 	 * @param bool $do_change
 	 * @return array An array of info about the files that need to be restored back to their original state
 	 */
@@ -2436,7 +2437,7 @@ class SubsPackage
 				// Now, for each file do we need to edit it?
 				foreach ($template_changes[1] as $pos => $template_file) {
 					// It does? Add it to the list darlin'.
-					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id][$pos]) || !in_array($template_file, $template_changes[$id][$pos]))) {
+					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id][$pos]) || !in_array($template_file, (array) $template_changes[$id][$pos]))) {
 						// Actually add it to the mod file too, so we can see that it will work ;)
 						if (!empty($temp_changes[$pos]['changes'])) {
 							$file .= "\n\n" . '<edit file>' . "\n" . $theme['theme_dir'] . '/' . $template_file . "\n" . '</edit file>' . "\n\n" . implode("\n\n", $temp_changes[$pos]['changes']);
@@ -2600,7 +2601,6 @@ class SubsPackage
 						'search_original' => $working_search,
 						'replace_original' => $replace_with,
 						'position' => $code_match[1] == 'replace' ? 'replace' : ($code_match[1] == 'add' || $code_match[1] == 'add after' ? 'before' : 'after'),
-						'is_custom' => $is_custom,
 						'failed' => true,
 					];
 

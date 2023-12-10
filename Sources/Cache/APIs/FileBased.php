@@ -91,6 +91,8 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			@unlink($file);
 		}
+
+		return null;
 	}
 
 	/**
@@ -107,6 +109,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		if ($value === null) {
 			@unlink($file);
+			return true;
 		} else {
 			$cache_data = json_encode(
 				[

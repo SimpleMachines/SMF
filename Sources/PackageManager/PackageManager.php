@@ -102,7 +102,7 @@ class PackageManager
 	 *
 	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
-	 * @return An instance of this class.
+	 * @return self An instance of this class.
 	 */
 	public static function load(): object
 	{

@@ -639,12 +639,12 @@ class Image
 	 * This is unused by SMF itself, but retained for compatibility with any
 	 * mods that use it.
 	 *
-	 * @param gif_file $gif A GIF image resource.
+	 * @param Gif\File $gif A GIF image resource.
 	 * @param string $lpszFileName The name of the file.
-	 * @param int $background_color The background color.
+	 * @param string $background_color The background color.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function gifOutputAsPng(Gif\File $gif, string $lpszFileName, int $background_color = -1): bool
+	public static function gifOutputAsPng(Gif\File $gif, string $lpszFileName, string $background_color = -1): bool
 	{
 		if (!is_a($gif, Gif\File::class) || $lpszFileName == '') {
 			return false;
@@ -983,16 +983,16 @@ class Image
 			$vb_height = $matches[3];
 
 			// No dimensions given, so use viewBox dimensions.
-			if (!isset($width) && !isset($height)) {
+			if (!empty($width) && !empty($height)) {
 				$width = $vb_width;
 				$height = $vb_height;
 			}
 			// Width but no height, so calculate height.
-			elseif (isset($width)) {
+			elseif (!empty($width)) {
 				$height = $width * $vb_height / $vb_width;
 			}
 			// Height but no width, so calculate width.
-			elseif (isset($height)) {
+			elseif (!empty($height)) {
 				$width = $height * $vb_width / $vb_height;
 			}
 		}

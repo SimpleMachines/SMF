@@ -64,6 +64,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
+
+		return true;
 	}
 
 	/**

@@ -339,7 +339,7 @@ class XmlArray
 
 			// The path was not found
 			if ($path === false) {
-				return false;
+				return [];
 			}
 
 			$path = $path->array;

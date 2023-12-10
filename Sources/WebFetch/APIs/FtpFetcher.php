@@ -104,9 +104,9 @@ class FtpFetcher extends WebFetchApi
 	 *    Passed arrays will be converted to a POST string joined with &'s.
 	 *
 	 * @param string|Url $url the site we are going to fetch
-	 * @return object A reference to the object for method chaining.
+	 * @return self A reference to the object for method chaining.
 	 */
-	public function request(string|Url $url, array|string $post_data = []): object
+	public function request(string|Url $url, array|string $post_data = []): self
 	{
 		if (!$url instanceof Url){
 			$url = new Url($url, true);
@@ -179,6 +179,8 @@ class FtpFetcher extends WebFetchApi
 
 		$this->response[0]['body'] = $body;
 		$this->response[0]['size'] = strlen($body);
+
+		return $this;
 	}
 
 	/**

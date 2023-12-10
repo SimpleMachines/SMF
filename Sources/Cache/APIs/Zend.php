@@ -63,6 +63,8 @@ class Zend extends CacheApi implements CacheApiInterface
 		if (function_exists('output_cache_get')) {
 			return output_cache_get($key, $ttl);
 		}
+
+		return null;
 	}
 
 	/**
@@ -79,6 +81,8 @@ class Zend extends CacheApi implements CacheApiInterface
 		if (function_exists('output_cache_put')) {
 			return output_cache_put($key, $value);
 		}
+
+		return false;
 	}
 
 	/**

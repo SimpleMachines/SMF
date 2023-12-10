@@ -92,6 +92,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	public function result(?string $area = null): mixed
 	{
+		return null;
 	}
 
 	/**
