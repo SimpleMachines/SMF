@@ -494,7 +494,7 @@ class Feed implements ActionInterface
 
 		// Get the associative array representing the xml.
 		if (!empty(CacheApi::$enable) && (!User::$me->is_guest || CacheApi::$enable >= 3)) {
-			$this->data = CacheApi::get('xmlfeed-' . $this->format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, 240);
+			$this->data = CacheApi::get('xmlfeed-' . $this->format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, 240) ?? [];
 		}
 
 		if (empty($this->data)) {
