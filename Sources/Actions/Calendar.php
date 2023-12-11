@@ -26,6 +26,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
+use SMF\TimeInterval;
 use SMF\TimeZone;
 use SMF\Topic;
 use SMF\User;
@@ -118,7 +119,7 @@ class Calendar implements ActionInterface
 		Theme::loadTemplate('Calendar');
 		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'], 'smf_calendar');
 
-		// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
+		// Did they specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
 		if (isset($_GET['event'])) {
 			$evid = (int) $_GET['event'];
 
@@ -378,7 +379,6 @@ class Calendar implements ActionInterface
 					'topic' => 0,
 					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
 					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
-					'member' => User::$me->id,
 				];
 				Event::create($eventOptions);
 			}
@@ -455,13 +455,14 @@ class Calendar implements ActionInterface
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday == true) {
+			$now = Time::create('now');
 			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
-			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
+			Utils::$context['event']->start->modify(Time::create('now')->format('H:i:s'));
+			Utils::$context['event']->duration = new TimeInterval('PT' . ($now->format('H') < 23 ? '1H' : (59 - $now->format('i')) . 'M'));
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_date);
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_datetime);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
 		Utils::$context['event']->fixTimezone();
@@ -767,27 +768,31 @@ class Calendar implements ActionInterface
 	 */
 	public static function getEventRange(string $low_date, string $high_date, bool $use_permissions = true): array
 	{
-		$events = [];
+		$occurrences = [];
 
-		$one_day = date_interval_create_from_date_string('1 day');
-		$tz = timezone_open(User::getTimezone());
+		$one_day = new \DateInterval('P1D');
+		$tz = new \DateTimeZone(User::getTimezone());
+		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		foreach (Event::loadRange($low_date, $high_date, $use_permissions) as $event) {
-			$cal_date = new Time($event->start_date_local, $tz);
+		foreach (Event::getOccurrencesInRange($low_date, $high_date, $use_permissions) as $occurrence) {
+			$cal_date = new Time($occurrence->start_date_local, $tz);
 
-			while ($cal_date->getTimestamp() <= $event->end->getTimestamp() && $cal_date->format('Y-m-d') <= $high_date) {
-				$events[$cal_date->format('Y-m-d')][] = $event;
-				date_add($cal_date, $one_day);
+			while (
+				$cal_date->getTimestamp() < $occurrence->end->getTimestamp()
+				&& $cal_date->format('Y-m-d') < $high_date
+			) {
+				$occurrences[$cal_date->format('Y-m-d')][] = $occurrence;
+				$cal_date->add($one_day);
 			}
 		}
 
-		foreach ($events as $mday => $array) {
-			$events[$mday][count($array) - 1]['is_last'] = true;
+		foreach ($occurrences as $mday => $array) {
+			$occurrences[$mday][count($array) - 1]['is_last'] = true;
 		}
 
-		ksort($events);
+		ksort($occurrences);
 
-		return $events;
+		return $occurrences;
 	}
 
 	/**
@@ -1212,19 +1217,22 @@ class Calendar implements ActionInterface
 		$calendarGrid['holidays'] = $calendarOptions['show_holidays'] ? self::getHolidayRange($start_date, $end_date) : [];
 		$calendarGrid['events'] = $calendarOptions['show_events'] ? self::getEventRange($start_date, $end_date) : [];
 
-		// Get rid of duplicate events
+		// Get rid of duplicate events.
+		// This does not get rid of SEPARATE occurrences of a recurring event.
+		// Instead, it gets rid of duplicates of the SAME occurrence, which can
+		// happen when the event duration extends beyond midnight.
 		$temp = [];
 
 		foreach ($calendarGrid['events'] as $date => $date_events) {
 			foreach ($date_events as $event_key => $event_val) {
-				if (in_array($event_val['id'], $temp)) {
+				if (in_array($event_val['id'] . ' ' . $event_val['start']->format('c'), $temp)) {
 					unset($calendarGrid['events'][$date][$event_key]);
 
 					if (empty($calendarGrid['events'][$date])) {
 						unset($calendarGrid['events'][$date]);
 					}
 				} else {
-					$temp[] = $event_val['id'];
+					$temp[] = $event_val['id'] . ' ' . $event_val['start']->format('c');
 				}
 			}
 		}

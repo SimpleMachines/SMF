@@ -115,7 +115,7 @@ function template_show_upcoming_list($grid_name)
 
 				if (!empty($event['allday']))
 				{
-					echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), '</time>', ($event['start_date'] != $event['end_date']) ? ' &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date_local']) . '</time>' : '';
+					echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), '</time>', ($event['start_date_local'] < $event['last_date_local']) ? ' &ndash; <time datetime="' . $event['last_iso_gmdate'] . '">' . trim($event['last_date_local']) . '</time>' : '';
 				}
 				else
 				{
@@ -431,12 +431,13 @@ function template_show_month_grid($grid_name, $is_mini = false)
 								', $event['link'], '<br>
 								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-							if (!empty($event['start_time_local']) && $event['start_date'] == $day['date'])
-								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
-							elseif (!empty($event['end_time_local']) && $event['end_date'] == $day['date'])
-								echo strtolower(Lang::$txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
-							elseif (!empty($event['allday']))
+							if (!empty($event['allday'])) {
 								echo Lang::$txt['calendar_allday'];
+							} elseif (!empty($event['start_time_local']) && $event['start_date'] == $day['date']) {
+								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
+							} elseif (!empty($event['end_time_local']) && $event['end_date'] == $day['date']) {
+								echo strtolower(Lang::$txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
+							}
 
 							echo '
 								</span>';
@@ -483,9 +484,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			elseif ($is_mini === false)
 			{
 				if (empty($current_month_started) && !empty(Utils::$context['calendar_grid_prev']))
-					echo '<a href="', Config::$scripturl, '?action=calendar;year=', Utils::$context['calendar_grid_prev']['current_year'], ';month=', Utils::$context['calendar_grid_prev']['current_month'], '">', Utils::$context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- +1, '</a>';
+					echo '<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['calendar_grid_prev']['current_year'], ';month=', Utils::$context['calendar_grid_prev']['current_month'], '">', Utils::$context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- +1, '</a>';
 				elseif (!empty($current_month_started) && !empty(Utils::$context['calendar_grid_next']))
-					echo '<a href="', Config::$scripturl, '?action=calendar;year=', Utils::$context['calendar_grid_next']['current_year'], ';month=', Utils::$context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? Lang::$txt['months_short'][Utils::$context['calendar_grid_next']['current_month']] . ' ' : Lang::$txt['months_titles'][Utils::$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
+					echo '<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['calendar_grid_next']['current_year'], ';month=', Utils::$context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? Lang::$txt['months_short'][Utils::$context['calendar_grid_next']['current_month']] . ' ' : Lang::$txt['months_titles'][Utils::$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
 			}
 
 			// Close this day and increase var count.
@@ -559,7 +560,7 @@ function template_show_week_grid($grid_name)
 		// Our actual month...
 		echo '
 				<div class="week_month_title">
-					<a href="', Config::$scripturl, '?action=calendar;month=', $month_data['current_month'], '">
+					<a href="', Config::$scripturl, '?action=calendar;viewmonth;month=', $month_data['current_month'], '">
 						', Lang::$txt['months_titles'][$month_data['current_month']], '
 					</a>
 				</div>';

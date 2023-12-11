@@ -21,17 +21,16 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
+use SMF\Theme;
 use SMF\Time;
+use SMF\TimeInterval;
 use SMF\TimeZone;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
- * Represents a calendar event.
- *
- * @todo Implement recurring events.
- * @todo Use this class to represent holidays and birthdays. They're all-day
- * events, after all.
+ * Represents a (possibly recurring) calendar event, birthday, or holiday.
  */
 class Event implements \ArrayAccess
 {
@@ -41,10 +40,9 @@ class Event implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
-	public const TYPE_EVENT_SIMPLE = 0;
-	public const TYPE_EVENT_RECURRING = 1; // Not yet implemented.
+	public const TYPE_EVENT = 0;
+	public const TYPE_HOLIDAY = 1; // Not yet implemented.
 	public const TYPE_BIRTHDAY = 2; // Not yet implemented.
-	public const TYPE_HOLIDAY = 4; // Not yet implemented.
 
 	/*******************
 	 * Public properties
@@ -58,26 +56,61 @@ class Event implements \ArrayAccess
 	public int $id;
 
 	/**
+	 * @var string
+	 *
+	 * This event's UID string. (Note: UID is not synonymous with UUID!)
+	 *
+	 * For events that were created by SMF, the UID will in fact be a UUID.
+	 * But if the event was imported from iCal data, it could be anything.
+	 */
+	public string $uid;
+
+	/**
+	 * @var string
+	 *
+	 * The recurrence ID of the first individual occurrence of the event.
+	 *
+	 * See RFC 5545, section 3.8.4.4.
+	 */
+	public string $id_first;
+
+	/**
 	 * @var int
 	 *
 	 * This event's type.
 	 * Value must be one of this class's TYPE_* constants.
 	 */
-	public int $type = self::TYPE_EVENT_SIMPLE;
+	public int $type = self::TYPE_EVENT;
 
 	/**
 	 * @var \SMF\Time
 	 *
-	 * An SMF\Time object representing the start of the event.
+	 * A Time object representing the start of the event's first occurrence.
 	 */
-	public \SMF\Time $start;
+	public Time $start;
+
+	/**
+	 * @var SMF\TimeInterval
+	 *
+	 * A TimeInterval object representing the duration of each occurrence of
+	 * the event.
+	 */
+	public TimeInterval $duration;
+
+	/**
+	 * @var RecurrenceIterator
+	 *
+	 * A RecurrenceIterator object to get individual occurrences of the event.
+	 */
+	public RecurrenceIterator $recurrence_iterator;
 
 	/**
 	 * @var \SMF\Time
 	 *
-	 * An SMF\Time object representing the end of the event.
+	 * A Time object representing the date after which no further occurrences
+	 * of the event happen.
 	 */
-	public \SMF\Time $end;
+	public Time $recurrence_end;
 
 	/**
 	 * @var bool
@@ -179,6 +212,7 @@ class Event implements \ArrayAccess
 	protected array $prop_aliases = [
 		'id_event' => 'id',
 		'eventid' => 'id',
+		'end_date' => 'recurrence_end',
 		'id_board' => 'board',
 		'id_topic' => 'topic',
 		'id_first_msg' => 'msg',
@@ -193,17 +227,40 @@ class Event implements \ArrayAccess
 		'end_object' => 'end',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
+	/**
+	 * @var \DateTimeImmutable
+	 *
+	 * Occurrences before this date will be skipped when returning results.
+	 */
+	protected \DateTimeInterface $view_start;
 
 	/**
-	 * @var bool
+	 * @var \DateTimeImmutable
 	 *
-	 * If true, Event::get() will not destroy instances after yielding them.
-	 * This is used internally by Event::load().
+	 * Occurrences after this date will be skipped when returning results.
 	 */
-	protected static bool $keep_all = false;
+	protected \DateTimeInterface $view_end;
+
+	/**
+	 * @var string
+	 *
+	 * The recurrence rule for the RecurrenceIterator.
+	 */
+	protected string $rrule = '';
+
+	/**
+	 * @var array
+	 *
+	 * Arbitrary dates to add to the recurrence set.
+	 */
+	protected array $rdates = [];
+
+	/**
+	 * @var array
+	 *
+	 * Arbitrary dates to exclude from the recurrence set.
+	 */
+	protected array $exdates = [];
 
 	/****************
 	 * Public methods
@@ -214,21 +271,49 @@ class Event implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of the event.
 	 * @param array $props Properties to set for this event.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
 		// Preparing default data to show in the calendar posting form.
 		if ($id < 0) {
 			$this->id = $id;
-			$props['start_timestamp'] = time();
-			$props['end_timestamp'] = time() + 3600;
-			$props['timezone'] = User::getTimezone();
-			$props['member'] = User::$me->id;
-			$props['name'] = User::$me->name;
+			$props['start'] = new Time('now ' . User::getTimezone());
+			$props['duration'] = new TimeInterval('PT1H');
+			$props['recurrence_end'] = (clone $props['start'])->add($props['duration']);
+			$props['member'] = $props['member'] ?? User::$me->id;
+			$props['name'] = $props['name'] ?? User::$me->name;
 		}
 		// Creating a new event.
 		elseif ($id == 0) {
+			if (!isset($props['start']) || !($props['start'] instanceof \DateTimeInterface)) {
+				ErrorHandler::fatalLang('invalid_date', false);
+			} elseif (!($props['start'] instanceof Time)) {
+				$props['start'] = Time::createFromInterface($props['start']);
+			}
+
+			if (!isset($props['duration'])) {
+				if (!isset($props['end']) || !($props['end'] instanceof \DateTimeInterface)) {
+					ErrorHandler::fatalLang('invalid_date', false);
+				} else {
+					$props['duration'] = $props['start']->diff($props['end']);
+					unset($props['end']);
+				}
+			}
+
+			if (!isset($props['recurrence_end']) && isset($props['duration'])) {
+				$props['recurrence_end'] = (clone $props['start'])->add($props['duration']);
+			}
+
+			if (!isset($props['rrule'])) {
+				$props['rrule'] = 'FREQ=YEARLY;COUNT=1';
+			} else {
+				// The RRule's week start value can affect recurrence results,
+				// so make sure to save it using the current user's preference.
+				$props['rrule'] = new RRule($props['rrule']);
+				$props['rrule']->wkst = RRule::WEEKDAYS[$start_day = ((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
+				$props['rrule'] = (string) $props['rrule'];
+			}
+
 			$props['member'] = $props['member'] ?? User::$me->id;
 			$props['name'] = $props['name'] ?? User::$me->name;
 		}
@@ -238,14 +323,81 @@ class Event implements \ArrayAccess
 			self::$loaded[$this->id] = $this;
 		}
 
-		$this->set($props);
+		$props['rdates'] = array_filter($props['rdates'] ?? []);
+		$props['exdates'] = array_filter($props['exdates'] ?? []);
 
-		// This shouldn't happen, but just in case...
-		if (!isset($this->start)) {
-			$this->start = new Time('today');
-			$this->end = new Time('today');
-			$this->allday = true;
+		// Set essential properties.
+		$this->uid = empty($props['uid']) ? (string) new Uuid() : $props['uid'];
+
+		$this->rrule = empty($props['rrule']) ? 'FREQ=YEARLY;COUNT=1' : $props['rrule'];
+
+		$this->start = $props['start'] instanceof Time ? $props['start'] : Time::createFromInterface($props['start']);
+
+		$this->allday = !empty($props['allday']);
+
+		$this->duration = TimeInterval::createFromDateInterval($props['duration']) ?? new TimeInterval(!empty($this->allday) ? 'P1D' : 'PT1H');
+
+		if (isset($props['view_start'])) {
+			$this->view_start = $props['view_start'] instanceof \DateTimeInterface ? $props['view_start'] : new \DateTimeImmutable($props['view_start']);
+		} else {
+			$this->view_start = clone $this->start;
 		}
+
+		if (isset($props['view_end'])) {
+			$this->view_end = $props['view_end'] instanceof \DateTimeInterface ? $props['view_end'] : new \DateTimeImmutable($props['view_end']);
+		} else {
+			$this->view_end = (clone $this->view_start)->add(new TimeInterval('P1Y'));
+		}
+
+		if (!empty($props['rdates'])) {
+			$this->rdates = is_array($props['rdates']) ? $props['rdates'] : explode(',', $props['rdates']);
+
+			$vs = $this->view_start->format('Ymd');
+			$ve = $this->view_end->format('Ymd');
+
+			foreach ($this->rdates as $key => $rdate) {
+				$d = substr($rdate, 0, 8);
+
+				if ($d < $vs || $d > $ve) {
+					unset($this->rdates[$key]);
+
+					continue;
+				}
+
+				$rdate = explode('/', $rdate);
+				$this->rdates[$key] = [
+					new \DateTimeImmutable($rdate[0]),
+					isset($rdate[1]) ? new TimeInterval($rdate[1]) : null,
+				];
+			}
+		}
+
+		if (!empty($props['exdates'])) {
+			$this->exdates = is_array($props['exdates']) ? $props['exdates'] : explode(',', $props['exdates']);
+
+			foreach ($this->exdates as $key => $exdate) {
+				$this->exdates[$key] = new \DateTimeImmutable($exdate);
+			}
+		}
+
+		unset(
+			$props['rrule'],
+			$props['start'],
+			$props['allday'],
+			$props['duration'],
+			$props['view_start'],
+			$props['view_end'],
+			$props['rdates'],
+			$props['exdates'],
+			$props['adjustments'],
+		);
+
+		$this->id_first = $this->allday ? $this->start->format('Ymd') : (clone $this->start)->setTimezone(new \DateTimeZone('UTC'))->format('Ymd\\THis\\Z');
+
+		$this->createRecurrenceIterator();
+
+		// Set any other properties.
+		$this->set($props);
 	}
 
 	/**
@@ -262,33 +414,42 @@ class Event implements \ArrayAccess
 				'end_date' => 'date',
 				'id_board' => 'int',
 				'id_topic' => 'int',
-				'title' => 'string-60',
+				'title' => 'string-255',
 				'id_member' => 'int',
 				'location' => 'string-255',
+				'duration' => 'string-32',
+				'rrule' => 'string',
+				'rdates' => 'string',
+				'exdates' => 'string',
+				'uid' => 'string-255',
+				'type' => 'int',
 			];
 
 			$params = [
 				$this->start->format('Y-m-d'),
-				$this->end->format('Y-m-d'),
+				(clone $this->recurrence_end)->sub($this->duration)->format('Y-m-d'),
 				$this->board,
 				$this->topic,
-				$this->title,
+				Utils::truncate($this->title, 255),
 				$this->member,
-				$this->location,
+				Utils::truncate($this->location, 255),
+				(string) $this->duration,
+				(string) ($this->recurrence_iterator->getRRule()),
+				implode(',', $this->recurrence_iterator->getRDates()),
+				implode(',', $this->recurrence_iterator->getExDates()),
+				$this->uid,
+				$this->type,
 			];
 
 			if (!$this->allday) {
 				$columns['start_time'] = 'time';
 				$params[] = $this->start->format('H:i:s');
 
-				$columns['end_time'] = 'time';
-				$params[] = $this->end->format('H:i:s');
-
 				$columns['timezone'] = 'string';
 				$params[] = $this->start->format('e');
 			}
 
-			IntegrationHook::call('integrate_create_event', [(array) $this, &$columns, &$params]);
+			IntegrationHook::call('integrate_create_event', [$this, &$columns, &$params]);
 
 			$this->id = Db::$db->insert(
 				'',
@@ -306,32 +467,40 @@ class Event implements \ArrayAccess
 			$set = [
 				'start_date = {date:start_date}',
 				'end_date = {date:end_date}',
-				'title = SUBSTRING({string:title}, 1, 60)',
+				'title = {string:title}',
 				'id_board = {int:id_board}',
 				'id_topic = {int:id_topic}',
-				'location = SUBSTRING({string:location}, 1, 255)',
+				'location = {string:location}',
+				'duration = {string:duration}',
+				'rrule = {string:rrule}',
+				'rdates = {string:rdates}',
+				'exdates = {string:exdates}',
+				'uid = {string:uid}',
+				'type = {int:type}',
 			];
 
 			$params = [
 				'id' => $this->id,
 				'start_date' => $this->start->format('Y-m-d'),
-				'end_date' => $this->end->format('Y-m-d'),
-				'title' => $this->title,
-				'location' => $this->location,
+				'end_date' => (clone $this->recurrence_end)->sub($this->duration)->format('Y-m-d'),
+				'title' => Utils::truncate($this->title, 255),
+				'location' => Utils::truncate($this->location, 255),
 				'id_board' => $this->board,
 				'id_topic' => $this->topic,
+				'duration' => (string) $this->duration,
+				'rrule' => (string) ($this->recurrence_iterator->getRRule()),
+				'rdates' => implode(',', $this->recurrence_iterator->getRDates()),
+				'exdates' => implode(',', $this->recurrence_iterator->getExDates()),
+				'uid' => $this->uid,
+				'type' => $this->type,
 			];
 
 			if ($this->allday) {
 				$set[] = 'start_time = NULL';
-				$set[] = 'end_time = NULL';
 				$set[] = 'timezone = NULL';
 			} else {
 				$set[] = 'start_time = {time:start_time}';
 				$params['start_time'] = $this->start->format('H:i:s');
-
-				$set[] = 'end_time = {time:end_time}';
-				$params['end_time'] = $this->end->format('H:i:s');
 
 				$set[] = 'timezone = {string:timezone}';
 				$params['timezone'] = $this->start->format('e');
@@ -354,84 +523,149 @@ class Event implements \ArrayAccess
 		]);
 	}
 
+	// /**
+	//  * @todo Builds an iCalendar document for the event, including all
+	//  * recurrence info.
+	//  *
+	//  * @return string An iCalendar VEVENT document.
+	//  */
+	// public function getVEvent(): string
+	// {
+	// 	return '';
+	// }
+
 	/**
+	 * Returns a generator that yields all occurrences of the event between
+	 * $this->view_start and $this->view_end.
 	 *
+	 * @return Generator<EventOccurrence> Iterating over result gives
+	 *    EventOccurrence instances.
 	 */
-	public function getVEvent(): string
+	public function getAllVisibleOccurrences(): \Generator
 	{
-		// Check the title isn't too long - iCal requires some formatting if so.
-		$title = str_split($this->title, 30);
+		// Where are we currently?
+		$orig_key = $this->recurrence_iterator->key();
 
-		foreach ($title as $id => $line) {
-			if ($id != 0) {
-				$title[$id] = ' ' . $title[$id];
-			}
+		// Go to the start.
+		$this->recurrence_iterator->rewind();
+
+		while ($this->recurrence_iterator->valid()) {
+			yield $this->createOccurrence($this->recurrence_iterator->current());
+			$this->recurrence_iterator->next();
 		}
 
-		// This is what we will be sending later.
-		$filecontents = [];
-		$filecontents[] = 'BEGIN:VEVENT';
-		$filecontents[] = 'ORGANIZER;CN="' . $this->name . '":MAILTO:' . Config::$webmaster_email;
-		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', time());
-		$filecontents[] = 'DTSTART' . (!$this->allday ? ';TZID=' . $this->tz : ';VALUE=DATE') . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis'));
-
-		// Event has a duration/
-		if (
-			(!$this->allday && $this->start_iso_gmdate != $this->end_iso_gmdate)
-			|| ($this->allday && $this->start_date != $this->end_date)
-		) {
-			$filecontents[] = 'DTEND' . (!$this->allday ? ';TZID=' . $this->tz : ';VALUE=DATE') . ':' . $this->end->format('Ymd' . ($this->allday ? '' : '\\THis'));
-		}
-
-		// Event has changed? Advance the sequence for this UID.
-		if ($this->sequence > 0) {
-			$filecontents[] = 'SEQUENCE:' . $this->sequence;
-		}
-
-		if (!empty($this->location)) {
-			$filecontents[] = 'LOCATION:' . str_replace(',', '\\,', $this->location);
-		}
-
-		$filecontents[] = 'SUMMARY:' . implode('', $title);
-		$filecontents[] = 'UID:' . $this->id . '@' . str_replace(' ', '-', Config::$mbname);
-		$filecontents[] = 'END:VEVENT';
-
-		return implode("\n", $filecontents);
+		// Go back to where we were before.
+		$this->recurrence_iterator->setKey($orig_key);
 	}
 
 	/**
+	 * Gets the next occurrence of the event after the date given by $when.
 	 *
+	 * @param ?\DateTimeInterface $when The moment from which we should start
+	 *    looking for the next occurrence. If null, uses now.
+	 * @return EventOccurrence|false An EventOccurrence object, or false if no
+	 *    occurrences happen after $when.
 	 */
-	public function fixTimezone(): void
+	public function getUpcomingOccurrence(?\DateTimeInterface $when = null): EventOccurrence|false
 	{
-		$all_timezones = Utils::$context['all_timezones'] ?? TimeZone::list($this->start_date);
+		if (!isset($when)) {
+			$when = new \DateTimeImmutable('now');
+		}
 
-		if (!isset($all_timezones[$this->timezone])) {
-			$later = strtotime('@' . $this->start_timestamp . ' + 1 year');
-			$tzinfo = timezone_transitions_get(timezone_open($this->timezone), $this->start_timestamp, $later);
+		if (!$this->recurrence_iterator->valid() || $this->recurrence_iterator->current() > $when) {
+			$this->recurrence_iterator->rewind();
+		}
 
-			$found = false;
+		if (!$this->recurrence_iterator->valid()) {
+			return false;
+		}
 
-			foreach ($all_timezones as $possible_tzid => $dummy) {
-				// Ignore the "-----" option
-				if (empty($possible_tzid)) {
-					continue;
-				}
+		while ($this->recurrence_iterator->valid() && $this->recurrence_iterator->current() < $when) {
+			$this->recurrence_iterator->next();
 
-				$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $this->start_timestamp, $later);
-
-				if ($tzinfo === $possible_tzinfo) {
-					$this->timezone = $possible_tzid;
-					$found = true;
-					break;
-				}
-			}
-
-			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
-			if (!$found) {
-				$all_timezones = [$this->timezone => '[UTC' . $this->start->format('P') . '] - ' . $this->timezone] + $all_timezones;
+			if (!$this->recurrence_iterator->valid()) {
+				return false;
 			}
 		}
+
+		return $this->createOccurrence($this->recurrence_iterator->current());
+	}
+
+	/**
+	 * Gets the first occurrence of the event.
+	 *
+	 * @return EventOccurrence|false EventOccurrence object, or false on error.
+	 */
+	public function getFirstOccurrence(): EventOccurrence|false
+	{
+		// Where are we currently?
+		$orig_key = $this->recurrence_iterator->key();
+
+		// Go to the start.
+		$this->recurrence_iterator->rewind();
+
+		// Create the occurrence object.
+		if ($this->recurrence_iterator->valid()) {
+			$occurrence = $this->createOccurrence($this->recurrence_iterator->current());
+		}
+
+		// Go back to where we were before.
+		$this->recurrence_iterator->setKey($orig_key);
+
+		// Return the occurrence object, or false on error.
+		return $occurrence ?? false;
+	}
+
+	/**
+	 * Gets the last occurrence of the event.
+	 *
+	 * @return EventOccurrence|false EventOccurrence object, or false on error.
+	 */
+	public function getLastOccurrence(): EventOccurrence|false
+	{
+		// Where are we currently?
+		$orig_key = $this->recurrence_iterator->key();
+
+		// Go to the end.
+		$this->recurrence_iterator->end();
+
+		// Create the occurrence object.
+		if ($this->recurrence_iterator->valid()) {
+			$occurrence = $this->createOccurrence($this->recurrence_iterator->current());
+		}
+
+		// Go back to where we were before.
+		$this->recurrence_iterator->setKey($orig_key);
+
+		// Return the occurrence object, or false on error.
+		return $occurrence ?? false;
+	}
+
+	/**
+	 * Gets an occurrence of the event by its recurrence ID.
+	 *
+	 * @param string $id The recurrence ID string.
+	 * @return EventOccurrence|false EventOccurrence object, or false on error.
+	 */
+	public function getOccurrence(string $id): EventOccurrence|false
+	{
+		// Where are we currently?
+		$orig_key = $this->recurrence_iterator->key();
+
+		// Search for the requested ID.
+		if (($key = $this->recurrence_iterator->search($id)) !== false) {
+			// Select the requested occurrence.
+			$this->recurrence_iterator->setKey($key);
+
+			// Create the occurrence object.
+			$occurrence = $this->createOccurrence($this->recurrence_iterator->current());
+		}
+
+		// Go back to where we were before.
+		$this->recurrence_iterator->setKey($orig_key);
+
+		// Return the occurrence object, or false on error.
+		return $occurrence ?? false;
 	}
 
 	/**
@@ -442,163 +676,189 @@ class Event implements \ArrayAccess
 	 */
 	public function __set(string $prop, mixed $value): void
 	{
-		if (property_exists($this, $prop)) {
-			$type = isset($this->{$prop}) ? gettype($this->{$prop}) : null;
-
-			if (!empty($type)) {
-				settype($value, $type);
-			}
-
-			$this->{$prop} = $value;
-		} elseif (array_key_exists($prop, $this->prop_aliases)) {
-			// Can't unset a virtual property.
-			if (is_null($value)) {
-				return;
-			}
-
-			$real_prop = $this->prop_aliases[$prop];
-
-			if (strpos($real_prop, '!') === 0) {
-				$real_prop = ltrim($real_prop, '!');
-				$value = !$value;
-			}
-
-			if (strpos($real_prop, '[') !== false) {
-				$real_prop = explode('[', rtrim($real_prop, ']'));
-
-				$this->{$real_prop[0]}[$real_prop[1]] = $value;
-			} else {
-				if ($real_prop == 'id') {
-					$this->{$real_prop} = (int) $value;
-				} else {
-					settype($value, gettype($this->{$real_prop}));
-					$this->{$real_prop} = $value;
-				}
-			}
-		} else {
-			// For simplicity's sake...
-			if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
-				$prop = 'start_' . $prop;
-			}
-
-			if (($start_end = substr($prop, 0, (int) strpos($prop, '_'))) !== 'end') {
-				$start_end = 'start';
-			}
-
-			if (!isset($this->{$start_end})) {
-				$this->{$start_end} = new Time();
-			}
-
-			switch ($prop) {
-				case 'start_datetime':
-				case 'end_datetime':
-					$this->{$start_end}->datetime = $value;
-					break;
-
-				case 'start_date':
-				case 'end_date':
-					$this->{$start_end}->date = $value;
-					break;
-
-				case 'start_time':
-				case 'end_time':
-					$this->{$start_end}->time = $value;
-					break;
-
-				case 'start_date_orig':
-				case 'end_date_orig':
-					$this->{$start_end}->date_orig = $value;
-					break;
-
-				case 'start_time_orig':
-				case 'end_time_orig':
-					$this->{$start_end}->time_orig = $value;
-					break;
-
-				case 'start_date_local':
-				case 'end_date_local':
-					$this->{$start_end}->date_local = $value;
-					break;
-
-				case 'start_time_local':
-				case 'end_time_local':
-					$this->{$start_end}->time_local = $value;
-					break;
-
-				case 'start_year':
-				case 'end_year':
-					$this->{$start_end}->year = $value;
-					break;
-
-				case 'start_month':
-				case 'end_month':
-					$this->{$start_end}->month = $value;
-					break;
-
-				case 'start_day':
-				case 'end_day':
-					$this->{$start_end}->day = $value;
-					break;
-
-				case 'start_hour':
-				case 'end_hour':
-					$this->{$start_end}->hour = $value;
-					break;
-
-				case 'start_minute':
-				case 'end_minute':
-					$this->{$start_end}->minute = $value;
-					break;
-
-				case 'start_second':
-				case 'end_second':
-					$this->{$start_end}->second = $value;
-					// no break
-
-				case 'start_timestamp':
-				case 'end_timestamp':
-					$this->{$start_end}->timestamp = $value;
-					break;
-
-				case 'start_iso_gmdate':
-				case 'end_iso_gmdate':
-					$this->{$start_end}->iso_gmdate = $value;
-					break;
-
-				case 'tz':
-				case 'tzid':
-				case 'timezone':
-					if ($value instanceof \DateTimeZone) {
-						$this->start->setTimezone($value);
-						$this->end->setTimezone($value);
-					} else {
-						$this->start->timezone = $value;
-						$this->end->timezone = $value;
-					}
-
-					break;
-
-				// These computed properties are read-only.
-				case 'tz_abbrev':
-				case 'new':
-				case 'is_selected':
-				case 'href':
-				case 'link':
-				case 'can_edit':
-				case 'modify_href':
-				case 'can_export':
-				case 'export_href':
-					break;
-
-				default:
-					$this->custom[$prop] = $value;
-					break;
-			}
+		if (!isset($this->start)) {
+			$this->start = new Time();
 		}
 
-		// Ensure that the dates still make sense with each other.
-		if (isset($this->start, $this->end)) {
-			self::fixEndDate();
+		if (!isset($this->duration)) {
+			$this->duration = new TimeInterval(!empty($this->allday) ? 'P1D' : 'PT1H');
+		}
+
+		if (str_starts_with($prop, 'end') || str_starts_with($prop, 'last')) {
+			$end = (clone $this->start)->add($this->duration);
+		}
+
+		if (str_starts_with($prop, 'last')) {
+			$last = (clone $end)->modify('-1 ' . ($this->allday ? 'day' : 'second'));
+		}
+
+		switch ($prop) {
+			// Special handling for stuff that affects start.
+			case 'start':
+				if ($value instanceof \DateTimeInterface) {
+					$this->start = Time::createFromInterface($value);
+				}
+				break;
+
+			case 'datetime':
+			case 'date':
+			case 'date_local':
+			case 'date_orig':
+			case 'time':
+			case 'time_local':
+			case 'time_orig':
+			case 'year':
+			case 'month':
+			case 'day':
+			case 'hour':
+			case 'minute':
+			case 'second':
+			case 'timestamp':
+			case 'iso_gmdate':
+			case 'tz':
+			case 'tzid':
+			case 'timezone':
+				$this->start->{$prop} = $value;
+				break;
+
+			case 'start_datetime':
+			case 'start_date':
+			case 'start_date_local':
+			case 'start_date_orig':
+			case 'start_time':
+			case 'start_time_local':
+			case 'start_time_orig':
+			case 'start_year':
+			case 'start_month':
+			case 'start_day':
+			case 'start_hour':
+			case 'start_minute':
+			case 'start_second':
+			case 'start_timestamp':
+			case 'start_iso_gmdate':
+				$this->start->{substr($prop, 6)} = $value;
+				break;
+
+			// Special handling for duration.
+			case 'duration':
+				if (!($value instanceof \DateInterval)) {
+					try {
+						$value = new TimeInterval((string) $value);
+					} catch (\Throwable $e) {
+						break;
+					}
+				} elseif (!($value instanceof TimeInterval)) {
+					$value = TimeInterval::createFromDateInterval($value);
+				}
+				$this->duration = $value;
+				break;
+
+			case 'end':
+				if (!($value instanceof \DateTimeInterface)) {
+					try {
+						$value = new \DateTimeImmutable((is_numeric($value) ? '@' : '') . $value);
+					} catch (\Throwable $e) {
+						break;
+					}
+				}
+				$this->duration = $this->start->diff($value);
+				break;
+
+			case 'end_datetime':
+			case 'end_date':
+			case 'end_date_local':
+			case 'end_date_orig':
+			case 'end_time':
+			case 'end_time_local':
+			case 'end_time_orig':
+			case 'end_year':
+			case 'end_month':
+			case 'end_day':
+			case 'end_hour':
+			case 'end_minute':
+			case 'end_second':
+			case 'end_timestamp':
+			case 'end_iso_gmdate':
+				$end->{substr($prop, 4)} = $value;
+				$this->duration = $this->start->diff($end);
+				break;
+
+			case 'last':
+				if (!($value instanceof \DateTimeInterface)) {
+					try {
+						$value = new \DateTimeImmutable((is_numeric($value) ? '@' : '') . $value);
+					} catch (\Throwable $e) {
+						break;
+					}
+				}
+				$this->duration = $this->start->diff($value->modify('+1 ' . ($this->allday ? 'day' : 'second')));
+				break;
+
+			case 'last_datetime':
+			case 'last_date':
+			case 'last_date_local':
+			case 'last_date_orig':
+			case 'last_time':
+			case 'last_time_local':
+			case 'last_time_orig':
+			case 'last_year':
+			case 'last_month':
+			case 'last_day':
+			case 'last_hour':
+			case 'last_minute':
+			case 'last_second':
+			case 'last_timestamp':
+			case 'last_iso_gmdate':
+				$last->{substr($prop, 5)} = $value;
+				$end = (clone $last)->modify('+1 ' . ($this->allday ? 'day' : 'second'));
+				$this->duration = $this->start->diff($end);
+				break;
+
+			// Special handling for stuff that affects recurrence.
+			case 'rrule':
+			case 'view_start':
+			case 'view_end':
+				$this->{$prop} = $value;
+				$this->createRecurrenceIterator();
+				break;
+
+			case 'rdates':
+				$this->rdates = is_array($value) ? $value : explode(',', (string) $value);
+
+				foreach ($this->rdates as $key => $rdate) {
+					$rdate = explode('/', $rdate);
+					$this->rdates[$key] = [
+						new \DateTimeImmutable($rdate[0]),
+						isset($rdate[1]) ? new TimeInterval($rdate[1]) : null,
+					];
+				}
+				$this->createRecurrenceIterator();
+				break;
+
+			case 'exdates':
+				$this->exdates = is_array($value) ? $value : explode(',', (string) $value);
+
+				foreach ($this->exdates as $key => $exdate) {
+					$this->exdates[$key] = new \DateTimeImmutable($exdate);
+				}
+				$this->createRecurrenceIterator();
+				break;
+
+			// These computed properties are read-only.
+			case 'new':
+			case 'is_selected':
+			case 'href':
+			case 'link':
+			case 'can_edit':
+			case 'modify_href':
+			case 'can_export':
+			case 'export_href':
+				break;
+
+			// Everything else.
+			default:
+				$this->customPropertySet($prop, $value);
+				break;
 		}
 	}
 
@@ -606,123 +866,101 @@ class Event implements \ArrayAccess
 	 * Gets custom property values.
 	 *
 	 * @param string $prop The property name.
+	 * @return mixed The property value.
 	 */
 	public function __get(string $prop): mixed
 	{
-		if (property_exists($this, $prop)) {
-			return $this->{$prop} ?? null;
+		if (str_starts_with($prop, 'end') || str_starts_with($prop, 'last')) {
+			$end = (clone $this->start)->add($this->duration);
 		}
 
-		if (array_key_exists($prop, $this->prop_aliases)) {
-			$real_prop = $this->prop_aliases[$prop];
-
-			if (($not = strpos($real_prop, '!') === 0)) {
-				$real_prop = ltrim($real_prop, '!');
-			}
-
-			if (strpos($real_prop, '[') !== false) {
-				$real_prop = explode('[', rtrim($real_prop, ']'));
-
-				$value = $this->{$real_prop[0]}[$real_prop[1]];
-			} else {
-				$value = $this->{$real_prop};
-			}
-
-			return $not ? !$value : $value;
-		}
-
-		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
-			$prop = 'start_' . $prop;
-		}
-
-		if (($start_end = substr($prop, 0, (int) strpos($prop, '_'))) !== 'end') {
-			$start_end = 'start';
+		if (str_starts_with($prop, 'last')) {
+			$last = (clone $end)->modify('-1 ' . ($this->allday ? 'day' : 'second'));
 		}
 
 		switch ($prop) {
-			case 'start_datetime':
-			case 'end_datetime':
-				$value = $this->{$start_end}->datetime;
-				break;
-
-			case 'start_date':
-			case 'end_date':
-				$value = $this->{$start_end}->date;
-				break;
-
-			case 'start_date_local':
-			case 'end_date_local':
-				$value = $this->{$start_end}->date_local;
-				break;
-
-			case 'start_date_orig':
-			case 'end_date_orig':
-				$value = $this->{$start_end}->date_orig;
-				break;
-
-			case 'start_time':
-			case 'end_time':
-				$value = $this->{$start_end}->time;
-				break;
-
-			case 'start_time_local':
-			case 'end_time_local':
-				$value = $this->{$start_end}->time_local;
-				break;
-
-			case 'start_time_orig':
-			case 'end_time_orig':
-				$value = $this->{$start_end}->time_orig;
-				break;
-
-			case 'start_year':
-			case 'end_year':
-				$value = $this->{$start_end}->format('Y');
-				break;
-
-			case 'start_month':
-			case 'end_month':
-				$value = $this->{$start_end}->format('m');
-				break;
-
-			case 'start_day':
-			case 'end_day':
-				$value = $this->{$start_end}->format('d');
-				break;
-
-			case 'start_hour':
-			case 'end_hour':
-				$value = $this->{$start_end}->format('H');
-				break;
-
-			case 'start_minute':
-			case 'end_minute':
-				$value = $this->{$start_end}->format('i');
-				break;
-
-			case 'start_second':
-			case 'end_second':
-				$value = $this->{$start_end}->format('s');
-				break;
-
-			case 'start_timestamp':
-			case 'end_timestamp':
-				$value = $this->{$start_end}->getTimestamp() - ($this->allday ? $this->{$start_end}->getTimestamp() % 86400 : 0);
-				break;
-
-			case 'start_iso_gmdate':
-			case 'end_iso_gmdate':
-				$value = $this->allday ? preg_replace('/T\d\d:\d\d:\d\d/', 'T00:00:00', $this->{$start_end}->iso_gmdate) : $this->{$start_end}->iso_gmdate;
-				break;
-
+			case 'datetime':
+			case 'date':
+			case 'date_local':
+			case 'date_orig':
+			case 'time':
+			case 'time_local':
+			case 'time_orig':
+			case 'year':
+			case 'month':
+			case 'day':
+			case 'hour':
+			case 'minute':
+			case 'second':
+			case 'timestamp':
+			case 'iso_gmdate':
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				$value = $this->start->timezone;
+			case 'tz_abbrev':
+				$value = $this->start->{$prop};
 				break;
 
-			case 'tz_abbrev':
-				$value = $this->start->tz_abbrev;
+			case 'start_datetime':
+			case 'start_date':
+			case 'start_date_local':
+			case 'start_date_orig':
+			case 'start_time':
+			case 'start_time_local':
+			case 'start_time_orig':
+			case 'start_year':
+			case 'start_month':
+			case 'start_day':
+			case 'start_hour':
+			case 'start_minute':
+			case 'start_second':
+			case 'start_timestamp':
+			case 'start_iso_gmdate':
+				$value = $this->start->{substr($prop, 6)};
+				break;
+
+			case 'end':
+				$value = $end;
+				break;
+
+			case 'end_datetime':
+			case 'end_date':
+			case 'end_date_local':
+			case 'end_date_orig':
+			case 'end_time':
+			case 'end_time_local':
+			case 'end_time_orig':
+			case 'end_year':
+			case 'end_month':
+			case 'end_day':
+			case 'end_hour':
+			case 'end_minute':
+			case 'end_second':
+			case 'end_timestamp':
+			case 'end_iso_gmdate':
+				$value = $end->{substr($prop, 4)};
+				break;
+
+			case 'last':
+				$value = $last;
+				break;
+
+			case 'last_datetime':
+			case 'last_date':
+			case 'last_date_local':
+			case 'last_date_orig':
+			case 'last_time':
+			case 'last_time_local':
+			case 'last_time_orig':
+			case 'last_year':
+			case 'last_month':
+			case 'last_day':
+			case 'last_hour':
+			case 'last_minute':
+			case 'last_second':
+			case 'last_timestamp':
+			case 'last_iso_gmdate':
+				$value = $last->{substr($prop, 5)};
 				break;
 
 			case 'new':
@@ -757,10 +995,24 @@ class Event implements \ArrayAccess
 				$value = Config::$scripturl . '?action=calendar;sa=ical;eventid=' . $this->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 				break;
 
+			case 'rrule':
+				$value = isset($this->recurrence_iterator) ? $this->recurrence_iterator->getRRule() : null;
+				break;
+
+			case 'rdates':
+				$value = isset($this->recurrence_iterator) ? $this->recurrence_iterator->getRDates() : null;
+				break;
+
+			case 'exdates':
+				$value = isset($this->recurrence_iterator) ? $this->recurrence_iterator->getExDates() : null;
+				break;
+
 			default:
-				$value = $this->custom[$prop] ?? null;
+				$value = $this->customPropertyGet($prop);
 				break;
 		}
+
+		unset($end, $last);
 
 		return $value;
 	}
@@ -769,67 +1021,80 @@ class Event implements \ArrayAccess
 	 * Checks whether a custom property has been set.
 	 *
 	 * @param string $prop The property name.
+	 * @return bool Whether the property has been set.
 	 */
 	public function __isset(string $prop): bool
 	{
-		if (property_exists($this, $prop)) {
-			return isset($this->{$prop});
-		}
-
-		if (array_key_exists($prop, $this->prop_aliases)) {
-			$real_prop = ltrim($this->prop_aliases[$prop], '!');
-
-			if (strpos($real_prop, '[') !== false) {
-				$real_prop = explode('[', rtrim($real_prop, ']'));
-
-				return isset($this->{$real_prop[0]}[$real_prop[1]]);
-			}
-
-			return isset($this->{$real_prop});
-		}
-
-		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
-			$prop = 'start_' . $prop;
-		}
-
 		switch ($prop) {
 			case 'start_datetime':
 			case 'start_date':
+			case 'start_date_local':
+			case 'start_date_orig':
 			case 'start_time':
+			case 'start_time_local':
+			case 'start_time_orig':
 			case 'start_year':
 			case 'start_month':
 			case 'start_day':
 			case 'start_hour':
 			case 'start_minute':
 			case 'start_second':
-			case 'start_date_local':
-			case 'start_date_orig':
-			case 'start_time_local':
-			case 'start_time_orig':
 			case 'start_timestamp':
 			case 'start_iso_gmdate':
+			case 'datetime':
+			case 'date':
+			case 'date_local':
+			case 'date_orig':
+			case 'time':
+			case 'time_local':
+			case 'time_orig':
+			case 'year':
+			case 'month':
+			case 'day':
+			case 'hour':
+			case 'minute':
+			case 'second':
+			case 'timestamp':
+			case 'iso_gmdate':
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
 			case 'tz_abbrev':
-				return property_exists($this, 'start');
+				return isset($this->start);
 
+			case 'end':
 			case 'end_datetime':
 			case 'end_date':
+			case 'end_date_local':
+			case 'end_date_orig':
 			case 'end_time':
+			case 'end_time_local':
+			case 'end_time_orig':
 			case 'end_year':
 			case 'end_month':
 			case 'end_day':
 			case 'end_hour':
 			case 'end_minute':
 			case 'end_second':
-			case 'end_date_local':
-			case 'end_date_orig':
-			case 'end_time_local':
-			case 'end_time_orig':
 			case 'end_timestamp':
 			case 'end_iso_gmdate':
-				return property_exists($this, 'end');
+			case 'last':
+			case 'last_datetime':
+			case 'last_date':
+			case 'last_date_local':
+			case 'last_date_orig':
+			case 'last_time':
+			case 'last_time_local':
+			case 'last_time_orig':
+			case 'last_year':
+			case 'last_month':
+			case 'last_day':
+			case 'last_hour':
+			case 'last_minute':
+			case 'last_second':
+			case 'last_timestamp':
+			case 'last_iso_gmdate':
+				return isset($this->start, $this->duration);
 
 			case 'new':
 			case 'is_selected':
@@ -842,7 +1107,42 @@ class Event implements \ArrayAccess
 				return true;
 
 			default:
-				return isset($this->custom[$prop]);
+				return $this->customPropertyIsset($prop);
+		}
+	}
+
+	/**
+	 *
+	 */
+	public function fixTimezone(): void
+	{
+		$all_timezones = TimeZone::list($this->start->date);
+
+		if (!isset($all_timezones[$this->start->timezone])) {
+			$later = strtotime('@' . $this->start->timestamp . ' + 1 year');
+			$tzinfo = (new \DateTimeZone($this->start->timezone))->getTransitions($this->start->timestamp, $later);
+
+			$found = false;
+
+			foreach ($all_timezones as $possible_tzid => $dummy) {
+				// Ignore the "-----" option
+				if (empty($possible_tzid)) {
+					continue;
+				}
+
+				$possible_tzinfo = (new \DateTimeZone($possible_tzid))->getTransitions($this->start->timestamp, $later);
+
+				if ($tzinfo === $possible_tzinfo) {
+					$this->start->timezone = $possible_tzid;
+					$found = true;
+					break;
+				}
+			}
+
+			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
+			if (!$found) {
+				$all_timezones = [$this->start->timezone => '[UTC' . $this->start->format('P') . '] - ' . $this->start->timezone] + $all_timezones;
+			}
 		}
 	}
 
@@ -851,83 +1151,26 @@ class Event implements \ArrayAccess
 	 ***********************/
 
 	/**
-	 * Loads events by ID number or by topic.
+	 * Loads an event by ID number or by topic ID.
 	 *
 	 * @param int $id ID number of the event or topic.
 	 * @param bool $is_topic If true, $id is the topic ID. Default: false.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
-	 * @return array|bool Instances of this class for the loaded events.
-	 */
-	public static function load(int $id, bool $is_topic = false, bool $use_permissions = true): array|bool
-	{
-		if ($id <= 0) {
-			return $is_topic ? false : [new self($id)];
-		}
-
-		$loaded = [];
-
-		self::$keep_all = true;
-
-		$query_customizations['where'][] = 'cal.id_' . ($is_topic ? 'topic' : 'event') . ' = {int:id}';
-		$query_customizations['params']['id'] = $id;
-
-		if ($use_permissions) {
-			$query_customizations['where'][] = '(cal.id_board = {int:no_board_link} OR {query_wanna_see_board})';
-
-			$query_customizations['params']['no_board_link'] = 0;
-		}
-
-		foreach (self::get('', '', $use_permissions, $query_customizations) as $event) {
-			$loaded[] = $event;
-		}
-
-		self::$keep_all = false;
-
-		return $loaded;
-	}
-
-	/**
-	 * Loads events within the given date range.
-	 *
-	 * @param string $low_date The low end of the range, inclusive, in YYYY-MM-DD format.
-	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
-	 * @param bool $use_permissions Whether to use permissions. Default: true.
-	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded events.
 	 */
-	public static function loadRange(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): array
+	public static function load(int $id, bool $is_topic = false, bool $use_permissions = true): array
 	{
-		$loaded = [];
-
-		self::$keep_all = true;
-
-		foreach (self::get($low_date, $high_date, $use_permissions, $query_customizations) as $event) {
-			$loaded[$event->id] = $event;
+		if ($id <= 0) {
+			return [];
 		}
 
-		self::$keep_all = false;
+		if (!$is_topic && isset(self::$loaded[$id])) {
+			return [self::$loaded[$id]];
+		}
 
-		// Return the instances we just loaded.
-		return $loaded;
-	}
+		$loaded = [];
 
-	/**
-	 * Generator that yields instances of this class.
-	 *
-	 * @todo SMF does not yet take advantage of this generator very well.
-	 * Instead of loading all the events in the range via Event::loadRange(),
-	 * it would be better to call Event::get() directly in order to reduce
-	 * memory load.
-	 *
-	 * @param string $low_date The low end of the range, inclusive, in YYYY-MM-DD format.
-	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
-	 * @param bool $use_permissions Whether to use permissions. Default: true.
-	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return \Generator<object> Iterating over result gives Event instances.
-	 */
-	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
-	{
-		$selects = $query_customizations['selects'] ?? [
+		$selects = [
 			'cal.*',
 			'b.id_board',
 			'b.member_groups',
@@ -936,22 +1179,18 @@ class Event implements \ArrayAccess
 			'm.modified_time',
 			'mem.real_name',
 		];
-		$joins = $query_customizations['joins'] ?? [
+		$joins = [
 			'LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)',
 			'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = cal.id_topic)',
 			'LEFT JOIN {db_prefix}messages AS m ON (m.id_msg  = t.id_first_msg)',
 			'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = cal.id_member)',
 		];
-		$where = $query_customizations['where'] ?? [
-			'cal.start_date <= {date:high_date}',
-			'cal.end_date >= {date:low_date}',
-		];
-		$order = $query_customizations['order'] ?? ['cal.start_date'];
-		$group = $query_customizations['group'] ?? [];
-		$limit = $query_customizations['limit'] ?? 0;
-		$params = $query_customizations['params'] ?? [
-			'high_date' => $high_date,
-			'low_date' => $low_date,
+		$where = ['cal.id_' . ($is_topic ? 'topic' : 'event') . ' = {int:id}'];
+		$order = ['cal.start_date'];
+		$group = [];
+		$limit = 0;
+		$params = [
+			'id' => $id,
 			'no_board_link' => 0,
 		];
 
@@ -972,10 +1211,130 @@ class Event implements \ArrayAccess
 			$id = (int) $row['id_event'];
 			$row['use_permissions'] = $use_permissions;
 
-			yield (new self($id, $row));
+			$rrule = new RRule($row['rrule']);
 
-			if (!self::$keep_all) {
-				unset(self::$loaded[$id]);
+			switch ($rrule->freq) {
+				case 'SECONDLY':
+					$unit = 'seconds';
+					break;
+
+				case 'MINUTELY':
+					$unit = 'minutes';
+					break;
+
+				case 'HOURLY':
+					$unit = 'hours';
+					break;
+
+				case 'DAILY':
+					$unit = 'days';
+					break;
+
+				case 'WEEKLY':
+					$unit = 'weeks';
+					break;
+
+				case 'MONTHLY':
+					$unit = 'months';
+					break;
+
+				default:
+					$unit = 'years';
+					break;
+			}
+
+			$row['view_end'] = new \DateTimeImmutable('now + ' . (RecurrenceIterator::DEFAULT_COUNTS[$rrule->freq]) . ' ' . $unit);
+
+			$loaded[] = (new self($id, $row));
+		}
+
+		return $loaded;
+	}
+
+	/**
+	 * Generator that yields instances of this class.
+	 *
+	 * @param string $low_date The low end of the range, inclusive, in YYYY-MM-DD format.
+	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
+	 * @param bool $use_permissions Whether to use permissions. Default: true.
+	 * @param array $query_customizations Customizations to the SQL query.
+	 * @return Generator<Event> Iterating over result gives Event instances.
+	 */
+	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
+	{
+		$low_date = !empty($low_date) ? $low_date : '1000-01-01';
+		$high_date = !empty($high_date) ? $high_date : '9999-12-31';
+
+		$selects = $query_customizations['selects'] ?? [
+			'cal.*',
+			'b.id_board',
+			'b.member_groups',
+			't.id_first_msg',
+			't.approved',
+			'm.modified_time',
+			'mem.real_name',
+		];
+		$joins = $query_customizations['joins'] ?? [
+			'LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)',
+			'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = cal.id_topic)',
+			'LEFT JOIN {db_prefix}messages AS m ON (m.id_msg  = t.id_first_msg)',
+			'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = cal.id_member)',
+		];
+		$where = $query_customizations['where'] ?? [
+			'cal.start_date <= {date:high_date}',
+			'cal.end_date >= {date:low_date}',
+			'type = {int:type}',
+		];
+		$order = $query_customizations['order'] ?? ['cal.start_date'];
+		$group = $query_customizations['group'] ?? [];
+		$limit = $query_customizations['limit'] ?? 0;
+		$params = $query_customizations['params'] ?? [
+			'high_date' => $high_date,
+			'low_date' => $low_date,
+			'no_board_link' => 0,
+			'type' => self::TYPE_EVENT,
+		];
+
+		if ($use_permissions) {
+			$where[] = '(cal.id_board = {int:no_board_link} OR {query_wanna_see_board})';
+		}
+
+		IntegrationHook::call('integrate_query_event', [&$selects, &$params, &$joins, &$where, &$order, &$group, &$limit]);
+
+		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+			// If the attached topic is not approved then for the moment pretend it doesn't exist.
+			if (!empty($row['id_first_msg']) && Config::$modSettings['postmod_active'] && !$row['approved']) {
+				continue;
+			}
+
+			unset($row['approved']);
+
+			$id = (int) $row['id_event'];
+			$row['use_permissions'] = $use_permissions;
+
+			$row['view_start'] = new \DateTimeImmutable($low_date);
+			$row['view_end'] = new \DateTimeImmutable($high_date);
+
+			yield (new self($id, $row));
+		}
+	}
+
+	/**
+	 * Gets events within the given date range, and returns a generator that
+	 * yields all occurrences of those events within that range.
+	 *
+	 * @param string $low_date The low end of the range, inclusive, in YYYY-MM-DD format.
+	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
+	 * @param bool $use_permissions Whether to use permissions. Default: true.
+	 * @param array $query_customizations Customizations to the SQL query.
+	 * @return Generator<EventOccurrence> Iterating over result gives
+	 *    EventOccurrence instances.
+	 */
+	public static function getOccurrencesInRange(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
+	{
+		foreach (self::get($low_date, $high_date, $use_permissions, $query_customizations) as $event) {
+			foreach ($event->getAllVisibleOccurrences() as $occurrence) {
+				yield $occurrence;
 			}
 		}
 	}
@@ -995,7 +1354,7 @@ class Event implements \ArrayAccess
 		}
 
 		// Set the start and end dates.
-		self::setStartEnd($eventOptions);
+		self::setStartAndDuration($eventOptions);
 
 		$event = new self(0, $eventOptions);
 		$event->save();
@@ -1041,8 +1400,8 @@ class Event implements \ArrayAccess
 			$eventOptions[$key] = Utils::htmlspecialchars($eventOptions[$key] ?? '', ENT_QUOTES);
 		}
 
-		// Set the new start and end dates.
-		self::setStartEnd($eventOptions);
+		// Set the new start date and duration.
+		self::setStartAndDuration($eventOptions);
 
 		list($event) = self::load($id);
 		$event->set($eventOptions);
@@ -1081,24 +1440,63 @@ class Event implements \ArrayAccess
 	 ******************/
 
 	/**
-	 * Ensures that the start and end dates have a sane relationship.
+	 * Sets $this->recurrence_iterator, but only if all necessary properties
+	 * have been set.
+	 *
+	 * @return bool Whether the recurrence iterator was created successfully.
 	 */
-	protected function fixEndDate(): void
+	protected function createRecurrenceIterator(): bool
 	{
-		// Must always use the same time zone for both dates.
-		if ($this->end->format('e') !== $this->start->format('e')) {
-			$this->end->setTimezone($this->start->getTimezone());
+		static $args_hash;
+
+		if (
+			empty($this->rrule)
+			|| !isset($this->start, $this->view_start, $this->view_end, $this->allday)
+		) {
+			return false;
 		}
 
-		// End date can't be before the start date.
-		if ($this->end->getTimestamp() < $this->start->getTimestamp()) {
-			$this->end->setTimestamp($this->start->getTimestamp());
+		$temp_hash = md5($this->rrule . $this->start->format('c') . $this->view_start->format('c') . $this->view_end->format('c') . (int) $this->allday);
+
+		if (isset($this->recurrence_iterator, $args_hash) && $args_hash === $temp_hash) {
+			return true;
 		}
 
-		// If the event is too long, cap it at the max.
-		if (!empty(Config::$modSettings['cal_maxspan']) && $this->start->diff($this->end)->format('%a') > Config::$modSettings['cal_maxspan']) {
-			$this->end = (clone $this->start)->modify('+' . Config::$modSettings['cal_maxspan'] . ' days');
+		$args_hash = $temp_hash;
+
+		$this->recurrence_iterator = new RecurrenceIterator(
+			new RRule($this->rrule),
+			$this->start,
+			$this->view_start->diff($this->view_end),
+			$this->view_start,
+			$this->allday ? RecurrenceIterator::TYPE_ALLDAY : RecurrenceIterator::TYPE_ABSOLUTE,
+			$this->rdates ?? [],
+			$this->exdates ?? [],
+		);
+
+		return true;
+	}
+
+	/**
+	 *
+	 * @param \DateTimeInterface $start The start time.
+	 * @param ?TimeInterval $duration Custom duration for this occurrence. If
+	 *    this is left null, the duration of the parent event will be used.
+	 * @return EventOccurrence
+	 */
+	protected function createOccurrence(\DateTimeInterface $start, ?TimeInterval $duration = null): EventOccurrence
+	{
+		$props = [
+			'start' => Time::createFromInterface($start),
+		];
+
+		if (isset($duration)) {
+			$props['duration'] = $duration;
 		}
+
+		$props['id'] = $this->allday ? $props['start']->format('Ymd') : (clone $props['start'])->setTimezone(new \DateTimeZone('UTC'))->format('Ymd\\THis\\Z');
+
+		return new EventOccurrence($this->id, $props);
 	}
 
 	/*************************
@@ -1145,14 +1543,22 @@ class Event implements \ArrayAccess
 			$row = array_diff($row, array_filter($row, 'is_null'));
 
 			// Is this an all-day event?
-			$row['allday'] = !isset($row['start_time']) || !isset($row['end_time']) || !isset($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+			$row['allday'] = !isset($row['start_time']) || !isset($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
 
-			// Replace time and date scalars with Time objects.
-			$row['start'] = new Time($row['start_date'] . (!$row['allday'] ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ''));
+			// Replace start time and date scalars with a Time object.
+			$row['start'] = new Time($row['start_date'] . (!$row['allday'] ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ' ' . User::getTimezone()));
+			unset($row['start_date'], $row['start_time'], $row['timezone']);
 
-			$row['end'] = new Time($row['end_date'] . (!$row['allday'] ? ' ' . $row['end_time'] . ' ' . $row['timezone'] : ''));
+			// Replace duration string with a DateInterval object.
+			$row['duration'] = new TimeInterval($row['duration']);
 
-			unset($row['start_date'], $row['start_time'], $row['end_date'], $row['end_time'], $row['timezone']);
+			// end_date actually means the recurrence end date.
+			$row['recurrence_end'] = (clone $row['start'])->modify($row['end_date'])->add($row['duration']);
+			unset($row['end_date']);
+
+			// Are there any adjustments to the calculated recurrence dates?
+			$row['rdates'] = explode(',', $row['rdates'] ?? '');
+			$row['exdates'] = explode(',', $row['exdates'] ?? '');
 
 			// The groups should be an array.
 			$row['member_groups'] = isset($row['member_groups']) ? explode(',', $row['member_groups']) : [];
@@ -1174,7 +1580,7 @@ class Event implements \ArrayAccess
 	 * @param array $eventOptions An array of optional time and date parameters
 	 *    (span, start_year, end_month, etc., etc.)
 	 */
-	protected static function setStartEnd(array &$eventOptions): void
+	protected static function setStartAndDuration(array &$eventOptions): void
 	{
 		// Convert unprefixed time unit parameters to start_* parameters.
 		foreach (['year', 'month', 'day', 'hour', 'minute', 'second'] as $key) {
@@ -1212,6 +1618,13 @@ class Event implements \ArrayAccess
 
 		// Ensure 'allday' is a boolean.
 		$eventOptions['allday'] = !empty($eventOptions['allday']);
+
+		// Now replace 'end' with 'duration'.
+		if ($eventOptions['allday']) {
+			$eventOptions['end']->modify('+1 day');
+		}
+		$eventOptions['duration'] = $eventOptions['start']->diff($eventOptions['end']);
+		unset($eventOptions['end']);
 
 		// Unset all null values and all scalar date/time parameters.
 		$scalars = [

@@ -1059,8 +1059,18 @@ class Display implements ActionInterface
 	protected function loadEvents(): void
 	{
 		// If we want to show event information in the topic, prepare the data.
-		if (User::$me->allowedTo('calendar_view') && !empty(Config::$modSettings['cal_showInTopic']) && !empty(Config::$modSettings['cal_enabled'])) {
-			Utils::$context['linked_calendar_events'] = Event::load(Topic::$info->id, true);
+		if (
+			User::$me->allowedTo('calendar_view')
+			&& !empty(Config::$modSettings['cal_showInTopic'])
+			&& !empty(Config::$modSettings['cal_enabled'])
+		) {
+			foreach(Event::load(Topic::$info->id, true) as $event) {
+				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
+					$occurrence = $event->getLastOccurrence();
+				}
+
+				Utils::$context['linked_calendar_events'][] = $occurrence;
+			}
 
 			if (!empty(Utils::$context['linked_calendar_events'])) {
 				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;

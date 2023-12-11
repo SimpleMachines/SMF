@@ -165,3 +165,8 @@ ADD COLUMN type TINYINT UNSIGNED NOT NULL DEFAULT '0';
 	}
 ---}
 ---#
+
+---# Drop end_time column from calendar table
+ALTER TABLE {$db_prefix}calendar
+DROP COLUMN end_time;
+---#
