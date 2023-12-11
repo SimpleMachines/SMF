@@ -494,7 +494,7 @@ class Feed implements ActionInterface
 
 		// Get the associative array representing the xml.
 		if (!empty(CacheApi::$enable) && (!User::$me->is_guest || CacheApi::$enable >= 3)) {
-			$this->data = CacheApi::get('xmlfeed-' . $this->format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, 240);
+			$this->data = CacheApi::get('xmlfeed-' . $this->format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, 240) ?? [];
 		}
 
 		if (empty($this->data)) {
@@ -1140,6 +1140,7 @@ class Feed implements ActionInterface
 
 		$done = false;
 		$loops = 0;
+		$current_board = isset(Board::$info) ? Board::$info->id : 0;
 
 		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
@@ -1158,7 +1159,7 @@ class Feed implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'limit' => $this->limit,
-					'current_board' => Board::$info->id,
+					'current_board' => $current_board,
 					'is_approved' => 1,
 					'optimize_msg' => $optimize_msg,
 				],
@@ -1209,7 +1210,7 @@ class Feed implements ActionInterface
 			LIMIT {int:limit}',
 			[
 				'limit' => $this->limit,
-				'current_board' => Board::$info->id,
+				'current_board' => $current_board,
 				'message_list' => $messages,
 			],
 		);
