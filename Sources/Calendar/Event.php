@@ -21,6 +21,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
+use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
@@ -31,6 +32,8 @@ use SMF\Uuid;
 
 /**
  * Represents a (possibly recurring) calendar event, birthday, or holiday.
+ *
+ * @todo Add support for editing specific instances as exceptions to the RRule.
  */
 class Event implements \ArrayAccess
 {
@@ -105,14 +108,6 @@ class Event implements \ArrayAccess
 	public RecurrenceIterator $recurrence_iterator;
 
 	/**
-	 * @var \SMF\Time
-	 *
-	 * A Time object representing the date after which no further occurrences
-	 * of the event happen.
-	 */
-	public Time $recurrence_end;
-
-	/**
 	 * @var bool
 	 *
 	 * Whether this is an all-day event.
@@ -182,6 +177,60 @@ class Event implements \ArrayAccess
 	 */
 	public array $groups = [];
 
+	/**
+	 * @var array
+	 *
+	 * Weekdays sorted according to the WKST value, or the current user's
+	 * preferences if WKST is not already set.
+	 */
+	public array $sorted_weekdays = [];
+
+	/**
+	 * @var array
+	 *
+	 * Possible values for the RRule select menu in the UI.
+	 *
+	 * The descriptions will be overwritten using the language strings in
+	 * Lang::$txt['calendar_repeat_rrule_presets']
+	 */
+	public array $rrule_presets = [
+		'never' => 'Never',
+		'FREQ=DAILY' => 'Every day',
+		'FREQ=WEEKLY' => 'Every week',
+		'FREQ=MONTHLY' => 'Every month',
+		'FREQ=YEARLY' => 'Every year',
+		'custom' => 'Custom...',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * Maps frequency values to unit strings.
+	 *
+	 * The descriptions will be overwritten using the language strings in
+	 * Lang::$txt['calendar_repeat_frequency_units']
+	 */
+	public array $frequency_units = [
+		'DAILY' => 'day(s)',
+		'WEEKLY' => 'week(s)',
+		'MONTHLY' => 'month(s)',
+		'YEARLY' => 'year(s)',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * Possible values for the BYDAY_num select menu in the UI.
+	 */
+	public array $byday_num_options = [];
+
+	/**
+	 * @var array
+	 *
+	 * Existing values for the BYDAY_* select menus in the UI.
+	 */
+	public array $byday_items = [];
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -212,7 +261,6 @@ class Event implements \ArrayAccess
 	protected array $prop_aliases = [
 		'id_event' => 'id',
 		'eventid' => 'id',
-		'end_date' => 'recurrence_end',
 		'id_board' => 'board',
 		'id_topic' => 'topic',
 		'id_first_msg' => 'msg',
@@ -274,53 +322,56 @@ class Event implements \ArrayAccess
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
-		// Preparing default data to show in the calendar posting form.
-		if ($id < 0) {
-			$this->id = $id;
-			$props['start'] = new Time('now ' . User::getTimezone());
-			$props['duration'] = new TimeInterval('PT1H');
-			$props['recurrence_end'] = (clone $props['start'])->add($props['duration']);
-			$props['member'] = $props['member'] ?? User::$me->id;
-			$props['name'] = $props['name'] ?? User::$me->name;
-		}
-		// Creating a new event.
-		elseif ($id == 0) {
-			if (!isset($props['start']) || !($props['start'] instanceof \DateTimeInterface)) {
-				ErrorHandler::fatalLang('invalid_date', false);
-			} elseif (!($props['start'] instanceof Time)) {
-				$props['start'] = Time::createFromInterface($props['start']);
-			}
+		// Just in case someone passes -2 or something.
+		$id = max(-1, $id);
 
-			if (!isset($props['duration'])) {
-				if (!isset($props['end']) || !($props['end'] instanceof \DateTimeInterface)) {
+		switch ($id) {
+			// Preparing default data to show in the calendar posting form.
+			case -1:
+				$this->id = $id;
+				$props['start'] = $props['start'] ?? new Time('now ' . User::getTimezone());
+				$props['duration'] = $props['duration'] ?? new TimeInterval('PT1H');
+				$props['member'] = $props['member'] ?? User::$me->id;
+				$props['name'] = $props['name'] ?? User::$me->name;
+				break;
+
+			// Creating a new event.
+			case 0:
+				if (!isset($props['start']) || !($props['start'] instanceof \DateTimeInterface)) {
 					ErrorHandler::fatalLang('invalid_date', false);
-				} else {
-					$props['duration'] = $props['start']->diff($props['end']);
-					unset($props['end']);
+				} elseif (!($props['start'] instanceof Time)) {
+					$props['start'] = Time::createFromInterface($props['start']);
 				}
-			}
 
-			if (!isset($props['recurrence_end']) && isset($props['duration'])) {
-				$props['recurrence_end'] = (clone $props['start'])->add($props['duration']);
-			}
+				if (!isset($props['duration'])) {
+					if (!isset($props['end']) || !($props['end'] instanceof \DateTimeInterface)) {
+						ErrorHandler::fatalLang('invalid_date', false);
+					} else {
+						$props['duration'] = $props['start']->diff($props['end']);
+						unset($props['end']);
+					}
+				}
 
-			if (!isset($props['rrule'])) {
-				$props['rrule'] = 'FREQ=YEARLY;COUNT=1';
-			} else {
-				// The RRule's week start value can affect recurrence results,
-				// so make sure to save it using the current user's preference.
-				$props['rrule'] = new RRule($props['rrule']);
-				$props['rrule']->wkst = RRule::WEEKDAYS[$start_day = ((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
-				$props['rrule'] = (string) $props['rrule'];
-			}
+				if (!isset($props['rrule'])) {
+					$props['rrule'] = 'FREQ=YEARLY;COUNT=1';
+				} else {
+					// The RRule's week start value can affect recurrence results,
+					// so make sure to save it using the current user's preference.
+					$props['rrule'] = new RRule($props['rrule']);
+					$props['rrule']->wkst = RRule::WEEKDAYS[$start_day = ((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
+					$props['rrule'] = (string) $props['rrule'];
+				}
 
-			$props['member'] = $props['member'] ?? User::$me->id;
-			$props['name'] = $props['name'] ?? User::$me->name;
-		}
-		// Loading an existing event.
-		else {
-			$this->id = $id;
-			self::$loaded[$this->id] = $this;
+				$props['member'] = $props['member'] ?? User::$me->id;
+				$props['name'] = $props['name'] ?? User::$me->name;
+
+				break;
+
+			// Loading an existing event.
+			default:
+				$this->id = $id;
+				self::$loaded[$this->id] = $this;
+				break;
 		}
 
 		$props['rdates'] = array_filter($props['rdates'] ?? []);
@@ -398,6 +449,65 @@ class Event implements \ArrayAccess
 
 		// Set any other properties.
 		$this->set($props);
+
+		// Now set all the options for the UI.
+		foreach ($this->frequency_units as $freq => $unit) {
+			$this->frequency_units[$freq] = Lang::$txt['calendar_repeat_frequency_units'][$freq] ?? $unit;
+		}
+
+		// Our Lang::$txt arrays use Sunday = 0, but ISO day numbering uses Monday = 0.
+		$this->sorted_weekdays = array_flip(RRule::WEEKDAYS);
+
+		while (key($this->sorted_weekdays) != RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7]) {
+			$temp_key = key($this->sorted_weekdays);
+			$temp_val = array_shift($this->sorted_weekdays);
+			$this->sorted_weekdays[$temp_key] = $temp_val;
+		}
+
+		foreach ($this->sorted_weekdays as $abbrev => $iso_num) {
+			$txt_key = ($iso_num + 1) % 7;
+			$this->sorted_weekdays[$abbrev] = [
+				'iso_num' => $iso_num,
+				'txt_key' => $txt_key,
+				'abbrev' => $abbrev,
+				'short' => Lang::$txt['days_short'][$txt_key],
+				'long' => Lang::$txt['days'][$txt_key],
+			];
+		}
+
+		foreach (Lang::$txt['calendar_repeat_rrule_presets'] as $rrule => $description) {
+			if (isset($this->rrule_presets[$rrule])) {
+				$this->rrule_presets[$rrule] = $description;
+			}
+		}
+
+		$this->byday_num_options = Lang::$txt['calendar_repeat_byday_num_options'];
+
+		uksort(
+			$this->byday_num_options,
+			function ($a, $b) {
+				if ($a < 0 && $b > 0) {
+					return 1;
+				}
+
+				if ($a > 0 && $b < 0) {
+					return -1;
+				}
+
+				return abs($a) <=> abs($b);
+			},
+		);
+
+		// Populate $this->byday_items.
+		if (!empty($this->recurrence_iterator->getRRule()->byday)) {
+			foreach ($this->recurrence_iterator->getRRule()->byday as $item) {
+				list($num, $name) = preg_split('/(?=MO|TU|WE|TH|FR|SA|SU)/', $item);
+				$num = empty($num) ? 1 : (int) $num;
+				$this->byday_items[] = ['num' => $num, 'name' => $name];
+			}
+		} else {
+			$this->byday_items[] = ['num' => 0, 'name' => ''];
+		}
 	}
 
 	/**
@@ -405,10 +515,40 @@ class Event implements \ArrayAccess
 	 */
 	public function save(): void
 	{
-		$is_edit = !empty($this->id);
+		$is_edit = ($this->id ?? 0) > 0;
+
+		if (!empty($this->recurrence_iterator->getRRule()->until)) {
+			// When we have an until value, life is easy.
+			$recurrence_end = Time::createFromInterface($this->recurrence_iterator->getRRule()->until)->modify('-1 second');
+		} elseif (!empty($this->recurrence_iterator->getRRule()->count)) {
+			// Save current values.
+			$view_start = clone $this->view_start;
+			$view_end = clone $this->view_end;
+			$recurrence_iterator = clone $this->recurrence_iterator;
+
+			// Make new recurrence iterator that gets all occurrences.
+			$this->rrule = (string) $recurrence_iterator->getRRule();
+			$this->view_start = clone $this->start;
+			$this->view_end = new Time('9999-12-31');
+
+			unset($this->recurrence_iterator);
+			$this->createRecurrenceIterator();
+
+			// Get last occurrence.
+			$this->recurrence_iterator->end();
+			$recurrence_end = Time::createFromInterface($this->recurrence_iterator->current());
+
+			// Put everything back.
+			$this->view_start = $view_start;
+			$this->view_end = $view_end;
+			$this->recurrence_iterator = $recurrence_iterator;
+		} else {
+			// Forever.
+			$recurrence_end = new Time('9999-12-31');
+		}
 
 		// Saving a new event.
-		if (empty($this->id)) {
+		if (!$is_edit) {
 			$columns = [
 				'start_date' => 'date',
 				'end_date' => 'date',
@@ -427,7 +567,7 @@ class Event implements \ArrayAccess
 
 			$params = [
 				$this->start->format('Y-m-d'),
-				(clone $this->recurrence_end)->sub($this->duration)->format('Y-m-d'),
+				$recurrence_end->format('Y-m-d'),
 				$this->board,
 				$this->topic,
 				Utils::truncate($this->title, 255),
@@ -450,6 +590,10 @@ class Event implements \ArrayAccess
 			}
 
 			IntegrationHook::call('integrate_create_event', [$this, &$columns, &$params]);
+
+			if (isset($this->id)) {
+				unset(self::$loaded[$this->id]);
+			}
 
 			$this->id = Db::$db->insert(
 				'',
@@ -482,7 +626,7 @@ class Event implements \ArrayAccess
 			$params = [
 				'id' => $this->id,
 				'start_date' => $this->start->format('Y-m-d'),
-				'end_date' => (clone $this->recurrence_end)->sub($this->duration)->format('Y-m-d'),
+				'end_date' => $recurrence_end->format('Y-m-d'),
 				'title' => Utils::truncate($this->title, 255),
 				'location' => Utils::truncate($this->location, 255),
 				'id_board' => $this->board,
@@ -533,6 +677,33 @@ class Event implements \ArrayAccess
 	// {
 	// 	return '';
 	// }
+
+	/**
+	 * Adds an arbitrary date to the recurrence set.
+	 *
+	 * Used for making exceptions to the general recurrence rule.
+	 *
+	 * @param \DateTimeInterface $date The date to add.
+	 * @param ?\DateInterval $duration Optional duration for this occurrence.
+	 *    Only necessary if the duration for this occurrence differs from the
+	 *    usual duration of the event.
+	 */
+	public function addOccurrence(\DateTimeInterface $date, ?\DateInterval $duration = null): void
+	{
+		$this->recurrence_iterator->add($date, $duration);
+	}
+
+	/**
+	 * Removes a date from the recurrence set.
+	 *
+	 * Used for making exceptions to the general recurrence rule.
+	 *
+	 * @param \DateTimeInterface $date The date to remove.
+	 */
+	public function removeOccurrence(\DateTimeInterface $date): void
+	{
+		$this->recurrence_iterator->remove($date);
+	}
 
 	/**
 	 * Returns a generator that yields all occurrences of the event between
@@ -999,6 +1170,22 @@ class Event implements \ArrayAccess
 				$value = isset($this->recurrence_iterator) ? $this->recurrence_iterator->getRRule() : null;
 				break;
 
+			case 'rrule_preset':
+				if (isset($this->recurrence_iterator)) {
+					$value = $this->recurrence_iterator->getRRule();
+				} else {
+					$value = null;
+					break;
+				}
+
+				if (($value->count ?? 0) === 1) {
+					$value = 'never';
+				} else {
+					unset($value->count, $value->until, $value->until_type, $value->wkst);
+					$value = (string) $value;
+				}
+				break;
+
 			case 'rdates':
 				$value = isset($this->recurrence_iterator) ? $this->recurrence_iterator->getRDates() : null;
 				break;
@@ -1354,9 +1541,17 @@ class Event implements \ArrayAccess
 		}
 
 		// Set the start and end dates.
-		self::setStartAndDuration($eventOptions);
+		self::setRequestedStartAndDuration($eventOptions);
+
+		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
+		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+
+		self::setRequestedRRule($eventOptions);
 
 		$event = new self(0, $eventOptions);
+
+		self::setRequestedRDatesAndExDates($event);
+
 		$event->save();
 
 		// If this isn't tied to a topic, we need to notify people about it.
@@ -1401,10 +1596,18 @@ class Event implements \ArrayAccess
 		}
 
 		// Set the new start date and duration.
-		self::setStartAndDuration($eventOptions);
+		self::setRequestedStartAndDuration($eventOptions);
+
+		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
+		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+
+		self::setRequestedRRule($eventOptions);
 
 		list($event) = self::load($id);
 		$event->set($eventOptions);
+
+		self::setRequestedRDatesAndExDates($event);
+
 		$event->save();
 	}
 
@@ -1552,8 +1755,7 @@ class Event implements \ArrayAccess
 			// Replace duration string with a DateInterval object.
 			$row['duration'] = new TimeInterval($row['duration']);
 
-			// end_date actually means the recurrence end date.
-			$row['recurrence_end'] = (clone $row['start'])->modify($row['end_date'])->add($row['duration']);
+			// end_date is only used for narrowing the query.
 			unset($row['end_date']);
 
 			// Are there any adjustments to the calculated recurrence dates?
@@ -1580,7 +1782,7 @@ class Event implements \ArrayAccess
 	 * @param array $eventOptions An array of optional time and date parameters
 	 *    (span, start_year, end_month, etc., etc.)
 	 */
-	protected static function setStartAndDuration(array &$eventOptions): void
+	protected static function setRequestedStartAndDuration(array &$eventOptions): void
 	{
 		// Convert unprefixed time unit parameters to start_* parameters.
 		foreach (['year', 'month', 'day', 'hour', 'minute', 'second'] as $key) {
@@ -1673,6 +1875,160 @@ class Event implements \ArrayAccess
 		foreach($eventOptions as $key => $value) {
 			if (is_null($value) || in_array($key, $scalars)) {
 				unset($eventOptions[$key]);
+			}
+		}
+	}
+
+	/**
+	 * Set the RRule for a posted event for insertion into the database.
+	 *
+	 * @param array $eventOptions An array of optional time and date parameters
+	 *    (span, start_year, end_month, etc., etc.)
+	 */
+	protected static function setRequestedRRule(array &$eventOptions): void
+	{
+		if (isset($_REQUEST['COUNT']) && (int) $_REQUEST['COUNT'] <= 1) {
+			$_REQUEST['RRULE'] = 'never';
+		}
+
+		if (!empty($_REQUEST['RRULE']) && $_REQUEST['RRULE'] !== 'custom') {
+			if ($_REQUEST['RRULE'] === 'never') {
+				unset($_REQUEST['RRULE']);
+				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
+
+				return;
+			}
+
+			if (!empty($_REQUEST['UNTIL'])) {
+				$_REQUEST['RRULE'] .= ';UNTIL=' . $_REQUEST['UNTIL'];
+			} elseif (!empty($_REQUEST['COUNT'])) {
+				$_REQUEST['RRULE'] .= ';COUNT=' . $_REQUEST['COUNT'];
+			}
+
+			try {
+				$eventOptions['rrule'] = new RRule(Utils::htmlspecialchars($_REQUEST['RRULE']));
+
+				if (
+					$eventOptions['rrule']->freq === 'WEEKLY'
+					|| !empty($eventOptions['rrule']->byday)
+				) {
+					$eventOptions['rrule']->wkst = RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
+				}
+
+				$eventOptions['rrule'] = (string) $eventOptions['rrule'];
+			} catch (\Throwable $e) {
+				unset($_REQUEST['RRULE']);
+				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
+			}
+		} elseif (in_array($_REQUEST['FREQ'] ?? null, RRule::FREQUENCIES)) {
+			$rrule = [];
+
+			if (isset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name'])) {
+				foreach ($_REQUEST['BYDAY_num'] as $key => $value) {
+					// E.g. "second Tuesday" = "BYDAY=2TU"
+					if (!str_contains($_REQUEST['BYDAY_name'][$key], ',')) {
+						$_REQUEST['BYDAY'][$key] = ((int) $_REQUEST['BYDAY_num'][$key]) . $_REQUEST['BYDAY_name'][$key];
+					}
+					// E.g. "last weekday" = "BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1"
+					else {
+						$_REQUEST['BYDAY'] = [];
+						$_REQUEST['BYDAY'][0] = $_REQUEST['BYDAY_name'][$key];
+						$_REQUEST['BYSETPOS'] = $_REQUEST['BYDAY_num'][$key];
+						break;
+					}
+				}
+
+				$_REQUEST['BYDAY'] = implode(',', array_unique($_REQUEST['BYDAY']));
+				unset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name']);
+			}
+
+			foreach (
+				[
+					'FREQ',
+					'INTERVAL',
+					'UNTIL',
+					'COUNT',
+					'BYMONTH',
+					'BYWEEKNO',
+					'BYYEARDAY',
+					'BYMONTHDAY',
+					'BYDAY',
+					'BYHOUR',
+					'BYMINUTE',
+					'BYSECOND',
+					'BYSETPOS',
+				] as $part
+			) {
+				if (isset($_REQUEST[$part])) {
+					if (is_array($_REQUEST[$part])) {
+						$rrule[] = $part . '=' . Utils::htmlspecialchars(implode(',', $_REQUEST[$part]));
+					} else {
+						$rrule[] = $part . '=' . Utils::htmlspecialchars($_REQUEST[$part]);
+					}
+				}
+			}
+
+			$rrule = implode(';', $rrule);
+
+			try {
+				$eventOptions['rrule'] = new RRule(Utils::htmlspecialchars($rrule));
+
+				if (
+					$eventOptions['rrule']->freq === 'WEEKLY'
+					|| !empty($eventOptions['rrule']->byday)
+				) {
+					$eventOptions['rrule']->wkst = RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
+				}
+
+				$eventOptions['rrule'] = (string) $eventOptions['rrule'];
+			} catch (\Throwable $e) {
+				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
+			}
+
+			unset($rrule);
+		}
+	}
+
+	/**
+	 * Set the RDates for a posted event for insertion into the database.
+	 *
+	 * @param Event $event An event that is being created or modified.
+	 */
+	protected static function setRequestedRDatesAndExDates(Event $event): void
+	{
+		// Clear out all existing RDates and ExDates.
+		foreach ($event->recurrence_iterator->getRDates() as $rdate) {
+			$event->removeOccurrence(new \DateTimeImmutable($rdate));
+		}
+
+		foreach ($event->recurrence_iterator->getExDates() as $exdate) {
+			$event->addOccurrence(new \DateTimeImmutable($exdate));
+		}
+
+		// Add all the RDates and ExDates.
+		foreach (['RDATE', 'EXDATE'] as $date_type) {
+			if (!isset($_REQUEST[$date_type . '_date'])) {
+				continue;
+			}
+
+			foreach ($_REQUEST[$date_type . '_date'] as $key => $date) {
+				if (empty($date)) {
+					continue;
+				}
+
+				if (empty($event->allday) && isset($_REQUEST[$date_type . '_time'][$key])) {
+					$date = new Time($date . 'T' . $_REQUEST[$date_type . '_time'][$key] . ' ' . $event->start->format('e'));
+				} else {
+					$date = new Time($date . ' ' . $event->start->format('e'));
+				}
+
+				$date->setTimezone(new \DateTimeZone('UTC'));
+
+				if ($date_type === 'RDATE') {
+					$event->addOccurrence($date);
+				} else {
+					$event->removeOccurrence($date);
+				}
 			}
 		}
 	}

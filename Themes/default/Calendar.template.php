@@ -805,82 +805,9 @@ function template_event_post()
 				</div>';
 
 	echo '
-				<div class="roundframe noup">
-					<fieldset id="event_main">
-						<legend><span', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>', Lang::$txt['calendar_event_title'], '</span></legend>
-						<input type="hidden" name="calendar" value="1">
-						<div class="event_options_left" id="event_title">
-							<div>
-								<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', Utils::$context['event']['title'], '" tabindex="', Utils::$context['tabindex']++, '">
-							</div>
-						</div>';
+				<div class="roundframe noup">';
 
-	// If this is a new event let the user specify which board they want the linked post to be put into.
-	if (Utils::$context['event']['new'] && !empty(Utils::$context['event']['categories']))
-	{
-		echo '
-						<div class="event_options_right" id="event_board">
-							<div>
-								<span class="label">', Lang::$txt['calendar_post_in'], '</span>
-								<input type="checkbox" name="link_to_board"', (!empty(Utils::$context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
-								<select name="board"', empty(Utils::$context['event']['board']) ? ' disabled' : '', '>';
-
-		foreach (Utils::$context['event']['categories'] as $category)
-		{
-			echo '
-									<optgroup label="', $category['name'], '">';
-
-			foreach ($category['boards'] as $board)
-				echo '
-										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
-			echo '
-									</optgroup>';
-		}
-		echo '
-								</select>
-							</div>
-						</div><!-- #event_board -->';
-	}
-
-	// Note to theme writers: The JavaScript expects the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
-	echo '
-					</fieldset>
-					<fieldset id="event_options">
-						<legend>', Lang::$txt['calendar_event_options'], '</legend>
-						<div class="event_options_left" id="event_time_input">
-							<div>
-								<span class="label">', Lang::$txt['start'], '</span>
-								<input type="text" name="start_date" id="start_date" value="', trim(Utils::$context['event']['start_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">
-								<input type="text" name="start_time" id="start_time" maxlength="11" value="', Utils::$context['event']['start_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input start" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
-							</div>
-							<div>
-								<span class="label">', Lang::$txt['end'], '</span>
-								<input type="text" name="end_date" id="end_date" value="', trim(Utils::$context['event']['end_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-								<input type="text" name="end_time" id="end_time" maxlength="11" value="', Utils::$context['event']['end_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input end" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
-							</div>
-						</div><!-- #event_time_input -->
-						<div class="event_options_right" id="event_time_options">
-							<div id="event_allday">
-								<label for="allday"><span class="label">', Lang::$txt['calendar_allday'], '</span></label>
-								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']['allday']) ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
-							</div>
-							<div id="event_timezone">
-								<span class="label">', Lang::$txt['calendar_timezone'], '</span>
-								<select name="tz" id="tz"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>';
-
-	foreach (Utils::$context['all_timezones'] as $tz => $tzname)
-		echo '
-									<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === Utils::$context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
-
-	echo '
-								</select>
-							</div>
-						</div><!-- #event_time_options -->
-						<div>
-							<span class="label">', Lang::$txt['location'], '</span>
-							<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty(Utils::$context['event']['location']) ? Utils::$context['event']['location'] : '', '" tabindex="', Utils::$context['tabindex']++, '">
-						</div>
-					</fieldset>';
+	template_event_options();
 
 	echo '
 					<input type="submit" value="', empty(Utils::$context['event']['new']) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button">';

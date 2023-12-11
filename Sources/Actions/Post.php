@@ -781,15 +781,9 @@ class Post implements ActionInterface
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
 		Utils::$context['event']->fixTimezone();
 
-		Calendar::loadDatePicker('#event_time_input .date_input');
-		Calendar::loadTimePicker('#event_time_input .time_input', $time_string);
-		Calendar::loadDatePair('#event_time_input', 'date_input', 'time_input');
-		Theme::addInlineJavaScript('
-		$("#allday").click(function(){
-			$("#start_time").attr("disabled", this.checked);
-			$("#end_time").attr("disabled", this.checked);
-			$("#tz").attr("disabled", this.checked);
-		});	', true);
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 
 		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : (int) Config::$modSettings['cal_defaultboard'];
 		Utils::$context['event']->topic = !empty(Topic::$info->id) ? Topic::$info->id : 0;

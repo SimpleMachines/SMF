@@ -1515,18 +1515,39 @@ ul li.greeting {
 }
 #post_event input[type="checkbox"] {
 	height: auto;
+	vertical-align: initial;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
 }
-#post_event select, #event_options input[type="text"], #tz {
-	max-width: calc(100% - 75px);
+#tz {
+	max-width: 100%;
 }
-#post_event select, #evtitle, #event_location {
-	width: calc(100% - 75px);
+#rrule_end {
+	white-space: nowrap;
 }
-#post_event input[type="checkbox"] + select {
-	max-width: calc(100% - 95px);
+.rrule_input.inline_block {
+	vertical-align: top;
+}
+.byday_label,
+.bymonth_label,
+.bymonthday_label {
+	white-space: nowrap;
+}
+.byday_label span,
+.bymonth_label span,
+.bymonthday_label span {
+	display: inline-block;
+}
+.bymonth_label span {
+	width: 4ch;
+}
+.bymonthday_label span {
+	width: 2ch;
+	text-align: center;
+}
+.bymonthday_label input:disabled + span {
+	opacity: 0.5;
 }
 
 /* Styles for the recent messages section.
@@ -3502,18 +3523,24 @@ form#postmodify .roundframe {
 	padding: 6px;
 	overflow: hidden;
 }
-#post_header dt {
+#post_header dt,
+#event_options dt {
 	float: left;
 	padding: 0;
 	width: 15%;
 	margin: 6px 0 0 0;
 	font-weight: bold;
 }
-#post_header dd {
+#post_header dd,
+#event_options dd {
 	float: left;
 	padding: 0;
 	width: 83%;
 	margin: 4px 0;
+}
+#post_header input[type="text"],
+#event_basic_info input[type="text"] {
+	width: 100%;
 }
 #post_header img {
 	vertical-align: middle;

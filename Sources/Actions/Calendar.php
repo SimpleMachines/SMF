@@ -493,15 +493,9 @@ class Calendar implements ActionInterface
 			'name' => Utils::$context['page_title'],
 		];
 
-		self::loadDatePicker('#event_time_input .date_input');
-		self::loadTimePicker('#event_time_input .time_input', Time::getShortTimeFormat());
-		self::loadDatePair('#event_time_input', 'date_input', 'time_input');
-		Theme::addInlineJavaScript('
-		$("#allday").click(function(){
-			$("#start_time").attr("disabled", this.checked);
-			$("#end_time").attr("disabled", this.checked);
-			$("#tz").attr("disabled", this.checked);
-		});', true);
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
 	/**

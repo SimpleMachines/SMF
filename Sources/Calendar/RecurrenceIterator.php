@@ -463,6 +463,14 @@ class RecurrenceIterator implements \Iterator
 	}
 
 	/**
+	 * Returns a copy of $this->frequency_interval.
+	 */
+	public function getFrequencyInterval(): \DateInterval
+	{
+		return clone $this->frequency_interval;
+	}
+
+	/**
 	 * Returns a copy of the recurrence rule.
 	 */
 	public function getRRule(): RRule
