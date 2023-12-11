@@ -1140,6 +1140,7 @@ class Feed implements ActionInterface
 
 		$done = false;
 		$loops = 0;
+		$current_board = isset(Board::$info) ? Board::$info->id : 0;
 
 		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
@@ -1158,7 +1159,7 @@ class Feed implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'limit' => $this->limit,
-					'current_board' => Board::$info->id,
+					'current_board' => $current_board,
 					'is_approved' => 1,
 					'optimize_msg' => $optimize_msg,
 				],
@@ -1209,7 +1210,7 @@ class Feed implements ActionInterface
 			LIMIT {int:limit}',
 			[
 				'limit' => $this->limit,
-				'current_board' => Board::$info->id,
+				'current_board' => $current_board,
 				'message_list' => $messages,
 			],
 		);
