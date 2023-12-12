@@ -3873,7 +3873,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		SMF\Msg::clearApprovalAlerts($content_ids, $content_action);
 	}
-	function updateLastMessages(array $setboards, int $id_msg = 0): ?false
+	function updateLastMessages(array $setboards, int $id_msg = 0): ?bool
 	{
 		return SMF\Msg::updateLastMessages($setboards, $id_msg);
 	}

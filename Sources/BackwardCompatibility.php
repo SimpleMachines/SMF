@@ -165,7 +165,7 @@ trait BackwardCompatibility
 		?array $fields = [],
 		?bool $sanitize = true,
 		?bool $return_errors = false,
-		?int $id_theme,
+		?int $id_theme = null,
 	): array|bool|null {
 
 		if (!isset(self::$loaded[$id])) {
