@@ -30,10 +30,6 @@ abstract class DatabaseApi
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'load' => 'loadDatabase',
-			'extend' => 'db_extend',
-		],
 		'prop_names' => [
 			'count' => 'db_count',
 			'cache' => 'db_cache',

@@ -28,22 +28,6 @@ use SMF\ServerSideIncludes as SSI;
  */
 class ErrorHandler
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'smf_error_handler',
-			'log' => 'log_error',
-			'fatal' => 'fatal_error',
-			'fatalLang' => 'fatal_lang_error',
-			'displayMaintenanceMessage' => 'display_maintenance_message',
-			'displayDbError' => 'display_db_error',
-			'displayLoadAvgError' => 'display_loadavg_error',
-		],
-	];
 
 	/****************
 	 * Public methods

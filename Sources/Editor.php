@@ -21,20 +21,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Editor implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'create_control_richedit',
-			'getMessageIcons' => 'getMessageIcons',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -868,11 +855,6 @@ class Editor implements \ArrayAccess
 		// Usful if, e.g., a mod wants to add an SCEditor plugin.
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Editor::exportStatic')) {
-	Editor::exportStatic();
 }
 
 ?>

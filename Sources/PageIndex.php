@@ -13,23 +13,15 @@
 
 namespace SMF;
 
+use Stringable;
+
 /**
  * Constructs a page list.
  *
  * E.g.: 1 ... 6 7 [8] 9 10 ... 15.
  */
-class PageIndex implements \Stringable
+class PageIndex implements Stringable
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'constructPageIndex',
-		],
-	];
 
 	/*******************
 	 * Public properties

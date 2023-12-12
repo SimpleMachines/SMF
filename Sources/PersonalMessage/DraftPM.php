@@ -13,7 +13,6 @@
 
 namespace SMF\PersonalMessage;
 
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -32,19 +31,6 @@ use SMF\Utils;
  */
 class DraftPM extends Draft
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'showInEditor' => 'showInEditor',
-			'showInProfile' => 'showPMDrafts',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -360,11 +346,6 @@ class DraftPM extends Draft
 			'name' => Lang::$txt['drafts'],
 		];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\DraftPM::exportStatic')) {
-	DraftPM::exportStatic();
 }
 
 ?>

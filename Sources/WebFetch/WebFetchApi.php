@@ -21,16 +21,6 @@ use SMF\Url;
  */
 abstract class WebFetchApi implements WebFetchApiInterface
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'fetch' => 'fetch_web_data',
-		],
-	];
 
 	/*******************
 	 * Public properties

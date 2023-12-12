@@ -36,10 +36,6 @@ abstract class SearchApi implements SearchApiInterface
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'load' => 'findSearchAPI',
-			'detect' => 'loadSearchAPIs',
-		],
 		'prop_names' => [
 			'loadedApi' => 'searchAPI',
 		],

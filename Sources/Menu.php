@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use ArrayAccess;
+
 /**
  * Represents a menu, such as the admin menu or profile menu.
  *
@@ -94,21 +96,9 @@ namespace SMF;
  *     bool   disable_hook_call:
  *                           If true, skips the integrate_{action}_areas hook.
  */
-class Menu implements \ArrayAccess
+class Menu implements ArrayAccess
 {
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'createMenu',
-			'destroy' => 'destroyMenu',
-		],
-	];
 
 	/*******************
 	 * Public properties

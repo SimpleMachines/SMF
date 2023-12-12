@@ -25,21 +25,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Event implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'insertEvent',
-			'modify' => 'modifyEvent',
-			'remove' => 'removeEvent',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -1449,11 +1435,6 @@ class Event implements \ArrayAccess
 
 		return $input;
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Event::exportStatic')) {
-	Event::exportStatic();
 }
 
 ?>

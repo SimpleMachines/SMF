@@ -20,24 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Mail
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'send' => 'sendmail',
-			'addToQueue' => 'AddMailQueue',
-			'reduceQueue' => 'reduceQueue',
-			'mimespecialchars' => 'mimespecialchars',
-			'sendSmtp' => 'smtp_mail',
-			'serverParse' => 'serverParse',
-			'sendNotifications' => 'sendNotifications',
-			'adminNotify' => 'adminNotify',
-			'loadEmailTemplate' => 'loadEmailTemplate',
-		],
-	];
 
 	/***********************
 	 * Public static methods

@@ -20,19 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class QueryString
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'cleanRequest' => 'cleanRequest',
-			'isFilteredRequest' => 'is_filtered_request',
-			'ob_sessrewrite' => 'ob_sessrewrite',
-			'matchIPtoCIDR' => 'matchIPtoCIDR',
-		],
-	];
 
 	/***********************
 	 * Public static methods
@@ -484,7 +471,7 @@ class QueryString
 	 * @param string $cidr_address CIDR address to verify.
 	 * @return bool Whether the IP matches the CIDR.
 	 */
-	public function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
+	public static function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
 	{
 		list($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
 

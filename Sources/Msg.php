@@ -13,8 +13,8 @@
 
 namespace SMF;
 
+use ArrayAccess;
 use SMF\Actions\Moderation\ReportedContent;
-use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -25,33 +25,9 @@ use SMF\Search\SearchApi;
  * including sending emails, pms, blocking spam, preparsing posts, spell
  * checking, and the post box.
  */
-class Msg implements \ArrayAccess
+class Msg implements ArrayAccess
 {
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'preparsecode' => 'preparsecode',
-			'un_preparsecode' => 'un_preparsecode',
-			'fixTags' => 'fixTags',
-			'fixTag' => 'fixTag',
-			'spellCheck' => 'SpellCheck',
-			'create' => 'createPost',
-			'modify' => 'modifyPost',
-			'approve' => 'approvePosts',
-			'clearApprovalAlerts' => 'clearApprovalAlerts',
-			'updateLastMessages' => 'updateLastMessages',
-			'remove' => 'removeMessage',
-			'spell_init' => 'spell_init',
-			'spell_check' => 'spell_check',
-			'spell_suggest' => 'spell_suggest',
-		],
-	];
 
 	/*******************
 	 * Public properties

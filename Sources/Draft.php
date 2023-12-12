@@ -23,20 +23,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Draft
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'delete' => 'DeleteDraft',
-			'showInEditor' => 'ShowDrafts',
-			'showInProfile' => 'showProfileDrafts',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -818,11 +804,6 @@ class Draft
 
 		Utils::obExit(false);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Draft::exportStatic')) {
-	Draft::exportStatic();
 }
 
 ?>

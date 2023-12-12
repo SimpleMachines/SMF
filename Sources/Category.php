@@ -37,15 +37,6 @@ class Category implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'modify' => 'modifyCategory',
-			'create' => 'createCategory',
-			'delete' => 'deleteCategories',
-			'sort' => 'sortCategories',
-			'getTreeOrder' => 'getTreeOrder',
-			'getTree' => 'getBoardTree',
-			'recursiveBoards' => 'recursiveBoards',
-		],
 		'prop_names' => [
 			'loaded' => 'cat_tree',
 			'boardList' => 'boardList',

@@ -13,6 +13,7 @@
 
 namespace SMF\Unicode;
 
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -26,28 +27,7 @@ use SMF\User;
  */
 class Utf8String implements \Stringable
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'decompose' => 'utf8_decompose',
-			'compose' => 'utf8_compose',
-			'utf8_strtolower' => 'utf8_strtolower',
-			'utf8_strtoupper' => 'utf8_strtoupper',
-			'utf8_casefold' => 'utf8_casefold',
-			'utf8_convert_case' => 'utf8_convert_case',
-			'utf8_normalize_d' => 'utf8_normalize_d',
-			'utf8_normalize_kd' => 'utf8_normalize_kd',
-			'utf8_normalize_c' => 'utf8_normalize_c',
-			'utf8_normalize_kc' => 'utf8_normalize_kc',
-			'utf8_normalize_kc_casefold' => 'utf8_normalize_kc_casefold',
-			'utf8_is_normalized' => 'utf8_is_normalized',
-			'utf8_sanitize_invisibles' => 'utf8_sanitize_invisibles',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -934,6 +914,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string The string
 	 * @return string The lowercase version of $string
+	 * @deprecated
 	 */
 	public static function utf8_strtolower(string $string): string
 	{
@@ -949,6 +930,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string The string
 	 * @return string The uppercase version of $string
+	 * @deprecated
 	 */
 	public static function utf8_strtoupper(string $string): string
 	{
@@ -964,6 +946,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string The string
 	 * @return string The uppercase version of $string
+	 * @deprecated
 	 */
 	public static function utf8_casefold($string): string
 	{
@@ -979,6 +962,7 @@ class Utf8String implements \Stringable
 	 * @param bool $simple If true, use simple maps instead of full maps.
 	 *    Default: false.
 	 * @return string A version of $string converted to the specified case.
+	 * @deprecated
 	 */
 	public static function utf8_convert_case(string $string, string $case, bool $simple = false): string
 	{
@@ -990,6 +974,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string A UTF-8 string
 	 * @return string The decomposed version of $string
+	 * @deprecated
 	 */
 	public static function utf8_normalize_d(string $string): string
 	{
@@ -1001,6 +986,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string A UTF-8 string.
 	 * @return string The decomposed version of $string.
+	 * @deprecated
 	 */
 	public static function utf8_normalize_kd(string $string): string
 	{
@@ -1012,6 +998,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string A UTF-8 string
 	 * @return string The composed version of $string
+	 * @deprecated
 	 */
 	public static function utf8_normalize_c(string $string): string
 	{
@@ -1023,6 +1010,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string The string
 	 * @return string The composed version of $string
+	 * @deprecated
 	 */
 	public static function utf8_normalize_kc(string $string): string
 	{
@@ -1034,6 +1022,7 @@ class Utf8String implements \Stringable
 	 *
 	 * @param string $string The string
 	 * @return string The casefolded version of $string
+	 * @deprecated
 	 */
 	public static function utf8_normalize_kc_casefold(string $string): string
 	{
@@ -1046,6 +1035,7 @@ class Utf8String implements \Stringable
 	 * @param string|array $string A string of UTF-8 characters.
 	 * @param string $form One of 'd', 'c', 'kd', 'kc', or 'kc_casefold'
 	 * @return bool Whether the string is already normalized to the given form.
+	 * @deprecated
 	 */
 	public static function utf8_is_normalized(string $string, string $form): bool
 	{
@@ -1063,6 +1053,7 @@ class Utf8String implements \Stringable
 	 *         only, such as in the word censor, search contexts, etc.
 	 * @param string $substitute Replacement string for the invalid characters.
 	 * @return string The sanitized string.
+	 * @deprecated
 	 */
 	public static function utf8_sanitize_invisibles(string $string, int $level, string $substitute): string
 	{

@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use ArrayAccess;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -20,26 +21,9 @@ use SMF\Db\DatabaseApi as Db;
  *
  * Contains methods for doing just about everything regarding polls.
  */
-class Poll implements \ArrayAccess
+class Poll implements ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'checkRemovePermission' => 'checkRemovePermission',
-			'vote' => 'Vote',
-			'lock' => 'LockVoting',
-			'edit' => 'EditPoll',
-			'edit2' => 'EditPoll2',
-			'remove' => 'RemovePoll',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -1907,11 +1891,6 @@ class Poll implements \ArrayAccess
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
 		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options']);
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Poll::exportStatic')) {
-	Poll::exportStatic();
 }
 
 ?>

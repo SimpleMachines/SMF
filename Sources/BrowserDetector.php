@@ -28,17 +28,6 @@ namespace SMF;
  */
 class BrowserDetector
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'detectBrowser',
-			'isBrowser' => 'isBrowser',
-		],
-	];
 
 	/*********************
 	 * Internal properties
@@ -546,11 +535,6 @@ class BrowserDetector
 			'possibly_robot' => false,
 		];
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\BrowserDetector::exportStatic')) {
-	BrowserDetector::exportStatic();
 }
 
 ?>

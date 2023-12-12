@@ -18,20 +18,6 @@ namespace SMF;
  */
 class Cookie
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'setLoginCookie' => 'setLoginCookie',
-			'setTFACookie' => 'setTFACookie',
-			'urlParts' => 'url_parts',
-			'encrypt' => 'hash_salt',
-			'setcookie' => 'smf_setcookie',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -549,11 +535,6 @@ class Cookie
 
 		$cookie->set();
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Cookie::exportStatic')) {
-	Cookie::exportStatic();
 }
 
 ?>

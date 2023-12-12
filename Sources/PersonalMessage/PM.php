@@ -13,10 +13,10 @@
 
 namespace SMF\PersonalMessage;
 
+use ArrayAccess;
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\ArrayAccessHelper;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -39,31 +39,9 @@ use SMF\Verifier;
 /**
  * Represents a single personal message.
  */
-class PM implements \ArrayAccess
+class PM implements ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'old' => 'old',
-			'compose' => 'compose',
-			'compose2' => 'compose2',
-			'send' => 'sendpm',
-			'delete' => 'deleteMessages',
-			'markRead' => 'markMessages',
-			'getLatest' => 'getLatest',
-			'getRecent' => 'getRecent',
-			'countSent' => 'countSent',
-			'reportErrors' => 'messagePostError',
-			'isAccessible' => 'isAccessiblePM',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -2239,11 +2217,6 @@ class PM implements \ArrayAccess
 		}
 		Db::$db->free_result(self::$messages_request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\PM::exportStatic')) {
-	PM::exportStatic();
 }
 
 ?>

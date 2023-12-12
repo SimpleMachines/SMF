@@ -25,23 +25,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Logging
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'writeLog' => 'writeLog',
-			'logAction' => 'logAction',
-			'logActions' => 'logActions',
-			'updateStats' => 'updateStats',
-			'trackStats' => 'trackStats',
-			'trackStatsUsersOnline' => 'trackStatsUsersOnline',
-			'getMembersOnlineStats' => 'getMembersOnlineStats',
-			'displayDebug' => 'displayDebug',
-		],
-	];
 
 	/***********************
 	 * Public static methods

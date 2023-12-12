@@ -20,18 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class IntegrationHook
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'call_integration_hook',
-			'add' => 'add_integration_function',
-			'remove' => 'remove_integration_function',
-		],
-	];
 
 	/*******************
 	 * Public properties

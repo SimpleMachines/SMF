@@ -13,24 +13,14 @@
 
 namespace SMF;
 
+use ArrayAccess;
+
 /**
  * This class provides a standard way of displaying lists for SMF.
  */
-class ItemList implements \ArrayAccess
+class ItemList implements ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'createList',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -553,11 +543,6 @@ class ItemList implements \ArrayAccess
 			$this->additional_rows[$row['position']][] = $row;
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ItemList::exportStatic')) {
-	ItemList::exportStatic();
 }
 
 ?>

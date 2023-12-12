@@ -21,25 +21,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Group implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'loadSimple' => 'loadSimple',
-			'loadAssignable' => 'loadAssignable',
-			'loadPermissionsBatch' => 'loadPermissionsBatch',
-			'countPermissionsBatch' => 'countPermissionsBatch',
-			'getPostGroups' => 'getPostGroups',
-			'getUnassignable' => 'getUnassignable',
-			'getCachedList' => 'cache_getMembergroupList',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -2638,11 +2620,6 @@ class Group implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Group::exportStatic')) {
-	Group::exportStatic();
 }
 
 ?>

@@ -27,32 +27,6 @@ class Attachment implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'automanageCheckDirectory' => 'automanage_attachments_check_directory',
-			'automanageCreateDirectory' => 'automanage_attachments_create_directory',
-			'automanageBySpace' => 'automanage_attachments_by_space',
-			'process' => 'processAttachments',
-			'check' => 'attachmentChecks',
-			'create' => 'createAttachment',
-			'assign' => 'assignAttachments',
-			'approve' => 'ApproveAttachments',
-			'remove' => 'removeAttachments',
-			'parseAttachBBC' => 'parseAttachBBC',
-			'getAttachMsgInfo' => 'getAttachMsgInfo',
-			'loadAttachmentContext' => 'loadAttachmentContext',
-			'prepareByMsg' => 'prepareAttachsByMsg',
-			'createHash' => 'createHash',
-			'getFilePath' => 'getFilePath',
-			'getAttachmentFilename' => 'getAttachmentFilename',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -2521,11 +2495,6 @@ class Attachment implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Attachment::exportStatic')) {
-	Attachment::exportStatic();
 }
 
 ?>

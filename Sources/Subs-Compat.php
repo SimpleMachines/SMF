@@ -14,7 +14,15 @@
  * @version 3.0 Alpha 1
  */
 use SMF\Actions;
+use SMF\Cache;
+use SMF\Db;
+use SMF\Graphics\Image;
+use SMF\PackageManager;
+use SMF\PersonalMessage;
 use SMF\Punycode;
+use SMF\Search;
+use SMF\Unicode\Utf8String;
+use SMF\WebFetch\WebFetchApi;
 
 if (!defined('SMF')) {
 	die('No direct access...');
@@ -45,7 +53,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	class_exists('SMF\\Topic');
 	class_exists('SMF\\Url');
 	class_exists('SMF\\User');
-	class_exists('SMF\\Graphics\\Image');
 	class_exists('SMF\\WebFetch\\WebFetchApi');
 
 	function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
@@ -2601,7 +2608,1437 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Begin
 	 * Cache\CacheApi
 	 */
+	function loadCacheAccelerator(string $overrideCache = '', bool $fallbackSMF = true): cache\CacheApi|false
+	{
+		return Cache\CacheApi::load($overrideCache, $fallbackSMF);
+	}
+	function loadCacheAPIs(): array
+	{
+		return Cache\CacheApi::detect();
+	}
+	function clean_cache(string $type = ''): void
+	{
+		Cache\CacheApi::clean($type);
+	}
+	function cache_quick_get(string $key, string $file, string $function, array $params, int $level = 1): string
+	{
+		return Cache\CacheApi::quickGet($key, $file, $function, $params, $level);
+	}
+	function cache_put_data(string $key, mixed $value, int $ttl = 120): void
+	{
+		Cache\CacheApi::put($key, $value, $ttl);
+	}
+	function cache_get_data(string $key, int $ttl = 120): mixed
+	{
+		return Cache\CacheApi::get($key, $ttl);
+	}
+	/**
+	 * End
+	 * Cache\CacheApi
+	 *
+	 * Begin
+	 * Db\DatabaseApi
+	 */
+	function loadDatabase(array $options = []): Db\DatabaseApi
+	{
+		return Db\DatabaseApi::load((array) $options);
+	}
+	function db_extend()
+	{
+		Db\DatabaseApi::extend();
+	}
+	/**
+	 * End
+	 * Db\DatabaseApi
+	 *
+	 * Begin
+	 * Graphics\Image
+	 */
+	function getImageTypes(): array
+	{
+		return Image::getImageTypes();
+	}
+	function getSupportedFormats(): array
+	{
+		return Image::getSupportedFormats();
+	}
+	function imageMemoryCheck(array $sizes): bool
+	{
+		return Image::checkMemory($sizes);
+	}
+	function url_image_size(string $url): array|false
+	{
+		return Image::getSizeExternal($url);
+	}
+	function gif_outputAsPng($gif, $lpszFileName, $background_color = -1): bool
+	{
+		return Image::gifOutputAsPng($gif, $lpszFileName, $background_color);
+	}
+	function getSvgSize(string $filepath): array
+	{
+		return Image::getSvgSize($filepath);
+	}
+	function createThumbnail(string $source, int $max_width, int $max_height): bool
+	{
+		return Image::makeThumbnail($source, $max_width, $max_height);
+	}
+	function reencodeImage(string $source, int $preferred_type = 0): bool
+	{
+		return Image::reencodeImage($source, $preferred_type);
+	}
+	function checkImageContents(string $source, bool $extensive = false): bool
+	{
+		return Image::checkImageContents($source, $extensive);
+	}
+	function checkSvgContents(string $source): bool
+	{
+		return Image::checkSvgContents($source);
+	}
+	function resizeImageFile(
+		string $source,
+		string $destination,
+		int $max_width,
+		int $max_height,
+		int $preferred_type = 0
+	): bool {
+		return Image::resizeImageFile(
+			$source,
+			$destination,
+			$max_width,
+			$max_height,
+			$preferred_type
+		);
+	}
+	function resizeImage(
+		string $source,
+		string $destination,
+		int $src_width,
+		int $src_height,
+		int $max_width,
+		int $max_height,
+		int $preferred_type = 0
+	): bool {
+		return Image::resizeImage(
+			$source,
+			$destination,
+			$src_width,
+			$src_height,
+			$max_width,
+			$max_height,
+			$preferred_type
+		);
+	}
+	/**
+	 * End
+	 * Graphics\Image
+	 *
+	 * Begin
+	 * Packagemanager\SubsPackage
+	 */
+	function read_tgz_file(
+		string $gzfilename,
+		?string $destination,
+		bool $single_file = false,
+		bool $overwrite = false,
+		?array $files_to_extract = null
+	): array|bool {
+		return PackageManager\SubsPackage::read_tgz_file(
+			$gzfilename,
+			(string) $destination ?? null,
+			$single_file,
+			$overwrite,
+			$files_to_extract
+		);
+	}
+	function read_tgz_data(
+		string $data,
+		?string $destination,
+		bool $single_file = false,
+		bool $overwrite = false,
+		?array $files_to_extract = null
+	): array|bool {
+		return PackageManager\SubsPackage::read_tgz_data(
+			$data,
+			$destination,
+			$single_file,
+			$overwrite,
+			$files_to_extract
+		);
+	}
+	function read_zip_data(
+		string $data,
+		string $destination,
+		bool $single_file = false,
+		bool $overwrite = false,
+		array $files_to_extract = null
+	): mixed {
+		return PackageManager\SubsPackage::read_zip_data(
+			$data,
+			$destination,
+			$single_file,
+			$overwrite,
+			$files_to_extract
+		);
+	}
+	function url_exists(string $url): bool
+	{
+		return PackageManager\SubsPackage::url_exists($url);
+	}
+	function loadInstalledPackages(): array
+	{
+		return PackageManager\SubsPackage::loadInstalledPackages();
+	}
+	function getPackageInfo(string $gzfilename): array|string
+	{
+		return PackageManager\SubsPackage::getPackageInfo($gzfilename);
+	}
+	function create_chmod_control(
+		array $chmodFiles = [],
+		array $chmodOptions = [],
+		bool $restore_write_status = false
+	): array {
+		return PackageManager\SubsPackage::create_chmod_control($chmodFiles, $chmodOptions, $restore_write_status);
+	}
+	function list_restoreFiles(mixed $dummy1, mixed $dummy2, mixed $dummy3, bool $do_change): array
+	{
+		return PackageManager\SubsPackage::list_restoreFiles($dummy1, $dummy2, $dummy3, $do_change);
+	}
+	function packageRequireFTP(string $destination_url, ?array $files = null,bool  $return = false): array
+	{
+		return PackageManager\SubsPackage::packageRequireFTP($destination_url, $files, $return);
+	}
+	function parsePackageInfo(
+		PackageManager\XmlArray &$packageXML,
+		bool $testing_only = true,
+		string $method = 'install',
+		string $previous_version = ''
+	): array {
+		return PackageManager\SubsPackage::parsePackageInfo(
+			$packageXML,
+			$testing_only,
+			$method,
+			$previous_version
+		);
+	}
+	function matchHighestPackageVersion(string $versions, bool $reset, string $the_version): string|bool
+	{
+		return PackageManager\SubsPackage::matchHighestPackageVersion($versions, $reset, $the_version);
+	}
+	function matchPackageVersion(string $version, string $versions): bool
+	{
+		return PackageManager\SubsPackage::matchPackageVersion($version, $versions);
+	}
+	function compareVersions(string $version1, string $version2): int
+	{
+		return PackageManager\SubsPackage::compareVersions($version1, $version2);
+	}
+	function parse_path(string $path): string
+	{
+		return PackageManager\SubsPackage::parse_path($path);
+	}
+	function deltree(string $dir, bool $delete_dir = true): void
+	{
+		PackageManager\SubsPackage::deltree($dir, $delete_dir);
+	}
+	function mktree(string $strPath, int $mode): bool
+	{
+		return PackageManager\SubsPackage::mktree($strPath, $mode);
+	}
+	function copytree(string $source, string $destination): void
+	{
+		PackageManager\SubsPackage::copytree($source, $destination);
+	}
+	function listtree(string $path, string $sub_path = ''): array
+	{
+		return PackageManager\SubsPackage::listtree($path, $sub_path);
+	}
+	function parseModification(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
+	{
+		return PackageManager\SubsPackage::parseModification($file, $testing, $undo, $theme_paths);
+	}
+	function parseBoardMod(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
+	{
+		return PackageManager\SubsPackage::parseBoardMod($file, $testing, $undo, $theme_paths);
+	}
+	function package_get_contents(string $filename): string
+	{
+		return PackageManager\SubsPackage::package_get_contents($filename);
+	}
+	function package_put_contents(string $filename, string $data, bool $testing = false): int
+	{
+		return PackageManager\SubsPackage::package_put_contents($filename, $data, $testing);
+	}
+	function package_flush_cache(bool $trash = false): void
+	{
+		PackageManager\SubsPackage::package_flush_cache($trash);
+	}
+	function package_chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
+	{
+		return PackageManager\SubsPackage::package_chmod($filename, $perm_state, $track_change);
+	}
+	function package_crypt(#[\SensitiveParameter] string $pass): string
+	{
+		return PackageManager\SubsPackage::package_crypt($pass);
+	}
+	function package_unique_filename(string $dir, string $filename, string $ext): string
+	{
+		return PackageManager\SubsPackage::package_unique_filename($dir, $filename, $ext);
+	}
+	function package_create_backup(string $id = 'backup'): bool
+	{
+		return PackageManager\SubsPackage::package_create_backup($id);
+	}
+	function package_validate_installtest(array $package): array
+	{
+		return PackageManager\SubsPackage::package_validate_installtest($package);
+	}
+	function package_validate(array $packages): array
+	{
+		return PackageManager\SubsPackage::package_validate($packages);
+	}
+	function package_validate_send(array $sendData): array
+	{
+		return PackageManager\SubsPackage::package_validate_send($sendData);
+	}
+	/**
+	 * End
+	 * PackageManager\SubsPackage
+	 *
+	 * Begin
+	 * PersonalMessage\DraftPM
+	 */
+	function showInEditor(int $member_id, $reply_to = false): bool
+	{
+		return PersonalMessage\DraftPM::showInEditor($member_id, $reply_to);
+	}
+	function showInProfile(int $memID = -1): void
+	{
+		PersonalMessage\DraftPM::showInProfile((int) $memID);
+	}
+	/**
+	 * End
+	 * PersonalMessage\DraftPM
+	 *
+	 * Begin
+	 * PersonalMessage\PM
+	 */
+	function old(int $time): array
+	{
+		return PersonalMessage\PM::old($time);
+	}
+	function compose(): void
+	{
+		PersonalMessage\PM::compose();
+	}
+	function compose2(): bool
+	{
+		return PersonalMessage\PM::compose2();
+	}
+	function sendpm(
+		array $recipients,
+		string $subject,
+		string $message,
+		bool $store_outbox = false,
+		array $from = null,
+		int $pm_head = 0
+	): array {
+		return PersonalMessage\PM::send($recipients, $subject, $message, $store_outbox, $from ?? null, $pm_head);
+	}
+	function deleteMessages(?array $personal_messages, ?string $folder = null, array|int|null $owner = null): void
+	{
+		PersonalMessage\PM::delete($personal_messages, $folder, $owner);
+	}
+	function markMessages(?array $personal_messages = null, ?int $label = null, ?int $owner = null): void
+	{
+		PersonalMessage\PM::markRead($personal_messages, $label, $owner);
+	}
+	function getLatest(): int
+	{
+		return PersonalMessage\PM::getLatest();
+	}
+	function getRecent(string $sort = 'pm.id_pm', bool $descending = true, int $limit = 0, int $offset = 0): array
+	{
+		return PersonalMessage\PM::getRecent($sort, $descending, $limit, $offset);
+	}
+	function countSent(int $boundary = 0, bool $greater_than = false): int
+	{
+		return PersonalMessage\PM::countSent($boundary, $greater_than);
+	}
+	function messagePostError(array $error_types, array $named_recipients, array $recipient_ids = []): void
+	{
+		PersonalMessage\PM::reportErrors($error_types, $named_recipients, $recipient_ids);
+	}
+	function isAccessiblePM(int $pmID, string $folders = 'both'): bool
+	{
+		return PersonalMessage\PM::isAccessible($pmID, $folders);
+	}
+	/**
+	 * End
+	 * PersonalMessage\PM
+	 *
+	 * Begin
+	 * PersonalMessage\Rule
+	 */
+	function loadRules(bool $reload = false): array
+	{
+		return PersonalMessage\Rule::load($reload);
+	}
+	function applyRules(bool $all_messages = false): void
+	{
+		PersonalMessage\Rule::apply($all_messages);
+	}
+	function delete(array $ids): void
+	{
+		PersonalMessage\Rule::delete($ids);
+	}
+	function manage(): void
+	{
+		PersonalMessage\Rule::manage();
+	}
+	/**
+	 * End
+	 * PersonalMessage\Rule
+	 *
+	 * Begin
+	 * Search\SearchApi
+	 */
+	function findSearchAPI(): Search\SearchApiInterface
+	{
+		return Search\SearchApi::load();
+	}
+	function loadSearchAPIs(): array
+	{
+		return Search\SearchApi::detect();
+	}
+	/**
+	 * End
+	 * Search\SearchApi
+	 *
+	 * Begin
+	 * Search\SearchResult
+	 */
+	function highlight(string $text, array $words): string
+	{
+		return Search\SearchResult::highlight($text, $words);
+	}
+	/**
+	 * End
+	 * Search\SearchResult
+	 *
+	 * Begin
+	 * Unicode\Utf8String
+	 * @see SMF\BackwardCompatibility
+	 */
+	function utf8_decompose(array $chars, bool $compatibility = false): array
+	{
+		return Utf8String::decompose($chars, $compatibility);
+	}
+	function utf8_compose(array $chars): array
+	{
+		return Utf8String::compose($chars);
+	}
+	function utf8_strtolower(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_strtoupper(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_casefold(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_convert_case(string $string, string $case, bool $simple = false): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string, $case, $simple);
+	}
+	function utf8_normalize_d(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_normalize_kd(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_normalize_c(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_normalize_kc(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_normalize_kc_casefold(string $string): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+	}
+	function utf8_is_normalized(string $string, string $form): bool
+	{
+		return Utf8String::utf8StringFactory(__FUNCTION__, $string, null, false, $form);
+	}
+	function utf8_sanitize_invisibles(string $string, int $level, string $substitute): string
+	{
+		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string, null, false, null, $level, $substitute);
+	}
+	/**
+	 * End
+	 * Unicode\Utf8String
+	 *
+	 * Begin
+	 * WebFetch\WebFetchApi
+	 */
+	function fetch_web_data(string $url, string|array $post_data = [], bool $keep_alive = false): string|false
+	{
+		return WebFetchApi::fetch($url, $post_data, $keep_alive);
+	}
+	/**
+	 * End
+	 * WebFetch\WebFetchApi
+	 *
+	 * Begin
+	 * SMF\Alert
+	 */
+	function fetch_alerts(
+		int $memID,
+		bool|array $to_fetch = false,
+		int $limit = 0,
+		int $offset = 0,
+		bool $with_avatar = false,
+		bool $show_links = false
+	): array {
+		return SMF\Alert::fetch($memID, $to_fetch, $limit, $offset, $with_avatar, $show_links);
+	}
+	function alert_count(int $memID, bool $unread = false): int
+	{
+		return SMF\Alert::count($memID, $unread);
+	}
+	function alert_mark(array|int $members, array|int $to_mark, bool $read): void
+	{
+		SMF\Alert::mark($members, $to_mark, $read);
+	}
+	function alert_delete(int|array $ids, int|array $members = []): void
+	{
+		SMF\Alert::delete($ids, $members);
+	}
+	function alert_purge(int $memID = 0, int $before = 0): void
+	{
+		SMF\Alert::purge($memID, $before);
+	}
+	/**
+	 * End
+	 * SMF\Alert
+	 *
+	 * Begin
+	 * SMF\Attachment
+	 */
+	function automanage_attachments_check_directory(): ?bool
+	{
+		return SMF\Attachment::automanageCheckDirectory();
+	}
+	function automanage_attachments_create_directory(string $updir): bool
+	{
+		return SMF\Attachment::automanageCreateDirectory($updir);
+	}
+	function automanage_attachments_by_space(): ?bool
+	{
+		return SMF\Attachment::automanageBySpace();
+	}
+	function processAttachments(): void
+	{
+		SMF\Attachment::process();
+	}
+	function attachmentChecks(int $attachID): bool
+	{
+		return SMF\Attachment::check($attachID);
+	}
+	function createAttachment(&$attachmentOptions): bool
+	{
+		return SMF\Attachment::create($attachmentOptions);
+	}
+	function assignAttachments(array $attachIDs = [], int $msgID = 0): bool
+	{
+		return SMF\Attachment::assign($attachIDs, $msgID);
+	}
+	function ApproveAttachments(array $attachments): bool
+	{
+		return SMF\Attachment::approve($attachments);
+	}
+	function removeAttachments(
+		$condition,
+		$query_type = '',
+		$return_affected_messages = false,
+		$autoThumbRemoval = true
+	): ?array {
+		return SMF\Attachment::remove(
+			$condition,
+			$query_type,
+			$return_affected_messages,
+			$autoThumbRemoval
+		);
+	}
+	function parseAttachBBC(int $attachID = 0): array|string
+	{
+		return SMF\Attachment::parseAttachBBC($attachID);
+	}
+	function getAttachMsgInfo(int $attachID): SMF\Attachment|array
+	{
+		return SMF\Attachment::getAttachMsgInfo($attachID);
+	}
+	function loadAttachmentContext(int $id_msg, array $attachments): array
+	{
+		return SMF\Attachment::loadAttachmentContext($id_msg, $attachments);
+	}
+	function prepareAttachsByMsg(array $msgIDs): void
+	{
+		SMF\Attachment::prepareByMsg($msgIDs);
+	}
+	function createHash(string $input = ''): string
+	{
+		return SMF\Attachment::createHash($input);
+	}
+	function getFilePath(int $id): string
+	{
+		return SMF\Attachment::getFilePath($id);
+	}
+	function getAttachmentFilename(
+		string $filename,
+		int $attachment_id,
+		string|null $dir = null,
+		bool $new = false,
+		string $file_hash = ''
+	): string {
+		return SMF\Attachment::getAttachmentFilename(
+			$filename,
+			$attachment_id,
+			$dir,
+			$new,
+			$file_hash
+		);
+	}
+	/**
+	 * End
+	 * SMF\Attachment
+	 *
+	 * Begin
+	 * SMF\BBCodeParser
+	 */
+	function get_signature_allowed_bbc_tags(): array
+	{
+		return SMF\BBCodeParser::getSigTags();
+	}
+	function highlight_php_code(string $code): string
+	{
+		return SMF\BBCodeParser::highlightPhpCode($code);
+	}
+	function sanitizeMSCutPaste(string $string): string
+	{
+		return SMF\BBCodeParser::sanitizeMSCutPaste($string);
+	}
+	function parse_bbc(
+		string|bool $message,
+		bool $smileys = true,
+		string $cache_id = '',
+		array $parse_tags = []
+	): string|array {
+		return SMF\BBCodeParser::backcompatParseBbc(
+			$message,
+			$smileys,
+			$cache_id,
+			$parse_tags
+		);
+	}
+	function parseSmileys(string &$message): void
+	{
+		SMF\BBCodeParser::backcompatParseSmileys($message);
+	}
+	/**
+	 * End
+	 * SMF\BBCodeParser
+	 *
+	 * Begin
+	 * SMF\Board
+	 */
+	function loadBoard(array|int $ids = [], array $query_customizations = []): array
+	{
+		return SMF\Board::load($ids, $query_customizations);
+	}
+	function MarkRead(): void
+	{
+		SMF\Board::markRead();
+	}
+	function markBoardsRead(int|array $boards, bool $unread = false): void
+	{
+		SMF\Board::markBoardsRead($boards, $unread);
+	}
+	function getMsgMemberID(int $messageID): int
+	{
+		return SMF\Board::getMsgMemberID($messageID);
+	}
+	function modifyBoard(int $board_id, array &$boardOptions): void
+	{
+		SMF\Board::modify($board_id, $boardOptions);
+	}
+	function createBoard(array $boardOptions): int
+	{
+		return SMF\Board::create($boardOptions);
+	}
+	function deleteBoards(array $boards_to_remove, ?int $moveChildrenTo = null): void
+	{
+		SMF\Board::delete($boards_to_remove, $moveChildrenTo);
+	}
+	function reorderBoards(): void
+	{
+		SMF\Board::reorder();
+	}
+	function fixChildren(int $parent, int $newLevel, int $newParent): void
+	{
+		SMF\Board::fixChildren($parent, $newLevel, $newParent);
+	}
+	function sortBoards(array &$boards): void
+	{
+		SMF\Board::sort($boards);
+	}
+	function getBoardModerators(array $boards): array
+	{
+		return SMF\Board::getModerators($boards);
+	}
+	function getBoardModeratorGroups(array $boards): array
+	{
+		return SMF\Board::getModeratorGroups($boards);
+	}
+	function isChildOf(int $child, int $parent): bool
+	{
+		return SMF\Board::isChildOf($child, $parent);
+	}
+	function getBoardParents(int $id_parent): array
+	{
+		return SMF\Board::getParents($id_parent);
+	}
+	/**
+	 * End
+	 * SMF\Board
+	 *
+	 * Begin
+	 * SMF\BrowserDetector
+	 */
+	function detectBrowser(): void
+	{
+		SMF\BrowserDetector::call();
+	}
+	function isBrowser(string $browser): bool
+	{
+		return SMF\BrowserDetector::isBrowser($browser);
+	}
+	/**
+	 * End
+	 * SMF\BrowserDetector
+	 *
+	 * Begin
+	 * SMF\Category
+	 */
+	function modifyCategory(int $category_id, array $catOptions): void
+	{
+		SMF\Category::modify($category_id, $catOptions);
+	}
+	function createCategory(array $catOptions): int
+	{
+		return SMF\Category::create($catOptions);
+	}
+	function deleteCategories(array $categories, ?int $moveBoardsTo = null): void
+	{
+		SMF\Category::delete($categories, $moveBoardsTo);
+	}
+	function sortCategories(array &$categories): void
+	{
+		SMF\Category::sort($categories);
+	}
+	function getTreeOrder(): array
+	{
+		return SMF\Category::getTreeOrder();
+	}
+	function getBoardTree(): void
+	{
+		SMF\Category::getTree();
+	}
+	function recursiveBoards(&$list, &$tree): void
+	{
+		SMF\Category::recursiveBoards($list, $tree);
+	}
+	/**
+	 * End
+	 * SMF\Category
+	 *
+	 * Begin
+	 * SMF\Cookie
+	 */
+	function setLoginCookie(int $cookie_length, int $id, string $password = ''): void
+	{
+		SMF\Cookie::setLoginCookie($cookie_length, $id, $password);
+	}
+	function setTFACookie(int $cookie_length, int $id, string $secret): void
+	{
+		SMF\Cookie::setTFACookie($cookie, $id, $secret);
+	}
+	function url_parts(bool $local, bool $global): array
+	{
+		return SMF\Cookie::urlParts($local, $global);
+	}
+	function hash_salt(string $password, string $salt): string
+	{
+		return SMF\Cookie::encrypt($password, $salt);
+	}
+	function smf_setcookie(
+		string $name,
+		string $value = '',
+		int $expires = 0,
+		string $path = '',
+		string $domain = '',
+		?bool $secure = null,
+		bool $httponly = true,
+		?string $samesite = null
+	): void {
+		SMF\Cookie::setcookie(
+			$name,
+			$value,
+			$expires,
+			$path,
+			$domain,
+			$secure,
+			$httponly,
+			$samesite
+		);
+	}
+	/**
+	 * End
+	 * SMF\Cookie
+	 *
+	 * Begin
+	 * SMF\Draft
+	 */
+	function DeleteDraft(int|array $drafts, bool $check = true): bool
+	{
+		return SMF\Draft::delete($drafts, $check);
+	}
+	function ShowDrafts(int $member_id, int $topic = 0): bool
+	{
+		return SMF\Draft::showInEditor($member_id, $topic);
+	}
+	function showProfileDrafts(int $memID): void
+	{
+		SMF\Draft::showInProfile($memID);
+	}
+	/**
+	 * End
+	 * SMF\Draft
+	 *
+	 * Begin
+	 * SMF\Editor
+	 */
+	function create_control_richedit(array $options): SMF\Editor
+	{
+		return SMF\Editor::load($options);
+	}
+	function getMessageIcons(int $board_id): array
+	{
+		return SMF\Editor::getMessageIcons($board_id);
+	}
+	/**
+	 * End
+	 * SMF\Editor
+	 *
+	 * Begin
+	 * SMF\ErrorHandler
+	 */
+	function smf_error_handler(int $error_level, string $error_string, string $file, int $line): void
+	{
+		SMF\ErrorHandler::call($error_level, $error_string, $file, $line);
+	}
+	function log_error(
+		string $error_message,
+		string|bool $error_type = 'general',
+		string $file = '',
+		int $line = 0
+	): string {
+		return SMF\ErrorHandler::log(
+			$error_message,
+			$error_type,
+			$file,
+			$line
+		);
+	}
+	function fatal_error(string $error, string|bool $log = 'general', int $status = 500): void
+	{
+		SMF\ErrorHandler::fatal($error, $log, $status);
+	}
+	function fatal_lang_error(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403)
+	{
+		SMF\ErrorHandler::fatalLang($error, $log, $sprintf, $status);
+	}
+	function display_maintenance_message(): void
+	{
+		SMF\ErrorHandler::displayMaintenanceMessage();
+	}
+	function display_db_error(): void
+	{
+		SMF\ErrorHandler::displayDbError();
+	}
+	function display_loadavg_error(): void
+	{
+		SMF\ErrorHandler::displayLoadAvgError();
+	}
+	/**
+	 * End
+	 * SMF\ErrorHandler
+	 *
+	 * Begin
+	 * SMF\Event
+	 */
+	function insertEvent(array $eventOptions): void
+	{
+		SMF\Event::create($eventOptions);
+	}
+	function modifyEvent(int $id, array &$eventOptions): void
+	{
+		SMF\Event::modify($id, $eventOptions);
+	}
+	function removeEvent(int $id): void
+	{
+		SMF\Event::remove($id);
+	}
+	/**
+	 * End
+	 * SMF\Event
+	 *
+	 * Begin
+	 * SMF\Group
+	 */
+	function loadSimple(
+		int $include = self::LOAD_NORMAL,
+		array $exclude = [self::GUEST, self::REGULAR, self::MOD]
+	): array {
+		return SMF\Group::loadSimple($include, $exclude);
+	}
+	function loadAssignable(): array
+	{
+		return SMF\Group::loadAssignable();
+	}
+	function loadPermissionsBatch(array $group_ids, ?int $profile = null, bool $reload = false): array
+	{
+		return SMF\Group::loadPermissionsBatch($group_ids, $profile, $reload);
+	}
+	function countPermissionsBatch(array $group_ids, ?int $profile = null): array
+	{
+		return SMF\Group::countPermissionsBatch($group_ids, $profile);
+	}
+	function getPostGroups(): array
+	{
+		return SMF\Group::getPostGroups();
+	}
+	function getUnassignable(): array
+	{
+		return SMF\Group::getUnassignable();
+	}
+	function cache_getMembergroupList(): array
+	{
+		return SMF\Group::getCachedList();
+	}
+	/**
+	 * End
+	 * SMF\Group
+	 *
+	 * Begin
+	 * SMF\IntegrationHook
+	 */
+	function call_integration_hook(string $name, array $parameters = []): array
+	{
+		return SMF\IntegrationHook::call($name, $parameters);
+	}
+	function add_integration_function(
+		string $name,
+		string $function,
+		bool $permanent = true,
+		string $file = '',
+		bool $object = false
+	): void {
+		SMF\IntegrationHook::add(
+			$name,
+			$function,
+			$permanent,
+			$file,
+			$object
+		);
+	}
+	function remove_integration_function(
+		string $name,
+		string $function,
+		bool $permanent = true,
+		string $file = '',
+		bool $object = false
+	): void {
+		SMF\IntegrationHook::remove(
+			$name,
+			$function,
+			$permanent,
+			$file,
+			$object
+		);
+	}
+	/**
+	 * End
+	 * SMF\IntegrationHook
+	 *
+	 * Begin
+	 * SMF\IP
+	 */
+	function ip2range(string $addr): array
+	{
+		return SMF\IP::ip2range($addr);
+	}
+	function range2ip(string $low, string $high): string
+	{
+		return SMF\IP::range2ip($low, $high);
+	}
+	function isValidIP(string $ip): bool
+	{
+		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+	}
+	function isValidIPv6(string $ip): bool
+	{
+		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+	}
+	function host_from_ip(string $ip): string
+	{
+		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+	}
+	function inet_ptod(string $ip): string|bool
+	{
+		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+	}
+	function inet_dtop(string $ip): SMF\IP
+	{
+		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+	}
+	function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|false
+	{
+		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip, $return_bool_if_invalid);
+	}
+	/**
+	 * End
+	 * SMF\IP
+	 *
+	 * Begin
+	 * SMF\ItemList
+	 */
+	function createList(array $options): SMF\ItemList
+	{
+		return SMF\ItemList::load($options);
+	}
+	/**
+	 * End
+	 * SMF\ItemList
+	 *
+	 * Begin
+	 * SMF\Lang
+	 */
+	function loadLanguage(
+		string $template_name,
+		string $lang = '',
+		bool $fatal = true,
+		bool $force_reload = false
+	): string {
+		return SMF\Lang::load($template_name, $lang, $fatal, $force_reload);
+	}
+	function getLanguages(bool $use_cache = true): array
+	{
+		return SMF\Lang::get($use_cache);
+	}
+	function censorText(&$text, bool $force = false): string
+	{
+		return SMF\Lang::censorText($text, $force);
+	}
+	function tokenTxtReplace(string $string = ''): string
+	{
+		return SMF\Lang::tokenTxtReplace($string);
+	}
+	function sentence_list(array $list): string
+	{
+		return SMF\Lang::sentenceList($list);
+	}
+	function comma_format(int|float $number, ?int $decimals = null): string
+	{
+		return SMF\Lang::numberFormat($number, $decimals);
+	}
+	/**
+	 * End
+	 * SMF\Lang
+	 *
+	 * Begin
+	 * SMF\Logging
+	 */
+	function writeLog(bool $force = false): void
+	{
+		SMF\Logging::writeLog($force);
+	}
+	function logAction($action, array $extra = [], $log_type = 'moderate'): int
+	{
+		return SMF\Logging::logAction($action, $extra, $log_type);
+	}
+	function logActions(array $logs): int
+	{
+		return SMF\Logging::logActions($logs);
+	}
+	function updateStats(string $type, mixed $parameter1 = null, mixed $parameter2 = null): void
+	{
+		SMF\Logging::updateStats($type, $parameter1, $parameter2);
+	}
+	function trackStats(array $stats = []): bool
+	{
+		return SMF\Logging::trackStats($stats);
+	}
+	function trackStatsUsersOnline(int $total_users_online): void
+	{
+		SMF\Logging::trackStatsUsersOnline($total_users_online);
+	}
+	function getMembersOnlineStats(array $membersOnlineOptions): array
+	{
+		return SMF\Logging::getMembersOnlineStats($membersOnlineOptions);
+	}
+	function displayDebug(): void
+	{
+		SMF\Logging::displayDebug();
+	}
+	/**
+	 * End
+	 * SMF\Logging
+	 *
+	 * Begin
+	 * SMF\Mail
+	 */
+	function sendMail(
+		array $to,
+		string $subject,
+		string $message,
+		string $from = null,
+		string $message_id = null,
+		bool $send_html = false,
+		int $priority = 3,
+		bool $hotmail_fix = null,
+		bool $is_private = false
+	): bool {
+		return SMF\Mail::send(
+			$to,
+			$subject,
+			$message,
+			$from,
+			$message_id,
+			$send_html,
+			$priority,
+			$hotmail_fix,
+			$is_private
+		);
+	}
+	function AddMailQueue(
+		bool $flush = false,
+		array $to_array = [],
+		string $subject = '',
+		string $message = '',
+		string $headers = '',
+		bool $send_html = false,
+		int $priority = 3,
+		bool $is_private = false
+	): bool {
+		return SMF\Mail::addToQueue(
+			$flush,
+			$to_array,
+			$subject,
+			$message,
+			$headers,
+			$send_html,
+			$priority,
+			$is_private
+		);
+	}
+	function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
+	{
+		return SMF\Mail::reduceQueue($number, $override_limit, $force_send);
+	}
+	function mimespecialchars(
+		string $string,
+		bool $with_charset = true,
+		bool $hotmail_fix = false,
+		string $line_break = "\r\n",
+		string $custom_charset = null
+	): array {
+		return SMF\Mail::mimespecialchars(
+			$string,
+			$with_charset,
+			$hotmail_fix,
+			$line_break,
+			$custom_charset
+		);
+	}
+	function smtp_mail(array $mail_to_array, string $subject, string $message, string $headers): bool
+	{
+		return SMF\Mail::sendSmtp($mail_to_array, $subject, $message, $headers);
+	}
+	function serverParse(string $message, $socket, string $code, string &$response = null): bool
+	{
+		return SMF\Mail::serverParse($message, $socket, $code, $response);
+	}
+	function sendNotifications(array $topics, string $type, array $exclude = [], array $members_only = [])
+	{
+		return SMF\Mail::sendNotifications($topics, $type, $exclude, $members_only);
+	}
+	function adminNotify(string $type, int $memberID, string $member_name = null): void
+	{
+		SMF\Mail::adminNotify($type, $memberID, $member_name);
+	}
+	function loadEmailTemplate(
+		string $template,
+		array $replacements = [],
+		string $lang = '',
+		bool $loadLang = true
+	): array {
+		return SMF\Mail::loadEmailTemplate($template, $replacements, $lang, $loadLang);
+	}
+	/**
+	 * End
+	 * SMF\Mail
+	 *
+	 * Begin
+	 * SMF\Menu
+	 */
+	function createMenu(array $data, array $options = []): array|false
+	{
+		return SMF\Menu::create($data, $options);
+	}
+	function destroyMenu(int|string $id = 'last'): void
+	{
+		SMF\Menu::destroy($id);
+	}
+	/**
+	 * End
+	 * SMF\Menu
+	 *
+	 * Begin
+	 * SMF\Msg
+	 */
+	function preparsecode(string &$message, bool $previewing = false): void
+	{
+		SMF\Msg::preparsecode($message, $previewing);
+	}
+	function un_preparsecode(string $message): string
+	{
+		return SMF\Msg::un_preparsecode($message);
+	}
+	function fixTags(string &$message): void
+	{
+		SMF\Msg::fixTags($message);
+	}
+	function fixTag(
+		string &$message,
+		string $myTag,
+		array $protocols,
+		bool $embeddedUrl = false,
+		bool $hasEqualSign = false,
+		bool $hasExtra = false
+	): void {
+		SMF\Msg::fixTag(
+			$message,
+			$myTag,
+			$protocols,
+			$embeddedUrl,
+			$hasEqualSign,
+			$hasExtra
+		);
+	}
+	function SpellCheck(): void
+	{
+		SMF\Msg::spellCheck();
+	}
+	function createPost(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
+	{
+		return SMF\Msg::create($msgOptions, $topicOptions, $posterOptions);
+	}
+	function modifyPost(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
+	{
+		return SMF\Msg::modify($msgOptions, $topicOptions, $posterOptions);
+	}
+	function approvePosts(array $msgs, bool $approve = true, bool $notify = true): bool
+	{
+		return SMF\Msg::approve($msgs, $approve, $notify);
+	}
+	function clearApprovalAlerts(array $content_ids, string $content_action): void
+	{
+		SMF\Msg::clearApprovalAlerts($content_ids, $content_action);
+	}
+	function updateLastMessages(array $setboards, int $id_msg = 0): ?false
+	{
+		return SMF\Msg::updateLastMessages($setboards, $id_msg);
+	}
+	function removeMessage(int $message, bool $decreasePostCount = true): bool
+	{
+		return SMF\Msg::remove($message, $decreasePostCount);
+	}
+	/** @see SMF\Msg::spell_init() */
+	function spell_init()
+	{
+		return SMF\Msg::spell_init();
+	}
+	/**
+	 * @param \PSpell\Dictionary|EnchantDictionary
+	 * @param string $word
+	 */
+	function spell_check($dict, $word): bool
+	{
+		return SMF\Msg::spell_check($dict, $word);
+	}
+	/**
+	 * @param \PSpell\Dictionary|EnchantDictionary
+	 * @param string $word
+	 */
+	function spell_suggest($dict, $word): array
+	{
+		return SMF\Msg::spell_suggest($dict, $word);
+	}
+	/**
+	 * End
+	 * SMF\Msg
+	 *
+	 * Begin
+	 * SMF\PageIndex
+	 */
+	function constructPageIndex(
+		string $base_url,
+		int &$start,
+		int $max_value,
+		int $num_per_page,
+		bool $short_format = false,
+		bool $show_prevnext = true
+	): SMF\PageIndex {
+		return SMF\PageIndex::load(
+			$base_url,
+			$start,
+			$max_value,
+			$num_per_page,
+			$short_format,
+			$show_prevnext
+		);
+	}
+	/**
+	 * End
+	 * SMF\PageIndex
+	 *
+	 * Begin
+	 * SMF\Poll
+	 */
+	function checkRemovePermission(SMF\Poll $poll): bool
+	{
+		return SMF\Poll::checkRemovePermission($poll);
+	}
+	function Vote(): void
+	{
+		SMF\Poll::vote();
+	}
+	function LockVoting(): void
+	{
+		SMF\Poll::lock();
+	}
+	function EditPoll(): void
+	{
+		SMF\Poll::edit();
+	}
+	function EditPoll2(): void
+	{
+		SMF\Poll::edit2();
+	}
+	function RemovePoll(): void
+	{
+		SMF\Poll::remove();
+	}
+	/**
+	 * End
+	 * SMF\Poll
+	 *
+	 * Begin
+	 * SMF\Profile
+	 */
+	function loadCustomFieldDefinitions(): void
+	{
+		SMF\Profile::loadCustomFieldDefinitions();
+	}
+	function validateSignature(string &$value): bool|string
+	{
+		return SMF\Profile::validateSignature($value);
+	}
+	function profileLoadGroups(?int $id = null): bool
+	{
+		return SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id);
+	}
+	function loadProfileFields($force_reload = false, ?int $id = null): void
+	{
+		return SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, force_reload: $force_reload);
+	}
+	function loadCustomFields(int $id, string $area = 'summary'): void
+	{
+		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, area: $area);
+	}
+	function loadThemeOptions(int $id, bool $defaultSettings = false): void
+	{
+		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, defaultSettings: $defaultSettings);
+	}
+	function setupProfileContext(array $fields, int $id): void
+	{
+		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, fields: $fields, id: $id);
+	}
+	function makeCustomFieldChanges($id, $area, $sanitize = true, $return_errors = false): ?array
+	{
+		return SMF\Profile::profileProvider(
+			calledFunction: __FUNCTION__,
+			id: $id,
+			area: $area,
+			sanitize: $sanitize,
+			return_errors: $return_errors
+		);
+	}
+	function makeThemeChanges(int $id, int $id_theme): void
+	{
+		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, id_theme: $id_theme);
+	}
+	/**
+	 * End
+	 * SMF\Profile
+	 *
+	 * Begin
+	 * SMF\QueryString
+	 */
+	function cleanRequest(): void
+	{
+		SMF\QueryString::cleanRequest();
+	}
+	function is_filtered_request(array $value_list, string $var): bool
+	{
+		return SMF\QueryString::isFilteredRequest($value_list, $var);
+	}
+	function ob_sessrewrite(string $buffer): string
+	{
+		return SMF\QueryString::ob_sessrewrite($buffer);
+	}
+	function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
+	{
+		return SMF\QueryString::matchIPtoCIDR($ip_address, $cidr_address);
+	}
+	/**
+	 * End
+	 * SMF\QueryString
+	 *
+	 * Begin
+	 * SMF\Security
+	 */
+
 }
+
 /***************************
  * PHP version compatibility
  ***************************/
