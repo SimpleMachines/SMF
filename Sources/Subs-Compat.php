@@ -3378,7 +3378,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function setTFACookie(int $cookie_length, int $id, string $secret): void
 	{
-		SMF\Cookie::setTFACookie($cookie, $id, $secret);
+		SMF\Cookie::setTFACookie($cookie_length, $id, $secret);
 	}
 	function url_parts(bool $local, bool $global): array
 	{
@@ -3978,7 +3978,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function loadProfileFields($force_reload = false, ?int $id = null): void
 	{
-		return SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, force_reload: $force_reload);
+		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, force_reload: $force_reload);
 	}
 	function loadCustomFields(int $id, string $area = 'summary'): void
 	{
