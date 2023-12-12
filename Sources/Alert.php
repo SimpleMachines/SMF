@@ -767,7 +767,7 @@ class Alert implements \ArrayAccess
 			$params['ids'] = $ids;
 		}
 
-		foreach (self::queryData($selects, $params, $joins, $where, $order, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$row['id_alert'] = (int) $row['id_alert'];
 
 			$members[] = (int) $row['id_member'];
