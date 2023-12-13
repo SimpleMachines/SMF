@@ -321,7 +321,7 @@ class CurlFetcher extends WebFetchApi
 		$curl_info = curl_getinfo($cr);
 		$curl_content = curl_multi_getcontent($cr);
 		$url = $curl_info['url']; // Last effective URL
-		$http_code = $curl_info['http_code']; // Last HTTP code
+		$http_code = (string) $curl_info['http_code']; // Last HTTP code
 		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
