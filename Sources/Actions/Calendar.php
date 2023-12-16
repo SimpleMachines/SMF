@@ -118,6 +118,7 @@ class Calendar implements ActionInterface
 		// This is gonna be needed...
 		Theme::loadTemplate('Calendar');
 		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'], 'smf_calendar');
+		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
 		// Did they specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
 		if (isset($_GET['event'])) {
@@ -913,10 +914,9 @@ class Calendar implements ActionInterface
 	 * @param string $selected_date A date in YYYY-MM-DD format
 	 * @param array $calendarOptions An array of calendar options
 	 * @param bool $is_previous Whether this is the previous month
-	 * @param bool $has_picker Whether to add javascript to handle a date picker
 	 * @return array A large array containing all the information needed to show a calendar grid for the given month
 	 */
-	public static function getCalendarGrid(string $selected_date, array $calendarOptions, bool $is_previous = false, bool $has_picker = true): array
+	public static function getCalendarGrid(string $selected_date, array $calendarOptions, bool $is_previous = false): array
 	{
 		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
 
@@ -952,6 +952,7 @@ class Calendar implements ActionInterface
 				'disabled' => Config::$modSettings['cal_maxyear'] < $next_object->format('Y'),
 			],
 			'start_date' => $selected_object->format(Time::getDateFormat()),
+			'iso_start_date' => $selected_object->format('Y-m-d'),
 		];
 
 		// Get today's date.
@@ -1058,11 +1059,6 @@ class Calendar implements ActionInterface
 
 		$calendarGrid['next_calendar']['href'] = Config::$scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 
-		if ($has_picker) {
-			self::loadDatePicker('#calendar_navigation .date_input');
-			self::loadDatePair('#calendar_navigation', 'date_input');
-		}
-
 		return $calendarGrid;
 	}
 
@@ -1128,6 +1124,7 @@ class Calendar implements ActionInterface
 				'disabled' => Config::$modSettings['cal_maxyear'] < $next_object->format('Y'),
 			],
 			'start_date' => $selected_object->format(Time::getDateFormat()),
+			'iso_start_date' => $selected_object->format('Y-m-d'),
 			'show_events' => $calendarOptions['show_events'],
 			'show_holidays' => $calendarOptions['show_holidays'],
 			'show_birthdays' => $calendarOptions['show_birthdays'],
@@ -1176,9 +1173,6 @@ class Calendar implements ActionInterface
 
 		$calendarGrid['next_week']['href'] = Config::$scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
 
-		self::loadDatePicker('#calendar_navigation .date_input');
-		self::loadDatePair('#calendar_navigation', 'date_input', '');
-
 		return $calendarGrid;
 	}
 
@@ -1201,10 +1195,12 @@ class Calendar implements ActionInterface
 			'start_year' => $start_object->format('Y'),
 			'start_month' => $start_object->format('m'),
 			'start_day' => $start_object->format('d'),
+			'iso_start_date' => $start_object->format('Y-m-d'),
 			'end_date' => $end_object->format(Time::getDateFormat()),
 			'end_year' => $end_object->format('Y'),
 			'end_month' => $end_object->format('m'),
 			'end_day' => $end_object->format('d'),
+			'iso_end_date' => $end_object->format('Y-m-d'),
 		];
 
 		$calendarGrid['birthdays'] = $calendarOptions['show_birthdays'] ? self::getBirthdayRange($start_date, $end_date) : [];
@@ -1243,174 +1239,7 @@ class Calendar implements ActionInterface
 			}
 		}
 
-		self::loadDatePicker('#calendar_range .date_input');
-		self::loadDatePair('#calendar_range', 'date_input', '');
-
 		return $calendarGrid;
-	}
-
-	/**
-	 * Loads the necessary JavaScript and CSS to create a datepicker.
-	 *
-	 * @param string $selector A CSS selector for the input field(s) that the datepicker should be attached to.
-	 * @param string $date_format The date format to use, in strftime() format.
-	 */
-	public static function loadDatePicker(string $selector = 'input.date_input', string $date_format = ''): void
-	{
-		if (empty($date_format)) {
-			$date_format = Time::getDateFormat();
-		}
-
-		// Convert to format used by datepicker
-		$date_format = strtr($date_format, [
-			// Day
-			'%a' => 'D', '%A' => 'DD', '%e' => 'd', '%d' => 'dd', '%j' => 'oo', '%u' => '', '%w' => '',
-			// Week
-			'%U' => '', '%V' => '', '%W' => '',
-			// Month
-			'%b' => 'M', '%B' => 'MM', '%h' => 'M', '%m' => 'mm',
-			// Year
-			'%C' => '', '%g' => 'y', '%G' => 'yy', '%y' => 'y', '%Y' => 'yy',
-			// Time (we remove all of these)
-			'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
-			'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
-			// Time and Date Stamps
-			'%c' => 'D, d M yy', '%D' => 'mm/dd/y', '%F' => 'yy-mm-dd', '%s' => '@', '%x' => 'D, d M yy',
-			// Miscellaneous
-			'%n' => ' ', '%t' => ' ', '%%' => '%',
-		]);
-
-		Theme::loadCSSFile('jquery-ui.datepicker.css', [], 'smf_datepicker');
-		Theme::loadJavaScriptFile('jquery-ui.datepicker.min.js', ['defer' => true], 'smf_datepicker');
-		Theme::addInlineJavaScript('
-		$("' . $selector . '").datepicker({
-			dateFormat: "' . $date_format . '",
-			autoSize: true,
-			isRTL: ' . (Utils::$context['right_to_left'] ? 'true' : 'false') . ',
-			constrainInput: true,
-			showAnim: "",
-			showButtonPanel: false,
-			yearRange: "' . Config::$modSettings['cal_minyear'] . ':' . Config::$modSettings['cal_maxyear'] . '",
-			hideIfNoPrevNext: true,
-			monthNames: ["' . implode('", "', Lang::$txt['months_titles']) . '"],
-			monthNamesShort: ["' . implode('", "', Lang::$txt['months_short']) . '"],
-			dayNames: ["' . implode('", "', Lang::$txt['days']) . '"],
-			dayNamesShort: ["' . implode('", "', Lang::$txt['days_short']) . '"],
-			dayNamesMin: ["' . implode('", "', Lang::$txt['days_short']) . '"],
-			prevText: "' . Lang::$txt['prev_month'] . '",
-			nextText: "' . Lang::$txt['next_month'] . '",
-			firstDay: ' . (!empty(Theme::$current->options['calendar_start_day']) ? Theme::$current->options['calendar_start_day'] : 0) . ',
-		});', true);
-	}
-
-	/**
-	 * Loads the necessary JavaScript and CSS to create a timepicker.
-	 *
-	 * @param string $selector A CSS selector for the input field(s) that the timepicker should be attached to.
-	 * @param string $time_format A time format in strftime format
-	 */
-	public static function loadTimePicker(string $selector = 'input.time_input', string $time_format = ''): void
-	{
-		if (empty($time_format)) {
-			$time_format = Time::getTimeFormat();
-		}
-
-		// Format used for timepicker
-		$time_format = strtr($time_format, [
-			'%H' => 'H',
-			'%k' => 'G',
-			'%I' => 'h',
-			'%l' => 'g',
-			'%M' => 'i',
-			'%p' => 'A',
-			'%P' => 'a',
-			'%r' => 'h:i:s A',
-			'%R' => 'H:i',
-			'%S' => 's',
-			'%T' => 'H:i:s',
-			'%X' => 'H:i:s',
-		]);
-
-		Theme::loadCSSFile('jquery.timepicker.css', [], 'smf_timepicker');
-		Theme::loadJavaScriptFile('jquery.timepicker.min.js', ['defer' => true], 'smf_timepicker');
-		Theme::addInlineJavaScript('
-		$("' . $selector . '").timepicker({
-			timeFormat: "' . $time_format . '",
-			showDuration: true,
-			maxTime: "23:59:59",
-			lang: {
-				am: "' . strtolower(Lang::$txt['time_am']) . '",
-				pm: "' . strtolower(Lang::$txt['time_pm']) . '",
-				AM: "' . strtoupper(Lang::$txt['time_am']) . '",
-				PM: "' . strtoupper(Lang::$txt['time_pm']) . '",
-				decimal: "' . Lang::$txt['decimal_separator'] . '",
-				mins: "' . Lang::$txt['minutes_short'] . '",
-				hr: "' . Lang::$txt['hour_short'] . '",
-				hrs: "' . Lang::$txt['hours_short'] . '",
-			}
-		});', true);
-	}
-
-	/**
-	 * Loads the necessary JavaScript for Datepair.js.
-	 *
-	 * Datepair.js helps to keep date ranges sane in the UI.
-	 *
-	 * @param string $container CSS selector for the containing element of the date/time inputs to be paired.
-	 * @param string $date_class The CSS class of the date inputs to be paired.
-	 * @param string $time_class The CSS class of the time inputs to be paired.
-	 */
-	public static function loadDatePair(string $container, string $date_class = '', string $time_class = ''): void
-	{
-		$container = (string) $container;
-		$date_class = (string) $date_class;
-		$time_class = (string) $time_class;
-
-		if ($container == '') {
-			return;
-		}
-
-		Theme::loadJavaScriptFile('jquery.datepair.min.js', ['defer' => true], 'smf_datepair');
-
-		$datepair_options = '';
-
-		// If we're not using a date input, we might as well disable these.
-		if ($date_class == '') {
-			$datepair_options .= '
-			parseDate: function (el) {},
-			updateDate: function (el, v) {},';
-		} else {
-			$datepair_options .= '
-			dateClass: "' . $date_class . '",';
-
-			// Customize Datepair to work with jQuery UI's datepicker.
-			$datepair_options .= '
-			parseDate: function (el) {
-				var val = $(el).datepicker("getDate");
-				if (!val) {
-					return null;
-				}
-				var utc = new Date(val);
-				return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-			},
-			updateDate: function (el, v) {
-				$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-			},';
-		}
-
-		// If not using a time input, disable time functions.
-		if ($time_class == '') {
-			$datepair_options .= '
-			parseTime: function(input){},
-			updateTime: function(input, dateObj){},
-			setMinTime: function(input, dateObj){},';
-		} else {
-			$datepair_options .= '
-			timeClass: "' . $time_class . '",';
-		}
-
-		Theme::addInlineJavaScript('
-		$("' . $container . '").datepair({' . $datepair_options . "\n\t});", true);
 	}
 
 	/**
