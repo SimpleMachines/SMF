@@ -350,6 +350,13 @@ class EventOccurrence implements \ArrayAccess
 			case 'end_iso_gmdate':
 				return $end->{substr($prop, 4)};
 
+			case 'age':
+				if ($this->getParentEvent()->type === Event::TYPE_BIRTHDAY && $this->getParentEvent()->start->format('Y') === 1004) {
+					return null;
+				}
+
+				return date_diff($this->start, $this->getParentEvent()->start)->y;
+
 			// These inherit from the parent event unless overridden for this occurrence.
 			case 'allday':
 			case 'duration':
@@ -431,6 +438,7 @@ class EventOccurrence implements \ArrayAccess
 				return property_exists($this, 'start');
 
 			case 'uid':
+			case 'age':
 			case 'type':
 			case 'allday':
 			case 'duration':

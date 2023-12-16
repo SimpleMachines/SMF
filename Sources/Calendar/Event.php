@@ -45,7 +45,7 @@ class Event implements \ArrayAccess
 
 	public const TYPE_EVENT = 0;
 	public const TYPE_HOLIDAY = 1;
-	public const TYPE_BIRTHDAY = 2; // Not yet implemented.
+	public const TYPE_BIRTHDAY = 2;
 
 	/*******************
 	 * Public properties

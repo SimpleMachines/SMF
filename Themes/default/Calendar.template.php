@@ -180,8 +180,8 @@ function template_show_upcoming_list($grid_name)
 
 			$birthdays = array();
 
-			foreach ($date as $member)
-				$birthdays[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '">' . $member['name'] . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>';
+			foreach ($date as $bday)
+				$birthdays[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $bday->member . '">' . $bday->name . (isset($bday->age) ? ' (' . $bday->age . ')' : '') . '</a>';
 
 			echo implode(', ', $birthdays);
 
@@ -410,9 +410,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							id, name (person), age (if they have one set?), and is_last. (last in list?) */
 						$use_js_hide = empty(Utils::$context['show_all_birthdays']) && count($day['birthdays']) > 15;
 						$birthday_count = 0;
-						foreach ($day['birthdays'] as $member)
+						foreach ($day['birthdays'] as $bday)
 						{
-							echo '<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] || ($count == 10 && $use_js_hide) ? '' : ', ';
+							echo '<a href="', Config::$scripturl, '?action=profile;u=', $bday['member'], '"><span class="fix_rtl_names">', $bday['name'], '</span>', isset($bday['age']) ? ' (' . $bday['age'] . ')' : '', '</a>', $bday['is_last'] || ($count == 10 && $use_js_hide) ? '' : ', ';
 
 							// 9...10! Let's stop there.
 							if ($birthday_count == 10 && $use_js_hide)

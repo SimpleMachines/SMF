@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Birthday;
 use SMF\Calendar\Event;
 use SMF\Calendar\Holiday;
 use SMF\Config;
@@ -675,78 +676,22 @@ class Calendar implements ActionInterface
 	 */
 	public static function getBirthdayRange(string $low_date, string $high_date): array
 	{
-		// We need to search for any birthday in this range, and whatever year that birthday is on.
-		$year_low = (int) substr($low_date, 0, 4);
-		$year_high = (int) substr($high_date, 0, 4);
+		$birthdays = [];
+		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		if (Db::$db->title !== POSTGRE_TITLE) {
-			// Collect all of the birthdays for this month.  I know, it's a painful query.
-			$result = Db::$db->query(
-				'',
-				'SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
-				FROM {db_prefix}members
-				WHERE birthdate != {date:no_birthdate}
-					AND (
-						DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
-						OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
-					)
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => 1,
-					'no_birthdate' => '1004-01-01',
-					'year_low' => $year_low . '-%m-%d',
-					'year_high' => $year_high . '-%m-%d',
-					'low_date' => $low_date,
-					'high_date' => $high_date,
-				],
-			);
-		} else {
-			$result = Db::$db->query(
-				'',
-				'SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
-				FROM {db_prefix}members
-				WHERE birthdate != {date:no_birthdate}
-					AND (
-						indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_low_low_date}) AND indexable_month_day({date:year_low_high_date})' . ($year_low == $year_high ? '' : '
-						OR indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_high_low_date}) AND indexable_month_day({date:year_high_high_date})') . '
-					)
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => 1,
-					'no_birthdate' => '1004-01-01',
-					'year_low_low_date' => $low_date,
-					'year_low_high_date' => $year_low == $year_high ? $high_date : $year_low . '-12-31',
-					'year_high_low_date' => $year_low == $year_high ? $low_date : $year_high . '-01-01',
-					'year_high_high_date' => $high_date,
-				],
-			);
+		foreach(Birthday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
+			$birthdays[$occurrence->start->format('Y-m-d')][$occurrence->member] = $occurrence;
 		}
-		$bday = [];
 
-		while ($row = Db::$db->fetch_assoc($result)) {
-			if ($year_low != $year_high) {
-				$age_year = substr($row['birthdate'], 5) <= substr($high_date, 5) ? $year_high : $year_low;
-			} else {
-				$age_year = $year_low;
-			}
-
-			$bday[$age_year . substr($row['birthdate'], 4)][] = [
-				'id' => $row['id_member'],
-				'name' => $row['real_name'],
-				'age' => $row['birth_year'] > 1004 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
-				'is_last' => false,
-			];
-		}
-		Db::$db->free_result($result);
-
-		ksort($bday);
+		ksort($birthdays);
 
 		// Set is_last, so the themes know when to stop placing separators.
-		foreach ($bday as $mday => $array) {
-			$bday[$mday][count($array) - 1]['is_last'] = true;
+		foreach ($birthdays as $date => $bdays) {
+			ksort($birthdays[$date]);
+			$birthdays[$date][array_key_last($birthdays[$date])]['is_last'] = true;
 		}
 
-		return $bday;
+		return $birthdays;
 	}
 
 	/**
