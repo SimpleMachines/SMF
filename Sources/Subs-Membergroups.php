@@ -17,7 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Group');
-class_exists('SMF\\User');
-
 ?>

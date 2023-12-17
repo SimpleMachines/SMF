@@ -17,6 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Actions\\Moderation\\ReportedContent');
-
 ?>

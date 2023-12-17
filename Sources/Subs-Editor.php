@@ -17,8 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\BBCodeParser');
-class_exists('SMF\\Editor');
-class_exists('SMF\\Verifier');
-
 ?>

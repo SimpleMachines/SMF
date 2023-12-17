@@ -17,8 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Profile');
-class_exists('SMF\\Graphics\\Image');
-class_exists('SMF\\Verifier');
-
 ?>

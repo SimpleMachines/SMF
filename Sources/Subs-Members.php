@@ -17,8 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\User');
-class_exists('SMF\\Actions\\Register2');
-class_exists('SMF\\Actions\\Admin\\Maintenance');
-
 ?>

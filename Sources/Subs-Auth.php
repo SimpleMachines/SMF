@@ -17,10 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Cookie');
-class_exists('SMF\\Forum');
-class_exists('SMF\\Security');
-class_exists('SMF\\User');
-class_exists('SMF\\Actions\\Admin');
-
 ?>
