@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -33,6 +34,7 @@ use SMF\Utils;
  */
 class Announce implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -305,6 +307,7 @@ class Announce implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the selectgroup sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function selectGroup(): void
 	{

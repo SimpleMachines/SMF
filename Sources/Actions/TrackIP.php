@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -31,6 +32,7 @@ use SMF\Utils;
  */
 class TrackIP implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -445,6 +447,7 @@ class TrackIP implements ActionInterface
 	 * Backward compatibility wrapper.
 	 *
 	 * @param int $memID The ID of a member whose IP we want to track.
+	 * @deprecated since 3.0
 	 */
 	public static function trackIP(int $memID = 0): void
 	{

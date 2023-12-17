@@ -15,6 +15,7 @@ namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\WebFetch\WebFetchApi;
+use Stringable;
 
 /**
  * Represents a URL string and allows performing various operations on the URL.
@@ -24,26 +25,9 @@ use SMF\WebFetch\WebFetchApi;
  * normalized, validated, etc. This class also makes it easy to convert IRIs to
  * raw ASCII URLs and back.
  */
-class Url implements \Stringable
+class Url implements Stringable
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'setTldRegex' => 'set_tld_regex',
-			'parseIri' => 'parse_iri',
-			'validateIri' => 'validate_iri',
-			'sanitizeIri' => 'sanitize_iri',
-			'normalizeIri' => 'normalize_iri',
-			'iriToUrl' => 'iri_to_url',
-			'urlToIri' => 'url_to_iri',
-			'getProxiedUrl' => 'get_proxied_url',
-			'sslCertFound' => 'ssl_cert_found',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -135,6 +119,7 @@ class Url implements \Stringable
 	 * @param string $url The URL or IRI.
 	 * @param bool $normalize Whether to normalize the URL during construction.
 	 *    Default: false.
+	 * @return $this provide fluent interface
 	 */
 	public function __construct(string $url, bool $normalize = false)
 	{
@@ -149,6 +134,7 @@ class Url implements \Stringable
 		}
 
 		$this->checkIfAscii();
+		return $this;
 	}
 
 	/**
@@ -694,6 +680,7 @@ class Url implements \Stringable
 	 * @param string $iri The IRI to parse.
 	 * @param int $component Optional flag for parse_url's second parameter.
 	 * @return mixed Same as parse_url(), but with unmangled Unicode.
+	 * @deprecated since 3.0
 	 */
 	public static function parseIri(string $iri, int $component = -1): mixed
 	{
@@ -709,6 +696,7 @@ class Url implements \Stringable
 	 * @param int $flags Optional flags for filter_var's third parameter.
 	 * @return object|false A reference to an object for the IRI if it is valid,
 	 *    or false if the IRI is invalid.
+	 * @deprecated since 3.0
 	 */
 	public static function validateIri(string $iri, int $flags = 0): object|false
 	{
@@ -724,6 +712,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $iri The IRI to sanitize.
 	 * @return object A reference to an object for the IRI.
+	 * @deprecated since 3.0
 	 */
 	public static function sanitizeIri(string $iri): object
 	{
@@ -737,6 +726,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $iri The IRI to normalize.
 	 * @return object A reference to an object for the IRI.
+	 * @deprecated since 3.0
 	 */
 	public static function normalizeIri(string $iri): object
 	{
@@ -750,6 +740,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $iri The IRI to convert to an ASCII URL.
 	 * @return object A reference to an object for the URL.
+	 * @deprecated since 3.0
 	 */
 	public static function iriToUrl(string $iri): object
 	{
@@ -763,6 +754,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $url The URL to convert to an IRI.
 	 * @return object A reference to an object for the IRI.
+	 * @deprecated since 3.0
 	 */
 	public static function urlToIri(string $url): object
 	{
@@ -776,6 +768,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $url The original URL of the requested resource.
 	 * @return Url A new instance of this class for the proxied URL.
+	 * @deprecated since 3.0
 	 */
 	public static function getProxiedUrl(string $url): Url
 	{
@@ -789,6 +782,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $url The URL to check.
 	 * @return bool Whether the URL has an SSL certificate.
+	 * @deprecated since 3.0
 	 */
 	public static function sslCertFound(string $url): bool
 	{
@@ -802,6 +796,7 @@ class Url implements \Stringable
 	 *
 	 * @param string $url The URL to check.
 	 * @return bool Whether a redirect to HTTPS was found.
+	 * @deprecated since 3.0
 	 */
 	public function httpsRedirectActive(string $url): bool
 	{

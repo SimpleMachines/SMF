@@ -15,6 +15,7 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Notify;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -39,6 +40,7 @@ use SMF\Utils;
  */
 class News extends ACP implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -1241,6 +1243,7 @@ class News extends ACP implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the edit sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function editNews(): void
 	{
@@ -1251,6 +1254,7 @@ class News extends ACP implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the mailingmembers sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function selectMailingMembers(): void
 	{
@@ -1261,6 +1265,7 @@ class News extends ACP implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the mailingcompose sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function composeMailing(): void
 	{
@@ -1271,6 +1276,7 @@ class News extends ACP implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the mailingsend sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function sendMailing(): void
 	{
@@ -1284,6 +1290,7 @@ class News extends ACP implements ActionInterface
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyNewsSettings($return_config = false)
 	{

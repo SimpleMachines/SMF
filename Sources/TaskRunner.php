@@ -38,16 +38,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'calculateNextTrigger' => 'CalculateNextTrigger',
-		],
-	];
 
 	/***********
 	 * Constants

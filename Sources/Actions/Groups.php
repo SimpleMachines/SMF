@@ -14,6 +14,7 @@
 namespace SMF\Actions;
 
 use SMF\Actions\Moderation\Main as ModCenter;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -35,6 +36,7 @@ use SMF\Utils;
  */
 class Groups implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -929,6 +931,7 @@ class Groups implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for index sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function GroupList(): void
 	{
@@ -939,6 +942,7 @@ class Groups implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for members sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function MembergroupMembers(): void
 	{
@@ -949,6 +953,7 @@ class Groups implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for requests sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function GroupRequests(): void
 	{

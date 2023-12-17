@@ -15,6 +15,7 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\TopicRemove;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;
@@ -39,6 +40,8 @@ use SMF\Utils;
  */
 class Maintenance implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -2310,6 +2313,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the routine sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainRoutine(): void
 	{
@@ -2320,6 +2324,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the database sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainDatabase(): void
 	{
@@ -2330,6 +2335,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the members sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainMembers(): void
 	{
@@ -2340,6 +2346,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the topics sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainTopics(): void
 	{
@@ -2350,6 +2357,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the hooks sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function list_integration_hooks(): void
 	{
@@ -2360,6 +2368,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the version activity.
+	 * @deprecated since 3.0
 	 */
 	public static function versionDetail(): void
 	{
@@ -2371,6 +2380,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the repair activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainFindFixErrors(): void
 	{
@@ -2382,6 +2392,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the recount activity.
+	 * @deprecated since 3.0
 	 */
 	public static function adminBoardRecount(): void
 	{
@@ -2393,6 +2404,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the rebuild_settings activity.
+	 * @deprecated since 3.0
 	 */
 	public static function rebuildSettingsFile(): void
 	{
@@ -2404,6 +2416,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the logs activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainEmptyUnimportantLogs(): void
 	{
@@ -2415,6 +2428,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the cleancache activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainCleanCache(): void
 	{
@@ -2426,6 +2440,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the optimize activity.
+	 * @deprecated since 3.0
 	 */
 	public static function optimizeTables(): void
 	{
@@ -2437,6 +2452,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the convertentities activity.
+	 * @deprecated since 3.0
 	 */
 	public static function convertEntities(): void
 	{
@@ -2448,6 +2464,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the convertmsgbody activity.
+	 * @deprecated since 3.0
 	 */
 	public static function convertMsgBody(): void
 	{
@@ -2459,6 +2476,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the reattribute activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainReattributePosts(): void
 	{
@@ -2470,6 +2488,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the purgeinactive activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainPurgeInactiveMembers(): void
 	{
@@ -2481,6 +2500,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the recountposts activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainRecountPosts(): void
 	{
@@ -2492,6 +2512,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the massmove activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainMassMoveTopics(): void
 	{
@@ -2503,6 +2524,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the pruneold activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainRemoveOldPosts(): void
 	{
@@ -2514,6 +2536,7 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the olddrafts activity.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainRemoveOldDrafts(): void
 	{

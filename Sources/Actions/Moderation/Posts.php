@@ -15,6 +15,7 @@ namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
 use SMF\Attachment;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -38,6 +39,8 @@ use SMF\Utils;
  */
 class Posts implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -871,6 +874,7 @@ class Posts implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the replies sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function unapprovedPosts(): void
 	{
@@ -881,6 +885,7 @@ class Posts implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the attachments sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function unapprovedAttachments(): void
 	{
@@ -891,6 +896,7 @@ class Posts implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the approve sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function approveMessage(): void
 	{

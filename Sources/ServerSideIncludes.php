@@ -27,61 +27,10 @@ use SMF\Db\DatabaseApi as Db;
  */
 class ServerSideIncludes
 {
-	use BackwardCompatibility;
 
 	/******************************
 	 * Properties for internal use.
 	 ******************************/
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'shutdown' => 'ssi_shutdown',
-			'version' => 'ssi_version',
-			'fullVersion' => 'ssi_full_version',
-			'softwareYear' => 'ssi_software_year',
-			'copyright' => 'ssi_copyright',
-			'welcome' => 'ssi_welcome',
-			'menubar' => 'ssi_menubar',
-			'logout' => 'ssi_logout',
-			'recentPosts' => 'ssi_recentPosts',
-			'fetchPosts' => 'ssi_fetchPosts',
-			'queryPosts' => 'ssi_queryPosts',
-			'recentTopics' => 'ssi_recentTopics',
-			'topPoster' => 'ssi_topPoster',
-			'topBoards' => 'ssi_topBoards',
-			'topTopics' => 'ssi_topTopics',
-			'topTopicsReplies' => 'ssi_topTopicsReplies',
-			'topTopicsViews' => 'ssi_topTopicsViews',
-			'latestMember' => 'ssi_latestMember',
-			'randomMember' => 'ssi_randomMember',
-			'fetchMember' => 'ssi_fetchMember',
-			'fetchGroupMembers' => 'ssi_fetchGroupMembers',
-			'queryMembers' => 'ssi_queryMembers',
-			'boardStats' => 'ssi_boardStats',
-			'whosOnline' => 'ssi_whosOnline',
-			'logOnline' => 'ssi_logOnline',
-			'login' => 'ssi_login',
-			'topPoll' => 'ssi_topPoll',
-			'recentPoll' => 'ssi_recentPoll',
-			'showPoll' => 'ssi_showPoll',
-			'pollVote' => 'ssi_pollVote',
-			'quickSearch' => 'ssi_quickSearch',
-			'news' => 'ssi_news',
-			'todaysBirthdays' => 'ssi_todaysBirthdays',
-			'todaysHolidays' => 'ssi_todaysHolidays',
-			'todaysEvents' => 'ssi_todaysEvents',
-			'todaysCalendar' => 'ssi_todaysCalendar',
-			'boardNews' => 'ssi_boardNews',
-			'recentEvents' => 'ssi_recentEvents',
-			'checkPassword' => 'ssi_checkPassword',
-			'recentAttachments' => 'ssi_recentAttachments',
-		],
-	];
 
 	/**
 	 * @var int
@@ -2790,11 +2739,6 @@ class ServerSideIncludes
 
 		return true;
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ServerSideIncludes::exportStatic')) {
-	ServerSideIncludes::exportStatic();
 }
 
 ?>

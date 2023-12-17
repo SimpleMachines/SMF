@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use ArrayAccess;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -21,21 +22,9 @@ use SMF\Db\DatabaseApi as Db;
  *
  * Supports old-fashioned CAPTCHA, reCAPTCHA, and verification questions.
  */
-class Verifier implements \ArrayAccess
+class Verifier implements ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'create_control_verification',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -636,11 +625,6 @@ class Verifier implements \ArrayAccess
 			$_SESSION[$this->id . '_vv']['q'][] = $q;
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Verifier::exportStatic')) {
-	Verifier::exportStatic();
 }
 
 ?>

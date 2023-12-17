@@ -14,6 +14,7 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -29,6 +30,7 @@ use SMF\Utils;
  */
 class StatPanel implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/****************************
 	 * Internal static properties
@@ -293,6 +295,7 @@ class StatPanel implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper.
+	 * @deprecated since 3.0
 	 */
 	public static function statPanel(int $memID): void
 	{

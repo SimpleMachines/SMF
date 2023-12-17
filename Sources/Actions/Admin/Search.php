@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -30,6 +31,8 @@ use SMF\Utils;
  */
 class Search implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*****************
 	 * Class constants
 	 *****************/
@@ -891,6 +894,7 @@ class Search implements ActionInterface
 	 *
 	 * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
 	 * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
+	 * @todo verify usage of this methof or deprecate it in 3.0
 	 */
 	public function editSearchSettings($return_config = false)
 	{
@@ -901,6 +905,7 @@ class Search implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the weights sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function editWeights(): void
 	{

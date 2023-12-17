@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Cookie;
@@ -79,6 +80,8 @@ use SMF\Utils;
  */
 class Server implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*****************
 	 * Class constants
 	 *****************/
@@ -1341,6 +1344,7 @@ class Server implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the phpinfo sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function showPHPinfoSettings(): void
 	{

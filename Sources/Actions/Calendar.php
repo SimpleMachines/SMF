@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
@@ -35,6 +36,7 @@ use SMF\Utils;
  */
 class Calendar implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -664,6 +666,7 @@ class Calendar implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for ical sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function iCalDownload(): void
 	{
@@ -674,6 +677,7 @@ class Calendar implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for post sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function CalendarPost(): void
 	{

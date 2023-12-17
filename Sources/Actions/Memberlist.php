@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -31,6 +32,7 @@ use SMF\Utils;
  */
 class Memberlist implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -688,6 +690,7 @@ class Memberlist implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the all sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function MLAll(): void
 	{
@@ -698,6 +701,7 @@ class Memberlist implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the search sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function MLSearch(): void
 	{

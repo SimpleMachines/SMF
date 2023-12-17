@@ -16,6 +16,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Actions\Calendar as Cal;
 use SMF\Board;
 use SMF\Config;
@@ -35,6 +36,8 @@ use SMF\Utils;
  */
 class Calendar implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -464,6 +467,7 @@ class Calendar implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the holidays sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyHolidays(): void
 	{
@@ -474,6 +478,7 @@ class Calendar implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the editholiday sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function editHoliday(): void
 	{

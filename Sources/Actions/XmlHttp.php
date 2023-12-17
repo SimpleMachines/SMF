@@ -14,6 +14,7 @@
 namespace SMF\Actions;
 
 use SMF\Actions\Admin\News;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -33,6 +34,7 @@ use SMF\Utils;
  */
 class XmlHttp implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -396,6 +398,7 @@ class XmlHttp implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the jumpto sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function GetJumpTo(): void
 	{
@@ -406,6 +409,7 @@ class XmlHttp implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the messageicons sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function ListMessageIcons(): void
 	{
@@ -416,6 +420,7 @@ class XmlHttp implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the previews sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function RetrievePreview(): void
 	{

@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Group;
@@ -34,6 +35,8 @@ use SMF\Utils;
  */
 class Members implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1368,6 +1371,7 @@ class Members implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the all sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function viewMemberlist(): void
 	{
@@ -1378,6 +1382,7 @@ class Members implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the approve sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function adminApprove(): void
 	{
@@ -1388,6 +1393,7 @@ class Members implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the browse sub-action.
+	 * deprecated since 3.0
 	 */
 	public static function membersAwaitingActivation(): void
 	{
@@ -1398,6 +1404,7 @@ class Members implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the search sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function searchMembers(): void
 	{

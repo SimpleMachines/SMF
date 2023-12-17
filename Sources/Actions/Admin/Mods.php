@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -26,6 +27,8 @@ use SMF\Utils;
  */
 class Mods implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -176,6 +179,7 @@ class Mods implements ActionInterface
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyModSettings($return_config = false)
 	{

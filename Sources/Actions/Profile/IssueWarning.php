@@ -14,6 +14,7 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -32,6 +33,7 @@ use SMF\Utils;
  */
 class IssueWarning implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -409,6 +411,7 @@ class IssueWarning implements ActionInterface
 	 * Backward compatibility wrapper.
 	 *
 	 * @param int $memID The ID of the user.
+	 * @deprecated since 3.0
 	 */
 	public static function issueWarning(int $memID): void
 	{

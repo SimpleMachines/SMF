@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -29,6 +30,8 @@ use SMF\Utils;
  */
 class Mail implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -544,6 +547,7 @@ class Mail implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the browse sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function browseMailQueue(): void
 	{
@@ -554,6 +558,7 @@ class Mail implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the clear sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function clearMailQueue(): void
 	{
@@ -564,6 +569,7 @@ class Mail implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the settings sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyMailSettings($return_config = false)
 	{
@@ -578,6 +584,7 @@ class Mail implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the test sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function testMailSend(): void
 	{

@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -29,6 +30,7 @@ use SMF\Utils;
  */
 class ReportToMod implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -329,6 +331,7 @@ class ReportToMod implements ActionInterface
 	/**
 	 * Backward compatibility wrapper for the submit sub-action.
 	 * In theory, no modifications should ever have called this, but...
+	 * @deprecated since 3.0
 	 */
 	public static function ReportToModerator2(): void
 	{

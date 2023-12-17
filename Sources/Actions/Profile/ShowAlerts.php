@@ -15,6 +15,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Alert;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\PageIndex;
@@ -28,6 +29,7 @@ use SMF\Utils;
  */
 class ShowAlerts implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/****************************
 	 * Internal static properties
@@ -223,6 +225,7 @@ class ShowAlerts implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper.
+	 * @deprecated since 3.0
 	 */
 	public static function showAlerts(int $memID): void
 	{

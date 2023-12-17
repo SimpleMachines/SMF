@@ -15,6 +15,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -38,12 +39,7 @@ use SMF\Utils;
  */
 class TopicSplit implements ActionInterface
 {
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -979,6 +975,7 @@ class TopicSplit implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the index sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function splitIndex(): void
 	{
@@ -989,6 +986,7 @@ class TopicSplit implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the split sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function splitExecute(): void
 	{
@@ -999,6 +997,7 @@ class TopicSplit implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the selectTopics sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function splitSelectTopics(): void
 	{
@@ -1009,6 +1008,7 @@ class TopicSplit implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the splitSelection sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function SplitSelectionExecute(): void
 	{

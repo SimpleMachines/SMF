@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -32,6 +33,8 @@ use SMF\Utils;
  */
 class Reports implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -967,6 +970,7 @@ class Reports implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the boards sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function boardReport(): void
 	{
@@ -977,6 +981,7 @@ class Reports implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the board_perms sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function boardPermissionsReport(): void
 	{
@@ -987,6 +992,7 @@ class Reports implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the member_groups sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function memberGroupsReport(): void
 	{
@@ -997,6 +1003,7 @@ class Reports implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the group_perms sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function groupPermissionsReport(): void
 	{
@@ -1007,6 +1014,7 @@ class Reports implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the staff sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function staffReport(): void
 	{

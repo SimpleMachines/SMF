@@ -25,6 +25,7 @@ use SMF\Utils;
  */
 class AutoSuggest implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -313,6 +314,7 @@ class AutoSuggest implements ActionInterface
 	 * or self::call(), depending on whether the parameter is set or not.
 	 *
 	 * @param mixed $suggest_type Either a suggestion type, or null.
+	 * @deprecated since 3.0
 	 */
 	public static function AutoSuggestHandler(?string $suggest_type = null)
 	{
@@ -325,6 +327,7 @@ class AutoSuggest implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the member suggestion type.
+	 * @deprecated since 3.0
 	 */
 	public static function AutoSuggest_Search_Member(): void
 	{
@@ -335,6 +338,7 @@ class AutoSuggest implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the membergroups suggestion type.
+	 * @deprecated since 3.0
 	 */
 	public static function AutoSuggest_Search_MemberGroups(): void
 	{
@@ -345,6 +349,7 @@ class AutoSuggest implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the versions suggestion type.
+	 * @deprecated since 3.0
 	 */
 	public static function AutoSuggest_Search_SMFVersions(): void
 	{

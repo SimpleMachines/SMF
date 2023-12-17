@@ -14,6 +14,7 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -31,6 +32,8 @@ use SMF\Utils;
  */
 class BuddyIgnoreLists implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -500,6 +503,7 @@ class BuddyIgnoreLists implements ActionInterface
 	 * Backward compatibility wrapper for the buddies sub-action.
 	 *
 	 * @param int $memID The ID of the member
+	 * @deprecated since 3.0
 	 */
 	public static function editBuddies($memID): void
 	{
@@ -513,6 +517,7 @@ class BuddyIgnoreLists implements ActionInterface
 	 * Backward compatibility wrapper for the buddies sub-action.
 	 *
 	 * @param int $memID The ID of the member
+	 * @deprecated since 3.0
 	 */
 	public static function editIgnoreList($memID): void
 	{

@@ -20,25 +20,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Security
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'hashPassword' => 'hash_password',
-			'hashVerifyPassword' => 'hash_verify_password',
-			'hashBenchmark' => 'hash_benchmark',
-			'checkConfirm' => 'checkConfirm',
-			'checkSubmitOnce' => 'checkSubmitOnce',
-			'spamProtection' => 'spamProtection',
-			'secureDirectory' => 'secureDirectory',
-			'frameOptionsHeader' => 'frameOptionsHeader',
-			'corsPolicyHeader' => 'corsPolicyHeader',
-			'kickGuest' => 'KickGuest',
-		],
-	];
 
 	/***********************
 	 * Public static methods

@@ -13,28 +13,15 @@
 
 namespace SMF;
 
+use ArrayAccess;
+use Datetime;
+
 /**
  * Extends \DateTime with some extra features for SMF.
  */
-class Time extends \DateTime implements \ArrayAccess
+class Time extends DateTime implements ArrayAccess
 {
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'create',
-			'strftime' => 'smf_strftime',
-			'gmstrftime' => 'smf_gmstrftime',
-			'getDateOrTimeFormat' => 'get_date_or_time_format',
-			'timeformat' => 'timeformat',
-			'forumTime' => 'forum_time',
-		],
-	];
 
 	/*****************
 	 * Class constants

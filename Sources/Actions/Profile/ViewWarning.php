@@ -14,6 +14,7 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
@@ -27,6 +28,7 @@ use SMF\Utils;
  */
 class ViewWarning implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/****************************
 	 * Internal static properties
@@ -169,6 +171,7 @@ class ViewWarning implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper.
+	 * @deprecated since 3.0
 	 */
 	public static function viewWarning(int $memID): void
 	{

@@ -15,6 +15,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -38,6 +39,7 @@ use SMF\Utils;
  */
 class TopicMerge implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -1059,6 +1061,7 @@ class TopicMerge implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the index sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function mergeIndex(): void
 	{

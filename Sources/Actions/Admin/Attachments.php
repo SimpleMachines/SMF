@@ -2626,6 +2626,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the browse sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function browseFiles(): void
 	{
@@ -2636,6 +2637,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the maintenance sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function maintainFiles(): void
 	{
@@ -2646,6 +2648,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the remove sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function removeAttachment(): void
 	{
@@ -2656,6 +2659,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the byage sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function removeAttachmentByAge(): void
 	{
@@ -2666,6 +2670,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the bysize sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function removeAttachmentBySize(): void
 	{
@@ -2676,6 +2681,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the removeall sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function removeAllAttachments(): void
 	{
@@ -2686,6 +2692,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the repair sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function repairAttachments(): void
 	{
@@ -2696,6 +2703,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the attachpaths sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function manageAttachmentPaths(): void
 	{
@@ -2706,6 +2714,7 @@ class Attachments implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the transfer sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function transferAttachments(): void
 	{

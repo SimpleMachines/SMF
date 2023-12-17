@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -45,6 +46,7 @@ use SMF\Utils;
  */
 class PersonalMessage implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -756,6 +758,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the show sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageFolder(): void
 	{
@@ -766,6 +769,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the popup sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messagePopup(): void
 	{
@@ -776,6 +780,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the manlabels sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function manageLabels(): void
 	{
@@ -786,6 +791,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the manrules sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function manageRules(): void
 	{
@@ -796,6 +802,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the pmactions sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageActionsApply(): void
 	{
@@ -806,6 +813,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the prune sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messagePrune(): void
 	{
@@ -816,6 +824,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the removeall2 sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageKillAll(): void
 	{
@@ -826,6 +835,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the report sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function reportMessage(): void
 	{
@@ -836,6 +846,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the search sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageSearch(): void
 	{
@@ -846,6 +857,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the search2 sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageSearch2(): void
 	{
@@ -856,6 +868,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the send sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messagePost(): void
 	{
@@ -866,6 +879,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the send2 sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messagePost2(): void
 	{
@@ -876,6 +890,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the settings sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageSettings(): void
 	{
@@ -886,6 +901,7 @@ class PersonalMessage implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the showpmdrafts sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function messageDrafts(): void
 	{

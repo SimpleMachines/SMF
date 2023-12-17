@@ -18,6 +18,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -38,6 +39,8 @@ use SMF\Utils;
  */
 class Bans implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1491,6 +1494,7 @@ class Bans implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the list sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function banList(): void
 	{
@@ -1501,6 +1505,7 @@ class Bans implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the edit sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function banEdit(): void
 	{
@@ -1511,6 +1516,7 @@ class Bans implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the browse sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function banBrowseTriggers(): void
 	{
@@ -1521,6 +1527,7 @@ class Bans implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the edittrigger sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function banEditTrigger(): void
 	{
@@ -1531,6 +1538,7 @@ class Bans implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the log sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function banLog(): void
 	{

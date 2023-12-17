@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use function strtolower;
+
 use const FILTER_FLAG_IPV6;
 
 /**
@@ -79,7 +81,7 @@ trait BackwardCompatibility
 	 * @param bool $return_config
 	 * @return null|array
 	 */
-	public static function subActionProvider(?string $sa = null, bool $return_config = false): ?array
+	public static function subActionProvider(?string $sa = null, bool $return_config = false, ?string $activity = null): ?array
 	{
 		if ($return_config) {
 			return self::getConfigVars();
@@ -87,8 +89,15 @@ trait BackwardCompatibility
 
 		self::load();
 
-		if (is_string($sa) && array_key_exists($sa, self::$subactions)) {
-			self::$Obj->subaction = $sa;
+		if (is_string($sa)) {
+			// make sure its lowecase
+			if (array_key_exists($sa, self::$subactions)) {
+				self::$obj->subaction = $sa;
+			}
+		}
+
+		if(is_string($activity)) {
+			self::$obj->activity = $activity;
 		}
 
 		self::$obj->execute();
@@ -156,19 +165,33 @@ trait BackwardCompatibility
 			})($ip, $return_bool_if_invalid),
 		};
 	}
+
+	/**
+	 * Usage: Use only when composed in SMF\Profile
+	 * @param string $calledFunction
+	 * @param null|int $id
+	 * @param null|bool $force_reload
+	 * @param null|string $area
+	 * @param null|bool $defaultSettings
+	 * @param null|array $fields
+	 * @param null|bool $sanitize
+	 * @param null|bool $return_errors
+	 * @param null|int $id_theme
+	 * @return array|bool|null
+	 */
 	public static function profileProvider(
 		string $calledFunction,
 		?int $id = null,
-		?bool $force_reload = false,
-		?string $area = 'summary',
-		?bool $defaultSettings = false,
-		?array $fields = [],
-		?bool $sanitize = true,
-		?bool $return_errors = false,
+		bool $force_reload = false,
+		string $area = 'summary',
+		bool $defaultSettings = false,
+		array $fields = [],
+		bool $sanitize = true,
+		bool $return_errors = false,
 		?int $id_theme = null,
 	): array|bool|null {
 
-		if (!isset(self::$loaded[$id])) {
+		if (! isset(self::$loaded[$id])) {
 			self::load($id);
 		}
 		return match($calledFunction) {
@@ -202,6 +225,102 @@ trait BackwardCompatibility
 											self::$member->save();
 										})($id, $id_theme),
 		};
+	}
+	/**
+	 * Usage: Use only when composed in SMF\Url
+	 * @param string $calledFunction
+	 * @param string $target
+	 * @param int $component
+	 * @param int $flags
+	 * @return mixed
+	 */
+	public static function urlProvider(
+		string $calledFunction,
+		string $target,
+		int $component = -1,
+		int $flags = 0,
+	): mixed {
+		return match($calledFunction) {
+			'parse_iri'           => (new self($target))->parse($component),
+			'validate_iri'        => (new self($target))->validate($flags)->url === '' ? false : $target,
+			'sanitize_iri'        => (new self($target))->sanitize(),
+			'normalize_iri'       => (new self($target))->normalize(),
+			'iri_to_url'          => (new self($target))->toAscii(),
+			'url_to_iri'          => (new self($target))->toUtf8(),
+			'get_proxied_url'     => (new self($target))->proxied(),
+			'ssl_cert_found'      => (new self($target))->hasSSL(),
+			'httpsRedirectActive' => (new self($target))->redirectsToHttps(),
+		};
+	}
+
+	/**
+	 *
+	 * @param int $memID
+	 * @param null|string $sa
+	 * @param bool $updateRequest
+	 * @param bool $loadSelfFirst
+	 * @param bool $loadProfile
+	 * @param bool $defaultSettings
+	 * @return void
+	 */
+	public static function profileSubActionProvider(
+		int $memID,
+		?string $sa = null,
+		bool $updateRequest = false,
+		bool $loadSelfFirst = true,
+		bool $loadProfile = false,
+		bool $defaultSettings = false,
+	): void {
+
+		if ($updateRequest) {
+			$u = $_REQUEST['u'] ?? null;
+			$_REQUEST['u'] = $memID;
+		}
+
+		if ($loadSelfFirst) {
+			self::load();
+			if ($loadProfile) {
+				SMF\Profile::load($memID);
+			}
+		} else {
+			if ($loadProfile) {
+				SMF\Profile::load($memID);
+			}
+			self::load();
+		}
+
+		if ($updateRequest) {
+			$_REQUEST['u'] = $u;
+		}
+
+		if (isset($sa)) {
+			self::$obj->subaction = $sa;
+		}
+
+		self::$obj->execute();
+	}
+
+	/**
+	 *
+	 * @param null|string $suggest_type
+	 * @param bool $callHandler
+	 * @return mixed
+	 */
+	public static function autoSuggestProvider(?string $suggest_type = null, bool $callHandler = false)
+	{
+		if (! $callHandler && isset($suggest_type)) {
+			self::load();
+			self::$obj->suggest_type = $suggest_type;
+			self::$obj->execute();
+		}
+
+		if ($callHandler) {
+			if (isset($suggest_type)) {
+				return self::checkRegistered($suggest_type);
+			} else {
+				self::call();
+			}
+		}
 	}
 }
 

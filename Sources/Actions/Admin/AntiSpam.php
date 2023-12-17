@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -29,6 +30,8 @@ use SMF\Utils;
  */
 class AntiSpam implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -452,6 +455,7 @@ class AntiSpam implements ActionInterface
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyAntispamSettings($return_config = false)
 	{

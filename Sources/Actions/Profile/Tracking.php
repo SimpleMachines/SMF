@@ -15,6 +15,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\TrackIP;
+use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -33,6 +34,7 @@ use SMF\Utils;
  */
 class Tracking implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -980,6 +982,7 @@ class Tracking implements ActionInterface
 	 * Backward compatibility wrapper for the activity sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function trackActivity(int $memID): void
 	{
@@ -998,6 +1001,7 @@ class Tracking implements ActionInterface
 	 * Backward compatibility wrapper for the edits sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function trackEdits(int $memID): void
 	{
@@ -1016,6 +1020,7 @@ class Tracking implements ActionInterface
 	 * Backward compatibility wrapper for the groupreq sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function trackGroupReq(int $memID): void
 	{
@@ -1034,6 +1039,7 @@ class Tracking implements ActionInterface
 	 * Backward compatibility wrapper for the logins sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function trackLogins(int $memID): void
 	{

@@ -735,7 +735,7 @@ class Image
 	{
 		$img = new self($source);
 
-		return $image->resize($destination, $max_width, $max_height, $preferred_type);
+		return $img->resize($destination, $max_width, $max_height, $preferred_type);
 	}
 
 	/**
@@ -754,7 +754,7 @@ class Image
 	{
 		$img = new self($source);
 
-		return $image->resize($destination, $max_width, $max_height, $preferred_type);
+		return $img->resize($destination, $max_width, $max_height, $preferred_type);
 	}
 
 	/******************

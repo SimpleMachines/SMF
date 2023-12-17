@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -49,6 +50,8 @@ use SMF\Utils;
  */
 class Themes implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1345,6 +1348,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the admin sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function themeAdmin(): void
 	{
@@ -1355,6 +1359,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the list sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function themeList(): void
 	{
@@ -1365,6 +1370,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the options sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function setThemeOptions(): void
 	{
@@ -1375,6 +1381,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the remove sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function removeTheme(): void
 	{
@@ -1385,6 +1392,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the enable sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function enableTheme(): void
 	{
@@ -1395,6 +1403,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the install sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function themeInstall(): void
 	{
@@ -1405,6 +1414,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the edit sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function editTheme(): void
 	{
@@ -1415,6 +1425,7 @@ class Themes implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the copy sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function copyTemplate(): void
 	{

@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -34,6 +35,8 @@ use SMF\Utils;
  */
 class Subscriptions implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -2198,6 +2201,7 @@ class Subscriptions implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the view sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function viewSubscriptions(): void
 	{
@@ -2208,6 +2212,7 @@ class Subscriptions implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the viewsub sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function viewSubscribedUsers(): void
 	{
@@ -2218,6 +2223,7 @@ class Subscriptions implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the modify sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function modifySubscription(): void
 	{
@@ -2228,6 +2234,7 @@ class Subscriptions implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the modifyuser sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyUserSubscription(): void
 	{
@@ -2241,6 +2248,7 @@ class Subscriptions implements ActionInterface
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @deprecated since 3.0
 	 */
 	public static function modifySubscriptionSettings($return_config = false)
 	{

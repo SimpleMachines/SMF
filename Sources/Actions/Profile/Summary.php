@@ -15,6 +15,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Who;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IP;
@@ -31,6 +32,7 @@ use SMF\Utils;
  */
 class Summary implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/****************************
 	 * Internal static properties
@@ -262,6 +264,7 @@ class Summary implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper.
+	 * @deprecated since 3.0
 	 */
 	public static function summary(int $memID): void
 	{

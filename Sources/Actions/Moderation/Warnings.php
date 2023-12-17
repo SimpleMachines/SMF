@@ -14,6 +14,7 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -33,6 +34,8 @@ use SMF\Utils;
  */
 class Warnings implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -727,6 +730,7 @@ class Warnings implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the log sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function ViewWarningLog(): void
 	{
@@ -737,6 +741,7 @@ class Warnings implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the templates sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function ViewWarningTemplates(): void
 	{
@@ -747,6 +752,7 @@ class Warnings implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the templateedit sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function ModifyWarningTemplate(): void
 	{

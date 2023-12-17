@@ -13,6 +13,7 @@
 
 namespace SMF\Actions;
 
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -24,6 +25,7 @@ use SMF\Utils;
  */
 class Help implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

@@ -432,7 +432,7 @@ class IP implements Stringable
 	 *
 	 * @param string $ip An IP address in either string or binary form.
 	 * @return bool Whether $ip is a valid IP address.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function isValidIP(string $ip): string
 	{
@@ -448,7 +448,7 @@ class IP implements Stringable
 	 *
 	 * @param string $ip An IPv6 address in either string or binary form.
 	 * @return string Whether $ip is a valid IPv6 address.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function isValidIPv6(string $ip): string
 	{
@@ -462,7 +462,7 @@ class IP implements Stringable
 	 *
 	 * @param string $ip An IP address in either string or binary form.
 	 * @return string The host name.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function hostFromIp(string $ip): string
 	{
@@ -476,7 +476,7 @@ class IP implements Stringable
 	 *
 	 * @param string $ip An IP address in either string or binary form.
 	 * @return string The host name.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function inet_ptod(string $ip): string
 	{
@@ -490,7 +490,7 @@ class IP implements Stringable
 	 *
 	 * @param string $ip An IP address in either string or binary form.
 	 * @return string The host name.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function inet_dtop(string $ip): string
 	{
@@ -505,7 +505,7 @@ class IP implements Stringable
 	 *    invalid. True for boolean, false for empty string. Default: true.
 	 * @return string|false The expanded IPv6 address, or false/an empty string
 	 *    if address was invalid.
-	 * @deprecated Trait usage needs tested before removal
+	 * @deprecated since 3.0
 	 */
 	public static function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|false
 	{

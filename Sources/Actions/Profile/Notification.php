@@ -16,6 +16,7 @@ namespace SMF\Actions\Profile;
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Notify;
 use SMF\Alert;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -35,6 +36,7 @@ use SMF\Utils;
  */
 class Notification implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -1015,6 +1017,7 @@ class Notification implements ActionInterface
 	 *
 	 * @param int $memID The ID of the member.
 	 * @param bool $defaultSettings If true, we are loading default options.
+	 * @deprecated since 3.0
 	 */
 	public static function alert_configuration($memID, $defaultSettings = false): void
 	{
@@ -1028,6 +1031,7 @@ class Notification implements ActionInterface
 	 * Backward compatibility wrapper for the markRead sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function alert_markread($memID): void
 	{
@@ -1041,6 +1045,7 @@ class Notification implements ActionInterface
 	 * Backward compatibility wrapper for the topics sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function alert_notifications_topics($memID): void
 	{
@@ -1054,6 +1059,7 @@ class Notification implements ActionInterface
 	 * Backward compatibility wrapper for the boards sub-action.
 	 *
 	 * @param int $memID The ID of the member.
+	 * @deprecated since 3.0
 	 */
 	public static function alert_notifications_boards($memID): void
 	{

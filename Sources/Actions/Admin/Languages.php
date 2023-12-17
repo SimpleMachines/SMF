@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -35,6 +36,8 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Languages implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -1612,6 +1615,7 @@ class Languages implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the edit sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyLanguages(): void
 	{
@@ -1622,6 +1626,7 @@ class Languages implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the add sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function addLanguage(): void
 	{
@@ -1635,6 +1640,7 @@ class Languages implements ActionInterface
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyLanguageSettings($return_config = false)
 	{
@@ -1649,6 +1655,7 @@ class Languages implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the download sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function downloadLanguage(): void
 	{
@@ -1659,6 +1666,7 @@ class Languages implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the editlang sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function modifyLanguage(): void
 	{

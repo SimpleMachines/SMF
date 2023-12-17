@@ -40,32 +40,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * else assumed that those functions were available. Subs.php went the way of
 	 * the dodo in SMF 3.0 after all its functions were migrated elsewhere, but
 	 * mods that rely on backward compatibilty support will still expect all those
-	 * functions to be available. So if backward compatibilty support is enabled,
-	 * we need to load a bunch of classes in order to make them available.
+	 * functions to be available.
 	 */
-	class_exists('SMF\\Attachment');
-	class_exists('SMF\\BBCodeParser');
-	class_exists('SMF\\Logging');
-	class_exists('SMF\\PageIndex');
-	class_exists('SMF\\Theme');
-	class_exists('SMF\\Time');
-	class_exists('SMF\\TimeZone');
-	class_exists('SMF\\Topic');
-	class_exists('SMF\\Url');
-	class_exists('SMF\\User');
-	class_exists('SMF\\WebFetch\\WebFetchApi');
 
-	function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
-	{
-		return SMF\Utils::sanitizeChars($string, $level, $substitute);
-	}
 	function Activate()
 	{
 		return Actions\Activate::call();
 	}
 	/**
 	 * Begin
-	 * Sources\Admin\ACP
+	 * Actions\Admin\ACP
 	 * */
 	function AdminMain()
 	{
@@ -112,7 +96,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyAntispamSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\AntiSpam::modifyAntispamSettings($return_config);
+		return Actions\Admin\AntiSpam::subActionProvider(return_config: $return_config);
 	}
 	/**
 	 * End
@@ -139,39 +123,39 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function BrowseFiles(): void
 	{
-		Actions\Admin\Attachments::subActionProvider('browse', false);
+		Actions\Admin\Attachments::subActionProvider(sa: 'browse');
 	}
 	function MaintainFiles(): void
 	{
-		Actions\Admin\Attachments::maintainFiles();
+		Actions\Admin\Attachments::subActionProvider(sa: 'maintenance');
 	}
 	function RemoveAttachment(): void
 	{
-		Actions\Admin\Attachments::removeAttachment();
+		Actions\Admin\Attachments::subActionProvider(sa: 'remove');
 	}
 	function RemoveAttachmentByAge(): void
 	{
-		Actions\Admin\Attachments::removeAttachmentByAge();
+		Actions\Admin\Attachments::subActionProvider(sa: 'byage');
 	}
 	function RemoveAttachmentBySize(): void
 	{
-		Actions\Admin\Attachments::removeAttachmentBySize();
+		Actions\Admin\Attachments::subActionProvider(sa: 'bysize');
 	}
 	function RemoveAllAttachments(): void
 	{
-		Actions\Admin\Attachments::removeAllAttachments();
+		Actions\Admin\Attachments::subActionProvider(sa: 'removeall');
 	}
 	function RepairAttachments(): void
 	{
-		Actions\Admin\Attachments::repairAttachments();
+		Actions\Admin\Attachments::subActionProvider(sa: 'repair');
 	}
 	function ManageAttachmentPaths(): void
 	{
-		Actions\Admin\Attachments::manageAttachmentPaths();
+		Actions\Admin\Attachments::subActionProvider(sa: 'attachpaths');
 	}
 	function TransferAttachments(): void
 	{
-		Actions\Admin\Attachments::transferAttachments();
+		Actions\Admin\Attachments::subActionProvider(sa: 'transfer');
 	}
 	/**
 	 * End
@@ -190,23 +174,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function BanList(): void
 	{
-		Actions\Admin\Bans::banList();
+		Actions\Admin\Bans::subActionProvider(sa: 'list');
 	}
 	function BanEdit(): void
 	{
-		Actions\Admin\Bans::banEdit();
+		Actions\Admin\Bans::subActionProvider(sa: 'edit');
 	}
 	function BanBrowseTriggers(): void
 	{
-		Actions\Admin\Bans::banBrowseTriggers();
+		Actions\Admin\Bans::subActionProvider(sa: 'browse');
 	}
 	function BanEditTrigger(): void
 	{
-		Actions\Admin\Bans::banEditTrigger();
+		Actions\Admin\Bans::subActionProvider(sa: 'edittrigger');
 	}
 	function BanLog(): void
 	{
-		Actions\Admin\Bans::banLog();
+		Actions\Admin\Bans::subActionProvider(sa: 'log');
 	}
 	/**
 	 * End
@@ -221,7 +205,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function EditBoardSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Boards::editBoardSettings($return_config);
+		return Actions\Admin\Boards::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -236,11 +220,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ModifyHolidays(): void
 	{
-		Actions\Admin\Calendar::modifyHolidays();
+		Actions\Admin\Calendar::subActionProvider(sa: 'holidays');
 	}
 	function EditHoliday(): void
 	{
-		Actions\Admin\Calendar::editHoliday();
+		Actions\Admin\Calendar::subActionProvider(sa: 'editholiday');
 	}
 	/**
 	 * End
@@ -293,11 +277,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ShowCustomProfiles(): void
 	{
-		Actions\Admin\Features::showCustomProfiles();
+		Actions\Admin\Features::subActionProvider(sa: 'profile');
 	}
 	function EditCustomProfiles(): void
 	{
-		Actions\Admin\Features::editCustomProfiles();
+		Actions\Admin\Features::subActionProvider(sa: 'profileedit');
 	}
 	function ModifyLikesSettings(bool $return_config = false): ?array
 	{
@@ -309,7 +293,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ModifyAlertsSettings(): void
 	{
-		Actions\Admin\Features::modifyAlertsSettings();
+		Actions\Admin\Features::subActionProvider(sa: 'alerts');
 	}
 	/**
 	 * End
@@ -346,23 +330,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ModifyLanguages(): void
 	{
-		Actions\Admin\Languages::modifyLanguages();
+		Actions\Admin\Languages::subActionProvider(sa: 'edit');
 	}
 	function AddLanguage(): void
 	{
-		Actions\Admin\Languages::addLanguage();
+		Actions\Admin\Languages::subActionProvider(sa: 'add');
 	}
 	function ModifyLanguageSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Languages::modifyLanguageSettings($return_config);
+		return Actions\Admin\Languages::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	function DownloadLanguage(): void
 	{
-		Actions\Admin\Languages::downloadLanguage();
+		Actions\Admin\Languages::subActionProvider(sa: 'download');
 	}
 	function ModifyLanguage(): void
 	{
-		Actions\Admin\Languages::modifyLanguage();
+		Actions\Admin\Languages::subActionProvider(sa: 'editlang');
 	}
 	/**
 	 * End
@@ -373,7 +357,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AdminLogs(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Logs::adminLogs($return_config);
+		return Actions\Admin\Logs::subActionProvider(return_config: $return_config);
 	}
 	/**
 	 * End
@@ -392,19 +376,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function BrowseMailQueue(): void
 	{
-		Actions\Admin\Mail::browseMailQueue();
+		Actions\Admin\Mail::subActionProvider(sa: 'browse');
 	}
 	function ClearMailQueue(): void
 	{
-		Actions\Admin\Mail::clearMailQueue();
+		Actions\Admin\Mail::subActionProvider(sa: 'clear');
 	}
 	function ModifyMailSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Mail::modifyMailSettings($return_config);
+		return Actions\Admin\Mail::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	function TestMailSend(): void
 	{
-		Actions\Admin\Mail::testMailSend();
+		Actions\Admin\Mail::subActionProvider(sa: 'test');
 	}
 	/**
 	 * End
@@ -444,79 +428,83 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function MaintainRoutine(): void
 	{
-		Actions\Admin\Maintenance::maintainRoutine();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine');
 	}
 	function MaintainDatabase(): void
 	{
-		Actions\Admin\Maintenance::maintainDatabase();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'database');
 	}
 	function MaintainMembers(): void
 	{
-		Actions\Admin\Maintenance::maintainMembers();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'members');
 	}
 	function MaintainTopics(): void
 	{
-		Actions\Admin\Maintenance::maintainTopics();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'topics');
+	}
+	function list_intergration_hooks(): void
+	{
+		Actions\Admin\Maintenance::subActionProvider(sa: 'hooks');
 	}
 	function VersionDetail(): void
 	{
-		Actions\Admin\Maintenance::versionDetail();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'version');
 	}
 	function MaintainFindFixErrors(): void
 	{
-		Actions\Admin\Maintenance::maintainFindFixErrors();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'repair');
 	}
 	function AdminBoardRecount(): void
 	{
-		Actions\Admin\Maintenance::adminBoardRecount();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'recount');
 	}
 	function RebuildSettingsFile(): void
 	{
-		Actions\Admin\Maintenance::rebuildSettingsFile();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'rebuild_settings');
 	}
 	function MaintainEmptyUnimportantLogs(): void
 	{
-		Actions\Admin\Maintenance::maintainEmptyUnimportantLogs();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'logs');
 	}
 	function MaintainCleanCache(): void
 	{
-		Actions\Admin\Maintenance::maintainCleanCache();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'cleancache');
 	}
 	function OptimizeTables(): void
 	{
-		Actions\Admin\Maintenance::optimizeTables();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'database', activity: 'optimize');
 	}
 	function ConvertEntities(): void
 	{
-		Actions\Admin\Maintenance::convertEntities();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'database', activity: 'convertentities');
 	}
 	function ConvertMsgBody(): void
 	{
-		Actions\Admin\Maintenance::convertMsgBody();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'database', activity: 'convertmsgbody');
 	}
 	function MaintainReattributePosts(): void
 	{
-		Actions\Admin\Maintenance::maintainReattributePosts();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'members', activity: 'reattribute');
 	}
 	function MaintainPurgeInactiveMembers(): void
 	{
-		Actions\Admin\Maintenance::maintainPurgeInactiveMembers();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'members', activity: 'purgeinactive');
 	}
 	function MaintainRecountPosts(): void
 	{
-		Actions\Admin\Maintenance::maintainRecountPosts();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'members', activity: 'recountposts');
 	}
 	function MaintainMassMoveTopics(): void
 	{
-		Actions\Admin\Maintenance::maintainMassMoveTopics();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'topics', activity: 'massmove');
 	}
 	function MaintainRemoveOldPosts(): void
 	{
-		Actions\Admin\Maintenance::maintainRemoveOldPosts();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'topics', activity: 'pruneold');
 	}
 	function MaintainRemoveOldDrafts(): void
 	{
-		Actions\Admin\Maintenance::maintainRemoveOldDrafts();
+		Actions\Admin\Maintenance::subActionProvider(sa: 'topics', activity: 'olddrafts');
 	}
 	/**
 	 * End
@@ -531,23 +519,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function AddMemberGroup(): void
 	{
-		Actions\Admin\Membergroups::AddMembergroup();
+		Actions\Admin\Membergroups::subActionProvider(sa: 'add');
 	}
 	function DeleteMembergroup(): void
 	{
-		Actions\Admin\Membergroups::DeleteMembergroup();
+		Actions\Admin\Membergroups::subActionProvider(sa: 'delete');
 	}
 	function EditMembergroup(): void
 	{
-		Actions\Admin\Membergroups::EditMembergroup();
+		Actions\Admin\Membergroups::subActionProvider(sa: 'edit');
 	}
 	function MembergroupIndex(): void
 	{
-		Actions\Admin\Membergroups::MembergroupIndex();
+		Actions\Admin\Membergroups::subActionProvider(sa: 'index');
 	}
 	function ModifyMembergroupsettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Membergroups::ModifyMembergroupsettings($return_config);
+		return Actions\Admin\Membergroups::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -562,19 +550,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ViewMemberlist(): void
 	{
-		Actions\Admin\Members::viewMemberlist();
+		Actions\Admin\Members::subActionProvider(sa: 'all');
 	}
 	function AdminApprove(): void
 	{
-		Actions\Admin\Members::adminApprove();
+		Actions\Admin\Members::subActionProvider(sa: 'approve');
 	}
 	function MembersAwaitingActivation(): void
 	{
-		Actions\Admin\Members::membersAwaitingActivation();
+		Actions\Admin\Members::subActionProvider(sa: 'browse');
 	}
 	function SearchMembers(): void
 	{
-		Actions\Admin\Members::searchMembers();
+		Actions\Admin\Members::subActionProvider(sa: 'search');
 	}
 	/**
 	 * End
@@ -585,7 +573,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyModSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Mods::modifyModSettings($return_config);
+		return Actions\Admin\Mods::subActionProvider(return_config: $return_config);
 	}
 	/**
 	 * End
@@ -604,23 +592,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function EditNews(): void
 	{
-		Actions\Admin\News::editNews();
+		Actions\Admin\News::subActionProvider(sa: 'edit');
 	}
 	function SelectMailingMembers(): void
 	{
-		Actions\Admin\News::selectMailingMembers();
+		Actions\Admin\News::subActionProvider(sa: 'mailingmembers');
 	}
 	function ComposeMailing(): void
 	{
-		Actions\Admin\News::composeMailing();
+		Actions\Admin\News::subActionProvider(sa: 'mailingcompose');
 	}
 	function SendMailing(): void
 	{
-		Actions\Admin\News::sendMailing();
+		Actions\Admin\News::subActionProvider(sa: 'mailingsend');
 	}
 	function ModifyNewsSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\News::modifyNewsSettings($return_config);
+		return Actions\Admin\News::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -671,35 +659,35 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function PermissionIndex(): void
 	{
-		Actions\Admin\Permissions::permissionIndex();
+		Actions\Admin\Permissions::subActionProvider(sa: 'index');
 	}
 	function PermissionsByBoard(): void
 	{
-		Actions\Admin\Permissions::permissionByBoard();
+		Actions\Admin\Permissions::subActionProvider(sa: 'board');
 	}
 	function ModifyMembergroup(): void
 	{
-		Actions\Admin\Permissions::modifyMembergroup();
+		Actions\Admin\Permissions::subActionProvider(sa: 'modify');
 	}
 	function ModifyMembergroup2(): void
 	{
-		Actions\Admin\Permissions::modifyMembergroup2();
+		Actions\Admin\Permissions::subActionProvider(sa: 'modify2');
 	}
 	function SetQuickGroups(): void
 	{
-		Actions\Admin\Permissions::setQuickGroups();
+		Actions\Admin\Permissions::subActionProvider(sa: 'quick');
 	}
 	function ModifyPostModeration(): void
 	{
-		Actions\Admin\Permissions::modifyPostModeration();
+		Actions\Admin\Permissions::subActionProvider(sa: 'postmod');
 	}
 	function EditPermissionProfiles(): void
 	{
-		Actions\Admin\Permissions::editPermissionProfiles();
+		Actions\Admin\Permissions::subActionProvider(sa: 'profiles');
 	}
 	function GeneralPermissionSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Permissions::generalPermissionSettings($return_config);
+		return Actions\Admin\Permissions::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -737,23 +725,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function AdminRegister(): void
 	{
-		Actions\Admin\Registration::adminRegister();
+		Actions\Admin\Registration::subActionProvider(sa: 'register');
 	}
 	function EditAgreement(): void
 	{
-		Actions\Admin\Registration::editAgreement();
+		Actions\Admin\Registration::subActionProvider(sa: 'agreement');
 	}
 	function EditPrivacyPolicy(): void
 	{
-		Actions\Admin\Registration::editPrivacyPolicy();
+		Actions\Admin\Registration::subActionProvider(sa: 'policy');
 	}
 	function SetReserved(): void
 	{
-		Actions\Admin\Registration::setReserved();
+		Actions\Admin\Registration::subActionProvider(sa: 'reservednames');
 	}
 	function ModifyRegistrationSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Registration::modifyRegistrationSettings($return_config);
+		return Actions\Admin\Registration::subActionProvider(sa:'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -779,23 +767,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function BoardReport(): void
 	{
-		Actions\Admin\Reports::boardReport();
+		Actions\Admin\Reports::subActionProvider(sa: 'boards');
 	}
 	function BoardPermissionsReport(): void
 	{
-		Actions\Admin\Reports::boardPermissionsReport();
+		Actions\Admin\Reports::subActionProvider(sa: 'board_perms');
 	}
 	function MemberGroupsReport(): void
 	{
-		Actions\Admin\Reports::memberGroupsReport();
+		Actions\Admin\Reports::subActionProvider(sa: 'member_groups');
 	}
 	function GroupPermissionsReport(): void
 	{
-		Actions\Admin\Reports::groupPermissionsReport();
+		Actions\Admin\Reports::subActionProvider(sa: 'group_perms');
 	}
 	function StaffReport(): void
 	{
-		Actions\Admin\Reports::staffReport();
+		Actions\Admin\Reports::subActionProvider(sa: 'staff');
 	}
 	/**
 	 * End
@@ -810,15 +798,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function EditWeights(): void
 	{
-		Actions\Admin\Search::editWeights();
+		Actions\Admin\Search::subActionProvider(sa: 'weights');
 	}
 	function EditSearchMethod(): void
 	{
-		Actions\Admin\Search::editSearchMethod();
+		Actions\Admin\Search::subActionProvider(sa: 'method');
 	}
 	function CreateMessageIndex(): void
 	{
-		Actions\Admin\Search::createMessageIndex();
+		Actions\Admin\Search::subActionProvider(sa: 'createmsgindex');
 	}
 	/**
 	 * End
@@ -841,23 +829,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function SpiderStats(): void
 	{
-		Actions\Admin\SearchEngines::spiderStats();
+		Actions\Admin\SearchEngines::subActionProvider(sa: 'stats');
 	}
 	function SpiderLogs(): void
 	{
-		Actions\Admin\SearchEngines::spiderLogs();
+		Actions\Admin\SearchEngines::subActionProvider(sa: 'logs');
 	}
 	function ViewSpiders(): void
 	{
-		Actions\Admin\SearchEngines::viewSpiders();
+		Actions\Admin\SearchEngines::subActionProvider(sa: 'spiders');
 	}
 	function ManageSearchEngineSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\SearchEngines::manageSearchEngineSettings($return_config);
+		return Actions\Admin\SearchEngines::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	function EditSpider(): void
 	{
-		Actions\Admin\SearchEngines::editSpider();
+		Actions\Admin\SearchEngines::subActionProvider(sa: 'editspiders');
 	}
 	/**
 	 * End
@@ -912,7 +900,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ShowPHPinfoSettings(): void
 	{
-		Actions\Admin\Server::showPHPinfoSettings();
+		Actions\Admin\Server::subActionProvider(sa: 'phpinfo');
 	}
 	/**
 	 * End
@@ -925,25 +913,30 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Admin\Smileys::call();
 	}
+	function EditSmileySettings(bool $return_config = false): ?array
+	{
+		return Actions\Admin\Smileys::subActionProvider(sa: 'settings', return_config: $return_config);
+	}
 	function AddSmiley(): void
 	{
-		Actions\Admin\Smileys::addSmiley();
+		Actions\Admin\Smileys::subActionProvider(sa: 'addsmiley');
 	}
+
 	function EditSmileys(): void
 	{
-		Actions\Admin\Smileys::editSmileys();
+		Actions\Admin\Smileys::subActionProvider(sa: 'editsmileys');
 	}
 	function EditSmileyOrder(): void
 	{
-		Actions\Admin\Smileys::editSmileyOrder();
+		Actions\Admin\Smileys::subActionProvider(sa: 'setorder');
 	}
 	function InstallSmileySet(): void
 	{
-		Actions\Admin\Smileys::installSmileySet();
+		Actions\Admin\Smileys::subActionProvider(sa: 'install');
 	}
 	function EditMessageIcons(): void
 	{
-		Actions\Admin\Smileys::editMessageIcons();
+		Actions\Admin\Smileys::subActionProvider(sa: 'editsets');
 	}
 	/**
 	 * End
@@ -983,23 +976,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ViewSubscriptions(): void
 	{
-		Actions\Admin\Subscriptions::viewSubscriptions();
+		Actions\Admin\Subscriptions::subActionProvider(sa: 'view');
 	}
 	function ViewSubscribedUsers(): void
 	{
-		Actions\Admin\Subscriptions::viewSubscribedUsers();
+		Actions\Admin\Subscriptions::subActionProvider(sa: 'viewsub');
 	}
 	function ModifySubscription(): void
 	{
-		Actions\Admin\Subscriptions::modifySubscription();
+		Actions\Admin\Subscriptions::subActionProvider(sa: 'modify');
 	}
 	function ModifyUserSubscription(): void
 	{
-		Actions\Admin\Subscriptions::modifyUserSubscription();
+		Actions\Admin\Subscriptions::subActionProvider(sa: 'modifyuser');
 	}
 	function ModifySubscriptionSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Subscriptions::modifySubscriptionSettings($return_config);
+		return Actions\Admin\Subscriptions::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -1014,19 +1007,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ScheduledTasks(): void
 	{
-		Actions\Admin\Tasks::scheduledTasks();
+		Actions\Admin\Tasks::subActionProvider(sa: 'tasks');
 	}
 	function EditTask(): void
 	{
-		Actions\Admin\Tasks::editTask();
+		Actions\Admin\Tasks::subActionProvider(sa: 'taskedit');
 	}
 	function TaskLog(): void
 	{
-		Actions\Admin\Tasks::taskLog();
+		Actions\Admin\Tasks::subActionProvider(sa: 'tasklog');
 	}
 	function TaskSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Tasks::taskSettings($return_config);
+		return Actions\Admin\Tasks::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 	/**
 	 * End
@@ -1041,35 +1034,35 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ThemeAdmin(): void
 	{
-		Actions\Admin\Themes::themeAdmin();
+		Actions\Admin\Themes::subActionProvider(sa: 'admin');
 	}
 	function ThemeList(): void
 	{
-		Actions\Admin\Themes::themeList();
+		Actions\Admin\Themes::subActionProvider(sa: 'list');
 	}
 	function SetThemeOptions(): void
 	{
-		Actions\Admin\Themes::setThemeOptions();
+		Actions\Admin\Themes::subActionProvider(sa: 'options');
 	}
 	function RemoveTheme(): void
 	{
-		Actions\Admin\Themes::removeTheme();
+		Actions\Admin\Themes::subActionProvider(sa: 'remove');
 	}
 	function EnableTheme(): void
 	{
-		Actions\Admin\Themes::enableTheme();
+		Actions\Admin\Themes::subActionProvider(sa: 'enable');
 	}
 	function ThemeInstall(): void
 	{
-		Actions\Admin\Themes::themeInstall();
+		Actions\Admin\Themes::subActionProvider(sa: 'install');
 	}
 	function EditTheme(): void
 	{
-		Actions\Admin\Themes::editTheme();
+		Actions\Admin\Themes::subActionProvider(sa: 'edit');
 	}
 	function CopyTemplate(): void
 	{
-		Actions\Admin\Themes::copyTemplate();
+		Actions\Admin\Themes::subActionProvider(sa: 'copy');
 	}
 	/**
 	 * End
@@ -1080,7 +1073,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyWarningSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Warnings::modifyWarningSettings($return_config);
+		return Actions\Admin\Warnings::subActionProvider(return_config: $return_config);
 	}
 	/**
 	 * End
@@ -1147,15 +1140,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function UnapprovedPosts(): void
 	{
-		Actions\Moderation\Posts::unapprovedPosts();
+		Actions\Moderation\Posts::subActionProvider(sa: 'replies');
 	}
 	function UnapprovedAttachments(): void
 	{
-		Actions\Moderation\Posts::unapprovedAttachments();
+		Actions\Moderation\Posts::subActionProvider(sa: 'attachments');
 	}
 	function ApproveMessage(): void
 	{
-		Actions\Moderation\Posts::approveMessage();
+		Actions\Moderation\Posts::subActionProvider(sa: 'approve');
 	}
 	/**
 	 * End
@@ -1174,27 +1167,27 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ShowReports(): void
 	{
-		Actions\Moderation\ReportedContent::showReports();
+		Actions\Moderation\ReportedContent::subActionProvider(sa: 'show');
 	}
 	function ShowClosedReports(): void
 	{
-		Actions\Moderation\ReportedContent::showClosedReports();
+		Actions\Moderation\ReportedContent::subActionProvider(sa: 'closed');
 	}
 	function ReportDetails(): void
 	{
-		Actions\Moderation\ReportedContent::reportDetails();
+		Actions\Moderation\ReportedContent::subActionProvider(sa: 'details');
 	}
 	function HandleReport(): void
 	{
-		Actions\Moderation\ReportedContent::handleReport();
+		Actions\Moderation\ReportedContent::subActionProvider(sa: 'handle');
 	}
 	function HandleComment(): void
 	{
-		Actions\Moderation\ReportedContent::handleComment();
+		Actions\Moderation\ReportedContent::subActionProvider(sa: 'handlecomment');
 	}
 	function EditComment(): void
 	{
-		Actions\Moderation\ReportedContent::editComment();
+		Actions\Moderation\ReportedContent::subActionProvider(sa: 'editcomment');
 	}
 	/**
 	 * End
@@ -1220,15 +1213,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ViewWarningLog(): void
 	{
-		Actions\Moderation\Warnings::ViewWarningLog();
+		Actions\Moderation\Warnings::subActionProvider(sa: 'log');
 	}
 	function ViewWarningTemplates(): void
 	{
-		Actions\Moderation\Warnings::ViewWarningTemplates();
+		Actions\Moderation\Warnings::subActionProvider(sa: 'templates');
 	}
 	function ModifyWarningTemplate(): void
 	{
-		Actions\Moderation\Warnings::ModifyWarningTemplate();
+		Actions\Moderation\Warnings::subActionProvider(sa: 'templateedit');
 	}
 	/**
 	 * End
@@ -1287,11 +1280,21 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function editBuddies(int $memID): void
 	{
-		Actions\Profile\BuddyIgnoreLists::editBuddies($memID);
+		Actions\Profile\BuddyIgnoreLists::profileSubActionProvider(
+			memID: $memID,
+			sa: 'buddies',
+			loadSelfFirst: false,
+			loadProfile: true,
+		);
 	}
 	function editIgnoreList(int $memID): void
 	{
-		Actions\Profile\BuddyIgnoreLists::editIgnoreList($memID);
+		Actions\Profile\BuddyIgnoreLists::profileSubActionProvider(
+			memID: $memID,
+			sa: 'ignore',
+			loadSelfFirst: false,
+			loadProfile: true
+		);
 	}
 	/**
 	 * End
@@ -1395,7 +1398,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function issueWarning(int $memID): void
 	{
-		Actions\Profile\IssueWarning::issueWarning($memID);
+		Actions\Profile\IssueWarning::profileSubActionProvider(
+			memID: $memID,
+			updateRequest: true,
+		);
 	}
 	/**
 	 * End
@@ -1421,19 +1427,36 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function alert_configuration(int $memID, bool $defaultSettings = false): void
 	{
-		Actions\Profile\Notification::alert_configuration($memID, $defaultSettings);
+		Actions\Profile\Notification::profileSubActionProvider(
+			sa: 'alerts',
+			memID: $memID,
+			loadProfile: true,
+			defaultSettings: $defaultSettings
+		);
 	}
 	function alert_markread(int $memID):  void
 	{
-		Actions\Profile\Notification::alert_markread($memID);
+		Actions\Profile\Notification::profileSubActionProvider(
+			sa: 'markread',
+			memID: $memID,
+			loadProfile: true
+		);
 	}
 	function alert_notifications_topics(int $memID): void
 	{
-		Actions\Profile\Notification::alert_notifications_topics($memID);
+		Actions\Profile\Notification::profileSubActionProvider(
+			sa: 'topics',
+			memID: $memID,
+			loadProfile: true
+		);
 	}
 	function alert_notifications_boards(int $memID): void
 	{
-		Actions\Profile\Notification::alert_notifications_boards($memID);
+		Actions\Profile\Notification::profileSubActionProvider(
+			sa: 'boards',
+			memID: $memID,
+			loadProfile: true
+		);
 	}
 	function makeNotificationChanges(int $memID): void
 	{
@@ -1470,7 +1493,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showAlerts(int $memID): void
 	{
-		Actions\Profile\ShowAlerts::showAlerts($memID);
+		Actions\Profile\ShowAlerts::profileSubActionProvider(
+			memID: $memID,
+			updateRequest: true
+		);
 	}
 	/**
 	 * End
@@ -1481,7 +1507,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showPermissions(int $memID): void
 	{
-		Actions\Profile\ShowPermissions::showPermissions($memID);
+		Actions\Profile\ShowPermissions::profileSubActionProvider(
+			memID: $memID,
+			updateRequest: true
+		);
 	}
 	/**
 	 * End
@@ -1492,15 +1521,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showPosts(int $memID): void
 	{
-		Actions\Profile\ShowPosts::showPosts($memID);
+		Actions\Profile\ShowPosts::profileSubActionProvider(memID: $memID, updateRequest: true);
 	}
 	function showUnwatched(int $memID): void
 	{
-		Actions\Profile\ShowPosts::showUnwatched($memID);
+		Actions\Profile\ShowPosts::profileSubActionProvider(memId: $memID, sa: 'unwatchedtopics', updateRequest: true);
 	}
 	function showAttachments(int $memID): void
 	{
-		Actions\Profile\ShowPosts::showAttachments($memID);
+		Actions\Profile\ShowPosts::profileSubActionProvider(memID: $memID, sa: 'attach', updateRequest: true);
 	}
 	/**
 	 * End
@@ -1511,7 +1540,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function statPanel(int $memID): void
 	{
-		Actions\Profile\StatPanel::statPanel($memID);
+		Actions\Profile\StatPanel::profileSubActionProvider(memID: $memID, updateRequest: true);
 	}
 	/**
 	 * End
@@ -1522,7 +1551,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function summary(int $memID): void
 	{
-		Actions\Profile\Summary::summary($memID);
+		Actions\Profile\Summary::profileSubActionProvider(memID: $memID, updateRequest: true);
 	}
 	/**
 	 * End
@@ -1570,19 +1599,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function trackActivity(int $memID): void
 	{
-		Actions\Profile\Tracking::trackActivity($memID);
+		Actions\Profile\Tracking::profileSubActionProvider(
+			memID: $memID,
+			sa: 'activity',
+			updateRequest: true
+		);
 	}
 	function trackEdits(int $memID): void
 	{
-		Actions\Profile\Tracking::trackEdits($memID);
+		Actions\Profile\Tracking::profileSubActionProvider(memID: $memID, sa: 'edits', updateRequest: true);
 	}
 	function trackGroupReq(int $memID): void
 	{
-		Actions\Profile\Tracking::trackGroupReq($memID);
+		Actions\Profile\Tracking::profileSubActionProvider(memID: $memID, sa: 'groupreq', updateRequest: true);
 	}
 	function TrackLogins(int $memID): void
 	{
-		Actions\Profile\Tracking::trackLogins($memID);
+		Actions\Profile\Tracking::profileSubActionProvider(memID: $memID, sa: 'logins', updateRequest: true);
 	}
 	/**
 	 * End
@@ -1593,7 +1626,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function viewWarning(int $memID): void
 	{
-		Actions\Profile\ViewWarning::viewWarning($memID);
+		Actions\Profile\ViewWarning::profileSubActionProvider(memID: $memID, updateRequest: true);
 	}
 	/**
 	 * End
@@ -1638,11 +1671,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function AnnouncementSelectMembergroup(): void
 	{
-		Actions\Announce::selectGroup();
+		Actions\Announce::subActionProvider(sa: 'selectgroup');
 	}
 	function AnnouncementSend(): void
 	{
-		Actions\Announce::announcementSend();
+		Actions\Announce::subActionProvider(sa: 'send');
 	}
 	/**
 	 * End
@@ -1675,19 +1708,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AutoSuggestHandler(?string $suggest_type = null): ?bool
 	{
-		return Actions\AutoSuggest::AutoSuggestHandler($suggest_type);
+		return Actions\AutoSuggest::autoSuggestProvider(suggest_type: $suggest_type, callHandler: true);
 	}
 	function AutoSuggest_Search_Member(): void
 	{
-		Actions\AutoSuggest::AutoSuggest_Search_Member();
+		Actions\AutoSuggest::autoSuggestProvider(suggest_type: 'member');
 	}
 	function AutoSuggest_Search_MemberGroups(): void
 	{
-		Actions\AutoSuggest::AutoSuggest_Search_MemberGroups();
+		Actions\AutoSuggest::autoSuggestProvider(suggest_type: 'membergroups');
 	}
 	function AutoSuggest_Search_SMFVersions(): void
 	{
-		Actions\AutoSuggest::AutoSuggest_Search_SMFVersions();
+		Actions\AutoSuggest::autoSuggestProvider(suggest_type: 'versions');
 	}
 	/**
 	 * End
@@ -1732,11 +1765,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function iCalDownload(): void
 	{
-		Actions\Calendar::iCalDownload();
+		Actions\Calendar::subActionProvider(sa: 'ical');
 	}
 	function CalendarPost(): void
 	{
-		Actions\Calendar::CalendarPost();
+		Actions\Calendar::subActionProvider(sa: 'post');
 	}
 	function getBirthdayRange(string $low_date, string $high_date): array
 	{
@@ -1907,15 +1940,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function GroupList(): void
 	{
-		Actions\Groups::GroupList();
+		Actions\Groups::subActionProvider(sa: 'index');
 	}
 	function MembergroupMembers(): void
 	{
-		Actions\Groups::MembergroupMembers();
+		Actions\Groups::subActionProvider(sa: 'members');
 	}
 	function GroupRequests(): void
 	{
-		Actions\Groups::GroupRequests();
+		Actions\Groups::subActionProvider(sa: 'requests');
 	}
 	/**
 	 * End
@@ -1930,7 +1963,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function HelpIndex(): void
 	{
-		Actions\Help::HelpIndex();
+		Actions\Help::subActionProvider(sa: 'index');
 	}
 	/**
 	 * End
@@ -2030,11 +2063,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function MLAll(): void
 	{
-		Actions\Memberlist::MLAll();
+		Actions\Memberlist::subActionProvider(sa: 'all');
 	}
 	function MLSearch(): void
 	{
-		Actions\Memberlist::MLSearch();
+		Actions\Memberlist::subActionProvider(sa: 'search');
 	}
 	function printMemberListRows($request): void
 	{
@@ -2116,7 +2149,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * End
 	 * Actions\NotifyAnnouncements
 	 *
-	 * Begin\NotifyBoard
+	 * Begin
+	 * Actions\NotifyBoard
 	 */
 	function BoardNotify(): void
 	{
@@ -2146,59 +2180,59 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function MessageFolder(): void
 	{
-		Actions\PersonalMessage::messageFolder();
+		Actions\PersonalMessage::subActionProvider(sa: 'show');
 	}
 	function MessagePopup(): void
 	{
-		Actions\PersonalMessage::messagePopup();
+		Actions\PersonalMessage::subActionProvider(sa: 'popup');
 	}
 	function ManageLabels(): void
 	{
-		Actions\PersonalMessage::manageLabels();
+		Actions\PersonalMessage::subActionProvider(sa: 'manlabels');
 	}
 	function ManageRules(): void
 	{
-		Actions\PersonalMessage::manageRules();
+		Actions\PersonalMessage::subActionProvider(sa: 'manrules');
 	}
 	function MessageActionsApply(): void
 	{
-		Actions\PersonalMessage::messageActionsApply();
+		Actions\PersonalMessage::subActionProvider(sa: 'pmactions');
 	}
 	function MessagePrune()
 	{
-		Actions\PersonalMessage::messagePrune();
+		Actions\PersonalMessage::subActionProvider(sa: 'prune');
 	}
 	function MessageKillAll(): void
 	{
-		Actions\PersonalMessage::messageKillAll();
+		Actions\PersonalMessage::subActionProvider(sa: 'removalall2');
 	}
 	function ReportMessage(): void
 	{
-		Actions\PersonalMessage::messageSearch();
+		Actions\PersonalMessage::subActionProvider(sa: 'report');
 	}
 	function MessageSearch(): void
 	{
-		Actions\PersonalMessage::messageSearch();
+		Actions\PersonalMessage::subActionProvider(sa: 'search');
 	}
 	function MessageSearch2(): void
 	{
-		Actions\PersonalMessage::messageSearch2();
+		Actions\PersonalMessage::subActionProvider(sa: 'search2');
 	}
 	function MessagePost(): void
 	{
-		Actions\PersonalMessage::messagePost();
+		Actions\PersonalMessage::subActionProvider(sa: 'send');
 	}
 	function MessagePost2(): void
 	{
-		Actions\PersonalMessage::messagePost2();
+		Actions\PersonalMessage::subActionProvider(sa: 'send2');
 	}
 	function MessageSettings(): void
 	{
-		Actions\PersonalMessage::messageSettings();
+		Actions\PersonalMessage::subActionProvider(sa: 'settings');
 	}
 	function MessageDrafts(): void
 	{
-		Actions\PersonalMessage::messageDrafts();
+		Actions\PersonalMessage::subActionProvider(sa: 'showpmdrafts');
 	}
 	/**
 	 * End
@@ -2320,7 +2354,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function ReportToModerator2(): void
 	{
-		Actions\ReportToMod::ReportToModerator2();
+		Actions\ReportToMod::subActionProvider(sa: 'submit');
 	}
 	function reportPost($msg, $reason): void
 	{
@@ -2409,7 +2443,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function MergeIndex(): void
 	{
-		Actions\TopicMerge::mergeIndex();
+		Actions\TopicMerge::subActionProvider(sa: 'index');
 	}
 	function MergeExecute(array $topics = []): void
 	{
@@ -2503,20 +2537,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function SplitIndex(): void
 	{
-		Actions\TopicSplit::splitIndex();
+		Actions\TopicSplit::subActionProvider(sa: 'index');
 	}
 	function SplitExecute(): void
 	{
-		Actions\TopicSplit::splitExecute();
+		Actions\TopicSplit::subActionProvider(sa: 'split');
 	}
 	function SplitSelectTopics(): void
 	{
-		Actions\TopicSplit::splitSelectTopics();
+		Actions\TopicSplit::subActionProvider(sa: 'selectTopics');
 	}
 	function SplitSelectionExecute(): void
 	{
-		// todo: fix function name
-		Actions\TopicSplit::SplitSelectionExecute();
+		Actions\TopicSplit::subActionProvider(sa: 'splitSelection');
 	}
 	/**
 	 * End
@@ -2527,7 +2560,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TrackIP(int $memID = 0): void
 	{
-		Actions\TrackIP::trackIP($memID);
+		// not profile but this method does everything we need it to do
+		Actions\TrackIP::profileSubActionProvider(memID: $memID);
 	}
 	/**
 	 * End
@@ -2590,15 +2624,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function GetJumpTo(): void
 	{
-		Actions\XmlHttp::GetJumpTo();
+		Actions\XmlHttp::subActionProvider(sa: 'jumpto');
 	}
 	function ListMessageIcons(): void
 	{
-		Actions\XmlHttp::ListMessageIcons();
+		Actions\XmlHttp::subActionProvider(sa: 'messageicons');
 	}
 	function RetrievePreview(): void
 	{
-		Actions\XmlHttp::RetrievePreview();
+		Actions\XmlHttp::subActionProvider(sa: 'previews');
 	}
 	/**
 	 * End
@@ -4036,7 +4070,837 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Begin
 	 * SMF\Security
 	 */
-
+	function hash_password(string $username, string $password, int $cost = null): string
+	{
+		return SMF\Security::hashPassword($username, $password, $cost);
+	}
+	function hash_verify_password(string $username, string $password, string $hash): bool
+	{
+		return SMF\Security::hashVerifyPassword($username, $password, $hash);
+	}
+	function hash_benchmark(float $hashTime = 0.2): int
+	{
+		return SMF\Security::hashBenchmark($hashTime);
+	}
+	function checkConfirm(string $action): bool|string
+	{
+		return SMF\Security::checkConfirm($action);
+	}
+	function checkSubmitOnce(string $action, bool $is_fatal = true): ?bool
+	{
+		return SMF\Security::checkSubmitOnce($action, $is_fatal);
+	}
+	function spamProtection(string $error_type, bool $only_return_result = false): bool
+	{
+		return SMF\Security::spamProtection($error_type, $only_return_result);
+	}
+	function secureDirectory(string|array $paths, bool $attachments = false): bool|array
+	{
+		return SMF\Security::secureDirectory($paths, $attachments);
+	}
+	function frameOptionsHeader(string $override = null)
+	{
+		return SMF\Security::frameOptionsHeader($override);
+	}
+	function corsPolicyHeader(bool $set_header = true): void
+	{
+		SMF\Security::corsPolicyHeader($set_header);
+	}
+	function KickGuest(): void
+	{
+		SMF\Security::kickGuest();
+	}
+	/**
+	 * End
+	 * SMF\Security
+	 *
+	 * Begin
+	 * SMF\SecurityToken
+	 */
+	function createToken(string $action, string $type = 'post'): array
+	{
+		return SMF\SecurityToken::create($action, $type);
+	}
+	function validateToken(string $action, string $type = 'post', bool $reset = true): bool
+	{
+		return SMF\SecurityToken::validate($action, $type, $reset);
+	}
+	function cleanTokens(bool $complete = false): void
+	{
+		SMF\SecurityToken::clean($complete);
+	}
+	/**
+	 * End
+	 * SMF\SecurityToken
+	 *
+	 * BEgin
+	 * SMF\ServerSideIncludes
+	 */
+	function ssi_shutdown(): void
+	{
+		SMF\ServerSideIncludes::shutdown();
+	}
+	function ssi_version($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::version($output_method);
+	}
+	function ssi_full_version($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::fullVersion($output_method);
+	}
+	function ssi_software_year($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::softwareYear($output_method = 'echo');
+	}
+	function ssi_copyright($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::copyright($output_method);
+	}
+	function ssi_welcome($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::welcome($output_method);
+	}
+	function ssi_menubar($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::menubar($output_method);
+	}
+	function ssi_logout($redirect_to = '', $output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::logout($redirect_to, $output_method);
+	}
+	function ssi_recentPosts(
+		int $num_recent = 8,
+		?array $exclude_boards = null,
+		?array $include_boards = null,
+		string $output_method = 'echo',
+		bool $limit_body = true
+	): ?array {
+		return SMF\ServerSideIncludes::recentPosts(
+			$num_recent,
+			$exclude_boards,
+			$include_boards,
+			$output_method,
+			$limit_body
+		);
+	}
+	function ssi_fetchPosts(
+		array $post_ids = [],
+		bool $override_permissions = false,
+		string $output_method = 'echo'
+	): ?array {
+		return SMF\ServerSideIncludes::fetchPosts($post_ids, $override_permissions, $output_method);
+	}
+	function ssi_queryPosts(
+		string $query_where = '',
+		array $query_where_params = [],
+		int $query_limit = 10,
+		string $query_order = 'm.id_msg DESC',
+		string $output_method = 'echo',
+		bool $limit_body = false,
+		bool $override_permissions = false
+	): ?array {
+		return SMF\ServerSideIncludes::queryPosts(
+			$query_where,
+			$query_where_params,
+			$query_limit,
+			$query_order,
+			$output_method,
+			$limit_body,
+			$override_permissions
+		);
+	}
+	function ssi_recentTopics(
+		int $num_recent = 8,
+		?array $exclude_boards = null,
+		?array $include_boards = null,
+		string $output_method = 'echo'
+	): ?array {
+		return SMF\ServerSideIncludes::recentTopics($num_recent, $exclude_boards, $include_boards, $output_method);
+	}
+	function ssi_topPoster(int $topNumber = 1, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topPoster($topNumber, $output_method);
+	}
+	function ssi_topBoards($num_top = 10, $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topBoards($num_top, $output_method);
+	}
+	function ssi_topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topTopics($type, $num_topics, $output_method);
+	}
+	function ssi_topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topTopicsReplies($num_topics, $output_method);
+	}
+	function ssi_topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topTopicsViews($num_topics, $output_method);
+	}
+	function ssi_latestMember(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::latestMember($output_method);
+	}
+	function ssi_randomMember(string $random_type = '', string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::randomMember($random_type, $output_method);
+	}
+	function ssi_fetchMember(array $member_ids = [], string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::fetchMember($member_ids, $output_method);
+	}
+	function ssi_fetchGroupMembers(int $group_id = null, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::fetchGroupMembers($group_id, $output_method);
+	}
+	function ssi_queryMembers(
+		string $query_where = null,
+		array $query_where_params = [],
+		string|int $query_limit = '',
+		string $query_order = 'id_member DESC',
+		string $output_method = 'echo'
+	): ?array {
+		return SMF\ServerSideIncludes::queryMembers(
+			$query_where,
+			$query_where_params,
+			$query_limit,
+			$query_order,
+			$output_method
+		);
+	}
+	function ssi_boardStats(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::boardStats($output_method);
+	}
+	function ssi_whosOnline(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::whosOnline($output_method);
+	}
+	function ssi_logOnline(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::logOnline($output_method);
+	}
+	function ssi_login($redirect_to = '', $output_method = 'echo'): ?bool
+	{
+		return SMF\ServerSideIncludes::login($redirect_to, $output_method);
+	}
+	function ssi_topPoll(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topPoll($output_method);
+	}
+	function ssi_recentPoll($topPollInstead = false, $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::recentPoll($topPollInstead, $output_method);
+	}
+	function ssi_showPoll(?int $topic = null, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::showPoll($topic, $output_method);
+	}
+	function ssi_pollVote()
+	{
+		return SMF\ServerSideIncludes::pollVote();
+	}
+	function ssi_quickSearch(string $output_method = 'echo'): ?string
+	{
+		return SMF\ServerSideIncludes::quickSearch($output_method);
+	}
+	function ssi_news(string $output_method = 'echo'): ?string
+	{
+		return SMF\ServerSideIncludes::news($output_method);
+	}
+	function ssi_todaysBirthdays(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysBirthdays($output_method);
+	}
+	function ssi_todaysHolidays(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysHolidays($output_method);
+	}
+	function ssi_todaysEvents(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysEvents($output_method);
+	}
+	function ssi_todaysCalendar(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysCalendar($output_method);
+	}
+	function ssi_boardNews(
+		?int $board = null,
+		?int $limit = null,
+		?int $start = null,
+		?int $length = null,
+		string $output_method = 'echo'
+	): ?array {
+		return SMF\ServerSideIncludes::boardNews(
+			$board,
+			$limit,
+			$start,
+			$length,
+			$output_method
+		);
+	}
+	function ssi_recentEvents(int $max_events = 7, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::recentEvents($max_events, $output_method);
+	}
+	function ssi_checkPassword(int $id = null, string $password = null, bool $is_username = false): bool
+	{
+		return SMF\ServerSideIncludes::checkPassword($id, $password, $is_username);
+	}
+	function ssi_recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::recentAttachments($num_attachments, $attachment_ext, $output_method);
+	}
+	/**
+	 * End
+	 * SMF\ServerSideIncludes
+	 *
+	 * Begin
+	 * SMF\Session
+	 */
+	function loadSession(): void
+	{
+		SMF\Session::load();
+	}
+	/**
+	 * End
+	 * SMF\Session
+	 *
+	 * Begin
+	 * SMF\TaskRunner
+	 */
+	function CalculateNextTrigger(string|array $tasks = [], bool $force_update = false): void
+	{
+		SMF\TaskRunner::calculateNextTrigger($tasks, $force_update);
+	}
+	/**
+	 * End
+	 * SMF\TaskRunner
+	 *
+	 * Begin
+	 * SMF\Theme
+	 */
+	function loadTheme(int $id = 0, bool $initialize = true)
+	{
+		return SMF\Theme::load($id, $initialize);
+	}
+	function loadEssentialThemeData(): void
+	{
+		SMF\Theme::loadEssential();
+	}
+	function loadTemplate(string $template_name, string|array $style_sheets = [], bool $fatal = true): bool
+	{
+		return SMF\Theme::loadTemplate($template_name, $style_sheets, $fatal);
+	}
+	function loadSubTemplate(string $sub_template_name, bool $fatal = false)
+	{
+		SMF\Theme::loadSubTemplate($sub_template_name, $fatal);
+	}
+	function loadCSSFile(string $filename, array $params = [], string $id = ''): void
+	{
+		SMF\Theme::loadCSSFile($filename, $params, $id);
+	}
+	function addInlineCss(string $css): ?bool
+	{
+		return SMF\Theme::addInlineCss($css);
+	}
+	function loadJavaScriptFile(string $fileName, array $params = [], string $id = ''): void
+	{
+		SMF\Theme::loadJavaScriptFile($filename, $params, $id);
+	}
+	function addJavaScriptVar(string $key, string $value, bool $escape = false)
+	{
+		return SMF\Theme::addJavaScriptVar($Key, $value, $escape);
+	}
+	function addInlineJavaScript(string $javascript, bool $defer = false): ?bool
+	{
+		return SMF\Theme::addInlineJavaScript($javascript, $defer);
+	}
+	function setupThemeContext(bool $forceload = false)
+	{
+		return SMF\Theme::setupContext($forceload);
+	}
+	function setupMenuContext(): void
+	{
+		SMF\Theme::setupMenuContext();
+	}
+	function template_header(): void
+	{
+		SMF\Theme::template_header();
+	}
+	function theme_copyright(): void
+	{
+		SMF\Theme::copyright();
+	}
+	function template_footer(): void
+	{
+		SMF\Theme::template_footer();
+	}
+	function template_javascript(bool $do_deferred = false): void
+	{
+		SMF\Theme::template_javascript($do_deferred);
+	}
+	function template_css(): void
+	{
+		SMF\Theme::template_css();
+	}
+	function custMinify(array $data, string $type): array
+	{
+		return SMF\Theme::custMinify($data, $type);
+	}
+	function deleteAllMinified(): void
+	{
+		SMF\Theme::deleteAllMinified();
+	}
+	function SetJavaScript(): void
+	{
+		SMF\Theme::setJavaScript();
+	}
+	function WrapAction(): void
+	{
+		SMF\Theme::wrapAction();
+	}
+	function PickTheme(): void
+	{
+		SMF\Theme::pickTheme();
+	}
+	/** @deprecated since 2.1 */
+	function create_button(
+		string $name,
+		string $alt,
+		string $label = '',
+		string $custom = '',
+		bool $force_use = false
+	): string {
+		return SMF\Theme::createButton(
+			$name,
+			$alt,
+			$label,
+			$custom,
+			$force_use
+		);
+	}
+	/**
+	 * End
+	 * SMF\Theme
+	 *
+	 * Begin
+	 * SMF\Time
+	 */
+	function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): SMF\TIme
+	{
+		return SMF\Time::create($datetime, $timezone);
+	}
+	function smf_strftime(string $format, ?int $timestamp = null, ?string $tzid = null): string
+	{
+		return SMF\Time::strftime($format, $timestamp, $tzid);
+	}
+	function smf_gmstrftime(string $format, ?int $timestamp = null): string
+	{
+		return SMF\Time::gmstrftime($format, $timestamp);
+	}
+	function get_date_or_time_format(string $type = '', string $format = '', ?bool $strftime = null): string
+	{
+		return SMF\Time::getDateOrTimeFormat($type, $format, $strftime);
+	}
+	function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
+	{
+		return SMF\Time::timeformat($log_time, $show_today, $tzid);
+	}
+	/** @deprecated since 2.1 */
+	function forum_time(bool $use_user_offset = true, int $timestamp = null): int
+	{
+		return SMF\Time::forumTime($use_user_offset, $timestamp);
+	}
+	/**
+	 * End
+	 * SMF\Time
+	 *
+	 * Begin
+	 * SMF\TimeZone
+	 */
+	function smf_list_timezones(int|string $when = 'now'): array
+	{
+		return SMF\TimeZone::list($when);
+	}
+	function get_tzid_metazones(int|string $when = 'now'): array
+	{
+		return SMF\TimeZone::getTzidMetazones($when);
+	}
+	function get_sorted_tzids_for_country(string $country_code, int|string $when = 'now'): array
+	{
+		return SMF\TimeZone::getSortedTzidsForCountry($country, $when);
+	}
+	function get_tzid_fallbacks(array $tzids, int|string $when = 'now'): array
+	{
+		return SMF\TimeZone::getTzidFallbacks($tzids, $when);
+	}
+	function validate_iso_country_codes(array|string $country_codes, bool $as_csv = false): array|string
+	{
+		return SMF\TimeZone::validateIsoCountryCodes($country_code, $as_csv);
+	}
+	/**
+	 * End
+	 * SMF\TimeZone
+	 *
+	 * Begin
+	 * SMF\Topic
+	 */
+	function LockTopic(): void
+	{
+		SMF\Topic::lock();
+	}
+	function Sticky(): void
+	{
+		SMF\Topic::sticky();
+	}
+	function approveTopics(array $topics, bool $approve = true): bool
+	{
+		return SMF\Topic::approve($topics, $approve);
+	}
+	function moveTopics(array|int $topics, int $toBoard)
+	{
+		return SMF\Topic::move($topics, $toBoard);
+	}
+	function removeTopics(
+		array|int $topics,
+		bool $decreasePostCount = true,
+		bool $ignoreRecycling = false,
+		bool $updateBoardCount = true
+	) {
+		return SMF\Topic::remove($topics, $decreasePostCount, $ignoreRecycling, $updateBoardCount);
+	}
+	function prepareLikesContext(int $topic): array
+	{
+		return SMF\Topic::prepareLikesContext($topic);
+	}
+	/**
+	 * End
+	 * SMF\Topic
+	 *
+	 * Begin
+	 * SMF\Url
+	 */
+	function set_tld_regex(bool $update = false): void
+	{
+		SMF\Url::setTldRegex($update);
+	}
+	function parse_iri(string $target, int $component): mixed
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target, $component);
+	}
+	function validate_iri(string $target, int $flags = 0): SMF\Url|false
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target, $flags);
+	}
+	function sanitize_iri(string $target): SMF\Url
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target);
+	}
+	function normalize_iri(string $target): SMF\Url
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target);
+	}
+	function iri_to_url(string $target): SMF\Url
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target);
+	}
+	function url_to_iri(string $target): SMF\Url
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target);
+	}
+	function get_proxied_url(string $target): SMF\Url
+	{
+		return SMF\Url::urlProvider(__FUNCTION__, $target);
+	}
+	function httpsRedirectActive(string $target): bool
+	{
+		return SMF\Url::urlProvider($target);
+	}
+	/**
+	 * End
+	 * SMF\Url
+	 *
+	 * Begin
+	 * SMF\User
+	 */
+	function build_query_board(int $id): array
+	{
+		return SMF\User::buildQueryBoard($id);
+	}
+	function set_avatar_data(array $data = []): array
+	{
+		return SMF\User::setAvatarData($data);
+	}
+	function updateMemberData($members, array $data): void
+	{
+		SMF\User::updateMemberData($members, $data);
+	}
+	function getUserTimezone(?int $id_member = null): string
+	{
+		return SMF\User::getTimezone($id_member);
+	}
+	function deleteMembers(int|array $users, bool $check_not_admin = false): void
+	{
+		SMF\User::delete($users, $check_not_admin);
+	}
+	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
+	{
+		return SMF\User::validatePassword($password, $username, $restrict_in);
+	}
+	function validateUsername(
+		int $memID,
+		string $username,
+		bool $return_error = false,
+		bool $check_reserved_name = true
+	): ?array {
+		return SMF\User::validateUsername($memID, $username, $return_error, $check_reserved_name);
+	}
+	function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
+	{
+		return SMF\User::isReservedName($name, $current_id_member, $is_name, $fatal);
+	}
+	function isBannedEmail(string $email, string $restriction, string $error): void
+	{
+		SMF\User::isBannedEmail($email, $restriction, $error);
+	}
+	function findMembers(
+		array $names,
+		bool $use_wildcards = false,
+		bool $buddies_only = false,
+		int $max = 500
+	): array {
+		return SMF\User::find($named, $use_wildcards, $buddies_only, $max);
+	}
+	function membersAllowedTo(string $permission, ?int $board_id = null): array
+	{
+		return SMF\User::membersAllowedTo($permission, $board_id);
+	}
+	function groupsAllowedTo(
+		array|string $permissions,
+		?int $board_id = null,
+		bool $simple = true,
+		?int $profile_id = null
+	): array {
+		return SMF\User::groupsAllowedTo($permissions, $board_id, $simple, $profile_id);
+	}
+	function getGroupsWithPermissions(
+		array $general_permissions = [],
+		array $board_permissions = [],
+		int $profile_id = 1
+	): array {
+		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
+	}
+	function generateValidationCode(): string
+	{
+		return SMF\User::generateValidationCode();
+	}
+	function logSpider(): void
+	{
+		SMF\User::logSpider();
+	}
+	function loadMemberData($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	{
+		return SMF\User::loadMemberData($users, $type, $dataset);
+	}
+	function loadUserSettings(): void
+	{
+		SMF\User::loadUserSettings();
+	}
+	function loadPermissions(): void
+	{
+		SMF\User::loadMyPermissions();
+	}
+	function loadMemberContext(int $id, bool $display_custom_fields = false): bool|array
+	{
+		return SMF\User::loadMemberContext($id, $display_custom_fields);
+	}
+	function is_not_guest(string $message = ''): void
+	{
+		SMF\User::is_not_guest($message);
+	}
+	function is_not_banned(bool $force_check = false): void
+	{
+		SMF\User::is_not_banned($force_check);
+	}
+	function banPermissions(): void
+	{
+		SMF\User::banPermissions();
+	}
+	function log_ban(array $ban_ids = [], ?string $email = null): void
+	{
+		SMF\User::log_ban($ban_ids, $email);
+	}
+	function validateSession(string $type = 'admin', bool $force = false): ?string
+	{
+		return SMF\User::sessionValidate($type, $force);
+	}
+	function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
+	{
+		return SMF\User::sessionCheck($type, $from_action, $is_fatal);
+	}
+	function allowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): bool
+	{
+		return SMF\User::hasPermission($permission, $boards, $any);
+	}
+	function isAllowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): bool
+	{
+		return SMF\User::mustHavePermission($permission, $boards, $any);
+	}
+	function boardsAllowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): array
+	{
+		return SMF\User::hasPermissionInBoards($permission, $boards, $any);
+	}
+	/**
+	 * End
+	 * SMF\User
+	 *
+	 * Begin
+	 * SMF\Utils
+	 */
+	function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
+	{
+		return SMF\Utils::sanitizeChars($string, $level, $substitute);
+	}
+	function normalize_spaces($string, $vspace = true, $hspace = false, $options = []): string
+	{
+		return SMF\Utils::normalizeSpaces($string, $vspace, $hspace, $options);
+	}
+	function htmlspecialchars__recursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
+	{
+		return SMF\Utils::htmlspecialcharsRecursive($var, $flags, $encoding);
+	}
+	function un_htmlspecialchars(string $string, int $flags = ENT_QUOTES, $encoding = 'UTF-8'): string
+	{
+		return SMF\Utils::htmlspecialcharsDecode($string, $flags, $encoding);
+	}
+	function htmltrim__recursive(array|string $var): array|string
+	{
+		return SMF\Utils::htmlTrimRecursive($var);
+	}
+	function shorten_subject(string $subject, int $len): string
+	{
+		return SMF\Utils::shorten($subject, $len);
+	}
+	function text2words(string $string, ?int $max_length = 20, bool $encrypt = false): array
+	{
+		return SMF\Utils::text2words($string, $max_length, $encrypt);
+	}
+	function build_regex(array $strings, ?string $delim = null, bool $return_array = false): string|array
+	{
+		return SMF\Utils::buildRegex($strings, $delim, $return_array);
+	}
+	function cleanXml(string $string): string
+	{
+		return SMF\Utils::cleanXml($string);
+	}
+	function JavaScriptEscape(string $string, bool $as_json = false): string
+	{
+		return SMF\Utils::JavaScriptEscape($string, $as_json);
+	}
+	function stripslashes__recursive($var, $level = 0): array|string
+	{
+		return SMF\Utils::stripslashesRecursive($var, $level);
+	}
+	function urldecode__recursive(array|string $var, int $level): array|string
+	{
+		return SMF\Utils::urldecodeRecursive($var, $level);
+	}
+	function escapestring__recursive(array|string $var): array|string
+	{
+		return SMF\Utils::escapestringRecursive($var);
+	}
+	function unescapestring__recursive(array|string $var): array|string
+	{
+		return SMF\Utils::escapestringRecursive($var);
+	}
+	function truncate_array(array $array, int $max_length = 1900): array
+	{
+		return SMF\Utils::truncateArray($array, $max_length);
+	}
+	function array_length(array $array): int
+	{
+		return SMF\Utils::arrayLength($array);
+	}
+	function smf_json_decode(string $json, bool $associative = false, bool $should_log = true): mixed
+	{
+		return SMF\Utils::jsonDecode($json, $associative, $should_log);
+	}
+	function safe_serialize(mixed $value): string
+	{
+		return SMF\Utils::safeSerialize($value);
+	}
+	function safe_unserialize(string $str): mixed
+	{
+		return SMF\Utils::safeUnserialize($str);
+	}
+	function get_mime_type(string $data, bool $is_path = false): string|bool
+	{
+		return SMF\Utils::getMimeType($data, $is_path);
+	}
+	function check_mime_type(string $data, string $type_pattern, bool $is_path = false): int
+	{
+		return SMF\Utils::checkMimeType($data, $type_pattern, $is_path);
+	}
+	function smf_chmod(string $path): bool
+	{
+		return SMF\Utils::makeWritable(($path));
+	}
+	function send_http_status(int $code, string $status = ''): void
+	{
+		SMF\Utils::sendHttpStatus($code, $status);
+	}
+	function smf_serverResponse(string $data = '', $type = 'Content-Type: application/json')
+	{
+		return SMF\Utils::serverResponse($data, $type);
+	}
+	function redirectexit(string $setLocation = '', bool $refresh = false, bool $permanent = false): void
+	{
+		SMF\Utils::redirectexit($setLocation, $refresh, $permanent);
+	}
+	function obExit(
+		?bool $header = null,
+		?bool $do_footer = null,
+		bool $from_index = false,
+		bool $from_fatal_error = false
+	): void {
+		SMF\Utils::obExit($header, $do_footer, $from_index, $from_fatal_error);
+	}
+	function getCallable(mixed $input, ?bool $ignore_errors = null): mixed
+	{
+		return SMF\Utils::getCallable($input, $ignore_errors);
+	}
+	function call_helper(mixed $input, bool $return = false): mixed
+	{
+		return SMF\Utils::call_helper($input, $return);
+	}
+	function replaceEntities__callback(array $matches): string
+	{
+		return SMF\Utils::replaceEntities__callback($matches);
+	}
+	function fixchar__callback(array $matches): string
+	{
+		return SMF\Utils::fixchar__callback($matches);
+	}
+	function entity_fix__callback(array $matches): string
+	{
+		return SMF\Utils::entity_fix__callback($matches);
+	}
+	/**
+	 * End
+	 * SMF\Utils
+	 *
+	 * Begin
+	 * SMF\Verifier
+	 */
+	function create_control_verification(array &$options, bool $do_test = false): bool|array
+	{
+		return SMF\Verifier::create($options, $do_test);
+	}
+	/**
+	 * End
+	 * BackwardCompatibility function map
+	 */
 }
 
 /***************************

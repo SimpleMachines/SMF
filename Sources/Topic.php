@@ -36,14 +36,6 @@ class Topic implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'lock' => 'LockTopic',
-			'sticky' => 'Sticky',
-			'approve' => 'approveTopics',
-			'move' => 'moveTopics',
-			'remove' => 'removeTopics',
-			'prepareLikesContext' => 'prepareLikesContext',
-		],
 		'prop_names' => [
 			'topic_id' => 'topic',
 		],

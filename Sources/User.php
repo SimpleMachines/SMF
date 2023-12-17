@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use ArrayAccess;
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
 use SMF\Actions\Login2;
@@ -64,7 +65,7 @@ use SMF\PersonalMessage\PM;
  * deprecated global variables. A future version of SMF will remove backward
  * compatibility support for these deprecated globals.
  */
-class User implements \ArrayAccess
+class User implements ArrayAccess
 {
 	use BackwardCompatibility;
 	use ArrayAccessHelper;
@@ -75,36 +76,6 @@ class User implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'buildQueryBoard' => 'build_query_board',
-			'setAvatarData' => 'set_avatar_data',
-			'updateMemberData' => 'updateMemberData',
-			'getTimezone' => 'getUserTimezone',
-			'delete' => 'deleteMembers',
-			'validatePassword' => 'validatePassword',
-			'validateUsername' => 'validateUsername',
-			'isReservedName' => 'isReservedName',
-			'isBannedEmail' => 'isBannedEmail',
-			'find' => 'findMembers',
-			'membersAllowedTo' => 'membersAllowedTo',
-			'groupsAllowedTo' => 'groupsAllowedTo',
-			'getGroupsWithPermissions' => 'getGroupsWithPermissions',
-			'generateValidationCode' => 'generateValidationCode',
-			'logSpider' => 'logSpider',
-			'loadMemberData' => 'loadMemberData',
-			'loadUserSettings' => 'loadUserSettings',
-			'loadMyPermissions' => 'loadPermissions',
-			'loadMemberContext' => 'loadMemberContext',
-			'is_not_guest' => 'is_not_guest',
-			'is_not_banned' => 'is_not_banned',
-			'banPermissions' => 'banPermissions',
-			'log_ban' => 'log_ban',
-			'sessionValidate' => 'validateSession',
-			'sessionCheck' => 'checkSession',
-			'hasPermission' => 'allowedTo',
-			'mustHavePermission' => 'isAllowedTo',
-			'hasPermissionInBoards' => 'boardsAllowedTo',
-		],
 		'prop_names' => [
 			'profiles' => 'user_profile',
 			'settings' => 'user_settings',

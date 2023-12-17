@@ -13,25 +13,13 @@
 
 namespace SMF;
 
+use DateTimeZone;
+
 /**
  * This class provides some methods to simplify working with time zones.
  */
-class TimeZone extends \DateTimeZone
+class TimeZone extends DateTimeZone
 {
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'list' => 'smf_list_timezones',
-			'getTzidMetazones' => 'get_tzid_metazones',
-			'getSortedTzidsForCountry' => 'get_sorted_tzids_for_country',
-			'getTzidFallbacks' => 'get_tzid_fallbacks',
-			'validateIsoCountryCodes' => 'validate_iso_country_codes',
-		],
-	];
 
 	/*****************
 	 * Class constants

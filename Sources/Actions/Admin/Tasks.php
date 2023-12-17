@@ -14,6 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -33,6 +34,8 @@ use SMF\Utils;
  */
 class Tasks implements ActionInterface
 {
+	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -662,6 +665,7 @@ class Tasks implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the tasks sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function scheduledTasks(): void
 	{
@@ -672,6 +676,7 @@ class Tasks implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the taskedit sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function editTask(): void
 	{
@@ -682,6 +687,7 @@ class Tasks implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper for the tasklog sub-action.
+	 * @deprecated since 3.0
 	 */
 	public static function taskLog(): void
 	{
@@ -695,6 +701,7 @@ class Tasks implements ActionInterface
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @deprecated since 3.0
 	 */
 	public static function taskSettings($return_config = false)
 	{

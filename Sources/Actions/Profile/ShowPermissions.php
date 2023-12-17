@@ -15,6 +15,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Admin\Permissions;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
@@ -28,6 +29,7 @@ use SMF\Utils;
  */
 class ShowPermissions implements ActionInterface
 {
+	use BackwardCompatibility;
 
 	/****************************
 	 * Internal static properties
@@ -273,6 +275,7 @@ class ShowPermissions implements ActionInterface
 
 	/**
 	 * Backward compatibility wrapper.
+	 * @deprecated since 3.0
 	 */
 	public static function showPermissions(int $memID): void
 	{
