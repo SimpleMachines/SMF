@@ -64,6 +64,7 @@ Sources/Unicode/*.php
 ehthumbs.db
 Thumbs.db
 *.lnk
+._*
 
 # Test / Private files #
 ########################
@@ -79,3 +80,4 @@ upgrade-helper.php
 .php-cs-fixer.cache
 vendor/
 .phplint-cache
+.phplint.cache
