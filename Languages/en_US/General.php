@@ -750,6 +750,15 @@ $txt['calendar_repeat_add_condition'] = 'Add Another';
 $txt['calendar_repeat_advanced_options_label'] = 'More options...';
 $txt['calendar_repeat_rdates_label'] = 'Additional dates';
 $txt['calendar_repeat_exdates_label'] = 'Skipped dates';
+$txt['calendar_repeat_easter_w'] = 'Easter (Western)';
+$txt['calendar_repeat_easter_e'] = 'Easter (Eastern)';
+$txt['calendar_repeat_vernal_equinox'] = 'Vernal Equinox';
+$txt['calendar_repeat_summer_solstice'] = 'Summer Solstice';
+$txt['calendar_repeat_autumnal_equinox'] = 'Autumnal Equinox';
+$txt['calendar_repeat_winter_solstice'] = 'Winter Solstice';
+$txt['calendar_repeat_special'] = 'Special';
+$txt['calendar_repeat_special_rrule_modifier'] = 'Offset';
+$txt['calendar_repeat_offset_examples'] = 'e.g.: +P1D, -PT2H';
 
 $txt['movetopic_change_subject'] = 'Change the topic’s subject';
 $txt['movetopic_new_subject'] = 'New subject';

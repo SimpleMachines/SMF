@@ -31,7 +31,7 @@ use SMF\Utils;
 use SMF\Uuid;
 
 /**
- * Represents a (possibly recurring) calendar event, birthday, or holiday.
+ * Represents a (possibly recurring) calendar event.
  *
  * @todo Add support for editing specific instances as exceptions to the RRule.
  */
@@ -44,7 +44,7 @@ class Event implements \ArrayAccess
 	 *****************/
 
 	public const TYPE_EVENT = 0;
-	public const TYPE_HOLIDAY = 1; // Not yet implemented.
+	public const TYPE_HOLIDAY = 1;
 	public const TYPE_BIRTHDAY = 2; // Not yet implemented.
 
 	/*******************
@@ -231,9 +231,54 @@ class Event implements \ArrayAccess
 	 */
 	public array $byday_items = [];
 
+	/**
+	 * @var array
+	 *
+	 * Used to override the usual handling of RRule values.
+	 *
+	 * Value is an array containing a 'base' and a 'modifier'.
+	 * The 'base' is one of the keys from self:special_rrules.
+	 * The 'modifier' is a + or - sign followed by a duration string, or null.
+	 */
+	public array $special_rrule;
+
 	/**************************
 	 * Public static properties
 	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Known special values for the 'rrule' field. These are used when dealing
+	 * with recurring events whose recurrence patterns cannot be expressed using
+	 * RFC 5545's notation.
+	 *
+	 * Keys are special strings that may be found in the 'rrule' field in the
+	 * database.
+	 *
+	 * Values are arrays containing the following options:
+	 *
+	 * 'txt_key' indicates a Lang::$txt string for this special RRule.
+	 * If not set, defaults to 'calendar_repeat_special'.
+	 *
+	 * 'group' indicates special RRules that should be listed as alternatives
+	 * to each other. For example, 'group' => ['EASTER_W', 'EASTER_E'] means
+	 * that the Western and Eastern ways of calculating the date of Easter
+	 * should be listed as the two options for Easter. If not set, defaults to
+	 * a list containing only the special string itself.
+	 */
+	public static array $special_rrules = [
+		// Easter (Western)
+		'EASTER_W' => [
+			'txt_key' => 'calendar_repeat_easter_w',
+			'group' => ['EASTER_W', 'EASTER_E'],
+		],
+		// Easter (Eastern)
+		'EASTER_E' => [
+			'txt_key' => 'calendar_repeat_easter_e',
+			'group' => ['EASTER_W', 'EASTER_E'],
+		],
+	];
 
 	/**
 	 * @var array
@@ -245,6 +290,14 @@ class Event implements \ArrayAccess
 	/*********************
 	 * Internal properties
 	 *********************/
+
+	/**
+	 * @var bool
+	 *
+	 * Whether this event is enabled.
+	 * Always true for events and birthdays. May be false for holidays.
+	 */
+	protected bool $enabled = true;
 
 	/**
 	 * @var bool
@@ -324,6 +377,11 @@ class Event implements \ArrayAccess
 	{
 		// Just in case someone passes -2 or something.
 		$id = max(-1, $id);
+
+		// Give mods access early in the process.
+		IntegrationHook::call('integrate_construct_event', [$id, &$props]);
+
+		$this->handleSpecialRRule($id, $props);
 
 		switch ($id) {
 			// Preparing default data to show in the calendar posting form.
@@ -508,6 +566,9 @@ class Event implements \ArrayAccess
 		} else {
 			$this->byday_items[] = ['num' => 0, 'name' => ''];
 		}
+
+		// Give mods access again at the end of the process.
+		IntegrationHook::call('integrate_constructed_event', [$this]);
 	}
 
 	/**
@@ -547,6 +608,8 @@ class Event implements \ArrayAccess
 			$recurrence_end = new Time('9999-12-31');
 		}
 
+		$rrule = !empty($this->special_rrule) ? implode('', $this->special_rrule) : (string) $this->recurrence_iterator->getRRule();
+
 		// Saving a new event.
 		if (!$is_edit) {
 			$columns = [
@@ -563,6 +626,7 @@ class Event implements \ArrayAccess
 				'exdates' => 'string',
 				'uid' => 'string-255',
 				'type' => 'int',
+				'enabled' => 'int',
 			];
 
 			$params = [
@@ -574,11 +638,12 @@ class Event implements \ArrayAccess
 				$this->member,
 				Utils::truncate($this->location, 255),
 				(string) $this->duration,
-				(string) ($this->recurrence_iterator->getRRule()),
+				$rrule,
 				implode(',', $this->recurrence_iterator->getRDates()),
 				implode(',', $this->recurrence_iterator->getExDates()),
 				$this->uid,
 				$this->type,
+				(int) $this->enabled,
 			];
 
 			if (!$this->allday) {
@@ -621,6 +686,7 @@ class Event implements \ArrayAccess
 				'exdates = {string:exdates}',
 				'uid = {string:uid}',
 				'type = {int:type}',
+				'enabled = {int:enabled}',
 			];
 
 			$params = [
@@ -632,11 +698,12 @@ class Event implements \ArrayAccess
 				'id_board' => $this->board,
 				'id_topic' => $this->topic,
 				'duration' => (string) $this->duration,
-				'rrule' => (string) ($this->recurrence_iterator->getRRule()),
+				'rrule' => $rrule,
 				'rdates' => implode(',', $this->recurrence_iterator->getRDates()),
 				'exdates' => implode(',', $this->recurrence_iterator->getExDates()),
 				'uid' => $this->uid,
 				'type' => $this->type,
+				'enabled' => (int) $this->enabled,
 			];
 
 			if ($this->allday) {
@@ -1171,6 +1238,11 @@ class Event implements \ArrayAccess
 				break;
 
 			case 'rrule_preset':
+				if (!empty($this->special_rrule)) {
+					$value = $this->special_rrule['base'];
+					break;
+				}
+
 				if (isset($this->recurrence_iterator)) {
 					$value = $this->recurrence_iterator->getRRule();
 				} else {
@@ -1643,6 +1715,79 @@ class Event implements \ArrayAccess
 	 ******************/
 
 	/**
+	 * Some holidays have special values in the 'rrule' field in the database.
+	 * This method detects them and does whatever special handling is necessary.
+	 */
+	protected function handleSpecialRRule($id, &$props): void
+	{
+		if (!isset($props['rrule'])) {
+			return;
+		}
+
+		list($base, $modifier) = array_pad(preg_split('/(?=[+-]P\w+$)/', $props['rrule']), 2, '');
+
+		// Do nothing with unrecognized ones.
+		if (!isset(self::$special_rrules[$base])) {
+			return;
+		}
+
+		// Record what the special RRule value is.
+		$this->special_rrule = compact('base', 'modifier');
+
+		// Special RRules get special handling in the rrule_presets menu in the UI.
+		if (empty(self::$special_rrules[$base]['group'])) {
+			self::$special_rrules[$base]['group'] = [$base];
+		}
+
+		foreach (self::$special_rrules[$base]['group'] as $special_rrule) {
+			$props['rrule_presets'][Lang::$txt['calendar_repeat_special']][$special_rrule] = Lang::$txt['calendar_repeat_rrule_presets'][self::$special_rrules[$special_rrule]['txt_key']] ?? Lang::$txt[self::$special_rrules[$special_rrule]['txt_key']] ?? Lang::$txt['calendar_repeat_rrule_presets'][$special_rrule] ?? Lang::$txt[$special_rrule] ?? $special_rrule;
+		}
+
+		switch ($base) {
+			case 'EASTER_W':
+			case 'EASTER_E':
+				// For Easter, we manually calculate the date for each visible year,
+				// then save that date as an RDate, and then update the RRule to
+				// pretend that it is otherwise a one day occurrence.
+				$low = isset($props['view_start']) ? Time::createFromInterface($props['view_start']) : new Time('first day of this month, midnight');
+				$high = $props['view_end'] ?? new Time('first day of next month, midnight');
+
+				while ($low->format('Y') <= $high->format('Y')) {
+					$rdate = new Time(implode('-', Holiday::easter((int) $low->format('Y'), $base === 'EASTER_E' ? 'Eastern' : 'Western')));
+
+					if ($low->getTimestamp() >= $rdate->getTimestamp()) {
+						$rdate = new Time(implode('-', Holiday::easter((int) $low->format('Y') + 1, $base === 'EASTER_E' ? 'Eastern' : 'Western')));
+					}
+
+					if (!empty($modifier)) {
+						if (str_starts_with($modifier, '-')) {
+							$rdate->sub(new \DateInterval(substr($modifier, 1)));
+						} else {
+							$rdate->add(new \DateInterval(substr($modifier, 1)));
+						}
+					}
+
+					$props['rdates'][] = $rdate->format('Ymd');
+
+					$low->modify('+1 year');
+				}
+
+				$props['rrule'] = 'FREQ=YEARLY;COUNT=1';
+				break;
+
+			default:
+				// Allow mods to handle other holidays with complex rules.
+				IntegrationHook::call('integrate_handle_special_rrule', [$id, &$props]);
+
+				// Ensure the RRule is valid.
+				if (!str_starts_with($props['rrule'], 'FREQ=')) {
+					$props['rrule'] = 'FREQ=YEARLY;COUNT=1';
+				}
+				break;
+		}
+	}
+
+	/**
 	 * Sets $this->recurrence_iterator, but only if all necessary properties
 	 * have been set.
 	 *
@@ -1681,6 +1826,7 @@ class Event implements \ArrayAccess
 	}
 
 	/**
+	 * Creates an EventOccurrence object for the given start time.
 	 *
 	 * @param \DateTimeInterface $start The start time.
 	 * @param ?TimeInterval $duration Custom duration for this occurrence. If
@@ -2003,6 +2149,11 @@ class Event implements \ArrayAccess
 
 		foreach ($event->recurrence_iterator->getExDates() as $exdate) {
 			$event->addOccurrence(new \DateTimeImmutable($exdate));
+		}
+
+		// Events with special RRules can't have RDates or ExDates.
+		if (!empty($event->special_rrule)) {
+			return;
 		}
 
 		// Add all the RDates and ExDates.

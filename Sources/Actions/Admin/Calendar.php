@@ -19,8 +19,8 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\Calendar as Cal;
 use SMF\Board;
+use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -30,6 +30,8 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\TimeInterval;
+use SMF\TimeZone;
 use SMF\User;
 use SMF\Utils;
 
@@ -108,10 +110,8 @@ class Calendar implements ActionInterface
 			SecurityToken::validate('admin-mc');
 
 			foreach ($_REQUEST['holiday'] as $id => $value) {
-				$_REQUEST['holiday'][$id] = (int) $id;
+				Holiday::remove((int) $id);
 			}
-
-			Cal::removeHolidays($_REQUEST['holiday']);
 		}
 
 		SecurityToken::create('admin-mc');
@@ -122,12 +122,10 @@ class Calendar implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'file' => Config::$sourcedir . '/Actions/Calendar.php',
-				'function' => 'SMF\\Actions\\Calendar::list_getHolidays',
+				'function' => 'SMF\\Calendar\\Holiday::list',
 			],
 			'get_count' => [
-				'file' => Config::$sourcedir . '/Actions/Calendar.php',
-				'function' => 'SMF\\Actions\\Calendar::list_getNumHolidays',
+				'function' => 'SMF\\Calendar\\Holiday::count',
 			],
 			'no_items_label' => Lang::$txt['holidays_no_entries'],
 			'columns' => [
@@ -139,14 +137,14 @@ class Calendar implements ActionInterface
 						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday=%1$d">%2$s</a>',
 							'params' => [
-								'id_holiday' => false,
+								'id' => false,
 								'title' => false,
 							],
 						],
 					],
 					'sort' => [
-						'default' => 'title ASC, event_date ASC',
-						'reverse' => 'title DESC, event_date ASC',
+						'default' => 'cal.title ASC, cal.start_date ASC',
+						'reverse' => 'cal.title DESC, cal.start_date ASC',
 					],
 				],
 				'date' => [
@@ -154,17 +152,35 @@ class Calendar implements ActionInterface
 						'value' => Lang::$txt['date'],
 					],
 					'data' => [
-						'function' => function ($rowData) {
-							// Recurring every year or just a single year?
-							$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', Lang::$txt['every_year']) : $rowData['year'];
+						'function' => function ($event) {
+							$rrule = $event->recurrence_iterator->getRRule();
 
-							// Construct the date.
-							return sprintf('%1$d %2$s %3$s', $rowData['day'], Lang::$txt['months'][(int) $rowData['month']], $year);
+							if (
+								!empty($event->special_rrule)
+								|| !empty($rrule->bymonth)
+								|| !empty($rrule->byweekno)
+								|| !empty($rrule->byyearday)
+								|| !empty($rrule->bymonthday)
+								|| !empty($rrule->byday)
+								|| !empty($rrule->byhour)
+								|| !empty($rrule->byminute)
+								|| !empty($rrule->bysecond)
+								|| !empty($rrule->bysetpos)
+								|| $event->recurrence_iterator->getRDates() !== []
+							) {
+								return Lang::$txt['holidays_date_varies'];
+							}
+
+							if (isset($rrule->count) && $rrule->count === 1) {
+								return $event->start->format(Time::getDateFormat());
+							}
+
+							return $event->start->format(Time::getShortDateFormat());
 						},
 					],
 					'sort' => [
-						'default' => 'event_date',
-						'reverse' => 'event_date DESC',
+						'default' => 'cal.start_date',
+						'reverse' => 'cal.start_date DESC',
 					],
 				],
 				'check' => [
@@ -176,7 +192,7 @@ class Calendar implements ActionInterface
 						'sprintf' => [
 							'format' => '<input type="checkbox" name="holiday[%1$d]">',
 							'params' => [
-								'id_holiday' => false,
+								'id' => false,
 							],
 						],
 						'class' => 'centercol',
@@ -228,51 +244,26 @@ class Calendar implements ActionInterface
 		}
 
 		// Submitting?
-		if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != '')) {
+		if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || ($_REQUEST['evtitle'] ?? '') != '')) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-eh');
 
-			// Not too long good sir?
-			$_REQUEST['title'] = Utils::entitySubstr(Utils::normalize($_REQUEST['title']), 0, 60);
-			$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : 0;
+			$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : -1;
 
-			if (isset($_REQUEST['delete'])) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}calendar_holidays
-					WHERE id_holiday = {int:selected_holiday}',
-					[
-						'selected_holiday' => $_REQUEST['holiday'],
-					],
-				);
+			if ($_REQUEST['holiday'] === -1) {
+				$eventOptions = [
+					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
+					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
+				];
+				Holiday::create($eventOptions);
+			} elseif (isset($_REQUEST['delete'])) {
+				Holiday::remove($_REQUEST['holiday']);
 			} else {
-				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']));
-
-				if (isset($_REQUEST['edit'])) {
-					Db::$db->query(
-						'',
-						'UPDATE {db_prefix}calendar_holidays
-						SET event_date = {date:holiday_date}, title = {string:holiday_title}
-						WHERE id_holiday = {int:selected_holiday}',
-						[
-							'holiday_date' => $date,
-							'selected_holiday' => $_REQUEST['holiday'],
-							'holiday_title' => $_REQUEST['title'],
-						],
-					);
-				} else {
-					Db::$db->insert(
-						'',
-						'{db_prefix}calendar_holidays',
-						[
-							'event_date' => 'date', 'title' => 'string-60',
-						],
-						[
-							$date, $_REQUEST['title'],
-						],
-						['id_holiday'],
-					);
-				}
+				$eventOptions = [
+					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
+					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
+				];
+				Holiday::modify($_REQUEST['holiday'], $eventOptions);
 			}
 
 			Config::updateModSettings([
@@ -285,43 +276,30 @@ class Calendar implements ActionInterface
 
 		SecurityToken::create('admin-eh');
 
-		// Default states...
 		if (Utils::$context['is_new']) {
-			Utils::$context['holiday'] = [
-				'id' => 0,
-				'day' => date('d'),
-				'month' => date('m'),
-				'year' => '0000',
-				'title' => '',
-			];
-		}
-		// If it's not new load the data.
-		else {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
-				FROM {db_prefix}calendar_holidays
-				WHERE id_holiday = {int:selected_holiday}
-				LIMIT 1',
-				[
-					'selected_holiday' => $_REQUEST['holiday'],
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				Utils::$context['holiday'] = [
-					'id' => $row['id_holiday'],
-					'day' => $row['day'],
-					'month' => $row['month'],
-					'year' => $row['year'] <= 4 ? 0 : $row['year'],
-					'title' => $row['title'],
-				];
-			}
-			Db::$db->free_result($request);
+			Utils::$context['event'] = new Holiday(-1, ['rrule' => 'FREQ=YEARLY']);
+		} else {
+			Utils::$context['event'] = current(Holiday::load($_REQUEST['holiday']));
 		}
 
-		// Last day for the drop down?
-		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : (int) Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? (int) Utils::$context['holiday']['year'] + 1 : (int) Utils::$context['holiday']['year']));
+		Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+
+		// An all day event? Set up some nice defaults in case the user wants to change that
+		if (Utils::$context['event']->allday == true) {
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->duration = new TimeInterval('PT1H');
+		}
+
+		// Need this so the user can select a timezone for the event.
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_datetime);
+
+		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
+		Utils::$context['event']->selected_occurrence->fixTimezone();
+
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', count(Utils::$context['event']->byday_items) - 1);
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
 	/**

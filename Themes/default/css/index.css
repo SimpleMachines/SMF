@@ -557,8 +557,17 @@ strong[id^='child_list_']::after {
 	color: #078907;
 }
 
-.holiday > span {
+.holiday > span.label {
 	color: #025dff;
+}
+.holiday_wrapper > span:first-of-type::before {
+	content: '(';
+}
+.holiday_wrapper > span:first-of-type::after {
+	content: ',';
+}
+.holiday_wrapper > span:last-of-type::after {
+	content: ')';
 }
 /* Events that are currently selected on the calendar. Won't see it much, probably. */
 .sel_event {

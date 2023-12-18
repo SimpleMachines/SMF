@@ -11,6 +11,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -83,7 +84,7 @@ function template_event_options()
 								<label for="allday">', Lang::$txt['calendar_allday'], '</label>
 							</dt>
 							<dd>
-								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']->allday) ? ' checked' : '', '>
+								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']->allday) ? ' checked' : '', !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', '>
 
 							</dd>
 
@@ -91,17 +92,16 @@ function template_event_options()
 								<label>', Lang::$txt['start'], '</label>
 							</dt>
 							<dd>
-								<input type="date" name="start_date" id="start_date" value="', Utils::$context['event']->start->format('Y-m-d'), '" class="date_input start">
-								<input type="time" name="start_time" id="start_time" value="', Utils::$context['event']->start->format('H:i'), '" class="time_input start"', !empty(Utils::$context['event']->allday) ? ' disabled' : '', '>
+								<input type="date" name="start_date" id="start_date" value="', Utils::$context['event']->start->format('Y-m-d'), '" class="date_input start"', !empty(Utils::$context['event']->special_rrule) ? ' disabled data-force-disabled' : '', '>
+								<input type="time" name="start_time" id="start_time" value="', Utils::$context['event']->start->format('H:i'), '" class="time_input start"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
 							</dd>
 
 							<dt class="clear">
 								<label>', Lang::$txt['end'], '</label>
 							</dt>
 							<dd>
-								<input type="date" name="end_date" id="end_date" value="', Utils::$context['event']->end->format('Y-m-d'), '" class="date_input end"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-								<input type="time" name="end_time" id="end_time" value="', Utils::$context['event']->end->format('H:i'), '" class="time_input end"', !empty(Utils::$context['event']->allday) ? ' disabled' : '', '>
-
+								<input type="date" name="end_date" id="end_date" value="', Utils::$context['event']->end->format('Y-m-d'), '" class="date_input end"', Config::$modSettings['cal_maxspan'] == 1 || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
+								<input type="time" name="end_time" id="end_time" value="', Utils::$context['event']->end->format('H:i'), '" class="time_input end"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
 							</dd>
 
 							<dt id="tz_dt" class="clear">
@@ -112,7 +112,7 @@ function template_event_options()
 	// Setting max-width on selects inside floating elements can be flaky,
 	// so we need to calculate the width value manually.
 	echo '
-								<select name="tz" id="tz"', !empty(Utils::$context['event']->allday) ? ' disabled' : '', ' style="width:min(', max(array_map(fn ($tzname) => Utils::entityStrlen($tzname), Utils::$context['all_timezones'])) * 0.9, 'ch, 100%)">';
+								<select name="tz" id="tz"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', ' style="width:min(', max(array_map(fn ($tzname) => Utils::entityStrlen($tzname), Utils::$context['all_timezones'])) * 0.9, 'ch, 100%)">';
 
 	foreach (Utils::$context['all_timezones'] as $tz => $tzname) {
 		echo '
@@ -137,15 +137,29 @@ function template_event_options()
 								<select name="RRULE" id="rrule" class="rrule_input">';
 
 	foreach (Utils::$context['event']->rrule_presets as $rrule => $description) {
-		echo '
+		if (is_array($description)) {
+			echo '
+									<optgroup label="', $rrule, '">';
+
+			foreach ($description as $special_rrule => $special_rrule_description) {
+				echo '
+											<option value="', $special_rrule, '"', $special_rrule === Utils::$context['event']->rrule_preset || $special_rrule === 'custom' && !isset(Utils::$context['event']->rrule_presets[Utils::$context['event']->rrule_preset]) ? ' selected' : '', '>', $special_rrule_description, '</option>';
+			}
+
+			echo '
+									</optgroup>';
+		} else {
+			echo '
 									<option value="', $rrule, '"', $rrule === Utils::$context['event']->rrule_preset || $rrule === 'custom' && !isset(Utils::$context['event']->rrule_presets[Utils::$context['event']->rrule_preset]) ? ' selected' : '', '>', $description, '</option>';
+		}
 	}
 
 	echo '
 								</select>';
 
 	// When to end the recurrence.
-	echo '
+	if (empty(Utils::$context['event']->special_rrule)) {
+		echo '
 								<span id="rrule_end" class="rrule_input_wrapper">
 									<select id="end_option" class="rrule_input">
 										<option value="forever">', Lang::$txt['calendar_repeat_until_options']['forever'], '</option>
@@ -154,12 +168,31 @@ function template_event_options()
 									</select>
 									<input type="date" name="UNTIL" id="until" class="rrule_input"', !empty(Utils::$context['event']->recurrence_iterator->getRRule()->until) ? ' value="' . Utils::$context['event']->recurrence_iterator->getRRule()->until->format('Y-m-d') . '"' : ' disabled', '>
 									<input type="number" name="COUNT" id="count" class="rrule_input" min="1"', (Utils::$context['event']->recurrence_iterator->getRRule()->count ?? 0) > 1 ? ' value="' . Utils::$context['event']->recurrence_iterator->getRRule()->count . '"' : ' value="1" disabled', '>
-								</span>
+								</span>';
+	}
+
+	echo '
 							</dd>
 						</dl>';
 
-	// Custom frequency and interval (e.g. "every 2 weeks")
-	echo '
+
+	if (!empty(Utils::$context['event']->special_rrule) || (Utils::$context['event']->new && Utils::$context['event']->type === Event::TYPE_HOLIDAY)) {
+		echo '
+						<dl id="special_rrule_options">
+							<dt class="clear">
+								<a id="special_rrule_modifier_help" href="https://stovell.noip.me/~jon/dev/index.php?action=helpadmin;help=special_rrule_modifier" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="Help"></span></a>
+								<label>', Lang::$txt['calendar_repeat_special_rrule_modifier'], '</label>
+							</dt>
+							<dd>
+								<input type="text" name="special_rrule_modifier" id="special_rrule_modifier" placeholder="', Lang::$txt['calendar_repeat_offset_examples'], '" value="' . (Utils::$context['event']->special_rrule['modifier'] ?? '') . '">
+							</dd>
+						</dl>';
+	}
+
+
+	if (empty(Utils::$context['event']->special_rrule)) {
+		// Custom frequency and interval (e.g. "every 2 weeks")
+		echo '
 						<dl id="freq_interval_options" class="rrule_input_wrapper">
 							<dt class="clear">
 								<label>', Lang::$txt['calendar_repeat_interval_label'], '</label>
@@ -168,18 +201,18 @@ function template_event_options()
 								<input type="number" name="INTERVAL" value="', Utils::$context['event']->recurrence_iterator->getRRule()->interval, '" min="1" class="rrule_input" disabled>
 								<select name="FREQ" id="freq" class="rrule_input">';
 
-	foreach (Utils::$context['event']->frequency_units as $freq => $unit) {
-		echo '
+		foreach (Utils::$context['event']->frequency_units as $freq => $unit) {
+			echo '
 									<option value="', $freq, '"', Utils::$context['event']->recurrence_iterator->getRRule()->freq === $freq ? ' selected' : '', '>', $unit, '</option>';
-	}
+		}
 
-	echo '
+		echo '
 								</select>
 							</dd>
 						</dl>';
 
-	// Custom yearly options.
-	echo '
+		// Custom yearly options.
+		echo '
 						<dl id="yearly_options" class="rrule_input_wrapper">
 							<dt class="clear">
 								<label>', Lang::$txt['calendar_repeat_bymonth_label'], '</label>
@@ -187,31 +220,31 @@ function template_event_options()
 							<dd>
 								<div class="rrule_input_row">';
 
-	for ($i = 1; $i <= 12; $i++) {
-		echo '
+		for ($i = 1; $i <= 12; $i++) {
+			echo '
 									<label class="bymonth_label">
 										<input type="checkbox" name="BYMONTH[]" value="' . $i . '" id="bymonth_', $i,'" class="rrule_input" disabled>
 										<span>' . Lang::$txt['months_short'][$i] . '</span>
 									</label>';
 
-		if ($i % 6 === 0) {
-			echo '
+			if ($i % 6 === 0) {
+				echo '
 								</div>
 								<div class="rrule_input_row">';
+			}
 		}
-	}
 
-	echo '
+		echo '
 								</div>
 							</dd>
 						</dl>';
 
-	// Custom monthly options.
-	echo '
+		// Custom monthly options.
+		echo '
 						<dl id="monthly_options" class="rrule_input_wrapper">';
 
-	// Custom monthly: by day of month.
-	echo '
+		// Custom monthly: by day of month.
+		echo '
 							<dt class="clear" id="dt_monthly_option_type_bymonthday">
 								<label>
 									', Lang::$txt['calendar_repeat_bymonthday_label'], '
@@ -223,27 +256,27 @@ function template_event_options()
 									<div class="rrule_input inline_block">
 										<div class="rrule_input_row">';
 
-	for ($i = 1; $i <= 31; $i++) {
-		echo '
+		for ($i = 1; $i <= 31; $i++) {
+			echo '
 											<label class="bymonthday_label">
 												<input type="checkbox" name="BYMONTHDAY[]" id="bymonthday_' . $i . '" value="' . $i . '"  class="rrule_input" disabled> <span>' . $i . '</span>
 											</label>';
 
-		if ($i % 7 === 0) {
-			echo '
+			if ($i % 7 === 0) {
+				echo '
 										</div>
 										<div class="rrule_input_row">';
+			}
 		}
-	}
 
-	echo '
+		echo '
 										</div>
 									</div>
 								</div>
 							</dd>';
 
-	// Custom monthly: by weekday and offset (e.g. "the second Tuesday")
-	echo '
+		// Custom monthly: by weekday and offset (e.g. "the second Tuesday")
+		echo '
 							<dt class="clear">
 								<label>
 									', Lang::$txt['calendar_repeat_byday_label'], '
@@ -253,42 +286,42 @@ function template_event_options()
 							<dd id="month_byday_options">
 								<div class="rrule_input clear">';
 
-	foreach (Utils::$context['event']->byday_items as $byday_item_key => $byday_item) {
-		echo '
+		foreach (Utils::$context['event']->byday_items as $byday_item_key => $byday_item) {
+			echo '
 									<div>
 										<select id="byday_num_select_', $byday_item_key, '" name="BYDAY_num[', $byday_item_key, ']" class="rrule_input byday_num_select" disabled>';
 
-		foreach (Utils::$context['event']->byday_num_options as $num => $ordinal) {
-			if (isset($prev_num) && ($num < 0) !== ($prev_num < 0)) {
-				echo '
+			foreach (Utils::$context['event']->byday_num_options as $num => $ordinal) {
+				if (isset($prev_num) && ($num < 0) !== ($prev_num < 0)) {
+					echo '
 											<option disabled>------</option>';
-		}
+			}
 
-		echo '
+			echo '
 											<option value="', $num, '" class="byday_num_', ($num < 0 ? 'neg' : '') . abs($num), '"', $num == $byday_item['num'] ? ' selected' : '', '>', $ordinal, '</option>';
 
-			$prev_num = $num;
-		}
-		unset($prev_num);
+				$prev_num = $num;
+			}
+			unset($prev_num);
 
-		echo '
+			echo '
 										</select>
 										<select id="byday_name_select_', $byday_item_key, '" name="BYDAY_name[', $byday_item_key, ']" class="rrule_input byday_name_select" disabled>';
 
-		foreach (Utils::$context['event']->sorted_weekdays as $weekday) {
-			echo '
+			foreach (Utils::$context['event']->sorted_weekdays as $weekday) {
+				echo '
 											<option value="', $weekday['abbrev'], '" class="byday_name_', $weekday['abbrev'], '"', $weekday['abbrev'] == $byday_item['name'] ? ' selected' : '', '>', $weekday['long'], '</option>';
-		}
+			}
 
-		echo '
+			echo '
 											<option disabled>------</option>
 											<option value="MO,TU,WE,TH,FR">', Lang::$txt['calendar_repeat_weekday'], '</option>
 											<option value="SA,SU">', Lang::$txt['calendar_repeat_weekend_day'], '</option>
 										</select>
 									</div>';
-	}
+		}
 
-	echo '
+		echo '
 								</div>
 								<div>
 									<a id="event_add_byday" class="rrule_input button floatnone">', Lang::$txt['calendar_repeat_add_condition'], '</a>
@@ -297,29 +330,29 @@ function template_event_options()
 									<div>
 										<select name="BYDAY_num[-1]" class="rrule_input byday_num_select">';
 
-	foreach (Utils::$context['event']->byday_num_options as $num => $ordinal) {
-		if (isset($prev_num) && ($num < 0) !== ($prev_num < 0)) {
-			echo '
+		foreach (Utils::$context['event']->byday_num_options as $num => $ordinal) {
+			if (isset($prev_num) && ($num < 0) !== ($prev_num < 0)) {
+				echo '
 											<option disabled>------</option>';
-	}
+		}
 
-	echo '
+		echo '
 											<option value="', $num, '" class="byday_num_', ($num < 0 ? 'neg' : '') . abs($num), '">', $ordinal, '</option>';
 
-		$prev_num = $num;
-	}
-	unset($prev_num);
+			$prev_num = $num;
+		}
+		unset($prev_num);
 
-	echo '
+		echo '
 										</select>
 										<select name="BYDAY_name[-1]" class="rrule_input byday_name_select">';
 
-	foreach (Utils::$context['event']->sorted_weekdays as $weekday) {
-		echo '
+		foreach (Utils::$context['event']->sorted_weekdays as $weekday) {
+			echo '
 											<option value="', $weekday['abbrev'], '" class="byday_name_', $weekday['abbrev'], '">', $weekday['long'], '</option>';
-	}
+		}
 
-	echo '
+		echo '
 											<option disabled>------</option>
 											<option value="MO,TU,WE,TH,FR">', Lang::$txt['calendar_repeat_weekday'], '</option>
 											<option value="SA,SU">', Lang::$txt['calendar_repeat_weekend_day'], '</option>
@@ -329,25 +362,26 @@ function template_event_options()
 							</dd>
 						</dl>';
 
-	// Custom weekly options.
-	echo '
+		// Custom weekly options.
+		echo '
 						<dl id="weekly_options" class="rrule_input_wrapper">
 							<dt class="clear">
 								<label>', Lang::$txt['calendar_repeat_byday_label'], '</label>
 							</dt>
 							<dd class="rrule_input_row">';
 
-	foreach (Utils::$context['event']->sorted_weekdays as $weekday) {
-		echo '
+		foreach (Utils::$context['event']->sorted_weekdays as $weekday) {
+			echo '
 									<label class="byday_label">
 										<input type="checkbox" name="BYDAY[]" id="byday_', $weekday['abbrev'], '" value="', $weekday['abbrev'], '"  class="rrule_input"', in_array($weekday['abbrev'], Utils::$context['event']->recurrence_iterator->getRRule()->byday ?? []) ? ' checked' : '', ' disabled>
 										<span>', $weekday['short'], '</span>
 									</label>';
-	}
+		}
 
-	echo '
+		echo '
 							</dd>
 						</dl>';
+	}
 
 	// Advanced options.
 	echo '

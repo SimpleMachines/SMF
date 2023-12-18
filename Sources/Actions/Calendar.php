@@ -19,6 +19,7 @@ use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
+use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -799,42 +800,12 @@ class Calendar implements ActionInterface
 	 */
 	public static function getHolidayRange(string $low_date, string $high_date): array
 	{
-		// Get the lowest and highest dates for "all years".
-		if (substr($low_date, 0, 4) != substr($high_date, 0, 4)) {
-			$allyear_part = 'event_date BETWEEN {date:all_year_low} AND {date:all_year_dec}
-				OR event_date BETWEEN {date:all_year_jan} AND {date:all_year_high}';
-		} else {
-			$allyear_part = 'event_date BETWEEN {date:all_year_low} AND {date:all_year_high}';
-		}
-
-		// Find some holidays... ;).
-		$result = Db::$db->query(
-			'',
-			'SELECT event_date, YEAR(event_date) AS year, title
-			FROM {db_prefix}calendar_holidays
-			WHERE event_date BETWEEN {date:low_date} AND {date:high_date}
-				OR ' . $allyear_part,
-			[
-				'low_date' => $low_date,
-				'high_date' => $high_date,
-				'all_year_low' => '1004' . substr($low_date, 4),
-				'all_year_high' => '1004' . substr($high_date, 4),
-				'all_year_jan' => '1004-01-01',
-				'all_year_dec' => '1004-12-31',
-			],
-		);
 		$holidays = [];
+		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		while ($row = Db::$db->fetch_assoc($result)) {
-			if (substr($low_date, 0, 4) != substr($high_date, 0, 4)) {
-				$event_year = substr($row['event_date'], 5) < substr($high_date, 5) ? substr($high_date, 0, 4) : substr($low_date, 0, 4);
-			} else {
-				$event_year = substr($low_date, 0, 4);
-			}
-
-			$holidays[$event_year . substr($row['event_date'], 4)][] = $row['title'];
+		foreach(Holiday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
+			$holidays[$occurrence->start->format('Y-m-d')][] = $occurrence;
 		}
-		Db::$db->free_result($result);
 
 		ksort($holidays);
 
@@ -1233,7 +1204,7 @@ class Calendar implements ActionInterface
 		foreach (['birthdays', 'holidays'] as $type) {
 			foreach ($calendarGrid[$type] as $date => $date_content) {
 				// Make sure to apply no offsets
-				$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(Time::create($date)->format($date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+				$date_local = Time::create($date)->format($date_format);
 
 				$calendarGrid[$type][$date]['date_local'] = $date_local;
 			}
@@ -1534,76 +1505,15 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Gets all of the holidays for the listing
+	 * Backward compatibility wrapper for Holiday::remove().
 	 *
-	 * @param int $start The item to start with (for pagination purposes)
-	 * @param int $items_per_page How many items to show on each page
-	 * @param string $sort A string indicating how to sort the results
-	 * @return array An array of holidays, each of which is an array containing the id, year, month, day and title of the holiday
-	 */
-	public static function list_getHolidays(int $start, int $items_per_page, string $sort): array
-	{
-		$request = Db::$db->query(
-			'',
-			'SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
-			FROM {db_prefix}calendar_holidays
-			ORDER BY {raw:sort}
-			LIMIT {int:start}, {int:max}',
-			[
-				'sort' => $sort,
-				'start' => $start,
-				'max' => $items_per_page,
-			],
-		);
-		$holidays = [];
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$holidays[] = $row;
-		}
-		Db::$db->free_result($request);
-
-		return $holidays;
-	}
-
-	/**
-	 * Helper function to get the total number of holidays
-	 *
-	 * @return int The total number of holidays
-	 */
-	public static function list_getNumHolidays(): int
-	{
-		$request = Db::$db->query(
-			'',
-			'SELECT COUNT(*)
-			FROM {db_prefix}calendar_holidays',
-			[
-			],
-		);
-		list($num_items) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		return (int) $num_items;
-	}
-
-	/**
-	 * Remove a holiday from the calendar
-	 *
-	 * @param array $holiday_ids An array of IDs of holidays to delete
+	 * @param array $holiday_ids An array of IDs of holidays to delete.
 	 */
 	public static function removeHolidays(array $holiday_ids): void
 	{
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}calendar_holidays
-			WHERE id_holiday IN ({array_int:id_holiday})',
-			[
-				'id_holiday' => $holiday_ids,
-			],
-		);
-
-		Config::updateModSettings([
-			'calendar_updated' => time(),
-		]);
+		foreach ($holiday_ids as $holiday_id) {
+			Holiday::remove($holiday_id);
+		}
 	}
 
 	/**

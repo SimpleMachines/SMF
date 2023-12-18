@@ -31,9 +31,10 @@ function updateEventUI()
 	let weekday = getWeekday(start_date);
 
 	// Disable or enable the time-related fields as necessary.
-	document.getElementById("start_time").disabled = document.getElementById("allday").checked;
-	document.getElementById("end_time").disabled = document.getElementById("allday").checked;
-	document.getElementById("tz").disabled = document.getElementById("allday").checked;
+	document.getElementById("start_time").disabled = document.getElementById("start_time").dataset.forceDisabled;
+	document.getElementById("start_time").disabled = document.getElementById("allday").checked || document.getElementById("start_time").dataset.forceDisabled;
+	document.getElementById("end_time").disabled = document.getElementById("allday").checked || document.getElementById("end_time").dataset.forceDisabled;
+	document.getElementById("tz").disabled = document.getElementById("allday").checked || document.getElementById("tz").dataset.forceDisabled;
 
 	// Reset the recurring event options to be hidden and disabled.
 	// We'll turn the appropriate ones back on below.
@@ -422,6 +423,21 @@ function updateEventUI()
 		}
 	}
 
+	if (
+		document.getElementById("rrule")
+		&& document.getElementById("special_rrule_modifier")
+		&& typeof special_rrules !== "undefined"
+		&& Array.isArray(special_rrules)
+	) {
+		if (special_rrules.includes(document.getElementById("rrule").value)) {
+			document.getElementById("special_rrule_options").style.display = "";
+			document.getElementById("special_rrule_modifier").disabled = false;
+		} else {
+			document.getElementById("special_rrule_options").style.display = "none";
+			document.getElementById("special_rrule_modifier").disabled = true;
+		}
+	}
+
 	end_date = updateEndDate(start_date, end_date);
 
 	// Show the basic RRule select menu.
@@ -434,7 +450,7 @@ function updateEventUI()
 	}
 
 	// If necessary, show the options for RRule end.
-	if (document.getElementById("rrule").value !== "never") {
+	if (document.getElementById("rrule").value === "custom" || document.getElementById("rrule").value.substring(0, 5) === "FREQ=") {
 		const end_option = document.getElementById("end_option");
 		const until = document.getElementById("until");
 		const count = document.getElementById("count");

@@ -205,18 +205,24 @@ function template_show_upcoming_list($grid_name)
 				<div class="windowbg">
 					<p class="inline holidays">';
 
-		$holidays = array();
+		foreach ($calendar_data['holidays'] as $date) {
+			echo '
+						<span>
+							<strong>', $date['date_local'], '</strong>: ';
 
-		foreach ($calendar_data['holidays'] as $date)
-		{
-			$date_local = $date['date_local'];
 			unset($date['date_local']);
 
-			foreach ($date as $holiday)
-				$holidays[] = $holiday . ' (' . $date_local . ')';
-		}
+			$holidays = array();
 
-		echo implode(', ', $holidays);
+			foreach ($date as $holiday) {
+				$holidays[] = $holiday->title . (!empty($holiday->location) ? ' (' . $holiday->location . ')' : '');
+			}
+
+			echo implode(', ', $holidays);
+
+			echo '.
+						</span>';
+		}
 
 		echo '
 					</p>
@@ -368,7 +374,29 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					if (!empty($day['holidays']))
 						echo '
 						<div class="smalltext holiday">
-							<span>', Lang::$txt['calendar_prompt'], '</span> ', implode(', ', $day['holidays']), '
+							<span class="label">', Lang::$txt['calendar_prompt'], '</span> ';
+
+						$holidays = [];
+
+						foreach ($day['holidays'] as $holiday) {
+							echo '<span class="holiday_wrapper">';
+
+							$holiday_string = $holiday->title;
+
+							if (empty($holiday->allday) && !empty($holiday->start_time_local) && $holiday->start_date == $day['date']) {
+								$holiday_string .= ' <span class="event_time">' . trim(str_replace(':00 ', ' ', $holiday->start_time_local)) . '</span>';
+							}
+
+							if (!empty($holiday->location)) {
+								$holiday_string .= ' <span class="event_location">' . $holiday->location . '</span>';
+							}
+
+							$holidays[] = $holiday_string;
+						}
+
+						echo implode('<span>, <span class="holiday_wrapper">', $holidays);
+
+						echo '</span>
 						</div>';
 
 					// Happy Birthday Dear Member!
@@ -699,11 +727,36 @@ function template_show_week_grid($grid_name)
 						<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col" data-css-prefix="' . Lang::$txt['calendar_prompt'] . ' ">';
 
 				// Show any holidays!
-				if (!empty($day['holidays']))
-					echo implode('<br>', $day['holidays']);
+				if (!empty($day['holidays'])) {
+					echo '
+							<div class="holiday_wrapper">';
+
+					$holidays = [];
+
+					foreach ($day['holidays'] as $holiday) {
+						$holiday_string = $holiday->title;
+
+						if (empty($holiday->allday) && !empty($holiday->start_time_local) && $holiday->start_date == $day['date']) {
+							$holiday_string .= ' <span class="event_time">' . trim(str_replace(':00 ', ' ', $holiday->start_time_local)) . '</span>';
+						}
+
+						if (!empty($holiday->location)) {
+							$holiday_string .= ' <span class="event_location">' . $holiday->location . '</span>';
+						}
+
+						$holidays[] = $holiday_string;
+					}
+
+					echo implode('
+							</div>
+							<div class="holiday_wrapper">', $holidays);
+
+					echo '
+							</div>';
+				}
 
 				echo '
-							</td>';
+						</td>';
 			}
 
 			if (!empty($calendar_data['show_birthdays']))
