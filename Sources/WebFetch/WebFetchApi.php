@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\WebFetch;
 
 use SMF\BackwardCompatibility;
@@ -80,8 +82,9 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function request(string $url, array|string $post_data = []): object
+	public function request(string $url, array|string $post_data = []): ?object
 	{
+		return null;
 	}
 
 	/**
@@ -89,6 +92,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	public function result(?string $area = null): mixed
 	{
+		return null;
 	}
 
 	/**
@@ -96,6 +100,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	public function resultRaw(?int $response_number = null): array
 	{
+		return [];
 	}
 
 	/***********************

@@ -11,19 +11,22 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Search\APIs;
 
 use SMF\Search\SearchApi;
+use SMF\Search\SearchApiInterface;
 
 /**
  * Standard non full index, non custom index search
  */
-class Standard extends SearchApi
+class Standard extends SearchApi implements SearchApiInterface
 {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null): bool
+	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
 		$return = false;
 

@@ -730,6 +730,7 @@ class UpdateUnicode extends BackgroundTask
 		$file_template = implode("\n\n", [
 			'<' . '?php',
 			trim($license_block),
+			'declare(strict_types=1);',
 			'namespace SMF\\Unicode;',
 			"if (!defined('SMF')) {\n\tdie('No direct access...');\n}",
 			'',
@@ -785,7 +786,7 @@ class UpdateUnicode extends BackgroundTask
 			$func_regex = $this->funcs[$func_name]['regex'] ?? '/' . preg_quote($func_code, '/') . '/';
 		} else {
 			// The regex to look for this function in the existing file content.
-			$func_regex = '~(/\*([^*]|\*(?!/))*\*/\n)?function ' . $func_name . '\(\)\n{.+?\n}~s';
+			$func_regex = '~(/\*([^*]|\*(?!/))*\*/\n)?function ' . $func_name . '\(\): array\n{.+?\n}~s';
 
 			// The PHPDoc comment for this function.
 			$func_code = '/**' . implode("\n * ", array_merge(
@@ -804,7 +805,7 @@ class UpdateUnicode extends BackgroundTask
 
 			// The code for this function.
 			$func_code .= implode("\n", [
-				'function ' . $func_name . '()',
+				'function ' . $func_name . '(): array',
 				'{',
 				"\t" . 'return [',
 				'',
@@ -1247,7 +1248,7 @@ class UpdateUnicode extends BackgroundTask
 
 				$ord = hexdec(trim($entity, '&#x;'));
 
-				if (!isset($current_range['start'])) {
+				if (is_null($current_range['start'])) {
 					$current_range['start'] = $ord;
 				}
 
@@ -1379,7 +1380,7 @@ class UpdateUnicode extends BackgroundTask
 			$current_range = ['start' => null, 'end' => null];
 
 			foreach ($ords as $ord) {
-				if (!isset($current_range['start'])) {
+				if (is_null($current_range['start'])) {
 					$current_range['start'] = $ord;
 				}
 
@@ -1829,7 +1830,7 @@ class UpdateUnicode extends BackgroundTask
 				$current_range = ['start' => null, 'end' => null];
 
 				foreach ($value as $ord) {
-					if (!isset($current_range['start'])) {
+					if (is_null($current_range['start'])) {
 						$current_range['start'] = $ord;
 					}
 

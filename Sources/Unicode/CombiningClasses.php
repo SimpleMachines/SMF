@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Combining Class data for Unicode normalization.
  */
-function utf8_combining_classes()
+function utf8_combining_classes(): array
 {
 	return [
 		"\xCC\x80" => 230,

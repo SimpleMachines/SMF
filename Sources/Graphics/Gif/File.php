@@ -19,6 +19,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Graphics\Gif;
 
 use SMF\Config;
@@ -38,7 +40,7 @@ class File
 		$this->image = new Image();
 	}
 
-	public function loadFile($filename, $iIndex)
+	public function loadFile(string $filename, int $iIndex): bool
 	{
 		if ($iIndex < 0) {
 			return false;
@@ -75,7 +77,7 @@ class File
 		return true;
 	}
 
-	public function get_png_data($background_color)
+	public function get_png_data(string $background_color): string|bool
 	{
 		if (!$this->loaded) {
 			return false;
@@ -86,22 +88,22 @@ class File
 			$colors = $this->image->m_gih->m_nTableSize;
 			$pal = $this->image->m_gih->m_colorTable->toString();
 
-			if ($background_color != -1) {
+			if ($background_color != '-1') {
 				$background_color = $this->image->m_gih->m_colorTable->colorIndex($background_color);
 			}
 		} elseif ($this->header->m_bGlobalClr) {
 			$colors = $this->header->m_nTableSize;
 			$pal = $this->header->m_colorTable->toString();
 
-			if ($background_color != -1) {
+			if ($background_color != '-1') {
 				$background_color = $this->header->m_colorTable->colorIndex($background_color);
 			}
 		} else {
 			$colors = 0;
-			$background_color = -1;
+			$background_color = '-1';
 		}
 
-		if ($background_color == -1) {
+		if ($background_color == '-1') {
 			$background_color = $this->header->m_nBgColor;
 		}
 

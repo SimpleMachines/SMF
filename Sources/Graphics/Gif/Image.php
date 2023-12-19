@@ -19,6 +19,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Graphics\Gif;
 
 class Image
@@ -40,7 +42,7 @@ class Image
 		$this->m_lzw = new LzwCompression();
 	}
 
-	public function load($data, &$datLen)
+	public function load(string $data, int &$datLen): bool
 	{
 		$datLen = 0;
 
@@ -94,11 +96,9 @@ class Image
 					return false;
 			}
 		}
-
-		return false;
 	}
 
-	public function skipExt(&$data, &$extLen)
+	public function skipExt(string &$data, int &$extLen): bool
 	{
 		$extLen = 0;
 
@@ -147,7 +147,7 @@ class Image
 		return true;
 	}
 
-	public function deInterlace()
+	public function deInterlace(): void
 	{
 		$data = $this->m_data;
 

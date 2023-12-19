@@ -23,6 +23,7 @@ use SMF\Menu;
 use SMF\User;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
+use SMF\PackageManager\XmlArray;
 
 /**
  * Provides the search functionality inside the admin control panel.

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Search;
 
 use SMF\BackwardCompatibility;
@@ -22,6 +24,7 @@ use SMF\Lang;
 use SMF\PackageManager\SubsPackage;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Search;
 
 /**
  * Class SearchApi
@@ -399,7 +402,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = []): bool
+	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
 		switch ($methodName) {
 			case 'postRemoved':
@@ -421,27 +424,30 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	public function isValid(): bool
 	{
+		return false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchSort($a, $b): int
+	public function searchSort(string $a, string $b): int
+	{
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
+	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function indexedWordQuery(array $words, array $search_data)
-	{
+		return null;
 	}
 
 	/**
@@ -461,7 +467,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postRemoved($id_msg): void
+	public function postRemoved(int $id_msg): void
 	{
 		$result = Db::$db->query(
 			'',
@@ -521,7 +527,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsMoved(array $topics, $board_to): void
+	public function topicsMoved(array $topics, int $board_to): void
 	{
 	}
 
@@ -539,7 +545,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray)
+	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray): void
 	{
 		$update_cache = empty($_SESSION['search_cache']) || ($_SESSION['search_cache']['params'] != $this->compressParams());
 
@@ -746,7 +752,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * Creates a search API and returns the object.
 	 *
-	 * @return SMF\Search\SearchApiInterface An instance of the search API interface.
+	 * @return \SMF\Search\SearchApiInterface An instance of the search API interface.
 	 */
 	final public static function load(): object
 	{
@@ -1068,7 +1074,7 @@ abstract class SearchApi implements SearchApiInterface
 		// .. first, we check for things like -"some words", but not "-some words".
 		foreach ($matches[1] as $index => $word) {
 			if ($word === '-') {
-				if (($word = trim($phraseArray[$index], '-_\' ')) !== '' && !in_array($word, $blacklisted_words)) {
+				if (($word = trim($phraseArray[$index], '-_\' ')) !== '' && !in_array($word, $this->blacklisted_words)) {
 					$this->excludedWords[] = $word;
 				}
 
@@ -1079,7 +1085,7 @@ abstract class SearchApi implements SearchApiInterface
 		// Now we look for -test, etc.... normaller.
 		foreach ($wordArray as $index => $word) {
 			if (strpos(trim($word), '-') === 0) {
-				if (($word = trim($word, '-_\' ')) !== '' && !in_array($word, $blacklisted_words)) {
+				if (($word = trim($word, '-_\' ')) !== '' && !in_array($word, $this->blacklisted_words)) {
 					$this->excludedWords[] = $word;
 				}
 

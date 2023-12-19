@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Character maps for IDNA processing.
  */
-function idna_maps()
+function idna_maps(): array
 {
 	return [
 		"\x41" => "\x61",
@@ -5974,7 +5976,7 @@ function idna_maps()
  *
  * @return array "Deviation" character maps for IDNA processing.
  */
-function idna_maps_deviation()
+function idna_maps_deviation(): array
 {
 	return [
 		"\xC3\x9F" => "\x73\x73",
@@ -5992,7 +5994,7 @@ function idna_maps_deviation()
  *
  * @return array Non-STD3 character maps for IDNA processing.
  */
-function idna_maps_not_std3()
+function idna_maps_not_std3(): array
 {
 	return [
 		"\xC2\xA0" => "\x20",
@@ -6310,7 +6312,7 @@ function idna_maps_not_std3()
  *
  * @return array Regular expressions useful for IDNA processing.
  */
-function idna_regex()
+function idna_regex(): array
 {
 	return [
 		'disallowed_std3' =>

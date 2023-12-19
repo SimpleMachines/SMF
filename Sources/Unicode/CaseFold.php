@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Casefolding maps.
  */
-function utf8_casefold_simple_maps()
+function utf8_casefold_simple_maps(): array
 {
 	return [
 		"\x41" => "\x61",
@@ -1496,7 +1498,7 @@ function utf8_casefold_simple_maps()
  *
  * @return array Casefolding maps.
  */
-function utf8_casefold_maps()
+function utf8_casefold_maps(): array
 {
 	return [
 		"\x41" => "\x61",

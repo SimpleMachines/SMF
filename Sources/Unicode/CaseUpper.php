@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Lowercase to uppercase maps.
  */
-function utf8_strtoupper_simple_maps()
+function utf8_strtoupper_simple_maps(): array
 {
 	return [
 		"\x61" => "\x41",
@@ -1489,7 +1491,7 @@ function utf8_strtoupper_simple_maps()
  *
  * @return array Lowercase to uppercase maps.
  */
-function utf8_strtoupper_maps()
+function utf8_strtoupper_maps(): array
 {
 	return [
 		"\x61" => "\x41",

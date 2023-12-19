@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Search;
 
 use SMF\Msg;
@@ -29,7 +31,7 @@ interface SearchApiInterface
 	 * @param array $query_params Any parameters for the query
 	 * @return bool Whether or not the specified method is supported
 	 */
-	public function supportsMethod($methodName, $query_params = []): bool;
+	public function supportsMethod(string $methodName, array $query_params = []): bool;
 
 	/**
 	 * Whether this method is valid for implementation or not.
@@ -47,7 +49,7 @@ interface SearchApiInterface
 	 * @param string $b Word B
 	 * @return int An integer indicating how the words should be sorted
 	 */
-	public function searchSort($a, $b): int;
+	public function searchSort(string $a, string $b): int;
 
 	/**
 	 * Callback while preparing indexes for searching.
@@ -57,7 +59,7 @@ interface SearchApiInterface
 	 * @param array $wordsExclude Words to exclude
 	 * @param bool $isExcluded Whether the specified word should be excluded
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void;
+	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void;
 
 	/**
 	 * Search for indexed words.
@@ -66,7 +68,7 @@ interface SearchApiInterface
 	 * @param array $search_data An array of search data
 	 * @return mixed
 	 */
-	public function indexedWordQuery(array $words, array $search_data);
+	public function indexedWordQuery(array $words, array $search_data): mixed;
 
 	/**
 	 * Callback when a post is created.
@@ -95,7 +97,7 @@ interface SearchApiInterface
 	 *
 	 * @param int $id_msg The ID of the post that was removed
 	 */
-	public function postRemoved($id_msg): void;
+	public function postRemoved(int $id_msg): void;
 
 	/**
 	 * Callback when a topic is removed.
@@ -110,7 +112,7 @@ interface SearchApiInterface
 	 * @param array $topics The ID(s) of the moved topic(s)
 	 * @param int $board_to The board that the topics were moved to
 	 */
-	public function topicsMoved(array $topics, $board_to): void;
+	public function topicsMoved(array $topics, int $board_to): void;
 
 	/**
 	 * Sets whatever properties are necessary in order to perform the search.
@@ -134,7 +136,7 @@ interface SearchApiInterface
 	 * @param array $searchArray
 	 * @return mixed
 	 */
-	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray);
+	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray): void;
 
 	/**
 	 * Figures out which search result topics the user participated in.
