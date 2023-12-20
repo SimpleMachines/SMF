@@ -1525,7 +1525,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function showUnwatched(int $memID): void
 	{
-		Actions\Profile\ShowPosts::profileSubActionProvider(memId: $memID, sa: 'unwatchedtopics', updateRequest: true);
+		Actions\Profile\ShowPosts::profileSubActionProvider(memID: $memID, sa: 'unwatchedtopics', updateRequest: true);
 	}
 	function showAttachments(int $memID): void
 	{
@@ -3548,8 +3548,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * SMF\Group
 	 */
 	function loadSimple(
-		int $include = self::LOAD_NORMAL,
-		array $exclude = [self::GUEST, self::REGULAR, self::MOD]
+		int $include = SMF\Group::LOAD_NORMAL,
+		array $exclude = [SMF\Group::GUEST, SMF\Group::REGULAR, SMF\Group::MOD]
 	): array {
 		return SMF\Group::loadSimple($include, $exclude);
 	}
@@ -4406,11 +4406,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function loadJavaScriptFile(string $fileName, array $params = [], string $id = ''): void
 	{
-		SMF\Theme::loadJavaScriptFile($filename, $params, $id);
+		SMF\Theme::loadJavaScriptFile($fileName, $params, $id);
 	}
 	function addJavaScriptVar(string $key, string $value, bool $escape = false)
 	{
-		return SMF\Theme::addJavaScriptVar($Key, $value, $escape);
+		return SMF\Theme::addJavaScriptVar($key, $value, $escape);
 	}
 	function addInlineJavaScript(string $javascript, bool $defer = false): ?bool
 	{
@@ -4529,7 +4529,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function get_sorted_tzids_for_country(string $country_code, int|string $when = 'now'): array
 	{
-		return SMF\TimeZone::getSortedTzidsForCountry($country, $when);
+		return SMF\TimeZone::getSortedTzidsForCountry($country_code, $when);
 	}
 	function get_tzid_fallbacks(array $tzids, int|string $when = 'now'): array
 	{
@@ -4537,7 +4537,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function validate_iso_country_codes(array|string $country_codes, bool $as_csv = false): array|string
 	{
-		return SMF\TimeZone::validateIsoCountryCodes($country_code, $as_csv);
+		return SMF\TimeZone::validateIsoCountryCodes($country_codes, $as_csv);
 	}
 	/**
 	 * End
@@ -4615,7 +4615,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function httpsRedirectActive(string $target): bool
 	{
-		return SMF\Url::urlProvider($target);
+		return SMF\Url::urlProvider(__FUNCTION__, $target);
 	}
 	/**
 	 * End
@@ -4670,7 +4670,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $buddies_only = false,
 		int $max = 500
 	): array {
-		return SMF\User::find($named, $use_wildcards, $buddies_only, $max);
+		return SMF\User::find($names, $use_wildcards, $buddies_only, $max);
 	}
 	function membersAllowedTo(string $permission, ?int $board_id = null): array
 	{
@@ -4699,7 +4699,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		SMF\User::logSpider();
 	}
-	function loadMemberData($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	function loadMemberData($users = [], int $type = SMF\User::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		return SMF\User::loadMemberData($users, $type, $dataset);
 	}
