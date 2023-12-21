@@ -9,7 +9,12 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "simplemachines/build-tools": "dev-release-3.0"
+        "simplemachines/build-tools": "dev-release-3.0",
+        "friendsofphp/php-cs-fixer": "^3.40"
+    },
+    "scripts": {
+        "lint": "php-cs-fixer check --diff",
+        "lint-fix": "php-cs-fixer fix -v"
     },
     "config": {
         "platform": {
