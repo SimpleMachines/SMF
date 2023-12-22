@@ -483,12 +483,12 @@ abstract class CacheApi
 	 *
 	 * @param string $key The key for this entry
 	 * @param string $file The file associated with this entry
-	 * @param string $function The function to call
+	 * @param string|array $function The function to call
 	 * @param array $params Parameters to be passed to the specified function
 	 * @param int $level The cache level
 	 * @return string The cached data
 	 */
-	final public static function quickGet(string $key, string $file, string $function, array $params, int $level = 1): mixed
+	final public static function quickGet(string $key, string $file, string|array $function, array $params, int $level = 1): mixed
 	{
 		if (class_exists('SMF\\IntegrationHook', false)) {
 			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
