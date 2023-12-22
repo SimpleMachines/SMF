@@ -1218,7 +1218,6 @@ class Profile extends User implements \ArrayAccess
 			&& (
 				stristr($this->avatar['url'], 'gravatar://')
 				|| !empty(Config::$modSettings['gravatarOverride'])
-				// Gravatar?
 			)
 		) {
 			$this->formatted['avatar'] += [
