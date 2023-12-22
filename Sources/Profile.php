@@ -1212,6 +1212,7 @@ class Profile extends User implements \ArrayAccess
 			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']),
 		];
 
+		// Gravatar?
 		if (
 			$this->formatted['avatar']['allow_gravatar']
 			&& (
