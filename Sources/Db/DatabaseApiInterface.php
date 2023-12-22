@@ -29,7 +29,7 @@ interface DatabaseApiInterface
 	 * @param object $connection = null The connection to use (null to use $db_connection)
 	 * @return object|bool Returns a query result resource (for SELECT queries), true (for UPDATE queries) or false if the query failed.
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], object $connection = null): object|bool;
+	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
 
 	/**
 	 * Prepares a query string for execution, but does not perform the query.
@@ -39,7 +39,7 @@ interface DatabaseApiInterface
 	 * @param object $connection = null The connection to use (null to use $db_connection).
 	 * @return string The string with the values inserted.
 	 */
-	public function quote(string $db_string, array $db_values, object $connection = null): string;
+	public function quote(string $db_string, array $db_values, ?object $connection = null): string;
 
 	/**
 	 * Fetch the next row of a result set as an enumerated array.
@@ -78,11 +78,11 @@ interface DatabaseApiInterface
 	 * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs.
 	 * @param array $data The data to insert.
 	 * @param array $keys The keys for the table, needs to be not empty on replace mode.
-	 * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array.
 	 * @param object $connection = null The connection (if null, $db_connection is used).
+	 * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array.
 	 * @return int The ID of the most recently inserted row.
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, object $connection = null): int|array|null;
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null;
 
 	/**
 	 * Gets the ID of the most recently inserted row.
@@ -92,7 +92,7 @@ interface DatabaseApiInterface
 	 * @param object $connection = null The connection (if null, $db_connection is used)
 	 * @return int The ID of the most recently inserted row
 	 */
-	public function insert_id(string $table, string $field = null, object $connection = null): int;
+	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int;
 
 	/**
 	 * Gets the number of rows in a result set.
@@ -105,8 +105,8 @@ interface DatabaseApiInterface
 	/**
 	 * Adjusts the result pointer to an arbitrary row in a query result.
 	 *
-	 * @param object $request A query result resource.
 	 * @param int $offset The row offset.
+	 * @param object $request A query result resource.
 	 * @return bool True on success, or false on failuer.
 	 */
 	public function data_seek(object $result, int $offset): bool;
@@ -123,11 +123,11 @@ interface DatabaseApiInterface
 	 * Escapes special characters in a string for use in an SQL statement,
 	 * taking into account the current character set of the connection.
 	 *
-	 * @param string The unescaped string.
 	 * @param object $connection = null The connection to use (null to use $db_connection).
+	 * @param string The unescaped string.
 	 * @return string The escaped string.
 	 */
-	public function escape_string(string $string, object $connection = null): string;
+	public function escape_string(string $string, ?object $connection = null): string;
 
 	/**
 	 * Reverses the escape_string function.
@@ -143,7 +143,7 @@ interface DatabaseApiInterface
 	 * @param object $connection The connection to use (if null, $db_connection is used)
 	 * @return string The server info.
 	 */
-	public function server_info(object $connection = null): string;
+	public function server_info(?object $connection = null): string;
 
 	/**
 	 * Gets the number of rows affected by the last query.
@@ -153,7 +153,7 @@ interface DatabaseApiInterface
 	 * @param object $connection A connection to use (if null, $db_connection is used)
 	 * @return int The number of affected rows.
 	 */
-	public function affected_rows(object $connection = null): int;
+	public function affected_rows(?object $connection = null): int;
 
 	/**
 	 * Do a transaction.
@@ -162,7 +162,7 @@ interface DatabaseApiInterface
 	 * @param object $connection The connection to use (if null, $db_connection is used)
 	 * @return bool True if successful, false otherwise
 	 */
-	public function transaction(string $type = 'commit', object $connection = null): bool;
+	public function transaction(string $type = 'commit', ?object $connection = null): bool;
 
 	/**
 	 * Get the last error message string.
@@ -181,7 +181,7 @@ interface DatabaseApiInterface
 	 * @param object $connection The connection object (if null, $db_connection is used)
 	 * @return bool Whether the database was selected
 	 */
-	public function select(string $database, object $connection = null): bool;
+	public function select(string $database, ?object $connection = null): bool;
 
 	/**
 	 * Escape the LIKE wildcards so that they match the character and not the wildcard.
@@ -207,7 +207,7 @@ interface DatabaseApiInterface
 	 * @param object $connection The connection object (if null, $db_connection is used)
 	 * @return bool True on success, or false on failure.
 	 */
-	public function ping(object $connection = null): bool;
+	public function ping(?object $connection = null): bool;
 
 	/**
 	 * Save errors in the database safely.
@@ -332,7 +332,7 @@ interface DatabaseApiInterface
 	 * @param object $connection The current DB connection resource
 	 * @return resource The query result resource from $this->query()
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], object $connection = null): object|bool;
+	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
 
 	/**
 	 * This function will tell you whether this database type supports this search type.
@@ -354,7 +354,7 @@ interface DatabaseApiInterface
 	 *
 	 * @return string|null The PostgreSQL search language, or null for MySQL.
 	 */
-	public function search_language(): string|null;
+	public function search_language(): ?string;
 
 	/*******************************************
 	 * Methods that formerly lived in DbPackages
@@ -392,7 +392,7 @@ interface DatabaseApiInterface
 	 * @param bool $reverse
 	 * @return array An array containing the appropriate type and size for this DB type
 	 */
-	public function calculate_type(string $type_name, int $type_size = null, bool $reverse = false): array;
+	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array;
 
 	/**
 	 * Change a column.  You only need to specify the column attributes that are changing.

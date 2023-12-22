@@ -12,7 +12,7 @@
  */
 
 declare(strict_types=1);
- 
+
 namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
@@ -85,7 +85,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData(string $key, int $ttl = null): mixed
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . time() . ' LIMIT 1';
 		$result = $this->cacheDB->query($query);
@@ -102,7 +102,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData(string $key, mixed $value, int|null $ttl = null): mixed
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
 

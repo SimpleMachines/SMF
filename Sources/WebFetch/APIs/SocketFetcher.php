@@ -164,7 +164,7 @@ class SocketFetcher extends WebFetchApi
 	 */
 	public function request(string|Url $url, array|string $post_data = []): object
 	{
-		if (!$url instanceof Url){
+		if (!$url instanceof Url) {
 			$url = new Url($url, true);
 			$url->toAscii();
 		}
@@ -305,6 +305,7 @@ class SocketFetcher extends WebFetchApi
 
 				// Try to see if this is a chunked data
 				$length = hexdec($line);
+
 				if (!is_int($length)) {
 					break;
 				}
@@ -318,8 +319,7 @@ class SocketFetcher extends WebFetchApi
 				do {
 					if (isset($content_length)) {
 						$data = fread($this->fp, $content_length);
-					}
-					else {
+					} else {
 						$data = fread($this->fp, $length);
 					}
 
@@ -334,10 +334,8 @@ class SocketFetcher extends WebFetchApi
 					if ($length <= 0 || feof($this->fp)) {
 						break;
 					}
-				}
-				while (true);
-			}
-			while (true);
+				} while (true);
+			} while (true);
 		} else {
 			if (isset($content_length)) {
 				while (!feof($this->fp) && strlen($body) < $content_length) {

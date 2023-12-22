@@ -18,8 +18,8 @@ namespace SMF\Search\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
-use SMF\Utils;
 use SMF\Search\SearchApiInterface;
+use SMF\Utils;
 
 /**
  * Class Fulltext

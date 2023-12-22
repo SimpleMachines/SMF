@@ -140,7 +140,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], object $connection = null): object|bool
+	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		// Decide which connection to use.
 		$connection = $connection ?? $this->connection;
@@ -322,7 +322,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function quote(string $db_string, array $db_values, object $connection = null): string
+	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
 		if (strpos($db_string, '{') !== false) {
@@ -376,7 +376,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, object $connection = null): int|array|null
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -533,7 +533,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function insert_id(string $table, string $field = null, object $connection = null): int
+	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
@@ -580,7 +580,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escape_string(string $string, object $connection = null): string
+	public function escape_string(string $string, ?object $connection = null): string
 	{
 		return pg_escape_string($connection ?? $this->connection, $string);
 	}
@@ -596,7 +596,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function server_info(object $connection = null): string
+	public function server_info(?object $connection = null): string
 	{
 		$version = pg_version();
 
@@ -606,7 +606,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function affected_rows(object $connection = null): int
+	public function affected_rows(?object $connection = null): int
 	{
 		if ($this->replace_result) {
 			return $this->replace_result;
@@ -622,7 +622,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function transaction(string $type = 'commit', object $connection = null): bool
+	public function transaction(string $type = 'commit', ?object $connection = null): bool
 	{
 		$type = strtoupper($type);
 
@@ -631,12 +631,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			$return = @pg_query($connection ?? $this->connection, $type);
 
-			if (is_bool($return)){
+			if (is_bool($return)) {
 				return $return;
 			}
-			else {
+
 				return is_a($return, 'PgSql\Result');
-			}
+
 		}
 
 		return false;
@@ -661,7 +661,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function select(string $database, object $connection = null): bool
+	public function select(string $database, ?object $connection = null): bool
 	{
 		return true;
 	}
@@ -697,7 +697,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function ping(object $connection = null): bool
+	public function ping(?object $connection = null): bool
 	{
 		return pg_ping($connection ?? $this->connection);
 	}
@@ -1101,7 +1101,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], object $connection = null): object|bool
+	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		$replacements = [
 			'create_tmp_log_search_topics' => [
@@ -1201,7 +1201,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_language(): string|null
+	public function search_language(): ?string
 	{
 		if (!empty(Config::$modSettings['search_language'])) {
 			$this->language_ftx = Config::$modSettings['search_language'];
@@ -1372,7 +1372,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function calculate_type(string $type_name, int $type_size = null, bool $reverse = false): array
+	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
 		// Let's be sure it's lowercase MySQL likes both, others no.
 		$type_name = strtolower($type_name);
@@ -2386,7 +2386,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param int $line What line of $file the code which generated the error is on
 	 * @return void|array Returns an array with the file and line if $error_type is 'return'
 	 */
-	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, string $file = null, int $line = null): array|null
+	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): ?array
 	{
 		if (empty($log_message)) {
 			$log_message = $error_message;

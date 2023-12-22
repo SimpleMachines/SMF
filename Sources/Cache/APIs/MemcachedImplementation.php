@@ -12,7 +12,7 @@
  */
 
 declare(strict_types=1);
- 
+
 namespace SMF\Cache\APIs;
 
 use Memcached;
@@ -130,7 +130,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData(string $key, int|null $ttl = null): mixed
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -147,7 +147,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData(string $key, mixed $value, int|null $ttl = null): mixed
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 

@@ -14,13 +14,13 @@
 namespace SMF;
 
 use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Bans;
 use SMF\Actions\Login2;
+use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;
-use SMF\Actions\Admin\Bans;
-use SMF\Actions\Logout;
 
 /**
  * Represents a user, including both guests and registered members.
