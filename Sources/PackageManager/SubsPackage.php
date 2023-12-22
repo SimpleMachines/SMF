@@ -342,7 +342,7 @@ class SubsPackage
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, array $files_to_extract = null): mixed
+	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
 	{
 		umask(0);
 
@@ -943,7 +943,7 @@ class SubsPackage
 	 * @param bool $return Whether to return an array of file info if there's an error
 	 * @return array An array of file info
 	 */
-	public static function packageRequireFTP(string $destination_url, ?array $files = null,bool  $return = false): array
+	public static function packageRequireFTP(string $destination_url, ?array $files = null, bool $return = false): array
 	{
 		// Try to make them writable the manual way.
 		if ($files !== null) {
@@ -2933,9 +2933,8 @@ class SubsPackage
 	 */
 	public static function package_crypt(
 		#[\SensitiveParameter]
-		string $pass
-	): string
-	{
+		string $pass,
+	): string {
 		$n = strlen($pass);
 
 		$salt = session_id();

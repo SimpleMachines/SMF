@@ -51,7 +51,7 @@ class XmlArray
 	 * @param int $level The debug level. Specifies whether notices should be generated for missing elements and attributes.
 	 * @param bool $is_clone default false. If is_clone is true, the  XmlArray is cloned from another - used internally only.
 	 */
-	public function __construct(string|array $data, bool $auto_trim = false, int $level = null, bool $is_clone = false)
+	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
 		Config::setMemoryLimit('32M');
@@ -195,7 +195,7 @@ class XmlArray
 		// Create the right type of class...
 		$newClass = get_class($this);
 
-		// Return a new XmlArray for the result.	
+		// Return a new XmlArray for the result.
 		return $array === false ? false : new $newClass($array, $this->trim, $this->debug_level, true);
 	}
 
@@ -301,7 +301,7 @@ class XmlArray
 	 * @param string $path The path to the element. (optional)
 	 * @return string Xml-formatted string.
 	 */
-	public function create_xml(string $path = null): string
+	public function create_xml(?string $path = null): string
 	{
 		// Was a path specified?  If so, use that array.
 		if ($path !== null) {
@@ -331,7 +331,7 @@ class XmlArray
 	 * @param string $path The path to output.
 	 * @return array An array of XML data
 	 */
-	public function to_array(string $path = null): array
+	public function to_array(?string $path = null): array
 	{
 		// Are we doing a specific path?
 		if ($path !== null) {
@@ -508,7 +508,7 @@ class XmlArray
 	 * @param null|int $indent How many levels to indent the elements (null = no indent)
 	 * @return string The formatted XML
 	 */
-	protected function _xml(array $array, null|int $indent): string
+	protected function _xml(array $array, ?int $indent): string
 	{
 		$indentation = $indent !== null ? '
 ' . str_repeat('	', $indent) : '';

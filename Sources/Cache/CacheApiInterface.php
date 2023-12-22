@@ -12,7 +12,7 @@
  */
 
 declare(strict_types=1);
- 
+
 namespace SMF\Cache;
 
 if (!defined('SMF')) {
@@ -45,7 +45,7 @@ interface CacheApiInterface
 	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
 	 * @todo Separate existence checking into its own method
 	 */
-	public function getData(string $key, int|null $ttl = null): mixed;
+	public function getData(string $key, ?int $ttl = null): mixed;
 
 	/**
 	 * Stores a value, regardless of whether or not the key already exists (in
@@ -58,7 +58,7 @@ interface CacheApiInterface
 	 * @return mixed Whether or not we could save this to the cache.
 	 * @todo Separate deletion into its own method
 	 */
-	public function putData(string $key, mixed $value, int|null $ttl = null): mixed;
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed;
 
 	/**
 	 * Clean out the cache.

@@ -75,7 +75,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData(string $key, int|null $ttl = null): mixed
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$file = sprintf(
 			'%s/data_%s.cache',
@@ -98,7 +98,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData(string $key, mixed $value, int|null $ttl = null): mixed
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$file = sprintf(
 			'%s/data_%s.cache',
@@ -109,8 +109,9 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		if ($value === null) {
 			@unlink($file);
+
 			return true;
-		} else {
+		}
 			$cache_data = json_encode(
 				[
 					'expiration' => time() + $ttl,
@@ -128,7 +129,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 			}
 
 			return true;
-		}
+
 	}
 
 	/**
@@ -198,7 +199,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 * @param string $dir A valid path
 	 * @return bool If this was successful or not.
 	 */
-	public function setCachedir(string $dir = null): void
+	public function setCachedir(?string $dir = null): void
 	{
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir)) {

@@ -2047,6 +2047,7 @@ class PackageManager
 		// If we're submitting then let's move on to another function to keep things cleaner..
 		if (isset($_POST['action_changes'])) {
 			$this->PackagePermissionsAction();
+
 			return;
 		}
 

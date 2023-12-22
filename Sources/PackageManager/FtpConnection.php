@@ -56,9 +56,8 @@ class FtpConnection
 		int $ftp_port = 21,
 		string $ftp_user = 'anonymous',
 		#[\SensitiveParameter]
-		string $ftp_pass = 'ftpclient@simplemachines.org'
-	)
-	{
+		string $ftp_pass = 'ftpclient@simplemachines.org',
+	) {
 		// Initialize variables.
 		$this->connection = 'no_connection';
 		$this->error = false;
@@ -82,9 +81,8 @@ class FtpConnection
 		int $ftp_port = 21,
 		string $ftp_user = 'anonymous',
 		#[\SensitiveParameter]
-		string $ftp_pass = 'ftpclient@simplemachines.org'
-	): void
-	{
+		string $ftp_pass = 'ftpclient@simplemachines.org',
+	): void {
 		if (strpos($ftp_server, 'ftp://') === 0) {
 			$ftp_server = substr($ftp_server, 6);
 		} elseif (strpos($ftp_server, 'ftps://') === 0) {
@@ -400,7 +398,7 @@ class FtpConnection
 	 * @param string $listing A directory listing or null to generate one
 	 * @return string|bool The name of the file or false if it wasn't found
 	 */
-	public function locate(string $file, string $listing = null): string|bool
+	public function locate(string $file, ?string $listing = null): string|bool
 	{
 		if ($listing === null) {
 			$listing = $this->list_dir('', true);
@@ -478,7 +476,7 @@ class FtpConnection
 	 * @param string $lookup_file The name of a file in the specified path
 	 * @return array An array of detected info - username, path from FTP root and whether or not the current path was found
 	 */
-	public function detect_path(string $filesystem_path, string $lookup_file = null): array
+	public function detect_path(string $filesystem_path, ?string $lookup_file = null): array
 	{
 		$username = '';
 

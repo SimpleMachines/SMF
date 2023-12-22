@@ -120,7 +120,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], object $connection = null): object|bool
+	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
@@ -256,7 +256,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function quote(string $db_string, array $db_values, object $connection = null): string
+	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
 		if (strpos($db_string, '{') !== false) {
@@ -305,13 +305,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function free_result(object $result): bool
 	{
 		mysqli_free_result($result);
+
 		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, object $connection = null): int|array|null
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -508,7 +509,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function insert_id(string $table, string $field = null, object $connection = null): int
+	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int
 	{
 		// MySQL doesn't need the table or field information.
 		return mysqli_insert_id($connection ?? $this->connection);
@@ -541,7 +542,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escape_string(string $string, object $connection = null): string
+	public function escape_string(string $string, ?object $connection = null): string
 	{
 		return mysqli_real_escape_string($connection ?? $this->connection, $string);
 	}
@@ -557,7 +558,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function server_info(object $connection = null): string
+	public function server_info(?object $connection = null): string
 	{
 		return mysqli_get_server_info($connection ?? $this->connection);
 	}
@@ -565,7 +566,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function affected_rows(object $connection = null): int
+	public function affected_rows(?object $connection = null): int
 	{
 		return mysqli_affected_rows($connection ?? $this->connection);
 	}
@@ -573,7 +574,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function transaction(string $type = 'commit', object $connection = null): bool
+	public function transaction(string $type = 'commit', ?object $connection = null): bool
 	{
 		$type = strtoupper($type);
 
@@ -603,7 +604,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function select(string $database, object $connection = null): bool
+	public function select(string $database, ?object $connection = null): bool
 	{
 		return mysqli_select_db($connection ?? $this->connection, $database);
 	}
@@ -639,7 +640,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function ping(object $connection = null): bool
+	public function ping(?object $connection = null): bool
 	{
 		return mysqli_ping($connection ?? $this->connection);
 	}
@@ -1152,7 +1153,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], object $connection = null): object|bool
+	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		return $this->query($identifier, $db_string, $db_values, $connection);
 	}
@@ -1197,7 +1198,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_language(): string|null
+	public function search_language(): ?string
 	{
 		return null;
 	}
@@ -1340,7 +1341,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function calculate_type(string $type_name, int $type_size = null, bool $reverse = false): array
+	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
 		// MySQL is actually the generic baseline.
 
@@ -2274,7 +2275,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param int $line What line of $file the code which generated the error is on
 	 * @return void|array Returns an array with the file and line if $error_type is 'return'
 	 */
-	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, string $file = null, int $line = null): array|null
+	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): ?array
 	{
 		if (empty($log_message)) {
 			$log_message = $error_message;

@@ -108,7 +108,7 @@ class FtpFetcher extends WebFetchApi
 	 */
 	public function request(string|Url $url, array|string $post_data = []): self
 	{
-		if (!$url instanceof Url){
+		if (!$url instanceof Url) {
 			$url = new Url($url, true);
 			$url->toAscii();
 		}

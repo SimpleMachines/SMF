@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Search;
 
+use SMF\Actions\Search;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,7 +25,6 @@ use SMF\Lang;
 use SMF\PackageManager\SubsPackage;
 use SMF\User;
 use SMF\Utils;
-use SMF\Actions\Search;
 
 /**
  * Class SearchApi
