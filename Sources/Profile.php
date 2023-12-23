@@ -1396,9 +1396,9 @@ class Profile extends User implements \ArrayAccess
 					'is_primary' => $this->data['id_group'] == 0,
 					'can_be_additional' => false,
 					'can_be_primary' => true,
-				]
+				],
 			],
-			$this->assignable_groups
+			$this->assignable_groups,
 		);
 
 		return true;
