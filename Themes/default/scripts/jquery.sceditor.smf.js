@@ -56,7 +56,7 @@
 			return current_value;
 		},
 		appendEmoticon: function (code, emoticon, description) {
-			const base = this;
+			var base = this;
 			if (emoticon == '')
 				line.append($('<br>'));
 			else
@@ -96,7 +96,7 @@
 			var popup_exists = false;
 			content = $('<div class="sceditor-insertemoticon">');
 			line = $('<div>');
-			const base = this;
+			var base = this;
 
 			for (smiley_popup in this.opts.emoticons.popup)
 			{
@@ -107,7 +107,7 @@
 			{
 				base.opts.emoticons.more = base.opts.emoticons.popup;
 				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
-					const smileyPopup = base.editorMainWrapper.querySelector(".sceditor-smileyPopup");
+					var smileyPopup = base.editorMainWrapper.querySelector(".sceditor-smileyPopup");
 					if (smileyPopup)
 					{
 						$(smileyPopup).fadeIn('fast');
