@@ -4008,7 +4008,9 @@ class User implements ArrayAccess
 				'member_group_denied_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['denied']),
 			],
 		);
-		$members = Db::$db->fetch_all($request);
+
+		// We only want the member IDs, not id_member
+		$members = array_values(Db::$db->fetch_all($request));
 		Db::$db->free_result($request);
 
 		return $members;

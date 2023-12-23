@@ -13,7 +13,7 @@
 
 namespace SMF;
 
-use SMF\Db\DatabaseApi AS Db;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Holds some widely used stuff, like $context and $smcFunc.

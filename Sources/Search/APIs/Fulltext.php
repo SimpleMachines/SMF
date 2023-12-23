@@ -11,18 +11,21 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Search\APIs;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
+use SMF\Search\SearchApiInterface;
 use SMF\Utils;
 
 /**
  * Class Fulltext
  * Used for fulltext index searching
  */
-class Fulltext extends SearchApi
+class Fulltext extends SearchApi implements SearchApiInterface
 {
 	/**
 	 * @var array Which words are banned
@@ -60,7 +63,7 @@ class Fulltext extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null): bool
+	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
 		$return = false;
 
@@ -92,7 +95,7 @@ class Fulltext extends SearchApi
 	 *
 	 * @return int The minimum word length
 	 */
-	protected function _getMinWordLength()
+	protected function _getMinWordLength(): int
 	{
 		if (Config::$db_type == 'postgresql') {
 			return 0;
@@ -118,13 +121,13 @@ class Fulltext extends SearchApi
 			$min_word_length = 4;
 		}
 
-		return $min_word_length;
+		return (int) $min_word_length;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchSort($a, $b): int
+	public function searchSort(string $a, string $b): int
 	{
 		global $excludedWords;
 
@@ -137,7 +140,7 @@ class Fulltext extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
+	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
 		$subwords = Utils::text2words($word, PHP_INT_MAX, false);
 
@@ -168,7 +171,7 @@ class Fulltext extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function indexedWordQuery(array $words, array $search_data)
+	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
 		$query_select = [
 			'id_msg' => 'm.id_msg',

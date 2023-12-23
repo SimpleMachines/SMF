@@ -19,6 +19,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\PackageManager\XmlArray;
 use SMF\User;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;

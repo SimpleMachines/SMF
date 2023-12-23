@@ -11,18 +11,21 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Search\APIs;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
+use SMF\Search\SearchApiInterface;
 use SMF\Utils;
 
 /**
  * Used for the "custom search index" option
  * Class Custom
  */
-class Custom extends SearchApi
+class Custom extends SearchApi implements SearchApiInterface
 {
 	/**
 	 * @var array Index settings
@@ -71,7 +74,7 @@ class Custom extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null): bool
+	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
 		$return = false;
 
@@ -109,7 +112,7 @@ class Custom extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchSort($a, $b): int
+	public function searchSort(string $a, string $b): int
 	{
 		global $excludedWords;
 
@@ -122,7 +125,7 @@ class Custom extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
+	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
 		$subwords = Utils::text2words($word, $this->min_word_length, true);
 
@@ -136,7 +139,7 @@ class Custom extends SearchApi
 		}
 
 		foreach ($subwords as $subword) {
-			if (Utils::entityStrlen($subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords)) {
+			if (Utils::entityStrlen((string) $subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords)) {
 				$wordsSearch['indexed_words'][] = $subword;
 
 				if ($isExcluded) {
@@ -149,7 +152,7 @@ class Custom extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function indexedWordQuery(array $words, array $search_data)
+	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
 		$query_select = [
 			'id_msg' => 'm.id_msg',
@@ -202,7 +205,7 @@ class Custom extends SearchApi
 		$count = 0;
 
 		if (!empty($query_params['excluded_phrases']) && empty(Config::$modSettings['search_force_index'])) {
-			foreach ($query_params['excluded_phrases'] as $phrase) {
+			foreach ($query_params['excluded_phrases'] as $excludedWord) {
 				$query_where[] = 'subject NOT ' . $this->query_match_type . ' {string:exclude_subject_words_' . $count . '}';
 
 				if ($this->query_match_type === 'RLIKE') {

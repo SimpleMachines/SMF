@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
@@ -30,7 +32,7 @@ class Zend extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		$supported = function_exists('zend_shm_cache_fetch') || function_exists('output_cache_get');
 
@@ -41,7 +43,7 @@ class Zend extends CacheApi implements CacheApiInterface
 		return parent::isSupported() && $supported;
 	}
 
-	public function connect()
+	public function connect(): bool
 	{
 		return true;
 	}
@@ -49,7 +51,7 @@ class Zend extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData($key, $ttl = null)
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -61,12 +63,14 @@ class Zend extends CacheApi implements CacheApiInterface
 		if (function_exists('output_cache_get')) {
 			return output_cache_get($key, $ttl);
 		}
+
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData($key, $value, $ttl = null)
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -77,12 +81,14 @@ class Zend extends CacheApi implements CacheApiInterface
 		if (function_exists('output_cache_put')) {
 			return output_cache_put($key, $value);
 		}
+
+		return false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cleanCache($type = '')
+	public function cleanCache($type = ''): bool
 	{
 		$this->invalidateCache();
 
@@ -92,7 +98,7 @@ class Zend extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		return zend_version();
 	}

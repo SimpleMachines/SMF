@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -28,7 +30,7 @@ if (!defined('SMF')) {
  *
  * @return array Character classes for disallowed characters in normalization forms.
  */
-function utf8_regex_quick_check()
+function utf8_regex_quick_check(): array
 {
 	return [
 		'NFC_QC' =>

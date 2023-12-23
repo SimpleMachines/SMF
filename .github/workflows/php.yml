@@ -27,6 +27,8 @@ jobs:
 
     - run: php -v
 
+    - run: composer lint
+
     - name: Checking for sign off (GPG also accepted)
       run: php ./vendor/simplemachines/build-tools/check-signed-off.php
 

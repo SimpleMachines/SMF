@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\WebFetch\APIs;
 
 use SMF\Config;
@@ -57,18 +59,18 @@ class FtpFetcher extends WebFetchApi
 	public string $error_message = '';
 
 	/**
-	 * @var int
+	 * @var string
 	 *
 	 * The user name to connect with.
 	 */
-	public int $user;
+	public string $user;
 
 	/**
-	 * @var int
+	 * @var string
 	 *
 	 * The email address to connect with.
 	 */
-	public int $email;
+	public string $email;
 
 	/**
 	 * @var array
@@ -101,13 +103,15 @@ class FtpFetcher extends WebFetchApi
 	 *  - Optionally will post data to the page form if $post_data is supplied.
 	 *    Passed arrays will be converted to a POST string joined with &'s.
 	 *
-	 * @param string $url the site we are going to fetch
-	 * @return object A reference to the object for method chaining.
+	 * @param string|Url $url the site we are going to fetch
+	 * @return self A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = []): object
+	public function request(string|Url $url, array|string $post_data = []): self
 	{
-		$url = new Url($url, true);
-		$url->toAscii();
+		if (!$url instanceof Url) {
+			$url = new Url($url, true);
+			$url->toAscii();
+		}
 
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !in_array($url->scheme, ['ftp', 'ftps'])) {
@@ -158,7 +162,7 @@ class FtpFetcher extends WebFetchApi
 
 		// The server should now say something in acknowledgement.
 		$ftp->check_response(150);
-		$this->response[0]['code'] = substr($this->last_message, 0, 3);
+		$this->response[0]['code'] = substr($ftp->last_message, 0, 3);
 
 		$body = '';
 
@@ -170,11 +174,13 @@ class FtpFetcher extends WebFetchApi
 
 		// All done, right?  Good.
 		$this->response[0]['success'] = $ftp->check_response(226);
-		$this->response[0]['code'] = substr($this->last_message, 0, 3);
+		$this->response[0]['code'] = substr($ftp->last_message, 0, 3);
 		$ftp->close();
 
 		$this->response[0]['body'] = $body;
 		$this->response[0]['size'] = strlen($body);
+
+		return $this;
 	}
 
 	/**

@@ -65,13 +65,13 @@ class SubsPackage
 	 * Reads an archive from either a remote location or from the local filesystem.
 	 *
 	 * @param string $gzfilename The path to the tar.gz file
-	 * @param string $destination The path to the destination directory
+	 * @param null|string $destination The path to the destination directory
 	 * @param bool $single_file If true returns the contents of the file specified by destination if it exists
 	 * @param bool $overwrite Whether to overwrite existing files
 	 * @param null|array $files_to_extract Specific files to extract
-	 * @return array|false An array of information about extracted files or false on failure
+	 * @return array|string|false An array of information about extracted files or false on failure
 	 */
-	public static function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
 			? WebFetchApi::fetch($gzfilename)
@@ -124,7 +124,7 @@ class SubsPackage
 	 * @param null|array $files_to_extract If set, only extracts the specified files
 	 * @return array|false An array of information about the extracted files or false on failure
 	 */
-	public static function read_tgz_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|bool
 	{
 		// Make sure we have this loaded.
 		Lang::load('Packages');
@@ -300,7 +300,7 @@ class SubsPackage
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
 	{
 		umask(0);
 
@@ -452,7 +452,7 @@ class SubsPackage
 	 * @param string $url The URL to parse
 	 * @return bool Whether the specified URL exists
 	 */
-	public static function url_exists($url)
+	public static function url_exists(string $url): bool
 	{
 		$url = new Url($url);
 		$url->toAscii();
@@ -484,7 +484,7 @@ class SubsPackage
 	 *
 	 * @return array An array of info about installed packages
 	 */
-	public static function loadInstalledPackages()
+	public static function loadInstalledPackages(): array
 	{
 		// Load the packages from the database - note this is ordered by install time to ensure latest package uninstalled first.
 		$request = Db::$db->query(
@@ -534,7 +534,7 @@ class SubsPackage
 	 * @param string $gzfilename The path to the file
 	 * @return array|string An array of info about the file or a string indicating an error
 	 */
-	public static function getPackageInfo($gzfilename)
+	public static function getPackageInfo(string $gzfilename): array|string
 	{
 		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 		if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false) {
@@ -604,7 +604,7 @@ class SubsPackage
 	 * @param bool $restore_write_status Whether to restore write status
 	 * @return array An array of file info
 	 */
-	public static function create_chmod_control($chmodFiles = [], $chmodOptions = [], $restore_write_status = false)
+	public static function create_chmod_control(array $chmodFiles = [], array $chmodOptions = [], bool $restore_write_status = false): array
 	{
 		// If we're restoring the status of existing files prepare the data.
 		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms'])) {
@@ -712,10 +712,6 @@ class SubsPackage
 				Utils::obExit();
 			}
 		}
-		// Otherwise, it's entirely irrelevant?
-		elseif ($restore_write_status) {
-			return true;
-		}
 
 		// This is where we report what we got up to.
 		$return_data = [
@@ -724,6 +720,11 @@ class SubsPackage
 				'notwritable' => [],
 			],
 		];
+
+		// Otherwise, it's entirely irrelevant?
+		if ($restore_write_status) {
+			return $$return_data;
+		}
 
 		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
 		if (!empty($_SESSION['pack_ftp']['connected'])) {
@@ -838,13 +839,13 @@ class SubsPackage
 	/**
 	 * Get a listing of files that will need to be set back to the original state
 	 *
-	 * @param null $dummy1
-	 * @param null $dummy2
-	 * @param null $dummy3
+	 * @param mixed $dummy1
+	 * @param mixed $dummy2
+	 * @param mixed $dummy3
 	 * @param bool $do_change
 	 * @return array An array of info about the files that need to be restored back to their original state
 	 */
-	public static function list_restoreFiles($dummy1, $dummy2, $dummy3, $do_change)
+	public static function list_restoreFiles(mixed $dummy1, mixed $dummy2, mixed $dummy3, bool $do_change): array
 	{
 		$restore_files = [];
 
@@ -900,7 +901,7 @@ class SubsPackage
 	 * @param bool $return Whether to return an array of file info if there's an error
 	 * @return array An array of file info
 	 */
-	public static function packageRequireFTP($destination_url, $files = null, $return = false)
+	public static function packageRequireFTP(string $destination_url, ?array $files = null, bool $return = false): array
 	{
 		// Try to make them writable the manual way.
 		if ($files !== null) {
@@ -1086,7 +1087,7 @@ class SubsPackage
 	 * @param string $previous_version The previous version of the mod, if method is 'upgrade'
 	 * @return array An array of those changes made.
 	 */
-	public static function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
+	public static function parsePackageInfo(XmlArray &$packageXML, bool $testing_only = true, string $method = 'install', string $previous_version = ''): array
 	{
 		// Mayday!  That action doesn't exist!!
 		if (empty($packageXML) || !$packageXML->exists($method)) {
@@ -1529,7 +1530,7 @@ class SubsPackage
 	 * @param string $the_version The forum version
 	 * @return string|bool Highest install value string or false
 	 */
-	public static function matchHighestPackageVersion($versions, $reset, $the_version)
+	public static function matchHighestPackageVersion(string $versions, bool $reset, string $the_version): string|bool
 	{
 		static $near_version = 0;
 
@@ -1571,7 +1572,7 @@ class SubsPackage
 	 * @param string $versions The versions that this package will install on
 	 * @return bool Whether the version matched
 	 */
-	public static function matchPackageVersion($version, $versions)
+	public static function matchPackageVersion(string $version, string $versions): bool
 	{
 		// Make sure everything is lowercase and clean of spaces and unpleasant history.
 		$version = str_replace([' ', '2.0rc1-1'], ['', '2.0rc1.1'], strtolower($version));
@@ -1617,7 +1618,7 @@ class SubsPackage
 	 * @param string $version2 The second version
 	 * @return int -1 if version2 is greater than version1, 0 if they're equal, 1 if version1 is greater than version2
 	 */
-	public static function compareVersions($version1, $version2)
+	public static function compareVersions(string $version1, string $version2): int
 	{
 		static $categories;
 
@@ -1679,7 +1680,7 @@ class SubsPackage
 	 * @param string $path The path
 	 * @return string The parsed path
 	 */
-	public static function parse_path($path)
+	public static function parse_path(string $path): string
 	{
 		$dirs = [
 			'\\' => '/',
@@ -1716,7 +1717,7 @@ class SubsPackage
 	 * @param string $dir A directory
 	 * @param bool $delete_dir If false, only deletes everything inside the directory but not the directory itself
 	 */
-	public static function deltree($dir, $delete_dir = true)
+	public static function deltree(string $dir, bool $delete_dir = true): void
 	{
 		if (!file_exists($dir)) {
 			return;
@@ -1786,7 +1787,7 @@ class SubsPackage
 	 * @param int $mode The permission mode for CHMOD (0666, etc.)
 	 * @return bool True if successful, false otherwise
 	 */
-	public static function mktree($strPath, $mode)
+	public static function mktree(string $strPath, int $mode): bool
 	{
 		if (is_dir($strPath)) {
 			if (!is_writable($strPath) && $mode !== false) {
@@ -1856,7 +1857,7 @@ class SubsPackage
 	 * @param string $source The directory to copy
 	 * @param string $destination The directory to copy $source to
 	 */
-	public static function copytree($source, $destination)
+	public static function copytree(string $source, string $destination): void
 	{
 		if (!file_exists($destination) || !is_writable($destination)) {
 			self::mktree($destination, 0755);
@@ -1910,7 +1911,7 @@ class SubsPackage
 	 * @param string $sub_path The sub-path
 	 * @return array An array of information about the files at the specified path/subpath
 	 */
-	public static function listtree($path, $sub_path = '')
+	public static function listtree(string $path, string $sub_path = ''): array
 	{
 		$data = [];
 
@@ -1949,7 +1950,7 @@ class SubsPackage
 	 * @param array $theme_paths An array of information about custom themes to apply the changes to
 	 * @return array An array of those changes made.
 	 */
-	public static function parseModification($file, $testing = true, $undo = false, $theme_paths = [])
+	public static function parseModification(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
 	{
 		@set_time_limit(600);
 		$xml = new XmlArray(strtr($file, ["\r" => '']));
@@ -2319,7 +2320,7 @@ class SubsPackage
 	 * @param array $theme_paths An array of information about custom themes to apply the changes to
 	 * @return array An array of those changes made.
 	 */
-	public static function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = [])
+	public static function parseBoardMod(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
 	{
 		@set_time_limit(600);
 		$file = strtr($file, ["\r" => '']);
@@ -2394,7 +2395,7 @@ class SubsPackage
 				// Now, for each file do we need to edit it?
 				foreach ($template_changes[1] as $pos => $template_file) {
 					// It does? Add it to the list darlin'.
-					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id][$pos]) || !in_array($template_file, $template_changes[$id][$pos]))) {
+					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id][$pos]) || !in_array($template_file, (array) $template_changes[$id][$pos]))) {
 						// Actually add it to the mod file too, so we can see that it will work ;)
 						if (!empty($temp_changes[$pos]['changes'])) {
 							$file .= "\n\n" . '<edit file>' . "\n" . $theme['theme_dir'] . '/' . $template_file . "\n" . '</edit file>' . "\n\n" . implode("\n\n", $temp_changes[$pos]['changes']);
@@ -2558,7 +2559,6 @@ class SubsPackage
 						'search_original' => $working_search,
 						'replace_original' => $replace_with,
 						'position' => $code_match[1] == 'replace' ? 'replace' : ($code_match[1] == 'add' || $code_match[1] == 'add after' ? 'before' : 'after'),
-						'is_custom' => $is_custom,
 						'failed' => true,
 					];
 
@@ -2618,7 +2618,7 @@ class SubsPackage
 	 * @param string $filename The package file
 	 * @return string The contents of the specified file
 	 */
-	public static function package_get_contents($filename)
+	public static function package_get_contents(string $filename): string
 	{
 		if (!isset(self::$package_cache)) {
 			$mem_check = Config::setMemoryLimit('128M');
@@ -2649,7 +2649,7 @@ class SubsPackage
 	 * @param bool $testing Whether we're just testing things
 	 * @return int The length of the data written (in bytes)
 	 */
-	public static function package_put_contents($filename, $data, $testing = false)
+	public static function package_put_contents(string $filename, string $data, bool $testing = false): int
 	{
 		static $text_filetypes = ['php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm'];
 
@@ -2708,7 +2708,7 @@ class SubsPackage
 	 *
 	 * @param bool $trash
 	 */
-	public static function package_flush_cache($trash = false)
+	public static function package_flush_cache(bool $trash = false): void
 	{
 		static $text_filetypes = ['php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm'];
 
@@ -2774,7 +2774,7 @@ class SubsPackage
 	 * @param bool $track_change Whether to track this change
 	 * @return bool True if it worked, false if it didn't
 	 */
-	public static function package_chmod($filename, $perm_state = 'writable', $track_change = false)
+	public static function package_chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
 	{
 		if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable') {
 			return true;
@@ -2889,8 +2889,10 @@ class SubsPackage
 	 * @param string $pass The password
 	 * @return string The encrypted password
 	 */
-	public static function package_crypt($pass)
-	{
+	public static function package_crypt(
+		#[\SensitiveParameter]
+		string $pass,
+	): string {
 		$n = strlen($pass);
 
 		$salt = session_id();
@@ -2913,7 +2915,7 @@ class SubsPackage
 	 * @return string The filename with a number appended but no extension
 	 * @since 2.1
 	 */
-	public static function package_unique_filename($dir, $filename, $ext)
+	public static function package_unique_filename(string $dir, string $filename, string $ext): string
 	{
 		if (file_exists($dir . '/' . $filename . '.' . $ext)) {
 			$i = 1;
@@ -2933,7 +2935,7 @@ class SubsPackage
 	 * @param string $id The name of the backup
 	 * @return bool True if it worked, false if it didn't
 	 */
-	public static function package_create_backup($id = 'backup')
+	public static function package_create_backup(string $id = 'backup'): bool
 	{
 		$files = [];
 
@@ -3058,7 +3060,7 @@ class SubsPackage
 	 * @param array $package Package data
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate_installtest($package)
+	public static function package_validate_installtest(array $package): array
 	{
 		// Don't validate directories.
 		Utils::$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
@@ -3079,7 +3081,7 @@ class SubsPackage
 	 * @param array $packages Package data
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate($packages)
+	public static function package_validate(array $packages): array
 	{
 		// Setup our send data.
 		$sendData = [];
@@ -3118,7 +3120,7 @@ class SubsPackage
 	 * @param array $sendData Json encoded data to be sent to the validation servers.
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate_send($sendData)
+	public static function package_validate_send(array $sendData): array
 	{
 		// First lets get all package servers into here.
 		if (empty(Utils::$context['package_servers'])) {
@@ -3186,7 +3188,7 @@ class SubsPackage
 	 * @param array $data An array of data about the directory
 	 * @param int $level How far deep to go
 	 */
-	protected function fetchPerms__recursive($path, &$data, $level)
+	protected function fetchPerms__recursive(string $path, array &$data, int $level): void
 	{
 		$isLikelyPath = false;
 
@@ -3364,7 +3366,7 @@ class SubsPackage
 	 * @param string $dir
 	 * @return int
 	 */
-	protected function count_directories__recursive($dir)
+	protected function count_directories__recursive(string $dir): int
 	{
 		$count = 0;
 		$dh = @opendir($dir);
@@ -3387,7 +3389,7 @@ class SubsPackage
 	 * @param string $path
 	 * @param array $data
 	 */
-	protected function build_special_files__recursive($path, &$data)
+	protected function build_special_files__recursive(string $path, array &$data): void
 	{
 		if (!empty($data['writable_on'])) {
 			if (Utils::$context['predefined_type'] == 'standard' || $data['writable_on'] == 'restrictive') {
@@ -3413,7 +3415,7 @@ class SubsPackage
 	 * @param string $number
 	 * @return string The crc32
 	 */
-	private static function smf_crc32($number)
+	private static function smf_crc32(string $number): string
 	{
 		require_once Config::$sourcedir . '/Subs-Compat.php';
 

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
@@ -52,7 +54,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect()
+	public function connect(): bool
 	{
 		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
 		$this->cacheDB = new SQLite3($database);
@@ -62,12 +64,14 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
+
+		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		$supported = class_exists('SQLite3') && is_writable($this->cachedir);
 
@@ -81,7 +85,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData($key, $ttl = null)
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . time() . ' LIMIT 1';
 		$result = $this->cacheDB->query($query);
@@ -98,7 +102,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData($key, $value, $ttl = null)
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
 
@@ -115,7 +119,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cleanCache($type = '')
+	public function cleanCache(string $type = ''): bool
 	{
 		if ($type == 'expired') {
 			$query = 'DELETE FROM cache WHERE ttl < ' . time() . ';';
@@ -136,7 +140,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cacheSettings(array &$config_vars)
+	public function cacheSettings(array &$config_vars): void
 	{
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
@@ -171,7 +175,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 *
 	 * @return bool If this was successful or not.
 	 */
-	public function setCachedir($dir = null)
+	public function setCachedir(?string $dir = null): void
 	{
 		// If its invalid, use SMF's.
 		if (!isset($dir) || !is_writable($dir)) {
@@ -190,7 +194,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		if (null == $this->cacheDB) {
 			$this->connect();
@@ -202,7 +206,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function housekeeping()
+	public function housekeeping(): void
 	{
 		$this->cleanCache('expired');
 	}

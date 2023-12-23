@@ -102,7 +102,7 @@ class PackageManager
 	 *
 	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
-	 * @return An instance of this class.
+	 * @return self An instance of this class.
 	 */
 	public static function load(): object
 	{
@@ -116,7 +116,7 @@ class PackageManager
 	/**
 	 * Convenience method to load() and execute() an instance of this class.
 	 */
-	public static function call()
+	public static function call(): void
 	{
 		self::load()->execute();
 	}
@@ -128,7 +128,7 @@ class PackageManager
 	/**
 	 * Main dispatcher.
 	 */
-	public function execute()
+	public function execute(): void
 	{
 		// Load all the basic stuff.
 		Lang::load('Packages');
@@ -187,7 +187,7 @@ class PackageManager
 	/**
 	 * Test install a package.
 	 */
-	public function installTest()
+	public function installTest(): void
 	{
 		// You have to specify a file!!
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '') {
@@ -852,7 +852,7 @@ class PackageManager
 	/**
 	 * Apply another type of (avatar, language, etc.) package.
 	 */
-	public function install()
+	public function install(): void
 	{
 		// Make sure we don't install this mod twice.
 		Security::checkSubmitOnce('check');
@@ -1385,7 +1385,7 @@ class PackageManager
 	/**
 	 * List the files in a package.
 	 */
-	public function list()
+	public function list(): void
 	{
 		// No package?  Show him or her the door.
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '') {
@@ -1413,7 +1413,7 @@ class PackageManager
 	/**
 	 * Display one of the files in a package.
 	 */
-	public function examineFile()
+	public function examineFile(): void
 	{
 		// No package?  Show him or her the door.
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '') {
@@ -1468,7 +1468,7 @@ class PackageManager
 	/**
 	 * Delete a package.
 	 */
-	public function remove()
+	public function remove(): void
 	{
 		// Check it.
 		User::$me->checkSession('get');
@@ -1497,7 +1497,7 @@ class PackageManager
 	/**
 	 * Browse a list of installed packages.
 	 */
-	public function browse()
+	public function browse(): void
 	{
 		Utils::$context['page_title'] .= ' - ' . Lang::$txt['browse_packages'];
 
@@ -1647,7 +1647,7 @@ class PackageManager
 	/**
 	 * Used when a temp FTP access is needed to package functions
 	 */
-	public function options()
+	public function options(): void
 	{
 		if (isset($_POST['save'])) {
 			User::$me->checkSession();
@@ -1688,7 +1688,7 @@ class PackageManager
 	/**
 	 * List operations
 	 */
-	public function showOperations()
+	public function showOperations(): void
 	{
 		// Can't be in here buddy.
 		User::$me->isAllowedTo('admin_forum');
@@ -1817,7 +1817,7 @@ class PackageManager
 	/**
 	 * Allow the admin to reset permissions on files.
 	 */
-	public function permissions()
+	public function permissions(): void
 	{
 		// Let's try and be good, yes?
 		User::$me->checkSession('get');
@@ -2046,7 +2046,9 @@ class PackageManager
 
 		// If we're submitting then let's move on to another function to keep things cleaner..
 		if (isset($_POST['action_changes'])) {
-			return $this->PackagePermissionsAction();
+			$this->PackagePermissionsAction();
+
+			return;
 		}
 
 		Utils::$context['look_for'] = [];
@@ -2127,7 +2129,7 @@ class PackageManager
 	/**
 	 * Actually action the permission changes they want.
 	 */
-	public function PackagePermissionsAction()
+	public function PackagePermissionsAction(): ?bool
 	{
 		umask(0);
 
@@ -2342,7 +2344,7 @@ class PackageManager
 	/**
 	 * Test an FTP connection.
 	 */
-	public function ftpTest()
+	public function ftpTest(): void
 	{
 		User::$me->checkSession('get');
 
@@ -2373,7 +2375,7 @@ class PackageManager
 	/**
 	 * Load a list of package servers.
 	 */
-	public function servers()
+	public function servers(): void
 	{
 		// Ensure we use the correct template, and page title.
 		Utils::$context['sub_template'] = 'servers';
@@ -2477,7 +2479,7 @@ class PackageManager
 	/**
 	 * Browse a server's list of packages.
 	 */
-	public function serverBrowse()
+	public function serverBrowse(): void
 	{
 		if (isset($_GET['server'])) {
 			if ($_GET['server'] == '') {
@@ -2831,7 +2833,7 @@ class PackageManager
 	/**
 	 * Download a package.
 	 */
-	public function download()
+	public function download(): void
 	{
 		// Use the downloaded sub template.
 		Utils::$context['sub_template'] = 'downloaded';
@@ -2948,7 +2950,7 @@ class PackageManager
 	/**
 	 * Upload a new package to the directory.
 	 */
-	public function upload()
+	public function upload(): void
 	{
 		// Setup the correct template, even though I'll admit we ain't downloading ;)
 		Utils::$context['sub_template'] = 'downloaded';
@@ -3038,7 +3040,7 @@ class PackageManager
 	/**
 	 * Add a package server to the list.
 	 */
-	public function serverAdd()
+	public function serverAdd(): void
 	{
 		// Validate the user.
 		User::$me->checkSession();
@@ -3075,7 +3077,7 @@ class PackageManager
 	/**
 	 * Remove a server from the list.
 	 */
-	public function serverRemove()
+	public function serverRemove(): void
 	{
 		User::$me->checkSession('get');
 
@@ -3107,7 +3109,7 @@ class PackageManager
 	 * @param string $params Type of packages
 	 * @return array An array of information about the packages
 	 */
-	public function list_getPackages($start, $items_per_page, $sort, $params)
+	public function list_getPackages(int $start, int $items_per_page, string $sort, string $params): array
 	{
 		static $installed_mods;
 
@@ -3361,7 +3363,7 @@ class PackageManager
 	 * @param array $data An array of data about the directory
 	 * @param int $level How far deep to go
 	 */
-	protected function fetchPerms__recursive($path, &$data, $level)
+	protected function fetchPerms__recursive(string $path, array &$data, int $level): void
 	{
 		$isLikelyPath = false;
 
@@ -3544,7 +3546,7 @@ class PackageManager
 	 * @param string $dir
 	 * @return int
 	 */
-	protected function count_directories__recursive($dir): int
+	protected function count_directories__recursive(string $dir): int
 	{
 		$count = 0;
 		$dh = @opendir($dir);
@@ -3567,7 +3569,7 @@ class PackageManager
 	 * @param string $path
 	 * @param array $data
 	 */
-	protected function build_special_files__recursive($path, &$data)
+	protected function build_special_files__recursive(string $path, array &$data): void
 	{
 		if (!empty($data['writable_on'])) {
 			if (Utils::$context['predefined_type'] == 'standard' || $data['writable_on'] == 'restrictive') {

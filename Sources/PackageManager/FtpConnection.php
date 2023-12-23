@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\PackageManager;
 
 /**
@@ -22,7 +24,7 @@ namespace SMF\PackageManager;
 class FtpConnection
 {
 	/**
-	 * @var string Holds the connection response
+	 * @var resource Holds the connection response
 	 */
 	public $connection;
 
@@ -49,8 +51,13 @@ class FtpConnection
 	 * @param string $ftp_user The username
 	 * @param string $ftp_pass The password
 	 */
-	public function __construct($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
-	{
+	public function __construct(
+		?string $ftp_server,
+		int $ftp_port = 21,
+		string $ftp_user = 'anonymous',
+		#[\SensitiveParameter]
+		string $ftp_pass = 'ftpclient@simplemachines.org',
+	) {
 		// Initialize variables.
 		$this->connection = 'no_connection';
 		$this->error = false;
@@ -69,8 +76,13 @@ class FtpConnection
 	 * @param string $ftp_user The username
 	 * @param string $ftp_pass The password
 	 */
-	public function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
-	{
+	public function connect(
+		string $ftp_server,
+		int $ftp_port = 21,
+		string $ftp_user = 'anonymous',
+		#[\SensitiveParameter]
+		string $ftp_pass = 'ftpclient@simplemachines.org',
+	): void {
 		if (strpos($ftp_server, 'ftp://') === 0) {
 			$ftp_server = substr($ftp_server, 6);
 		} elseif (strpos($ftp_server, 'ftps://') === 0) {
@@ -130,7 +142,7 @@ class FtpConnection
 	 * @param string $ftp_path The path to the directory we want to change to
 	 * @return bool Whether or not the operation was successful
 	 */
-	public function chdir($ftp_path)
+	public function chdir(string $ftp_path): bool
 	{
 		if (!is_resource($this->connection)) {
 			return false;
@@ -159,7 +171,7 @@ class FtpConnection
 	 * @param int|string $chmod The value for the CHMOD operation
 	 * @return bool Whether or not the operation was successful
 	 */
-	public function chmod($ftp_file, $chmod)
+	public function chmod(string $ftp_file, int|string $chmod): bool
 	{
 		if (!is_resource($this->connection)) {
 			return false;
@@ -201,7 +213,7 @@ class FtpConnection
 	 * @param string $ftp_file The file to delete
 	 * @return bool Whether or not the operation was successful
 	 */
-	public function unlink($ftp_file)
+	public function unlink(string $ftp_file): bool
 	{
 		// We are actually connected, right?
 		if (!is_resource($this->connection)) {
@@ -228,10 +240,10 @@ class FtpConnection
 	/**
 	 * Reads the response to the command from the server
 	 *
-	 * @param string $desired The desired response
+	 * @param int|string|array $desired The desired response
 	 * @return bool Whether or not we got the desired response
 	 */
-	public function check_response($desired)
+	public function check_response(int|string|array $desired): bool
 	{
 		// Wait for a response that isn't continued with -, but don't wait too long.
 		$time = time();
@@ -249,7 +261,7 @@ class FtpConnection
 	 *
 	 * @return bool Whether the passive connection was created successfully
 	 */
-	public function passive()
+	public function passive(): bool
 	{
 		// We can't create a passive data connection without a primary one first being there.
 		if (!is_resource($this->connection)) {
@@ -292,7 +304,7 @@ class FtpConnection
 	 * @param string $ftp_file The file to create
 	 * @return bool Whether or not the file was created successfully
 	 */
-	public function create_file($ftp_file)
+	public function create_file(string $ftp_file): bool
 	{
 		// First, we have to be connected... very important.
 		if (!is_resource($this->connection)) {
@@ -336,7 +348,7 @@ class FtpConnection
 	 * @param bool $search Whether or not to get a recursive directory listing
 	 * @return string|bool The results of the command or false if unsuccessful
 	 */
-	public function list_dir($ftp_path = '', $search = false)
+	public function list_dir(string $ftp_path = '', bool $search = false): string|bool
 	{
 		// Are we even connected...?
 		if (!is_resource($this->connection)) {
@@ -386,7 +398,7 @@ class FtpConnection
 	 * @param string $listing A directory listing or null to generate one
 	 * @return string|bool The name of the file or false if it wasn't found
 	 */
-	public function locate($file, $listing = null)
+	public function locate(string $file, ?string $listing = null): string|bool
 	{
 		if ($listing === null) {
 			$listing = $this->list_dir('', true);
@@ -438,7 +450,7 @@ class FtpConnection
 	 * @param string $ftp_dir The name of the directory to create
 	 * @return bool Whether or not the operation was successful
 	 */
-	public function create_dir($ftp_dir)
+	public function create_dir(string $ftp_dir): bool
 	{
 		// We must be connected to the server to do something.
 		if (!is_resource($this->connection)) {
@@ -464,7 +476,7 @@ class FtpConnection
 	 * @param string $lookup_file The name of a file in the specified path
 	 * @return array An array of detected info - username, path from FTP root and whether or not the current path was found
 	 */
-	public function detect_path($filesystem_path, $lookup_file = null)
+	public function detect_path(string $filesystem_path, ?string $lookup_file = null): array
 	{
 		$username = '';
 
@@ -518,7 +530,7 @@ class FtpConnection
 	 *
 	 * @return bool Always returns true
 	 */
-	public function close()
+	public function close(): bool
 	{
 		// Goodbye!
 		fwrite($this->connection, 'QUIT' . "\r\n");

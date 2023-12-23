@@ -479,7 +479,7 @@ class VerificationCode implements ActionInterface
 					if (empty($fontcord)) {
 						$can_do_ttf = false;
 					} elseif ($is_reverse) {
-						imagefilledpolygon($code_image, $fontcord, 4, $fg_color);
+						imagefilledpolygon($code_image, $fontcord, $fg_color);
 
 						// Put the character back!
 						imagettftext(
@@ -752,7 +752,7 @@ class VerificationCode implements ActionInterface
 		// File names are in lower case so lets make sure that we are only using a lower case string
 		$word = Utils::strtolower($word);
 
-		$chars = preg_split('/(.)/su', $this->string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$chars = preg_split('/(.)/su', $word, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		// Loop through all letters of the word $word.
 		$sound_word = '';

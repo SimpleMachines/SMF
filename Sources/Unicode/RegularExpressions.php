@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -31,7 +33,7 @@ if (!defined('SMF')) {
  *
  * @return array Character classes for various Unicode properties.
  */
-function utf8_regex_properties()
+function utf8_regex_properties(): array
 {
 	return [
 		'Bidi_Control' =>
@@ -1721,7 +1723,7 @@ function utf8_regex_properties()
  *
  * @return array Character classes for filtering variation selectors.
  */
-function utf8_regex_variation_selectors()
+function utf8_regex_variation_selectors(): array
 {
 	return [
 		'\\x{FE0E}\\x{FE0F}' =>
@@ -3079,7 +3081,7 @@ function utf8_regex_variation_selectors()
  *
  * @return array Character classes for joining characters in certain scripts.
  */
-function utf8_regex_joining_type()
+function utf8_regex_joining_type(): array
 {
 	return [
 		'Arabic' => [
@@ -3372,7 +3374,7 @@ function utf8_regex_joining_type()
  *
  * @return array Character classes for Indic scripts that use viramas.
  */
-function utf8_regex_indic()
+function utf8_regex_indic(): array
 {
 	return [
 		'Devanagari' => [

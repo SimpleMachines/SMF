@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Db;
 
 use SMF\BackwardCompatibility;
@@ -314,7 +316,7 @@ abstract class DatabaseApi
 	 * @param array $options An array of database options.
 	 * @return object An instance of a child class of this class.
 	 */
-	final public static function load(array $options = [])
+	final public static function load(array $options = []): DatabaseApi
 	{
 		if (isset(self::$db)) {
 			return self::$db;
@@ -339,7 +341,7 @@ abstract class DatabaseApi
 		return self::$db;
 	}
 
-	public static function getClass($db_type)
+	public static function getClass(string $db_type): string
 	{
 		switch (strtolower($db_type)) {
 			// PostgreSQL is known by many names.
@@ -375,7 +377,7 @@ abstract class DatabaseApi
 	/**
 	 * Dummy method for backward compatibility.
 	 */
-	public static function extend()
+	public static function extend(): void
 	{
 	}
 
@@ -433,7 +435,7 @@ abstract class DatabaseApi
 	/**
 	 * Appends the correct prefix to the reserved tables' names.
 	 */
-	protected function prefixReservedTables()
+	protected function prefixReservedTables(): void
 	{
 		// Reset $resevedTables to default.
 		$class_vars = get_class_vars(__CLASS__);
@@ -449,7 +451,7 @@ abstract class DatabaseApi
 	 * For backward compatibility, make various public methods available as
 	 * Utils::$smcFunc functions.
 	 */
-	protected function mapToSmcFunc()
+	protected function mapToSmcFunc(): void
 	{
 		// Only do this once.
 		if (isset(Utils::$smcFunc['db_fetch_assoc'])) {

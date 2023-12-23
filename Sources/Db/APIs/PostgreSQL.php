@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Db\APIs;
 
 use SMF\Config;
@@ -138,7 +140,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function query($identifier, $db_string, $db_values = [], $connection = null)
+	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		// Decide which connection to use.
 		$connection = $connection ?? $this->connection;
@@ -320,7 +322,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function quote($db_string, $db_values, $connection = null)
+	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
 		if (strpos($db_string, '{') !== false) {
@@ -340,7 +342,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetch_row($result)
+	public function fetch_row(object $result): array|false|null
 	{
 		return pg_fetch_row($result);
 	}
@@ -348,7 +350,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetch_assoc($result)
+	public function fetch_assoc(object $result): array|false|null
 	{
 		return pg_fetch_assoc($result);
 	}
@@ -356,7 +358,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetch_all($request)
+	public function fetch_all(object $request): array
 	{
 		$return = @pg_fetch_all($request);
 
@@ -366,7 +368,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function free_result($result)
+	public function free_result(object $result): bool
 	{
 		return pg_free_result($result);
 	}
@@ -374,7 +376,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -382,7 +384,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// With nothing to insert, simply return.
 		if (empty($table) || empty($data)) {
-			return;
+			return null;
 		}
 
 		// Force method to lower case
@@ -505,11 +507,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					if (is_numeric($row[0])) { // try to emulate mysql limitation
 						switch ($returnmode) {
 							case 2:
-								$return_var[] = $row[0];
+								$return_var[] = (int) $row[0];
 								break;
 
 							default:
-								$return_var = $row[0];
+								$return_var = (int) $row[0];
 								break;
 						}
 					} else {
@@ -524,12 +526,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if ($with_returning && !empty($return_var)) {
 			return $return_var;
 		}
+
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function insert_id($table, $field = null, $connection = null)
+	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
@@ -541,18 +545,18 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		);
 
 		if (!$request) {
-			return false;
+			return 0;
 		}
 		list($lastID) = $this->fetch_row($request);
 		$this->free_result($request);
 
-		return $lastID;
+		return (int) $lastID;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function num_rows($result)
+	public function num_rows(object $result): int
 	{
 		return pg_num_rows($result);
 	}
@@ -560,7 +564,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function data_seek($result, int $offset)
+	public function data_seek(object $result, int $offset): bool
 	{
 		return pg_result_seek($result, $offset);
 	}
@@ -568,7 +572,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function num_fields($result)
+	public function num_fields(object $result): int
 	{
 		return pg_num_fields($result);
 	}
@@ -576,7 +580,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escape_string(string $string, $connection = null)
+	public function escape_string(string $string, ?object $connection = null): string
 	{
 		return pg_escape_string($connection ?? $this->connection, $string);
 	}
@@ -584,7 +588,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function unescape_string(string $string)
+	public function unescape_string(string $string): string
 	{
 		return stripslashes($string);
 	}
@@ -592,7 +596,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function server_info($connection = null)
+	public function server_info(?object $connection = null): string
 	{
 		$version = pg_version();
 
@@ -602,7 +606,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function affected_rows($connection = null)
+	public function affected_rows(?object $connection = null): int
 	{
 		if ($this->replace_result) {
 			return $this->replace_result;
@@ -618,14 +622,21 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function transaction($type = 'commit', $connection = null)
+	public function transaction(string $type = 'commit', ?object $connection = null): bool
 	{
 		$type = strtoupper($type);
 
 		if (in_array($type, ['BEGIN', 'ROLLBACK', 'COMMIT'])) {
 			$this->inTransaction = $type === 'BEGIN';
 
-			return @pg_query($connection ?? $this->connection, $type);
+			$return = @pg_query($connection ?? $this->connection, $type);
+
+			if (is_bool($return)) {
+				return $return;
+			}
+
+				return is_a($return, 'PgSql\Result');
+
 		}
 
 		return false;
@@ -634,7 +645,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function error($connection)
+	public function error(object $connection): string
 	{
 		if ($connection === null && $this->connection === null) {
 			return '';
@@ -650,7 +661,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function select($database, $connection = null)
+	public function select(string $database, ?object $connection = null): bool
 	{
 		return true;
 	}
@@ -658,7 +669,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escape_wildcard_string($string, $translate_human_wildcards = false)
+	public function escape_wildcard_string(string $string, bool $translate_human_wildcards = false): string
 	{
 		$replacements = [
 			'%' => '\%',
@@ -678,7 +689,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_resource($result)
+	public function is_resource(mixed $result): bool
 	{
 		return is_resource($result);
 	}
@@ -686,7 +697,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function ping($connection = null)
+	public function ping(?object $connection = null): bool
 	{
 		return pg_ping($connection ?? $this->connection);
 	}
@@ -694,7 +705,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function error_insert($error_array)
+	public function error_insert(array $error_array): void
 	{
 		// Without a database we can't do anything.
 		if (empty($this->connection)) {
@@ -746,7 +757,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function custom_order($field, $array_values, $desc = false)
+	public function custom_order(string $field, array $array_values, bool $desc = false): string
 	{
 		$return = 'CASE ' . $field . ' ';
 		$count = count($array_values);
@@ -764,7 +775,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function native_replace()
+	public function native_replace(): bool
 	{
 		return true;
 	}
@@ -772,7 +783,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cte_support()
+	public function cte_support(): bool
 	{
 		return true;
 	}
@@ -780,7 +791,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect_error()
+	public function connect_error(): string
 	{
 		if (empty($this->connect_error)) {
 			$this->connect_error = '';
@@ -792,13 +803,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect_errno()
+	public function connect_errno(): int
 	{
-		if (empty($this->connect_errno)) {
-			$this->connect_errno = '';
-		}
-
-		return $this->connect_errno;
+		return (int) $this->connect_errno;
 	}
 
 	/****************************************
@@ -808,7 +815,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function backup_table($table, $backup_table)
+	public function backup_table(string $table, string $backup_table): object
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
@@ -828,7 +835,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		/**
 		 * @todo Should we create backups of sequences as well?
 		 */
-		$this->query(
+		$result = $this->query(
 			'',
 			'CREATE TABLE {raw:backup_table}
 			(
@@ -850,12 +857,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'table' => $table,
 			],
 		);
+
+		return $result;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function optimize_table($table)
+	public function optimize_table(string $table): int|float
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
@@ -917,7 +926,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function table_sql($tableName)
+	public function table_sql(string $tableName): string
 	{
 		$tableName = str_replace('{db_prefix}', $this->prefix, $tableName);
 
@@ -1032,7 +1041,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function list_tables($db = false, $filter = false)
+	public function list_tables(string|bool $db = false, string|bool $filter = false): array
 	{
 		$tables = [];
 
@@ -1060,7 +1069,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_version()
+	public function get_version(): string
 	{
 		$version = pg_version();
 
@@ -1070,7 +1079,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_vendor()
+	public function get_vendor(): string
 	{
 		return $this->title;
 	}
@@ -1078,7 +1087,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function allow_persistent()
+	public function allow_persistent(): bool
 	{
 		$value = ini_get('pgsql.allow_persistent');
 
@@ -1092,7 +1101,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_query($identifier, $db_string, $db_values = [], $connection = null)
+	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		$replacements = [
 			'create_tmp_log_search_topics' => [
@@ -1161,7 +1170,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_support($search_type)
+	public function search_support(string $search_type): bool
 	{
 		$supported_types = ['custom', 'fulltext'];
 
@@ -1171,7 +1180,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function create_word_search($size)
+	public function create_word_search($size): void
 	{
 		$size = 'int';
 
@@ -1192,7 +1201,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function search_language()
+	public function search_language(): ?string
 	{
 		if (!empty(Config::$modSettings['search_language'])) {
 			$this->language_ftx = Config::$modSettings['search_language'];
@@ -1235,7 +1244,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function add_column($table_name, $column_info, $parameters = [], $if_exists = 'update', $error = 'fatal')
+	public function add_column(string $table_name, array $column_info, array $parameters = [], string $if_exists = 'update', string $error = 'fatal'): bool
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$column_info = array_change_key_case($column_info);
@@ -1289,7 +1298,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function add_index($table_name, $index_info, $parameters = [], $if_exists = 'update', $error = 'fatal')
+	public function add_index(string $table_name, array $index_info, array $parameters = [], string $if_exists = 'update', string $error = 'fatal'): bool
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
@@ -1338,7 +1347,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// If we're here we know we don't have the index - so just add it.
 		if (!empty($index_info['type']) && $index_info['type'] == 'primary') {
-			$this->query(
+			$result = $this->query(
 				'',
 				'ALTER TABLE ' . $real_table_name . '
 				ADD PRIMARY KEY (' . $columns . ')',
@@ -1347,7 +1356,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 		} else {
-			$this->query(
+			$result = $this->query(
 				'',
 				'CREATE ' . (isset($index_info['type']) && $index_info['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $real_table_name . '_' . $index_info['name'] . ' ON ' . $real_table_name . ' (' . $columns . ')',
 				[
@@ -1355,12 +1364,15 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 		}
+
+		// Query returns a result or true if succesfull, false otherwise.
+		return $result !== false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function calculate_type($type_name, $type_size = null, $reverse = false)
+	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
 		// Let's be sure it's lowercase MySQL likes both, others no.
 		$type_name = strtolower($type_name);
@@ -1411,7 +1423,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function change_column($table_name, $old_column, $column_info)
+	public function change_column(string $table_name, string $old_column, array $column_info): bool
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$column_info = array_change_key_case($column_info);
@@ -1596,7 +1608,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function create_table($table_name, $columns, $indexes = [], $parameters = [], $if_exists = 'ignore', $error = 'fatal')
+	public function create_table(string $table_name, array $columns, array $indexes = [], array $parameters = [], string $if_exists = 'ignore', string $error = 'fatal'): bool
 	{
 		$db_trans = false;
 		$old_table_exists = false;
@@ -1791,7 +1803,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function drop_table($table_name, $parameters = [], $error = 'fatal')
+	public function drop_table(string $table_name, array $parameters = [], string $error = 'fatal'): bool
 	{
 		// After stripping away the database name, this is what's left.
 		$real_prefix = preg_match('~^("?)(.+?)\\1\\.(.*?)$~', $this->prefix, $match) === 1 ? $match[3] : $this->prefix;
@@ -1847,7 +1859,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function table_structure($table_name)
+	public function table_structure(string $table_name): array
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
@@ -1862,7 +1874,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function list_columns($table_name, $detail = false, $parameters = [])
+	public function list_columns(string $table_name, bool $detail = false, array $parameters = []): array
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
@@ -1921,7 +1933,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function list_indexes($table_name, $detail = false, $parameters = [])
+	public function list_indexes(string $table_name, bool $detail = false, array $parameters = []): array
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
@@ -1984,7 +1996,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function remove_column($table_name, $column_name, $parameters = [], $error = 'fatal')
+	public function remove_column(string $table_name, string $column_name, array $parameters = [], string $error = 'fatal'): bool
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
@@ -2024,7 +2036,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function remove_index($table_name, $index_name, $parameters = [], $error = 'fatal')
+	public function remove_index(string $table_name, string $index_name, array $parameters = [], string $error = 'fatal'): bool
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
@@ -2141,7 +2153,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string $passwd The database password
 	 * @param array $options An array of database options
 	 */
-	protected function initiate($user, $passwd, $options = [])
+	protected function initiate(string $user, string $passwd, array $options = []): void
 	{
 		// We are not going to make it very far without this.
 		if (!function_exists('pg_pconnect')) {
@@ -2154,7 +2166,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Since pg_connect doesn't feed error info to pg_last_error, we have to catch issues with a try/catch.
 		set_error_handler(
 			function ($errno, $errstr) {
-				throw new ErrorException($errstr, $errno);
+				throw new \ErrorException($errstr, $errno);
 			},
 		);
 
@@ -2166,7 +2178,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			} else {
 				$this->connection = @pg_connect($connection_string);
 			}
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			// Make error info available to calling processes
 			$this->connect_error = $e->getMessage();
 			$this->connect_errno = $e->getCode();
@@ -2192,7 +2204,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param array $matches The matches from preg_replace_callback
 	 * @return string The appropriate string depending on $matches[1]
 	 */
-	protected function replacement__callback($matches)
+	protected function replacement__callback(array $matches): string
 	{
 		if (!is_object($this->temp_connection)) {
 			ErrorHandler::displayDbError();
@@ -2234,7 +2246,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', pg_escape_string($this->connection, $replacement));
+				return sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2314,7 +2326,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return '"' . implode('"."', array_filter(explode('.', strtr($replacement, ['`' => ''])), 'strlen')) . '"';
 
 			case 'raw':
-				return $replacement;
+				return (string) $replacement;
 
 			case 'inet':
 				if ($replacement == 'null' || $replacement == '') {
@@ -2327,7 +2339,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 				}
 
-				return sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, $ip));
+				return sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, strval($ip)));
 
 			case 'array_inet':
 				if (is_array($replacement)) {
@@ -2346,7 +2358,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 						}
 
-						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, $ip));
+						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, strval($ip)));
 					}
 
 					return implode(', ', $replacement);
@@ -2360,6 +2372,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$this->error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
 				break;
 		}
+
+		return '';
 	}
 
 	/**
@@ -2367,12 +2381,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 *
 	 * @param string $error_message The error message
 	 * @param string $log_message The message to log
-	 * @param string|bool $error_type What type of error this is
+	 * @param string|int|bool $error_type What type of error this is
 	 * @param string $file The file the error occurred in
 	 * @param int $line What line of $file the code which generated the error is on
 	 * @return void|array Returns an array with the file and line if $error_type is 'return'
 	 */
-	protected function error_backtrace($error_message, $log_message = '', $error_type = false, $file = null, $line = null)
+	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): ?array
 	{
 		if (empty($log_message)) {
 			$log_message = $error_message;
@@ -2409,10 +2423,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		if ($error_type) {
-			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), $error_type);
+			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), (int) $error_type);
 		} else {
 			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
 		}
+
+		return null;
 	}
 }
 

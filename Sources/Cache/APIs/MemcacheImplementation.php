@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache\APIs;
 
 use Memcache;
@@ -72,7 +74,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		$supported = class_exists('Memcache');
 
@@ -86,7 +88,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect()
+	public function connect(): bool
 	{
 		$this->memcache = new Memcache();
 
@@ -122,7 +124,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData($key, $ttl = null)
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -130,7 +132,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 
 		// $value should return either data or false (from failure, key not found or empty array).
 		if ($value === false) {
-			return;
+			return null;
 		}
 
 		return $value;
@@ -139,7 +141,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData($key, $value, $ttl = null)
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -149,7 +151,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function quit()
+	public function quit(): bool
 	{
 		return $this->memcache->close();
 	}
@@ -157,7 +159,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cleanCache($type = '')
+	public function cleanCache($type = ''): bool
 	{
 		$this->invalidateCache();
 
@@ -167,7 +169,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cacheSettings(array &$config_vars)
+	public function cacheSettings(array &$config_vars): void
 	{
 		if (!in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
 			$config_vars[] = Lang::$txt[self::CLASS_KEY . '_settings'];
@@ -196,7 +198,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		if (!is_object($this->memcache)) {
 			return false;

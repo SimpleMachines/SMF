@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Simple title case maps.
  */
-function utf8_titlecase_simple_maps()
+function utf8_titlecase_simple_maps(): array
 {
 	return [
 		"\xC7\x84" => "\xC7\x85",
@@ -97,7 +99,7 @@ function utf8_titlecase_simple_maps()
  *
  * @return array Full title case maps.
  */
-function utf8_titlecase_maps()
+function utf8_titlecase_maps(): array
 {
 	return [
 		"\xC3\x9F" => "\x53\x73",

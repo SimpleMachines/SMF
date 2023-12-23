@@ -1377,7 +1377,18 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// For the templates.
-		Utils::$context['member_groups'] = $this->assignable_groups;
+		Utils::$context['member_groups'] = array_merge(
+			[
+				0 => [
+					'id' => 0,
+					'name' => Lang::$txt['no_primary_membergroup'],
+					'is_primary' => $this->data['id_group'] == 0,
+					'can_be_additional' => false,
+					'can_be_primary' => true,
+				]
+			],
+			$this->assignable_groups
+		);
 
 		return true;
 	}

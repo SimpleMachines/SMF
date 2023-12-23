@@ -46,12 +46,12 @@ class XmlArray
 	 * Example use:
 	 *  $xml = new XmlArray(file('data.xml'));
 	 *
-	 * @param string $data The xml data or an array of, unless is_clone is true.
+	 * @param string|array $data The xml data or an array of, unless is_clone is true.
 	 * @param bool $auto_trim Used to automatically trim textual data.
 	 * @param int $level The debug level. Specifies whether notices should be generated for missing elements and attributes.
 	 * @param bool $is_clone default false. If is_clone is true, the  XmlArray is cloned from another - used internally only.
 	 */
-	public function __construct($data, $auto_trim = false, $level = null, $is_clone = false)
+	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
 		Config::setMemoryLimit('32M');
@@ -86,7 +86,7 @@ class XmlArray
 	 *
 	 * @return string The root element's name
 	 */
-	public function name()
+	public function name(): string
 	{
 		return $this->array['name'] ?? '';
 	}
@@ -102,7 +102,7 @@ class XmlArray
 	 * @param bool $get_elements Whether to include elements
 	 * @return string The value or attribute of the specified element
 	 */
-	public function fetch($path, $get_elements = false)
+	public function fetch(string $path, bool $get_elements = false): string|bool
 	{
 		// Get the element, in array form.
 		$array = $this->path($path);
@@ -138,11 +138,11 @@ class XmlArray
 	 * Example use:
 	 *  $element = $xml->path('html/body');
 	 *
-	 * @param $path string The path to the element to get
-	 * @param $return_full bool Whether to return the full result set
-	 * @return XmlArray a new XmlArray.
+	 * @param string $path The path to the element to get
+	 * @param bool $return_full Whether to return the full result set
+	 * @return XmlArray|string|bool a new XmlArray. False if we can not find a attribute
 	 */
-	public function path($path, $return_full = false)
+	public function path(string $path, bool $return_full = false): XmlArray|string|false
 	{
 		// Split up the path.
 		$path = explode('/', $path);
@@ -207,7 +207,7 @@ class XmlArray
 	 * @param string $path The path to the element to get.
 	 * @return bool Whether the specified path exists
 	 */
-	public function exists($path)
+	public function exists(string $path): bool
 	{
 		// Split up the path.
 		$path = explode('/', $path);
@@ -244,7 +244,7 @@ class XmlArray
 	 * @param string $path The path to search for.
 	 * @return int The number of elements the path matches.
 	 */
-	public function count($path)
+	public function count(string $path): int
 	{
 		// Get the element, always returning a full set.
 		$temp = $this->path($path, true);
@@ -268,10 +268,10 @@ class XmlArray
 	 * Example use:
 	 *  foreach ($xml->set('html/body/p') as $p)
 	 *
-	 * @param $path string The path to search for.
+	 * @param string $path The path to search for.
 	 * @return XmlArray[] An array of XmlArray objects
 	 */
-	public function set($path)
+	public function set(string $path): array
 	{
 		// None as yet, just get the path.
 		$array = [];
@@ -301,7 +301,7 @@ class XmlArray
 	 * @param string $path The path to the element. (optional)
 	 * @return string Xml-formatted string.
 	 */
-	public function create_xml($path = null)
+	public function create_xml(?string $path = null): string
 	{
 		// Was a path specified?  If so, use that array.
 		if ($path !== null) {
@@ -331,7 +331,7 @@ class XmlArray
 	 * @param string $path The path to output.
 	 * @return array An array of XML data
 	 */
-	public function to_array($path = null)
+	public function to_array(?string $path = null): array
 	{
 		// Are we doing a specific path?
 		if ($path !== null) {
@@ -339,7 +339,7 @@ class XmlArray
 
 			// The path was not found
 			if ($path === false) {
-				return false;
+				return [];
 			}
 
 			$path = $path->array;
@@ -358,7 +358,7 @@ class XmlArray
 	 * @param string $data The data to parse
 	 * @return array The parsed array
 	 */
-	protected function _parse($data)
+	protected function _parse(string $data): array
 	{
 		// Start with an 'empty' array with no data.
 		$current = [
@@ -508,7 +508,7 @@ class XmlArray
 	 * @param null|int $indent How many levels to indent the elements (null = no indent)
 	 * @return string The formatted XML
 	 */
-	protected function _xml($array, $indent)
+	protected function _xml(array $array, ?int $indent): string
 	{
 		$indentation = $indent !== null ? '
 ' . str_repeat('	', $indent) : '';
@@ -565,7 +565,7 @@ class XmlArray
 	 * @param array $array An array of data
 	 * @return string|array A string with the element's value or an array of element data
 	 */
-	protected function _array($array)
+	protected function _array(array $array): string|array
 	{
 		$return = [];
 		$text = '';
@@ -595,7 +595,7 @@ class XmlArray
 	 * @param string $data The data with CDATA tags included
 	 * @return string The data contained within CDATA tags
 	 */
-	public function _to_cdata($data)
+	public function _to_cdata(string $data): string
 	{
 		$inCdata = $inComment = false;
 		$output = '';
@@ -638,7 +638,7 @@ class XmlArray
 	 * @param string $data The data with CDATA tags
 	 * @return string The transformed data
 	 */
-	protected function _from_cdata($data)
+	protected function _from_cdata(string $data): string
 	{
 		// Get the HTML translation table and reverse it.
 		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
@@ -661,10 +661,10 @@ class XmlArray
 	/**
 	 * Given an array, return the text from that array. (recursive and privately used.)
 	 *
-	 * @param array $array An aray of data
+	 * @param null|array|string $array An aray of data
 	 * @return string The text from the array
 	 */
-	protected function _fetch($array)
+	protected function _fetch(null|array|string $array): string
 	{
 		// Don't return anything if this is just a string.
 		if (is_string($array)) {
@@ -673,7 +673,7 @@ class XmlArray
 
 		$temp = '';
 
-		foreach ($array as $text) {
+		foreach ((array) $array as $text) {
 			// This means it's most likely an attribute or the name itself.
 			if (!isset($text['name'])) {
 				continue;
@@ -698,11 +698,11 @@ class XmlArray
 	 *
 	 * @param array $array An array of data
 	 * @param string $path The path
-	 * @param int $level How far deep into the array we should go
+	 * @param null|int $level How far deep into the array we should go
 	 * @param bool $no_error Whether or not to ignore errors
 	 * @return string|array The specified array (or the contents of said array if there's only one result)
 	 */
-	protected function _path($array, $path, $level, $no_error = false)
+	protected function _path(array $array, string $path, ?int $level, bool $no_error = false): string|array
 	{
 		// Is $array even an array?  It might be false!
 		if (!is_array($array)) {

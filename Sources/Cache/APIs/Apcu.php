@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
@@ -30,7 +32,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
 
@@ -44,7 +46,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect()
+	public function connect(): bool
 	{
 		return true;
 	}
@@ -52,7 +54,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData($key, $ttl = null)
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -64,7 +66,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData($key, $value, $ttl = null)
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
@@ -79,7 +81,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cleanCache($type = '')
+	public function cleanCache($type = ''): bool
 	{
 		$this->invalidateCache();
 
@@ -89,7 +91,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		return phpversion('apcu');
 	}

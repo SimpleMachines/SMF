@@ -10,6 +10,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\WebFetch\APIs;
 
 use SMF\Lang;
@@ -193,14 +195,16 @@ class CurlFetcher extends WebFetchApi
 	 *  - Calls setOptions() to set the curl opts array values based on the
 	 *    defaults and user input.
 	 *
-	 * @param string $url the site we are going to fetch
+	 * @param string|Url $url the site we are going to fetch
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = []): object
+	public function request(string|Url $url, array|string $post_data = []): object
 	{
-		$url = new Url($url, true);
-		$url->toAscii();
+		if (!$url instanceof Url) {
+			$url = new Url($url, true);
+			$url->toAscii();
+		}
 
 		// If we can't do it, bail out.
 		if (!function_exists('curl_init')) {
@@ -232,7 +236,7 @@ class CurlFetcher extends WebFetchApi
 
 		// Set the options and get it.
 		$this->setOptions();
-		$this->sendRequest(str_replace(' ', '%20', $url));
+		$this->sendRequest(str_replace(' ', '%20', strval($url)));
 
 		return $this;
 	}
@@ -317,7 +321,7 @@ class CurlFetcher extends WebFetchApi
 		$curl_info = curl_getinfo($cr);
 		$curl_content = curl_multi_getcontent($cr);
 		$url = $curl_info['url']; // Last effective URL
-		$http_code = $curl_info['http_code']; // Last HTTP code
+		$http_code = (string) $curl_info['http_code']; // Last HTTP code
 		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 

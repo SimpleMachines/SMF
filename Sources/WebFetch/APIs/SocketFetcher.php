@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\WebFetch\APIs;
 
 use SMF\Lang;
@@ -156,14 +158,16 @@ class SocketFetcher extends WebFetchApi
 	 *  - Optionally will post data to the page form if $post_data is supplied.
 	 *    Passed arrays will be converted to a POST string joined with &'s.
 	 *
-	 * @param string $url the site we are going to fetch
+	 * @param string|Url $url the site we are going to fetch
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array|string $post_data = []): object
+	public function request(string|Url $url, array|string $post_data = []): object
 	{
-		$url = new Url($url, true);
-		$url->toAscii();
+		if (!$url instanceof Url) {
+			$url = new Url($url, true);
+			$url->toAscii();
+		}
 
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
@@ -264,7 +268,7 @@ class SocketFetcher extends WebFetchApi
 
 			$this->current_redirect++;
 
-			return $this->request($location, $post_data);
+			return $this->request(strval($location), $post_data);
 		}
 
 		// Make sure we get a 200 OK.
@@ -293,30 +297,30 @@ class SocketFetcher extends WebFetchApi
 		if ($this->is_chunked) {
 			do {
 				$line = fgets($this->fp, $this->buffer_size);
-		
+
 				// Encounted a line feed, skip.
 				if ($line === $this->line_break) {
 					continue;
 				}
-		
+
 				// Try to see if this is a chunked data
 				$length = hexdec($line);
+
 				if (!is_int($length)) {
 					break;
 				}
-		
+
 				// We ran out of data.
 				if ($line === false || $length < 1 || feof($this->fp)) {
 					break;
 				}
-		
+
 				// Read the next chunk.
 				do {
 					if (isset($content_length)) {
 						$data = fread($this->fp, $content_length);
-					}
-					else {
-						$data = fread($this->fp, $length);	
+					} else {
+						$data = fread($this->fp, $length);
 					}
 
 					$body .= $data;
@@ -325,25 +329,23 @@ class SocketFetcher extends WebFetchApi
 					if (isset($content_length)) {
 						$content_length -= strlen($data);
 					}
-		
+
 					// No more chunked data.
 					if ($length <= 0 || feof($this->fp)) {
 						break;
 					}
-				}
-				while (true);
-			}
-			while (true);		
+				} while (true);
+			} while (true);
 		} else {
 			if (isset($content_length)) {
 				while (!feof($this->fp) && strlen($body) < $content_length) {
-					$body .= fread($this->fp, $content_length - strlen($body));
+					$body .= fread($this->fp, (int) $content_length - strlen($body));
 				}
 			} else {
 				while (!feof($this->fp)) {
 					$body .= fread($this->fp, $this->buffer_size);
 				}
-			}	
+			}
 		}
 
 		$this->response[$this->current_redirect]['success'] = true;

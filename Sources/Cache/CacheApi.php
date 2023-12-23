@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache;
 
 use SMF\BackwardCompatibility;
@@ -151,7 +153,7 @@ abstract class CacheApi
 	 * @param bool $test Test if this is supported or enabled.
 	 * @return bool Whether or not the cache is supported
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		if ($test) {
 			return true;
@@ -167,7 +169,7 @@ abstract class CacheApi
 	 *     If empty, the prefix will be generated automatically.
 	 * @return bool If this was successful or not.
 	 */
-	public function setPrefix($prefix = '')
+	public function setPrefix(string $prefix = ''): bool
 	{
 		if (!is_string($prefix)) {
 			$prefix = '';
@@ -203,7 +205,7 @@ abstract class CacheApi
 	 *
 	 * @return string the value of $key.
 	 */
-	public function getPrefix()
+	public function getPrefix(): string
 	{
 		return $this->prefix;
 	}
@@ -214,7 +216,7 @@ abstract class CacheApi
 	 * @param int $ttl The default TTL
 	 * @return bool If this was successful or not.
 	 */
-	public function setDefaultTTL($ttl = 120)
+	public function setDefaultTTL(int $ttl = 120): bool
 	{
 		$this->ttl = $ttl;
 
@@ -226,7 +228,7 @@ abstract class CacheApi
 	 *
 	 * @return int the value of $ttl.
 	 */
-	public function getDefaultTTL()
+	public function getDefaultTTL(): int
 	{
 		return $this->ttl;
 	}
@@ -236,7 +238,7 @@ abstract class CacheApi
 	 *
 	 * @return bool Whether or not we could invalidate the cache.
 	 */
-	public function invalidateCache()
+	public function invalidateCache(): bool
 	{
 		// Invalidate cache, to be sure!
 		// ... as long as index.php can be modified, anyway.
@@ -252,7 +254,7 @@ abstract class CacheApi
 	 *
 	 * @return bool Whether the connections were closed.
 	 */
-	public function quit()
+	public function quit(): bool
 	{
 		return true;
 	}
@@ -262,7 +264,7 @@ abstract class CacheApi
 	 *
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
 	 */
-	public function cacheSettings(array &$config_vars)
+	public function cacheSettings(array &$config_vars): void
 	{
 	}
 
@@ -271,7 +273,7 @@ abstract class CacheApi
 	 *
 	 * @return string the value of $key.
 	 */
-	public function getCompatibleVersion()
+	public function getCompatibleVersion(): string|bool
 	{
 		return $this->version_compatible;
 	}
@@ -281,7 +283,7 @@ abstract class CacheApi
 	 *
 	 * @return string the value of $key.
 	 */
-	public function getMinimumVersion()
+	public function getMinimumVersion(): string|int
 	{
 		return $this->min_smf_version;
 	}
@@ -291,7 +293,7 @@ abstract class CacheApi
 	 *
 	 * @return string the value of $key.
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		return $this->min_smf_version;
 	}
@@ -301,7 +303,7 @@ abstract class CacheApi
 	 * exp. clean up old data or do optimization
 	 *
 	 */
-	public function housekeeping()
+	public function housekeeping(): void
 	{
 	}
 
@@ -310,7 +312,7 @@ abstract class CacheApi
 	 *
 	 * @return string the unique identifier for the current class implementation.
 	 */
-	public function getImplementationClassKeyName()
+	public function getImplementationClassKeyName(): string
 	{
 		$class_name = get_class($this);
 
@@ -335,7 +337,7 @@ abstract class CacheApi
 	 * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
 	 * @return object|false An instance of a child class of this class, or false on failure.
 	 */
-	final public static function load($overrideCache = '', $fallbackSMF = true)
+	final public static function load(string $overrideCache = '', bool $fallbackSMF = true): object|bool
 	{
 		if (!isset(self::$enable)) {
 			self::$enable = min(max((int) Config::$cache_enable, 0), 3);
@@ -406,7 +408,7 @@ abstract class CacheApi
 	/**
 	 * Get the installed Cache API implementations.
 	 */
-	final public static function detect()
+	final public static function detect(): array
 	{
 		$loadedApis = [];
 
@@ -453,7 +455,7 @@ abstract class CacheApi
 	 *
 	 * @param string $type The cache type ('memcached', 'zend' or something else for SMF's file cache)
 	 */
-	final public static function clean($type = '')
+	final public static function clean(string $type = ''): void
 	{
 		// If we can't get to the API, can't do this.
 		// todo: instanceof check
@@ -474,12 +476,12 @@ abstract class CacheApi
 	 *
 	 * @param string $key The key for this entry
 	 * @param string $file The file associated with this entry
-	 * @param string $function The function to call
+	 * @param string|array $function The function to call
 	 * @param array $params Parameters to be passed to the specified function
 	 * @param int $level The cache level
 	 * @return string The cached data
 	 */
-	final public static function quickGet($key, $file, $function, $params, $level = 1)
+	final public static function quickGet(string $key, string $file, string|array $function, array $params, int $level = 1): mixed
 	{
 		if (class_exists('SMF\\IntegrationHook', false)) {
 			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
@@ -531,7 +533,7 @@ abstract class CacheApi
 	 * @param mixed $value The data to cache
 	 * @param int $ttl How long (in seconds) the data should be cached for
 	 */
-	final public static function put($key, $value, $ttl = 120)
+	final public static function put(string $key, mixed $value, int $ttl = 120): void
 	{
 		if (empty(self::$enable) || empty(self::$loadedApi)) {
 			return;
@@ -566,10 +568,10 @@ abstract class CacheApi
 	 * @param int $ttl The maximum age of the cached data
 	 * @return array|null The cached data or null if nothing was loaded
 	 */
-	final public static function get($key, $ttl = 120)
+	final public static function get(string $key, int $ttl = 120): mixed
 	{
 		if (empty(self::$enable) || empty(self::$loadedApi)) {
-			return;
+			return null;
 		}
 
 		self::$count_hits++;

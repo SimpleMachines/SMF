@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache\APIs;
 
 use FilesystemIterator;
@@ -51,7 +53,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		$supported = is_writable($this->cachedir);
 
@@ -62,62 +64,10 @@ class FileBased extends CacheApi implements CacheApiInterface
 		return parent::isSupported() && $supported;
 	}
 
-	private function readFile($file)
-	{
-		if (($fp = @fopen($file, 'rb')) !== false) {
-			if (!flock($fp, LOCK_SH)) {
-				fclose($fp);
-
-				return false;
-			}
-			$string = '';
-
-			while (!feof($fp)) {
-				$string .= fread($fp, 8192);
-			}
-
-			flock($fp, LOCK_UN);
-			fclose($fp);
-
-			return $string;
-		}
-
-		return false;
-	}
-
-	private function writeFile($file, $string)
-	{
-		if (($fp = fopen($file, 'cb')) !== false) {
-			if (!flock($fp, LOCK_EX)) {
-				fclose($fp);
-
-				return false;
-			}
-			ftruncate($fp, 0);
-			$bytes = 0;
-			$pieces = str_split($string, 8192);
-
-			foreach ($pieces as $piece) {
-				if (($val = fwrite($fp, $piece, 8192)) !== false) {
-					$bytes += $val;
-				} else {
-					return false;
-				}
-			}
-			fflush($fp);
-			flock($fp, LOCK_UN);
-			fclose($fp);
-
-			return $bytes;
-		}
-
-		return false;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect()
+	public function connect(): bool
 	{
 		return true;
 	}
@@ -125,7 +75,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData($key, $ttl = null)
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$file = sprintf(
 			'%s/data_%s.cache',
@@ -141,12 +91,14 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			@unlink($file);
 		}
+
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData($key, $value, $ttl = null)
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$file = sprintf(
 			'%s/data_%s.cache',
@@ -157,7 +109,9 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		if ($value === null) {
 			@unlink($file);
-		} else {
+
+			return true;
+		}
 			$cache_data = json_encode(
 				[
 					'expiration' => time() + $ttl,
@@ -175,17 +129,17 @@ class FileBased extends CacheApi implements CacheApiInterface
 			}
 
 			return true;
-		}
+
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cleanCache($type = '')
+	public function cleanCache($type = ''): bool
 	{
 		// No directory = no game.
 		if (!is_dir($this->cachedir)) {
-			return;
+			return false;
 		}
 
 		// Remove the files in SMF's own disk cache, if any
@@ -204,7 +158,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function invalidateCache()
+	public function invalidateCache(): bool
 	{
 		// We don't worry about $cachedir here, since the key is based on the real $cachedir.
 		parent::invalidateCache();
@@ -218,7 +172,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cacheSettings(array &$config_vars)
+	public function cacheSettings(array &$config_vars): void
 	{
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
@@ -245,7 +199,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 * @param string $dir A valid path
 	 * @return bool If this was successful or not.
 	 */
-	public function setCachedir($dir = null)
+	public function setCachedir(?string $dir = null): void
 	{
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir)) {
@@ -260,7 +214,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 *
 	 * @return string the value of $ttl.
 	 */
-	public function getCachedir()
+	public function getCachedir(): string
 	{
 		return $this->cachedir;
 	}
@@ -268,9 +222,61 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		return SMF_VERSION;
+	}
+
+	private function readFile(string $file): mixed
+	{
+		if (($fp = @fopen($file, 'rb')) !== false) {
+			if (!flock($fp, LOCK_SH)) {
+				fclose($fp);
+
+				return false;
+			}
+			$string = '';
+
+			while (!feof($fp)) {
+				$string .= fread($fp, 8192);
+			}
+
+			flock($fp, LOCK_UN);
+			fclose($fp);
+
+			return $string;
+		}
+
+		return false;
+	}
+
+	private function writeFile(string $file, mixed $string): mixed
+	{
+		if (($fp = fopen($file, 'cb')) !== false) {
+			if (!flock($fp, LOCK_EX)) {
+				fclose($fp);
+
+				return false;
+			}
+			ftruncate($fp, 0);
+			$bytes = 0;
+			$pieces = str_split($string, 8192);
+
+			foreach ($pieces as $piece) {
+				if (($val = fwrite($fp, $piece, 8192)) !== false) {
+					$bytes += $val;
+				} else {
+					return false;
+				}
+			}
+			fflush($fp);
+			flock($fp, LOCK_UN);
+			fclose($fp);
+
+			return $bytes;
+		}
+
+		return false;
 	}
 }
 

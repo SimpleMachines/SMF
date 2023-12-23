@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Graphics;
 
 use SMF\Cache\CacheApi;
@@ -446,8 +448,8 @@ class Image
 			$preferred_type = $this->type ?? self::DEFAULT_IMAGETYPE;
 		}
 
-		$max_width = round($max_width);
-		$max_height = round($max_height);
+		$max_width = (int) round($max_width);
+		$max_height = (int) round($max_height);
 
 		// Do the job using ImageMagick.
 		if (extension_loaded('imagick') && isset(self::IMAGETYPE_TO_IMAGICK[$preferred_type])) {
@@ -557,7 +559,7 @@ class Image
 	 * @param array $sizes Image size.
 	 * @return bool Whether we do.
 	 */
-	public static function checkMemory($sizes)
+	public static function checkMemory(array $sizes): bool
 	{
 		// doing the old 'set it and hope' way?
 		if (empty(Config::$modSettings['attachment_thumb_memory'])) {
@@ -574,7 +576,7 @@ class Image
 		$needed_memory = ($sizes[0] * $sizes[1] * 5);
 
 		// if we need more, lets try to get it
-		return Config::setMemoryLimit($needed_memory, true);
+		return Config::setMemoryLimit((string) $needed_memory, true);
 	}
 
 	/**
@@ -600,7 +602,7 @@ class Image
 		}
 
 		// If this took a long time, we may never have to do it again, but then again we might...
-		if (microtime(true) - $t > 0.8) {
+		if (microtime(true) - TIME_START > 0.8) {
 			CacheApi::put('url_image_size-' . md5($url), [$image->width, $image->height], 240);
 		}
 
@@ -613,12 +615,12 @@ class Image
 	 * This is unused by SMF itself, but retained for compatibility with any
 	 * mods that use it.
 	 *
-	 * @param gif_file $gif A GIF image resource.
+	 * @param Gif\File $gif A GIF image resource.
 	 * @param string $lpszFileName The name of the file.
-	 * @param int $background_color The background color.
+	 * @param string $background_color The background color.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function gifOutputAsPng($gif, $lpszFileName, $background_color = -1)
+	public static function gifOutputAsPng(Gif\File $gif, string $lpszFileName, string $background_color = '-1'): bool
 	{
 		if (!is_a($gif, Gif\File::class) || $lpszFileName == '') {
 			return false;
@@ -791,15 +793,15 @@ class Image
 		}
 
 		// If all else fails, see if we can guess from the MIME type.
-		if (strpos($mime_type, 'image/') === 0) {
+		if (strpos($this->mime_type, 'image/') === 0) {
 			// Unfortunately, 'image/tiff' could be two different things,
 			// and if we got here, we have no way to guess which one.
-			if ($mime_type === 'image/tiff') {
+			if ($this->mime_type === 'image/tiff') {
 				return;
 			}
 
 			foreach (self::getImageTypes() as $type) {
-				if (image_type_to_mime_type($type) === $mime_type) {
+				if (image_type_to_mime_type($type) === $this->mime_type) {
 					$this->type = $type;
 
 					return;
@@ -849,7 +851,7 @@ class Image
 
 			try {
 				$this->orientation = $imagick->getImageOrientation();
-			} catch (Throwable $e) {
+			} catch (\Throwable $e) {
 			}
 
 			try {
@@ -857,7 +859,7 @@ class Image
 				$this->height = $imagick->getImageHeight();
 
 				return;
-			} catch (Throwable $e) {
+			} catch (\Throwable $e) {
 			}
 		}
 
@@ -957,16 +959,16 @@ class Image
 			$vb_height = $matches[3];
 
 			// No dimensions given, so use viewBox dimensions.
-			if (!isset($width) && !isset($height)) {
+			if (!empty($width) && !empty($height)) {
 				$width = $vb_width;
 				$height = $vb_height;
 			}
 			// Width but no height, so calculate height.
-			elseif (isset($width)) {
+			elseif (!empty($width)) {
 				$height = $width * $vb_height / $vb_width;
 			}
 			// Height but no width, so calculate width.
-			elseif (isset($height)) {
+			elseif (!empty($height)) {
 				$width = $height * $vb_width / $vb_height;
 			}
 		}

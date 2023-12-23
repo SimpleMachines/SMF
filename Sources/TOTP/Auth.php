@@ -23,8 +23,6 @@
 
 namespace SMF\TOTP;
 
-use SMF\Utils;
-
 /**
  * Class Auth
  *

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\WebFetch;
 
 /**
@@ -29,7 +31,7 @@ interface WebFetchApiInterface
 	 * @param array|string $post_data any post data as form name => value
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url, array $post_data = []): object;
+	public function request(string $url, array $post_data = []): ?object;
 
 	/**
 	 * Used to return the results to the caller.

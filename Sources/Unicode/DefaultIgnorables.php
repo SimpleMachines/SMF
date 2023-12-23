@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Unicode;
 
 if (!defined('SMF')) {
@@ -25,7 +27,7 @@ if (!defined('SMF')) {
  *
  * @return array Characters with the 'Default_Ignorable_Code_Point' property.
  */
-function utf8_default_ignorables()
+function utf8_default_ignorables(): array
 {
 	return [
 		"\xC2\xAD",

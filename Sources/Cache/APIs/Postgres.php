@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
@@ -50,7 +52,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect()
+	public function connect(): bool
 	{
 		$result = pg_query_params(
 			$this->db_connection,
@@ -116,7 +118,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isSupported($test = false)
+	public function isSupported(bool $test = false): bool
 	{
 		if (Db::$db->title !== POSTGRE_TITLE) {
 			return false;
@@ -135,12 +137,12 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getData($key, $ttl = null)
+	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$result = pg_execute($this->db_connection, 'smf_cache_get_data', [$key, time()]);
 
 		if (pg_affected_rows($result) === 0) {
-			return;
+			return null;
 		}
 
 		$res = pg_fetch_assoc($result);
@@ -151,7 +153,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function putData($key, $value, $ttl = null)
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
 		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
 
@@ -167,7 +169,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cleanCache($type = '')
+	public function cleanCache(string $type = ''): bool
 	{
 		if ($type == 'expired') {
 			pg_query($this->db_connection, 'DELETE FROM ' . $this->db_prefix . 'cache WHERE ttl < ' . time() . ';');
@@ -183,7 +185,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getVersion()
+	public function getVersion(): string|bool
 	{
 		return pg_version($this->db_connection)['server'];
 	}
@@ -191,7 +193,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function housekeeping()
+	public function housekeeping(): void
 	{
 		$this->createTempTable();
 		$this->cleanCache();
@@ -203,7 +205,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 * Create the temp table of valid data.
 	 *
 	 */
-	private function createTempTable()
+	private function createTempTable(): void
 	{
 		pg_query($this->db_connection, 'CREATE LOCAL TEMP TABLE IF NOT EXISTS ' . $this->db_prefix . 'cache_tmp AS SELECT * FROM ' . $this->db_prefix . 'cache WHERE ttl >= ' . time());
 	}
@@ -212,7 +214,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 * Delete the temp table.
 	 *
 	 */
-	private function deleteTempTable()
+	private function deleteTempTable(): void
 	{
 		pg_query($this->db_connection, 'DROP TABLE IF EXISTS ' . $this->db_prefix . 'cache_tmp');
 	}
@@ -221,7 +223,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 * Retrieve the valid data from temp table.
 	 *
 	 */
-	private function retrieveData()
+	private function retrieveData(): void
 	{
 		pg_query($this->db_connection, 'INSERT INTO ' . $this->db_prefix . 'cache SELECT * FROM ' . $this->db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
 	}

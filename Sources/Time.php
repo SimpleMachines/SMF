@@ -192,7 +192,9 @@ class Time extends DateTime implements ArrayAccess
 
 		// If $datetime was a Unix timestamp, force the time zone to be the one we were told to use.
 		// Honestly, it's a mystery why the \DateTime class doesn't do this itself already...
-		$this->setTimezone($timezone ?? self::$user_tz);
+		if (str_starts_with($datetime, '@')) {
+			$this->setTimezone($timezone ?? self::$user_tz);
+		}
 	}
 
 	/**
