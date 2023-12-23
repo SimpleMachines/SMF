@@ -23,6 +23,7 @@ use SMF\IP;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * Interacts with PostgreSQL databases.
@@ -2327,6 +2328,21 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'raw':
 				return (string) $replacement;
+
+			case 'uuid':
+				if ($replacement instanceof Uuid) {
+					return sprintf('\'%1$s\'::uuid', (string) $replacement);
+				}
+
+				$uuid = @Uuid::createFromString($replacement, false);
+
+				if (in_array($replacement, [(string) $uuid, $uuid->getShortForm(), $uuid->getBinary()])) {
+					return sprintf('\'%1$s\'::uuid', (string) $uuid);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. UUID expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				break;
 
 			case 'inet':
 				if ($replacement == 'null' || $replacement == '') {
