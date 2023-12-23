@@ -518,4 +518,11 @@ $txt['fetch_web_data_bad_url'] = '%1$s: Bad URL';
 
 $txt['unicode_update_failed'] = 'A new version of Unicode is available, but SMF could not update to it. Please make sure %1$s and all the files in it are writable. SMF will try to update its Unicode data files again automatically.';
 
+$txt['uuid_unsupported_version'] = 'Unsupported UUID version requested: %1$d';
+$txt['uuid_requires_string_input'] = 'UUIDv%1$d requires string input, but none was provided.';
+$txt['uuid_invalid_string'] = 'Invalid UUID string supplied: %1$s';
+$txt['uuid_group_non_posix'] = 'Automatic group domain is unsupported for UUIDv2 on non-POSIX systems. Falling back to user domain.';
+$txt['uuid_unknown_domain'] = 'Cannot generate automatic UUIDv2 for unknown domain: %1$s';
+$txt['uuid_timestamp_out_of_range'] = 'Timestamp out of range for UUIDv%1$d';
+
 ?>
