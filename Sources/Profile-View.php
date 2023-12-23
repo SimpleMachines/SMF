@@ -2545,11 +2545,11 @@ function TrackIP($memID = 0)
 			),
 			'lacnic' => array(
 				'name' => $txt['whois_lacnic'],
-				'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . $context['ip'],
+				'url' => 'https://query.milacnic.lacnic.net/search?id=' . $context['ip'],
 			),
 			'ripe' => array(
 				'name' => $txt['whois_ripe'],
-				'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . $context['ip'],
+				'url' => 'https://apps.db.ripe.net/db-web-ui/query?searchtext=' . $context['ip'],
 			),
 		);
 	}
