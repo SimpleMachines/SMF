@@ -141,7 +141,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	{
 		global $smcFunc;
 
-		if (!$this->IsValidSessionID($id))
+		if (!$this->isValidSessionID($id))
 			return '';
 
 		// Look for it in the database.
@@ -172,7 +172,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	{
 		global $smcFunc;
 
-		if (!$this->IsValidSessionID($id))
+		if (!$this->isValidSessionID($id))
 			return false;
 
 		// If an insert fails due to a dupe, replace the existing session...
@@ -196,7 +196,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	{
 		global $smcFunc;
 
-		if (!$this->IsValidSessionID($id))
+		if (!$this->isValidSessionID($id))
 			return false;
 
 		// Just delete the row...
@@ -236,7 +236,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 			)
 		);
 
-		return ($smcFunc['db_affected_rows']() == 0 ? false : true);
+		return $smcFunc['db_affected_rows']();
 	}
 
 	/**
@@ -245,7 +245,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 * @param string $id The session ID
 	 * @return boolean Whether the string is valid format or not
 	 */
-	private function IsValidSessionID(string $id): bool
+	private function isValidSessionID(string $id): bool
 	{
 		return preg_match('~^[A-Za-z0-9,-]{16,64}$~', $id) === 1;
 	}
