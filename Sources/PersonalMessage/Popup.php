@@ -65,7 +65,7 @@ class Popup
 			}
 
 			// Now, actually fetch me some PMs.
-			foreach (PM::load($pms, false) as $pm) {
+			foreach (PM::load($pms) as $pm) {
 				// Make sure we track the senders. We have some work to do for them.
 				if (!empty($pm->member_from)) {
 					$senders[] = $pm->member_from;

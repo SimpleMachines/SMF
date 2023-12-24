@@ -321,7 +321,7 @@ class Search
 		// Sort out the page index.
 		Utils::$context['page_index'] = new PageIndex(
 			Config::$scripturl . '?action=pm;sa=search2;params=' . $this->compressed_params,
-			$_GET['start'],
+			(int) ($_GET['start'] ?? 0),
 			Utils::$context['num_results'],
 			$this->per_page,
 			false,
