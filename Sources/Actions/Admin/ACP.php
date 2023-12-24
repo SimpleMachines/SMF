@@ -1538,13 +1538,13 @@ class ACP implements ActionInterface
 			'cron.php',
 			'proxy.php',
 			'SSI.php',
-			'subscriptions.php'
+			'subscriptions.php',
 		];
 
 		// Find the version in root files header.
 		if (!empty($versionOptions['include_root'])) {
 			foreach ($root_files as $file) {
-				if (!file_exists(Config::$boarddir . '/' . $file)){
+				if (!file_exists(Config::$boarddir . '/' . $file)) {
 					continue;
 				}
 
@@ -1567,24 +1567,26 @@ class ACP implements ActionInterface
 		$sources_dir = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(
 				Config::$sourcedir,
-				\RecursiveDirectoryIterator::SKIP_DOTS
-			)
+				\RecursiveDirectoryIterator::SKIP_DOTS,
+			),
 		);
 
 		$ignore_sources = [
 			Config::$sourcedir . '/minify/*',
 			Config::$sourcedir . '/ReCaptcha/*',
-			Config::$sourcedir . '/Tasks/*'
+			Config::$sourcedir . '/Tasks/*',
 		];
 
 		foreach ($sources_dir as $filename => $file) {
 			if (!$file->isFile() || $file->getFilename() === 'index.php' || $file->getExtension() !== 'php') {
 				continue;
 			}
-			foreach ($ignore_sources as $if)
-				if (preg_match('~' . $if . '~i', $filename)){
+
+			foreach ($ignore_sources as $if) {
+				if (preg_match('~' . $if . '~i', $filename)) {
 					continue 2;
 				}
+			}
 
 			$shortname = str_replace(Config::$sourcedir . '/', '', $filename);
 
