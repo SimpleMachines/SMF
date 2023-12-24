@@ -1148,6 +1148,11 @@ class Config
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 		self::$modSettings['postmod_active'] = !empty(self::$modSettings['postmod_active']);
 
+		// Ensure the UUID for this forum has been set.
+		if (!isset(self::$modSettings['forum_uuid'])) {
+			Config::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
+		}
+
 		// Here to justify the name of this function. :P
 		// It should be added to the install and upgrade scripts.
 		// But since the converters need to be updated also. This is easier.

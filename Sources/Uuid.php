@@ -555,6 +555,16 @@ class Uuid implements \Stringable
 			return;
 		}
 
+		// If a UUID for this forum already exists, use that.
+		if (isset(Config::$modSettings['forum_uuid'])) {
+			$modSettings['forum_uuid'] = self::createFromString(Config::$modSettings['forum_uuid']);
+
+			if ((string) $forum_uuid === Config::$modSettings['forum_uuid']) {
+				self::$namespace = $forum_uuid->getBinary();
+				return;
+			}
+		}
+
 		// Temporarily set self::$namespace to the binary form of the predefined
 		// namespace UUID for URLs. (See RFC 4122, appendix C.)
 		self::$namespace = hex2bin(str_replace('-', '', self::NAMESPACE_URL));
