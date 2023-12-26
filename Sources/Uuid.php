@@ -561,6 +561,7 @@ class Uuid implements \Stringable
 
 			if ((string) $forum_uuid === Config::$modSettings['forum_uuid']) {
 				self::$namespace = $forum_uuid->getBinary();
+
 				return;
 			}
 		}
