@@ -67,7 +67,7 @@ require_once Config::$sourcedir . '/Subs-Compat.php';
 $databases = [
 	'mysql' => [
 		'name' => 'MySQL',
-		'version' => '5.6.0',
+		'version' => '8.0.35',
 		'version_check' => function () {
 			if (!function_exists('mysqli_fetch_row')) {
 				return false;
@@ -96,7 +96,7 @@ $databases = [
 	],
 	'postgresql' => [
 		'name' => 'PostgreSQL',
-		'version' => '9.6',
+		'version' => '12.17',
 		'version_check' => function () {
 			$request = pg_query(Db::$db->connection, 'SELECT version()');
 			list($version) = pg_fetch_row($request);
