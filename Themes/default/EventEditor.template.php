@@ -65,14 +65,14 @@ function template_event_options()
 								<label', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>', Lang::$txt['calendar_event_title'], '</label>
 							</dt>
 							<dd>
-								<input type="text" id="evtitle" name="evtitle" maxlength="255" value="', Utils::$context['event']->title, '"', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>
+								<input type="text" id="evtitle" name="evtitle" maxlength="255" value="', Utils::$context['event']->selected_occurrence->title, '"', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>
 							</dd>
 
 							<dt class="clear">
 								<label>', Lang::$txt['location'], '</label>
 							</dt>
 							<dd>
-								<input type="text" name="event_location" id="event_location" maxlength="255" value="', Utils::$context['event']->location, '">
+								<input type="text" name="event_location" id="event_location" maxlength="255" value="', Utils::$context['event']->selected_occurrence->location, '">
 							</dd>
 						</dl>';
 
@@ -84,7 +84,7 @@ function template_event_options()
 								<label for="allday">', Lang::$txt['calendar_allday'], '</label>
 							</dt>
 							<dd>
-								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']->allday) ? ' checked' : '', !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', '>
+								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']->allday) ? ' checked' : '', !empty(Utils::$context['event']->special_rrule) || (!Utils::$context['event']->new && !Utils::$context['event']->selected_occurrence->is_first) ? ' disabled' : '', '>
 
 							</dd>
 
@@ -92,16 +92,16 @@ function template_event_options()
 								<label>', Lang::$txt['start'], '</label>
 							</dt>
 							<dd>
-								<input type="date" name="start_date" id="start_date" value="', Utils::$context['event']->start->format('Y-m-d'), '" class="date_input start"', !empty(Utils::$context['event']->special_rrule) ? ' disabled data-force-disabled' : '', '>
-								<input type="time" name="start_time" id="start_time" value="', Utils::$context['event']->start->format('H:i'), '" class="time_input start"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
+								<input type="date" name="start_date" id="start_date" value="', Utils::$context['event']->selected_occurrence->start->format('Y-m-d'), '" class="date_input start"', !empty(Utils::$context['event']->special_rrule) ? ' disabled data-force-disabled' : '', '>
+								<input type="time" name="start_time" id="start_time" value="', Utils::$context['event']->selected_occurrence->start->format('H:i'), '" class="time_input start"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
 							</dd>
 
 							<dt class="clear">
 								<label>', Lang::$txt['end'], '</label>
 							</dt>
 							<dd>
-								<input type="date" name="end_date" id="end_date" value="', Utils::$context['event']->end->format('Y-m-d'), '" class="date_input end"', Config::$modSettings['cal_maxspan'] == 1 || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
-								<input type="time" name="end_time" id="end_time" value="', Utils::$context['event']->end->format('H:i'), '" class="time_input end"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
+								<input type="date" name="end_date" id="end_date" value="', Utils::$context['event']->selected_occurrence->end->format('Y-m-d'), '" class="date_input end"', Config::$modSettings['cal_maxspan'] == 1 || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
+								<input type="time" name="end_time" id="end_time" value="', Utils::$context['event']->selected_occurrence->end->format('H:i'), '" class="time_input end"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
 							</dd>
 
 							<dt id="tz_dt" class="clear">
@@ -116,7 +116,7 @@ function template_event_options()
 
 	foreach (Utils::$context['all_timezones'] as $tz => $tzname) {
 		echo '
-									<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === Utils::$context['event']->tz ? ' selected' : '', '>', $tzname, '</option>';
+									<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === Utils::$context['event']->selected_occurrence->tz ? ' selected' : '', '>', $tzname, '</option>';
 	}
 
 	echo '
@@ -124,6 +124,63 @@ function template_event_options()
 							</dd>
 						</dl>';
 
+	// If this is a new event or the first occurrence of an existing event, show the RRULE stuff.
+	if (Utils::$context['event']->new || Utils::$context['event']->selected_occurrence->is_first) {
+		template_rrule();
+	} else {
+		template_occurrence_options();
+	}
+
+	echo '
+					</fieldset>';
+}
+
+/**
+ * Template used when editing a single occurrence of an event.
+ */
+function template_occurrence_options()
+{
+	if (Utils::$context['event']->selected_occurrence->can_affect_future) {
+		echo '
+						<dl id="occurrence_options">
+							<dt class="clear">
+								<label for="deleteevent">', Lang::$txt['calendar_repeat_delete_label'], '</label>
+							</dt>
+							<dd>
+									<input type="checkbox" name="deleteevent" id="deleteevent" class="you_sure" data-confirm="' . Lang::$txt['calendar_confirm_occurrence_delete'] . '">
+							</dd>
+
+							<dt class="clear">
+								', Lang::$txt['calendar_repeat_adjustment_label'], '
+							</dt>
+							<dd>
+								<label>
+									<input type="radio" name="affects_future" value="0" required checked>
+									<span>', Lang::$txt['calendar_repeat_adjustment_this_only'], '</span>
+								</label>
+								<br>
+								<label>
+									<input type="radio" name="affects_future" value="1" required class="you_sure" data-confirm="' . Lang::$txt['calendar_repeat_adjustment_confirm'] . '">
+									<span>', Lang::$txt['calendar_repeat_adjustment_this_and_future'], '</span>
+								</label>
+							</dd>
+						</dl>';
+	}
+
+	echo '
+						<dl>
+							<dt class="clear"></dt>
+							<dd>
+								<a href="', Utils::$context['event']->modify_href, '" class="smalltext bbc_link">', Lang::$txt['calendar_repeat_adjustment_edit_first'], '</a>
+							</dd>
+						</dl>';
+}
+
+/**
+ * Template for the recurrence rule options for events.
+ */
+function template_rrule()
+{
 	// Recurring event options.
 	echo '
 						<dl id="rrule_options">';
@@ -428,11 +485,13 @@ function template_event_options()
 
 	foreach (Utils::$context['event']->recurrence_iterator->getExDates() as $key => $exdate) {
 		$exdate = new SMF\Time($exdate);
+		$exdate->setTimezone(Utils::$context['event']->start->getTimezone());
 
 		echo '
 										<div>
 											<input type="date" name="EXDATE_date[', $key, ']" value="', $exdate->format('Y-m-d'), '" class="date_input">
 											<input type="time" name="EXDATE_time[', $key, ']" value="', $exdate->format('H:i'), '" class="time_input">
+											<a class="main_icons delete"></a>
 										</div>';
 	}
 
@@ -452,8 +511,7 @@ function template_event_options()
 							</dl>';
 
 	echo '
-						</details>
-					</fieldset>';
+						</details>';
 }
 
 ?>

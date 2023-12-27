@@ -831,9 +831,10 @@ function template_event_post()
 	echo '
 		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);">';
 
-	if (!empty(Utils::$context['event']['new']))
+	if (!empty(Utils::$context['event']->new))
 		echo '
-			<input type="hidden" name="eventid" value="', Utils::$context['event']['eventid'], '">';
+			<input type="hidden" name="eventid" value="', Utils::$context['event']->id, '">
+			<input type="hidden" name="recurrenceid" value="', Utils::$context['event']->selected_occurrence->id, '">';
 
 	// Start the main table.
 	echo '
@@ -863,17 +864,8 @@ function template_event_post()
 	template_event_options();
 
 	echo '
-					<input type="submit" value="', empty(Utils::$context['event']['new']) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button">';
-
-	// Delete button?
-	if (empty(Utils::$context['event']['new']))
-		echo '
-					<input type="submit" name="deleteevent" value="', Lang::$txt['event_delete'], '" data-confirm="', Lang::$txt['calendar_confirm_delete'], '" class="button you_sure">';
-
-	echo '
+					<input type="submit" value="', empty(Utils::$context['event']->new) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="eventid" value="', Utils::$context['event']['eventid'], '">
-
 				</div><!-- .roundframe -->
 			</div><!-- #post_event -->
 		</form>';

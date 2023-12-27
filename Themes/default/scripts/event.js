@@ -4,7 +4,9 @@ for (const elem of document.querySelectorAll("#start_date, #start_time, #end_dat
 	elem.addEventListener("change", updateEventUI);
 }
 
-document.getElementById("event_add_byday").addEventListener("click", addByDayItem);
+for (const elem of document.querySelectorAll("#event_add_byday")) {
+	elem.addEventListener("click", addByDayItem);
+}
 
 for (const elem of document.querySelectorAll("#event_add_rdate, #event_add_exdate")) {
 	elem.addEventListener("click", addRDateOrExDate);
@@ -47,7 +49,7 @@ function updateEventUI()
 	}
 
 	// If using a custom RRule, show the relevant options.
-	if (document.getElementById("rrule").value === "custom") {
+	if (document.getElementById("rrule") && document.getElementById("rrule").value === "custom") {
 		// Show select menu for FREQ options.
 		document.getElementById("freq_interval_options").style.display = "";
 
@@ -403,8 +405,10 @@ function updateEventUI()
 
 		}
 	} else {
-		document.getElementById("freq_interval_options").style.display = "none";
-		document.getElementById("freq").value = "DAILY";
+		if (document.getElementById("freq_interval_options")) {
+			document.getElementById("freq_interval_options").style.display = "none";
+			document.getElementById("freq").value = "DAILY";
+		}
 
 		for (const elem of document.querySelectorAll(".rrule_input_wrapper")) {
 			elem.style.display = "none";
@@ -450,7 +454,7 @@ function updateEventUI()
 	}
 
 	// If necessary, show the options for RRule end.
-	if (document.getElementById("rrule").value === "custom" || document.getElementById("rrule").value.substring(0, 5) === "FREQ=") {
+	if (document.getElementById("rrule") && (document.getElementById("rrule").value === "custom" || document.getElementById("rrule").value.substring(0, 5) === "FREQ=")) {
 		const end_option = document.getElementById("end_option");
 		const until = document.getElementById("until");
 		const count = document.getElementById("count");
@@ -533,12 +537,14 @@ function updateEndDate(start_date, end_date)
 	}
 
 	// If necessary, also update the UNTIL field.
-	let until = new Date(document.getElementById("until").value + "T23:59:59.999");
+	if (document.getElementById("until")) {
+		let until = new Date(document.getElementById("until").value + "T23:59:59.999");
 
-	document.getElementById("until").min = document.getElementById("start_date").value;
+		document.getElementById("until").min = document.getElementById("start_date").value;
 
-	if (start_date.getTime() > until.getTime()) {
-		document.getElementById("until").value = document.getElementById("end_date").value;
+		if (start_date.getTime() > until.getTime()) {
+			document.getElementById("until").value = document.getElementById("end_date").value;
+		}
 	}
 
 	// Remember any changes to start and end dates.
@@ -593,6 +599,10 @@ function getNewStartDateByDay(start_date, end_of_month, byday_num, selected_days
 // Determine whether the BYDAY_num select menu's "fifth" option should be enabled or not.
 function enableOrDisableFifth()
 {
+	if (!document.getElementById("byday_name_select_0")) {
+		return;
+	}
+
 	const start_date = new Date(document.getElementById("start_date").value + 'T' + document.getElementById("start_time").value);
 
 	const end_of_month = new Date(

@@ -1732,6 +1732,10 @@ $(function() {
 
 	// Generic confirmation message.
 	$(document).on('click', '.you_sure', function() {
+		if (!this.checked) {
+			return true;
+		}
+
 		var custom_message = $(this).attr('data-confirm');
 		var timeBefore = new Date();
 		var result = confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);

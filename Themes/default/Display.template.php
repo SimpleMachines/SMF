@@ -187,7 +187,7 @@ function template_main()
 		{
 			echo '
 				<li>
-					<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event['id'], '">', $event['title'], '</a></strong>';
+					<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event['id_event'], (!$event->is_first ? ';start_date=' . $event['start_date'] : ''), '">', $event['title'], '</a></strong>';
 
 			if ($event['can_edit'])
 				echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::$txt['calendar_edit'], '"></span></a>';

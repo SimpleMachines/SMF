@@ -737,6 +737,17 @@ class Post implements ActionInterface
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
 			Utils::$context['event'] = new Event(-1);
+			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+		} else {
+			if (isset($_REQUEST['recurrenceid'])) {
+				$selected_occurrence = Utils::$context['event']->getOccurrence($_REQUEST['recurrenceid']);
+			}
+
+			if (empty($selected_occurrence)) {
+				$selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+			}
+
+			Utils::$context['event']->selected_occurrence = $selected_occurrence;
 		}
 
 		// Permissions check!
@@ -770,16 +781,16 @@ class Post implements ActionInterface
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday == true) {
-			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
-			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
 		}
 
 		// Need this so the user can select a timezone for the event.
 		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->timestamp);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		Utils::$context['event']->fixTimezone();
+		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		Theme::loadTemplate('EventEditor');
 		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));

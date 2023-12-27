@@ -21,6 +21,7 @@ use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
+use SMF\Calendar\EventOccurrence;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
@@ -535,14 +536,11 @@ class Post2 extends Post
 
 			// Delete it?
 			if (isset($_REQUEST['deleteevent'])) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}calendar
-					WHERE id_event = {int:id_event}',
-					[
-						'id_event' => $_REQUEST['eventid'],
-					],
-				);
+				if (isset($_REQUEST['recurrenceid'])) {
+					EventOccurrence::remove($_REQUEST['eventid'], $_REQUEST['recurrenceid'], !empty($_REQUEST['affects_future']));
+				} else {
+					Event::remove($_REQUEST['eventid']);
+				}
 			}
 			// ... or just update it?
 			else {
@@ -554,6 +552,15 @@ class Post2 extends Post
 					'location' => $_POST['event_location'],
 					'member' => User::$me->id,
 				];
+
+				if (!empty($_REQUEST['recurrenceid'])) {
+					$eventOptions['recurrenceid'] = $_REQUEST['recurrenceid'];
+				}
+
+				if (!empty($_REQUEST['affects_future'])) {
+					$eventOptions['affects_future'] = $_REQUEST['affects_future'];
+				}
+
 				Event::modify($_REQUEST['eventid'], $eventOptions);
 			}
 		}

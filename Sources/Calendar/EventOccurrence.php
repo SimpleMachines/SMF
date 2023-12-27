@@ -19,6 +19,9 @@ use SMF\Actions\Calendar;
 use SMF\ArrayAccessHelper;
 use SMF\Config;
 use SMF\Time;
+use SMF\TimeInterval;
+use SMF\TimeZone;
+use SMF\Utils;
 
 /**
  * Represents a single occurrence of a calendar event.
@@ -56,6 +59,14 @@ class EventOccurrence implements \ArrayAccess
 	 */
 	public Time $start;
 
+	/**
+	 * @var SMF\Time
+	 *
+	 * An EventAdjustment object representing changes made to this occurrence of
+	 * the event, if any.
+	 */
+	public EventAdjustment $adjustment;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -66,11 +77,11 @@ class EventOccurrence implements \ArrayAccess
 	 * Alternate names for some object properties.
 	 */
 	protected array $prop_aliases = [
+		'recurrenceid' => 'id',
 		'eventid' => 'id_event',
 		'id_board' => 'board',
 		'id_topic' => 'topic',
 		'id_first_msg' => 'msg',
-		'sequence' => 'modified_time',
 		'id_member' => 'member',
 		'poster' => 'member',
 		'real_name' => 'name',
@@ -80,6 +91,13 @@ class EventOccurrence implements \ArrayAccess
 		'start_object' => 'start',
 		'end_object' => 'end',
 	];
+
+	/**
+	 * @var SMF\Time
+	 *
+	 * A Time object representing the unadjusted start of this occurrence.
+	 */
+	protected Time $unadjusted_start;
 
 	/****************
 	 * Public methods
@@ -100,11 +118,79 @@ class EventOccurrence implements \ArrayAccess
 			throw new \ValueError();
 		}
 
+		$this->unadjusted_start = clone $props['start'];
+		$this->start = clone $props['start'];
+		unset($props['start']);
+
+		$this->id = $props['id'] ?? ($this->allday ? $this->start->format('Ymd') : (clone $this->start)->setTimezone(new \DateTimeZone('UTC'))->format('Ymd\\THis\\Z'));
+		unset($props['id']);
+
+		if (isset($props['adjustment'])) {
+			$this->adjustment = $props['adjustment'];
+			unset($props['adjustment']);
+		}
+
+		// Set any other properties we were given.
 		$this->set($props);
 
-		if (!isset($this->id)) {
-			$this->id = $this->allday ? $this->start->format('Ymd') : (clone $this->start)->setTimezone(new \DateTimeZone('UTC'))->format('Ymd\\THis\\Z');
+		// Apply any adjustments.
+		if (isset($this->adjustment)) {
+			if (isset($this->adjustment->offset)) {
+				$this->start->add($this->adjustment->offset);
+			}
+
+			if (isset($this->adjustment->duration)) {
+				$this->duration = clone $this->adjustment->duration;
+			}
+
+			if (isset($this->adjustment->location)) {
+				$this->location = $this->adjustment->location;
+			}
+
+			if (isset($this->adjustment->title)) {
+				$this->title = $this->adjustment->title;
+			}
 		}
+	}
+
+	/**
+	 * Saving an individual occurrence means updating the parent event's
+	 * adjustments property and then saving the parent event.
+	 */
+	public function save()
+	{
+		// Just in case...
+		ksort($this->getParentEvent()->adjustments);
+
+		foreach ($this->getParentEvent()->adjustments as $adjustment) {
+			// Adjustment takes effect after this occurrence, so stop.
+			if ($adjustment->id > $this->id) {
+				break;
+			}
+
+			// Adjustment takes effect before this occurrence but doesn't
+			// affect it, so skip.
+			if (!$adjustment->affects_future && $adjustment->id < $this->id) {
+				continue;
+			}
+
+			// If the found adjustment has all the same values that this
+			// occurrence's current adjustment also has, then there's nothing
+			// that needs to change.
+			if (
+				(string) ($this->adjustment->offset ?? '') === (string) ($adjustment->offset ?? '')
+				&& (string) ($this->adjustment->duration ?? '') === (string) ($adjustment->duration ?? '')
+				&& (string) ($this->adjustment->location ?? '') === (string) ($adjustment->location ?? '')
+				&& (string) ($this->adjustment->title ?? '') === (string) ($adjustment->title ?? '')
+			) {
+				return;
+			}
+		}
+
+		// Add a new entry to the parent event's list of adjustments.
+		$this->adjustment->id = $this->id;
+		$this->getParentEvent()->adjustments[$this->id] = clone $this->adjustment;
+		$this->getParentEvent()->save();
 	}
 
 	/**
@@ -222,10 +308,12 @@ class EventOccurrence implements \ArrayAccess
 			case 'duration':
 				if (!($value instanceof \DateInterval)) {
 					try {
-						$value = new \DateInterval((string) $value);
+						$value = new TimeInterval((string) $value);
 					} catch (\Throwable $e) {
 						break;
 					}
+				} elseif (!($value instanceof TimeInterval)) {
+					$value = TimeInterval::createFromDateInterval($value);
 				}
 				$this->custom['duration'] = $value;
 				break;
@@ -264,6 +352,7 @@ class EventOccurrence implements \ArrayAccess
 			case 'age':
 			case 'uid':
 			case 'tz_abbrev':
+			case 'sequence':
 			case 'new':
 			case 'is_selected':
 			case 'href':
@@ -357,6 +446,19 @@ class EventOccurrence implements \ArrayAccess
 
 				return date_diff($this->start, $this->getParentEvent()->start)->y;
 
+			case 'is_first':
+				return $this->unadjusted_start == $this->getParentEvent()->start;
+
+			case 'can_affect_future':
+				return !isset($this->adjustment) || $this->adjustment->affects_future === true;
+
+			// These are set separately for each occurrence.
+			case 'modify_href':
+				return Config::$scripturl . '?action=' . ($this->getParentEvent()->board == 0 ? 'calendar;sa=post;' : 'post;msg=' . $this->getParentEvent()->msg . ';topic=' . $this->getParentEvent()->topic . '.0;calendar;') . 'eventid=' . $this->id_event . ';recurrenceid=' . $this->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+
+			case 'export_href':
+				return Config::$scripturl . '?action=calendar;sa=ical;eventid=' . $this->id_event . ';recurrenceid=' . $this->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+
 			// These inherit from the parent event unless overridden for this occurrence.
 			case 'allday':
 			case 'duration':
@@ -374,14 +476,13 @@ class EventOccurrence implements \ArrayAccess
 			case 'member':
 			case 'name':
 			case 'groups':
+			case 'sequence':
 			case 'new':
 			case 'is_selected':
 			case 'href':
 			case 'link':
 			case 'can_edit':
-			case 'modify_href':
 			case 'can_export':
-			case 'export_href':
 				return $this->getParentEvent()->{$prop};
 
 			default:
@@ -451,6 +552,7 @@ class EventOccurrence implements \ArrayAccess
 			case 'member':
 			case 'name':
 			case 'groups':
+			case 'sequence':
 			case 'new':
 			case 'is_selected':
 			case 'href':
@@ -467,6 +569,41 @@ class EventOccurrence implements \ArrayAccess
 	}
 
 	/**
+	 *
+	 */
+	public function fixTimezone(): void
+	{
+		$all_timezones = TimeZone::list($this->start->date);
+
+		if (!isset($all_timezones[$this->start->timezone])) {
+			$later = strtotime('@' . $this->start->timestamp . ' + 1 year');
+			$tzinfo = (new \DateTimeZone($this->start->timezone))->getTransitions($this->start->timestamp, $later);
+
+			$found = false;
+
+			foreach ($all_timezones as $possible_tzid => $dummy) {
+				// Ignore the "-----" option
+				if (empty($possible_tzid)) {
+					continue;
+				}
+
+				$possible_tzinfo = (new \DateTimeZone($possible_tzid))->getTransitions($this->start->timestamp, $later);
+
+				if ($tzinfo === $possible_tzinfo) {
+					$this->start->timezone = $possible_tzid;
+					$found = true;
+					break;
+				}
+			}
+
+			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
+			if (!$found) {
+				$all_timezones = [$this->start->timezone => '[UTC' . $this->start->format('P') . '] - ' . $this->start->timezone] + $all_timezones;
+			}
+		}
+	}
+
+	/**
 	 * Retrieves the Event that this EventOccurrence is an occurrence of.
 	 *
 	 * @return Event The parent Event.
@@ -477,7 +614,65 @@ class EventOccurrence implements \ArrayAccess
 			Event::load($this->id_event);
 		}
 
-		return Event::$loaded[$this->id_event];
+		return Event::$loaded[$this->id_event] ?? new Event(-1);
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Modifies an individual occurrence of an event.
+	 *
+	 * @param int $id_event The ID of the parent event.
+	 * @param string $id The recurrence ID of the occurrence.
+	 * @param array $eventOptions An array of event information.
+	 */
+	public static function modify(int $id_event, string $id, array &$eventOptions): void
+	{
+		// Set the new start date and duration.
+		Event::setRequestedStartAndDuration($eventOptions);
+
+		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
+		$eventOptions['view_end'] = $eventOptions['view_start']->add(new TimeInterval('P1D'));
+
+		list($event) = Event::load($id_event);
+
+		$occurrence = $event->getOccurrence($id);
+
+		$offset = TimeInterval::createFromDateInterval(date_diff($occurrence->unadjusted_start, $eventOptions['start']));
+
+		$occurrence->adjustment = new EventAdjustment(
+			$id,
+			isset($occurrence->adjustment) && $occurrence->adjustment->affects_future ? !empty($eventOptions['affects_future']) : false,
+			(string) $offset !== 'PT0S' ? (array) $offset : null,
+			(string) $eventOptions['duration'] !== (string) $occurrence->getParentEvent()->duration ? (array) $eventOptions['duration'] : null,
+			isset($eventOptions['location']) && $eventOptions['location'] !== $occurrence->getParentEvent()->location ? Utils::htmlspecialchars($eventOptions['location'], ENT_QUOTES) : null,
+			isset($eventOptions['title']) && $eventOptions['title'] !== $occurrence->getParentEvent()->title ? Utils::htmlspecialchars($eventOptions['title'], ENT_QUOTES) : null,
+		);
+
+		$occurrence->save();
+	}
+
+	/**
+	 * Removes an event occurrence from the recurrence set.
+	 *
+	 * @param int $id_event The parent event's ID.
+	 * @param string $id The recurrence ID.
+	 */
+	public static function remove(int $id_event, string $id, bool $affects_future = false): void
+	{
+		list($event) = Event::load($id_event);
+
+		if ($event->getFirstOccurrence()->id === $id) {
+			Event::remove($id_event);
+		} elseif ($affects_future) {
+			$event->changeUntil(new Time($id));
+			$event->save();
+		} else {
+			$event->removeOccurrence(new Time($id));
+			$event->save();
+		}
 	}
 }
 

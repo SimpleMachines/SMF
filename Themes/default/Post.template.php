@@ -88,9 +88,10 @@ function template_main()
 			</div>
 			<br>';
 
-	if (Utils::$context['make_event'] && (!Utils::$context['event']['new'] || !empty(Utils::$context['current_board'])))
+	if (Utils::$context['make_event'] && (!Utils::$context['event']->new || !empty(Utils::$context['current_board'])))
 		echo '
-			<input type="hidden" name="eventid" value="', Utils::$context['event']['id'], '">';
+			<input type="hidden" name="eventid" value="', Utils::$context['event']->id, '">
+			<input type="hidden" name="recurrenceid" value="', Utils::$context['event']->selected_occurrence->id, '">';
 
 	// Start the main table.
 	echo '
@@ -436,11 +437,6 @@ function template_main()
 	echo '
 					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons(Utils::$context['post_box_name']);
-
-	// Option to delete an event if user is editing one.
-	if (Utils::$context['make_event'] && !Utils::$context['event']['new'])
-		echo '
-						<input type="submit" name="deleteevent" value="', Lang::$txt['event_delete'], '" data-confirm="', Lang::$txt['event_delete_confirm'], '" class="button you_sure">';
 
 	echo '
 					</span>

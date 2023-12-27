@@ -20,6 +20,7 @@ use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Birthday;
 use SMF\Calendar\Event;
+use SMF\Calendar\EventOccurrence;
 use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -123,7 +124,7 @@ class Calendar implements ActionInterface
 		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
 		// Did they specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
-		if (isset($_GET['event'])) {
+		if (isset($_GET['event']) && !isset($_REQUEST['start_date'])) {
 			$evid = (int) $_GET['event'];
 
 			if ($evid > 0) {
@@ -387,7 +388,11 @@ class Calendar implements ActionInterface
 			}
 			// Deleting...
 			elseif (isset($_REQUEST['deleteevent'])) {
-				Event::remove($_REQUEST['eventid']);
+				if (isset($_REQUEST['recurrenceid'])) {
+					EventOccurrence::remove($_REQUEST['eventid'], $_REQUEST['recurrenceid'], !empty($_REQUEST['affects_future']));
+				} else {
+					Event::remove($_REQUEST['eventid']);
+				}
 			}
 			// ... or just update it?
 			else {
@@ -395,6 +400,15 @@ class Calendar implements ActionInterface
 					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
 					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
 				];
+
+				if (!empty($_REQUEST['recurrenceid'])) {
+					$eventOptions['recurrenceid'] = $_REQUEST['recurrenceid'];
+				}
+
+				if (!empty($_REQUEST['affects_future'])) {
+					$eventOptions['affects_future'] = $_REQUEST['affects_future'];
+				}
+
 				Event::modify($_REQUEST['eventid'], $eventOptions);
 			}
 
@@ -434,6 +448,7 @@ class Calendar implements ActionInterface
 		// New?
 		if (!isset($_REQUEST['eventid'])) {
 			Utils::$context['event'] = new Event(-1);
+			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
 		} else {
 			list(Utils::$context['event']) = Event::load($_REQUEST['eventid']);
 
@@ -454,21 +469,31 @@ class Calendar implements ActionInterface
 			} elseif (!User::$me->allowedTo('calendar_edit_any')) {
 				User::$me->isAllowedTo('calendar_edit_own');
 			}
+
+			if (isset($_REQUEST['recurrenceid'])) {
+				$selected_occurrence = Utils::$context['event']->getOccurrence($_REQUEST['recurrenceid']);
+			}
+
+			if (empty($selected_occurrence)) {
+				$selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+			}
+
+			Utils::$context['event']->selected_occurrence = $selected_occurrence;
 		}
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
-		if (Utils::$context['event']->allday == true) {
+		if (Utils::$context['event']->allday) {
 			$now = Time::create('now');
-			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(Time::create('now')->format('H:i:s'));
-			Utils::$context['event']->duration = new TimeInterval('PT' . ($now->format('H') < 23 ? '1H' : (59 - $now->format('i')) . 'M'));
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify($now->format('H:i:s'));
+			Utils::$context['event']->selected_occurrence->duration = new TimeInterval('PT' . ($now->format('H') < 23 ? '1H' : (59 - $now->format('i')) . 'M'));
 		}
 
 		// Need this so the user can select a timezone for the event.
 		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_datetime);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		Utils::$context['event']->fixTimezone();
+		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		// Get list of boards that can be posted in.
 		$boards = User::$me->boardsAllowedTo('post_new');

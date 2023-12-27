@@ -759,6 +759,13 @@ $txt['calendar_repeat_winter_solstice'] = 'Winter Solstice';
 $txt['calendar_repeat_special'] = 'Special';
 $txt['calendar_repeat_special_rrule_modifier'] = 'Offset';
 $txt['calendar_repeat_offset_examples'] = 'e.g.: +P1D, -PT2H';
+$txt['calendar_repeat_adjustment_label'] = 'Apply changes to';
+$txt['calendar_repeat_adjustment_this_only'] = 'Only this occurrence';
+$txt['calendar_repeat_adjustment_this_and_future'] = 'This and future occurrences';
+$txt['calendar_repeat_adjustment_confirm'] = 'Are you sure you want to apply these changes to all future occurrences?-n--n-WARNING: if you select both &quot;Delete&quot; and &quot;This and future occurrences&quot;, you will delete this and all future occurrences.';
+$txt['calendar_repeat_delete_label'] = 'Delete';
+$txt['calendar_confirm_occurrence_delete'] = 'Are you sure you want to delete this occurrence of the event?-n--n-WARNING: if you select both &quot;Delete&quot; and &quot;This and future occurrences&quot;, you will delete this and all future occurrences.';
+$txt['calendar_repeat_adjustment_edit_first'] = 'Edit original event';
 
 $txt['movetopic_change_subject'] = 'Change the topic’s subject';
 $txt['movetopic_new_subject'] = 'New subject';
