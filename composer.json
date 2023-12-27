@@ -13,8 +13,8 @@
         "friendsofphp/php-cs-fixer": "^3.40"
     },
     "scripts": {
-        "lint": "[ -z \"$(git diff --name-only \"*.php\")\" ] || php-cs-fixer check --diff --config .php-cs-fixer.dist.php $(git diff --name-only \"*.php\")",
-        "lint-fix": "[ -z \"$(git diff --name-only \"*.php\")\" ] || php-cs-fixer fix -v --config .php-cs-fixer.dist.php $(git diff --name-only \"*.php\")"
+        "lint": "php-cs-fixer check --diff --config .php-cs-fixer.dist.php $(git diff --name-only \"*.php\")",
+        "lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php $(git diff --name-only \"*.php\")"
     },
     "config": {
         "platform": {
