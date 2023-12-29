@@ -570,6 +570,7 @@ h3.catbg .icon {
 }
 /* Register */
 .main_icons.main_icons.regcenter::before,
+.main_icons.signup::before,
 .large_admin_menu_icon.regcenter::before,
 .fa-register::before,
 .fa-signup::before {

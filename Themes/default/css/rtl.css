@@ -1,51 +1,12 @@
 /* Common classes to easy styling.
 ------------------------------------------------------- */
-
-.floatright {
-	float: left;
-}
-.floatleft {
-	float: right;
-}
-.clear_left {
-	clear: right;
-}
-.clear_right {
-	clear: left;
-}
-.righttext {
-	text-align: left;
-}
-.lefttext {
-	text-align: right;
-}
-/* Styling for BBC tags */
-.bbc_list {
-	text-align: right;
-}
-/* A quote, perhaps from another post. */
-.bbc_standard_quote::before, .bbc_alternate_quote::before {
-	content: '\275E';
-	margin-left: 0.25em;
-}
-
-/* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
-.signature, .attachments, .custom_fields_above_signature {
-	clear: left;
-}
-
-/* the page navigation area */
-.main_icons.move::before, .main_icons.next_page::before {
-	background-position: -31px -57px;
-}
+/* Previous Page */
 .main_icons.previous_page::before {
-	background-position: -5px -31px;
+	content: "\f061";
 }
-
-/* Amounts */
-.amt {
-	margin-left: 0;
-	margin-right: 3px;
+/* Next Page */
+.main_icons.next_page::before {
+	content: "\f060";
 }
 
 /* Lists with settings use these a lot.
@@ -67,6 +28,11 @@ dl.settings img {
 	margin: 0 0 0 10px;
 }
 
+/* Subsections arrow */
+.dropmenu li.subsections > a::after {
+	rotate: 180deg;
+}
+
 /* Styles for popup windows
 ------------------------------------------------------- */
 .popup_heading .hide_popup {
@@ -79,39 +45,7 @@ dl.settings img {
 h3.catbg .icon {
 	margin: -2px 0 0 5px;
 }
-.cat_bar .desc {
-	margin: -8px 13px 4px 0;
-}
 
-/* Introduce New Title Bar */
-h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
-	padding-right: 9px;
-	padding-left: 9px;
-}
-
-/* Styles for the standard dropdown menus.
-------------------------------------------------------- */
-
-/* Level 3 submenu wrapper positioning. */
-.dropmenu li ul ul {
-	margin-left: -10em;
-}
-/* This is a small fix for dropmenu icons */
-.dropmenu .main_icons, #profile_menu .main_icons, .dropmenu img {
-	margin: 0 -4px 0 8px;
-}
-
-/* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
-.dropmenu li li.subsections > a::after {
-	left: 10px;
-	right: auto;
-	content: '\25c4';
-}
-
-/* the main title. */
-h1.forumtitle {
-	float: right;
-}
 /* float these items to the left */
 #siteslogan, img#smflogo {
 	float: left;
@@ -127,48 +61,16 @@ img#smflogo {
 	padding-left: 0;
 	text-align: left;
 }
-#upper_section .news {
-	float: right;
-}
-
-/* Profile drop it needs reverse on RTL */
-#profile_menu_top > img.avatar {
-	float: right;
-	margin: 2px 0 0 5px;
-}
-#profile_menu .profile_user_info {
-	margin: 3px 10px 5px 0;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 10px 0 0;
-}
-.profile_user_links li {
-	padding-right: 24px;
-	padding-left: 0;
-}
 
 /* The framing graphics */
 #search_form {
 	text-align: left;
 }
 
-/* The navigation list (i.e. linktree) */
-.navigate_section ul li {
-	float: right;
-}
-
-.navigate_section ul li .dividers {
-	padding: 0 6px 0 2px;
-}
-
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
 	padding: 0 6px 0 0;
-}
-
-.mark_read {
-	float: left;
 }
 
 /* Poll results */
@@ -203,43 +105,6 @@ img#smflogo {
 	padding: 0;
 	margin: 0;
 }
-
-/* The quick buttons */
-ul.quickbuttons {
-	float: left;
-	clear: left;
-}
-ul.quickbuttons li {
-	float: right;
-}
-.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
-	border-radius: 4px 1px 1px 4px;
-	padding-bottom: 0;
-}
-.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
-	border-radius: 1px 4px 4px 1px;
-	padding-bottom: 0;
-	line-height: 1.9em;
-}
-.quickbuttons li.quick_edit, .quickbuttons li.post_options {
-	line-height: 1.9em;
-	position: relative;
-}
-.quickbuttons li ul {
-	text-align: right;
-	right: unset;
-	left: -1px;
-}
-/* The buttonrow */
-.buttonrow .button:last-child {
-	border-radius: 0;
-	border-right: 0;
-}
-.buttonrow .button:first-child {
-	border-radius: 0;
-	border-right: 1px solid #ccc;
-}
-
 .post_verification #verification_control {
 	margin: .3em 1em .3em 0;
 }
@@ -385,23 +250,6 @@ div#admin_menu {
 	margin-left: 40px;
 }
 
-/* Styles for info boxes.
-------------------------------------------------- */
-.errorbox, .noticebox, .infobox {
-	padding: 7px 35px 7px 10px;
-}
-.errorbox::before, .noticebox::before, .infobox::before {
-	left: 0;
-	right: 10px;
-}
-.errorbox p.alert {
-	margin: 0 0 0 4px;
-	float: right;
-}
-.errorbox, .noticebox, .infobox {
-	padding: 7px 35px 7px 10px;
-}
-
 /* Styles for the profile section.
 ------------------------------------------------- */
 #basicinfo {
@@ -515,10 +363,6 @@ dl.stats dd {
 #stats tr.windowbg th.stats_month {
 	text-align: right;
 }
-.generic_bar .bar, .progress_bar .bar {
-	left: unset;
-	right: 0;
-}
 tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	text-align: right;
 }
@@ -565,11 +409,6 @@ tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 
 /* Styles for the admincenter (reverse admin.css).
 ------------------------------------------------- */
-/* common admin classes */
-#admin_content .button {
-	float: left;
-}
-
 #manage_boards .button {
 	margin: 2px 6px 0px 6px;
 }
