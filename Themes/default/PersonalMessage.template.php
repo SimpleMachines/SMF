@@ -60,18 +60,26 @@ function template_pm_popup()
 {
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
-		<div class="pm_bar">
-			<div class="pm_sending block">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send">' . Lang::$txt['pm_new_short'] . '</a>' : '', '
-				', Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts">' . Lang::$txt['pm_drafts_short'] . '</a>' : '', '
-				<a href="', Config::$scripturl, '?action=pm;sa=settings" class="floatright">', Lang::$txt['pm_settings_short'], '</a>
-			</div>
-			<div class="pm_mailbox centertext">
-				<a href="', Config::$scripturl, '?action=pm" class="button">', Lang::$txt['inbox'], '</a>
-				<a href="', Config::$scripturl, '?action=pm;f=sent" class="button">', Lang::$txt['sent_items'], '</a>
+		<div class="header">
+			<a href="', Config::$scripturl, '?action=pm" class="button">
+				', Lang::$txt['inbox'], '
+			</a>
+			<div class="options">
+				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send" title="' . Lang::$txt['pm_new_short'] . '">
+					<span class="main_icons newpm"></span>
+				</a>' : '', '
+				', Utils::$context['can_draft'] ? ' <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts" title="' . Lang::$txt['pm_drafts_short'] . '">
+					<span class="main_icons drafts"></span>
+				</a>' : '', '
+				<a href="', Config::$scripturl, '?action=pm;f=sent" title="', Lang::$txt['sent_items'], '">
+					<span class="main_icons sent"></span>
+				</a>
+				<a href="', Config::$scripturl, '?action=pm;sa=settings" title="', Lang::$txt['pm_settings_short'], '">
+					<span class="main_icons settings"></span>
+				</a>
 			</div>
 		</div>
-		<div class="pm_unread">';
+		<div class="body">';
 
 	if (empty(Utils::$context['unread_pms']))
 		echo '
@@ -80,22 +88,22 @@ function template_pm_popup()
 	{
 		foreach (Utils::$context['unread_pms'] as $id_pm => $pm_details)
 			echo '
-			<div class="unread_notify">
-				<div class="unread_notify_image">
+			<div class="generic_notification">
+				<div class="avatar">
 					', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+					<span class="main_icons ', $pm_details['replied_to_you'] ? 'replied" title="' . Lang::$txt['pm_you_were_replied_to'] . '"' : 'im_off" title="' . Lang::$txt['pm_was_sent_to_you'] . '"', '></span>
 				</div>
 				<div class="details">
-					<div class="subject">', $pm_details['pm_link'], '</div>
-					<div class="sender">
-						', $pm_details['replied_to_you'] ? '<span class="main_icons replied centericon" style="margin-right: 4px" title="' . Lang::$txt['pm_you_were_replied_to'] . '"></span>' : '<span class="main_icons im_off centericon" style="margin-right: 4px" title="' . Lang::$txt['pm_was_sent_to_you'] . '"></span>',
-						!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '
-					</div>
+					', $pm_details['pm_link'], '
 				</div>
-			</div>';
+				<div class="time">
+					', !empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '
+				</div>
+			</div><!-- .generic_notification -->';
 	}
 
 	echo '
-		</div><!-- #pm_unread -->';
+		</div>';
 }
 
 /**
