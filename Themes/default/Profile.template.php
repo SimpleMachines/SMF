@@ -57,15 +57,19 @@ function template_profile_popup()
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 
 	echo '
-		<div class="profile_user_avatar floatleft">
-			<a href="', Config::$scripturl, '?action=profile;u=', User::$me->id, '">', Utils::$context['member']['avatar']['image'], '</a>
+		<div class="header">
+			<a href="', Config::$scripturl, '?action=profile;u=', User::$me->id, ';area=forumprofile;">
+				', Utils::$context['member']['avatar']['image'], '
+			</a>
+			<div class="profile_user_info">
+				<span class="profile_username">
+					<a href="', Config::$scripturl, '?action=profile;u=', User::$me->id, '">', User::$me->name, '</a>
+				</span>
+				<span class="profile_group">', Utils::$context['member']['group'], '</span>
+			</div>
 		</div>
-		<div class="profile_user_info floatleft">
-			<span class="profile_username"><a href="', Config::$scripturl, '?action=profile;u=', User::$me->id, '">', User::$me->name, '</a></span>
-			<span class="profile_group">', Utils::$context['member']['group'], '</span>
-		</div>
-		<div class="profile_user_links">
-			<ol>';
+		<div class="body">
+			<ol class="profile_user_links">';
 
 	$menu_context = &Utils::$context[Utils::$context['profile_menu_name']];
 	foreach (Utils::$context['profile_items'] as $item)
@@ -74,7 +78,10 @@ function template_profile_popup()
 		$item_url = (isset($item['url']) ? $item['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $item['area'])) . $menu_context['extra_parameters'];
 		echo '
 				<li>
-					', $area['icon'], '<a href="', $item_url, '">', !empty($item['title']) ? $item['title'] : $area['label'], '</a>
+					<a href="', $item_url, '">
+						', $area['icon'], '
+						', !empty($item['title']) ? $item['title'] : $area['label'], '
+					</a>
 				</li>';
 	}
 
@@ -90,16 +97,20 @@ function template_alerts_popup()
 {
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
-		<div class="alert_bar">
-			<div class="alerts_opts block">
-				<a href="' . Config::$scripturl . '?action=profile;area=notification;sa=markread;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return markAlertsRead(this)">', Lang::getTxt('mark_alerts_read', file: 'Alerts'), '</a>
-				<a href="', Config::$scripturl, '?action=profile;area=notification;sa=alerts" class="floatright">', Lang::getTxt('alert_settings', file: 'Alerts'), '</a>
-			</div>
-			<div class="alerts_box centertext">
-				<a href="', Config::$scripturl, '?action=profile;area=showalerts" class="button">', Lang::getTxt('all_alerts', file: 'Alerts'), '</a>
+		<div class="header">
+			<a href="', Config::$scripturl, '?action=profile;area=showalerts" class="button">
+				', Lang::$txt['all_alerts'], '
+			</a>
+			<div class="options">
+				<a href="' . Config::$scripturl . '?action=profile;area=notification;sa=markread;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return markAlertsRead(this)" title="', Lang::$txt['mark_alerts_read'], '">
+					<span class="main_icons markread"></span>
+				</a>
+				<a href="', Config::$scripturl, '?action=profile;area=notification;sa=alerts" title="', Lang::$txt['alert_settings'], '">
+					<span class="main_icons settings"></span>
+				</a>
 			</div>
 		</div>
-		<div class="alerts_unread">';
+		<div class="body">';
 
 	if (empty(Utils::$context['unread_alerts']))
 		template_alerts_all_read();
@@ -109,20 +120,23 @@ function template_alerts_popup()
 		foreach (Utils::$context['unread_alerts'] as $id_alert => $details)
 		{
 			echo '
-			<', !$details['show_links'] ? 'a href="' . Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
-				<div class="unread_notify_image">
+			<', !$details['show_links'] ? 'a href="' . Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="generic_notification">
+				<div class="avatar">
 					', empty($details['sender']['avatar']['image']) ? '' : $details['sender']['avatar']['image'] . '
 					', $details['icon'], '
 				</div>
 				<div class="details">
-					<span class="alert_text">', $details['text'], '</span> - <span class="alert_time">', $details['time'], '</span>
+					', $details['text'], '
+				</div>
+				<div class="time">
+					', $details['time'], '
 				</div>
 			</', !$details['show_links'] ? 'a' : 'div', '>';
 		}
 	}
 
 	echo '
-		</div><!-- .alerts_unread -->
+		</div><!-- .generic_notification -->
 		<script>
 			function markAlertsRead(obj) {
 				ajax_indicator(true);
@@ -131,7 +145,7 @@ function template_alerts_popup()
 					function(data) {
 						ajax_indicator(false);
 						$("#alerts_menu_top span.amt").remove();
-						$("#alerts_menu div.alerts_unread").html(data);
+						$("#alerts_menu div.body").html(data);
 						if (typeof localStorage != "undefined")
 							localStorage.setItem("alertsCounter", 0);
 					}
