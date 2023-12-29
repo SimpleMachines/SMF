@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Admin\Permissions;
@@ -2325,7 +2327,7 @@ class Group implements \ArrayAccess
 	 *
 	 * @return array An array of information about the cached value.
 	 */
-	public static function getCachedList()
+	public static function getCachedList(): array
 	{
 		$groupCache = [];
 		$group = [];
@@ -2365,10 +2367,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group is a post-count based group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group is a post-count based group.
 	 */
-	protected static function isPostGroup(object $group): bool
+	protected static function isPostGroup(self $group): bool
 	{
 		return $group->min_posts > -1;
 	}
@@ -2376,10 +2378,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group is a protected group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group is a protected group.
 	 */
-	protected static function isProtected(object $group): bool
+	protected static function isProtected(self $group): bool
 	{
 		return $group->type === self::TYPE_PROTECTED;
 	}
@@ -2387,10 +2389,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group moderates any boards.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group moderates any boards.
 	 */
-	protected static function isModeratorGroup(object $group): bool
+	protected static function isModeratorGroup(self $group): bool
 	{
 		return count($group->getBoardsCanModerate()) > 0;
 	}
@@ -2398,10 +2400,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group can be assigned to a member.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can be assigned to a member.
 	 */
-	protected static function isAssignable(object $group): bool
+	protected static function isAssignable(self $group): bool
 	{
 		return $group->min_posts === -1 && $group->can_moderate && $group->id > self::GUEST;
 	}
@@ -2410,10 +2412,10 @@ class Group implements \ArrayAccess
 	 * Returns whether the given group can be changed to a post-count based
 	 * group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can changed to a post-count based group.
 	 */
-	protected static function canBePostGroup(object $group): bool
+	protected static function canBePostGroup(self $group): bool
 	{
 		return $group->id >= self::NEWBIE;
 	}
@@ -2423,10 +2425,10 @@ class Group implements \ArrayAccess
 	 *
 	 * The answer is always no unless the current user is an admin.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can become a protected group.
 	 */
-	protected static function canBeProtected(object $group): bool
+	protected static function canBeProtected(self $group): bool
 	{
 		return User::$me->allowedTo('admin_forum');
 	}
@@ -2434,10 +2436,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group can be a primary group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can become a primary group.
 	 */
-	protected static function canBePrimary(object $group): bool
+	protected static function canBePrimary(self $group): bool
 	{
 		return $group->id >= self::ADMIN && $group->min_posts === -1 && $group->hidden !== self::INVISIBLE;
 	}
@@ -2445,10 +2447,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group can be an additional group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can become an additional group.
 	 */
-	protected static function canBeAdditional(object $group): bool
+	protected static function canBeAdditional(self $group): bool
 	{
 		return $group->id > self::REGULAR && $group->min_posts === -1;
 	}
@@ -2456,10 +2458,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the given group can be deleted.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can be deleted.
 	 */
-	protected static function canDelete(object $group): bool
+	protected static function canDelete(self $group): bool
 	{
 		if ($group->type === self::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum')) {
 			return false;
@@ -2471,10 +2473,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the type of the given group can be changed.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can be deleted.
 	 */
-	protected static function canChangeType(object $group): bool
+	protected static function canChangeType(self $group): bool
 	{
 		return $group->id > self::NEWBIE;
 	}
@@ -2482,10 +2484,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether the permissions of the given group can be changed.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can be deleted.
 	 */
-	protected static function canChangePermissions(object $group): bool
+	protected static function canChangePermissions(self $group): bool
 	{
 		return $group->id !== self::ADMIN;
 	}
@@ -2493,10 +2495,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns whether people can search for members of this group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can be deleted.
 	 */
-	protected static function canSeach(object $group): bool
+	protected static function canSeach(self $group): bool
 	{
 		return $group->id > self::REGULAR && $group->id !== self::MOD;
 	}
@@ -2508,10 +2510,10 @@ class Group implements \ArrayAccess
 	 * For example, if the admin added you to a group for miscreants with
 	 * reduced privileges, you can't just decide to leave it.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can become an additional group.
 	 */
-	protected static function canLeave(object $group): bool
+	protected static function canLeave(self $group): bool
 	{
 		return $group->id !== self::ADMIN && !in_array($group->id, self::getUnassignable());
 	}
@@ -2519,10 +2521,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns the icons formatted for display.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return bool Whether the group is a post-count based group.
 	 */
-	protected static function formatIcons(object $group): string
+	protected static function formatIcons(self $group): string
 	{
 		return !empty($group->icon_count) && !empty($group->icon_image) && isset(Theme::$current->settings) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/membericons/' . $group->icon_image . '" alt="*">', $group->icon_count) : '';
 	}
@@ -2530,10 +2532,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns the Lang::$helptxt key for the given group.
 	 *
-	 * @param object $group An instance of this class.
-	 * @return bool The Lang::$helptxt key for this group.
+	 * @param self $group An instance of this class.
+	 * @return string The Lang::$helptxt key for this group.
 	 */
-	protected static function getHelpTxt(object $group): bool
+	protected static function getHelpTxt(self $group): string
 	{
 		switch ($group->id) {
 			case self::GUEST:
@@ -2563,10 +2565,10 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns the URL for an overview of the given group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return string The URL for the group.
 	 */
-	protected static function getHref(object $group): string
+	protected static function getHref(self $group): string
 	{
 		if (User::$me->allowedTo('access_mod_center') && User::$me->allowedTo('manage_membergroups')) {
 			$action_url = '?action=moderate;area=viewgroups';
@@ -2580,12 +2582,12 @@ class Group implements \ArrayAccess
 	/**
 	 * Returns an HTML link to an overview of the given group.
 	 *
-	 * @param object $group An instance of this class.
+	 * @param self $group An instance of this class.
 	 * @return string The HTML link.
 	 */
-	protected static function getLink(object $group): string
+	protected static function getLink(self $group): string
 	{
-		$href = $group->getHref();
+		$href = self::getHref($group);
 
 		if ($href === '') {
 			return '';
@@ -2618,7 +2620,7 @@ class Group implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
 			'',

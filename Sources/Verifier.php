@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -314,7 +316,7 @@ class Verifier implements \ArrayAccess
 	 * @param bool $do_test Whether to check to see if the user entered the code correctly.
 	 * @return bool|array False if there's nothing to show, true if everything went well, or an array containing error indicators if the test failed.
 	 */
-	public static function create(&$options, $do_test = false)
+	public static function create(array &$options, bool $do_test = false): bool|array
 	{
 		$obj = new self($options, $do_test);
 

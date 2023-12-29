@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -2305,7 +2307,7 @@ class BBCodeParser
 	 * @param array $parse_tags If set, only parses these tags rather than all of them.
 	 * @return string|array The parsed message or the list of BBCodes.
 	 */
-	public static function backcompatParseBbc($message, $smileys = true, $cache_id = '', $parse_tags = []): string|array
+	public static function backcompatParseBbc(string|bool $message, bool $smileys = true, string $cache_id = '', array $parse_tags = []): string|array
 	{
 		if ($message === false) {
 			return self::getCodes();
@@ -2342,7 +2344,7 @@ class BBCodeParser
 	 * @param string $string Text containing HTML
 	 * @return string The string with html converted to bbc
 	 */
-	public function htmlToBbc($string)
+	public function htmlToBbc(string $string): string
 	{
 		return self::load()->unparse($string);
 	}
@@ -2359,7 +2361,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function attachValidate(&$tag, &$data, $disabled, $params): void
+	public static function attachValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$return_context = '';
 
@@ -2455,7 +2457,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function codeValidate(&$tag, &$data, $disabled, $params): void
+	public static function codeValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['code'])) {
 			$code = is_array($data) ? $data[0] : $data;
@@ -2500,7 +2502,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function emailValidate(&$tag, &$data, $disabled, $params): void
+	public static function emailValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$data = strtr($data, ['<br>' => '']);
 	}
@@ -2513,7 +2515,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function flashValidate(&$tag, &$data, $disabled, $params): void
+	public static function flashValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$data[0] = new Url(strtr(trim($data[0]), ['<br>' => '', ' ' => '%20']), true);
 
@@ -2536,7 +2538,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function floatValidate(&$tag, &$data, $disabled, $params): void
+	public static function floatValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
 
@@ -2557,7 +2559,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function ftpValidate(&$tag, &$data, $disabled, $params): void
+	public static function ftpValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
 
@@ -2584,7 +2586,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function imgValidate(&$tag, &$data, $disabled, $params): void
+	public static function imgValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$url = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
 		$url->toAscii();
@@ -2609,7 +2611,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function urlValidate(&$tag, &$data, $disabled, $params): void
+	public static function urlValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if ($tag['type'] === 'unparsed_content') {
 			$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
@@ -2645,7 +2647,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function phpValidate(&$tag, &$data, $disabled, $params): void
+	public static function phpValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['php'])) {
 			$add_begin = substr(trim($data), 0, 5) != '&lt;?';
@@ -2666,7 +2668,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function shadowValidate(&$tag, &$data, $disabled, $params): void
+	public static function shadowValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50)) {
 			$data[1] = '0 -2px 1px';
@@ -2689,7 +2691,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function sizeValidate(&$tag, &$data, $disabled, $params): void
+	public static function sizeValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		$sizes = [1 => 0.7, 2 => 1.0, 3 => 1.35, 4 => 1.45, 5 => 2.0, 6 => 2.65, 7 => 3.95];
 		$data = $sizes[$data] . 'em';
@@ -2703,7 +2705,7 @@ class BBCodeParser
 	 * @param array $disabled List of disabled BBCodes.
 	 * @param array $params Parameters supplied in this BBCode instance.
 	 */
-	public static function timeValidate(&$tag, &$data, $disabled, $params): void
+	public static function timeValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if (is_numeric($data)) {
 			$data = Time::create('@' . $data)->format();
@@ -4347,7 +4349,7 @@ class BBCodeParser
 	 * @param string $string A tag
 	 * @return array An array of attributes
 	 */
-	protected function fetchTagAttributes($string)
+	protected function fetchTagAttributes(string $string): array
 	{
 		$attribs = [];
 		$key = $value = '';
@@ -4408,7 +4410,7 @@ class BBCodeParser
 	 * @param string $string Text
 	 * @return string Cleaned up text
 	 */
-	protected function legalise($string)
+	protected function legalise(string $string): string
 	{
 		// Don't care about the texts that are too short.
 		if (strlen($string) < 3) {

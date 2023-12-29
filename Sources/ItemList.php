@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 /**
@@ -233,9 +235,9 @@ class ItemList implements \ArrayAccess
 	 * Static wrapper for constructor.
 	 *
 	 * @param array $options Same as for the constructor.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(array $options): object
+	public static function load(array $options): self
 	{
 		return new self($options);
 	}
@@ -261,7 +263,8 @@ class ItemList implements \ArrayAccess
 			$have_what_we_need &= empty($options['items_per_page']) || (isset($options['get_count']['function'], $options['base_href']) && is_numeric($options['items_per_page']));
 		}
 
-		return $have_what_we_need;
+		// @TODO: The var becomes a int because of &= usage.
+		return (bool) $have_what_we_need;
 	}
 
 	/**

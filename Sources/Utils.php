@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -345,7 +347,7 @@ class Utils
 	 *      (or a fallback like "?" if necessary).
 	 * @return string The sanitized string.
 	 */
-	public static function sanitizeChars($string, $level = 0, $substitute = null)
+	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
@@ -417,7 +419,7 @@ class Utils
 	 *      - collapse_hspace: If true, removes extra horizontal spaces.
 	 * @return string The sanitized string.
 	 */
-	public static function normalizeSpaces($string, $vspace = true, $hspace = false, $options = [])
+	public static function normalizeSpaces(string $string, bool $vspace = true, bool $hspace = false, array $options = []): string
 	{
 		$string = (string) $string;
 		$vspace = !empty($vspace);
@@ -459,7 +461,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return string The converted string.
 	 */
-	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): string
+	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): string
 	{
 		$string = self::normalize($string);
 
@@ -477,7 +479,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return array|string The string or array of strings with entities added
 	 */
-	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
+	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
 	{
 		static $level = 0;
 
@@ -511,7 +513,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return string The string without entities.
 	 */
-	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, $encoding = 'UTF-8'): string
+	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
 	}
@@ -901,7 +903,7 @@ class Utils
 		}
 
 		// This recursive closure creates the trie from the strings.
-		$add_string_to_trie = function ($string, $trie) use (&$add_string_to_trie) {
+		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
 			static $depth = 0;
 			$depth++;
 
@@ -942,7 +944,7 @@ class Utils
 		};
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (&$trie, $delim) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, string $delim = null) use (&$trie_to_regex) {
 			static $depth = 0;
 			$depth++;
 
@@ -953,7 +955,7 @@ class Utils
 			$length = 0;
 
 			foreach ($trie as $key => $value) {
-				$key_regex = preg_quote($key, $delim);
+				$key_regex = preg_quote((string) $key, $delim);
 				$new_key = $key;
 
 				if (empty($value)) {
@@ -985,11 +987,11 @@ class Utils
 			uksort(
 				$regex,
 				function ($k1, $k2) {
-					$l1 = mb_strlen($k1);
-					$l2 = mb_strlen($k2);
+					$l1 = mb_strlen((string) $k1);
+					$l2 = mb_strlen((string) $k2);
 
 					if ($l1 == $l2) {
-						return strcmp($k1, $k2) > 0 ? 1 : -1;
+						return strcmp((string) $k1, (string) $k2) > 0 ? 1 : -1;
 					}
 
 					return $l1 > $l2 ? -1 : 1;
@@ -1006,7 +1008,7 @@ class Utils
 		$regex = '';
 
 		foreach ($strings as $string) {
-			$trie = $add_string_to_trie($string, $trie);
+			$trie = $add_string_to_trie((string) $string, $trie);
 		}
 
 		if ($return_array === true) {
@@ -1095,7 +1097,7 @@ class Utils
 	 * @param int $level = 0 What level we're at within the array (if called recursively)
 	 * @return array|string The string or array of strings with slashes stripped
 	 */
-	public static function stripslashesRecursive($var, $level = 0)
+	public static function stripslashesRecursive(string|array $var, int $level = 0): array|string
 	{
 		if (!is_array($var)) {
 			return stripslashes($var);
@@ -1121,7 +1123,7 @@ class Utils
 	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @return array|string The decoded string or array of decoded strings
 	 */
-	public static function urldecodeRecursive($var, $level = 0)
+	public static function urldecodeRecursive(string|array $var, int $level = 0): array|string
 	{
 		if (!is_array($var)) {
 			return urldecode($var);
@@ -1219,7 +1221,7 @@ class Utils
 			array_walk_recursive(
 				$temp,
 				function (&$value) use ($param_length) {
-					$value = self::truncate(strval($value), $param_length);
+					$value = self::truncate(strval($value), (int) $param_length);
 				},
 			);
 
@@ -1245,7 +1247,7 @@ class Utils
 		array_walk_recursive(
 			$array,
 			function ($value, $key) use (&$length) {
-				$length += strlen($value);
+				$length += strlen((string) $value);
 			},
 		);
 
@@ -1262,7 +1264,7 @@ class Utils
 	 * @param bool $should_log Whether to log errors. Default: true.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true)
+	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true): mixed
 	{
 		// Come on...
 		if (empty($json) || !is_string($json)) {
@@ -1336,7 +1338,7 @@ class Utils
 	 * @param int $depth Maximum depth. Default: 512.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonEncode($value, int $flags = 0, int $depth = 512)
+	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): mixed
 	{
 		return json_encode($value, $flags, $depth);
 	}
@@ -1760,7 +1762,7 @@ class Utils
 	/**
 	 * Emits a file for download. Mostly used for attachments.
 	 *
-	 * @param array|object $file Information about the file. Must be either an
+	 * @param array|\ArrayAccess $file Information about the file. Must be either an
 	 *    array or an object that implements the \ArrayAccess interface.
 	 * @param bool $show_thumb Whether to send the image's embedded thumbnail,
 	 *    if it has one.
@@ -1968,8 +1970,9 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
+	 * @return bool|void If $data is empty, false is returned, othewise the response is sent and execution stopped.
 	 */
-	public static function serverResponse($data = '', $type = 'Content-Type: application/json')
+	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): bool
 	{
 		// Defensive programming anyone?
 		if (empty($data)) {
@@ -2326,7 +2329,7 @@ class Utils
 	 * @param array $matches An array of matches (relevant info should be the 3rd item)
 	 * @return string A fixed string
 	 */
-	public static function replaceEntities__callback($matches)
+	public static function replaceEntities__callback(array $matches): string
 	{
 		return strtr(
 			htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
@@ -2353,7 +2356,7 @@ class Utils
 	 * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
 	 * @return string The fixed string
 	 */
-	public static function fixchar__callback($matches)
+	public static function fixchar__callback(array $matches): string
 	{
 		return Utils::entityDecode($matches[0], true);
 	}
@@ -2371,7 +2374,7 @@ class Utils
 	 *    item in the array)
 	 * @return string The fixed string
 	 */
-	public static function entity_fix__callback($matches)
+	public static function entity_fix__callback(array $matches): string
 	{
 		return Utils::sanitizeEntities(Utils::entityFix($matches[1]));
 	}

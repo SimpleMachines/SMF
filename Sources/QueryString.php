@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -126,7 +128,7 @@ class QueryString
 		// There's no query string, but there is a URL... try to get the data from there.
 		if (!empty($_SERVER['REQUEST_URI'])) {
 			// Remove the .html, assuming there is one.
-			if (substr($_SERVER['REQUEST_URI'], strrpos($_SERVER['REQUEST_URI'], '.'), 4) == '.htm') {
+			if (substr($_SERVER['REQUEST_URI'], (int) strrpos($_SERVER['REQUEST_URI'], '.'), 4) == '.htm') {
 				$request = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '.'));
 			} else {
 				$request = $_SERVER['REQUEST_URI'];

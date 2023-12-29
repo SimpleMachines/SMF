@@ -12,6 +12,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -41,7 +43,7 @@ class Mentions
 	 * @param array $members Whether to limit to a specific set of members
 	 * @return array An array of arrays containing info about each member mentioned
 	 */
-	public static function getMentionsByContent($content_type, $content_id, array $members = [])
+	public static function getMentionsByContent(string $content_type, int $content_id, array $members = []): array
 	{
 		$request = Db::$db->query(
 			'',
@@ -88,7 +90,7 @@ class Mentions
 	 * @param array $members An array of members who have been mentioned
 	 * @param int $id_member The ID of the member who mentioned them
 	 */
-	public static function insertMentions($content_type, $content_id, array $members, $id_member)
+	public static function insertMentions(string $content_type, int $content_id, array $members, $id_member): void
 	{
 		IntegrationHook::call('mention_insert_' . $content_type, [$content_id, &$members]);
 
@@ -115,7 +117,7 @@ class Mentions
 	 * @param int $id_member The ID of the member who mentioned them
 	 * @return array An array of unchanged, removed, and added member IDs.
 	 */
-	public static function modifyMentions($content_type, $content_id, array $members, $id_member)
+	public static function modifyMentions(string $content_type, int $content_id, array $members, int $id_member): array
 	{
 		$existing_members = self::getMentionsByContent($content_type, $content_id);
 
@@ -159,7 +161,7 @@ class Mentions
 	 * @param array $members An array of arrays containing info about members (each should have 'id' and 'member')
 	 * @return string The body with mentions replaced
 	 */
-	public static function getBody($body, array $members)
+	public static function getBody(string $body, array $members): string
 	{
 		if (empty($body)) {
 			return $body;
@@ -179,7 +181,7 @@ class Mentions
 	 * @param string $body The body to get mentions from
 	 * @return array An array of arrays containing members who were mentioned (each has 'id_member' and 'real_name')
 	 */
-	public static function getMentionedMembers($body)
+	public static function getMentionedMembers(string $body): array
 	{
 		if (empty($body)) {
 			return [];
@@ -255,7 +257,7 @@ class Mentions
 	 * @param string $body The text to look for mentions in
 	 * @return array An array of names of members who have been mentioned
 	 */
-	protected static function getPossibleMentions($body)
+	protected static function getPossibleMentions(string $body): array
 	{
 		if (empty($body)) {
 			return [];
@@ -322,10 +324,9 @@ class Mentions
 	 *
 	 * @static
 	 * @param string $body The text to look for mentions in.
-	 * @param array $members An array of arrays containing info about members (each should have 'id' and 'member').
 	 * @return array An array of arrays containing info about members that are in fact mentioned in the body.
 	 */
-	public static function getExistingMentions($body)
+	public static function getExistingMentions(string $body): array
 	{
 		if (empty(self::$excluded_bbc_regex)) {
 			self::setExcludedBbcRegex();
@@ -356,7 +357,7 @@ class Mentions
 	 * @param array $members An array of arrays containing info about members (each should have 'id' and 'member').
 	 * @return array An array of arrays containing info about members that are in fact mentioned in the body.
 	 */
-	public static function verifyMentionedMembers($body, array $members)
+	public static function verifyMentionedMembers(string $body, array $members): array
 	{
 		if (empty($body)) {
 			return [];
@@ -386,7 +387,7 @@ class Mentions
 	 * @param int $poster_id The member ID of the author of the text.
 	 * @return array Info about any members who were quoted.
 	 */
-	public static function getQuotedMembers($body, $poster_id)
+	public static function getQuotedMembers(string $body, int $poster_id): array
 	{
 		if (empty($body)) {
 			return [];
@@ -461,7 +462,7 @@ class Mentions
 	 *
 	 * @static
 	 */
-	protected static function setExcludedBbcRegex()
+	protected static function setExcludedBbcRegex(): void
 	{
 		if (empty(self::$excluded_bbc_regex)) {
 			// Exclude quotes. We don't want to get double mentions.

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -409,7 +411,7 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
-						$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
+						$value = checkdate((int) $dates[2], (int) $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
 
 						return true;
 					}
@@ -577,7 +579,7 @@ class Profile extends User implements \ArrayAccess
 
 						// Do the reset... this will send them an email too.
 						if ($reset_password) {
-							$this->resetPassword($this->id, $value);
+							$this->resetPassword($this->name, $value);
 						} elseif ($value !== null) {
 							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
@@ -1518,7 +1520,7 @@ class Profile extends User implements \ArrayAccess
 	/**
 	 * Saves profile data.
 	 */
-	public function save()
+	public function save(): void
 	{
 		// General-purpose permission for anything that doesn't have its own.
 		$this->can_change_extra = User::$me->allowedTo(User::$me->is_owner ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
@@ -1656,7 +1658,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return bool|string True if the email is valid, otherwise a string
 	 *    indicating what the problem is.
 	 */
-	public function validateEmail($email): bool|string
+	public function validateEmail(string $email): bool|string
 	{
 		$email = strtr($email, ['&#039;' => '\'']);
 
@@ -1836,7 +1838,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param string $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function load($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(?mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -1899,7 +1901,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return bool|string True if the signature passes the checks, otherwise
 	 *    a string indicating what the problem is.
 	 */
-	public static function validateSignature(&$value): bool|string
+	public static function validateSignature(string &$value): bool|string
 	{
 		// Admins can do whatever they hell they want!
 		if (!User::$me->allowedTo('admin_forum')) {
@@ -2088,7 +2090,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $id ID number of the member whose profile is being viewed.
 	 * @return true Always returns true
 	 */
-	public static function backcompat_profileLoadGroups(?int $id = null)
+	public static function backcompat_profileLoadGroups(?int $id = null): bool
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2105,7 +2107,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param bool $force_reload Whether to reload the data.
 	 * @param int $id The ID of the member.
 	 */
-	public static function backcompat_loadProfileFields($force_reload = false, ?int $id = null): void
+	public static function backcompat_loadProfileFields(bool $force_reload = false, ?int $id = null): void
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2135,7 +2137,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $id The ID of the member.
 	 * @param bool $defaultSettings If true, we are loading default options.
 	 */
-	public static function backcompat_loadThemeOptions(int $id, bool $defaultSettings = false)
+	public static function backcompat_loadThemeOptions(int $id, bool $defaultSettings = false): void
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2168,9 +2170,9 @@ class Profile extends User implements \ArrayAccess
 	 * @param string $area The area of the profile these fields are in.
 	 * @param bool $sanitize = true Whether or not to sanitize the data.
 	 * @param bool $return_errors Whether or not to return any error information.
-	 * @return void|array Returns nothing or returns an array of error info if $return_errors is true.
+	 * @return ?array Returns nothing or returns an array of error info if $return_errors is true.
 	 */
-	public static function backcompat_makeCustomFieldChanges($id, $area, $sanitize = true, $return_errors = false)
+	public static function backcompat_makeCustomFieldChanges(int $id, string $area, bool $sanitize = true, bool $return_errors = false): ?array
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2183,6 +2185,8 @@ class Profile extends User implements \ArrayAccess
 		if (!empty($return_errors)) {
 			return self::$member->cf_save_errors;
 		}
+
+		return null;
 	}
 	/**
 	 * Backward compatibilty wrapper for the save() method.
@@ -2191,7 +2195,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $id The ID of the user
 	 * @param int $id_theme The ID of the theme
 	 */
-	public static function backcompat_makeThemeChanges($id, $id_theme)
+	public static function backcompat_makeThemeChanges(int $id, int $id_theme): void
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);

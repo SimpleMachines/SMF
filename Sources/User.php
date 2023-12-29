@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Admin\ACP;
@@ -668,7 +670,7 @@ class User implements \ArrayAccess
 	 *
 	 * Instance of this class for the current user.
 	 */
-	public static object $me;
+	public static self $me;
 
 	/**
 	 * @var int
@@ -963,7 +965,7 @@ class User implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		if (in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && is_string($value)) {
-			$prop = $this->prop_aliases[$prop] ?? $prop;
+			$prop = (string) $this->prop_aliases[$prop] ?? $prop;
 			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 		}
 
@@ -1217,7 +1219,7 @@ class User implements \ArrayAccess
 				'post_group' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
 				'post_group_name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
 				'post_group_color' => $this->is_guest ? '' : $this->post_group_color,
-				'group_icons' => str_repeat('<img src="' . str_replace('$language', self::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : $this->icons[0]),
+				'group_icons' => str_repeat('<img src="' . str_replace('$language', self::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : (int) $this->icons[0]),
 				'warning' => $this->warning,
 				'warning_status' => !empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning ? 'mute' : (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning ? 'moderate' : (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= $this->warning ? 'watch' : '')),
 				'local_time' => Time::create('now', $this->timezone)->format(null, false),
@@ -1294,7 +1296,7 @@ class User implements \ArrayAccess
 
 		IntegrationHook::call('integrate_member_context', [&$this->formatted, $this->id, $display_custom_fields]);
 
-		$this->custom_fields_displayed = !empty($this->custom_fields_displayed) | $display_custom_fields;
+		$this->custom_fields_displayed = !empty($this->custom_fields_displayed) || $display_custom_fields;
 
 		// For backward compatibility.
 		self::$memberContext[$this->id] = &$this->formatted;
@@ -2607,12 +2609,12 @@ class User implements \ArrayAccess
 	/**
 	 * Reloads an array of users, specified by ID number.
 	 *
-	 * @param mixed $users One or more users specified by ID.
+	 * @param int|array $users One or more users specified by ID.
 	 * @param string $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array The ids of the loaded members.
 	 */
-	public static function reload($users = [], ?string $dataset = null): array
+	public static function reload(int|array $users = [], ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -2919,11 +2921,11 @@ class User implements \ArrayAccess
 	 * If a member's post count is updated, this method also updates their post
 	 * groups.
 	 *
-	 * @param mixed $members An array of member IDs, the ID of a single member,
+	 * @param int|array $members An array of member IDs, the ID of a single member,
 	 *    or null to update this for all members.
 	 * @param array $data The info to update for the members.
 	 */
-	public static function updateMemberData($members, array $data): void
+	public static function updateMemberData(int|array $members, array $data): void
 	{
 		// An empty array means there's nobody to update.
 		if ($members === []) {
@@ -3044,7 +3046,7 @@ class User implements \ArrayAccess
 			if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
 				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', $val, $match)) {
 					if ($match[1] != '+ ') {
-						$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
+						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
 					}
 
 					$type = 'raw';
@@ -3905,16 +3907,15 @@ class User implements \ArrayAccess
 	 *
 	 * Searches only buddies if $buddies_only is set.
 	 *
-	 * @param array $names The names of members to search for.
+	 * @param string|array $names The names of members to search for.
 	 * @param bool $use_wildcards Whether to use wildcards. Accepts wildcards
 	 *    '?' and '*' in the pattern if true.
 	 * @param bool $buddies_only Whether to only search for the user's buddies.
 	 * @param int $max The maximum number of results.
 	 * @return array Information about the matching members.
 	 */
-	public static function find($names, bool $use_wildcards = false, bool $buddies_only = false, int $max = 500): array
+	public static function find(string|array $names, bool $use_wildcards = false, bool $buddies_only = false, int $max = 500): array
 	{
-
 		// If it's not already an array, make it one.
 		if (!is_array($names)) {
 			$names = explode(',', $names);
@@ -4234,7 +4235,7 @@ class User implements \ArrayAccess
 	 *    lists the groups that have the permission, and 'denied', which lists
 	 *    the groups that are denied the permission.
 	 */
-	public static function getGroupsWithPermissions(array $general_permissions = [], array $board_permissions = [], int $profile_id = 1)
+	public static function getGroupsWithPermissions(array $general_permissions = [], array $board_permissions = [], int $profile_id = 1): array
 	{
 		$member_groups = [];
 
@@ -4324,14 +4325,14 @@ class User implements \ArrayAccess
 	 *
 	 * This method exists only for backward compatibility purposes.
 	 *
-	 * @param mixed $users Users specified by ID, name, or email address.
+	 * @param int|string|array $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 * @param string $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function loadMemberData($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function loadMemberData(int|string|array $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$loaded = self::load($users, $type, $dataset);
 
@@ -4671,22 +4672,22 @@ class User implements \ArrayAccess
 		$this->is_guest = empty($this->id);
 		$this->is_admin = in_array(1, $this->groups);
 		$this->is_mod = in_array(3, $this->groups) || !empty($profile['is_mod']);
-		$this->is_activated = $profile['is_activated'] ?? (int) (!$this->is_guest);
+		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
 		$this->is_banned = $this->is_activated >= 10;
-		$this->is_online = $profile['is_online'] ?? $is_me;
+		$this->is_online = (bool) $profile['is_online'] ?? $is_me;
 
 		// User activity and history.
-		$this->show_online = $profile['show_online'] ?? false;
+		$this->show_online = (bool) $profile['show_online'] ?? false;
 		$this->url = $profile['url'] ?? '';
-		$this->last_login = $profile['last_login'] ?? 0;
-		$this->id_msg_last_visit = $profile['id_msg_last_visit'] ?? 0;
-		$this->total_time_logged_in = $profile['total_time_logged_in'] ?? 0;
-		$this->date_registered = $profile['date_registered'] ?? 0;
+		$this->last_login = (int) $profile['last_login'] ?? 0;
+		$this->id_msg_last_visit = (int) $profile['id_msg_last_visit'] ?? 0;
+		$this->total_time_logged_in = (int) $profile['total_time_logged_in'] ?? 0;
+		$this->date_registered = (int) $profile['date_registered'] ?? 0;
 		$this->ip = $is_me ? $_SERVER['REMOTE_ADDR'] : ($profile['member_ip'] ?? '');
 		$this->ip2 = $is_me ? $_SERVER['BAN_CHECK_IP'] : ($profile['member_ip2'] ?? '');
 
 		// Additional profile info.
-		$this->posts = $profile['posts'] ?? 0;
+		$this->posts = (int) $profile['posts'] ?? 0;
 		$this->title = $profile['usertitle'] ?? '';
 		$this->signature = $profile['signature'] ?? '';
 		$this->personal_text = $profile['personal_text'] ?? '';
@@ -4695,8 +4696,8 @@ class User implements \ArrayAccess
 		$this->website['title'] = $profile['website_title'] ?? '';
 
 		// Presentation preferences.
-		$this->theme = $profile['id_theme'] ?? 0;
-		$this->options = $profile['options'] ?? [];
+		$this->theme = (int) $profile['id_theme'] ?? 0;
+		$this->options = (array) $profile['options'] ?? [];
 		$this->smiley_set = $profile['smiley_set'] ?? '';
 
 		// Localization.
@@ -4708,14 +4709,14 @@ class User implements \ArrayAccess
 		// Buddies and personal messages.
 		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
 		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
-		$this->pm_receive_from = $profile['pm_receive_from'] ?? 0;
-		$this->pm_prefs = $profile['pm_prefs'] ?? 0;
-		$this->messages = $profile['instant_messages'] ?? 0;
-		$this->unread_messages = $profile['unread_messages'] ?? 0;
-		$this->new_pm = $profile['new_pm'] ?? 0;
+		$this->pm_receive_from = (int) $profile['pm_receive_from'] ?? 0;
+		$this->pm_prefs = (int) $profile['pm_prefs'] ?? 0;
+		$this->messages = (int) $profile['instant_messages'] ?? 0;
+		$this->unread_messages = (int) $profile['unread_messages'] ?? 0;
+		$this->new_pm = (int) $profile['new_pm'] ?? 0;
 
 		// What does the user want to see or know about?
-		$this->alerts = $profile['alerts'] ?? 0;
+		$this->alerts = (int) $profile['alerts'] ?? 0;
 		$this->ignoreboards = !empty($profile['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
 
 		// Extended membergroup info.
@@ -4747,7 +4748,7 @@ class User implements \ArrayAccess
 
 		// Info about stuff related to permissions.
 		// Note that we set $this->permissions elsewhere.
-		$this->warning = $profile['warning'] ?? 0;
+		$this->warning = (int) $profile['warning'] ?? 0;
 		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
 		foreach (self::buildQueryBoard($this->id) as $key => $value) {

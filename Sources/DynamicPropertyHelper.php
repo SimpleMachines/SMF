@@ -11,6 +11,10 @@
  * @version 3.0 Alpha 1
  */
 
+// This can not be defined yet. We use dynamic properities, sometimes loaded from the database, which are always a string.
+// As such, forcing this will cause a casting error when trying to set the property that is a int or other non string.
+//declare(strict_types=1);
+
 namespace SMF;
 
 /**

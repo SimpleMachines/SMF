@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -161,7 +163,7 @@ class Lang
 	 * @param bool $force_reload Whether to load the file again if it's already loaded.
 	 * @return string The language actually loaded.
 	 */
-	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false)
+	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false): string
 	{
 		if (!isset(self::$default)) {
 			self::$default = &Config::$language;
@@ -306,7 +308,7 @@ class Lang
 	 *
 	 * @param array|string $custom_dirs Optional custom directories to include.
 	 */
-	public static function addDirs($custom_dirs = [])
+	public static function addDirs(array $custom_dirs = []): void
 	{
 		// We only accept real directories.
 		if (!empty($custom_dirs)) {
@@ -341,7 +343,7 @@ class Lang
 	 * @param bool $use_cache Whether or not to use the cache
 	 * @return array An array of information about available languages
 	 */
-	public static function get($use_cache = true)
+	public static function get(bool $use_cache = true): array
 	{
 		// Either we don't use the cache, or its expired.
 		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null) {
@@ -453,7 +455,7 @@ class Lang
 	 * @param bool $force Whether to censor the text regardless of settings
 	 * @return string The censored text
 	 */
-	public static function censorText(&$text, $force = false)
+	public static function censorText(string &$text, bool $force = false): string
 	{
 		static $censor_vulgar = null, $censor_proper;
 

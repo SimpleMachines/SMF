@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 /**
@@ -2515,7 +2517,7 @@ class Config
 	 * @param mixed $var The variable to export
 	 * @return string A PHP-parseable representation of the variable's value
 	 */
-	public static function varExport($var): string
+	public static function varExport(mixed $var): string
 	{
 		/*
 		 * Old versions of updateSettingsFile couldn't handle multi-line values.
@@ -2923,6 +2925,7 @@ class Config
 	 * Generate a random seed and ensure it's stored in settings.
 	 *
 	 * @deprecated since 3.0
+	 * @todo Still referenced in Forum.php and ServerSideIncludes.php
 	 *
 	 * This only exists for backward compatibility with mods that might use the
 	 * generated value.
@@ -2939,7 +2942,7 @@ class Config
 	 * not running things at least once per day, we need to go back to SMF's default
 	 * behaviour using "web cron" JavaScript calls.
 	 */
-	public static function checkCron()
+	public static function checkCron(): void
 	{
 		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 86400) {
 			$request = Db\DatabaseApi::$db->query(

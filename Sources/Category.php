@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -317,9 +319,9 @@ class Category implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of the category.
 	 * @param array $props Array of properties to set.
-	 * @return object An instance of this class.
+	 * @return ?self An instance of this class.
 	 */
-	public static function init(int $id, array $props = []): object
+	public static function init(int $id, array $props = []): ?self
 	{
 		if (!isset(self::$loaded[$id])) {
 			new self($id, $props);
@@ -770,9 +772,9 @@ class Category implements \ArrayAccess
 	 * Used by self::getTree().
 	 *
 	 * @param array &$list The board list
-	 * @param SMF\Category &$tree The board tree
+	 * @param \SMF\Category &$tree The board tree
 	 */
-	public static function recursiveBoards(&$list, &$tree): void
+	public static function recursiveBoards(array &$list, \SMF\Category &$tree): void
 	{
 		if (empty($tree->children)) {
 			return;
@@ -868,7 +870,7 @@ class Category implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
 			'',

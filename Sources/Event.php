@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Calendar;
@@ -444,7 +446,7 @@ class Event implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		if (property_exists($this, $prop)) {
 			$this->{$prop} = $value;
@@ -933,7 +935,7 @@ class Event implements \ArrayAccess
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return Generator<object> Iterating over result gives Event instances.
 	 */
-	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = [])
+	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
 	{
 		$selects = $query_customizations['selects'] ?? [
 			'cal.*',
@@ -1175,7 +1177,7 @@ class Event implements \ArrayAccess
 	 *
 	 * @return Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
 			'',
@@ -1332,7 +1334,7 @@ class Event implements \ArrayAccess
 	 * @param array $input Array of info about event start and end times.
 	 * @return array Standardized version of $input array.
 	 */
-	protected static function standardizeEventOptions($input): array
+	protected static function standardizeEventOptions(array $input): array
 	{
 		foreach (['year', 'month', 'day', 'hour', 'minute', 'second'] as $key) {
 			if (isset($input[$key])) {
