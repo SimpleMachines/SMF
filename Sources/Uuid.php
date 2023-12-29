@@ -557,9 +557,11 @@ class Uuid implements \Stringable
 
 		// If a UUID for this forum already exists, use that.
 		if (isset(Config::$modSettings['forum_uuid'])) {
-			$modSettings['forum_uuid'] = self::createFromString(Config::$modSettings['forum_uuid']);
+			$forum_uuid = self::createFromString(Config::$modSettings['forum_uuid']);
 
+			// Check that Config::$modSettings['forum_uuid'] is valid.
 			if ((string) $forum_uuid === Config::$modSettings['forum_uuid']) {
+				// It's good, so use it.
 				self::$namespace = $forum_uuid->getBinary();
 
 				return;
