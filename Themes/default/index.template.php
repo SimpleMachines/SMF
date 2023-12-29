@@ -92,7 +92,7 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', !empty(Theme::$current->settings['theme_variants']) ? str_replace('_', '', ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default')) : '', '>
 <head>
 	<meta charset="', Utils::$context['character_set'], '">';
 
@@ -124,8 +124,6 @@ function template_html_above()
 			'integrate_load_theme' hook for adding multiple files, or using
 			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
-
-	Theme::loadCSSFile('custom.css', array('minimize' => true));
 
 	// load in any css from mods or themes so they can overwrite if wanted
 	Theme::template_css();
@@ -218,42 +216,62 @@ function template_body_above()
 	// If the user is logged in, display some things that might be useful.
 	echo '
 	<div class="user_panel">';
-	if (User::$me->is_logged)
+
+	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1)
 	{
-		// Firstly, the user's menu
 		echo '
-			<ul id="top_info">
-				<li>
-					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
+			<form id="languages_form" method="get">
+				<select id="language_select" name="language" onchange="this.form.submit()">';
 
-		if (!empty(User::$me->avatar))
-			echo User::$me->avatar['image'];
+		foreach (Utils::$context['languages'] as $language)
+			echo '
+					<option value="', $language['filename'], '"', isset(User::$me->language) && User::$me->language == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
 
-		echo '</a>
-					<div id="profile_menu" class="top_menu"></div>
-				</li>';
+		echo '
+				</select>
+				<noscript>
+					<input type="submit" value="', Lang::$txt['quick_mod_go'], '">
+				</noscript>
+			</form>';
+	}
 
-		// Secondly, PMs if we're doing them
+	if (User::$me->is_logged) {
+		echo '
+			<ul id="top_info">';
+
+		// PMs if we're doing them
 		if (Utils::$context['allow_pm'])
 			echo '
 				<li>
-					<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
+					<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top" title="', Lang::$txt['pm_short'], '">
 						<span class="main_icons inbox"></span>
+						<span class="text-label">', Lang::$txt['pm_short'], '</span>
 						', !empty(User::$me->unread_messages) ? '
 						<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
 					</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
 
-		// Thirdly, alerts
+		// Alerts
 		echo '
 				<li>
-					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
+					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top" title="', Lang::$txt['alerts'], '">
 						<span class="main_icons alerts"></span>
+						<span class="text-label">', Lang::$txt['alerts'], '</span>
 						', !empty(User::$me->alerts) ? '
 						<span class="amt">' . User::$me->alerts . '</span>' : '', '
 					</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
+				</li>';
+
+		// Firstly, the user's menu
+		echo '
+				<li>
+					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" title="', Lang::$txt['profile'], '">
+						', User::$me->avatar['image'], '
+						<span class="text-label">', User::$me->name, '</span>
+					</a>
+					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
 		// A logout button for people without JavaScript.
@@ -269,8 +287,7 @@ function template_body_above()
 			</ul>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
-	elseif (empty(Config::$maintenance))
-	{
+	elseif (empty(Config::$maintenance)) {
 		// Some people like to do things the old-fashioned way.
 		if (!empty(Theme::$current->settings['login_main_menu']))
 		{
@@ -328,64 +345,19 @@ function template_body_above()
 				), '</li>
 			</ul>';
 
-	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1)
-	{
-		echo '
-			<form id="languages_form" method="get" class="floatright">
-				<select id="language_select" name="language" onchange="this.form.submit()">';
-
-		foreach (Utils::$context['languages'] as $language)
-			echo '
-					<option value="', $language['filename'], '"', isset(User::$me->language) && User::$me->language == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
-
-		echo '
-				</select>
-				<noscript>
-					<input type="submit" value="', Lang::$txt['quick_mod_go'], '">
-				</noscript>
-			</form>';
-	}
 	    echo '
 			</div>
 		</div>
 	</div>';
 
-	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	// Load mobile menu here
-	echo '
-			<a class="mobile_user_menu">
-				<span class="menu_icon"></span>
-					<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
-				</a>
-				<div id="main_menu">
-				  <div class="inner_wrap">
-					<div id="mobile_user_menu" class="popup_container">
-						<div class="popup_window description">
-							<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
-								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-							</div>
-							', template_menu(), '';
-							if (User::$me->is_logged)
-								echo '
-									<ul class="dropmenu">
-										<li>
-											<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
-										</li>
-										<li>
-											<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
-										</li>
-									</ul>';
-                            echo '
-						</div>
-					</div>
-		        </div>
-			</div>';
+	// Show the menu here
+	template_menu();
 
 	// Wrapper
 	echo '
 	<div id="wrapper">';
 
-	theme_linktree();
+		theme_linktree();
 
 	// The main content should go here.
 	echo '
@@ -509,7 +481,18 @@ function theme_linktree($force_show = false)
 function template_menu()
 {
 	echo '
-					<ul class="dropmenu menu_nav">';
+	<a class="mobile_user_menu">
+		<span class="menu_icon"></span>
+			<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
+	</a>
+	<nav id="main_menu">
+		<div class="inner_wrap">
+			<div id="mobile_user_menu" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
+						<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					</div>
+					<ul class="dropmenu">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach (Utils::$context['menu_buttons'] as $act => $button)
@@ -517,7 +500,11 @@ function template_menu()
 		echo '
 						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', '>
-								', $button['icon'], '<span class="textmenu">', $button['title'], !empty($button['amt']) ? ' <span class="amt">' . $button['amt'] . '</span>' : '', '</span>
+								', $button['icon'], '
+								<span class="textmenu">
+									', $button['title'], '
+								</span>
+								', !empty($button['amt']) ? '<span class="amt">' . $button['amt'] . '</span>' : '', '
 							</a>';
 
 		// 2nd level menus
@@ -563,6 +550,24 @@ function template_menu()
 
 	echo '
 					</ul><!-- .menu_nav -->';
+
+	// Unread buttons
+	if (User::$me->is_logged) {
+		echo '
+					<ul class="dropmenu">
+						<li>
+							<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
+						</li>
+						<li>
+							<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
+						</li>
+					</ul>';
+	}
+        echo '
+				</div>
+			</div>
+ 		</div>
+	</nav>';
 }
 
 /**
@@ -588,7 +593,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . Lang::$txt[$value['text']] . '</a>';
+				<a class="button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . Lang::$txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
