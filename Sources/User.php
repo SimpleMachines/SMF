@@ -5307,6 +5307,10 @@ class User implements \ArrayAccess
 	 */
 	protected static function loadUserData(array $users, int $type = self::LOAD_BY_ID, string $dataset = 'normal'): array
 	{
+		if (!isset(self::$dataset_levels[$dataset])) {
+			$dataset = 'normal';
+		}
+
 		// Keep track of which IDs we load during this run.
 		$loaded_ids = [];
 
@@ -5370,7 +5374,7 @@ class User implements \ArrayAccess
 				}
 
 				// Does the cached data have everything we need?
-				if (self::$dataset_levels[$data['dataset']] >= self::$dataset_levels[$dataset]) {
+				if (is_array($data) && self::$dataset_levels[$data['dataset'] ?? 'minimal'] >= self::$dataset_levels[$dataset]) {
 					self::$profiles[$id] = $data;
 					$loaded_ids[] = $id;
 					unset($users[$key]);
