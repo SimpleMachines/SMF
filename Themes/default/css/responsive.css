@@ -59,22 +59,8 @@
 		height: auto;
 	}
 	#mobile_action .notify_dropdown {
-		top: 0 !important;
-		left: 0 !important;
+		top: 0.25em;
 		position: relative;
-	}
-	#mobile_action .top_menu {
-		padding: 0;
-		margin: 0 auto;
-	}
-	#mobile_action .notify_dropdown a {
-		border-bottom: var(--border_width) var(--border_style) var(--border_color);
-	}
-	#mobile_action .notify_dropdown a:last-of-type {
-		border-bottom: none;
-	}
-	#mobile_action .notify_dropdown span {
-		display: none;
 	}
 	.mobile_buttons {
 		margin: 5px 0;
@@ -85,8 +71,11 @@
 	.pagesection .buttonlist, #moderationbuttons {
 		display: none;
 	}
+	.buttonlist > li, .buttonlist > li > a {
+		width: 100%;
+	}
 	.mobile_buttons {
-		display: block;
+		display: inline-flex;
 	}
 }
 
@@ -144,19 +133,16 @@
 	.action_home {
 		width: 100% !important;
 	}
-	#wrapper {
-		border-left: 0;
-		border-right: 0;
-		border-radius: 0;
-	}
-	#footer {
-		padding: 10px;
-	}
-	#top_section .inner_wrap, #wrapper, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
+	#wrapper, #top_section .inner_wrap, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
 		width: 100%;
 	}
-	#upper_section, #inner_section, #content_section {
-		border-radius: 0;
+	nav#main_menu,
+	.navigate_section,
+	#content_section {
+		--_padding-inline: 0.5em;
+		--contentsection-padding-inline: var(--_padding-inline);
+		--nav-padding-inline: var(--_padding-inline);
+		--navigatesection-margin-inline: var(--_padding-inline);
 	}
 	#boardindex_table .stats {
 		display: none;
@@ -471,6 +457,8 @@
 	#main_menu .popup_window,
 	#genericmenu .popup_window,
 	#adm_submenus .popup_window {
+		display: flex;
+		flex-direction: column;
 		top: 15%;
 		width: 95vw;
 		min-height: auto;
@@ -507,56 +495,24 @@
 		height: 24px;
 		width: 24px;
 	}
+	.dropmenu {
+		flex-direction: column;
+	}
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
 	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
 	.dropmenu li ul, .dropmenu li li, .dropmenu li li a {
 		width: 100%;
-		padding: 0;
-		margin: 0;
+		
 		border-left: 0;
 		border-right: 0;
-	}
-	.dropmenu li a, .dropmenu li a:hover {
-		text-indent: 10px;
-		border-radius: 0;
-		padding: 5px 0 !important;
-	}
-	.dropmenu li li li a,
-	.dropmenu li li li a:hover {
-		padding: 5px 24px !important;
-	}
-	.dropmenu li a, .dropmenu li:hover a,
-	.dropmenu li a.active, .dropmenu li a.active:hover,
-	.dropmenu ul li a:hover, .dropmenu li li a:hover,
-	.dropmenu ul li li:hover, .dropmenu li ul,
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		border-left: 0;
-		border-right: 0;
-	}
-	.dropmenu ul li a {
-		width: auto !important;
 	}
 	.dropmenu li.subsections > a::after {
-		position: absolute;
-		padding: 5px 0;
-		right: 10px;
-		font-family: var(--dropmenu_subsections_font_family);
-		font-size: var(--dropmenu_subsections_font_size);
-		line-height: var(--dropmenu_subsections_line_height);
-		content: "\25bc" !important;
+		display: block;
+		content: "\25bc";
 	}
-	.dropmenu li ul,
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		position: relative;
-		border-radius: 0;
-		left: 0;
-		top: 0;
-		box-shadow: none;
-	}
-	/* 3rd level menu tests */
-	.dropmenu li ul ul {
-		margin: 0 !important;
+	.dropmenu li > ul {
+		position: static;
 	}
 }
 
@@ -575,12 +531,11 @@
 
 /* Entry level phones */
 @media (max-width: 480px) {
-	h1.forumtitle a, h1.forumtitle {
-		padding: 0px;
-		max-width: 220px;
-		margin: 0px;
-		min-height: 80px;
-		display: inline-flex;
+	#header .inner_wrap {
+		flex-wrap: wrap;
+	}
+	h1.forumtitle {
+		--forumtitle-margin-inline: auto;
 	}
 	.board_moderators {
 		display: none;
@@ -594,16 +549,12 @@
 		max-width: calc(100vw - 17px);
 	}
 	#footer {
-		text-align: center;
+		--footer-padding-inline: 0.5em;
 	}
-	#footer ul {
-		width: 100%;
-		float: none;
+	#footer .inner_wrap {
+		justify-content: center;
 	}
-	#footer li {
-		display: block;
-		float: none;
-	}
+	
 	/* MessageIndex */
 	#main_content_section .pagelinks {
 		display: block;
@@ -615,10 +566,6 @@
 	#topic_icons p {
 		display: block;
 		width: 100%;
-	}
-	/* some new stuff for far better UX */
-	.mobile_subject {
-		position: relative;
 	}
 	fieldset {
 		max-width: 100%;
