@@ -2705,6 +2705,12 @@ class Theme
 			self::loadCSSFile('https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css', ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
 		}
 
+		// Icons
+		self::loadCSSFile('icons.css', ['minimize' => true, 'order_pos' => -200], 'smf_icons');
+
+		// Variables
+		self::loadCSSFile('variables.css', ['minimize' => true, 'order_pos' => 0], 'smf_variables');
+
 		// And of course, let's load the default CSS file.
 		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
 
