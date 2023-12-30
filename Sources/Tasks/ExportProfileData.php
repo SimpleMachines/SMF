@@ -1647,8 +1647,6 @@ class ExportProfileData extends BackgroundTask
 			$this->stylesheet = preg_replace('/^(?!\n)/mu', "\t", $this->stylesheet);
 			$this->stylesheet = strtr($this->stylesheet, array_flip($placeholders));
 		}
-
-		file_put_contents('/tmp/derp.xml', $this->stylesheet);
 	}
 
 	/**
