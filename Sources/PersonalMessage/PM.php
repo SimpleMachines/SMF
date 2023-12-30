@@ -484,6 +484,7 @@ class PM implements \ArrayAccess
 		// then return them all at once.
 		self::$keep_all = true;
 
+		/** @var \SMF\PersonalMessage\PM $pm */
 		foreach (self::get($ids, $query_customizations) as $pm) {
 			$loaded[$pm->id] = $pm;
 		}
