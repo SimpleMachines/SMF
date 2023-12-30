@@ -29,7 +29,7 @@ body:
       label: Expected result
       description: What should be the result of following those steps?
   - type: textarea
-    id: expected
+    id: actual
     attributes:
       label: Actual result
       description: What actually happens when you follow those steps?
