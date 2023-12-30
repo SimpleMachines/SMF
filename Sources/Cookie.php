@@ -179,7 +179,7 @@ class Cookie
 
 		// Special case for the login and TFA cookies.
 		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
-			$this->member = $this->custom_data[0] ?? User::$me->id;
+			$this->member = (int) ($this->custom_data[0] ?? User::$me->id);
 			$this->hash = $this->custom_data[1] ?? self::encrypt(User::$me->passwd, User::$me->password_salt);
 
 			$expires = $expires ?? $this->custom_data[2] ?? null;
