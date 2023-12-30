@@ -53,7 +53,7 @@ $GLOBALS['required_php_version'] = '8.0.0';
 $databases = [
 	'mysql' => [
 		'name' => 'MySQL',
-		'version' => '5.6.0',
+		'version' => '8.0.35',
 		'version_check' => function () {
 			if (!function_exists('mysqli_fetch_row')) {
 				return false;
@@ -65,7 +65,7 @@ $databases = [
 	],
 	'postgresql' => [
 		'name' => 'PostgreSQL',
-		'version' => '9.6',
+		'version' => '12.17',
 		'version_check' => function () {
 			if (!function_exists('pg_version')) {
 				return false;
