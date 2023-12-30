@@ -213,7 +213,7 @@ class Folder
 		Utils::$context['page_title'] = Lang::$txt['pm_inbox'];
 
 		// Finally mark the relevant messages as read.
-		if ($this->is_inbox && !empty(self::$labels[(int) $this->current_label_id]['unread_messages'])) {
+		if ($this->is_inbox && !empty(Label::$loaded[(int) $this->current_label_id]['unread_messages'])) {
 			PM::markRead($display_pms, $this->current_label_id);
 		}
 	}
