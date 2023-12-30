@@ -85,6 +85,21 @@ class Folder
 	 */
 	public object $requested_pm;
 
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Instructions for sorting the personal messages.
+	 */
+	public static $sort_methods = [
+		'date' => 'pm.id_pm',
+		'name' => 'COALESCE(mem.real_name, \'\')',
+		'subject' => 'pm.subject',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/

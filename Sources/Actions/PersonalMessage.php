@@ -268,17 +268,6 @@ class PersonalMessage implements ActionInterface
 		'settings' => 'settings',
 	];
 
-	/**
-	 * @var array
-	 *
-	 * Instructions for sorting the personal messages.
-	 */
-	public static $sort_methods = [
-		'date' => 'pm.id_pm',
-		'name' => 'COALESCE(mem.real_name, \'\')',
-		'subject' => 'pm.subject',
-	];
-
 	/*********************
 	 * Internal properties
 	 *********************/
