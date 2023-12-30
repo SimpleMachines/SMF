@@ -38,9 +38,9 @@ class Auth
 	private array $lookup = [];
 
 	/**
-	 * @var string Initialization key
+	 * @var ?string Initialization key
 	 */
-	private string $initKey = null;
+	private ?string $initKey = null;
 
 	/**
 	 * @var int Seconds between key refreshes
@@ -237,7 +237,7 @@ class Auth
 		$binary = $this->base32_decode($initKey);
 
 		for ($time = ($timestamp - $range); $time <= ($timestamp + $range); $time++) {
-			if ($this->generateOneTime($binary, $time) == $code) {
+			if ($this->generateOneTime($binary, (string) $time) == $code) {
 				return true;
 			}
 		}
@@ -306,12 +306,12 @@ class Auth
 	{
 		$offset = ord($hash[19]) & 0xf;
 
-		return (
+		return (string) ((
 			((ord($hash[$offset + 0]) & 0x7f) << 24) |
 			((ord($hash[$offset + 1]) & 0xff) << 16) |
 			((ord($hash[$offset + 2]) & 0xff) << 8) |
 			(ord($hash[$offset + 3]) & 0xff)
-		) % pow(10, $this->getCodeLength());
+		) % pow(10, $this->getCodeLength()));
 	}
 
 	/**

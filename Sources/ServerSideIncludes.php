@@ -2003,7 +2003,7 @@ class ServerSideIncludes
 			return (array) $return['calendar_events'];
 		}
 		else if (!is_array($return)) {
-			return;
+			return null;
 		}
 
 		foreach ($return['calendar_events'] as $event) {
@@ -2014,6 +2014,8 @@ class ServerSideIncludes
 			echo '
 		' . $event['link'] . (!$event['is_last'] ? ', ' : '');
 		}
+
+		return null;
 	}
 
 	/**
