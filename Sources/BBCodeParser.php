@@ -2960,10 +2960,6 @@ class BBCodeParser
 					$data = $tmp_data;
 				}
 			}
-
-			if (isset($_REQUEST['preview'])) {
-				file_put_contents('/tmp/derp.txt', 'data = ' . $data . "\n", FILE_APPEND);
-			}
 		}
 
 		return $data;
