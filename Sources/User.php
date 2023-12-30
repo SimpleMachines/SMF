@@ -23,6 +23,7 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;
+use SMF\Url;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -2119,7 +2120,7 @@ class User implements \ArrayAccess
 
 		// Better be sure to remember the real referer
 		if (empty($_SESSION['request_referer'])) {
-			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @Url::create($_SERVER['HTTP_REFERER'])->parse() : [];
+			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? Url::create($_SERVER['HTTP_REFERER'])->parse() : [];
 		} elseif (empty($_POST)) {
 			unset($_SESSION['request_referer']);
 		}
@@ -2149,9 +2150,9 @@ class User implements \ArrayAccess
 	 * @param string $type The type of check (post, get, request).
 	 * @param string $from_action The action this is coming from.
 	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
-	 * @return string The error message, or '' if everything was fine.
+	 * @return ?string The error message, or '' if everything was fine.
 	 */
-	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
+	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
 		// Is it in as $_POST['sc']?
 		if ($type == 'post') {
@@ -2277,6 +2278,7 @@ class User implements \ArrayAccess
 
 		// We really should never fall through here, for very important reasons.  Let's make sure.
 		trigger_error('No direct access...', E_USER_ERROR);
+		return null;
 	}
 
 	/**
@@ -2574,7 +2576,7 @@ class User implements \ArrayAccess
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array Instances of this class for the loaded users.
 	 */
-	public static function load($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -2857,7 +2859,7 @@ class User implements \ArrayAccess
 			// So it's stored in the member table?
 			if (!empty($data['avatar'])) {
 				// Gravatar.
-				if (stristr($data['avatar'], 'gravatar://')) {
+				if (stristr((string) $data['avatar'], 'gravatar://')) {
 					if ($data['avatar'] == 'gravatar://') {
 						$image = self::getGravatarUrl($data['email']);
 					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
@@ -2866,8 +2868,14 @@ class User implements \ArrayAccess
 				}
 				// External url.
 				else {
-					$url = new Url($data['avatar']);
-					$image = $url->scheme !== null ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
+					if ($data['avatar'] instanceof Url){
+						$url = $data['avatar'];
+					}
+					else {
+						$url = new Url($data['avatar']);
+					}
+
+					$image = isset($url->scheme) ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
 				}
 			}
 			// Perhaps this user has an attachment as avatar...
@@ -2921,11 +2929,11 @@ class User implements \ArrayAccess
 	 * If a member's post count is updated, this method also updates their post
 	 * groups.
 	 *
-	 * @param int|array $members An array of member IDs, the ID of a single member,
+	 * @param int|array|null $members An array of member IDs, the ID of a single member,
 	 *    or null to update this for all members.
 	 * @param array $data The info to update for the members.
 	 */
-	public static function updateMemberData(int|array $members, array $data): void
+	public static function updateMemberData(int|array|null $members, array $data): void
 	{
 		// An empty array means there's nobody to update.
 		if ($members === []) {
@@ -2934,6 +2942,10 @@ class User implements \ArrayAccess
 
 		// For loaded members, update the loaded objects with the new data.
 		foreach ((array) ($members ?? array_keys(User::$loaded)) as $member) {
+			if ($member instanceof self) {
+				$member = $member->id;
+			}
+
 			if (!isset(User::$loaded[$member])) {
 				continue;
 			}
@@ -4524,17 +4536,17 @@ class User implements \ArrayAccess
 	 *    access to.
 	 * @param bool $simple Whether to return a simple array of board IDs or one
 	 *    with permissions as the keys.
-	 * @return array An array of board IDs if $simple is true. Otherwise, an
+	 * @return array|bool An array of board IDs if $simple is true. Otherwise, an
 	 *    array containing 'permission' => array(id, id, id...) pairs.
 	 */
-	public static function hasPermissionInBoards(string|array $permission, int|array|null $boards = null, bool $any = false): array
+	public static function hasPermissionInBoards(string|array $permission, bool $checkAccess = true, bool $simple = true): array|bool
 	{
 		// You're never allowed to do something if your data hasn't been loaded yet!
 		if (!isset(self::$me)) {
 			return false;
 		}
 
-		return self::$me->boardsAllowedTo($permission, $boards, $any);
+		return self::$me->boardsAllowedTo($permission, $checkAccess, $simple);
 	}
 
 	/******************
@@ -4683,8 +4695,8 @@ class User implements \ArrayAccess
 		$this->id_msg_last_visit = (int) $profile['id_msg_last_visit'] ?? 0;
 		$this->total_time_logged_in = (int) $profile['total_time_logged_in'] ?? 0;
 		$this->date_registered = (int) $profile['date_registered'] ?? 0;
-		$this->ip = $is_me ? $_SERVER['REMOTE_ADDR'] : ($profile['member_ip'] ?? '');
-		$this->ip2 = $is_me ? $_SERVER['BAN_CHECK_IP'] : ($profile['member_ip2'] ?? '');
+		$this->ip = $is_me ? $_SERVER['REMOTE_ADDR'] : ((string) $profile['member_ip'] ?? '');
+		$this->ip2 = $is_me ? $_SERVER['BAN_CHECK_IP'] : ((string) $profile['member_ip2'] ?? '');
 
 		// Additional profile info.
 		$this->posts = (int) $profile['posts'] ?? 0;
@@ -4704,7 +4716,7 @@ class User implements \ArrayAccess
 		$this->setLanguage();
 		$this->time_format = empty($profile['time_format']) ? Config::$modSettings['time_format'] : $profile['time_format'];
 		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'];
-		$this->time_offset = $profile['time_offset'] ?? 0;
+		$this->time_offset = (int) $profile['time_offset'] ?? 0;
 
 		// Buddies and personal messages.
 		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
@@ -5117,7 +5129,7 @@ class User implements \ArrayAccess
 					$tz_system = new \DateTimeZone(Config::$modSettings['default_timezone']);
 					$time_system = new \DateTime('now', $tz_system);
 
-					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', $tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600, (int) $time_system->format('I'));
+					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', (int) ($tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600), (int) $time_system->format('I'));
 				}
 
 				if (empty(self::$profiles[$this->id]['timezone'])) {

@@ -88,10 +88,14 @@ class IP implements \Stringable
 	 *
 	 * If the passed string is not a valid IP address, it will be set to ''.
 	 *
-	 * @param ?string $ip The IP address in either string or binary form.
+	 * @param ?string|self $ip The IP address in either string or binary form.
 	 */
-	public function __construct(?string $ip)
+	public function __construct(self|string|null $ip)
 	{
+		if ($ip instanceof self) {
+			$ip = (string) $ip;
+		}
+
 		// Is it in a valid IPv4 string?
 		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
 			$this->ip = $ip;
@@ -103,7 +107,7 @@ class IP implements \Stringable
 		}
 		// It's either in binary form or it's invalid.
 		else {
-			$this->ip = (string) @inet_ntop($ip);
+			$this->ip = (string) @inet_ntop((string) $ip);
 		}
 	}
 
@@ -642,7 +646,7 @@ class IP implements \Stringable
 			}
 
 			// Add segment to our host.
-			$host[] = substr($response, $position + 1, $len[1]);
+			$host[] = substr($response, (int) $position + 1, $len[1]);
 
 			// Move pointer on to the next segment.
 			$position += $len[1] + 1;

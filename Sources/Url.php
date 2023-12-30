@@ -54,11 +54,11 @@ class Url implements \Stringable
 	 *******************/
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The scheme component of the URL.
 	 */
-	public string $scheme;
+	public ?string $scheme = null;
 
 	/**
 	 * @var string
@@ -160,7 +160,7 @@ class Url implements \Stringable
 	 */
 	public function __toString(): string
 	{
-		return $this->url;
+		return (string) $this->url;
 	}
 
 	/**

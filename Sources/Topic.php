@@ -290,7 +290,7 @@ class Topic implements \ArrayAccess
 	public static $topic_id;
 
 	/**
-	 * @var SMF\Topic
+	 * @var \SMF\Topic
 	 *
 	 * Instance of this class for the requested topic.
 	 */

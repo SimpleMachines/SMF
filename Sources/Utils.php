@@ -345,9 +345,9 @@ class Utils
 	 * @param string|null $substitute Replacement string for the invalid characters.
 	 *      If not set, the Unicode replacement character (U+FFFD) will be used
 	 *      (or a fallback like "?" if necessary).
-	 * @return string The sanitized string.
+	 * @return string|bool The sanitized string.  False if we failed.
 	 */
-	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string
+	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|bool
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
@@ -1972,7 +1972,7 @@ class Utils
 	 * @param string $type The content type. Defaults to JSON.
 	 * @return bool|void If $data is empty, false is returned, othewise the response is sent and execution stopped.
 	 */
-	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): bool
+	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{
 		// Defensive programming anyone?
 		if (empty($data)) {
@@ -1999,6 +1999,7 @@ class Utils
 
 		// Done.
 		self::obExit(false);
+		return null;
 	}
 
 	/**
@@ -2312,6 +2313,7 @@ class Utils
 		}
 
 		call_user_func($callable);
+		return null;
 	}
 
 	/**

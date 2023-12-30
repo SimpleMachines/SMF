@@ -421,7 +421,8 @@ class Group implements \ArrayAccess
 			$prop = 'raw_icons';
 
 			if (preg_match('/^\d+#/', $value)) {
-				list($this->icon_count, $this->icon_image) = explode('#', $value);
+				list($count, $this->icon_image) = explode('#', $value);
+				$this->icon_count = (int) $count;
 			} else {
 				$this->icon_count = 0;
 				$this->icon_image = '';
@@ -1021,7 +1022,9 @@ class Group implements \ArrayAccess
 		}
 
 		// Load the user info for the new members.
-		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
+		$members = array_map(function($mem) {
+			return $mem->id;
+		}, User::load($members, User::LOAD_BY_ID, 'minimal'));
 
 		if (empty($members)) {
 			return false;
@@ -1835,7 +1838,7 @@ class Group implements \ArrayAccess
 
 			$group = self::$loaded[$row['id_group']];
 			$group->moderator_ids[] = $row['id_member'];
-			$group->can_moderate |= in_array(User::$me->id, $group->moderator_ids);
+			$group->can_moderate = $group->can_moderate || in_array(User::$me->id, $group->moderator_ids);
 
 			$mod_ids[] = $row['id_member'];
 		}
@@ -1912,7 +1915,8 @@ class Group implements \ArrayAccess
 					LIMIT 1',
 					[],
 				);
-				list(self::$loaded[self::MOD]->num_members) = Db::$db->fetch_row($request);
+				list($members) = Db::$db->fetch_row($request);
+				self::$loaded[self::MOD]->num_members = (int) $members;
 				Db::$db->free_result($request);
 			}
 		}
@@ -2618,7 +2622,7 @@ class Group implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{

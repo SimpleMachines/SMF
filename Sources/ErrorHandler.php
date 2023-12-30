@@ -65,14 +65,14 @@ class ErrorHandler
 	{
 		// Error was suppressed with the @-operator.
 		if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
-			return true;
+			return;
 		}
 
 		// Ignore errors that should should not be logged.
 		$error_match = error_reporting() & $error_level;
 
 		if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging'])) {
-			return false;
+			return;
 		}
 
 		if (strpos($file, 'eval()') !== false && !empty(Theme::$current->settings['current_include_filename'])) {

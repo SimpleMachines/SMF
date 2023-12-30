@@ -316,7 +316,7 @@ class PageIndex implements \Stringable
 		$start = min(max($start, 0), $this->max_value);
 		$start -= ($start % $this->num_per_page);
 
-		return $start;
+		return (int) $start;
 	}
 
 	/**

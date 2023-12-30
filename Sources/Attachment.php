@@ -344,7 +344,6 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of the attachment.
 	 * @param array $props Properties to set for this attachment.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
@@ -485,7 +484,7 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Loads existing attachments by ID number.
 	 *
-	 * @param array $ids The ID numbers of one or more attachments.
+	 * @param array|string|int $ids The ID numbers of one or more attachments.
 	 * @param int $approval_status One of this class's APPROVED_* constants.
 	 *     Default: self::APPROVED_ANY.
 	 * @param int $type One of this class's TYPE_* constants.
@@ -494,7 +493,7 @@ class Attachment implements \ArrayAccess
 	 *     Default: true.
 	 * @return array Instances of this class for the loaded attachments.
 	 */
-	public static function load(array|int $ids, int $approval_status = self::APPROVED_ANY, int $type = self::TYPE_ANY, bool $get_thumbs = true): array
+	public static function load(array|string|int $ids, int $approval_status = self::APPROVED_ANY, int $type = self::TYPE_ANY, bool $get_thumbs = true): array
 	{
 		// Keep track of the ones we load during this call.
 		$loaded = [];
@@ -1088,7 +1087,7 @@ class Attachment implements \ArrayAccess
 
 				// Move the file to the attachments folder with a temp name for now.
 				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName)) {
-					Utils::makeWritable($destName, 0644);
+					Utils::makeWritable($destName);
 				} else {
 					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
 
@@ -1130,10 +1129,10 @@ class Attachment implements \ArrayAccess
 	 * Performs various checks on an uploaded file.
 	 * - Requires that $_SESSION['temp_attachments'][$attachID] be properly populated.
 	 *
-	 * @param int $attachID The ID of the attachment
+	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
 	 * @return bool Whether the attachment is OK
 	 */
-	public static function check(int $attachID): bool
+	public static function check(string|int $attachID): bool
 	{
 		// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
 		if (empty($_SESSION['temp_attachments'][$attachID])) {
@@ -1480,7 +1479,7 @@ class Attachment implements \ArrayAccess
 		if (!empty(Config::$modSettings['attachmentThumbWidth']) && !empty(Config::$modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > Config::$modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > Config::$modSettings['attachmentThumbHeight'])) {
 			$image = new Image($attachmentOptions['destination'], true);
 
-			if (($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false) {
+			if (($thumb = $image->createThumbnail((int) Config::$modSettings['attachmentThumbWidth'], (int) Config::$modSettings['attachmentThumbHeight'])) !== false) {
 				// Propagate our special handling for JPEGs to the thumbnail's extension, too.
 				$thumb_ext = $image->type === $thumb->type ? $attachmentOptions['fileext'] : ltrim(image_type_to_extension($thumb->type), '.');
 
@@ -1711,7 +1710,7 @@ class Attachment implements \ArrayAccess
 	 * @param bool $autoThumbRemoval Whether to automatically remove any thumbnails associated with the removed files
 	 * @return ?int[] Returns an array containing IDs of affected messages if $return_affected_messages is true
 	 */
-	public static function remove(array $condition, string $query_type = '', bool $return_affected_messages = false, bool $autoThumbRemoval = true): ?int
+	public static function remove(array $condition, string $query_type = '', bool $return_affected_messages = false, bool $autoThumbRemoval = true): ?array
 	{
 		// @todo This might need more work!
 		$new_condition = [];
@@ -1778,7 +1777,7 @@ class Attachment implements \ArrayAccess
 				// @todo look again at this.
 				@unlink(Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename']);
 			} else {
-				$filename = Attachment::getFilePath($row['id_attach']);
+				$filename = Attachment::getFilePath((int) $row['id_attach']);
 				@unlink($filename);
 
 				// If this was a thumb, the parent attachment should know about it.
@@ -1788,7 +1787,7 @@ class Attachment implements \ArrayAccess
 
 				// If this attachments has a thumb, remove it as well.
 				if (!empty($row['id_thumb']) && $autoThumbRemoval) {
-					$thumb_filename = Attachment::getFilePath($row['id_thumb']);
+					$thumb_filename = Attachment::getFilePath((int) $row['id_thumb']);
 					@unlink($thumb_filename);
 					$attach[] = $row['id_thumb'];
 				}
@@ -1869,11 +1868,11 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Gets an attach ID and tries to load all its info.
 	 *
-	 * @param int $attachID the attachment ID to load info from.
+	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
 	 *
 	 * @return array|string If succesful, it will return an array of loaded data. String, most likely a Lang::$txt key if there was some error.
 	 */
-	public static function parseAttachBBC(int $attachID = 0): array|string
+	public static function parseAttachBBC(int|string $attachID = 0): array|string
 	{
 		static $view_attachment_boards;
 
@@ -1997,10 +1996,10 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Gets all needed message data associated with an attach ID
 	 *
-	 * @param int $attachID the attachment ID to load info from.
-	 * @return array An instance of this class, or an empty array on failure.
+	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
+	 * @return self|array An instance of this class, or an empty array on failure.
 	 */
-	public static function getAttachMsgInfo(int $attachID): array
+	public static function getAttachMsgInfo(string|int $attachID): self|array
 	{
 		if (empty($attachID)) {
 			return [];

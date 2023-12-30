@@ -356,7 +356,7 @@ class ItemList implements \ArrayAccess
 
 		// Default the start to the beginning...sounds logical.
 		$this->start = isset($_REQUEST[$this->start_var_name]) ? (int) $_REQUEST[$this->start_var_name] : 0;
-		$this->items_per_page = $this->options['items_per_page'];
+		$this->items_per_page = (int) $this->options['items_per_page'];
 	}
 
 	/**
@@ -439,7 +439,7 @@ class ItemList implements \ArrayAccess
 
 				// Allow for basic formatting.
 				if (!empty($column['data']['comma_format'])) {
-					$cur_data['value'] = Lang::numberFormat($cur_data['value']);
+					$cur_data['value'] = Lang::numberFormat((int) $cur_data['value']);
 				} elseif (!empty($column['data']['timeformat'])) {
 					$cur_data['value'] = Time::create('@' . $cur_data['value'])->format();
 				}

@@ -183,7 +183,7 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
-	public static object $member;
+	public static self $member;
 
 	/**
 	 * @var array
@@ -392,7 +392,7 @@ class Profile extends User implements \ArrayAccess
 						if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1) {
 							$value = '1004-01-01';
 						} else {
-							$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
+							$value = checkdate((int) $value, (int) $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : (int) $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
 						}
 					} else {
 						$value = '1004-01-01';
@@ -467,7 +467,7 @@ class Profile extends User implements \ArrayAccess
 						return false;
 					}
 
-					$isValid = self::validateEmail($value, $this->id);
+					$isValid = $this->validateEmail($value);
 
 					// Do they need to revalidate? If so schedule the function!
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
@@ -491,6 +491,7 @@ class Profile extends User implements \ArrayAccess
 				'preload' => [[$this, 'loadAssignableGroups']],
 				'log_change' => true,
 				'input_validate' => function (&$value) {
+					$value = (int) $value;
 					return $this->validateGroups($value, $_POST['additional_groups'] ?? []);
 				},
 			],
@@ -579,7 +580,7 @@ class Profile extends User implements \ArrayAccess
 
 						// Do the reset... this will send them an email too.
 						if ($reset_password) {
-							$this->resetPassword($this->name, $value);
+							$this->resetPassword($value);
 						} elseif ($value !== null) {
 							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
@@ -688,7 +689,7 @@ class Profile extends User implements \ArrayAccess
 						return 'posts_out_of_range';
 					}
 
-					$value = $value != '' ? strtr($value, [',' => '', '.' => '', ' ' => '']) : 0;
+					$value = $value != '' ? strtr((string) $value, [',' => '', '.' => '', ' ' => '']) : 0;
 
 					return true;
 				},
@@ -1287,7 +1288,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Second level selected avatar...
-		Utils::$context['avatar_selected'] = substr(strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
+		Utils::$context['avatar_selected'] = substr((string) strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
 
 		return !empty($this->formatted['avatar']['allow_server_stored']) || !empty($this->formatted['avatar']['allow_external']) || !empty($this->formatted['avatar']['allow_upload']) || !empty($this->formatted['avatar']['allow_gravatar']);
 	}
@@ -1784,9 +1785,10 @@ class Profile extends User implements \ArrayAccess
 
 		IntegrationHook::call('before_profile_save_avatar', [&$value]);
 
+		$result = null;
 		switch ($value) {
 			case 'server_stored':
-				$result = $this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
+				$this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
 				break;
 
 			case 'external':
@@ -1798,11 +1800,11 @@ class Profile extends User implements \ArrayAccess
 				break;
 
 			case 'gravatar':
-				$result = $this->setAvatarGravatar();
+				$this->setAvatarGravatar();
 				break;
 
 			default:
-				$result = $this->setAvatarNone();
+				$this->setAvatarNone();
 				break;
 		}
 
@@ -1838,7 +1840,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param string $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function load(?mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -2466,7 +2468,7 @@ class Profile extends User implements \ArrayAccess
 				$value = $_POST['customfield'][$cf_def['col_name']] ?? '';
 
 				if ($cf_def['field_length']) {
-					$value = Utils::entitySubstr($value, 0, $cf_def['field_length']);
+					$value = Utils::entitySubstr($value, 0, (int) $cf_def['field_length']);
 				}
 
 				// Any masks?
@@ -2928,8 +2930,8 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Check whether the image is too large.
-		$max_width = Config::$modSettings['avatar_max_width_external'] ?? 0;
-		$max_height = Config::$modSettings['avatar_max_height_external'] ?? 0;
+		$max_width = (int) Config::$modSettings['avatar_max_width_external'] ?? 0;
+		$max_height = (int) Config::$modSettings['avatar_max_height_external'] ?? 0;
 
 		if ($image->shouldResize($max_width, $max_height)) {
 			// Try to resize it, unless the admin disabled resizing.

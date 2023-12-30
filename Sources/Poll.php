@@ -194,7 +194,7 @@ class Poll implements \ArrayAccess
 	 *
 	 * ID of this poll's topic.
 	 */
-	public int $topic;
+	public int $topic = 0;
 
 	/**
 	 * @var array
@@ -748,6 +748,7 @@ class Poll implements \ArrayAccess
 				}
 			}
 
+			settype($value, gettype($this->{$prop}));
 			$this->{$prop} = $value;
 		} elseif (array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
@@ -775,7 +776,13 @@ class Poll implements \ArrayAccess
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
 			} else {
-				$this->{$real_prop} = $value;
+				if ($real_prop == 'id'){
+					$this->{$real_prop} = (int) $value;
+				}
+				else {
+					settype($value, gettype($this->{$real_prop}));
+					$this->{$real_prop} = $value;	
+				}
 			}
 		} else {
 			$this->custom[$prop] = $value;

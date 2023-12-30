@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Actions\Notify;
@@ -33,8 +35,9 @@ class MsgReportReply_Notify extends BackgroundTask
 	 * and inserts any alerts as needed.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// Let's see. Let us, first of all, establish the list of possible people.
 		$possible_members = [];

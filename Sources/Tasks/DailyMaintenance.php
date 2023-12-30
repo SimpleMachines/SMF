@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Actions\Admin\SearchEngines;
@@ -30,8 +32,9 @@ class DailyMaintenance extends ScheduledTask
 	 * This executes the task.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// First clean out the cache.
 		CacheApi::clean();
@@ -140,7 +143,7 @@ class DailyMaintenance extends ScheduledTask
 
 		// Delete old alerts.
 		if (!empty(Config::$modSettings['alerts_auto_purge'])) {
-			Alert::purge(-1, time() - 86400 * Config::$modSettings['alerts_auto_purge']);
+			Alert::purge(-1, (int) (time() - 86400 * Config::$modSettings['alerts_auto_purge']));
 		}
 
 		// Anyone else have something to do?

@@ -402,10 +402,8 @@ class Security
 			return;
 		}
 
-		foreach (['origin' => $_SERVER['HTTP_ORIGIN'], 'forumurl' => Config::$boardurl] as $var => $url) {
-			// Convert any Punycode to Unicode for the sake of comparison.
-			$$var = Url::create(trim($url), true)->validate()->toUtf8();
-		}
+		$origin = Url::create(trim($_SERVER['HTTP_ORIGIN']), true)->validate()->toUtf8();
+		$forumurl = Url::create(trim(Config::$boardurl), true)->validate()->toUtf8();
 
 		// The admin wants weak security... :(
 		if (!empty(Config::$modSettings['cors_domains']) && Config::$modSettings['cors_domains'] === '*') {

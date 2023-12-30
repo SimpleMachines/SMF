@@ -772,9 +772,9 @@ class Category implements \ArrayAccess
 	 * Used by self::getTree().
 	 *
 	 * @param array &$list The board list
-	 * @param \SMF\Category &$tree The board tree
+	 * @param \SMF\Category|\SMF\Board &$tree The board tree
 	 */
-	public static function recursiveBoards(array &$list, \SMF\Category &$tree): void
+	public static function recursiveBoards(array &$list, \SMF\Category|\SMF\Board &$tree): void
 	{
 		if (empty($tree->children)) {
 			return;
@@ -868,7 +868,7 @@ class Category implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{

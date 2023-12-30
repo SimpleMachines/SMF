@@ -226,7 +226,7 @@ class ServerSideIncludes
 	 * @param string $output_method If 'echo', displays the version, otherwise returns it
 	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version
 	 */
-	public static function version(string $output_method = 'echo'): string
+	public static function version(string $output_method = 'echo'): ?string
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -234,6 +234,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo SMF_VERSION;
+			return null;
 		} else {
 			return SMF_VERSION;
 		}
@@ -247,7 +248,7 @@ class ServerSideIncludes
 	 * @param string $output_method If 'echo', displays the full version string, otherwise returns it
 	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version string
 	 */
-	public static function fullVersion(string $output_method = 'echo'): string
+	public static function fullVersion(string $output_method = 'echo'): ?string
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -255,6 +256,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo SMF_FULL_VERSION;
+			return null;
 		} else {
 			return SMF_FULL_VERSION;
 		}
@@ -268,7 +270,7 @@ class ServerSideIncludes
 	 * @param string $output_method If 'echo', displays the software year, otherwise returns it
 	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the software year
 	 */
-	public static function softwareYear(string $output_method = 'echo'): string
+	public static function softwareYear(string $output_method = 'echo'): ?string
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -276,6 +278,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo SMF_SOFTWARE_YEAR;
+			return null;
 		} else {
 			return SMF_SOFTWARE_YEAR;
 		}
@@ -289,7 +292,7 @@ class ServerSideIncludes
 	 * @param string $output_method If 'echo', displays the forum copyright, otherwise returns it
 	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the copyright string
 	 */
-	public static function copyright(string $output_method = 'echo'): string
+	public static function copyright(string $output_method = 'echo'): ?string
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -297,6 +300,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+			return null;
 		} else {
 			return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 		}
@@ -310,7 +314,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', will display everything. Otherwise returns an array of user info.
 	 * @return void|\SMF\User Displays a welcome message or returns an array of user data depending on output_method.
 	 */
-	public static function welcome(string $output_method = 'echo'): \SMF\User
+	public static function welcome(string $output_method = 'echo'): ?\SMF\User
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -322,6 +326,8 @@ class ServerSideIncludes
 			} else {
 				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>', User::$me->allowedTo('pm_read') ? ', ' . (empty(User::$me->messages) ? Lang::$txt['msg_alert_no_messages'] : ((User::$me->messages == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', User::$me->messages)) . ', ' . (User::$me->unread_messages == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], User::$me->unread_messages)))) : '';
 			}
+
+			return null;
 		}
 		// Don't echo... then do what?!
 		else {
@@ -337,7 +343,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', will display the menu, otherwise returns an array of menu data.
 	 * @return void|array Displays the menu or returns an array of menu data depending on output_method.
 	 */
-	public static function menubar(string $output_method = 'echo'): array
+	public static function menubar(string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -345,6 +351,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			template_menu();
+			return null;
 		}
 		// What else could this do?
 		else {
@@ -361,7 +368,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', shows a logout link, otherwise returns the HTML for it.
 	 * @return void|bool|string Displays a logout link or returns its HTML depending on output_method.
 	 */
-	public static function logout($redirect_to = '', string $output_method = 'echo'): string|bool
+	public static function logout($redirect_to = '', string $output_method = 'echo'): string|bool|null
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -380,6 +387,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo $link;
+			return null;
 		} else {
 			return $link;
 		}
@@ -448,14 +456,14 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them
 	 * @return void|array Displays the specified posts or returns an array of info about them, depending on output_method.
 	 */
-	public static function fetchPosts(array $post_ids = [], bool $override_permissions = false, string $output_method = 'echo'): array
+	public static function fetchPosts(array $post_ids = [], bool $override_permissions = false, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
 		}
 
 		if (empty($post_ids)) {
-			return;
+			return null;
 		}
 
 		// Allow the user to request more than one - why not?
@@ -497,7 +505,7 @@ class ServerSideIncludes
 		string $output_method = 'echo',
 		bool $limit_body = false,
 		bool $override_permissions = false
-		): array
+		): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -618,6 +626,8 @@ class ServerSideIncludes
 		}
 		echo '
 			</table>';
+
+		return null;
 	}
 
 	/**
@@ -631,7 +641,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
 	 * @return void|array Either displays a list of topics or returns an array of info about them, depending on output_method.
 	 */
-	public static function recentTopics(int $num_recent = 8, ?array $exclude_boards = null, ?array $include_boards = null, string $output_method = 'echo'): array
+	public static function recentTopics(int $num_recent = 8, ?array $exclude_boards = null, ?array $include_boards = null, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -802,6 +812,8 @@ class ServerSideIncludes
 		}
 		echo '
 			</table>';
+
+		return null;
 	}
 
 	/**
@@ -813,7 +825,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', will display a list of users, otherwise returns an array of info about them.
 	 * @return void|array Either displays a list of users or returns an array of info about them, depending on output_method.
 	 */
-	public static function topPoster(int $topNumber = 1, string $output_method = 'echo'): array
+	public static function topPoster(int $topNumber = 1, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -858,6 +870,7 @@ class ServerSideIncludes
 		}
 
 		echo implode(', ', $temp_array);
+		return null;
 	}
 
 	/**
@@ -869,7 +882,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of boards, otherwise returns an array of info about them.
 	 * @return void|array Displays a list of the top boards or returns an array of info about them, depending on output_method.
 	 */
-	public static function topBoards(int $num_top = 10, string $output_method = 'echo'): array
+	public static function topBoards(int $num_top = 10, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -933,6 +946,8 @@ class ServerSideIncludes
 		}
 		echo '
 			</table>';
+
+		return null;
 	}
 
 	/**
@@ -945,7 +960,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them.
 	 * @return void|array Either displays a list of topics or returns an array of info about them, depending on output_method.
 	 */
-	public static function topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): array
+	public static function topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1038,6 +1053,8 @@ class ServerSideIncludes
 		}
 		echo '
 			</table>';
+
+		return null;
 	}
 
 	/**
@@ -1084,7 +1101,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', returns a string with a link to the latest member's profile, otherwise returns an array of info about them.
 	 * @return void|array Displays a "welcome" message for the latest member or returns an array of info about them, depending on output_method.
 	 */
-	public static function latestMember(string $output_method = 'echo'): array
+	public static function latestMember(string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1093,6 +1110,7 @@ class ServerSideIncludes
 		if ($output_method == 'echo') {
 			echo '
 		', sprintf(Lang::$txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
+			return null;
 		} else {
 			return Utils::$context['common_stats']['latest_member'];
 		}
@@ -1164,14 +1182,14 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of links to the members' profiles, otherwise returns an array of info about them.
 	 * @return void|array Displays links to the specified members' profiles or returns an array of info about them, depending on output_method.
 	 */
-	public static function fetchMember(array $member_ids = [], string $output_method = 'echo'): array
+	public static function fetchMember(array $member_ids = [], string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
 		}
 
 		if (empty($member_ids)) {
-			return;
+			return null;
 		}
 
 		// Can have more than one member if you really want...
@@ -1198,14 +1216,14 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
 	 * @return void|array Displays a list of group members or returns an array of info about them, depending on output_method.
 	 */
-	public static function fetchGroupMembers(int $group_id = null, string $output_method = 'echo'): array
+	public static function fetchGroupMembers(int $group_id = null, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
 		}
 
 		if ($group_id === null) {
-			return;
+			return null;
 		}
 
 		$query_where = '
@@ -1233,14 +1251,14 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of members, otherwise returns an array of info about them
 	 * @return void|array Displays a list of members or returns an array of info about them, depending on output_method.
 	 */
-	public static function queryMembers(string $query_where = null, array $query_where_params = [], int|string $query_limit = '', string $query_order = 'id_member DESC', string $output_method = 'echo'): array
+	public static function queryMembers(string $query_where = null, array $query_where_params = [], int|string $query_limit = '', string $query_order = 'id_member DESC', string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
 		}
 
 		if ($query_where === null) {
-			return;
+			return null;
 		}
 
 		// Fetch the members in question.
@@ -1319,14 +1337,14 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays the stats, otherwise returns an array of info about them
 	 * @return void|array Doesn't return anything if the user can't view stats. Otherwise either displays the stats or returns an array of info about them, depending on output_method.
 	 */
-	public static function boardStats(string $output_method = 'echo'): array
+	public static function boardStats(string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
 		}
 
 		if (!User::$me->allowedTo('view_stats')) {
-			return;
+			return null;
 		}
 
 		$totals = [
@@ -1378,7 +1396,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
 	 * @return void|array Either displays a list of online users or returns an array of info about them, depending on output_method.
 	 */
-	public static function whosOnline(string $output_method = 'echo'): array
+	public static function whosOnline(string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1443,6 +1461,8 @@ class ServerSideIncludes
 			echo '<br>
 				[' . implode(']&nbsp;&nbsp;[', $groups) . ']';
 		}
+
+		return null;
 	}
 
 	/**
@@ -1453,7 +1473,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
 	 * @return void|array Either displays a list of online users or returns an aray of info about them, depending on output_method.
 	 */
-	public static function logOnline(string $output_method = 'echo'): array
+	public static function logOnline(string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1477,7 +1497,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo' and the user is a guest, displays a login box, otherwise returns whether the user is a guest
 	 * @return void|bool Either displays a login box or returns whether the user is a guest, depending on whether the user is logged in and output_method.
 	 */
-	public static function login(string $redirect_to = '', string $output_method = 'echo'): bool
+	public static function login(string $redirect_to = '', string $output_method = 'echo'): ?bool
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1514,6 +1534,8 @@ class ServerSideIncludes
 					</tr>
 				</table>
 			</form>';
+
+		return null;
 	}
 
 	/**
@@ -1543,7 +1565,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
 	 * @return void|array Either shows the poll or returns an array of info about it, depending on output_method.
 	 */
-	public static function recentPoll(bool $topPollInstead = false, string $output_method = 'echo'): array
+	public static function recentPoll(bool $topPollInstead = false, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1611,6 +1633,8 @@ class ServerSideIncludes
 		} else {
 			echo Lang::$txt['poll_cannot_see'];
 		}
+
+		return null;
 	}
 
 	/**
@@ -1622,7 +1646,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
 	 * @return void|array Either displays the poll or returns an array of info about it, depending on output_method.
 	 */
-	public static function showPoll(?int $topic = null, string $output_method = 'echo'): array
+	public static function showPoll(?int $topic = null, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1696,6 +1720,8 @@ class ServerSideIncludes
 		} else {
 			echo Lang::$txt['poll_cannot_see'];
 		}
+
+		return null;
 	}
 
 	/**
@@ -1826,14 +1852,14 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a search box, otherwise returns the URL of the search page.
 	 * @return void|string Displays a search box or returns the URL to the search page depending on output_method. If you don't have permission to search, the function won't return anything.
 	 */
-	public static function quickSearch(string $output_method = 'echo'): string
+	public static function quickSearch(string $output_method = 'echo'): ?string
 	{
 		if (!self::$setup_done) {
 			new self();
 		}
 
 		if (!User::$me->allowedTo('search_posts')) {
-			return;
+			return null;
 		}
 
 		if ($output_method != 'echo') {
@@ -1854,7 +1880,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', shows the news item, otherwise returns it.
 	 * @return void|string Shows or returns a random forum news item, depending on output_method.
 	 */
-	public static function news(string $output_method = 'echo'): string
+	public static function news(string $output_method = 'echo'): ?string
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1870,6 +1896,7 @@ class ServerSideIncludes
 		}
 
 		echo Utils::$context['random_news_line'];
+		return null;
 	}
 
 	/**
@@ -1901,7 +1928,7 @@ class ServerSideIncludes
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
 
 		if ($output_method != 'echo') {
-			return $return['calendar_birthdays'];
+			return (array) $return['calendar_birthdays'];
 		}
 
 		foreach ((array) $return['calendar_birthdays'] as $member) {
@@ -1938,7 +1965,7 @@ class ServerSideIncludes
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
 
 		if ($output_method != 'echo') {
-			return $return['calendar_holidays'];
+			return (array) $return['calendar_holidays'];
 		}
 
 		echo '
@@ -1973,7 +2000,7 @@ class ServerSideIncludes
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
 
 		if ($output_method != 'echo') {
-			return $return['calendar_events'];
+			return (array) $return['calendar_events'];
 		}
 		else if (!is_array($return)) {
 			return;
@@ -1997,7 +2024,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of calendar items, otherwise returns an array of info about them.
 	 * @return void|array Displays a list of calendar items or returns an array of info about them depending on output_method
 	 */
-	public static function todaysCalendar(string $output_method = 'echo'): ?array
+	public static function todaysCalendar(string $output_method = 'echo'): array|string|null
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -2052,6 +2079,8 @@ class ServerSideIncludes
 				' . $event['link'] . (!$event['is_last'] ? ', ' : '');
 			}
 		}
+
+		return null;
 	}
 
 	/**
@@ -2066,7 +2095,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays the news items, otherwise returns an array of info about them.
 	 * @return void|array Displays the news items or returns an array of info about them, depending on output_method.
 	 */
-	public static function boardNews(?int $board = null, ?int $limit = null, ?int $start = null, ?int $length = null, string $output_method = 'echo'): array
+	public static function boardNews(?int $board = null, ?int $limit = null, ?int $start = null, ?int $length = null, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -2489,7 +2518,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a table with links/info, otherwise returns an array with information about the attachments
 	 * @return void|array Displays a table of attachment info or returns an array containing info about the attachments, depending on output_method.
 	 */
-	public static function recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): array
+	public static function recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();

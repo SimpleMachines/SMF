@@ -484,13 +484,14 @@ class QueryString
 	/**
 	 * Detect if a IP is in a CIDR address.
 	 *
+	 * @static
 	 * @param string $ip_address IP address to check.
 	 * @param string $cidr_address CIDR address to verify.
 	 * @return bool Whether the IP matches the CIDR.
 	 */
-	public function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
+	public static function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
 	{
-		list($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
+		list($cidr_network, $cidr_subnetmask) = preg_split('~/~', $cidr_address);
 
 		// v6?
 		if ((strpos($cidr_network, ':') !== false)) {
@@ -500,7 +501,7 @@ class QueryString
 
 			$ip_address = inet_pton($ip_address);
 			$cidr_network = inet_pton($cidr_network);
-			$binMask = str_repeat('f', $cidr_subnetmask / 4);
+			$binMask = str_repeat('f', (int) $cidr_subnetmask / 4);
 
 			switch ($cidr_subnetmask % 4) {
 				case 0:

@@ -147,9 +147,9 @@ class Punycode
 	 * Encode a domain to its Punycode version
 	 *
 	 * @param string $input Domain name in Unicode to be encoded
-	 * @return string Punycode representation in ASCII
+	 * @return string|bool Punycode representation in ASCII
 	 */
-	public function encode(string $input): string
+	public function encode(string $input): string|bool
 	{
 		// For compatibility with idn_to_* functions
 		if ($this->decode($input) === false) {
@@ -290,9 +290,9 @@ class Punycode
 	 * Decode a Punycode domain name to its Unicode counterpart
 	 *
 	 * @param string $input Domain name in Punycode
-	 * @return string Unicode domain name
+	 * @return string|bool Unicode domain name
 	 */
-	public function decode(string $input): string
+	public function decode(string $input): string|bool
 	{
 		$errors = [];
 		$preprocessed = $this->preprocess($input, $errors);
@@ -334,9 +334,9 @@ class Punycode
 	 * Decode a part of domain name, such as tld
 	 *
 	 * @param string $input Part of a domain name
-	 * @return string Unicode domain part
+	 * @return string|bool Unicode domain part
 	 */
-	protected function decodePart(string $input): string
+	protected function decodePart(string $input): string|bool
 	{
 		$n = static::INITIAL_N;
 		$i = 0;

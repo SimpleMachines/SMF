@@ -531,17 +531,18 @@ class Msg implements \ArrayAccess
 	 * Note: if you are loading a group of messages so that you can iterate over
 	 * them, consider using Msg::get() rather than Msg::load().
 	 *
-	 * @param int[] $ids The ID numbers of one or more messages.
+	 * @param int|array $ids The ID numbers of one or more messages.
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded messages.
 	 */
-	public static function load(array $ids, array $query_customizations = []): array
+	public static function load(array|int $ids, array $query_customizations = []): array
 	{
 		// Loading is similar to getting, except that we keep all instances and
 		// then return them all at once.
 		$loaded = [];
 
 		self::$keep_all = true;
+		$ids = (array) $ids;
 
 		foreach (self::get($ids, $query_customizations) as $msg) {
 			$loaded[$msg->id] = $msg;
@@ -562,7 +563,7 @@ class Msg implements \ArrayAccess
 	 *
 	 * @param int|array $ids The ID numbers of the messages to load.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<array> Iterating over result gives Msg instances.
+	 * @return \Generator<array> Iterating over result gives Msg instances.
 	 */
 	public static function get(array|int $ids, array $query_customizations = []): \Generator
 	{
@@ -1575,7 +1576,7 @@ class Msg implements \ArrayAccess
 
 		// Update the last message on the board assuming it's approved AND the topic is.
 		if ($msgOptions['approved']) {
-			self::updateLastMessages($topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? $msgOptions['id'] : 0);
+			self::updateLastMessages((int) $topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? (int) $msgOptions['id'] : 0);
 		}
 
 		// Queue createPost background notification
@@ -1861,8 +1862,9 @@ class Msg implements \ArrayAccess
 	 * @param bool $notify Whether to notify users
 	 * @return bool Whether the operation was successful
 	 */
-	public static function approve(array $msgs, bool $approve = true, bool $notify = true): bool
+	public static function approve(array|int $msgs, bool $approve = true, bool $notify = true): bool
 	{
+		// @TODO: $msgs = (array) $msgs;
 		if (!is_array($msgs)) {
 			$msgs = [$msgs];
 		}
@@ -2186,7 +2188,6 @@ class Msg implements \ArrayAccess
 				'content_action' => $content_action,
 				'unread' => 0,
 			],
-			true,
 		);
 	}
 
@@ -2198,17 +2199,18 @@ class Msg implements \ArrayAccess
 	 * Note that id_last_msg should always be updated using this function,
 	 * and is not automatically updated upon other changes.
 	 *
-	 * @param array $setboards An array of board IDs
+	 * @param int|array $setboards An array of board IDs
 	 * @param int $id_msg The ID of the message
 	 * @return false Returns false if $setboards is empty for some reason
 	 */
-	public static function updateLastMessages(array $setboards, int $id_msg = 0): bool
+	public static function updateLastMessages(int|array $setboards, int $id_msg = 0): bool
 	{
 		// Please - let's be sane.
 		if (empty($setboards)) {
 			return false;
 		}
 
+		// @TODO: $setboards = (array) $setboards;
 		if (!is_array($setboards)) {
 			$setboards = [$setboards];
 		}
@@ -2258,7 +2260,7 @@ class Msg implements \ArrayAccess
 			if (!empty(Board::$info->id) && $id_board == Board::$info->id) {
 				$parents = Board::$info->parent_boards;
 			} else {
-				$parents = Board::getParents($id_board);
+				$parents = Board::getParents((int) $id_board);
 			}
 
 			// Ignore any parents on the top child level.
@@ -2468,7 +2470,7 @@ class Msg implements \ArrayAccess
 				ErrorHandler::fatalLang('delFirstPost', false);
 			}
 
-			Topic::remove($row['id_topic']);
+			Topic::remove((int) $row['id_topic']);
 
 			return true;
 		}
@@ -2719,7 +2721,7 @@ class Msg implements \ArrayAccess
 		// If the poster was registered and the board this message was on incremented
 		// the member's posts when it was posted, decrease his or her post count.
 		if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved']) {
-			User::updateMemberData($row['id_member'], ['posts' => '-']);
+			User::updateMemberData((int) $row['id_member'], ['posts' => '-']);
 		}
 
 		// Only remove posts if they're not recycled.
@@ -2828,7 +2830,7 @@ class Msg implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{

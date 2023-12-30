@@ -402,7 +402,7 @@ class Mail
 
 		// By default send 5 at once.
 		if (!$number) {
-			$number = empty(Config::$modSettings['mail_quantity']) ? 5 : Config::$modSettings['mail_quantity'];
+			$number = empty(Config::$modSettings['mail_quantity']) ? 5 : (int) Config::$modSettings['mail_quantity'];
 		}
 
 		// If we came with a timestamp, and that doesn't match the next event, then someone else has beaten us.
@@ -970,9 +970,9 @@ class Mail
 	 * @param resource $socket Socket to send on. Type hinting calls it 'mixed' as resource can not be used.
 	 * @param ?string $code The expected response code
 	 * @param string $response The response from the SMTP server
-	 * @return bool Whether it responded as such.
+	 * @return bool|string Whether it responded as such. Otherwise the response code is resturned.
 	 */
-	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool
+	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool|string
 	{
 		if ($message !== null) {
 			fputs($socket, $message . "\r\n");

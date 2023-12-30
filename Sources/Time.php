@@ -376,7 +376,7 @@ class Time extends \DateTime implements \ArrayAccess
 				break;
 
 			case 'iso_gmdate':
-				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c', false, false);
+				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c');
 				break;
 
 			case 'timestamp':
@@ -954,7 +954,7 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Backward compatibility wrapper for the format method.
 	 *
-	 * @param int $log_time A timestamp.
+	 * @param int|string $log_time A timestamp.
 	 * @param bool|string $show_today Whether to show "Today"/"Yesterday" or
 	 *    just a date. If a string is specified, that is used to temporarily
 	 *    override the date format.
@@ -965,8 +965,10 @@ class Time extends \DateTime implements \ArrayAccess
 	 *    be used.
 	 * @return string A formatted time string
 	 */
-	public static function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
+	public static function timeformat(int|string $log_time, bool|string $show_today = true, ?string $tzid = null): string
 	{
+		$log_time = (int) $log_time;
+
 		// For backward compatibility, replace empty values with the user's time
 		// zone and replace anything invalid with the forum's default time zone.
 		$tzid = empty($tzid) ? User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : $tzid);

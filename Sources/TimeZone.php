@@ -2570,7 +2570,7 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Parseable datetime string?
-		if (is_int($timestamp = strtotime($when))) {
+		if (is_int($timestamp = strtotime((string) $when))) {
 			$start = $timestamp;
 		}
 		// A Unix timestamp?

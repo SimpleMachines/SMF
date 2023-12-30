@@ -354,12 +354,12 @@ class Theme
 	 *  - Detects a wrong default theme directory and tries to work around it.
 	 *
 	 * @uses self::templateInclude() to include the file.
-	 * @param string $template_name The name of the template to load
+	 * @param string|bool $template_name The name of the template to load.  If false, only style sheets are loaded.
 	 * @param array|string $style_sheets The name of a single stylesheet or an array of names of stylesheets to load
 	 * @param bool $fatal If true, dies with an error message if the template cannot be found
-	 * @return bool Whether or not the template was loaded
+	 * @return ?bool Whether or not the template was loaded
 	 */
-	public static function loadTemplate(string $template_name, array|string $style_sheets = [], bool $fatal = true): bool
+	public static function loadTemplate(string|bool $template_name, array|string $style_sheets = [], bool $fatal = true): ?bool
 	{
 		// Do any style sheets first, cause we're easy with those.
 		if (!empty($style_sheets)) {
@@ -396,6 +396,8 @@ class Theme
 			if (function_exists('template_' . $template_name . '_init')) {
 				call_user_func('template_' . $template_name . '_init');
 			}
+
+			return true;
 		}
 		// Hmmm... doesn't exist?!  I don't suppose the directory is wrong, is it?
 		elseif (!file_exists(self::$current->settings['default_theme_dir']) && file_exists(Config::$boarddir . '/Themes/default')) {
@@ -420,6 +422,8 @@ class Theme
 		} else {
 			return false;
 		}
+
+		return null;
 	}
 
 	/**
@@ -941,7 +945,7 @@ class Theme
 		Utils::$context['allow_moderation_center'] = User::$me->can_mod;
 		Utils::$context['allow_pm'] = User::$me->allowedTo('pm_read');
 
-		$cacheTime = Config::$modSettings['lastActive'] * 60;
+		$cacheTime = (int) Config::$modSettings['lastActive'] * 60;
 
 		// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
 		if (!isset(Utils::$context['allow_calendar_event'])) {

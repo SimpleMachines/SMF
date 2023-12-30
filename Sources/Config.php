@@ -1718,7 +1718,7 @@ class Config
 				// A setting to delete.
 				if (!empty($setting_def['auto_delete']) && empty($new_settings_vars[$var])) {
 					if ($setting_def['auto_delete'] === 2 && empty($rebuild) && in_array($var, array_keys($new_settings_vars))) {
-						$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ';';
+						$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var])) . ';';
 					} else {
 						$replacement = '';
 						$substitutions[$var]['placeholder'] = '';
@@ -1729,11 +1729,11 @@ class Config
 				}
 				// Add this setting's value.
 				elseif (in_array($var, array_keys($new_settings_vars))) {
-					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ';';
+					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var])) . ';';
 				}
 				// Fall back to the default value.
 				elseif (isset($setting_def['default'])) {
-					$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : self::varExport($setting_def['default'], true)) . ';';
+					$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : self::varExport($setting_def['default'])) . ';';
 				}
 				// This shouldn't happen, but we've got nothing.
 				else {
@@ -1767,7 +1767,7 @@ class Config
 
 			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 			$substitutions[$var]['placeholder'] = $placeholder;
-			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val, true) . ';';
+			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val) . ';';
 		}
 
 		// During an upgrade, some of the path variables may not have been declared yet.
@@ -2886,7 +2886,7 @@ class Config
 	public static function memoryReturnBytes(string $val): int
 	{
 		if (is_integer($val)) {
-			return $val;
+			return (int) $val;
 		}
 
 		// Separate the number from the designator.
