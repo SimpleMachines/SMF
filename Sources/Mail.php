@@ -793,7 +793,7 @@ class Mail
 		}
 
 		// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
-		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
+		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : (int) Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
 			// Maybe we can still save this?  The port might be wrong.
 			if (substr(Config::$modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
 				// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.

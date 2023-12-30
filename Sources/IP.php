@@ -424,21 +424,25 @@ class IP implements \Stringable
 	 * Convert a range of IP addresses into a single string.
 	 * It's practically the reverse function of ip2range().
 	 *
-	 * @param string $low The low end of the range.
-	 * @param string $high The high end of the range.
+	 * @param string|IP $low The low end of the range.
+	 * @param string|IP $high The high end of the range.
 	 * @return string A string indicating the range.
 	 */
-	public static function range2ip(string $low, string $high): string
+	public static function range2ip(string|IP $low, string|IP $high): string
 	{
-		$low = new IP($low);
-		$high = new IP($high);
+		if (!$low instanceof IP) {
+			$low = new IP($low);
+		}
+		if (!$high instanceof IP) {
+			$high = new IP($high);
+		}
 
 		if ($low == '255.255.255.255') {
 			return 'unknown';
 		}
 
 		if ($low == $high) {
-			return $low;
+			return (string) $low;
 		}
 
 		return $low . '-' . $high;

@@ -693,7 +693,7 @@ class Category implements \ArrayAccess
 
 		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
 			if (!isset(self::$loaded[$row['id_cat']])) {
-				self::init($row['id_cat'], [
+				self::init((int) $row['id_cat'], [
 					'name' => $row['cat_name'],
 					'description' => $row['cat_desc'],
 					'order' => $row['cat_order'],
@@ -717,7 +717,7 @@ class Category implements \ArrayAccess
 				$row['deny_member_groups'] = explode(',', $row['deny_member_groups']);
 				$row['prev_board'] = $prevBoard;
 
-				Board::init($row['id_board'], $row);
+				Board::init((int) $row['id_board'], $row);
 
 				$prevBoard = $row['id_board'];
 				$last_board_order = $row['board_order'];

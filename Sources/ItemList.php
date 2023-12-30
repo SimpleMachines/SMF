@@ -121,7 +121,7 @@ class ItemList implements \ArrayAccess
 	 *
 	 * The page index for navigating this list.
 	 */
-	public string $page_index;
+	public PageIndex $page_index;
 
 	/**
 	 * @var array
@@ -351,7 +351,7 @@ class ItemList implements \ArrayAccess
 
 			$params = $this->options['get_count']['params'] ?? [];
 
-			$this->total_num_items = call_user_func_array($call, array_values($params));
+			$this->total_num_items = (int) call_user_func_array($call, array_values($params));
 		}
 
 		// Default the start to the beginning...sounds logical.
@@ -368,7 +368,13 @@ class ItemList implements \ArrayAccess
 			return;
 		}
 
-		$this->page_index = new PageIndex($this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''), $this->start, $this->total_num_items, $this->items_per_page, $this->start_var_name != 'start');
+		$this->page_index = new PageIndex(
+			$this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''),
+			$this->start,
+			$this->total_num_items,
+			$this->items_per_page,
+			$this->start_var_name != 'start'
+		);
 	}
 
 	/**
@@ -408,14 +414,14 @@ class ItemList implements \ArrayAccess
 				}
 				// Take the value from the database and make it HTML safe.
 				elseif (isset($column['data']['db_htmlsafe'])) {
-					$cur_data['value'] = Utils::htmlspecialchars($list_item[$column['data']['db_htmlsafe']]);
+					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$column['data']['db_htmlsafe']]);
 				}
 				// Using sprintf is probably the most readable way of injecting data.
 				elseif (isset($column['data']['sprintf'])) {
 					$params = [];
 
 					foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe) {
-						$params[] = $htmlsafe ? Utils::htmlspecialchars($list_item[$sprintf_param]) : $list_item[$sprintf_param];
+						$params[] = $htmlsafe ? Utils::htmlspecialchars((string) $list_item[$sprintf_param]) : $list_item[$sprintf_param];
 					}
 
 					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);

@@ -4686,20 +4686,20 @@ class User implements \ArrayAccess
 		$this->is_mod = in_array(3, $this->groups) || !empty($profile['is_mod']);
 		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
 		$this->is_banned = $this->is_activated >= 10;
-		$this->is_online = (bool) $profile['is_online'] ?? $is_me;
+		$this->is_online = (bool) ($profile['is_online'] ?? $is_me);
 
 		// User activity and history.
-		$this->show_online = (bool) $profile['show_online'] ?? false;
+		$this->show_online = (bool) ($profile['show_online'] ?? false);
 		$this->url = $profile['url'] ?? '';
-		$this->last_login = (int) $profile['last_login'] ?? 0;
-		$this->id_msg_last_visit = (int) $profile['id_msg_last_visit'] ?? 0;
-		$this->total_time_logged_in = (int) $profile['total_time_logged_in'] ?? 0;
-		$this->date_registered = (int) $profile['date_registered'] ?? 0;
-		$this->ip = $is_me ? $_SERVER['REMOTE_ADDR'] : ((string) $profile['member_ip'] ?? '');
-		$this->ip2 = $is_me ? $_SERVER['BAN_CHECK_IP'] : ((string) $profile['member_ip2'] ?? '');
+		$this->last_login = (int) ($profile['last_login'] ?? 0);
+		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
+		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
+		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
+		$this->ip = (string) ($is_me ? $_SERVER['REMOTE_ADDR'] : $profile['member_ip'] ?? '');
+		$this->ip2 = (string) ($is_me ? $_SERVER['BAN_CHECK_IP'] : $profile['member_ip2'] ?? '');
 
 		// Additional profile info.
-		$this->posts = (int) $profile['posts'] ?? 0;
+		$this->posts = (int) ($profile['posts'] ?? 0);
 		$this->title = $profile['usertitle'] ?? '';
 		$this->signature = $profile['signature'] ?? '';
 		$this->personal_text = $profile['personal_text'] ?? '';
@@ -4708,27 +4708,27 @@ class User implements \ArrayAccess
 		$this->website['title'] = $profile['website_title'] ?? '';
 
 		// Presentation preferences.
-		$this->theme = (int) $profile['id_theme'] ?? 0;
-		$this->options = (array) $profile['options'] ?? [];
+		$this->theme = (int) ($profile['id_theme'] ?? 0);
+		$this->options = (array) ($profile['options'] ?? []);
 		$this->smiley_set = $profile['smiley_set'] ?? '';
 
 		// Localization.
 		$this->setLanguage();
 		$this->time_format = empty($profile['time_format']) ? Config::$modSettings['time_format'] : $profile['time_format'];
 		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'];
-		$this->time_offset = (int) $profile['time_offset'] ?? 0;
+		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
 
 		// Buddies and personal messages.
 		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
 		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
-		$this->pm_receive_from = (int) $profile['pm_receive_from'] ?? 0;
-		$this->pm_prefs = (int) $profile['pm_prefs'] ?? 0;
-		$this->messages = (int) $profile['instant_messages'] ?? 0;
-		$this->unread_messages = (int) $profile['unread_messages'] ?? 0;
-		$this->new_pm = (int) $profile['new_pm'] ?? 0;
+		$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
+		$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
+		$this->messages = (int) ($profile['instant_messages'] ?? 0);
+		$this->unread_messages = (int) ($profile['unread_messages'] ?? 0);
+		$this->new_pm = (int) ($profile['new_pm'] ?? 0);
 
 		// What does the user want to see or know about?
-		$this->alerts = (int) $profile['alerts'] ?? 0;
+		$this->alerts = (int) ($profile['alerts'] ?? 0);
 		$this->ignoreboards = !empty($profile['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
 
 		// Extended membergroup info.
@@ -4760,7 +4760,7 @@ class User implements \ArrayAccess
 
 		// Info about stuff related to permissions.
 		// Note that we set $this->permissions elsewhere.
-		$this->warning = (int) $profile['warning'] ?? 0;
+		$this->warning = (int) ($profile['warning'] ?? 0);
 		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
 		foreach (self::buildQueryBoard($this->id) as $key => $value) {
@@ -5247,10 +5247,10 @@ class User implements \ArrayAccess
 						self::logSpider();
 					}
 
-					$this->possibly_robot = !empty($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
+					$this->possibly_robot = !empty($_SESSION['id_robot']);
 				}
 			} elseif (!empty(Config::$modSettings['spider_mode'])) {
-				$this->possibly_robot = $_SESSION['id_robot'] ?? 0;
+				$this->possibly_robot = !empty($_SESSION['id_robot']);
 			}
 			// If we haven't turned on proper spider hunts then have a guess!
 			else {

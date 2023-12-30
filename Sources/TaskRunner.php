@@ -319,9 +319,9 @@ class TaskRunner
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// What kind of task are we handling?
 			if (!empty($row['callable'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['callable'], true);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], $row['callable'], true);
 			} elseif (!empty($row['task'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['task']);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], $row['task']);
 			} else {
 				continue;
 			}
@@ -434,7 +434,7 @@ class TaskRunner
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$next_time = self::getNextScheduledTime($row['time_regularity'], $row['time_unit'], $row['time_offset']);
+			$next_time = self::getNextScheduledTime((int) $row['time_regularity'], $row['time_unit'], (int) $row['time_offset']);
 
 			// Only bother moving the task if it's out of place or we're forcing it!
 			if ($force_update || $next_time < $row['next_time'] || $row['next_time'] < time()) {
