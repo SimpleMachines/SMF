@@ -32,6 +32,7 @@ class PruneLogTopics extends ScheduledTask
 	 *
 	 * @return bool Always returns true.
 	 * @todo PHP 8.2: This can be changed to return type: true.
+	 * @suppress PHP0417
 	 */
 	public function execute(): bool
 	{

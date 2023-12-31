@@ -2976,6 +2976,8 @@ class SubsPackage
 	 *
 	 * @param string $id The name of the backup
 	 * @return bool True if it worked, false if it didn't
+	 * @suppress PHP0417
+	 * 
 	 */
 	public static function package_create_backup(string $id = 'backup'): bool
 	{

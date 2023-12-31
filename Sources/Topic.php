@@ -1130,6 +1130,7 @@ class Topic implements \ArrayAccess
 	 * @param bool $decreasePostCount Whether to decrease the users' post counts
 	 * @param bool $ignoreRecycling Whether to ignore recycling board settings
 	 * @param bool $updateBoardCount Whether to adjust topic counts for the boards
+	 * @suppress PHP0417
 	 */
 	public static function remove(int|array $topics, bool $decreasePostCount = true, bool $ignoreRecycling = false, bool $updateBoardCount = true): void
 	{

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use PhpParser\Node\Expr\Isset_;
 use SMF\Cache\CacheApi;
 
 /**
@@ -146,7 +147,7 @@ class Lang
 	 *
 	 * Tracks the value of $forum_copyright for different languages.
 	 */
-	private static $localized_copyright = [];
+	private static array $localized_copyright = [];
 
 	/***********************
 	 * Public static methods
@@ -204,6 +205,14 @@ class Lang
 
 			foreach ($attempts as $k => $file) {
 				if (file_exists($file[0] . '/' . $file[1] . '.' . $file[2] . '.php')) {
+					/**
+					 * @var string $forum_copyright
+					 * @var array $txt
+					 * @var array $txtBirthdayEmails
+					 * @var array $tztxt
+					 * @var array $editortxt
+					 * @var array $helptxt
+					*/
 					// Include it!
 					require $file[0] . '/' . $file[1] . '.' . $file[2] . '.php';
 

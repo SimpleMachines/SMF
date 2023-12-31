@@ -882,7 +882,7 @@ class User implements \ArrayAccess
 	private bool $already_verified = false;
 
 	/**
-	 * @var array
+	 * @var string
 	 *
 	 * The dataset that was loaded for this user.
 	 */

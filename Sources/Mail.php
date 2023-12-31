@@ -62,6 +62,7 @@ class Mail
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether ot not the email was sent properly.
+	 * @suppress PHP0417
 	 */
 	public static function send(
 		array|string $to,
@@ -385,6 +386,7 @@ class Mail
 	 * @param bool $override_limit Whether to bypass the limit
 	 * @param bool $force_send Whether to forcibly send the messages now (useful when using cron jobs)
 	 * @return bool Whether things were sent
+	 * @suppress PHP0417
 	 */
 	public static function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
 	{
@@ -764,6 +766,7 @@ class Mail
 	 * @param string $message Email message
 	 * @param string $headers Email headers
 	 * @return bool Whether it sent or not.
+	 * @suppress PHP0417
 	 */
 	public static function sendSmtp(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{

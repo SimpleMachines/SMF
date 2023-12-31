@@ -544,6 +544,7 @@ class Msg implements \ArrayAccess
 		self::$keep_all = true;
 		$ids = (array) $ids;
 
+		/** @var \SMF\Msg $msg */
 		foreach (self::get($ids, $query_customizations) as $msg) {
 			$loaded[$msg->id] = $msg;
 		}
@@ -949,7 +950,7 @@ class Msg implements \ArrayAccess
 		$message = preg_replace_callback(
 			'~\[time\](\d{0,10})\[/time\]~i',
 			function ($matches) {
-				return '[time]' . Time::create('@' . $matches[1])->setTimezone(new \DateTimeZone(User::getTimezone()))->format(null, false) . '[/time]';
+				return '[time]' . Time::create('@' . $matches[1])->setTimezone(new \DateTimeZone(User::getTimezone()))->format(Time::getDateFormat()) . '[/time]';
 			},
 			$message,
 		);

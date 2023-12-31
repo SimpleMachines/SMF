@@ -181,7 +181,7 @@ class Config
 	 */
 	public static $cache_enable;
 	/**
-	 * @var array
+	 * @var string
 	 *
 	 * This is only used for the memcache / memcached cache systems.
 	 * Should be a string of 'server:port,server:port'

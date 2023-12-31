@@ -1727,11 +1727,12 @@ class Utils
 	 * Tries different modes to make files or directories writable.
 	 *
 	 * Wrapper function for PHP's chmod().
-	 *
+	 * 
 	 * @param string $path The full path of the file or directory.
+	 * @param array|string|null $chmod Specify a chmod, if left blank, SMF will auto pick the writable values.
 	 * @return bool Whether the file/dir exists and is now writable.
 	 */
-	public static function makeWritable(string $path): bool
+	public static function makeWritable(string $path, array|string|null $chmod = null): bool
 	{
 		// No file? no checks!
 		if (empty($path)) {
@@ -1744,7 +1745,7 @@ class Utils
 		}
 
 		// Set different modes.
-		$chmod_values = is_dir($path) ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666];
+		$chmod_values = !empty($chmod) ? (array) $chmod : (is_dir($path) ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666]);
 
 		foreach ($chmod_values as $val) {
 			// If it's writable now, we're done.

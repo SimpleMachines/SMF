@@ -254,6 +254,7 @@ class Folder
 			return PM::$getter->valid();
 		}
 
+		/** @var \SMF\PersonalMessage\PM $message */
 		$message = PM::$getter->current();
 		PM::$getter->next();
 

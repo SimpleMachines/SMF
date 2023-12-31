@@ -32,6 +32,7 @@ class SearchResult extends PM
 	 */
 	public static function getFormatted(int|array $ids, array $query_customizations = []): \Generator
 	{
+		/** @var \SMF\PersonalMessage\PM $pm */
 		foreach (parent::get($ids, $query_customizations) as $pm) {
 			$output = $pm->format(0, ['no_bcc' => true]);
 

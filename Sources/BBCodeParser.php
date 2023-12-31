@@ -1071,6 +1071,7 @@ class BBCodeParser
 	 * Constructor.
 	 *
 	 * @return object A reference to this object for method chaining.
+	 * @suppress PHP0436
 	 */
 	public function __construct()
 	{
@@ -1359,6 +1360,7 @@ class BBCodeParser
 	 *
 	 * @param string $string Text containing HTML.
 	 * @return string The string with HTML converted to BBC.
+	 * @suppress PHP0417
 	 */
 	public function unparse(string $string): string
 	{

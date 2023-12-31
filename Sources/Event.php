@@ -1115,7 +1115,7 @@ class Event implements \ArrayAccess
 			return 0;
 		}
 
-		return date_interval_format(date_diff($this->start, $this->end), '%a') + ($this->end->format('H') < $this->start->format('H') ? 2 : 1);
+		return ((int) $this->start->diff($this->end)->format('%a')) + ($this->end->format('H') < $this->start->format('H') ? 2 : 1);
 	}
 
 	/**

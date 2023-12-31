@@ -1252,6 +1252,8 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
+	 * 
+	 * @suppress PHP0417
 	 */
 	protected function exportHtml(): void
 	{
