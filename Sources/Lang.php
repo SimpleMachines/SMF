@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use PhpParser\Node\Expr\Isset_;
 use SMF\Cache\CacheApi;
 
 /**
