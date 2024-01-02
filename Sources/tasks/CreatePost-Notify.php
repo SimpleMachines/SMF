@@ -570,7 +570,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			else
 				$user_info = null;
 
-			// Bitwise check: Receiving a alert?
+			// Bitwise check: Receiving an alert?
 			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$this->alert_rows[] = array(
@@ -592,7 +592,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 			}
 
-			// Bitwise check: Receiving a email notification?
+			// Bitwise check: Receiving an email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$itemID = $content_type == 'board' ? $topicOptions['board'] : $topicOptions['id'];
@@ -663,7 +663,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 			}
 
-			// Bitwise check: Receiving a email notification?
+			// Bitwise check: Receiving an email notification?
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL))
 			{
 				// Don't want an email, so forget this member in any respawned tasks.
@@ -738,7 +738,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			}
 
 
-			// Bitwise check: Receiving a email notification?
+			// Bitwise check: Receiving an email notification?
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL))
 			{
 				// Don't want an email, so forget this member in any respawned tasks.

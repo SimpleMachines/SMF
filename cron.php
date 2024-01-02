@@ -182,7 +182,7 @@ function fetch_task()
 	);
 	if ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// We found one. Let's try and claim it immediately.
+		// We found one. Let's try to claim it immediately.
 		$smcFunc['db_free_result']($request);
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}background_tasks

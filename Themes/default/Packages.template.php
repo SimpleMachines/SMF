@@ -258,7 +258,7 @@ function template_view_package()
 				</div>
 				<table class="table_grid">';
 
-			// Loop through each theme and display it's name, and then it's details.
+			// Loop through each theme and display its name, and then its details.
 			foreach ($context['theme_actions'] as $id => $theme)
 			{
 				// Pass?

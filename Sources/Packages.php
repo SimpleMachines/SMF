@@ -1960,7 +1960,7 @@ function PackagePermissions()
 {
 	global $context, $txt, $modSettings, $boarddir, $sourcedir, $cachedir, $smcFunc, $package_ftp;
 
-	// Let's try and be good, yes?
+	// Let's try to be good, yes?
 	checkSession('get');
 
 	// If we're restoring permissions this is just a pass through really.

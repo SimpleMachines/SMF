@@ -1986,7 +1986,7 @@ function create_control_richedit($editorOptions)
 }
 
 /**
- * Create a anti-bot verification control?
+ * Create an anti-bot verification control?
  *
  * @param array &$verificationOptions Options for the verification control
  * @param bool $do_test Whether to check to see if the user entered the code correctly
@@ -2443,7 +2443,7 @@ function AutoSuggest_Search_SMFVersions()
 		),
 	);
 
-	// First try and get it from the database.
+	// First try to get it from the database.
 	$versions = array();
 	$request = $smcFunc['db_query']('', '
 		SELECT data

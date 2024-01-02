@@ -50,7 +50,7 @@ function Login()
 	 * OR we have found:
 	 *		1. valid cors host
 	 *  	2. A header indicating a SMF request
-	 *  	3. The url has a ajax in either the GET or POST
+	 *  	3. The url has an ajax in either the GET or POST
 	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
 	*/
 	if (
@@ -123,7 +123,7 @@ function Login2()
 	 * OR we have found:
 	 *		1. valid cors host
 	 *  	2. A header indicating a SMF request
-	 *  	3. The url has a ajax in either the GET or POST
+	 *  	3. The url has an ajax in either the GET or POST
 	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
 	*/
 	if (
@@ -506,7 +506,7 @@ function LoginTFA()
 	 * OR we have found:
 	 *		1. valid cors host
 	 *  	2. A header indicating a SMF request
-	 *  	3. The url has a ajax in either the GET or POST
+	 *  	3. The url has an ajax in either the GET or POST
 	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
 	*/
 	if (

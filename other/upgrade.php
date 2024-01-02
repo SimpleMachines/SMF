@@ -4388,7 +4388,7 @@ function template_backup_database()
 						<span id="debuginfo"></span>
 					</div>';
 
-	// Dont any tables so far?
+	// Don't any tables so far?
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
@@ -4978,7 +4978,7 @@ function template_serialize_json()
 						<span id="debuginfo"></span>
 					</div>';
 
-	// Dont any tables so far?
+	// Don't any tables so far?
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '

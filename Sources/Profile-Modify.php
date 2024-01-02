@@ -1281,7 +1281,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				$value = $smcFunc['htmltrim']($value);
 				$valueReference = un_htmlspecialchars($value);
 
-				// Try and avoid some checks. '0' could be a valid non-empty value.
+				// Try to avoid some checks. '0' could be a valid non-empty value.
 				if (empty($value) && !is_numeric($value))
 					$value = '';
 
@@ -1390,7 +1390,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 }
 
 /**
- * Show all the users buddies, as well as a add/delete interface.
+ * Show all the users buddies, as well as an add/delete interface.
  *
  * @param int $memID The ID of the member
  */
@@ -1435,7 +1435,7 @@ function editBuddyIgnoreLists($memID)
 }
 
 /**
- * Show all the users buddies, as well as a add/delete interface.
+ * Show all the users buddies, as well as an add/delete interface.
  *
  * @param int $memID The ID of the member
  */

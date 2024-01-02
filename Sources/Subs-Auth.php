@@ -486,7 +486,7 @@ function JSMembers()
 	else
 		$_REQUEST['start'] = 0;
 
-	// Allow the user to pass the input to be added to to the box.
+	// Allow the user to pass the input to be added to the box.
 	$context['input_box_name'] = isset($_REQUEST['input']) && preg_match('~^[\w-]+$~', $_REQUEST['input']) === 1 ? $_REQUEST['input'] : 'to';
 
 	// Take the delimiter over GET in case it's \n or something.

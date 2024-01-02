@@ -150,7 +150,7 @@ function getFileVersions(&$versionOptions)
 		$header = fread($fp, 4096);
 		fclose($fp);
 
-		// The comment looks rougly like... that.
+		// The comment looks roughly like... that.
 		if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1)
 			$version_info['file_versions']['SSI.php'] = $match[1];
 		// Not found!  This is bad.
@@ -2163,8 +2163,8 @@ function strip_php_comments($code_str)
  * - If it fails Settings.php will assume 0
  *
  * @param int $time The timestamp of the last DB error
- * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
- * @return bool True If we could succesfully put the file or not.
+ * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know an error was logged since the last check.
+ * @return bool True If we could successfully put the file or not.
  */
 function updateDbLastError($time, $update = true)
 {

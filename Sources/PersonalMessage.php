@@ -2492,7 +2492,7 @@ function MessagePost2()
 			$post_errors = array_merge($post_errors, $context['require_verification']);
 	}
 
-	// If they did, give a chance to make ammends.
+	// If they did, give a chance to make amends.
 	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']) && !isset($_REQUEST['xml']))
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 

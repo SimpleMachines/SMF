@@ -953,7 +953,7 @@ function AdminLogs()
 }
 
 /**
- * This ends a admin session, requiring authentication to access the ACP again.
+ * This ends an admin session, requiring authentication to access the ACP again.
  */
 function AdminEndSession()
 {

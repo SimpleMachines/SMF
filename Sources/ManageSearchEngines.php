@@ -696,7 +696,7 @@ function SpiderLogs()
 		{
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
-			// Delete the entires.
+			// Delete the entries.
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_spider_hits
 				WHERE log_time < {int:delete_period}',
@@ -895,7 +895,7 @@ function SpiderStats()
 
 		$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
-		// Delete the entires.
+		// Delete the entries.
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_spider_stats
 			WHERE last_seen < {int:delete_period}',

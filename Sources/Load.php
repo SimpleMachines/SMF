@@ -1553,7 +1553,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
 
-	// We add or replace according the the set
+	// We add or replace according to the set
 	switch ($set)
 	{
 		case 'normal':
@@ -2795,13 +2795,13 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * @param string $fileName The name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
+ * 	- ['external'] (true/false): define if the file is an externally located file. Needs to be set to true if you are loading an external file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
- *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
+ *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file that's loaded everywhere and for everyone.
  *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index.css = -500, after index.css = 500, middle = 3000, end (i.e. after responsive.css) = 10000
  *  - ['attributes'] array extra attributes to add to the element
  * @param string $id An ID to stick on the end of the filename for caching purposes
@@ -2912,7 +2912,7 @@ function addInlineCss($css)
  * @param string $fileName The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
+ * 	- ['external'] (true/false): define if the file is an externally located file. Needs to be set to true if you are loading an external file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
@@ -2920,7 +2920,7 @@ function addInlineCss($css)
  *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
- *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
+ *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file that's loaded everywhere and for everyone.
  *  - ['attributes'] array extra attributes to add to the element
  *
  * @param string $id An ID to stick on the end of the filename

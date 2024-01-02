@@ -251,7 +251,7 @@ class curl_fetch_web_data
 	{
 		$max_result = count($this->response) - 1;
 
-		// just return a specifed area or the entire result?
+		// just return a specified area or the entire result?
 		if ($area == '')
 			return $this->response[$max_result];
 		else

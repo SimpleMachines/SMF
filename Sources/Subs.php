@@ -1508,7 +1508,7 @@ function get_signature_allowed_bbc_tags()
  * - returns the modified message.
  *
  * @param string|bool $message The message.
- *		When a empty string, nothing is done.
+ *		When an empty string, nothing is done.
  *		When false we provide a list of BBC codes available.
  *		When a string, the message is parsed and bbc handled.
  * @param bool $smileys Whether to parse smileys as well
@@ -5103,7 +5103,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
 
-	// Just make sure that attachment id is only a int
+	// Just make sure that attachment id is only an int
 	$attachment_id = (int) $attachment_id;
 
 	// Grab the file hash if it wasn't added.
@@ -8327,14 +8327,14 @@ function array_length($array, $deep = 3)
 }
 
 /**
- * Compares existance request variables against an array.
+ * Compares existence request variables against an array.
  *
  * The input array is associative, where keys denote accepted values
  * in a request variable denoted by `$req_val`. Values can be:
  *
  * - another associative array where at least one key must be found
  *   in the request and their values are accepted request values.
- * - A scalar value, in which case no furthur checks are done.
+ * - A scalar value, in which case no further checks are done.
  *
  * @param array $array
  * @param string $req_var request variable

@@ -689,7 +689,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 
 		foreach ($columns as $columnName => $type)
 		{
-			//check pk fiel
+			//check pk field
 			IF (in_array($columnName, $keys))
 			{
 				$key_str .= ($count_pk > 0 ? ',' : '');

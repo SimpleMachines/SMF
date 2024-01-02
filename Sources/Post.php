@@ -1625,7 +1625,7 @@ function Post($post_errors = array())
 		// Prior to 2.1.4, the edit reason was not handled as a posting field,
 		// but instead using a hardcoded input in the template file. We've fixed
 		// that in the default theme, but to support any custom themes based on
-		// the old verison, we do this to fix it for them.
+		// the old version, we do this to fix it for them.
 		addInlineCss("\n\t" . '#caption_edit_reason, dl:not(#post_header) input[name="modify_reason"] { display: none; }');
 		addInlineJavaScript("\n\t" . '$("#caption_edit_reason").remove(); $("dl:not(#post_header) input[name=\"modify_reason\"]").remove();', true);
 	}

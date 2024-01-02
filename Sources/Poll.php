@@ -327,7 +327,7 @@ function EditPoll()
 		)
 	);
 
-	// Assume the the topic exists, right?
+	// Assume the topic exists, right?
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
 

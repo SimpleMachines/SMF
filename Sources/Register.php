@@ -275,7 +275,7 @@ function Register2()
 	if (!isset($_SESSION['old_url']))
 		redirectexit('action=signup');
 
-	// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
+	// If we require neither an agreement nor a privacy policy, we need an extra check for coppa.
 	if (empty($modSettings['requireAgreement']) && empty($modSettings['requirePolicyAgreement']) && !empty($modSettings['coppaAge']))
 		$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
 

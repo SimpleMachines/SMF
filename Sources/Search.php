@@ -1107,7 +1107,7 @@ function PlushSearch2()
 
 			if ($search_params['subject_only'])
 			{
-				// We do this to try and avoid duplicate keys on databases not supporting INSERT IGNORE.
+				// We do this to try to avoid duplicate keys on databases not supporting INSERT IGNORE.
 				$inserts = array();
 
 				foreach ($searchWords as $orIndex => $words)

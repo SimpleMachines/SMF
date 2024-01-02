@@ -65,7 +65,7 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
  * - destination should not begin with a / if single_file is true.
  *
  * overwrites existing files with newer modification times if and only if overwrite is true.
- * creates the destination directory if it doesn't exist, and is is specified.
+ * creates the destination directory if it doesn't exist, and is specified.
  * requires zlib support be built into PHP.
  * returns an array of the files extracted.
  * if files_to_extract is not equal to null only extracts file within this array.
@@ -437,7 +437,7 @@ function loadInstalledPackages()
 /**
  * Loads a package's information and returns a representative array.
  * - expects the file to be a package in Packages/.
- * - returns a error string if the package-info is invalid.
+ * - returns an error string if the package-info is invalid.
  * - otherwise returns a basic array of id, version, filename, and similar information.
  * - an xmlArray is available in 'xml'.
  *
@@ -688,7 +688,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 		require_once($sourcedir . '/Subs-List.php');
 		createList($listOptions);
 
-		// If we just restored permissions then whereever we are, we are now done and dusted.
+		// If we just restored permissions then wherever we are, we are now done and dusted.
 		if (!empty($_POST['restore_perms']))
 			obExit();
 	}

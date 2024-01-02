@@ -333,7 +333,7 @@ function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 	return false;
 }
 
-// Open a overlay div
+// Open an overlay div
 function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details

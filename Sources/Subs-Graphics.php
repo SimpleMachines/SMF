@@ -953,7 +953,7 @@ function showCodeImage($code)
 	// Give the image a border?
 	$hasBorder = $simpleBGColor;
 
-	// The amount of pixels inbetween characters.
+	// The amount of pixels in-between characters.
 	$character_spacing = 1;
 
 	// What color is the background - generally white unless we're on "hard".

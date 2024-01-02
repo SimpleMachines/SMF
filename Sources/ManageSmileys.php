@@ -2236,7 +2236,7 @@ function EditMessageIcons()
 			foreach (array('icon_filename', 'icon_description') as $key)
 				$_POST[$key] = $smcFunc['normalize']($_POST[$key]);
 
-			// Do some preperation with the data... like check the icon exists *somewhere*
+			// Do some preparation with the data... like check the icon exists *somewhere*
 			if (strpos($_POST['icon_filename'], '.png') !== false)
 				$_POST['icon_filename'] = substr($_POST['icon_filename'], 0, -4);
 			if (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.png'))
