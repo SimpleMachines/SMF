@@ -85,6 +85,21 @@ class Folder
 	 */
 	public object $requested_pm;
 
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Instructions for sorting the personal messages.
+	 */
+	public static $sort_methods = [
+		'date' => 'pm.id_pm',
+		'name' => 'COALESCE(mem.real_name, \'\')',
+		'subject' => 'pm.subject',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -198,7 +213,7 @@ class Folder
 		Utils::$context['page_title'] = Lang::$txt['pm_inbox'];
 
 		// Finally mark the relevant messages as read.
-		if ($this->is_inbox && !empty(self::$labels[(int) $this->current_label_id]['unread_messages'])) {
+		if ($this->is_inbox && !empty(Label::$loaded[(int) $this->current_label_id]['unread_messages'])) {
 			PM::markRead($display_pms, $this->current_label_id);
 		}
 	}

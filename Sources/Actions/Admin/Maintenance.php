@@ -291,8 +291,7 @@ class Maintenance implements ActionInterface
 
 		// Call the function that'll get all the version info we need.
 		$versionOptions = [
-			'include_ssi' => true,
-			'include_subscriptions' => true,
+			'include_root' => true,
 			'include_tasks' => true,
 			'sort_results' => true,
 		];
@@ -300,6 +299,7 @@ class Maintenance implements ActionInterface
 
 		// Add the new info to the template context.
 		Utils::$context += [
+			'root_versions' => $version_info['root_versions'],
 			'file_versions' => $version_info['file_versions'],
 			'default_template_versions' => $version_info['default_template_versions'],
 			'template_versions' => $version_info['template_versions'],

@@ -332,11 +332,11 @@ class TrackIP implements ActionInterface
 				],
 				'lacnic' => [
 					'name' => Lang::$txt['whois_lacnic'],
-					'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . Utils::$context['ip'],
+					'url' => 'https://query.milacnic.lacnic.net/search?id=' . Utils::$context['ip'],
 				],
 				'ripe' => [
 					'name' => Lang::$txt['whois_ripe'],
-					'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . Utils::$context['ip'],
+					'url' => 'https://apps.db.ripe.net/db-web-ui/query?searchtext=' . Utils::$context['ip'],
 				],
 			];
 		}

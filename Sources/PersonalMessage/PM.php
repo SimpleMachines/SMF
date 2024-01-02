@@ -509,9 +509,8 @@ class PM implements ArrayAccess
 		$limit = $query_customizations['limit'] ?? count($ids);
 		$params = $query_customizations['params'] ?? [];
 
-		if (!empty($ids)) {
-			$params['ids'] = array_filter(array_unique(array_map('intval', $ids)));
-		}
+		// There will never be an ID 0, but SMF doesn't like empty arrays when you tell it to expect an array of integers...
+		$params['ids'] = empty($ids) ? [0] : array_filter(array_unique(array_map('intval', $ids)));
 
 		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_pm'];

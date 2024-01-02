@@ -524,6 +524,8 @@ class Received implements \ArrayAccess
 			return self::$recent[$paramskey];
 		}
 
+		self::$recent[$paramskey] = [];
+
 		$joins = [];
 
 		$where = [

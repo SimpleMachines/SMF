@@ -144,7 +144,7 @@ smf_ViewVersions.prototype.compareVersions = function (sCurrent, sTarget)
 	for (var i = 0; i < 2; i++)
 	{
 		// Clean the version and extract the version parts.
-		var sClean = aCompare[i].toLowerCase().replace(/ /g, '').replace(/2.0rc1-1/, '2.0rc1.1');
+		var sClean = aCompare[i].toLowerCase().replace(/ /g, '');
 		aParts = sClean.match(/(\d+)(?:\.(\d+|))?(?:\.)?(\d+|)(?:(alpha|beta|rc)(\d+|)(?:\.)?(\d+|))?(?:(dev))?(\d+|)/);
 
 		// No matches?
@@ -187,21 +187,24 @@ smf_ViewVersions.prototype.compareVersions = function (sCurrent, sTarget)
 
 smf_ViewVersions.prototype.determineVersions = function ()
 {
-	var oHighYour = {
+	let oHighYour = {
+		Root: '??',
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
 		Templates: '??',
 		Tasks: '??'
 	};
-	var oHighCurrent = {
+	let oHighCurrent = {
+		Root: '??',
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
 		Templates: '??',
 		Tasks: '??'
 	};
-	var oLowVersion = {
+	let oLowVersion = {
+		Root: false,
 		Sources: false,
 		Default: false,
 		Languages: false,
@@ -209,7 +212,8 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		Tasks: false
 	};
 
-	var sSections = [
+	const sSections = [
+		'Root',
 		'Sources',
 		'Default',
 		'Languages',
@@ -302,6 +306,11 @@ smf_ViewVersions.prototype.determineVersions = function ()
 			}
 		}
 	}
+
+	setInnerHTML(document.getElementById('yourRoot'), oLowVersion.Root ? oLowVersion.Root : oHighYour.Root);
+	setInnerHTML(document.getElementById('currentRoot'), oHighCurrent.Root);
+	if (oLowVersion.Root)
+		document.getElementById('yourRoot').className = 'alert';
 
 	setInnerHTML(document.getElementById('yourSources'), oLowVersion.Sources ? oLowVersion.Sources : oHighYour.Sources);
 	setInnerHTML(document.getElementById('currentSources'), oHighCurrent.Sources);

@@ -1495,7 +1495,7 @@ class ACP implements ActionInterface
 	 * - returns an array containing information on source files, templates, and
 	 *   language files found in the default theme directory (grouped by language).
 	 *
-	 * @param array &$versionOptions An array of options. Can contain one or more of 'include_ssi', 'include_subscriptions', 'include_tasks' and 'sort_results'
+	 * @param array &$versionOptions An array of options. Can contain one or more of 'include_root', 'include_tasks' and 'sort_results'
 	 * @return array An array of file version info.
 	 */
 	public static function getFileVersions(&$versionOptions)
@@ -1504,6 +1504,7 @@ class ACP implements ActionInterface
 		$lang_dir = Theme::$current->settings['default_theme_dir'] . '/languages';
 
 		$version_info = [
+			'root_versions' => [],
 			'file_versions' => [],
 			'default_template_versions' => [],
 			'template_versions' => [],
@@ -1511,59 +1512,77 @@ class ACP implements ActionInterface
 			'tasks_versions' => [],
 		];
 
-		// Find the version in SSI.php's file header.
-		if (!empty($versionOptions['include_ssi']) && file_exists(Config::$boarddir . '/SSI.php')) {
-			$fp = fopen(Config::$boarddir . '/SSI.php', 'rb');
-			$header = fread($fp, 4096);
-			fclose($fp);
+		$root_files = [
+			'cron.php',
+			'proxy.php',
+			'SSI.php',
+			'subscriptions.php',
+		];
 
-			// The comment looks rougly like... that.
-			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
-				$version_info['file_versions']['SSI.php'] = $match[1];
-			}
-			// Not found!  This is bad.
-			else {
-				$version_info['file_versions']['SSI.php'] = '??';
-			}
-		}
+		// Find the version in root files header.
+		if (!empty($versionOptions['include_root'])) {
+			foreach ($root_files as $file) {
+				if (!file_exists(Config::$boarddir . '/' . $file)) {
+					continue;
+				}
 
-		// Do the paid subscriptions handler?
-		if (!empty($versionOptions['include_subscriptions']) && file_exists(Config::$boarddir . '/subscriptions.php')) {
-			$fp = fopen(Config::$boarddir . '/subscriptions.php', 'rb');
-			$header = fread($fp, 4096);
-			fclose($fp);
-
-			// Found it?
-			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
-				$version_info['file_versions']['subscriptions.php'] = $match[1];
-			}
-			// If we haven't how do we all get paid?
-			else {
-				$version_info['file_versions']['subscriptions.php'] = '??';
-			}
-		}
-
-		// Load all the files in the Sources directory, except this file and the redirect.
-		$sources_dir = dir(Config::$sourcedir);
-
-		while ($entry = $sources_dir->read()) {
-			if (substr($entry, -4) === '.php' && !is_dir(Config::$sourcedir . '/' . $entry) && $entry !== 'index.php') {
-				// Read the first 4k from the file.... enough for the header.
-				$fp = fopen(Config::$sourcedir . '/' . $entry, 'rb');
+				$fp = fopen(Config::$boarddir . '/' . $file, 'rb');
 				$header = fread($fp, 4096);
 				fclose($fp);
 
-				// Look for the version comment in the file header.
+				// The comment looks rougly like... that.
 				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
-					$version_info['file_versions'][$entry] = $match[1];
+					$version_info['root_versions'][$file] = $match[1];
 				}
-				// It wasn't found, but the file was... show a '??'.
+				// Not found!  This is bad.
 				else {
-					$version_info['file_versions'][$entry] = '??';
+					$version_info['root_versions'][$file] = '??';
 				}
 			}
 		}
-		$sources_dir->close();
+
+		// Load all the files in the Sources directory, except some vendor libraires, index place holderes and non php files.
+		$sources_dir = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator(
+				Config::$sourcedir,
+				\RecursiveDirectoryIterator::SKIP_DOTS,
+			),
+		);
+
+		$ignore_sources = [
+			Config::$sourcedir . '/minify/*',
+			Config::$sourcedir . '/ReCaptcha/*',
+			Config::$sourcedir . '/Tasks/*',
+		];
+
+		foreach ($sources_dir as $filename => $file) {
+			if (!$file->isFile() || $file->getFilename() === 'index.php' || $file->getExtension() !== 'php') {
+				continue;
+			}
+
+			foreach ($ignore_sources as $if) {
+				if (preg_match('~' . $if . '~i', $filename)) {
+					continue 2;
+				}
+			}
+
+			$shortname = str_replace(Config::$sourcedir . '/', '', $filename);
+
+			// Read the first 4k from the file.... enough for the header.
+			$fp = $file->openFile('rb');
+			$header = $fp->fread(4096);
+			$fp = null;
+
+			// Look for the version comment in the file header.
+			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
+				$version_info['file_versions'][$shortname] = $match[1];
+			}
+			// It wasn't found, but the file was... show a '??'.
+			else {
+				$version_info['file_versions'][$shortname] = '??';
+			}
+		}
+		$sources_dir = null;
 
 		// Load all the files in the tasks directory.
 		if (!empty($versionOptions['include_tasks'])) {

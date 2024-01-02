@@ -257,7 +257,7 @@ class IntegrationHook
 	 * Does nothing if the function is not available.
 	 * Cleans up enabled/disabled variants before taking requested action.
 	 *
-	 * @see IntegrationHook:add
+	 * @see IntegrationHook::add
 	 *
 	 * @param string $name The complete hook name.
 	 * @param string $function The function name. Can be a call to a method via

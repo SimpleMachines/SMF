@@ -12,14 +12,7 @@ body:
     id: basic
     attributes:
       label: Basic Information
-      description: What happened, or unexpectly happened?
-      value: |
-        # Expected behavior:
-        -------------------
-
-        # Actual behavior:
-        -------------------
-
+      description: What is the issue?
     validations:
       required: true
   - type: textarea
@@ -30,6 +23,16 @@ body:
       value: |
         1.
         2.
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should be the result of following those steps?
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What actually happens when you follow those steps?
   - type: input
     id: version
     attributes:

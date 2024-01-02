@@ -410,6 +410,9 @@ blockquote cite::before {
 	font: inherit;
 	color: inherit;
 }
+.centertext .bbc_table {
+    margin: auto;
+}
 .bbc_table td {
 	font: inherit;
 	color: inherit;

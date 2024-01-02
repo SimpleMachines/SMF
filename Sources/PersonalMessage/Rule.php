@@ -614,7 +614,7 @@ class Rule implements \ArrayAccess
 						!ctype_digit((string) $ind)
 						|| !isset($_POST['labdef'][$ind])
 						|| $_POST['labdef'][$ind] == ''
-						|| !isset(self::$labels[$_POST['labdef'][$ind]])
+						|| !isset(Label::$loaded[$_POST['labdef'][$ind]])
 					)
 				) {
 					continue;
