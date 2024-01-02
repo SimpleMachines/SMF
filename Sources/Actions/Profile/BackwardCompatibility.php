@@ -58,3 +58,5 @@ trait BackwardCompatibility
 		self::$obj->execute();
 	}
 }
+
+?>
