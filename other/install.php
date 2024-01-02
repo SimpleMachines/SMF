@@ -26,7 +26,7 @@ use SMF\Utils;
 
 define('SMF_VERSION', '3.0 Alpha 1');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
+define('SMF_SOFTWARE_YEAR', '2024');
 define('DB_SCRIPT_VERSION', '3-0');
 define('SMF_INSTALLING', 1);
 
