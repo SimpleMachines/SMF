@@ -29,6 +29,7 @@ use SMF\Utils;
  */
 class Like implements ActionInterface
 {
+
 	/*******************
 	 * Public properties
 	 *******************/

@@ -15,7 +15,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;

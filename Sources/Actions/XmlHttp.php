@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Actions\Admin\News;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;

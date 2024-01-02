@@ -33,6 +33,7 @@ use SMF\Utils;
  */
 class ErrorLog implements ActionInterface
 {
+
 	/*******************
 	 * Public properties
 	 *******************/

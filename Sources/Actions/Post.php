@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;

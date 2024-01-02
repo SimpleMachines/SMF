@@ -1552,36 +1552,6 @@ class Utils
 	}
 
 	/**
-	 * Wrapper for random_int() that sets default values.
-	 *
-	 * Only exists for backward compatibility purposes.
-	 *
-	 * @param int $min Minumum value. Default: 0.
-	 * @param int $max Maximum value. Default: PHP_INT_MAX.
-	 * @return int A random integer.
-	 */
-	public static function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
-	{
-		return random_int($min, $max);
-	}
-
-	/**
-	 * Wrapper for random_bytes() that sets a default length.
-	 *
-	 * Only exists for backward compatibility purposes.
-	 *
-	 * @param int $length Number of bytes to return. Default: 64.
-	 * @return string A string of random bytes.
-	 */
-	public static function randomBytes(int $length = 64): string
-	{
-		// Make sure length is valid
-		$length = max(1, $length);
-
-		return random_bytes($length);
-	}
-
-	/**
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
@@ -2253,96 +2223,6 @@ class Utils
 		return $callable;
 	}
 
-	/**
-	 * Backward compatibility method.
-	 *
-	 * Basically just a wrapper for Utils::getCallable(), except that if this
-	 * method's $return parameter is false, the callable will be called inside
-	 * this method..
-	 *
-	 * @param mixed $input Input to parse to find a callable.
-	 * @param bool $return If true, just return the callable instead of
-	 *    calling it. Default: false.
-	 * @return mixed If $return is false, nothing. Otherwise, either a callable
-	 *    or false if no callable was found.
-	 */
-	public static function call_helper(mixed $input, bool $return = false): mixed
-	{
-		$callable = self::getCallable($input);
-
-		// Just return the callable if that's all we were asked to do.
-		if ($return) {
-			return $callable;
-		}
-
-		call_user_func($callable);
-	}
-
-	/**
-	 * Decode HTML entities to their UTF-8 equivalent character, except for
-	 * HTML special characters, which are always converted to numeric entities.
-	 *
-	 * Callback function for preg_replace_callback.
-	 * Uses capture group 2 in the supplied array.
-	 * Does basic scan to ensure characters are inside a valid range.
-	 *
-	 * Unused by SMF. Only retained for backward compatibility purposes.
-	 *
-	 * @deprecated since 3.0
-	 *
-	 * @param array $matches An array of matches (relevant info should be the 3rd item)
-	 * @return string A fixed string
-	 */
-	public static function replaceEntities__callback($matches)
-	{
-		return strtr(
-			htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
-			[
-				'&amp;' => '&#038;',
-				'&quot;' => '&#034;',
-				'&lt;' => '&#060;',
-				'&gt;' => '&#062;',
-			],
-		);
-	}
-
-	/**
-	 * Converts HTML entities to UTF-8 equivalents.
-	 *
-	 * Callback function for preg_replace_callback.
-	 * Uses capture group 1 in the supplied array.
-	 * Does basic checks to keep characters inside a viewable range.
-	 *
-	 * Unused by SMF. Only retained for backward compatibility purposes.
-	 *
-	 * @deprecated since 3.0
-	 *
-	 * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
-	 * @return string The fixed string
-	 */
-	public static function fixchar__callback($matches)
-	{
-		return Utils::entityDecode($matches[0], true);
-	}
-
-	/**
-	 * Strips out invalid HTML entities and fixes double-encoded entities.
-	 *
-	 * Callback function for preg_replace_callback.
-	 *
-	 * Unused by SMF. Only retained for backward compatibility purposes.
-	 *
-	 * @deprecated since 3.0
-	 *
-	 * @param array $matches An array of matches (relevant info should be the 3rd
-	 *    item in the array)
-	 * @return string The fixed string
-	 */
-	public static function entity_fix__callback($matches)
-	{
-		return Utils::sanitizeEntities(Utils::entityFix($matches[1]));
-	}
-
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -2356,7 +2236,7 @@ class Utils
 	 */
 	final protected static function fixUtf8mb4(string $string): string
 	{
-		if (class_exists('SMF\\Db\\DatabaseApi', false) && isset(Db::$db) && Db::$db->mb4) {
+		if (class_exists(Db::class, false) && isset(Db::$db) && Db::$db->mb4) {
 			return $string;
 		}
 
@@ -2396,7 +2276,7 @@ class Utils
 				'$sourcedir' => Config::$sourcedir,
 			]);
 
-			if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+			if (strpos($path, '$themedir') !== false && class_exists(Theme::class, false) && !empty(Theme::$current->settings['theme_dir'])) {
 				$path = strtr($path, [
 					'$themedir' => Theme::$current->settings['theme_dir'],
 				]);
@@ -2428,8 +2308,8 @@ class Utils
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Utils::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([Utils::class, 'exportStatic'])) {
 	Utils::exportStatic();
 }
 

@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;

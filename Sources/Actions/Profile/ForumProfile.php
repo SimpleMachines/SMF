@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;

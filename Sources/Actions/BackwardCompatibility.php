@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SMF\Actions;
+
+use SMF\BackwardCompatibility as BackCompat;
+
+trait BackwardCompatibility
+{
+	use BackCompat;
+
+	/**
+	 * Called by Subs-Compat.php BackwardCompatibility wrapper functions to provide subaction
+	 * execution for existing mods
+	 *
+	 * @param null|string $sa
+	 * @param bool $return_config
+	 * @return null|array
+	 */
+	public static function subActionProvider(?string $sa = null, bool $return_config = false, ?string $activity = null): ?array
+	{
+		if ($return_config) {
+			return self::getConfigVars();
+		}
+
+		self::load();
+
+		if (is_string($sa)) {
+			// make sure its lowecase
+			if (array_key_exists($sa, self::$subactions)) {
+				self::$obj->subaction = $sa;
+			}
+		}
+
+		if(is_string($activity)) {
+			self::$obj->activity = $activity;
+		}
+
+		self::$obj->execute();
+	}
+}

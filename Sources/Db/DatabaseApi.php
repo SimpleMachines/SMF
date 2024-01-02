@@ -537,8 +537,8 @@ abstract class DatabaseApi
 	}
 }
 
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\DatabaseApi::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }
 

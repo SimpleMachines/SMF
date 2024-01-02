@@ -134,7 +134,6 @@ class Url implements Stringable
 		}
 
 		$this->checkIfAscii();
-		return $this;
 	}
 
 	/**
@@ -672,6 +671,33 @@ class Url implements Stringable
 
 		// Redundant repetition is redundant
 		$done = true;
+	}
+
+	/**
+	 * Backward compatibility provider
+	 * @param string $calledFunction 2.1 function
+	 * @param string $target
+	 * @param int $component
+	 * @param int $flags
+	 * @return mixed
+	 */
+	public static function backCompatProvider(
+		string $calledFunction,
+		string $target,
+		int $component = -1,
+		int $flags = 0,
+	): mixed {
+		return match($calledFunction) {
+			'parse_iri'           => (new self($target))->parse($component),
+			'validate_iri'        => (new self($target))->validate($flags)->url === '' ? false : $target,
+			'sanitize_iri'        => (new self($target))->sanitize(),
+			'normalize_iri'       => (new self($target))->normalize(),
+			'iri_to_url'          => (new self($target))->toAscii(),
+			'url_to_iri'          => (new self($target))->toUtf8(),
+			'get_proxied_url'     => (new self($target))->proxied(),
+			'ssl_cert_found'      => (new self($target))->hasSSL(),
+			'httpsRedirectActive' => (new self($target))->redirectsToHttps(),
+		};
 	}
 
 	/**

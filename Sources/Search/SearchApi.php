@@ -2253,8 +2253,8 @@ abstract class SearchApi implements SearchApiInterface
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SearchApi::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([SearchApi::class, 'exportStatic'])) {
 	SearchApi::exportStatic();
 }
 

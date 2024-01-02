@@ -91,7 +91,6 @@ class IP implements Stringable
 		else {
 			$this->ip = (string) @inet_ntop($ip);
 		}
-		return $this;
 	}
 
 	/**
@@ -425,6 +424,34 @@ class IP implements Stringable
 		}
 
 		return $low . '-' . $high;
+	}
+
+	/**
+	 * Backward compatibility provider
+	 * @param string $calledFunction 2.1 function
+	 * @param string $ip
+	 * @param bool $bool_if_invalid
+	 * @return self|string|bool
+	 */
+	public static function backCompatProvider(
+		string $calledFunction,
+		string $ip,
+		bool $return_bool_if_invalid = true
+	): self|string|bool {
+		return match($calledFunction) {
+			'isValidIP'    => (new self($ip))->isValid(),
+			'isValidIPv6'  => (new self($ip))->isValid(FILTER_FLAG_IPV6),
+			'host_from_ip' => (new self($ip))->getHost(0),
+			'inet_ptod'    => (new self($ip))->toBinary(),
+			'inet_dtop'    => new self($ip),
+			'expandIPv6'   => (function($ip, $return_bool_if_invalid): string|false {
+				$instance = new self($ip);
+				if ($return_bool_if_invalid && !$instance->isValid(FILTER_FLAG_IPV6)) {
+					return false;
+				}
+				return $instance->expand();
+			})($ip, $return_bool_if_invalid),
+		};
 	}
 
 	/**

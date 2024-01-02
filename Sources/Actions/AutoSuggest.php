@@ -13,7 +13,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Theme;
@@ -25,7 +24,6 @@ use SMF\Utils;
  */
 class AutoSuggest implements ActionInterface
 {
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -307,6 +305,29 @@ class AutoSuggest implements ActionInterface
 		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
 		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
+	}
+
+	/**
+	 * Backward compatibility provider
+	 * @param null|string $suggest_type
+	 * @param bool $callHandler
+	 * @return mixed
+	 */
+	public static function backCompatProvider(?string $suggest_type = null, bool $callHandler = false)
+	{
+		if (! $callHandler && isset($suggest_type)) {
+			self::load();
+			self::$obj->suggest_type = $suggest_type;
+			self::$obj->execute();
+		}
+
+		if ($callHandler) {
+			if (isset($suggest_type)) {
+				return self::checkRegistered($suggest_type);
+			} else {
+				self::call();
+			}
+		}
 	}
 
 	/**

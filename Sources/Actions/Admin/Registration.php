@@ -15,7 +15,7 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Register2;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;

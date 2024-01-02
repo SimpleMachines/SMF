@@ -15,7 +15,7 @@ namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;

@@ -15,7 +15,7 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Moderation\Posts as PostMod;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;

@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;

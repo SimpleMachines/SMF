@@ -603,8 +603,8 @@ abstract class CacheApi
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\CacheApi::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([CacheApi::class, 'exportStatic'])) {
 	CacheApi::exportStatic();
 }
 

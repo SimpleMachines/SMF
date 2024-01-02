@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\PageIndex;

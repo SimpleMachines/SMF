@@ -15,7 +15,7 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\TopicRemove;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;

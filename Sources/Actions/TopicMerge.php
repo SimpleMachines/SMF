@@ -15,7 +15,6 @@
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;

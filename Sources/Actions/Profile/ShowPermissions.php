@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Admin\Permissions;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;

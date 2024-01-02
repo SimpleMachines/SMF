@@ -16,7 +16,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Calendar as Cal;
 use SMF\Board;
 use SMF\Config;

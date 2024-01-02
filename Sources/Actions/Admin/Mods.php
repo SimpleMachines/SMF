@@ -14,7 +14,7 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;

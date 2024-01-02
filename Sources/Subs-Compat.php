@@ -22,6 +22,7 @@ use SMF\PersonalMessage;
 use SMF\Punycode;
 use SMF\Search;
 use SMF\Unicode\Utf8String;
+use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
 
 if (!defined('SMF')) {
@@ -1280,7 +1281,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function editBuddies(int $memID): void
 	{
-		Actions\Profile\BuddyIgnoreLists::profileSubActionProvider(
+		Actions\Profile\BuddyIgnoreLists::subActionProvider(
 			memID: $memID,
 			sa: 'buddies',
 			loadSelfFirst: false,
@@ -1289,7 +1290,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function editIgnoreList(int $memID): void
 	{
-		Actions\Profile\BuddyIgnoreLists::profileSubActionProvider(
+		Actions\Profile\BuddyIgnoreLists::subActionProvider(
 			memID: $memID,
 			sa: 'ignore',
 			loadSelfFirst: false,
@@ -1398,7 +1399,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function issueWarning(int $memID): void
 	{
-		Actions\Profile\IssueWarning::profileSubActionProvider(
+		Actions\Profile\IssueWarning::subActionProvider(
 			memID: $memID,
 			updateRequest: true,
 		);
@@ -1427,7 +1428,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function alert_configuration(int $memID, bool $defaultSettings = false): void
 	{
-		Actions\Profile\Notification::profileSubActionProvider(
+		Actions\Profile\Notification::subActionProvider(
 			sa: 'alerts',
 			memID: $memID,
 			loadProfile: true,
@@ -1436,7 +1437,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function alert_markread(int $memID):  void
 	{
-		Actions\Profile\Notification::profileSubActionProvider(
+		Actions\Profile\Notification::subActionProvider(
 			sa: 'markread',
 			memID: $memID,
 			loadProfile: true
@@ -1444,7 +1445,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function alert_notifications_topics(int $memID): void
 	{
-		Actions\Profile\Notification::profileSubActionProvider(
+		Actions\Profile\Notification::subActionProvider(
 			sa: 'topics',
 			memID: $memID,
 			loadProfile: true
@@ -1452,7 +1453,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function alert_notifications_boards(int $memID): void
 	{
-		Actions\Profile\Notification::profileSubActionProvider(
+		Actions\Profile\Notification::subActionProvider(
 			sa: 'boards',
 			memID: $memID,
 			loadProfile: true
@@ -1493,7 +1494,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showAlerts(int $memID): void
 	{
-		Actions\Profile\ShowAlerts::profileSubActionProvider(
+		Actions\Profile\ShowAlerts::subActionProvider(
 			memID: $memID,
 			updateRequest: true
 		);
@@ -1507,7 +1508,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showPermissions(int $memID): void
 	{
-		Actions\Profile\ShowPermissions::profileSubActionProvider(
+		Actions\Profile\ShowPermissions::subActionProvider(
 			memID: $memID,
 			updateRequest: true
 		);
@@ -1521,15 +1522,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showPosts(int $memID): void
 	{
-		Actions\Profile\ShowPosts::profileSubActionProvider(memID: $memID, updateRequest: true);
+		Actions\Profile\ShowPosts::subActionProvider(memID: $memID, updateRequest: true);
 	}
 	function showUnwatched(int $memID): void
 	{
-		Actions\Profile\ShowPosts::profileSubActionProvider(memID: $memID, sa: 'unwatchedtopics', updateRequest: true);
+		Actions\Profile\ShowPosts::subActionProvider(memID: $memID, sa: 'unwatchedtopics', updateRequest: true);
 	}
 	function showAttachments(int $memID): void
 	{
-		Actions\Profile\ShowPosts::profileSubActionProvider(memID: $memID, sa: 'attach', updateRequest: true);
+		Actions\Profile\ShowPosts::subActionProvider(memID: $memID, sa: 'attach', updateRequest: true);
 	}
 	/**
 	 * End
@@ -1540,7 +1541,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function statPanel(int $memID): void
 	{
-		Actions\Profile\StatPanel::profileSubActionProvider(memID: $memID, updateRequest: true);
+		Actions\Profile\StatPanel::subActionProvider(memID: $memID, updateRequest: true);
 	}
 	/**
 	 * End
@@ -1551,7 +1552,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function summary(int $memID): void
 	{
-		Actions\Profile\Summary::profileSubActionProvider(memID: $memID, updateRequest: true);
+		Actions\Profile\Summary::subActionProvider(memID: $memID, updateRequest: true);
 	}
 	/**
 	 * End
@@ -1599,7 +1600,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function trackActivity(int $memID): void
 	{
-		Actions\Profile\Tracking::profileSubActionProvider(
+		Actions\Profile\Tracking::subActionProvider(
 			memID: $memID,
 			sa: 'activity',
 			updateRequest: true
@@ -1607,15 +1608,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function trackEdits(int $memID): void
 	{
-		Actions\Profile\Tracking::profileSubActionProvider(memID: $memID, sa: 'edits', updateRequest: true);
+		Actions\Profile\Tracking::subActionProvider(memID: $memID, sa: 'edits', updateRequest: true);
 	}
 	function trackGroupReq(int $memID): void
 	{
-		Actions\Profile\Tracking::profileSubActionProvider(memID: $memID, sa: 'groupreq', updateRequest: true);
+		Actions\Profile\Tracking::subActionProvider(memID: $memID, sa: 'groupreq', updateRequest: true);
 	}
 	function TrackLogins(int $memID): void
 	{
-		Actions\Profile\Tracking::profileSubActionProvider(memID: $memID, sa: 'logins', updateRequest: true);
+		Actions\Profile\Tracking::subActionProvider(memID: $memID, sa: 'logins', updateRequest: true);
 	}
 	/**
 	 * End
@@ -1626,7 +1627,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function viewWarning(int $memID): void
 	{
-		Actions\Profile\ViewWarning::profileSubActionProvider(memID: $memID, updateRequest: true);
+		Actions\Profile\ViewWarning::subActionProvider(memID: $memID, updateRequest: true);
 	}
 	/**
 	 * End
@@ -1708,19 +1709,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AutoSuggestHandler(?string $suggest_type = null): ?bool
 	{
-		return Actions\AutoSuggest::autoSuggestProvider(suggest_type: $suggest_type, callHandler: true);
+		return Actions\AutoSuggest::backCompatProvider(suggest_type: $suggest_type, callHandler: true);
 	}
 	function AutoSuggest_Search_Member(): void
 	{
-		Actions\AutoSuggest::autoSuggestProvider(suggest_type: 'member');
+		Actions\AutoSuggest::backCompatProvider(suggest_type: 'member');
 	}
 	function AutoSuggest_Search_MemberGroups(): void
 	{
-		Actions\AutoSuggest::autoSuggestProvider(suggest_type: 'membergroups');
+		Actions\AutoSuggest::backCompatProvider(suggest_type: 'membergroups');
 	}
 	function AutoSuggest_Search_SMFVersions(): void
 	{
-		Actions\AutoSuggest::autoSuggestProvider(suggest_type: 'versions');
+		Actions\AutoSuggest::backCompatProvider(suggest_type: 'versions');
 	}
 	/**
 	 * End
@@ -2561,7 +2562,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function TrackIP(int $memID = 0): void
 	{
 		// not profile but this method does everything we need it to do
-		Actions\TrackIP::profileSubActionProvider(memID: $memID);
+		Actions\TrackIP::subActionProvider(memID: $memID);
 	}
 	/**
 	 * End
@@ -3073,47 +3074,47 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function utf8_strtolower(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->convertCase('lower');
 	}
 	function utf8_strtoupper(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->convertCase('upper');
 	}
 	function utf8_casefold(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->convertCase('fold');
 	}
 	function utf8_convert_case(string $string, string $case, bool $simple = false): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string, $case, $simple);
+		return (string) Utf8String::create($string)->convertCase($case, $simple);
 	}
 	function utf8_normalize_d(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->normalize('d');
 	}
 	function utf8_normalize_kd(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->normalize('kd');
 	}
 	function utf8_normalize_c(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->normalize('c');
 	}
 	function utf8_normalize_kc(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->normalize('kc');
 	}
 	function utf8_normalize_kc_casefold(string $string): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string);
+		return (string) Utf8String::create($string)->normalize('ks_casefold');
 	}
 	function utf8_is_normalized(string $string, string $form): bool
 	{
-		return Utf8String::utf8StringFactory(__FUNCTION__, $string, null, false, $form);
+		return Utf8String::create($string)->isNormalized($form);
 	}
 	function utf8_sanitize_invisibles(string $string, int $level, string $substitute): string
 	{
-		return (string) Utf8String::utf8StringFactory(__FUNCTION__, $string, null, false, null, $level, $substitute);
+		return (string) Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
 	}
 	/**
 	 * End
@@ -3635,27 +3636,27 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function isValidIP(string $ip): bool
 	{
-		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
 	}
 	function isValidIPv6(string $ip): bool
 	{
-		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
 	}
 	function host_from_ip(string $ip): string
 	{
-		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
 	}
 	function inet_ptod(string $ip): string|bool
 	{
-		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
 	}
 	function inet_dtop(string $ip): SMF\IP
 	{
-		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip);
+		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
 	}
 	function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|false
 	{
-		return SMF\IP::ipCheckFactory(__FUNCTION__, $ip, $return_bool_if_invalid);
+		return SMF\IP::backCompatProvider(__FUNCTION__, $ip, $return_bool_if_invalid);
 	}
 	/**
 	 * End
@@ -4008,27 +4009,27 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function profileLoadGroups(?int $id = null): bool
 	{
-		return SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id);
+		return SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id);
 	}
 	function loadProfileFields($force_reload = false, ?int $id = null): void
 	{
-		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, force_reload: $force_reload);
+		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, force_reload: $force_reload);
 	}
 	function loadCustomFields(int $id, string $area = 'summary'): void
 	{
-		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, area: $area);
+		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, area: $area);
 	}
 	function loadThemeOptions(int $id, bool $defaultSettings = false): void
 	{
-		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, defaultSettings: $defaultSettings);
+		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, defaultSettings: $defaultSettings);
 	}
 	function setupProfileContext(array $fields, int $id): void
 	{
-		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, fields: $fields, id: $id);
+		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, fields: $fields, id: $id);
 	}
 	function makeCustomFieldChanges($id, $area, $sanitize = true, $return_errors = false): ?array
 	{
-		return SMF\Profile::profileProvider(
+		return SMF\Profile::backCompatProvider(
 			calledFunction: __FUNCTION__,
 			id: $id,
 			area: $area,
@@ -4038,7 +4039,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function makeThemeChanges(int $id, int $id_theme): void
 	{
-		SMF\Profile::profileProvider(calledFunction: __FUNCTION__, id: $id, id_theme: $id_theme);
+		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, id_theme: $id_theme);
 	}
 	/**
 	 * End
@@ -4587,35 +4588,35 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	function parse_iri(string $target, int $component): mixed
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target, $component);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target, $component);
 	}
 	function validate_iri(string $target, int $flags = 0): SMF\Url|false
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target, $flags);
+		return SMF\Url::backCompatProvider(calledFunction: __FUNCTION__, target: $target, flags: $flags);
 	}
 	function sanitize_iri(string $target): SMF\Url
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
 	}
 	function normalize_iri(string $target): SMF\Url
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
 	}
 	function iri_to_url(string $target): SMF\Url
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
 	}
 	function url_to_iri(string $target): SMF\Url
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
 	}
 	function get_proxied_url(string $target): SMF\Url
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
 	}
 	function httpsRedirectActive(string $target): bool
 	{
-		return SMF\Url::urlProvider(__FUNCTION__, $target);
+		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
 	}
 	/**
 	 * End
@@ -4760,103 +4761,103 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
 	{
-		return SMF\Utils::sanitizeChars($string, $level, $substitute);
+		return Utils::sanitizeChars($string, $level, $substitute);
 	}
 	function normalize_spaces($string, $vspace = true, $hspace = false, $options = []): string
 	{
-		return SMF\Utils::normalizeSpaces($string, $vspace, $hspace, $options);
+		return Utils::normalizeSpaces($string, $vspace, $hspace, $options);
 	}
 	function htmlspecialchars__recursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
 	{
-		return SMF\Utils::htmlspecialcharsRecursive($var, $flags, $encoding);
+		return Utils::htmlspecialcharsRecursive($var, $flags, $encoding);
 	}
 	function un_htmlspecialchars(string $string, int $flags = ENT_QUOTES, $encoding = 'UTF-8'): string
 	{
-		return SMF\Utils::htmlspecialcharsDecode($string, $flags, $encoding);
+		return Utils::htmlspecialcharsDecode($string, $flags, $encoding);
 	}
 	function htmltrim__recursive(array|string $var): array|string
 	{
-		return SMF\Utils::htmlTrimRecursive($var);
+		return Utils::htmlTrimRecursive($var);
 	}
 	function shorten_subject(string $subject, int $len): string
 	{
-		return SMF\Utils::shorten($subject, $len);
+		return Utils::shorten($subject, $len);
 	}
 	function text2words(string $string, ?int $max_length = 20, bool $encrypt = false): array
 	{
-		return SMF\Utils::text2words($string, $max_length, $encrypt);
+		return Utils::text2words($string, $max_length, $encrypt);
 	}
 	function build_regex(array $strings, ?string $delim = null, bool $return_array = false): string|array
 	{
-		return SMF\Utils::buildRegex($strings, $delim, $return_array);
+		return Utils::buildRegex($strings, $delim, $return_array);
 	}
 	function cleanXml(string $string): string
 	{
-		return SMF\Utils::cleanXml($string);
+		return Utils::cleanXml($string);
 	}
 	function JavaScriptEscape(string $string, bool $as_json = false): string
 	{
-		return SMF\Utils::JavaScriptEscape($string, $as_json);
+		return Utils::JavaScriptEscape($string, $as_json);
 	}
 	function stripslashes__recursive($var, $level = 0): array|string
 	{
-		return SMF\Utils::stripslashesRecursive($var, $level);
+		return Utils::stripslashesRecursive($var, $level);
 	}
 	function urldecode__recursive(array|string $var, int $level): array|string
 	{
-		return SMF\Utils::urldecodeRecursive($var, $level);
+		return Utils::urldecodeRecursive($var, $level);
 	}
 	function escapestring__recursive(array|string $var): array|string
 	{
-		return SMF\Utils::escapestringRecursive($var);
+		return Utils::escapestringRecursive($var);
 	}
 	function unescapestring__recursive(array|string $var): array|string
 	{
-		return SMF\Utils::escapestringRecursive($var);
+		return Utils::escapestringRecursive($var);
 	}
 	function truncate_array(array $array, int $max_length = 1900): array
 	{
-		return SMF\Utils::truncateArray($array, $max_length);
+		return Utils::truncateArray($array, $max_length);
 	}
 	function array_length(array $array): int
 	{
-		return SMF\Utils::arrayLength($array);
+		return Utils::arrayLength($array);
 	}
 	function smf_json_decode(string $json, bool $associative = false, bool $should_log = true): mixed
 	{
-		return SMF\Utils::jsonDecode($json, $associative, $should_log);
+		return Utils::jsonDecode($json, $associative, $should_log);
 	}
 	function safe_serialize(mixed $value): string
 	{
-		return SMF\Utils::safeSerialize($value);
+		return Utils::safeSerialize($value);
 	}
 	function safe_unserialize(string $str): mixed
 	{
-		return SMF\Utils::safeUnserialize($str);
+		return Utils::safeUnserialize($str);
 	}
 	function get_mime_type(string $data, bool $is_path = false): string|bool
 	{
-		return SMF\Utils::getMimeType($data, $is_path);
+		return Utils::getMimeType($data, $is_path);
 	}
 	function check_mime_type(string $data, string $type_pattern, bool $is_path = false): int
 	{
-		return SMF\Utils::checkMimeType($data, $type_pattern, $is_path);
+		return Utils::checkMimeType($data, $type_pattern, $is_path);
 	}
 	function smf_chmod(string $path): bool
 	{
-		return SMF\Utils::makeWritable(($path));
+		return Utils::makeWritable(($path));
 	}
 	function send_http_status(int $code, string $status = ''): void
 	{
-		SMF\Utils::sendHttpStatus($code, $status);
+		Utils::sendHttpStatus($code, $status);
 	}
 	function smf_serverResponse(string $data = '', $type = 'Content-Type: application/json')
 	{
-		return SMF\Utils::serverResponse($data, $type);
+		return Utils::serverResponse($data, $type);
 	}
 	function redirectexit(string $setLocation = '', bool $refresh = false, bool $permanent = false): void
 	{
-		SMF\Utils::redirectexit($setLocation, $refresh, $permanent);
+		Utils::redirectexit($setLocation, $refresh, $permanent);
 	}
 	function obExit(
 		?bool $header = null,
@@ -4864,27 +4865,70 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $from_index = false,
 		bool $from_fatal_error = false
 	): void {
-		SMF\Utils::obExit($header, $do_footer, $from_index, $from_fatal_error);
+		Utils::obExit($header, $do_footer, $from_index, $from_fatal_error);
 	}
 	function getCallable(mixed $input, ?bool $ignore_errors = null): mixed
 	{
-		return SMF\Utils::getCallable($input, $ignore_errors);
+		return Utils::getCallable($input, $ignore_errors);
 	}
 	function call_helper(mixed $input, bool $return = false): mixed
 	{
-		return SMF\Utils::call_helper($input, $return);
+		$callable = Utils::getCallable($input);
+
+		// Just return the callable if that's all we were asked to do.
+		if ($return) {
+			return $callable;
+		}
+
+		call_user_func($callable);
 	}
 	function replaceEntities__callback(array $matches): string
 	{
-		return SMF\Utils::replaceEntities__callback($matches);
+		return strtr(
+			htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
+			[
+				'&amp;' => '&#038;',
+				'&quot;' => '&#034;',
+				'&lt;' => '&#060;',
+				'&gt;' => '&#062;',
+			],
+		);
 	}
 	function fixchar__callback(array $matches): string
 	{
-		return SMF\Utils::fixchar__callback($matches);
+		return Utils::entityDecode($matches[0], true);
 	}
 	function entity_fix__callback(array $matches): string
 	{
-		return SMF\Utils::entity_fix__callback($matches);
+		return Utils::sanitizeEntities(Utils::entityFix($matches[1]));
+	}
+	/**
+	 * Wrapper for random_bytes() that sets a default length.
+	 *
+	 * Only exists for backward compatibility purposes.
+	 *
+	 * @param int $length Number of bytes to return. Default: 64.
+	 * @return string A string of random bytes.
+	 */
+	function randomBytes(int $length): string
+	{
+		// Make sure length is valid
+		$length = max(1, $length);
+
+		return random_bytes($length);
+	}
+	/**
+	 * Wrapper for random_int() that sets default values.
+	 *
+	 * Only exists for backward compatibility purposes.
+	 *
+	 * @param int $min Minumum value. Default: 0.
+	 * @param int $max Maximum value. Default: PHP_INT_MAX.
+	 * @return int A random integer.
+	 */
+	function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
+	{
+		return random_int($min, $max);
 	}
 	/**
 	 * End

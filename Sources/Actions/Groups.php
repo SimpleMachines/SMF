@@ -14,7 +14,6 @@
 namespace SMF\Actions;
 
 use SMF\Actions\Moderation\Main as ModCenter;
-use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;

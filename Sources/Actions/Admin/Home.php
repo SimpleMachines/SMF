@@ -33,6 +33,7 @@ use SMF\Utils;
  */
 class Home implements ActionInterface
 {
+
 	/*******************
 	 * Public properties
 	 *******************/

@@ -14,7 +14,6 @@
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;

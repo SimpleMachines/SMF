@@ -1965,6 +1965,8 @@ class ACP implements ActionInterface
 	/**
 	 * Properly urlencodes a string to be used in a query.
 	 *
+	 * todo: fix typing
+	 *
 	 * @param string $get A copy of $_GET.
 	 * @return string Our query string.
 	 */

@@ -29,6 +29,7 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Find implements ActionInterface
 {
+
 	/*******************
 	 * Public properties
 	 *******************/

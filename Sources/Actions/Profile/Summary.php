@@ -15,7 +15,6 @@ namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\Who;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IP;

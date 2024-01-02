@@ -5581,8 +5581,8 @@ class User implements ArrayAccess
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\User::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([User::class, 'exportStatic'])) {
 	User::exportStatic();
 }
 

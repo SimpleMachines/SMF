@@ -882,8 +882,8 @@ class Category implements \ArrayAccess
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Category::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([Category::class, 'exportStatic'])) {
 	Category::exportStatic();
 }
 

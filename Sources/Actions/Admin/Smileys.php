@@ -17,7 +17,7 @@ namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
 use SMF\Actions\MessageIndex;
-use SMF\BackwardCompatibility;
+use SMF\Actions\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
