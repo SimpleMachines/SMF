@@ -42,7 +42,7 @@ if (!defined('SMF_FULL_VERSION')) {
 }
 
 if (!defined('SMF_SOFTWARE_YEAR')) {
-	define('SMF_SOFTWARE_YEAR', '2023');
+	define('SMF_SOFTWARE_YEAR', '2024');
 }
 
 if (!defined('JQUERY_VERSION')) {
