@@ -2062,7 +2062,7 @@ class Utils
 		}
 
 		// The request was from ajax/xhr/other api call, append ajax ot the url.
-		if (!empty($context['from_ajax'])) {
+		if (!empty(Utils::$context['from_ajax'])) {
 			$setLocation .= (strpos($setLocation, '?') ? ';' : '?') . 'ajax';
 		}
 
