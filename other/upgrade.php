@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.4
@@ -14,7 +14,7 @@
 // Version information...
 define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
+define('SMF_SOFTWARE_YEAR', '2024');
 define('SMF_LANG_VERSION', '2.1.3');
 define('SMF_INSTALLING', 1);
 
@@ -1134,7 +1134,7 @@ function checkFolders()
 			{
 				if (!empty($dir) && !is_dir($dir))
 					$attdr_problem_found = true;
-			}	
+			}
 		}
 		else
 		{
@@ -1151,7 +1151,7 @@ function checkFolders()
 			{
 				if (!is_dir($dir))
 					$attdr_problem_found = true;
-			}	
+			}
 		}
 		else
 		{
