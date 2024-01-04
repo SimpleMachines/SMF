@@ -254,7 +254,6 @@ function template_login_tfa()
 		echo '
 								}
 								else {
-									console.log("reload");
 									window.location.reload();
 								}
 							},
