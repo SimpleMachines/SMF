@@ -1203,6 +1203,9 @@ class Group implements \ArrayAccess
 
 		// Load the user info for the members being removed.
 		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
+		$members = array_map(function (\SMF\User $mem){
+			return $mem->id;
+		}, $members);
 
 		// Figure out which members should have their primary group changed and
 		// which should have their additional groups changed.
