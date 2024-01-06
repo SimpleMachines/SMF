@@ -1583,6 +1583,7 @@ class Features implements ActionInterface
 				'jquery_source',
 				[
 					'cdn' => Lang::$txt['jquery_google_cdn'],
+					'cloudflare_cdn' => Lang::$txt['jquery_cloudflare_cdn'],
 					'jquery_cdn' => Lang::$txt['jquery_jquery_cdn'],
 					'microsoft_cdn' => Lang::$txt['jquery_microsoft_cdn'],
 					'local' => Lang::$txt['jquery_local'],

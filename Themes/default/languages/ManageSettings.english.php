@@ -76,6 +76,7 @@ $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom URL to the jQuery Library';
 $txt['jquery_local'] = 'Local';
+$txt['jquery_cloudflare_cdn'] = 'Cloudflare CDN (cdnjs)';
 $txt['jquery_google_cdn'] = 'Google CDN';
 $txt['jquery_jquery_cdn'] = 'jQuery CDN';
 $txt['jquery_microsoft_cdn'] = 'Microsoft CDN';
