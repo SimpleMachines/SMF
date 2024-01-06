@@ -105,6 +105,10 @@ class GroupMembership implements ActionInterface
 		);
 		$open_requests = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
+		
+		$open_requests = array_map(function($v) {
+			return (int) $v['id_group'];
+		}, $open_requests);
 
 		// Show the assignable groups in the templates.
 		foreach (Profile::$member->current_and_assignable_groups as $id => $group) {
@@ -114,17 +118,17 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Are they in this group?
-			$member_or_available = in_array($id, Profile::$member->groups) ? 'member' : 'available';
+			$member_or_available = in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
 			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available') {
 				continue;
 			}
 
-			Utils::$context['groups'][$member_or_available][$id] = $group;
+			Utils::$context['groups'][$member_or_available][$group->id] = $group;
 
 			// Do they have a pending request to join this group?
-			Utils::$context['groups'][$member_or_available][$id]->pending = in_array($id, $open_requests);
+			Utils::$context['groups'][$member_or_available][$group->id]->pending = in_array($group->id, $open_requests);
 		}
 
 		// If needed, add "Regular Members" on the end.
