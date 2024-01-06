@@ -1224,14 +1224,14 @@ class Utils
 	/**
 	 * Wrapper function for json_decode() with error handling.
 	 *
-	 * @param string $json The string to decode.
+	 * @param mixed $json The string to decode.
 	 * @param bool $associative Whether to force JSON objects to be returned as
 	 *    associative arrays. SMF nearly always wants this to be true, but for
 	 *    the sake of consistency with json_decode(), the default is false.
 	 * @param bool $should_log Whether to log errors. Default: true.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true): mixed
+	public static function jsonDecode(mixed $json, bool $associative = false, bool $should_log = true): mixed
 	{
 		// Come on...
 		if (empty($json) || !is_string($json)) {
