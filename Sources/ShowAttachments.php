@@ -126,6 +126,7 @@ function showAttachment()
 		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
 		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
 		$file['etag'] = $file['exists'] ? sha1_file($file['filePath']) : '';
+		$file['filename'] = un_htmlspecialchars($file['filename']);
 
 		// now get the thumbfile!
 		$thumbFile = array();
