@@ -234,7 +234,7 @@ class Received implements \ArrayAccess
 	{
 		$is_read = ($this->replied ? 0b10 : 0) | !$this->unread;
 
-		$this->$labels = array_map('intval', $this->$labels);
+		$this->labels = array_map('intval', $this->labels);
 
 		if (empty($this->labels) || in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
