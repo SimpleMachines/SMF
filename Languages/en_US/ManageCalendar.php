@@ -55,4 +55,13 @@ $txt['holidays_no_entries'] = 'There are currently no holidays configured.';
 $txt['holidays_date_varies'] = 'Date varies';
 $txt['every_year'] = 'Every Year';
 
+// Importing calendar data
+$txt['calendar_import_desc'] = 'Here you can import holidays and events from iCalendar files.';
+$txt['calendar_import_url'] = 'URL of iCalendar data';
+$txt['calendar_import_url_desc'] = 'This should be the URL of an .ics file.';
+$txt['calendar_import_type'] = 'Import events as';
+$txt['calendar_import_type_holiday'] = 'Holidays';
+$txt['calendar_import_type_event'] = 'Events';
+$txt['calendar_import_button'] = 'Import';
+
 ?>

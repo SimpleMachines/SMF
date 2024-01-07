@@ -425,6 +425,23 @@ class Holiday extends Event
 	}
 
 	/**
+	 * Imports holidays from iCalendar data and saves them to the database.
+	 *
+	 * @param string $ics Some iCalendar data (e.g. the content of an ICS file).
+	 * @return array An array of instances of this class.
+	 */
+	public static function import(string $ics): array
+	{
+		$holidays = self::constructFromICal($ics, self::TYPE_HOLIDAY);
+
+		foreach ($holidays as $holiday) {
+			$holiday->save();
+		}
+
+		return $holidays;
+	}
+
+	/**
 	 * Computes the Western and Eastern dates of Easter for the given year.
 	 *
 	 * In the returned array:

@@ -46,4 +46,46 @@ function template_edit_holiday()
 		</form>';
 }
 
+/**
+ * Importing iCalendar data.
+ */
+function template_import()
+{
+	// Show a form for all the holiday information.
+	echo '
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
+			</div>
+			<div class="windowbg">
+				<dl class="settings">
+					<dt>
+						<label for="">', Lang::$txt['calendar_import_url'], '</label>
+						<br>
+						<span class="smalltext">', Lang::$txt['calendar_import_url_desc'], '</span>
+					</dt>
+					<dd>
+						<input type="url" name="ics_url" id="ics_url">
+					</dd>
+					<dt>
+						<label>', Lang::$txt['calendar_import_type'], '</label>
+					</dt>
+					<dd>
+						<label>
+							<input type="radio" name="type" value="holiday" checked>
+							', Lang::$txt['calendar_import_type_holiday'], '
+						</label>
+						<label>
+							<input type="radio" name="type" value="event">
+							', Lang::$txt['calendar_import_type_event'], '
+						</label>
+					</dd>
+				</dl>
+				<input type="submit" name="import" value="', Lang::$txt['calendar_import_button'], '" class="button">
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="' . Utils::$context['admin-calendarimport_token_var'] . '" value="' . Utils::$context['admin-calendarimport_token'] . '">
+			</div><!-- .windowbg -->
+		</form>';
+}
+
 ?>

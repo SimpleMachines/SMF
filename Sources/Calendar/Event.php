@@ -1802,6 +1802,132 @@ class Event implements \ArrayAccess
 	}
 
 	/**
+	 * Imports events from iCalendar data and saves them to the database.
+	 *
+	 * @param string $ics Some iCalendar data (e.g. the content of an ICS file).
+	 * @return array An array of instances of this class.
+	 */
+	public static function import(string $ics): array
+	{
+		$events = self::constructFromICal($ics, self::TYPE_EVENT);
+
+		foreach ($events as $event) {
+			$event->save();
+		}
+
+		return $events;
+	}
+
+	/**
+	 * Constructs instances of this class from iCalendar data.
+	 *
+	 * @param string $ics Some iCalendar data (e.g. the content of an ICS file).
+	 * @param ?int $type Forces all events to be imported as the specified type.
+	 *    Values can be one of this class's TYPE_* constants, or null for auto.
+	 * @return array An array of instances of this class.
+	 */
+	public static function constructFromICal(string $ics, ?int $type = null): array
+	{
+		$events = [];
+
+		$ics = preg_replace('/\R\h/', '', $ics);
+
+		$lines = preg_split('/\R/', $ics);
+
+		$in_event = false;
+		$props = [];
+
+		foreach ($lines as $line) {
+			if ($line === 'BEGIN:VEVENT') {
+				$in_event = true;
+			}
+
+			if ($line === 'END:VEVENT') {
+				if (
+					isset(
+						$props['start'],
+						$props['duration'],
+						$props['title'],
+					)
+				) {
+					if (isset($type)) {
+						$props['type'] = $type;
+					}
+
+					if (isset($props['type']) && $props['type'] === self::TYPE_HOLIDAY) {
+						$events[] = new Holiday(0, $props);
+					} else {
+						unset($props['type']);
+						$events[] = new self(0, $props);
+					}
+				}
+
+				$in_event = false;
+				$props = [];
+			}
+
+			if (!$in_event) {
+				continue;
+			}
+
+			if (strpos($line, 'DTSTART') === 0) {
+				if (preg_match('/;TZID=([^:;]+)[^:]*:(\d+T\d+)/', $line, $matches)) {
+					$props['start'] = new Time($matches[2] . ' ' . $matches[1]);
+					$props['allday'] = false;
+				} elseif (preg_match('/:(\d+T\d+)(Z?)/', $line, $matches)) {
+					$props['start'] = new Time($matches[1] . ($matches[2] === 'Z' ? ' UTC' : ''));
+					$props['allday'] = false;
+				} elseif (preg_match('/:(\d+)/', $line, $matches)) {
+					$props['start'] = new Time($matches[1] . ' ' . User::getTimezone());
+					$props['allday'] = true;
+				}
+			}
+
+			if (strpos($line, 'DTEND') === 0) {
+				if (preg_match('/;TZID=([^:;]+)[^:]*:(\d+T\d+)/', $line, $matches)) {
+					$end = new Time($matches[2] . ' ' . $matches[1]);
+				} elseif (preg_match('/:(\d+T\d+)(Z?)/', $line, $matches)) {
+					$end = new Time($matches[1] . ($matches[2] === 'Z' ? ' UTC' : ''));
+				} elseif (preg_match('/:(\d+)/', $line, $matches)) {
+					$end = new Time($matches[1] . ' ' . User::getTimezone());
+				}
+
+				$props['duration'] = TimeInterval::createFromDateInterval($props['start']->diff($end));
+			}
+
+			if (strpos($line, 'DURATION') === 0) {
+				$props['duration'] = new TimeInterval(substr($line, strpos($line, ':') + 1));
+			}
+
+			if (!isset($type) && strpos($line, 'CATEGORIES') === 0) {
+				$props['type'] = str_contains(strtolower($line), 'holiday') ? self::TYPE_HOLIDAY : self::TYPE_EVENT;
+			}
+
+			if (strpos($line, 'SUMMARY') === 0) {
+				$props['title'] = substr($line, strpos($line, ':') + 1);
+			}
+
+			if (strpos($line, 'LOCATION') === 0) {
+				$props['location'] = substr($line, strpos($line, ':') + 1);
+			}
+
+			if (strpos($line, 'RRULE') === 0) {
+				$props['rrule'] = substr($line, strpos($line, ':') + 1);
+			}
+
+			if (strpos($line, 'RDATE') === 0) {
+				$props['rdates'] = explode(',', substr($line, strpos($line, ':') + 1));
+			}
+
+			if (strpos($line, 'EXDATE') === 0) {
+				$props['exdates'] = explode(',', substr($line, strpos($line, ':') + 1));
+			}
+		}
+
+		return $events;
+	}
+
+	/**
 	 * Set the start and end dates and times for a posted event for insertion
 	 * into the database.
 	 *

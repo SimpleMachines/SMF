@@ -711,6 +711,7 @@ $txt['log_settings'] = 'Log Settings';
 $txt['boards_edit'] = 'Modify Boards';
 $txt['mboards_new_cat'] = 'Create new category';
 $txt['manage_holidays'] = 'Manage Holidays';
+$txt['calendar_import'] = 'Import Calendar Data';
 $txt['calendar_settings'] = 'Calendar Settings';
 $txt['search_weights'] = 'Weights';
 $txt['search_method'] = 'Search Method';

@@ -32,8 +32,10 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
 use SMF\TimeZone;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * This class allows you to manage the calendar.
@@ -66,6 +68,7 @@ class Calendar implements ActionInterface
 	public static array $subactions = [
 		'holidays' => 'holidays',
 		'editholiday' => 'edit',
+		'import' => 'import',
 		'settings' => 'settings',
 	];
 
@@ -303,6 +306,42 @@ class Calendar implements ActionInterface
 	}
 
 	/**
+	 * Handles importing events and holidays from iCalendar files.
+	 */
+	public function import(): void
+	{
+		Theme::loadTemplate('ManageCalendar');
+		Utils::$context['sub_template'] = 'import';
+		Utils::$context['page_title'] = Lang::$txt['calendar_import'];
+
+		// Submitting?
+		if (isset($_POST[Utils::$context['session_var']], $_POST['ics_url'], $_POST['type'])) {
+			User::$me->checkSession();
+			SecurityToken::validate('admin-calendarimport');
+
+			$ics_url = new Url($_POST['ics_url'], true);
+
+			if ($ics_url->isValid()) {
+				$ics_data = WebFetchApi::fetch($ics_url);
+			}
+
+			if (!empty($ics_data)) {
+				switch ($_POST['type']) {
+					case 'holiday':
+						Holiday::import($ics_data);
+						break;
+
+					case 'event':
+						Event::import($ics_data);
+						break;
+				}
+			}
+		}
+
+		SecurityToken::create('admin-calendarimport');
+	}
+
+	/**
 	 * Handles showing and changing calendar settings.
 	 */
 	public function settings(): void
@@ -473,6 +512,9 @@ class Calendar implements ActionInterface
 			Menu::$loaded['admin']->tab_data['tabs'] = [
 				'holidays' => [
 					'description' => Lang::$txt['manage_holidays_desc'],
+				],
+				'import' => [
+					'description' => Lang::$txt['calendar_import_desc'],
 				],
 				'settings' => [
 					'description' => Lang::$txt['calendar_settings_desc'],
