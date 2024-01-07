@@ -592,30 +592,42 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . Lang::$txt[$value['text']] . '</a>';
+			<li>
+				<a class="button_strip_' . $key . (!empty($value['sub_buttons']) ? ' sub_buttons' : '') . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" href="' . (!empty($value['url']) ? $value['url'] : 'javascript:void(0)') . '" ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>
+					' . (!empty($value['icon']) ? '<span class="main_icons ' . $value['icon'] . '"></span>' : '') . '
+					<span class="text-label">' . Lang::$txt[$value['text']] . '</span>
+				</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
 				$button .= '
-					<div class="top_menu dropmenu ' . $key . '_dropdown">
-						<div class="viewport">
-							<div class="overview">';
+				<div class="top_menu ' . $key . '_dropdown">
+					<div class="viewport dropmenu">
+						<ul class="overview">';
 				foreach ($value['sub_buttons'] as $element)
 				{
 					if (isset($element['test']) && empty(Utils::$context[$element['test']]))
 						continue;
 
 					$button .= '
-								<a href="' . $element['url'] . '"><strong>' . Lang::$txt[$element['text']] . '</strong>';
+							<li>
+								<a href="' . $element['url'] . '">
+									<span>' . Lang::$txt[$element['text']] . '</span>';
 					if (isset(Lang::$txt[$element['text'] . '_desc']))
-						$button .= '<br><span>' . Lang::$txt[$element['text'] . '_desc'] . '</span>';
-					$button .= '</a>';
+						$button .= '
+									<span>' . Lang::$txt[$element['text'] . '_desc'] . '</span>';
+					$button .= '
+								</a>
+							</li>';
 				}
 				$button .= '
-							</div><!-- .overview -->
-						</div><!-- .viewport -->
-					</div><!-- .top_menu -->';
+						</ul><!-- .overview -->
+					</div><!-- .viewport -->
+				</div><!-- .top_menu -->';
 			}
+
+			$button .= '
+			</li>';
 
 			$buttons[] = $button;
 		}
@@ -626,9 +638,9 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		return;
 
 	echo '
-		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
+		<ul class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
 			', implode('', $buttons), '
-		</div>';
+		</ul>';
 }
 
 /**
