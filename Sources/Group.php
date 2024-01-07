@@ -2502,7 +2502,7 @@ class Group implements \ArrayAccess
 	 * @param self $group An instance of this class.
 	 * @return bool Whether the group can be deleted.
 	 */
-	protected static function canSeach(self $group): bool
+	protected static function canSearch(self $group): bool
 	{
 		return $group->id > self::REGULAR && $group->id !== self::MOD;
 	}

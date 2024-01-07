@@ -619,7 +619,7 @@ class UpdateUnicode extends BackgroundTask
 	 * @param string $filename Name of a Unicode datafile, relative to $data_url.
 	 * @param string $data_url One of this class's DATA_URL_* constants.
 	 *
-	 * @return string Path to locally saved copy of the file.
+	 * @return string|bool Path to locally saved copy of the file.
 	 */
 	private function fetch_unicode_file(string $filename, string $data_url): string|bool
 	{

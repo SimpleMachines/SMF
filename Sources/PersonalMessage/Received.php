@@ -304,7 +304,7 @@ class Received implements \ArrayAccess
 		// second bit is the replied status.
 		if ($prop == 'is_read') {
 			$this->unread = !((int) $value & 0b01);
-			$this->replied = (boolean) ((int) $value & 0b10);
+			$this->replied = (bool) ((int) $value & 0b10);
 		} else {
 			$this->customPropertySet($prop, $value);
 		}
