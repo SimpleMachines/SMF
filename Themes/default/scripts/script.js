@@ -1646,24 +1646,21 @@ function smc_resize(selector)
 }
 
 $(function() {
-	$('.buttonlist > .dropmenu').each(function(index, item) {
+	$('.buttonlist li > .top_menu').each(function(index, item) {
 		$(item).prev().click(function(e) {
 			e.stopPropagation();
 			e.preventDefault();
 
 			if ($(item).is(':visible')) {
-				$(item).css('display', 'none');
+				$(item).removeClass('visible');
 
 				return true;
 			}
 
-			$(item).css('display', 'block');
-			$(item).css('top', $(this).offset().top + $(this).height());
-			$(item).css('left', Math.max($(this).offset().left - $(item).width() + $(this).outerWidth(), 0));
-			$(item).height($(item).find('div:first').height());
+			$(item).addClass('visible');
 		});
 		$(document).click(function() {
-			$(item).css('display', 'none');
+			$(item).removeClass('visible');
 		});
 	});
 
