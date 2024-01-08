@@ -374,7 +374,7 @@ class Url implements \Stringable
 	 * characters (a.k.a. IRIs)
 	 *
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return string|int|array Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
 	 */
 	public function parse(int $component = -1): string|int|array|null|false
 	{
