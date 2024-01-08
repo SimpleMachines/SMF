@@ -1066,7 +1066,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
 	 * @return void|array Either displays a list of top topics or returns an array of info about them, depending on output_method.
 	 */
-	public static function topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): array
+	public static function topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1084,7 +1084,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
 	 * @return void|array Either displays a list of top topics or returns an array of info about them, depending on output_method.
 	 */
-	public static function topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): array
+	public static function topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1125,7 +1125,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a link to the member's profile, otherwise returns an array of info about them.
 	 * @return void|array Displays a link to a random member's profile or returns an array of info about them depending on output_method.
 	 */
-	public static function randomMember(string $random_type = '', string $output_method = 'echo'): array
+	public static function randomMember(string $random_type = '', string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
