@@ -376,7 +376,7 @@ class Url implements \Stringable
 	 * @param int $component Optional flag for parse_url's second parameter.
 	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
 	 */
-	public function parse(int $component = -1): string|int|array|null|false
+	public function parse(int $component = -1): string|int|array|null|bool
 	{
 		$url = preg_replace_callback(
 			'~[^\x00-\x7F\pZ\pC]|%~u',
