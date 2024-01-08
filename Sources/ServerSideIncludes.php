@@ -1546,7 +1546,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it
 	 * @return void|array Either shows the top poll or returns an array of info about it, depending on output_method.
 	 */
-	public static function topPoll(string $output_method = 'echo'): array
+	public static function topPoll(string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
