@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Utils;
@@ -24,8 +26,9 @@ class GenericScheduledTask extends ScheduledTask
 	 * This executes the task.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		$callable_task = Utils::getCallable($this->_details['callable']);
 

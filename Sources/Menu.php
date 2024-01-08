@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 /**
@@ -453,8 +455,10 @@ class Menu implements \ArrayAccess
 	/**
 	 * Checks whether the given menu item is enabled and whether the current
 	 * user has permission to access it.
+	 * 
+	 * @param array $menu_item An array of a menu item.
 	 */
-	protected function enabledAndAllowed($menu_item): bool
+	protected function enabledAndAllowed(array $menu_item): bool
 	{
 		if (isset($menu_item['enabled']) && $menu_item['enabled'] == false) {
 			return false;
@@ -465,8 +469,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Build the data array for a section of the menu.
+	 * 
+	 * @param array $section An array of a section data.
 	 */
-	protected function buildSection($section): void
+	protected function buildSection(array $section): void
 	{
 		// Is this enabled - or has as permission check - which fails?
 		if (!$this->enabledAndAllowed($section)) {
@@ -495,8 +501,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Build the data array for an area of the menu.
+	 * 
+	 * @param array $area An array of a area data.
 	 */
-	protected function buildArea($area): void
+	protected function buildArea(array $area): void
 	{
 		// Can we do this?
 		if (!$this->enabledAndAllowed($area)) {
@@ -573,8 +581,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Build the data array for a subsection of the menu.
+	 * 
+	 * @param array $subsection An array of a subsection data.
 	 */
-	protected function buildSubsection($subsection): void
+	protected function buildSubsection(array $subsection): void
 	{
 		$this_area = &$this->sections[$this->section_id]['areas'][$this->area_id];
 
@@ -663,8 +673,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Sets the icon for an area.
+	 * 
+	 * @param array $area An array of a area data.
 	 */
-	protected function setAreaIcon($area): void
+	protected function setAreaIcon(array $area): void
 	{
 		$dirs = ['theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url'];
 		$icon_paths = ['icon' => 'admin'];

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Actions\Feed;
@@ -25,6 +27,8 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use DOMDocument;
+use XSLTProcessor;
 
 /**
  * @todo Find a way to throttle the export rate dynamically when dealing with
@@ -870,9 +874,10 @@ class ExportProfileData extends BackgroundTask
 	 * It calls the correct private function based on the information stored in
 	 * the task details.
 	 *
-	 * @return bool Always returns true
+	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		if (!defined('EXPORTING')) {
 			define('EXPORTING', 1);
@@ -949,7 +954,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * The workhorse of this class. Compiles profile data to XML files.
 	 */
-	protected function exportXml()
+	protected function exportXml(): void
 	{
 		// For convenience...
 		$uid = $this->_details['uid'];
@@ -1102,7 +1107,7 @@ class ExportProfileData extends BackgroundTask
 			if (empty($prev_item_count)) {
 				$xml_data = array_chunk($xml_data, $per_page);
 			} else {
-				$first_chunk = array_splice($xml_data, 0, $per_page - $prev_item_count);
+				$first_chunk = array_splice($xml_data, 0, (int) ($per_page - $prev_item_count));
 				$xml_data = array_merge([$first_chunk], array_chunk($xml_data, $per_page));
 				unset($first_chunk);
 			}
@@ -1247,8 +1252,10 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
+	 * 
+	 * @suppress PHP0417
 	 */
-	protected function exportHtml()
+	protected function exportHtml(): void
 	{
 		Utils::$context['export_last_page'] = $this->_details['last_page'];
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
@@ -1333,7 +1340,7 @@ class ExportProfileData extends BackgroundTask
 	 * Internally calls exportXml() and then embeds an XSLT stylesheet into
 	 * the XML so that it can be processed by the client.
 	 */
-	protected function exportXmlXslt()
+	protected function exportXmlXslt(): void
 	{
 		Utils::$context['export_last_page'] = $this->_details['last_page'];
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
@@ -1414,7 +1421,7 @@ class ExportProfileData extends BackgroundTask
 			}
 
 			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
-			$export_formats = get_export_formats();
+			$export_formats = Export::getFormats();
 
 			Lang::load('Profile');
 
@@ -1652,7 +1659,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Loads and prepares CSS and JavaScript for insertion into an XSLT stylesheet.
 	 */
-	protected function loadCssJs()
+	protected function loadCssJs(): void
 	{
 		// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
 		if (SMF != 'BACKGROUND') {
@@ -1845,7 +1852,17 @@ class ExportProfileData extends BackgroundTask
 	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
 	 * the main XML file's header. Only used for the XML_XSLT format.
 	 */
-	public static function add_dtd(&$xml_data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
+	public static function add_dtd(
+		array &$xml_data,
+		array &$metadata,
+		array &$namespaces,
+		array &$extraFeedTags,
+		array &$forceCdataKeys,
+		array &$nsKeys,
+		string $xml_format,
+		string $subaction,
+		string &$doctype
+		): void
 	{
 		if (!isset(Lang::$txt['export_open_in_browser'])) {
 			Lang::load('Profile');
@@ -1867,7 +1884,7 @@ class ExportProfileData extends BackgroundTask
 	 * Adjusts some parse_bbc() parameters for the special case of HTML and
 	 * XML_XSLT exports.
 	 */
-	public static function pre_parsebbc_html(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
+	public static function pre_parsebbc_html(string &$message, array &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
 	{
 		$cache_id = '';
 
@@ -1886,7 +1903,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts some parse_bbc() parameters for the special case of XML exports.
 	 */
-	public static function pre_parsebbc_xml(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
+	public static function pre_parsebbc_xml(string &$message, array &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
 	{
 		$cache_id = '';
 
@@ -1906,7 +1923,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Reverses changes made by pre_parsebbc()
 	 */
-	public static function post_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags)
+	public static function post_parsebbc(string &$message, array &$smileys, string &$cache_id, array &$parse_tags): void
 	{
 		foreach (['disabledBBC', 'smileys_url', 'attachmentThumbnails'] as $var) {
 			if (isset(self::$real_modSettings[$var])) {
@@ -1918,7 +1935,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts certain BBCodes for the special case of exports.
 	 */
-	public static function bbc_codes(&$codes, &$no_autolink_tags)
+	public static function bbc_codes(array &$codes, bool &$no_autolink_tags): void
 	{
 		foreach ($codes as &$code) {
 			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
@@ -1931,7 +1948,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts the attachment download URL for the special case of exports.
 	 */
-	public static function post_parseAttachBBC(&$attachContext)
+	public static function post_parseAttachBBC(array &$attachContext): void
 	{
 		static $dltokens;
 
@@ -1949,7 +1966,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts the format of the HTML produced by the attach BBCode.
 	 */
-	public static function attach_bbc_validate(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params)
+	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array $data, array $disabled, array $params): void
 	{
 		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
 

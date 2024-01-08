@@ -1263,7 +1263,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($index_info['columns'] as &$c) {
 			$c = trim($c);
 			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
-			list($type, $size) = $this->calculate_type($cols[$c]['type'], $cols[$c]['size']);
+			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
 
 			// If a size was already specified, we won't be able to match it anyways.
 			if (
@@ -1444,7 +1444,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			unset($column_info['default']);
 		}
 
-		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 		// Allow for unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
@@ -1469,9 +1469,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (is_null($column_info['default'])) {
 				$default_clause = 'DEFAULT NULL';
 			} elseif (is_numeric($column_info['default'])) {
-				$default_clause = 'DEFAULT ' . (strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
+				$default_clause = 'DEFAULT ' . (strpos((string) $column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
 			} elseif (is_string($column_info['default'])) {
-				$default_clause = 'DEFAULT \'' . $this->escape_string($column_info['default']) . '\'';
+				$default_clause = 'DEFAULT \'' . $this->escape_string((string) $column_info['default']) . '\'';
 			}
 		}
 
@@ -1558,7 +1558,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				// If a size was already specified, we won't be able to match it anyways.
 				$key = array_search($c, array_column($columns, 'name'));
 				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? $columns[$key]['size'] : null;
-				list($type, $size) = $this->calculate_type($columns[$key]['type'], $columns[$key]['size']);
+				list($type, $size) = $this->calculate_type($columns[$key]['type'], (int) $columns[$key]['size']);
 
 				if (
 					$key === false
@@ -2352,11 +2352,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 		// Numbers don't need quotes.
 		elseif (isset($column['default']) && is_numeric($column['default'])) {
-			$default = 'DEFAULT ' . (strpos($column['default'], '.') ? floatval($column['default']) : intval($column['default']));
+			$default = 'DEFAULT ' . (strpos((string) $column['default'], '.') ? floatval($column['default']) : intval($column['default']));
 		}
 		// Non empty string.
 		elseif (isset($column['default'])) {
-			$default = 'DEFAULT \'' . $this->escape_string($column['default']) . '\'';
+			$default = 'DEFAULT \'' . $this->escape_string((string) $column['default']) . '\'';
 		} else {
 			$default = '';
 		}
@@ -2368,7 +2368,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Sort out the size... and stuff...
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list($type, $size) = $this->calculate_type($column['type'], $column['size']);
+		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
 
 		// Allow unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';

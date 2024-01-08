@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -777,7 +779,7 @@ class Editor implements \ArrayAccess
 	/**
 	 * Initialize the smiley toolbar, if enabled and not already loaded.
 	 */
-	protected function setSCEditorOptions()
+	protected function setSCEditorOptions(): void
 	{
 		// Set up the SCEditor options
 		$this->sce_options = [

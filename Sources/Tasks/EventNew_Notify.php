@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Actions\Notify;
@@ -28,9 +30,10 @@ class EventNew_Notify extends BackgroundTask
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
 	 *
-	 * @return bool Always returns true
+	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// Get everyone who could be notified - those are the people who can see the calendar.
 		$members = User::membersAllowedTo('calendar_view');

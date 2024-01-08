@@ -765,7 +765,7 @@ class SubsPackage
 
 		// Otherwise, it's entirely irrelevant?
 		if ($restore_write_status) {
-			return $$return_data;
+			return $return_data;
 		}
 
 		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
@@ -2976,6 +2976,8 @@ class SubsPackage
 	 *
 	 * @param string $id The name of the backup
 	 * @return bool True if it worked, false if it didn't
+	 * @suppress PHP0417
+	 * 
 	 */
 	public static function package_create_backup(string $id = 'backup'): bool
 	{

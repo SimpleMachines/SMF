@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -192,7 +194,7 @@ class Poll implements \ArrayAccess
 	 *
 	 * ID of this poll's topic.
 	 */
-	public int $topic;
+	public int $topic = 0;
 
 	/**
 	 * @var array
@@ -746,6 +748,7 @@ class Poll implements \ArrayAccess
 				}
 			}
 
+			settype($value, gettype($this->{$prop}));
 			$this->{$prop} = $value;
 		} elseif (array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
@@ -773,7 +776,13 @@ class Poll implements \ArrayAccess
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
 			} else {
-				$this->{$real_prop} = $value;
+				if ($real_prop == 'id'){
+					$this->{$real_prop} = (int) $value;
+				}
+				else {
+					settype($value, gettype($this->{$real_prop}));
+					$this->{$real_prop} = $value;	
+				}
 			}
 		} else {
 			$this->custom[$prop] = $value;
@@ -789,9 +798,9 @@ class Poll implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of a poll or topic. Use 0 if unknown.
 	 * @param int $options Bitmask of this class's LOAD_* and CHECK_* constants.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(int $id, int $options = 0): object
+	public static function load(int $id, int $options = 0): self
 	{
 		return new self($id, $options);
 	}
@@ -802,9 +811,9 @@ class Poll implements \ArrayAccess
 	 * Checks permissions and sanitizes input before doing anything.
 	 *
 	 * @param array &$errors Will hold errors encountered while creating the poll.
-	 * @return object An instance of this class, or null on failure.
+	 * @return self An instance of this class, or null on failure.
 	 */
-	public static function create(array &$errors = []): ?object
+	public static function create(array &$errors = []): ?self
 	{
 		if (!self::checkCreatePermission()) {
 			return null;
@@ -897,10 +906,10 @@ class Poll implements \ArrayAccess
 	 * returns false. Otherwise, will die with a fatal error if the user can't
 	 * edit the poll, or return true if they can.
 	 *
-	 * @param object $poll An instance of this class.
+	 * @param self $poll An instance of this class.
 	 * @return bool Whether the current user can edit this poll.
 	 */
-	public static function checkEditPermission($poll): bool
+	public static function checkEditPermission(self $poll): bool
 	{
 		if (Config::$modSettings['pollMode'] != 1 || empty($poll->id)) {
 			return false;
@@ -925,10 +934,10 @@ class Poll implements \ArrayAccess
 	/**
 	 * Verifies that the current user is allowed to remove the given poll.
 	 *
-	 * @param object $poll An instance of this class.
+	 * @param self $poll An instance of this class.
 	 * @return bool Whether the current user can remove this poll.
 	 */
-	public static function checkRemovePermission($poll): bool
+	public static function checkRemovePermission(self $poll): bool
 	{
 		// If they can remove any poll, they're good to go.
 		if (User::$me->allowedTo('poll_remove_any')) {
@@ -1354,7 +1363,7 @@ class Poll implements \ArrayAccess
 	 * Upon successful completion of action will direct user back to topic.
 	 * Accessed via ?action=removepoll.
 	 */
-	public static function remove()
+	public static function remove(): void
 	{
 		// Make sure the topic is not empty.
 		if (empty(Topic::$topic_id)) {
@@ -1762,7 +1771,7 @@ class Poll implements \ArrayAccess
 	 * @param int &$options The query options passed to the constructor.
 	 * @return int ID of the most recent poll.
 	 */
-	protected function getMostRecent(&$options): int
+	protected function getMostRecent(int &$options): int
 	{
 		$this->joins = array_merge([
 			't' => 'INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)',
@@ -1796,7 +1805,7 @@ class Poll implements \ArrayAccess
 	 * @param int &$options The query options passed to the constructor.
 	 * @return int ID of the most active poll.
 	 */
-	protected function getMostActive(&$options): int
+	protected function getMostActive(int &$options): int
 	{
 		$this->joins = [
 			'p' => 'INNER JOIN {db_prefix}polls AS p ON (lp.id_poll = p.id_poll)',
@@ -1854,7 +1863,7 @@ class Poll implements \ArrayAccess
 	/**
 	 * Validates and sanitizes $_POST input for creating or editing a poll.
 	 */
-	protected static function sanitizeInput(&$errors): void
+	protected static function sanitizeInput(array &$errors): void
 	{
 		if (!isset($_POST['question']) || trim($_POST['question']) == '') {
 			$errors[] = 'no_question';

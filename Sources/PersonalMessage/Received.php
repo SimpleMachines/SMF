@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\PersonalMessage;
 
 use SMF\ArrayAccessHelper;
@@ -232,7 +234,7 @@ class Received implements \ArrayAccess
 	{
 		$is_read = ($this->replied ? 0b10 : 0) | !$this->unread;
 
-		$this->$labels = array_map('intval', $this->$labels);
+		$this->labels = array_map('intval', $this->labels);
 
 		if (empty($this->labels) || in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
@@ -296,13 +298,13 @@ class Received implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		// This is a bitmap where the lowest bit is the read status and the
 		// second bit is the replied status.
 		if ($prop == 'is_read') {
-			$this->unread = !($value & 0b01);
-			$this->replied = $value & 0b10;
+			$this->unread = !((int) $value & 0b01);
+			$this->replied = (bool) ((int) $value & 0b10);
 		} else {
 			$this->customPropertySet($prop, $value);
 		}
@@ -437,7 +439,7 @@ class Received implements \ArrayAccess
 			$ids[] = $row['id_pm'];
 		}
 
-		return $loaded;
+		return $ids;
 	}
 
 	/**
@@ -640,9 +642,9 @@ class Received implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
 			'',

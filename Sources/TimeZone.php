@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 /**
@@ -2568,7 +2570,7 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Parseable datetime string?
-		if (is_int($timestamp = strtotime($when))) {
+		if (is_int($timestamp = strtotime((string) $when))) {
 			$start = $timestamp;
 		}
 		// A Unix timestamp?

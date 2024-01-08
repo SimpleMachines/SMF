@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 /**
@@ -179,7 +181,7 @@ class Config
 	 */
 	public static $cache_enable;
 	/**
-	 * @var array
+	 * @var string
 	 *
 	 * This is only used for the memcache / memcached cache systems.
 	 * Should be a string of 'server:port,server:port'
@@ -1716,7 +1718,7 @@ class Config
 				// A setting to delete.
 				if (!empty($setting_def['auto_delete']) && empty($new_settings_vars[$var])) {
 					if ($setting_def['auto_delete'] === 2 && empty($rebuild) && in_array($var, array_keys($new_settings_vars))) {
-						$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ';';
+						$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var])) . ';';
 					} else {
 						$replacement = '';
 						$substitutions[$var]['placeholder'] = '';
@@ -1727,11 +1729,11 @@ class Config
 				}
 				// Add this setting's value.
 				elseif (in_array($var, array_keys($new_settings_vars))) {
-					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var], true)) . ';';
+					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : self::varExport($new_settings_vars[$var])) . ';';
 				}
 				// Fall back to the default value.
 				elseif (isset($setting_def['default'])) {
-					$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : self::varExport($setting_def['default'], true)) . ';';
+					$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : self::varExport($setting_def['default'])) . ';';
 				}
 				// This shouldn't happen, but we've got nothing.
 				else {
@@ -1765,7 +1767,7 @@ class Config
 
 			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 			$substitutions[$var]['placeholder'] = $placeholder;
-			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val, true) . ';';
+			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val) . ';';
 		}
 
 		// During an upgrade, some of the path variables may not have been declared yet.
@@ -2515,7 +2517,7 @@ class Config
 	 * @param mixed $var The variable to export
 	 * @return string A PHP-parseable representation of the variable's value
 	 */
-	public static function varExport($var): string
+	public static function varExport(mixed $var): string
 	{
 		/*
 		 * Old versions of updateSettingsFile couldn't handle multi-line values.
@@ -2884,7 +2886,7 @@ class Config
 	public static function memoryReturnBytes(string $val): int
 	{
 		if (is_integer($val)) {
-			return $val;
+			return (int) $val;
 		}
 
 		// Separate the number from the designator.
@@ -2923,6 +2925,7 @@ class Config
 	 * Generate a random seed and ensure it's stored in settings.
 	 *
 	 * @deprecated since 3.0
+	 * @todo Still referenced in Forum.php and ServerSideIncludes.php
 	 *
 	 * This only exists for backward compatibility with mods that might use the
 	 * generated value.
@@ -2939,7 +2942,7 @@ class Config
 	 * not running things at least once per day, we need to go back to SMF's default
 	 * behaviour using "web cron" JavaScript calls.
 	 */
-	public static function checkCron()
+	public static function checkCron(): void
 	{
 		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 86400) {
 			$request = Db\DatabaseApi::$db->query(

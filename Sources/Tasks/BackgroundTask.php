@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\User;
@@ -36,7 +38,7 @@ abstract class BackgroundTask
 	 *
 	 * @param array $details The details for the task
 	 */
-	public function __construct($details)
+	public function __construct(array $details)
 	{
 		$this->_details = $details;
 	}
@@ -52,10 +54,10 @@ abstract class BackgroundTask
 	 * Loads minimal info for the previously loaded user ids
 	 *
 	 * @param array $user_ids
-	 * @throws Exception
+	 * @throws \Exception
 	 * @return array
 	 */
-	public function getMinUserInfo($user_ids = [])
+	public function getMinUserInfo(array $user_ids = []): array
 	{
 		$loaded_ids = array_map(fn ($member) => $member->id, User::load($user_ids, User::LOAD_BY_ID, 'minimal'));
 
