@@ -431,7 +431,7 @@ class PersonalMessage implements ActionInterface
 				$action = substr($action, 4);
 			}
 
-			if (in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
+			if (isset($type) && in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
 				$to_label[(int) $pm] = (int) $action;
 				$label_type[(int) $pm] = $type;
 			}
@@ -558,7 +558,7 @@ class PersonalMessage implements ActionInterface
 			User::$me->checkSession();
 
 			// Remove the line breaks...
-			$body = preg_replace('~<br ?/?' . '>~i', "\n", $this->body);
+			$body = preg_replace('~<br ?/?' . '>~i', "\n", $pm->body);
 
 			// Get any other recipients of the email.
 			$recipients = [];
@@ -585,7 +585,7 @@ class PersonalMessage implements ActionInterface
 			$messagesToSend = [];
 
 			// Now let's get out and loop through the admins.
-			$memberFromName = Utils::htmlspecialcharsDecode($this->from_name);
+			$memberFromName = Utils::htmlspecialcharsDecode($pm->from_name);
 			$request = Db::$db->query(
 				'',
 				'SELECT id_member, real_name, lngfile
@@ -621,11 +621,11 @@ class PersonalMessage implements ActionInterface
 						$report_body .= Lang::$txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
 					}
 
-					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($this->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $this->member_from . ' date=' . $this->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
+					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
 
 					// Plonk it in the array ;)
 					$messagesToSend[$cur_language] = [
-						'subject' => (Utils::entityStrpos($this->subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . Utils::htmlspecialcharsDecode($this->subject),
+						'subject' => (Utils::entityStrpos($pm->subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . Utils::htmlspecialcharsDecode($pm->subject),
 						'body' => $report_body,
 						'recipients' => [
 							'to' => [],

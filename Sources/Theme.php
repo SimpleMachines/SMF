@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Agreement;
@@ -188,8 +190,9 @@ class Theme
 	 *
 	 * @param int $id The ID of the theme to load.
 	 * @param bool $initialize Whether or not to initialize a bunch of theme-related variables/settings.
+	 * @return self An instance of this class
 	 */
-	public static function load($id = 0, $initialize = true)
+	public static function load(int $id = 0, bool $initialize = true): self
 	{
 		if (empty($id)) {
 			// The theme was specified by the board.
@@ -265,10 +268,10 @@ class Theme
 	/**
 	 * This loads the bare minimum data to allow us to load language files!
 	 */
-	public static function loadEssential()
+	public static function loadEssential(): void
 	{
 		// Load the theme used for guests.
-		$id = !empty(Config::$modSettings['theme_guests']) ? Config::$modSettings['theme_guests'] : 1;
+		$id = !empty(Config::$modSettings['theme_guests']) ? (int) Config::$modSettings['theme_guests'] : 1;
 
 		self::$current = self::$loaded[$id] = new self($id, 0);
 
@@ -315,12 +318,12 @@ class Theme
 	 *  - Detects a wrong default theme directory and tries to work around it.
 	 *
 	 * @uses self::templateInclude() to include the file.
-	 * @param string $template_name The name of the template to load
+	 * @param string|bool $template_name The name of the template to load.  If false, only style sheets are loaded.
 	 * @param array|string $style_sheets The name of a single stylesheet or an array of names of stylesheets to load
 	 * @param bool $fatal If true, dies with an error message if the template cannot be found
-	 * @return bool Whether or not the template was loaded
+	 * @return ?bool Whether or not the template was loaded
 	 */
-	public static function loadTemplate($template_name, $style_sheets = [], $fatal = true)
+	public static function loadTemplate(string|bool $template_name, array|string $style_sheets = [], bool $fatal = true): ?bool
 	{
 		// Do any style sheets first, cause we're easy with those.
 		if (!empty($style_sheets)) {
@@ -357,6 +360,8 @@ class Theme
 			if (function_exists('template_' . $template_name . '_init')) {
 				call_user_func('template_' . $template_name . '_init');
 			}
+
+			return true;
 		}
 		// Hmmm... doesn't exist?!  I don't suppose the directory is wrong, is it?
 		elseif (!file_exists(self::$current->settings['default_theme_dir']) && file_exists(Config::$boarddir . '/Themes/default')) {
@@ -381,6 +386,8 @@ class Theme
 		} else {
 			return false;
 		}
+
+		return null;
 	}
 
 	/**
@@ -395,9 +402,9 @@ class Theme
 	 * @todo get rid of reading $_REQUEST directly
 	 *
 	 * @param string $sub_template_name The name of the sub-template to load
-	 * @param bool $fatal Whether to die with an error if the sub-template can't be loaded
+	 * @param bool|string $fatal Whether to die with an error if the sub-template can't be loaded
 	 */
-	public static function loadSubTemplate($sub_template_name, $fatal = false)
+	public static function loadSubTemplate(string $sub_template_name, bool|string $fatal = false): void
 	{
 		if (Config::$db_show_debug === true) {
 			Utils::$context['debug']['sub_templates'][] = $sub_template_name;
@@ -456,7 +463,7 @@ class Theme
 	 *
 	 * @param string $id An ID to stick on the end of the filename for caching purposes
 	 */
-	public static function loadCSSFile($fileName, $params = [], $id = '')
+	public static function loadCSSFile(string $fileName, array $params = [], string $id = ''): void
 	{
 		if (empty(Utils::$context['css_files_order'])) {
 			Utils::$context['css_files_order'] = [];
@@ -540,9 +547,9 @@ class Theme
 	 *   so do make sure your css is valid!
 	 *
 	 * @param string $css Some css code
-	 * @return void|bool Adds the CSS to the Utils::$context['css_header'] array or returns if no CSS is specified
+	 * @return bool Adds the CSS to the Utils::$context['css_header'] array or returns if no CSS is specified
 	 */
-	public static function addInlineCss($css)
+	public static function addInlineCss(string $css): bool
 	{
 		// Gotta add something...
 		if (empty($css)) {
@@ -550,6 +557,7 @@ class Theme
 		}
 
 		Utils::$context['css_header'][] = $css;
+		return true;
 	}
 
 	/**
@@ -587,7 +595,7 @@ class Theme
 	 *
 	 * @param string $id An ID to append to the filename.
 	 */
-	public static function loadJavaScriptFile($fileName, $params = [], $id = '')
+	public static function loadJavaScriptFile(string $fileName, array $params = [], string $id = ''): void
 	{
 		$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
 			(array_key_exists('browser_cache', Utils::$context) ? Utils::$context['browser_cache'] : '') :
@@ -655,7 +663,7 @@ class Theme
 	 * @param string $value The value
 	 * @param bool $escape Whether or not to escape the value
 	 */
-	public static function addJavaScriptVar($key, $value, $escape = false)
+	public static function addJavaScriptVar(string $key, string $value, bool $escape = false): void
 	{
 		// Variable name must be a valid string.
 		if (!is_string($key) || $key === '' || is_numeric($key)) {
@@ -720,16 +728,17 @@ class Theme
 	 * @param string $javascript Some JS code
 	 * @param bool $defer Whether the script should load in <head> or before the
 	 *    closing <html> tag.
-	 * @return void|bool Adds the code to one of the Utils::$context['javascript_inline']
+	 * @return bool Adds the code to one of the Utils::$context['javascript_inline']
 	 *    arrays, or returns false if no JS was specified.
 	 */
-	public static function addInlineJavaScript($javascript, $defer = false)
+	public static function addInlineJavaScript(string $javascript, bool $defer = false): bool
 	{
 		if (empty($javascript)) {
 			return false;
 		}
 
 		Utils::$context['javascript_inline'][($defer === true ? 'defer' : 'standard')][] = $javascript;
+		return true;
 	}
 
 	/**
@@ -737,7 +746,7 @@ class Theme
 	 *
 	 * @param bool $forceload Whether to load the theme even if it's already loaded
 	 */
-	public static function setupContext($forceload = false)
+	public static function setupContext(bool $forceload = false): void
 	{
 		static $loaded = false;
 
@@ -832,9 +841,9 @@ class Theme
 		}
 
 		Utils::$context['common_stats'] = [
-			'total_posts' => Lang::numberFormat(Config::$modSettings['totalMessages']),
-			'total_topics' => Lang::numberFormat(Config::$modSettings['totalTopics']),
-			'total_members' => Lang::numberFormat(Config::$modSettings['totalMembers']),
+			'total_posts' => Lang::numberFormat((int) Config::$modSettings['totalMessages']),
+			'total_topics' => Lang::numberFormat((int) Config::$modSettings['totalTopics']),
+			'total_members' => Lang::numberFormat((int) Config::$modSettings['totalMembers']),
 			'latest_member' => [
 				'id' => Config::$modSettings['latestMember'],
 				'name' => Config::$modSettings['latestRealName'],
@@ -889,7 +898,7 @@ class Theme
 	 * Saves them in the cache if it is available and on
 	 * Places the results in Utils::$context
 	 */
-	public static function setupMenuContext()
+	public static function setupMenuContext(): void
 	{
 		// Set up the menu privileges.
 		Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? User::$me->allowedTo('search_posts') : (!User::$me->is_guest && User::$me->allowedTo('search_posts'));
@@ -900,7 +909,7 @@ class Theme
 		Utils::$context['allow_moderation_center'] = User::$me->can_mod;
 		Utils::$context['allow_pm'] = User::$me->allowedTo('pm_read');
 
-		$cacheTime = Config::$modSettings['lastActive'] * 60;
+		$cacheTime = (int) Config::$modSettings['lastActive'] * 60;
 
 		// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
 		if (!isset(Utils::$context['allow_calendar_event'])) {
@@ -1235,7 +1244,7 @@ class Theme
 	/**
 	 * The header template.
 	 */
-	public static function template_header()
+	public static function template_header(): void
 	{
 		self::setupContext();
 
@@ -1389,7 +1398,7 @@ class Theme
 	/**
 	 * Show the copyright.
 	 */
-	public static function copyright()
+	public static function copyright(): void
 	{
 		// Don't display copyright for things like SSI.
 		if (SMF !== 1) {
@@ -1403,7 +1412,7 @@ class Theme
 	/**
 	 * The template footer.
 	 */
-	public static function template_footer()
+	public static function template_footer(): void
 	{
 		// Show the load time?  (only makes sense for the footer.)
 		Utils::$context['show_load_time'] = !empty(Config::$modSettings['timeLoadPageEnable']);
@@ -1423,7 +1432,7 @@ class Theme
 	 * @param bool $do_deferred If true will only output the deferred JS
 	 *             (the stuff that goes right before the closing body tag)
 	 */
-	public static function template_javascript($do_deferred = false)
+	public static function template_javascript(bool $do_deferred = false): void
 	{
 		// Use this hook to minify/optimize Javascript files and vars
 		IntegrationHook::call('integrate_pre_javascript_output', [&$do_deferred]);
@@ -1536,7 +1545,7 @@ class Theme
 	/**
 	 * Output the CSS files
 	 */
-	public static function template_css()
+	public static function template_css(): void
 	{
 		// Use this hook to minify/optimize CSS files
 		IntegrationHook::call('integrate_pre_css_output');
@@ -1634,7 +1643,7 @@ class Theme
 	 * @param string $type either css or js.
 	 * @return array Info about the minified file, or about the original files if the minify process failed.
 	 */
-	public static function custMinify($data, $type)
+	public static function custMinify(array $data, string $type): array
 	{
 		$types = ['css', 'js'];
 		$type = !empty($type) && in_array($type, $types) ? $type : false;
@@ -1738,7 +1747,7 @@ class Theme
 	/**
 	 * Clears out old minimized CSS and JavaScript files and ensures Config::$modSettings['browser_cache'] is up to date
 	 */
-	public static function deleteAllMinified()
+	public static function deleteAllMinified(): void
 	{
 		$not_deleted = [];
 		$most_recent = 0;
@@ -1791,7 +1800,7 @@ class Theme
 	 * - accessed via ?action=jsoption;var=variable;val=value;session_var=sess_id.
 	 * - does not log access to the Who's Online log. (in index.php..)
 	 */
-	public static function setJavaScript()
+	public static function setJavaScript(): void
 	{
 		// Check the session id.
 		User::$me->checkSession('get');
@@ -1861,7 +1870,7 @@ class Theme
 	 *
 	 *  - Can use a template, layers, sub_template, filename, and/or function.
 	 */
-	public static function wrapAction()
+	public static function wrapAction(): void
 	{
 		// Load any necessary template(s)?
 		if (isset(self::$current->settings['catch_action']['template'])) {
@@ -1897,7 +1906,7 @@ class Theme
 	/**
 	 * Redirects ?action=theme to the correct location.
 	 */
-	public static function dispatch()
+	public static function dispatch(): void
 	{
 		// If any sub-action besides 'pick' was requested, redirect to admin.
 		if (!isset($_REQUEST['sa']) || $_REQUEST['sa'] !== 'pick') {
@@ -1913,7 +1922,7 @@ class Theme
 	 * - uses the Themes template. (pick sub template.)
 	 * - accessed with ?action=theme;sa=pick.
 	 */
-	public static function pickTheme()
+	public static function pickTheme(): void
 	{
 		User::$me->kickIfGuest();
 
@@ -2212,39 +2221,6 @@ class Theme
 		SecurityToken::create('pick-th');
 	}
 
-	/**
-	 * Creates an image/text button.
-	 *
-	 * @deprecated since 2.1
-	 *
-	 * @param string $name The name of the button. Should be a main_icons class
-	 *    or the name of an image.
-	 * @param string $alt The alt text.
-	 * @param string $label The Lang::$txt string to use as the label.
-	 * @param string $custom Custom text/html to add to the img tag. Only when
-	 *    using an actual image.
-	 * @param bool $force_use Whether to override template_create_button and
-	 *    use this instead.
-	 * @return string The HTML to display the button.
-	 */
-	public static function createButton($name, $alt, $label = '', $custom = '', $force_use = false)
-	{
-		// Does the current loaded theme have this and we are not forcing the usage of this function?
-		if (function_exists('template_create_button') && !$force_use) {
-			return template_create_button($name, $alt, $label = '', $custom = '');
-		}
-
-		if (!Theme::$current->settings['use_image_buttons']) {
-			return Lang::$txt[$alt];
-		}
-
-		if (!empty(Theme::$current->settings['use_buttons'])) {
-			return '<span class="main_icons ' . $name . '" alt="' . Lang::$txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . Lang::$txt[$label] . '</strong>' : '');
-		}
-
-		return '<img src="' . Theme::$current->settings['lang_images_url'] . '/' . $name . '" alt="' . Lang::$txt[$alt] . '" ' . $custom . '>';
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2255,7 +2231,7 @@ class Theme
 	 * @param int $id The ID of the theme to load.
 	 * @param int $member The ID of the member whose theme preferences we want.
 	 */
-	protected function __construct($id = 0, $member = -1)
+	protected function __construct(int $id = 0, int $member = -1)
 	{
 		$this->id = $id;
 
@@ -2363,7 +2339,7 @@ class Theme
 	 * Sets a bunch of Utils::$context variables, loads templates and language
 	 * files, and does other stuff that is required to use the theme for output.
 	 */
-	protected function initialize()
+	protected function initialize(): void
 	{
 		$this->requireAgreement();
 		$this->sslRedirect();
@@ -2477,7 +2453,7 @@ class Theme
 	 * If necessary, redirect to the agreement or privacy policy so that we can
 	 * force the user to accept the current version.
 	 */
-	protected function requireAgreement()
+	protected function requireAgreement(): void
 	{
 		// Perhaps we've changed the agreement or privacy policy? Only redirect if:
 		// 1. They're not a guest or admin
@@ -2501,7 +2477,7 @@ class Theme
 	/**
 	 * Check to see if we're forcing SSL, and redirect if necessary.
 	 */
-	protected function sslRedirect()
+	protected function sslRedirect(): void
 	{
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance)
 			&& !Config::httpsOn() && SMF != 'SSI') {
@@ -2517,7 +2493,7 @@ class Theme
 	/**
 	 * If the user got here using an unexpected URL, fix it.
 	 */
-	protected function fixUrl()
+	protected function fixUrl(): void
 	{
 		// Check to see if they're accessing it from the wrong place.
 		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
@@ -2606,7 +2582,7 @@ class Theme
 	/**
 	 * Determine the current smiley set.
 	 */
-	protected function fixSmileySet()
+	protected function fixSmileySet(): void
 	{
 		$smiley_sets_known = explode(',', Config::$modSettings['smiley_sets_known']);
 
@@ -2618,7 +2594,7 @@ class Theme
 	/**
 	 * Figure out which template layers and language files should be loaded.
 	 */
-	protected function loadTemplatesAndLangFiles()
+	protected function loadTemplatesAndLangFiles(): void
 	{
 		// This allows sticking some HTML on the page output - useful for controls.
 		Utils::$context['insert_after_template'] = '';
@@ -2690,7 +2666,7 @@ class Theme
 	/**
 	 * Loads the main CSS files for this theme.
 	 */
-	protected function loadCss()
+	protected function loadCss(): void
 	{
 		// And of course, let's load the default CSS file.
 		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
@@ -2706,7 +2682,7 @@ class Theme
 	/**
 	 * Loads the correct theme variant, if applicable.
 	 */
-	protected function loadVariant()
+	protected function loadVariant(): void
 	{
 		// We allow theme variants, because we're cool.
 		Utils::$context['theme_variant'] = '';
@@ -2745,7 +2721,7 @@ class Theme
 	/**
 	 * Loads the boilerplate JavaScript variables and files for this theme.
 	 */
-	protected function loadJavaScript()
+	protected function loadJavaScript(): void
 	{
 		// Default JS variables for use in every theme
 		Utils::$context['javascript_vars'] = [
@@ -2827,7 +2803,7 @@ class Theme
 	/**
 	 * Sets up the top level linktree.
 	 */
-	protected function setupLinktree()
+	protected function setupLinktree(): void
 	{
 		// Note that if we're dealing with certain very early errors (e.g., login) the linktree might not be set yet...
 		if (empty(Utils::$context['linktree'])) {
@@ -2872,7 +2848,7 @@ class Theme
 	 * @param int $id_theme
 	 * @return bool
 	 */
-	protected static function canPickTheme($id_member, $id_theme)
+	protected static function canPickTheme(int $id_member, int $id_theme): bool
 	{
 		return
 			// The selected theme is enabled.
@@ -2912,7 +2888,7 @@ class Theme
 	 * @param string $filename The name of the file to include
 	 * @param bool $once If true only includes the file once (like include_once)
 	 */
-	protected static function templateInclude($filename, $once = false)
+	protected static function templateInclude(string $filename, bool $once = false): void
 	{
 		static $templates = [];
 

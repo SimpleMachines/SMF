@@ -66,8 +66,8 @@ class ShowPermissions implements ActionInterface
 		// Load all the permission profiles.
 		Permissions::loadPermissionProfiles();
 
-		Board::$info->id = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
-		Utils::$context['board'] = Board::$info->id;
+		$board = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
+		Utils::$context['board'] = $board;
 
 		// Load a list of boards for the jump box - except the defaults.
 		Utils::$context['boards'] = [];
@@ -97,7 +97,7 @@ class ShowPermissions implements ActionInterface
 				Utils::$context['boards'][$row['id_board']] = [
 					'id' => $row['id_board'],
 					'name' => $row['name'],
-					'selected' => Board::$info->id == $row['id_board'],
+					'selected' => $board == $row['id_board'],
 					'profile' => $row['id_profile'],
 					'profile_name' => Utils::$context['profiles'][$row['id_profile']]['name'],
 				];
@@ -184,21 +184,21 @@ class ShowPermissions implements ActionInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT
-				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty(Board::$info->id) ? '' : ',
+				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty($board) ? '' : ',
 				b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '
-			FROM {db_prefix}board_permissions AS bp' . (empty(Board::$info->id) ? '' : '
+			FROM {db_prefix}board_permissions AS bp' . (empty($board) ? '' : '
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = {int:current_board})
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))') . '
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bp.id_group)
 			WHERE bp.id_profile = {raw:current_profile}
-				AND bp.id_group IN ({array_int:group_list}' . (empty(Board::$info->id) ? ')' : ', {int:moderator_group})
+				AND bp.id_group IN ({array_int:group_list}' . (empty($board) ? ')' : ', {int:moderator_group})
 				AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})'),
 			[
-				'current_board' => Board::$info->id,
+				'current_board' => $board,
 				'group_list' => Profile::$member->groups,
 				'current_member' => Profile::$member->id,
-				'current_profile' => empty(Board::$info->id) ? '1' : 'b.id_profile',
+				'current_profile' => empty($board) ? '1' : 'b.id_profile',
 				'moderator_group' => 3,
 			],
 		);
@@ -235,7 +235,7 @@ class ShowPermissions implements ActionInterface
 					],
 					'name' => $name,
 					'is_denied' => false,
-					'is_global' => empty(Board::$info->id),
+					'is_global' => empty($board),
 				];
 			}
 

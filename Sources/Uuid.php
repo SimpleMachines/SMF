@@ -975,7 +975,7 @@ class Uuid implements \Stringable
 				Lang::load('Errors', Lang::$default);
 				trigger_error(sprintf(Lang::$txt['uuid_unsupported_version'], $this->version), E_USER_WARNING);
 
-				return $timestamp;
+				return (int) $timestamp;
 		}
 
 		$timestamp = (int) $timestamp;

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\PersonalMessage;
 
 use SMF\Actions\PersonalMessage as PMAction;
@@ -121,7 +123,7 @@ class Folder
 
 		$this->mode = User::$me->pm_prefs & 3;
 
-		$this->per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$this->per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? (int) Theme::$current->options['messages_per_page'] : (int) Config::$modSettings['defaultMaxMessages'];
 
 		Label::load();
 		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
@@ -225,7 +227,7 @@ class Folder
 	 * @param bool $check Checks whether we have some messages to show.
 	 * @return bool|array False on failure, otherwise an array of info
 	 */
-	public function prepareMessageContext($type = 'subject', $check = false)
+	public function prepareMessageContext(string $type = 'subject', bool $check = false): bool|array
 	{
 		static $counter = null;
 		static $temp_pm_selected = null;
@@ -252,6 +254,7 @@ class Folder
 			return PM::$getter->valid();
 		}
 
+		/** @var \SMF\PersonalMessage\PM $message */
 		$message = PM::$getter->current();
 		PM::$getter->next();
 
@@ -310,7 +313,7 @@ class Folder
 	/**
 	 * Constructs page index, sets next/prev/up links, etc.
 	 */
-	protected function setPaginationAndLinks()
+	protected function setPaginationAndLinks(): void
 	{
 		// Make sure the starting location is valid.
 		if (isset($_GET['start']) && $_GET['start'] != 'new') {

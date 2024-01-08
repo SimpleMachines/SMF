@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -34,11 +36,11 @@ class Url implements Stringable
 	 *******************/
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The scheme component of the URL.
 	 */
-	public string $scheme;
+	public ?string $scheme = null;
 
 	/**
 	 * @var string
@@ -141,7 +143,7 @@ class Url implements Stringable
 	 */
 	public function __toString(): string
 	{
-		return $this->url;
+		return (string) $this->url;
 	}
 
 	/**
@@ -150,9 +152,9 @@ class Url implements Stringable
 	 * Uses Punycode to encode any non-ASCII characters in the domain name, and
 	 * uses standard URL encoding on the rest.
 	 *
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function toAscii(): object
+	public function toAscii(): self
 	{
 		// Nothing to do if it is already ASCII.
 		if ($this->is_ascii) {
@@ -202,9 +204,9 @@ class Url implements Stringable
 	 * Decodes any Punycode encoded characters in the domain name, then uses
 	 * standard URL decoding on the rest.
 	 *
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function toUtf8(): object
+	public function toUtf8(): self
 	{
 		// Bail out if we can be sure that it contains no international characters, encoded or otherwise.
 		if ($this->is_ascii && strpos($this->host ?? '', 'xn--') === false && strpos($this->url, '%') === false) {
@@ -253,8 +255,10 @@ class Url implements Stringable
 	 * Internally calls $this->sanitize(), then performs Unicode normalization on the
 	 * URL as a whole, using NFKC normalization for the domain name (see RFC 3491)
 	 * and NFC normalization for the rest.
+	 *
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function normalize(): object
+	public function normalize(): self
 	{
 		// Make sure it is in Unicode normalization form C.
 		$this->url = Utils::normalize($this->url);
@@ -285,9 +289,9 @@ class Url implements Stringable
 	 * Unlike `filter_var($url, FILTER_SANITIZE_URL)`, this correctly handles
 	 * URLs with international characters (a.k.a. IRIs).
 	 *
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function sanitize(): object
+	public function sanitize(): self
 	{
 		// Encode any non-ASCII characters (but not space or control characters of any sort)
 		// Also encode '%' in order to preserve anything that is already percent-encoded.
@@ -336,9 +340,9 @@ class Url implements Stringable
 	 * Checks whether this is a valid IRI, and sets $this->url to '' if not.
 	 *
 	 * @param int $flags Optional flags for filter_var's third parameter.
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function validate(int $flags = 0): object
+	public function validate(int $flags = 0): self
 	{
 		if (!$this->isValid($flags)) {
 			$this->url = '';
@@ -353,9 +357,9 @@ class Url implements Stringable
 	 * characters (a.k.a. IRIs)
 	 *
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return mixed Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
 	 */
-	public function parse(int $component = -1): mixed
+	public function parse(int $component = -1): string|int|array|null|bool
 	{
 		$url = preg_replace_callback(
 			'~[^\x00-\x7F\pZ\pC]|%~u',
@@ -415,9 +419,9 @@ class Url implements Stringable
 	 *
 	 * Mods can implement alternative proxies using the 'integrate_proxy' hook.
 	 *
-	 * @return object A new instance of this class for the proxied URL.
+	 * @return self A new instance of this class for the proxied URL.
 	 */
-	public function proxied(): object
+	public function proxied(): self
 	{
 		$proxied = clone $this;
 
@@ -530,9 +534,9 @@ class Url implements Stringable
 	 * @param string $url The URL or IRI.
 	 * @param bool $normalize Whether to normalize the URL during construction.
 	 *    Default: false.
-	 * @return object The created object.
+	 * @return self The created object.
 	 */
-	public static function create(string $url, bool $normalize = false): object
+	public static function create(string $url, bool $normalize = false): self
 	{
 		return new self($url, $normalize);
 	}
@@ -705,10 +709,10 @@ class Url implements Stringable
 	 *
 	 * @param string $iri The IRI to parse.
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return mixed Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
 	 * @deprecated since 3.0
 	 */
-	public static function parseIri(string $iri, int $component = -1): mixed
+	public static function parseIri(string $iri, int $component = -1): string|int|array|null|bool
 	{
 		$iri = new self($iri);
 
@@ -720,11 +724,11 @@ class Url implements Stringable
 	 *
 	 * @param string $iri The IRI to parse.
 	 * @param int $flags Optional flags for filter_var's third parameter.
-	 * @return object|false A reference to an object for the IRI if it is valid,
+	 * @return self|false A reference to an object for the IRI if it is valid,
 	 *    or false if the IRI is invalid.
 	 * @deprecated since 3.0
 	 */
-	public static function validateIri(string $iri, int $flags = 0): object|false
+	public static function validateIri(string $iri, int $flags = 0): self|bool
 	{
 		$iri = new self($iri);
 
@@ -737,10 +741,10 @@ class Url implements Stringable
 	 * Backward compatibility method.
 	 *
 	 * @param string $iri The IRI to sanitize.
-	 * @return object A reference to an object for the IRI.
+	 * @return self A reference to an object for the IRI.
 	 * @deprecated since 3.0
 	 */
-	public static function sanitizeIri(string $iri): object
+	public static function sanitizeIri(string $iri): self
 	{
 		$iri = new self($iri);
 
@@ -751,10 +755,10 @@ class Url implements Stringable
 	 * Backward compatibility method.
 	 *
 	 * @param string $iri The IRI to normalize.
-	 * @return object A reference to an object for the IRI.
+	 * @return self A reference to an object for the IRI.
 	 * @deprecated since 3.0
 	 */
-	public static function normalizeIri(string $iri): object
+	public static function normalizeIri(string $iri): self
 	{
 		$iri = new self($iri);
 
@@ -765,10 +769,10 @@ class Url implements Stringable
 	 * Backward compatibility wrapper for the toAscii method.
 	 *
 	 * @param string $iri The IRI to convert to an ASCII URL.
-	 * @return object A reference to an object for the URL.
+	 * @return self A reference to an object for the URL.
 	 * @deprecated since 3.0
 	 */
-	public static function iriToUrl(string $iri): object
+	public static function iriToUrl(string $iri): self
 	{
 		$iri = new self($iri);
 
@@ -779,10 +783,10 @@ class Url implements Stringable
 	 * Backward compatibility wrapper for the toUtf8 method.
 	 *
 	 * @param string $url The URL to convert to an IRI.
-	 * @return object A reference to an object for the IRI.
+	 * @return self A reference to an object for the IRI.
 	 * @deprecated since 3.0
 	 */
-	public static function urlToIri(string $url): object
+	public static function urlToIri(string $url): self
 	{
 		$url = new self($url);
 

@@ -1266,7 +1266,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Get the specifics...
 		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
 
-		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
@@ -1514,7 +1514,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// What about a change in type?
 		if (isset($column_info['type']) && ($column_info['type'] != $old_info['type'] || (isset($column_info['size']) && $column_info['size'] != $old_info['size']))) {
 			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
-			list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
@@ -1689,7 +1689,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			// Sort out the size...
 			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
+			list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
@@ -1909,7 +1909,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				}
 
 				// Make the type generic.
-				list($type, $size) = $this->calculate_type($row['data_type'], $row['character_maximum_length'], true);
+				list($type, $size) = $this->calculate_type($row['data_type'], (int) $row['character_maximum_length'], true);
 
 				$columns[$row['column_name']] = [
 					'name' => $row['column_name'],

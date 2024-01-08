@@ -409,7 +409,8 @@ class SearchEngines implements ActionInterface
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
 				} else {
-					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
+					// @TODO: Indirect modification of overloaded element of SMF\ItemList has no effect in
+					@Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 				}
 			}
 		}

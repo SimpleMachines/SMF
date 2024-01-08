@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Config;
@@ -29,8 +31,10 @@ class PruneLogTopics extends ScheduledTask
 	 * This executes the task.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
+	 * @suppress PHP0417
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// If set to zero, bypass.
 		if (empty(Config::$modSettings['mark_read_max_users']) || (empty(Config::$modSettings['mark_read_beyond']) && empty(Config::$modSettings['mark_read_delete_beyond']))) {

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\WebFetch\WebFetchApi;
@@ -213,10 +215,10 @@ class ProxyServer
 	/**
 	 * Returns the request's hashed filepath
 	 *
-	 * @param string $request The request to get the path for
+	 * @param \SMF\Url|string $request The request to get the path for
 	 * @return string The hashed filepath for the specified request
 	 */
-	protected function getCachedPath(string $request): string
+	protected function getCachedPath(\SMF\Url|string $request): string
 	{
 		return $this->cache . '/' . sha1($request . $this->secret);
 	}
@@ -227,7 +229,7 @@ class ProxyServer
 	 * @param string $request The image to check for in the cache
 	 * @return bool Whether or not the requested image is cached
 	 */
-	protected function isCached(string $request): string
+	protected function isCached(string $request): bool
 	{
 		return file_exists($this->getCachedPath($request));
 	}
@@ -296,9 +298,9 @@ class ProxyServer
 	/**
 	 * A helper function to redirect a request
 	 *
-	 * @param string $request
+	 * @param \SMF\Url|string $request
 	 */
-	private function redirectexit(string $request): void
+	private function redirectexit(\SMF\Url|string $request): void
 	{
 		header('Location: ' . Utils::htmlspecialcharsDecode($request), false, 301);
 

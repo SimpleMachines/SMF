@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\PersonalMessage;
 
 use ArrayAccess;
@@ -438,7 +440,7 @@ class PM implements ArrayAccess
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded messages.
 	 */
-	public static function load($ids, array $query_customizations = []): array
+	public static function load(int|array $ids, array $query_customizations = []): array
 	{
 		$loaded = [];
 
@@ -460,6 +462,7 @@ class PM implements ArrayAccess
 		// then return them all at once.
 		self::$keep_all = true;
 
+		/** @var \SMF\PersonalMessage\PM $pm */
 		foreach (self::get($ids, $query_customizations) as $pm) {
 			$loaded[$pm->id] = $pm;
 		}
@@ -478,9 +481,9 @@ class PM implements ArrayAccess
 	 *
 	 * @param int|array $ids The ID numbers of one or more personal messages.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<array> Iterating over result gives PM instances.
+	 * @return \Generator<array> Iterating over result gives PM instances.
 	 */
-	public static function get($ids, array $query_customizations = [])
+	public static function get(int|array $ids, array $query_customizations = []): \Generator
 	{
 		$ids = (array) $ids;
 
@@ -1109,11 +1112,11 @@ class PM implements ArrayAccess
 	 * @param string $subject Should have no slashes and no html entities
 	 * @param string $message Should have no slashes and no html entities
 	 * @param bool $store_outbox Whether to store it in the sender's outbox
-	 * @param array $from An array with the id, name, and username of the member.
+	 * @param ?array $from An array with the id, name, and username of the member.
 	 * @param int $pm_head The ID of the chain being replied to - if any.
 	 * @return array An array with log entries telling how many recipients were successful and which recipients it failed to send to.
 	 */
-	public static function send($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0): array
+	public static function send(array $recipients, string $subject, string $message, bool $store_outbox = false, ?array $from = null, int $pm_head = 0): array
 	{
 		// Make sure the PM language file is loaded, we might need something out of it.
 		Lang::load('PersonalMessage');
@@ -1567,7 +1570,7 @@ class PM implements ArrayAccess
 	 * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
 	 * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
 	 */
-	public static function delete($personal_messages, $folder = null, $owner = null): void
+	public static function delete(int|array|null $personal_messages, ?string $folder = null, array|int|null $owner = null): void
 	{
 		if ($owner === null) {
 			$owner = [User::$me->id];
@@ -1754,7 +1757,7 @@ class PM implements ArrayAccess
 	 * @param int|null $label The ID of a label. If set, only messages with this label will be marked.
 	 * @param int|null $owner If owner is set, marks messages owned by that member id.
 	 */
-	public static function markRead($personal_messages = null, $label = null, $owner = null): void
+	public static function markRead(?array $personal_messages = null, ?int $label = null, ?int $owner = null): void
 	{
 		if ($owner === null) {
 			$owner = User::$me->id;
@@ -2155,7 +2158,7 @@ class PM implements ArrayAccess
 	 * @param string $folders Which folders this is valid for - can be 'inbox', 'outbox' or 'in_or_outbox'
 	 * @return bool Whether the PM is accessible in that folder for the current user
 	 */
-	public static function isAccessible($pmID, $folders = 'both'): bool
+	public static function isAccessible(int $pmID, string $folders = 'both'): bool
 	{
 		if ($folders === 'in_or_outbox') {
 			$folders = 'both';
@@ -2194,9 +2197,9 @@ class PM implements ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
 			'',

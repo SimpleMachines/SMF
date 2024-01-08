@@ -102,16 +102,18 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 * - If $post_data is supplied, the value and length is posted to the given
 	 *   URL as form data.
 	 *
-	 * @param string $url An HTTP or FTP URL.
+	 * @param \SMF\Url|string $url An HTTP or FTP URL.
 	 * @param string|array $post_data The data to post to the given URL.
 	 *    Not applicable to FTP requests.
 	 * @param bool $keep_alive Whether to keep the connection alive for further
 	 *    requests. Not applicable to FTP requests.
 	 * @return string|false The fetched data or false on failure.
 	 */
-	public static function fetch(string $url, string|array $post_data = [], bool $keep_alive = false): string|false
+	public static function fetch(Url|string $url, string|array $post_data = [], bool $keep_alive = false): string|false
 	{
-		$url = Url::create($url, true)->validate()->toAscii();
+		if (!$url instanceof Url) {
+			$url = Url::create($url, true)->validate()->toAscii();
+		}
 
 		// No scheme? No data for you!
 		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {

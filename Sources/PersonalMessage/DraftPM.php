@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\PersonalMessage;
 
 use SMF\BBCodeParser;
@@ -74,7 +76,7 @@ class DraftPM extends Draft
 	{
 		$_REQUEST['subject'] = !empty($this->subject) ? stripslashes($this->subject) : '';
 		$_REQUEST['message'] = !empty($this->body) ? str_replace('<br>', "\n", Utils::htmlspecialcharsDecode(stripslashes($this->body))) : '';
-		$_REQUEST['replied_to'] = !empty($this->id_reply) ? $this->id_reply : 0;
+		$_REQUEST['replied_to'] = !empty($this->reply_to) ? $this->reply_to : 0;
 		Utils::$context['id_draft'] = !empty($this->id) ? $this->id : 0;
 
 		// In theory, we already did this, but just in case...
@@ -98,7 +100,7 @@ class DraftPM extends Draft
 	 * @param bool|int $reply_to ID of the PM that is being replied to.
 	 * @return bool Whether the drafts (if any) were loaded.
 	 */
-	public static function showInEditor(int $member_id, $reply_to = false): bool
+	public static function showInEditor(int $member_id, int|bool $reply_to = false): bool
 	{
 		// Permissions
 		if (empty(Utils::$context['drafts_save']) || empty($member_id)) {
@@ -211,9 +213,10 @@ class DraftPM extends Draft
 			],
 		);
 		list($msgCount) = Db::$db->fetch_row($request);
+		$msgCount = (int) $msgCount;
 		Db::$db->free_result($request);
 
-		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? (int) Theme::$current->options['messages_per_page'] : (int) Config::$modSettings['defaultMaxMessages'];
 		$maxIndex = $maxPerPage;
 
 		// Make sure the starting place makes sense and construct our friend the page index.

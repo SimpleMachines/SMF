@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\PersonalMessage;
 
 use SMF\Config;
@@ -175,7 +177,7 @@ class Search
 		Label::load();
 
 		$this->start = isset($_GET['start']) ? (int) $_GET['start'] : 0;
-		$this->per_page = Config::$modSettings['search_results_per_page'];
+		$this->per_page = (int) Config::$modSettings['search_results_per_page'];
 		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
 
 		Utils::$context['start'] = &$this->start;
@@ -319,9 +321,10 @@ class Search
 		User::load(Utils::$context['posters']);
 
 		// Sort out the page index.
+		$start = (int) ($_GET['start'] ?? 0);
 		Utils::$context['page_index'] = new PageIndex(
 			Config::$scripturl . '?action=pm;sa=search2;params=' . $this->compressed_params,
-			(int) ($_GET['start'] ?? 0),
+			$start,
 			Utils::$context['num_results'],
 			$this->per_page,
 			false,

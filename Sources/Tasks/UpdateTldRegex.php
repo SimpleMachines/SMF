@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Config;
@@ -24,9 +26,10 @@ class UpdateTldRegex extends BackgroundTask
 	/**
 	 * This executes the task. It just calls Url::setTldRegex()
 	 *
-	 * @return bool Always returns true
+	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		Url::setTldRegex(true);
 

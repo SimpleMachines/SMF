@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Actions\Notify;
@@ -93,10 +95,11 @@ class CreatePost_Notify extends BackgroundTask
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
 	 *
-	 * @throws Exception
-	 * @return bool Always returns true
+	 * @throws \Exception
+	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		Theme::loadEssential();
 
@@ -352,7 +355,13 @@ class CreatePost_Notify extends BackgroundTask
 		return true;
 	}
 
-	private function updateAlerts($msg_id)
+	/**
+	 * Update an alert if a message was updated since the alert was created.
+	 * 
+	 * @param int $msg_id Message ID to update
+	 * @return void 
+	 */
+	private function updateAlerts(int $msg_id): void
 	{
 		// We send alerts only on the first iteration of this task.
 		if (!empty($this->_details['respawns'])) {
@@ -437,9 +446,8 @@ class CreatePost_Notify extends BackgroundTask
 	 * Notifies members about new posts in topics they are watching
 	 * and new topics in boards they are watching.
 	 */
-	protected function handleWatchedNotifications()
+	protected function handleWatchedNotifications(): void
 	{
-
 		$msgOptions = &$this->_details['msgOptions'];
 		$topicOptions = &$this->_details['topicOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
@@ -612,7 +620,7 @@ class CreatePost_Notify extends BackgroundTask
 	/**
 	 * Notifies members when their posts are quoted in other posts.
 	 */
-	protected function handleQuoteNotifications()
+	protected function handleQuoteNotifications(): void
 	{
 		$msgOptions = &$this->_details['msgOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
@@ -684,7 +692,7 @@ class CreatePost_Notify extends BackgroundTask
 	/**
 	 * Notifies members when they are mentioned in other members' posts.
 	 */
-	protected function handleMentionedNotifications()
+	protected function handleMentionedNotifications(): void
 	{
 		$msgOptions = &$this->_details['msgOptions'];
 

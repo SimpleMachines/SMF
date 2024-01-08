@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
@@ -56,7 +58,7 @@ class Logging
 	 *
 	 * @return int The ID of the row containing the logged data
 	 */
-	public static function logAction($action, array $extra = [], $log_type = 'moderate'): int
+	public static function logAction(string $action, array $extra = [], string $log_type = 'moderate'): int
 	{
 		return self::logActions([[
 			'action' => $action,
@@ -454,7 +456,7 @@ class Logging
 	 * @param array $stats An array of data
 	 * @return bool Whether or not the info was updated successfully
 	 */
-	public static function trackStats($stats = []): bool
+	public static function trackStats(array $stats = []): bool
 	{
 		static $cache_stats = [];
 
@@ -521,7 +523,7 @@ class Logging
 	 *
 	 * @param int $total_users_online The total number of members online
 	 */
-	public static function trackStatsUsersOnline($total_users_online)
+	public static function trackStatsUsersOnline(int $total_users_online): void
 	{
 		$settingsToUpdate = [];
 
@@ -593,7 +595,7 @@ class Logging
 	 * @param array $membersOnlineOptions An array of options for the list
 	 * @return array An array of information about the online users
 	 */
-	public static function getMembersOnlineStats($membersOnlineOptions)
+	public static function getMembersOnlineStats(array $membersOnlineOptions): array
 	{
 		// The list can be sorted in several ways.
 		$allowed_sort_options = [

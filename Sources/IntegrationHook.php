@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -163,7 +165,7 @@ class IntegrationHook
 	 * @param array $parameters Parameters to pass to the hooked callables.
 	 * @return array The results returned by all the hooked callables.
 	 */
-	public static function call($name, $parameters = []): array
+	public static function call(string $name, array $parameters = []): array
 	{
 		$hook = new self($name);
 

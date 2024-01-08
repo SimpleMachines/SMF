@@ -482,7 +482,7 @@ class Groups implements ActionInterface
 
 				$request = Db::$db->query(
 					'',
-					'SELECT lgr.id_request
+					'SELECT lgr.id_request, lgr.id_group, lgr.id_member
 					FROM {db_prefix}log_group_requests AS lgr
 					WHERE ' . $where . '
 						AND lgr.id_request IN ({array_int:request_list})',

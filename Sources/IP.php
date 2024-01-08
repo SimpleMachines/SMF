@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -73,11 +75,14 @@ class IP implements Stringable
 	 *
 	 * If the passed string is not a valid IP address, it will be set to ''.
 	 *
-	 * @param ?string $ip The IP address in either string or binary form.
-	 * @return $this to provide fluent interface
+	 * @param ?string|self $ip The IP address in either string or binary form.
 	 */
-	public function __construct(?string $ip)
+	public function __construct(self|string|null $ip)
 	{
+		if ($ip instanceof self) {
+			$ip = (string) $ip;
+		}
+
 		// Is it in a valid IPv4 string?
 		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
 			$this->ip = $ip;
@@ -89,7 +94,7 @@ class IP implements Stringable
 		}
 		// It's either in binary form or it's invalid.
 		else {
-			$this->ip = (string) @inet_ntop($ip);
+			$this->ip = (string) @inet_ntop((string) $ip);
 		}
 	}
 
@@ -216,9 +221,9 @@ class IP implements Stringable
 	 * This is just syntactical sugar to ease method chaining.
 	 *
 	 * @param string $ip The IP address in either string or binary form.
-	 * @return object The created object.
+	 * @return self The created object.
 	 */
-	public static function create(string $ip): object
+	public static function create(string $ip): self
 	{
 		return new self($ip);
 	}
@@ -269,7 +274,7 @@ class IP implements Stringable
 	 * @param string $addr The full IP
 	 * @return array An array containing two instances of this class.
 	 */
-	public static function ip2range($addr): array
+	public static function ip2range(string $addr): array
 	{
 		// Pretend that 'unknown' is 255.255.255.255, since that can't be an IP anyway.
 		if ($addr == 'unknown') {
@@ -406,21 +411,25 @@ class IP implements Stringable
 	 * Convert a range of IP addresses into a single string.
 	 * It's practically the reverse function of ip2range().
 	 *
-	 * @param string $low The low end of the range.
-	 * @param string $high The high end of the range.
+	 * @param string|IP $low The low end of the range.
+	 * @param string|IP $high The high end of the range.
 	 * @return string A string indicating the range.
 	 */
-	public static function range2ip($low, $high): string
+	public static function range2ip(string|IP $low, string|IP $high): string
 	{
-		$low = new IP($low);
-		$high = new IP($high);
+		if (!$low instanceof IP) {
+			$low = new IP($low);
+		}
+		if (!$high instanceof IP) {
+			$high = new IP($high);
+		}
 
 		if ($low == '255.255.255.255') {
 			return 'unknown';
 		}
 
 		if ($low == $high) {
-			return $low;
+			return (string) $low;
 		}
 
 		return $low . '-' . $high;
@@ -461,7 +470,7 @@ class IP implements Stringable
 	 * @return bool Whether $ip is a valid IP address.
 	 * @deprecated since 3.0
 	 */
-	public static function isValidIP(string $ip): string
+	public static function isValidIP(string $ip): bool
 	{
 		$ip = new self($ip);
 
@@ -474,10 +483,10 @@ class IP implements Stringable
 	 * This one checks specifically for valid IPv6 addresses.
 	 *
 	 * @param string $ip An IPv6 address in either string or binary form.
-	 * @return string Whether $ip is a valid IPv6 address.
+	 * @return bool Whether $ip is a valid IPv6 address.
 	 * @deprecated since 3.0
 	 */
-	public static function isValidIPv6(string $ip): string
+	public static function isValidIPv6(string $ip): bool
 	{
 		$ip = new self($ip);
 
@@ -617,7 +626,7 @@ class IP implements Stringable
 	 * @param int $timeout Milliseconds until timeout. Default: 1000.
 	 * @return string The host name, or the IP address on failure.
 	 */
-	protected function getHostByAddr(int $timeout = 1000)
+	protected function getHostByAddr(int $timeout = 1000): string
 	{
 		$query = $this->getReverseDnsQuery();
 
@@ -662,7 +671,7 @@ class IP implements Stringable
 			}
 
 			// Add segment to our host.
-			$host[] = substr($response, $position + 1, $len[1]);
+			$host[] = substr($response, (int) $position + 1, $len[1]);
 
 			// Move pointer on to the next segment.
 			$position += $len[1] + 1;

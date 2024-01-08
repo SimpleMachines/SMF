@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -187,10 +189,10 @@ class Session implements \SessionHandlerInterface
 	public static function load(): void
 	{
 		// Attempt to change a few PHP settings.
-		@ini_set('session.use_cookies', true);
-		@ini_set('session.use_only_cookies', false);
+		@ini_set('session.use_cookies', '1');
+		@ini_set('session.use_only_cookies', '0');
 		@ini_set('url_rewriter.tags', '');
-		@ini_set('session.use_trans_sid', false);
+		@ini_set('session.use_trans_sid', '0');
 		@ini_set('arg_separator.output', '&amp;');
 
 		// Allows mods to change/add PHP settings

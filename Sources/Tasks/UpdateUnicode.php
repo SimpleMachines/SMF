@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Tasks;
 
 use SMF\Config;
@@ -411,9 +413,10 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * This executes the task.
 	 *
-	 * @return bool Always returns true
+	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		/*****************
 		 * Part 1: Setup *
@@ -592,7 +595,7 @@ class UpdateUnicode extends BackgroundTask
 	 * Makes a temporary directory to hold our working files, and sets
 	 * $this->temp_dir to the path of the created directory.
 	 */
-	private function make_temp_dir()
+	private function make_temp_dir(): void
 	{
 		if (empty($this->temp_dir)) {
 			$this->temp_dir = rtrim(Config::getTempDir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
@@ -616,9 +619,9 @@ class UpdateUnicode extends BackgroundTask
 	 * @param string $filename Name of a Unicode datafile, relative to $data_url.
 	 * @param string $data_url One of this class's DATA_URL_* constants.
 	 *
-	 * @return string Path to locally saved copy of the file.
+	 * @return string|bool Path to locally saved copy of the file.
 	 */
-	private function fetch_unicode_file($filename, $data_url)
+	private function fetch_unicode_file(string $filename, string $data_url): string|bool
 	{
 		$filename = ltrim($filename, '\\/');
 		$file_url_name = strtr($filename, ['\\' => '/']);
@@ -664,7 +667,7 @@ class UpdateUnicode extends BackgroundTask
 	 *
 	 * @param string Path to directory
 	 */
-	private function deltree($dir_path)
+	private function deltree(string $dir_path): void
 	{
 		// For safety.
 		if (strpos($dir_path, $this->temp_dir) !== 0) {
@@ -699,7 +702,7 @@ class UpdateUnicode extends BackgroundTask
 	 *
 	 * @return string Standard SMF file header.
 	 */
-	private function smf_file_header()
+	private function smf_file_header(): string
 	{
 		static $file_template;
 
@@ -742,7 +745,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Updates Unicode data functions in their designated files.
 	 */
-	public function export_funcs_to_file()
+	public function export_funcs_to_file(): void
 	{
 		foreach ($this->funcs as $func_name => $func_info) {
 			if (empty($func_info['data'])) {
@@ -778,7 +781,7 @@ class UpdateUnicode extends BackgroundTask
 	 *
 	 * @return array PHP code and a regular expression.
 	 */
-	private function get_function_code_and_regex($func_name)
+	private function get_function_code_and_regex(string $func_name): array
 	{
 		// No function name means data is raw code.
 		if (!is_string($func_name)) {
@@ -839,7 +842,7 @@ class UpdateUnicode extends BackgroundTask
 	 * @param string $key_type How to format the array keys.
 	 * @param string $val_type How to format the array values.
 	 */
-	private function build_func_array(&$func_code, $data, $key_type, $val_type)
+	private function build_func_array(string &$func_code, array $data, string $key_type, string $val_type): void
 	{
 		static $indent = 2;
 
@@ -906,7 +909,7 @@ class UpdateUnicode extends BackgroundTask
 	 *
 	 * @return bool Whether SMF should update its local Unicode data or not.
 	 */
-	private function should_update()
+	private function should_update(): bool
 	{
 		$this->lookup_ucd_version();
 
@@ -926,7 +929,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Sets $this->ucd_version to latest version number of the UCD.
 	 */
-	private function lookup_ucd_version()
+	private function lookup_ucd_version(): bool
 	{
 		if (!empty($this->ucd_version)) {
 			return true;
@@ -961,7 +964,7 @@ class UpdateUnicode extends BackgroundTask
 	 * Processes DerivedNormalizationProps.txt in order to populate
 	 * $this->derived_normalization_props.
 	 */
-	private function process_derived_normalization_props()
+	private function process_derived_normalization_props(): bool
 	{
 		$local_file = $this->fetch_unicode_file('DerivedNormalizationProps.txt', self::DATA_URL_UCD);
 
@@ -1026,7 +1029,7 @@ class UpdateUnicode extends BackgroundTask
 	 * $this->full_decomposition_maps, and the 'data' element of most elements
 	 * of $this->funcs.
 	 */
-	private function process_main_unicode_data()
+	private function process_main_unicode_data(): bool
 	{
 		$local_file = $this->fetch_unicode_file('UnicodeData.txt', self::DATA_URL_UCD);
 
@@ -1083,7 +1086,7 @@ class UpdateUnicode extends BackgroundTask
 	 * Processes SpecialCasing.txt and CaseFolding.txt in order to get
 	 * finalized versions of all case conversion data.
 	 */
-	private function process_casing_data()
+	private function process_casing_data(): bool
 	{
 		// Full case conversion maps are the same as the simple ones, unless they're not.
 		$this->funcs['utf8_strtoupper_maps']['data'] = $this->funcs['utf8_strtoupper_simple_maps']['data'];
@@ -1168,7 +1171,7 @@ class UpdateUnicode extends BackgroundTask
 	 * This is necessary because some characters decompose to other characters
 	 * that themselves decompose further.
 	 */
-	private function finalize_decomposition_forms()
+	private function finalize_decomposition_forms(): bool
 	{
 		// Iterate until we reach the final decomposition forms.
 		// First we do the compatibility decomposition forms.
@@ -1238,7 +1241,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Builds regular expressions for normalization quick check.
 	 */
-	private function build_quick_check()
+	private function build_quick_check(): bool
 	{
 		foreach (['NFC_QC', 'NFKC_QC', 'NFD_QC', 'NFKD_QC', 'Changes_When_NFKC_Casefolded'] as $prop) {
 			$current_range = ['start' => null, 'end' => null];
@@ -1284,7 +1287,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Builds regular expression classes for extended Unicode properties.
 	 */
-	private function build_regex_properties()
+	private function build_regex_properties(): bool
 	{
 		foreach ($this->funcs['utf8_regex_properties']['propfiles'] as $filename) {
 			$local_file = $this->fetch_unicode_file($filename, self::DATA_URL_UCD);
@@ -1344,7 +1347,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Builds regular expression classes for filtering variation selectors.
 	 */
-	private function build_regex_variation_selectors()
+	private function build_regex_variation_selectors(): bool
 	{
 		$files = ['StandardizedVariants.txt', 'emoji/emoji-variation-sequences.txt'];
 
@@ -1435,7 +1438,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Helper function for build_regex_joining_type and build_regex_indic.
 	 */
-	private function build_script_stats()
+	private function build_script_stats(): bool
 	{
 		$local_file = $this->fetch_unicode_file('PropertyValueAliases.txt', self::DATA_URL_UCD);
 
@@ -1621,7 +1624,7 @@ class UpdateUnicode extends BackgroundTask
 	 * Builds regex classes for join control tests in utf8_sanitize_invisibles.
 	 * Specifically, for cursive scripts like Arabic.
 	 */
-	private function build_regex_joining_type()
+	private function build_regex_joining_type(): bool
 	{
 		$local_file = $this->fetch_unicode_file('extracted/DerivedJoiningType.txt', self::DATA_URL_UCD);
 
@@ -1721,7 +1724,7 @@ class UpdateUnicode extends BackgroundTask
 	 * Builds regex classes for join control tests in utf8_sanitize_invisibles.
 	 * Specifically, for Indic scripts like Devanagari.
 	 */
-	private function build_regex_indic()
+	private function build_regex_indic(): bool
 	{
 		$local_file = $this->fetch_unicode_file('IndicSyllabicCategory.txt', self::DATA_URL_UCD);
 
@@ -1869,7 +1872,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Builds maps and regex classes for IDNA purposes.
 	 */
-	private function build_idna()
+	private function build_idna(): bool
 	{
 		$local_file = $this->fetch_unicode_file('IdnaMappingTable.txt', self::DATA_URL_IDNA);
 

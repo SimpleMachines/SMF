@@ -19,7 +19,14 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
+
+use SMF\Unicode;
+use function SMF\Unicode\idna_maps;
+use function SMF\Unicode\idna_maps_deviation;
+use function SMF\Unicode\idna_maps_not_std3;
 
 /**
  * Punycode implementation as described in RFC 3492
@@ -111,7 +118,7 @@ class Punycode
 	 *
 	 * @param string $encoding Character encoding
 	 */
-	public function __construct($encoding = 'UTF-8')
+	public function __construct(string $encoding = 'UTF-8')
 	{
 		$this->encoding = $encoding;
 	}
@@ -121,7 +128,7 @@ class Punycode
 	 *
 	 * @param bool $nonTransitional Whether to use Non-Transitional Processing
 	 */
-	public function useNonTransitional(bool $nonTransitional)
+	public function useNonTransitional(bool $nonTransitional): void
 	{
 		$this->nonTransitional = $nonTransitional;
 	}
@@ -131,7 +138,7 @@ class Punycode
 	 *
 	 * @param bool $std3 Whether to use STD3 ASCII rules
 	 */
-	public function useStd3(bool $std3)
+	public function useStd3(bool $std3): void
 	{
 		$this->std3 = $std3;
 	}
@@ -140,9 +147,9 @@ class Punycode
 	 * Encode a domain to its Punycode version
 	 *
 	 * @param string $input Domain name in Unicode to be encoded
-	 * @return string Punycode representation in ASCII
+	 * @return string|bool Punycode representation in ASCII
 	 */
-	public function encode($input)
+	public function encode(string $input): string|bool
 	{
 		// For compatibility with idn_to_* functions
 		if ($this->decode($input) === false) {
@@ -209,7 +216,7 @@ class Punycode
 	 * @param string $input Part of a domain name
 	 * @return string Punycode representation of a domain part
 	 */
-	protected function encodePart($input)
+	protected function encodePart(string $input): string
 	{
 		$codePoints = $this->listCodePoints($input);
 
@@ -283,9 +290,9 @@ class Punycode
 	 * Decode a Punycode domain name to its Unicode counterpart
 	 *
 	 * @param string $input Domain name in Punycode
-	 * @return string Unicode domain name
+	 * @return string|bool Unicode domain name
 	 */
-	public function decode($input)
+	public function decode(string $input): string|bool
 	{
 		$errors = [];
 		$preprocessed = $this->preprocess($input, $errors);
@@ -327,9 +334,9 @@ class Punycode
 	 * Decode a part of domain name, such as tld
 	 *
 	 * @param string $input Part of a domain name
-	 * @return string Unicode domain part
+	 * @return string|bool Unicode domain part
 	 */
-	protected function decodePart($input)
+	protected function decodePart(string $input): string|bool
 	{
 		$n = static::INITIAL_N;
 		$i = 0;
@@ -385,7 +392,7 @@ class Punycode
 	 * @param int $bias
 	 * @return int
 	 */
-	protected function calculateThreshold($k, $bias)
+	protected function calculateThreshold(int $k, int $bias): int
 	{
 		if ($k <= $bias + static::TMIN) {
 			return static::TMIN;
@@ -406,7 +413,7 @@ class Punycode
 	 * @param bool $firstTime
 	 * @return int
 	 */
-	protected function adapt($delta, $numPoints, $firstTime)
+	protected function adapt(int $delta, int $numPoints,bool $firstTime): int
 	{
 		$delta = (int) (
 			($firstTime)
@@ -432,7 +439,7 @@ class Punycode
 	 * @param string $input
 	 * @return array Multi-dimension array with basic, non-basic and aggregated code points
 	 */
-	protected function listCodePoints($input)
+	protected function listCodePoints(string $input): array
 	{
 		$codePoints = [
 			'all' => [],
@@ -462,7 +469,7 @@ class Punycode
 	 * @param string $char
 	 * @return int
 	 */
-	protected function charToCodePoint($char)
+	protected function charToCodePoint(string $char): int
 	{
 		$code = ord($char[0]);
 
@@ -487,7 +494,7 @@ class Punycode
 	 * @param int $code
 	 * @return string
 	 */
-	protected function codePointToChar($code)
+	protected function codePointToChar(int $code): string
 	{
 		if ($code <= 0x7F) {
 			return chr($code);
@@ -510,8 +517,9 @@ class Punycode
 	 *
 	 * @param string $domain A domain name
 	 * @param array $errors Will record any errors encountered during preprocessing
+	 * @return string
 	 */
-	protected function preprocess(string $domain, array &$errors = [])
+	protected function preprocess(string $domain, array &$errors = []): string
 	{
 		require_once Config::$sourcedir . '/Unicode/Idna.php';
 
@@ -543,8 +551,9 @@ class Punycode
 	 *
 	 * @param string $label Individual part of a domain name.
 	 * @param bool $toPunycode True for encoding to Punycode, false for decoding.
+	 * @return int 0 if valid, otherwise a int matching a defined const.
 	 */
-	protected function validateLabel(string $label, bool $toPunycode = true)
+	protected function validateLabel(string $label, bool $toPunycode = true): int
 	{
 		$length = strlen($label);
 

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -454,7 +456,7 @@ class Board implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		if (in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
 			if (!is_array($value)) {
@@ -2093,7 +2095,7 @@ class Board implements \ArrayAccess
 	 * @return bool Whether the specified child board is a child of the
 	 *    specified parent board.
 	 */
-	public static function isChildOf($child, $parent): bool
+	public static function isChildOf(int $child, int $parent): bool
 	{
 		if (empty(self::$loaded[$child]->parent)) {
 			return false;
@@ -2177,9 +2179,9 @@ class Board implements \ArrayAccess
 	 * @param int $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0)
+	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0): \Generator
 	{
 		// If we only want some child boards, use a CTE query for improved performance.
 		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
@@ -2534,17 +2536,17 @@ class Board implements \ArrayAccess
 					}
 
 					$props = [
-						'id' => $row['id_board'],
+						'id' => (int) $row['id_board'],
 						'moderators' => [],
 						'moderator_groups' => [],
-						'cat' => Category::init($row['id_cat'], ['name' => $row['cat_name']]),
+						'cat' => Category::init((int) $row['id_cat'], ['name' => $row['cat_name']]),
 						'name' => $row['name'],
 						'description' => $row['description'],
 						'num_topics' => (int) $row['num_topics'],
 						'unapproved_topics' => (int) $row['unapproved_topics'],
 						'unapproved_posts' => (int) $row['unapproved_posts'],
 						'unapproved_user_topics' => 0,
-						'parent_boards' => self::getParents($row['id_parent']),
+						'parent_boards' => self::getParents((int) $row['id_parent']),
 						'parent' => (int) $row['id_parent'],
 						'child_level' => (int) $row['child_level'],
 						'theme' => (int) $row['id_theme'],

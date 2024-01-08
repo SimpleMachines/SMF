@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -310,9 +312,9 @@ class Utils
 	 * @param string|null $substitute Replacement string for the invalid characters.
 	 *      If not set, the Unicode replacement character (U+FFFD) will be used
 	 *      (or a fallback like "?" if necessary).
-	 * @return string The sanitized string.
+	 * @return string|bool The sanitized string.  False if we failed.
 	 */
-	public static function sanitizeChars($string, $level = 0, $substitute = null)
+	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|bool
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
@@ -384,7 +386,7 @@ class Utils
 	 *      - collapse_hspace: If true, removes extra horizontal spaces.
 	 * @return string The sanitized string.
 	 */
-	public static function normalizeSpaces($string, $vspace = true, $hspace = false, $options = [])
+	public static function normalizeSpaces(string $string, bool $vspace = true, bool $hspace = false, array $options = []): string
 	{
 		$string = (string) $string;
 		$vspace = !empty($vspace);
@@ -426,7 +428,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return string The converted string.
 	 */
-	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): string
+	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): string
 	{
 		$string = self::normalize($string);
 
@@ -444,7 +446,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return array|string The string or array of strings with entities added
 	 */
-	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
+	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
 	{
 		static $level = 0;
 
@@ -478,7 +480,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return string The string without entities.
 	 */
-	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, $encoding = 'UTF-8'): string
+	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
 	}
@@ -868,7 +870,7 @@ class Utils
 		}
 
 		// This recursive closure creates the trie from the strings.
-		$add_string_to_trie = function ($string, $trie) use (&$add_string_to_trie) {
+		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
 			static $depth = 0;
 			$depth++;
 
@@ -909,7 +911,7 @@ class Utils
 		};
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (&$trie, $delim) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, string $delim = null) use (&$trie_to_regex) {
 			static $depth = 0;
 			$depth++;
 
@@ -920,7 +922,7 @@ class Utils
 			$length = 0;
 
 			foreach ($trie as $key => $value) {
-				$key_regex = preg_quote($key, $delim);
+				$key_regex = preg_quote((string) $key, $delim);
 				$new_key = $key;
 
 				if (empty($value)) {
@@ -952,11 +954,11 @@ class Utils
 			uksort(
 				$regex,
 				function ($k1, $k2) {
-					$l1 = mb_strlen($k1);
-					$l2 = mb_strlen($k2);
+					$l1 = mb_strlen((string) $k1);
+					$l2 = mb_strlen((string) $k2);
 
 					if ($l1 == $l2) {
-						return strcmp($k1, $k2) > 0 ? 1 : -1;
+						return strcmp((string) $k1, (string) $k2) > 0 ? 1 : -1;
 					}
 
 					return $l1 > $l2 ? -1 : 1;
@@ -973,7 +975,7 @@ class Utils
 		$regex = '';
 
 		foreach ($strings as $string) {
-			$trie = $add_string_to_trie($string, $trie);
+			$trie = $add_string_to_trie((string) $string, $trie);
 		}
 
 		if ($return_array === true) {
@@ -1062,7 +1064,7 @@ class Utils
 	 * @param int $level = 0 What level we're at within the array (if called recursively)
 	 * @return array|string The string or array of strings with slashes stripped
 	 */
-	public static function stripslashesRecursive($var, $level = 0)
+	public static function stripslashesRecursive(string|array $var, int $level = 0): array|string
 	{
 		if (!is_array($var)) {
 			return stripslashes($var);
@@ -1088,7 +1090,7 @@ class Utils
 	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @return array|string The decoded string or array of decoded strings
 	 */
-	public static function urldecodeRecursive($var, $level = 0)
+	public static function urldecodeRecursive(string|array $var, int $level = 0): array|string
 	{
 		if (!is_array($var)) {
 			return urldecode($var);
@@ -1186,7 +1188,7 @@ class Utils
 			array_walk_recursive(
 				$temp,
 				function (&$value) use ($param_length) {
-					$value = self::truncate(strval($value), $param_length);
+					$value = self::truncate(strval($value), (int) $param_length);
 				},
 			);
 
@@ -1212,7 +1214,7 @@ class Utils
 		array_walk_recursive(
 			$array,
 			function ($value, $key) use (&$length) {
-				$length += strlen($value);
+				$length += strlen((string) $value);
 			},
 		);
 
@@ -1229,7 +1231,7 @@ class Utils
 	 * @param bool $should_log Whether to log errors. Default: true.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true)
+	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true): mixed
 	{
 		// Come on...
 		if (empty($json) || !is_string($json)) {
@@ -1303,7 +1305,7 @@ class Utils
 	 * @param int $depth Maximum depth. Default: 512.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonEncode($value, int $flags = 0, int $depth = 512)
+	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): mixed
 	{
 		return json_encode($value, $flags, $depth);
 	}
@@ -1664,9 +1666,10 @@ class Utils
 	 * Wrapper function for PHP's chmod().
 	 *
 	 * @param string $path The full path of the file or directory.
+	 * @param array|string|null $chmod Specify a chmod, if left blank, SMF will auto pick the writable values.
 	 * @return bool Whether the file/dir exists and is now writable.
 	 */
-	public static function makeWritable(string $path): bool
+	public static function makeWritable(string $path, array|string|null $chmod = null): bool
 	{
 		// No file? no checks!
 		if (empty($path)) {
@@ -1679,7 +1682,7 @@ class Utils
 		}
 
 		// Set different modes.
-		$chmod_values = is_dir($path) ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666];
+		$chmod_values = !empty($chmod) ? (array) $chmod : (is_dir($path) ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666]);
 
 		foreach ($chmod_values as $val) {
 			// If it's writable now, we're done.
@@ -1697,7 +1700,7 @@ class Utils
 	/**
 	 * Emits a file for download. Mostly used for attachments.
 	 *
-	 * @param array|object $file Information about the file. Must be either an
+	 * @param array|\ArrayAccess $file Information about the file. Must be either an
 	 *    array or an object that implements the \ArrayAccess interface.
 	 * @param bool $show_thumb Whether to send the image's embedded thumbnail,
 	 *    if it has one.
@@ -1905,8 +1908,9 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
+	 * @return bool|void If $data is empty, false is returned, othewise the response is sent and execution stopped.
 	 */
-	public static function serverResponse($data = '', $type = 'Content-Type: application/json')
+	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{
 		// Defensive programming anyone?
 		if (empty($data)) {
@@ -1933,6 +1937,7 @@ class Utils
 
 		// Done.
 		self::obExit(false);
+		return null;
 	}
 
 	/**

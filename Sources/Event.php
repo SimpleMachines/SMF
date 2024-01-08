@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Calendar;
@@ -56,18 +58,18 @@ class Event implements \ArrayAccess
 	public int $type = self::TYPE_EVENT_SIMPLE;
 
 	/**
-	 * @var SMF\Time
+	 * @var \SMF\Time
 	 *
 	 * An SMF\Time object representing the start of the event.
 	 */
-	public object $start;
+	public \SMF\Time $start;
 
 	/**
-	 * @var SMF\Time
+	 * @var \SMF\Time
 	 *
 	 * An SMF\Time object representing the end of the event.
 	 */
-	public object $end;
+	public \SMF\Time $end;
 
 	/**
 	 * @var bool
@@ -430,9 +432,15 @@ class Event implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		if (property_exists($this, $prop)) {
+			$type = isset($this->{$prop}) ? gettype($this->{$prop}) : null;
+
+			if (!empty($type)) {
+				settype($value, $type);
+			}
+
 			$this->{$prop} = $value;
 		} elseif (array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
@@ -452,7 +460,12 @@ class Event implements \ArrayAccess
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
 			} else {
-				$this->{$real_prop} = $value;
+				if ($real_prop == 'id') {
+					$this->{$real_prop} = (int) $value;
+				} else {
+					settype($value, gettype($this->{$real_prop}));
+					$this->{$real_prop} = $value;
+				}
 			}
 		} else {
 			// For simplicity's sake...
@@ -559,7 +572,7 @@ class Event implements \ArrayAccess
 
 				case 'span':
 				case 'num_days':
-					$value = $this->setNumDays($value);
+					$this->setNumDays($value);
 					break;
 
 				// These computed properties are read-only.
@@ -582,7 +595,7 @@ class Event implements \ArrayAccess
 
 		// Ensure that the dates still make sense with each other.
 		if (isset($this->start, $this->end)) {
-			self::fixEndDate($this->start, $this->end);
+			self::fixEndDate();
 		}
 	}
 
@@ -849,12 +862,12 @@ class Event implements \ArrayAccess
 	 * @param int|array $id ID number of the event or topic.
 	 * @param bool $is_topic If true, $id is the topic ID. Default: false.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
-	 * @return array Instances of this class for the loaded events.
+	 * @return array|bool Instances of this class for the loaded events.
 	 */
-	public static function load(int $id, bool $is_topic = false, bool $use_permissions = true): array
+	public static function load(int $id, bool $is_topic = false, bool $use_permissions = true): array|bool
 	{
 		if ($id <= 0) {
-			return $is_topic ? false : new self($id);
+			return $is_topic ? false : [new self($id)];
 		}
 
 		$loaded = [];
@@ -917,9 +930,9 @@ class Event implements \ArrayAccess
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<object> Iterating over result gives Event instances.
+	 * @return \Generator<object> Iterating over result gives Event instances.
 	 */
-	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = [])
+	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
 	{
 		$selects = $query_customizations['selects'] ?? [
 			'cal.*',
@@ -1088,7 +1101,7 @@ class Event implements \ArrayAccess
 			return 0;
 		}
 
-		return date_interval_format(date_diff($this->start, $this->end), '%a') + ($this->end->format('H') < $this->start->format('H') ? 2 : 1);
+		return ((int) $this->start->diff($this->end)->format('%a')) + ($this->end->format('H') < $this->start->format('H') ? 2 : 1);
 	}
 
 	/**
@@ -1159,9 +1172,9 @@ class Event implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
 			'',
@@ -1318,7 +1331,7 @@ class Event implements \ArrayAccess
 	 * @param array $input Array of info about event start and end times.
 	 * @return array Standardized version of $input array.
 	 */
-	protected static function standardizeEventOptions($input): array
+	protected static function standardizeEventOptions(array $input): array
 	{
 		foreach (['year', 'month', 'day', 'hour', 'minute', 'second'] as $key) {
 			if (isset($input[$key])) {

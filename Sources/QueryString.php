@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -111,7 +113,7 @@ class QueryString
 		// There's no query string, but there is a URL... try to get the data from there.
 		if (!empty($_SERVER['REQUEST_URI'])) {
 			// Remove the .html, assuming there is one.
-			if (substr($_SERVER['REQUEST_URI'], strrpos($_SERVER['REQUEST_URI'], '.'), 4) == '.htm') {
+			if (substr($_SERVER['REQUEST_URI'], (int) strrpos($_SERVER['REQUEST_URI'], '.'), 4) == '.htm') {
 				$request = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '.'));
 			} else {
 				$request = $_SERVER['REQUEST_URI'];
@@ -467,13 +469,14 @@ class QueryString
 	/**
 	 * Detect if a IP is in a CIDR address.
 	 *
+	 * @static
 	 * @param string $ip_address IP address to check.
 	 * @param string $cidr_address CIDR address to verify.
 	 * @return bool Whether the IP matches the CIDR.
 	 */
 	public static function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
 	{
-		list($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
+		list($cidr_network, $cidr_subnetmask) = preg_split('~/~', $cidr_address);
 
 		// v6?
 		if ((strpos($cidr_network, ':') !== false)) {
@@ -483,7 +486,7 @@ class QueryString
 
 			$ip_address = inet_pton($ip_address);
 			$cidr_network = inet_pton($cidr_network);
-			$binMask = str_repeat('f', $cidr_subnetmask / 4);
+			$binMask = str_repeat('f', (int) $cidr_subnetmask / 4);
 
 			switch ($cidr_subnetmask % 4) {
 				case 0:

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -170,7 +172,7 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
-	public static object $member;
+	public static self $member;
 
 	/**
 	 * @var array
@@ -379,7 +381,7 @@ class Profile extends User implements \ArrayAccess
 						if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1) {
 							$value = '1004-01-01';
 						} else {
-							$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
+							$value = checkdate((int) $value, (int) $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : (int) $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
 						}
 					} else {
 						$value = '1004-01-01';
@@ -398,7 +400,7 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
-						$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
+						$value = checkdate((int) $dates[2], (int) $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
 
 						return true;
 					}
@@ -454,7 +456,7 @@ class Profile extends User implements \ArrayAccess
 						return false;
 					}
 
-					$isValid = self::validateEmail($value, $this->id);
+					$isValid = $this->validateEmail($value);
 
 					// Do they need to revalidate? If so schedule the function!
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
@@ -478,6 +480,7 @@ class Profile extends User implements \ArrayAccess
 				'preload' => [[$this, 'loadAssignableGroups']],
 				'log_change' => true,
 				'input_validate' => function (&$value) {
+					$value = (int) $value;
 					return $this->validateGroups($value, $_POST['additional_groups'] ?? []);
 				},
 			],
@@ -566,7 +569,7 @@ class Profile extends User implements \ArrayAccess
 
 						// Do the reset... this will send them an email too.
 						if ($reset_password) {
-							$this->resetPassword($this->id, $value);
+							$this->resetPassword($value);
 						} elseif ($value !== null) {
 							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
@@ -675,7 +678,7 @@ class Profile extends User implements \ArrayAccess
 						return 'posts_out_of_range';
 					}
 
-					$value = $value != '' ? strtr($value, [',' => '', '.' => '', ' ' => '']) : 0;
+					$value = $value != '' ? strtr((string) $value, [',' => '', '.' => '', ' ' => '']) : 0;
 
 					return true;
 				},
@@ -1274,7 +1277,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Second level selected avatar...
-		Utils::$context['avatar_selected'] = substr(strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
+		Utils::$context['avatar_selected'] = substr((string) strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
 
 		return !empty($this->formatted['avatar']['allow_server_stored']) || !empty($this->formatted['avatar']['allow_external']) || !empty($this->formatted['avatar']['allow_upload']) || !empty($this->formatted['avatar']['allow_gravatar']);
 	}
@@ -1507,7 +1510,7 @@ class Profile extends User implements \ArrayAccess
 	/**
 	 * Saves profile data.
 	 */
-	public function save()
+	public function save(): void
 	{
 		// General-purpose permission for anything that doesn't have its own.
 		$this->can_change_extra = User::$me->allowedTo(User::$me->is_owner ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
@@ -1645,7 +1648,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return bool|string True if the email is valid, otherwise a string
 	 *    indicating what the problem is.
 	 */
-	public function validateEmail($email): bool|string
+	public function validateEmail(string $email): bool|string
 	{
 		$email = strtr($email, ['&#039;' => '\'']);
 
@@ -1771,9 +1774,10 @@ class Profile extends User implements \ArrayAccess
 
 		IntegrationHook::call('before_profile_save_avatar', [&$value]);
 
+		$result = null;
 		switch ($value) {
 			case 'server_stored':
-				$result = $this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
+				$this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
 				break;
 
 			case 'external':
@@ -1785,11 +1789,11 @@ class Profile extends User implements \ArrayAccess
 				break;
 
 			case 'gravatar':
-				$result = $this->setAvatarGravatar();
+				$this->setAvatarGravatar();
 				break;
 
 			default:
-				$result = $this->setAvatarNone();
+				$this->setAvatarNone();
 				break;
 		}
 
@@ -1825,7 +1829,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param string $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function load($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -1888,7 +1892,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return bool|string True if the signature passes the checks, otherwise
 	 *    a string indicating what the problem is.
 	 */
-	public static function validateSignature(&$value): bool|string
+	public static function validateSignature(string &$value): bool|string
 	{
 		// Admins can do whatever they hell they want!
 		if (!User::$me->allowedTo('admin_forum')) {
@@ -2139,7 +2143,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return true Always returns true
 	 * @deprecated since 3.0
 	 */
-	public static function backcompat_profileLoadGroups(?int $id = null)
+	public static function backcompat_profileLoadGroups(?int $id = null): bool
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2155,9 +2159,9 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param bool $force_reload Whether to reload the data.
 	 * @param int $id The ID of the member.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
-	public static function backcompat_loadProfileFields($force_reload = false, ?int $id = null): void
+	public static function backcompat_loadProfileFields(bool $force_reload = false, ?int $id = null): void
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2171,7 +2175,7 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param int $id The ID of the member.
 	 * @param string $area Which area to load fields for.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function backcompat_loadCustomFields(int $id, string $area = 'summary'): void
 	{
@@ -2187,9 +2191,9 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param int $id The ID of the member.
 	 * @param bool $defaultSettings If true, we are loading default options.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
-	public static function backcompat_loadThemeOptions(int $id, bool $defaultSettings = false)
+	public static function backcompat_loadThemeOptions(int $id, bool $defaultSettings = false): void
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2204,7 +2208,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param array $fields The profile fields to display. Each item should
 	 *    correspond to an item in the Profile::$member->standard_fields array.
 	 * @param int $id The ID of the member.
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
 	public static function backcompat_setupProfileContext(array $fields, int $id): void
 	{
@@ -2223,10 +2227,10 @@ class Profile extends User implements \ArrayAccess
 	 * @param string $area The area of the profile these fields are in.
 	 * @param bool $sanitize = true Whether or not to sanitize the data.
 	 * @param bool $return_errors Whether or not to return any error information.
-	 * @return void|array Returns nothing or returns an array of error info if $return_errors is true.
-	 * @deprecated
+	 * @return ?array Returns nothing or returns an array of error info if $return_errors is true.
+	 * @deprecated since 3.0
 	 */
-	public static function backcompat_makeCustomFieldChanges($id, $area, $sanitize = true, $return_errors = false)
+	public static function backcompat_makeCustomFieldChanges(int $id, string $area, bool $sanitize = true, bool $return_errors = false): ?array
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2239,6 +2243,8 @@ class Profile extends User implements \ArrayAccess
 		if (!empty($return_errors)) {
 			return self::$member->cf_save_errors;
 		}
+
+		return null;
 	}
 	/**
 	 * Backward compatibilty wrapper for the save() method.
@@ -2246,9 +2252,9 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param int $id The ID of the user
 	 * @param int $id_theme The ID of the theme
-	 * @deprecated
+	 * @deprecated since 3.0
 	 */
-	public static function backcompat_makeThemeChanges($id, $id_theme)
+	public static function backcompat_makeThemeChanges(int $id, int $id_theme): void
 	{
 		if (!isset(self::$loaded[$id])) {
 			self::load($id);
@@ -2519,7 +2525,7 @@ class Profile extends User implements \ArrayAccess
 				$value = $_POST['customfield'][$cf_def['col_name']] ?? '';
 
 				if ($cf_def['field_length']) {
-					$value = Utils::entitySubstr($value, 0, $cf_def['field_length']);
+					$value = Utils::entitySubstr($value, 0, (int) $cf_def['field_length']);
 				}
 
 				// Any masks?
@@ -2981,8 +2987,8 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Check whether the image is too large.
-		$max_width = Config::$modSettings['avatar_max_width_external'] ?? 0;
-		$max_height = Config::$modSettings['avatar_max_height_external'] ?? 0;
+		$max_width = (int) Config::$modSettings['avatar_max_width_external'] ?? 0;
+		$max_height = (int) Config::$modSettings['avatar_max_height_external'] ?? 0;
 
 		if ($image->shouldResize($max_width, $max_height)) {
 			// Try to resize it, unless the admin disabled resizing.

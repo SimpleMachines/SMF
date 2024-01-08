@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use ArrayAccess;
@@ -109,7 +111,7 @@ class ItemList implements ArrayAccess
 	 *
 	 * The page index for navigating this list.
 	 */
-	public string $page_index;
+	public PageIndex $page_index;
 
 	/**
 	 * @var array
@@ -223,9 +225,9 @@ class ItemList implements ArrayAccess
 	 * Static wrapper for constructor.
 	 *
 	 * @param array $options Same as for the constructor.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(array $options): object
+	public static function load(array $options): self
 	{
 		return new self($options);
 	}
@@ -251,7 +253,8 @@ class ItemList implements ArrayAccess
 			$have_what_we_need &= empty($options['items_per_page']) || (isset($options['get_count']['function'], $options['base_href']) && is_numeric($options['items_per_page']));
 		}
 
-		return $have_what_we_need;
+		// @TODO: The var becomes a int because of &= usage.
+		return (bool) $have_what_we_need;
 	}
 
 	/**
@@ -338,12 +341,12 @@ class ItemList implements ArrayAccess
 
 			$params = $this->options['get_count']['params'] ?? [];
 
-			$this->total_num_items = call_user_func_array($call, array_values($params));
+			$this->total_num_items = (int) call_user_func_array($call, array_values($params));
 		}
 
 		// Default the start to the beginning...sounds logical.
 		$this->start = isset($_REQUEST[$this->start_var_name]) ? (int) $_REQUEST[$this->start_var_name] : 0;
-		$this->items_per_page = $this->options['items_per_page'];
+		$this->items_per_page = (int) $this->options['items_per_page'];
 	}
 
 	/**
@@ -355,7 +358,13 @@ class ItemList implements ArrayAccess
 			return;
 		}
 
-		$this->page_index = new PageIndex($this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''), $this->start, $this->total_num_items, $this->items_per_page, $this->start_var_name != 'start');
+		$this->page_index = new PageIndex(
+			$this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''),
+			$this->start,
+			$this->total_num_items,
+			$this->items_per_page,
+			$this->start_var_name != 'start'
+		);
 	}
 
 	/**
@@ -395,14 +404,14 @@ class ItemList implements ArrayAccess
 				}
 				// Take the value from the database and make it HTML safe.
 				elseif (isset($column['data']['db_htmlsafe'])) {
-					$cur_data['value'] = Utils::htmlspecialchars($list_item[$column['data']['db_htmlsafe']]);
+					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$column['data']['db_htmlsafe']]);
 				}
 				// Using sprintf is probably the most readable way of injecting data.
 				elseif (isset($column['data']['sprintf'])) {
 					$params = [];
 
 					foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe) {
-						$params[] = $htmlsafe ? Utils::htmlspecialchars($list_item[$sprintf_param]) : $list_item[$sprintf_param];
+						$params[] = $htmlsafe ? Utils::htmlspecialchars((string) $list_item[$sprintf_param]) : $list_item[$sprintf_param];
 					}
 
 					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
@@ -426,7 +435,7 @@ class ItemList implements ArrayAccess
 
 				// Allow for basic formatting.
 				if (!empty($column['data']['comma_format'])) {
-					$cur_data['value'] = Lang::numberFormat($cur_data['value']);
+					$cur_data['value'] = Lang::numberFormat((int) $cur_data['value']);
 				} elseif (!empty($column['data']['timeformat'])) {
 					$cur_data['value'] = Time::create('@' . $cur_data['value'])->format();
 				}

@@ -313,8 +313,11 @@ class Tracking implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Find other users that might use the same IP.
-		$ips = array_unique($ips);
+		$ips = array_filter(array_unique($ips), function($ip) {
+			return !empty($ip);
+		});
 		Utils::$context['members_in_range'] = [];
+
 
 		if (!empty($ips)) {
 			// Get member ID's which are in messages...

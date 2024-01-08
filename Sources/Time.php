@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use ArrayAccess;
@@ -203,7 +205,7 @@ class Time extends DateTime implements ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		switch ($prop) {
 			case 'datetime':
@@ -225,23 +227,23 @@ class Time extends DateTime implements ArrayAccess
 			case 'year':
 				$this->setDate(
 					(int) $value,
-					$this->format('m', false, false),
-					$this->format('d', false, false),
+					(int) $this->format('m', false, false),
+					(int) $this->format('d', false, false),
 				);
 				break;
 
 			case 'month':
 				$this->setDate(
-					$this->format('Y', false, false),
+					(int) $this->format('Y', false, false),
 					(int) $value,
-					$this->format('d', false, false),
+					(int) $this->format('d', false, false),
 				);
 				break;
 
 			case 'day':
 				$this->setDate(
-					$this->format('Y', false, false),
-					$this->format('m', false, false),
+					(int) $this->format('Y', false, false),
+					(int) $this->format('m', false, false),
 					(int) $value,
 				);
 				break;
@@ -249,23 +251,23 @@ class Time extends DateTime implements ArrayAccess
 			case 'hour':
 				$this->setTime(
 					(int) $value,
-					$this->format('i', false, false),
-					$this->format('s', false, false),
+					(int) $this->format('i', false, false),
+					(int) $this->format('s', false, false),
 				);
 				break;
 
 			case 'minute':
 				$this->setTime(
-					$this->format('H', false, false),
+					(int) $this->format('H', false, false),
 					(int) $value,
-					$this->format('s', false, false),
+					(int) $this->format('s', false, false),
 				);
 				break;
 
 			case 'second':
 				$this->setTime(
-					$this->format('H', false, false),
-					$this->format('i', false, false),
+					(int) $this->format('H', false, false),
+					(int) $this->format('i', false, false),
 					(int) $value,
 				);
 				break;
@@ -360,7 +362,7 @@ class Time extends DateTime implements ArrayAccess
 				break;
 
 			case 'iso_gmdate':
-				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c', false, false);
+				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c');
 				break;
 
 			case 'timestamp':
@@ -562,7 +564,7 @@ class Time extends DateTime implements ArrayAccess
 						break;
 					}
 
-					$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
+					$placeholders[str_replace($f, (string) $num, $placeholder)] = Lang::$txt[$key][$num];
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
@@ -697,8 +699,9 @@ class Time extends DateTime implements ArrayAccess
 	 * @param \DateTimeZone|string $timezone The time zone of $datetime, either
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
+	 * @return self An instance of this class.
 	 */
-	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): object
+	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): self
 	{
 		return new self($datetime, $timezone);
 	}
@@ -937,7 +940,7 @@ class Time extends DateTime implements ArrayAccess
 	/**
 	 * Backward compatibility wrapper for the format method.
 	 *
-	 * @param int $log_time A timestamp.
+	 * @param int|string $log_time A timestamp.
 	 * @param bool|string $show_today Whether to show "Today"/"Yesterday" or
 	 *    just a date. If a string is specified, that is used to temporarily
 	 *    override the date format.
@@ -948,8 +951,10 @@ class Time extends DateTime implements ArrayAccess
 	 *    be used.
 	 * @return string A formatted time string
 	 */
-	public static function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
+	public static function timeformat(int|string $log_time, bool|string $show_today = true, ?string $tzid = null): string
 	{
+		$log_time = (int) $log_time;
+
 		// For backward compatibility, replace empty values with the user's time
 		// zone and replace anything invalid with the forum's default time zone.
 		$tzid = empty($tzid) ? User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : $tzid);
@@ -968,7 +973,7 @@ class Time extends DateTime implements ArrayAccess
 	 * @param int $timestamp A timestamp (null to use current time).
 	 * @return int Seconds since the Unix epoch.
 	 */
-	public static function forumTime($use_user_offset = true, $timestamp = null)
+	public static function forumTime(bool $use_user_offset = true, int $timestamp = null): int
 	{
 		return !isset($timestamp) ? time() : (int) $timestamp;
 	}

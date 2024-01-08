@@ -388,6 +388,7 @@ abstract class CacheApi
 			}
 
 			// Connect up to the accelerator.
+			/** @var \SMF\Cache\CacheApiInterface $cache_api */
 			if ($cache_api && $cache_api->connect() === false) {
 				$cache_api = false;
 			}

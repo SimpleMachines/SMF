@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 /**
@@ -197,7 +199,7 @@ class Cookie
 	/**
 	 * A wrapper for setcookie that gives integration hooks access to it.
 	 */
-	public function set()
+	public function set(): bool
 	{
 		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$data = [
@@ -267,7 +269,7 @@ class Cookie
 				if ($cookie_state == 0 && $state == 1) {
 					list($data[3], $data[4]) = self::urlParts(true, false);
 				} else {
-					list($data[3], $data[4]) = self::urlParts($state & 1 > 0, $state & 2 > 0);
+					list($data[3], $data[4]) = self::urlParts(($state & 1) > 0, ($state & 2) > 0);
 				}
 			}
 
@@ -325,7 +327,7 @@ class Cookie
 	 * @param int $id The ID of the member to set the cookie for
 	 * @param string $password The hashed password
 	 */
-	public static function setLoginCookie($cookie_length, $id, $password = '')
+	public static function setLoginCookie(int $cookie_length, int $id, string $password = ''): void
 	{
 		self::setDefaults();
 
@@ -422,7 +424,7 @@ class Cookie
 	 * @param int $id The ID of the member.
 	 * @param string $secret Should be a salted secret using self::encrypt().
 	 */
-	public static function setTFACookie($cookie_length, $id, $secret)
+	public static function setTFACookie(int $cookie_length, int $id, string $secret): void
 	{
 		self::setDefaults();
 
@@ -459,17 +461,17 @@ class Cookie
 	 *
 	 * Uses $boardurl to determine these two things.
 	 *
-	 * @param bool $local Whether we want local cookies.
-	 * @param bool $global Whether we want global cookies.
+	 * @param bool $use_local Whether we want local cookies.
+	 * @param bool $use_global Whether we want global cookies.
 	 * @return array The domain and path for the cookie, in that order.
 	 */
-	public static function urlParts($local, $global)
+	public static function urlParts(bool $use_local, bool $use_global): array
 	{
 		// Use the Url class to make life easier.
 		$url = new Url(Config::$boardurl);
 
 		// Are local cookies off?
-		$path = empty($url->path) || !$local ? '' : $url->path;
+		$path = empty($url->path) || !$use_local ? '' : $url->path;
 
 		$host = $url->host;
 
@@ -479,11 +481,11 @@ class Cookie
 			$host = Config::$modSettings['globalCookiesDomain'];
 		}
 		// Globalize cookies across domains? (filter out IP-addresses)
-		elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1) {
+		elseif ($use_global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1) {
 			$host = '.' . $parts[1];
 		}
 		// We shouldn't use a host at all if both options are off.
-		elseif (!$local && !$global) {
+		elseif (!$use_local && !$use_global) {
 			$host = '';
 		}
 		// The host also shouldn't be set if there aren't any dots in it.
@@ -503,7 +505,7 @@ class Cookie
 	 * @param string $salt The salt.
 	 * @return string The hashed password.
 	 */
-	public static function encrypt($password, $salt)
+	public static function encrypt(string $password, string $salt): string
 	{
 		// Append the salt to get a user-specific authentication secret.
 		$secret_key = Config::getAuthSecret() . $salt;

@@ -398,7 +398,7 @@ class SearchResult extends \SMF\Msg
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return \Generator<array> Iterating over result gives SearchResult instances.
 	 */
-	public static function get(/*int|array*/ $ids, array $query_customizations = [])/*: Generator*/
+	public static function get(int|array $ids, array $query_customizations = []): \Generator
 	{
 		$selects = $query_customizations['selects'] ?? [
 			'm.*',

@@ -281,7 +281,7 @@ class SocketFetcher extends WebFetchApi
 			$this->response[$this->current_redirect]['headers'][] = $header;
 
 			if (preg_match('~Content-Length:\s*(\d+)~i', $header, $match)) {
-				$content_length = $match[1];
+				$content_length = (int) $match[1];
 			} elseif (preg_match('~Connection:\s*Close~i', $header)) {
 				$this->keep_alive = false;
 			} elseif (preg_match('~Transfer-Encoding:\s*[\w,\s]+chunked~i', $header)) {

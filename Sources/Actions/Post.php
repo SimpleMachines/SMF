@@ -733,7 +733,7 @@ class Post implements ActionInterface
 			list(Utils::$context['event']) = Event::load((int) $_REQUEST['eventid']);
 		}
 
-		if (!(Utils::$context['event'] instanceof Event)) {
+		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
 			Utils::$context['event'] = new Event(-1);
 		}
 

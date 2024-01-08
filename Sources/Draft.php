@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -251,7 +253,7 @@ class Draft
 	 * @param array &$post_errors Any errors encountered trying to save this draft.
 	 * @return bool Whether the draft was saved successfully.
 	 */
-	public function save(&$post_errors): bool
+	public function save(array &$post_errors): bool
 	{
 		// can you be, should you be ... here?
 		if (empty(Config::$modSettings[$this->enabled_setting]) || !User::$me->allowedTo($this->permission) || !isset($_POST['save_draft'])) {
@@ -569,7 +571,7 @@ class Draft
 	 *     Default: true.
 	 * @return array Data about the draft. Empty if draft was not found.
 	 */
-	protected function read($check = true): array
+	protected function read(bool $check = true): array
 	{
 		// Nothing to read, nothing to do.
 		if (empty($this->id)) {

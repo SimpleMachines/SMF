@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -1140,7 +1142,6 @@ class Alert implements \ArrayAccess
 	 *
 	 * @param array $where Conditions for the WHERE clause of the SQL query.
 	 * @param array $params Parameters to substitute into the SQL query.
-	 * @param bool $read To mark as read or unread. True = read, false = unread.
 	 */
 	public static function deleteWhere(array $where, array $params): void
 	{
@@ -1443,7 +1444,7 @@ class Alert implements \ArrayAccess
 	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @return array Key-value pairs of alert IDs and visibility status.
 	 */
-	protected static function checkTopicAccess($possible_topics, int $memID, bool $simple = false): array
+	protected static function checkTopicAccess(array $possible_topics, int $memID, bool $simple = false): array
 	{
 		if (empty($possible_topics)) {
 			return [];
@@ -1584,7 +1585,7 @@ class Alert implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{

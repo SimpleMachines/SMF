@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -45,14 +47,14 @@ class ErrorHandler
 	{
 		// Error was suppressed with the @-operator.
 		if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
-			return true;
+			return;
 		}
 
 		// Ignore errors that should should not be logged.
 		$error_match = error_reporting() & $error_level;
 
 		if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging'])) {
-			return false;
+			return;
 		}
 
 		if (strpos($file, 'eval()') !== false && !empty(Theme::$current->settings['current_include_filename'])) {
@@ -310,7 +312,7 @@ class ErrorHandler
 	 * @param array $sprintf An array of data to be sprintf()'d into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
 	 */
-	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403)
+	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403): void
 	{
 		static $fatal_error_called = false;
 
@@ -378,6 +380,7 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if $maintenance = 2 in Settings.php.
 	 * It stops further execution of the script.
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayMaintenanceMessage(): void
 	{
@@ -411,6 +414,7 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if there's no way to connect to the database.
 	 * It stops further execution of the script.
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayDbError(): void
 	{
@@ -461,6 +465,7 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if the load averages are too high to continue execution.
 	 * It stops further execution of the script.
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayLoadAvgError(): void
 	{
@@ -494,9 +499,8 @@ class ErrorHandler
 	 * Used by self::fatal() and self::fatalLang().
 	 *
 	 * @param string $error The error
-	 * @param array $sprintf An array of data to be sprintf()'d into the specified message
 	 */
-	protected static function logOnline(string $error, array $sprintf = [])
+	protected static function logOnline(string $error, array $sprintf = []): void
 	{
 		// Don't bother if Who's Online is disabled.
 		if (empty(Config::$modSettings['who_enabled'])) {
@@ -656,8 +660,10 @@ class ErrorHandler
 	 * Logs the last database error into a file.
 	 * Attempts to use the backup file first, to store the last database error
 	 * and only update db_last_error.php if the first was successful.
+	 * 
+	 * @return bool true if succefully able to write the last database error.
 	 */
-	protected static function logLastDatabaseError()
+	protected static function logLastDatabaseError(): bool
 	{
 		// Make a note of the last modified time in case someone does this before us
 		$last_db_error_change = @filemtime(Config::$cachedir . '/db_last_error.php');

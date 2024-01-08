@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use ArrayAccess;
@@ -485,7 +487,7 @@ class Msg implements ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		if ($prop === 'poster_ip') {
 			$value = new IP($value);
@@ -504,18 +506,20 @@ class Msg implements ArrayAccess
 	 * Note: if you are loading a group of messages so that you can iterate over
 	 * them, consider using Msg::get() rather than Msg::load().
 	 *
-	 * @param array $ids The ID numbers of one or more messages.
+	 * @param int|array $ids The ID numbers of one or more messages.
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded messages.
 	 */
-	public static function load($ids, array $query_customizations = []): array
+	public static function load(array|int $ids, array $query_customizations = []): array
 	{
 		// Loading is similar to getting, except that we keep all instances and
 		// then return them all at once.
 		$loaded = [];
 
 		self::$keep_all = true;
+		$ids = (array) $ids;
 
+		/** @var \SMF\Msg $msg */
 		foreach (self::get($ids, $query_customizations) as $msg) {
 			$loaded[$msg->id] = $msg;
 		}
@@ -535,9 +539,9 @@ class Msg implements ArrayAccess
 	 *
 	 * @param int|array $ids The ID numbers of the messages to load.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<array> Iterating over result gives Msg instances.
+	 * @return \Generator<array> Iterating over result gives Msg instances.
 	 */
-	public static function get($ids, array $query_customizations = [])
+	public static function get(array|int $ids, array $query_customizations = []): \Generator
 	{
 		$selects = $query_customizations['selects'] ?? [
 			'm.*',
@@ -587,7 +591,7 @@ class Msg implements ArrayAccess
 	 * @param string &$message The mesasge
 	 * @param bool $previewing Whether we're previewing
 	 */
-	public static function preparsecode(&$message, $previewing = false): void
+	public static function preparsecode(string &$message, bool $previewing = false): void
 	{
 		static $tags_regex, $disallowed_tags_regex;
 
@@ -885,7 +889,7 @@ class Msg implements ArrayAccess
 	 * @param string $message The message
 	 * @return string The message with preparsecode changes reverted.
 	 */
-	public static function un_preparsecode($message): string
+	public static function un_preparsecode(string $message): string
 	{
 		// Any hooks want to work here?
 		IntegrationHook::call('integrate_unpreparsecode', [&$message]);
@@ -921,7 +925,7 @@ class Msg implements ArrayAccess
 		$message = preg_replace_callback(
 			'~\[time\](\d{0,10})\[/time\]~i',
 			function ($matches) {
-				return '[time]' . Time::create('@' . $matches[1])->setTimezone(new \DateTimeZone(User::getTimezone()))->format(null, false) . '[/time]';
+				return '[time]' . Time::create('@' . $matches[1])->setTimezone(new \DateTimeZone(User::getTimezone()))->format(Time::getDateFormat()) . '[/time]';
 			},
 			$message,
 		);
@@ -940,7 +944,7 @@ class Msg implements ArrayAccess
 	 *
 	 * @param string &$message The message
 	 */
-	public static function fixTags(&$message): void
+	public static function fixTags(string &$message): void
 	{
 		// WARNING: Editing the below can cause large security holes in your forum.
 		// Edit only if you are sure you know what you are doing.
@@ -1033,7 +1037,7 @@ class Msg implements ArrayAccess
 	 * @param bool $hasEqualSign Whether it *is* set to something
 	 * @param bool $hasExtra Whether it can have extra cruft after the begin tag.
 	 */
-	public static function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSign = false, $hasExtra = false): void
+	public static function fixTag(string &$message, string $myTag, array $protocols, bool $embeddedUrl = false, bool $hasEqualSign = false, bool $hasExtra = false): void
 	{
 		$forbidden_protocols = [
 			// Poses security risks.
@@ -1126,91 +1130,6 @@ class Msg implements ArrayAccess
 	}
 
 	/**
-	 * Spell checks the post for typos ;).
-	 * It uses the pspell or enchant library, one of which MUST be installed.
-	 * It has problems with internationalization.
-	 * It is accessed via ?action=spellcheck.
-	 */
-	public static function spellCheck(): void
-	{
-		// A list of "words" we know about but pspell doesn't.
-		$known_words = ['smf', 'php', 'mysql', 'www', 'gif', 'jpeg', 'png', 'http', 'smfisawesome', 'grandia', 'terranigma', 'rpgs'];
-
-		Lang::load('Post');
-		Theme::loadTemplate('Post');
-
-		// Create a pspell or enchant dictionary resource
-		$dict = self::spell_init();
-
-		if (!isset($_POST['spellstring']) || !$dict) {
-			die;
-		}
-
-		// Construct a bit of Javascript code.
-		Utils::$context['spell_js'] = '
-			var txt = {"done": "' . Lang::$txt['spellcheck_done'] . '"};
-			var mispstr = window.opener.spellCheckGetText(spell_fieldname);
-			var misps = Array(';
-
-		// Get all the words (Javascript already separated them).
-		$alphas = explode("\n", strtr($_POST['spellstring'], ["\r" => '']));
-
-		$found_words = false;
-
-		for ($i = 0, $n = count($alphas); $i < $n; $i++) {
-			// Words are sent like 'word|offset_begin|offset_end'.
-			$check_word = explode('|', $alphas[$i]);
-
-			// If the word is a known word, or spelled right...
-			if (in_array(Utils::strtolower($check_word[0]), $known_words) || self::spell_check($dict, $check_word[0]) || !isset($check_word[2])) {
-				continue;
-			}
-
-			// Find the word, and move up the "last occurrence" to here.
-			$found_words = true;
-
-			// Add on the javascript for this misspelling.
-			Utils::$context['spell_js'] .= '
-				new misp("' . strtr($check_word[0], ['\\' => '\\\\', '"' => '\\"', '<' => '', '&gt;' => '']) . '", ' . (int) $check_word[1] . ', ' . (int) $check_word[2] . ', [';
-
-			// If there are suggestions, add them in...
-			$suggestions = self::spell_suggest($dict, $check_word[0]);
-
-			if (!empty($suggestions)) {
-				// But first check they aren't going to be censored - no naughty words!
-				foreach ($suggestions as $k => $word) {
-					if ($suggestions[$k] != Lang::censorText($word)) {
-						unset($suggestions[$k]);
-					}
-				}
-
-				if (!empty($suggestions)) {
-					Utils::$context['spell_js'] .= '"' . implode('", "', $suggestions) . '"';
-				}
-			}
-
-			Utils::$context['spell_js'] .= ']),';
-		}
-
-		// If words were found, take off the last comma.
-		if ($found_words) {
-			Utils::$context['spell_js'] = substr(Utils::$context['spell_js'], 0, -1);
-		}
-
-		Utils::$context['spell_js'] .= '
-			);';
-
-		// And instruct the template system to just show the spellcheck sub template.
-		Utils::$context['template_layers'] = [];
-		Utils::$context['sub_template'] = 'spellcheck';
-
-		// Free resources for enchant...
-		if (isset(Utils::$context['enchant_broker'])) {
-			unset($dict, Utils::$context['enchant_broker']);
-		}
-	}
-
-	/**
 	 * Create a post, either as new topic (id_topic = 0) or in an existing one.
 	 * The input parameters of this function assume:
 	 * - Strings have been escaped.
@@ -1222,7 +1141,7 @@ class Msg implements ArrayAccess
 	 * @param array $posterOptions An array of information/options for the poster
 	 * @return bool Whether the operation was a success
 	 */
-	public static function create(&$msgOptions, &$topicOptions, &$posterOptions): bool
+	public static function create(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
 		// Set optional parameters to the default value.
 		$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
@@ -1312,7 +1231,7 @@ class Msg implements ArrayAccess
 		}
 
 		// It's do or die time: forget any user aborts!
-		$previous_ignore_user_abort = ignore_user_abort(true);
+		$previous_ignore_user_abort = (bool) ignore_user_abort(true);
 
 		$new_topic = empty($topicOptions['id']);
 
@@ -1633,7 +1552,7 @@ class Msg implements ArrayAccess
 
 		// Update the last message on the board assuming it's approved AND the topic is.
 		if ($msgOptions['approved']) {
-			self::updateLastMessages($topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? $msgOptions['id'] : 0);
+			self::updateLastMessages((int) $topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? (int) $msgOptions['id'] : 0);
 		}
 
 		// Queue createPost background notification
@@ -1675,7 +1594,7 @@ class Msg implements ArrayAccess
 	 * @param array &$posterOptions An array of information/options for the poster
 	 * @return bool Whether the post was modified successfully
 	 */
-	public static function modify(&$msgOptions, &$topicOptions, &$posterOptions): bool
+	public static function modify(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
 		$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 		$topicOptions['lock_mode'] = $topicOptions['lock_mode'] ?? null;
@@ -1919,8 +1838,9 @@ class Msg implements ArrayAccess
 	 * @param bool $notify Whether to notify users
 	 * @return bool Whether the operation was successful
 	 */
-	public static function approve($msgs, $approve = true, $notify = true): bool
+	public static function approve(array|int $msgs, bool $approve = true, bool $notify = true): bool
 	{
+		// @TODO: $msgs = (array) $msgs;
 		if (!is_array($msgs)) {
 			$msgs = [$msgs];
 		}
@@ -2212,7 +2132,7 @@ class Msg implements ArrayAccess
 	 * @param int[] $content_ids either id_msgs or id_topics
 	 * @param string $content_action will be either 'unapproved_post' or 'unapproved_topic'
 	 */
-	public static function clearApprovalAlerts($content_ids, $content_action): void
+	public static function clearApprovalAlerts(array $content_ids, string $content_action): void
 	{
 		// Some data hygiene...
 		if (!is_array($content_ids)) {
@@ -2244,7 +2164,6 @@ class Msg implements ArrayAccess
 				'content_action' => $content_action,
 				'unread' => 0,
 			],
-			true,
 		);
 	}
 
@@ -2256,17 +2175,18 @@ class Msg implements ArrayAccess
 	 * Note that id_last_msg should always be updated using this function,
 	 * and is not automatically updated upon other changes.
 	 *
-	 * @param array $setboards An array of board IDs
+	 * @param int|array $setboards An array of board IDs
 	 * @param int $id_msg The ID of the message
-	 * @return void|false Returns false if $setboards is empty for some reason
+	 * @return false Returns false if $setboards is empty for some reason
 	 */
-	public static function updateLastMessages($setboards, $id_msg = 0)
+	public static function updateLastMessages(int|array $setboards, int $id_msg = 0): bool
 	{
 		// Please - let's be sane.
 		if (empty($setboards)) {
 			return false;
 		}
 
+		// @TODO: $setboards = (array) $setboards;
 		if (!is_array($setboards)) {
 			$setboards = [$setboards];
 		}
@@ -2316,7 +2236,7 @@ class Msg implements ArrayAccess
 			if (!empty(Board::$info->id) && $id_board == Board::$info->id) {
 				$parents = Board::$info->parent_boards;
 			} else {
-				$parents = Board::getParents($id_board);
+				$parents = Board::getParents((int) $id_board);
 			}
 
 			// Ignore any parents on the top child level.
@@ -2388,6 +2308,8 @@ class Msg implements ArrayAccess
 				],
 			);
 		}
+
+		return true;
 	}
 
 	/**
@@ -2397,7 +2319,7 @@ class Msg implements ArrayAccess
 	 * @param bool $decreasePostCount Whether to decrease users' post counts
 	 * @return bool Whether the operation succeeded
 	 */
-	public static function remove($message, $decreasePostCount = true)
+	public static function remove(int $message, bool $decreasePostCount = true): bool
 	{
 		if (empty($message) || !is_numeric($message)) {
 			return false;
@@ -2524,7 +2446,7 @@ class Msg implements ArrayAccess
 				ErrorHandler::fatalLang('delFirstPost', false);
 			}
 
-			Topic::remove($row['id_topic']);
+			Topic::remove((int) $row['id_topic']);
 
 			return true;
 		}
@@ -2775,7 +2697,7 @@ class Msg implements ArrayAccess
 		// If the poster was registered and the board this message was on incremented
 		// the member's posts when it was posted, decrease his or her post count.
 		if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved']) {
-			User::updateMemberData($row['id_member'], ['posts' => '-']);
+			User::updateMemberData((int) $row['id_member'], ['posts' => '-']);
 		}
 
 		// Only remove posts if they're not recycled.
@@ -2862,137 +2784,6 @@ class Msg implements ArrayAccess
 		return false;
 	}
 
-	/**
-	 * spell_init()
-	 *
-	 * Sets up a dictionary resource handle. Tries enchant first then falls through to pspell.
-	 *
-	 * @return resource|bool An enchant or pspell dictionary resource handle or false if the dictionary couldn't be loaded
-	 */
-	public static function spell_init()
-	{
-		// Check for UTF-8 and strip ".utf8" off the lang_locale string for enchant
-		Utils::$context['spell_utf8'] = (Lang::$txt['lang_character_set'] == 'UTF-8');
-		$lang_locale = str_replace('.utf8', '', Lang::$txt['lang_locale']);
-
-		// Try enchant first since PSpell is (supposedly) deprecated as of PHP 5.3
-		// enchant only does UTF-8, so we need iconv if you aren't using UTF-8
-		if (function_exists('enchant_broker_init') && (Utils::$context['spell_utf8'] || function_exists('iconv'))) {
-			// We'll need this to free resources later...
-			Utils::$context['enchant_broker'] = enchant_broker_init();
-
-			// Try locale first, then general...
-			if (!empty($lang_locale) && enchant_broker_dict_exists(Utils::$context['enchant_broker'], $lang_locale)) {
-				$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], $lang_locale);
-			} elseif (enchant_broker_dict_exists(Utils::$context['enchant_broker'], Lang::$txt['lang_dictionary'])) {
-				$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], Lang::$txt['lang_dictionary']);
-			}
-
-			// Success
-			if (!empty($enchant_link)) {
-				Utils::$context['provider'] = 'enchant';
-
-				return $enchant_link;
-			}
-
-			// Free up any resources used...
-			unset(Utils::$context['enchant_broker']);
-		}
-
-		// Fall through to pspell if enchant didn't work
-		if (function_exists('pspell_new')) {
-			// Okay, this looks funny, but it actually fixes a weird bug.
-			ob_start();
-			$old = error_reporting(0);
-
-			// See, first, some windows machines don't load pspell properly on the first try.  Dumb, but this is a workaround.
-			pspell_new('en');
-
-			// Next, the dictionary in question may not exist. So, we try it... but...
-			$pspell_link = pspell_new(Lang::$txt['lang_dictionary'], '', '', strtr(Utils::$context['character_set'], ['iso-' => 'iso', 'ISO-' => 'iso']), PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-			// Most people don't have anything but English installed... So we use English as a last resort.
-			if (!$pspell_link) {
-				$pspell_link = pspell_new('en', '', '', '', PSPELL_FAST | PSPELL_RUN_TOGETHER);
-			}
-
-			error_reporting($old);
-			ob_end_clean();
-
-			// If we have pspell, exit now...
-			if ($pspell_link) {
-				Utils::$context['provider'] = 'pspell';
-
-				return $pspell_link;
-			}
-		}
-
-		// If we get this far, we're doomed
-		return false;
-	}
-
-	/**
-	 * spell_check()
-	 *
-	 * Determines whether or not the specified word is spelled correctly
-	 *
-	 * @param \PSpell\Dictionary $dict An enchant or pspell dictionary resource set up by {@link spell_init()}
-	 * @param string $word A word to check the spelling of
-	 * @return bool Whether or not the specified word is spelled properly
-	 */
-	public static function spell_check($dict, $word): bool
-	{
-		// Enchant or pspell?
-		if (Utils::$context['provider'] == 'enchant') {
-			// This is a bit tricky here...
-			if (!Utils::$context['spell_utf8']) {
-				// Convert the word to UTF-8 with iconv
-				$word = iconv(Lang::$txt['lang_character_set'], 'UTF-8', $word);
-			}
-
-			return enchant_dict_check($dict, $word);
-		}
-
-		if (Utils::$context['provider'] == 'pspell') {
-			return pspell_check($dict, $word);
-		}
-	}
-
-	/**
-	 * spell_suggest()
-	 *
-	 * Returns an array of suggested replacements for the specified word
-	 *
-	 * @param \PSpell\Dictionary $dict An enchant or pspell dictionary resource
-	 * @param string $word A misspelled word
-	 * @return array An array of suggested replacements for the misspelled word
-	 */
-	public static function spell_suggest($dict, $word): array
-	{
-		if (Utils::$context['provider'] == 'enchant') {
-			// If we're not using UTF-8, we need iconv to handle some stuff...
-			if (!Utils::$context['spell_utf8']) {
-				// Convert the word to UTF-8 before getting suggestions
-				$word = iconv(Lang::$txt['lang_character_set'], 'UTF-8', $word);
-				$suggestions = enchant_dict_suggest($dict, $word);
-
-				// Go through the suggestions and convert them back to the proper character set
-				foreach ($suggestions as $index => $suggestion) {
-					// //TRANSLIT makes it use similar-looking characters for incompatible ones...
-					$suggestions[$index] = iconv('UTF-8', Lang::$txt['lang_character_set'] . '//TRANSLIT', $suggestion);
-				}
-
-				return $suggestions;
-			}
-
-			return enchant_dict_suggest($dict, $word);
-		}
-
-		if (Utils::$context['provider'] == 'pspell') {
-			return pspell_suggest($dict, $word);
-		}
-	}
-
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -3015,9 +2806,9 @@ class Msg implements ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
 			'',

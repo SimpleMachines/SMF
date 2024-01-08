@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
@@ -280,7 +282,7 @@ class Topic implements \ArrayAccess
 	public static $topic_id;
 
 	/**
-	 * @var SMF\Topic
+	 * @var \SMF\Topic
 	 *
 	 * Instance of this class for the requested topic.
 	 */
@@ -376,13 +378,13 @@ class Topic implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		// Special case for num_replies and real_num_replies.
 		if ($prop === 'num_replies' && !isset($this->real_num_replies)) {
-			$this->real_num_replies = $value;
+			$this->real_num_replies = (int) $value;
 		} elseif ($prop === 'real_num_replies' && !isset($this->num_replies)) {
-			$this->num_replies = $value;
+			$this->num_replies = (int) $value;
 		}
 
 		$this->customPropertySet($prop, $value);
@@ -535,9 +537,9 @@ class Topic implements \ArrayAccess
 	 * Loads information about a topic.
 	 *
 	 * @param ?int $id The ID number of a topic, or null for the current topic.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(?int $id = null)
+	public static function load(?int $id = null): self
 	{
 		if (!isset($id)) {
 			if (empty(self::$topic_id)) {
@@ -724,7 +726,7 @@ class Topic implements \ArrayAccess
 	 * @param bool $approve Whether to approve the topics. If false, unapproves them instead.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function approve($topics, $approve = true)
+	public static function approve(array $topics, bool $approve = true): bool
 	{
 		if (!is_array($topics)) {
 			$topics = [$topics];
@@ -767,7 +769,7 @@ class Topic implements \ArrayAccess
 	 * @param array|int $topics The ID of a single topic to move or an array containing the IDs of multiple topics to move
 	 * @param int $toBoard The ID of the board to move the topics to
 	 */
-	public static function move($topics, $toBoard)
+	public static function move(int|array $topics, int $toBoard): void
 	{
 		// Empty array?
 		if (empty($topics)) {
@@ -775,6 +777,7 @@ class Topic implements \ArrayAccess
 		}
 
 		// Only a single topic.
+		// @TODO: $topics = (array) $topics;
 		if (is_numeric($topics)) {
 			$topics = [$topics];
 		}
@@ -1119,8 +1122,9 @@ class Topic implements \ArrayAccess
 	 * @param bool $decreasePostCount Whether to decrease the users' post counts
 	 * @param bool $ignoreRecycling Whether to ignore recycling board settings
 	 * @param bool $updateBoardCount Whether to adjust topic counts for the boards
+	 * @suppress PHP0417
 	 */
-	public static function remove($topics, $decreasePostCount = true, $ignoreRecycling = false, $updateBoardCount = true)
+	public static function remove(int|array $topics, bool $decreasePostCount = true, bool $ignoreRecycling = false, bool $updateBoardCount = true): void
 	{
 		// Nothing to do?
 		if (empty($topics)) {
@@ -1128,6 +1132,7 @@ class Topic implements \ArrayAccess
 		}
 
 		// Only a single topic.
+		// @TODO: $topics = (array) $topics;
 		if (is_numeric($topics)) {
 			$topics = [$topics];
 		}
@@ -1558,7 +1563,7 @@ class Topic implements \ArrayAccess
 		// A few tweaks and extras.
 		$this->started_time = Time::create('@' . $this->started_timestamp)->format();
 		$this->unwatched = $this->unwatched ?? 0;
-		$this->is_poll = (int) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_view'));
+		$this->is_poll = (bool) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_view'));
 
 		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
 

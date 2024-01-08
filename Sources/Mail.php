@@ -11,9 +11,12 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use Socket;
 
 /**
  * Class for preparing and handling email messages.
@@ -29,7 +32,7 @@ class Mail
 	 * This function sends an email to the specified recipient(s).
 	 * It uses the mail_type settings and webmaster_email variable.
 	 *
-	 * @param array $to The email(s) to send to
+	 * @param array|string $to The email(s) to send to
 	 * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
 	 * @param string $message Email body, expected to have slashes, no htmlentities
 	 * @param string $from The address to use for replies
@@ -39,8 +42,19 @@ class Mail
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether ot not the email was sent properly.
+	 * @suppress PHP0417
 	 */
-	public static function send($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
+	public static function send(
+		array|string $to,
+		string $subject,
+		string $message,
+		string $from = null,
+		string $message_id = null,
+		bool $send_html = false,
+		int $priority = 3,
+		bool $hotmail_fix = null,
+		bool $is_private = false
+		): bool
 	{
 		// Use sendmail if it's set or if no SMTP server is set.
 		$use_sendmail = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '';
@@ -248,7 +262,16 @@ class Mail
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether the message was added
 	 */
-	public static function addToQueue($flush = false, $to_array = [], $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
+	public static function addToQueue(
+		bool $flush = false,
+		array $to_array = [],
+		string $subject = '',
+		string $message = '',
+		string $headers = '',
+		bool $send_html = false,
+		int $priority = 3,
+		bool $is_private = false
+		): bool
 	{
 		static $cur_insert = [];
 		static $cur_insert_len = 0;
@@ -343,8 +366,9 @@ class Mail
 	 * @param bool $override_limit Whether to bypass the limit
 	 * @param bool $force_send Whether to forcibly send the messages now (useful when using cron jobs)
 	 * @return bool Whether things were sent
+	 * @suppress PHP0417
 	 */
-	public static function reduceQueue($number = false, $override_limit = false, $force_send = false)
+	public static function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
 	{
 		// Are we intending another script to be sending out the queue?
 		if (!empty(Config::$modSettings['mail_queue_use_cron']) && empty($force_send)) {
@@ -360,7 +384,7 @@ class Mail
 
 		// By default send 5 at once.
 		if (!$number) {
-			$number = empty(Config::$modSettings['mail_quantity']) ? 5 : Config::$modSettings['mail_quantity'];
+			$number = empty(Config::$modSettings['mail_quantity']) ? 5 : (int) Config::$modSettings['mail_quantity'];
 		}
 
 		// If we came with a timestamp, and that doesn't match the next event, then someone else has beaten us.
@@ -613,7 +637,7 @@ class Mail
 	 * @param string $custom_charset If set, it uses this character set
 	 * @return array An array containing the character set, the converted string and the transport method.
 	 */
-	public static function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
+	public static function mimespecialchars(string $string, bool $with_charset = true, bool $hotmail_fix = false, string $line_break = "\r\n", string $custom_charset = null): array
 	{
 		$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
 
@@ -633,7 +657,7 @@ class Mail
 				$string = preg_replace_callback(
 					'~&#(\d{3,8});~',
 					function ($m) {
-						return chr("{$m[1]}");
+						return chr((int) "{$m[1]}");
 					},
 					$string,
 				);
@@ -722,8 +746,9 @@ class Mail
 	 * @param string $message Email message
 	 * @param string $headers Email headers
 	 * @return bool Whether it sent or not.
+	 * @suppress PHP0417
 	 */
-	public static function sendSmtp($mail_to_array, $subject, $message, $headers)
+	public static function sendSmtp(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
 		static $helo;
 
@@ -751,7 +776,7 @@ class Mail
 		}
 
 		// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
-		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
+		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : (int) Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
 			// Maybe we can still save this?  The port might be wrong.
 			if (substr(Config::$modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
 				// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
@@ -924,13 +949,13 @@ class Mail
 	 *
 	 * @internal
 	 *
-	 * @param string $message The message to send
-	 * @param resource $socket Socket to send on
-	 * @param string $code The expected response code
+	 * @param ?string $message The message to send
+	 * @param resource $socket Socket to send on. Type hinting calls it 'mixed' as resource can not be used.
+	 * @param ?string $code The expected response code
 	 * @param string $response The response from the SMTP server
-	 * @return bool Whether it responded as such.
+	 * @return bool|string Whether it responded as such. Otherwise the response code is resturned.
 	 */
-	public static function serverParse($message, $socket, $code, &$response = null)
+	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool|string
 	{
 		if ($message !== null) {
 			fputs($socket, $message . "\r\n");
@@ -981,12 +1006,12 @@ class Mail
 	 * It will not send 'reply' notifications more than once in a row.
 	 * Uses Post language file
 	 *
-	 * @param array $topics Represents the topics the action is happening to.
+	 * @param int|array $topics Represents the topics the action is happening to.
 	 * @param string $type Can be any of reply, sticky, lock, unlock, remove, move, merge, and split.  An appropriate message will be sent for each.
 	 * @param array $exclude Members in the exclude array will not be processed for the topic with the same key.
 	 * @param array $members_only Are the only ones that will be sent the notification if they have it on.
 	 */
-	public static function sendNotifications($topics, $type, $exclude = [], $members_only = [])
+	public static function sendNotifications(int|array $topics, string $type, array $exclude = [], array $members_only = []): void
 	{
 		// Can't do it if there's no topics.
 		if (empty($topics)) {
@@ -994,6 +1019,7 @@ class Mail
 		}
 
 		// It must be an array - it must!
+		// @TODO: $topics = (array) $topics;
 		if (!is_array($topics)) {
 			$topics = [$topics];
 		}
@@ -1068,7 +1094,7 @@ class Mail
 	 * @param int $memberID The ID of the member
 	 * @param string $member_name The name of the member (if null, it is pulled from the database)
 	 */
-	public static function adminNotify($type, $memberID, $member_name = null)
+	public static function adminNotify(string $type, int $memberID, string $member_name = null): void
 	{
 		if ($member_name == null) {
 			// Get the new user's name....
@@ -1118,7 +1144,7 @@ class Mail
 	 * @param bool $loadLang Whether to load the language file first
 	 * @return array An array containing the subject and body of the email template, with replacements made
 	 */
-	public static function loadEmailTemplate($template, $replacements = [], $lang = '', $loadLang = true)
+	public static function loadEmailTemplate(string $template, array $replacements = [], string $lang = '', bool $loadLang = true): array
 	{
 		// First things first, load up the email templates language file, if we need to.
 		if ($loadLang) {
@@ -1177,7 +1203,7 @@ class Mail
 	 * @param array $matches An array of matches
 	 * @return string The match
 	 */
-	protected static function userInfoCallback($matches)
+	protected static function userInfoCallback(array $matches): string
 	{
 		if (empty($matches[1])) {
 			return '';

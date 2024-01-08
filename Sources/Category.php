@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Cache\CacheApi;
@@ -308,9 +310,9 @@ class Category implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of the category.
 	 * @param array $props Array of properties to set.
-	 * @return object An instance of this class.
+	 * @return ?self An instance of this class.
 	 */
-	public static function init(int $id, array $props = []): object
+	public static function init(int $id, array $props = []): ?self
 	{
 		if (!isset(self::$loaded[$id])) {
 			new self($id, $props);
@@ -682,7 +684,7 @@ class Category implements \ArrayAccess
 
 		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
 			if (!isset(self::$loaded[$row['id_cat']])) {
-				self::init($row['id_cat'], [
+				self::init((int) $row['id_cat'], [
 					'name' => $row['cat_name'],
 					'description' => $row['cat_desc'],
 					'order' => $row['cat_order'],
@@ -706,7 +708,7 @@ class Category implements \ArrayAccess
 				$row['deny_member_groups'] = explode(',', $row['deny_member_groups']);
 				$row['prev_board'] = $prevBoard;
 
-				Board::init($row['id_board'], $row);
+				Board::init((int) $row['id_board'], $row);
 
 				$prevBoard = $row['id_board'];
 				$last_board_order = $row['board_order'];
@@ -761,9 +763,9 @@ class Category implements \ArrayAccess
 	 * Used by self::getTree().
 	 *
 	 * @param array &$list The board list
-	 * @param SMF\Category &$tree The board tree
+	 * @param \SMF\Category|\SMF\Board &$tree The board tree
 	 */
-	public static function recursiveBoards(&$list, &$tree): void
+	public static function recursiveBoards(array &$list, \SMF\Category|\SMF\Board &$tree): void
 	{
 		if (empty($tree->children)) {
 			return;
@@ -857,9 +859,9 @@ class Category implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
 			'',

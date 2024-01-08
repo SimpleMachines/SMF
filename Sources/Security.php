@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -33,7 +35,7 @@ class Security
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
-	public static function hashPassword($username, $password, $cost = null)
+	public static function hashPassword(string $username, string $password, int $cost = null): string
 	{
 		$cost = empty($cost) ? (empty(Config::$modSettings['bcrypt_hash_cost']) ? 10 : Config::$modSettings['bcrypt_hash_cost']) : $cost;
 
@@ -50,7 +52,7 @@ class Security
 	 * @param string $hash The hashed string
 	 * @return bool Whether the hashed password matches the string
 	 */
-	public static function hashVerifyPassword($username, $password, $hash)
+	public static function hashVerifyPassword(string $username, string $password, string $hash): bool
 	{
 		return password_verify(Utils::strtolower($username) . $password, $hash);
 	}
@@ -61,7 +63,7 @@ class Security
 	 * @param float $hashTime Time to target, in seconds
 	 * @return int The cost
 	 */
-	public static function hashBenchmark($hashTime = 0.2)
+	public static function hashBenchmark(float $hashTime = 0.2): int
 	{
 		$cost = 9;
 
@@ -340,7 +342,7 @@ class Security
 	 * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
 	 * @since 2.1
 	 */
-	public static function frameOptionsHeader($override = null)
+	public static function frameOptionsHeader(string $override = null): void
 	{
 		$option = 'SAMEORIGIN';
 
@@ -379,10 +381,8 @@ class Security
 			return;
 		}
 
-		foreach (['origin' => $_SERVER['HTTP_ORIGIN'], 'forumurl' => Config::$boardurl] as $var => $url) {
-			// Convert any Punycode to Unicode for the sake of comparison.
-			$$var = Url::create(trim($url), true)->validate()->toUtf8();
-		}
+		$origin = Url::create(trim($_SERVER['HTTP_ORIGIN']), true)->validate()->toUtf8();
+		$forumurl = Url::create(trim(Config::$boardurl), true)->validate()->toUtf8();
 
 		// The admin wants weak security... :(
 		if (!empty(Config::$modSettings['cors_domains']) && Config::$modSettings['cors_domains'] === '*') {

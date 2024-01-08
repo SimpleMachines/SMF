@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use Stringable;
@@ -231,7 +233,7 @@ class PageIndex implements Stringable
 	/**
 	 * Finalizes and returns the page index links.
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		// Why do all this work here rather than in the constructor, you ask?
 		// Because the string should always reflect the object's current
@@ -277,9 +279,9 @@ class PageIndex implements Stringable
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(string $base_url, int &$start, int $max_value, int $num_per_page, bool $short_format = false, bool $show_prevnext = true): object
+	public static function load(string $base_url, int &$start, int $max_value, int $num_per_page, bool $short_format = false, bool $show_prevnext = true): self
 	{
 		return new self($base_url, $start, $max_value, $num_per_page, $short_format, $show_prevnext);
 	}
@@ -304,7 +306,7 @@ class PageIndex implements Stringable
 		$start = min(max($start, 0), $this->max_value);
 		$start -= ($start % $this->num_per_page);
 
-		return $start;
+		return (int) $start;
 	}
 
 	/**

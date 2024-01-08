@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
@@ -305,9 +307,9 @@ class TaskRunner
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// What kind of task are we handling?
 			if (!empty($row['callable'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['callable'], true);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], $row['callable'], true);
 			} elseif (!empty($row['task'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['task']);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], $row['task']);
 			} else {
 				continue;
 			}
@@ -344,7 +346,7 @@ class TaskRunner
 	 * @param string $file The file where the error occurred
 	 * @param int $line What line of the specified file the error occurred on
 	 */
-	public static function handleError($error_level, $error_string, $file, $line): void
+	public static function handleError(int $error_level, string $error_string, string $file, int $line): void
 	{
 		// Ignore errors that should not be logged.
 		if (error_reporting() == 0) {
@@ -420,7 +422,7 @@ class TaskRunner
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$next_time = self::getNextScheduledTime($row['time_regularity'], $row['time_unit'], $row['time_offset']);
+			$next_time = self::getNextScheduledTime((int) $row['time_regularity'], $row['time_unit'], (int) $row['time_offset']);
 
 			// Only bother moving the task if it's out of place or we're forcing it!
 			if ($force_update || $next_time < $row['next_time'] || $row['next_time'] < time()) {
@@ -530,7 +532,7 @@ class TaskRunner
 	 * @param array $task_details An array of info about the task.
 	 * @return bool Whether the task should be cleared from the queue.
 	 */
-	protected function performTask($task_details): bool
+	protected function performTask(array $task_details): bool
 	{
 		// This indicates the file to load.
 		// Only needed for tasks that don't use the SMF\Tasks\ namespace.
@@ -756,6 +758,8 @@ class TaskRunner
 
 	/**
 	 * The exit function.
+	 * 
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	protected function obExit(): void
 	{
@@ -810,7 +814,7 @@ class TaskRunner
 		}
 		// Otherwise, work out what the offset would be with today's date.
 		else {
-			$next_time = mktime(date('H', $offset), date('i', $offset), 0, date('m'), date('d'), date('Y'));
+			$next_time = mktime((int) date('H', $offset), (int) date('i', $offset), 0, (int) date('m'), (int) date('d'), (int) date('Y'));
 
 			// Make the time offset in the past!
 			if ($next_time > time()) {
