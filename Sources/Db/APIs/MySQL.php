@@ -2352,11 +2352,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 		// Numbers don't need quotes.
 		elseif (isset($column['default']) && is_numeric($column['default'])) {
-			$default = 'DEFAULT ' . (strpos($column['default'], '.') ? floatval($column['default']) : intval($column['default']));
+			$default = 'DEFAULT ' . (strpos((string) $column['default'], '.') ? floatval($column['default']) : intval($column['default']));
 		}
 		// Non empty string.
 		elseif (isset($column['default'])) {
-			$default = 'DEFAULT \'' . $this->escape_string($column['default']) . '\'';
+			$default = 'DEFAULT \'' . $this->escape_string((string) $column['default']) . '\'';
 		} else {
 			$default = '';
 		}
