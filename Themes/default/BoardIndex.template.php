@@ -35,17 +35,15 @@ function template_newsfader()
 	{
 		echo '
 		<div class="news_section">
-		<div class="news_section_left"><i class="fa-solid fa-exclamation"></i></div>
-		<div class="news_section_right">
-		<ul id="smf_slider">';
+			<div class="icon"><i class="fa-solid fa-exclamation"></i></div>
+			<ul id="smf_slider">';
 
 		foreach (Utils::$context['news_lines'] as $news)
 			echo '
-			<li>', $news, '</li>';
+				<li>', $news, '</li>';
 
 		echo '
-		</ul>
-		</div>
+			</ul>
 		</div>
 		<script>
 			jQuery("#smf_slider").slippry({
