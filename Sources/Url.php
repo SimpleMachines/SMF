@@ -699,9 +699,9 @@ class Url implements \Stringable
 	 *
 	 * @param string $iri The IRI to parse.
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return mixed Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
 	 */
-	public static function parseIri(string $iri, int $component = -1): string|int|array|null|false
+	public static function parseIri(string $iri, int $component = -1): string|int|array|null|bool
 	{
 		$iri = new self($iri);
 
@@ -716,7 +716,7 @@ class Url implements \Stringable
 	 * @return self|false A reference to an object for the IRI if it is valid,
 	 *    or false if the IRI is invalid.
 	 */
-	public static function validateIri(string $iri, int $flags = 0): self|false
+	public static function validateIri(string $iri, int $flags = 0): self|bool
 	{
 		$iri = new self($iri);
 
