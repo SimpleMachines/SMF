@@ -450,6 +450,7 @@ class Event implements \ArrayAccess
 	{
 		if (property_exists($this, $prop)) {
 			$type = isset($this->{$prop}) ? gettype($this->{$prop}) : null;
+
 			if (!empty($type)) {
 				settype($value, $type);
 			}
@@ -473,12 +474,11 @@ class Event implements \ArrayAccess
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
 			} else {
-				if ($real_prop == 'id'){
+				if ($real_prop == 'id') {
 					$this->{$real_prop} = (int) $value;
-				}
-				else {
+				} else {
 					settype($value, gettype($this->{$real_prop}));
-					$this->{$real_prop} = $value;	
+					$this->{$real_prop} = $value;
 				}
 			}
 		} else {
@@ -881,7 +881,7 @@ class Event implements \ArrayAccess
 	public static function load(int $id, bool $is_topic = false, bool $use_permissions = true): array|bool
 	{
 		if ($id <= 0) {
-			return $is_topic ? false : new self($id);
+			return $is_topic ? false : [new self($id)];
 		}
 
 		$loaded = [];
