@@ -4603,7 +4603,7 @@ class User implements ArrayAccess
 
 			self::$loaded[$id] = $this;
 
-			if (!isset(self::$profiles[$id]) || self::$dataset_levels[self::$profiles[$id]['dataset']] < self::$dataset_levels[$dataset ?? 'normal']) {
+			if (!empty(self::$profiles[$id]) || self::$dataset_levels[self::$profiles[$id]['dataset']] < self::$dataset_levels[$dataset ?? 'normal']) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset ?? 'normal');
 			}
 
