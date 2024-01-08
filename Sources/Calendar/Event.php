@@ -821,16 +821,60 @@ class Event implements \ArrayAccess
 		]);
 	}
 
-	// /**
-	//  * @todo Builds an iCalendar document for the event, including all
-	//  * recurrence info.
-	//  *
-	//  * @return string An iCalendar VEVENT document.
-	//  */
-	// public function getVEvent(): string
-	// {
-	// 	return '';
-	// }
+	/**
+	 * Builds iCalendar components for events, including recurrence info.
+	 *
+	 * @return string One or more VEVENT components for an iCalendar document.
+	 */
+	public function export(): string
+	{
+		$filecontents = [];
+		$filecontents[] = 'BEGIN:VEVENT';
+
+		$filecontents[] = 'SUMMARY:' . $this->title;
+
+		if (!empty($this->location)) {
+			$filecontents[] = 'LOCATION:' . str_replace(',', '\\,', $this->location);
+		}
+
+		if (!empty($this->topic)) {
+			$filecontents[] = 'URL:' . Config::$scripturl . '?topic=' . $this->topic . '.0';
+		}
+
+		$filecontents[] = 'UID:' . $this->uid;
+		$filecontents[] = 'SEQUENCE:' . $this->sequence;
+
+		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', $this->modified_time ?? time());
+		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
+		$filecontents[] = 'DURATION:' . (string) $this->duration;
+
+		if ((string) $this->recurrence_iterator->getRRule() !== 'FREQ=YEARLY;COUNT=1') {
+			$filecontents[] = 'RRULE:' . (string) $this->recurrence_iterator->getRRule();
+		}
+
+		if ($this->recurrence_iterator->getRDates() !== []) {
+			$filecontents[] = 'RDATE' . ($this->allday ? ';VALUE=DATE' : '') . ':' . implode(",\r\n ", $this->recurrence_iterator->getRDates());
+		}
+
+		if ($this->recurrence_iterator->getExDates() !== []) {
+			$filecontents[] = 'EXDATE' . ($this->allday ? ';VALUE=DATE' : '') . ':' . implode(",\r\n ", $this->recurrence_iterator->getExDates());
+		}
+
+		$filecontents[] = 'END:VEVENT';
+
+		// Fit all lines within iCalendar's line width restraint.
+		foreach ($filecontents as $line_num => $line) {
+			$filecontents[$line_num] = self::foldICalLine($line);
+		}
+
+		// Adjusted occurrences need their own VEVENTs.
+		foreach ($this->adjustments as $recurrence_id => $adjustment) {
+			$occurrence = $this->getOccurrence($recurrence_id);
+			$filecontents[] = $occurrence->export();
+		}
+
+		return implode("\r\n", $filecontents);
+	}
 
 	/**
 	 * Adds an arbitrary date to the recurrence set.
@@ -1925,6 +1969,32 @@ class Event implements \ArrayAccess
 		}
 
 		return $events;
+	}
+
+	/**
+	 * Folds lines of text to fit within the iCalendar line width restraint.
+	 *
+	 * @param string $line The line of text to fold.
+	 * @return string $line The folded version of $line.
+	 */
+	public static function foldICalLine(string $line): string
+	{
+		$folded = [];
+
+		$temp = '';
+
+		foreach (mb_str_split($line) as $char) {
+			if (strlen($temp . $char) > 75) {
+				$folded[] = $temp;
+				$temp = '';
+			}
+
+			$temp .= $char;
+		}
+
+		$folded[] = $temp;
+
+		return implode("\r\n ", $folded);
 	}
 
 	/**

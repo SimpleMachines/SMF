@@ -22,6 +22,7 @@ use SMF\Time;
 use SMF\TimeInterval;
 use SMF\TimeZone;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * Represents a single occurrence of a calendar event.
@@ -194,51 +195,36 @@ class EventOccurrence implements \ArrayAccess
 	}
 
 	/**
-	 * Builds an iCalendar document for this occurrence of the event.
+	 * Builds an iCalendar component for this occurrence of the event.
 	 *
-	 * @return string An iCalendar VEVENT document.
+	 * @return string A VEVENT component for an iCalendar document.
 	 */
-	public function getVEvent(): string
+	public function export(): string
 	{
-		// Check the title isn't too long - iCal requires some formatting if so.
-		$title = str_split($this->title, 30);
-
-		foreach ($title as $id => $line) {
-			if ($id != 0) {
-				$title[$id] = ' ' . $title[$id];
-			}
-		}
-
-		// This is what we will be sending later.
 		$filecontents = [];
 		$filecontents[] = 'BEGIN:VEVENT';
-		$filecontents[] = 'ORGANIZER;CN="' . $this->name . '":MAILTO:' . Config::$webmaster_email;
-		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', time());
-		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
 
-		// Event has a duration/
-		if (
-			(!$this->allday && $this->start_iso_gmdate != $this->end_iso_gmdate)
-			|| ($this->allday && $this->start_date != $this->end_date)
-		) {
-			$filecontents[] = 'DTEND' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->end->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
-		}
-
-		// Event has changed? Advance the sequence for this UID.
-		if ($this->sequence > 0) {
-			$filecontents[] = 'SEQUENCE:' . $this->sequence;
-		}
+		$filecontents[] = 'SUMMARY:' . $this->title;
 
 		if (!empty($this->location)) {
 			$filecontents[] = 'LOCATION:' . str_replace(',', '\\,', $this->location);
 		}
 
-		$filecontents[] = 'SUMMARY:' . implode('', $title);
 		$filecontents[] = 'UID:' . $this->uid;
-		$filecontents[] = 'RECURRENCE-ID' . ($this->allday ? ';VALUE=DATE' : '') . ':' . $this->id;
+		$filecontents[] = 'SEQUENCE:' . $this->sequence;
+		$filecontents[] = 'RECURRENCE-ID' . (isset($this->adjustment) && $this->adjustment->affects_future ? ';RANGE=THISANDFUTURE' : '') . ($this->allday ? ';VALUE=DATE' : '') . ':' . $this->id;
+
+		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', $this->modified_time ?? time());
+		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
+		$filecontents[] = 'DURATION:' . (string) $this->duration;
+
 		$filecontents[] = 'END:VEVENT';
 
-		return implode("\n", $filecontents);
+		foreach ($filecontents as $line_num => $line) {
+			$filecontents[$line_num] = Event::foldICalLine($line);
+		}
+
+		return implode("\r\n", $filecontents);
 	}
 
 	/**

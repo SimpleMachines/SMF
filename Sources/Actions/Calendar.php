@@ -546,7 +546,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Load up the event in question and check it is valid.
-		list($event) = Event::load($_REQUEST['eventid']);
+		$event = current(Event::load((int) $_REQUEST['eventid']));
 
 		if (!($event instanceof Event)) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -559,7 +559,7 @@ class Calendar implements ActionInterface
 		$filecontents[] = 'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN';
 		$filecontents[] = 'VERSION:2.0';
 
-		$filecontents[] = $event->getVEvent();
+		$filecontents[] = $event->export();
 
 		$filecontents[] = 'END:VCALENDAR';
 
@@ -586,7 +586,8 @@ class Calendar implements ActionInterface
 		header('connection: close');
 		header('content-disposition: attachment; filename="' . $event->title . '.ics"');
 
-		$calevent = implode("\n", $filecontents);
+		// RFC 5545 requires "\r\n", not just "\n".
+		$calevent = implode("\r\n", $filecontents);
 
 		if (empty(Config::$modSettings['enableCompressedOutput'])) {
 			// todo: correctly handle $filecontents before passing to string function
