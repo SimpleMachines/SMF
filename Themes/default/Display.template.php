@@ -187,12 +187,12 @@ function template_main()
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection top">
-			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
-			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
 				<a href="#bot" class="button">', Lang::getTxt('go_down', file: 'General'), '</a>
 				', Utils::$context['page_index'], '
-			</div>';
+			</div>
+			', Utils::$context['menu_separator'], '
+			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 	// Mobile action - moderation buttons (top)
 	if (!empty(Utils::$context['normal_buttons']))
@@ -224,12 +224,12 @@ function template_main()
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection">
-			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
-			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
 				<a href="#main_content_section" class="button" id="bot">', Lang::getTxt('go_up', file: 'General'), '</a>
 				', Utils::$context['page_index'], '
-			</div>';
+			</div>
+			', Utils::$context['menu_separator'], '
+			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 	// Mobile action - moderation buttons (bottom)
 	if (!empty(Utils::$context['normal_buttons']))
