@@ -107,10 +107,12 @@ function template_error_log()
 				<div class="pagelinks">
 					', Utils::$context['page_index'], '
 				</div>
-				<div class="floatright" style="padding: 0 12px">
-					<label for="check_all"><strong>', Lang::$txt['check_all'], '</strong></label>
-					<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
-				</div>
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<label for="check_all"><strong>', Lang::$txt['check_all'], '</strong></label>
+						<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
+					</li>
+				</ul>
 			</div>';
 
 	// We have some errors, must be some mods installed :P

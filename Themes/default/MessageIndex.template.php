@@ -324,12 +324,12 @@ function template_main()
 
 		echo '
 	<div class="pagesection">
-		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
 		', Utils::$context['menu_separator'], '
 		<div class="pagelinks floatleft">
 			<a href="#main_content_section" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 			', Utils::$context['page_index'], '
-		</div>';
+		</div>
+		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 		// Mobile action buttons (bottom)
 		if (!empty(Utils::$context['normal_buttons']))

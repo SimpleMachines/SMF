@@ -23,8 +23,8 @@ function template_main()
 	echo '
 	<div class="main_section" id="memberlist">
 		<div class="pagesection">
-			', template_button_strip(Utils::$context['memberlist_buttons'], 'right'), '
 			<div class="pagelinks floatleft">', Utils::$context['page_index'], '</div>
+			', template_button_strip(Utils::$context['memberlist_buttons'], 'right'), '
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">

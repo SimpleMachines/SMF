@@ -377,7 +377,8 @@ function template_unapproved_posts()
 	else
 	{
 		echo '
-			<div class="pagesection">';
+			<div class="pagesection">
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
 		if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 			echo '
@@ -388,7 +389,6 @@ function template_unapproved_posts()
 				</ul>';
 
 		echo '
-				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 			</div>';
 
 	}
@@ -433,6 +433,10 @@ function template_unapproved_posts()
 	echo '
 			<div class="pagesection">';
 
+	if (!empty(Utils::$context['unapproved_items']))
+		echo '
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
+
 	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 				<div class="floatright">
@@ -446,10 +450,6 @@ function template_unapproved_posts()
 						<input type="submit" name="mc_go" value="', Lang::$txt['go'], '" class="button">
 					</noscript>
 				</div>';
-
-	if (!empty(Utils::$context['unapproved_items']))
-		echo '
-				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
 	echo '
 			</div><!-- .pagesection -->
