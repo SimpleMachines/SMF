@@ -695,7 +695,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		else
 			$html .= '
 				<a href="' . (!empty($li['href']) ? $li['href'] : 'javascript:void(0);') . '"' . (!empty($li['javascript']) ? ' ' . $li['javascript'] : '') . '>
-					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
+					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? '<span class="text-label">' . $li['label'] . '</span>' : '') . '
 				</a>';
 
 		$html .= '
@@ -710,8 +710,11 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		if ($key == 'more')
 		{
 			$output .= '
-			<li class="post_options">
-				<a href="javascript:void(0);">' . Lang::getTxt('post_options', file: 'General') . '</a>
+			<li class="quickoptions">
+				<a href="javascript:void(0);">
+					<span class="main_icons more"></span>
+					<span class="text-label">' . Lang::$txt['post_options'] . '</span>
+				</a>
 				<ul>';
 
 			foreach ($li as $subli)
