@@ -374,13 +374,12 @@ function template_ic_block_recent()
 {
 	// This is the "Recent Posts" bar.
 	echo '
-	<div class="info_center_container">
-	    <div class="info_block row">
-            <div class="info_block_icon column _0">
-					<a href="', Config::$scripturl, '?action=recent"><span class="main_icons recent_posts"></span></a>
-			    </div>
-				<div class="info_block_information column _100">
-				<div id="recent_posts_content">';
+	<div class="info_block">
+        <div class="info_block_icon">
+				<a href="', Config::$scripturl, '?action=recent"><span class="main_icons recent_posts"></span></a>
+		</div>
+		<div class="info_block_information">
+			<div id="recent_posts_content">';
 
 	// Only show one post.
 	if (Theme::$current->settings['number_recent_posts'] == 1)
@@ -421,9 +420,7 @@ function template_ic_block_recent()
 	        </div><!-- #recent_posts_content -->';
     echo '
         </div>
-     </div>
-  </div>
-';
+     </div>';
 }
 
 /**
@@ -433,12 +430,11 @@ function template_ic_block_calendar()
 {
 	// Show information about events, birthdays, and holidays on the calendar.
 	echo '
-	<div class="info_center_container">
-	    <div class="info_block row">
-		    <div class="info_block_icon column _0">
-					<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', '</a>
-			</div>
-			<div class="info_block_information column _100">';
+	<div class="info_block">
+		<div class="info_block_icon">
+				<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', '</a>
+		</div>
+		<div class="info_block_information">';
 
 	// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P
 	if (!empty(Utils::$context['calendar_holidays'])) {
@@ -486,8 +482,8 @@ function template_ic_block_calendar()
 			</p>';
 	}
 	echo'
-	</div></div></div>
-	';
+		</div>
+	</div>';
 }
 
 /**
@@ -497,19 +493,17 @@ function template_ic_block_stats()
 {
 	// Show statistical style information...
 	echo '
-	<div class="info_center_container">
-        <div class="info_block row">
-		    <div class="info_block_icon column _0">
-					', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Utils::$context['show_stats'] ? '</a>' : '', '
-			</div>
-			<div class="info_block_information column _100">
+     <div class="info_block">
+		  <div class="info_block_icon">
+				', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Utils::$context['show_stats'] ? '</a>' : '', '
+		</div>
+		<div class="info_block_information">
 			<p class="inline">
 				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
 				', (!empty(Utils::$context['latest_post']) ? Lang::$txt['latest_post'] . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a>
 			</p>';
 			echo '
-			</div>
 		</div>
 	</div>';
 }
@@ -521,12 +515,11 @@ function template_ic_block_online()
 {
 	// "Users online" - in order of activity.
 	echo '
-	<div class="info_center_container">
-        <div class="info_block row">
-            <div class="info_block_icon column _0">
-					', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', Utils::$context['show_who'] ? '</a>' : '', '
-			</div>
-			<div class="info_block_information column _100">
+     <div class="info_block">
+          <div class="info_block_icon">
+				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', Utils::$context['show_who'] ? '</a>' : '', '
+		</div>
+		<div class="info_block_information">
 			<p class="inline">
 				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::$txt['online'], ': </strong>', Lang::getTxt('number_of_guests', [Utils::$context['num_guests']]), ', ', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']]);
 
@@ -567,7 +560,6 @@ function template_ic_block_online()
 	echo '
 			</p>';
 	echo '
-			</div>
 		</div>
 	</div>';
 }
