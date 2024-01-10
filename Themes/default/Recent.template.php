@@ -22,7 +22,7 @@ function template_recent()
 {
 	echo '
 	<div id="recent" class="main_section">
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span id="top_subject">', Lang::$txt['recent_posts'], '</span>
 			</h2>
@@ -83,7 +83,7 @@ function template_unread()
 
 	echo '
 	<div id="recent" class="main_content">
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span>', (!empty(Board::$info->name) ? Board::$info->name . ' - ' : '') . Utils::$context['page_title'], '</span>
 			</h2>
@@ -262,7 +262,7 @@ function template_replies()
 
 	echo '
 	<div id="recent">
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span>', (!empty(Board::$info->name) ? Board::$info->name . ' - ' : '') . Utils::$context['page_title'], '</span>
 			</h2>

@@ -37,7 +37,7 @@ function template_main()
 
 	// Show new topic info here?
 	echo '
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span id="top_subject">', Utils::$context['subject'], '</span>', (Utils::$context['is_locked']) ? ' <span class="main_icons lock"></span>' : '', (Utils::$context['is_sticky']) ? ' <span class="main_icons sticky"></span>' : '', '
 			</h2>

@@ -21,7 +21,7 @@ use SMF\User;
  */
 function template_main()
 {
-	echo '<div id="display_head" class="information">
+	echo '<div id="display_head">
 			<h2 class="display_title">', Utils::$context['name'], '</h2>';
 
 	if (isset(Utils::$context['description']) && Utils::$context['description'] != '')

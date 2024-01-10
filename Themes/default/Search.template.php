@@ -309,7 +309,7 @@ function template_results()
 	</form>';
 
 		echo '
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 			</h2>
@@ -376,7 +376,7 @@ function template_results()
 	else
 	{
 		echo '
-	<div id="display_head" class="information">
+	<div id="display_head">
 		<h2 class="display_title">
 			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 		</h2>
