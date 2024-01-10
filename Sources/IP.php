@@ -433,6 +433,7 @@ class IP implements \Stringable
 		if (!$low instanceof IP) {
 			$low = new IP($low);
 		}
+
 		if (!$high instanceof IP) {
 			$high = new IP($high);
 		}

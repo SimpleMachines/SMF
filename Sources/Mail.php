@@ -68,14 +68,13 @@ class Mail
 		array|string $to,
 		string $subject,
 		string $message,
-		string $from = null,
-		string $message_id = null,
+		?string $from = null,
+		?string $message_id = null,
 		bool $send_html = false,
 		int $priority = 3,
-		bool $hotmail_fix = null,
-		bool $is_private = false
-		): bool
-	{
+		?bool $hotmail_fix = null,
+		bool $is_private = false,
+	): bool {
 		// Use sendmail if it's set or if no SMTP server is set.
 		$use_sendmail = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '';
 
@@ -290,9 +289,8 @@ class Mail
 		string $headers = '',
 		bool $send_html = false,
 		int $priority = 3,
-		bool $is_private = false
-		): bool
-	{
+		bool $is_private = false,
+	): bool {
 		static $cur_insert = [];
 		static $cur_insert_len = 0;
 
@@ -657,7 +655,7 @@ class Mail
 	 * @param string $custom_charset If set, it uses this character set
 	 * @return array An array containing the character set, the converted string and the transport method.
 	 */
-	public static function mimespecialchars(string $string, bool $with_charset = true, bool $hotmail_fix = false, string $line_break = "\r\n", string $custom_charset = null): array
+	public static function mimespecialchars(string $string, bool $with_charset = true, bool $hotmail_fix = false, string $line_break = "\r\n", ?string $custom_charset = null): array
 	{
 		$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
 
@@ -1114,7 +1112,7 @@ class Mail
 	 * @param int $memberID The ID of the member
 	 * @param string $member_name The name of the member (if null, it is pulled from the database)
 	 */
-	public static function adminNotify(string $type, int $memberID, string $member_name = null): void
+	public static function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
 		if ($member_name == null) {
 			// Get the new user's name....

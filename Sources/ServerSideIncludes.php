@@ -234,10 +234,11 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo SMF_VERSION;
+
 			return null;
-		} else {
-			return SMF_VERSION;
 		}
+
+		return SMF_VERSION;
 	}
 
 	/**
@@ -256,10 +257,11 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo SMF_FULL_VERSION;
+
 			return null;
-		} else {
-			return SMF_FULL_VERSION;
 		}
+
+		return SMF_FULL_VERSION;
 	}
 
 	/**
@@ -278,10 +280,11 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo SMF_SOFTWARE_YEAR;
+
 			return null;
-		} else {
-			return SMF_SOFTWARE_YEAR;
 		}
+
+		return SMF_SOFTWARE_YEAR;
 	}
 
 	/**
@@ -300,10 +303,11 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+
 			return null;
-		} else {
-			return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 		}
+
+		return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 	}
 
 	/**
@@ -329,10 +333,9 @@ class ServerSideIncludes
 
 			return null;
 		}
+
 		// Don't echo... then do what?!
-		else {
-			return User::$me;
-		}
+		return User::$me;
 	}
 
 	/**
@@ -351,12 +354,12 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			template_menu();
+
 			return null;
 		}
+
 		// What else could this do?
-		else {
-			return Utils::$context['menu_buttons'];
-		}
+		return Utils::$context['menu_buttons'];
 	}
 
 	/**
@@ -387,10 +390,11 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo $link;
+
 			return null;
-		} else {
-			return $link;
 		}
+
+		return $link;
 	}
 
 	/**
@@ -442,7 +446,7 @@ class ServerSideIncludes
 			'min_message_id' => Config::$modSettings['maxMsgID'] - (!empty(Utils::$context['min_message_posts']) ? Utils::$context['min_message_posts'] : 25) * min($num_recent, 5),
 		];
 
-		// Past to this simpleton of a function...
+		// Pass to this simpleton of a function...
 		return self::queryPosts($query_where, $query_where_params, $num_recent, 'm.id_msg DESC', $output_method, $limit_body);
 	}
 
@@ -504,9 +508,8 @@ class ServerSideIncludes
 		string $query_order = 'm.id_msg DESC',
 		string $output_method = 'echo',
 		bool $limit_body = false,
-		bool $override_permissions = false
-		): ?array
-	{
+		bool $override_permissions = false,
+	): ?array {
 		if (!self::$setup_done) {
 			new self();
 		}
@@ -870,6 +873,7 @@ class ServerSideIncludes
 		}
 
 		echo implode(', ', $temp_array);
+
 		return null;
 	}
 
@@ -1110,10 +1114,11 @@ class ServerSideIncludes
 		if ($output_method == 'echo') {
 			echo '
 		', sprintf(Lang::$txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
+
 			return null;
-		} else {
-			return Utils::$context['common_stats']['latest_member'];
 		}
+
+			return Utils::$context['common_stats']['latest_member'];
 	}
 
 	/**
@@ -1216,7 +1221,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
 	 * @return ?array Displays a list of group members or returns an array of info about them, depending on output_method.
 	 */
-	public static function fetchGroupMembers(int $group_id = null, string $output_method = 'echo'): ?array
+	public static function fetchGroupMembers(?int $group_id = null, string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1251,7 +1256,7 @@ class ServerSideIncludes
 	 * @param string $output_method The output method. If 'echo', displays a list of members, otherwise returns an array of info about them
 	 * @return ?array Displays a list of members or returns an array of info about them, depending on output_method.
 	 */
-	public static function queryMembers(string $query_where = null, array $query_where_params = [], int|string $query_limit = '', string $query_order = 'id_member DESC', string $output_method = 'echo'): ?array
+	public static function queryMembers(?string $query_where = null, array $query_where_params = [], int|string $query_limit = '', string $query_order = 'id_member DESC', string $output_method = 'echo'): ?array
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1896,6 +1901,7 @@ class ServerSideIncludes
 		}
 
 		echo Utils::$context['random_news_line'];
+
 		return null;
 	}
 
@@ -2002,7 +2008,8 @@ class ServerSideIncludes
 		if ($output_method != 'echo') {
 			return (array) $return['calendar_events'];
 		}
-		else if (!is_array($return)) {
+
+		if (!is_array($return)) {
 			return null;
 		}
 
@@ -2483,12 +2490,11 @@ class ServerSideIncludes
 	 * @return bool Whether or not the password is correct.
 	 */
 	public static function checkPassword(
-		int|string $id = null,
+		int|string|null $id = null,
 		#[\SensitiveParameter]
-		string $password = null,
-		bool $is_username = false
-		): bool
-	{
+		?string $password = null,
+		bool $is_username = false,
+	): bool {
 		if (!self::$setup_done) {
 			new self();
 		}

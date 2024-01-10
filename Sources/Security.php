@@ -56,7 +56,7 @@ class Security
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
-	public static function hashPassword(string $username, string $password, int $cost = null): string
+	public static function hashPassword(string $username, string $password, ?int $cost = null): string
 	{
 		$cost = empty($cost) ? (empty(Config::$modSettings['bcrypt_hash_cost']) ? 10 : Config::$modSettings['bcrypt_hash_cost']) : $cost;
 
@@ -363,7 +363,7 @@ class Security
 	 * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
 	 * @since 2.1
 	 */
-	public static function frameOptionsHeader(string $override = null): void
+	public static function frameOptionsHeader(?string $override = null): void
 	{
 		$option = 'SAMEORIGIN';
 

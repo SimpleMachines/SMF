@@ -23,7 +23,6 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;
-use SMF\Url;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -2278,6 +2277,7 @@ class User implements \ArrayAccess
 
 		// We really should never fall through here, for very important reasons.  Let's make sure.
 		trigger_error('No direct access...', E_USER_ERROR);
+
 		return null;
 	}
 
@@ -2868,10 +2868,9 @@ class User implements \ArrayAccess
 				}
 				// External url.
 				else {
-					if ($data['avatar'] instanceof Url){
+					if ($data['avatar'] instanceof Url) {
 						$url = $data['avatar'];
-					}
-					else {
+					} else {
 						$url = new Url($data['avatar']);
 					}
 
@@ -4530,7 +4529,7 @@ class User implements \ArrayAccess
 	 *
 	 * This method exists only for backward compatibility purposes.
 	 *
-	 * @param string|array $permissions A single permission to check or an array
+	 * @param string|array $permission A single permission to check or an array
 	 *    of permissions to check.
 	 * @param bool $check_access Whether to check only the boards the user has
 	 *    access to.
@@ -4539,14 +4538,14 @@ class User implements \ArrayAccess
 	 * @return array|bool An array of board IDs if $simple is true. Otherwise, an
 	 *    array containing 'permission' => array(id, id, id...) pairs.
 	 */
-	public static function hasPermissionInBoards(string|array $permission, bool $checkAccess = true, bool $simple = true): array|bool
+	public static function hasPermissionInBoards(string|array $permission, bool $check_access = true, bool $simple = true): array|bool
 	{
 		// You're never allowed to do something if your data hasn't been loaded yet!
 		if (!isset(self::$me)) {
 			return false;
 		}
 
-		return self::$me->boardsAllowedTo($permission, $checkAccess, $simple);
+		return self::$me->boardsAllowedTo($permission, $check_access, $simple);
 	}
 
 	/******************

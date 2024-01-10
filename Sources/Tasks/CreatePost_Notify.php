@@ -357,9 +357,8 @@ class CreatePost_Notify extends BackgroundTask
 
 	/**
 	 * Update an alert if a message was updated since the alert was created.
-	 * 
+	 *
 	 * @param int $msg_id Message ID to update
-	 * @return void 
 	 */
 	private function updateAlerts(int $msg_id): void
 	{

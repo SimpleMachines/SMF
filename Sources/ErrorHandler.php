@@ -678,7 +678,7 @@ class ErrorHandler
 	 * Logs the last database error into a file.
 	 * Attempts to use the backup file first, to store the last database error
 	 * and only update db_last_error.php if the first was successful.
-	 * 
+	 *
 	 * @return bool true if succefully able to write the last database error.
 	 */
 	protected static function logLastDatabaseError(): bool

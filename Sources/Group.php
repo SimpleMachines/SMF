@@ -1022,7 +1022,7 @@ class Group implements \ArrayAccess
 		}
 
 		// Load the user info for the new members.
-		$members = array_map(function($mem) {
+		$members = array_map(function ($mem) {
 			return $mem->id;
 		}, User::load($members, User::LOAD_BY_ID, 'minimal'));
 

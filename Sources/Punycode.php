@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use SMF\Unicode;
 use function SMF\Unicode\idna_maps;
 use function SMF\Unicode\idna_maps_deviation;
 use function SMF\Unicode\idna_maps_not_std3;
@@ -413,7 +412,7 @@ class Punycode
 	 * @param bool $firstTime
 	 * @return int
 	 */
-	protected function adapt(int $delta, int $numPoints,bool $firstTime): int
+	protected function adapt(int $delta, int $numPoints, bool $firstTime): int
 	{
 		$delta = (int) (
 			($firstTime)

@@ -944,7 +944,7 @@ class Utils
 		};
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (array &$trie, string $delim = null) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex) {
 			static $depth = 0;
 			$depth++;
 
@@ -1727,7 +1727,7 @@ class Utils
 	 * Tries different modes to make files or directories writable.
 	 *
 	 * Wrapper function for PHP's chmod().
-	 * 
+	 *
 	 * @param string $path The full path of the file or directory.
 	 * @param array|string|null $chmod Specify a chmod, if left blank, SMF will auto pick the writable values.
 	 * @return bool Whether the file/dir exists and is now writable.
@@ -2000,6 +2000,7 @@ class Utils
 
 		// Done.
 		self::obExit(false);
+
 		return null;
 	}
 
@@ -2314,6 +2315,7 @@ class Utils
 		}
 
 		call_user_func($callable);
+
 		return null;
 	}
 

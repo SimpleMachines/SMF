@@ -399,8 +399,9 @@ class Theme
 
 			return true;
 		}
+
 		// Hmmm... doesn't exist?!  I don't suppose the directory is wrong, is it?
-		elseif (!file_exists(self::$current->settings['default_theme_dir']) && file_exists(Config::$boarddir . '/Themes/default')) {
+		if (!file_exists(self::$current->settings['default_theme_dir']) && file_exists(Config::$boarddir . '/Themes/default')) {
 			self::$current->settings['default_theme_dir'] = Config::$boarddir . '/Themes/default';
 			self::$current->settings['template_dirs'][] = self::$current->settings['default_theme_dir'];
 
@@ -593,6 +594,7 @@ class Theme
 		}
 
 		Utils::$context['css_header'][] = $css;
+
 		return true;
 	}
 
@@ -774,6 +776,7 @@ class Theme
 		}
 
 		Utils::$context['javascript_inline'][($defer === true ? 'defer' : 'standard')][] = $javascript;
+
 		return true;
 	}
 
