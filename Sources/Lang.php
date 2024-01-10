@@ -644,58 +644,47 @@ class Lang
 	 * the rules for the currently loaded language.
 	 *
 	 * @param array $list An array of strings to concatenate.
+	 * @param string $type Either 'and', 'or', or 'xor'. Default: 'and'.
 	 * @return string The localized sentence list.
 	 */
-	public static function sentenceList(array $list): string
+	public static function sentenceList(array $list, string $type = 'and'): string
 	{
-		// Make sure the bare necessities are defined.
-		if (empty(Lang::$txt['sentence_list_format']['n'])) {
-			Lang::$txt['sentence_list_format']['n'] = '{series}';
+		if (!isset(self::$txt['sentence_list_pattern'][$type])) {
+			$type = 'and';
 		}
 
-		if (!isset(Lang::$txt['sentence_list_separator'])) {
-			Lang::$txt['sentence_list_separator'] = ', ';
-		}
-
-		if (!isset(Lang::$txt['sentence_list_separator_alt'])) {
-			Lang::$txt['sentence_list_separator_alt'] = '; ';
-		}
-
-		// Which format should we use?
-		$format = Lang::$txt['sentence_list_format'][count($list)] ?? Lang::$txt['sentence_list_format']['n'];
+		$separator = self::$txt['sentence_list_punct'] ?? ',';
 
 		// Do we want the normal separator or the alternate?
-		$separator = Lang::$txt['sentence_list_separator'];
-
 		foreach ($list as $item) {
 			if (strpos($item, $separator) !== false) {
-				$separator = Lang::$txt['sentence_list_separator_alt'];
-				$format = strtr($format, trim(Lang::$txt['sentence_list_separator']), trim($separator));
+				$type .= '_alt';
 				break;
 			}
 		}
 
-		$replacements = [];
+		// If we have a pattern for this exact number of items, use it.
+		$args = array_merge(['list_pattern_part' => count($list)], $list);
+		$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 
-		// Special handling for the last items on the list.
-		$i = 0;
+		// Otherwise, build the list normally.
+		if ($sentence_list === '') {
+			// First insert the last two items into the "end" pattern.
+			$args = array_merge(['list_pattern_part' => 'end'], array_splice($list, -2));
+			$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 
-		while (strpos($format, '{' . --$i . '}') !== false) {
-			$replacements['{' . $i . '}'] = array_pop($list);
+			// Then iteratively prepend items using the "middle" pattern.
+			while (count($list) > 1) {
+				$args = ['list_pattern_part' => 'middle', array_pop($list), $sentence_list];
+				$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
+			}
+
+			// Finally, prepend the first item using the "start" pattern.
+			$args = ['list_pattern_part' => 'start', array_pop($list), $sentence_list];
+			$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 		}
 
-		// Special handling for the first items on the list.
-		$i = 0;
-
-		while (strpos($format, '{' . ++$i . '}') !== false) {
-			$replacements['{' . $i . '}'] = array_shift($list);
-		}
-
-		// Whatever is left.
-		$replacements['{series}'] = implode($separator, $list);
-
-		// Do the deed.
-		return strtr($format, $replacements);
+		return $sentence_list;
 	}
 
 	/**

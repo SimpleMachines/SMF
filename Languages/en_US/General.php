@@ -1038,22 +1038,58 @@ $txt['mobile_moderation'] = 'Moderation';
 $txt['mobile_user_menu'] = 'Main Menu';
 $txt['mobile_generic_menu'] = '{label} Menu';
 
-// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie")
-// Examples:
-// 	$txt['sentence_list_format'][2] specifies a format for a list with two items
-// 	$txt['sentence_list_format']['n'] specifies the default format
-// Notes on placeholders:
-// 	{1} = first item in the list, {2} = second item, etc.
-// 	{-1} = last item in the list, {-2} = second last item, etc.
-// 	{series} = concatenated string of the rest of the items in the list
-$txt['sentence_list_format'][1] = '{1}';
-$txt['sentence_list_format'][2] = '{1} and {-1}';
-$txt['sentence_list_format'][3] = '{series}, and {-1}';
-$txt['sentence_list_format'][4] = '{series}, and {-1}';
-$txt['sentence_list_format'][5] = '{series}, and {-1}';
-$txt['sentence_list_format']['n'] = '{series}, and {-1}';
-// Separators used to build lists in a sentence
-$txt['sentence_list_separator'] = ', ';
-$txt['sentence_list_separator_alt'] = '; ';
+// Punctuation mark that is normally used to separate list items in a sentence.
+$txt['sentence_list_separator'] = ',';
+
+// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
+$txt['sentence_list_pattern']['and'] = '{list_pattern_part, select,
+	1 {{0}}
+	2 {{0} and {1}}
+	start {{0}, {1}}
+	middle {{0}, {1}}
+	end {{0}, and {1}}
+	other {}
+}';
+$txt['sentence_list_pattern']['or'] = '{list_pattern_part, select,
+	1 {{0}}
+	2 {{0} or {1}}
+	start {{0}, {1}}
+	middle {{0}, {1}}
+	end {{0}, or {1}}
+	other {}
+}';
+$txt['sentence_list_pattern']['xor'] = '{list_pattern_part, select,
+	1 {{0}}
+	2 {either {0} or {1}}
+	start {either {0}, {1}}
+	middle {{0}, {1}}
+	end {{0}, or {1}}
+	other {}
+}';
+// Alternative formats for lists in a sentence. These are used when the list items contain the punctuation mark that normally separates items in the list (e.g. "London, England; Paris, France; and Tokyo, Japan").
+$txt['sentence_list_pattern']['and_alt'] = '{list_pattern_part, select,
+	1 {{0}}
+	2 {{0}, and {1}}
+	start {{0}; {1}}
+	middle {{0}; {1}}
+	end {{0}; and {1}}
+	other {}
+}';
+$txt['sentence_list_pattern']['or_alt'] = '{list_pattern_part, select,
+	1 {{0}}
+	2 {{0}, or {1}}
+	start {{0}; {1}}
+	middle {{0}; {1}}
+	end {{0}; or {1}}
+	other {}
+}';
+$txt['sentence_list_pattern']['xor_alt'] = '{list_pattern_part, select,
+	1 {{0}}
+	2 {either {0}, or {1}}
+	start {either {0}; {1}}
+	middle {{0}; {1}}
+	end {{0}; or {1}}
+	other {}
+}';
 
 ?>
