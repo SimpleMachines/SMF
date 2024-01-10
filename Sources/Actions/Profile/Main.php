@@ -417,7 +417,7 @@ class Main implements ActionInterface
 				'report' => [
 					'label' => 'report_profile',
 					'custom_url' => '{scripturl}?action=reporttm;{session_var}={session_id}',
-					'icon' => 'warning',
+					'icon' => 'report',
 					'enabled' => true,
 					'permission' => [
 						'own' => [],
