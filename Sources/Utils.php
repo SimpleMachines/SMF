@@ -2067,6 +2067,11 @@ class Utils
 			}
 		}
 
+		// The request was from ajax/xhr/other api call, append ajax ot the url.
+		if (!empty(Utils::$context['from_ajax'])) {
+			$setLocation .= (strpos($setLocation, '?') ? ';' : '?') . 'ajax';
+		}
+
 		// Maybe integrations want to change where we are heading?
 		IntegrationHook::call('integrate_redirect', [&$setLocation, &$refresh, &$permanent]);
 
