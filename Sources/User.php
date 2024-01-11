@@ -4051,7 +4051,7 @@ class User implements \ArrayAccess
 		);
 
 		// We only want the member IDs, not id_member
-		$members = array_values(Db::$db->fetch_all($request));
+		$members = array_map(fn ($row) => $row['id_member'], Db::$db->fetch_all($request));
 		Db::$db->free_result($request);
 
 		return $members;
