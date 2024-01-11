@@ -133,7 +133,7 @@ function template_main()
 		echo '
 					<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
 						sprintf(Lang::$txt['draft_saved'], Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts'), '
-						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . sprintf(Lang::$txt['draft_save_warning'], Config::$modSettings['drafts_keep_days']) . '</strong>' : ''), '
+						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']]) . '</strong>' : ''), '
 					</div>';
 
 	// The post header... important stuff

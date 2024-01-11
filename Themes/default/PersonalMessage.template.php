@@ -1011,7 +1011,7 @@ function template_send()
 		echo '
 				<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
 					sprintf(Lang::$txt['draft_pm_saved'], Config::$scripturl . '?action=pm;sa=showpmdrafts'), '
-					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . sprintf(Lang::$txt['draft_save_warning'], Config::$modSettings['drafts_keep_days']) . '</strong>' : ''), '
+					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']]) . '</strong>' : ''), '
 				</div>';
 
 	echo '
@@ -1931,7 +1931,7 @@ function template_showPMDrafts()
 			echo '
 				</div>
 				<div class="smalltext">
-					<strong>', Lang::$txt['draft_saved_on'], ':</strong> ', sprintf(Lang::$txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf(Lang::$txt['draft_retain'], $draft['remaining']) : ''), '
+					', Lang::getTxt('draft_last_saved', ['age' => $draft['age'], 'remaining' => $draft['remaining']]), '
 				</div>
 			</div>
 			<div class="list_posts">
