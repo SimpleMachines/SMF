@@ -99,7 +99,7 @@ function template_login()
 							e.stopPropagation();
 
 							$.ajax({
-								url: form.prop("action") + ";ajax",
+								url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
 								method: "POST",
 								headers: {
 									"X-SMF-AJAX": 1
@@ -123,7 +123,12 @@ function template_login()
 										form.parent().html($(data).find(".roundframe").html());';
 		else
 			echo '
-									window.location.reload();';
+									if ($(data).find(".roundframe").length > 0 && $(data).find("body").length == 0) {
+										form.parent().html($(data).find(".roundframe").html());
+									}
+									else {
+										window.location.reload();
+									}';
 
 		echo '
 								},
@@ -214,6 +219,7 @@ function template_login_tfa()
 					form = $("#frmTfa");';
 
 	if (!empty($context['from_ajax']))
+	{
 		echo '
 					form.submit(function(e) {
 						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
@@ -223,16 +229,47 @@ function template_login_tfa()
 						e.preventDefault();
 						e.stopPropagation();
 
-						$.post(form.prop("action"), form.serialize(), function(data) {
-							if (data.indexOf("<bo" + "dy") > -1)
-								document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
-							else {
-								form.parent().html($(data).find(".roundframe").html());
+						$.ajax({
+							url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
+							method: "POST",
+							headers: {
+								"X-SMF-AJAX": 1
+							},
+							xhrFields: {
+								withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+							},
+							data: form.serialize(),
+							success: function(data) {
+								if (data.indexOf("<bo" + "dy") > -1) {';
+
+		if (empty($context['valid_cors_found']) || $context['valid_cors_found'] == 'same')
+			echo '
+									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';';
+		else
+			echo '
+									window.location.reload();';
+
+		echo '
+								}
+								else {
+									window.location.reload();
+								}
+							},
+							error: function(xhr) {
+								var data = xhr.responseText;
+								if (data.indexOf("<bo" + "dy") > -1) {
+									document.open();
+									document.write(data);
+									document.close();
+								}
+								else
+									form.parent().html($(data).filter("#fatal_error").html());
 							}
 						});
 
 						return false;
 					});';
+	}
 
 	echo '
 					form.find("input[name=backup]").click(function(e) {

@@ -4080,6 +4080,10 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 			);
 	}
 
+	// The request was from ajax/xhr/other api call, append ajax ot the url.
+	if (!empty($context['from_ajax']))
+		$setLocation .= (strpos($setLocation, '?') ? ';' : '?') . 'ajax';
+
 	// Maybe integrations want to change where we are heading?
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
