@@ -209,8 +209,7 @@ abstract class MailAgent
 	 *
 	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
-	 * @param string $overrideCache Allows manually specifying a cache accelerator engine.
-	 * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
+	 * @param bool $loadDefault Use the default SMF method if the selected agent fails.
 	 * @return object|false An instance of a child class of this class, or false on failure.
 	 */
 	final public static function load(bool $loadDefault = false)
@@ -232,7 +231,7 @@ abstract class MailAgent
 
 		if (is_object(self::$loaded_api))
 			return self::$loaded_api;
-		
+
 		if (is_null(self::$loaded_api))
 			self::$loaded_api = false;
 
@@ -272,7 +271,7 @@ abstract class MailAgent
 	}
 
 	/**
-	 * Get the installed Cache API implementations.
+	 * Get the installed Mail Agent implementations.
 	 */
 	final public static function detect()
 	{
@@ -288,7 +287,7 @@ abstract class MailAgent
 			if (!class_exists($fully_qualified_class_name))
 				continue;
 
-			/* @var CacheApiInterface $cache_api */
+			/* @var MailAgentInterface $agent_api */
 			$agent_api = new $fully_qualified_class_name();
 
 			// Deal with it!
