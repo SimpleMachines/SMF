@@ -27,8 +27,6 @@ use SMF\Unicode\Utf8String;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
 
-use const \FILTER_FLAG_IPV6;
-
 if (!defined('SMF')) {
 	die('No direct access...');
 }
