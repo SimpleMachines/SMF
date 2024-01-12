@@ -777,11 +777,11 @@ class UpdateUnicode extends BackgroundTask
 	 * to check whether a copy of the the function is already present
 	 * in the file.
 	 *
-	 * @param string $func_name Key of an element in $this->funcs.
+	 * @param string|int $func_name Key of an element in $this->funcs.  If an int is provided, it is considered raw code such as a header, and does not replace a function in the file.
 	 *
 	 * @return array PHP code and a regular expression.
 	 */
-	private function get_function_code_and_regex(string $func_name): array
+	private function get_function_code_and_regex(string|int $func_name): array
 	{
 		// No function name means data is raw code.
 		if (!is_string($func_name)) {
