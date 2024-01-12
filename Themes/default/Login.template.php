@@ -93,7 +93,7 @@ function template_login()
 							document.getElementById("', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', isset(Utils::$context['default_username']) && Utils::$context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
 
-	if (!empty(Utils::$context['from_ajax']) && ((empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], array('samel', 'subsite')))))
+	if (!empty(Utils::$context['from_ajax']) && ((empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], array('same', 'subsite')))))
 	{
 		echo '
 						form = $("#frmLogin");
@@ -102,7 +102,7 @@ function template_login()
 							e.stopPropagation();
 
 							$.ajax({
-								url: form.prop("action") + ";ajax",
+								url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
 								method: "POST",
 								headers: {
 									"X-SMF-AJAX": 1
@@ -126,7 +126,12 @@ function template_login()
 										form.parent().html($(data).find(".roundframe").html());';
 		else
 			echo '
-									window.location.reload();';
+									if ($(data).find(".roundframe").length > 0 && $(data).find("body").length == 0) {
+										form.parent().html($(data).find(".roundframe").html());
+									}
+									else {
+										window.location.reload();
+									';
 
 		echo '
 								},
@@ -214,7 +219,7 @@ function template_login_tfa()
 				<script>
 					form = $("#frmTfa");';
 
-	if (!empty(Utils::$context['from_ajax']))
+	if (!empty(Utils::$context['from_ajax'])) {
 		echo '
 					form.submit(function(e) {
 						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
@@ -224,16 +229,49 @@ function template_login_tfa()
 						e.preventDefault();
 						e.stopPropagation();
 
-						$.post(form.prop("action"), form.serialize(), function(data) {
-							if (data.indexOf("<bo" + "dy") > -1)
-								document.location = ', Utils::JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';
-							else {
-								form.parent().html($(data).find(".roundframe").html());
+						$.ajax({
+							url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
+							method: "POST",
+							headers: {
+								"X-SMF-AJAX": 1
+							},
+							xhrFields: {
+								withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+							},
+							data: form.serialize(),
+							success: function(data) {
+								if (data.indexOf("<bo" + "dy") > -1) {';
+
+		if (empty(Utils::$context['valid_cors_found']) || Utils::$context['valid_cors_found'] == 'same') {
+			echo '
+									document.location = ', Utils::JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';';
+		}
+		else {
+			echo '
+									window.location.reload();';
+		}
+
+		echo '
+								}
+								else {
+									window.location.reload();
+								}
+							},
+							error: function(xhr) {
+								var data = xhr.responseText;
+								if (data.indexOf("<bo" + "dy") > -1) {
+									document.open();
+									document.write(data);
+									document.close();
+								}
+								else
+									form.parent().html($(data).filter("#fatal_error").html());
 							}
 						});
 
 						return false;
 					});';
+	}
 
 	echo '
 					form.find("input[name=backup]").click(function(e) {

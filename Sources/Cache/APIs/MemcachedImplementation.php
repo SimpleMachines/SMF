@@ -90,7 +90,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function connect(): bool
 	{
-		$this->memcached = new Memcached();
+		$this->memcached = Config::$db_persist ? new Memcached($this->prefix) : new Memcached();
 
 		return $this->addServers();
 	}

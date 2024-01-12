@@ -186,8 +186,7 @@ class ServerSideIncludes
 			return null;
 		}
 
-			return SMF_VERSION;
-
+		return SMF_VERSION;
 	}
 
 	/**
@@ -210,8 +209,7 @@ class ServerSideIncludes
 			return null;
 		}
 
-			return SMF_FULL_VERSION;
-
+		return SMF_FULL_VERSION;
 	}
 
 	/**
@@ -234,8 +232,7 @@ class ServerSideIncludes
 			return null;
 		}
 
-			return SMF_SOFTWARE_YEAR;
-
+		return SMF_SOFTWARE_YEAR;
 	}
 
 	/**
@@ -258,8 +255,7 @@ class ServerSideIncludes
 			return null;
 		}
 
-			return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
-
+		return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 	}
 
 	/**
@@ -285,10 +281,9 @@ class ServerSideIncludes
 
 			return null;
 		}
+
 		// Don't echo... then do what?!
-
-			return User::$me;
-
+		return User::$me;
 	}
 
 	/**
@@ -310,10 +305,9 @@ class ServerSideIncludes
 
 			return null;
 		}
+
 		// What else could this do?
-
-			return Utils::$context['menu_buttons'];
-
+		return Utils::$context['menu_buttons'];
 	}
 
 	/**
@@ -348,8 +342,7 @@ class ServerSideIncludes
 			return null;
 		}
 
-			return $link;
-
+		return $link;
 	}
 
 	/**
@@ -401,7 +394,7 @@ class ServerSideIncludes
 			'min_message_id' => Config::$modSettings['maxMsgID'] - (!empty(Utils::$context['min_message_posts']) ? Utils::$context['min_message_posts'] : 25) * min($num_recent, 5),
 		];
 
-		// Past to this simpleton of a function...
+		// Pass to this simpleton of a function...
 		return self::queryPosts($query_where, $query_where_params, $num_recent, 'm.id_msg DESC', $output_method, $limit_body);
 	}
 
@@ -1074,7 +1067,6 @@ class ServerSideIncludes
 		}
 
 			return Utils::$context['common_stats']['latest_member'];
-
 	}
 
 	/**

@@ -4022,7 +4022,7 @@ class User implements ArrayAccess
 		);
 
 		// We only want the member IDs, not id_member
-		$members = array_values(Db::$db->fetch_all($request));
+		$members = array_map(fn ($row) => $row['id_member'], Db::$db->fetch_all($request));
 		Db::$db->free_result($request);
 
 		return $members;
@@ -4500,23 +4500,21 @@ class User implements ArrayAccess
 	 *
 	 * This method exists only for backward compatibility purposes.
 	 *
-	 * @param bool $simple Whether to return a simple array of board IDs or one
-	 *    with permissions as the keys.
-	 * @param string|array $permissions A single permission to check or an array
+	 * @param string|array $permission A single permission to check or an array
 	 *    of permissions to check.
 	 * @param bool $check_access Whether to check only the boards the user has
 	 *    access to.
 	 * @return array|bool An array of board IDs if $simple is true. Otherwise, an
 	 *    array containing 'permission' => array(id, id, id...) pairs.
 	 */
-	public static function hasPermissionInBoards(string|array $permission, bool $checkAccess = true, bool $simple = true): array|bool
+	public static function hasPermissionInBoards(string|array $permission, bool $check_access = true, bool $simple = true): array|bool
 	{
 		// You're never allowed to do something if your data hasn't been loaded yet!
 		if (!isset(self::$me)) {
 			return false;
 		}
 
-		return self::$me->boardsAllowedTo($permission, $checkAccess, $simple);
+		return self::$me->boardsAllowedTo($permission, $check_access, $simple);
 	}
 
 	/******************
