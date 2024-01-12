@@ -223,7 +223,10 @@ $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an admi
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment cannot be saved.';
 $txt['avatars_no_write'] = 'The avatars upload directory is not writable. Your avatar cannot be saved.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
-$txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
+$txt['attachments_limit_per_post']['one'] = '{0, plural,
+	one {You may not upload more than # attachment per post}
+	other {You may not upload more than # attachments per post}
+}';
 
 $txt['approval_status'] = 'Approval status';
 $txt['approval_status_1'] = 'Approved';

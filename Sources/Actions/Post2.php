@@ -416,7 +416,7 @@ class Post2 extends Post
 								ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 							}
 						} else {
-							$attach_errors[] = '<dd>' . vsprintf(Lang::$txt[$error[0]], (array) $error[1]) . '</dd>';
+							$attach_errors[] = '<dd>' . Lang::getTxt($error[0], (array) $error[1]) . '</dd>';
 						}
 					}
 

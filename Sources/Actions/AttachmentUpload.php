@@ -476,7 +476,7 @@ class AttachmentUpload implements ActionInterface
 							ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 						}
 					} else {
-						$attachmentOptions['errors'][] = vsprintf(Lang::$txt[$error[0]], (array) $error[1]);
+						$attachmentOptions['errors'][] = Lang::getTxt($error[0], (array) $error[1]);
 					}
 				}
 
