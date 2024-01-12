@@ -14,8 +14,8 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\Alert;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -639,72 +639,6 @@ class ReportedContent implements ActionInterface
 		);
 
 		return $open_reports;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the show sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function showReports(): void
-	{
-		self::load();
-		self::$obj->subaction = 'show';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the closed sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function showClosedReports(): void
-	{
-		self::load();
-		self::$obj->subaction = 'closed';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the details sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function reportDetails(): void
-	{
-		self::load();
-		self::$obj->subaction = 'details';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the handle sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function handleReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'handle';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the handlecomment sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function handleComment(): void
-	{
-		self::load();
-		self::$obj->subaction = 'handlecomment';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editcomment sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editComment(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editcomment';
-		self::$obj->execute();
 	}
 
 	/******************

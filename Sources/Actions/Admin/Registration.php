@@ -14,8 +14,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Actions\Register2;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Actions\Register2;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -522,68 +522,6 @@ class Registration implements ActionInterface
 		IntegrationHook::call('integrate_modify_registration_settings', [&$config_vars]);
 
 		return $config_vars;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the register sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function adminRegister(): void
-	{
-		self::load();
-		self::$obj->subaction = 'register';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the agreement sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editAgreement(): void
-	{
-		self::load();
-		self::$obj->subaction = 'agreement';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the policy sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editPrivacyPolicy(): void
-	{
-		self::load();
-		self::$obj->subaction = 'policy';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reservednames sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function setReserved(): void
-	{
-		self::load();
-		self::$obj->subaction = 'reservednames';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyRegistrationSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
 	}
 
 	/******************

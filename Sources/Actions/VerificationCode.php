@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class VerificationCode implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

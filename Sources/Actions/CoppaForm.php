@@ -26,7 +26,6 @@ use SMF\Utils;
  */
 class CoppaForm implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

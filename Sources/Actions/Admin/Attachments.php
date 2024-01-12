@@ -18,8 +18,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Attachment;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Attachment;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -2596,7 +2596,7 @@ class Attachments implements ActionInterface
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
 	 */
-	public static function manageAttachmentSettings(bool $return_config = false)
+	public static function manageAttachmentSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::attachConfigVars();
@@ -2613,7 +2613,7 @@ class Attachments implements ActionInterface
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
 	 */
-	public static function manageAvatarSettings($return_config = false)
+	public static function manageAvatarSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::avatarConfigVars();
@@ -2621,105 +2621,6 @@ class Attachments implements ActionInterface
 
 		self::load();
 		self::$obj->subaction = 'avatars';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function browseFiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the maintenance sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function maintainFiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'maintenance';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the remove sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function removeAttachment(): void
-	{
-		self::load();
-		self::$obj->subaction = 'remove';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the byage sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function removeAttachmentByAge(): void
-	{
-		self::load();
-		self::$obj->subaction = 'byage';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the bysize sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function removeAttachmentBySize(): void
-	{
-		self::load();
-		self::$obj->subaction = 'bysize';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the removeall sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function removeAllAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'removeall';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the repair sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function repairAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'repair';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the attachpaths sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function manageAttachmentPaths(): void
-	{
-		self::load();
-		self::$obj->subaction = 'attachpaths';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the transfer sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function transferAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'transfer';
 		self::$obj->execute();
 	}
 

@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class PaidSubs implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

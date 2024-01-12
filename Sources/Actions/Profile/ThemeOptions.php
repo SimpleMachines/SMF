@@ -26,7 +26,6 @@ use SMF\Utils;
  */
 class ThemeOptions implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

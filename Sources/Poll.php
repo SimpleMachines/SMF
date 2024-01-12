@@ -760,12 +760,11 @@ class Poll implements ArrayAccess
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
 			} else {
-				if ($real_prop == 'id'){
+				if ($real_prop == 'id') {
 					$this->{$real_prop} = (int) $value;
-				}
-				else {
+				} else {
 					settype($value, gettype($this->{$real_prop}));
-					$this->{$real_prop} = $value;	
+					$this->{$real_prop} = $value;
 				}
 			}
 		} else {

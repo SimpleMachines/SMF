@@ -304,27 +304,6 @@ class Announce implements ActionInterface
 		self::load()->execute();
 	}
 
-	/**
-	 * Backward compatibility wrapper for the selectgroup sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function selectGroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'selectgroup';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the send sub-action.
-	 */
-	public static function announcementSend(): void
-	{
-		self::load();
-		self::$obj->subaction = 'send';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

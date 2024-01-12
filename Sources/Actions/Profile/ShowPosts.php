@@ -598,56 +598,6 @@ class ShowPosts implements ActionInterface
 		return $attach_count;
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 * @deprecated since 3.0
-	 */
-	public static function showPosts(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the unwatchedtopics sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function showUnwatched(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'unwatchedtopics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the attach sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function showAttachments(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'attach';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

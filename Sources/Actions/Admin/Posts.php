@@ -31,7 +31,6 @@ use SMF\Utils;
  */
 class Posts implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

@@ -34,7 +34,6 @@ use SMF\Utils;
  */
 class TopicPrint implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

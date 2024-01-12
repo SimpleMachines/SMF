@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class BuddyListToggle implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

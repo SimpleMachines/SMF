@@ -24,7 +24,6 @@ use SMF\Utils;
  */
 class AgreementAccept extends Agreement
 {
-
 	/*********************
 	 * Internal properties
 	 *********************/

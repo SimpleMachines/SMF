@@ -33,7 +33,6 @@ use SMF\Utils;
  */
 class Recent implements ActionInterface
 {
-
 	/*****************
 	 * Class constants
 	 *****************/

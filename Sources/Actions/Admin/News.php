@@ -14,8 +14,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Actions\Notify;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Actions\Notify;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -1239,68 +1239,6 @@ class News extends ACP implements ActionInterface
 				Utils::$context[$key],
 			);
 		}
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editNews(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mailingmembers sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function selectMailingMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'mailingmembers';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mailingcompose sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function composeMailing(): void
-	{
-		self::load();
-		self::$obj->subaction = 'mailingcompose';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mailingsend sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function sendMailing(): void
-	{
-		self::load();
-		self::$obj->subaction = 'mailingsend';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyNewsSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
 	}
 
 	/******************

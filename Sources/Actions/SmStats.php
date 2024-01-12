@@ -22,7 +22,6 @@ use SMF\User;
  */
 class SmStats implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

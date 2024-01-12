@@ -28,7 +28,6 @@ use SMF\Utils;
  */
 class TopicRestore implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

@@ -968,61 +968,6 @@ class Reports implements ActionInterface
 		self::load()->execute();
 	}
 
-	/**
-	 * Backward compatibility wrapper for the boards sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function boardReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'boards';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the board_perms sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function boardPermissionsReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'board_perms';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the member_groups sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function memberGroupsReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'member_groups';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the group_perms sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function groupPermissionsReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'group_perms';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the staff sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function staffReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'staff';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

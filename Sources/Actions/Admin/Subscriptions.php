@@ -2199,68 +2199,6 @@ class Subscriptions implements ActionInterface
 		return $subscribers;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the view sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function viewSubscriptions(): void
-	{
-		self::load();
-		self::$obj->subaction = 'view';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the viewsub sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function viewSubscribedUsers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'viewsub';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modify sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifySubscription(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modify';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modifyuser sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyUserSubscription(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modifyuser';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function modifySubscriptionSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

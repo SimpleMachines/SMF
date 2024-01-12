@@ -24,7 +24,6 @@ use Stringable;
  */
 class PageIndex implements Stringable
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

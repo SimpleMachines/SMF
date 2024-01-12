@@ -28,7 +28,6 @@ use SMF\Utils;
  */
 class TopicRemove implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

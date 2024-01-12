@@ -40,7 +40,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-
 	/***********
 	 * Constants
 	 ***********/
@@ -758,7 +757,7 @@ class TaskRunner
 
 	/**
 	 * The exit function.
-	 * 
+	 *
 	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	protected function obExit(): void

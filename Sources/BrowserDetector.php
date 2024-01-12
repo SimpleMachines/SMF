@@ -30,7 +30,6 @@ namespace SMF;
  */
 class BrowserDetector
 {
-
 	/*********************
 	 * Internal properties
 	 *********************/

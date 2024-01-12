@@ -363,7 +363,7 @@ class ItemList implements ArrayAccess
 			$this->start,
 			$this->total_num_items,
 			$this->items_per_page,
-			$this->start_var_name != 'start'
+			$this->start_var_name != 'start',
 		);
 	}
 

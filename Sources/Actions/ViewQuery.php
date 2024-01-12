@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class ViewQuery implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

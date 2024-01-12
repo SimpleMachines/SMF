@@ -328,18 +328,6 @@ class ReportToMod implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the submit sub-action.
-	 * In theory, no modifications should ever have called this, but...
-	 * @deprecated since 3.0
-	 */
-	public static function ReportToModerator2(): void
-	{
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Backward compatibility wrapper for the reportMsg() method.
 	 * In theory, no modifications should ever have called this, but...
 	 */

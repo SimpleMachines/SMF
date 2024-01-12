@@ -32,7 +32,6 @@ use SMF\Verifier;
  */
 class Search2 implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

@@ -25,7 +25,6 @@ use SMF\Utils;
  */
 class NotifyTopic extends Notify implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

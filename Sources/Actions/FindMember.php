@@ -30,7 +30,6 @@ use SMF\Utils;
  */
 class FindMember implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

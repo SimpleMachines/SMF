@@ -24,7 +24,6 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;
-use SMF\Url;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -2249,6 +2248,7 @@ class User implements ArrayAccess
 
 		// We really should never fall through here, for very important reasons.  Let's make sure.
 		trigger_error('No direct access...', E_USER_ERROR);
+
 		return null;
 	}
 
@@ -2839,10 +2839,9 @@ class User implements ArrayAccess
 				}
 				// External url.
 				else {
-					if ($data['avatar'] instanceof Url){
+					if ($data['avatar'] instanceof Url) {
 						$url = $data['avatar'];
-					}
-					else {
+					} else {
 						$url = new Url($data['avatar']);
 					}
 
@@ -4501,12 +4500,12 @@ class User implements ArrayAccess
 	 *
 	 * This method exists only for backward compatibility purposes.
 	 *
+	 * @param bool $simple Whether to return a simple array of board IDs or one
+	 *    with permissions as the keys.
 	 * @param string|array $permissions A single permission to check or an array
 	 *    of permissions to check.
 	 * @param bool $check_access Whether to check only the boards the user has
 	 *    access to.
-	 * @param bool $simple Whether to return a simple array of board IDs or one
-	 *    with permissions as the keys.
 	 * @return array|bool An array of board IDs if $simple is true. Otherwise, an
 	 *    array containing 'permission' => array(id, id, id...) pairs.
 	 */

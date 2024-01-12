@@ -23,7 +23,6 @@ use SMF\Url;
  */
 abstract class WebFetchApi implements WebFetchApiInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

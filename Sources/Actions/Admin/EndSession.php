@@ -21,7 +21,6 @@ use SMF\Utils;
  */
 class EndSession implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

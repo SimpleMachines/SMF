@@ -24,7 +24,6 @@ use SMF\Utils;
  */
 class AutoSuggest implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -313,69 +312,10 @@ class AutoSuggest implements ActionInterface
 	 * @param bool $callHandler
 	 * @return mixed
 	 */
-	public static function backCompatProvider(?string $suggest_type = null, bool $callHandler = false)
-	{
-		if (! $callHandler && isset($suggest_type)) {
-			self::load();
-			self::$obj->suggest_type = $suggest_type;
-			self::$obj->execute();
-		}
-
-		if ($callHandler) {
-			if (isset($suggest_type)) {
-				return self::checkRegistered($suggest_type);
-			} else {
-				self::call();
-			}
-		}
-	}
-
-	/**
-	 * Backward compatibility wrapper that either calls self::checkRegistered()
-	 * or self::call(), depending on whether the parameter is set or not.
-	 *
-	 * @param mixed $suggest_type Either a suggestion type, or null.
-	 * @deprecated since 3.0
-	 */
-	public static function AutoSuggestHandler(?string $suggest_type = null)
-	{
-		if (isset($suggest_type)) {
-			return self::checkRegistered($suggest_type);
-		}
-
-		self::call();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the member suggestion type.
-	 * @deprecated since 3.0
-	 */
-	public static function AutoSuggest_Search_Member(): void
+	public static function backCompatProvider(?string $suggest_type = null)
 	{
 		self::load();
-		self::$obj->suggest_type = 'member';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the membergroups suggestion type.
-	 * @deprecated since 3.0
-	 */
-	public static function AutoSuggest_Search_MemberGroups(): void
-	{
-		self::load();
-		self::$obj->suggest_type = 'membergroups';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the versions suggestion type.
-	 * @deprecated since 3.0
-	 */
-	public static function AutoSuggest_Search_SMFVersions(): void
-	{
-		self::load();
-		self::$obj->suggest_type = 'versions';
+		self::$obj->suggest_type = $suggest_type;
 		self::$obj->execute();
 	}
 

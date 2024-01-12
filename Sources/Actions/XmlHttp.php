@@ -395,39 +395,6 @@ class XmlHttp implements ActionInterface
 		self::load()->execute();
 	}
 
-	/**
-	 * Backward compatibility wrapper for the jumpto sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function GetJumpTo(): void
-	{
-		self::load();
-		self::$obj->subaction = 'jumpto';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the messageicons sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function ListMessageIcons(): void
-	{
-		self::load();
-		self::$obj->subaction = 'messageicons';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the previews sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function RetrievePreview(): void
-	{
-		self::load();
-		self::$obj->subaction = 'previews';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

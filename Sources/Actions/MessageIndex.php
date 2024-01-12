@@ -35,7 +35,6 @@ use SMF\Utils;
  */
 class MessageIndex implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

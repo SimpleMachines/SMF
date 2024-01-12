@@ -33,7 +33,6 @@ use SMF\Utils;
  */
 class DraftPM extends Draft
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

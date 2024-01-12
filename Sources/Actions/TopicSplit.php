@@ -972,50 +972,6 @@ class TopicSplit implements ActionInterface
 		return $split2_ID_TOPIC;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function splitIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the split sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function splitExecute(): void
-	{
-		self::load();
-		self::$obj->subaction = 'split';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the selectTopics sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function splitSelectTopics(): void
-	{
-		self::load();
-		self::$obj->subaction = 'selectTopics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the splitSelection sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function SplitSelectionExecute(): void
-	{
-		self::load();
-		self::$obj->subaction = 'splitSelection';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

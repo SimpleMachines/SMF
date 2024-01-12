@@ -545,54 +545,6 @@ class Mail implements ActionInterface
 		return sprintf($time_diff == 1 ? Lang::$txt['mq_second'] : Lang::$txt['mq_seconds'], $time_diff);
 	}
 
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function browseMailQueue(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the clear sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function clearMailQueue(): void
-	{
-		self::load();
-		self::$obj->subaction = 'clear';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyMailSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the test sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function testMailSend(): void
-	{
-		self::load();
-		self::$obj->subaction = 'test';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

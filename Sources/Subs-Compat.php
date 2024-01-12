@@ -13,17 +13,21 @@
  *
  * @version 3.0 Alpha 1
  */
+
 use SMF\Actions;
 use SMF\Cache;
 use SMF\Db;
 use SMF\Graphics\Image;
 use SMF\PackageManager;
 use SMF\PersonalMessage;
+use SMF\Profile;
 use SMF\Punycode;
 use SMF\Search;
 use SMF\Unicode\Utf8String;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
+
+use const FILTER_FLAG_IPV6;
 
 if (!defined('SMF')) {
 	die('No direct access...');
@@ -1137,7 +1141,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $id_member,
 		int|string $renewal = 0,
 		int $forceStartTime = 0,
-		int $forceEndTime = 0
+		int $forceEndTime = 0,
 	): void {
 		Actions\Admin\Subscriptions::add($id_subscribe, $id_member, $renewal, $forceStartTime, $forceEndTime);
 	}
@@ -1525,7 +1529,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			memID: $memID,
 			sa: 'ignore',
 			loadSelfFirst: false,
-			loadProfile: true
+			loadProfile: true,
 		);
 	}
 
@@ -1678,16 +1682,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			sa: 'alerts',
 			memID: $memID,
 			loadProfile: true,
-			defaultSettings: $defaultSettings
+			defaultSettings: $defaultSettings,
 		);
 	}
 
-	function alert_markread(int $memID):  void
+	function alert_markread(int $memID): void
 	{
 		Actions\Profile\Notification::subActionProvider(
 			sa: 'markread',
 			memID: $memID,
-			loadProfile: true
+			loadProfile: true,
 		);
 	}
 
@@ -1696,7 +1700,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		Actions\Profile\Notification::subActionProvider(
 			sa: 'topics',
 			memID: $memID,
-			loadProfile: true
+			loadProfile: true,
 		);
 	}
 
@@ -1705,7 +1709,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		Actions\Profile\Notification::subActionProvider(
 			sa: 'boards',
 			memID: $memID,
-			loadProfile: true
+			loadProfile: true,
 		);
 	}
 
@@ -1749,7 +1753,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Profile\ShowAlerts::subActionProvider(
 			memID: $memID,
-			updateRequest: true
+			updateRequest: true,
 		);
 	}
 
@@ -1764,7 +1768,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		Actions\Profile\ShowPermissions::subActionProvider(
 			memID: $memID,
-			updateRequest: true
+			updateRequest: true,
 		);
 	}
 
@@ -1867,7 +1871,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		Actions\Profile\Tracking::subActionProvider(
 			memID: $memID,
 			sa: 'activity',
-			updateRequest: true
+			updateRequest: true,
 		);
 	}
 
@@ -1987,7 +1991,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AutoSuggestHandler(?string $suggest_type = null): ?bool
 	{
-		return Actions\AutoSuggest::backCompatProvider(suggest_type: $suggest_type, callHandler: true);
+		if (isset($suggest_type)) {
+			return Actions\AutoSuggest::checkRegistered($suggest_type);
+		}
+
+		Actions\AutoSuggest::call();
 	}
 
 	function AutoSuggest_Search_Member(): void
@@ -2090,13 +2098,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $selected_date,
 		array $calendarOptions,
 		bool $is_previous = false,
-		bool $has_picker = true
+		bool $has_picker = true,
 	): array {
 		return Actions\Calendar::getCalendarGrid(
 			$selected_date,
 			$calendarOptions,
 			$is_previous,
-			$has_picker
+			$has_picker,
 		);
 	}
 
@@ -2250,7 +2258,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		Actions\Groups::call();
 	}
 
-	function listMembergroupMembers_Href(array &$members, int $membergroup, int $limit = null): bool
+	function listMembergroupMembers_Href(array &$members, int $membergroup, ?int $limit = null): bool
 	{
 		return Actions\Groups::listMembergroupMembers_Href($members, $membergroup, $limit);
 	}
@@ -2345,14 +2353,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $member_name,
 		bool|string $password_flood_value = false,
 		bool $was_correct = false,
-		bool $tfa = false
+		bool $tfa = false,
 	): void {
 		Actions\Login2::validatePasswordFlood(
 			$id_member,
 			$member_name,
 			$password_flood_value,
 			$was_correct,
-			$tfa
+			$tfa,
 		);
 	}
 
@@ -2837,7 +2845,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function MergeDone(): void
 	{
-		Actions\TopicMerge::mergeDone();
+		Actions\TopicMerge::subActionProvider(sa: 'done');
 	}
 
 	/**
@@ -3162,14 +3170,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $destination,
 		int $max_width,
 		int $max_height,
-		int $preferred_type = 0
+		int $preferred_type = 0,
 	): bool {
 		return Image::resizeImageFile(
 			$source,
 			$destination,
 			$max_width,
 			$max_height,
-			$preferred_type
+			$preferred_type,
 		);
 	}
 
@@ -3180,7 +3188,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $src_height,
 		int $max_width,
 		int $max_height,
-		int $preferred_type = 0
+		int $preferred_type = 0,
 	): bool {
 		return Image::resizeImage(
 			$source,
@@ -3189,7 +3197,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$src_height,
 			$max_width,
 			$max_height,
-			$preferred_type
+			$preferred_type,
 		);
 	}
 
@@ -3205,14 +3213,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?string $destination,
 		bool $single_file = false,
 		bool $overwrite = false,
-		?array $files_to_extract = null
+		?array $files_to_extract = null,
 	): array|bool {
 		return PackageManager\SubsPackage::read_tgz_file(
 			$gzfilename,
 			(string) $destination ?? null,
 			$single_file,
 			$overwrite,
-			$files_to_extract
+			$files_to_extract,
 		);
 	}
 
@@ -3221,14 +3229,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?string $destination,
 		bool $single_file = false,
 		bool $overwrite = false,
-		?array $files_to_extract = null
+		?array $files_to_extract = null,
 	): array|bool {
 		return PackageManager\SubsPackage::read_tgz_data(
 			$data,
 			$destination,
 			$single_file,
 			$overwrite,
-			$files_to_extract
+			$files_to_extract,
 		);
 	}
 
@@ -3237,14 +3245,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $destination,
 		bool $single_file = false,
 		bool $overwrite = false,
-		array $files_to_extract = null
+		?array $files_to_extract = null,
 	): mixed {
 		return PackageManager\SubsPackage::read_zip_data(
 			$data,
 			$destination,
 			$single_file,
 			$overwrite,
-			$files_to_extract
+			$files_to_extract,
 		);
 	}
 
@@ -3266,7 +3274,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function create_chmod_control(
 		array $chmodFiles = [],
 		array $chmodOptions = [],
-		bool $restore_write_status = false
+		bool $restore_write_status = false,
 	): array {
 		return PackageManager\SubsPackage::create_chmod_control($chmodFiles, $chmodOptions, $restore_write_status);
 	}
@@ -3276,7 +3284,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return PackageManager\SubsPackage::list_restoreFiles($dummy1, $dummy2, $dummy3, $do_change);
 	}
 
-	function packageRequireFTP(string $destination_url, ?array $files = null,bool  $return = false): array
+	function packageRequireFTP(string $destination_url, ?array $files = null, bool $return = false): array
 	{
 		return PackageManager\SubsPackage::packageRequireFTP($destination_url, $files, $return);
 	}
@@ -3285,13 +3293,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		PackageManager\XmlArray &$packageXML,
 		bool $testing_only = true,
 		string $method = 'install',
-		string $previous_version = ''
+		string $previous_version = '',
 	): array {
 		return PackageManager\SubsPackage::parsePackageInfo(
 			$packageXML,
 			$testing_only,
 			$method,
-			$previous_version
+			$previous_version,
 		);
 	}
 
@@ -3439,8 +3447,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $subject,
 		string $message,
 		bool $store_outbox = false,
-		array $from = null,
-		int $pm_head = 0
+		?array $from = null,
+		int $pm_head = 0,
 	): array {
 		return PersonalMessage\PM::send($recipients, $subject, $message, $store_outbox, $from ?? null, $pm_head);
 	}
@@ -3634,7 +3642,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $limit = 0,
 		int $offset = 0,
 		bool $with_avatar = false,
-		bool $show_links = false
+		bool $show_links = false,
 	): array {
 		return SMF\Alert::fetch($memID, $to_fetch, $limit, $offset, $with_avatar, $show_links);
 	}
@@ -3710,13 +3718,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$condition,
 		$query_type = '',
 		$return_affected_messages = false,
-		$autoThumbRemoval = true
+		$autoThumbRemoval = true,
 	): ?array {
 		return SMF\Attachment::remove(
 			$condition,
 			$query_type,
 			$return_affected_messages,
-			$autoThumbRemoval
+			$autoThumbRemoval,
 		);
 	}
 
@@ -3753,16 +3761,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function getAttachmentFilename(
 		string $filename,
 		int $attachment_id,
-		string|null $dir = null,
+		?string $dir = null,
 		bool $new = false,
-		string $file_hash = ''
+		string $file_hash = '',
 	): string {
 		return SMF\Attachment::getAttachmentFilename(
 			$filename,
 			$attachment_id,
 			$dir,
 			$new,
-			$file_hash
+			$file_hash,
 		);
 	}
 
@@ -3792,13 +3800,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string|bool $message,
 		bool $smileys = true,
 		string $cache_id = '',
-		array $parse_tags = []
+		array $parse_tags = [],
 	): string|array {
 		return SMF\BBCodeParser::backcompatParseBbc(
 			$message,
 			$smileys,
 			$cache_id,
-			$parse_tags
+			$parse_tags,
 		);
 	}
 
@@ -3978,7 +3986,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $domain = '',
 		?bool $secure = null,
 		bool $httponly = true,
-		?string $samesite = null
+		?string $samesite = null,
 	): void {
 		SMF\Cookie::setcookie(
 			$name,
@@ -3988,7 +3996,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$domain,
 			$secure,
 			$httponly,
-			$samesite
+			$samesite,
 		);
 	}
 
@@ -4047,13 +4055,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $error_message,
 		string|bool $error_type = 'general',
 		string $file = '',
-		int $line = 0
+		int $line = 0,
 	): string {
 		return SMF\ErrorHandler::log(
 			$error_message,
 			$error_type,
 			$file,
-			$line
+			$line,
 		);
 	}
 
@@ -4113,7 +4121,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function loadSimple(
 		int $include = SMF\Group::LOAD_NORMAL,
-		array $exclude = [SMF\Group::GUEST, SMF\Group::REGULAR, SMF\Group::MOD]
+		array $exclude = [SMF\Group::GUEST, SMF\Group::REGULAR, SMF\Group::MOD],
 	): array {
 		return SMF\Group::loadSimple($include, $exclude);
 	}
@@ -4165,14 +4173,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $function,
 		bool $permanent = true,
 		string $file = '',
-		bool $object = false
+		bool $object = false,
 	): void {
 		SMF\IntegrationHook::add(
 			$name,
 			$function,
 			$permanent,
 			$file,
-			$object
+			$object,
 		);
 	}
 
@@ -4181,14 +4189,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $function,
 		bool $permanent = true,
 		string $file = '',
-		bool $object = false
+		bool $object = false,
 	): void {
 		SMF\IntegrationHook::remove(
 			$name,
 			$function,
 			$permanent,
 			$file,
-			$object
+			$object,
 		);
 	}
 
@@ -4211,32 +4219,38 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function isValidIP(string $ip): bool
 	{
-		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
+		return (new SMF\IP($ip))->isValid();
 	}
 
 	function isValidIPv6(string $ip): bool
 	{
-		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
+		return (new SMF\IP($ip))->isValid(FILTER_FLAG_IPV6);
 	}
 
 	function host_from_ip(string $ip): string
 	{
-		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
+		return (new SMF\IP($ip))->getHost(0);
 	}
 
 	function inet_ptod(string $ip): string|bool
 	{
-		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
+		return (new SMF\IP($ip))->toBinary();
 	}
 
-	function inet_dtop(string $ip): SMF\IP
+	function inet_dtop(string $ip): string
 	{
-		return SMF\IP::backCompatProvider(__FUNCTION__, $ip);
+		return (string) (new SMF\IP($ip));
 	}
 
-	function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|false
+	function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|bool
 	{
-		return SMF\IP::backCompatProvider(__FUNCTION__, $ip, $return_bool_if_invalid);
+		$ip = new SMF\IP($ip);
+
+		if ($return_bool_if_invalid && !$ip->isValid(FILTER_FLAG_IPV6)) {
+			return false;
+		}
+
+		return $ip->expand();
 	}
 
 	/**
@@ -4262,7 +4276,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $template_name,
 		string $lang = '',
 		bool $fatal = true,
-		bool $force_reload = false
+		bool $force_reload = false,
 	): string {
 		return SMF\Lang::load($template_name, $lang, $fatal, $force_reload);
 	}
@@ -4350,12 +4364,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array $to,
 		string $subject,
 		string $message,
-		string $from = null,
-		string $message_id = null,
+		?string $from = null,
+		?string $message_id = null,
 		bool $send_html = false,
 		int $priority = 3,
-		bool $hotmail_fix = null,
-		bool $is_private = false
+		?bool $hotmail_fix = null,
+		bool $is_private = false,
 	): bool {
 		return SMF\Mail::send(
 			$to,
@@ -4366,7 +4380,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$send_html,
 			$priority,
 			$hotmail_fix,
-			$is_private
+			$is_private,
 		);
 	}
 
@@ -4378,7 +4392,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $headers = '',
 		bool $send_html = false,
 		int $priority = 3,
-		bool $is_private = false
+		bool $is_private = false,
 	): bool {
 		return SMF\Mail::addToQueue(
 			$flush,
@@ -4388,7 +4402,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$headers,
 			$send_html,
 			$priority,
-			$is_private
+			$is_private,
 		);
 	}
 
@@ -4402,14 +4416,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $with_charset = true,
 		bool $hotmail_fix = false,
 		string $line_break = "\r\n",
-		string $custom_charset = null
+		?string $custom_charset = null,
 	): array {
 		return SMF\Mail::mimespecialchars(
 			$string,
 			$with_charset,
 			$hotmail_fix,
 			$line_break,
-			$custom_charset
+			$custom_charset,
 		);
 	}
 
@@ -4418,7 +4432,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Mail::sendSmtp($mail_to_array, $subject, $message, $headers);
 	}
 
-	function serverParse(string $message, $socket, string $code, string &$response = null): bool
+	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
 	{
 		return SMF\Mail::serverParse($message, $socket, $code, $response);
 	}
@@ -4428,7 +4442,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Mail::sendNotifications($topics, $type, $exclude, $members_only);
 	}
 
-	function adminNotify(string $type, int $memberID, string $member_name = null): void
+	function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
 		SMF\Mail::adminNotify($type, $memberID, $member_name);
 	}
@@ -4437,7 +4451,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $template,
 		array $replacements = [],
 		string $lang = '',
-		bool $loadLang = true
+		bool $loadLang = true,
 	): array {
 		return SMF\Mail::loadEmailTemplate($template, $replacements, $lang, $loadLang);
 	}
@@ -4487,7 +4501,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array $protocols,
 		bool $embeddedUrl = false,
 		bool $hasEqualSign = false,
-		bool $hasExtra = false
+		bool $hasExtra = false,
 	): void {
 		SMF\Msg::fixTag(
 			$message,
@@ -4495,13 +4509,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$protocols,
 			$embeddedUrl,
 			$hasEqualSign,
-			$hasExtra
+			$hasExtra,
 		);
-	}
-
-	function SpellCheck(): void
-	{
-		SMF\Msg::spellCheck();
 	}
 
 	function createPost(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
@@ -4534,30 +4543,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Msg::remove($message, $decreasePostCount);
 	}
 
-	/** @see SMF\Msg::spell_init() */
-	function spell_init()
-	{
-		return SMF\Msg::spell_init();
-	}
-
-	/**
-	 * @param \PSpell\Dictionary|EnchantDictionary
-	 * @param string $word
-	 */
-	function spell_check($dict, $word): bool
-	{
-		return SMF\Msg::spell_check($dict, $word);
-	}
-
-	/**
-	 * @param \PSpell\Dictionary|EnchantDictionary
-	 * @param string $word
-	 */
-	function spell_suggest($dict, $word): array
-	{
-		return SMF\Msg::spell_suggest($dict, $word);
-	}
-
 	/**
 	 * End
 	 * SMF\Msg
@@ -4571,7 +4556,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $max_value,
 		int $num_per_page,
 		bool $short_format = false,
-		bool $show_prevnext = true
+		bool $show_prevnext = true,
 	): SMF\PageIndex {
 		return SMF\PageIndex::load(
 			$base_url,
@@ -4579,7 +4564,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$max_value,
 			$num_per_page,
 			$short_format,
-			$show_prevnext
+			$show_prevnext,
 		);
 	}
 
@@ -4639,43 +4624,76 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function profileLoadGroups(?int $id = null): bool
 	{
-		return SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		Profile::$loaded[$id]->loadAssignableGroups();
+
+		return true;
 	}
 
-	function loadProfileFields($force_reload = false, ?int $id = null): void
+	function loadProfileFields(bool $force_reload = false, ?int $id = null): void
 	{
-		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, force_reload: $force_reload);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		Profile::$loaded[$id]->loadStandardFields($force_reload);
 	}
 
 	function loadCustomFields(int $id, string $area = 'summary'): void
 	{
-		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, area: $area);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		Profile::$loaded[$id]->loadCustomFields($area);
 	}
 
 	function loadThemeOptions(int $id, bool $defaultSettings = false): void
 	{
-		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, defaultSettings: $defaultSettings);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		Profile::$loaded[$id]->loadThemeOptions($defaultSettings);
 	}
 
 	function setupProfileContext(array $fields, int $id): void
 	{
-		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, fields: $fields, id: $id);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		Profile::$member->setupContext($fields);
 	}
 
-	function makeCustomFieldChanges($id, $area, $sanitize = true, $return_errors = false): ?array
+	function makeCustomFieldChanges(int $id, string $area, bool $sanitize = true, bool $return_errors = false): ?array
 	{
-		return SMF\Profile::backCompatProvider(
-			calledFunction: __FUNCTION__,
-			id: $id,
-			area: $area,
-			sanitize: $sanitize,
-			return_errors: $return_errors
-		);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		$_REQUEST['sa'] = $area;
+		Profile::$member->post_sanitized = !$sanitize;
+		Profile::$member->save();
+
+		if ($return_errors) {
+			return Profile::$member->cf_save_errors;
+		}
+
+		return null;
 	}
 
 	function makeThemeChanges(int $id, int $id_theme): void
 	{
-		SMF\Profile::backCompatProvider(calledFunction: __FUNCTION__, id: $id, id_theme: $id_theme);
+		if (!isset(Profile::$loaded[$id])) {
+			Profile::load($id);
+		}
+
+		Profile::$member->new_data['id_theme'] = $id_theme;
+		Profile::$member->save();
 	}
 
 	/**
@@ -4712,7 +4730,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Begin
 	 * SMF\Security
 	 */
-	function hash_password(string $username, string $password, int $cost = null): string
+	function hash_password(string $username, string $password, ?int $cost = null): string
 	{
 		return SMF\Security::hashPassword($username, $password, $cost);
 	}
@@ -4747,7 +4765,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Security::secureDirectory($paths, $attachments);
 	}
 
-	function frameOptionsHeader(string $override = null)
+	function frameOptionsHeader(?string $override = null)
 	{
 		return SMF\Security::frameOptionsHeader($override);
 	}
@@ -4836,21 +4854,21 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?array $exclude_boards = null,
 		?array $include_boards = null,
 		string $output_method = 'echo',
-		bool $limit_body = true
+		bool $limit_body = true,
 	): ?array {
 		return SMF\ServerSideIncludes::recentPosts(
 			$num_recent,
 			$exclude_boards,
 			$include_boards,
 			$output_method,
-			$limit_body
+			$limit_body,
 		);
 	}
 
 	function ssi_fetchPosts(
 		array $post_ids = [],
 		bool $override_permissions = false,
-		string $output_method = 'echo'
+		string $output_method = 'echo',
 	): ?array {
 		return SMF\ServerSideIncludes::fetchPosts($post_ids, $override_permissions, $output_method);
 	}
@@ -4862,7 +4880,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $query_order = 'm.id_msg DESC',
 		string $output_method = 'echo',
 		bool $limit_body = false,
-		bool $override_permissions = false
+		bool $override_permissions = false,
 	): ?array {
 		return SMF\ServerSideIncludes::queryPosts(
 			$query_where,
@@ -4871,7 +4889,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$query_order,
 			$output_method,
 			$limit_body,
-			$override_permissions
+			$override_permissions,
 		);
 	}
 
@@ -4879,7 +4897,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $num_recent = 8,
 		?array $exclude_boards = null,
 		?array $include_boards = null,
-		string $output_method = 'echo'
+		string $output_method = 'echo',
 	): ?array {
 		return SMF\ServerSideIncludes::recentTopics($num_recent, $exclude_boards, $include_boards, $output_method);
 	}
@@ -4924,24 +4942,24 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\ServerSideIncludes::fetchMember($member_ids, $output_method);
 	}
 
-	function ssi_fetchGroupMembers(int $group_id = null, string $output_method = 'echo'): ?array
+	function ssi_fetchGroupMembers(?int $group_id = null, string $output_method = 'echo'): ?array
 	{
 		return SMF\ServerSideIncludes::fetchGroupMembers($group_id, $output_method);
 	}
 
 	function ssi_queryMembers(
-		string $query_where = null,
+		?string $query_where = null,
 		array $query_where_params = [],
 		string|int $query_limit = '',
 		string $query_order = 'id_member DESC',
-		string $output_method = 'echo'
+		string $output_method = 'echo',
 	): ?array {
 		return SMF\ServerSideIncludes::queryMembers(
 			$query_where,
 			$query_where_params,
 			$query_limit,
 			$query_order,
-			$output_method
+			$output_method,
 		);
 	}
 
@@ -5020,14 +5038,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?int $limit = null,
 		?int $start = null,
 		?int $length = null,
-		string $output_method = 'echo'
+		string $output_method = 'echo',
 	): ?array {
 		return SMF\ServerSideIncludes::boardNews(
 			$board,
 			$limit,
 			$start,
 			$length,
-			$output_method
+			$output_method,
 		);
 	}
 
@@ -5036,7 +5054,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\ServerSideIncludes::recentEvents($max_events, $output_method);
 	}
 
-	function ssi_checkPassword(int $id = null, string $password = null, bool $is_username = false): bool
+	function ssi_checkPassword(?int $id = null, ?string $password = null, bool $is_username = false): bool
 	{
 		return SMF\ServerSideIncludes::checkPassword($id, $password, $is_username);
 	}
@@ -5182,23 +5200,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		SMF\Theme::pickTheme();
 	}
 
-	/** @deprecated since 2.1 */
-	function create_button(
-		string $name,
-		string $alt,
-		string $label = '',
-		string $custom = '',
-		bool $force_use = false
-	): string {
-		return SMF\Theme::createButton(
-			$name,
-			$alt,
-			$label,
-			$custom,
-			$force_use
-		);
-	}
-
 	/**
 	 * End
 	 * SMF\Theme
@@ -5232,7 +5233,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/** @deprecated since 2.1 */
-	function forum_time(bool $use_user_offset = true, int $timestamp = null): int
+	function forum_time(bool $use_user_offset = true, ?int $timestamp = null): int
 	{
 		return SMF\Time::forumTime($use_user_offset, $timestamp);
 	}
@@ -5300,7 +5301,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array|int $topics,
 		bool $decreasePostCount = true,
 		bool $ignoreRecycling = false,
-		bool $updateBoardCount = true
+		bool $updateBoardCount = true,
 	) {
 		return SMF\Topic::remove($topics, $decreasePostCount, $ignoreRecycling, $updateBoardCount);
 	}
@@ -5322,44 +5323,64 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		SMF\Url::setTldRegex($update);
 	}
 
-	function parse_iri(string $target, int $component): mixed
+	/**
+	 * @param string $iri The IRI to parse.
+	 * @param int $component Optional flag for parse_url's second parameter.
+	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
+	 */
+	function parse_iri(string $iri, int $component = -1): string|int|array|null|bool
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target, $component);
+		return (new SMF\Url($iri))->parse($component);
 	}
 
-	function validate_iri(string $target, int $flags = 0): SMF\Url|false
+	/**
+	 * @param string $iri The IRI to parse.
+	 * @param int $flags Optional flags for filter_var's third parameter.
+	 * @return self|bool A reference to an object for the IRI if it is valid,
+	 *    or false if the IRI is invalid.
+	 */
+	function validate_iri(string $iri, int $flags = 0): SMF\Url|bool
 	{
-		return SMF\Url::backCompatProvider(calledFunction: __FUNCTION__, target: $target, flags: $flags);
+		$iri = new SMF\Url($iri);
+		$iri->validate($flags);
+
+		// caste this because $urlInstance->url is a protected property, but casting to string returns it
+		return (string) $iri === '' ? false : $iri;
 	}
 
-	function sanitize_iri(string $target): SMF\Url
+	function sanitize_iri(string $iri): SMF\Url
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
+		return (new SMF\Url($iri))->sanitize();
 	}
 
-	function normalize_iri(string $target): SMF\Url
+	function normalize_iri(string $iri): SMF\Url
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
+		return (new SMF\Url($iri))->normalize();
 	}
 
-	function iri_to_url(string $target): SMF\Url
+	function iri_to_url(string $iri): SMF\Url
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
+		return (new SMF\Url($iri))->toAscii();
 	}
 
-	function url_to_iri(string $target): SMF\Url
+	function url_to_iri(string $url): SMF\Url
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
+		return (new SMF\Url($url))->toUtf8();
 	}
 
-	function get_proxied_url(string $target): SMF\Url
+	function get_proxied_url(string $url): SMF\Url
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
+		return (new SMF\Url($url))->proxied();
 	}
 
-	function httpsRedirectActive(string $target): bool
+	function ssl_cert_found(string $url): bool
 	{
-		return SMF\Url::backCompatProvider(__FUNCTION__, $target);
+		return (new SMF\Url($url))->hasSSL();
+	}
+
+	function httpsRedirectActive(string $url): bool
+	{
+		return (new SMF\Url($url))->redirectsToHttps();
 	}
 
 	/**
@@ -5403,7 +5424,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $memID,
 		string $username,
 		bool $return_error = false,
-		bool $check_reserved_name = true
+		bool $check_reserved_name = true,
 	): ?array {
 		return SMF\User::validateUsername($memID, $username, $return_error, $check_reserved_name);
 	}
@@ -5422,7 +5443,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array $names,
 		bool $use_wildcards = false,
 		bool $buddies_only = false,
-		int $max = 500
+		int $max = 500,
 	): array {
 		return SMF\User::find($names, $use_wildcards, $buddies_only, $max);
 	}
@@ -5436,7 +5457,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array|string $permissions,
 		?int $board_id = null,
 		bool $simple = true,
-		?int $profile_id = null
+		?int $profile_id = null,
 	): array {
 		return SMF\User::groupsAllowedTo($permissions, $board_id, $simple, $profile_id);
 	}
@@ -5444,7 +5465,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function getGroupsWithPermissions(
 		array $general_permissions = [],
 		array $board_permissions = [],
-		int $profile_id = 1
+		int $profile_id = 1,
 	): array {
 		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
 	}
@@ -5660,7 +5681,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?bool $header = null,
 		?bool $do_footer = null,
 		bool $from_index = false,
-		bool $from_fatal_error = false
+		bool $from_fatal_error = false,
 	): void {
 		Utils::obExit($header, $do_footer, $from_index, $from_fatal_error);
 	}
@@ -5706,36 +5727,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * Wrapper for random_bytes() that sets a default length.
-	 *
-	 * Only exists for backward compatibility purposes.
-	 *
-	 * @param int $length Number of bytes to return. Default: 64.
-	 * @return string A string of random bytes.
-	 */
-	function randomBytes(int $length): string
-	{
-		// Make sure length is valid
-		$length = max(1, $length);
-
-		return random_bytes($length);
-	}
-
-	/**
-	 * Wrapper for random_int() that sets default values.
-	 *
-	 * Only exists for backward compatibility purposes.
-	 *
-	 * @param int $min Minumum value. Default: 0.
-	 * @param int $max Maximum value. Default: PHP_INT_MAX.
-	 * @return int A random integer.
-	 */
-	function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
-	{
-		return random_int($min, $max);
-	}
-
-	/**
 	 * End
 	 * SMF\Utils
 	 *
@@ -5747,7 +5738,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Verifier::create($options, $do_test);
 	}
 
-	/**
+	/*
 	 * End
 	 * BackwardCompatibility function map
 	 */

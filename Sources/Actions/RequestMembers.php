@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class RequestMembers implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

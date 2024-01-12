@@ -1012,63 +1012,6 @@ class Notification implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the configuration sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @param bool $defaultSettings If true, we are loading default options.
-	 * @deprecated since 3.0
-	 */
-	public static function alert_configuration($memID, $defaultSettings = false): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'alerts';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the markRead sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function alert_markread($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'markread';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the topics sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function alert_notifications_topics($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the boards sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function alert_notifications_boards($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'boards';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Backward compatibility wrapper for the changeNotifications method.
 	 *
 	 * @param int $memID The ID of the member.

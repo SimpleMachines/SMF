@@ -22,7 +22,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class QueryString
 {
-
 	/***********************
 	 * Public static methods
 	 ***********************/

@@ -928,39 +928,6 @@ class Groups implements ActionInterface
 		return $group_requests;
 	}
 
-	/**
-	 * Backward compatibility wrapper for index sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function GroupList(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for members sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function MembergroupMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'members';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for requests sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function GroupRequests(): void
-	{
-		self::load();
-		self::$obj->subaction = 'requests';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

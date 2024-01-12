@@ -168,22 +168,6 @@ class ViewWarning implements ActionInterface
 		self::load()->execute();
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 * @deprecated since 3.0
-	 */
-	public static function viewWarning(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

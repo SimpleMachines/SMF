@@ -32,7 +32,7 @@ class WeeklyMaintenance extends ScheduledTask
 	 * @return bool Always returns true.
 	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute(): bool 
+	public function execute(): bool
 	{
 		// Delete some settings that needn't be set if they are otherwise empty.
 		$emptySettings = [

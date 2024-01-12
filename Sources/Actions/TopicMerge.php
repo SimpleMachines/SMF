@@ -975,6 +975,7 @@ class TopicMerge implements ActionInterface
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicMerge'])) {
+			// todo: undefined method
 			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : [Utils::$context['response_prefix'], $target_subject]);
 		}
 
@@ -1059,17 +1060,6 @@ class TopicMerge implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function mergeIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Backward compatibility wrapper for the options and/or merge sub-actions.
 	 * (The old procedural function with this name did both.)
 	 *
@@ -1080,16 +1070,6 @@ class TopicMerge implements ActionInterface
 		self::load();
 		self::$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';
 		self::$obj->topics = array_map('intval', $topics);
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the split sub-action.
-	 */
-	public static function mergeDone(): void
-	{
-		self::load();
-		self::$obj->subaction = 'done';
 		self::$obj->execute();
 	}
 

@@ -1369,50 +1369,6 @@ class Members implements ActionInterface
 		return $num_members;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the all sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function viewMemberlist(): void
-	{
-		self::load();
-		self::$obj->subaction = 'all';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the approve sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function adminApprove(): void
-	{
-		self::load();
-		self::$obj->subaction = 'approve';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 * deprecated since 3.0
-	 */
-	public static function membersAwaitingActivation(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the search sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function searchMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'search';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

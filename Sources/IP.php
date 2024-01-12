@@ -420,6 +420,7 @@ class IP implements Stringable
 		if (!$low instanceof IP) {
 			$low = new IP($low);
 		}
+
 		if (!$high instanceof IP) {
 			$high = new IP($high);
 		}
@@ -433,125 +434,6 @@ class IP implements Stringable
 		}
 
 		return $low . '-' . $high;
-	}
-
-	/**
-	 * Backward compatibility provider
-	 * @param string $calledFunction 2.1 function
-	 * @param string $ip
-	 * @param bool $bool_if_invalid
-	 * @return self|string|bool
-	 */
-	public static function backCompatProvider(
-		string $calledFunction,
-		string $ip,
-		bool $return_bool_if_invalid = true
-	): self|string|bool {
-		return match($calledFunction) {
-			'isValidIP'    => (new self($ip))->isValid(),
-			'isValidIPv6'  => (new self($ip))->isValid(FILTER_FLAG_IPV6),
-			'host_from_ip' => (new self($ip))->getHost(0),
-			'inet_ptod'    => (new self($ip))->toBinary(),
-			'inet_dtop'    => new self($ip),
-			'expandIPv6'   => (function($ip, $return_bool_if_invalid): string|false {
-				$instance = new self($ip);
-				if ($return_bool_if_invalid && !$instance->isValid(FILTER_FLAG_IPV6)) {
-					return false;
-				}
-				return $instance->expand();
-			})($ip, $return_bool_if_invalid),
-		};
-	}
-
-	/**
-	 * Backward compatibility wrapper for the isValid() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return bool Whether $ip is a valid IP address.
-	 * @deprecated since 3.0
-	 */
-	public static function isValidIP(string $ip): bool
-	{
-		$ip = new self($ip);
-
-		return $ip->isValid();
-	}
-
-	/**
-	 * Another backward compatibility wrapper for the isValid() method.
-	 *
-	 * This one checks specifically for valid IPv6 addresses.
-	 *
-	 * @param string $ip An IPv6 address in either string or binary form.
-	 * @return bool Whether $ip is a valid IPv6 address.
-	 * @deprecated since 3.0
-	 */
-	public static function isValidIPv6(string $ip): bool
-	{
-		$ip = new self($ip);
-
-		return $ip->isValid(FILTER_FLAG_IPV6);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the getHost() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string The host name.
-	 * @deprecated since 3.0
-	 */
-	public static function hostFromIp(string $ip): string
-	{
-		$ip = new self($ip);
-
-		return $ip->getHost(0);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the toBinary() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string The host name.
-	 * @deprecated since 3.0
-	 */
-	public static function inet_ptod(string $ip): string
-	{
-		$ip = new self($ip);
-
-		return $ip->toBinary();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the __toString() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string The host name.
-	 * @deprecated since 3.0
-	 */
-	public static function inet_dtop(string $ip): string
-	{
-		return (string) new self($ip);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the expand() method.
-	 *
-	 * @param string $ip An IPv6 address.
-	 * @param bool $return_bool_if_invalid Controls return type if address is
-	 *    invalid. True for boolean, false for empty string. Default: true.
-	 * @return string|false The expanded IPv6 address, or false/an empty string
-	 *    if address was invalid.
-	 * @deprecated since 3.0
-	 */
-	public static function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|false
-	{
-		$ip = new self($ip);
-
-		if ($return_bool_if_invalid && !$ip->isValid(FILTER_FLAG_IPV6)) {
-			return false;
-		}
-
-		return $ip->expand();
 	}
 
 	/******************

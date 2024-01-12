@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Tasks;
 
+use DOMDocument;
 use SMF\Actions\Feed;
 use SMF\Actions\Profile\Export;
 use SMF\Cache\CacheApi;
@@ -27,7 +28,6 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use DOMDocument;
 use XSLTProcessor;
 
 /**
@@ -1252,7 +1252,7 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
-	 * 
+	 *
 	 * @suppress PHP0417
 	 */
 	protected function exportHtml(): void
@@ -1861,9 +1861,8 @@ class ExportProfileData extends BackgroundTask
 		array &$nsKeys,
 		string $xml_format,
 		string $subaction,
-		string &$doctype
-		): void
-	{
+		string &$doctype,
+	): void {
 		if (!isset(Lang::$txt['export_open_in_browser'])) {
 			Lang::load('Profile');
 		}

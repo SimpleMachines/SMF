@@ -26,7 +26,6 @@ namespace SMF;
  */
 class SecurityToken extends \ArrayObject
 {
-
 	/*****************
 	 * Class constants
 	 *****************/

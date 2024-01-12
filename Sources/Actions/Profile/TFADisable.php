@@ -26,7 +26,6 @@ use SMF\Utils;
  */
 class TFADisable implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

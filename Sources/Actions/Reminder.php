@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class Reminder implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

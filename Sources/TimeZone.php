@@ -22,7 +22,6 @@ use DateTimeZone;
  */
 class TimeZone extends DateTimeZone
 {
-
 	/*****************
 	 * Class constants
 	 *****************/

@@ -30,7 +30,6 @@ use SMF\Utils;
  */
 class SearchResult extends \SMF\Msg
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

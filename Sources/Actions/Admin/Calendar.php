@@ -466,30 +466,9 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the holidays sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyHolidays(): void
-	{
-		self::load();
-		self::$obj->subaction = 'holidays';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editholiday sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editHoliday(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editholiday';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Backward compatibility wrapper for the settings sub-action.
 	 *
+	 * @todo track down what this method should map to
 	 * @param bool $return_config Whether to return the $config_vars array (used for admin search)
 	 * @return void|array Returns nothing or returns $config_vars if $return_config is true
 	 */

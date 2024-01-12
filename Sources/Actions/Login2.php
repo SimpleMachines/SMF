@@ -30,7 +30,6 @@ use SMF\Utils;
  */
 class Login2 implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

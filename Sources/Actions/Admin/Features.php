@@ -14,8 +14,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Actions\Profile\Notification;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Actions\Profile\Notification;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -1904,28 +1904,6 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the profile sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function showCustomProfiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'profile';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the profileedit sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editCustomProfiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'profileedit';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Backward compatibility wrapper for the likes sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
@@ -1956,17 +1934,6 @@ class Features implements ActionInterface
 
 		self::load();
 		self::$obj->subaction = 'mentions';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the alerts sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyAlertsSettings(): void
-	{
-		self::load();
-		self::$obj->subaction = 'alerts';
 		self::$obj->execute();
 	}
 

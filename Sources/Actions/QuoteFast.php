@@ -32,7 +32,6 @@ use SMF\Utils;
  */
 class QuoteFast implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

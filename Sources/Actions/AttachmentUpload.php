@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class AttachmentUpload implements ActionInterface
 {
-
 	/**
 	 * @var int The ID of the message this attachment is associated with
 	 */

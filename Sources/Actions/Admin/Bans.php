@@ -1492,61 +1492,6 @@ class Bans implements ActionInterface
 		return $num_entries;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the list sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function banList(): void
-	{
-		self::load();
-		self::$obj->subaction = 'list';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function banEdit(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function banBrowseTriggers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edittrigger sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function banEditTrigger(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edittrigger';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the log sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function banLog(): void
-	{
-		self::load();
-		self::$obj->subaction = 'log';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

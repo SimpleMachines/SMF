@@ -973,7 +973,7 @@ class Time extends DateTime implements ArrayAccess
 	 * @param int $timestamp A timestamp (null to use current time).
 	 * @return int Seconds since the Unix epoch.
 	 */
-	public static function forumTime(bool $use_user_offset = true, int $timestamp = null): int
+	public static function forumTime(bool $use_user_offset = true, ?int $timestamp = null): int
 	{
 		return !isset($timestamp) ? time() : (int) $timestamp;
 	}

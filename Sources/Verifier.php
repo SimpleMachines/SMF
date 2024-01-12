@@ -285,8 +285,7 @@ class Verifier implements ArrayAccess
 				Utils::$context['visual_verification_id'] = $this->id;
 
 				$this->result = true;
-			}
-			else {
+			} else {
 				// If they passed the test, make a note.
 				if ($do_test) {
 					$_SESSION[$this->id . '_vv']['did_pass'] = true;

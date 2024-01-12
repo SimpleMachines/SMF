@@ -30,7 +30,6 @@ use SMF\Utils;
  */
 class QuickModerationInTopic implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

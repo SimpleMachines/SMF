@@ -688,28 +688,6 @@ class Memberlist implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the all sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function MLAll(): void
-	{
-		self::load();
-		self::$obj->subaction = 'all';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the search sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function MLSearch(): void
-	{
-		self::load();
-		self::$obj->subaction = 'search';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Retrieves results of the request passed to it
 	 * Puts results of request into the context for the sub template.
 	 *

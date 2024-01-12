@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class Logout extends Login2
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

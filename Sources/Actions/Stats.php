@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class Stats implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

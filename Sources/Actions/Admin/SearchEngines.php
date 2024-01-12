@@ -14,8 +14,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Actions\Who;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Actions\Who;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -1088,68 +1088,6 @@ class SearchEngines implements ActionInterface
 		Db::$db->free_result($request);
 
 		Config::updateModSettings(['spider_name_cache' => Utils::jsonEncode($spiders)]);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the stats sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function spiderStats(): void
-	{
-		self::load();
-		self::$obj->subaction = 'stats';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the logs sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function spiderLogs(): void
-	{
-		self::load();
-		self::$obj->subaction = 'logs';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the spiders sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function viewSpiders(): void
-	{
-		self::load();
-		self::$obj->subaction = 'spiders';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function manageSearchEngineSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editspiders sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editSpider(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editspiders';
-		self::$obj->execute();
 	}
 
 	/******************

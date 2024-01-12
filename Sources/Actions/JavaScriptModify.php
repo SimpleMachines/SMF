@@ -35,7 +35,6 @@ use SMF\Utils;
  */
 class JavaScriptModify implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

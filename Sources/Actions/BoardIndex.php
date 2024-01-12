@@ -37,7 +37,6 @@ use SMF\Utils;
  */
 class BoardIndex implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

@@ -24,7 +24,6 @@ use SMF\Utils;
  */
 class SendActivation implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

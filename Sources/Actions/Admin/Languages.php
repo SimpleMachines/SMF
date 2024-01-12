@@ -1613,68 +1613,6 @@ class Languages implements ActionInterface
 		return $languages;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyLanguages(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the add sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function addLanguage(): void
-	{
-		self::load();
-		self::$obj->subaction = 'add';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyLanguageSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the download sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function downloadLanguage(): void
-	{
-		self::load();
-		self::$obj->subaction = 'download';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editlang sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyLanguage(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editlang';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

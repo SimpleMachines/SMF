@@ -443,19 +443,6 @@ class TrackIP implements ActionInterface
 		return (int) $count;
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param int $memID The ID of a member whose IP we want to track.
-	 * @deprecated since 3.0
-	 */
-	public static function trackIP(int $memID = 0): void
-	{
-		self::load();
-		self::$obj->memID = $memID;
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

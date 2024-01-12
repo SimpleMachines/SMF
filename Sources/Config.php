@@ -2924,7 +2924,6 @@ class Config
 	/**
 	 * Generate a random seed and ensure it's stored in settings.
 	 *
-	 * @deprecated since 3.0
 	 * @todo Still referenced in Forum.php and ServerSideIncludes.php
 	 *
 	 * This only exists for backward compatibility with mods that might use the

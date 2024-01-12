@@ -57,7 +57,6 @@ use SMF\Utils;
  */
 class Feed implements ActionInterface
 {
-
 	/*****************
 	 * Class constants
 	 *****************/

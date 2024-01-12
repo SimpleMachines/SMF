@@ -406,24 +406,6 @@ class IssueWarning implements ActionInterface
 		return $total_warnings;
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param int $memID The ID of the user.
-	 * @deprecated since 3.0
-	 */
-	public static function issueWarning(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

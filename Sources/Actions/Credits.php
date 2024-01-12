@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class Credits implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

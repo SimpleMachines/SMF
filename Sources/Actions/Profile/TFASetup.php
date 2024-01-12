@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class TFASetup implements ActionInterface
 {
-
 	/*********************
 	 * Internal properties
 	 *********************/

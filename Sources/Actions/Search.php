@@ -30,7 +30,6 @@ use SMF\Verifier;
  */
 class Search implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

@@ -33,7 +33,6 @@ if (!defined('IMAGETYPE_AVIF')) {
  */
 class Image
 {
-
 	/*****************
 	 * Class constants
 	 *****************/

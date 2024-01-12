@@ -20,7 +20,6 @@ namespace SMF;
  */
 class Cookie
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

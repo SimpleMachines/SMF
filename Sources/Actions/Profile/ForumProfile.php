@@ -24,7 +24,6 @@ use SMF\Utils;
  */
 class ForumProfile implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

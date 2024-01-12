@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Tasks\UpdateTldRegex;
 use SMF\WebFetch\WebFetchApi;
 use Stringable;
 
@@ -121,7 +122,6 @@ class Url implements Stringable
 	 * @param string $url The URL or IRI.
 	 * @param bool $normalize Whether to normalize the URL during construction.
 	 *    Default: false.
-	 * @return $this provide fluent interface
 	 */
 	public function __construct(string $url, bool $normalize = false)
 	{
@@ -357,7 +357,7 @@ class Url implements Stringable
 	 * characters (a.k.a. IRIs)
 	 *
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
 	 */
 	public function parse(int $component = -1): string|int|array|null|bool
 	{
@@ -654,7 +654,7 @@ class Url implements Stringable
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\UpdateTldRegex',
+						UpdateTldRegex::class,
 						'',
 						0,
 					],
@@ -675,164 +675,6 @@ class Url implements Stringable
 
 		// Redundant repetition is redundant
 		$done = true;
-	}
-
-	/**
-	 * Backward compatibility provider
-	 * @param string $calledFunction 2.1 function
-	 * @param string $target
-	 * @param int $component
-	 * @param int $flags
-	 * @return mixed
-	 */
-	public static function backCompatProvider(
-		string $calledFunction,
-		string $target,
-		int $component = -1,
-		int $flags = 0,
-	): mixed {
-		return match($calledFunction) {
-			'parse_iri'           => (new self($target))->parse($component),
-			'validate_iri'        => (new self($target))->validate($flags)->url === '' ? false : $target,
-			'sanitize_iri'        => (new self($target))->sanitize(),
-			'normalize_iri'       => (new self($target))->normalize(),
-			'iri_to_url'          => (new self($target))->toAscii(),
-			'url_to_iri'          => (new self($target))->toUtf8(),
-			'get_proxied_url'     => (new self($target))->proxied(),
-			'ssl_cert_found'      => (new self($target))->hasSSL(),
-			'httpsRedirectActive' => (new self($target))->redirectsToHttps(),
-		};
-	}
-
-	/**
-	 * Backward compatibility wrapper for the parse method.
-	 *
-	 * @param string $iri The IRI to parse.
-	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return string|int|array|null|false Same as parse_url(), but with unmangled Unicode.
-	 * @deprecated since 3.0
-	 */
-	public static function parseIri(string $iri, int $component = -1): string|int|array|null|bool
-	{
-		$iri = new self($iri);
-
-		return $iri->parse($component);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the validate method.
-	 *
-	 * @param string $iri The IRI to parse.
-	 * @param int $flags Optional flags for filter_var's third parameter.
-	 * @return self|false A reference to an object for the IRI if it is valid,
-	 *    or false if the IRI is invalid.
-	 * @deprecated since 3.0
-	 */
-	public static function validateIri(string $iri, int $flags = 0): self|bool
-	{
-		$iri = new self($iri);
-
-		$iri->validate($flags);
-
-		return $iri->url === '' ? false : $iri;
-	}
-
-	/**
-	 * Backward compatibility method.
-	 *
-	 * @param string $iri The IRI to sanitize.
-	 * @return self A reference to an object for the IRI.
-	 * @deprecated since 3.0
-	 */
-	public static function sanitizeIri(string $iri): self
-	{
-		$iri = new self($iri);
-
-		return $iri->sanitize();
-	}
-
-	/**
-	 * Backward compatibility method.
-	 *
-	 * @param string $iri The IRI to normalize.
-	 * @return self A reference to an object for the IRI.
-	 * @deprecated since 3.0
-	 */
-	public static function normalizeIri(string $iri): self
-	{
-		$iri = new self($iri);
-
-		return $iri->normalize();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the toAscii method.
-	 *
-	 * @param string $iri The IRI to convert to an ASCII URL.
-	 * @return self A reference to an object for the URL.
-	 * @deprecated since 3.0
-	 */
-	public static function iriToUrl(string $iri): self
-	{
-		$iri = new self($iri);
-
-		return $iri->toAscii();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the toUtf8 method.
-	 *
-	 * @param string $url The URL to convert to an IRI.
-	 * @return self A reference to an object for the IRI.
-	 * @deprecated since 3.0
-	 */
-	public static function urlToIri(string $url): self
-	{
-		$url = new self($url);
-
-		return $url->toUtf8();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the proxied method.
-	 *
-	 * @param string $url The original URL of the requested resource.
-	 * @return Url A new instance of this class for the proxied URL.
-	 * @deprecated since 3.0
-	 */
-	public static function getProxiedUrl(string $url): Url
-	{
-		$url = new self($url);
-
-		return $url->proxied();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the hasSSL method.
-	 *
-	 * @param string $url The URL to check.
-	 * @return bool Whether the URL has an SSL certificate.
-	 * @deprecated since 3.0
-	 */
-	public static function sslCertFound(string $url): bool
-	{
-		$url = new self($url);
-
-		return $url->hasSSL();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the redirectsToHttps method.
-	 *
-	 * @param string $url The URL to check.
-	 * @return bool Whether a redirect to HTTPS was found.
-	 * @deprecated since 3.0
-	 */
-	public function httpsRedirectActive(string $url): bool
-	{
-		$url = new self($url);
-
-		return $url->redirectsToHttps();
 	}
 
 	/******************

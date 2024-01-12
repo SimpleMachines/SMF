@@ -25,7 +25,6 @@ use SMF\Utils;
  */
 class Login extends Login2
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

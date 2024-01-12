@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Simple Machines Forum (SMF)
  *
@@ -12,6 +10,8 @@ declare(strict_types=1);
  *
  * @version 3.0 Alpha 1
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
@@ -30,7 +30,6 @@ trait BackwardCompatibility
 	 * @param bool $loadSelfFirst
 	 * @param bool $loadProfile
 	 * @param bool $defaultSettings
-	 * @return void
 	 */
 	public static function subActionProvider(
 		int $memID,
@@ -48,6 +47,7 @@ trait BackwardCompatibility
 
 		if ($loadSelfFirst) {
 			self::load();
+
 			if ($loadProfile) {
 				Profile::load($memID);
 			}

@@ -444,7 +444,7 @@ class Menu implements ArrayAccess
 	/**
 	 * Checks whether the given menu item is enabled and whether the current
 	 * user has permission to access it.
-	 * 
+	 *
 	 * @param array $menu_item An array of a menu item.
 	 */
 	protected function enabledAndAllowed(array $menu_item): bool
@@ -458,7 +458,7 @@ class Menu implements ArrayAccess
 
 	/**
 	 * Build the data array for a section of the menu.
-	 * 
+	 *
 	 * @param array $section An array of a section data.
 	 */
 	protected function buildSection(array $section): void
@@ -490,7 +490,7 @@ class Menu implements ArrayAccess
 
 	/**
 	 * Build the data array for an area of the menu.
-	 * 
+	 *
 	 * @param array $area An array of a area data.
 	 */
 	protected function buildArea(array $area): void
@@ -570,7 +570,7 @@ class Menu implements ArrayAccess
 
 	/**
 	 * Build the data array for a subsection of the menu.
-	 * 
+	 *
 	 * @param array $subsection An array of a subsection data.
 	 */
 	protected function buildSubsection(array $subsection): void
@@ -662,7 +662,7 @@ class Menu implements ArrayAccess
 
 	/**
 	 * Sets the icon for an area.
-	 * 
+	 *
 	 * @param array $area An array of a area data.
 	 */
 	protected function setAreaIcon(array $area): void

@@ -41,7 +41,6 @@ use SMF\Verifier;
  */
 class Post2 extends Post
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

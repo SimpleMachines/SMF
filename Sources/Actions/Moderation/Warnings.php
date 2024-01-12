@@ -728,39 +728,6 @@ class Warnings implements ActionInterface
 		return $templates;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the log sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function ViewWarningLog(): void
-	{
-		self::load();
-		self::$obj->subaction = 'log';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the templates sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function ViewWarningTemplates(): void
-	{
-		self::load();
-		self::$obj->subaction = 'templates';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the templateedit sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function ModifyWarningTemplate(): void
-	{
-		self::load();
-		self::$obj->subaction = 'templateedit';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

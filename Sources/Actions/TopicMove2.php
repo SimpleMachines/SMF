@@ -33,7 +33,6 @@ use SMF\Utils;
  */
 class TopicMove2 implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

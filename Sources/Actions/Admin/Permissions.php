@@ -14,8 +14,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Actions\Moderation\Posts as PostMod;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Actions\Moderation\Posts as PostMod;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -2377,100 +2377,6 @@ class Permissions implements ActionInterface
 		Utils::$context['hidden_permissions'] = self::$hidden;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function permissionIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the board sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function permissionByBoard(): void
-	{
-		self::load();
-		self::$obj->subaction = 'board';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modify sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyMembergroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modify';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modify2 sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyMembergroup2(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modify2';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the quick sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function setQuickGroups(): void
-	{
-		self::load();
-		self::$obj->subaction = 'quick';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the postmod sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function modifyPostModeration(): void
-	{
-		self::load();
-		self::$obj->subaction = 'postmod';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the profiles sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editPermissionProfiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'profiles';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function generalPermissionSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
 
 	/******************
 	 * Internal methods

@@ -14,8 +14,8 @@
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
-use SMF\Attachment;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -870,39 +870,6 @@ class Posts implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $total_unapproved_attachments;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the replies sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function unapprovedPosts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'replies';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the attachments sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function unapprovedAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'attachments';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the approve sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function approveMessage(): void
-	{
-		self::load();
-		self::$obj->subaction = 'approve';
-		self::$obj->execute();
 	}
 
 	/******************

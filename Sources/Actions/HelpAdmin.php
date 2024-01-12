@@ -27,7 +27,6 @@ use SMF\Utils;
  */
 class HelpAdmin implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

@@ -481,6 +481,7 @@ class Profile extends User implements \ArrayAccess
 				'log_change' => true,
 				'input_validate' => function (&$value) {
 					$value = (int) $value;
+
 					return $this->validateGroups($value, $_POST['additional_groups'] ?? []);
 				},
 			],
@@ -1775,6 +1776,7 @@ class Profile extends User implements \ArrayAccess
 		IntegrationHook::call('before_profile_save_avatar', [&$value]);
 
 		$result = null;
+
 		switch ($value) {
 			case 'server_stored':
 				$this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
@@ -2073,195 +2075,6 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		return true;
-	}
-
-	/**
-	 * Backward compatibility provider
-	 * @param string $calledFunction 2.1 function
-	 * @param null|int $id
-	 * @param null|bool $force_reload
-	 * @param null|string $area
-	 * @param null|bool $defaultSettings
-	 * @param null|array $fields
-	 * @param null|bool $sanitize
-	 * @param null|bool $return_errors
-	 * @param null|int $id_theme
-	 * @return array|bool|null
-	 */
-	public static function backCompatProvider(
-		string $calledFunction,
-		?int $id = null,
-		bool $force_reload = false,
-		string $area = 'summary',
-		bool $defaultSettings = false,
-		array $fields = [],
-		bool $sanitize = true,
-		bool $return_errors = false,
-		?int $id_theme = null,
-	): array|bool|null {
-
-		if (! isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-		return match($calledFunction) {
-			'profileLoadGroups'	  => (function($id) {
-										self::$loaded[$id]->loadAssignableGroups();
-										return true;
-									})($id),
-			'loadProfileFields'	  => (function($id, $force_reload) {
-										self::$loaded[$id]->loadStandardFields($force_reload);
-									})($id, $force_reload),
-			'loadCustomFields'	  => (function($id, $area) {
-										self::$loaded[$id]->loadCustomFields($area);
-									})($id, $area),
-			'loadThemeOptions'	  => (function($id, $defaultSettings) {
-										self::$loaded[$id]->loadThemeOptions($defaultSettings);
-									})($id, $defaultSettings),
-			'setupProfileContext' => (function($id, $fields) {
-										self::$member->setupContext($fields);
-									})($id, $fields),
-			'makeCustomFieldChanges' => (function($id, $area, $sanitize, $return_errors): ?array {
-											$_REQUEST['sa'] = $area;
-											self::$member->post_sanitized = !$sanitize;
-											self::$member->save();
-
-											if (!empty($return_errors)) {
-												return self::$member->cf_save_errors;
-											}
-										})($id, $area, $sanitize, $return_errors),
-			'makeThemeChanges'       => (function($id, $id_theme) {
-											self::$member->new_data['id_theme'] = $id_theme;
-											self::$member->save();
-										})($id, $id_theme),
-		};
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadAssignableGroups() method.
-	 *
-	 * @param int $id ID number of the member whose profile is being viewed.
-	 * @return true Always returns true
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_profileLoadGroups(?int $id = null): bool
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadAssignableGroups();
-
-		return true;
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadStandardFields() method.
-	 *
-	 * @param bool $force_reload Whether to reload the data.
-	 * @param int $id The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_loadProfileFields(bool $force_reload = false, ?int $id = null): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadStandardFields($force_reload);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadCustomFields() method.
-	 *
-	 * @param int $id The ID of the member.
-	 * @param string $area Which area to load fields for.
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_loadCustomFields(int $id, string $area = 'summary'): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadCustomFields($area);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadThemeOptions() method.
-	 *
-	 * @param int $id The ID of the member.
-	 * @param bool $defaultSettings If true, we are loading default options.
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_loadThemeOptions(int $id, bool $defaultSettings = false): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadThemeOptions($defaultSettings);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the setupContext() method.
-	 *
-	 * @param array $fields The profile fields to display. Each item should
-	 *    correspond to an item in the Profile::$member->standard_fields array.
-	 * @param int $id The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_setupProfileContext(array $fields, int $id): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$member->setupContext($fields);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the save() method.
-	 * Deals with changes to custom fields in particular.
-	 *
-	 * @param int $id The ID of the member
-	 * @param string $area The area of the profile these fields are in.
-	 * @param bool $sanitize = true Whether or not to sanitize the data.
-	 * @param bool $return_errors Whether or not to return any error information.
-	 * @return ?array Returns nothing or returns an array of error info if $return_errors is true.
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_makeCustomFieldChanges(int $id, string $area, bool $sanitize = true, bool $return_errors = false): ?array
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		$_REQUEST['sa'] = $area;
-		self::$member->post_sanitized = !$sanitize;
-		self::$member->save();
-
-		if (!empty($return_errors)) {
-			return self::$member->cf_save_errors;
-		}
-
-		return null;
-	}
-	/**
-	 * Backward compatibilty wrapper for the save() method.
-	 * Deals with changes to theme options in particular.
-	 *
-	 * @param int $id The ID of the user
-	 * @param int $id_theme The ID of the theme
-	 * @deprecated since 3.0
-	 */
-	public static function backcompat_makeThemeChanges(int $id, int $id_theme): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$member->new_data['id_theme'] = $id_theme;
-		self::$member->save();
 	}
 
 	/******************

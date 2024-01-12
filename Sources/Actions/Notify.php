@@ -31,7 +31,6 @@ use SMF\Utils;
  */
 abstract class Notify
 {
-
 	/*****************
 	 * Class constants
 	 *****************/

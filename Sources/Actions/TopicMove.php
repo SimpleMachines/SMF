@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class TopicMove implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

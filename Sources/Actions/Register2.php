@@ -38,7 +38,6 @@ use SMF\Verifier;
  */
 class Register2 extends Register
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

@@ -28,7 +28,6 @@ use SMF\Utils;
  */
 class LoginTFA extends Login2
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

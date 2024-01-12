@@ -25,7 +25,6 @@ use SMF\Utils;
  */
 class ExportAttachment implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

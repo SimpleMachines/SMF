@@ -24,7 +24,6 @@ use SMF\Utils;
  */
 class NotifyBoard extends Notify implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

@@ -313,7 +313,7 @@ class Tracking implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Find other users that might use the same IP.
-		$ips = array_filter(array_unique($ips), function($ip) {
+		$ips = array_filter(array_unique($ips), function ($ip) {
 			return !empty($ip);
 		});
 		Utils::$context['members_in_range'] = [];
@@ -978,82 +978,6 @@ class Tracking implements ActionInterface
 		Db::$db->free_result($request);
 
 		return (int) $count;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the activity sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function trackActivity(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'activity';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edits sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function trackEdits(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'edits';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the groupreq sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function trackGroupReq(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'groupreq';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the logins sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @deprecated since 3.0
-	 */
-	public static function trackLogins(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'logins';
-		self::$obj->execute();
 	}
 
 	/******************

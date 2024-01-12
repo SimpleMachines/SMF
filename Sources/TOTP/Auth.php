@@ -63,7 +63,7 @@ class Auth
 	 *
 	 * @param string $initKey Initialization key
 	 */
-	public function __construct(string $initKey = null)
+	public function __construct(?string $initKey = null)
 	{
 		$this->buildLookup();
 
@@ -224,7 +224,7 @@ class Auth
 	 * @throws \InvalidArgumentException If incorrect code length
 	 * @return bool Pass/fail of validation
 	 */
-	public function validateCode(string $code, string $initKey = null, string $timestamp = null, string $range = null): bool
+	public function validateCode(string $code, ?string $initKey = null, ?string $timestamp = null, ?string $range = null): bool
 	{
 		if (strlen($code) !== $this->getCodeLength()) {
 			throw new \InvalidArgumentException('Incorrect code length');
@@ -252,7 +252,7 @@ class Auth
 	 * @param string $timestamp Timestamp for calculation [optional]
 	 * @return string Generated code/hash
 	 */
-	public function generateOneTime(string $initKey = null, string $timestamp = null): string
+	public function generateOneTime(?string $initKey = null, ?string $timestamp = null): string
 	{
 		$initKey = ($initKey == null) ? $this->getInitKey() : $initKey;
 		$timestamp = ($timestamp == null) ? $this->generateTimestamp() : $timestamp;

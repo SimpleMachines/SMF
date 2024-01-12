@@ -663,57 +663,6 @@ class Tasks implements ActionInterface
 		return $num_entries;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the tasks sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function scheduledTasks(): void
-	{
-		self::load();
-		self::$obj->subaction = 'tasks';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the taskedit sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editTask(): void
-	{
-		self::load();
-		self::$obj->subaction = 'taskedit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the tasklog sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function taskLog(): void
-	{
-		self::load();
-		self::$obj->subaction = 'tasklog';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public static function taskSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

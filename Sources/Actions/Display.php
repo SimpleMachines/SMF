@@ -49,7 +49,6 @@ use SMF\Verifier;
  */
 class Display implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

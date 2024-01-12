@@ -29,7 +29,6 @@ use SMF\Utils;
  */
 class Unread implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

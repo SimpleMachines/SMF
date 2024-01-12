@@ -16,8 +16,8 @@
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
-use SMF\Actions\MessageIndex;
 use SMF\Actions\BackwardCompatibility;
+use SMF\Actions\MessageIndex;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -2256,79 +2256,6 @@ class Smileys implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $message_icons;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 * @deprecated since 3.0
-	 */
-	public function editSmileySettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the addsmiley sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function addSmiley(): void
-	{
-		self::load();
-		self::$obj->subaction = 'addsmiley';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editsmileys sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editSmileys(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editsmileys';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the setorder sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editSmileyOrder(): void
-	{
-		self::load();
-		self::$obj->subaction = 'setorder';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the install sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function installSmileySet(): void
-	{
-		self::load();
-		self::$obj->subaction = 'install';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editsets sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editMessageIcons(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editsets';
-		self::$obj->execute();
 	}
 
 	/******************

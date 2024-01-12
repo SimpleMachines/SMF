@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Simple Machines Forum (SMF)
  *
@@ -12,6 +10,8 @@ declare(strict_types=1);
  *
  * @version 3.0 Alpha 1
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
@@ -38,13 +38,13 @@ trait BackwardCompatibility
 		self::load();
 
 		if (is_string($sa)) {
-			// make sure its lowecase
+			// make sure its a supported subaction
 			if (array_key_exists($sa, self::$subactions)) {
 				self::$obj->subaction = $sa;
 			}
 		}
 
-		if(is_string($activity)) {
+		if (is_string($activity)) {
 			self::$obj->activity = $activity;
 		}
 

@@ -28,7 +28,6 @@ use SMF\Utils;
  */
 class Agreement implements ActionInterface
 {
-
 	/*********************
 	 * Internal properties
 	 *********************/

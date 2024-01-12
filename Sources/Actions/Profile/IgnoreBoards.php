@@ -26,7 +26,6 @@ use SMF\Utils;
  */
 class IgnoreBoards implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

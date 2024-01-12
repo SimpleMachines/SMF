@@ -664,28 +664,6 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for ical sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function iCalDownload(): void
-	{
-		self::load();
-		self::$obj->subaction = 'ical';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for post sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function CalendarPost(): void
-	{
-		self::load();
-		self::$obj->subaction = 'post';
-		self::$obj->execute();
-	}
-
-	/**
 	 * Get all birthdays within the given time range.
 	 * finds all the birthdays in the specified range of days.
 	 * works with birthdays set for no year, or any other year, and respects month and year boundaries.

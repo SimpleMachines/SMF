@@ -25,7 +25,6 @@ use SMF\Utils;
  */
 class Popup implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

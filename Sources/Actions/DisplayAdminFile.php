@@ -23,7 +23,6 @@ use SMF\Utils;
  */
 class DisplayAdminFile implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

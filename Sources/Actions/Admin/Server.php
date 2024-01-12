@@ -1342,17 +1342,6 @@ class Server implements ActionInterface
 		self::$obj->execute();
 	}
 
-	/**
-	 * Backward compatibility wrapper for the phpinfo sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function showPHPinfoSettings(): void
-	{
-		self::load();
-		self::$obj->subaction = 'phpinfo';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

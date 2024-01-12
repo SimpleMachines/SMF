@@ -28,7 +28,6 @@ use SMF\Utils;
  */
 class MsgDelete implements ActionInterface
 {
-
 	/****************************
 	 * Internal static properties
 	 ****************************/

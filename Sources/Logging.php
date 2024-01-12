@@ -27,7 +27,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Logging
 {
-
 	/***********************
 	 * Public static methods
 	 ***********************/

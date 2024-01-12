@@ -37,7 +37,6 @@ use SMF\Utils;
  */
 class Who implements ActionInterface
 {
-
 	/*******************
 	 * Public static properties
 	 *******************/

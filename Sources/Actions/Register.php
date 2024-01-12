@@ -29,7 +29,6 @@ use SMF\Verifier;
  */
 class Register implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

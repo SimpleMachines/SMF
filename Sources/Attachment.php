@@ -12,7 +12,7 @@
  */
 
 declare(strict_types=1);
- 
+
 namespace SMF;
 
 use SMF\Actions\Admin\ACP;

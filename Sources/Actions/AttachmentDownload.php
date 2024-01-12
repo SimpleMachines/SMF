@@ -33,7 +33,6 @@ use SMF\Utils;
  */
 class AttachmentDownload implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/

@@ -203,7 +203,7 @@ class Lang
 					 * @var array $tztxt
 					 * @var array $editortxt
 					 * @var array $helptxt
-					*/
+					 */
 					// Include it!
 					require $file[0] . '/' . $file[1] . '.' . $file[2] . '.php';
 

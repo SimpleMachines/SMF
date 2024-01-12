@@ -892,45 +892,15 @@ class Search implements ActionInterface
 	/**
 	 * Backward compatibility wrapper for the _____ sub-action.
 	 *
+	 * @todo verify method
 	 * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
 	 * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
-	 * @todo verify usage of this methof or deprecate it in 3.0
+	 * @deprecated since 3.0
 	 */
 	public function editSearchSettings($return_config = false)
 	{
 		self::load();
 		self::$obj->subaction = '';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the weights sub-action.
-	 * @deprecated since 3.0
-	 */
-	public static function editWeights(): void
-	{
-		self::load();
-		self::$obj->subaction = 'weights';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the method sub-action.
-	 */
-	public static function editSearchMethod(): void
-	{
-		self::load();
-		self::$obj->subaction = 'method';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the createmsgindex sub-action.
-	 */
-	public static function createMessageIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'createmsgindex';
 		self::$obj->execute();
 	}
 

@@ -498,34 +498,6 @@ class BuddyIgnoreLists implements ActionInterface
 		self::load()->execute();
 	}
 
-	/**
-	 * Backward compatibility wrapper for the buddies sub-action.
-	 *
-	 * @param int $memID The ID of the member
-	 * @deprecated since 3.0
-	 */
-	public static function editBuddies($memID): void
-	{
-		Profile::load($memID);
-		self::load();
-		self::$obj->subaction = 'buddies';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the buddies sub-action.
-	 *
-	 * @param int $memID The ID of the member
-	 * @deprecated since 3.0
-	 */
-	public static function editIgnoreList($memID): void
-	{
-		Profile::load($memID);
-		self::load();
-		self::$obj->subaction = 'ignore';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

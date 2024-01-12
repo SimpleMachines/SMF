@@ -911,7 +911,7 @@ class Utils
 		};
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (array &$trie, string $delim = null) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex) {
 			static $depth = 0;
 			$depth++;
 
@@ -1554,6 +1554,36 @@ class Utils
 	}
 
 	/**
+	 * Wrapper for random_bytes() that sets a default length.
+	 *
+	 * Only exists for backward compatibility purposes.
+	 *
+	 * @param int $length Number of bytes to return. Default: 64.
+	 * @return string A string of random bytes.
+	 */
+	public function randomBytes(int $length): string
+	{
+		// Make sure length is valid
+		$length = max(1, $length);
+
+		return random_bytes($length);
+	}
+
+	/**
+	 * Wrapper for random_int() that sets default values.
+	 *
+	 * Only exists for backward compatibility purposes.
+	 *
+	 * @param int $min Minumum value. Default: 0.
+	 * @param int $max Maximum value. Default: PHP_INT_MAX.
+	 * @return int A random integer.
+	 */
+	public function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
+	{
+		return random_int($min, $max);
+	}
+
+	/**
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
@@ -1937,6 +1967,7 @@ class Utils
 
 		// Done.
 		self::obExit(false);
+
 		return null;
 	}
 

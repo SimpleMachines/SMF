@@ -28,7 +28,6 @@ use SMF\Utils;
  */
 class QuickModeration implements ActionInterface
 {
-
 	/*******************
 	 * Public properties
 	 *******************/
