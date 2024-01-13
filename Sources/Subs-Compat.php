@@ -5642,7 +5642,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function smf_json_decode(string $json, bool $associative = false, bool $should_log = true): mixed
 	{
-		return Utils::jsonDecode($json, $associative, $should_log);
+		// In older versions, we accepted a mixed $json and would return if it was not a string.
+		if (empty($json) || !is_string($json)) {
+			return $json;
+		}
+
+		return Utils::jsonDecode($json, $associative, 512, 0, $should_log);
 	}
 
 	function safe_serialize(mixed $value): string

@@ -139,7 +139,7 @@ class Utils
 		'normalize' => __CLASS__ . '::normalize',
 		'truncate' => __CLASS__ . '::truncate',
 		'json_encode' => __CLASS__ . '::jsonEncode',
-		'json_decode' => __CLASS__ . '::backcompat_smf_json_decode',
+		'json_decode' => 'smf_json_decode',
 		'random_int' => __CLASS__ . '::randomInt',
 		'random_bytes' => __CLASS__ . '::randomBytes',
 	];
@@ -2275,27 +2275,6 @@ class Utils
 		}
 
 		return $callable;
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the smf_json_decode() method.
-	 *
-	 * @deprecated 3.0 - Only exists for $smcFunc backwards wrapper.
-	 * @param mixed $json The string to decode.
-	 * @param bool $associative Whether to force JSON objects to be returned as
-	 *    associative arrays. SMF nearly always wants this to be true, but for
-	 *    the sake of consistency with json_decode(), the default is false.
-	 * @param bool $should_log Whether to log errors. Default: true.
-	 * @return mixed The decoded data.
-	 */
-	public static function backcompat_smf_json_decode(mixed $json, bool $associative = false, bool $should_log = true): mixed
-	{
-		// In older versions, we accepted a mixed $json and would return if it was not a string.
-		if (empty($json) || !is_string($json)) {
-			return $json;
-		}
-
-		return Utils::jsonDecode($json, $associative, 512, 0, $should_log);
 	}
 
 	/*************************
