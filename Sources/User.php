@@ -3009,7 +3009,7 @@ class User implements \ArrayAccess
 					$val = 'CASE ';
 
 					foreach ($members as $k => $v) {
-						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count($v, true) . ' ';
+						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count((int) $v, true) . ' ';
 					}
 
 					$val = $val . ' END';

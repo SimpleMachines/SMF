@@ -229,6 +229,11 @@ class XmlArray
 				$lvl = null;
 			}
 
+			// Nothing found, nothing exists.
+			if (empty($array)) {
+				return false;
+			}
+
 			// Find this element.
 			$array = $this->_path($array, $el, $lvl, true);
 		}
