@@ -1224,21 +1224,29 @@ class Utils
 	/**
 	 * Wrapper function for json_decode() with error handling.
 	 *
-	 * @param mixed $json The string to decode.
-	 * @param bool $associative Whether to force JSON objects to be returned as
+	 * @param string $json The string to decode.
+	 * @param ?bool $associative Whether to force JSON objects to be returned as
 	 *    associative arrays. SMF nearly always wants this to be true, but for
-	 *    the sake of consistency with json_decode(), the default is false.
+	 *    the sake of consistency with json_decode(), the default is null.
 	 * @param bool $should_log Whether to log errors. Default: true.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonDecode(mixed $json, bool $associative = false, bool $should_log = true): mixed
+	public static function jsonDecode(string $json, ?bool $associative = null, int $depth = 512, int $flags = 0, bool $should_log = true): mixed
 	{
 		// Come on...
-		if (empty($json) || !is_string($json)) {
-			return [];
+		if (empty($json)) {
+			return null;
 		}
 
-		$return_value = @json_decode($json, $associative);
+		// We do this to align with PHP's default when the JSON_THROW_ON_ERROR flag is specified
+		try {
+			$return_value = json_decode($json, $associative, $depth, $flags);
+		}
+		catch (\Exception $excepection){
+			if (($flags & JSON_THROW_ON_ERROR) == JSON_THROW_ON_ERROR){
+				throw $excepection;
+			}
+		}
 
 		// Use this instead of json_last_error_msg() so that we can translate
 		// the error messages for the admin.
@@ -1286,8 +1294,8 @@ class Utils
 				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical');
 			}
 
-			// Everyone expects an array.
-			return [];
+			// Null should be returned in all cases where json can not be decoded.
+			return null;
 		}
 
 		return $return_value;
@@ -1303,9 +1311,10 @@ class Utils
 	 * @param mixed $value The value to encode.
 	 * @param int $flags Bitmask of flags for json_encode(). Default: 0.
 	 * @param int $depth Maximum depth. Default: 512.
-	 * @return mixed The decoded data.
+	 * @return string|bool The decoded data.
+	 * @todo PHP 8.2 The return should be string|false
 	 */
-	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): mixed
+	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): string|bool
 	{
 		return json_encode($value, $flags, $depth);
 	}

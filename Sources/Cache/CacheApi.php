@@ -600,7 +600,13 @@ abstract class CacheApi
 			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
 		}
 
-		return empty($value) ? null : Utils::jsonDecode($value, true);
+		if (empty($value)) {
+			return null;
+		} else if (is_string($value)) {
+			return Utils::jsonDecode($value, true);
+		} else {
+			return $value;
+		}
 	}
 }
 

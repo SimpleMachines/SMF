@@ -1044,7 +1044,7 @@ class Config
 			}
 
 			if (!is_array(self::$modSettings['attachmentUploadDir'])) {
-				$attachmentUploadDir = Utils::jsonDecode(self::$modSettings['attachmentUploadDir'], true, false);
+				$attachmentUploadDir = Utils::jsonDecode(self::$modSettings['attachmentUploadDir'], true, 512, 0, false);
 
 				self::$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : self::$modSettings['attachmentUploadDir'];
 			}
