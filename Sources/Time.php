@@ -15,13 +15,10 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
-use Datetime;
-
 /**
  * Extends \DateTime with some extra features for SMF.
  */
-class Time extends DateTime implements ArrayAccess
+class Time extends \DateTime implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 

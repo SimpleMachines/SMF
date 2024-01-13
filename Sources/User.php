@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
 use SMF\Actions\Login2;
@@ -67,7 +66,7 @@ use SMF\PersonalMessage\PM;
  * deprecated global variables. A future version of SMF will remove backward
  * compatibility support for these deprecated globals.
  */
-class User implements ArrayAccess
+class User implements \ArrayAccess
 {
 	use BackwardCompatibility;
 	use ArrayAccessHelper;

@@ -1165,7 +1165,7 @@ class News extends ACP implements ActionInterface
 	/**
 	 * Callback to prepare HTML for the previews in the news editing form.
 	 *
-	 * @param $news Info about a news item.
+	 * @param array $news Info about a news item.
 	 * @return string HTML string to show in the form.
 	 */
 	public static function list_getNewsPreview(array $news): string

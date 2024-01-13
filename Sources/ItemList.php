@@ -15,12 +15,10 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
-
 /**
  * This class provides a standard way of displaying lists for SMF.
  */
-class ItemList implements ArrayAccess
+class ItemList implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 

@@ -30,6 +30,7 @@ use SMF\Utils;
 class Logs implements ActionInterface
 {
 	use BackwardCompatibility;
+
 	/*******************
 	 * Public properties
 	 *******************/

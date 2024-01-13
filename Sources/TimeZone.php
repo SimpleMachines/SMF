@@ -15,12 +15,10 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use DateTimeZone;
-
 /**
  * This class provides some methods to simplify working with time zones.
  */
-class TimeZone extends DateTimeZone
+class TimeZone extends \DateTimeZone
 {
 	/*****************
 	 * Class constants

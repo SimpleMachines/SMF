@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -24,7 +23,7 @@ use SMF\Db\DatabaseApi as Db;
  *
  * Supports old-fashioned CAPTCHA, reCAPTCHA, and verification questions.
  */
-class Verifier implements ArrayAccess
+class Verifier implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 

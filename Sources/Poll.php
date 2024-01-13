@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -23,7 +22,7 @@ use SMF\Db\DatabaseApi as Db;
  *
  * Contains methods for doing just about everything regarding polls.
  */
-class Poll implements ArrayAccess
+class Poll implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 

@@ -271,6 +271,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		Actions\Admin\Calendar::subActionProvider(sa: 'editholiday');
 	}
 
+	function ModifyCalendarSettings(bool $return_config = false): void
+	{
+		Actions\Admin\Calendar::subActionProvider(sa: 'settings', return_config: $return_config);
+	}
+
 	/**
 	 * End
 	 * Actions\Admin\Calendar
@@ -944,6 +949,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ManageSearch(): void
 	{
 		Actions\Admin\Search::call();
+	}
+
+	function EditSearchSettings(bool $return_config = false): void
+	{
+		Actions\Admin\Search::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 
 	function EditWeights(): void

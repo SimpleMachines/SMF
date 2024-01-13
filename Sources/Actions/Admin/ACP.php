@@ -1966,7 +1966,7 @@ class ACP implements ActionInterface
 	 * @param string $v The values
 	 * @return string 'hidden' HTML form fields, containing key-value pairs
 	 */
-	protected static function adminLogin_outputPostVars($k, $v)
+	protected static function adminLogin_outputPostVars(string $k, string $v): string
 	{
 		if (!is_array($v)) {
 			return "\n" . '<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, ['"' => '&quot;', '<' => '&lt;', '>' => '&gt;']) . '">';
@@ -1984,12 +1984,10 @@ class ACP implements ActionInterface
 	/**
 	 * Properly urlencodes a string to be used in a query.
 	 *
-	 * todo: fix typing
-	 *
-	 * @param string $get A copy of $_GET.
+	 * @param array $get A copy of $_GET.
 	 * @return string Our query string.
 	 */
-	protected static function construct_query_string($get)
+	protected static function construct_query_string(array $get): string
 	{
 		$query_string = '';
 

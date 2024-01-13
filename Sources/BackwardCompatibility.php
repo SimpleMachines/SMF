@@ -44,9 +44,9 @@ trait BackwardCompatibility
 	 * to a reference to the static property. Static properties that are not
 	 * named in this array will not be exported.
 	 *
-	 * Adding non-static properties to the $backcompat arrays will
-	 * produce runtime errors. It is the responsibility of the developer to make
-	 * sure not to do this.
+	 * Adding non-static properties to the $backcompat arrays will produce
+	 * runtime errors. It is the responsibility of the developer to make sure
+	 * not to do this.
 	 */
 	public static function exportStatic(): void
 	{

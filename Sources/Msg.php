@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -27,7 +26,7 @@ use SMF\Search\SearchApi;
  * including sending emails, pms, blocking spam, preparsing posts, spell
  * checking, and the post box.
  */
-class Msg implements ArrayAccess
+class Msg implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 

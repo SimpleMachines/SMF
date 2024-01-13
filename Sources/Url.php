@@ -18,7 +18,6 @@ namespace SMF;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Tasks\UpdateTldRegex;
 use SMF\WebFetch\WebFetchApi;
-use Stringable;
 
 /**
  * Represents a URL string and allows performing various operations on the URL.
@@ -28,7 +27,7 @@ use Stringable;
  * normalized, validated, etc. This class also makes it easy to convert IRIs to
  * raw ASCII URLs and back.
  */
-class Url implements Stringable
+class Url implements \Stringable
 {
 	use BackwardCompatibility;
 

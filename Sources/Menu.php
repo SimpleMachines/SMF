@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use ArrayAccess;
-
 /**
  * Represents a menu, such as the admin menu or profile menu.
  *
@@ -98,7 +96,7 @@ use ArrayAccess;
  *     bool   disable_hook_call:
  *                           If true, skips the integrate_{action}_areas hook.
  */
-class Menu implements ArrayAccess
+class Menu implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 

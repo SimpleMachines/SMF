@@ -16,16 +16,11 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
-use Stringable;
-
-use const FILTER_FLAG_IPV4;
-use const FILTER_FLAG_IPV6;
-use const FILTER_VALIDATE_IP;
 
 /**
  * Represents an IP address and allows performing various operations on it.
  */
-class IP implements Stringable
+class IP implements \Stringable
 {
 	use BackwardCompatibility;
 

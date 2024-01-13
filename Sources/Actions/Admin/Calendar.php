@@ -465,20 +465,6 @@ class Calendar implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @todo track down what this method should map to
-	 * @param bool $return_config Whether to return the $config_vars array (used for admin search)
-	 * @return void|array Returns nothing or returns $config_vars if $return_config is true
-	 */
-	public function modifyCalendarSettings($return_config = false)
-	{
-		self::load();
-		self::$obj->subaction = '';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

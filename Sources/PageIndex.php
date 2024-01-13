@@ -15,14 +15,12 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use Stringable;
-
 /**
  * Constructs a page list.
  *
  * E.g.: 1 ... 6 7 [8] 9 10 ... 15.
  */
-class PageIndex implements Stringable
+class PageIndex implements \Stringable
 {
 	/*******************
 	 * Public properties

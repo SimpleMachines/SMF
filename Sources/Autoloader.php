@@ -15,16 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use function basename;
-use function class_exists;
-use function is_dir;
-use function is_file;
-use function spl_autoload_register;
-use function strlen;
-use function strncmp;
-use function strtr;
-use function substr;
-
 /*
  * An autoloader for certain classes.
  *

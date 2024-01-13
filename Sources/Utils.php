@@ -1554,22 +1554,6 @@ class Utils
 	}
 
 	/**
-	 * Wrapper for random_bytes() that sets a default length.
-	 *
-	 * Only exists for backward compatibility purposes.
-	 *
-	 * @param int $length Number of bytes to return. Default: 64.
-	 * @return string A string of random bytes.
-	 */
-	public function randomBytes(int $length): string
-	{
-		// Make sure length is valid
-		$length = max(1, $length);
-
-		return random_bytes($length);
-	}
-
-	/**
 	 * Wrapper for random_int() that sets default values.
 	 *
 	 * Only exists for backward compatibility purposes.
@@ -1578,9 +1562,25 @@ class Utils
 	 * @param int $max Maximum value. Default: PHP_INT_MAX.
 	 * @return int A random integer.
 	 */
-	public function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
+	public static function randomInt(int $min = 0, int $max = PHP_INT_MAX): int
 	{
 		return random_int($min, $max);
+	}
+
+	/**
+	 * Wrapper for random_bytes() that sets a default length.
+	 *
+	 * Only exists for backward compatibility purposes.
+	 *
+	 * @param int $length Number of bytes to return. Default: 64.
+	 * @return string A string of random bytes.
+	 */
+	public static function randomBytes(int $length = 64): string
+	{
+		// Make sure length is valid
+		$length = max(1, $length);
+
+		return random_bytes($length);
 	}
 
 	/**

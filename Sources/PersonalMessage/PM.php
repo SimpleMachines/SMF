@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
-use ArrayAccess;
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\ArrayAccessHelper;
@@ -41,7 +40,7 @@ use SMF\Verifier;
 /**
  * Represents a single personal message.
  */
-class PM implements ArrayAccess
+class PM implements \ArrayAccess
 {
 	use ArrayAccessHelper;
 
