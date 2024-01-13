@@ -4777,7 +4777,7 @@ class User implements \ArrayAccess
 
 		if (isset($_COOKIE[Config::$cookiename])) {
 			// First try 2.1 json-format cookie
-			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, false);
+			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, 512, 0, false);
 
 			// Legacy format (for recent 2.0 --> 2.1 upgrades)
 			if (empty($cookie_data)) {

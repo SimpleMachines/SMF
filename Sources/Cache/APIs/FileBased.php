@@ -85,8 +85,8 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($file) && ($raw = $this->readFile($file)) !== false) {
-			if (($value = Utils::jsonDecode($raw, true, false)) !== [] && isset($value['expiration']) && $value['expiration'] >= time()) {
-				return $value['value'];
+			if (($value = Utils::jsonDecode($raw, false, 512, 0, false)) !== null && isset($value->expiration) && $value->expiration >= time()) {
+				return $value->value;
 			}
 
 			@unlink($file);

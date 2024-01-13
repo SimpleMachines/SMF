@@ -588,7 +588,7 @@ abstract class CacheApi
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
-			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen($value) : 0;
+			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen((string) $value) : 0;
 
 			if (empty($value)) {
 				self::$count_misses++;
@@ -600,7 +600,13 @@ abstract class CacheApi
 			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
 		}
 
-		return empty($value) ? null : Utils::jsonDecode($value, true);
+		if (empty($value)) {
+			return null;
+		} else if (is_string($value)) {
+			return Utils::jsonDecode($value, true);
+		} else {
+			return $value;
+		}
 	}
 }
 

@@ -303,7 +303,7 @@ class Cookie
 		}
 
 		// Other cookies.
-		$data = Utils::jsonDecode($_COOKIE[$name], true, false);
+		$data = Utils::jsonDecode($_COOKIE[$name], true, 512, 0, false);
 
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			$data = $_COOKIE[$name];
