@@ -139,7 +139,7 @@ class Utils
 		'normalize' => __CLASS__ . '::normalize',
 		'truncate' => __CLASS__ . '::truncate',
 		'json_encode' => __CLASS__ . '::jsonEncode',
-		'json_decode' => __CLASS__ . '::jsonDecode',
+		'json_decode' => __CLASS__ . '::backcompat_smf_json_decode',
 		'random_int' => __CLASS__ . '::randomInt',
 		'random_bytes' => __CLASS__ . '::randomBytes',
 	];
@@ -1228,6 +1228,10 @@ class Utils
 	 * @param ?bool $associative Whether to force JSON objects to be returned as
 	 *    associative arrays. SMF nearly always wants this to be true, but for
 	 *    the sake of consistency with json_decode(), the default is null.
+	 * @param int $depth Maximum nesting depth of the structure being decoded.
+	 *    The value must be greater than 0, and less than or equal to 2147483647.
+	 * @param int $flags Bitmask of JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE,
+	 *     JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR
 	 * @param bool $should_log Whether to log errors. Default: true.
 	 * @return mixed The decoded data.
 	 */
@@ -2271,6 +2275,27 @@ class Utils
 		}
 
 		return $callable;
+	}
+
+	/**
+	 * Backward compatibilty wrapper for the smf_json_decode() method.
+	 *
+	 * @deprecated 3.0 - Only exists for $smcFunc backwards wrapper.
+	 * @param mixed $json The string to decode.
+	 * @param bool $associative Whether to force JSON objects to be returned as
+	 *    associative arrays. SMF nearly always wants this to be true, but for
+	 *    the sake of consistency with json_decode(), the default is false.
+	 * @param bool $should_log Whether to log errors. Default: true.
+	 * @return mixed The decoded data.
+	 */
+	public static function backcompat_smf_json_decode(mixed $json, bool $associative = false, bool $should_log = true): mixed
+	{
+		// In older versions, we accepted a mixed $json and would return if it was not a string.
+		if (empty($json) || !is_string($json)) {
+			return $json;
+		}
+
+		return Utils::jsonDecode($json, $associative, 512, 0, $should_log);
 	}
 
 	/*************************
