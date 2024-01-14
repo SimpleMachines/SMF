@@ -394,7 +394,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 
 	$maybe_email = false;
 	$names_list = array();
-	foreach ($names as $i => $name)
+	foreach (array_values($names) as $i => $name)
 	{
 		// Trim, and fix wildcards for each name.
 		$names[$i] = trim($smcFunc['strtolower']($name));

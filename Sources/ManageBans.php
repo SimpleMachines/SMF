@@ -20,7 +20,7 @@ if (!defined('SMF'))
 
 /**
  * Ban center. The main entrance point for all ban center functions.
- * It is accesssed by ?action=admin;area=ban.
+ * It is accessed by ?action=admin;area=ban.
  * It choses a function based on the 'sa' parameter, like many others.
  * The default sub-action is BanList().
  * It requires the ban_members permission.
@@ -158,7 +158,7 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'notes',
-					'class' => 'smalltext',
+					'class' => 'smalltext word_break',
 				),
 				'sort' => array(
 					'default' => 'LENGTH(bg.notes) > 0 DESC, bg.notes',
@@ -171,7 +171,7 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'reason',
-					'class' => 'smalltext',
+					'class' => 'smalltext word_break',
 				),
 				'sort' => array(
 					'default' => 'LENGTH(bg.reason) > 0 DESC, bg.reason',
@@ -471,13 +471,13 @@ function BanEdit()
 				),
 				'additional_rows' => array(
 					array(
-						'position' => 'above_table_headers',
+						'position' => 'above_column_headers',
 						'value' => '
 						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
-						'position' => 'above_table_headers',
+						'position' => 'above_column_headers',
 						'value' => '
 						<input type="hidden" name="bg" value="' . $ban_group_id . '">
 						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
@@ -868,6 +868,9 @@ function banEdit2()
 		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;
 
 		call_integration_hook('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
+
+		// Limit 'reason' characters
+		$ban_info['reason'] = $smcFunc['truncate']($ban_info['reason'], 255);
 
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
@@ -1471,7 +1474,7 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 		'ip_range' => 'ip_range',
 	);
 
-	// Log the addion of the ban entries into the moderation log.
+	// Log the addition of the ban entries into the moderation log.
 	foreach ($logs as $log)
 		logAction('ban' . ($removal == true ? 'remove' : ''), array(
 			$log_name_map[$log['bantype']] => $log['value'],

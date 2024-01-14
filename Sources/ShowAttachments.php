@@ -289,7 +289,7 @@ function showAttachment()
 	}
 
 	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
-	if ($file['attachment_type'] != 3 && empty($showThumb) && $range === 0 && empty($context['skip_downloads_increment']))
+	if ($file['attachment_type'] != 3 && empty($showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty($context['skip_downloads_increment']))
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}attachments
 			SET downloads = downloads + 1

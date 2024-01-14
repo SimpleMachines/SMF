@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $modSettings, $boardurl, $sc, $smcFunc, $cache_enable;
+	global $context, $modSettings, $boardurl, $sc, $smcFunc, $cache_enable;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
@@ -68,7 +68,10 @@ function loadSession()
 			@ini_set('session.serialize_handler', 'php_serialize');
 			if (ini_get('session.serialize_handler') != 'php_serialize')
 				@ini_set('session.serialize_handler', 'php');
-			session_set_save_handler('sessionOpen', 'sessionClose', 'sessionRead', 'sessionWrite', 'sessionDestroy', 'sessionGC');
+			
+			$context['session_handler'] = new SmfSessionHandler();
+			session_set_save_handler($context['session_handler'], true);
+
 			@ini_set('session.gc_probability', '1');
 		}
 		elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty($modSettings['databaseSession_lifetime']))
@@ -95,151 +98,157 @@ function loadSession()
 }
 
 /**
- * Implementation of sessionOpen() replacing the standard open handler.
- * It simply returns true.
+ * Class SmfSessionHandler
  *
- * @param string $save_path The path to save the session to
- * @param string $session_name The name of the session
- * @return boolean Always returns true
+ * An implementation of the SessionHandler
+ * Note: To support PHP 8.x ,we use the attribute ReturnTypeWillChange.  When 8.1 is the miniumn, this can be removed.
+ * Note: To support PHP 7.x, we do not use type hints as SessionHandlerInterface does not have them. 
  */
-function sessionOpen($save_path, $session_name)
+class SmfSessionHandler extends SessionHandler implements SessionHandlerInterface, SessionIdInterface
 {
-	return true;
-}
-
-/**
- * Implementation of sessionClose() replacing the standard close handler.
- * It simply returns true.
- *
- * @return boolean Always returns true
- */
-function sessionClose()
-{
-	return true;
-}
-
-/**
- * Implementation of sessionRead() replacing the standard read handler.
- *
- * @param string $session_id The session ID
- * @return string The session data
- */
-function sessionRead($session_id)
-{
-	global $smcFunc;
-
-	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
-		return '';
-
-	// Look for it in the database.
-	$result = $smcFunc['db_query']('', '
-		SELECT data
-		FROM {db_prefix}sessions
-		WHERE session_id = {string:session_id}
-		LIMIT 1',
-		array(
-			'session_id' => $session_id,
-		)
-	);
-	list ($sess_data) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
-
-	return $sess_data != null ? $sess_data : '';
-}
-
-/**
- * Implementation of sessionWrite() replacing the standard write handler.
- *
- * @param string $session_id The session ID
- * @param string $data The data to write to the session
- * @return boolean Whether the info was successfully written
- */
-function sessionWrite($session_id, $data)
-{
-	global $smcFunc, $db_connection, $db_server, $db_name, $db_user, $db_passwd;
-	global $db_prefix, $db_persist, $db_port, $db_mb4;
-
-	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
-		return false;
-
-	// php < 7.0 need this
-	if (empty($db_connection))
+	/**
+	 * Implementation of SessionHandler::open() replacing the standard open handler.
+	 * It simply returns true.
+	 *
+	 * @param string $path The path to save the session to
+	 * @param string $name The name of the session
+	 * @return boolean Always returns true
+	 */
+	function open(/*PHP 8.0 string*/$path, /*PHP 8.0 string*/$name): bool
 	{
-		$db_options = array();
-
-		// Add in the port if needed
-		if (!empty($db_port))
-			$db_options['port'] = $db_port;
-
-		if (!empty($db_mb4))
-			$db_options['db_mb4'] = $db_mb4;
-
-		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
-
-		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+		return true;
 	}
 
-	// If an insert fails due to a dupe, replace the existing session...
-	$session_update = $smcFunc['db_insert']('replace',
-		'{db_prefix}sessions',
-		array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
-		array($session_id, $data, time()),
-		array('session_id')
-	);
+	/**
+	 * Implementation of SessionHandler::close() replacing the standard close handler.
+	 * It simply returns true.
+	 *
+	 * @return boolean Always returns true
+	 */
+	public function close(): bool
+	{
+		return true;
+	}
 
-	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
-}
+	/**
+	 * Implementation of SessionHandler::read() replacing the standard read handler.
+	 *
+	 * @param string $id The session ID
+	 * @return string The session data
+	 */
+	#[\ReturnTypeWillChange]
+	public function read(/*PHP 8.0 string*/$id)/*PHP 8.0: string|false*/
+	{
+		global $smcFunc;
 
-/**
- * Implementation of sessionDestroy() replacing the standard destroy handler.
- *
- * @param string $session_id The session ID
- * @return boolean Whether the session was successfully destroyed
- */
-function sessionDestroy($session_id)
-{
-	global $smcFunc;
+		if (!$this->isValidSessionID($id))
+			return '';
 
-	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
-		return false;
+		// Look for it in the database.
+		$result = $smcFunc['db_query']('', '
+			SELECT data
+			FROM {db_prefix}sessions
+			WHERE session_id = {string:session_id}
+			LIMIT 1',
+			array(
+				'session_id' => $id,
+			)
+		);
+		list ($sess_data) = $smcFunc['db_fetch_row']($result);
+		$smcFunc['db_free_result']($result);
 
-	// Just delete the row...
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}sessions
-		WHERE session_id = {string:session_id}',
-		array(
-			'session_id' => $session_id,
-		)
-	);
+		return $sess_data != null ? $sess_data : '';
+	}
 
-	return true;
-}
+	/**
+	 * Implementation of SessionHandler::write() replacing the standard write handler.
+	 *
+	 * @param string $id The session ID
+	 * @param string $data The data to write to the session
+	 * @return boolean Whether the info was successfully written
+	 */
+	#[\ReturnTypeWillChange]
+	public function write(/*PHP 8.0 string*/$id,/*PHP 8.0 string */ $data): bool
+	{
+		global $smcFunc;
 
-/**
- * Implementation of sessionGC() replacing the standard gc handler.
- * Callback for garbage collection.
- *
- * @param int $max_lifetime The maximum lifetime (in seconds) - prevents deleting of sessions older than this
- * @return boolean Whether the option was successful
- */
-function sessionGC($max_lifetime)
-{
-	global $modSettings, $smcFunc;
+		if (!$this->isValidSessionID($id))
+			return false;
 
-	// Just set to the default or lower?  Ignore it for a higher value. (hopefully)
-	if (!empty($modSettings['databaseSession_lifetime']) && ($max_lifetime <= 1440 || $modSettings['databaseSession_lifetime'] > $max_lifetime))
-		$max_lifetime = max($modSettings['databaseSession_lifetime'], 60);
+		// If an insert fails due to a dupe, replace the existing session...
+		$session_update = $smcFunc['db_insert']('replace',
+			'{db_prefix}sessions',
+			array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
+			array($id, $data, time()),
+			array('session_id')
+		);
 
-	// Clean up after yerself ;).
-	$session_update = $smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}sessions
-		WHERE last_update < {int:last_update}',
-		array(
-			'last_update' => time() - $max_lifetime,
-		)
-	);
+		return ($smcFunc['db_affected_rows']() == 0 ? false : true);
+	}
 
-	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
+	/**
+	 * Implementation of SessionHandler::destroy() replacing the standard destroy handler.
+	 *
+	 * @param string $session_id The session ID
+	 * @return boolean Whether the session was successfully destroyed
+	 */
+	public function destroy(/*PHP 8.0 string*/$id): bool
+	{
+		global $smcFunc;
+
+		if (!$this->isValidSessionID($id))
+			return false;
+
+		// Just delete the row...
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}sessions
+			WHERE session_id = {string:session_id}',
+			array(
+				'session_id' => $id,
+			)
+		);
+
+		return true;
+	}
+
+	/**
+	 * Implementation of SessionHandler::GC() replacing the standard gc handler.
+	 * Callback for garbage collection.
+	 *
+	 * @param int $max_lifetime The maximum lifetime (in seconds) - prevents deleting of sessions older than this
+	 * @return boolean Whether the option was successful
+	 */
+	#[\ReturnTypeWillChange]
+	public function gc(/*PHP 8.0 int*/$max_lifetime)/*PHP 8.1 : int|false*/
+	{
+		global $modSettings, $smcFunc;
+
+		// Just set to the default or lower?  Ignore it for a higher value. (hopefully)
+		if (!empty($modSettings['databaseSession_lifetime']) && ($max_lifetime <= 1440 || $modSettings['databaseSession_lifetime'] > $max_lifetime))
+			$max_lifetime = max($modSettings['databaseSession_lifetime'], 60);
+
+		// Clean up after yerself ;).
+		$session_update = $smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}sessions
+			WHERE last_update < {int:last_update}',
+			array(
+				'last_update' => time() - $max_lifetime,
+			)
+		);
+
+		return $smcFunc['db_affected_rows']();
+	}
+
+	/**
+	 * Validates a given string conforms to our testing for a valid session id.
+	 *
+	 * @param string $id The session ID
+	 * @return boolean Whether the string is valid format or not
+	 */
+	private function isValidSessionID(string $id): bool
+	{
+		return preg_match('~^[A-Za-z0-9,-]{16,64}$~', $id) === 1;
+	}
 }
 
 ?>

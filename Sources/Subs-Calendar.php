@@ -175,7 +175,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		$start_date_string = date_format($start_object, 'Y-m-d');
 		$end_date_string = date_format($end_object, 'Y-m-d');
 
-		$cal_date = ($start_object >= $low_object) ? $start_object : $low_object;
+		$cal_date = ($start_object >= $low_object) ? (clone $start_object) : (clone $low_object);
 		while ($cal_date <= $end_object && $cal_date <= $high_object)
 		{
 			$starts_today = (date_format($cal_date, 'Y-m-d') == $start_date_string);
@@ -226,7 +226,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 				'location' => $row['location'],
 			);
 
-			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
+			// If we're using permissions (calendar pages?) then just output normal contextual style information.
 			if ($use_permissions)
 				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
 					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
@@ -246,7 +246,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'topic' => $row['id_topic'],
 					'msg' => $row['id_first_msg'],
 					'poster' => $row['id_member'],
-					'allowed_groups' => explode(',', $row['member_groups']),
+					'allowed_groups' => isset($row['member_groups']) ? explode(',', $row['member_groups']) : array(),
 				));
 
 			date_add($cal_date, date_interval_create_from_date_string('1 day'));
@@ -385,7 +385,7 @@ function getTodayInfo()
  * @param string $selected_date A date in YYYY-MM-DD format
  * @param array $calendarOptions An array of calendar options
  * @param bool $is_previous Whether this is the previous month
- * @param bool $has_picker Wheter to add javascript to handle a date picker
+ * @param bool $has_picker Whether to add javascript to handle a date picker
  * @return array A large array containing all the information needed to show a calendar grid for the given month
  */
 function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false, $has_picker = true)
@@ -810,6 +810,7 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
 			decimal: "' . $txt['decimal_sign'] . '",
 			mins: "' . $txt['minutes_short'] . '",
 			hr: "' . $txt['hour_short'] . '",
+			hrs: "' . $txt['hours_short'] . '",
 		}
 	});', true);
 }

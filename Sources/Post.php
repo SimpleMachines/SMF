@@ -748,9 +748,11 @@ function Post($post_errors = array())
 		// When was it last modified?
 		if (!empty($row['modified_time']))
 		{
+			$modified_reason = $row['modified_reason'];
 			$context['last_modified'] = timeformat($row['modified_time']);
 			$context['last_modified_reason'] = censorText($row['modified_reason']);
-			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . $txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
+			$context['last_modified_name'] = $row['modified_name'];
+			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']) . (empty($row['modified_reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $row['modified_reason']));
 		}
 
 		// Get the stuff ready for the form.
@@ -783,6 +785,7 @@ function Post($post_errors = array())
 				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
 				'attachID' => $attachment['id_attach'],
+				'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
 				'mime_type' => $attachment['mime_type'],
 				'thumb' => $attachment['id_thumb'],
@@ -1353,7 +1356,7 @@ function Post($post_errors = array())
 			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
 			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
 			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
+			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
 			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
 			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
 			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
@@ -1611,24 +1614,13 @@ function Post($post_errors = array())
 				'attributes' => array(
 					'size' => 80,
 					'maxlength' => 80,
-					'value' => isset($context['last_modified_reason']) ? $context['last_modified_reason'] : '',
+					// If same user is editing again, keep the previous edit reason by default.
+					'value' => isset($modified_reason) && isset($context['last_modified_name']) && $context['last_modified_name'] === $user_info['name'] ? $modified_reason : '',
 				),
+				// If message has been edited before, show info about that.
+				'after' => empty($context['last_modified_text']) ? '' : '<div class="smalltext em">' . $context['last_modified_text'] . '</div>',
 			),
 		);
-
-		// If this message has been edited in the past - display when it was.
-		if (!empty($context['last_modified_text']))
-		{
-			$context['posting_fields']['modified_time'] = array(
-				'label' => array(
-					'text' => $txt['modified_time'],
-				),
-				'input' => array(
-					'type' => '',
-					'html' => !empty($context['last_modified_text']) ? ltrim(preg_replace('~<span[^>]*>[^<]*</span>~u', '', $context['last_modified_text']), ': ') : '',
-				),
-			);
-		}
 
 		// Prior to 2.1.4, the edit reason was not handled as a posting field,
 		// but instead using a hardcoded input in the template file. We've fixed

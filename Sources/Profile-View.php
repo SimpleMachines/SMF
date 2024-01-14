@@ -224,7 +224,7 @@ function summary($memID)
  * @param array $limit Maximum number of alerts to fetch (0 for no limit).
  * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
  * @param bool $with_avatar Whether to load the avatar of the alert sender.
- * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
+ * @param bool $show_links Whether to show links in the constituent parts of the alert message.
  * @return array An array of information about the fetched alerts.
  */
 function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
@@ -2545,11 +2545,11 @@ function TrackIP($memID = 0)
 			),
 			'lacnic' => array(
 				'name' => $txt['whois_lacnic'],
-				'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . $context['ip'],
+				'url' => 'https://query.milacnic.lacnic.net/search?id=' . $context['ip'],
 			),
 			'ripe' => array(
 				'name' => $txt['whois_ripe'],
-				'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . $context['ip'],
+				'url' => 'https://apps.db.ripe.net/db-web-ui/query?searchtext=' . $context['ip'],
 			),
 		);
 	}

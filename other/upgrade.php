@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.4
@@ -14,7 +14,7 @@
 // Version information...
 define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
+define('SMF_SOFTWARE_YEAR', '2024');
 define('SMF_LANG_VERSION', '2.1.3');
 define('SMF_INSTALLING', 1);
 
@@ -123,7 +123,7 @@ $upcontext['database_step'] = 3;
 if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']))
 	for ($i = 1; $i < $_SERVER['argc']; $i++)
 	{
-		// Provide the help without possible errors if the enviornment isn't sane.
+		// Provide the help without possible errors if the environment isn't sane.
 		if (in_array($_SERVER['argv'][$i], array('-h', '--help')))
 		{
 			cmdStep0();
@@ -1134,7 +1134,7 @@ function checkFolders()
 			{
 				if (!empty($dir) && !is_dir($dir))
 					$attdr_problem_found = true;
-			}	
+			}
 		}
 		else
 		{
@@ -1151,7 +1151,7 @@ function checkFolders()
 			{
 				if (!is_dir($dir))
 					$attdr_problem_found = true;
-			}	
+			}
 		}
 		else
 		{
@@ -3251,6 +3251,10 @@ function ConvertUtf8()
 		// Get a list of table names ahead of time... This makes it easier to set our substep and such
 		db_extend();
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
+
+		$queryTables = array_values(array_filter($queryTables, function($v){
+			return stripos($v, 'backup_') !== 0;
+		}));
 
 		$upcontext['table_count'] = count($queryTables);
 

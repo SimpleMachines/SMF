@@ -50,7 +50,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_server_info'            => 'smf_db_get_server_info',
 			'db_affected_rows'          => 'smf_db_affected_rows',
 			'db_transaction'            => 'smf_db_transaction',
-			'db_error'                  => 'mysqli_error',
+			'db_error'                  => 'smf_db_errormsg',
 			'db_select_db'              => 'smf_db_select',
 			'db_title'                  => MYSQL_TITLE,
 			'db_sybase'                 => false,
@@ -1097,6 +1097,22 @@ function smf_db_escape_string($string, $connection = null)
 	global $db_connection;
 
 	return mysqli_real_escape_string($connection === null ? $db_connection : $connection, $string);
+}
+
+/**
+ * Wrapper to handle null errors
+ *
+ * @param null|mysqli $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_errormsg($connection = null)
+{
+	global $db_connection;
+
+	if ($connection === null && $db_connection === null)
+		return '';
+
+	return mysqli_error($connection === null ? $db_connection : $connection);
 }
 
 ?>

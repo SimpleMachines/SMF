@@ -269,7 +269,7 @@ function MaintainCleanCache()
 }
 
 /**
- * Empties all uninmportant logs
+ * Empties all unimportant logs
  */
 function MaintainEmptyUnimportantLogs()
 {
@@ -367,7 +367,7 @@ function ConvertMsgBody()
 		else
 			$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'text'));
 
-		// 3rd party integrations may be interested in knowning about this.
+		// 3rd party integrations may be interested in knowing about this.
 		call_integration_hook('integrate_convert_msgbody', array($body_type));
 
 		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
@@ -1951,6 +1951,7 @@ function list_integration_hooks()
 						else
 							return $instance . $data['real_function'];
 					},
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'function_name',
@@ -1963,6 +1964,7 @@ function list_integration_hooks()
 				),
 				'data' => array(
 					'db' => 'file_name',
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'file_name',
@@ -1977,12 +1979,24 @@ function list_integration_hooks()
 				'data' => array(
 					'function' => function($data) use ($txt, $scripturl, $context, $filter_url)
 					{
-						$change_status = array('before' => '', 'after' => '');
+						// Cannot update temp hooks in any way, really.  Just show the appropriate icon.
+						if ($data['status'] == 'temp')
+						{
+							return '<span class="main_icons ' . ($data['hook_exists'] ? 'posts' : 'error') . '" title="' . $data['img_text'] . '"></span>';
+						}
+						else
+						{
+							$change_status = array('before' => '', 'after' => '');
 
-						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
-						$change_status['after'] = '</a>';
+							// Can only enable/disable if it exists...
+							if ($data['hook_exists'])
+							{
+								$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+								$change_status['after'] = '</a>';
+							}
 
-						return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>' . $change_status['after'];
+							return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>' . $change_status['after'];
+						}
 					},
 					'class' => 'centertext',
 				),
@@ -2001,6 +2015,8 @@ function list_integration_hooks()
 					<li><span class="main_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
 					<li><span class="main_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
 					<li><span class="main_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
+					<li><span class="main_icons posts"></span> ' . $txt['hooks_disable_legend_temp'] . '</li>
+					<li><span class="main_icons error"></span> ' . $txt['hooks_disable_legend_temp_missing'] . '</li>
 				</ul>'
 			),
 		),
@@ -2014,7 +2030,8 @@ function list_integration_hooks()
 		'data' => array(
 			'function' => function($data) use ($txt, $scripturl, $context, $filter_url)
 			{
-				if (!$data['hook_exists'])
+				// Note: Cannot remove temp hooks via the UI...
+				if (!$data['hook_exists'] && $data['status'] != 'temp')
 					return '
 					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
 						<span class="main_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
@@ -2100,6 +2117,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 				$function_list += get_defined_functions_in_file($absPath_clean);
 
 			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$absPath_clean]));
+			$hook_temp = !empty($context['integration_hooks_temporary'][$hook][$hookParsedData['rawData']]);
 			$temp = array(
 				'hook_name' => $hook,
 				'function_name' => $hookParsedData['rawData'],
@@ -2108,8 +2126,8 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 				'file_name' => strtr($hookParsedData['absPath'] ?: ($function_list[$hookParsedData['call']] ?? ''), [$normalized_boarddir => '.']),
 				'instance' => $hookParsedData['object'],
 				'hook_exists' => $hook_exists,
-				'status' => $hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny',
-				'img_text' => $txt['hooks_' . ($hook_exists ? ($hookParsedData['enabled'] ? 'active' : 'disabled') : 'missing')],
+				'status' => ($hook_temp ? 'temp' : ($hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny')),
+				'img_text' => $txt['hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing')],
 				'enabled' => $hookParsedData['enabled'],
 			);
 			$sort_array[] = $temp[$sort_types[$sort][0]];

@@ -56,13 +56,13 @@ function loadProfileFields($force_reload = false)
 								Return types:
 					- true:			Element can be stored.
 					- false:		Skip this element.
-					- a text string:	An error occured - this is the error message.
+					- a text string:	An error occurred - this is the error message.
 
 				function $preload:		A function that is used to load data required for this element to be displayed. Must return
 								true to be displayed at all.
 
 				string $cast_type:		If set casts the element to a certain type. Valid types (bool, int, float).
-				string $save_key:		If the index of this element isn't the database column name it can be overriden
+				string $save_key:		If the index of this element isn't the database column name it can be overridden
 								with this string.
 				bool $is_dummy:			If set then nothing is acted upon for this element.
 				bool $enabled:			A test to determine whether this is even available - if not is unset.
@@ -2831,7 +2831,7 @@ function alert_notifications_boards($memID)
 }
 
 /**
- * Determins how many topics a user has requested notifications for
+ * Determines how many topics a user has requested notifications for
  *
  * @param int $memID The ID of the member
  * @return int The number of topic notifications for this user
@@ -3536,7 +3536,8 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
-		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true);
+		$mime_type = get_mime_type($profile_vars['avatar'], true);
+		$mime_valid = strpos($mime_type, 'image/') === 0;
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
@@ -3545,6 +3546,20 @@ function profileSaveAvatarData(&$value)
 			return 'bad_avatar_invalid_url';
 		elseif (empty($mime_valid))
 			return 'bad_avatar';
+		// SVGs are special.
+		elseif ($mime_type === 'image/svg+xml')
+		{
+			$safe = false;
+
+			if (($tempfile = @tempnam($uploadDir, 'tmp_')) !== false && ($svg_content = @fetch_web_data($profile_vars['avatar'])) !== false && (file_put_contents($tempfile, $svg_content)) !== false)
+			{
+				$safe = checkSvgContents($tempfile);
+				@unlink($tempfile);
+			}
+
+			if (!$safe)
+				return 'bad_avatar';
+		}
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -3593,11 +3608,54 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true);
+			$mime_type = get_mime_type($_FILES['attachment']['tmp_name'], true);
+			$mime_valid = strpos($mime_type, 'image/') === 0;
 			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
+			// SVGs are special.
+			if ($mime_type === 'image/svg+xml')
+			{
+				if ((checkSvgContents($_FILES['attachment']['tmp_name'])) === false)
+				{
+					@unlink($_FILES['attachment']['tmp_name']);
+					return 'bad_avatar';
+				}
+
+				$extension = 'svg';
+				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
+				list ($width, $height) = getSvgSize($_FILES['attachment']['tmp_name']);
+				$file_hash = '';
+
+				removeAttachments(array('id_member' => $memID));
+
+				$cur_profile['id_attach'] = $smcFunc['db_insert']('',
+					'{db_prefix}attachments',
+					array(
+						'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'fileext' => 'string', 'size' => 'int',
+						'width' => 'int', 'height' => 'int', 'mime_type' => 'string', 'id_folder' => 'int',
+					),
+					array(
+						$memID, 1, $destName, $file_hash, $extension, filesize($_FILES['attachment']['tmp_name']),
+						(int) $width, (int) $height, $mime_type, $id_folder,
+					),
+					array('id_attach'),
+					1
+				);
+
+				$cur_profile['filename'] = $destName;
+				$cur_profile['attachment_type'] = 1;
+
+				$destinationPath = $uploadDir . '/' . $destName;
+				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
+				{
+					removeAttachments(array('id_member' => $memID));
+					fatal_lang_error('attach_timeout', 'critical');
+				}
+
+				smf_chmod($destinationPath, 0644);
+			}
 			// No size, then it's probably not a valid pic.
-			if ($sizes === false)
+			elseif ($sizes === false)
 			{
 				@unlink($_FILES['attachment']['tmp_name']);
 				return 'bad_avatar';
@@ -3664,7 +3722,7 @@ function profileSaveAvatarData(&$value)
 				);
 
 				$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';
-				$mime_type = 'image/' . ($extension === 'jpg' ? 'jpeg' : ($extension === 'bmp' ? 'x-ms-bmp' : $extension));
+				$mime_type = str_replace('image/bmp', 'image/x-ms-bmp', $mime_type);
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
 				list ($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
 				$file_hash = '';
@@ -3698,7 +3756,7 @@ function profileSaveAvatarData(&$value)
 				}
 
 				// Attempt to chmod it.
-				smf_chmod($uploadDir . '/' . $destinationPath, 0644);
+				smf_chmod($destinationPath, 0644);
 			}
 			$profile_vars['avatar'] = '';
 
@@ -4066,7 +4124,7 @@ function groupMembership($memID)
 		if (($row['id_group'] == $context['primary_group'] && $row['group_type'] > 1) || ($row['hidden'] != 2 && $context['primary_group'] == 0 && in_array($row['id_group'], $groups)))
 			$context['can_edit_primary'] = true;
 
-		// If they can't manage (protected) groups, and it's not publically joinable or already assigned, they can't see it.
+		// If they can't manage (protected) groups, and it's not publicly joinable or already assigned, they can't see it.
 		if (((!$context['can_manage_protected'] && $row['group_type'] == 1) || (!$context['can_manage_membergroups'] && $row['group_type'] == 0)) && $row['id_group'] != $context['primary_group'])
 			continue;
 

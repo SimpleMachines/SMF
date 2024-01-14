@@ -40,7 +40,7 @@ jobs:
       # This prevents all the forks from attempting to run the interface...
       if: env.CROWDIN_API_TOKEN != null
       # You need to pin to a specific version for some reason...
-      uses: crowdin/github-action@1.0.19
+      uses: crowdin/github-action@v1
       with:
         # Push sources (the english files) to CrowdIn; do not push translations (non-english) in either direction
         upload_sources: true

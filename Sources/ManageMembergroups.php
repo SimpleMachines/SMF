@@ -173,7 +173,7 @@ function MembergroupIndex()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'above_table_headers',
+				'position' => 'above_column_headers',
 				'value' => '<a class="button" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
 			),
 			array(
@@ -367,7 +367,7 @@ function AddMembergroup()
 					fatal_lang_error('membergroup_does_not_exist');
 			}
 
-			// Don't allow copying of a real priviledged person!
+			// Don't allow copying of a real privileged person!
 			require_once($sourcedir . '/ManagePermissions.php');
 			loadIllegalPermissions();
 

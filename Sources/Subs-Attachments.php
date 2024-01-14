@@ -337,7 +337,7 @@ function processAttachments()
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
-	// Is the attachments folder actualy there?
+	// Is the attachments folder actually there?
 	if (!empty($context['dir_creation_error']))
 		$initial_error = $context['dir_creation_error'];
 	elseif (!is_dir($context['attach_dir']))
@@ -559,6 +559,16 @@ function attachmentChecks($attachID)
 				$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
 		}
 	}
+	// SVGs have their own set of security checks.
+	elseif ($_SESSION['temp_attachments'][$attachID]['type'] === 'image/svg+xml')
+	{
+		require_once($sourcedir . '/Subs-Graphics.php');
+		if (!checkSVGContents($_SESSION['temp_attachments'][$attachID]['tmp_name']))
+		{
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
+			return false;
+		}
+	}
 
 	// Is there room for this sucker?
 	if (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit']))
@@ -686,6 +696,12 @@ function createAttachment(&$attachmentOptions)
 	// If this is an image we need to set a few additional parameters.
 	$size = @getimagesize($attachmentOptions['tmp_name']);
 	list ($attachmentOptions['width'], $attachmentOptions['height']) = $size;
+
+	if (!empty($attachmentOptions['mime_type']) && $attachmentOptions['mime_type'] === 'image/svg+xml')
+	{
+		foreach (getSvgSize($attachmentOptions['tmp_name']) as $key => $value)
+			$attachmentOptions[$key] = $value === INF ? 0 : $value;
+	}
 
 	if (function_exists('exif_read_data') && ($exif_data = @exif_read_data($attachmentOptions['tmp_name'])) !== false && !empty($exif_data['Orientation']))
 		if (in_array($exif_data['Orientation'], [5, 6, 7, 8]))
@@ -960,7 +976,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  *
  * @param int $attachID the attachment ID to load info from.
  *
- * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
+ * @return mixed If successful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
  */
 function parseAttachBBC($attachID = 0)
 {
@@ -1305,7 +1321,7 @@ function loadAttachmentContext($id_msg, $attachments)
 			if (!empty($attachment['id_thumb']))
 				$attachmentData[$i]['thumbnail'] = array(
 					'id' => $attachment['id_thumb'],
-					'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_thumb'] . ';image',
+					'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_thumb'] . ';image;thumb',
 				);
 			$attachmentData[$i]['thumbnail']['has_thumb'] = !empty($attachment['id_thumb']);
 
@@ -1334,6 +1350,17 @@ function loadAttachmentContext($id_msg, $attachments)
 
 			if (!$attachmentData[$i]['thumbnail']['has_thumb'])
 				$attachmentData[$i]['downloads']++;
+
+			// Describe undefined dimensions as "unknown".
+			// This can happen if an uploaded SVG is missing some key data.
+			foreach (array('real_width', 'real_height') as $key)
+			{
+				if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF)
+				{
+					loadLanguage('Admin');
+					$attachmentData[$i][$key] = ' (' . $txt['unknown'] . ') ';
+				}
+			}
 		}
 	}
 
@@ -1362,7 +1389,7 @@ function loadAttachmentContext($id_msg, $attachments)
  */
 function prepareAttachsByMsg($msgIDs)
 {
-	global $context, $modSettings, $smcFunc;
+	global $context, $modSettings, $smcFunc, $sourcedir;
 
 	if (empty($context['loaded_attachments']))
 		$context['loaded_attachments'] = array();
@@ -1409,6 +1436,30 @@ function prepareAttachsByMsg($msgIDs)
 
 		foreach ($rows as $row)
 		{
+			// SVGs are special.
+			if ($row['mime_type'] === 'image/svg+xml')
+			{
+				if (empty($row['width']) || empty($row['height']))
+				{
+					require_once($sourcedir . '/Subs-Graphics.php');
+
+					$row = array_merge($row, getSvgSize(getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'])));
+				}
+
+				// SVG is its own thumbnail.
+				if (isset($row['id_thumb']))
+				{
+					$row['id_thumb'] = $row['id_attach'];
+
+					// For SVGs, we don't need to calculate thumbnail size precisely.
+					$row['thumb_width'] = min($row['width'], !empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 1000);
+					$row['thumb_height'] = min($row['height'], !empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 1000);
+
+					// Must set the thumbnail's CSS dimensions manually.
+					addInlineCss('img#thumb_' . $row['id_thumb'] . ':not(.original_size) {width: ' . $row['thumb_width'] . 'px; height: ' . $row['thumb_height'] . 'px;}');
+				}
+			}
+
 			if (empty($context['loaded_attachments'][$row['id_msg']]))
 				$context['loaded_attachments'][$row['id_msg']] = array();
 
