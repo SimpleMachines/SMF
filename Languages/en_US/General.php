@@ -16,8 +16,15 @@ $txt['lang_recaptcha'] = 'en';
 $txt['lang_character_set'] = 'UTF-8';
 // Character set right to left?  0 = ltr; 1 = rtl
 $txt['lang_rtl'] = '0';
-// Number format.
-$txt['number_format'] = '1,234.00';
+
+// Punctuation mark used to separate decimals from whole numbers. For example, '.' in '12,345.67'. HTML entities (e.g. '&nbsp;') are supported in this string.
+$txt['decimal_separator'] = '.';
+// Punctuation mark used to group digits in large whole numbers. For example, ',' in '12,345.67'. If your language does not group digits in large whole numbers, enter 'NULL'. HTML entities (e.g. '&nbsp;') are supported in this string.
+$txt['digit_group_separator'] = ',';
+// Percent format. '{0}' will be replaced by the numerical value. HTML entities (e.g. '&nbsp;') are supported in this string.
+$txt['percent_format'] = '{0}%';
+// Currency format. '{0}' will be replaced by the numerical value. '¤' will be replaced by the relevant currency symbol. HTML entities (e.g. '&nbsp;') are supported in this string.
+$txt['currency_format'] = '¤{0}';
 
 $txt['days_title'] = 'Days';
 $txt['days'] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

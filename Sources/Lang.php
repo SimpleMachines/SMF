@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Localization\MessageFormatter;
 
 /**
  * Handles the localizable strings shown in SMF's user interface.
@@ -169,13 +170,6 @@ class Lang
 	public static array $dirs = [];
 
 	/**
-	 * @var int
-	 *
-	 * Default number of decimal places to use for floats in Lang::numberFormat.
-	 */
-	public static int $decimals;
-
-	/**
 	 * @var string
 	 *
 	 * Decimal separator to use in Lang::numberFormat.
@@ -187,7 +181,7 @@ class Lang
 	 *
 	 * Thousands separator to use in Lang::numberFormat.
 	 */
-	public static string $thousands_separator;
+	public static string $digit_group_separator;
 
 	/****************************
 	 * Internal static properties
@@ -506,6 +500,60 @@ class Lang
 	}
 
 	/**
+	 * High level method that retrieves language strings, inserts any arguments
+	 * into them, and then returns the resulting finalized string.
+	 *
+	 * If no arguments are supplied in $args, this method simply returns the
+	 * requested string.
+	 *
+	 * If arguments are supplied in $args, this method will insert them into the
+	 * requested string. The method can handle argument substitution for both
+	 * MessageFormat and sprintf format strings.
+	 *
+	 * @param string|array $txt_key The key of the Lang::$txt array that
+	 *    contains the desired string. If this is an array, each item of the
+	 *    array will be used as a sub-key to drill down into deeper levels of
+	 *    the overall array.
+	 * @param array $args Arguments to substitute into the Lang::$txt string.
+	 * @param array $var Name of the array to search in. Default: 'txt'.
+	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
+	 * @return string The string to display to the user.
+	 */
+	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt'): string
+	{
+		// Validate $var.
+		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+			throw new \ValueError();
+		}
+
+		// Don't waste time when getting a simple string.
+		if ($args === [] && is_string($txt_key)) {
+			return self::${$var}[$txt_key] ?? '';
+		}
+
+		// Trying to get something more complex...
+		$txt_key = (array) $txt_key;
+
+		$target = &self::${$var};
+
+		// Drill down to the specified key.
+		foreach ($txt_key as $key) {
+			if (isset($target[$key])) {
+				$target = &$target[$key];
+			} else {
+				// Can't do anything with a bad key.
+				return '';
+			}
+		}
+
+		if (empty($args)) {
+			return $target;
+		}
+
+		return self::formatText($target, $args);
+	}
+
+	/**
 	 * Replace all vulgar words with respective proper words. (substring or whole words..)
 	 * What this function does:
 	 *  - it censors the passed string.
@@ -651,8 +699,10 @@ class Lang
 	}
 
 	/**
-	 * Wrapper for number_format() that uses Lang::$txt['number_format'] to
-	 * figure out the parameters to pass to number_format().
+	 * Locale-aware replacement for number_format().
+	 *
+	 * Always uses the decimal separator and digit group separator for the
+	 * current locale to format the number.
 	 *
 	 * @param int|float|string $number A number.
 	 * @param int $decimals If set, will use the specified number of decimal
@@ -662,29 +712,51 @@ class Lang
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
 		if (is_string($number)) {
-			$number = intval($number);
+			$number = $number + 0;
 		}
 
-		// Cache these values...
+		self::$decimal_separator = self::$txt['decimal_separator'] ?? null;
+		self::$digit_group_separator = self::$txt['digit_group_separator'] ?? null;
+
+		// Not set for whatever reason?
 		if (!isset(self::$decimal_separator)) {
-			// Not set for whatever reason?
-			if (empty(Lang::$txt['number_format']) || preg_match('~^1(\D*)234(\D*)(0*)$~', Lang::$txt['number_format'], $matches) != 1) {
-				return (string) $number;
+			if (!empty(self::$txt['number_format']) && preg_match('~^1(\D*)234(\D*)(0*)$~', self::$txt['number_format'], $matches)) {
+				self::$digit_group_separator = $matches[1];
+				self::$decimal_separator = $matches[2];
+			} else {
+				self::$decimal_separator = '.';
+				self::$digit_group_separator = ',';
 			}
-
-			// Cache these each load...
-			self::$thousands_separator = $matches[1];
-			self::$decimal_separator = $matches[2];
-			self::$decimals = strlen($matches[3]);
 		}
 
-		// Format the string with our friend, number_format.
-		return number_format(
-			$number,
-			(float) $number === $number ? ($decimals ?? self::$decimals) : 0,
-			self::$decimal_separator,
-			self::$thousands_separator,
-		);
+		$skeleton = is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
+
+		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
+	}
+
+	/**
+	 * Formats a MessageFormat or sprintf string using the supplied arguments.
+	 *
+	 * @param string $message The MessageFormat or sprintf string.
+	 * @param array $args Arguments to use in the string.
+	 * @return string The formatted string.
+	 */
+	public static function formatText(string $message, array $args = []): string
+	{
+		if ($args === []) {
+			return $message;
+		}
+
+		// First try formatting it as a MessageFormat string.
+		// If it is not a MessageFormat string, nothing will be changed.
+		$final = MessageFormatter::formatMessage($message, $args);
+
+		// If nothing changed, try formatting it as a sprintf string.
+		if ($final === $message) {
+			$final = vsprintf($message, $args);
+		}
+
+		return $final;
 	}
 
 	/**

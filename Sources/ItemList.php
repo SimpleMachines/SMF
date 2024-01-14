@@ -414,6 +414,16 @@ class ItemList implements \ArrayAccess
 
 					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
 				}
+				// Using getTxt is the most capable way of injecting data.
+				elseif (isset($column['data']['getTxt'])) {
+					$params = [];
+
+					foreach ($column['data']['getTxt']['params'] as $key => $info) {
+						$params[$key] = $info['htmlspecialchars'] ? Utils::htmlspecialchars((string) $list_item[$info['column']]) : $list_item[$info['column']];
+					}
+
+					$cur_data['value'] = Lang::getTxt($column['data']['getTxt']['format'], $params);
+				}
 				// The most flexible way probably is applying a custom function.
 				elseif (isset($column['data']['function'])) {
 					$cur_data['value'] = call_user_func_array($column['data']['function'], [$list_item]);
