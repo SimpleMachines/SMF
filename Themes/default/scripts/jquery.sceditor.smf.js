@@ -126,10 +126,10 @@
 						});
 						$(document).mouseup(function (e) {
 							if (allowHide && !popupContent.is(e.target) && popupContent.has(e.target).length === 0)
-								$(".sceditor-smileyPopup").fadeOut('fast');
+								$(smileyPopup).fadeOut('fast');
 						}).keyup(function (e) {
 							if (e.keyCode === 27)
-								$(".sceditor-smileyPopup").fadeOut('fast');
+								$(smileyPopup).fadeOut('fast');
 						});
 
 						$.each(emoticons, function( code, emoticon ) {
