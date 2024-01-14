@@ -188,6 +188,7 @@ $txt['no_bantype_selected'] = 'No ban type was selected';
 $txt['ban_not_found'] = 'Ban not found';
 $txt['ban_unknown_restriction_type'] = 'Restriction type unknown';
 $txt['ban_name_empty'] = 'The name of the ban was left empty';
+$txt['ban_name_is_too_long'] = 'The selected name is too long. Use no more than 20 characters.';
 $txt['ban_id_empty'] = 'Ban id not found';
 $txt['ban_no_triggers'] = 'No ban triggers specified';
 $txt['ban_ban_item_empty'] = 'Ban trigger not found';

@@ -1498,6 +1498,8 @@ function updateBanGroup($ban_info = array())
 
 	if (empty($ban_info['name']))
 		$context['ban_errors'][] = 'ban_name_empty';
+	if ($smcFunc['strlen']($ban_info['name']) > 20)
+		$context['ban_errors'][] = 'ban_name_is_too_long';
 	if (empty($ban_info['id']))
 		$context['ban_errors'][] = 'ban_id_empty';
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
@@ -1587,6 +1589,8 @@ function insertBanGroup($ban_info = array())
 
 	if (empty($ban_info['name']))
 		$context['ban_errors'][] = 'ban_name_empty';
+	if ($smcFunc['strlen']($ban_info['name']) > 20)
+		$context['ban_errors'][] = 'ban_name_is_too_long';
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
