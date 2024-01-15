@@ -1343,7 +1343,6 @@ class BBCodeParser
 	 *
 	 * @param string $string Text containing HTML.
 	 * @return string The string with HTML converted to BBC.
-	 * @suppress PHP0417
 	 */
 	public function unparse(string $string): string
 	{
@@ -1417,8 +1416,8 @@ class BBCodeParser
 		}
 
 		// Only try to buy more time if the client didn't quit.
-		if (connection_aborted() && Utils::$context['server']['is_apache']) {
-			@apache_reset_timeout();
+		if (connection_aborted()) {
+			Utils::sapiResetTimeout();
 		}
 
 		$parts = preg_split('~(<[A-Za-z]+\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1575,8 +1574,8 @@ class BBCodeParser
 		$string = $replacement;
 
 		// We are not finished yet, request more time.
-		if (connection_aborted() && Utils::$context['server']['is_apache']) {
-			@apache_reset_timeout();
+		if (connection_aborted()) {
+			Utils::sapiResetTimeout();
 		}
 
 		// Let's pull out any legacy alignments.
@@ -1685,8 +1684,8 @@ class BBCodeParser
 		}
 
 		// Almost there, just a little more time.
-		if (connection_aborted() && Utils::$context['server']['is_apache']) {
-			@apache_reset_timeout();
+		if (connection_aborted()) {
+			Utils::sapiResetTimeout();
 		}
 
 		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
@@ -2048,8 +2047,8 @@ class BBCodeParser
 		}
 
 		// Please give us just a little more time.
-		if (connection_aborted() && Utils::$context['server']['is_apache']) {
-			@apache_reset_timeout();
+		if (connection_aborted()) {
+			Utils::sapiResetTimeout();
 		}
 
 		// What about URL's - the pain in the ass of the tag world.

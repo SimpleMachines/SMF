@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -81,12 +83,12 @@ class Search implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -147,7 +149,7 @@ class Search implements ActionInterface
 	 * Called by ?action=admin;area=managesearch;sa=weights.
 	 * Requires the admin_forum permission.
 	 */
-	public function weights()
+	public function weights(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['search_weights_title'];
 		Utils::$context['sub_template'] = 'modify_weights';
@@ -200,7 +202,7 @@ class Search implements ActionInterface
 	 * Called by ?action=admin;area=managesearch;sa=method.
 	 * Requires the admin_forum permission.
 	 */
-	public function method()
+	public function method(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['search_method_title'];
 		Utils::$context['sub_template'] = 'select_search_method';
@@ -489,14 +491,12 @@ class Search implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Depending on the size of the message table, the process is divided in steps.
 	 */
-	public function createmsgindex()
+	public function createmsgindex(): void
 	{
 		// Scotty, we need more time...
-		@set_time_limit(600);
+		Utils::sapiSetTimeLimit(600);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiResetTimeout();
 
 		Menu::$loaded['admin']['current_subsection'] = 'method';
 		Utils::$context['page_title'] = Lang::$txt['search_index_custom'];
@@ -747,7 +747,7 @@ class Search implements ActionInterface
 	 * Checks if the message table already has a fulltext index created and returns the key name
 	 * Determines if a db is capable of creating a fulltext index
 	 */
-	public function detectFulltextIndex()
+	public function detectFulltextIndex(): void
 	{
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
@@ -838,9 +838,9 @@ class Search implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

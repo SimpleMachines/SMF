@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -64,12 +66,12 @@ class Posts implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -185,7 +187,7 @@ class Posts implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Accessed from ?action=admin;area=postsettings;sa=posts.
 	 */
-	public function posts($return_config = false)
+	public function posts(): void
 	{
 		$config_vars = self::postConfigVars();
 
@@ -237,7 +239,7 @@ class Posts implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Accessed from ?action=admin;area=postsettings;sa=topics.
 	 */
-	public function topics($return_config = false)
+	public function topics(): void
 	{
 		$config_vars = self::topicConfigVars();
 
@@ -268,7 +270,7 @@ class Posts implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Accessed from ?action=admin;area=postsettings;sa=drafts
 	 */
-	public function drafts($return_config = false)
+	public function drafts(): void
 	{
 		$config_vars = self::draftConfigVars();
 
@@ -329,9 +331,9 @@ class Posts implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -465,9 +467,9 @@ class Posts implements ActionInterface
 	 * Backward compatibility wrapper for the posts sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyPostSettings($return_config = false)
+	public static function modifyPostSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::postConfigVars();
@@ -476,15 +478,17 @@ class Posts implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'posts';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the topics sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyTopicSettings($return_config = false)
+	public static function modifyTopicSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::topicConfigVars();
@@ -493,15 +497,17 @@ class Posts implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'topics';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the drafts sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyDraftSettings($return_config = false)
+	public static function modifyDraftSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::draftConfigVars();
@@ -510,6 +516,8 @@ class Posts implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'drafts';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/******************

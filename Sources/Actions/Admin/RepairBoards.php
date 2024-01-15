@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -771,12 +773,12 @@ class RepairBoards implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -860,9 +862,9 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -965,6 +967,7 @@ class RepairBoards implements ActionInterface
 					],
 				);
 				list($step_max) = Db::$db->fetch_row($request);
+				$step_max = (int) $step_max;
 				$total_queries++;
 				Db::$db->free_result($request);
 			}
@@ -1047,7 +1050,7 @@ class RepairBoards implements ActionInterface
 							$ids = [];
 
 							while ($row = Db::$db->fetch_assoc($request)) {
-								$ids[] = $row[$test['fix_collect']['index']];
+								$ids[] = (int) $row[$test['fix_collect']['index']];
 							}
 
 							if (!empty($ids)) {
@@ -1152,16 +1155,14 @@ class RepairBoards implements ActionInterface
 	 * @param int $max_substep The maximum substep to reach before pausing.
 	 * @param bool $force Whether to force pausing even if we don't need to.
 	 */
-	protected function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false): void
+	protected function pauseRepairProcess(array $to_fix, string $current_step_description, int $max_substep = 0, bool $force = false): void
 	{
 		++$this->loops;
 
 		// More time, I need more time!
-		@set_time_limit(600);
+		Utils::sapiSetTimeLimit(600);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiResetTimeout();
 
 		$return = true;
 
@@ -1311,8 +1312,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing topics.
+	 * 
+	 * @param array $row Message with missing topic.
 	 */
-	protected function fixMissingTopics($row): void
+	protected function fixMissingTopics(array $row): void
 	{
 		// Only if we don't have a reasonable idea of where to put it.
 		if ($row['id_board'] == 0) {
@@ -1381,8 +1384,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove all topics that have zero messages in the messages table.
+	 * 
+	 * @param array $topics An array of topic ids.
 	 */
-	protected function fixMissingMessages($topics): void
+	protected function fixMissingMessages(array $topics): void
 	{
 		Db::$db->query(
 			'',
@@ -1405,8 +1410,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing poll options.
+	 * 
+	 * @param array $row Message with missing topic.
 	 */
-	protected function fixMissingPollOptions($row): void
+	protected function fixMissingPollOptions(array $row): void
 	{
 		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
 		$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
@@ -1530,8 +1537,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix polls that have no topic.
+	 * 
+	 * @param array $row Message with missing topic.
 	 */
-	protected function fixMissingPollTopics($row): void
+	protected function fixMissingPollTopics(array $row): void
 	{
 		// Only if we don't have a reasonable idea of where to put it.
 		if ($row['id_board'] == 0) {
@@ -1618,8 +1627,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing first and last message IDs for a topic.
+	 * 
+	 * @param array $row Topic data.
 	 */
-	protected function fixTopicStats($row): bool
+	protected function fixTopicStats(array $row): bool
 	{
 		$row['firstmsg_approved'] = (int) $row['firstmsg_approved'];
 		$row['myid_first_msg'] = (int) $row['myid_first_msg'];
@@ -1656,8 +1667,10 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to get a message about missing first and last message IDs for a
 	 * topic.
+	 * 
+	 * @param array $row Topic data.
 	 */
-	protected function topicStatsMessage($row): bool
+	protected function topicStatsMessage(array $row): bool
 	{
 		// A pretend error?
 		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved']) {
@@ -1681,8 +1694,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix the recorded number of replies to a topic.
+	 * 
+	 * @param array $row Topic data.
 	 */
-	protected function fixTopicStats2($row): bool
+	protected function fixTopicStats2(array $row): bool
 	{
 		$row['my_num_replies'] = (int) $row['my_num_replies'];
 
@@ -1708,8 +1723,10 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to get a message about an incorrect record of the number of
 	 * replies to a topic.
+	 * 
+	 * @param array $row Topic data.
 	 */
-	protected function topicStatsMessage2($row): bool
+	protected function topicStatsMessage2(array $row): bool
 	{
 		// Just joking?
 		if ($row['my_num_replies'] == $row['num_replies']) {
@@ -1725,8 +1742,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix the recorded number of unapproved replies to a topic.
+	 * 
+	 * @param array $row Topic data.
 	 */
-	protected function fixTopicStats3($row): void
+	protected function fixTopicStats3(array $row): void
 	{
 		$row['my_unapproved_posts'] = (int) $row['my_unapproved_posts'];
 
@@ -1744,8 +1763,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to give a home to topics that have no board.
+	 * 
+	 * @param array $row Topic data.
 	 */
-	protected function fixMissingBoards($row): void
+	protected function fixMissingBoards(array $row): void
 	{
 		$this->createSalvageArea();
 
@@ -1785,8 +1806,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to give a home to boards that have no category.
+	 * 
+	 * @param array $cats An array of missing Categories.
 	 */
-	protected function fixMissingCategories($cats): void
+	protected function fixMissingCategories(array $cats): void
 	{
 		$this->createSalvageArea();
 
@@ -1804,8 +1827,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to give an author to messages that don't have one.
+	 * 
+	 * @param array $msgs An array of messages.
 	 */
-	protected function fixMissingPosters($msgs): void
+	protected function fixMissingPosters(array $msgs): void
 	{
 		Db::$db->query(
 			'',
@@ -1821,8 +1846,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to let our salvage board adopt orphaned child boards.
+	 * 
+	 * @param array $parents An array of board ids.
 	 */
-	protected function fixMissingParents($parents): void
+	protected function fixMissingParents(array $parents): void
 	{
 		$this->createSalvageArea();
 		$_SESSION['salvageBoardID'] = $this->salvage_board;
@@ -1842,8 +1869,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove non-existent polls from topics.
+	 * 
+	 * @param array $polls An array of poll ids.
 	 */
-	protected function fixMissingPolls($polls): void
+	protected function fixMissingPolls(array $polls): void
 	{
 		Db::$db->query(
 			'',
@@ -1858,8 +1887,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove broken links to topics from calendar events.
+	 * 
+	 * @param array $events An array of topic ids.
 	 */
-	protected function fixMissingCaledarTopics($events): void
+	protected function fixMissingCaledarTopics(array $events): void
 	{
 		Db::$db->query(
 			'',
@@ -1874,8 +1905,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_topics entries for non-existent topics.
+	 * 
+	 * @param array $topics An array of topic ids.
 	 */
-	protected function fixMissingLogTopics($topics): void
+	protected function fixMissingLogTopics(array $topics): void
 	{
 		Db::$db->query(
 			'',
@@ -1889,8 +1922,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_topics entries for non-existent members.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixMissingLogTopicsMembers($members): void
+	protected function fixMissingLogTopicsMembers(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -1904,8 +1939,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_boards entries for non-existent boards.
+	 * 
+	 * @param array $boards An array of board ids.
 	 */
-	protected function fixMissingLogBoards($boards): void
+	protected function fixMissingLogBoards(array $boards): void
 	{
 		Db::$db->query(
 			'',
@@ -1919,8 +1956,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_boards entries for non-existent members.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixMissingLogBoardsMembers($members): void
+	protected function fixMissingLogBoardsMembers(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -1934,8 +1973,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_mark_read entries for non-existent boards.
+	 * 
+	 * @param array $boards An array of board ids.
 	 */
-	protected function fixMissingLogMarkRead($boards): void
+	protected function fixMissingLogMarkRead(array $boards): void
 	{
 		Db::$db->query(
 			'',
@@ -1949,8 +1990,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_mark_read entries for non-existent members.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixMissingLogMarkReadMembers($members): void
+	protected function fixMissingLogMarkReadMembers(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -1965,8 +2008,10 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to remove non-existent personal messages from the recipients'
 	 * inboxes.
+	 * 
+	 * @param array $pms An array of personal message ids.
 	 */
-	protected function fixMissingPMs($pms): void
+	protected function fixMissingPMs(array $pms): void
 	{
 		Db::$db->query(
 			'',
@@ -1980,8 +2025,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove non-existent recipients from personal messages.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixMissingRecipients($members): void
+	protected function fixMissingRecipients(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -1996,8 +2043,10 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to fix the assigned authorship of PMs from non-existent senders.
 	 * Specifically, such PMs will be shown to have been sent from a guest.
+	 * 
+	 * @param array $guestMessages An array of personal messages ids.
 	 */
-	protected function fixMissingSenders($guestMessages): void
+	protected function fixMissingSenders(array $guestMessages): void
 	{
 		Db::$db->query(
 			'',
@@ -2012,8 +2061,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_notify entries for non-existent members.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixMissingNotifyMembers($members): void
+	protected function fixMissingNotifyMembers(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -2027,8 +2078,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing log_search_subjects entries for a topic.
+	 * 
+	 * @param array $result Search result id
 	 */
-	protected function fixMissingCachedSubject($result): void
+	protected function fixMissingCachedSubject(array $result): void
 	{
 		$inserts = [];
 
@@ -2064,8 +2117,10 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to get a message about missing log_search_subjects entries for a
 	 * topic.
+	 * 
+	 * @param array $row Search result id
 	 */
-	protected function missingCachedSubjectMessage($row): bool
+	protected function missingCachedSubjectMessage(array $row): bool
 	{
 		if (count(Utils::text2words($row['subject'])) != 0) {
 			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_missing_cached_subject'], $row['id_topic']);
@@ -2078,8 +2133,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_search_subjects entries for non-existent topics.
+	 * 
+	 * @param array $deleteTopics An array of topic ids.
 	 */
-	protected function fixMissingTopicForCache($deleteTopics): void
+	protected function fixMissingTopicForCache(array $deleteTopics): void
 	{
 		Db::$db->query(
 			'',
@@ -2093,8 +2150,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove poll votes made by non-existent members.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixMissingMemberVote($members): void
+	protected function fixMissingMemberVote(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -2108,8 +2167,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove poll votes made in non-existent polls.
+	 * 
+	 * @param array $polls An array of poll ids.
 	 */
-	protected function fixMissingLogPollVote($polls): void
+	protected function fixMissingLogPollVote(array $polls): void
 	{
 		Db::$db->query(
 			'',
@@ -2123,8 +2184,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove non-existent comments from reports.
+	 * 
+	 * @param array $reports An array of report ids.
 	 */
-	protected function fixReportMissingComments($reports): void
+	protected function fixReportMissingComments(array $reports): void
 	{
 		Db::$db->query(
 			'',
@@ -2138,8 +2201,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove comments made on non-existent reports.
+	 * 
+	 * @param array $reports An array of report ids.
 	 */
-	protected function fixCommentMissingReport($reports): void
+	protected function fixCommentMissingReport(array $reports): void
 	{
 		Db::$db->query(
 			'',
@@ -2153,8 +2218,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove requests to join a group made by non-existent members.
+	 * 
+	 * @param array $members An array of member ids.
 	 */
-	protected function fixGroupRequestMissingMember($members): void
+	protected function fixGroupRequestMissingMember(array $members): void
 	{
 		Db::$db->query(
 			'',
@@ -2168,8 +2235,10 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove requests to join non-existent groups.
+	 * 
+	 * @param array $groups An array of group ids.
 	 */
-	protected function fixGroupRequestMissingGroup($groups): void
+	protected function fixGroupRequestMissingGroup(array $groups): void
 	{
 		Db::$db->query(
 			'',

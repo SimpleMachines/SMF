@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -81,12 +83,12 @@ class Attachments implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -110,8 +112,6 @@ class Attachments implements ActionInterface
 	 * Called by index.php?action=admin;area=manageattachments;sa=attachments.
 	 * Uses 'attachments' sub template.
 	 *
-	 * @param bool $return_config Whether to return the array of config variables (used for admin search)
-	 * @return void|array If $return_config is true, simply returns the config_vars array, otherwise returns nothing
 	 */
 	public function attachmentSettings(): void
 	{
@@ -492,7 +492,7 @@ class Attachments implements ActionInterface
 		);
 		list(Utils::$context['num_attachments']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
-		Utils::$context['num_attachments'] = Lang::numberFormat(Utils::$context['num_attachments'], 0);
+		Utils::$context['num_attachments'] = Lang::numberFormat((int) Utils::$context['num_attachments'], 0);
 
 		// Also get the avatar amount....
 		$request = Db::$db->query(
@@ -506,7 +506,7 @@ class Attachments implements ActionInterface
 		);
 		list(Utils::$context['num_avatars']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
-		Utils::$context['num_avatars'] = Lang::numberFormat(Utils::$context['num_avatars'], 0);
+		Utils::$context['num_avatars'] = Lang::numberFormat((int) Utils::$context['num_avatars'], 0);
 
 		// Check the size of all the directories.
 		$request = Db::$db->query(
@@ -523,7 +523,7 @@ class Attachments implements ActionInterface
 
 		// Divide it into kilobytes.
 		$attachmentDirSize /= 1024;
-		Utils::$context['attachment_total_size'] = Lang::numberFormat($attachmentDirSize, 2);
+		Utils::$context['attachment_total_size'] = Lang::numberFormat((int) $attachmentDirSize, 2);
 
 		$request = Db::$db->query(
 			'',
@@ -551,7 +551,7 @@ class Attachments implements ActionInterface
 			Utils::$context['attachment_files'] = Lang::numberFormat(max(Config::$modSettings['attachmentDirFileLimit'] - $current_dir_files, 0), 0);
 		}
 
-		Utils::$context['attachment_current_files'] = Lang::numberFormat($current_dir_files, 0);
+		Utils::$context['attachment_current_files'] = Lang::numberFormat((int) $current_dir_files, 0);
 
 		Utils::$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
 
@@ -734,7 +734,7 @@ class Attachments implements ActionInterface
 		}
 
 		// Try give us a while to sort this out...
-		@set_time_limit(600);
+		Utils::sapiSetTimeLimit(600);
 
 		$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
 
@@ -791,6 +791,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -818,7 +819,7 @@ class Attachments implements ActionInterface
 
 						// If we are repairing remove the file from disk now.
 						if ($fix_errors && in_array('missing_thumbnail_parent', $to_fix)) {
-							$filename = Attachment::getFilePath($row['id_attach']);
+							$filename = Attachment::getFilePath((int) $row['id_attach']);
 							@unlink($filename);
 						}
 					}
@@ -863,6 +864,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -924,6 +926,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 250) {
@@ -945,7 +948,7 @@ class Attachments implements ActionInterface
 					if ($row['attachment_type'] == 1) {
 						$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 					} else {
-						$filename = Attachment::getFilePath($row['id_attach']);
+						$filename = Attachment::getFilePath((int) $row['id_attach']);
 					}
 
 					// File doesn't exist?
@@ -1071,6 +1074,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -1101,7 +1105,7 @@ class Attachments implements ActionInterface
 						if ($row['attachment_type'] == 1) {
 							$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 						} else {
-							$filename = Attachment::getFilePath($row['id_attach']);
+							$filename = Attachment::getFilePath((int) $row['id_attach']);
 						}
 
 						@unlink($filename);
@@ -1147,6 +1151,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -1181,7 +1186,7 @@ class Attachments implements ActionInterface
 
 					// If we are repairing remove the file from disk now.
 					if ($fix_errors && in_array('attachment_no_msg', $to_fix)) {
-						$filename = Attachment::getFilePath($row['id_attach']);
+						$filename = Attachment::getFilePath((int) $row['id_attach']);
 						@unlink($filename);
 					}
 				}
@@ -1914,11 +1919,9 @@ class Attachments implements ActionInterface
 			$break = false;
 
 			while ($break == false) {
-				@set_time_limit(300);
+				Utils::sapiSetTimeLimit(300);
 
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Utils::sapiResetTimeout();
 
 				// If limits are set, get the file count and size for the destination folder
 				if (
@@ -1974,7 +1977,7 @@ class Attachments implements ActionInterface
 				$moved = [];
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					$source = Attachment::getFilePath($row['id_attach']);
+					$source = Attachment::getFilePath((int) $row['id_attach']);
 					$dest = Config::$modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
 
 					// Size and file count check
@@ -2085,9 +2088,9 @@ class Attachments implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -2307,7 +2310,7 @@ class Attachments implements ActionInterface
 	 * @param string $browse_type can be one of 'avatars' or ... not. :P
 	 * @return array An array of file info
 	 */
-	public static function list_getFiles($start, $items_per_page, $sort, $browse_type): array
+	public static function list_getFiles(int $start, int $items_per_page, string $sort, string $browse_type): array
 	{
 		$files = [];
 
@@ -2373,7 +2376,7 @@ class Attachments implements ActionInterface
 	 * @param string $browse_type can be one of 'avatars' or not. (in which case they're attachments)
 	 * @return int The number of files
 	 */
-	public static function list_getNumFiles($browse_type): int
+	public static function list_getNumFiles(string $browse_type): int
 	{
 		// Depending on the type of file, different queries are used.
 		if ($browse_type === 'avatars') {
@@ -2405,7 +2408,7 @@ class Attachments implements ActionInterface
 		list($num_files) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num_files;
+		return (int) $num_files;
 	}
 
 	/**
@@ -2444,7 +2447,7 @@ class Attachments implements ActionInterface
 			}
 
 			// Check if the directory is doing okay.
-			list($status, $error, $files) = self::attachDirStatus($dir, $expected_files[$id]);
+			list($status, $error, $files) = self::attachDirStatus($dir, (int) $expected_files[$id]);
 
 			// If it is one, let's show that it's a base directory.
 			$sub_dirs = 0;
@@ -2594,7 +2597,7 @@ class Attachments implements ActionInterface
 	 * Backward compatibility wrapper for the attachments sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
 	public static function manageAttachmentSettings(bool $return_config = false): ?array
 	{
@@ -2605,13 +2608,15 @@ class Attachments implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'attachments';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the avatars sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
 	public static function manageAvatarSettings(bool $return_config = false): ?array
 	{
@@ -2622,6 +2627,8 @@ class Attachments implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'avatars';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/******************
@@ -2669,14 +2676,12 @@ class Attachments implements ActionInterface
 	 * @param array $to_fix IDs of attachments to fix.
 	 * @param int $max_substep The maximum substep to reach before pausing.
 	 */
-	protected function pauseAttachmentMaintenance($to_fix, $max_substep = 0): void
+	protected function pauseAttachmentMaintenance(array $to_fix, int $max_substep = 0): void
 	{
 		// Try get more time...
-		@set_time_limit(600);
+		Utils::sapiSetTimeLimit(600);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiResetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 3 || Utils::$context['starting_substep'] == $_GET['substep']) {

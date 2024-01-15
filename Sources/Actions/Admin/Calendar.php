@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -70,12 +72,12 @@ class Calendar implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -244,7 +246,7 @@ class Calendar implements ActionInterface
 					],
 				);
 			} else {
-				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
+				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d',mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']));
 
 				if (isset($_REQUEST['edit'])) {
 					Db::$db->query(
@@ -319,7 +321,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Last day for the drop down?
-		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? Utils::$context['holiday']['year'] + 1 : Utils::$context['holiday']['year']));
+		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : (int) Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? (int)Utils::$context['holiday']['year'] + 1 : (int) Utils::$context['holiday']['year']));
 	}
 
 	/**
@@ -366,9 +368,9 @@ class Calendar implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

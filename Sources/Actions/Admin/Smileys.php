@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -157,12 +159,12 @@ class Smileys implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -183,7 +185,7 @@ class Smileys implements ActionInterface
 	/**
 	 * List, add, remove, modify smileys sets.
 	 */
-	public function editSets()
+	public function editSets(): void
 	{
 		// Set the right tab to be selected.
 		Menu::$loaded['admin']['current_subsection'] = 'editsets';
@@ -237,7 +239,7 @@ class Smileys implements ActionInterface
 
 				// No spaces or weirdness allowed in the directory name.
 				if (!isset($_POST['smiley_sets_path']) || $_POST['smiley_sets_path'] !== self::sanitizeFileName($_POST['smiley_sets_path'])) {
-					ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($_POST['smiley_sets_name']));
+					ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($_POST['smiley_sets_name'])]);
 				}
 
 				// Create a new smiley set.
@@ -537,7 +539,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Add a smiley, that's right.
 	 */
-	public function add()
+	public function add(): void
 	{
 		// This will hold the names of the added files for each set
 		$filename_array = [];
@@ -660,7 +662,7 @@ class Smileys implements ActionInterface
 					else {
 						copy(self::$smileys_dir . '/' . $pathinfo['dirname'] . '/' . $pathinfo['basename'], self::$smileys_dir . '/' . $set . '/' . $pathinfo['basename']);
 
-						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $pathinfo['basename'], 0644);
+						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $pathinfo['basename'], '0644');
 
 						$basename = $pathinfo['basename'];
 					}
@@ -785,7 +787,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Add, remove, edit smileys.
 	 */
-	public function edit()
+	public function edit(): void
 	{
 		// Force the correct tab to be displayed.
 		Menu::$loaded['admin']['current_subsection'] = 'editsmileys';
@@ -1318,7 +1320,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Allows to edit smileys order.
 	 */
-	public function setOrder()
+	public function setOrder(): void
 	{
 		// Move smileys to another position.
 		if (isset($_REQUEST['reorder'])) {
@@ -1485,7 +1487,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Install a smiley set.
 	 */
-	public function install()
+	public function install(): void
 	{
 		User::$me->isAllowedTo('manage_smileys');
 		User::$me->checkSession('request');
@@ -1725,7 +1727,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Handles editing message icons
 	 */
-	public function editIcon()
+	public function editIcon(): void
 	{
 		// Get a list of icons.
 		Utils::$context['icons'] = [];
@@ -2040,9 +2042,9 @@ class Smileys implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -2108,7 +2110,7 @@ class Smileys implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of info about the smiley sets
 	 */
-	public static function list_getSmileySets($start, $items_per_page, $sort)
+	public static function list_getSmileySets(int $start, int $items_per_page, string $sort): array
 	{
 		if (empty(self::$smiley_sets)) {
 			self::getKnownSmileySets();
@@ -2158,7 +2160,7 @@ class Smileys implements ActionInterface
 	 * @todo to be moved to Subs-Smileys?
 	 * @return int The total number of known smiley sets
 	 */
-	public static function list_getNumSmileySets()
+	public static function list_getNumSmileySets(): int
 	{
 		return count(explode(',', Config::$modSettings['smiley_sets_known']));
 	}
@@ -2171,7 +2173,7 @@ class Smileys implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of info about the smileys
 	 */
-	public static function list_getSmileys($start, $items_per_page, $sort)
+	public static function list_getSmileys(int $start, int $items_per_page, string $sort): array
 	{
 		$smileys = [];
 
@@ -2214,7 +2216,7 @@ class Smileys implements ActionInterface
 	 *
 	 * @return int The number of smileys
 	 */
-	public static function list_getNumSmileys()
+	public static function list_getNumSmileys(): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -2225,7 +2227,7 @@ class Smileys implements ActionInterface
 		list($numSmileys) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numSmileys;
+		return (int) $numSmileys;
 	}
 
 	/**
@@ -2236,7 +2238,7 @@ class Smileys implements ActionInterface
 	 * @param string $sort A string indicating how to sort the items (not used here)
 	 * @return array An array of information about message icons
 	 */
-	public static function list_getMessageIcons($start, $items_per_page, $sort)
+	public static function list_getMessageIcons(int $start, int $items_per_page, string $sort): array
 	{
 		$message_icons = [];
 
@@ -2342,7 +2344,7 @@ class Smileys implements ActionInterface
 	 * @param string $smileyPath The path to the directory to import smileys from
 	 * @param bool $create Whether or not to make brand new smileys for files that don't match any existing smileys
 	 */
-	protected function import($smileyPath, $create = false)
+	protected function import(string $smileyPath, bool $create = false): void
 	{
 		if (!self::$smileys_dir_found || !is_dir(self::$smileys_dir . '/' . $smileyPath)) {
 			ErrorHandler::fatalLang('smiley_set_unable_to_import', false);
@@ -2454,7 +2456,7 @@ class Smileys implements ActionInterface
 						// Copy the file into the set's folder
 						copy(self::$smileys_dir . '/' . $p . '/' . $smiley_files[$key], self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key]);
 
-						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key], 0644);
+						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key], '0644');
 					}
 
 					// Double-check that everything went as expected
@@ -2528,7 +2530,7 @@ class Smileys implements ActionInterface
 					else {
 						copy(self::$smileys_dir . '/' . $smileyPath . '/' . $smiley_file, self::$smileys_dir . '/' . $set . '/' . $smiley_file);
 
-						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $smiley_file, 0644);
+						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $smiley_file, '0644');
 
 						$basename = $smiley_file;
 					}
@@ -2585,18 +2587,18 @@ class Smileys implements ActionInterface
 	/**
 	 *
 	 */
-	protected function createDir($dir, $name)
+	protected function createDir(string $dir, string $name): void
 	{
 		// Can't do this if we couldn't find the base smileys directory.
 		if (!self::$smileys_dir_found) {
-			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($name)]);
 		}
 
 		$path = realpath(self::$smileys_dir . DIRECTORY_SEPARATOR . $dir);
 
 		// Must be an immediate child directory of the base smileys directory.
 		if (dirname($path) !== realpath(self::$smileys_dir)) {
-			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($name)]);
 		}
 
 		// Must not already exist.
@@ -2605,12 +2607,12 @@ class Smileys implements ActionInterface
 				ErrorHandler::fatalLang('smiley_set_already_exists', false);
 			}
 
-			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($name)]);
 		}
 
 		// Let's try to create it. Make some noise if we fail.
 		if (@mkdir($path, 0755) === false) {
-			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($name)]);
 		}
 	}
 
@@ -2667,7 +2669,7 @@ class Smileys implements ActionInterface
 					ErrorHandler::fatalLang('smiley_not_found', false);
 				}
 
-				Utils::makeWritable($destination, 0644);
+				Utils::makeWritable($destination, '0644');
 
 				$source_file = $destination;
 
@@ -2688,7 +2690,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Sets self::$smileys_dir and self::$smileys_dir_found.
 	 */
-	protected static function findSmileysDir()
+	protected static function findSmileysDir(): void
 	{
 		self::$smileys_dir = empty(Config::$modSettings['smileys_dir']) ? Config::$boarddir . '/Smileys' : Config::$modSettings['smileys_dir'];
 
@@ -2698,7 +2700,7 @@ class Smileys implements ActionInterface
 	/**
 	 * Populates self::$smiley_sets with info about known smiley sets.
 	 */
-	protected static function getKnownSmileySets()
+	protected static function getKnownSmileySets(): void
 	{
 		$smiley_sets = explode(',', Config::$modSettings['smiley_sets_known']);
 		$set_names = explode("\n", Config::$modSettings['smiley_sets_names']);
@@ -2719,7 +2721,7 @@ class Smileys implements ActionInterface
 	/**
 	 *
 	 */
-	protected static function saveSets()
+	protected static function saveSets(): void
 	{
 		$sets_known = [];
 		$sets_names = [];

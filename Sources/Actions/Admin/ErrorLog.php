@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -97,12 +99,12 @@ class ErrorLog implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -183,7 +185,8 @@ class ErrorLog implements ActionInterface
 		Utils::$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
 
 		// Set the page listing up.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $_GET['start'], $num_errors, Config::$modSettings['defaultMaxListItems']);
+		$start = (int) $_GET['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $start, (int) $num_errors, (int) Config::$modSettings['defaultMaxListItems']);
 
 		Utils::$context['start'] = $_GET['start'];
 
@@ -318,7 +321,7 @@ class ErrorLog implements ActionInterface
 			if ($this->filter['variable'] == 'id_member') {
 				$id = $this->filter['value']['sql'];
 
-				User::load($id, self::LOAD_BY_ID, 'minimal');
+				User::load($id, User::LOAD_BY_ID, 'minimal');
 
 				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
 			} elseif ($this->filter['variable'] == 'url') {
@@ -441,7 +444,7 @@ class ErrorLog implements ActionInterface
 		// We don't want to slice off too many so lets make sure we stop at the last one
 		$max = min($max, max(array_keys($file_data)));
 
-		$file_data = array_slice($file_data, $min - 1, $max - $min);
+		$file_data = array_slice($file_data, $min - 1, (int) ($max - $min));
 
 		Utils::$context['file_data'] = [
 			'contents' => $file_data,
@@ -496,9 +499,9 @@ class ErrorLog implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -540,7 +543,7 @@ class ErrorLog implements ActionInterface
 	 * It attempts to TRUNCATE the table to reset the auto_increment.
 	 * Redirects back to the error log when done.
 	 */
-	protected function deleteErrors()
+	protected function deleteErrors(): void
 	{
 		// Make sure the session exists and is correct; otherwise, might be a hacker.
 		User::$me->checkSession();

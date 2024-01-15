@@ -1122,7 +1122,6 @@ class Topic implements \ArrayAccess
 	 * @param bool $decreasePostCount Whether to decrease the users' post counts
 	 * @param bool $ignoreRecycling Whether to ignore recycling board settings
 	 * @param bool $updateBoardCount Whether to adjust topic counts for the boards
-	 * @suppress PHP0417
 	 */
 	public static function remove(int|array $topics, bool $decreasePostCount = true, bool $ignoreRecycling = false, bool $updateBoardCount = true): void
 	{
@@ -1191,9 +1190,7 @@ class Topic implements \ArrayAccess
 				$recycleTopics = [];
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (function_exists('apache_reset_timeout')) {
-						@apache_reset_timeout();
-					}
+					Utils::sapiResetTimeout();
 
 					$recycleTopics[] = $row['id_topic'];
 
@@ -1293,9 +1290,7 @@ class Topic implements \ArrayAccess
 		if ($updateBoardCount) {
 			// Decrease the posts/topics...
 			foreach ($adjustBoards as $stats) {
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Utils::sapiResetTimeout();
 
 				Db::$db->query(
 					'',
@@ -1388,9 +1383,7 @@ class Topic implements \ArrayAccess
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Utils::sapiResetTimeout();
 
 				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
 				$messages[] = $row['id_msg'];

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use Exception;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -440,18 +441,18 @@ class Utils
 	 *
 	 * Only affects values.
 	 *
-	 * @param array|string $var The string or array of strings to add entities to
+	 * @param mixed $var The string or array of strings to add entities to
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
 	 *    Default is ENT_COMPAT.
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return array|string The string or array of strings with entities added
 	 */
-	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
+	public static function htmlspecialcharsRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
 	{
 		static $level = 0;
 
 		if (!is_array($var)) {
-			return self::htmlspecialchars($var, $flags, $encoding);
+			return self::htmlspecialchars((string) $var, $flags, $encoding);
 		}
 
 		// Add the htmlspecialchars to every element.
@@ -2275,6 +2276,32 @@ class Utils
 		}
 
 		return $callable;
+	}
+
+	/**
+	 * Makes call to the Server API (SAPI) to increase the time limit.
+	 * 
+	 * @param int $limit Requested amount of time, defaults to 600 seconds.
+	 */
+	public static function sapiSetTimeLimit(int $limit = 600){
+		try {
+			set_time_limit($limit);
+		}
+		catch (Exception $e) {}
+	}
+	/**
+	 * Makes call to the Server API (SAPI) to reset the timeout.
+	 * 
+	 * @suppress PHP0417
+	 */
+	public static function sapiResetTimeout()
+	{
+		if (!empty(Utils::$context['server']['is_apache']) && function_exists('apache_reset_timeout')) {
+			try {
+				apache_reset_timeout();
+			}
+			catch (Exception $e) {}
+		}
 	}
 
 	/*************************

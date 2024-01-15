@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -913,12 +915,12 @@ class Permissions implements ActionInterface
 	protected static array $illegal = [];
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -1572,9 +1574,9 @@ class Permissions implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1730,7 +1732,7 @@ class Permissions implements ActionInterface
 	 * @param int $group The group to set the permission for
 	 * @param string|int $profile The ID of the permissions profile or 'null' if we're setting it for a group
 	 */
-	public static function setPermissionLevel($level, $group, $profile = 'null'): void
+	public static function setPermissionLevel(string $level, int $group, string|int $profile = 'null'): void
 	{
 		self::loadIllegalPermissions();
 		self::loadIllegalGuestPermissions();
@@ -1989,7 +1991,7 @@ class Permissions implements ActionInterface
 	 * Uses ManagePermissions language
 	 * Uses ManagePermissions template
 	 */
-	public static function init_inline_permissions($permissions, $excluded_groups = []): void
+	public static function init_inline_permissions(array $permissions, array $excluded_groups = []): void
 	{
 		Lang::load('ManagePermissions');
 		Theme::loadTemplate('ManagePermissions');
@@ -2098,7 +2100,7 @@ class Permissions implements ActionInterface
 	 *
 	 * @param string $permission The permission to display inline
 	 */
-	public static function theme_inline_permissions($permission): void
+	public static function theme_inline_permissions(string $permission): void
 	{
 		Utils::$context['current_permission'] = $permission;
 		Utils::$context['member_groups'] = Utils::$context[$permission];
@@ -2111,7 +2113,7 @@ class Permissions implements ActionInterface
 	 *
 	 * @param array $permissions The permissions to save
 	 */
-	public static function save_inline_permissions($permissions): void
+	public static function save_inline_permissions(array $permissions): void
 	{
 		// No permissions? Not a great deal to do here.
 		if (!User::$me->allowedTo('manage_permissions')) {
@@ -2215,10 +2217,10 @@ class Permissions implements ActionInterface
 	 *
 	 * @param int|array $parents The parent groups.
 	 * @param int $profile The ID of a permissions profile to update
-	 * @return void|false Returns nothing if successful or false if there are no
+	 * @return bool Returns true if successful or false if there are no
 	 *    child groups to update.
 	 */
-	public static function updateChildPermissions(int|array|null $parents = null, ?int $profile = null)
+	public static function updateChildPermissions(int|array|null $parents = null, ?int $profile = null): bool
 	{
 		// All the parent groups to sort out.
 		$parents = array_unique(array_map('intval', (array) $parents));
@@ -2335,6 +2337,8 @@ class Permissions implements ActionInterface
 				);
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -2466,7 +2470,7 @@ class Permissions implements ActionInterface
 			];
 		}
 
-		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), $_REQUEST['pid'] ?? null);
+		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), (int) $_REQUEST['pid'] ?? null);
 	}
 
 	/**
@@ -2960,7 +2964,7 @@ class Permissions implements ActionInterface
 
 		Db::$db->free_result($request);
 
-		return $parent;
+		return (int) $parent;
 	}
 
 	/**
@@ -3385,7 +3389,7 @@ class Permissions implements ActionInterface
 	 * @param bool $reload Before acting, refresh the list of membergroups who
 	 *    cannot be granted the bbc_html permission
 	 */
-	protected static function removeIllegalBBCHtmlPermission($reload = false): void
+	protected static function removeIllegalBBCHtmlPermission(bool $reload = false): void
 	{
 		if (empty(self::$excluded['bbc_html']) || $reload) {
 			self::loadIllegalBBCHtmlGroups();

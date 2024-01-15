@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -143,12 +145,12 @@ class Find implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -189,7 +191,7 @@ class Find implements ActionInterface
 	/**
 	 * A complicated but relatively quick internal search.
 	 */
-	public function internal()
+	public function internal(): void
 	{
 		// Try to get some more memory.
 		Config::setMemoryLimit('128M');
@@ -296,7 +298,7 @@ class Find implements ActionInterface
 	 * All this does is pass through to manage members.
 	 * {@see ViewMembers()}
 	 */
-	public function member()
+	public function member(): void
 	{
 		$_REQUEST['sa'] = 'query';
 
@@ -309,7 +311,7 @@ class Find implements ActionInterface
 	/**
 	 * This file allows the user to search the SM online manual for a little of help.
 	 */
-	public function online()
+	public function online(): void
 	{
 		Utils::$context['doc_apiurl'] = 'https://wiki.simplemachines.org/api.php';
 		Utils::$context['doc_scripturl'] = 'https://wiki.simplemachines.org/smf/';
@@ -369,9 +371,9 @@ class Find implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

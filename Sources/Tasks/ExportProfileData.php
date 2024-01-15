@@ -1252,8 +1252,6 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
-	 *
-	 * @suppress PHP0417
 	 */
 	protected function exportHtml(): void
 	{
@@ -1305,9 +1303,7 @@ class ExportProfileData extends BackgroundTask
 		$xmldoc = new DOMDocument();
 
 		foreach ($new_exportfiles as $exportfile) {
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Utils::sapiResetTimeout();
 
 			$started = microtime(true);
 			$xmldoc->load($exportfile, $libxml_options);

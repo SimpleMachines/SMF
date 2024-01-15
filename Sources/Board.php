@@ -670,7 +670,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderators',
 				['id_board' => 'int', 'id_member' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderators),
+				array_map(fn ($mod) => [$this->id, $mod], $this->moderators),
 				['id_board', 'id_member'],
 			);
 		}
@@ -690,7 +690,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderator_groups',
 				['id_board' => 'int', 'id_group' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderator_groups),
+				array_map(fn ($mod) => [$this->id, $mod], $this->moderator_groups),
 				['id_board', 'id_group'],
 			);
 		}

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -226,12 +228,12 @@ class News extends ACP implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -602,7 +604,7 @@ class News extends ACP implements ActionInterface
 	 *
 	 * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
 	 */
-	public function send($clean_only = false): void
+	public function send(bool $clean_only = false): void
 	{
 		if (isset($_POST['preview'])) {
 			Utils::$context['preview'] = true;
@@ -1076,9 +1078,9 @@ class News extends ACP implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
