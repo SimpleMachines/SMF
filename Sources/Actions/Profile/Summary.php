@@ -50,7 +50,7 @@ class Summary implements ActionInterface
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
 			'title' => Lang::getTxt('summary', file: 'General'),
-			'icon_class' => 'main_icons profile_hd',
+			'icon_class' => 'main_icons profile medium_icon',
 		];
 
 		// Expand the warning settings.

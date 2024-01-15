@@ -383,7 +383,7 @@ function template_body_below()
 			<li class="helplinks">
 				<a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], ' <i class="fa-solid fa-circle-question"></i></a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
 				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . ' <i class="fa-solid fa-list-ul"></i></a>' : '', '
-				<a href="#top_section">', Lang::$txt['go_up'], ' &#9650;</a>
+				<a href="#header">', Lang::$txt['go_up'], ' &#9650;</a>
 			</li>
 		</ul>';
 
