@@ -10,7 +10,6 @@
 	display: inline-flex;
 }
 .main_icons::before,
-h3.profile_hd::before,
 .large_admin_menu_icon::before {
 	font-family: "Font Awesome 6 Free";
 	display: inline-block;
@@ -25,6 +24,9 @@ h3.profile_hd::before,
 	font-size: 1em;
 	margin: 0;
 	vertical-align: top;
+}
+.main_icons.medium_icon::before {
+	font-size: 1.25em;
 }
 /* Menu Icons Adjustment */
 .dropmenu .main_icons::before, #profile_menu .main_icons::before, .dropmenu img {
@@ -44,11 +46,13 @@ h3.profile_hd::before,
 	height: auto;
 }
 /* don't center these icons.... */
-.main_icons.centericon,
-h3.catbg .icon {
+.main_icons.centericon {
 	vertical-align: top;
 }
-
+/* Navigation */
+.main_icons.navigation::before {
+	content: "\f0c9";
+}
 /* Search */
 .main_icons.search::before,
 .large_admin_menu_icon.search::before {
@@ -199,21 +203,6 @@ h3.catbg .icon {
 .main_icons.warning_moderate::before,
 .main_icons.warning_watch::before {
 	content: "\f06a";
-}
-/* Warning Mute */
-.main_icons.warning_mute::before,
-.errorbox::before {
-	color: red;
-}
-/* Warning Moderate */
-.main_icons.warning_moderate::before,
-.noticebox::before {
-	color: orange;
-}
-/* Warning Watch */
-.main_icons.warning_watch::before,
-.infobox::before {
-	color: green;
 }
 /* Drafts */
 .main_icons.drafts::before {
@@ -396,9 +385,10 @@ h3.catbg .icon {
 .large_admin_menu_icon.attachment::before {
 	content: "\f0c6";
 }
-/* Error */
-.main_icons.error::before {
-	content: "\f12a";
+/* Error & Report */
+.main_icons.error::before,
+.main_icons.report::before {
+	content: "\f024";
 }
 /* Languages */
 .main_icons.languages::before,
@@ -456,14 +446,14 @@ h3.catbg .icon {
 .main_icons.select_below::before {
 	content: "\f103";
 }
-
 /* Mark All Read */
 .fa-markread::before,
 .fa-readall::before,
 .fa-read_button::before,
 .fa-mark_read_short::before,
 .fa-mark_as_read::before,
-.main_icons.read_button::before {
+.main_icons.read_button::before,
+.main_icons.markread::before {
 	content: "\f560";
 }
 /* Mark Selected */
@@ -481,6 +471,7 @@ h3.catbg .icon {
 	content: "\f00d";
 }
 /* Send Topic */
+.main_icons.send::before,
 .fa-send::before {
 	content: "\f1d8";
 }
@@ -513,8 +504,10 @@ h3.catbg .icon {
 	content: "\f829";
 }
 /* New Topic */
-.fa-new_topic::before {
-	content: "\f15b";
+.fa-new_topic::before,
+.main_icons.newtopic::before,
+.main_icons.newpm::before {
+	content: "\2b";
 }
 /* Move Topic */
 .fa-move::before,
@@ -616,7 +609,7 @@ h3.catbg .icon {
 /* Drafts */
 .main_icons.drafts::before,
 .fa-drafts::before {
-	content: "\f0ea";
+	content: "\f044";
 }
 /* Details */
 .fa-details::before,
@@ -649,12 +642,7 @@ h3.catbg .icon {
 .main_icons.quick_edit_button::before,
 .main_icons.modify_button::before,
 .main_icons.collections_edit::before {
-	content: "\f044";
-}
-/* Report */
-.fa-error::before,
-.fa-report::before {
-	content: "\f024";
+	content: "\f303";
 }
 /* Approve */
 .fa-approve_button::before,
@@ -700,9 +688,7 @@ h3.catbg .icon {
 	content: "\f7d9";
 }
 /* Profile */
-h3.profile_hd::before,
-.main_icons.profile_hd::before,
-.fa-profile::before,
+.main_icons.profile::before,
 .main_icons.members::before,
 .large_admin_menu_icon.members::before {
 	content: "\f007";
@@ -712,6 +698,10 @@ h3.profile_hd::before,
 .main_icons.personal_message::before,
 .main_icons.inbox::before {
 	content: "\f0e0";
+}
+/* More */
+.main_icons.more::before {
+	content: "\f142";
 }
 /* Shop */
 .main_icons.shop::before,
