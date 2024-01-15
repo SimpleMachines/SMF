@@ -308,7 +308,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 	if (empty($calendar_data['disable_day_titles']))
 	{
 		echo '
-				<tr>';
+				<tr class="title_bar">';
 
 		// If we're showing week links, there's an extra column ahead of the week links, so let's think ahead and be prepared!
 		if ($show_week_links === true)
@@ -611,8 +611,8 @@ function template_show_week_grid($grid_name)
 		// The main table grid for $this week.
 		echo '
 				<table class="table_grid calendar_week">
-					<tr>
-						<th class="days" scope="col">', Lang::getTxt('calendar_day', file: 'Calendar'), '</th>';
+					<tr class="title_bar">
+						<th class="days" scope="col">', Lang::$txt['calendar_day'], '</th>';
 		if (!empty($calendar_data['show_events']))
 			echo '
 						<th class="days" scope="col">', Lang::getTxt('events', file: 'Calendar'), '</th>';
@@ -816,14 +816,11 @@ function template_calendar_top($calendar_data)
 {
 	echo '
 		<div class="calendar_top roundframe', empty($calendar_data['disable_title']) ? ' noup' : '', '">
-			<div id="calendar_viewselector" class="buttonrow floatleft">
-				<a href="', Config::$scripturl, '?action=calendar;viewlist;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewlist' ? ' active' : '', '">', Lang::getTxt('calendar_list', file: 'Calendar'), '</a>
-				<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewmonth' ? ' active' : '', '">', Lang::getTxt('calendar_month', file: 'Calendar'), '</a>
-				<a href="', Config::$scripturl, '?action=calendar;viewweek;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewweek' ? ' active' : '', '">', Lang::getTxt('calendar_week', file: 'Calendar'), '</a>
+			<div id="calendar_viewselector" class="buttonrow">
+				<a href="', Config::$scripturl, '?action=calendar;viewlist;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewlist' ? ' active' : '', '">', Lang::$txt['calendar_list'], '</a>
+				<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewmonth' ? ' active' : '', '">', Lang::$txt['calendar_month'], '</a>
+				<a href="', Config::$scripturl, '?action=calendar;viewweek;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewweek' ? ' active' : '', '">', Lang::$txt['calendar_week'], '</a>
 			</div>
-			', template_button_strip(Utils::$context['calendar_buttons'], 'right');
-
-	echo '
 			<form action="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="UTF-8">
 				<input type="date" name="start_date" id="start_date" value="', $calendar_data['iso_start_date'], '" class="date_input start" data-type="date">';
 
@@ -835,6 +832,7 @@ function template_calendar_top($calendar_data)
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::getTxt('view', file: 'General'), '">
 			</form>
+			', template_button_strip(Utils::$context['calendar_buttons'], 'right'), '
 		</div><!-- .calendar_top -->';
 }
 
