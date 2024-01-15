@@ -155,7 +155,6 @@ return (new PhpCsFixer\Config())
 		'blank_line_before_statement' => [
 			'statements' => [
 				'case',
-				'continue',
 				'declare',
 				'default',
 				'do',
