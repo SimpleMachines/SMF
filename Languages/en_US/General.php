@@ -417,8 +417,10 @@ $txt['search_match'] = 'Match';
 $txt['forum_in_maintenance'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
 $txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
 
-$txt['read_one_time'] = 'Read 1 time';
-$txt['read_many_times'] = 'Read %1$d times';
+$txt['number_of_times_read'] = '{0, plural,
+	one {Read # time}
+	other {Read # times}
+}';
 
 $txt['forum_stats'] = 'Forum Stats';
 $txt['latest_member'] = 'Latest Member';
