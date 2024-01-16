@@ -441,7 +441,7 @@ hr {
 .clear_right {
 	clear: inline-end;
 }
-.reset {
+.reset, button.reset {
 	all: unset;
 	outline: revert;
 }
@@ -1185,10 +1185,20 @@ img.sort, .sort {
 	font-size: 0.7em;
 }
 ol.profile_user_links {
+	background: var(--profilelinks-bg);
+	border-color: var(--profilelinks-border-color);
+	border-radius: var(--profilelinks-border-radius);
+	border-style: var(--profilelinks-border-style);
+	border-width: var(--profilelinks-border-width);
+	box-shadow: var(--profilelinks-box-shadow);
 	display: grid;
-	grid-template-columns: 1fr 1fr;
-	padding-block: 0.25em;
-	padding-inline: 0.25em;
+	font-size: var(--profilelinks-font-size);
+	gap: var(--profilelinks-gap);
+	grid: var(--profilelinks-grid);
+	margin-block: var(--profilelinks-margin-block);
+	margin-inline: var(--profilelinks-margin-inline);
+	padding-block: var(--profilelinks-padding-block);
+	padding-inline: var(--profilelinks-padding-inline);
 	user-select: none;
 }
 .profile_user_links li {
@@ -1196,51 +1206,51 @@ ol.profile_user_links {
 }
 .profile_user_links li a {
 	align-items: center;
-	background: var(--profilelinks-bg);
-	border-color: var(--profilelinks-border-color);
-	border-radius: var(--profilelinks-border-radius);
-	border-style: var(--profilelinks-border-style);
-	border-width: var(--profilelinks-border-width);
-	color: var(--profilelinks-color);
+	background: var(--profilelinks-item-bg);
+	border-color: var(--profilelinks-item-border-color);
+	border-radius: var(--profilelinks-item-border-radius);
+	border-style: var(--profilelinks-item-border-style);
+	border-width: var(--profilelinks-item-border-width);
+	color: var(--profilelinks-item-color);
 	display: flex;
-	font-family: var(--profilelinks-font-family);
-	font-size: var(--profilelinks-font-size);
-	font-weight: var(--profilelinks-font-weight);
-	gap: var(--profilelinks-gap);
-	margin-block: var(--profilelinks-margin-block);
-	margin-inline: var(--profilelinks-margin-inline);
-	min-height: var(--profilelinks-height);
-	padding-block: var(--profilelinks-padding-block);
-	padding-inline: var(--profilelinks-padding-inline);
-	text-decoration: var(--profilelinks-text-decoration);
-	text-shadow: var(--profilelinks-text-shadow);
+	font-family: var(--profilelinks-item-font-family);
+	font-size: var(--profilelinks-item-font-size);
+	font-weight: var(--profilelinks-item-font-weight);
+	gap: var(--profilelinks-item-gap);
+	margin-block: var(--profilelinks-item-margin-block);
+	margin-inline: var(--profilelinks-item-margin-inline);
+	min-height: var(--profilelinks-item-height);
+	padding-block: var(--profilelinks-item-padding-block);
+	padding-inline: var(--profilelinks-item-padding-inline);
+	text-decoration: var(--profilelinks-item-text-decoration);
+	text-shadow: var(--profilelinks-item-text-shadow);
 }
 .profile_user_links li a:hover,
 .profile_user_links li:hover a {
-	background: var(--profilelinks-bg_hover);
-	border-color: var(--profilelinks-border-color_hover);
-	border-width: var(--profilelinks-border-width_hover);
-	color: var(--profilelinks-color_hover);
-	font-weight: var(--profilelinks-font-weight_hover);
-	text-decoration: var(--profilelinks-text-decoration_hover);
-	text-shadow: var(--profilelinks-text-shadow_hover);
+	background: var(--profilelinks-item-bg_hover);
+	border-color: var(--profilelinks-item-border-color_hover);
+	border-width: var(--profilelinks-item-border-width_hover);
+	color: var(--profilelinks-item-color_hover);
+	font-weight: var(--profilelinks-item-font-weight_hover);
+	text-decoration: var(--profilelinks-item-text-decoration_hover);
+	text-shadow: var(--profilelinks-item-text-shadow_hover);
 }
 .profile_user_links li a:focus,
 .profile_user_links li:focus-within a {
-	background: var(--profilelinks-bg_focus);
-	border-color: var(--profilelinks-border-color_focus);
-	border-width: var(--profilelinks-border-width_focus);
-	color: var(--profilelinks-color_focus);
-	font-weight: var(--profilelinks-font-weight_focus);
-	text-decoration: var(--profilelinks-text-decoration_focus);
-	text-shadow: var(--profilelinks-text-shadow_focus);
+	background: var(--profilelinks-item-bg_focus);
+	border-color: var(--profilelinks-item-border-color_focus);
+	border-width: var(--profilelinks-item-border-width_focus);
+	color: var(--profilelinks-item-color_focus);
+	font-weight: var(--profilelinks-item-font-weight_focus);
+	text-decoration: var(--profilelinks-item-text-decoration_focus);
+	text-shadow: var(--profilelinks-item-text-shadow_focus);
 }
 .profile_user_links li a:focus-visible,
 .profile_user_links li:has(:focus-visible) a {
-	outline-color: var(--profilelinks-outline-color);
-	outline-offset: var(--profilelinks-outline-offset);
-	outline-style: var(--profilelinks-outline-style);
-	outline-width: var(--profilelinks-outline-width);
+	outline-color: var(--profilelinks-item-outline-color);
+	outline-offset: var(--profilelinks-item-outline-offset);
+	outline-style: var(--profilelinks-item-outline-style);
+	outline-width: var(--profilelinks-item-outline-width);
 }
 .profile_user_links i::before,
 .profile_user_links span.main_icons::before {
@@ -4207,6 +4217,7 @@ div#pollmoderation {
 /* The post area */
 .postarea, .moderatorbar {
 	grid-column: 2/-1;
+	min-width: 0;
 	padding-block: var(--postarea-padding-block);
 	padding-inline: var(--postarea-padding-inline);
 }
