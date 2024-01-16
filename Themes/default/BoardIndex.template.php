@@ -501,7 +501,7 @@ function template_ic_block_online()
 	if (!empty(Utils::$context['users_online']))
 	{
 		echo '
-				', sprintf(Lang::$txt['users_active'], Config::$modSettings['lastActive']), ': ', implode(', ', Utils::$context['list_users_online']);
+				', Lang::getTxt('users_active', [Config::$modSettings['lastActive']]), ': ', implode(', ', Utils::$context['list_users_online']);
 
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty(Utils::$context['membergroups']))

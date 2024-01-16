@@ -181,7 +181,10 @@ $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
 $txt['pages'] = 'Pages';
-$txt['users_active'] = 'Users active in past %1$d minutes';
+$txt['users_active'] = 'Users active {0, plural,
+	one {in past # minute}
+	other {in past # minutes}
+}';
 $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
