@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -35,12 +37,12 @@ class Delete implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -84,7 +86,7 @@ class Delete implements ActionInterface
 	/**
 	 * Actually deletes the account.
 	 */
-	public function delete()
+	public function delete(): void
 	{
 		if (!User::$me->is_owner) {
 			User::$me->isAllowedTo('profile_remove_any');
@@ -211,9 +213,7 @@ class Delete implements ActionInterface
 
 					// This could take a while... but ya know it's gonna be worth it in the end.
 					while ($row = Db::$db->fetch_assoc($request)) {
-						if (function_exists('apache_reset_timeout')) {
-							@apache_reset_timeout();
-						}
+						Utils::sapiResetTimeout();
 
 						Msg::remove($row['id_msg']);
 					}
@@ -251,9 +251,9 @@ class Delete implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

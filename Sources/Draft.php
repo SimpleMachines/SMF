@@ -442,10 +442,11 @@ class Draft
 			],
 		);
 		list($msgCount) = Db::$db->fetch_row($request);
+		$msgCount = (int) $msgCount;
 		Db::$db->free_result($request);
 
 		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
-		$maxIndex = $maxPerPage;
+		$maxIndex = (int) $maxPerPage;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);

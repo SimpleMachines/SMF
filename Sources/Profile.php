@@ -965,13 +965,12 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					if (strlen(trim($value)) > 0 && strpos($value, '://') === false) {
 						$value = 'http://' . $value;
+						$value = Url::create($value, true)->validate()->toUtf8();
 					}
 
 					if (strlen($value) < 8 || (substr($value, 0, 7) !== 'http://' && substr($value, 0, 8) !== 'https://')) {
 						$value = '';
 					}
-
-					$value = Url::create($value, true)->validate()->toUtf8();
 
 					return true;
 				},
@@ -1239,8 +1238,8 @@ class Profile extends User implements \ArrayAccess
 		elseif (
 			$this->formatted['avatar']['allow_external']
 			&& (
-				stristr($this->avatar['url'], 'http://')
-				|| stristr($this->avatar['url'], 'https://')
+				stristr($this->avatar['original_url'], 'http://')
+				|| stristr($this->avatar['original_url'], 'https://')
 			)) {
 			$this->formatted['avatar'] += [
 				'choice' => 'external',
@@ -1251,12 +1250,13 @@ class Profile extends User implements \ArrayAccess
 		// Server stored image?
 		elseif (
 			$this->avatar['url'] != ''
+			&& $this->avatar['original_url'] != ''
 			&& $this->formatted['avatar']['allow_server_stored']
-			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['url'])
+			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['original_url'])
 		) {
 			$this->formatted['avatar'] += [
 				'choice' => 'server_stored',
-				'server_pic' => $this->avatar['url'] == '' ? 'blank.png' : $this->avatar['url'],
+				'server_pic' => $this->avatar['original_url'] == '' ? 'blank.png' : $this->avatar['original_url'],
 				'external' => 'http://',
 			];
 		}
