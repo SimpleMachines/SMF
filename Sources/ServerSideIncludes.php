@@ -2294,16 +2294,15 @@ class ServerSideIncludes
 				if (!empty($news['likes']['count'])) {
 					Utils::$context['some_likes'] = true;
 					$count = $news['likes']['count'];
-					$base = 'likes_';
+					$base = 'likes_count';
 
 					if ($news['likes']['you']) {
 						$base = 'you_' . $base;
 						$count--;
 					}
-					$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
 
 					echo '
-							<li class="like_count smalltext">', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '</li>';
+							<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '</li>';
 				}
 
 				echo '

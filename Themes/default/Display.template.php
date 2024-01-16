@@ -838,7 +838,7 @@ function template_single_post($message)
 		{
 			Utils::$context['some_likes'] = true;
 			$count = $message['likes']['count'];
-			$base = 'likes_';
+			$base = 'likes_count';
 
 			if ($message['likes']['you'])
 			{
@@ -846,11 +846,9 @@ function template_single_post($message)
 				$count--;
 			}
 
-			$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
-
 			echo '
 									<li class="like_count smalltext">
-										', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '
+										', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '
 									</li>';
 		}
 

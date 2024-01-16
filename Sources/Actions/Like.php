@@ -712,9 +712,7 @@ class Like implements ActionInterface
 			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
-		$count = count(Utils::$context['likers']);
-		$title_base = isset(Lang::$txt['likes_' . $count]) ? 'likes_' . $count : 'likes_n';
-		Utils::$context['page_title'] = strip_tags(sprintf(Lang::$txt[$title_base], '', Lang::numberFormat($count)));
+		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => count(Utils::$context['likers'])]));
 
 		// Lastly, setting up for display.
 		Theme::loadTemplate('Likes');
