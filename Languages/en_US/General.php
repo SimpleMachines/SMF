@@ -335,8 +335,11 @@ $txt['new'] = 'New';
 $txt['view_all_members'] = 'View all Members';
 $txt['view'] = 'View';
 
-$txt['viewing_members'] = 'Viewing Members %1$s to %2$s';
-$txt['of_total_members'] = 'of %1$s total members';
+$txt['viewing_members'] = 'Viewing Members {0,number,integer} to {1,number,integer}';
+$txt['of_total_members'] = '{0, plural,
+	one {of # total members}
+	other {of # total members}
+}';
 
 $txt['forgot_your_password'] = 'Forgot your password?';
 
