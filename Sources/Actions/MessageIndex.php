@@ -920,11 +920,13 @@ class MessageIndex implements ActionInterface
 
 			$unposts = Board::$info->unapproved_posts ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . Board::$info->id . '">' . (Board::$info->unapproved_posts - Board::$info->unapproved_topics) . '</a>' : 0;
 
-			Utils::$context['unapproved_posts_message'] = sprintf(
-				Lang::$txt['there_are_unapproved_topics'],
-				$untopics,
-				$unposts,
-				Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
+			Utils::$context['unapproved_posts_message'] = Lang::getTxt(
+				'there_are_unapproved_topics',
+				[
+					'topics' => $untopics,
+					'posts' => $unposts,
+					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
+				],
 			);
 		}
 
