@@ -571,30 +571,44 @@
 	--topmenu-body-padding-inline:                    0;
 
 	/** Profile Links **/
-	--profilelinks-bg:                                var(--dropmenu-an-bg);
-	--profilelinks-bg_focus:                          var(--dropmenu-an-bg_focus);
-	--profilelinks-bg_hover:                          var(--dropmenu-an-bg_hover);
-	--profilelinks-border-radius:                     var(--dropmenu-an-border-radius);
-	--profilelinks-color:                             var(--dropmenu-an-color);
-	--profilelinks-color_focus:                       var(--dropmenu-a1-color_focus);
-	--profilelinks-color_hover:                       var(--dropmenu-an-color_hover);
-	--profilelinks-font-family:                       var(--dropmenu-an-font-family);
-	--profilelinks-font-size:                         0.7em;
-	--profilelinks-font-weight:                       var(--dropmenu-an-font-weight);
-	--profilelinks-font-weight_focus:                 var(--dropmenu-an-font-weight_focus);
-	--profilelinks-font-weight_hover:                 var(--dropmenu-an-font-weight_hover);
-	--profilelinks-gap:                               var(--dropmenu-an-gap);
-	--profilelinks-height:                            2em;
-	--profilelinks-margin-block:                      var(--dropmenu-an-margin-block);
-	--profilelinks-margin-inline:                     var(--dropmenu-an-margin-inline);
-	--profilelinks-padding-block:                     var(--dropmenu-an-padding-block);
-	--profilelinks-padding-inline:                    var(--dropmenu-an-padding-inline);
-	--profilelinks-text-decoration:                   var(--dropmenu-an-text-decoration);
-	--profilelinks-text-decoration_focus:             var(--dropmenu-an-text-decoration_focus);
-	--profilelinks-text-decoration_hover:             var(--dropmenu-an-text-decoration_hover);
-	--profilelinks-text-shadow:                       var(--dropmenu-an-text-shadow);
-	--profilelinks-text-shadow_focus:                 var(--dropmenu-an-text-shadow_focus);
-	--profilelinks-text-shadow_hover:                 var(--dropmenu-an-text-shadow_hover);
+	--profilelinks-bg:                                transparent;
+	--profilelinks-border-color:                      transparent;
+	--profilelinks-border-radius:                     0;
+	--profilelinks-border-style:                      solid;
+	--profilelinks-border-width:                      0;
+	--profilelinks-box-shadow:                        none;
+	--profilelinks-font-size:                         inherit;
+	--profilelinks-gap:                               0;
+	--profilelinks-grid:                              auto / 1fr 1fr;
+	--profilelinks-marign-block:                      0;
+	--profilelinks-margin-inline:                     0;
+	--profilelinks-padding-block:                     0.25em;
+	--profilelinks-padding-inline:                    var(--profilelinks-padding-block);
+	/** Profile Links Item **/
+	--profilelinks-item-bg:                           var(--dropmenu-an-bg);
+	--profilelinks-item-bg_focus:                     var(--dropmenu-an-bg_focus);
+	--profilelinks-item-bg_hover:                     var(--dropmenu-an-bg_hover);
+	--profilelinks-item-border-radius:                var(--dropmenu-an-border-radius);
+	--profilelinks-item-color:                        var(--dropmenu-an-color);
+	--profilelinks-item-color_focus:                  var(--dropmenu-a1-color_focus);
+	--profilelinks-item-color_hover:                  var(--dropmenu-an-color_hover);
+	--profilelinks-item-font-family:                  var(--dropmenu-an-font-family);
+	--profilelinks-item-font-size:                    0.7em;
+	--profilelinks-item-font-weight:                  var(--dropmenu-an-font-weight);
+	--profilelinks-item-font-weight_focus:            var(--dropmenu-an-font-weight_focus);
+	--profilelinks-item-font-weight_hover:            var(--dropmenu-an-font-weight_hover);
+	--profilelinks-item-gap:                          var(--dropmenu-an-gap);
+	--profilelinks-item-height:                       2em;
+	--profilelinks-item-margin-block:                 var(--dropmenu-an-margin-block);
+	--profilelinks-item-margin-inline:                var(--dropmenu-an-margin-inline);
+	--profilelinks-item-padding-block:                var(--dropmenu-an-padding-block);
+	--profilelinks-item-padding-inline:               var(--dropmenu-an-padding-inline);
+	--profilelinks-item-text-decoration:              var(--dropmenu-an-text-decoration);
+	--profilelinks-item-text-decoration_focus:        var(--dropmenu-an-text-decoration_focus);
+	--profilelinks-item-text-decoration_hover:        var(--dropmenu-an-text-decoration_hover);
+	--profilelinks-item-text-shadow:                  var(--dropmenu-an-text-shadow);
+	--profilelinks-item-text-shadow_focus:            var(--dropmenu-an-text-shadow_focus);
+	--profilelinks-item-text-shadow_hover:            var(--dropmenu-an-text-shadow_hover);
 
 	/** Generic Notification. **/
 	--genericnoti-bg:                                 var(--window-bg);
