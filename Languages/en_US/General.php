@@ -206,11 +206,19 @@ $txt['there_are_unapproved_topics'] = 'There are {topics, plural,
 } awaiting approval in this board. Click <a href="{url}">here</a> to view them all.';
 $txt['send_message'] = 'Send message';
 
-$txt['msg_alert_no_messages'] = 'you don\'t have any messages';
-$txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
-$txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
-$txt['msg_alert_one_new'] = '1 is new';
-$txt['msg_alert_many_new'] = '%1$d are new';
+$txt['msg_alert'] = '{total, plural,
+	=0 {you don\'t have any messages}
+	one {you have <a href="{url}"># message</a> {unread, plural,
+		=0 {}
+		one {, # is new}
+		other {, # are new}
+	}}
+	other {you have <a href="{url}"># messages</a> {unread, plural,
+		=0 {}
+		one {, # is new}
+		other {, # are new}
+	}}
+}';
 $txt['new_alert'] = 'New alert';
 $txt['remove_message'] = 'Remove this post';
 $txt['remove_message_question'] = 'Remove this post?';

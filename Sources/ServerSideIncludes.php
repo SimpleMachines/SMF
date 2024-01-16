@@ -276,7 +276,15 @@ class ServerSideIncludes
 			if (User::$me->is_guest) {
 				echo sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ');', Config::$scripturl . '?action=signup');
 			} else {
-				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>', User::$me->allowedTo('pm_read') ? ', ' . (empty(User::$me->messages) ? Lang::$txt['msg_alert_no_messages'] : ((User::$me->messages == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', User::$me->messages)) . ', ' . (User::$me->unread_messages == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], User::$me->unread_messages)))) : '';
+				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>';
+
+				if (User::$me->allowedTo('pm_read')) {
+					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages]);
+
+					if (!empty(User::$me->messages)) {
+						echo ', ', Lang::getTxt('msg_alert_new', [User::$me->unread_messages]);
+					}
+				}
 			}
 
 			return null;
