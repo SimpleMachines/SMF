@@ -799,7 +799,7 @@ function template_single_post($message)
 				echo '
 											[<a href="', Config::$scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['approve'], '</a>] [<a href="', Config::$scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['delete'], '</a>] ';
 			echo '
-											<br>', $attachment['formatted_size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf(Lang::$txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf(Lang::$txt['attach_downloaded'], $attachment['downloads'])), '
+											<br>', $attachment['formatted_size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . Lang::getTxt('attach_viewed', [$attachment['downloads']]) : '<br>' . Lang::getTxt('attach_downloaded', [$attachment['downloads']])), '
 										</div><!-- .attachments_bot -->';
 
 			echo '
