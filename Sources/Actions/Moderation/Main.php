@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -201,12 +203,12 @@ class Main implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/**
 	 * @var bool
@@ -306,9 +308,9 @@ class Main implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -410,10 +412,12 @@ class Main implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-				]);
+				if (is_string($value)) {
+						$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+					]);
+				}
 			},
 		);
 

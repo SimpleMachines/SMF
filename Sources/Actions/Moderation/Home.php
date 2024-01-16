@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -75,12 +77,12 @@ class Home implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -142,9 +144,9 @@ class Home implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -288,6 +290,7 @@ class Home implements ActionInterface
 
 			CacheApi::put('moderator_notes_total', $moderator_notes_total, 240);
 		}
+		$moderator_notes_total = (int) $moderator_notes_total;
 
 		// Grab the current notes. We can only use the cache for the first page of notes.
 		$offset = isset($_GET['notes']) && isset($_GET['start']) ? $_GET['start'] : 0;
@@ -558,7 +561,7 @@ class Home implements ActionInterface
 	 *
 	 * MOD AUTHORS: Please use the integrate_moderation_home_blocks instead.
 	 */
-	protected static function integrateModBlocks()
+	protected static function integrateModBlocks(): void
 	{
 		$valid_blocks = [];
 

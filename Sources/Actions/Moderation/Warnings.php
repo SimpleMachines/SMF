@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -68,12 +70,12 @@ class Warnings implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -274,7 +276,7 @@ class Warnings implements ActionInterface
 	{
 		// Submitting a new one?
 		if (isset($_POST['add'])) {
-			$this->ModifyWarningTemplate();
+			$this->templateEdit();
 
 			return;
 		}
@@ -572,9 +574,9 @@ class Warnings implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -610,7 +612,7 @@ class Warnings implements ActionInterface
 		list($totalWarns) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalWarns;
+		return (int) $totalWarns;
 	}
 
 	/**
@@ -621,7 +623,7 @@ class Warnings implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of data about warning log entries
 	 */
-	public static function list_getWarnings($start, $items_per_page, $sort): array
+	public static function list_getWarnings(int $start, int $items_per_page, string $sort): array
 	{
 		$warnings = [];
 
@@ -681,7 +683,7 @@ class Warnings implements ActionInterface
 		list($totalWarns) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalWarns;
+		return (int) $totalWarns;
 	}
 
 	/**
@@ -692,7 +694,7 @@ class Warnings implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An arrray of info about the available warning templates
 	 */
-	public static function list_getWarningTemplates($start, $items_per_page, $sort): array
+	public static function list_getWarningTemplates(int $start, int $items_per_page, string $sort): array
 	{
 		$templates = [];
 

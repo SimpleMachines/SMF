@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -110,12 +112,12 @@ class ReportedContent implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -582,9 +584,9 @@ class ReportedContent implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -634,11 +636,11 @@ class ReportedContent implements ActionInterface
 			[
 				'id' => User::$me->id,
 				'time' => time(),
-				$arr => $open_reports,
+				$arr => (int) $open_reports,
 			],
 		);
 
-		return $open_reports;
+		return (int) $open_reports;
 	}
 
 	/******************
@@ -877,7 +879,7 @@ class ReportedContent implements ActionInterface
 		list($total_reports) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $total_reports;
+		return (int) $total_reports;
 	}
 
 	/**

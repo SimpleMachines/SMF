@@ -722,11 +722,11 @@ class Topic implements \ArrayAccess
 	/**
 	 * Approves or unapproves topics.
 	 *
-	 * @param array $topics Array of topic ids.
+	 * @param array|int $topics Array of topic ids.
 	 * @param bool $approve Whether to approve the topics. If false, unapproves them instead.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function approve(array $topics, bool $approve = true): bool
+	public static function approve(array|int $topics, bool $approve = true): bool
 	{
 		if (!is_array($topics)) {
 			$topics = [$topics];
@@ -769,7 +769,7 @@ class Topic implements \ArrayAccess
 	 * @param array|int $topics The ID of a single topic to move or an array containing the IDs of multiple topics to move
 	 * @param int $toBoard The ID of the board to move the topics to
 	 */
-	public static function move(int|array $topics, int $toBoard): void
+	public static function move(array|int $topics, int $toBoard): void
 	{
 		// Empty array?
 		if (empty($topics)) {
@@ -1123,7 +1123,7 @@ class Topic implements \ArrayAccess
 	 * @param bool $ignoreRecycling Whether to ignore recycling board settings
 	 * @param bool $updateBoardCount Whether to adjust topic counts for the boards
 	 */
-	public static function remove(int|array $topics, bool $decreasePostCount = true, bool $ignoreRecycling = false, bool $updateBoardCount = true): void
+	public static function remove(array|int $topics, bool $decreasePostCount = true, bool $ignoreRecycling = false, bool $updateBoardCount = true): void
 	{
 		// Nothing to do?
 		if (empty($topics)) {

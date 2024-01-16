@@ -546,7 +546,7 @@ class Bans implements ActionInterface
 							Utils::$context['ban_suggestions']['hostname'] = $main_ip->getHost();
 						}
 
-						Utils::$context['ban_suggestions']['other_ips'] = $this->banLoadAdditionalIPs(Utils::$context['ban_suggestions']['member']['id']);
+						Utils::$context['ban_suggestions']['other_ips'] = $this->banLoadAdditionalIPs((int) Utils::$context['ban_suggestions']['member']['id']);
 					}
 				}
 				// We came from the mod center.
