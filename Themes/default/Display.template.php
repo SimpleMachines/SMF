@@ -934,7 +934,7 @@ function template_quickreply()
 	// Show a warning if the topic is old
 	if (!empty(Utils::$context['oldTopicError']))
 		echo '
-					<p class="alert smalltext">', sprintf(Lang::$txt['error_old_topic'], Config::$modSettings['oldTopicDays']), '</p>';
+					<p class="alert smalltext">', Lang::getTxt('error_old_topic', [Config::$modSettings['oldTopicDays']]), '</p>';
 
 	// Does the post need approval?
 	if (!Utils::$context['can_reply_approved'])

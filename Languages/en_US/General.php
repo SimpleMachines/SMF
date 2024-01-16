@@ -843,7 +843,10 @@ $txt['preview_fetch'] = 'Fetching preview...';
 $txt['preview_new'] = 'New message';
 $txt['pm_error_while_submitting'] = 'The following error or errors occurred while sending this personal message:';
 $txt['error_while_submitting'] = 'The message has the following error or errors that must be corrected before continuing:';
-$txt['error_old_topic'] = 'Warning: this topic has not been posted in for at least %1$d days.<br>Unless you\'re sure you want to reply, please consider starting a new topic.';
+$txt['error_old_topic'] = 'Warning: {0, plural,
+	one {this topic has not been posted in for at least # day.}
+	other {this topic has not been posted in for at least # days.}
+}<br>Unless you\'re sure you want to reply, please consider starting a new topic.';
 
 $txt['split_selected_posts'] = 'Selected posts';
 $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after splitting.';
