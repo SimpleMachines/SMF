@@ -854,7 +854,14 @@ class Theme
 			],
 		];
 
-		Utils::$context['common_stats']['boardindex_total_posts'] = sprintf(Lang::$txt['boardindex_total_posts'], Utils::$context['common_stats']['total_posts'], Utils::$context['common_stats']['total_topics'], Utils::$context['common_stats']['total_members']);
+		Utils::$context['common_stats']['boardindex_total_posts'] = Lang::getTxt(
+			'boardindex_total_posts',
+			[
+				'posts' => Utils::$context['common_stats']['total_posts'],
+				'topics' => Utils::$context['common_stats']['total_topics'],
+				'members' => Utils::$context['common_stats']['total_members'],
+			],
+		);
 
 		if (empty(self::$current->settings['theme_version'])) {
 			self::addJavaScriptVar('smf_scripturl', '"' . Config::$scripturl . '"');

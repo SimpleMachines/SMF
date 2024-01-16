@@ -145,7 +145,16 @@ $txt['last_poster'] = 'Last post by';
 $txt['last_post_message'] = '<strong>Last post: </strong>%3$s <span class="postby">%2$s by %1$s</span>';
 $txt['last_post_topic'] = '%1$s<br>by %2$s';
 $txt['post_by_member'] = '<strong>%1$s</strong> by <strong>%2$s</strong><br>';
-$txt['boardindex_total_posts'] = '%1$s Posts in %2$s Topics by %3$s Members';
+$txt['boardindex_total_posts'] = '{posts, plural,
+	one {# post}
+	other {# posts}
+} {topics, plural,
+	one {in # topic}
+	other {in # topics}
+} {members, plural,
+	one {by # member}
+	other {by # members}
+}';
 $txt['show'] = 'Show';
 $txt['hide'] = 'Hide';
 
