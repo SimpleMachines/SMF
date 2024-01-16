@@ -818,7 +818,7 @@ class Theme
 			jQuery(document).ready(function($) {
 				new smc_Popup({
 					heading: ' . Utils::JavaScriptEscape(Lang::$txt['show_personal_messages_heading']) . ',
-					content: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['show_personal_messages'], User::$me->unread_messages, Config::$scripturl . '?action=pm')) . ',
+					content: ' . Utils::JavaScriptEscape(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'])) . ',
 					icon_class: \'main_icons mail_new\'
 				});
 			});');

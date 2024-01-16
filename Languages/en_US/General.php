@@ -822,7 +822,10 @@ $txt['quickmod_delete_selected'] = 'Remove selected';
 $txt['quickmod_split_selected'] = 'Split selected';
 
 $txt['show_personal_messages_heading'] = 'New messages';
-$txt['show_personal_messages'] = 'You have <strong>%1$s</strong> unread personal messages in your inbox.<br><br><a href="%2$s">Go to your inbox</a>';
+$txt['show_personal_messages'] = '{num, plural,
+	one {You have <strong>#</strong> unread personal message in your inbox.}
+	other {You have <strong>#</strong> unread personal messages in your inbox.}
+}<br><br><a href="{url}">Go to your inbox</a>';
 
 $txt['help_popup'] = 'A little lost? Let me explain:';
 
