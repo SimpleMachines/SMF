@@ -31,8 +31,9 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * URLs where we can fetch the Unicode data files.
 	 */
-	public const DATA_URL_UCD = 'https://unicode.org/Public/UCD/latest/ucd';
+	public const DATA_URL_UCD = 'https://www.unicode.org/Public/UCD/latest/ucd';
 	public const DATA_URL_IDNA = 'https://www.unicode.org/Public/idna/latest';
+	public const DATA_URL_CLDR = 'https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json';
 
 	/**
 	 * @var string The latest official release of the Unicode Character Database.
@@ -381,6 +382,23 @@ class UpdateUnicode extends BackgroundTask
 			],
 			'data' => [],
 		],
+		'plurals' => [
+			'file' => 'Plurals.php',
+			'key_type' => 'string',
+			'val_type' => 'array',
+			'desc' => [
+				'Helper function for SMF\Localization\MessageFormatter::formatMessage.',
+				'',
+				'Rules compiled from:',
+				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/plurals.json',
+				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/ordinals.json',
+			],
+			'return' => [
+				'type' => 'array',
+				'desc' => 'Pluralization rules for different languages',
+			],
+			'data' => [],
+		],
 	];
 
 	/**
@@ -408,6 +426,10 @@ class UpdateUnicode extends BackgroundTask
 		self::DATA_URL_IDNA => [
 			'IdnaMappingTable.txt',
 		],
+		self::DATA_URL_CLDR => [
+			'cldr-core/supplemental/plurals.json',
+			'cldr-core/supplemental/ordinals.json',
+		],
 	];
 
 	/**
@@ -418,9 +440,9 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	public function execute(): bool
 	{
-		/*****************
-		 * Part 1: Setup *
-		 *****************/
+		/*********
+		 * Setup *
+		 *********/
 		$this->unicodedir = Config::$sourcedir . DIRECTORY_SEPARATOR . 'Unicode';
 
 		// We need a temporary directory to hold our files while we work on them.
@@ -441,7 +463,7 @@ class UpdateUnicode extends BackgroundTask
 
 		$this->time_limit = (empty(ini_get('max_execution_time')) || @set_time_limit(TaskRunner::MAX_CLAIM_THRESHOLD) !== false) ? TaskRunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
 
-		foreach ($this->funcs as $func_name => &$func_info) {
+		foreach ($this->funcs as $func_name => $func_info) {
 			$file_paths['final'] = implode(DIRECTORY_SEPARATOR, [$this->unicodedir, $func_info['file']]);
 
 			if (!file_exists($file_paths['final'])) {
@@ -514,9 +536,9 @@ class UpdateUnicode extends BackgroundTask
 		// Track whether anything goes wrong along the way.
 		$success = true;
 
-		/*********************************************
-		 * Part 2: Normalization, case folding, etc. *
-		 *********************************************/
+		/*************************************
+		 * Normalization, case folding, etc. *
+		 *************************************/
 		$success = $this->process_derived_normalization_props() & $success;
 		$success = $this->process_main_unicode_data() & $success;
 		$success = $this->process_casing_data() & $success;
@@ -526,9 +548,9 @@ class UpdateUnicode extends BackgroundTask
 
 		$this->export_funcs_to_file();
 
-		/***********************************
-		 * Part 3: Regular expression data *
-		 ***********************************/
+		/***************************
+		 * Regular expression data *
+		 ***************************/
 		$success = $this->build_quick_check() & $success;
 
 		$this->derived_normalization_props = [];
@@ -543,16 +565,23 @@ class UpdateUnicode extends BackgroundTask
 
 		$this->export_funcs_to_file();
 
-		/*********************************
-		 * Part 4: IDNA maps and regexes *
-		 *********************************/
+		/*************************
+		 * IDNA maps and regexes *
+		 *************************/
 		$success = $this->build_idna() & $success;
 
 		$this->export_funcs_to_file();
 
-		/*******************
-		 * Part 5: Wrapup. *
-		 *******************/
+		/*************
+		 * CLDR data *
+		 *************/
+		$success = $this->build_plurals() & $success;
+
+		$this->export_funcs_to_file();
+
+		/**********
+		 * Wrapup *
+		 **********/
 		if ($success) {
 			$done_files = [];
 
@@ -630,6 +659,10 @@ class UpdateUnicode extends BackgroundTask
 		switch ($data_url) {
 			case self::DATA_URL_IDNA:
 				$sub_dir = 'idna';
+				break;
+
+			case self::DATA_URL_CLDR:
+				$sub_dir = 'cldr';
 				break;
 
 			default:
@@ -1936,6 +1969,75 @@ class UpdateUnicode extends BackgroundTask
 				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			} elseif ($fields[1] === 'disallowed_STD3_valid') {
 				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Builds pluralization rules for different languages.
+	 */
+	private function build_plurals(): bool
+	{
+		$sourcefiles = [
+			'cardinal' => 'cldr-core/supplemental/plurals.json',
+			'ordinal' => 'cldr-core/supplemental/ordinals.json',
+		];
+
+		foreach ($sourcefiles as $type => $sourcefile) {
+			$local_file = $this->fetch_unicode_file($sourcefile, self::DATA_URL_CLDR);
+
+			if (empty($local_file)) {
+				return false;
+			}
+
+			$plurals = json_decode(file_get_contents($local_file), true);
+
+			foreach ($plurals['supplemental']['plurals-type-' . $type] as $lang => $rules) {
+				$this->funcs['plurals']['data'][$lang][$type] = [];
+
+				foreach ($rules as $key => $rule) {
+					$key = str_replace('pluralRule-count-', '', $key);
+
+					$rule = trim(substr($rule, 0, strpos($rule, '@')));
+
+					$rule = preg_replace(
+						[
+							'/(?<![!=])=(?=\s)/',
+							'/([!=]=)=/',
+							'/(?<![$])\b[nivwftce]\b/',
+							'/[$]e\b/',
+							'/\band\b/',
+							'/\s+/',
+						],
+						[
+							'==',
+							'$1',
+							'\\$$0',
+							'\\$c',
+							'&&',
+							' ',
+						],
+						$rule,
+					);
+
+					if (preg_match('/\$([nivwftc]) % (\d+) == 0 && \$\1 % (\d+) ==/', $rule, $matches)) {
+						$step = min((int) $matches[2], (int) $matches[3]);
+					} else {
+						$step = 1;
+					}
+
+					$rule = preg_replace_callback('/(\d+)\.\.(\d+)/', fn ($matches) => implode(',', range($matches[1], $matches[2], $step)), $rule);
+
+					$rule = str_replace('=in_array', 'in_array', preg_replace('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', '$2in_array($1, [$3])', $rule));
+
+					if ($key === 'other' && $rule === '') {
+						$rule = 'true';
+					}
+
+					$this->funcs['plurals']['data'][$lang][$type][$key] = 'fn ($n, $i, $v, $w, $f, $t, $c) => ' . $rule;
+				}
 			}
 		}
 
