@@ -2104,7 +2104,7 @@ class PM implements \ArrayAccess
 
 			if (isset(Lang::$txt['error_' . $error_type])) {
 				if ($error_type == 'long_message') {
-					Lang::$txt['error_' . $error_type] = sprintf(Lang::$txt['error_' . $error_type], Config::$modSettings['max_messageLength']);
+					Lang::$txt['error_' . $error_type] = Lang::getTxt('error_' . $error_type, [Config::$modSettings['max_messageLength']]);
 				}
 
 				Utils::$context['post_error']['messages'][] = Lang::$txt['error_' . $error_type];

@@ -1705,7 +1705,7 @@ class Theme
 		// File has to exist. If it doesn't, try to create it.
 		if (@fopen($minified_file, 'w') === false || !Utils::makeWritable($minified_file)) {
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
 
 			// The process failed, so roll back to print each individual file.
 			return $data;
@@ -1722,7 +1722,7 @@ class Theme
 			// The file couldn't be located so it won't be added. Log this error.
 			if (empty($toAdd)) {
 				Lang::load('Errors');
-				ErrorHandler::log(sprintf(Lang::$txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
+				ErrorHandler::log(Lang::getTxt('file_minimize_fail', [!empty($file['fileName']) ? $file['fileName'] : $id]), 'general');
 
 				continue;
 			}
@@ -1739,7 +1739,7 @@ class Theme
 		// Minify process failed.
 		if (!filesize($minified_file)) {
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
 
 			// The process failed so roll back to print each individual file.
 			return $data;
@@ -1796,7 +1796,7 @@ class Theme
 		// If any of the files could not be deleted, log an error about it.
 		if (!empty($not_deleted)) {
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
+			ErrorHandler::log(Lang::getTxt('unlink_minimized_fail', [implode('<br>', $not_deleted)]), 'general');
 		}
 	}
 

@@ -791,7 +791,7 @@ class Profile extends User implements \ArrayAccess
 						else {
 							Lang::load('Errors', Lang::$default);
 
-							ErrorHandler::log(sprintf(Lang::$txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
+							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]]));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn ($v) => $v != $set);
 						}

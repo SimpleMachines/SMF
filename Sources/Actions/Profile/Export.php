@@ -412,7 +412,7 @@ class Export implements ActionInterface
 
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback) {
-				ErrorHandler::log(sprintf(Lang::$txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
+				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback]));
 
 				Config::updateModSettings(['export_dir' => $fallback]);
 

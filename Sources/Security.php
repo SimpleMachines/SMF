@@ -156,7 +156,7 @@ class Security
 		elseif ($action != 'free') {
 			Lang::load('Errors');
 
-			trigger_error(sprintf(Lang::$txt['check_submit_once_invalid_action'], $action), E_USER_WARNING);
+			trigger_error(Lang::getTxt('check_submit_once_invalid_action', [$action]), E_USER_WARNING);
 		}
 
 		return null;

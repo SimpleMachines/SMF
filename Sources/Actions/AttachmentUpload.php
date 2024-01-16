@@ -528,7 +528,7 @@ class AttachmentUpload implements ActionInterface
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors) {
 				foreach ($this->_generalErrors as $k => $v) {
-					$this->_generalErrors[$k] = (is_array($v) ? vsprintf(Lang::$txt[$v[0]], (array) $v[1]) : Lang::$txt[$v]);
+					$this->_generalErrors[$k] = (is_array($v) ? Lang::getTxt($v[0], (array) $v[1]) : Lang::$txt[$v]);
 				}
 			}
 

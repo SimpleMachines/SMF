@@ -1199,7 +1199,7 @@ class Msg implements \ArrayAccess
 				// Couldn't find the current poster?
 				if (Db::$db->num_rows($request) == 0) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['create_post_invalid_member_id'], $posterOptions['id']), E_USER_NOTICE);
+					trigger_error(Lang::getTxt('create_post_invalid_member_id', [$posterOptions['id']]), E_USER_NOTICE);
 					$posterOptions['id'] = 0;
 					$posterOptions['name'] = Lang::$txt['guest_title'];
 					$posterOptions['email'] = '';

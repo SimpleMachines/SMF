@@ -2032,7 +2032,7 @@ class SubsPackage
 			foreach ($files_to_change as $theme => $working_file) {
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_modification_filename_not_full_path', [$working_file]), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2458,7 +2458,7 @@ class SubsPackage
 
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_boardmod_filename_not_full_path', [$working_file]), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}

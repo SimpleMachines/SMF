@@ -100,7 +100,7 @@ class Logging
 
 			if (!is_array($log['extra'])) {
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['logActions_not_array'], $log['action']), E_USER_NOTICE);
+				trigger_error(Lang::getTxt('logActions_not_array', [$log['action']]), E_USER_NOTICE);
 			}
 
 			// Pull out the parts we want to store separately, but also make sure that the data is proper
@@ -440,7 +440,7 @@ class Logging
 
 			default:
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['invalid_statistic_type'], $type), E_USER_NOTICE);
+				trigger_error(Lang::getTxt('invalid_statistic_type', [$type]), E_USER_NOTICE);
 		}
 	}
 

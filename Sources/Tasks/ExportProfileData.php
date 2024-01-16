@@ -1129,7 +1129,7 @@ class ExportProfileData extends BackgroundTask
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
 					Lang::load('Errors');
 
-					ErrorHandler::log(sprintf(Lang::$txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
+					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']]));
 
 					$delay = 86400;
 				} else {

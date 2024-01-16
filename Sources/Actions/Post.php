@@ -1393,7 +1393,7 @@ class Post implements ActionInterface
 					}
 
 					if ($attachID == 'initial_error') {
-						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
+						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
 
 						$this->errors[] = 'attach_initial_error';
 
@@ -1409,7 +1409,7 @@ class Post implements ActionInterface
 						Lang::$txt['error_attach_errors'] .= sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
-							Lang::$txt['error_attach_errors'] .= (is_array($error) ? vsprintf(Lang::$txt[$error[0]], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
+							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
 						}
 
 						Lang::$txt['error_attach_errors'] .= '</div>';
@@ -1604,7 +1604,7 @@ class Post implements ActionInterface
 			if (is_array($post_error)) {
 				$post_error_id = $post_error[0];
 
-				Utils::$context['post_error'][$post_error_id] = vsprintf(Lang::$txt['error_' . $post_error_id], (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1]);
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $this->minor_errors)) {

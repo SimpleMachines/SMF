@@ -371,7 +371,7 @@ class Post2 extends Post
 				// If there was an initial error just show that message.
 				if ($attachID == 'initial_error') {
 					$attach_errors[] = '<dt>' . Lang::$txt['attach_no_upload'] . '</dt>';
-					$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
+					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
 
 					unset($_SESSION['temp_attachments']);
 

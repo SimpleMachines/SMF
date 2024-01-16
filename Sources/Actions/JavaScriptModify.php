@@ -305,7 +305,7 @@ class JavaScriptModify implements ActionInterface
 
 				foreach ($post_errors as $post_error) {
 					if ($post_error == 'long_message') {
-						Utils::$context['message']['errors'][] = sprintf(Lang::$txt['error_' . $post_error], Config::$modSettings['max_messageLength']);
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']]);
 					} else {
 						Utils::$context['message']['errors'][] = Lang::$txt['error_' . $post_error];
 					}

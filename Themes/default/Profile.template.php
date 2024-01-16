@@ -2686,12 +2686,14 @@ function template_error_message()
 		// Cycle through each error and display an error message.
 		foreach (Utils::$context['post_errors'] as $error)
 		{
-			$text_key_error = $error == 'password_short' ?
-				sprintf(Lang::$txt['profile_error_' . $error], (empty(Config::$modSettings['password_strength']) ? 4 : 8)) :
-				(isset(Lang::$txt['profile_error_' . $error]) ? Lang::$txt['profile_error_' . $error] : '');
+			if ($error == 'password_short') {
+				$error_message = Lang::getTxt('profile_error_' . $error, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+			} else {
+				$error_message = isset(Lang::$txt['profile_error_' . $error]) ? Lang::getTxt('profile_error_' . $error) : $error;
+			}
 
 			echo '
-				<li>', isset(Lang::$txt['profile_error_' . $error]) ? $text_key_error : $error, '</li>';
+				<li>', $error_message, '</li>';
 		}
 
 		echo '

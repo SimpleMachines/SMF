@@ -370,7 +370,7 @@ class Register2 extends Register
 			Lang::load('Errors');
 
 			foreach ($custom_field_errors as $error) {
-				$this->errors[] = vsprintf(Lang::$txt['error_' . $error[0]], (array) $error[1]);
+				$this->errors[] = Lang::getTxt('error_' . $error[0], (array) $error[1]);
 			}
 		}
 
@@ -598,7 +598,7 @@ class Register2 extends Register
 				Lang::load('Errors');
 			}
 
-			$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
+			$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {

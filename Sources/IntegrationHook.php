@@ -141,11 +141,11 @@ class IntegrationHook
 						]);
 					}
 
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $func, $path), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func, $path]), 'general');
 				}
 				// Assume the file resides on Config::$boarddir somewhere...
 				else {
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $func_string, Config::$boarddir), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func_string, Config::$boarddir]), 'general');
 				}
 			}
 		}

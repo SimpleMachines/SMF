@@ -172,7 +172,7 @@ class SocketFetcher extends WebFetchApi
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
 			Lang::load('Errors');
-			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__]), E_USER_NOTICE);
 
 			return $this;
 		}

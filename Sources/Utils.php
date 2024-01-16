@@ -2269,7 +2269,7 @@ class Utils
 
 			// Gotta tell everybody.
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
+			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
 
 			return false;
 		}
@@ -2377,7 +2377,7 @@ class Utils
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {
 					Lang::load('Errors');
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_loading_file'], $path), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path]), 'general');
 
 					// File couldn't be loaded.
 					return false;
