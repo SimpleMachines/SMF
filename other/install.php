@@ -902,7 +902,7 @@ function DatabaseSettings()
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
 		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0) {
-			$incontext['error'] = Lang::$txt['error_db_too_low'];
+			$incontext['error'] = sprintf(Lang::$txt['error_db_too_low'], $databases[Config::$db_type]['name']);
 
 			return false;
 		}
