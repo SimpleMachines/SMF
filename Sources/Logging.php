@@ -850,7 +850,7 @@ class Logging
 			$total_s = 0;
 
 			foreach (CacheApi::$hits as $cache_hit) {
-				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf(Lang::$txt['debug_cache_seconds_bytes'], Lang::numberFormat($cache_hit['t'], 5), $cache_hit['s']);
+				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . Lang::getTxt('debug_cache_seconds_bytes', ['seconds' => $cache_hit['t'], 'bytes' => $cache_hit['s']]);
 				$total_t += $cache_hit['t'];
 				$total_s += $cache_hit['s'];
 			}
@@ -864,12 +864,12 @@ class Logging
 			}
 
 			echo '
-		', Lang::$txt['debug_cache_hits'], CacheApi::$count_hits, ': ', sprintf(Lang::$txt['debug_cache_seconds_bytes_total'], Lang::numberFormat($total_t, 5), Lang::numberFormat($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
+		', Lang::$txt['debug_cache_hits'], CacheApi::$count_hits, ': ', Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s]), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
 		', Lang::$txt['debug_cache_misses'], CacheApi::$count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
 		}
 
 		echo '
-		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf(Lang::$txt['debug_queries_used'], (int) Db::$count) : sprintf(Lang::$txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
+		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
 		<br>';
 
 		if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache)) {
@@ -900,13 +900,13 @@ class Logging
 		&nbsp;&nbsp;&nbsp;';
 
 				if (!empty($query_data['f']) && !empty($query_data['l'])) {
-					echo sprintf(Lang::$txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
+					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
 				}
 
 				if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-					echo sprintf(Lang::$txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8)) . '<br>';
+					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]) . '<br>';
 				} elseif (isset($query_data['t'])) {
-					echo sprintf(Lang::$txt['debug_query_which_took'], round($query_data['t'], 8)) . '<br>';
+					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]) . '<br>';
 				}
 
 				echo '

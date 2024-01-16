@@ -937,13 +937,34 @@ $txt['debug_kb'] = 'KB.';
 $txt['debug_show'] = 'show';
 $txt['debug_cache_hits'] = 'Cache hits: ';
 $txt['debug_cache_misses'] = 'Cache misses: ';
-$txt['debug_cache_seconds_bytes'] = '%1$ss - %2$s bytes';
-$txt['debug_cache_seconds_bytes_total'] = '%1$ss for %2$s bytes';
-$txt['debug_queries_used'] = 'Queries used: %1$d.';
-$txt['debug_queries_used_and_warnings'] = 'Queries used: %1$d, %2$d warnings.';
-$txt['debug_query_in_line'] = 'in <em>%1$s</em> line <em>%2$s</em>, ';
-$txt['debug_query_which_took'] = 'which took %1$s seconds.';
-$txt['debug_query_which_took_at'] = 'which took %1$s seconds at %2$s into request.';
+$txt['debug_cache_seconds_bytes'] = '{seconds, number, integer}s - {bytes, plural,
+	one {# byte}
+	other {# bytes}
+}';
+$txt['debug_cache_seconds_bytes_total'] = '{seconds, number, integer}s for {bytes, plural,
+	one {# byte}
+	other {# bytes}
+}';
+$txt['debug_queries_used'] = '{0, plural,
+	one {# query used}
+	other {# queries used}
+}.';
+$txt['debug_queries_used_and_warnings'] = '{0, plural,
+	one {# query used}
+	other {# queries used}
+}, {1, plural,
+	one {with # warning}
+	other {with # warnings}
+}.';
+$txt['debug_query_in_line'] = 'in {file} on line {line}, ';
+$txt['debug_query_which_took'] = '{0, plural,
+	one {which took # second}
+	other {which took # seconds}
+}.';
+$txt['debug_query_which_took_at'] = '{0, plural,
+	one {which took # second}
+	other {which took # seconds}
+} at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
 $txt['debug_tokens'] = 'Tokens: ';
