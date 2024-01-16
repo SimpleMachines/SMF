@@ -250,7 +250,7 @@ function template_attachment_repair()
 			if (!empty($number))
 				echo '
 				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
-				<label for="', $error, '">', sprintf(Lang::$txt['attach_repair_' . $error], $number), '</label><br>';
+				<label for="', $error, '">', Lang::getTxt('attach_repair_' . $error, [$number]), '</label><br>';
 
 		echo '
 				<br>

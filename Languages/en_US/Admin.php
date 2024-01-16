@@ -442,8 +442,14 @@ $txt['attachment_transfer_no_base'] = 'No base directories available.';
 $txt['attachment_transfer_forum_root'] = 'Forum root directory.';
 $txt['attachment_transfer_no_room'] = 'Directory size or file count limit reached.';
 $txt['attachment_transfer_no_find'] = 'No files were found to transfer.';
-$txt['attachments_transferred'] = '%1$d files were transferred to %2$s';
-$txt['attachments_not_transferred'] = '%1$d files were not transferred.';
+$txt['attachments_transferred'] = '{files, plural,
+	one {# file was transferred to {folder}}
+	other {# files were transferred to {folder}}
+}';
+$txt['attachments_not_transferred'] = '{not_moved, plural,
+	one {# file was not transferred}
+	other {# files were not transferred}
+}';
 $txt['attachment_transfer_no_dir'] = 'Either the source directory or one of the target options were not selected.';
 $txt['attachment_transfer_same_dir'] = 'You cannot select the same directory as both the source and target.';
 $txt['attachment_transfer_progress'] = 'Please wait. Transfer in progress.';
@@ -505,15 +511,42 @@ $txt['repair_attachments_no_errors'] = 'No errors were found';
 $txt['repair_attachments_error_desc'] = 'The following errors were found during maintenance. Check the box next to the errors you wish to fix and hit continue.';
 $txt['repair_attachments_continue'] = 'Continue';
 $txt['repair_attachments_cancel'] = 'Cancel';
-$txt['attach_repair_missing_thumbnail_parent'] = '%1$d thumbnails are missing a parent attachment';
-$txt['attach_repair_parent_missing_thumbnail'] = '%1$d parents are flagged as having thumbnails but don\'t';
-$txt['attach_repair_file_missing_on_disk'] = '%1$d attachments/avatars have an entry but no longer exist on disk';
-$txt['attach_repair_file_wrong_size'] = '%1$d attachments/avatars are being reported as the wrong filesize';
-$txt['attach_repair_file_size_of_zero'] = '%1$d attachments/avatars have a size of zero on disk. (These will be deleted)';
-$txt['attach_repair_attachment_no_msg'] = '%1$d attachments no longer have a message associated with them';
-$txt['attach_repair_avatar_no_member'] = '%1$d avatars no longer have a member associated with them';
-$txt['attach_repair_wrong_folder'] = '%1$d attachments are in the wrong directory';
-$txt['attach_repair_files_without_attachment'] = '%1$d files do not have a corresponding entry in the database. (These will be deleted)';
+$txt['attach_repair_missing_thumbnail_parent'] = '{0, plural,
+	one {# thumbnail is missing a parent attachment}
+	other {# thumbnails are missing a parent attachment}
+}';
+$txt['attach_repair_parent_missing_thumbnail'] = '{0, plural,
+	one {# parent is flagged as having thumbnails but doesn\'\'t}
+	other {# parents are flagged as having thumbnails but don\'\'t}
+}';
+$txt['attach_repair_file_missing_on_disk'] = '{0, plural,
+	one {# attachment/avatar has an entry but no longer exists on disk}
+	other {# attachments/avatars have an entry but no longer exist on disk}
+}';
+$txt['attach_repair_file_wrong_size'] = '{0, plural,
+	one {# attachment/avatar is being reported as the wrong filesize}
+	other {# attachments/avatars are being reported as the wrong filesize}
+}';
+$txt['attach_repair_file_size_of_zero'] = '{0, plural,
+	one {# attachments/avatars has a size of zero on disk. (This will be deleted)}
+	other {# attachments/avatars have a size of zero on disk. (These will be deleted)}
+}';
+$txt['attach_repair_attachment_no_msg'] = '{0, plural,
+	one {# attachment no longer has a message associated with it}
+	other {# attachments no longer have a message associated with them}
+}';
+$txt['attach_repair_avatar_no_member'] = '{0, plural,
+	one {# avatar no longer has a member associated with it}
+	other {# avatars no longer have a member associated with them}
+}';
+$txt['attach_repair_wrong_folder'] = '{0, plural,
+	one {# attachment is in the wrong directory}
+	other {# attachments are in the wrong directory}
+}';
+$txt['attach_repair_files_without_attachment'] = '{0, plural,
+	one {# file does not have a corresponding entry in the database. (This will be deleted)}
+	other {# files do not have a corresponding entry in the database. (These will be deleted)}
+}';
 
 $txt['news_title'] = 'News and Newsletters';
 $txt['news_settings_desc'] = 'Here you can change the settings and permissions related to news and newsletters.';

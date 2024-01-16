@@ -1998,10 +1998,10 @@ class Attachments implements ActionInterface
 								// Since we're in auto mode. Create a new folder and reset the counters.
 								Attachment::automanageBySpace();
 
-								$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+								$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
 
 								if (!empty($total_not_moved)) {
-									$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
+									$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
 								}
 
 								$dir_files = 0;
@@ -2065,10 +2065,10 @@ class Attachments implements ActionInterface
 				}
 			}
 
-			$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+			$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
 
 			if (!empty($total_not_moved)) {
-				$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
+				$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
 			}
 		}
 
