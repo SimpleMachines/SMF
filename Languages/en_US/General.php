@@ -542,7 +542,13 @@ $txt['auth_secret_missing'] = 'Unable to set authentication secret in Settings.p
 
 $txt['cache_writable'] = 'The cache directory is not writable - this will adversely affect the performance of your forum.';
 
-$txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
+$txt['page_created_full'] = '{0, plural,
+	one {Page created in {0, number, :: .000} second}
+	other {Page created in {0, number, :: .000} seconds}
+} {1, plural,
+	one {with # query.}
+	other {with # queries.}
+}';
 
 $txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or problematic message.';
 $txt['report_profile_func'] = 'Use this function to inform the administrators of abusive profile content, such as spam or inappropriate images.';

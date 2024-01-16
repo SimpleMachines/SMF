@@ -466,7 +466,13 @@ function template_body_below()
 	// Show the load time?
 	if (Utils::$context['show_load_time'])
 		echo '
-		<p>', sprintf(Lang::$txt['page_created_full'], Utils::$context['load_time'], Utils::$context['load_queries']), '</p>';
+		<p>', Lang::getTxt(
+			'page_created_full',
+			[
+				Utils::$context['load_time'],
+				Utils::$context['load_queries']
+			]
+		), '</p>';
 
 	echo '
 		</div>
