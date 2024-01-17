@@ -1396,7 +1396,7 @@ class Languages implements ActionInterface
 							if (++num_inputs <= max_inputs) {
 								target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
 							} else {
-								alert("' . sprintf(Lang::$txt['languages_max_inputs_warning'], Utils::$context['max_inputs']) . '");
+								alert("' . Lang::getTxt('languages_max_inputs_warning', [Utils::$context['max_inputs']]) . '");
 								$(this).prop("checked", false);
 							}
 						} else {

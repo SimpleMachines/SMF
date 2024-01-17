@@ -430,7 +430,10 @@ $txt['languages_download_illegal_paths'] = 'Package contains illegal paths - ple
 $txt['languages_download_complete'] = 'Installation Complete';
 $txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
-$txt['languages_max_inputs_warning'] = 'You can only save %1$s edits at a time. Please click the Save button now, and then continue editing once this page has reloaded.';
+$txt['languages_max_inputs_warning'] = '{0, plural,
+	one {You can only save # edit at a time.}
+	other {You can only save # edits at a time.}
+} Please click the Save button now, and then continue editing once this page has reloaded.';
 $txt['languages_txt'] = 'Standard text strings';
 $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
