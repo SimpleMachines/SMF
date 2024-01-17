@@ -1011,7 +1011,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// Number of tables, etc...
-		Lang::$txt['database_numb_tables'] = sprintf(Lang::$txt['database_numb_tables'], Utils::$context['num_tables']);
+		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']]);
 		Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
 		Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 		unset($_SESSION['optimized_tables']);

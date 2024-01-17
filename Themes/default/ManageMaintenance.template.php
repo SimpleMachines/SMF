@@ -529,7 +529,7 @@ function template_optimize()
 		</div>
 		<div class="windowbg">
 			<p>
-				', Lang::$txt['database_numb_tables'], '<br>
+				', Utils::$context['database_numb_tables'], '<br>
 				', Lang::$txt['database_optimize_attempt'], '<br>';
 
 	// List each table being optimized...

@@ -83,7 +83,10 @@ $txt['salvaged_poll_message_body'] = 'This poll was found without a topic.';
 $txt['salvaged_poll_question'] = 'This poll was found without a question.';
 
 $txt['database_optimize'] = 'Optimize Database';
-$txt['database_numb_tables'] = 'Your database contains %1$d tables.';
+$txt['database_numb_tables'] = '{0, plural,
+	one {Your database contains # table.}
+	other {Your database contains # tables.}
+}';
 $txt['database_optimize_attempt'] = 'Attempting to optimize your database...';
 $txt['database_optimizing'] = 'Optimizing %1$s... %2$01.2f KB optimized.';
 $txt['database_already_optimized'] = 'All of the tables were already optimized.';
