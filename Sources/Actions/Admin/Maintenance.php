@@ -1389,7 +1389,7 @@ class Maintenance implements ActionInterface
 			if (!empty($id_msg_exceeding)) {
 				if (count($id_msg_exceeding) > 100) {
 					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = sprintf(Lang::$txt['exceeding_messages_morethan'], count($id_msg_exceeding));
+					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100]);
 				} else {
 					$query_msg = $id_msg_exceeding;
 				}
