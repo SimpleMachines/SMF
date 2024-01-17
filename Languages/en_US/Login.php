@@ -4,18 +4,43 @@
 
 // Registration agreement page.
 $txt['registration_agreement'] = 'Registration Agreement';
-$txt['agreement_agree'] = 'I accept the terms of the agreement.';
-$txt['agreement_agree_coppa_above'] = 'I accept the terms of the agreement and I am at least %1$d years old.';
-$txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and I am younger than %1$d years old.';
 $txt['privacy_policy'] = 'Privacy Policy';
-$txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';
-$txt['agreement_policy_agree_coppa_above'] = 'I accept the terms of the agreement and privacy policy, and I am at least %1$d years old.';
-$txt['agreement_policy_agree_coppa_below'] = 'I accept the terms of the agreement and privacy policy, and I am younger than %1$d years old.';
+$txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['policy_agree'] = 'I accept the terms of the privacy policy.';
-$txt['policy_agree_coppa_above'] = 'I accept the terms of the privacy policy, and I am at least %1$d years old.';
-$txt['policy_agree_coppa_below'] = 'I accept the terms of the privacy policy, and I am younger than %1$d years old.';
-$txt['agree_coppa_above'] = 'I am at least %1$d years old.';
-$txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
+$txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';
+
+$txt['agreement_agree_coppa_above'] = 'I accept the terms of the agreement and {0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and {0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
+$txt['agreement_policy_agree_coppa_above'] = 'I accept the terms of the agreement and privacy policy, and {0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['agreement_policy_agree_coppa_below'] = 'I accept the terms of the agreement and privacy policy, and {0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
+$txt['policy_agree_coppa_above'] = 'I accept the terms of the privacy policy, and {0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['policy_agree_coppa_below'] = 'I accept the terms of the privacy policy, and {0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
+$txt['agree_coppa_above'] = '{0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['agree_coppa_below'] = '{0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
 
 // Registration form.
 $txt['registration_form'] = 'Registration Form';

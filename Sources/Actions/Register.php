@@ -135,8 +135,8 @@ class Register implements ActionInterface
 		// Under age restrictions?
 		if (Utils::$context['show_coppa']) {
 			Utils::$context['skip_coppa'] = false;
-			Utils::$context['coppa_agree_above'] = sprintf(Lang::$txt[$agree_txt_key . 'agree_coppa_above'], Config::$modSettings['coppaAge']);
-			Utils::$context['coppa_agree_below'] = sprintf(Lang::$txt[$agree_txt_key . 'agree_coppa_below'], Config::$modSettings['coppaAge']);
+			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']]);
+			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']]);
 		} elseif ($agree_txt_key != '') {
 			Utils::$context['agree'] = Lang::$txt[$agree_txt_key . 'agree'];
 		}
