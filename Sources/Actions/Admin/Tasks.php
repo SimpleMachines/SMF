@@ -446,10 +446,13 @@ class Tasks implements ActionInterface
 						'value' => Lang::$txt['scheduled_log_time_taken'],
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => Lang::$txt['scheduled_log_time_taken_seconds'],
+						'getTxt' => [
+							'format' => 'scheduled_log_time_taken_seconds',
 							'params' => [
-								'time_taken' => false,
+								0 => [
+									'column' => 'time_taken',
+									'htmlspecialchars' => false,
+								],
 							],
 						],
 					],
@@ -588,7 +591,7 @@ class Tasks implements ActionInterface
 			// Find the next for regularity - don't offset as it's always server time!
 			$offset = sprintf(Lang::$txt['scheduled_task_reg_starting'], date('H:i', (int) $row['time_offset']));
 
-			$repeating = sprintf(Lang::$txt['scheduled_task_reg_repeating'], $row['time_regularity'], Lang::$txt['scheduled_task_reg_unit_' . $row['time_unit']]);
+			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row);
 
 			$known_tasks[] = [
 				'id' => $row['id_task'],

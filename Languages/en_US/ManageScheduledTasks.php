@@ -37,11 +37,28 @@ $txt['scheduled_task_remove_temp_attachments'] = 'Remove temporary attachment fi
 $txt['scheduled_task_desc_remove_temp_attachments'] = 'Deletes temporary files created while attaching a file to a post that for any reason weren\'t renamed or deleted before.';
 
 $txt['scheduled_task_reg_starting'] = 'Starting at %1$s';
-$txt['scheduled_task_reg_repeating'] = 'repeating every %1$d %2$s';
-$txt['scheduled_task_reg_unit_m'] = 'minute(s)';
-$txt['scheduled_task_reg_unit_h'] = 'hour(s)';
-$txt['scheduled_task_reg_unit_d'] = 'day(s)';
-$txt['scheduled_task_reg_unit_w'] = 'week(s)';
+$txt['scheduled_task_reg_repeating'] = 'repeating every {time_unit, select,
+	w {{time_regularity, plural,
+		one {# week}
+		other {# weeks}
+	}}
+	d {{time_regularity, plural,
+		one {# day}
+		other {# days}
+	}}
+	h {{time_regularity, plural,
+		one {# hour}
+		other {# hours}
+	}}
+	m {{time_regularity, plural,
+		one {# minute}
+		other {# minutes}
+	}}
+	other {{time_regularity, plural,
+		one {# {time_unit}}
+		other {# {time_unit}}
+	}}
+}';
 
 $txt['scheduled_task_edit'] = 'Edit Scheduled Task';
 $txt['scheduled_task_edit_repeat'] = 'Repeat task every';
@@ -54,7 +71,10 @@ $txt['scheduled_view_log'] = 'View Log';
 $txt['scheduled_log_empty'] = 'There are currently no task log entries.';
 $txt['scheduled_log_time_run'] = 'Time Run';
 $txt['scheduled_log_time_taken'] = 'Time taken';
-$txt['scheduled_log_time_taken_seconds'] = '%1$d seconds';
+$txt['scheduled_log_time_taken_seconds'] = '{0, plural,
+	one {# second}
+	other {# seconds}
+}';
 $txt['scheduled_log_empty_log'] = 'Clear Log';
 $txt['scheduled_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log?';
 
