@@ -30,9 +30,11 @@ $txt['permissions_profile_new'] = 'New Profile';
 $txt['permissions_profile_new_create'] = 'Create';
 $txt['permissions_profile_name'] = 'Profile Name';
 $txt['permissions_profile_used_by'] = 'Used By';
-$txt['permissions_profile_used_by_one'] = '1 Board';
-$txt['permissions_profile_used_by_many'] = '%1$d Boards';
-$txt['permissions_profile_used_by_none'] = 'No Boards';
+$txt['permissions_profile_used_by_count'] = '{0, plural,
+	=0 {No boards}
+	one {# board}
+	other {# boards}
+}';
 $txt['permissions_profile_do_edit'] = 'Edit';
 $txt['permissions_profile_do_delete'] = 'Delete';
 

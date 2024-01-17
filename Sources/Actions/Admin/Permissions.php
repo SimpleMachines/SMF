@@ -1364,7 +1364,7 @@ class Permissions implements ActionInterface
 			if (isset(Utils::$context['profiles'][$row['id_profile']])) {
 				Utils::$context['profiles'][$row['id_profile']]['in_use'] = true;
 				Utils::$context['profiles'][$row['id_profile']]['boards'] = $row['board_count'];
-				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = $row['board_count'] > 1 ? sprintf(Lang::$txt['permissions_profile_used_by_many'], $row['board_count']) : Lang::$txt['permissions_profile_used_by_' . ($row['board_count'] ? 'one' : 'none')];
+				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = Lang::getTxt('permissions_profile_used_by_count', [$row['board_count']]);
 			}
 		}
 		Db::$db->free_result($request);

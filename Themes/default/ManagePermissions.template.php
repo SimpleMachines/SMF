@@ -394,7 +394,7 @@ function template_edit_profiles()
 		echo '
 						</td>
 						<td>
-							', !empty($profile['boards_text']) ? $profile['boards_text'] : Lang::$txt['permissions_profile_used_by_none'], '
+							', $profile['boards_text'], '
 						</td>
 						<td', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>
 							<input type="checkbox" name="delete_profile[]" value="', $profile['id'], '" ', $profile['can_delete'] ? '' : 'disabled', '>
