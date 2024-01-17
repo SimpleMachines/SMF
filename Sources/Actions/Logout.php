@@ -124,7 +124,7 @@ class Logout extends Login2
 		if (!empty(Config::$modSettings['tfa_mode']) && !empty(User::$me->id) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
 			list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
-			Cookie::setTFACookie((int) $exp - time(), $salt, Cookie::encrypt(User::$me->tfa_backup, $salt));
+			Cookie::setTFACookie((int) $exp - time(), User::$me->id, Cookie::encrypt(User::$me->tfa_backup, $salt));
 		}
 
 		session_destroy();
