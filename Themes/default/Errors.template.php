@@ -359,7 +359,19 @@ function template_show_backtrace()
 				$value->line = -1;
 
 			echo '
-					<li class="backtrace">', sprintf(Lang::$txt['backtrace_info' . ($value->file == Lang::$txt['unknown'] && $value->line == -1 ? '_internal_function' : '')], $key, (!empty($value->class) ? $value->class . $value->type : '') . $value->function, $value->file, $value->line, base64_encode($value->file), Config::$scripturl), '</li>';
+					<li class="backtrace">',
+					Lang::getTxt(
+						'backtrace_info' . ($value->file == Lang::$txt['unknown'] && $value->line == -1 ? '_internal_function' : ''),
+						[
+							$key,
+							(!empty($value->class) ? $value->class . $value->type : '') . $value->function,
+							$value->file,
+							$value->line,
+							base64_encode($value->file),
+							Config::$scripturl,
+						]
+					),
+					'</li>';
 		}
 
 		echo '

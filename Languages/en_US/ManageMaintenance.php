@@ -130,8 +130,8 @@ $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type';
 $txt['backtrace_title'] = 'Backtrace information';
 // argument(s): error message, function, filename, line nr, filehash, Config::$scripturl
-$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="%6$s?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
-$txt['backtrace_info_internal_function'] = '<b>#%1$d</b>: %2$s()<br>Called from [internal function]';
+$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, integer}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, integer}</a>';
+$txt['backtrace_info_internal_function'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from [internal function]';
 
 $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';
