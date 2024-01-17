@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -92,12 +94,12 @@ class Register2 extends Register
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -392,6 +394,8 @@ class Register2 extends Register
 			return;
 		}
 
+		/** @var int $member_id */
+
 		// Do our spam protection now.
 		Security::spamProtection('register');
 
@@ -429,7 +433,7 @@ class Register2 extends Register
 		} else {
 			IntegrationHook::call('integrate_activate', [$reg_options['username']]);
 
-			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
+			Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
 			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Utils::$context['server']['needs_login_fix']);
 		}
@@ -442,9 +446,9 @@ class Register2 extends Register
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -476,7 +480,7 @@ class Register2 extends Register
 	 * @param bool $return_errors Whether to return the errors
 	 * @return int|array The ID of the newly registered user or an array of error info if $return_errors is true
 	 */
-	public static function registerMember(&$reg_options, $return_errors = false)
+	public static function registerMember(array &$reg_options, bool $return_errors = false): int|array
 	{
 		Lang::load('Login');
 

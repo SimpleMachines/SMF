@@ -3652,6 +3652,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $with_avatar = false,
 		bool $show_links = false,
 	): array {
+		if (!is_bool($to_fetch) && !is_array($to_fetch)) {
+			$to_fetch = (array) $to_fetch;
+		}
+
 		return SMF\Alert::fetch($memID, $to_fetch, $limit, $offset, $with_avatar, $show_links);
 	}
 

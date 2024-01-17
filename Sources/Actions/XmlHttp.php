@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Actions\Admin\News;
@@ -67,12 +69,12 @@ class XmlHttp implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -97,7 +99,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Get a list of boards and categories used for the jumpto dropdown.
 	 */
-	public function jumpTo()
+	public function jumpTo(): void
 	{
 		// Find the boards/categories they can see.
 		$boardListOptions = [
@@ -121,7 +123,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Gets a list of available message icons and sends the info to the template for display
 	 */
-	public function messageIcons()
+	public function messageIcons(): void
 	{
 		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 		Utils::$context['sub_template'] = 'message_icons';
@@ -133,7 +135,7 @@ class XmlHttp implements ActionInterface
 	 *
 	 * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
 	 */
-	public function previews()
+	public function previews(): ?bool
 	{
 		$items = [
 			'newspreview',
@@ -149,12 +151,13 @@ class XmlHttp implements ActionInterface
 		}
 
 		call_user_func([$this, $_POST['item']]);
+		return null;
 	}
 
 	/**
 	 * Handles previewing news items
 	 */
-	public function newspreview()
+	public function newspreview(): void
 	{
 		$errors = [];
 
@@ -185,7 +188,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing newsletters
 	 */
-	public function newsletterpreview()
+	public function newsletterpreview(): void
 	{
 		Lang::load('Errors');
 
@@ -209,7 +212,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing signatures
 	 */
-	public function sig_preview()
+	public function sig_preview(): void
 	{
 		require_once Config::$sourcedir . '/Profile-Modify.php';
 
@@ -304,7 +307,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing user warnings
 	 */
-	public function warning_preview()
+	public function warning_preview(): void
 	{
 		Lang::load('Errors');
 		Lang::load('ModerationCenter');
@@ -376,9 +379,9 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

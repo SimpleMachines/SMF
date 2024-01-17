@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -101,12 +103,12 @@ class Recent implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -144,9 +146,9 @@ class Recent implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -171,7 +173,7 @@ class Recent implements ActionInterface
 	 *
 	 * @return array An array of information about the last post that you can see
 	 */
-	public static function getLastPost()
+	public static function getLastPost(): array
 	{
 		// Find it by the board - better to order by board than sort the entire messages table.
 		$request = Db::$db->query(
@@ -268,7 +270,7 @@ class Recent implements ActionInterface
 	 *
 	 * @todo Break this up further.
 	 */
-	protected function getBoards()
+	protected function getBoards(): void
 	{
 		// Requested one or more categories.
 		if (!empty($_REQUEST['c'])) {
@@ -419,7 +421,7 @@ class Recent implements ActionInterface
 	/**
 	 * Gets the category name, if applicable.
 	 */
-	protected function getCatName()
+	protected function getCatName(): void
 	{
 		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
@@ -440,7 +442,7 @@ class Recent implements ActionInterface
 	/**
 	 * Populates $this->messages with the IDs of some recent messages.
 	 */
-	protected function getMsgIds()
+	protected function getMsgIds(): void
 	{
 		// If you selected a redirection board, don't try getting posts for it...
 		if (Utils::$context['is_redirect']) {
@@ -500,7 +502,7 @@ class Recent implements ActionInterface
 	/**
 	 * Populates Utils::$context['posts'] with formatted messages.
 	 */
-	protected function getMessages()
+	protected function getMessages(): void
 	{
 		$query_customizations = [
 			'selects' => [
@@ -523,6 +525,7 @@ class Recent implements ActionInterface
 
 		$counter = Utils::$context['start'] + 1;
 
+		/** @var \SMF\Msg $msg */
 		foreach (Msg::get($this->messages, $query_customizations) as $msg) {
 			Utils::$context['posts'][$msg->id] = $msg->format($counter++, [
 				'do_permissions' => false,
@@ -617,7 +620,7 @@ class Recent implements ActionInterface
 	/**
 	 * Constructs page index, sets the linktree, next/prev/up links, etc.
 	 */
-	protected function setPaginationAndLinks()
+	protected function setPaginationAndLinks(): void
 	{
 		$total = min(self::PER_PAGE * self::PAGES, $this->total_posts);
 		$not_first_page = Utils::$context['start'] >= self::PER_PAGE;
@@ -656,7 +659,7 @@ class Recent implements ActionInterface
 	/**
 	 * Last but not least, the quickbuttons.
 	 */
-	protected function buildQuickButtons()
+	protected function buildQuickButtons(): void
 	{
 		foreach (Utils::$context['posts'] as $key => $post) {
 			Utils::$context['posts'][$key]['quickbuttons'] = [

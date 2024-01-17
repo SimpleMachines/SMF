@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -42,11 +44,11 @@ class BoardIndex implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -155,7 +157,7 @@ class BoardIndex implements ActionInterface
 	 * @param int $number_posts How many posts to get.
 	 * @return array Info about the posts.
 	 */
-	public function getLastPosts(int $number_posts = 5)
+	public function getLastPosts(int $number_posts = 5): array
 	{
 		$msg_load_options = [
 			'selects' => [
@@ -195,6 +197,7 @@ class BoardIndex implements ActionInterface
 			$msg_load_options['params']['is_approved'] = 1;
 		}
 
+		/** @var \SMF\Msg $msg */
 		foreach (Msg::get(0, $msg_load_options) as $msg) {
 			$posts[$msg->id] = $msg->format(0, [
 				'do_permissions' => false,
@@ -218,8 +221,9 @@ class BoardIndex implements ActionInterface
 	 * Callback-function for the cache for getLastPosts().
 	 *
 	 * @param int $number_posts
+	 * @return array Latest posts data from cache.
 	 */
-	public function cache_getLastPosts(int $number_posts = 5)
+	public function cache_getLastPosts(int $number_posts = 5): array
 	{
 		return [
 			'data' => $this->getLastPosts($number_posts),
@@ -273,7 +277,7 @@ class BoardIndex implements ActionInterface
 	 * @param array $board_index_options An array of boardindex options.
 	 * @return array An array of information for displaying the boardindex.
 	 */
-	public static function get($board_index_options): array
+	public static function get(array $board_index_options): array
 	{
 		// These should always be set.
 		$board_index_options['include_categories'] = $board_index_options['include_categories'] ?? false;
@@ -635,10 +639,10 @@ class BoardIndex implements ActionInterface
 	/**
 	 * Propagates statistics (e.g. post and topic counts) to parent boards.
 	 *
-	 * @param object $board An instance of SMF\Board.
+	 * @param \SMF\Board $board An instance of SMF\Board.
 	 * @param array $board_index_options The options passed to BoardIndex:get().
 	 */
-	protected static function propagateStatsToParents($board, $board_index_options): void
+	protected static function propagateStatsToParents(Board $board, array $board_index_options): void
 	{
 		if ($board->is_redirect || empty($board->parent)) {
 			return;
@@ -692,7 +696,7 @@ class BoardIndex implements ActionInterface
 	 * @param array $row_board Raw board data.
 	 * @return array Formatted post data.
 	 */
-	protected static function prepareLastPost($row_board): array
+	protected static function prepareLastPost(array $row_board): array
 	{
 		if (empty($row_board['id_msg'])) {
 			return [

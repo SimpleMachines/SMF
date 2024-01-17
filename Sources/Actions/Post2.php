@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Attachment;
@@ -100,12 +102,12 @@ class Post2 extends Post
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -252,7 +254,7 @@ class Post2 extends Post
 			$this->errors[] = 'no_subject';
 		}
 
-		if (!isset($_POST['message']) || Utils::htmlTrim(Utils::htmlspecialchars($_POST['message']), ENT_QUOTES) === '') {
+		if (!isset($_POST['message']) || Utils::htmlTrim(Utils::htmlspecialchars($_POST['message'], ENT_QUOTES)) === '') {
 			$this->errors[] = 'no_message';
 		} elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_POST['message']) > Config::$modSettings['max_messageLength']) {
 			$this->errors[] = ['long_message', [Config::$modSettings['max_messageLength']]];
@@ -658,9 +660,9 @@ class Post2 extends Post
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

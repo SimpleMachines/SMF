@@ -893,9 +893,23 @@ class Subscriptions implements ActionInterface
 			User::$me->checkSession();
 
 			// Work out the dates...
-			$starttime = mktime($_POST['hour'], $_POST['minute'], 0, $_POST['month'], $_POST['day'], $_POST['year']);
+			$starttime = mktime(
+				(int) $_POST['hour'],
+				(int) $_POST['minute'],
+				0,
+				(int) $_POST['month'],
+				(int) $_POST['day'],
+				(int) $_POST['year']
+			);
 
-			$endtime = mktime($_POST['hourend'], $_POST['minuteend'], 0, $_POST['monthend'], $_POST['dayend'], $_POST['yearend']);
+			$endtime = mktime(
+				(int) $_POST['hourend'],
+				(int) $_POST['minuteend'],
+				0,
+				(int) $_POST['monthend'],
+				(int) $_POST['dayend'],
+				(int) $_POST['yearend']
+			);
 
 			// Status.
 			$status = $_POST['status'];
@@ -918,6 +932,8 @@ class Subscriptions implements ActionInterface
 					ErrorHandler::fatalLang('error_member_not_found');
 				}
 				list($id_member, $id_group) = Db::$db->fetch_row($request);
+				$id_member = (int) $id_member;
+				$id_group = (int) $id_group;
 				Db::$db->free_result($request);
 
 				// Ensure the member doesn't already have a subscription!
@@ -940,7 +956,7 @@ class Subscriptions implements ActionInterface
 
 				// Actually put the subscription in place.
 				if ($status == 1) {
-					self::add(Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
+					self::add((int) Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
 				} else {
 					Db::$db->insert(
 						'',
@@ -2143,7 +2159,7 @@ class Subscriptions implements ActionInterface
 		list($memberCount) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $memberCount;
+		return (int) $memberCount;
 	}
 
 	/**

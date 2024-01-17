@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -91,12 +93,12 @@ class Memberlist implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -231,7 +233,7 @@ class Memberlist implements ActionInterface
 	 * Can be passed a sort parameter, to order the display of members.
 	 * Calls printRows to retrieve the results of the query.
 	 */
-	public function all()
+	public function all(): void
 	{
 		// Only use caching if:
 		// 1. there are at least 2k members,
@@ -443,7 +445,7 @@ class Memberlist implements ActionInterface
 	 * - If variable 'search' is empty displays search dialog box, using the search sub template.
 	 * - Calls printRows to retrieve the results of the query.
 	 */
-	public function search()
+	public function search(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['mlist_search'];
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
@@ -668,9 +670,9 @@ class Memberlist implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -691,9 +693,9 @@ class Memberlist implements ActionInterface
 	 * Retrieves results of the request passed to it
 	 * Puts results of request into the context for the sub template.
 	 *
-	 * @param resource $request An SQL result resource
+	 * @param object $request An SQL result resource
 	 */
-	public static function printRows($request)
+	public static function printRows(object $request): void
 	{
 		// Get the most posts.
 		$result = Db::$db->query(
@@ -704,6 +706,7 @@ class Memberlist implements ActionInterface
 			],
 		);
 		list($most_posts) = Db::$db->fetch_row($result);
+		$most_posts = (int) $most_posts;
 		Db::$db->free_result($result);
 
 		// Avoid division by zero...
@@ -779,7 +782,7 @@ class Memberlist implements ActionInterface
 	 *
 	 * @return array An array of info about the custom fields for the member list
 	 */
-	public static function getCustFields()
+	public static function getCustFields(): array
 	{
 		$cpf = [];
 

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -62,12 +64,12 @@ class Login2 implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -137,7 +139,7 @@ class Login2 implements ActionInterface
 		// Preserve the 2FA cookie?
 		if (!empty(Config::$modSettings['tfa_mode']) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
 			list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
-			Cookie::setTFACookie((int) $exp - time(), User::$me->password_salt, Cookie::encrypt(User::$me->tfa_backup, User::$me->password_salt));
+			Cookie::setTFACookie((int) $exp - time(), User::$me->id, Cookie::encrypt(User::$me->tfa_backup, User::$me->password_salt));
 		}
 
 		Cookie::setLoginCookie((int) $timeout - time(), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
@@ -323,9 +325,9 @@ class Login2 implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -393,7 +395,7 @@ class Login2 implements ActionInterface
 	 * @param bool $was_correct Whether or not the password was correct
 	 * @param bool $tfa Whether we're validating for two-factor authentication
 	 */
-	public static function validatePasswordFlood($id_member, $member_name, $password_flood_value = false, $was_correct = false, $tfa = false)
+	public static function validatePasswordFlood(int $id_member, string $member_name, bool|string $password_flood_value = false, bool $was_correct = false, bool $tfa = false): void
 	{
 		// As this is only brute protection, we allow 5 attempts every 10 seconds.
 
@@ -537,7 +539,7 @@ class Login2 implements ActionInterface
 
 			// Snitz style - SHA-256.
 			if (strlen(User::$profiles[User::$my_id]['passwd']) == 64 && function_exists('mhash') && defined('MHASH_SHA256')) {
-				$other_passwords[] = bin2hex(mhash(MHASH_SHA256, $_POST['passwrd']));
+				$other_passwords[] = hash('sha256', $_POST['passwrd']);
 			}
 
 			// phpBB3.
@@ -634,16 +636,13 @@ class Login2 implements ActionInterface
 	/**
 	 * Custom encryption for phpBB3 based passwords.
 	 *
-	 * @return string The hashed version of $_POST['passwrd']
+	 * @return ?string The hashed version of $_POST['passwrd']
 	 */
-	protected function phpBB3_password_check()
+	protected function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
 	{
-		$passwd = $_POST['passwrd'];
-		$passwd_hash = User::$profiles[User::$my_id]['passwd'];
-
 		// Too long or too short?
 		if (strlen($passwd_hash) != 34) {
-			return;
+			return null;
 		}
 
 		// Range of characters allowed.
@@ -696,8 +695,10 @@ class Login2 implements ActionInterface
 
 	/**
 	 * Check activation status of the current user.
+	 * 
+	 * @return bool True if they are activated, false otherwise.
 	 */
-	protected function checkActivation()
+	protected function checkActivation(): bool
 	{
 		if (!isset(Utils::$context['login_errors'])) {
 			Utils::$context['login_errors'] = [];
@@ -746,7 +747,7 @@ class Login2 implements ActionInterface
 	/**
 	 * Perform the logging in. (set cookie, call hooks, etc)
 	 */
-	protected function DoLogin()
+	protected function DoLogin(): void
 	{
 		// Call login integration functions.
 		IntegrationHook::call('integrate_login', [User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']]);

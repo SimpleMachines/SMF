@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Cache\CacheApi;
@@ -50,12 +52,12 @@ class VerificationCode implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -122,9 +124,9 @@ class VerificationCode implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -165,7 +167,7 @@ class VerificationCode implements ActionInterface
 	 * @param string $code The code to display
 	 * @return bool False if something goes wrong. Otherwise, dies.
 	 */
-	protected function showCodeImage($code): bool
+	protected function showCodeImage(string $code): bool
 	{
 		if (!extension_loaded('gd')) {
 			return false;
@@ -307,7 +309,7 @@ class VerificationCode implements ActionInterface
 			$characters[$char_index]['width'] = imagefontwidth($loaded_fonts[$character['font']]);
 			$characters[$char_index]['height'] = imagefontheight($loaded_fonts[$character['font']]);
 
-			$max_height = max($characters[$char_index]['height'] + 5, $max_height);
+			$max_height = (int) max($characters[$char_index]['height'] + 5, $max_height);
 			$total_width += $characters[$char_index]['width'];
 		}
 
@@ -363,9 +365,9 @@ class VerificationCode implements ActionInterface
 		if ($noise_type == 'extreme') {
 			for ($i = 0; $i < random_int(1, 5); $i++) {
 				$x1 = random_int(0, $total_width / 4);
-				$x2 = $x1 + round(rand($total_width / 4, $total_width));
+				$x2 = $x1 + (int) round(rand($total_width / 4, $total_width));
 				$y1 = random_int(0, $max_height);
-				$y2 = $y1 + round(rand(0, $max_height / 3));
+				$y2 = $y1 + (int) round(rand(0, $max_height / 3));
 
 				imagefilledrectangle(
 					$code_image,
@@ -516,8 +518,8 @@ class VerificationCode implements ActionInterface
 							$char_image,
 							0,
 							0,
-							$character['width'] - 1,
-							$character['height'] - 1,
+							(int) $character['width'] - 1,
+							(int) $character['height'] - 1,
 							$char_bgcolor,
 						);
 
@@ -559,7 +561,7 @@ class VerificationCode implements ActionInterface
 							$code_image,
 							$loaded_fonts[$character['font']],
 							$cur_x,
-							floor(($max_height - $character['height']) / 2),
+							(int) floor(($max_height - $character['height']) / 2),
 							$character['id'],
 							imagecolorallocate(
 								$code_image,
@@ -630,10 +632,10 @@ class VerificationCode implements ActionInterface
 				$num_ellipse = $noise_type == 'extreme' ? random_int(6, 12) : random_int(2, 6);
 
 				for ($i = 0; $i < $num_ellipse; $i++) {
-					$x1 = round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
-					$x2 = round(rand($total_width / 2, 2 * $total_width));
-					$y1 = round(rand(($max_height / 4) * -1, $max_height + ($max_height / 4)));
-					$y2 = round(rand($max_height / 2, 2 * $max_height));
+					$x1 = (int) round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
+					$x2 = (int) round(rand($total_width / 2, 2 * $total_width));
+					$y1 = (int) round(rand(($max_height / 4) * -1, $max_height + ($max_height / 4)));
+					$y2 = (int) round(rand($max_height / 2, 2 * $max_height));
 
 					imageellipse(
 						$code_image,
@@ -669,7 +671,7 @@ class VerificationCode implements ActionInterface
 	 * @param string $letter A letter to show as an image
 	 * @return bool False if something went wrong. Otherwise, dies.
 	 */
-	protected function showLetterImage($letter): bool
+	protected function showLetterImage(string $letter): bool
 	{
 		if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts')) {
 			return false;
@@ -718,7 +720,7 @@ class VerificationCode implements ActionInterface
 	 * @param string $word
 	 * @return bool false on failure
 	 */
-	protected function createWaveFile($word)
+	protected function createWaveFile(string $word): bool
 	{
 		// Allow max 2 requests per 20 seconds.
 		if (($ip = CacheApi::get('wave_file/' . User::$me->ip, 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . User::$me->ip2, 20)) > 2) {

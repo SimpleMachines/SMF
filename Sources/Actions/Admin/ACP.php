@@ -1965,10 +1965,10 @@ class ACP implements ActionInterface
 	 * If 'value' is an array, calls itself recursively.
 	 *
 	 * @param string $k The keys
-	 * @param string $v The values
+	 * @param string|array $v The values
 	 * @return string 'hidden' HTML form fields, containing key-value pairs
 	 */
-	protected static function adminLogin_outputPostVars(string $k, string $v): string
+	protected static function adminLogin_outputPostVars(string $k, string|array $v): string
 	{
 		if (!is_array($v)) {
 			return "\n" . '<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, ['"' => '&quot;', '<' => '&lt;', '>' => '&gt;']) . '">';

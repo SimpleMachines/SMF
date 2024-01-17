@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -70,12 +72,12 @@ class Calendar implements ActionInterface
 	 *********************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of the class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -235,7 +237,7 @@ class Calendar implements ActionInterface
 
 		// If we have a day clean that too.
 		if (Utils::$context['calendar_view'] != 'viewmonth') {
-			$isValid = checkdate($curPage['month'], $curPage['day'], $curPage['year']);
+			$isValid = checkdate((int) $curPage['month'], (int) $curPage['day'], (int) $curPage['year']);
 
 			if (!$isValid) {
 				ErrorHandler::fatalLang('invalid_day', false);
@@ -561,16 +563,18 @@ class Calendar implements ActionInterface
 		header('connection: close');
 		header('content-disposition: attachment; filename="' . $event->title . '.ics"');
 
+		$calevent = implode("\n", $filecontents);
+
 		if (empty(Config::$modSettings['enableCompressedOutput'])) {
 			// todo: correctly handle $filecontents before passing to string function
-			header('content-length: ' . Utils::entityStrlen($filecontents));
+			header('content-length: ' . Utils::entityStrlen($calevent));
 		}
 
 		// This is a calendar item!
 		header('content-type: text/calendar');
 
 		// Chuck out the card.
-		echo implode("\n", $filecontents);
+		echo $calevent;
 
 		// Off we pop - lovely!
 		Utils::obExit(false);
@@ -644,9 +648,9 @@ class Calendar implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -672,7 +676,7 @@ class Calendar implements ActionInterface
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format
 	 * @return array An array of days, each of which is an array of birthday information for the context
 	 */
-	public static function getBirthdayRange($low_date, $high_date): array
+	public static function getBirthdayRange(string $low_date, string $high_date): array
 	{
 		// We need to search for any birthday in this range, and whatever year that birthday is on.
 		$year_low = (int) substr($low_date, 0, 4);
@@ -761,7 +765,7 @@ class Calendar implements ActionInterface
 	 * @param bool $use_permissions Whether to use permissions
 	 * @return array The loaded events.
 	 */
-	public static function getEventRange($low_date, $high_date, $use_permissions = true): array
+	public static function getEventRange(string $low_date, string $high_date, bool $use_permissions = true): array
 	{
 		$events = [];
 
@@ -793,7 +797,7 @@ class Calendar implements ActionInterface
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format
 	 * @return array An array of days, which are all arrays of holiday names.
 	 */
-	public static function getHolidayRange($low_date, $high_date): array
+	public static function getHolidayRange(string $low_date, string $high_date): array
 	{
 		// Get the lowest and highest dates for "all years".
 		if (substr($low_date, 0, 4) != substr($high_date, 0, 4)) {
@@ -913,7 +917,7 @@ class Calendar implements ActionInterface
 	 * @param bool $has_picker Whether to add javascript to handle a date picker
 	 * @return array A large array containing all the information needed to show a calendar grid for the given month
 	 */
-	public static function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false, $has_picker = true): array
+	public static function getCalendarGrid(string $selected_date, array $calendarOptions, bool $is_previous = false, bool $has_picker = true): array
 	{
 		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
 
@@ -973,7 +977,7 @@ class Calendar implements ActionInterface
 		];
 
 		// The number of days the first row is shifted to the right for the starting day.
-		$nShift = $month_info['first_day']['day_of_week'];
+		$nShift = (int) $month_info['first_day']['day_of_week'];
 
 		$calendarOptions['start_day'] = empty($calendarOptions['start_day']) ? 0 : (int) $calendarOptions['start_day'];
 
@@ -1070,7 +1074,7 @@ class Calendar implements ActionInterface
 	 * @param array $calendarOptions An array of calendar options
 	 * @return array An array of information needed to display the grid for a single week on the calendar
 	 */
-	public static function getCalendarWeek($selected_date, $calendarOptions): array
+	public static function getCalendarWeek(string $selected_date, array $calendarOptions): array
 	{
 		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
 
@@ -1187,7 +1191,7 @@ class Calendar implements ActionInterface
 	 * @param array $calendarOptions An array of calendar options
 	 * @return array An array of information needed to display a list of upcoming events, etc., on the calendar
 	 */
-	public static function getCalendarList($start_date, $end_date, $calendarOptions): array
+	public static function getCalendarList(string $start_date, string $end_date, array $calendarOptions): array
 	{
 		// DateTime objects make life easier
 		$start_object = new Time($start_date . ' ' . User::getTimezone());
@@ -1249,7 +1253,7 @@ class Calendar implements ActionInterface
 	 * @param string $selector A CSS selector for the input field(s) that the datepicker should be attached to.
 	 * @param string $date_format The date format to use, in strftime() format.
 	 */
-	public static function loadDatePicker($selector = 'input.date_input', $date_format = ''): void
+	public static function loadDatePicker(string $selector = 'input.date_input', string $date_format = ''): void
 	{
 		if (empty($date_format)) {
 			$date_format = Time::getDateFormat();
@@ -1303,7 +1307,7 @@ class Calendar implements ActionInterface
 	 * @param string $selector A CSS selector for the input field(s) that the timepicker should be attached to.
 	 * @param string $time_format A time format in strftime format
 	 */
-	public static function loadTimePicker($selector = 'input.time_input', $time_format = ''): void
+	public static function loadTimePicker(string $selector = 'input.time_input', string $time_format = ''): void
 	{
 		if (empty($time_format)) {
 			$time_format = Time::getTimeFormat();
@@ -1354,7 +1358,7 @@ class Calendar implements ActionInterface
 	 * @param string $date_class The CSS class of the date inputs to be paired.
 	 * @param string $time_class The CSS class of the time inputs to be paired.
 	 */
-	public static function loadDatePair($container, $date_class = '', $time_class = ''): void
+	public static function loadDatePair(string $container, string $date_class = '', string $time_class = ''): void
 	{
 		$container = (string) $container;
 		$date_class = (string) $date_class;
@@ -1416,12 +1420,12 @@ class Calendar implements ActionInterface
 	 * @param array $eventOptions With the keys 'num_days_shown', 'include_holidays', 'include_birthdays' and 'include_events'
 	 * @return array An array containing the data that was cached as well as an expression to calculate whether the data should be refreshed and when it expires
 	 */
-	public static function cache_getOffsetIndependentEvents($eventOptions): array
+	public static function cache_getOffsetIndependentEvents(array $eventOptions): array
 	{
 		$days_to_index = $eventOptions['num_days_shown'];
 
 		$low_date = Time::strftime('%Y-%m-%d', time() - 24 * 3600);
-		$high_date = Time::strftime('%Y-%m-%d', time() + $days_to_index * 24 * 3600);
+		$high_date = Time::strftime('%Y-%m-%d', (int) (time() + $days_to_index * 24 * 3600));
 
 		return [
 			'data' => [
@@ -1442,7 +1446,7 @@ class Calendar implements ActionInterface
 	 * @param array $eventOptions An array of event options.
 	 * @return array An array containing the info that was cached as well as a few other relevant things
 	 */
-	public static function cache_getRecentEvents($eventOptions): array
+	public static function cache_getRecentEvents(array $eventOptions): array
 	{
 		// With the 'static' cached data we can calculate the user-specific data.
 		$cached_data = CacheApi::quickGet('calendar_index', 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getOffsetIndependentEvents', [$eventOptions]);
@@ -1466,7 +1470,7 @@ class Calendar implements ActionInterface
 			// Holidays between now and now + days.
 			for ($i = $now; $i < $now + $days_for_index; $i += 86400) {
 				if (isset($cached_data['holidays'][Time::strftime('%Y-%m-%d', $i)])) {
-					$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][Time::strftime('%Y-%m-%d', $i)]);
+					$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], (array) $cached_data['holidays'][Time::strftime('%Y-%m-%d', $i)]);
 				}
 			}
 		}
@@ -1477,10 +1481,10 @@ class Calendar implements ActionInterface
 				$loop_date = Time::strftime('%Y-%m-%d', $i);
 
 				if (isset($cached_data['birthdays'][$loop_date])) {
-					foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy) {
+					foreach ((array) $cached_data['birthdays'][$loop_date] as $index => $dummy) {
 						$cached_data['birthdays'][Time::strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
 					}
-					$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
+					$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], (array) $cached_data['birthdays'][$loop_date]);
 				}
 			}
 		}
@@ -1498,7 +1502,7 @@ class Calendar implements ActionInterface
 				}
 
 				// Loop through all events to add a few last-minute values.
-				foreach ($cached_data['events'][$loop_date] as $ev => $event) {
+				foreach ((array) $cached_data['events'][$loop_date] as $ev => $event) {
 					// Create a shortcut variable for easier access.
 					$this_event = &$cached_data['events'][$loop_date][$ev];
 
@@ -1518,7 +1522,7 @@ class Calendar implements ActionInterface
 				}
 
 				if (!empty($cached_data['events'][$loop_date])) {
-					$return_data['calendar_events'] = array_merge($return_data['calendar_events'], $cached_data['events'][$loop_date]);
+					$return_data['calendar_events'] = array_merge($return_data['calendar_events'], (array) $cached_data['events'][$loop_date]);
 				}
 			}
 		}
@@ -1672,7 +1676,7 @@ class Calendar implements ActionInterface
 	 * @param int $event_id The ID of the event
 	 * @return int|bool The ID of the poster or false if the event was not found
 	 */
-	public static function getEventPoster($event_id): int|bool
+	public static function getEventPoster(int $event_id): int|bool
 	{
 		// A simple database query, how hard can that be?
 		$request = Db::$db->query(
@@ -1706,7 +1710,7 @@ class Calendar implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of holidays, each of which is an array containing the id, year, month, day and title of the holiday
 	 */
-	public static function list_getHolidays($start, $items_per_page, $sort): array
+	public static function list_getHolidays(int $start, int $items_per_page, string $sort): array
 	{
 		$request = Db::$db->query(
 			'',
@@ -1755,7 +1759,7 @@ class Calendar implements ActionInterface
 	 *
 	 * @param array $holiday_ids An array of IDs of holidays to delete
 	 */
-	public static function removeHolidays($holiday_ids): void
+	public static function removeHolidays(array $holiday_ids): void
 	{
 		Db::$db->query(
 			'',
@@ -1778,7 +1782,7 @@ class Calendar implements ActionInterface
 	 * @param string $date A localized date string
 	 * @return string English date string
 	 */
-	public static function convertDateToEnglish($date): string
+	public static function convertDateToEnglish(string $date): string
 	{
 		if (User::$me->language == 'english') {
 			return $date;

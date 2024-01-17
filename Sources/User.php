@@ -636,7 +636,7 @@ class User implements \ArrayAccess
 	public static array $loaded = [];
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the current user.
 	 */

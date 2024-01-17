@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Db\DatabaseApi as Db;
@@ -72,12 +74,12 @@ class AutoSuggest implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -234,7 +236,11 @@ class AutoSuggest implements ActionInterface
 
 		if (Db::$db->num_rows($request)) {
 			$versions = [];
-		} elseif ($row = Db::$db->fetch_assoc($request) && !empty($row['data'])) {
+		}
+
+		$row = Db::$db->fetch_assoc($request);
+		
+		if (!empty($row['data'])) {
 			// The file can have either Windows or Linux line endings, but let's
 			// ensure we clean it as best we can.
 			$possible_versions = explode("\n", $row['data']);
@@ -247,6 +253,7 @@ class AutoSuggest implements ActionInterface
 				}
 			}
 		}
+
 		Db::$db->free_result($request);
 
 		// Just in case we don't have anything.
@@ -275,9 +282,9 @@ class AutoSuggest implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -310,9 +317,8 @@ class AutoSuggest implements ActionInterface
 	 * Backward compatibility provider
 	 * @param null|string $suggest_type
 	 * @param bool $callHandler
-	 * @return mixed
 	 */
-	public static function backCompatProvider(?string $suggest_type = null)
+	public static function backCompatProvider(?string $suggest_type = null): void
 	{
 		self::load();
 		self::$obj->suggest_type = $suggest_type;

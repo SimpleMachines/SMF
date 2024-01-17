@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -128,11 +130,11 @@ class MessageIndex implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -163,9 +165,9 @@ class MessageIndex implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -188,7 +190,7 @@ class MessageIndex implements ActionInterface
 	 * @param array $boardListOptions An array of options for the board list.
 	 * @return array An array of board info.
 	 */
-	public static function getBoardList($boardListOptions = []): array
+	public static function getBoardList(array $boardListOptions = []): array
 	{
 		if (isset($boardListOptions['excluded_boards'], $boardListOptions['included_boards'])) {
 			Lang::load('Errors');
@@ -263,7 +265,7 @@ class MessageIndex implements ActionInterface
 	 *
 	 * This is static so that it can be called by SMF\Actions\Unread, etc.
 	 */
-	public static function buildTopicContext(array $row)
+	public static function buildTopicContext(array $row): void
 	{
 		// Reference the main color class.
 		$colorClass = 'windowbg';
