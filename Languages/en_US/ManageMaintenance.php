@@ -3,43 +3,53 @@
 // Version: 3.0 Alpha 1; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
-$txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
-$txt['repair_missing_messages'] = 'Topic #%1$d contains no (actual) messages.';
-$txt['repair_topic_wrong_first_id'] = 'Topic #%1$d has the first message ID %2$d, which is incorrect.';
-$txt['repair_topic_wrong_last_id'] = 'Topic #%1$d has the last message ID %2$d, which is incorrect.';
-$txt['repair_topic_wrong_replies'] = 'Topic #%1$d has the wrong number of replies, %2$d.';
-$txt['repair_topic_wrong_unapproved_number'] = 'Topic #%1$d has the wrong number of unapproved posts, %2$d.';
-$txt['repair_topic_wrong_approval'] = 'Topic #%1$d has the wrong approval flag set.';
-$txt['repair_missing_boards'] = 'Topic #%1$d is in board #%2$d, which is missing.';
-$txt['repair_missing_categories'] = 'Board #%1$d is in category #%2$d, which is missing.';
-$txt['repair_missing_posters'] = 'Message #%1$d was posted by member #%2$d, who is now missing.';
-$txt['repair_missing_parents'] = 'Board #%1$d is a sub-board of board #%2$d, which is missing.';
-$txt['repair_missing_polls'] = 'Topic #%1$d is tied to non-existent poll #%2$d.';
-$txt['repair_polls_missing_topics'] = 'Poll #%1$d is tied to non-existent topic #%2$d.';
-$txt['repair_poll_options_missing_poll'] = 'Poll #%1$d has %2$d voting options but no poll attached.';
-$txt['repair_missing_calendar_topics'] = 'Event #%1$d is tied to topic #%2$d, which is missing.';
-$txt['repair_missing_log_topics'] = 'Topic #%1$d is marked as read for one or more people, but does not exist.';
-$txt['repair_missing_log_topics_members'] = 'Member #%1$d has marked one or more topics as read, but does not exist.';
-$txt['repair_missing_log_boards'] = 'Board #%1$d is marked as read for one or more people, but does not exist.';
-$txt['repair_missing_log_boards_members'] = 'Member #%1$d has marked one or more boards as read, but does not exist.';
-$txt['repair_missing_log_mark_read'] = 'Board #%1$d is marked as read for one or more people, but does not exist.';
-$txt['repair_missing_log_mark_read_members'] = 'Member #%1$d has marked one or more boards as read, but does not exist.';
-$txt['repair_missing_pms'] = 'Personal message #%1$d has been sent to one or more people, but does not exist.';
-$txt['repair_missing_recipients'] = 'Member #%1$d has received one or more personal messages, but does not exist.';
-$txt['repair_missing_senders'] = 'Personal message #%1$d was sent by member #%2$d, who does not exist.';
-$txt['repair_missing_notify_members'] = 'Notifications have been requested by member #%1$d, who does not exist.';
-$txt['repair_missing_cached_subject'] = 'The subject of topic #%1$d is currently not stored in the subject cache.';
-$txt['repair_missing_topic_for_cache'] = 'Cached word \'%1$s\' is linked to a non-existent topic.';
-$txt['repair_missing_log_poll_member'] = 'Poll #%1$d has been given a vote from member #%2$d , who is now missing.';
-$txt['repair_missing_log_poll_vote'] = 'A vote was cast by member #%1$d on a non-existent poll #%2$d.';
-$txt['repair_missing_thumbnail_parent'] = 'A thumbnail exists called %1$s, but it doesn\'t have a parent.';
-$txt['repair_report_missing_comments'] = 'Report #%1$d of topic: &quot;%2$s&quot; has no comments.';
-$txt['repair_comments_missing_report'] = 'Report comment #%1$d submitted by %2$s has no related report.';
-$txt['repair_group_request_missing_member'] = 'A group request still exists for deleted member #%1$d.';
-$txt['repair_group_request_missing_group'] = 'A group request still exists for deleted group #%1$d.';
+$txt['repair_missing_topics'] = 'Message #{0, number, integer} is in non-existent topic #{1, number, integer}.';
+$txt['repair_missing_messages'] = 'Topic #{0, number, integer} contains no (actual) messages.';
+$txt['repair_topic_wrong_first_id'] = 'Topic #{0, number, integer} has the first message ID {1, number, integer}, which is incorrect.';
+$txt['repair_topic_wrong_last_id'] = 'Topic #{0, number, integer} has the last message ID {1, number, integer}, which is incorrect.';
+$txt['repair_topic_wrong_replies'] = 'Topic #{0} has {1, plural,
+	one {# reply}
+	other {# replies}
+}, which is incorrect.';
 
-$txt['repair_currently_checking'] = 'Checking: &quot;%1$s&quot;';
-$txt['repair_currently_fixing'] = 'Fixing: &quot;%1$s&quot;';
+$txt['repair_topic_wrong_unapproved_number'] = 'Topic #{0} has {1, plural,
+	one {# unapproved post}
+	other {# unapproved posts}
+}, which is incorrect.';
+$txt['repair_topic_wrong_approval'] = 'Topic #{0, number, integer} has the wrong approval flag set.';
+$txt['repair_missing_boards'] = 'Topic #{0, number, integer} is in board #{1, number, integer}, which is missing.';
+$txt['repair_missing_categories'] = 'Board #{0, number, integer} is in category #{1, number, integer}, which is missing.';
+$txt['repair_missing_posters'] = 'Message #{0, number, integer} was posted by member #{1, number, integer}, who is now missing.';
+$txt['repair_missing_parents'] = 'Board #{0, number, integer} is a sub-board of board #{1, number, integer}, which is missing.';
+$txt['repair_missing_polls'] = 'Topic #{0, number, integer} is tied to non-existent poll #{1, number, integer}.';
+$txt['repair_polls_missing_topics'] = 'Poll #{0, number, integer} is tied to non-existent topic #{1, number, integer}.';
+$txt['repair_poll_options_missing_poll'] = 'Poll #{0} does not exist, but has {1, plural,
+	one {# voting option}
+	other {# voting options}
+}.';
+$txt['repair_missing_calendar_topics'] = 'Event #{0, number, integer} is tied to topic #{1, number, integer}, which is missing.';
+$txt['repair_missing_log_topics'] = 'Topic #{0, number, integer} is marked as read for one or more people, but does not exist.';
+$txt['repair_missing_log_topics_members'] = 'Member #{0, number, integer} has marked one or more topics as read, but does not exist.';
+$txt['repair_missing_log_boards'] = 'Board #{0, number, integer} is marked as read for one or more people, but does not exist.';
+$txt['repair_missing_log_boards_members'] = 'Member #{0, number, integer} has marked one or more boards as read, but does not exist.';
+$txt['repair_missing_log_mark_read'] = 'Board #{0, number, integer} is marked as read for one or more people, but does not exist.';
+$txt['repair_missing_log_mark_read_members'] = 'Member #{0, number, integer} has marked one or more boards as read, but does not exist.';
+$txt['repair_missing_pms'] = 'Personal message #{0, number, integer} has been sent to one or more people, but does not exist.';
+$txt['repair_missing_recipients'] = 'Member #{0, number, integer} has received one or more personal messages, but does not exist.';
+$txt['repair_missing_senders'] = 'Personal message #{0, number, integer} was sent by member #{1, number, integer}, who does not exist.';
+$txt['repair_missing_notify_members'] = 'Notifications have been requested by member #{0, number, integer}, who does not exist.';
+$txt['repair_missing_cached_subject'] = 'The subject of topic #{0, number, integer} is currently not stored in the subject cache.';
+$txt['repair_missing_topic_for_cache'] = 'Cached word "{0}" is linked to a non-existent topic.';
+$txt['repair_missing_log_poll_member'] = 'Poll #{0, number, integer} has been given a vote from member #{1, number, integer} , who is now missing.';
+$txt['repair_missing_log_poll_vote'] = 'A vote was cast by member #{0, number, integer} on a non-existent poll #{1, number, integer}.';
+$txt['repair_missing_thumbnail_parent'] = 'A thumbnail exists called {0}, but it doesn\'t have a parent.';
+$txt['repair_report_missing_comments'] = 'Report #{0, number, integer} of topic: "{1}" has no comments.';
+$txt['repair_comments_missing_report'] = 'Report comment #{0, number, integer} submitted by {1} has no related report.';
+$txt['repair_group_request_missing_member'] = 'A group request still exists for deleted member #{0, number, integer}.';
+$txt['repair_group_request_missing_group'] = 'A group request still exists for deleted group #{0, number, integer}.';
+
+$txt['repair_currently_checking'] = 'Checking: "{0}"';
+$txt['repair_currently_fixing'] = 'Fixing: "{0}"';
 $txt['repair_operation_zero_topics'] = 'Topics with id_topic incorrectly set to zero';
 $txt['repair_operation_zero_messages'] = 'Messages with id_msg incorrectly set to zero';
 $txt['repair_operation_missing_topics'] = 'Messages missing topic entries';
