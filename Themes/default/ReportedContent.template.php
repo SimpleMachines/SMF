@@ -191,7 +191,7 @@ function template_viewmodreport()
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf(Lang::$txt['mc_modreport_summary'], Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']), '
+						', Lang::getTxt('mc_modreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
 					</span>';
 
 	$report_buttons = array(
@@ -473,7 +473,7 @@ function template_viewmemberreport()
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf(Lang::$txt['mc_memberreport_summary'], Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']), '
+						', Lang::getTxt('mc_memberreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
 					</span>';
 
 	$report_buttons = array(

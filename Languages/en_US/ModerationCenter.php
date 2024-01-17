@@ -91,7 +91,10 @@ $txt['mc_unapproved_attach_name'] = 'Attachment name';
 $txt['mc_unapproved_attach_size'] = 'Filesize';
 $txt['mc_unapproved_attach_poster'] = 'Poster';
 $txt['mc_viewmodreport'] = 'Moderation report for %1$s by %2$s';
-$txt['mc_modreport_summary'] = 'There have been %1$d report(s) concerning this post. The last report was %2$s.';
+$txt['mc_modreport_summary'] = '{0, plural,
+	one {There has been # report concerning this post.}
+	other {There have been # reports concerning this post.}
+} The last report was {1}.';
 $txt['mc_modreport_whoreported_title'] = 'Members who have reported this post';
 $txt['mc_modreport_whoreported_data'] = 'Reported by %1$s on %2$s. They left the following message:';
 $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
@@ -101,7 +104,10 @@ $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 $txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
 $txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
-$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this profile. The last report was %2$s.';
+$txt['mc_memberreport_summary'] = '{0, plural,
+	one {There has been # report concerning this profile.}
+	other {There have been # reports concerning this profile.}
+} The last report was {1}.';
 $txt['mc_memberreport_whoreported_title'] = 'Members who have reported this profile.';
 
 $txt['show_notice'] = 'Notice Text';
