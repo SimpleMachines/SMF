@@ -535,7 +535,7 @@ function template_optimize()
 	// List each table being optimized...
 	foreach (Utils::$context['optimized_tables'] as $table)
 		echo '
-				', sprintf(Lang::$txt['database_optimizing'], $table['name'], $table['data_freed']), '<br>';
+				', Lang::getTxt('database_optimizing', [$table['name'], round($table['data_freed'], 2)]), '<br>';
 
 	// How did we go?
 	echo '
