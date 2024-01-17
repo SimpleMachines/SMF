@@ -495,7 +495,7 @@ function template_modify_board()
 						</dt>
 						<dd>
 							<input type="checkbox" name="reset_redirect">
-							<em>(', sprintf(Lang::$txt['mboards_current_redirects'], Utils::$context['board']['posts']), ')</em>
+							<em>(', Lang::getTxt('mboards_current_redirects', [Utils::$context['board']['posts']]), ')</em>
 						</dd>
 					</dl>
 				</div>';

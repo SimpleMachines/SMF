@@ -72,7 +72,7 @@ $txt['mboards_redirect_url'] = 'Address to redirect users to';
 $txt['mboards_redirect_url_desc'] = 'For example: &quot;https://www.simplemachines.org&quot;.';
 $txt['mboards_redirect_reset'] = 'Reset redirect count';
 $txt['mboards_redirect_reset_desc'] = 'Selecting this will reset the redirection count for this board to zero.';
-$txt['mboards_current_redirects'] = 'Currently: %1$s';
+$txt['mboards_current_redirects'] = 'Currently: {0, number, integer}';
 
 $txt['mboards_order_before'] = 'Before';
 $txt['mboards_order_child_of'] = 'Sub-board of';
