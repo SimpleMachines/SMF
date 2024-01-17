@@ -308,7 +308,7 @@ class Lang
 	 *
 	 * @param array|string $custom_dirs Optional custom directories to include.
 	 */
-	public static function addDirs(array $custom_dirs = []): void
+	public static function addDirs(array|string $custom_dirs = []): void
 	{
 		// We only accept real directories.
 		if (!empty($custom_dirs)) {
