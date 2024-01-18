@@ -1046,7 +1046,7 @@ class PM implements \ArrayAccess
 		if (!empty(Config::$modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !User::$me->allowedTo(['moderate_forum', 'send_mail', 'admin_forum'])) {
 			Utils::$context['send_log'] = [
 				'sent' => [],
-				'failed' => [sprintf(Lang::$txt['pm_too_many_recipients'], Config::$modSettings['max_pm_recipients'])],
+				'failed' => [Lang::getTxt('pm_too_many_recipients', [Config::$modSettings['max_pm_recipients']])],
 			];
 
 			self::reportErrors($post_errors, $namedRecipientList, $recipientList);

@@ -38,7 +38,10 @@ $txt['remove_conversation'] = 'Remove all messages in this conversation?';
 $txt['pm'] = 'Personal Message';
 
 $txt['pm_capacity'] = 'Capacity';
-$txt['pm_currently_using'] = '%1$s messages, %2$s%% full.';
+$txt['pm_currently_using'] = '{0, plural,
+	one {# message}
+	other {# messages}
+}, {1, number, percent} full.';
 $txt['pm_sent'] = 'Your message has been sent successfully.';
 
 $txt['pm_error_user_not_found'] = 'Unable to find member \'%1$s\'.';
@@ -48,7 +51,10 @@ $txt['pm_error_user_cannot_read'] = 'User \'%1$s\' can not receive personal mess
 $txt['pm_successfully_sent'] = 'PM successfully sent to \'%1$s\'.';
 $txt['pm_send_report'] = 'Send report';
 $txt['pm_undisclosed_recipients'] = 'Undisclosed recipients';
-$txt['pm_too_many_recipients'] = 'You may not send personal messages to more than %1$d recipient(s) at once.';
+$txt['pm_too_many_recipients'] = '{0, plural,
+	one {You may not send personal messages to more than # recipient at once.}
+	other {You may not send personal messages to more than # recipients at once.}
+}';
 
 $txt['pm_read'] = 'Read';
 $txt['pm_replied'] = 'Replied To';
@@ -108,7 +114,10 @@ $txt['pm_report_pm_subject'] = '[REPORT] ';
 // In the below string, do not translate "{REPORTER}" or "{SENDER}".
 $txt['pm_report_pm_user_sent'] = '{REPORTER} has reported the below personal message, sent by {SENDER}, for the following reason:';
 $txt['pm_report_pm_other_recipients'] = 'Other recipients of the message include:';
-$txt['pm_report_pm_hidden'] = '%1$d hidden recipient(s)';
+$txt['pm_report_pm_hidden'] = '{0, plural,
+	one {# hidden recipient}
+	other {# hidden recipients}
+}';
 $txt['pm_report_pm_unedited_below'] = 'Below are the original contents of the personal message which was reported:';
 $txt['pm_report_pm_sent'] = 'Sent:';
 
@@ -135,7 +144,10 @@ $txt['pm_search_choose_label'] = 'Choose labels to search by, or search all';
 
 $txt['pm_search_results'] = 'Search results';
 $txt['pm_search_none_found'] = 'No messages found';
-$txt['pm_search_results_info'] = 'Found %1$d matching messages in %2$s.';
+$txt['pm_search_results_info'] = '{0, plural,
+	one {Found # matching message in {1}.}
+	one {Found # matching messages in {1}.}
+}';
 
 $txt['pm_search_orderby_relevant_first'] = 'Most relevant first';
 $txt['pm_search_orderby_recent_first'] = 'Most recent first';

@@ -883,7 +883,7 @@ function template_search_results()
 			<h3 class="catbg">', Lang::$txt['pm_search_results'], '</h3>
 		</div>
 		<div class="roundframe noup">
-			', sprintf(Lang::$txt['pm_search_results_info'], Utils::$context['num_results'], Lang::sentenceList(Utils::$context['search_in'])), '
+			', Lang::getTxt('pm_search_results_info', [Utils::$context['num_results'], Lang::sentenceList(Utils::$context['search_in'])]), '
 		</div>
 		<div class="pagesection">
 			<div class="pagelinks">', Utils::$context['page_index'], '</div>

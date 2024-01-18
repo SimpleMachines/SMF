@@ -580,7 +580,7 @@ class PersonalMessage implements ActionInterface
 			}
 
 			if ($hidden_recipients) {
-				$recipients[] = sprintf(Lang::$txt['pm_report_pm_hidden'], $hidden_recipients);
+				$recipients[] = Lang::getTxt('pm_report_pm_hidden', [$hidden_recipients]);
 			}
 
 			// Prepare the message storage array.
@@ -938,7 +938,7 @@ class PersonalMessage implements ActionInterface
 				'allowed' => $limit,
 				'percent' => $bar,
 				'bar' => min(100, (int) $bar),
-				'text' => sprintf(Lang::$txt['pm_currently_using'], User::$me->messages, $bar),
+				'text' => Lang::getTxt('pm_currently_using', [User::$me->messages, $bar]),
 			];
 		}
 	}
