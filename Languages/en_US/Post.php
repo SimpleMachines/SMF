@@ -105,7 +105,10 @@ $txt['poll_results_voted'] = 'Only show the results after someone has voted.';
 $txt['poll_results_after'] = 'Only show the results after the poll has expired.';
 $txt['poll_max_votes'] = 'Maximum votes per user';
 $txt['poll_do_change_vote'] = 'Allow users to change vote';
-$txt['poll_too_many_votes'] = 'You selected too many options. For this poll, you may only select %1$s options.';
+$txt['poll_too_many_votes'] = 'You selected too many options. {0, plural,
+	one {For this poll, you may only select # option.}
+	other {For this poll, you may only select # options.}
+}';
 $txt['poll_add_option'] = 'Add Option';
 $txt['poll_guest_vote'] = 'Allow guests to vote';
 
