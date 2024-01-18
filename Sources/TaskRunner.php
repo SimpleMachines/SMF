@@ -73,7 +73,7 @@ class TaskRunner
 			'class' => 'SMF\\Tasks\\DailyMaintenance',
 		],
 		'weekly_maintenance' => [
-			'class' => 'SMF\\Tasks\\WeekLyMaintenance',
+			'class' => 'SMF\\Tasks\\WeeklyMaintenance',
 		],
 		'daily_digest' => [
 			'class' => 'SMF\\Tasks\\SendDigests',
