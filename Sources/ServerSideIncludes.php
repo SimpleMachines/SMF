@@ -495,12 +495,12 @@ class ServerSideIncludes
 		$posts = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$topic = new Topic($row['id_topic'], [
+			$topic = new Topic((int) $row['id_topic'], [
 				'id_board' => $row['id_board'],
 				'id_first_msg' => $row['id_msg'],
 			]);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']);
 
 			// Censor it!
 			Lang::censorText($row['subject']);
@@ -680,7 +680,7 @@ class ServerSideIncludes
 		$posts = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']), ['<br>' => '&#10;']));
+			$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']), ['<br>' => '&#10;']));
 
 			if (Utils::entityStrlen($row['body']) > 128) {
 				$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
@@ -1091,7 +1091,7 @@ class ServerSideIncludes
 		}
 
 		// Get the lowest ID we're interested in.
-		$member_id = mt_rand(1, Config::$modSettings['latestMember']);
+		$member_id = mt_rand(1, (int) Config::$modSettings['latestMember']);
 
 		$where_query = '
 			id_member >= {int:selected_member}
@@ -1339,6 +1339,8 @@ class ServerSideIncludes
 			', Lang::$txt['total_topics'], ': ', Lang::numberFormat($totals['topics']), ' <br>
 			', Lang::$txt['total_cats'], ': ', Lang::numberFormat($totals['categories']), '<br>
 			', Lang::$txt['total_boards'], ': ', Lang::numberFormat($totals['boards']);
+
+		return null;
 	}
 
 	/**
@@ -1438,7 +1440,7 @@ class ServerSideIncludes
 			return self::whosOnline($output_method);
 		}
 
-		self::whosOnline($output_method);
+		return self::whosOnline($output_method);
 	}
 
 	/**
@@ -1823,6 +1825,8 @@ class ServerSideIncludes
 			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::$txt['search'], '" class="button">
 			</form>';
+
+		return null;
 	}
 
 	/**
@@ -2168,7 +2172,7 @@ class ServerSideIncludes
 		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$topic = new Topic($row['id_topic'], [
+			$topic = new Topic((int) $row['id_topic'], [
 				'id_board' => $row['id_board'],
 				'num_replies' => $row['num_replies'],
 				'locked' => $row['locked'],
@@ -2197,7 +2201,7 @@ class ServerSideIncludes
 				$row['body'] .= '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']);
 
 			if (!empty($recycle_board) && $row['id_board'] == $recycle_board) {
 				$row['icon'] = 'recycled';

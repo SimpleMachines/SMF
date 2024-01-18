@@ -308,7 +308,7 @@ class Lang
 	 *
 	 * @param array|string $custom_dirs Optional custom directories to include.
 	 */
-	public static function addDirs(array $custom_dirs = []): void
+	public static function addDirs(array|string $custom_dirs = []): void
 	{
 		// We only accept real directories.
 		if (!empty($custom_dirs)) {
@@ -592,13 +592,17 @@ class Lang
 	 * Wrapper for number_format() that uses Lang::$txt['number_format'] to
 	 * figure out the parameters to pass to number_format().
 	 *
-	 * @param int|float $number A number.
+	 * @param int|float|string $number A number.
 	 * @param int $decimals If set, will use the specified number of decimal
 	 *    places. Otherwise it's automatically determined.
 	 * @return string A formatted number
 	 */
-	public static function numberFormat(int|float $number, ?int $decimals = null): string
+	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
+		if (is_string($number)) {
+			$number = intval($number);
+		}
+
 		// Cache these values...
 		if (!isset(self::$decimal_separator)) {
 			// Not set for whatever reason?
