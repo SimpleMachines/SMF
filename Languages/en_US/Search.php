@@ -97,7 +97,10 @@ $txt['search_double_index'] = 'You have currently created two indexes on the mes
 
 $txt['search_error_indexed_chars'] = 'Invalid number of indexed characters. At least 3 characters are needed for a useful index.';
 $txt['search_error_max_percentage'] = 'Invalid percentage of words to be skipped. Use a value of at least 5%.';
-$txt['error_string_too_long'] = 'Search string must be less than %1$d characters long.';
+$txt['error_string_too_long'] = '{0, plural,
+	one {Search string must be less than # character long.}
+	other {Search string must be less than # characters long.}
+}';
 
 $txt['search_adjust_query'] = 'Adjust Search Parameters';
 $txt['search_warning_ignored_word'] = 'The following term has been ignored in your search because it is too short';
