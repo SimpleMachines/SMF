@@ -159,8 +159,10 @@ $txt['digest_intro_weekly'] = 'Below is a summary of all activity in your subscr
 $txt['digest_new_topics'] = 'The following topics have been started';
 $txt['digest_new_topics_line'] = '"%1$s" in "%2$s"';
 $txt['digest_new_replies'] = 'Replies have been made in the following topics';
-$txt['digest_new_replies_one'] = '1 reply in "%1$s"';
-$txt['digest_new_replies_many'] = '%1$d replies in "%2$s"';
+$txt['digest_num_replies'] = '{0, plural,
+	one {# reply in "{1}"}
+	other {# replies in "{1}"}
+}';
 $txt['digest_mod_actions'] = 'The following moderation actions have taken place';
 $txt['digest_mod_act_sticky'] = '"%1$s" was stickied';
 $txt['digest_mod_act_lock'] = '"%1$s" was locked';

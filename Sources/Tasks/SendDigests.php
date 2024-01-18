@@ -192,8 +192,7 @@ class SendDigests extends ScheduledTask
 				'topic_lines' => Lang::$txt['digest_new_topics_line'],
 				'new_replies' => Lang::$txt['digest_new_replies'],
 				'mod_actions' => Lang::$txt['digest_mod_actions'],
-				'replies_one' => Lang::$txt['digest_new_replies_one'],
-				'replies_many' => Lang::$txt['digest_new_replies_many'],
+				'replies' => Lang::$txt['digest_num_replies'],
 				'sticky' => Lang::$txt['digest_mod_act_sticky'],
 				'lock' => Lang::$txt['digest_mod_act_lock'],
 				'unlock' => Lang::$txt['digest_mod_act_unlock'],
@@ -267,7 +266,7 @@ class SendDigests extends ScheduledTask
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . ($topic['count'] == 1 ? sprintf($langtxt[$lang]['replies_one'], $topic['subject']) : sprintf($langtxt[$lang]['replies_many'], $topic['count'], $topic['subject']));
+							$email['body'] .= "\n" . Lang::formatText($langtxt[$lang]['replies'], [$topic['count'], $topic['subject']]);
 						}
 					}
 				}
