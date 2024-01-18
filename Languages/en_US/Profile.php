@@ -437,16 +437,48 @@ $txt['submit_request'] = 'Submit Request';
 $txt['profile_updated_own'] = 'Your profile has been updated successfully.';
 $txt['profile_updated_else'] = 'The profile of %1$s has been updated successfully.';
 
-$txt['profile_error_signature_max_length'] = 'Your signature cannot be longer than %1$d characters';
-$txt['profile_error_signature_max_lines'] = 'Your signature cannot span more than %1$d lines';
-$txt['profile_error_signature_max_image_size'] = 'Images in your signature must be no greater than %1$dx%2$d pixels';
-$txt['profile_error_signature_max_image_width'] = 'Images in your signature must be no wider than %1$d pixels';
-$txt['profile_error_signature_max_image_height'] = 'Images in your signature must be no higher than %1$d pixels';
-$txt['profile_error_signature_max_image_count'] = 'You cannot have more than %1$d images in your signature';
-$txt['profile_error_signature_max_font_size'] = 'Text in your signature must be smaller than %1$s in size';
+$txt['profile_error_signature_max_length'] = '{0, plural,
+	one {Your signature cannot be longer than # character}
+	one {Your signature cannot be longer than # characters}
+}';
+$txt['profile_error_signature_max_lines'] = '{0, plural,
+	one {Your signature cannot span more than # line}
+	one {Your signature cannot span more than # lines}
+}';
+$txt['profile_error_signature_max_image_size'] = '{0, plural,
+	one {Images in your signature must be no larger than # pixel {1, plural,
+			one {by # pixel}
+			other {by # pixels}
+		}
+	}
+	other {Images in your signature must be no larger than # pixels {1, plural,
+			one {by # pixel}
+			other {by # pixels}
+		}
+	}
+}';
+$txt['profile_error_signature_max_image_width'] = '{0, plural,
+	one {Images in your signature must be no wider than # pixel}
+	other {Images in your signature must be no wider than # pixels}
+}';
+$txt['profile_error_signature_max_image_height'] = '{0, plural,
+	one {Images in your signature must be no taller than # pixel}
+	other {Images in your signature must be no taller than # pixels}
+}';
+$txt['profile_error_signature_max_image_count'] = '{0, plural,
+	one {You cannot have more than # image in your signature}
+	other {You cannot have more than # images in your signature}
+}';
+$txt['profile_error_signature_max_font_size'] = 'Text in your signature must be smaller than {0} in size';
 $txt['profile_error_signature_allow_smileys'] = 'You are not allowed to use any smileys within your signature';
-$txt['profile_error_signature_max_smileys'] = 'You are not allowed to use more than %1$d smileys within your signature';
-$txt['profile_error_signature_disabled_bbc'] = 'The following BBC is not allowed within your signature: %1$s';
+$txt['profile_error_signature_max_smileys'] = '{0, plural,
+	one {You are not allowed to use more than # smiley within your signature}
+	other {You are not allowed to use more than # smileys within your signature}
+}';
+$txt['profile_error_signature_disabled_bbc'] = '{num_disabled_tags, plural,
+	one {The following BBCode is not allowed within your signature: {list_disabled_tags}}
+	other {The following BBCodes are not allowed within your signature: {list_disabled_tags}}
+}';
 
 $txt['profile_view_warnings'] = 'View Warnings';
 $txt['profile_issue_warning'] = 'Issue a Warning';
