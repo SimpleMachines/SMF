@@ -600,7 +600,7 @@ class Unread implements ActionInterface
 		}
 
 		// Make sure the starting place makes sense and construct the page index.
-		Utils::$context['page_index'] = new PageIndex($this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . Utils::$context['querystring_sort_limits'], Utils::$context['start'], $this->num_topics, Utils::$context['topics_per_page'], true);
+		Utils::$context['page_index'] = new PageIndex($this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . Utils::$context['querystring_sort_limits'], Utils::$context['start'], $this->num_topics, (int) Utils::$context['topics_per_page'], true);
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
 
@@ -874,8 +874,8 @@ class Unread implements ActionInterface
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$this->num_topics = $num_topics ?? 0;
-		$this->min_message = $min_message ?? 0;
+		$this->num_topics = (int) $num_topics ?? 0;
+		$this->min_message = (int) $min_message ?? 0;
 
 		if ($this->num_topics == 0) {
 			$this->setNoTopics();

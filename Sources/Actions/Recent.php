@@ -86,7 +86,7 @@ class Recent implements ActionInterface
 	 *
 	 * IDs of some recent messages.
 	 */
-	protected array $messages = [];
+	protected ?array $messages = [];
 
 	/**
 	 * @var array
@@ -412,7 +412,8 @@ class Recent implements ActionInterface
 				array_merge($query_these_boards_params, ['empty' => '']),
 			);
 
-			list($this->total_posts) = Db::$db->fetch_row($get_num_posts);
+			list($total_posts) = Db::$db->fetch_row($get_num_posts);
+			$this->total_posts = (int) $total_posts;
 
 			Db::$db->free_result($get_num_posts);
 		}

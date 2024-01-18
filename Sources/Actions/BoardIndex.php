@@ -399,8 +399,8 @@ class BoardIndex implements ActionInterface
 			if ($board_index_options['include_categories']) {
 				// Haven't set this category yet.
 				if (!isset(Category::$loaded[$row_board['id_cat']])) {
-					$category = Category::init($row_board['id_cat'], [
-						'id' => $row_board['id_cat'],
+					$category = Category::init((int) $row_board['id_cat'], [
+						'id' => (int) $row_board['id_cat'],
 						'name' => $row_board['cat_name'],
 						'description' => $row_board['cat_desc'],
 						'order' => $row_board['cat_order'],
@@ -419,20 +419,21 @@ class BoardIndex implements ActionInterface
 				}
 
 				// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
+				/** @var \SMF\Category $category */
 				if (empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $row_board['id_board']) {
-					$category->new |= empty($row_board['is_read']);
+					$category->new = $category->new || empty($row_board['is_read']);
 				}
 
 				// Avoid showing category unread link where it only has redirection boards.
-				$category->show_unread = !empty($category->show_unread) ? 1 : !$row_board['is_redirect'];
+				$category->show_unread = !empty($category->show_unread) ? true : !$row_board['is_redirect'];
 
 				$cat_boards = &$category->children;
 			}
 
 			// Is this a new board, or just another moderator?
 			if (!isset(Board::$loaded[$row_board['id_board']]->type)) {
-				$board = Board::init($row_board['id_board'], [
-					'cat' => Category::init($row_board['id_cat']),
+				$board = Board::init((int) $row_board['id_board'], [
+					'cat' => Category::init((int) $row_board['id_cat']),
 					'new' => empty($row_board['is_read']),
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
 					'name' => $row_board['board_name'],
@@ -440,13 +441,13 @@ class BoardIndex implements ActionInterface
 					'short_description' => Utils::shorten($row_board['description'], 128),
 					'link_moderators' => [],
 					'link_moderator_groups' => [],
-					'parent' => $row_board['id_parent'],
+					'parent' => (int) $row_board['id_parent'],
 					'child_level' => $row_board['child_level'],
 					'link_children' => [],
 					'children_new' => false,
-					'topics' => $row_board['num_topics'],
-					'posts' => $row_board['num_posts'],
-					'is_redirect' => $row_board['is_redirect'],
+					'topics' => (int) $row_board['num_topics'],
+					'posts' => (int) $row_board['num_posts'],
+					'is_redirect' => (bool) $row_board['is_redirect'],
 					'unapproved_topics' => $row_board['unapproved_topics'],
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
@@ -669,7 +670,7 @@ class BoardIndex implements ActionInterface
 			$parent->children_new |= $board->new;
 
 			if ($parent->parent != $board_index_options['parent_id']) {
-				$parent->new |= $board->new;
+				$parent->new = $parent->new || $board->new;
 			}
 
 			// Continue propagating up the tree.
@@ -716,11 +717,11 @@ class BoardIndex implements ActionInterface
 		Lang::censorText($row_board['subject']);
 		$short_subject = Utils::shorten($row_board['subject'], 24);
 
-		$msg = new Msg($row_board['id_msg'], [
-			'id_topic' => $row_board['id_topic'],
-			'id_board' => $row_board['id_board'],
+		$msg = new Msg((int) $row_board['id_msg'], [
+			'id_topic' => (int) $row_board['id_topic'],
+			'id_board' => (int) $row_board['id_board'],
 			'poster_time' => (int) $row_board['poster_time'],
-			'id_member' => $row_board['id_member'],
+			'id_member' => (int) $row_board['id_member'],
 			'poster_name' => $row_board['real_name'],
 			'subject' => $short_subject,
 		]);

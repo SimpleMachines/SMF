@@ -886,7 +886,7 @@ class ExportProfileData extends BackgroundTask
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time'));
+		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {

@@ -83,12 +83,12 @@ class Post2 extends Post
 	 *********************/
 
 	/**
-	 * @var object
+	 * @var \SMF\Msg
 	 *
 	 * An instance of SMF\Msg for the existing post.
 	 * Only used when editing a post.
 	 */
-	protected object $existing_msg;
+	protected Msg $existing_msg;
 
 	/**
 	 * @var bool
@@ -202,7 +202,7 @@ class Post2 extends Post
 
 		// In case we have approval permissions and want to override.
 		if ($this->can_approve && Config::$modSettings['postmod_active']) {
-			$this->becomes_approved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
+			$this->becomes_approved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? true : false;
 
 			$approve_has_changed = isset($this->existing_msg->approved) ? $this->existing_msg->approved != $this->becomes_approved : false;
 		}
@@ -1022,8 +1022,8 @@ class Post2 extends Post
 		Utils::$context['poster_id'] = $this->existing_msg->id_member;
 
 		// Can they approve it?
-		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
-		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved) : 1;
+		$approve_checked = (!empty($REQUEST['approve']) ? true : false);
+		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved > 0) : true;
 
 		if (!User::$me->allowedTo('moderate_forum') || !$this->authorIsGuest) {
 			$_POST['guestname'] = $this->existing_msg->poster_name;
@@ -1034,7 +1034,7 @@ class Post2 extends Post
 		$searchAPI = SearchApi::load();
 
 		if ($searchAPI->supportsMethod('postRemoved')) {
-			$searchAPI->postRemoved($_REQUEST['msg']);
+			$searchAPI->postRemoved((int) $_REQUEST['msg']);
 		}
 	}
 }

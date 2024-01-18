@@ -329,7 +329,7 @@ class Board implements \ArrayAccess
 	public static $board_id;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for board we are currently in.
 	 */

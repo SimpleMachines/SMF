@@ -857,9 +857,12 @@ class Display implements ActionInterface
 		}
 
 		// Construct the page index, allowing for the .START method...
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', $_REQUEST['start'], Topic::$info->total_visible_posts, Utils::$context['messages_per_page'], true);
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', Utils::$context['start'], Topic::$info->total_visible_posts, (int) Utils::$context['messages_per_page'], true);
 
-		Utils::$context['start'] = $_REQUEST['start'];
+		// SMF has a logic issue where we don't get the proper start in our query, quick fix.
+		// @ TODO; Properly fix this, remove this and load a topic with ?topic=123.msg456
+		$_REQUEST['start'] = Utils::$context['start'];
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 		Utils::$context['page_info'] = [
@@ -1104,7 +1107,7 @@ class Display implements ActionInterface
 	protected function getMessagesAndPosters(): void
 	{
 		$limit = Utils::$context['messages_per_page'];
-		$start = $_REQUEST['start'];
+		$start = (int) $_REQUEST['start'];
 		$ascending = empty(Theme::$current->options['view_newest_first']);
 		$this->firstIndex = 0;
 

@@ -215,7 +215,7 @@ class Verifier implements \ArrayAccess
 			$this->show_visual = !empty($options['override_visual']) || (!empty(Config::$modSettings['visual_verification_type']) && !isset($options['override_visual']));
 			$this->image_href = Config::$scripturl . '?action=verificationcode;vid=' . $this->id . ';rand=' . bin2hex(random_bytes(16));
 			$this->text_value = '';
-			$this->number_questions = $options['override_qs'] ?? (!empty(Config::$modSettings['qa_verification_number']) ? Config::$modSettings['qa_verification_number'] : 0);
+			$this->number_questions = $options['override_qs'] ?? (!empty(Config::$modSettings['qa_verification_number']) ? (int) Config::$modSettings['qa_verification_number'] : 0);
 			$this->questions = [];
 			$this->can_recaptcha = !empty(Config::$modSettings['recaptcha_enabled']) && !empty(Config::$modSettings['recaptcha_site_key']) && !empty(Config::$modSettings['recaptcha_secret_key']);
 			$this->empty_field = empty($options['no_empty_field']);

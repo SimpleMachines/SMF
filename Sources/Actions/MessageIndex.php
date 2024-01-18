@@ -313,7 +313,7 @@ class MessageIndex implements ActionInterface
 		if ($row['num_replies'] + 1 > Utils::$context['messages_per_page']) {
 			// We can't pass start by reference.
 			$start = -1;
-			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
+			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, (int) Utils::$context['messages_per_page'], true, false);
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
@@ -553,11 +553,12 @@ class MessageIndex implements ActionInterface
 
 		Utils::$context['maxindex'] = isset($_REQUEST['all']) && !empty(Config::$modSettings['enableAllMessages']) ? Board::$info->total_topics : Utils::$context['topics_per_page'];
 
+		$start = (int) $_REQUEST['start'];
 		// Make sure the starting place makes sense and construct the page index.
 		if ($this->sort_by !== $this->sort_default || !$this->ascending_is_default) {
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		} else {
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		}
 
 		Utils::$context['start'] = &$_REQUEST['start'];

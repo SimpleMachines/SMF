@@ -752,6 +752,11 @@ class Main implements ActionInterface
 		// Load the data of the member whose profile we are viewing.
 		Profile::load();
 
+		// No profile can be found.
+		if (!isset(Profile::$member->id) || Profile::$member->id == 0) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
 		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
 		// And we care about what the current user can do, not what the user whose profile it is.
 		if (User::$me->mod_cache['gq'] != '0=1') {

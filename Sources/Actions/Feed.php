@@ -1210,7 +1210,7 @@ class Feed implements ActionInterface
 				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -2952,7 +2952,7 @@ class Feed implements ActionInterface
 	 * Internal methods
 	 ******************/
 
-	protected function setSubaction(string $subaction): void
+	protected function setSubaction(?string $subaction): void
 	{
 		if (isset($subaction, self::$subactions[$subaction])) {
 			$this->subaction = $subaction;

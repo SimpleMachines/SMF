@@ -483,7 +483,7 @@ class Post implements ActionInterface
 			// Censor, BBC, ...
 			Lang::censorText($row['body']);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			IntegrationHook::call('integrate_getTopic_previous_post', [&$row]);
 
@@ -681,9 +681,9 @@ class Post implements ActionInterface
 			User::$me->isAllowedTo('post_new', $this->boards, true);
 		}
 
-		$this->locked = 0;
-		Utils::$context['already_locked'] = 0;
-		Utils::$context['already_sticky'] = 0;
+		$this->locked = false;
+		Utils::$context['already_locked'] = false;
+		Utils::$context['already_sticky'] = false;
 		Utils::$context['sticky'] = !empty($_REQUEST['sticky']);
 
 		// What options should we show?

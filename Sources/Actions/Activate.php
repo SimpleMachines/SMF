@@ -118,6 +118,8 @@ class Activate implements ActionInterface
 		}
 
 		$row = Db::$db->fetch_assoc($request);
+		$row['id_member'] = (int) $row['id_member'];
+		$row['is_activated'] = (int) $row['is_activated'];
 		Db::$db->free_result($request);
 
 		// Change their email address? (they probably tried a fake one first :P.)

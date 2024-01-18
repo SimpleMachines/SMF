@@ -297,9 +297,9 @@ class ReportToMod implements ActionInterface
 		}
 
 		if (isset($_POST['msg'])) {
-			$this->reportMsg($_POST['msg']);
+			$this->reportMsg((int) $_POST['msg']);
 		} else {
-			$this->reportMember($_POST['u']);
+			$this->reportMember((int) $_POST['u']);
 		}
 	}
 

@@ -326,19 +326,19 @@ abstract class Notify
 	 ******************/
 
 	/**
-	 * Sets $this->member_info with info about the member in question.
+	 * Sets self::$member_info with info about the member in question.
 	 */
 	protected function setMemberInfo(): void
 	{
 		if (isset($_REQUEST['u'], $_REQUEST['token'])) {
-			$this->member_info = self::getMemberWithToken($this->type);
+			self::$member_info = self::getMemberWithToken($this->type);
 			$this->token = $_REQUEST['token'];
 		}
 		// No token, so try with the current user.
 		else {
 			// Permissions are an important part of anything ;).
 			User::$me->kickIfGuest();
-			$this->member_info = (array) User::$me;
+			self::$member_info = (array) User::$me;
 		}
 	}
 
@@ -379,9 +379,9 @@ abstract class Notify
 		Theme::loadTemplate('Notify');
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 
-		if ($this->member_info['id'] !== User::$me->id) {
+		if (self::$member_info['id'] !== User::$me->id) {
 			Utils::$context['notify_info'] = [
-				'u' => $this->member_info['id'],
+				'u' => self::$member_info['id'],
 				'token' => $_REQUEST['token'],
 			];
 		}
@@ -424,8 +424,8 @@ abstract class Notify
 			// while leaving the alert preference unchanged.
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
-				$perfs = self::getNotifyPrefs((int) $this->member_info['id'], [$this->type . '_notify_' . $this->id], true);
-				$this->alert_pref = ((int) $perfs[(int) $this->member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_ALERT;
+				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
+				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_ALERT;
 				break;
 		}
 	}
@@ -435,7 +435,7 @@ abstract class Notify
 	 */
 	protected function changeBoardTopicPref(): void
 	{
-		self::setNotifyPrefs((int) $this->member_info['id'], [$this->type . '_notify_' . $this->id => $this->alert_pref]);
+		self::setNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id => $this->alert_pref]);
 
 		if ($this->alert_pref > self::PREF_NONE) {
 			$id_board = $this->type === 'board' ? $this->id : 0;
@@ -458,7 +458,7 @@ abstract class Notify
 				[
 					'column' => 'id_' . $this->type,
 					'id' => $this->id,
-					'member' => $this->member_info['id'],
+					'member' => self::$member_info['id'],
 				],
 			);
 		}

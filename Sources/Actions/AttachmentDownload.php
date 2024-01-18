@@ -51,7 +51,7 @@ class AttachmentDownload implements ActionInterface
 	 *
 	 * Whether to show the thumbnail image, if one is available.
 	 */
-	public int $showThumb;
+	public bool $showThumb;
 
 	/****************************
 	 * Internal static properties

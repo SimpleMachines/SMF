@@ -824,10 +824,12 @@ class PersonalMessage implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-				]);
+				if (is_string($value)) {
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+					]);	
+				}
 			},
 		);
 

@@ -136,11 +136,11 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 		$this->alert_pref = $this->alert_pref & parent::PREF_EMAIL;
 
 		// Update their announcement notification preference.
-		parent::setNotifyPrefs((int) $this->member_info['id'], ['announcements' => $this->alert_pref]);
+		parent::setNotifyPrefs((int) self::$member_info['id'], ['announcements' => $this->alert_pref]);
 
 		// Show a confirmation message.
 		Utils::$context['sub_template'] = 'notify_pref_changed';
-		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 
 	/**
@@ -148,7 +148,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return sprintf(Lang::$txt['notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 }
 

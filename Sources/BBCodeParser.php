@@ -1074,8 +1074,8 @@ class BBCodeParser
 			$this->locale = Lang::$txt['lang_locale'];
 		}
 
-		$this->time_offset = User::$me->time_offset;
-		$this->time_format = User::$me->time_format;
+		$this->time_offset = User::$me->time_offset ?? 0;
+		$this->time_format = User::$me->time_format ?? Time::getTimeFormat();
 
 		/************************
 		 * Set up BBCode parsing.

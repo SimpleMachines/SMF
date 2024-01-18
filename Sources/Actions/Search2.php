@@ -354,7 +354,8 @@ class Search2 implements ActionInterface
 		];
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $_REQUEST['start'], $this->num_results, Config::$modSettings['search_results_per_page'], false);
+		$start = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
 
 		Utils::$context['key_words'] = SearchApi::$loadedApi->searchArray;
 

@@ -136,7 +136,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return sprintf(Lang::$txt['notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 }
 

@@ -137,7 +137,7 @@ class NotifyTopic extends Notify implements ActionInterface
 			[
 				'column' => 'id_' . $this->type,
 				'id' => $this->id,
-				'member' => $this->member_info['id'],
+				'member' => self::$member_info['id'],
 			],
 		);
 		$log = Db::$db->fetch_assoc($request);
@@ -146,7 +146,7 @@ class NotifyTopic extends Notify implements ActionInterface
 		if (empty($log)) {
 			$insert = true;
 			$log = [
-				'id_member' => $this->member_info['id'],
+				'id_member' => self::$member_info['id'],
 				'id_topic' => $this->id,
 				'id_msg' => 0,
 				'unwatched' => (int) ($this->mode === parent::MODE_IGNORE),
@@ -174,7 +174,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 }
 
