@@ -650,11 +650,17 @@ $txt['theme_opt_personal_messages'] = 'Personal Messages';
 
 $txt['export_profile_data'] = 'Download profile data';
 $txt['export_profile_data_desc'] = 'This section allows you to export a copy of your forum profile data to a downloadable file, optionally including your posts and personal messages.<br>Please note:<ul class="bbc_list">%1$s</ul>';
-$txt['export_profile_data_desc_list'] = ['It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.'];
+$txt['export_profile_data_desc_list'] = ['It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => '{0, plural,
+	one {Old export files are deleted after # day.}
+	other {Old export files are deleted after # days.}
+}'];
 $txt['active_exports'] = 'Exports currently in progress';
 $txt['completed_exports'] = 'Completed exports';
 $txt['export_outdated_warning'] = 'This export is out of date. It is missing your most recent data of the following types:';
-$txt['export_file_count'] = '%1$d files.';
+$txt['export_file_count'] = '{0, plural,
+	one {# file.}
+	other {# files.}
+}';
 $txt['export_download_all'] = 'Download all';
 $txt['export_settings'] = 'Export settings';
 $txt['export_include_posts'] = 'Include posts';

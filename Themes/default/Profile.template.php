@@ -3307,7 +3307,7 @@ function template_export_profile_data()
 			if (count($parts) > 10)
 				echo '
 				<details>
-					<summary>', sprintf(Lang::$txt['export_file_count'], count($parts)), '</summary>';
+					<summary>', Lang::getTxt('export_file_count', [count($parts)]), '</summary>';
 
 			echo '
 				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
