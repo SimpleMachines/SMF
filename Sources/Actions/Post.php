@@ -834,11 +834,7 @@ class Post implements ActionInterface
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			if (Utils::$context['new_replies'] == 1) {
-				Lang::$txt['error_new_replies'] = isset($_GET['last_msg']) ? Lang::$txt['error_new_reply_reading'] : Lang::$txt['error_new_reply'];
-			} else {
-				Lang::$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? Lang::$txt['error_new_replies_reading'] : Lang::$txt['error_new_replies'], Utils::$context['new_replies']);
-			}
+			Lang::$txt['error_new_replies'] = Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']]);
 
 			$this->errors[] = 'new_replies';
 

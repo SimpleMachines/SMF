@@ -129,10 +129,14 @@ $txt['more_smileys_title'] = 'Additional smileys';
 $txt['more_smileys_pick'] = 'Pick a smiley';
 $txt['more_smileys_close_window'] = 'Close Window';
 
-$txt['error_new_reply'] = 'Warning - while you were typing a new reply has been posted. You may wish to review your post.';
-$txt['error_new_replies'] = 'Warning - while you were typing %1$d new replies have been posted. You may wish to review your post.';
-$txt['error_new_reply_reading'] = 'Warning - while you were reading a new reply has been posted. You may wish to review your post.';
-$txt['error_new_replies_reading'] = 'Warning - while you were reading %1$d new replies have been posted. You may wish to review your post.';
+$txt['error_new_replies'] = 'Warning - {0, plural,
+	one {while you were typing # new reply has been posted.}
+	other {while you were typing # new replies have been posted.}
+} You may wish to review your post.';
+$txt['error_new_replies_reading'] = 'Warning - {0, plural,
+	one {while you were reading # new reply has been posted.}
+	other {while you were reading # new replies have been posted.}
+} You may wish to review your post.';
 
 $txt['error_topic_locked'] = 'Warning - while you were typing the topic was locked. Please check the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was unlocked. Please uncheck the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
