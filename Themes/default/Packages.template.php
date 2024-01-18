@@ -1752,7 +1752,15 @@ function template_action_permissions()
 
 	// How many have we done?
 	$remaining_items = count(Utils::$context['method'] == 'individual' ? Utils::$context['to_process'] : Utils::$context['directory_list']);
-	$progress_message = sprintf(Utils::$context['method'] == 'individual' ? Lang::$txt['package_file_perms_items_done'] : Lang::$txt['package_file_perms_dirs_done'], Utils::$context['total_items'] - $remaining_items, Utils::$context['total_items']);
+
+	$progress_message = Lang::getTxt(
+		Utils::$context['method'] == 'individual' ? 'package_file_perms_items_done' : 'package_file_perms_dirs_done',
+		[
+			Utils::$context['total_items'] - $remaining_items,
+			Utils::$context['total_items']
+		]
+	);
+
 	$progress_percent = round((Utils::$context['total_items'] - $remaining_items) / Utils::$context['total_items'] * 100, 1);
 
 	echo '
@@ -1768,7 +1776,14 @@ function template_action_permissions()
 	// Second progress bar for a specific directory?
 	if (Utils::$context['method'] != 'individual' && !empty(Utils::$context['total_files']))
 	{
-		$file_progress_message = sprintf(Lang::$txt['package_file_perms_files_done'], Utils::$context['file_offset'], Utils::$context['total_files']);
+		$file_progress_message = Lang::getTxt(
+			'package_file_perms_files_done',
+			[
+				Utils::$context['file_offset'],
+				Utils::$context['total_files']
+			]
+		);
+
 		$file_progress_percent = round(Utils::$context['file_offset'] / Utils::$context['total_files'] * 100, 1);
 
 		echo '

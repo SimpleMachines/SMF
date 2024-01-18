@@ -250,11 +250,20 @@ $txt['package_file_perms_ftp_retain'] = 'Note, SMF will only retain the password
 $txt['package_file_perms_go'] = 'Make Changes';
 
 $txt['package_file_perms_applying'] = 'Applying Changes';
-$txt['package_file_perms_items_done'] = '%1$d of %2$d items completed';
+$txt['package_file_perms_items_done'] = '{1, plural,
+	one {{0, number, integer} of # item completed}
+	other {{0, number, integer} of # items completed}
+}';
 $txt['package_file_perms_skipping_ftp'] = '<strong>Warning:</strong> Failed to connect to FTP server, attempting to change permissions without. This is <em>likely</em> to fail - please check the results upon completion and try again with correct FTP details if necessary.';
 
-$txt['package_file_perms_dirs_done'] = '%1$d of %2$d directories completed';
-$txt['package_file_perms_files_done'] = '%1$d of %2$d files done in current directory';
+$txt['package_file_perms_dirs_done'] = '{1, plural,
+	one {{0, number, integer} of # director completed}
+	other {{0, number, integer} of # directories completed}
+}';
+$txt['package_file_perms_files_done'] = '{1, plural,
+	one {{0, number, integer} of # file done in current directory}
+	other {{0, number, integer} of # files done in current directory}
+}';
 
 $txt['chmod_value_invalid'] = 'You have tried to enter an invalid chmod value. Chmod must be between 0444 and 0777';
 
