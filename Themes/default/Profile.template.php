@@ -2392,7 +2392,7 @@ function template_issueWarning()
 	if (Utils::$context['warning_limit'])
 		echo '
 					<br>
-					<span class="smalltext">', sprintf(Lang::$txt['profile_warning_limit_attribute'], Utils::$context['warning_limit']), '</span>';
+					<span class="smalltext">', Lang::getTxt('profile_warning_limit_attribute', [Utils::$context['warning_limit'] / 100]), '</span>';
 
 	echo '
 				</dt>
