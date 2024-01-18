@@ -1306,7 +1306,7 @@ function template_statPanel()
 				<li>
 					<div class="generic_bar vertical">
 						<div class="bar" style="height: ', (int) $time_of_day['relative_percent'], '%;">
-							<span>', sprintf(Lang::$txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>
+							<span>', Lang::getTxt('statPanel_activityTime_posts', [$time_of_day['posts'], $time_of_day['posts_percent'] / 100]), '</span>
 						</div>
 					</div>
 					<span class="stats_hour">', $time_of_day['hour_format'], '</span>
@@ -1344,8 +1344,8 @@ function template_statPanel()
 			echo '
 					<dt>', $board['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf(Lang::$txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '">
-							', sprintf(Lang::$txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '
+						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100]), '">
+							', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100]), '
 						</div>
 						', empty(Utils::$context['hide_num_posts']) ? $board['posts'] : '', '
 					</dd>';
@@ -1377,10 +1377,10 @@ function template_statPanel()
 			echo '
 					<dt>', $activity['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf(Lang::$txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
-							', sprintf(Lang::$txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
+						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100]), '">
+							', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100]), '
 						</div>
-						', $activity['percent'], '%
+						', Lang::formatText('{0, number, percent}', [$activity['percent'] / 100]), '
 					</dd>';
 		}
 

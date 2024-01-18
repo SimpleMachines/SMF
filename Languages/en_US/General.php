@@ -26,6 +26,36 @@ $txt['percent_format'] = '{0}%';
 // Currency format. '{0}' will be replaced by the numerical value. '¤' will be replaced by the relevant currency symbol. HTML entities (e.g. '&nbsp;') are supported in this string.
 $txt['currency_format'] = '¤{0}';
 
+// Formats for time units.
+$txt['number_of_years'] = '{0, plural,
+	one {# year}
+	other {# years}
+}';
+$txt['number_of_months'] = '{0, plural,
+	one {# month}
+	other {# months}
+}';
+$txt['number_of_weeks'] = '{0, plural,
+	one {# week}
+	other {# weeks}
+}';
+$txt['number_of_days'] = '{0, plural,
+	one {# day}
+	other {# days}
+}';
+$txt['number_of_hours'] = '{0, plural,
+	one {# hour}
+	other {# hours}
+}';
+$txt['number_of_minutes'] = '{0, plural,
+	one {# minute}
+	other {# minutes}
+}';
+$txt['number_of_seconds'] = '{0, plural,
+	one {# second}
+	other {# seconds}
+}';
+
 $txt['days_title'] = 'Days';
 $txt['days'] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 $txt['days_short'] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -794,9 +824,6 @@ $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 $txt['search_results'] = 'Search Results';
 $txt['search_no_results'] = 'Sorry, no matches were found';
 
-$txt['total_time_logged_days'] = ' days, ';
-$txt['total_time_logged_hours'] = ' hours and ';
-$txt['total_time_logged_minutes'] = ' minutes';
 $txt['total_time_logged_d'] = 'd ';
 $txt['total_time_logged_h'] = 'h ';
 $txt['total_time_logged_m'] = 'm';

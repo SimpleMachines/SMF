@@ -187,11 +187,26 @@ $txt['statPanel_total_topics'] = 'Total Topics started';
 $txt['statPanel_votes'] = 'votes';
 $txt['statPanel_polls'] = 'polls';
 $txt['statPanel_topBoards'] = 'Most popular Boards by Posts';
-$txt['statPanel_topBoards_posts'] = '%1$d posts of the board\'s %2$d posts (%3$01.2f%%)';
-$txt['statPanel_topBoards_memberposts'] = '%1$d posts of the member\'s %2$d posts (%3$01.2f%%)';
+$txt['statPanel_topBoards_posts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+} of the board\'s {1, plural,
+	one {# post}
+	other {# posts}
+} ({2, number, percent})';
+$txt['statPanel_topBoards_memberposts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+} of the member\'s {1, plural,
+	one {# post}
+	other {# posts}
+} ({2, number, percent})';
 $txt['statPanel_topBoardsActivity'] = 'Most popular Boards by Activity';
 $txt['statPanel_activityTime'] = 'Posting activity by Time';
-$txt['statPanel_activityTime_posts'] = '%1$d posts (%2$d%%)';
+$txt['statPanel_activityTime_posts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+} ({1, number, percent})';
 $txt['statPanel_timeOfDay'] = 'Time of Day';
 
 $txt['deleteAccount_warning'] = 'Warning - These actions are irreversible!';
