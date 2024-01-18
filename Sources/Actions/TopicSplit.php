@@ -132,7 +132,7 @@ class TopicSplit implements ActionInterface
 	 *   the first message of a topic.
 	 * - Shows the user three ways to split the current topic.
 	 */
-	public function index(): void
+	public function index(): ?string
 	{
 		// Validate "at".
 		if (empty($_GET['at'])) {
@@ -190,6 +190,8 @@ class TopicSplit implements ActionInterface
 		];
 		Utils::$context['sub_template'] = 'ask';
 		Utils::$context['page_title'] = Lang::$txt['split'];
+
+		return null;
 	}
 
 	/**

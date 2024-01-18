@@ -83,7 +83,7 @@ class Like implements ActionInterface
 	 * If filled, its value will contain a string matching a key
 	 * on a language var Lang::$txt[$this->error]
 	 */
-	protected string $error = false;
+	protected ?string $error = null;
 
 	/**
 	 * @var string

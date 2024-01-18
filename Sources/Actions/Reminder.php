@@ -110,7 +110,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Allows the user to pick how they wish to be reminded.
 	 */
-	public function pickType(): void
+	public function pickType(): ?string
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind');
@@ -165,7 +165,7 @@ class Reminder implements ActionInterface
 			Utils::$context['sub_template'] = 'sent';
 
 			// Don't really.
-			return;
+			return null;
 		}
 
 		// Otherwise are ready to answer the question?
@@ -179,6 +179,8 @@ class Reminder implements ActionInterface
 			'id' => $this->member->id,
 			'name' => $this->member->username,
 		];
+
+		return null;
 	}
 
 	/**
