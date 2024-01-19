@@ -470,7 +470,6 @@ $txt['file'] = 'File';
 $txt['line'] = 'Line';
 // Use numeric entities in the below string.
 $txt['tried_to_repair'] = 'SMF has detected and automatically tried to repair an error in your database. If you continue to have problems, or continue to receive these emails, please contact your host.';
-$txt['database_error_versions'] = '<strong>Note:</strong> It appears that your database <em>may</em> require an upgrade. Your forum\'s files are currently at version %1$s, while your database is at version %2$s. The above error might possibly go away if you execute the latest version of upgrade.php.';
 $txt['template_parse_error'] = 'Template Parse Error!';
 $txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system. This problem should only be temporary, so please come back later and try again. If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
 // argument(s): filename, Config::$boardurl, Config::$scripturl
@@ -610,7 +609,6 @@ $txt['calendar_link'] = 'Link to Calendar';
 $txt['calendar_upcoming'] = 'Upcoming Calendar';
 $txt['calendar_today'] = 'Today\'s Calendar';
 $txt['calendar_week'] = 'Week';
-$txt['calendar_week_title'] = 'Week %1$d of %2$d';
 // %1$s is the month, %2$s is the day, %3$s is the year. Change to suit your language.
 $txt['calendar_week_beginning'] = 'Week beginning %1$s %2$s, %3$s';
 $txt['calendar_numb_days'] = 'Number of Days';
