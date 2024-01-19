@@ -793,7 +793,7 @@ function template_maint_warning_above()
 				<strong id="error_serious">', Lang::$txt['forum_in_maintenance'], '</strong>
 			</dt>
 			<dd class="error" id="error_list">
-				', sprintf(Lang::$txt['maintenance_page'], Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
+				', Lang::getTxt('maintenance_page', ['url' => Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]), '
 			</dd>
 		</dl>
 	</div>';
