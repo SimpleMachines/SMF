@@ -353,7 +353,7 @@ class XmlHttp implements ActionInterface
 					User::$me->name,
 					Config::$mbname,
 					Config::$scripturl,
-					sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+					Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 				];
 
 				$warning_body = str_replace($find, $replace, $warning_body);

@@ -1156,7 +1156,7 @@ class Mail
 			'THEMEURL' => Theme::$current->settings['theme_url'],
 			'IMAGESURL' => Theme::$current->settings['images_url'],
 			'DEFAULT_THEMEURL' => Theme::$current->settings['default_theme_url'],
-			'REGARDS' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+			'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 		];
 
 		// Split the replacements up into two arrays, for use with str_replace

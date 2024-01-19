@@ -390,7 +390,7 @@ class News extends ACP implements ActionInterface
 		Utils::$context['sub_template'] = 'email_members_compose';
 
 		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
-		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
+		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]) . "\n\n" . '{$board_url}');
 
 		// Now create the editor.
 		new Editor([

@@ -200,7 +200,7 @@ class SendDigests extends ScheduledTask
 				'move' => Lang::$txt['digest_mod_act_move'],
 				'merge' => Lang::$txt['digest_mod_act_merge'],
 				'split' => Lang::$txt['digest_mod_act_split'],
-				'bye' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+				'bye' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 			];
 
 			IntegrationHook::call('integrate_daily_digest_lang', [&$langtxt, $lang]);
@@ -307,7 +307,7 @@ class SendDigests extends ScheduledTask
 			}
 
 			// Then just say our goodbyes!
-			$email['body'] .= "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']);
+			$email['body'] .= "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]);
 
 			// Send it - low priority!
 			Mail::send($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
