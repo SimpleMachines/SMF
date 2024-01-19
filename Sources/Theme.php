@@ -2972,7 +2972,14 @@ class Theme
 
 				echo "\n\t" . '<body>' . "\n\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t";
 
-				echo sprintf(Lang::$txt['template_parse_error_details'], strtr($filename, [Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '']), Config::$boardurl, Config::$scripturl);
+				echo Lang::getTxt(
+					'template_parse_error_details',
+					[
+						'filename' => strtr($filename, [Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '']),
+						'boardurl' => Config::$boardurl,
+						'scripturl' => Config::$scripturl,
+					],
+				);
 
 				if (!empty($error)) {
 					echo "\n\t\t" . '<hr>' . "\n\t\t" . '<div style="margin: 0 20px;"><pre>', strtr(strtr($error, ['<strong>' . Config::$boarddir => '<strong>...', '<strong>' . strtr(Config::$boarddir, '\\', '/') => '<strong>...']), '\\', '/'), '</pre></div>';
