@@ -329,7 +329,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->first_member_id,
 					'name' => $this->first_member_name,
 					'href' => !empty($this->first_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->first_member_id : '',
-					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->first_member_name) . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
+					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->first_member_name]) . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
 				],
 			],
 			'last_post' => [
@@ -345,7 +345,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->last_member_id,
 					'name' => $this->last_member_name,
 					'href' => !empty($this->last_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->last_member_id : '',
-					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->last_member_name) . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
+					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->last_member_name]) . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
 				],
 			],
 			'board' => [

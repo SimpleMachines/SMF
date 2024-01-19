@@ -423,7 +423,7 @@ class Msg implements \ArrayAccess
 				'name' => $this->poster_name,
 				'username' => $this->poster_name,
 				'href' => empty($this->id_member) ? '' : Config::$scripturl . '?action=profile;u=' . $this->id_member,
-				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->poster_name) . '">' . $this->poster_name . '</a>',
+				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->poster_name]) . '">' . $this->poster_name . '</a>',
 			];
 		}
 
