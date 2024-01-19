@@ -694,7 +694,7 @@ function template_single_post($message)
 									<span class="messageicon" ', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf(Lang::$txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
 									<span class="spacer"></span>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
