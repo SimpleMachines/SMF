@@ -410,7 +410,7 @@ class BoardIndex implements ActionInterface
 						'new' => false,
 						'css_class' => '',
 						'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!User::$me->is_guest ?
-							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf(Lang::$txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
+							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
 					]);
 
 					$category->parseDescription();

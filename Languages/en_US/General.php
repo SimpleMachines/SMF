@@ -889,7 +889,7 @@ $txt['ajax_in_progress'] = 'Loading...';
 $txt['mod_reports_waiting'] = 'Reported Posts';
 
 $txt['view_unread_category'] = 'Unread Posts';
-$txt['new_posts_in_category'] = 'Click to see the new posts in %1$s';
+$txt['new_posts_in_category'] = 'Click to see the new posts in {cat_name}';
 $txt['verification'] = 'Verification';
 $txt['visual_verification_hidden'] = 'Please leave this box empty';
 $txt['visual_verification_description'] = 'Type the letters shown in the picture';
