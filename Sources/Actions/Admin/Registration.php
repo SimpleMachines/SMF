@@ -277,7 +277,7 @@ class Registration implements ActionInterface
 			}
 		}
 
-		Utils::$context['agreement_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format());
+		Utils::$context['agreement_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format()]);
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
@@ -356,7 +356,7 @@ class Registration implements ActionInterface
 			Utils::$context['privacy_policy'] = $policy_text;
 		}
 
-		Utils::$context['privacy_policy_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format());
+		Utils::$context['privacy_policy_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format()]);
 
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
 		Utils::$context['page_title'] = Lang::$txt['privacy_policy'];

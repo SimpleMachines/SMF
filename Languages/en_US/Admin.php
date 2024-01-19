@@ -3,7 +3,7 @@
 // Version: 3.0 Alpha 1; Admin
 
 $txt['settings_saved'] = 'The settings were successfully saved';
-$txt['settings_not_saved'] = 'Your changes were not saved because: %1$s';
+$txt['settings_not_saved'] = 'Your changes were not saved because: {reason}';
 
 $txt['admin_boards'] = 'Boards and Categories';
 $txt['admin_users'] = 'Members';
@@ -42,14 +42,14 @@ $txt['admin_agreement_minor_edit'] = 'This is a minor edit';
 $txt['reset_agreement_desc'] = 'This will force all members to re-read and accept the registration agreement in order to continue using the forum.';
 $txt['admin_privacy_policy'] = 'Require new members to accept the privacy policy';
 $txt['reset_privacy_policy_desc'] = 'This will force all members to re-read and accept the privacy policy in order to continue using the forum.';
-$txt['admin_agreement_info'] = 'Last updated: %1$s.';
+$txt['admin_agreement_info'] = 'Last updated: {datetime}.';
 $txt['admin_agreement_default'] = 'Default';
 $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. Perhaps the file permissions on the file were not set correctly.';
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair all boards and topics';
-$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="%3$s"></span> symbols for more information on the related functions.';
+$txt['admin_main_welcome'] = 'This is your &quot;{admin_center}&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="{help}"></span> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
@@ -130,16 +130,14 @@ $txt['member_id'] = 'ID';
 
 $txt['unknown'] = 'unknown';
 
-// argument(s): HTTP_REFERER (if applicable), HTTP_USER_AGENT, ip address
 $txt['security_wrong'] = 'Administration login attempt!
-Referrer: %1$s
-User agent: %2$s
-IP: %3$s';
+Referrer: {referrer}
+User agent: {user_agent}
+IP: {ip}';
 
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
-// argument(s): Config::$scripturl
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="%1$s?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="{scripturl}?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.<br><span class="alert">This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries\' privacy and anti-spam laws.</span>';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
@@ -224,7 +222,7 @@ $txt['maintain_sub_database'] = 'Database';
 $txt['maintain_sub_routine'] = 'Routine';
 $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
-$txt['maintain_done'] = 'The maintenance task \'%1$s\' was executed successfully.';
+$txt['maintain_done'] = 'The maintenance task \'{task}\' was executed successfully.';
 $txt['maintain_no_errors'] = 'Congratulations, no errors were found. Thanks for checking.';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
@@ -256,7 +254,8 @@ $txt['default_language'] = 'Default forum language';
 $txt['maintenance_subject'] = 'Subject for display';
 $txt['maintenance_message'] = 'Message for display';
 
-$txt['errorlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
+// Do not translate '{remove}'. It will be automatically replaced with the value of $txt['remove'].
+$txt['errorlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the {remove} button at the bottom of the page.';
 $txt['errorlog_no_entries'] = 'There are currently no error log entries.';
 
 $txt['theme_settings'] = 'Theme Settings';
@@ -299,15 +298,15 @@ $txt['support_credits_title'] = 'Support and Credits';
 $txt['support_title'] = 'Support Information';
 $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
-$txt['support_versions_db'] = '%1$s version';
-$txt['support_versions_db_engine'] = '%1$s engine';
+$txt['support_versions_db'] = '{db_title} version';
+$txt['support_versions_db_engine'] = '{db_title} engine';
 $txt['support_versions_server'] = 'Server version';
 $txt['support_versions_gd'] = 'GD version';
 $txt['support_versions_imagemagick'] = 'ImageMagick version';
 $txt['support_versions'] = 'Version Information';
 $txt['support_resources'] = 'Support Resources';
-$txt['support_resources_p1'] = 'Our <a href="%1$s">Online Manual</a> provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain <a href="%2$s">Features</a>, <a href="%3$s">Settings</a>, <a href="%4$s">Themes</a>, <a href="%5$s">Packages</a>, etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly.';
-$txt['support_resources_p2'] = 'If you can\'t find the answers to your questions in the Online Manual, you may want to search our <a href="%1$s">Support Community</a> or ask for assistance in either our <a href="%2$s">English</a> or one of our many <a href="%3$s">international support boards</a>. The SMF Support Community can be used for <a href="%4$s">support</a>, <a href="%5$s">customization</a>, and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators.';
+$txt['support_resources_p1'] = 'Our <a href="{manual_main_url}">Online Manual</a> provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain <a href="{manual_features_url}">Features</a>, <a href="{manual_settings_url}">Settings</a>, <a href="{manual_themes_url}">Themes</a>, <a href="{manual_packages_url}">Packages</a>, etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly.';
+$txt['support_resources_p2'] = 'If you can\'t find the answers to your questions in the Online Manual, you may want to search our <a href="{support_main_url}">Support Community</a> or ask for assistance in either our <a href="{support_english_url}">English</a> or one of our many <a href="{support_intl_url}">international support boards</a>. The SMF Support Community can be used for <a href="{support_smf_url}">support</a>, <a href="{support_customize_url}">customization</a>, and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators.';
 
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
@@ -356,14 +355,14 @@ $txt['attachmentPostLimit'] = 'Max attachment size per post';
 $txt['attachmentSizeLimit'] = 'Max size per attachment';
 $txt['attachmentNumPerPostLimit'] = 'Max number of attachments per post';
 $txt['attachment_img_enc_warning'] = 'Neither the GD module nor the IMagick extension are currently installed. Image re-encoding is not possible.';
-$txt['attachment_ini_max'] = 'Maximum allowed by php.ini: %1$s';
+$txt['attachment_ini_max'] = 'Maximum allowed by php.ini: {0, number, integer} KB';
 $txt['attachment_image_reencode'] = 'Re-encode potentially dangerous image attachments';
 $txt['attachment_image_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected attachments.';
 $txt['attachment_image_paranoid'] = 'Perform extensive security checks on uploaded image attachments';
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
 $txt['attachment_thumb_png'] = 'Save thumbnails as PNG';
 $txt['attachment_thumb_memory'] = 'Adaptive thumbnail memory';
-$txt['attachment_thumb_memory_note'] = 'If disabled, memory is limited to 128M';
+$txt['attachment_thumb_memory_note'] = 'If disabled, memory is limited to 128 MB';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 $txt['attachment_thumbnail_settings'] = 'Thumbnail Settings';
@@ -372,7 +371,7 @@ $txt['attachment_security_settings'] = 'Attachment security settings';
 $txt['attach_dir_does_not_exist'] = 'Does not exist';
 $txt['attach_dir_not_writable'] = 'Not writable';
 // argument(s): session_id, session_var, scripturl
-$txt['attach_dir_files_missing'] = 'Files Missing (<a href="%3$s?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
+$txt['attach_dir_files_missing'] = 'Files Missing (<a href="{scripturl}?action=admin;area=manageattachments;sa=repair;{session_var}={session_id}">Repair</a>)';
 $txt['attach_dir_unused'] = 'Unused';
 $txt['attach_dir_empty'] = 'Empty';
 $txt['attach_dir_ok'] = 'OK';
@@ -425,9 +424,9 @@ $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
 // argument(s): scripturl
-$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="{scripturl}?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 // argument(s): scripturl
-$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="{scripturl}?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['attachment_transfer'] = 'Transfer Attachments';
 $txt['attachment_transfer_desc'] = 'Transfer files between directories.';
@@ -601,7 +600,7 @@ $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
-$txt['convert_to_mediumtext'] = 'Your database is not configured to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then come back to increase the maximum allowed post size.';
+$txt['convert_to_mediumtext'] = 'Your database is not configured to accept messages longer than 65535 characters. Please use the <a href="{scripturl}">database maintenance</a> page to convert the database and then come back to increase the maximum allowed post size.';
 $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';
@@ -628,7 +627,7 @@ $txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags which are allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
-$txt['groups_can_use'] = 'Membergroups allowed to use %1$s';
+$txt['groups_can_use'] = 'Membergroups allowed to use {0}';
 
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
@@ -692,7 +691,7 @@ $txt['admin_search_type_member'] = 'Member';
 $txt['admin_search_type_online'] = 'Online Manual';
 $txt['admin_search_go'] = 'Go';
 $txt['admin_search_results'] = 'Search Results';
-$txt['admin_search_results_desc'] = 'Results for search: &quot;%1$s&quot;';
+$txt['admin_search_results_desc'] = 'Results for search: &quot;{search_term}&quot;';
 $txt['admin_search_results_again'] = 'Search again';
 $txt['admin_search_results_none'] = 'No results found.';
 

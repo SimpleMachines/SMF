@@ -210,7 +210,7 @@ class Posts implements ActionInterface
 				}
 
 				if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text') {
-					ErrorHandler::fatalLang('convert_to_mediumtext', false, [Config::$scripturl . '?action=admin;area=maintain;sa=database']);
+					ErrorHandler::fatalLang('convert_to_mediumtext', false, ['scripturl' => Config::$scripturl . '?action=admin;area=maintain;sa=database']);
 				}
 			}
 

@@ -200,7 +200,7 @@ function template_email_members_compose()
 				</h3>
 			</div>
 			<div class="information noup">
-				', sprintf(Lang::$txt['email_variables'], Config::$scripturl), '
+				', Lang::getTxt('email_variables', ['scripturl' => Config::$scripturl]), '
 			</div>
 			<div class="windowbg noup">
 				<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty(Utils::$context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">

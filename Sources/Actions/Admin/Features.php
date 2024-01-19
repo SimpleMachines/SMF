@@ -176,7 +176,7 @@ class Features implements ActionInterface
 		$extra = '';
 
 		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[cowsay]')];
+			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'])];
 			$extra = ';cowsay';
 		}
 
@@ -1651,7 +1651,7 @@ class Features implements ActionInterface
 		}
 
 		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[' . $bbc . ']')];
+			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'])];
 		}
 
 		Utils::$context['settings_post_javascript'] = '

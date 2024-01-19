@@ -749,7 +749,7 @@ function template_show_settings()
 					<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
-					<div class="errorbox">', sprintf(Lang::$txt['settings_not_saved'], Utils::$context['saved_failed']), '</div>';
+					<div class="errorbox">', Lang::getTxt('settings_not_saved', ['reason' => Utils::$context['saved_failed']]), '</div>';
 
 	if (!empty(Utils::$context['settings_pre_javascript']))
 		echo '
@@ -1361,7 +1361,7 @@ function template_admin_search_results()
 							', template_admin_quick_search(), '
 							<h3 class="catbg">
 								<span id="quick_search_results">
-									', sprintf(Lang::$txt['admin_search_results_desc'], Utils::$context['search_term']), '
+									', Lang::getTxt('admin_search_results_desc', Utils::$context), '
 								</span>
 							</h3>
 						</div><!-- #section_header -->
