@@ -1010,7 +1010,7 @@ function template_send()
 	if (!empty(Config::$modSettings['drafts_pm_enabled']))
 		echo '
 				<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					sprintf(Lang::$txt['draft_pm_saved'], Config::$scripturl . '?action=pm;sa=showpmdrafts'), '
+					Lang::getTxt('draft_pm_saved', ['url' => Config::$scripturl . '?action=pm;sa=showpmdrafts']), '
 					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']]) . '</strong>' : ''), '
 				</div>';
 

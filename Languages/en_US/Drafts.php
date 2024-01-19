@@ -23,8 +23,8 @@ $txt['draft_last_saved'] = 'Draft last saved <strong>{age, plural,
 	other { This will be retained for <strong># more days</strong>.}
 }';
 $txt['draft_remove'] = 'Remove this draft';
-$txt['draft_saved'] = 'The contents have been saved as a draft, and will be accessible from the <a href="%1$s">Show Drafts area</a> of your profile.';
-$txt['draft_pm_saved'] = 'The contents have been saved as a draft, and will be accessible from the <a href="%1$s">Show Drafts area</a> of your message center.';
+$txt['draft_saved'] = 'The contents have been saved as a draft, and will be accessible from the <a href="{url}">Show Drafts area</a> of your profile.';
+$txt['draft_pm_saved'] = 'The contents have been saved as a draft, and will be accessible from the <a href="{url}">Show Drafts area</a> of your message center.';
 $txt['draft_save_warning'] = 'Please note that all drafts will be automatically deleted {0, plural,
 	one {after # day}
 	other {after # days}
