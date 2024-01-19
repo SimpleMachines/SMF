@@ -41,7 +41,7 @@ function template_main()
 		{
 			echo '
 		<div class="information noup">
-			', sprintf(Lang::$txt['agreement_accepted'], Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)), '
+			', Lang::getTxt('agreement_accepted', ['date' => Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)]), '
 		</div>';
 		}
 
@@ -69,7 +69,7 @@ function template_main()
 		{
 			echo '
 		<div class="information noup">
-			', sprintf(Lang::$txt['privacy_policy_accepted'], Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)), '
+			', Lang::getTxt('privacy_policy_accepted', ['date' => Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)]), '
 		</div>';
 		}
 
