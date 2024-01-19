@@ -1169,7 +1169,7 @@ class User implements \ArrayAccess
 				'online' => [
 					'is_online' => $is_visibly_online,
 					'text' => Utils::htmlspecialchars(Lang::$txt[$is_visibly_online ? 'online' : 'offline']),
-					'member_online_text' => sprintf(Lang::$txt[$is_visibly_online ? 'member_is_online' : 'member_is_offline'], Utils::htmlspecialchars($this->name)),
+					'member_online_text' => Lang::getTxt($is_visibly_online ? 'member_is_online' : 'member_is_offline', ['name' => Utils::htmlspecialchars($this->name)]),
 					'href' => Config::$scripturl . '?action=pm;sa=send;u=' . $this->id,
 					'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;u=' . $this->id . '">' . Lang::$txt[$is_visibly_online ? 'online' : 'offline'] . '</a>',
 					'label' => Lang::$txt[$is_visibly_online ? 'online' : 'offline'],

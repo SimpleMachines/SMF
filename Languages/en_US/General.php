@@ -573,9 +573,9 @@ $txt['report_to_mod_func'] = 'Use this function to inform the moderators and adm
 $txt['report_profile_func'] = 'Use this function to inform the administrators of abusive profile content, such as spam or inappropriate images.';
 
 $txt['online'] = 'Online';
-$txt['member_is_online'] = '%1$s is online';
+$txt['member_is_online'] = '{name} is online';
 $txt['offline'] = 'Offline';
-$txt['member_is_offline'] = '%1$s is offline';
+$txt['member_is_offline'] = '{name} is offline';
 $txt['pm_online'] = 'Personal Message (Online)';
 $txt['pm_offline'] = 'Personal Message (Offline)';
 $txt['status'] = 'Status';
