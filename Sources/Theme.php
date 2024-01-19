@@ -1383,7 +1383,7 @@ class Theme
 				$showed_banned = true;
 				echo '
 					<div class="windowbg alert" style="margin: 2ex; padding: 2ex; border: 2px dashed red;">
-						', sprintf(Lang::$txt['you_are_post_banned'], User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name);
+						', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name]);
 
 				if (!empty($_SESSION['ban']['cannot_post']['reason'])) {
 					echo '
