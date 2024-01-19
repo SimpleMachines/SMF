@@ -797,7 +797,7 @@ $txt['merge_include_notifications'] = 'Include notifications?';
 $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
 $txt['merge_why'] = 'Please enter a brief description as to why these topics are being merged.';
-$txt['merged_subject'] = '[MERGED] %1$s';
+$txt['merged_subject'] = '[MERGED] {subject}';
 $txt['mergetopic_default'] = 'This topic has been merged into {topic_link}.';
 
 $txt['response_prefix'] = 'Re: ';
