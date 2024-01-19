@@ -1017,20 +1017,20 @@ $txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
 $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
 
 $txt['notify_board_prompt'] = 'Do you want a notification email when someone posts a new topic in this board?';
-$txt['notify_board_subscribed'] = '%1$s has been subscribed to new topic notifications for this board.';
-$txt['notify_board_unsubscribed'] = '%1$s has been unsubscribed from new topic notifications for this board.';
+$txt['notify_board_subscribed'] = '{email} has been subscribed to new topic notifications for this board.';
+$txt['notify_board_unsubscribed'] = '{email} has been unsubscribed from new topic notifications for this board.';
 
 $txt['notify_topic_prompt'] = 'Do you want a notification email if someone replies to this topic?';
-$txt['notify_topic_subscribed'] = '%1$s has been subscribed to new reply notifications for this topic.';
-$txt['notify_topic_unsubscribed'] = '%1$s has been unsubscribed from new reply notifications for this topic.';
+$txt['notify_topic_subscribed'] = '{email} has been subscribed to new reply notifications for this topic.';
+$txt['notify_topic_unsubscribed'] = '{email} has been unsubscribed from new reply notifications for this topic.';
 
 $txt['notify_announcements_prompt'] = 'Do you want to receive forum newsletters, announcements and important notifications by email?';
-$txt['notify_announcements_subscribed'] = '%1$s has been subscribed to forum newsletters, announcements and important notifications.';
-$txt['notify_announcements_unsubscribed'] = '%1$s has been unsubscribed from forum newsletters, announcements and important notifications.';
+$txt['notify_announcements_subscribed'] = '{email} has been subscribed to forum newsletters, announcements and important notifications.';
+$txt['notify_announcements_unsubscribed'] = '{email} has been unsubscribed from forum newsletters, announcements and important notifications.';
 
-$txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link: %1$s';
-$txt['unsubscribe_announcements_html'] = '<span style="font-size:small"><a href="%1$s">Unsubscribe</a> from forum newsletters, announcements and important notifications.</span>';
-$txt['unsubscribe_announcements_manual'] = 'To unsubscribe from forum newsletters, announcements and important notifications, contact us at %1$s with your request.';
+$txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link: {url}';
+$txt['unsubscribe_announcements_html'] = '<span style="font-size:small"><a href="{url}">Unsubscribe</a> from forum newsletters, announcements and important notifications.</span>';
+$txt['unsubscribe_announcements_manual'] = 'To unsubscribe from forum newsletters, announcements and important notifications, contact us at {email} with your request.';
 
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';

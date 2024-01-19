@@ -834,7 +834,7 @@ class News extends ACP implements ActionInterface
 			}
 
 			// Non-members can't unsubscribe via the automated system.
-			$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_manual'], empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']);
+			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']]);
 
 			$to_member = [
 				$email,
@@ -962,7 +962,7 @@ class News extends ACP implements ActionInterface
 				if (!empty($include_unsubscribe)) {
 					$token = Notify::createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
 
-					$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
+					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token]);
 				} else {
 					$unsubscribe_link = '';
 				}

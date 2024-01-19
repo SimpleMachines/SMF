@@ -174,7 +174,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
+		return Lang::getTxt('notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed'), self::$member_info);
 	}
 }
 
