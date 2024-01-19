@@ -306,7 +306,7 @@ $txt['date_registered'] = 'Date registered';
 
 $txt['recent_view'] = 'View the most recent posts on the forum.';
 $txt['recent_updated'] = 'is the most recently updated topic';
-$txt['is_recent_updated'] = '%1$s is the most recently updated topic';
+$txt['is_recent_updated'] = '{link} is the most recently updated topic';
 
 $txt['male'] = 'Male';
 $txt['female'] = 'Female';
@@ -465,7 +465,7 @@ $txt['print_page_images'] = 'Text with Images';
 $txt['valid_email'] = 'This must be a valid email address.';
 
 $txt['geek'] = 'I am a geek!!';
-$txt['info_center_title'] = '%1$s - Info Center';
+$txt['info_center_title'] = '{forum_name} - Info Center';
 
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';

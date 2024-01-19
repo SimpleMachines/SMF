@@ -285,7 +285,7 @@ function template_info_center()
 		<div class="title_bar">
 			<h3 class="titlebg">
 				<span class="toggle_up floatright" id="upshrink_ic" title="', Lang::$txt['hide_infocenter'], '" style="display: none;"></span>
-				<a href="#" id="upshrink_link">', sprintf(Lang::$txt['info_center_title'], Utils::$context['forum_name_html_safe']), '</a>
+				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</a>
 			</h3>
 		</div>
 		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
@@ -319,8 +319,8 @@ function template_info_center()
 			aSwapLinks: [
 				{
 					sId: \'upshrink_link\',
-					msgExpanded: ', Utils::JavaScriptEscape(sprintf(Lang::$txt['info_center_title'], Utils::$context['forum_name_html_safe'])), ',
-					msgCollapsed: ', Utils::JavaScriptEscape(sprintf(Lang::$txt['info_center_title'], Utils::$context['forum_name_html_safe'])), '
+					msgExpanded: ', Utils::JavaScriptEscape(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), ',
+					msgCollapsed: ', Utils::JavaScriptEscape(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), '
 				}
 			],
 			oThemeOptions: {
@@ -357,7 +357,7 @@ function template_ic_block_recent()
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a> ', sprintf(Lang::$txt['is_recent_updated'], '&quot;' . Utils::$context['latest_post']['link'] . '&quot;'), ' (', Utils::$context['latest_post']['time'], ')<br>
+					<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a> ', Lang::getTxt('is_recent_updated', ['link' => '&quot;' . Utils::$context['latest_post']['link'] . '&quot;']), ' (', Utils::$context['latest_post']['time'], ')<br>
 				</p>';
 	}
 	// Show lots of posts.
