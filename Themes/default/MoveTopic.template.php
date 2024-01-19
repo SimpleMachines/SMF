@@ -100,7 +100,7 @@ function template_redirect_options($type)
 								', Lang::$txt[$type . '_why'], '
 							</dt>
 							<dd>
-								<textarea name="reason">', sprintf(Lang::$txt[$type . 'topic_default'], Lang::$txt['movetopic_auto_board'], Lang::$txt['movetopic_auto_topic']), '</textarea>
+								<textarea name="reason">', Lang::getTxt($type . 'topic_default', ['board_link' => Lang::$txt['movetopic_auto_board'], 'topic_link' => Lang::$txt['movetopic_auto_topic']]), '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', Lang::$txt[$type . 'topic_redirect'], '</label>
