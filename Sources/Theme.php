@@ -1392,7 +1392,7 @@ class Theme
 
 				if (!empty($_SESSION['ban']['expire_time'])) {
 					echo '
-						<div>', sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)), '</div>';
+						<div>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]), '</div>';
 				} else {
 					echo '
 						<div>', Lang::$txt['your_ban_expires_never'], '</div>';
@@ -2746,7 +2746,7 @@ class Theme
 			'smf_member_id' => User::$me->id,
 			'ajax_notification_text' => Utils::JavaScriptEscape(Lang::$txt['ajax_in_progress']),
 			'help_popup_heading_text' => Utils::JavaScriptEscape(Lang::$txt['help_popup']),
-			'banned_text' => Utils::JavaScriptEscape(sprintf(Lang::$txt['your_ban'], User::$me->name)),
+			'banned_text' => Utils::JavaScriptEscape(Lang::getTxt('your_ban', ['name' => User::$me->name])),
 			'smf_txt_expand' => Utils::JavaScriptEscape(Lang::$txt['code_expand']),
 			'smf_txt_shrink' => Utils::JavaScriptEscape(Lang::$txt['code_shrink']),
 			'smf_collapseAlt' => Utils::JavaScriptEscape(Lang::$txt['hide']),

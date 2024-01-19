@@ -1859,7 +1859,7 @@ class User implements \ArrayAccess
 			Logout::call(true, false);
 
 			// You banned, sucka!
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)) : Lang::$txt['your_ban_expires_never']), false, 403);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']), false, 403);
 
 			// If we get here, something's gone wrong.... but let's try anyway.
 			trigger_error('No direct access...', E_USER_ERROR);
@@ -1888,7 +1888,7 @@ class User implements \ArrayAccess
 
 			Logout::call(true, false);
 
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
 		}
 
 		// Fix up the banning permissions.
@@ -3688,7 +3688,7 @@ class User implements \ArrayAccess
 		Lang::load('Errors');
 		$error = $errors[0];
 
-		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
+		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
 
 		ErrorHandler::fatal($message, empty($error[2]) || self::$me->is_admin ? false : $error[2]);
 	}
@@ -3872,7 +3872,7 @@ class User implements \ArrayAccess
 
 			$_SESSION['ban']['last_checked'] = time();
 
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], Lang::$txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => Lang::$txt['guest_title']]) . $_SESSION['ban']['cannot_access']['reason'], false);
 		}
 
 		if (!empty($ban_ids)) {
@@ -5417,7 +5417,7 @@ class User implements \ArrayAccess
 
 				default:
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['invalid_member_data_set'], $dataset), E_USER_WARNING);
+					trigger_error(Lang::getTxt('invalid_member_data_set', [$dataset]), E_USER_WARNING);
 					break;
 			}
 
