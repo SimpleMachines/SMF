@@ -98,7 +98,7 @@ $txt['upload_all'] = 'Upload all';
 $txt['processing'] = 'Processing...';
 
 $txt['modify'] = 'Modify';
-$txt['forum_index'] = '%1$s - Index';
+$txt['forum_index'] = '{forum_name} - Index';
 $txt['members'] = 'Members';
 $txt['board_name'] = 'Board name';
 $txt['posts'] = 'Posts';

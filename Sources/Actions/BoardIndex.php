@@ -608,7 +608,7 @@ class BoardIndex implements ActionInterface
 		Theme::loadTemplate('BoardIndex');
 		Utils::$context['template_layers'][] = 'boardindex_outer';
 
-		Utils::$context['page_title'] = sprintf(Lang::$txt['forum_index'], Utils::$context['forum_name']);
+		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']]);
 
 		// Set a canonical URL for this page.
 		Utils::$context['canonical_url'] = Config::$scripturl;
