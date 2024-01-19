@@ -280,7 +280,7 @@ $txt['topic_started'] = 'Topic started by';
 $txt['title'] = 'Title';
 $txt['post_by'] = 'Post by';
 $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
-$txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
+$txt['welcome_newest_member'] = 'Please welcome {member_link}, our newest member.';
 $txt['admin_center'] = 'Administration Center';
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';

@@ -1069,7 +1069,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo '
-		', sprintf(Lang::$txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
+		', Lang::getTxt('welcome_newest_member', ['member_link' => Utils::$context['common_stats']['latest_member']['link']]), '<br>';
 
 			return null;
 		}
