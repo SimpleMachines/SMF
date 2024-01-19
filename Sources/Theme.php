@@ -1349,7 +1349,7 @@ class Theme
 
 						if ($securityFile == 'Settings.php~' || $securityFile == 'Settings_bak.php~') {
 							echo '
-					', sprintf(Lang::$txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
+					', Lang::getTxt('not_removed_extra', ['backup_filename' => $securityFile, 'filename' => substr($securityFile, 0, -1)]), '<br>';
 						}
 					}
 
