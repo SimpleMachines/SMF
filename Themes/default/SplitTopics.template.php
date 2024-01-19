@@ -105,7 +105,7 @@ function template_select()
 					<li class="windowbg" id="not_selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatright" href="', Config::$scripturl, '?action=splittopics;sa=selectTopics;subname=', Utils::$context['topic']['subject'], ';topic=', Utils::$context['topic']['id'], '.', Utils::$context['not_selected']['start'], ';start2=', Utils::$context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><span class="main_icons split_sel" title="-&gt;"></span></a>
-							', sprintf(Lang::$txt['post_by_member'], $message['subject'], $message['poster']), '
+							', Lang::getTxt('post_by_member', $message), '
 							<em>', $message['time'], '</em>
 						</div>
 						<div class="post">', $message['body'], '</div>
@@ -134,7 +134,7 @@ function template_select()
 					<li class="windowbg" id="selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatleft" href="', Config::$scripturl, '?action=splittopics;sa=selectTopics;subname=', Utils::$context['topic']['subject'], ';topic=', Utils::$context['topic']['id'], '.', Utils::$context['not_selected']['start'], ';start2=', Utils::$context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><span class="main_icons split_desel" title="&lt;-"></span></a>
-							', sprintf(Lang::$txt['post_by_member'], $message['subject'], $message['poster']), '
+							', Lang::getTxt('post_by_member', $message), '
 							<em>', $message['time'], '</em>
 						</div>
 						<div class="post">', $message['body'], '</div>

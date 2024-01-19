@@ -183,7 +183,7 @@ function template_unread()
 							</p>
 						</div>
 						<div class="lastpost">
-							', sprintf(Lang::$txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
+							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '
 						</div>';
 
 			if (Utils::$context['showCheckboxes'])
@@ -362,7 +362,7 @@ function template_replies()
 							</p>
 						</div>
 						<div class="lastpost">
-							', sprintf(Lang::$txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
+							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '
 						</div>';
 
 			if (Utils::$context['showCheckboxes'])

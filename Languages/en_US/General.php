@@ -172,9 +172,9 @@ $txt['replies'] = 'Replies';
 $txt['last_post'] = 'Last post';
 $txt['first_post'] = 'First post';
 $txt['last_poster'] = 'Last post by';
-$txt['last_post_message'] = '<strong>Last post: </strong>%3$s <span class="postby">%2$s by %1$s</span>';
-$txt['last_post_topic'] = '%1$s<br>by %2$s';
-$txt['post_by_member'] = '<strong>%1$s</strong> by <strong>%2$s</strong><br>';
+$txt['last_post_message'] = '<strong>Last post: </strong>{time} <span class="postby">{post_link} by {member_link}</span>';
+$txt['last_post_topic'] = '{post_link}<br>by {member_link}';
+$txt['post_by_member'] = '<strong>{subject}</strong> by <strong>{poster}</strong><br>';
 $txt['boardindex_total_posts'] = '{posts, plural,
 	one {# post}
 	other {# posts}

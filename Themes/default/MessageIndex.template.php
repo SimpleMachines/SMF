@@ -232,7 +232,7 @@ function template_main()
 						<p>', Lang::$txt['replies'], ': ', $topic['replies'], '<br>', Lang::$txt['views'], ': ', $topic['views'], '</p>
 					</div>
 					<div class="lastpost">
-						<p>', sprintf(Lang::$txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '</p>
+						<p>', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '</p>
 					</div>';
 
 			// Show the quick moderation options?

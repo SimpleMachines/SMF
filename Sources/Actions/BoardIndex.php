@@ -541,7 +541,7 @@ class BoardIndex implements ActionInterface
 					}
 
 					if (!empty($board->last_post)) {
-						$board->last_post['last_post_message'] = sprintf(Lang::$txt['last_post_message'], $board->last_post['member']['link'], $board->last_post['link'], $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']);
+						$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
 					}
 				}
 			}
@@ -567,7 +567,7 @@ class BoardIndex implements ActionInterface
 				}
 
 				if (!empty($board->last_post)) {
-					$board->last_post['last_post_message'] = sprintf(Lang::$txt['last_post_message'], $board->last_post['member']['link'], $board->last_post['link'], $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']);
+					$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
 				}
 			}
 		}
