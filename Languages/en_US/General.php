@@ -313,20 +313,11 @@ $txt['female'] = 'Female';
 
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 
-// argument(s): forum name, login URL, login JavaScript snippet
-$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a>.';
-
-// argument(s): forum name, login URL, login JavaScript snippet, signup URL
-$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a> or <a href="%4$s">sign up</a>.';
-
-// argument(s): Config::$scripturl
-$txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
-
-// argument(s): Config::$scripturl
-$txt['register_prompt'] = 'Don\'t have an account? <a href="%1$s?action=signup">Sign up</a>.';
-
-// argument(s): forum name
-$txt['welcome_to_forum'] = 'Welcome to <strong>%1$s</strong>.';
+$txt['welcome_guest'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a> or <a href="{register_url}">sign up</a>.';
+$txt['welcome_guest_activate'] = '<a href="{scripturl}?action=activate">Did you miss your activation email?</a>';
+$txt['register_prompt'] = 'Don\'t have an account? <a href="{scripturl}?action=signup">Sign up</a>.';
+$txt['welcome_to_forum'] = 'Welcome to <strong>{forum_name}</strong>.';
 
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';

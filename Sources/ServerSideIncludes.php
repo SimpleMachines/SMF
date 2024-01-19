@@ -274,7 +274,15 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			if (User::$me->is_guest) {
-				echo sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ');', Config::$scripturl . '?action=signup');
+				echo Lang::getTxt(
+					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'login_url' => Config::$scripturl . '?action=login',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ');',
+						'register_url' => Config::$scripturl . '?action=signup',
+					],
+				);
 			} else {
 				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>';
 

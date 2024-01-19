@@ -83,7 +83,7 @@ function template_login()
 	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
 		echo '
 					<p class="smalltext">
-						', sprintf(Lang::$txt['welcome_guest_activate'], Config::$scripturl), '
+						', Lang::getTxt('welcome_guest_activate', ['scripturl' => Config::$scripturl]), '
 					</p>';
 	echo '
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -159,7 +159,7 @@ function template_login()
 		echo '
 				<hr>
 				<div class="centertext">
-					', sprintf(Lang::$txt['register_prompt'], Config::$scripturl), '
+					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl]), '
 				</div>';
 
 	// It is a long story as to why we have this when we're clearly not going to use it.
