@@ -596,7 +596,7 @@ class Unread implements ActionInterface
 				'name' => Lang::$txt['unread_topics_all'],
 			];
 		} else {
-			Lang::$txt['unread_topics_visit_none'] = strtr(sprintf(Lang::$txt['unread_topics_visit_none'], Config::$scripturl), ['?action=unread;all' => '?action=unread;all' . $url_limits['first']]);
+			Lang::$txt['unread_topics_visit_none'] = strtr(Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), ['?action=unread;all' => '?action=unread;all' . $url_limits['first']]);
 		}
 
 		// Make sure the starting place makes sense and construct the page index.

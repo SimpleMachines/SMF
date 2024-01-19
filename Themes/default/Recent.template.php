@@ -227,7 +227,7 @@ function template_unread()
 		echo '
 			<div class="infobox">
 				<p class="centertext">
-					', Utils::$context['showing_all_topics'] ? Lang::$txt['topic_alert_none'] : sprintf(Lang::$txt['unread_topics_visit_none'], Config::$scripturl), '
+					', Utils::$context['showing_all_topics'] ? Lang::$txt['topic_alert_none'] : Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), '
 				</p>
 			</div>';
 

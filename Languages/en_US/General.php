@@ -755,7 +755,7 @@ $txt['report_profile'] = 'Report profile of {member_name}';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
 // argument(s): scripturl
-$txt['unread_topics_visit_none'] = 'No unread topics found since your last visit. <a href="%1$s?action=unread;all">Click here to try all unread topics</a>.';
+$txt['unread_topics_visit_none'] = 'No unread topics found since your last visit. <a href="{scripturl}?action=unread;all">Click here to try all unread topics</a>.';
 $txt['updated_topics_visit_none'] = 'No updated topics found since your last visit.';
 $txt['unread_topics_all'] = 'All Unread Topics';
 $txt['unread_replies'] = 'Updated Topics';
