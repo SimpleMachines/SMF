@@ -2801,7 +2801,7 @@ class ServerSideIncludes
 		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
 			// You shouldn't just access SSI.php directly by URL!!
 			if (!isset($_GET['ssi_function'])) {
-				die(sprintf(Lang::$txt['ssi_not_direct'], User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\'']));
 			}
 
 			// Call a function passed by GET.

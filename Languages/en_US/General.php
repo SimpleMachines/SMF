@@ -848,7 +848,7 @@ $txt['previous_next_forward'] = 'Next topic';
 
 $txt['mark_unread'] = 'Mark unread';
 
-$txt['ssi_not_direct'] = 'Please do not access SSI.php by URL directly; you may want to use the path (%1$s) or add ?ssi_function=something.';
+$txt['ssi_not_direct'] = 'Please do not access SSI.php by URL directly; you may want to use the path ({path}) or add ?ssi_function=something.';
 $txt['ssi_session_broken'] = 'SSI.php was unable to load a session! This may cause problems with logout and other functions - please make sure SSI.php is included before *anything* else in all your scripts!';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
