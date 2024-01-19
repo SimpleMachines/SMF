@@ -641,8 +641,11 @@ $txt['redirect_topic_expires'] = 'Automatically remove the redirection topic';
 $txt['mergetopic_redirect'] = 'Redirect to the merged topic';
 $txt['merge_topic_unapproved_js'] = 'Warning! This topic has not yet been approved.\\n\\nIt is not recommended that you create a redirection topic unless you intend to approve the post immediately following the merge.';
 
-$txt['theme_template_error'] = 'Unable to load the \'%1$s\' template.';
-$txt['theme_language_error'] = 'Unable to load the \'%1$s\' language file.';
+$txt['theme_template_error'] = '{type, select,
+	sub {Unable to load the {template_name} sub-template.}
+	other {Unable to load the {template_name} template file.}
+}';
+$txt['theme_language_error'] = 'Unable to load the {filename} language file.';
 
 $txt['sub_boards'] = 'Sub-Boards';
 $txt['restricted_board'] = 'Restricted Board';

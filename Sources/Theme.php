@@ -382,7 +382,7 @@ class Theme
 		elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal) {
 			ErrorHandler::fatalLang('theme_template_error', 'template', [(string) $template_name]);
 		} elseif ($fatal) {
-			die(ErrorHandler::log(sprintf(Lang::$txt['theme_template_error'] ?? 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
+			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} template file.', ['template_name' => (string) $template_name, 'type' => 'file']), 'template'));
 		} else {
 			return false;
 		}
@@ -418,7 +418,7 @@ class Theme
 		} elseif ($fatal === false) {
 			ErrorHandler::fatalLang('theme_template_error', 'template', [(string) $sub_template_name]);
 		} elseif ($fatal !== 'ignore') {
-			die(ErrorHandler::log(sprintf(Lang::$txt['theme_template_error'] ?? 'Unable to load the %s sub template!', (string) $sub_template_name), 'template'));
+			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.', ['template_name' => (string) $sub_template_name, 'type' => 'sub']), 'template'));
 		}
 
 		// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
