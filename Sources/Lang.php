@@ -122,10 +122,10 @@ class Lang
 	/**
 	 * @var string
 	 *
-	 * sprintf format string to show the SMF copyright.
+	 * MessageFormat string to show the SMF copyright.
 	 * The default value will be overwritten when a language is loaded.
 	 */
-	public static string $forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
+	public static string $forum_copyright = '<a href="{scripturl}?action=credits" title="License" target="_blank" rel="noopener">{version} &copy; {year}</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 	/**
 	 * @var array

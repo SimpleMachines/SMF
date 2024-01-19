@@ -1415,7 +1415,7 @@ class Theme
 		}
 
 		// Put in the version...
-		printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+		echo Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]);
 	}
 
 	/**

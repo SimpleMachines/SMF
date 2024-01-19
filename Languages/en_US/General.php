@@ -584,7 +584,7 @@ $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
 // argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl
-$forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
+$forum_copyright = '<a href="{scripturl}?action=credits" title="License" target="_blank" rel="noopener">{version} &copy; {year}</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';

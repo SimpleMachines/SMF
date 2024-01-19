@@ -250,12 +250,12 @@ class ServerSideIncludes
 		}
 
 		if ($output_method == 'echo') {
-			printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+			echo Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]);
 
 			return null;
 		}
 
-		return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+		return Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]);
 	}
 
 	/**

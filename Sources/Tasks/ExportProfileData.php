@@ -1465,7 +1465,7 @@ class ExportProfileData extends BackgroundTask
 					'value' => $export_formats[$this->_details['format']]['extension'],
 				],
 				'forum_copyright' => [
-					'value' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
+					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 				],
 				'txt_summary_heading' => [
 					'value' => Lang::$txt['summary'],
