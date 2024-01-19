@@ -1137,7 +1137,7 @@ class Post implements ActionInterface
 		if (!empty($row['modified_time'])) {
 			Utils::$context['last_modified'] = Time::create('@' . $row['modified_time'])->format();
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
-			Utils::$context['last_modified_text'] = sprintf(Lang::$txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::$txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::$txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
 		}
 
 		// Get the stuff ready for the form.

@@ -467,11 +467,11 @@ class Msg implements \ArrayAccess
 
 		// Info about last modification to this message.
 		if (!empty($this->formatted['modified']['name'])) {
-			$this->formatted['modified']['last_edit_text'] = sprintf(Lang::$txt['last_edit_by'], $this->formatted['modified']['time'], $this->formatted['modified']['name']);
+			$this->formatted['modified']['last_edit_text'] = Lang::getTxt('last_edit_by', ['time' => $this->formatted['modified']['time'], 'member' => $this->formatted['modified']['name']]);
 
 			// Did they give a reason for editing?
 			if (!empty($this->formatted['modified']['reason'])) {
-				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . sprintf(Lang::$txt['last_edit_reason'], $this->formatted['modified']['reason']);
+				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $this->formatted['modified']['reason']]);
 			}
 		}
 
