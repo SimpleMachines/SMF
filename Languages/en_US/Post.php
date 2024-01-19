@@ -73,7 +73,6 @@ $txt['board_moderate'] = 'on a board you moderate';
 $txt['report_comment'] = 'The reporter has made the following comment';
 
 // Use numeric entities in the below three strings.
-$txt['report_profile'] = 'Report profile of \'%1$s\'';
 $txt['reported_profile'] = 'Reported user';
 $txt['report_following_user'] = 'The profile of "%1$s" at %2$s';
 

@@ -221,7 +221,7 @@ class ReportToMod implements ActionInterface
 
 		Utils::$context['comment_body'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
 
-		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : sprintf(Lang::$txt['report_profile'], $display_name);
+		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : Lang::getTxt('report_profile', ['member_name' => $display_name]);
 		Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod_func'] : Lang::$txt['report_profile_func'];
 
 		// Show the inputs for the comment, etc.

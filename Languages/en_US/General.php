@@ -751,7 +751,7 @@ $txt['you_likes_count'] = '{num, plural,
 }';
 
 $txt['report_to_mod'] = 'Report to moderator';
-$txt['report_profile'] = 'Report profile of %1$s';
+$txt['report_profile'] = 'Report profile of {member_name}';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
 // argument(s): scripturl
