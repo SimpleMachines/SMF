@@ -654,7 +654,7 @@ $txt['smtp_no_connect'] = 'Could not connect to SMTP host';
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers. Hostname may need ssl:// prefix.';
 $txt['smtp_bad_response'] = 'Could not get mail server response codes';
 $txt['smtp_error'] = 'Ran into problems sending mail. Error: ';
-$txt['mail_send_unable'] = 'Unable to send mail to the email address \'%1$s\'';
+$txt['mail_send_unable'] = 'Unable to send mail to the email address {0}';
 
 $txt['mlist_search'] = 'Search for Members';
 $txt['mlist_search_again'] = 'Search again';
