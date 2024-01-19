@@ -648,7 +648,7 @@ class Memberlist implements ActionInterface
 			}
 
 			foreach (Utils::$context['custom_search_fields'] as $field) {
-				Utils::$context['search_fields'][$field['colname']] = sprintf(Lang::$txt['mlist_search_by'], Lang::tokenTxtReplace($field['name']));
+				Utils::$context['search_fields'][$field['colname']] = Lang::getTxt('mlist_search_by', ['field' => Lang::tokenTxtReplace($field['name'])]);
 			}
 
 			Utils::$context['sub_template'] = 'search';

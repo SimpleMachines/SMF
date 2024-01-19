@@ -665,7 +665,7 @@ $txt['mlist_search_group'] = 'Search by position';
 $txt['mlist_search_name'] = 'Search by name';
 $txt['mlist_search_website'] = 'Search by website';
 $txt['mlist_search_results'] = 'Search results for';
-$txt['mlist_search_by'] = 'Search by %1$s';
+$txt['mlist_search_by'] = 'Search by {field}';
 $txt['mlist_menu_view'] = 'View the memberlist';
 
 $txt['attach_downloaded'] = '{0, plural,
