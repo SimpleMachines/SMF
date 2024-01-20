@@ -326,14 +326,14 @@ class Board implements \ArrayAccess
 	 * rather than Board::$board_id. The only exception to this rule is in code
 	 * executed before Board::load() has been called.
 	 */
-	public static $board_id;
+	public static ?int $board_id;
 
 	/**
 	 * @var self
 	 *
 	 * Instance of this class for board we are currently in.
 	 */
-	public static $info;
+	public static ?self $info;
 
 	/**
 	 * @var array

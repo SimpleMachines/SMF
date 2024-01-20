@@ -29,6 +29,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 // 1. Set a couple of variables that we'll need.
 $boarddir = realpath(dirname(__DIR__));
 $sourcedir = $boarddir . '/Sources';
@@ -41,23 +43,23 @@ define('TIME_START', microtime(true));
 // 3. Borrow a bit of stuff from index.php.
 $index_php_start = file_get_contents($boarddir . '/index.php', false, null, 0, 4096);
 
-foreach (array('SMF_VERSION', 'SMF_SOFTWARE_YEAR') as $const)
-{
-	preg_match("/define\('$const', '([^)]+)'\);/", $index_php_start, $matches);
+foreach (['SMF_VERSION', 'SMF_SOFTWARE_YEAR'] as $const) {
+	preg_match("/define\('{$const}', '([^)]+)'\);/", $index_php_start, $matches);
 
-	if (empty($matches[1]))
-		die("Could not find value for $const in index.php");
+	if (empty($matches[1])) {
+		die("Could not find value for {$const} in index.php");
+	}
 
 	define($const, $matches[1]);
 }
 
 // 4. Get some more stuff we need.
-require_once($sourcedir . '/Autoloader.php');
+require_once $sourcedir . '/Autoloader.php';
 SMF\Config::$boarddir = $boarddir;
 SMF\Config::$sourcedir = $sourcedir;
 
 // 5. Do the job.
-$unicode_updater = new SMF\Tasks\UpdateUnicode(array());
+$unicode_updater = new SMF\Tasks\UpdateUnicode([]);
 $unicode_updater->execute();
 
 ?>
