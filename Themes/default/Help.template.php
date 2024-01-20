@@ -157,7 +157,7 @@ function template_manual()
 			</div>
 			<div id="help_container">
 				<div id="helpmain" class="windowbg">
-					<p>', sprintf(Lang::$txt['manual_welcome'], Utils::$context['forum_name_html_safe']), '</p>
+					<p>', Lang::getTxt('manual_welcome', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</p>
 					<p>', Lang::$txt['manual_introduction'], '</p>
 					<ul>';
 
@@ -167,7 +167,7 @@ function template_manual()
 
 	echo '
 					</ul>
-					<p>', sprintf(Lang::$txt['manual_docs_and_credits'], Utils::$context['wiki_url'], Config::$scripturl . '?action=credits'), '</p>
+					<p>', Lang::getTxt('manual_docs_and_credits', ['wiki_url' => Utils::$context['wiki_url'], 'credits_url' => Config::$scripturl . '?action=credits']), '</p>
 				</div><!-- #helpmain -->
 			</div><!-- #help_container -->';
 }
