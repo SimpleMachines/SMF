@@ -3646,7 +3646,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function fetch_alerts(
 		int $memID,
-		bool|array $to_fetch = false,
+		int|bool|array $to_fetch = false,
 		int $limit = 0,
 		int $offset = 0,
 		bool $with_avatar = false,
