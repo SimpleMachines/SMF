@@ -51,7 +51,7 @@ function template_mailtest()
 	if (!empty(Utils::$context['result']))
 	{
 		if (Utils::$context['result'] == 'failure')
-			$result_txt = sprintf(Lang::$txt['mailtest_result_failure'], Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc');
+			$result_txt = Lang::getTxt('mailtest_result_failure', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc']);
 		else
 			$result_txt = Lang::$txt['mailtest_result_success'];
 
