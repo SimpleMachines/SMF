@@ -107,18 +107,18 @@ $txt['execute_code'] = 'Execute Code';
 $txt['execute_database_changes'] = 'Adapt Database';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
-$txt['execute_hook_action'] = 'Adapting hook %1$s';
-$txt['execute_hook_action_inverse'] = 'Removing hook %1$s';
+$txt['execute_hook_action'] = 'Adapting hook {hook}';
+$txt['execute_hook_action_inverse'] = 'Removing hook {hook}';
 $txt['package_requires'] = 'Requires Modification';
 $txt['package_check_for'] = 'Check for installation:';
 $txt['execute_credits_add'] = 'Add Credits';
 $txt['execute_credits_remove'] = 'Remove Credits';
-$txt['execute_credits_action'] = 'Credits: %1$s';
+$txt['execute_credits_action'] = 'Credits: {title}';
 
 $txt['package_install_actions'] = 'Installations actions for';
-$txt['package_will_fail_title'] = 'Error in package %1$s';
-$txt['package_will_fail_warning'] = 'At least one error was encountered during a test %1$s of this package.<br>It is <strong>strongly</strong> recommended that you do not continue with %1$s unless you know what you are doing, and have made a backup very recently.<br><br>This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
-$txt['package_will_fail_unknown_action'] = 'The package is trying to perform an unknown action: %1$s';
+$txt['package_will_fail_title'] = 'Error in package {0}';
+$txt['package_will_fail_warning'] = 'At least one error was encountered during a test {0} of this package.<br>It is <strong>strongly</strong> recommended that you do not continue with {0} unless you know what you are doing, and have made a backup very recently.<br><br>This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
+$txt['package_will_fail_unknown_action'] = 'The package is trying to perform an unknown action: {0}';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
 $txt['package_will_fail_popup_uninstall'] = 'Are you sure you wish to continue uninstalling this modification, even though it will not uninstall successfully?';
@@ -154,7 +154,7 @@ $txt['package_install_options_make_backups'] = 'Create Backup versions of replac
 $txt['package_install_options_make_full_backups'] = 'Create a backup of key SMF files whenever a package is installed or uninstalled.';
 
 $txt['package_ftp_necessary'] = 'FTP Information Required';
-$txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable. This needs to be changed by logging into FTP and using it to chmod or create the files and directories. Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="%1$s">here</a>.';
+$txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable. This needs to be changed by logging into FTP and using it to chmod or create the files and directories. Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="{onclick}">here</a>.';
 $txt['package_ftp_why_file_list'] = 'The following files need to made writable to continue installation:';
 $txt['package_ftp_why_download'] = 'In order to download packages, the Packages directory, and any files in it, must be writable. Currently the system does not have the needed permissions to write to this directory. The package manager can use your FTP information to attempt to fix this problem.';
 $txt['package_ftp_server'] = 'FTP Server';
@@ -183,7 +183,7 @@ $txt['package_modification_missing'] = 'The file could not be found.';
 $txt['package_no_zlib'] = 'zlib';
 $txt['package_no_phar'] = 'phar';
 $txt['package_no_package_manager'] = 'the package manager';
-$txt['package_no_lib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>"%1$s"</strong>. Without this, %2$s cannot function. Please contact your host about this for more information.';
+$txt['package_no_lib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>"{0}"</strong>. Without this, {1} cannot function. Please contact your host about this for more information.';
 
 $txt['package_cleanperms_title'] = 'Cleanup Permissions';
 $txt['package_cleanperms_desc'] = 'This interface allows you to reset the permissions for files throughout your installation, so as to increase security or solve any permission problems you may encounter while installing packages.';
@@ -200,10 +200,10 @@ $txt['package_download_filename_info'] = 'Optional value. Should be used when th
 $txt['package_db_uninstall'] = 'Remove all data associated with this modification.';
 $txt['package_db_uninstall_details'] = 'Details';
 $txt['package_db_uninstall_actions'] = 'Checking this option will result in the following actions';
-$txt['package_db_code'] = 'Execute code file &quot;%1$s&quot;';
-$txt['package_db_remove_table'] = 'Drop table &quot;%1$s&quot;';
-$txt['package_db_remove_column'] = 'Remove column &quot;%2$s&quot; from &quot;%1$s&quot;';
-$txt['package_db_remove_index'] = 'Remove index &quot;%2$s&quot; from &quot;%1$s&quot;';
+$txt['package_db_code'] = 'Execute code file &quot;{0}&quot;';
+$txt['package_db_remove_table'] = 'Drop table &quot;{0}&quot;';
+$txt['package_db_remove_column'] = 'Remove column &quot;{1}&quot; from &quot;{0}&quot;';
+$txt['package_db_remove_index'] = 'Remove index &quot;{1}&quot; from &quot;{0}&quot;';
 
 $txt['package_advanced_button'] = 'Emulation Support';
 $txt['package_advanced_options'] = 'Advanced Options';
@@ -274,12 +274,12 @@ $txt['package_restore_permissions_filename'] = 'Filename';
 $txt['package_restore_permissions_orig_status'] = 'Original Status';
 $txt['package_restore_permissions_cur_status'] = 'Current Status';
 $txt['package_restore_permissions_result'] = 'Result';
-$txt['package_restore_permissions_pre_change'] = '%1$s (%3$s)';
-$txt['package_restore_permissions_post_change'] = '%2$s (%3$s - was %2$s)';
+$txt['package_restore_permissions_pre_change'] = '{curr_perms} ({writable_message})';
+$txt['package_restore_permissions_post_change'] = '{new_perms} ({curr_perms} - was {new_perms})';
 $txt['package_restore_permissions_action_skipped'] = '<em>Skipped</em>';
 $txt['package_restore_permissions_action_success'] = '<span class="success">Success</span>';
 $txt['package_restore_permissions_action_failure'] = '<span class="error">Failed</span>';
-$txt['package_restore_permissions_action_done'] = 'SMF has attempted to restore the selected files back to their original permissions, the results can be seen below. If a change failed, or for a more detailed view of file permissions, please see the <a href="%1$s">File Permissions</a> section.';
+$txt['package_restore_permissions_action_done'] = 'SMF has attempted to restore the selected files back to their original permissions, the results can be seen below. If a change failed, or for a more detailed view of file permissions, please see the <a href="{url}">File Permissions</a> section.';
 
 $txt['package_file_perms_warning'] = 'Please Note';
 $txt['package_file_perms_warning_desc'] = '
@@ -289,7 +289,7 @@ $txt['package_file_perms_warning_desc'] = '
 	<li>This functionality is mainly applicable on non-Windows based servers - it will not work as expected on Windows in regards to permission flags.</li>
 	<li>Before proceeding make sure you have an FTP client installed in case you do make an error and need to FTP into the server to remedy it.</li>';
 
-$txt['package_confirm_view_package_content'] = 'Are you sure you want to view the package contents from this location:<br><br>%1$s';
+$txt['package_confirm_view_package_content'] = 'Are you sure you want to view the package contents from this location:<br><br>{0}';
 $txt['package_confirm_proceed'] = 'Proceed';
 $txt['package_confirm_go_back'] = 'Go back';
 

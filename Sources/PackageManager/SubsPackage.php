@@ -643,7 +643,7 @@ class SubsPackage
 							'function' => function ($rowData) {
 								$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? Lang::$txt['package_restore_permissions_pre_change'] : Lang::$txt['package_restore_permissions_post_change'];
 
-								return sprintf($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
 							},
 							'class' => 'smalltext',
 						],
@@ -694,7 +694,7 @@ class SubsPackage
 
 			// Work out what columns and the like to show.
 			if (!empty($_POST['restore_perms'])) {
-				$listOptions['additional_rows'][1]['value'] = sprintf(Lang::$txt['package_restore_permissions_action_done'], Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+				$listOptions['additional_rows'][1]['value'] = Lang::getTxt('package_restore_permissions_action_done', ['url' => Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]);
 				unset($listOptions['columns']['check'], $listOptions['form'], $listOptions['additional_rows'][0]);
 
 				Utils::$context['sub_template'] = 'show_list';

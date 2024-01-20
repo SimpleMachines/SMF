@@ -330,15 +330,15 @@ class PackageManager
 		Utils::$context['database_changes'] = [];
 
 		if (isset($packageInfo['uninstall']['database'])) {
-			Utils::$context['database_changes'][] = sprintf(Lang::$txt['package_db_code'], $packageInfo['uninstall']['database']);
+			Utils::$context['database_changes'][] = Lang::getTxt('package_db_code', [$packageInfo['uninstall']['database']]);
 		}
 
 		if (!empty($db_changes)) {
 			foreach ($db_changes as $change) {
 				if (isset($change[2], Lang::$txt['package_db_' . $change[0]])) {
-					Utils::$context['database_changes'][] = sprintf(Lang::$txt['package_db_' . $change[0]], $change[1], $change[2]);
+					Utils::$context['database_changes'][] = Lang::getTxt('package_db_' . $change[0], [$change[1], $change[2]]);
 				} elseif (isset(Lang::$txt['package_db_' . $change[0]])) {
-					Utils::$context['database_changes'][] = sprintf(Lang::$txt['package_db_' . $change[0]], $change[1]);
+					Utils::$context['database_changes'][] = Lang::getTxt('package_db_' . $change[0], [$change[1]]);
 				} else {
 					Utils::$context['database_changes'][] = $change[0] . '-' . $change[1] . (isset($change[2]) ? '-' . $change[2] : '');
 				}
@@ -450,7 +450,7 @@ class PackageManager
 				Utils::$context['has_failure'] = true;
 
 				if (isset($action['error_msg'], $action['error_var'])) {
-					Utils::$context['failure_details'] = sprintf(Lang::$txt['package_will_fail_' . $action['error_msg']], $action['error_var']);
+					Utils::$context['failure_details'] = Lang::getTxt('package_will_fail_' . $action['error_msg'], [$action['error_var']]);
 				} elseif (isset($action['error_msg'])) {
 					Utils::$context['failure_details'] = Lang::$txt['package_will_fail_' . $action['error_msg']] ?? $action['error_msg'];
 				}
@@ -615,12 +615,12 @@ class PackageManager
 
 				$thisAction = [
 					'type' => $action['reverse'] ? Lang::$txt['execute_hook_remove'] : Lang::$txt['execute_hook_add'],
-					'action' => sprintf(Lang::$txt['execute_hook_action' . ($action['reverse'] ? '_inverse' : '')], Utils::htmlspecialchars($action['hook'])),
+					'action' => Lang::getTxt('execute_hook_action' . ($action['reverse'] ? '_inverse' : ''), ['hook' => Utils::htmlspecialchars($action['hook'])]),
 				];
 			} elseif ($action['type'] == 'credits') {
 				$thisAction = [
 					'type' => Lang::$txt['execute_credits_add'],
-					'action' => sprintf(Lang::$txt['execute_credits_action'], Utils::htmlspecialchars($action['title'])),
+					'action' => Lang::getTxt('execute_credits_action', ['title' => Utils::htmlspecialchars($action['title'])]),
 				];
 			} elseif ($action['type'] == 'requires') {
 				$installed = false;
@@ -2541,7 +2541,7 @@ class PackageManager
 				Utils::$context['sub_template'] = 'package_confirm';
 
 				Utils::$context['page_title'] = Lang::$txt['package_servers'];
-				Utils::$context['confirm_message'] = sprintf(Lang::$txt['package_confirm_view_package_content'], Utils::htmlspecialchars($_GET['absolute']));
+				Utils::$context['confirm_message'] = Lang::getTxt('package_confirm_view_package_content', [Utils::htmlspecialchars($_GET['absolute'])]);
 				Utils::$context['proceed_href'] = Config::$scripturl . '?action=admin;area=packages;get;sa=browse;absolute=' . urlencode($_GET['absolute']) . ';confirm=' . $token;
 
 				return;

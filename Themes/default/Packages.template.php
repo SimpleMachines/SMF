@@ -53,8 +53,8 @@ function template_view_package()
 	if (Utils::$context['has_failure'])
 		echo '
 		<div class="errorbox">
-			', sprintf(Lang::$txt['package_will_fail_title'], Lang::$txt['package_' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install')]), '<br>
-			', sprintf(Lang::$txt['package_will_fail_warning'], Lang::$txt['package_' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install')]),
+			', Lang::getTxt('package_will_fail_title', [Lang::$txt['package_' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install')]]), '<br>
+			', Lang::getTxt('package_will_fail_warning', [Lang::$txt['package_' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install')]]),
 			!empty(Utils::$context['failure_details']) ? '<br><br><strong>' . Utils::$context['failure_details'] . '</strong>' : '', '
 		</div>';
 
@@ -1121,7 +1121,7 @@ function template_control_chmod()
 	if (empty(Utils::$context['package_ftp']['form_elements_only']))
 	{
 		echo '
-				', sprintf(Lang::$txt['package_ftp_why'], 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;'), '<br>
+				', Lang::getTxt('package_ftp_why', ['onclick' => 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;']), '<br>
 				<div id="need_writable_list" class="smalltext">
 					', Lang::$txt['package_ftp_why_file_list'], '
 					<ul style="display: inline;">';
