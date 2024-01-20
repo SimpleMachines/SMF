@@ -1879,7 +1879,7 @@ class Themes implements ActionInterface
 		// Check for compatibility with 2.1 or greater.
 		if (!$theme_info_xml->exists('theme-info/install')) {
 			$this->deltree($path);
-			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
+			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, [SMF_FULL_VERSION]);
 		}
 
 		// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
@@ -1889,7 +1889,7 @@ class Themes implements ActionInterface
 		// The theme isn't compatible with the current SMF version.
 		if (!$install_versions || !SubsPackage::matchPackageVersion($the_version, $install_versions)) {
 			$this->deltree($path);
-			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
+			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, [SMF_FULL_VERSION]);
 		}
 
 		$theme_info_xml = $theme_info_xml->to_array('theme-info[0]');
