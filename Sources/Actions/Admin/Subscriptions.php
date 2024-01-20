@@ -123,7 +123,7 @@ class Subscriptions implements ActionInterface
 	{
 		// Not made the settings yet?
 		if (empty(Config::$modSettings['paid_currency_symbol'])) {
-			ErrorHandler::fatalLang('paid_not_set_currency', false, [Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings']);
+			ErrorHandler::fatalLang('paid_not_set_currency', false, ['url' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings']);
 		}
 
 		// Some basic stuff.
@@ -314,7 +314,7 @@ class Subscriptions implements ActionInterface
 
 		$listOptions = [
 			'id' => 'subscribed_users_list',
-			'title' => sprintf(Lang::$txt['view_users_subscribed'], $row['name']),
+			'title' => Lang::getTxt('view_users_subscribed', $row),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id'],
 			'default_sort_col' => 'name',
@@ -1216,7 +1216,7 @@ class Subscriptions implements ActionInterface
 		if (empty(Config::$modSettings['paid_enabled'])) {
 			Utils::$context['settings_title'] = Lang::$txt['paid_subscriptions'];
 		} else {
-			Utils::$context['settings_message'] = sprintf(Lang::$txt['paid_note'], Config::$boardurl);
+			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl]);
 			Menu::$loaded['admin']['current_subsection'] = 'settings';
 			Utils::$context['settings_title'] = Lang::$txt['settings'];
 
