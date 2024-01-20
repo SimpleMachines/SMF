@@ -732,7 +732,7 @@ function template_group_request_reason()
 	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 					<dt>
-						<strong>', sprintf(Lang::$txt['mc_groupr_reason_desc'], $request['member_link'], $request['group_link']), ':</strong>
+						<strong>', Lang::getTxt('mc_groupr_reason_desc', $request), ':</strong>
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">

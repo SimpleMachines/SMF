@@ -185,7 +185,7 @@ function template_viewmodreport()
 		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', sprintf(Lang::$txt['mc_viewmodreport'], Utils::$context['report']['message_link'], Utils::$context['report']['author']['link']), '
+					', Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['message_link'], 'author_link' => Utils::$context['report']['author']['link']]), '
 				</h3>
 			</div>
 			<div class="title_bar">
@@ -227,7 +227,13 @@ function template_viewmodreport()
 		echo '
 			<div class="windowbg">
 				<p class="smalltext">
-					', sprintf(Lang::$txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
+					', Lang::getTxt(
+						'mc_modreport_whoreported_data',
+						[
+							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
+							'datetime' => $comment['time'],
+						],
+					), '
 				</p>
 				<p>', $comment['message'], '</p>
 			</div>';
@@ -467,7 +473,7 @@ function template_viewmemberreport()
 		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', sprintf(Lang::$txt['mc_viewmemberreport'], Utils::$context['report']['user']['link']), '
+					', Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['link']]), '
 				</h3>
 			</div>
 			<div class="title_bar">
@@ -506,7 +512,13 @@ function template_viewmemberreport()
 		echo '
 			<div class="windowbg">
 				<p class="smalltext">
-					', sprintf(Lang::$txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
+					', Lang::getTxt(
+						'mc_modreport_whoreported_data',
+						[
+							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
+							'datetime' => $comment['time'],
+						],
+					), '
 				</p>
 				<p>', $comment['message'], '</p>
 			</div>';

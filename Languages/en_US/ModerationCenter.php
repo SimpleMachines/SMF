@@ -33,10 +33,10 @@ $txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
 $txt['mc_group_requests_none'] = 'There are no open requests for group membership.';
 $txt['mc_reported_users_none'] = 'There are no pending profile reports.';
 
-$txt['mc_seen'] = '%1$s last seen %2$s';
-$txt['mc_seen_never'] = '%1$s never seen';
+$txt['mc_seen'] = '{link} last seen {last_login}';
+$txt['mc_seen_never'] = '{link} never seen';
 $txt['mc_groupr_by'] = 'by';
-$txt['mc_post_report'] = '%1$s by %2$s';
+$txt['mc_post_report'] = '{report_link} by {author_link}';
 
 $txt['mc_reported_posts_desc'] = 'Here you can review all the post reports raised by members of the community.';
 $txt['mc_reportedp_active'] = 'Active Reports';
@@ -69,7 +69,7 @@ $txt['mc_groupr_none_found'] = 'There are currently no outstanding membergroup r
 $txt['mc_groupr_approved'] = 'Request approved';
 $txt['mc_groupr_rejected'] = 'Request rejected';
 $txt['mc_groupr_submit'] = 'Submit';
-$txt['mc_groupr_reason_desc'] = 'Reason to reject %1$s\'s request to join &quot;%2$s&quot;';
+$txt['mc_groupr_reason_desc'] = 'Reason to reject {member_link}\'s request to join &quot;{group_link}&quot;';
 $txt['mc_groups_reason_title'] = 'Reasons for rejection';
 $txt['with_selected'] = 'With selected';
 $txt['mc_groupr_approve'] = 'Approve request';
@@ -90,20 +90,20 @@ $txt['mc_unapproved_sure'] = 'Are you sure you want to do this?';
 $txt['mc_unapproved_attach_name'] = 'Attachment name';
 $txt['mc_unapproved_attach_size'] = 'Filesize';
 $txt['mc_unapproved_attach_poster'] = 'Poster';
-$txt['mc_viewmodreport'] = 'Moderation report for %1$s by %2$s';
+$txt['mc_viewmodreport'] = 'Moderation report for {message_link} by {author_link}';
 $txt['mc_modreport_summary'] = '{0, plural,
 	one {There has been # report concerning this post.}
 	other {There have been # reports concerning this post.}
 } The last report was {1}.';
 $txt['mc_modreport_whoreported_title'] = 'Members who have reported this post';
-$txt['mc_modreport_whoreported_data'] = 'Reported by %1$s on %2$s. They left the following message:';
+$txt['mc_modreport_whoreported_data'] = 'Reported by {message_link} on {datetime}. They left the following message:';
 $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
 $txt['mc_modreport_mod_comments'] = 'Moderator Comments';
 $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator comments';
 $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 $txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
-$txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
+$txt['mc_viewmemberreport'] = 'Report for profile of {member}';
 $txt['mc_memberreport_summary'] = '{0, plural,
 	one {There has been # report concerning this profile.}
 	other {There have been # reports concerning this profile.}

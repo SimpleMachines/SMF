@@ -123,7 +123,7 @@ function template_watched_users()
 	foreach (Utils::$context['watched_users'] as $user)
 		echo '
 				<li>
-					<span class="smalltext">', sprintf(!empty($user['last_login']) ? Lang::$txt['mc_seen'] : Lang::$txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
+					<span class="smalltext">', Lang::getTxt(!empty($user['last_login']) ? 'mc_seen' : 'mc_seen_never', $user), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
@@ -188,7 +188,7 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $post)
 		echo '
 				<li>
-					<span class="smalltext">', sprintf(Lang::$txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
+					<span class="smalltext">', Lang::getTxt('mc_post_report', ['report_link' => $post['report_link'], 'author_link' => $post['author']['link']]), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
