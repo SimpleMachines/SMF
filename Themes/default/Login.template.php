@@ -302,7 +302,7 @@ function template_kick_guest()
 				', empty(Utils::$context['kick_message']) ? Lang::$txt['only_members_can_access'] : Utils::$context['kick_message'], '<br>';
 
 	if (Utils::$context['can_register'])
-		echo sprintf(Lang::$txt['login_below_or_register'], Config::$scripturl . '?action=signup', Utils::$context['forum_name_html_safe']);
+		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']]);
 	else
 		echo Lang::$txt['login_below'];
 

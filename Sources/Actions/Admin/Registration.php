@@ -155,7 +155,7 @@ class Registration implements ActionInterface
 					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
 				];
 
-				Utils::$context['registration_done'] = sprintf(Lang::$txt['admin_register_done'], Utils::$context['new_member']['link']);
+				Utils::$context['registration_done'] = Lang::getTxt('admin_register_done', Utils::$context['new_member']);
 			}
 		}
 

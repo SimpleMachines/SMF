@@ -137,7 +137,7 @@ class Activate implements ActionInterface
 			}
 
 			if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL)) {
-				ErrorHandler::fatal(sprintf(Lang::$txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
+				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])]), false);
 			}
 
 			// Make sure their email isn't banned.
