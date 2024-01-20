@@ -176,7 +176,7 @@ class Boards implements ActionInterface
 		if (!empty(Utils::$context['move_board'])) {
 			SecurityToken::create('admin-bm-' . Utils::$context['move_board'], 'request');
 
-			Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name));
+			Utils::$context['move_title'] = Lang::getTxt('mboards_select_destination', ['name' => Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name)]);
 
 			foreach (Category::$loaded as $catid => $tree) {
 				$prev_child_level = 0;

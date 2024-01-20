@@ -720,7 +720,7 @@ class Category implements \ArrayAccess
 				} else {
 					// Parent doesn't exist!
 					if (!isset(Board::$loaded[$row['id_parent']])) {
-						ErrorHandler::fatalLang('no_valid_parent', false, [$row['name']]);
+						ErrorHandler::fatalLang('no_valid_parent', false, $row);
 					}
 
 					// Wrong childlevel...we can silently fix this...
