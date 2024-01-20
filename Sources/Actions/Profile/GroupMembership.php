@@ -106,8 +106,8 @@ class GroupMembership implements ActionInterface
 		$open_requests = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 		
-		$open_requests = array_map(function($v) {
-			return (int) $v['id_group'];
+		$open_requests = array_map(function($request) {
+			return (int) $request['id_group'];
 		}, $open_requests);
 
 		// Show the assignable groups in the templates.

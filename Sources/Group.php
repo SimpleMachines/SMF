@@ -1076,8 +1076,8 @@ class Group implements \ArrayAccess
 				$to_set[implode(',', $new_additional_groups)][] = $member->id;
 			}
 
-			foreach ($to_set as $new_additional_groups => $mems) {
-				User::updateMemberData($mems, [
+			foreach ($to_set as $new_additional_groups => $member_ids) {
+				User::updateMemberData($member_ids, [
 					'id_group' => $this->id,
 					'additional_groups' => $new_additional_groups,
 				]);
