@@ -1413,7 +1413,7 @@ class Members implements ActionInterface
 		// Do we have approvals
 		if ($this->show_approve) {
 			Utils::$context['tabs']['approve'] = [
-				'label' => sprintf(Lang::$txt['admin_browse_awaiting_approval'], $this->awaiting_approval),
+				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval]),
 				'description' => Lang::$txt['admin_browse_approve_desc'],
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 			];
@@ -1423,7 +1423,7 @@ class Members implements ActionInterface
 		// Do we have activations to show?
 		if ($this->show_activate) {
 			Utils::$context['tabs']['activate'] = [
-				'label' => sprintf(Lang::$txt['admin_browse_awaiting_activate'], $this->awaiting_activation),
+				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation]),
 				'description' => Lang::$txt['admin_browse_activate_desc'],
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 			];

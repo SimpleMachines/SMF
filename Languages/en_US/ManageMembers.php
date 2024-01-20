@@ -25,7 +25,7 @@ $txt['membergroups_new_copy_none'] = '(none)';
 $txt['membergroups_can_edit_later'] = 'You can edit them later.';
 $txt['membergroups_can_manage_access'] = 'This group can see all boards because they have the power to manage boards.';
 
-$txt['membergroups_cannot_delete_paid'] = 'This group cannot be deleted, it is currently in use by the following paid subscription(s): %1$s';
+$txt['membergroups_cannot_delete_paid'] = 'This group cannot be deleted, it is currently in use by the following paid subscription(s): {0}';
 
 $txt['membergroups_edit_group'] = 'Edit Membergroup';
 $txt['membergroups_edit_name'] = 'Group name';
@@ -91,8 +91,8 @@ $txt['admin_browse_approve'] = 'Members whose accounts are awaiting approval';
 $txt['admin_browse_approve_desc'] = 'From here you can manage all members who are waiting to have their accounts approved.';
 $txt['admin_browse_activate'] = 'Members whose accounts are awaiting activation';
 $txt['admin_browse_activate_desc'] = 'This screen lists all the members who have still not activated their accounts at your forum.';
-$txt['admin_browse_awaiting_approval'] = 'Awaiting Approval (%1$d)';
-$txt['admin_browse_awaiting_activate'] = 'Awaiting Activation (%1$d)';
+$txt['admin_browse_awaiting_approval'] = 'Awaiting Approval ({0, number, integer})';
+$txt['admin_browse_awaiting_activate'] = 'Awaiting Activation ({0, number, integer})';
 
 $txt['admin_browse_username'] = 'Username';
 $txt['admin_browse_email'] = 'Email Address';
