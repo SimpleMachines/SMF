@@ -25,7 +25,7 @@ function template_permission_index()
 	if (!Utils::$context['can_modify'])
 		echo '
 	<div class="errorbox">
-		', sprintf(Lang::$txt['permission_cannot_edit'], Config::$scripturl . '?action=admin;area=permissions;sa=profiles'), '
+		', Lang::getTxt('permission_cannot_edit', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles']), '
 	</div>';
 
 	echo '
@@ -461,7 +461,7 @@ function template_modify_group()
 	if (!Utils::$context['profile']['can_modify'])
 		echo '
 	<div class="errorbox">
-		', sprintf(Lang::$txt['permission_cannot_edit'], Config::$scripturl . '?action=admin;area=permissions;sa=profiles'), '
+		', Lang::getTxt('permission_cannot_edit', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles']), '
 	</div>';
 	else
 		echo '

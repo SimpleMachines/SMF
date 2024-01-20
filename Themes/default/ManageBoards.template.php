@@ -338,7 +338,7 @@ function template_modify_board()
 					</dd>
 					<dt>
 						<strong>', Lang::$txt['permission_profile'], ':</strong><br>
-						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? sprintf(Lang::$txt['permission_profile_desc'], Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']) : strip_tags(Lang::$txt['permission_profile_desc']), '</span>
+						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? Lang::getTxt('permission_profile_desc', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]) : strip_tags(Lang::$txt['permission_profile_desc']), '</span>
 					</dt>
 					<dd>
 						<select name="profile">';
