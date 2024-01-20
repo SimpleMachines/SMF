@@ -1902,7 +1902,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts some parse_bbc() parameters for the special case of XML exports.
 	 */
-	public static function pre_parsebbc_xml(string &$message, array &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
+	public static function pre_parsebbc_xml(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
 	{
 		$cache_id = '';
 

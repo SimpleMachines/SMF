@@ -1761,12 +1761,12 @@ class Feed implements ActionInterface
 				[
 					'tag' => 'last-login',
 					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])],
-					'content' => Time::create('@' . User::$me->last_login_timestamp, new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'registered',
 					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])],
-					'content' => Time::create('@' . User::$me->last_login_timestamp, new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'content' => Time::create('@' . $profile['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'avatar',
