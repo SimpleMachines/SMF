@@ -67,7 +67,7 @@ function template_edit_scheduled_tasks()
 				<h3 class="catbg">', Lang::$txt['scheduled_task_edit'], '</h3>
 			</div>
 			<div class="information">
-				<em>', sprintf(Lang::$txt['scheduled_task_time_offset'], Utils::$context['server_time']), ' </em>
+				<em>', Lang::getTxt('scheduled_task_time_offset', Utils::$context), ' </em>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
