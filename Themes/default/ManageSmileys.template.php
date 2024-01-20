@@ -286,7 +286,7 @@ function template_addsmiley()
 	foreach (Utils::$context['smiley_sets'] as $smiley_set)
 		echo '
 					<dt class="upload_more" style="display: none;">
-						', sprintf(Lang::$txt['smileys_add_upload_for'], '<strong>' . $smiley_set['name'] . '</strong>'), ':
+						', Lang::getTxt('smileys_add_upload_for', ['name' => '<strong>' . $smiley_set['name'] . '</strong>']), ':
 					</dt>
 					<dd class="upload_more" style="display: none;">
 						<input type="file" name="individual_', $smiley_set['path'], '" disabled onchange="selectMethod(\'upload\');">
@@ -418,7 +418,7 @@ function template_editicon()
 
 	echo '
 				<dt>
-					<strong><label for="icon_filename">', Lang::$txt['smileys_filename'], '</label>: </strong><br><span class="smalltext">', sprintf(Lang::$txt['icons_extension_must_be'], '.png'), '</span>
+					<strong><label for="icon_filename">', Lang::$txt['smileys_filename'], '</label>: </strong><br><span class="smalltext">', Lang::getTxt('icons_extension_must_be', ['extension' => '.png']), '</span>
 				</dt>
 				<dd>
 					<input type="text" name="icon_filename" id="icon_filename" value="', !empty(Utils::$context['icon']['filename']) ? Utils::$context['icon']['filename'] . '.png' : '', '">

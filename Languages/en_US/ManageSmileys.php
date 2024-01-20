@@ -31,7 +31,7 @@ $txt['smileys_add_upload'] = 'Upload new smiley';
 $txt['smileys_add_upload_choose'] = 'File to upload';
 $txt['smileys_add_upload_choose_desc'] = 'Image to be used by all smiley sets.';
 $txt['smileys_add_upload_all'] = 'Same image for all sets';
-$txt['smileys_add_upload_for'] = 'Image for the %1$s set';
+$txt['smileys_add_upload_for'] = 'Image for the {name} set';
 
 $txt['smileys_enable_note'] = '(otherwise, the default smileys will be used.)';
 $txt['smileys_code'] = 'Code';
@@ -60,9 +60,9 @@ $txt['smiley_set_modify'] = 'Modify';
 $txt['smiley_set_import_info'] = 'Smiley files whose names match with one of the existing smileys will be imported automatically.';
 $txt['smiley_set_unused'] = 'There are unused smiley images in the folder for this smiley set. To use these files, do one of the following:
 	<ul class="bbc_list">
-		<li><a href="%1$s" class="bbc_link">Edit</a> your existing smileys to use them.</li>
-		<li><a href="%2$s" class="bbc_link">Create</a> new smileys for them.</li>
-		<li><a href="%3$s" class="bbc_link">Import</a> them as new smileys automatically.</li>
+		<li><a href="{edit_url}" class="bbc_link">Edit</a> your existing smileys to use them.</li>
+		<li><a href="{create_url}" class="bbc_link">Create</a> new smileys for them.</li>
+		<li><a href="{import_url}" class="bbc_link">Import</a> them as new smileys automatically.</li>
 	</ul>';
 
 $txt['smileys_location'] = 'Location';
@@ -95,7 +95,7 @@ $txt['icons_new_icon'] = 'New message icon';
 $txt['icons_location_first_icon'] = 'As first icon';
 $txt['icons_location_after'] = 'After';
 // argument(s): the supported file extension
-$txt['icons_extension_must_be'] = 'File extension must be "%1$s"';
+$txt['icons_extension_must_be'] = 'File extension must be "{extension}"';
 $txt['icons_no_entries'] = 'There are currently no message icons configured.';
 
 ?>
