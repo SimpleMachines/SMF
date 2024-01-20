@@ -125,10 +125,7 @@ class Mail
 		$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . $line_break : '';
 		$headers .= 'Return-Path: ' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . $line_break;
 		$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . $line_break;
-
-		if ($message_id !== null && empty(Config::$modSettings['mail_no_message_id'])) {
-			$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . $message_id . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
-		}
+		$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . ($message_id ?? 0) . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
 		$headers .= 'X-Mailer: SMF' . $line_break;
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
