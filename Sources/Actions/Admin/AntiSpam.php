@@ -100,7 +100,7 @@ class AntiSpam implements ActionInterface
 				Utils::$context['settings_insert_above'] = '';
 			}
 
-			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf(Lang::$txt['question_not_defined'], Utils::$context['languages'][Lang::$default]['name']) . '</div>';
+			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Lang::$default]) . '</div>';
 		}
 
 		// Thirdly, push some JavaScript for the form to make it work.

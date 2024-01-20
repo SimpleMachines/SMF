@@ -197,7 +197,7 @@ function template_modify_language_entries()
 			</div>
 			<div class="information">
 				<div>
-					', sprintf(Lang::$txt['edit_language_entries_desc'], Config::$scripturl, Lang::$txt['themeadmin_edit_title']), '
+					', Lang::getTxt('edit_language_entries_desc'), '
 				</div>
 				<br>
 				<div id="taskpad" class="floatright">

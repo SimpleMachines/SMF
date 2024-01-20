@@ -595,7 +595,7 @@ class Server implements ActionInterface
 				$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 			}
 		} elseif (!self::$loadAverageDisabled) {
-			Utils::$context['settings_message']['label'] = sprintf(Lang::$txt['loadavg_warning'], Config::$modSettings['load_average']);
+			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', [Config::$modSettings['load_average']]);
 		}
 
 		$config_vars = self::loadBalancingConfigVars();
@@ -958,7 +958,7 @@ class Server implements ActionInterface
 			$cache_level = [Lang::$txt['cache_off']];
 			$apis_names['none'] = Lang::$txt['cache_off'];
 		} else {
-			Lang::$txt['cache_settings_message'] = '<strong class="success">' . sprintf(Lang::$txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
+			Lang::$txt['cache_settings_message'] = '<strong class="success">' . Lang::getTxt('detected_accelerators', ['list' => Lang::sentenceList($apis_names)]) . '</strong>';
 
 			$cache_level = [Lang::$txt['cache_off'], Lang::$txt['cache_level1'], Lang::$txt['cache_level2'], Lang::$txt['cache_level3']];
 		}

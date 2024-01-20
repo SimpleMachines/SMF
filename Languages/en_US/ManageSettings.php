@@ -3,7 +3,7 @@
 // Version: 3.0 Alpha 1; ManageSettings
 
 // argument(s): theme_id, session_id, session_var, Config::$scripturl
-$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="%4$s?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
+$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="{scripturl}?action=admin;area=theme;sa=list;th={theme_id};{session_var}={session_id}">theme settings</a> for more options. Click the help icons for more information about a setting.';
 $txt['modification_settings_desc'] = 'This page contains settings added by any modifications to your forum';
 
 $txt['modification_no_misc_settings'] = 'There are no modifications installed that have added any settings to this area yet.';
@@ -129,7 +129,7 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
-$txt['detected_accelerators'] = 'SMF has detected the following accelerators: %1$s';
+$txt['detected_accelerators'] = 'SMF has detected the following accelerators: {list}';
 
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';
@@ -151,7 +151,7 @@ $txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
 $txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
 $txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 
-$txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
+$txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>{0, number, :: .00}</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
 $txt['loadavg_auto_opt'] = 'Threshold to disabling automatic database optimization';
 $txt['loadavg_search'] = 'Threshold to disabling search';
@@ -179,7 +179,7 @@ $txt['posts_require_captcha_desc'] = '(0 for no limit, moderators are exempt)';
 $txt['search_enable_captcha'] = 'Require verification on all guest searches';
 $txt['setting_guests_require_captcha'] = 'Guests must pass verification when making a post';
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
-$txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language (%1$s) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
+$txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language ({name}) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
 
 $txt['configure_verification_means'] = 'Configure Verification methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
@@ -237,7 +237,7 @@ $txt['setting_view_warning_own'] = 'Users who can see their own warning status';
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
 // argument(s): session_id, session_var, scripturl
-$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="%3$s?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Apply changes now</a>';
+$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="{scripturl}?action=admin;area=featuresettings;sa=sig;apply;{session_var}={sessions_id}">Apply changes now</a>';
 $txt['signature_settings_applied'] = 'The updated rules have been applied to the existing signatures.';
 $txt['signature_enable'] = 'Enable signatures';
 $txt['signature_max_length'] = 'Maximum allowed characters';
@@ -345,8 +345,8 @@ $txt['languages_character_set'] = 'Character Set';
 $txt['languages_users'] = 'Users';
 $txt['language_settings_writable'] = 'Warning: Settings.php is not writable so the default language setting cannot be saved.';
 $txt['edit_languages'] = 'Edit Languages';
-$txt['lang_file_not_writable'] = '<strong>Warning:</strong> The primary language file (%1$s) is not writable. You must make this writable before you can make any changes.';
-$txt['lang_entries_not_writable'] = '<strong>Warning:</strong> The language file you wish to edit (%1$s) is not writable. You must make this writable before you can make any changes.';
+$txt['lang_file_not_writable'] = '<strong>Warning:</strong> The primary language file ({file}) is not writable. You must make this writable before you can make any changes.';
+$txt['lang_entries_not_writable'] = '<strong>Warning:</strong> The language file you wish to edit ({file}) is not writable. You must make this writable before you can make any changes.';
 $txt['languages_ltr'] = 'Right to Left';
 
 $txt['add_language'] = 'Add Language';
@@ -363,7 +363,6 @@ $txt['add_language_smf_version'] = 'Version';
 
 $txt['edit_language_entries_primary'] = 'Below are the primary language settings for this language pack.';
 $txt['edit_language_entries'] = 'Edit Language Entries';
-// argument(s): Config::$scripturl, $txt['themeadmin_edit_title']
 $txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, browse to the file you are looking for, and then edit it directly.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
@@ -428,7 +427,7 @@ $txt['languages_download_overwrite'] = 'Overwrite';
 $txt['languages_download_not_chmod'] = 'You cannot proceed with the installation until all files selected to be copied are writable.';
 $txt['languages_download_illegal_paths'] = 'Package contains illegal paths - please contact Simple Machines';
 $txt['languages_download_complete'] = 'Installation Complete';
-$txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
+$txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="{url}">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
 $txt['languages_max_inputs_warning'] = '{0, plural,
 	one {You can only save # edit at a time.}

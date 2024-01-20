@@ -637,7 +637,7 @@ class Features implements ActionInterface
 			];
 		} else {
 			Utils::$context['settings_message'] = [
-				'label' => sprintf(Lang::$txt['signature_settings_warning'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+				'label' => Lang::getTxt('signature_settings_warning', ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
 				'tag' => 'div',
 				'class' => 'centertext',
 			];
@@ -1970,7 +1970,7 @@ class Features implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['modSettings_title'],
 			'help' => 'featuresettings',
-			'description' => sprintf(Lang::$txt['modSettings_desc'], Theme::$current->settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+			'description' => Lang::getTxt('modSettings_desc', ['theme_id' => Theme::$current->settings['theme_id'], 'session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
 			'tabs' => [
 				'basic' => [
 				],
