@@ -284,7 +284,7 @@ class AttachmentUpload implements ActionInterface
 		elseif (!is_dir($this->_attchDir)) {
 			$this->_generalErrors[] = 'attach_folder_warning';
 
-			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->_attchDir]), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
@@ -467,7 +467,7 @@ class AttachmentUpload implements ActionInterface
 				$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
 				foreach ($attachment['errors'] as $error) {
-					$attachmentOptions['errors'][] = sprintf(Lang::$txt['attach_warning'], $attachment['name']);
+					$attachmentOptions['errors'][] = Lang::getTxt('attach_warning', $attachment);
 
 					if (!is_array($error)) {
 						$attachmentOptions['errors'][] = Lang::$txt[$error];

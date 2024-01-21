@@ -1364,11 +1364,11 @@ class Post implements ActionInterface
 							// We have a message id, so we can link back to the old topic they were trying to edit..
 							$goback_url = Config::$scripturl . '?action=post' . (!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
 
-							$this->errors[] = ['temp_attachments_found', [$delete_url, $goback_url, $file_list]];
+							$this->errors[] = ['temp_attachments_found', ['delete_url' => $delete_url, 'goback_url' => $goback_url, 'file_list' => $file_list]];
 
 							Utils::$context['ignore_temp_attachments'] = true;
 						} else {
-							$this->errors[] = ['temp_attachments_lost', [$delete_url, $file_list]];
+							$this->errors[] = ['temp_attachments_lost', ['delete_url' => $delete_url, 'file_list' => $file_list]];
 
 							Utils::$context['ignore_temp_attachments'] = true;
 						}
@@ -1402,7 +1402,7 @@ class Post implements ActionInterface
 					if (!empty($attachment['errors'])) {
 						Lang::$txt['error_attach_errors'] = empty(Lang::$txt['error_attach_errors']) ? '<br>' : '';
 
-						Lang::$txt['error_attach_errors'] .= sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment) . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
 							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
@@ -1490,13 +1490,13 @@ class Post implements ActionInterface
 
 			foreach ($attachmentRestrictionTypes as $type) {
 				if (!empty(Config::$modSettings[$type])) {
-					Utils::$context['attachment_restrictions'][$type] = sprintf(Lang::$txt['attach_restrict_' . $type . (Config::$modSettings[$type] >= 1024 ? '_MB' : '')], Lang::numberFormat(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2));
+					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt('attach_restrict_' . $type, [round(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2), 'unit' => Config::$modSettings[$type] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']]);
 
 					// Show the max number of attachments if not 0.
 					if ($type == 'attachmentNumPerPostLimit') {
-						Utils::$context['attachment_restrictions'][$type] .= ' (' . sprintf(Lang::$txt['attach_remaining'], max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)) . ')';
+						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)]) . ')';
 					} elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0) {
-						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf(Lang::$txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
+						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)]) . ')</span>';
 					}
 				}
 			}
@@ -1549,8 +1549,8 @@ class Post implements ActionInterface
 				text_totalMaxSize: ' . Utils::JavaScriptEscape(Lang::$txt['attach_max_total_file_size_current']) . ',
 				text_max_size_progress: ' . Utils::JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
 				dictMaxFilesExceeded: ' . Utils::JavaScriptEscape(Lang::$txt['more_attachments_error']) . ',
-				dictInvalidFileType: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
-				dictFileTooBig: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['file_too_big'], Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
+				dictInvalidFileType: ' . Utils::JavaScriptEscape(Lang::getTxt('cant_upload_type', Utils::$context)) . ',
+				dictFileTooBig: ' . Utils::JavaScriptEscape(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)])) . ',
 				acceptedFiles: ' . Utils::JavaScriptEscape($acceptedFiles) . ',
 				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',

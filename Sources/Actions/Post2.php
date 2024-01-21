@@ -404,7 +404,7 @@ class Post2 extends Post
 
 				if (!empty($attachmentOptions['errors'])) {
 					// Sort out the errors for display and delete any associated files.
-					$attach_errors[] = '<dt>' . sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '</dt>';
+					$attach_errors[] = '<dt>' . Lang::getTxt('attach_warning', $attachment) . '</dt>';
 
 					$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
@@ -775,7 +775,7 @@ class Post2 extends Post
 
 			unset($_SESSION['already_attached']);
 
-			$this->errors[] = ['cannot_post_attachment', [Board::$info->name]];
+			$this->errors[] = ['cannot_post_attachment', ['board' => Board::$info->name]];
 		}
 	}
 

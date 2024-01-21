@@ -187,7 +187,7 @@ class SendDigests extends ScheduledTask
 			$langtxt[$lang] = [
 				'subject' => Lang::$txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
 				'char_set' => Lang::$txt['lang_character_set'],
-				'intro' => sprintf(Lang::$txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], Config::$mbname),
+				'intro' => Lang::getTxt('digest_intro_' . ($is_weekly ? 'weekly' : 'daily'), ['forum_name' => Config::$mbname]),
 				'new_topics' => Lang::$txt['digest_new_topics'],
 				'topic_lines' => Lang::$txt['digest_new_topics_line'],
 				'new_replies' => Lang::$txt['digest_new_replies'],
@@ -244,7 +244,7 @@ class SendDigests extends ScheduledTask
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . sprintf($langtxt[$lang]['topic_lines'], $topic['subject'], $board['name']);
+							$email['body'] .= "\n" . Lang::formatText($langtxt[$lang]['topic_lines'], ['subject' => $topic['subject'], 'board' => $board['name']]);
 						}
 					}
 				}
@@ -293,7 +293,7 @@ class SendDigests extends ScheduledTask
 									$titled = true;
 								}
 
-								$email['body'] .= "\n" . sprintf($langtxt[$lang][$note_type], $topic['subject']);
+								$email['body'] .= "\n" . Lang::formatText($langtxt[$lang][$note_type], $topic);
 							}
 						}
 					}
