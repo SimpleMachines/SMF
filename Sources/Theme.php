@@ -2754,6 +2754,7 @@ class Theme
 		// Add the JQuery library to the list of files to load.
 		$jQueryUrls =  [
 			'cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js',
+			'cloudflare_cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/' . JQUERY_VERSION . '/jquery.min.js',
 			'jquery_cdn' => 'https://code.jquery.com/jquery-' . JQUERY_VERSION . '.min.js',
 			'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-' . JQUERY_VERSION . '.min.js',
 		];
