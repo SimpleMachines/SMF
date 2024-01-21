@@ -763,7 +763,7 @@ class Reports implements ActionInterface
 			}
 
 			if (strpos($row['permission'], 'bbc_') === 0) {
-				Lang::$txt['group_perms_name_' . $row['permission']] = sprintf(Lang::$txt['group_perms_name_bbc'], substr($row['permission'], 4));
+				Lang::$txt['group_perms_name_' . $row['permission']] = Lang::getTxt('group_perms_name_bbc', ['bbc' => substr($row['permission'], 4)]);
 			}
 
 			// If this is a new permission flush the last row.
