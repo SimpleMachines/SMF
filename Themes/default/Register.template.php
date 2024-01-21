@@ -639,7 +639,7 @@ function template_edit_agreement()
 					<div class="information">
 						<span>', Utils::$context['agreement_info'], '</span>
 					</div>
-					<div class="righttext"><input type="submit" value="', Lang::$txt['save'], '" tabindex="', Utils::$context['tabindex']++, '" class="button" onclick="return resetAgreementConfirm()" />
+					<input type="submit" value="', Lang::$txt['save'], '" tabindex="', Utils::$context['tabindex']++, '" class="button" onclick="return resetAgreementConfirm()" />
 					<input type="hidden" name="agree_lang" value="', Utils::$context['current_agreement'], '">
 					<input type="hidden" name="sa" value="agreement">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
