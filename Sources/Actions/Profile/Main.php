@@ -573,7 +573,7 @@ class Main implements ActionInterface
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : ''),
-			'name' => sprintf(Lang::$txt['profile_of_username'], Profile::$member->formatted['name']),
+			'name' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 		];
 
 		if (!empty($menu->include_data['label'])) {

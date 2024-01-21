@@ -491,7 +491,7 @@ class Tracking implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'request_list',
-			'title' => sprintf(Lang::$txt['trackGroupRequests_title'], Utils::$context['member']['name']),
+			'title' => Lang::getTxt('trackGroupRequests_title', Utils::$context['member']),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['requested_none'],
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=groupreq;u=' . Profile::$member->id,
@@ -883,12 +883,25 @@ class Tracking implements ActionInterface
 
 				case 1:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-					$this_req['outcome'] = sprintf(Lang::$txt['outcome_approved'], $member_link, Time::create('@' . $row['time_acted'])->format());
+					$this_req['outcome'] = Lang::getTxt(
+						'outcome_approved',
+						[
+							'member_link' => $member_link,
+							'datetime' => Time::create('@' . $row['time_acted'])->format(),
+						],
+					);
 					break;
 
 				case 2:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-					$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? Lang::$txt['outcome_refused_reason'] : Lang::$txt['outcome_refused'], $member_link, Time::create('@' . $row['time_acted'])->format(), $row['act_reason']);
+					$this_req['outcome'] = Lang::getTxt(
+						!empty($row['act_reason']) ? 'outcome_refused_reason' : 'outcome_refused',
+						[
+							'member_link' => $member_link,
+							'datetime' => Time::create('@' . $row['time_acted'])->format(),
+							'reason' => $row['act_reason'],
+						],
+					);
 					break;
 			}
 

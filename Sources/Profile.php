@@ -1636,7 +1636,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], $this->username);
+		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', ['name' => $this->username]);
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);

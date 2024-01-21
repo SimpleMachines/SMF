@@ -1011,7 +1011,7 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed->metadata = [
-			'title' => sprintf(Lang::$txt['profile_of_username'], User::$me->name),
+			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name]),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype) {
 					return Lang::$txt[$datatype];

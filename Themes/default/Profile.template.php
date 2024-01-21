@@ -711,7 +711,7 @@ function template_editBuddies()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], Utils::$context['member']['name']), '</div>';
+	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', Utils::$context['member']), '</div>';
 
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
@@ -837,7 +837,7 @@ function template_editIgnoreList()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], Utils::$context['member']['name']), '</div>';
+	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', Utils::$context['member']), '</div>';
 
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
@@ -2268,7 +2268,7 @@ function template_viewWarning()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', sprintf(Lang::$txt['profile_viewwarning_for_user'], Utils::$context['member']['name']), '
+				', Lang::getTxt('profile_viewwarning_for_user', Utils::$context['member']), '
 			</h3>
 		</div>
 		<p class="information">', Lang::$txt['viewWarning_help'], '</p>
@@ -2807,7 +2807,7 @@ function template_profile_signature_modify()
 	// If there is a limit at all!
 	if (!empty(Utils::$context['signature_limits']['max_length']))
 		echo '
-								<span class="smalltext">', sprintf(Lang::$txt['max_sig_characters'], Utils::$context['signature_limits']['max_length']), ' <span id="signatureLeft">', Utils::$context['signature_limits']['max_length'], '</span></span><br>';
+								<span class="smalltext">', Lang::getTxt('max_sig_characters', Utils::$context['signature_limits']), '</span><br>';
 
 	if (!empty(Utils::$context['show_preview_button']))
 		echo '
@@ -3030,7 +3030,7 @@ function template_max_size($type)
 		return;
 
 	echo '
-								<div class="smalltext">', sprintf(Lang::$txt['avatar_max_size_' . $suffix], $w, $h), '</div>';
+								<div class="smalltext">', Lang::getTxt('avatar_max_size_' . $suffix, ['w' => $w, 'h' => $h]), '</div>';
 }
 
 /**
@@ -3198,7 +3198,7 @@ function template_tfadisable()
 	else
 		echo '
 					<div class="smalltext">
-						', sprintf(Lang::$txt['tfa_disable_for_user'], User::$me->name), '
+						', Lang::getTxt('tfa_disable_for_user', ['name' => User::$me->name]), '
 					</div>';
 
 	echo '
@@ -3249,7 +3249,7 @@ function template_profile_tfa()
 
 	else
 		echo '
-								', sprintf(Lang::$txt['tfa_profile_enabled'], (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable');
+								', Lang::getTxt('tfa_profile_enabled', ['url' => (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable']);
 
 	echo '
 							</dd>';
@@ -3302,7 +3302,13 @@ function template_export_profile_data()
 			}
 
 			echo '
-				<p>', sprintf(Lang::$txt['export_file_desc'], $parts[1]['included_desc'], Utils::$context['export_formats'][$parts[1]['format']]['description']), '</p>';
+				<p>', Lang::getTxt(
+					'export_file_desc',
+					[
+						'list' => $parts[1]['included_desc'],
+						'format' => Utils::$context['export_formats'][$parts[1]['format']]['description'],
+					],
+				), '</p>';
 
 			if (count($parts) > 10)
 				echo '
@@ -3365,7 +3371,13 @@ function template_export_profile_data()
 
 			echo '
 			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', count(Utils::$context['active_exports']) > 1 ? ' class="descbox"' : '', '>
-				<p class="padding">', sprintf(Lang::$txt['export_file_desc'], $file['included_desc'], Utils::$context['export_formats'][$file['format']]['description']), '</p>
+				<p class="padding">', Lang::getTxt(
+					'export_file_desc',
+					[
+						'list' => $file['included_desc'],
+						'format' => Utils::$context['export_formats'][$file['format']]['description'],
+					],
+				), '</p>
 				<div class="righttext">
 					<input type="submit" name="delete" value="', Lang::$txt['export_cancel'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">

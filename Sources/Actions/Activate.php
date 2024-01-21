@@ -200,7 +200,7 @@ class Activate implements ActionInterface
 				ErrorHandler::fatalLang('already_activated', false);
 			} elseif ($row['validation_code'] == '') {
 				Lang::load('Profile');
-				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $row['member_name']]), false);
 			}
 
 			Utils::$context['sub_template'] = 'retry_activate';

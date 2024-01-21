@@ -349,7 +349,7 @@ class Export implements ActionInterface
 			Lang::$txt['export_profile_data_desc_list']['expiry'] = Lang::getTxt(['export_profile_data_desc_list', 'expiry'], [Config::$modSettings['export_expiry']]);
 		}
 
-		Utils::$context['export_profile_data_desc'] = sprintf(Lang::$txt['export_profile_data_desc'], '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>');
+		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>']);
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 	}
