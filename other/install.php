@@ -520,7 +520,7 @@ function Welcome()
 			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql')) {
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				Lang::$txt['error_db_script_missing'] = sprintf(Lang::$txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
+				Lang::$txt['error_db_script_missing'] = Lang::getTxt('error_db_script_missing', ['file' => 'install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql']);
 			} else {
 				$incontext['supported_databases'][] = $db;
 			}
@@ -897,7 +897,7 @@ function DatabaseSettings()
 
 		// Better find the database file!
 		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')) {
-			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
+			$incontext['error'] = Lang::getTxt('error_db_file', ['Db/APIs/' . Db::getClass(Config::$db_type) . '.php']);
 
 			return false;
 		}
@@ -932,7 +932,7 @@ function DatabaseSettings()
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
 		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0) {
-			$incontext['error'] = sprintf(Lang::$txt['error_db_too_low'], $databases[Config::$db_type]['name']);
+			$incontext['error'] = Lang::getTxt('error_db_too_low', $databases[Config::$db_type]);
 
 			return false;
 		}
@@ -969,7 +969,7 @@ function DatabaseSettings()
 
 			// Okay, now let's try to connect...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
-				$incontext['error'] = sprintf(Lang::$txt['error_db_database'], Db::$db->name);
+				$incontext['error'] = Lang::getTxt('error_db_database', ['db_name' => Db::$db->name]);
 
 				return false;
 			}
@@ -1116,13 +1116,13 @@ function ForumSettings()
 
 		// UTF-8 requires a setting to override the language charset.
 		if (!$databases[Config::$db_type]['utf8_support']()) {
-			$incontext['error'] = sprintf(Lang::$txt['error_utf8_support']);
+			$incontext['error'] = Lang::getTxt('error_utf8_support');
 
 			return false;
 		}
 
 		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>')) {
-			$incontext['error'] = sprintf(Lang::$txt['error_utf8_version'], $databases[Config::$db_type]['utf8_version']);
+			$incontext['error'] = Lang::getTxt('error_utf8_version', $databases[Config::$db_type]);
 
 			return false;
 		}
@@ -1332,7 +1332,7 @@ function DatabasePopulation()
 		if ($number == 0) {
 			unset($incontext['sql_results'][$key]);
 		} else {
-			$incontext['sql_results'][$key] = sprintf(Lang::$txt['db_populate_' . $key], $number);
+			$incontext['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number]);
 		}
 	}
 
@@ -1614,7 +1614,7 @@ function AdminAccount()
 		}
 
 		if (!file_exists(Config::$sourcedir . '/Utils.php')) {
-			$incontext['error'] = sprintf(Lang::$txt['error_sourcefile_missing'], 'Utils.php');
+			$incontext['error'] = Lang::getTxt('error_sourcefile_missing', ['file' => 'Utils.php']);
 
 			return false;
 		}
@@ -1658,7 +1658,7 @@ function AdminAccount()
 			return false;
 		} elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
-			$incontext['error'] = sprintf(Lang::$txt['error_valid_admin_email_needed'], $_POST['username']);
+			$incontext['error'] = Lang::$txt['error_valid_admin_email_needed'];
 
 			return false;
 		} elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
@@ -2089,10 +2089,10 @@ function template_welcome_message()
 	echo '
 	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', sprintf(Lang::$txt['install_welcome_desc'], SMF_VERSION), '</p>
+		<p>', Lang::getTxt('install_welcome_desc', ['SMF_VERSION' => SMF_VERSION]), '</p>
 		<div id="version_warning" class="noticebox hidden">
 			<h3>', Lang::$txt['error_warning_notice'], '</h3>
-			', sprintf(Lang::$txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
+			', Lang::getTxt('error_script_outdated', ['smfVersion' => '<em id="smfVersion" style="white-space: nowrap;">??</em>', 'yourVersion' => '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>']), '
 		</div>';
 
 	// Show the warnings, or not.
@@ -2542,7 +2542,7 @@ function template_delete_install()
 	}
 
 	echo '
-		<p>', sprintf(Lang::$txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
+		<p>', Lang::getTxt('go_to_your_forum', ['scripturl' => Config::$boardurl . '/index.php']), '</p>
 		<br>
 		', Lang::$txt['good_luck'];
 }

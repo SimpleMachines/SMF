@@ -417,7 +417,7 @@ function upgradeExit($fallThrough = false)
 				debug_print_backtrace();
 			}
 
-			printf("\n" . Lang::$txt['error_unexpected_template_call'], $upcontext['sub_template'] ?? '');
+			echo "\n" . Lang::getTxt('error_unexpected_template_call', ['sub_template' => $upcontext['sub_template'] ?? '']);
 			flush();
 
 			die();
@@ -452,7 +452,7 @@ function upgradeExit($fallThrough = false)
 			if (is_callable('template_' . $upcontext['sub_template'])) {
 				call_user_func('template_' . $upcontext['sub_template']);
 			} else {
-				die(sprintf(Lang::$txt['error_invalid_template'], $upcontext['sub_template']));
+				die(Lang::getTxt('error_invalid_template', $upcontext));
 			}
 		}
 
@@ -477,11 +477,11 @@ function upgradeExit($fallThrough = false)
 		$seconds = intval($active % 60);
 
 		if ($hours > 0) {
-			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_hms'], $hours, $minutes, $seconds), '' . "\n";
+			echo "\n" . '', Lang::getTxt('upgrade_completed_time_hms', ['h' => $hours, 'm' => $minutes, 's' => $seconds]), '' . "\n";
 		} elseif ($minutes > 0) {
-			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_ms'], $minutes, $seconds), '' . "\n";
+			echo "\n" . '', Lang::getTxt('upgrade_completed_time_ms', ['m' => $minutes, 's' => $seconds]), '' . "\n";
 		} elseif ($seconds > 0) {
-			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_s'], $seconds), '' . "\n";
+			echo "\n" . '', Lang::getTxt('upgrade_completed_time_s', ['s' => $seconds]), '' . "\n";
 		}
 	}
 
@@ -607,10 +607,10 @@ function load_lang_file()
 		elseif (!isset(Config::$languagesdir)) {
 			// Define a few essential strings for now.
 			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
-			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
+			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/{file} file. Please make sure it was uploaded properly, and then try again.';
 
-			Lang::$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
-			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
+			Lang::$txt['warning_lang_old'] = 'The language files for your selected language, {user_language}, have not been updated to the latest version. Upgrade will continue with the forum default, {default_language}.';
+			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, {user_language}. Upgrade will continue with the forum default, {default_language}.';
 
 			return;
 		}
@@ -830,7 +830,7 @@ function loadEssentialData()
 		}
 		Db::$db->free_result($request);
 	} else {
-		return die(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php'));
+		return die(Lang::getTxt('error_sourcefile_missing', ['file' => 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php']));
 	}
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
@@ -959,7 +959,7 @@ function WelcomeLogin()
 	}
 
 	if (!db_version_check()) {
-		return throw_error(sprintf(Lang::$txt['error_db_too_low'], $databases[Config::$db_type]['name']));
+		return throw_error(Lang::getTxt('error_db_too_low', $databases[Config::$db_type]));
 	}
 
 	// CREATE
@@ -973,7 +973,7 @@ function WelcomeLogin()
 
 	// Sorry... we need CREATE, ALTER and DROP
 	if (!$create || !$alter || !$drop) {
-		return throw_error(sprintf(Lang::$txt['error_db_privileges'], $databases[Config::$db_type]['name']));
+		return throw_error(Lang::getTxt('error_db_privileges', $databases[Config::$db_type]));
 	}
 
 	// Do a quick version spot check.
@@ -1010,7 +1010,7 @@ function WelcomeLogin()
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir)) {
-		return throw_error(sprintf(Lang::$txt['error_dir_not_writable'], $custom_av_dir));
+		return throw_error(Lang::getTxt('error_dir_not_writable', ['dir' => $custom_av_dir]));
 	}
 
 	if ($need_settings_update) {
@@ -1036,7 +1036,7 @@ function WelcomeLogin()
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
 	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
-		return throw_error(sprintf(Lang::$txt['error_lang_general_missing'], $upcontext['language'], $upgradeurl));
+		return throw_error(Lang::getTxt('error_lang_general_missing', ['lang' => $upcontext['language'], 'url' => $upgradeurl]));
 	}
 
 	if (!isset($_GET['skiplang'])) {
@@ -1045,7 +1045,7 @@ function WelcomeLogin()
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
-			return throw_error(sprintf(Lang::$txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
+			return throw_error(Lang::getTxt('error_upgrade_old_lang_files', ['lang' => $upcontext['language'], 'url' => $upgradeurl]));
 		}
 	}
 
@@ -1080,11 +1080,11 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr(Config::$boarddir, ['/' => '', '\\' => '']) != strtr($upgrade_path, ['/' => '', '\\' => ''])) {
 		$upcontext['warning'] = '
-			' . sprintf(Lang::$txt['upgrade_forumdir_settings'], Config::$boarddir, $upgrade_path) . '<br>
+			' . Lang::getTxt('upgrade_forumdir_settings', ['boarddir' => Config::$boarddir, 'upgrade_path' => $upgrade_path]) . '<br>
 			<ul>
-				<li>' . Lang::$txt['upgrade_forumdir'] . '  ' . Config::$boarddir . '</li>
-				<li>' . Lang::$txt['upgrade_sourcedir'] . '  ' . Config::$boarddir . '</li>
-				<li>' . Lang::$txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
+				<li>' .  Lang::getTxt('upgrade_forumdir', [Config::$boarddir]) . '</li>
+				<li>' .  Lang::getTxt('upgrade_sourcedir', [Config::$sourcedir]) . '</li>
+				<li>' .  Lang::getTxt('upgrade_cachedir', [$cachedir_temp]) . '</li>
 			</ul>
 			' . Lang::$txt['upgrade_incorrect_settings'] . '';
 	}
@@ -1393,9 +1393,9 @@ function checkLogin()
 				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
-					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
+					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_old', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
 				} elseif (!file_exists(Config::$languagesdir . '/' . $user_language . '/Install.php')) {
-					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
+					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_missing', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
 				} else {
 					// Set this as the new language.
 					$upcontext['language'] = $user_language;
@@ -3067,7 +3067,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir)) {
-		print_error(sprintf(Lang::$txt['error_dir_not_writable'], $custom_av_dir));
+		print_error(Lang::getTxt('error_dir_not_writable', ['dir' => $custom_av_dir]));
 	} elseif ($need_settings_update) {
 		if (!function_exists('cache_put_data')) {
 			require_once Config::$sourcedir . '/Cache/CacheApi.php';
@@ -4465,13 +4465,13 @@ function template_welcome_message()
 	echo '
 				<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 
-				<h3>', sprintf(Lang::$txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
+				<h3>', Lang::getTxt('upgrade_ready_proceed', ['SMF_VERSION' => SMF_VERSION]), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 
 					<div id="version_warning" class="noticebox hidden">
 						<h3>', Lang::$txt['upgrade_warning'], '</h3>
-						', sprintf(Lang::$txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
+						', Lang::getTxt('upgrade_warning_out_of_date', ['SMF_VERSION' => SMF_VERSION, 'url' => 'https://www.simplemachines.org']), '
 					</div>';
 
 	$upcontext['chmod_in_form'] = true;
@@ -4499,7 +4499,7 @@ function template_welcome_message()
 	echo '
 					<div class="errorbox', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
 						<h3>', Lang::$txt['upgrade_critical_error'], '</h3>
-						', sprintf(Lang::$txt['upgrade_error_script_js'], 'https://download.simplemachines.org/?tools'), '
+						', Lang::getTxt('upgrade_error_script_js', ['url' => 'https://download.simplemachines.org/?tools']), '
 					</div>';
 
 	// Is there someone already doing this?
@@ -4519,9 +4519,9 @@ function template_welcome_message()
 		echo '
 					<div class="errorbox">
 						<h3>', Lang::$txt['upgrade_warning'], '</h3>
-						<p>', sprintf(Lang::$txt['upgrade_time_user'], $upcontext['user']['name']), '</p>
-						<p>', sprintf(Lang::$txt[$agoTxt], $ago_seconds, $ago_minutes, $ago_hours), '</p>
-						<p>', sprintf(Lang::$txt[$updatedTxt], $updated_seconds, $updated_minutes, $updated_hours), '</p>';
+						<p>', Lang::getTxt('upgrade_time_user', $upcontext['user']), '</p>
+						<p>', Lang::getTxt($agoTxt, ['s' => $ago_seconds, 'm' => $ago_minutes, 'h' => $ago_hours]), '</p>
+						<p>', Lang::getTxt($updatedTxt, ['s' => $updated_seconds, 'm' => $updated_minutes, 'h' => $updated_hours]), '</p>';
 
 		if ($updated < 600) {
 			echo '
@@ -4533,10 +4533,10 @@ function template_welcome_message()
 						<p>', Lang::$txt['upgrade_run'], '</p>';
 		} elseif ($upcontext['inactive_timeout'] > 120) {
 			echo '
-						<p>', sprintf(Lang::$txt['upgrade_script_timeout_minutes'], $upcontext['user']['name'], round($upcontext['inactive_timeout'] / 60, 1)), '</p>';
+						<p>', Lang::getTxt('upgrade_script_timeout_minutes', ['name' => $upcontext['user']['name'], 'timeout' => round($upcontext['inactive_timeout'] / 60, 1)]), '</p>';
 		} else {
 			echo '
-						<p>', sprintf(Lang::$txt['upgrade_script_timeout_seconds'], $upcontext['user']['name'], $upcontext['inactive_timeout']), '</p>';
+						<p>', Lang::getTxt('upgrade_script_timeout_seconds', ['name' => $upcontext['user']['name'], 'timeout' => $upcontext['inactive_timeout']]), '</p>';
 		}
 
 		echo '
@@ -4694,7 +4694,7 @@ function template_upgrade_options()
 						<input type="checkbox" name="stats" id="stats" value="1"', empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']) ? '' : ' checked="checked"', '>
 						<label for="stat">
 							', Lang::$txt['upgrade_stats_collection'], '<br>
-							<span class="smalltext">', sprintf(Lang::$txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
+							<span class="smalltext">', Lang::getTxt('upgrade_stats_info', ['url' => 'https://www.simplemachines.org/about/stats.php']), '</a></span>
 						</label>
 					</li>
 					<li>
@@ -4721,7 +4721,7 @@ function template_backup_database()
 	echo '
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
-					<strong>', sprintf(Lang::$txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']), '</strong>
+					<strong>', Lang::getTxt('upgrade_completedtables_outof', $upcontext), '</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4838,7 +4838,7 @@ function template_database_changes()
 				$minutes = intval(($active / 60) % 60);
 				$seconds = intval($active % 60);
 
-				echo '', sprintf(Lang::$txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br>';
+				echo '', Lang::getTxt('upgrade_success_time_db', ['s' => $seconds, 'm' => $minutes, 'h' => $hours]), '<br>';
 			} else {
 				echo '', Lang::$txt['upgrade_success'], '<br>';
 			}
@@ -4868,7 +4868,7 @@ function template_database_changes()
 				$seconds = intval($active % 60);
 
 				echo '
-					<p id="upgradeCompleted">', sprintf(Lang::$txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '</p>';
+					<p id="upgradeCompleted">', Lang::getTxt('upgrade_success_time_db', ['s' => $seconds, 'm' => $minutes, 'm' => $hours]), '</p>';
 			} else {
 				echo '
 					<p id="upgradeCompleted"></p>';
@@ -5160,7 +5160,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").classList.remove("hidden");
-								setInnerHTML(document.getElementById("error_message"), "', sprintf(Lang::$txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', Lang::$txt['upgrade_respondtime_clickhere'], '</a>");
+								setInnerHTML(document.getElementById("error_message"), "', Lang::getTxt('upgrade_respondtime', [$timeLimitThreshold * 10]), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', Lang::$txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{
@@ -5506,7 +5506,7 @@ function template_upgrade_complete()
 	global $upcontext, $upgradeurl, $settings, $is_debug;
 
 	echo '
-				<h3>', sprintf(Lang::$txt['upgrade_done'], Config::$boardurl), '</h3>
+				<h3>', Lang::getTxt('upgrade_done', ['url' => Config::$boardurl]), '</h3>
 				<form action="', Config::$boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script'])) {
@@ -5534,17 +5534,19 @@ function template_upgrade_complete()
 		$seconds = intval((int) $active % 60);
 
 		if ($hours > 0) {
-			echo '', sprintf(Lang::$txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';
+			$upgrade_completed_time = 'upgrade_completed_time_hms';
 		} elseif ($minutes > 0) {
-			echo '', sprintf(Lang::$txt['upgrade_completed_time_ms'], $seconds, $minutes), '';
-		} elseif ($seconds > 0) {
-			echo '', sprintf(Lang::$txt['upgrade_completed_time_s'], $seconds), '';
+			$upgrade_completed_time = 'upgrade_completed_time_ms';
+		} else {
+			$upgrade_completed_time = 'upgrade_completed_time_s';
 		}
+
+		echo Lang::getTxt($upgrade_completed_time, ['s' => $seconds, 'm' => $minutes, 'h' => $hours]);
 	}
 
 	echo '
 					<p>
-						', sprintf(Lang::$txt['upgrade_problems'], 'https://www.simplemachines.org'), '
+						', Lang::getTxt('upgrade_problems', ['url' => 'https://www.simplemachines.org']), '
 						<br>
 						', Lang::$txt['upgrade_luck'], '<br>
 						Simple Machines
