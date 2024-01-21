@@ -169,8 +169,7 @@ function template_credits()
 				</dt>
 				<dd>';
 
-			$names = Lang::sentenceList($group['members']);
-			echo sprintf(Lang::$txt['credits_list'], $names);
+			echo Lang::getTxt('credits_list', ['names' => Lang::sentenceList($group['members'])]);
 
 			echo '
 				</dd>';
