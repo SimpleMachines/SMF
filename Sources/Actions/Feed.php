@@ -286,7 +286,7 @@ class Feed implements ActionInterface
 		// Some general metadata for this feed. We'll change some of these values below.
 		$this->metadata = [
 			'title' => '',
-			'desc' => sprintf(Lang::$txt['xml_rss_desc'], Utils::$context['forum_name']),
+			'desc' => Lang::getTxt('xml_rss_desc', Utils::$context),
 			'author' => Utils::$context['forum_name'],
 			'source' => Config::$scripturl,
 			'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],
