@@ -159,7 +159,8 @@ $txt['spider_logs_delete_older'] = 'Delete all entries older than';
 $txt['spider_logs_delete_day'] = 'days.';
 $txt['spider_logs_delete_submit'] = 'Delete';
 
-$txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders not seen in %1$s days.';
+// argument: an HTML <input> element.
+$txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders not seen in {input} days.';
 
 // Don't use entities in the below string.
 $txt['spider_logs_delete_confirm'] = 'Are you sure you wish to empty out all log entries?';

@@ -413,7 +413,7 @@ function template_show_spider_stats()
 			</div>
 			<div class="windowbg">
 				<p>
-					', sprintf(Lang::$txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3">'), '
+					', Lang::getTxt('spider_stats_delete_older', ['input' => '<input type="number" name="older" id="older" value="90" size="3">']), '
 				</p>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-ss_token_var'], '" value="', Utils::$context['admin-ss_token'], '">
