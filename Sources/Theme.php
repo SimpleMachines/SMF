@@ -2154,7 +2154,7 @@ class Theme
 				Lang::$txt['theme_description'] = '';
 			}
 
-			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf(Lang::$txt['theme_thumbnail_href'], self::$current->settings['images_url']);
+			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Lang::getTxt('theme_thumbnail_href', self::$current->settings);
 
 			Utils::$context['available_themes'][$id_theme]['description'] = Lang::$txt['theme_description'];
 
