@@ -952,7 +952,7 @@ class PM implements \ArrayAccess
 					$post_errors = array_diff($post_errors, ['no_to']);
 
 					foreach ($namesNotFound[$recipientType] as $name) {
-						Utils::$context['send_log']['failed'][] = sprintf(Lang::$txt['pm_error_user_not_found'], $name);
+						Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name]);
 					}
 				}
 			}
@@ -1023,7 +1023,7 @@ class PM implements \ArrayAccess
 				$post_errors[] = 'bad_' . $recipientType;
 
 				foreach ($names as $name) {
-					Utils::$context['send_log']['failed'][] = sprintf(Lang::$txt['pm_error_user_not_found'], $name);
+					Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name]);
 				}
 			}
 
@@ -1194,7 +1194,7 @@ class PM implements \ArrayAccess
 					if (!empty($usernames[$member])) {
 						$recipients[$rec_type][$id] = $usernames[$member];
 					} else {
-						$log['failed'][$id] = sprintf(Lang::$txt['pm_error_user_not_found'], $recipients[$rec_type][$id]);
+						$log['failed'][$id] = Lang::getTxt('pm_error_user_not_found', ['member' => $recipients[$rec_type][$id]]);
 
 						unset($recipients[$rec_type][$id]);
 					}
@@ -1338,7 +1338,7 @@ class PM implements \ArrayAccess
 				}
 
 				if ($message_limit > 0 && $message_limit <= $row['instant_messages']) {
-					$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_data_limit_reached'], $row['real_name']);
+					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_data_limit_reached', ['member' => $row['real_name']]);
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1347,7 +1347,7 @@ class PM implements \ArrayAccess
 
 				// Do they have any of the allowed groups?
 				if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0) {
-					$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
+					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1357,7 +1357,7 @@ class PM implements \ArrayAccess
 
 			// Note that PostgreSQL can return a lowercase t/f for FIND_IN_SET
 			if (!empty($row['ignored']) && $row['ignored'] != 'f' && $row['id_member'] != $from['id']) {
-				$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_ignored_by_user'], $row['real_name']);
+				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_ignored_by_user', $row['real_name']);
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1366,7 +1366,7 @@ class PM implements \ArrayAccess
 
 			// If the receiving account is banned (>=10) or pending deletion (4), refuse to send the PM.
 			if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !User::$me->is_admin)) {
-				$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
+				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1401,7 +1401,7 @@ class PM implements \ArrayAccess
 				$notifications[empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']][] = $row['email_address'];
 			}
 
-			$log['sent'][$row['id_member']] = sprintf(Lang::$txt['pm_successfully_sent'] ?? '', $row['real_name']);
+			$log['sent'][$row['id_member']] = Lang::getTxt('pm_successfully_sent', ['member' => $row['real_name']]);
 		}
 		Db::$db->free_result($request);
 

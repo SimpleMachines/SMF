@@ -44,11 +44,11 @@ $txt['pm_currently_using'] = '{0, plural,
 }, {1, number, percent} full.';
 $txt['pm_sent'] = 'Your message has been sent successfully.';
 
-$txt['pm_error_user_not_found'] = 'Unable to find member \'%1$s\'.';
-$txt['pm_error_ignored_by_user'] = 'User \'%1$s\' has blocked your personal message.';
-$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'%1$s\' as their inbox is full.';
-$txt['pm_error_user_cannot_read'] = 'User \'%1$s\' can not receive personal messages.';
-$txt['pm_successfully_sent'] = 'PM successfully sent to \'%1$s\'.';
+$txt['pm_error_user_not_found'] = 'Unable to find member \'{member}\'.';
+$txt['pm_error_ignored_by_user'] = 'User \'{member}\' has blocked your personal message.';
+$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'{member}\' as their inbox is full.';
+$txt['pm_error_user_cannot_read'] = 'User \'{member}\' can not receive personal messages.';
+$txt['pm_successfully_sent'] = 'PM successfully sent to \'{member}\'.';
 $txt['pm_send_report'] = 'Send report';
 $txt['pm_undisclosed_recipients'] = 'Undisclosed recipients';
 $txt['pm_too_many_recipients'] = '{0, plural,
