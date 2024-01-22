@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; ManageCalendar
 
 $txt['calendar_desc'] = 'From here you can modify all aspects of the calendar.';

@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';

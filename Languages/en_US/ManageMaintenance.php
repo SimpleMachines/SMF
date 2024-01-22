@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';

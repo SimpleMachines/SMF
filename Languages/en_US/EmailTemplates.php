@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
@@ -9,7 +10,7 @@
 
 // Do not use block comments in this file, they will have special meaning.
 
-/**
+/*
 	@additional_params: resend_activate_message
 		REALNAME: The display name for the member receiving the email.
 		USERNAME:  The user name for the member receiving the email.
@@ -30,7 +31,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: resend_pending_message
 		REALNAME: The display name for the member receiving the email.
 		USERNAME:  The user name for the member receiving the email.
@@ -45,7 +46,7 @@ Before you can log in and start using the forum, your request will be reviewed a
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: mc_group_approve
 		USERNAME: The user name for the member receiving the email.
 		GROUPNAME: The name of the membergroup that the user was accepted into.
@@ -58,7 +59,7 @@ We\'re pleased to notify you that your application to join the "{GROUPNAME}" gro
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: mc_group_reject
 		USERNAME: The user name for the member receiving the email.
 		GROUPNAME: The name of the membergroup that the user was rejected from.
@@ -71,7 +72,7 @@ We\'re sorry to notify you that your application to join the "{GROUPNAME}" group
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: mc_group_reject_reason
 		USERNAME: The user name for the member receiving the email.
 		GROUPNAME: The name of the membergroup that the user was rejected from.
@@ -87,7 +88,7 @@ This is due to the following reason: {REASON}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_approve_accept
 		NAME: The display name of the member.
 		USERNAME: The user name for the member receiving the email.
@@ -102,7 +103,7 @@ Your account has been activated manually by the admin and you can now log in and
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_approve_activation
 		USERNAME: The user name for the member receiving the email.
 		ACTIVATIONLINK:  The URL link to activate the member's account.
@@ -121,7 +122,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_approve_reject
 		USERNAME: The user name for the member receiving the email.
 	@description:
@@ -133,7 +134,7 @@ Regrettably, your application to join {FORUMNAME} has been rejected.
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_approve_delete
 		USERNAME: The user name for the member receiving the email.
 	@description:
@@ -145,7 +146,7 @@ Your account on {FORUMNAME} has been deleted. This may be because you never acti
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_approve_remind
 		USERNAME: The user name for the member receiving the email.
 		ACTIVATIONLINK:  The URL link to activate the member's account.
@@ -164,7 +165,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params:
 		USERNAME: The user name for the member receiving the email.
 		ACTIVATIONLINK:  The URL link to activate the member's account.
@@ -188,7 +189,7 @@ $txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: new_announcement
 		TOPICSUBJECT: The subject of the topic being announced.
 		MESSAGE: The message body of the first post of the announced topic.
@@ -209,7 +210,7 @@ For more control over the email notifications you receive, login to the forum an
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notify_boards_once_body
 		TOPICSUBJECT: The subject of the topic causing the notification
 		TOPICLINK: A link to the topic.
@@ -233,7 +234,7 @@ Unsubscribe from new topics from this board by using this link:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notify_boards_once
 		TOPICSUBJECT: The subject of the topic causing the notification
 		TOPICLINK: A link to the topic.
@@ -253,7 +254,7 @@ Unsubscribe from new topics from this board by using this link:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notify_boards_body
 		TOPICSUBJECT: The subject of the topic causing the notification
 		TOPICLINK: A link to the topic.
@@ -275,7 +276,7 @@ Unsubscribe from new topics from this board by using this link:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notify_boards
 		TOPICSUBJECT: The subject of the topic causing the notification
 		TOPICLINK: A link to the topic.
@@ -293,7 +294,7 @@ Unsubscribe from new topics from this board by using this link:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: alert_unapproved_reply
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.
@@ -307,7 +308,7 @@ You can see it at
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: unapproved_attachment
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the message with the attachment.
@@ -322,7 +323,7 @@ You can approve or reject this attachment from the link below which will take yo
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: alert_unapproved_post
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.
@@ -336,7 +337,7 @@ You can approve or reject this post by using the link below:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: alert_unapproved_topic
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.
@@ -350,7 +351,7 @@ You can approve or reject this topic by using the link below:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: request_membership
 		RECPNAME: The name of the person receiving the email
 		APPLYNAME: The name of the person applying for group membership
@@ -372,7 +373,7 @@ You can approve or reject this application by using the link below:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: paid_subscription
 		REALNAME: The real (display) name of the person receiving the email.
 		PROFILE_LINK: Link to profile of member receiving email where can renew.
@@ -393,7 +394,7 @@ To edit your subscriptions visit the following URL:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: activate_reactivate
 		ACTIVATIONLINK:  The URL link to reactivate the member's account.
 		ACTIVATIONCODE:  The code needed to reactivate the member's account.
@@ -408,7 +409,7 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: forgot_password
 		REALNAME: The real (display) name of the person receiving the reminder.
 		REMINDLINK: The link to reset the password.
@@ -426,7 +427,7 @@ Username: {MEMBERNAME}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: send_email
 		EMAILSUBJECT: The subject the user wants to email.
 		EMAILBODY: The body the user wants to email.
@@ -437,7 +438,7 @@ Username: {MEMBERNAME}
 $txt['send_email_subject'] = '{EMAILSUBJECT}';
 $txt['send_email_body'] = '{EMAILBODY}';
 
-/**
+/*
 	@additional_params: report_to_moderator
 		TOPICSUBJECT: The subject of the reported post.
 		POSTERNAME: The reported post's author's name.
@@ -458,7 +459,7 @@ The reporter has made the following comment:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: report_to_moderator
 		TOPICSUBJECT: The subject of the reported post.
 		POSTERNAME: The reported post's author's name.
@@ -477,13 +478,13 @@ Moderation center: {REPORTLINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: report_user_profile
 		MEMBERNAME: The display name of the reported user
 		REPORTERNAME: The name of the person reporting the profile
 		PROFILELINK: The link to the profile that was reported
 		COMMENT: The comment left by the reporter.
- 	@description: When a user's profile is reported
+	@description: When a user's profile is reported
 */
 $txt['report_member_profile_subject'] = 'Reported profile: {MEMBERNAME}';
 $txt['report_member_profile_body'] = 'The profile of "{MEMBERNAME}" has been reported by {REPORTERNAME}.
@@ -496,12 +497,12 @@ The reporter has made the following comment:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: report_user_profile
 		MEMBERNAME: The display name of the reported user
 		COMMENTERNAME: The name of the person who added the comment
 		PROFILELINK: The link to the profile that was reported
- 	@description: When someone replies to a report about a profile, this can be sent to others who replied
+	@description: When someone replies to a report about a profile, this can be sent to others who replied
 */
 $txt['reply_to_member_report_subject'] = 'Follow-up to reported profile: {MEMBERNAME}';
 $txt['reply_to_member_report_body'] = 'Previously, the profile of {MEMBERNAME} was reported.
@@ -513,7 +514,7 @@ Moderation center: {REPORTLINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: change_password
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
@@ -531,7 +532,7 @@ You may change it after you log in by going to the profile page, or by visiting 
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: register_activate
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
@@ -553,7 +554,7 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: register_coppa
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
@@ -571,7 +572,7 @@ Before you can log in, the admin requires consent from your parent/guardian for 
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: register_immediate
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
@@ -584,7 +585,7 @@ $txt['register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. You
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: register_pending
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
@@ -601,7 +602,7 @@ Before you can log in and start using the forum, your request will be reviewed a
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_reply
 		TOPICSUBJECT:
 		POSTERNAME:
@@ -618,7 +619,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_reply_body
 		TOPICSUBJECT:
 		POSTERNAME:
@@ -639,7 +640,7 @@ The text of the reply is shown below:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_reply_once
 		TOPICSUBJECT:
 		POSTERNAME:
@@ -658,7 +659,7 @@ More replies may be posted, but you won\'t receive any more notifications for th
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_reply_body_once
 		TOPICSUBJECT:
 		POSTERNAME:
@@ -681,7 +682,7 @@ More replies may be posted, but you won\'t receive any more notifications for th
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_sticky
 	@description:
 */
@@ -694,7 +695,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_lock
 	@description:
 */
@@ -707,7 +708,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_unlock
 	@description:
 */
@@ -720,7 +721,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_remove
 	@description:
 */
@@ -729,7 +730,7 @@ $txt['notification_remove_body'] = 'A topic you are watching has been removed.
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_move
 	@description:
 */
@@ -742,7 +743,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_merged
 	@description:
 */
@@ -755,7 +756,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: notification_split
 	@description:
 */
@@ -768,7 +769,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_notify
 		USERNAME:
 		PROFILELINK:
@@ -780,7 +781,7 @@ $txt['admin_notify_body'] = '{USERNAME} has just signed up as a new member of yo
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_notify_approval
 		USERNAME:
 		PROFILELINK:
@@ -796,7 +797,7 @@ Before this member can begin posting they must first have their account approved
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: admin_attachments_full
 		REALNAME:
 	@description:
@@ -810,7 +811,7 @@ Once the attachments directory reaches its maximum permitted size users will not
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: paid_subscription_refund
 		NAME: Subscription title.
 		REALNAME: Recipients name
@@ -834,7 +835,7 @@ You can view this member\'s profile by clicking the link below:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: paid_subscription_new
 		NAME: Subscription title.
 		REALNAME: Recipients name
@@ -861,7 +862,7 @@ You can view this member\'s profile by clicking the link below:
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: paid_subscription_error
 		ERROR: Error message.
 		REALNAME: Recipients name
@@ -876,7 +877,7 @@ The following error occurred when processing a paid subscription
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: new_pm
 		SUBJECT: The personal message subject.
 		SENDER:  The user name for the member sending the personal message.
@@ -895,7 +896,7 @@ Reply to this Personal Message here: {REPLYLINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: new_pm_body
 		SUBJECT: The personal message subject.
 		SENDER:  The user name for the member sending the personal message.
@@ -916,7 +917,7 @@ Reply to this Personal Message here: {REPLYLINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: new_pm_tolist
 		SUBJECT: The personal message subject.
 		SENDER:  The user name for the member sending the personal message.
@@ -936,7 +937,7 @@ Reply to this Personal Message (to the sender only) here: {REPLYLINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: new_pm_body_tolist
 		SUBJECT: The personal message subject.
 		SENDER:  The user name for the member sending the personal message.
@@ -958,7 +959,7 @@ Reply to this Personal Message (to the sender only) here: {REPLYLINK}
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: msg_quote
 		CONTENTSUBJECT: The post subject.
 		QUOTENAME:  The user name for the member creating the quote
@@ -974,7 +975,7 @@ You have been quoted in the post titled "{CONTENTSUBJECT}" by {QUOTENAME}, you c
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: msg_mention
 		CONTENTSUBJECT: The post subject.
 		MENTIONNAME:  The user name for the member creating the mention
@@ -990,7 +991,7 @@ You have been mentioned in the post titled "{CONTENTSUBJECT}" by {MENTIONNAME}, 
 
 {REGARDS}';
 
-/**
+/*
 	@additional_params: happy_birthday
 		REALNAME: The real (display) name of the person receiving the birthday message.
 	@description: A message sent to members on their birthday.

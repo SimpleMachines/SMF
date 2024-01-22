@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; ManagePaid
 
 // Some payment gateways need language specific information.

@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Manual
 
 /* Everything in this file is for the Simple Machines help manual

@@ -806,7 +806,7 @@ class Config
 				if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
 					$languagesdir = $boarddir . '/Languages';
 				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'
@@ -952,7 +952,7 @@ class Config
 		// Ensure there are no trailing slashes in these settings.
 		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir', 'languagesdir'] as $var) {
 			if (!is_null(self::${$var})) {
-				self::${$var} = rtrim(self::${$var}, "\\/");
+				self::${$var} = rtrim(self::${$var}, '\\/');
 			}
 		}
 
@@ -974,8 +974,7 @@ class Config
 			self::$packagesdir = self::$boarddir . '/Packages';
 		}
 
-		if ((empty(self::$languagesdir) || !is_dir(realpath(self::$languagesdir))) && is_dir(self::$boarddir . '/Languages'))
-		{
+		if ((empty(self::$languagesdir) || !is_dir(realpath(self::$languagesdir))) && is_dir(self::$boarddir . '/Languages')) {
 			self::$languagesdir = self::$boarddir . '/Languages';
 		}
 

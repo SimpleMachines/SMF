@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';

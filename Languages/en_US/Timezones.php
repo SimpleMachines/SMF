@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Timezones
 
 // Standard Time or Daylight Saving Time

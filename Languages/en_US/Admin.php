@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Admin
 
 $txt['settings_saved'] = 'The settings were successfully saved';

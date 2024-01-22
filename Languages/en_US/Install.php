@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Install
 
 // These should be the same as those in index.language.php.

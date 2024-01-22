@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Profile
 
 // Some of the things from the popup need their own descriptions
@@ -602,7 +603,7 @@ $txt['theme_opt_personal_messages'] = 'Personal Messages';
 
 $txt['export_profile_data'] = 'Download profile data';
 $txt['export_profile_data_desc'] = 'This section allows you to export a copy of your forum profile data to a downloadable file, optionally including your posts and personal messages.<br>Please note:<ul class="bbc_list">%1$s</ul>';
-$txt['export_profile_data_desc_list'] = array('It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.');
+$txt['export_profile_data_desc_list'] = ['It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.'];
 $txt['active_exports'] = 'Exports currently in progress';
 $txt['completed_exports'] = 'Completed exports';
 $txt['export_outdated_warning'] = 'This export is out of date. It is missing your most recent data of the following types:';

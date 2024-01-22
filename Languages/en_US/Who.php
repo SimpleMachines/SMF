@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Who
 
 $txt['who_hidden'] = 'Nothing, or nothing you can see...';

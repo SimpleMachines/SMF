@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; ManageScheduledTasks
 
 $txt['scheduled_tasks_title'] = 'Scheduled Tasks';

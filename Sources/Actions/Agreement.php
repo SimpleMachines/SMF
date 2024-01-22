@@ -184,7 +184,7 @@ class Agreement implements ActionInterface
 			}
 
 			if (!empty(Utils::$context['agreement_file'])) {
-				$cache_id = strtr(Utils::$context['agreement_file'], array(Config::$languagesdir => '', '.txt' => '', '.' => '_'));
+				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$languagesdir => '', '.txt' => '', '.' => '_']);
 				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
 			} elseif (Utils::$context['can_accept_agreement']) {
 				ErrorHandler::fatalLang('error_no_agreement', false);

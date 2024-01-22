@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; ManageSettings
 
 // argument(s): theme_id, session_id, session_var, Config::$scripturl

@@ -1256,15 +1256,14 @@ class Themes implements ActionInterface
 		}
 
 		if (is_dir(Theme::$current->settings['default_theme_dir'] . '/languages')) {
-			foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir'] . '/languages') as $langDir)
-			{
-				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.')
+			foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir'] . '/languages') as $langDir) {
+				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.') {
 					continue;
+				}
 
 				$lang_files[$langDir->getFilename()] = [];
 
-				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo)
-				{
+				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
 					if ($fileInfo->getExtension() == 'php') {
 						$lang_files[$langDir->getFilename()][] = $fileInfo->getFilename();
 					}
@@ -1308,10 +1307,8 @@ class Themes implements ActionInterface
 			}
 		}
 
-		if (is_dir($theme['theme_dir'] . '/languages'))
-		{
-			foreach (new \DirectoryIterator($theme['theme_dir'] . '/languages') as $langDir)
-			{
+		if (is_dir($theme['theme_dir'] . '/languages')) {
+			foreach (new \DirectoryIterator($theme['theme_dir'] . '/languages') as $langDir) {
 				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.') {
 					continue;
 				}
@@ -1319,8 +1316,7 @@ class Themes implements ActionInterface
 				$lang_files[$langDir->getFilename()] = [];
 
 				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
-					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]))
-					{
+					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
 					}

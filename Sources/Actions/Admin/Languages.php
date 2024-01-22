@@ -710,7 +710,7 @@ class Languages implements ActionInterface
 
 		// This will be where we look
 		$lang_dirs = [
-			Config::$languagesdir
+			Config::$languagesdir,
 		];
 
 		// There are different kinds of strings
@@ -759,12 +759,13 @@ class Languages implements ActionInterface
 				'id' => 0,
 				'name' => Lang::$txt['languages_default'],
 				'files' => [],
-			]
+			],
 		];
 
 		foreach ($lang_dirs as $theme => $theme_dir) {
-			if (!is_dir($theme_dir . '/' . $lang_id))
+			if (!is_dir($theme_dir . '/' . $lang_id)) {
 				continue;
+			}
 
 			// Open it up.
 			$dir = dir($theme_dir . '/' . $lang_id);

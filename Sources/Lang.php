@@ -190,9 +190,9 @@ class Lang
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', array($lang, self::$default))) {
+			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = array($dir, $template, 'en_US');
+					$attempts[] = [$dir, $template, 'en_US'];
 				}
 			}
 
@@ -260,9 +260,11 @@ class Lang
 				ErrorHandler::log(sprintf(self::$txt['theme_language_error'] ?? 'Unable to load the \'%1$s\' language file.', $template_name . '.' . $lang, 'template'));
 				break;
 			}
+
 			// Keep track of what we're up to, soldier.
-			elseif (!empty(Config::$db_show_debug))
+			if (!empty(Config::$db_show_debug)) {
 				Utils::$context['debug']['language_files'][] = $file[2] . '.' . $file[1] . ' (' . (Config::$languagesdir == $file[0] ? 'Base' : basename(Theme::$current->settings['theme_url'] ?? 'unknown')) . ')';
+			}
 
 			// Copyright can't be empty.
 			if (empty(self::$forum_copyright)) {

@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Search
 
 $txt['set_parameters'] = 'Set Search Parameters';

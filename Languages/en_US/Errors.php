@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 1; Errors
 
 $txt['no_access'] = 'You are not allowed to access this section';
