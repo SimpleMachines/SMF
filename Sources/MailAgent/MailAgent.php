@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 1
@@ -13,10 +13,7 @@
 
 namespace SMF\MailAgent;
 
-use SMF\BackwardCompatibility;
-
 use SMF\Config;
-use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Utils;
 
@@ -27,21 +24,21 @@ abstract class MailAgent
 	 *
 	 * The directory containing our Agents we can use.
 	 */
-	const APIS_FOLDER = __DIR__ . '/APIs';
+	public const APIS_FOLDER = __DIR__ . '/APIs';
 
 	/**
 	 * @var string
 	 *
 	 * The root namespace used by all our Agents.
 	 */
-	const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
+	public const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
 
 	/**
 	 * @var string
 	 *
 	 * Default Agent to use or to fallback to if the agent selected is not supported or configured correctly.
 	 */
-	const APIS_DEFAULT = 'SendMail';
+	public const APIS_DEFAULT = 'SendMail';
 
 	/**************************
 	 * Public static properties
@@ -57,11 +54,11 @@ abstract class MailAgent
 	public static string $agent;
 
 	/**
-	 * @var object|bool
+	 * @var \SMF\MailAgent\MailAgentInterface|bool
 	 *
 	 * The loaded agent, or false on failure.
 	 */
-	public static $loaded_api;
+	public static MailAgentInterface|bool $loaded_api;
 
 	/**********************
 	 * Protected properties
@@ -70,12 +67,12 @@ abstract class MailAgent
 	/**
 	 * @var string The maximum SMF version that this will work with.
 	 */
-	protected $version_compatible = '3.0.999';
+	protected string $version_compatible = '3.0.999';
 
 	/**
 	 * @var string The minimum SMF version that this will work with.
 	 */
-	protected $min_smf_version = '3.0 Alpha 1';
+	protected string $min_smf_version = '3.0 Alpha 1';
 
 	/****************
 	 * Public methods
@@ -84,7 +81,6 @@ abstract class MailAgent
 	/**
 	 * Checks if the requirements for the agent are available.
 	 *
-	 * @access public
 	 * @return bool True if the agent is supported, false otherwise.
 	 */
 	public function isSupported(): bool
@@ -95,7 +91,6 @@ abstract class MailAgent
 	/**
 	 * Checks if the agent has been configured for usage.
 	 *
-	 * @access public
 	 * @return bool True if the agent is configured, false otherwise.
 	 */
 	public function isConfigured(): bool
@@ -106,7 +101,6 @@ abstract class MailAgent
 	/**
 	 * Connects to the mail agent.  Not all agents will need to connect.
 	 *
-	 * @access public
 	 * @return bool Whether or not the agent method was connected to.
 	 */
 	public function connect(): bool
@@ -117,7 +111,6 @@ abstract class MailAgent
 	/**
 	 * Sends the email via the agent
 	 *
-	 * @access public
 	 * @param string $to
 	 * @param string $subject
 	 * @param string $message Message should be formatted with html/plain text.
@@ -131,7 +124,6 @@ abstract class MailAgent
 	/**
 	 * Disconnects to the mail agent.  Not all agents will need to disconnect.
 	 *
-	 * @access public
 	 * @return bool Whether or not the agent method was connected to.
 	 */
 	public function disconnect(): bool
@@ -142,7 +134,6 @@ abstract class MailAgent
 	/**
 	 * Specify custom settings that the agent supports.
 	 *
-	 * @access public
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
 	 */
 	public function agentSettings(array &$config_vars): void
@@ -152,7 +143,6 @@ abstract class MailAgent
 	/**
 	 * Is our SMF version supported with this Agent.
 	 *
-	 * @access public
 	 * @param string $smfVersion
 	 * @return string the value of $key.
 	 */
@@ -164,7 +154,6 @@ abstract class MailAgent
 	/**
 	 * Gets the min version that we support.
 	 *
-	 * @access public
 	 * @return string the value of $key.
 	 */
 	public function getMinimumVersion(): string
@@ -175,7 +164,6 @@ abstract class MailAgent
 	/**
 	 * Gets the Version of the Caching API.
 	 *
-	 * @access public
 	 * @return string the value of $key.
 	 */
 	public function getVersion(): string
@@ -186,15 +174,15 @@ abstract class MailAgent
 	/**
 	 * Gets the class identifier of the current agent implementation.
 	 *
-	 * @access public
 	 * @return string the unique identifier for the current class implementation.
 	 */
 	public function getImplementationClassKeyName(): string
 	{
 		$class_name = get_class($this);
 
-		if ($position = strrpos($class_name, '\\'))
+		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
+		}
 
 		return $class_name;
 	}
@@ -210,30 +198,28 @@ abstract class MailAgent
 	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
 	 * @param bool $loadDefault Use the default SMF method if the selected agent fails.
-	 * @return object|false An instance of a child class of this class, or false on failure.
+	 * @return MailAgentInterface|false An instance of a child class of this class, or false on failure.
 	 */
-	final public static function load(bool $loadDefault = false)
+	final public static function load(bool $loadDefault = false): bool|MailAgentInterface
 	{
-		if (!$loadDefault && !isset(self::$agent))
-		{
+		if (!$loadDefault && !isset(self::$agent)) {
 			self::$agent = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '' ? 'SendMail' : Config::$modSettings['mail_type'];
 
 			// Handle some other options.
-			if (self::$agent === '1')
-			{
+			if (self::$agent === '1') {
 				self::$agent = 'SMTP';
-			}
-			elseif (self::$agent === '2')
-			{
+			} elseif (self::$agent === '2') {
 				self::$agent = 'SMTPTLS';
 			}
 		}
 
-		if (is_object(self::$loaded_api))
+		if (is_object(self::$loaded_api)) {
 			return self::$loaded_api;
+		}
 
-		if (is_null(self::$loaded_api))
+		if (is_null(self::$loaded_api)) {
 			self::$loaded_api = false;
+		}
 
 		// What agent we are going to try.
 		$agent_class_name = !empty(self::$agent) ? self::$agent : self::APIS_DEFAULT;
@@ -241,67 +227,76 @@ abstract class MailAgent
 
 		// Do some basic tests.
 		$agent_api = false;
-		if (class_exists($fully_qualified_class_name))
-		{
+
+		/* @var MailAgentInterface $fully_qualified_class_name */
+		if (class_exists($fully_qualified_class_name)) {
+			/* @var MailAgentInterface $agent_api */
 			$agent_api = new $fully_qualified_class_name();
 
 			// There are rules you know...
-			if (!($agent_api instanceof MailAgentInterface) || !($agent_api instanceof MailAgent))
+			if (!($agent_api instanceof MailAgentInterface) || !($agent_api instanceof MailAgent)) {
 				$agent_api = false;
+			}
 
 			// No Support?  NEXT!
-			if ($agent_api && !$agent_api->isSupported() && !$agent_api->isConfigured())
-			{
+			if ($agent_api && !$agent_api->isSupported() && !$agent_api->isConfigured()) {
 				// Can we save ourselves?
-				if ($agent_class_name !== self::APIS_DEFAULT)
+				if ($agent_class_name !== self::APIS_DEFAULT) {
 					return self::load(true);
+				}
 
 				$agent_api = false;
 			}
 
 			// Connect up to the agent.
-			if ($agent_api && $agent_api->connect() === false)
+			if ($agent_api && $agent_api->connect() === false) {
 				$agent_api = false;
+			}
 		}
 
-		if (!$agent_api && $agent_class_name !== self::APIS_DEFAULT)
-			$agent_api = self::load(self::APIS_NAMESPACE . self::APIS_DEFAULT, false);
+		if (!$agent_api && $agent_class_name !== self::APIS_DEFAULT) {
+			$agent_api = self::load(false);
+		}
 
 		return $agent_api;
 	}
 
 	/**
 	 * Get the installed Mail Agent implementations.
+	 *
+	 * @return \SMF\MailAgent\MailAgentInterface[] An array of mail agents
 	 */
-	final public static function detect()
+	final public static function detect(): array
 	{
-		$loaded_apis = array();
+		$loaded_apis = [];
 
 		$api_classes = new \GlobIterator(self::APIS_FOLDER . '/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
-		foreach ($api_classes as $file_path => $file_info)
-		{
+		foreach ($api_classes as $file_path => $file_info) {
 			$class_name = $file_info->getBasename('.php');
 			$fully_qualified_class_name = self::APIS_NAMESPACE . $class_name;
 
-			if (!class_exists($fully_qualified_class_name))
+			if (!class_exists($fully_qualified_class_name)) {
 				continue;
+			}
 
 			/* @var MailAgentInterface $agent_api */
 			$agent_api = new $fully_qualified_class_name();
 
 			// Deal with it!
-			if (!($agent_api instanceof MailAgentInterface) || !($agent_api instanceof MailAgent))
+			if (!($agent_api instanceof MailAgentInterface) || !($agent_api instanceof MailAgent)) {
 				continue;
+			}
 
 			// No Support?  NEXT!
-			if (!$agent_api->isSupported(true))
+			if (!$agent_api->isSupported()) {
 				continue;
+			}
 
 			$loaded_apis[$class_name] = $agent_api;
 		}
 
-		IntegrationHook::call('integrate_load_mail_agents', array(&$loaded_apis));
+		IntegrationHook::call('integrate_load_mail_agents', [&$loaded_apis]);
 
 		return $loaded_apis;
 	}
