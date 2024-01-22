@@ -394,7 +394,7 @@ class Register2 extends Register
 			return;
 		}
 
-		/** @var int $member_id */
+		/* @var int $member_id */
 
 		// Do our spam protection now.
 		Security::spamProtection('register');

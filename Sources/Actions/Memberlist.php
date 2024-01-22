@@ -321,9 +321,9 @@ class Memberlist implements ActionInterface
 			list($start) = Db::$db->fetch_row($request);
 			$start = (int) $start;
 			Db::$db->free_result($request);
-		}
-		else
+		} else {
 			$start = (int) $_REQUEST['start'];
+		}
 
 		Utils::$context['letter_links'] = '';
 

@@ -151,6 +151,7 @@ class XmlHttp implements ActionInterface
 		}
 
 		call_user_func([$this, $_POST['item']]);
+
 		return null;
 	}
 

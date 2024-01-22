@@ -2405,7 +2405,7 @@ class Bans implements ActionInterface
 	 *    If null, the triggers will be deleted from all groups.
 	 * @return bool Whether the operation was successful.
 	 */
-	protected static function removeBanTriggers(array|int $items_ids = [], int $group_id = null): bool
+	protected static function removeBanTriggers(array|int $items_ids = [], ?int $group_id = null): bool
 	{
 		if (isset($group_id)) {
 			$group_id = (int) $group_id;

@@ -1246,9 +1246,8 @@ class Utils
 		// We do this to align with PHP's default when the JSON_THROW_ON_ERROR flag is specified
 		try {
 			$return_value = json_decode($json, $associative, $depth, $flags);
-		}
-		catch (\Exception $excepection){
-			if (($flags & JSON_THROW_ON_ERROR) == JSON_THROW_ON_ERROR){
+		} catch (\Exception $excepection) {
+			if (($flags & JSON_THROW_ON_ERROR) == JSON_THROW_ON_ERROR) {
 				throw $excepection;
 			}
 		}
@@ -2280,18 +2279,19 @@ class Utils
 
 	/**
 	 * Makes call to the Server API (SAPI) to increase the time limit.
-	 * 
+	 *
 	 * @param int $limit Requested amount of time, defaults to 600 seconds.
 	 */
-	public static function sapiSetTimeLimit(int $limit = 600){
+	public static function sapiSetTimeLimit(int $limit = 600)
+	{
 		try {
 			set_time_limit($limit);
+		} catch (Exception $e) {
 		}
-		catch (Exception $e) {}
 	}
 	/**
 	 * Makes call to the Server API (SAPI) to reset the timeout.
-	 * 
+	 *
 	 * @suppress PHP0417
 	 */
 	public static function sapiResetTimeout()
@@ -2299,8 +2299,8 @@ class Utils
 		if (!empty(Utils::$context['server']['is_apache']) && function_exists('apache_reset_timeout')) {
 			try {
 				apache_reset_timeout();
+			} catch (Exception $e) {
 			}
-			catch (Exception $e) {}
 		}
 	}
 

@@ -41,7 +41,7 @@ class Warnings implements ActionInterface
 	 * Currently enabled moderation settings.
 	 */
 	public static bool $currently_enabled;
-	
+
 	/****************************
 	 * Internal static properties
 	 ****************************/

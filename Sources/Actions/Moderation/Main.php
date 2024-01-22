@@ -414,9 +414,9 @@ class Main implements ActionInterface
 
 				if (is_string($value)) {
 						$value = strtr($value, [
-						'{scripturl}' => Config::$scripturl,
-						'{boardurl}' => Config::$boardurl,
-					]);
+							'{scripturl}' => Config::$scripturl,
+							'{boardurl}' => Config::$boardurl,
+						]);
 				}
 			},
 		);

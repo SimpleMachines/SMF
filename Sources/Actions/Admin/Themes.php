@@ -985,7 +985,7 @@ class Themes implements ActionInterface
 	 * Shows an interface for editing the templates.
 	 * - uses the Themes template and edit_template/edit_style sub template.
 	 * - accessed via ?action=admin;area=theme;sa=edit
-	 * 
+	 *
 	 * @return ?string 'no_themes' returned if we can't find the theme, otherwise nothing is returned.
 	 */
 	public function edit(): ?string
@@ -2190,6 +2190,7 @@ class Themes implements ActionInterface
 		}
 
 		reset($objects);
+
 		return rmdir($path);
 	}
 

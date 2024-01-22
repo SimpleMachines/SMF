@@ -695,7 +695,7 @@ class Login2 implements ActionInterface
 
 	/**
 	 * Check activation status of the current user.
-	 * 
+	 *
 	 * @return bool True if they are activated, false otherwise.
 	 */
 	protected function checkActivation(): bool

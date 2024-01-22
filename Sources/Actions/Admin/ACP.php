@@ -1913,7 +1913,7 @@ class ACP implements ActionInterface
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
-					]);	
+					]);
 				}
 			},
 		);

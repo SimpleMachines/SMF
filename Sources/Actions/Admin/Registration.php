@@ -329,7 +329,7 @@ class Registration implements ActionInterface
 			];
 
 			if (isset(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']], Config::$modSettings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]])) {
-				$policy_settings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]] = Utils::$context['privacy_policy']; 
+				$policy_settings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]] = Utils::$context['privacy_policy'];
 			}
 
 			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
