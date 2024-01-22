@@ -636,7 +636,7 @@ class User implements \ArrayAccess
 	public static array $loaded = [];
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the current user.
 	 */
@@ -3028,7 +3028,7 @@ class User implements \ArrayAccess
 
 			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
 			if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', $val, $match)) {
+				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $match)) {
 					if ($match[1] != '+ ') {
 						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
 					}
@@ -3605,7 +3605,7 @@ class User implements \ArrayAccess
 		}
 
 		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (!preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
+		if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
 			return 'restricted_words';
 		}
 

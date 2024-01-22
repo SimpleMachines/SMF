@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -86,12 +88,12 @@ class Subscriptions implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -121,7 +123,7 @@ class Subscriptions implements ActionInterface
 	{
 		// Not made the settings yet?
 		if (empty(Config::$modSettings['paid_currency_symbol'])) {
-			ErrorHandler::fatalLang('paid_not_set_currency', false, Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings');
+			ErrorHandler::fatalLang('paid_not_set_currency', false, [Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings']);
 		}
 
 		// Some basic stuff.
@@ -600,7 +602,7 @@ class Subscriptions implements ActionInterface
 
 			// Is this a fixed one?
 			if ($_POST['duration_type'] == 'fixed') {
-				$_POST['span_value'] = !empty($_POST['span_value']) && is_numeric($_POST['span_value']) ? ceil($_POST['span_value']) : 0;
+				$_POST['span_value'] = !empty($_POST['span_value']) && is_numeric($_POST['span_value']) ? ceil((int) $_POST['span_value']) : 0;
 
 				// There are sanity check limits on these things.
 				$limits = [
@@ -891,9 +893,23 @@ class Subscriptions implements ActionInterface
 			User::$me->checkSession();
 
 			// Work out the dates...
-			$starttime = mktime($_POST['hour'], $_POST['minute'], 0, $_POST['month'], $_POST['day'], $_POST['year']);
+			$starttime = mktime(
+				(int) $_POST['hour'],
+				(int) $_POST['minute'],
+				0,
+				(int) $_POST['month'],
+				(int) $_POST['day'],
+				(int) $_POST['year']
+			);
 
-			$endtime = mktime($_POST['hourend'], $_POST['minuteend'], 0, $_POST['monthend'], $_POST['dayend'], $_POST['yearend']);
+			$endtime = mktime(
+				(int) $_POST['hourend'],
+				(int) $_POST['minuteend'],
+				0,
+				(int) $_POST['monthend'],
+				(int) $_POST['dayend'],
+				(int) $_POST['yearend']
+			);
 
 			// Status.
 			$status = $_POST['status'];
@@ -916,6 +932,8 @@ class Subscriptions implements ActionInterface
 					ErrorHandler::fatalLang('error_member_not_found');
 				}
 				list($id_member, $id_group) = Db::$db->fetch_row($request);
+				$id_member = (int) $id_member;
+				$id_group = (int) $id_group;
 				Db::$db->free_result($request);
 
 				// Ensure the member doesn't already have a subscription!
@@ -938,7 +956,7 @@ class Subscriptions implements ActionInterface
 
 				// Actually put the subscription in place.
 				if ($status == 1) {
-					self::add(Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
+					self::add((int) Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
 				} else {
 					Db::$db->insert(
 						'',
@@ -1309,9 +1327,9 @@ class Subscriptions implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1569,10 +1587,10 @@ class Subscriptions implements ActionInterface
 	 * @param int $forceStartTime If set, forces the subscription to start at the specified time
 	 * @param int $forceEndTime If set, forces the subscription to end at the specified time
 	 */
-	public static function add($id_subscribe, $id_member, $renewal = 0, $forceStartTime = 0, $forceEndTime = 0): void
+	public static function add(int $id_subscribe, int $id_member, int|string $renewal = 0, int $forceStartTime = 0, int $forceEndTime = 0): void
 	{
 		// Take the easy way out...
-		getSubs();
+		self::getSubs();
 
 		// Exists, yes?
 		if (!isset(self::$all[$id_subscribe])) {
@@ -1797,7 +1815,7 @@ class Subscriptions implements ActionInterface
 	 * @param int $id_member The ID of the member
 	 * @param bool $delete Whether to delete the subscription or just disable it
 	 */
-	public static function remove($id_subscribe, $id_member, $delete = false): void
+	public static function remove(int $id_subscribe, int $id_member, bool $delete = false): void
 	{
 		self::getSubs();
 
@@ -1961,7 +1979,7 @@ class Subscriptions implements ActionInterface
 	 *
 	 * @param array $users An array of user IDs
 	 */
-	public static function reapply($users): void
+	public static function reapply(array $users): void
 	{
 		// Make it an array.
 		if (!is_array($users)) {
@@ -2122,7 +2140,7 @@ class Subscriptions implements ActionInterface
 	 * @param array $search_vars An array of variables for the search string
 	 * @return int The number of subscribed users matching the given parameters
 	 */
-	public static function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = []): int
+	public static function list_getSubscribedUserCount(int $id_sub, string $search_string, array $search_vars = []): int
 	{
 		// Get the total amount of users.
 		$request = Db::$db->query(
@@ -2141,7 +2159,7 @@ class Subscriptions implements ActionInterface
 		list($memberCount) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $memberCount;
+		return (int) $memberCount;
 	}
 
 	/**
@@ -2157,7 +2175,7 @@ class Subscriptions implements ActionInterface
 	 * @param array $search_vars The variables for the search string
 	 * @return array An array of information about the subscribed users matching the given parameters
 	 */
-	public static function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $search_string, $search_vars = []): array
+	public static function list_getSubscribedUsers(int $start, int $items_per_page, string $sort, int $id_sub, string $search_string, array $search_vars = []): array
 	{
 		$subscribers = [];
 

@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Subscriptions;
 use SMF\Config;
@@ -163,7 +165,7 @@ if ($gatewayClass->isRefund()) {
 		$subscription_act = time();
 		$status = 0;
 	} else {
-		Subscriptions::getAll();
+		Subscriptions::getSubs();
 		$subscription_act = $subscription_info['end_time'] - Subscriptions::$all[$subscription_id]['num_length'];
 		$status = 1;
 	}

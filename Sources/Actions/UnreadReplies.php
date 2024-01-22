@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -57,12 +59,12 @@ class UnreadReplies extends Unread
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/***********************
 	 * Public static methods
@@ -71,9 +73,9 @@ class UnreadReplies extends Unread
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -112,7 +114,7 @@ class UnreadReplies extends Unread
 	/**
 	 * Checks that the load averages aren't too high to show unread replies.
 	 */
-	protected function checkLoadAverage()
+	protected function checkLoadAverage(): void
 	{
 		if (empty(Utils::$context['load_average'])) {
 			return;
@@ -130,7 +132,7 @@ class UnreadReplies extends Unread
 	/**
 	 * Sets $this->topic_request to the appropriate query.
 	 */
-	protected function setTopicRequest()
+	protected function setTopicRequest(): void
 	{
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			$this->makeTempTable();
@@ -146,7 +148,7 @@ class UnreadReplies extends Unread
 	/**
 	 * For large forums, creates a temporary table to use when showing unread replies.
 	 */
-	protected function makeTempTable()
+	protected function makeTempTable(): void
 	{
 		Db::$db->query(
 			'',
@@ -221,7 +223,7 @@ class UnreadReplies extends Unread
 	/**
 	 * For large forums, sets $this->topic_request with the help of a temporary table.
 	 */
-	protected function getTopicRequestWithTempTable()
+	protected function getTopicRequestWithTempTable(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -299,7 +301,7 @@ class UnreadReplies extends Unread
 	/**
 	 * Sets $this->topic_request without the help of a temporary table.
 	 */
-	protected function getTopicRequestWithoutTempTable()
+	protected function getTopicRequestWithoutTempTable(): void
 	{
 		$request = Db::$db->query(
 			'unread_fetch_topic_count',
@@ -321,8 +323,8 @@ class UnreadReplies extends Unread
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$this->num_topics = $num_topics ?? 0;
-		$this->min_message = $min_message ?? 0;
+		$this->num_topics = (int) $num_topics ?? 0;
+		$this->min_message = (int) $min_message ?? 0;
 
 		if ($this->num_topics == 0) {
 			$this->setNoTopics();

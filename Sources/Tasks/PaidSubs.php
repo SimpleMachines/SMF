@@ -53,7 +53,7 @@ class PaidSubs extends ScheduledTask
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			Subscriptions::remove($row['id_subscribe'], $row['id_member']);
+			Subscriptions::remove((int) $row['id_subscribe'], (int) $row['id_member']);
 		}
 		Db::$db->free_result($request);
 
@@ -107,7 +107,7 @@ class PaidSubs extends ScheduledTask
 
 			// Send the actual email.
 			if ($notifyPrefs[$row['id_member']] & self::RECEIVE_NOTIFY_EMAIL) {
-				Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', $emaildata['is_html'], 2);
+				Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', (bool) $emaildata['is_html'], 2);
 			}
 
 			if ($notifyPrefs[$row['id_member']] & self::RECEIVE_NOTIFY_ALERT) {

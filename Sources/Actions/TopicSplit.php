@@ -13,6 +13,8 @@
  * Original module by Mach8 - We'll never forget you.
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -79,12 +81,12 @@ class TopicSplit implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -130,7 +132,7 @@ class TopicSplit implements ActionInterface
 	 *   the first message of a topic.
 	 * - Shows the user three ways to split the current topic.
 	 */
-	public function index()
+	public function index(): ?string
 	{
 		// Validate "at".
 		if (empty($_GET['at'])) {
@@ -188,6 +190,8 @@ class TopicSplit implements ActionInterface
 		];
 		Utils::$context['sub_template'] = 'ask';
 		Utils::$context['page_title'] = Lang::$txt['split'];
+
+		return null;
 	}
 
 	/**
@@ -201,7 +205,7 @@ class TopicSplit implements ActionInterface
 	 *   (3) select topics to split (redirects to select()).
 	 * - Uses splitTopic function to do the actual splitting.
 	 */
-	public function split()
+	public function split(): void
 	{
 		// Check the session to make sure they meant to do this.
 		User::$me->checkSession();
@@ -263,7 +267,7 @@ class TopicSplit implements ActionInterface
 	 * - Shows two independent page indexes for both the selected and
 	 *   not-selected messages (;topic=1.x;start2=y).
 	 */
-	public function select()
+	public function select(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
 
@@ -552,7 +556,7 @@ class TopicSplit implements ActionInterface
 	 * - Uses the main SplitTopics template.
 	 * - Uses splitTopic function to do the actual splitting.
 	 */
-	public function splitSelection()
+	public function splitSelection(): void
 	{
 		// Make sure the session id was passed with post.
 		User::$me->checkSession();
@@ -579,9 +583,9 @@ class TopicSplit implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -614,7 +618,7 @@ class TopicSplit implements ActionInterface
 	 * @param string $new_subject The subject of the new topic
 	 * @return int The ID of the new split topic.
 	 */
-	public static function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
+	public static function splitTopic(int $split1_ID_TOPIC, array $splitMessages, string $new_subject): int
 	{
 		// Nothing to split?
 		if (empty($splitMessages)) {
@@ -939,6 +943,7 @@ class TopicSplit implements ActionInterface
 		Mail::sendNotifications($split1_ID_TOPIC, 'split');
 
 		// If there's a search index that needs updating, update it...
+		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicSplit'])) {

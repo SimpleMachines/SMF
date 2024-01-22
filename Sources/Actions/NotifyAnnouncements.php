@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Lang;
@@ -37,12 +39,12 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/***********************
 	 * Public static methods
@@ -51,9 +53,9 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -84,7 +86,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	/**
 	 * This does nothing for announcments.
 	 */
-	protected function setId()
+	protected function setId(): void
 	{
 	}
 
@@ -93,7 +95,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 *
 	 * sa=on/off is used for email subscribe/unsubscribe links.
 	 */
-	protected function saToMode()
+	protected function saToMode(): void
 	{
 		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : 0;
@@ -104,7 +106,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	/**
 	 * Sets $this->mode.
 	 */
-	protected function setMode()
+	protected function setMode(): void
 	{
 		$this->saToMode();
 
@@ -119,7 +121,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	/**
 	 * Sets any additional data needed for the ask template.
 	 */
-	protected function askTemplateData()
+	protected function askTemplateData(): void
 	{
 		Utils::$context['sub_template'] = 'notify_announcements';
 	}
@@ -127,26 +129,26 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	/**
 	 * Updates the notification preference in the database.
 	 */
-	protected function changePref()
+	protected function changePref(): void
 	{
 		// Get the preference like normal, but then drop the alert bit.
 		$this->setAlertPref();
 		$this->alert_pref = $this->alert_pref & parent::PREF_EMAIL;
 
 		// Update their announcement notification preference.
-		parent::setNotifyPrefs((int) $this->member_info['id'], ['announcements' => $this->alert_pref]);
+		parent::setNotifyPrefs((int) self::$member_info['id'], ['announcements' => $this->alert_pref]);
 
 		// Show a confirmation message.
 		Utils::$context['sub_template'] = 'notify_pref_changed';
-		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 
 	/**
 	 * Gets the success message to display.
 	 */
-	protected function getSuccessMsg()
+	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return sprintf(Lang::$txt['notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 }
 

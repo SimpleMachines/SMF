@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -46,12 +48,12 @@ class QuickModerationInTopic implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -81,9 +83,9 @@ class QuickModerationInTopic implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -115,7 +117,7 @@ class QuickModerationInTopic implements ActionInterface
 	/**
 	 * Redirects to restortopic action,
 	 */
-	protected function restore()
+	protected function restore(): void
 	{
 		Utils::redirectexit('action=restoretopic;msgs=' . implode(',', $this->messages) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
@@ -123,7 +125,7 @@ class QuickModerationInTopic implements ActionInterface
 	/**
 	 * Looks up some info, then redirects to the splittopics action.
 	 */
-	protected function split()
+	protected function split(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -148,7 +150,7 @@ class QuickModerationInTopic implements ActionInterface
 	 *
 	 * Performs permissions checks before doing anything.
 	 */
-	protected function delete()
+	protected function delete(): void
 	{
 		// Allowed to delete any message?
 		if (User::$me->allowedTo('delete_any')) {

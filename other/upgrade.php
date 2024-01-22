@@ -3254,7 +3254,7 @@ function ConvertUtf8()
 		];
 
 		// Default to ISO-8859-1 unless we detected another supported charset
-		$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']),['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
+		$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
 
 		$upcontext['charset_list'] = array_keys($charsets);
 
@@ -4098,7 +4098,7 @@ function template_upgrade_above()
 					<h2>', Lang::$txt['upgrade_progress'], '</h2>
 					<ul class="steps_list">';
 
-	foreach ($upcontext['steps'] as $num => $step) {
+	foreach ((array) $upcontext['steps'] as $num => $step) {
 		echo '
 						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
 							', Lang::$txt['upgrade_step'], ' ', $step[0], ': ', Lang::$txt[$step[1]], '
@@ -4234,7 +4234,7 @@ function template_xml_above()
 	<smf>';
 
 	if (!empty($upcontext['get_data'])) {
-		foreach ($upcontext['get_data'] as $k => $v) {
+		foreach ((array) $upcontext['get_data'] as $k => $v) {
 			echo '
 		<get key="', $k, '">', $v, '</get>';
 		}
@@ -4529,7 +4529,7 @@ function template_backup_database()
 
 	// Dont any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
-		foreach ($upcontext['previous_tables'] as $table) {
+		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
 					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 		}
@@ -4624,7 +4624,7 @@ function template_database_changes()
 
 	// No javascript looks rubbish!
 	if (!$support_js) {
-		foreach ($upcontext['actioned_items'] as $num => $item) {
+		foreach ((array) $upcontext['actioned_items'] as $num => $item) {
 			if ($num != 0) {
 				echo ' Successful!';
 			}
@@ -5024,7 +5024,7 @@ function template_convert_utf8()
 
 	// Done any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
-		foreach ($upcontext['previous_tables'] as $table) {
+		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
 					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 		}
@@ -5128,7 +5128,7 @@ function template_serialize_json()
 
 	// Dont any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
-		foreach ($upcontext['previous_tables'] as $table) {
+		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
 					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 		}
@@ -5270,9 +5270,8 @@ function template_upgrade_complete()
  * @param string $newCol The new column to put data in
  * @param int $limit The amount of entries to handle at once.
  * @param int $setSize The amount of entries after which to update the database.
- * @return bool
  */
-function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
+function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100): void
 {
 	global $step_progress;
 
@@ -5410,7 +5409,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
  *
  * @return array Info on the table.
  */
-function upgradeGetColumnInfo($targetTable, $column)
+function upgradeGetColumnInfo($targetTable, $column): array
 {
 	$columns = Db::$db->list_columns($targetTable, true);
 
@@ -5418,7 +5417,7 @@ function upgradeGetColumnInfo($targetTable, $column)
 		return $columns[$column];
 	}
 
-
+	return [];
 }
 
 ?>

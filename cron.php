@@ -16,6 +16,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 // Don't do anything if SMF is already loaded.
 if (defined('SMF')) {
 	return true;

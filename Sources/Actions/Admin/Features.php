@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -77,12 +79,12 @@ class Features implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -349,7 +351,7 @@ class Features implements ActionInterface
 
 					// Max characters...
 					if (!empty($sig_limits[1])) {
-						$sig = Utils::entitySubstr($sig, 0, $sig_limits[1]);
+						$sig = Utils::entitySubstr($sig, 0, (int) $sig_limits[1]);
 					}
 
 					// Max lines...
@@ -918,7 +920,7 @@ class Features implements ActionInterface
 	/**
 	 * Edit some profile fields?
 	 */
-	public function profileEdit()
+	public function profileEdit(): void
 	{
 		// Sort out the context!
 		Utils::$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
@@ -1476,7 +1478,7 @@ class Features implements ActionInterface
 	/**
 	 * Handles modifying the alerts settings.
 	 */
-	public function alerts()
+	public function alerts(): void
 	{
 		// Dummy settings for the template...
 		User::$me->is_owner = false;
@@ -1508,9 +1510,9 @@ class Features implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1771,7 +1773,7 @@ class Features implements ActionInterface
 	 * @param bool $standardFields Whether or not to include standard fields as well
 	 * @return array An array of info about the various profile fields
 	 */
-	public static function list_getProfileFields($start, $items_per_page, $sort, $standardFields): array
+	public static function list_getProfileFields(int $start, int $items_per_page, string $sort, bool $standardFields): array
 	{
 		$list = [];
 
@@ -1832,16 +1834,16 @@ class Features implements ActionInterface
 		list($numProfileFields) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numProfileFields;
+		return (int) $numProfileFields;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the basic sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyBasicSettings($return_config = false)
+	public static function modifyBasicSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::basicConfigVars();
@@ -1850,15 +1852,17 @@ class Features implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'basic';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the bbc sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyBBCSettings($return_config = false)
+	public static function modifyBBCSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::bbcConfigVars();
@@ -1867,15 +1871,17 @@ class Features implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'bbc';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the layout sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyLayoutSettings($return_config = false)
+	public static function modifyLayoutSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::layoutConfigVars();
@@ -1884,15 +1890,17 @@ class Features implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'layout';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the sig sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifySignatureSettings($return_config = false)
+	public static function modifySignatureSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::sigConfigVars();
@@ -1901,15 +1909,17 @@ class Features implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'sig';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the likes sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyLikesSettings($return_config = false)
+	public static function modifyLikesSettings($return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::likesConfigVars();
@@ -1918,15 +1928,17 @@ class Features implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'likes';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the mentions sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyMentionsSettings($return_config = false)
+	public static function modifyMentionsSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::mentionsConfigVars();
@@ -1935,6 +1947,8 @@ class Features implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'mentions';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/******************
@@ -1994,11 +2008,9 @@ class Features implements ActionInterface
 	protected function pauseSignatureApplySettings(): void
 	{
 		// Try get more time...
-		@set_time_limit(600);
+		Utils::sapiSetTimeLimit(600);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiResetTimeout();
 
 		// Have we exhausted all the time we allowed?
 		if (time() - array_sum(explode(' ', Utils::$context['sig_start'])) < 3) {

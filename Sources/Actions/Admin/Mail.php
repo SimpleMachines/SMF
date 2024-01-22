@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -77,12 +79,12 @@ class Mail implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -131,7 +133,7 @@ class Mail implements ActionInterface
 		Db::$db->free_result($request);
 
 		Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::$txt['mailqueue_oldest_not_available'] : self::timeSince(time() - $mailOldest);
-		Utils::$context['mail_queue_size'] = Lang::numberFormat($mailQueueSize);
+		Utils::$context['mail_queue_size'] = Lang::numberFormat((int) $mailQueueSize);
 
 		$listOptions = [
 			'id' => 'mail_queue',
@@ -377,9 +379,9 @@ class Mail implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -453,7 +455,7 @@ class Mail implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array with info about the mail queue items
 	 */
-	public static function list_getMailQueue($start, $items_per_page, $sort): array
+	public static function list_getMailQueue(int $start, int $items_per_page, string $sort): array
 	{
 		$mails = [];
 
@@ -505,7 +507,7 @@ class Mail implements ActionInterface
 		list($mailQueueSize) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $mailQueueSize;
+		return (int) $mailQueueSize;
 	}
 
 	/**
@@ -514,7 +516,7 @@ class Mail implements ActionInterface
 	 * @param int $time_diff The time difference, in seconds
 	 * @return string A string indicating how many days, hours, minutes or seconds (depending on $time_diff)
 	 */
-	public static function timeSince($time_diff): string
+	public static function timeSince(int $time_diff): string
 	{
 		if ($time_diff < 0) {
 			$time_diff = 0;
@@ -585,11 +587,8 @@ class Mail implements ActionInterface
 	protected function pauseMailQueueClear(): void
 	{
 		// Try get more time...
-		@set_time_limit(600);
-
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiSetTimeLimit(600);
+		Utils::sapiResetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 5) {

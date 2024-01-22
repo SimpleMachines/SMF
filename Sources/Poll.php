@@ -47,11 +47,11 @@ class Poll implements \ArrayAccess
 	 *******************/
 
 	/**
-	 * @var int
+	 * @var ?int
 	 *
 	 * This poll's ID number.
 	 */
-	public int $id;
+	public ?int $id;
 
 	/**
 	 * @var string

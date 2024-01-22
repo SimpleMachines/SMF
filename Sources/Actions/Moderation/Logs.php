@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -212,12 +214,12 @@ class Logs implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -238,7 +240,7 @@ class Logs implements ActionInterface
 	/**
 	 *
 	 */
-	public function adminlog()
+	public function adminlog(): void
 	{
 		User::$me->isAllowedTo('admin_forum');
 
@@ -252,7 +254,7 @@ class Logs implements ActionInterface
 	/**
 	 *
 	 */
-	public function modlog()
+	public function modlog(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['modlog_view'];
 
@@ -268,9 +270,9 @@ class Logs implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -297,7 +299,7 @@ class Logs implements ActionInterface
 	 * @param bool $ignore_boards Whether to ignore board restrictions
 	 * @return int Total number of visible log entries.
 	 */
-	public static function list_getModLogEntryCount($query_string = '', $query_params = [], $log_type = 1, $ignore_boards = false): int
+	public static function list_getModLogEntryCount(string $query_string = '', array $query_params = [], int $log_type = 1, bool $ignore_boards = false): int
 	{
 		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], ['id_board' => 'b.id_board']) . ' AND ' . strtr(User::$me->mod_cache['bq'], ['id_board' => 't.id_board'])));
 
@@ -322,7 +324,7 @@ class Logs implements ActionInterface
 		list($entry_count) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
 
-		return $entry_count;
+		return (int) $entry_count;
 	}
 
 	/**
@@ -338,7 +340,7 @@ class Logs implements ActionInterface
 	 * @param bool $ignore_boards Whether to ignore board restrictions
 	 * @return array An array of info about the mod log entries
 	 */
-	public static function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = [], $log_type = 1, $ignore_boards = false): array
+	public static function list_getModLogEntries(int $start, int $items_per_page, string $sort, string $query_string = '', array $query_params = [], int $log_type = 1, bool $ignore_boards = false): array
 	{
 		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], ['id_board' => 'b.id_board']) . ' AND ' . strtr(User::$me->mod_cache['bq'], ['id_board' => 't.id_board'])));
 
@@ -698,8 +700,8 @@ class Logs implements ActionInterface
 	protected function setupSearch(): void
 	{
 		if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search'])) {
-			$this->search_params = base64_decode(strtr($_REQUEST['params'], [' ' => '+']));
-			$this->search_params = Utils::jsonDecode($this->search_params, true);
+			$search_params = base64_decode(strtr($_REQUEST['params'], [' ' => '+']));
+			$this->search_params = Utils::jsonDecode($search_params, true);
 		}
 
 		if (!isset($this->search_params['string']) || (!empty($_REQUEST['search']) && $this->search_params['string'] != $_REQUEST['search'])) {

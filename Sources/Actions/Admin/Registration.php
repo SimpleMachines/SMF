@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -73,12 +75,12 @@ class Registration implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -321,10 +323,14 @@ class Registration implements ActionInterface
 			// Make sure there are no creepy-crawlies in it.
 			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
 
+			$policy_updated_lang = Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] ??
 			$policy_settings = [
 				'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
-				'policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] => Utils::$context['privacy_policy'],
 			];
+
+			if (isset(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']], Config::$modSettings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]])) {
+				$policy_settings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]] = Utils::$context['privacy_policy']; 
+			}
 
 			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
 
@@ -468,9 +474,9 @@ class Registration implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

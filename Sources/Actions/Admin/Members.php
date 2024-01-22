@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -129,12 +131,12 @@ class Members implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -159,7 +161,7 @@ class Members implements ActionInterface
 	 * Called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
 	 * Requires the moderate_forum permission.
 	 */
-	public function view()
+	public function view(): void
 	{
 		// Are we performing a delete?
 		if (isset($_POST['delete_members']) && !empty($_POST['delete']) && User::$me->allowedTo('profile_remove_any')) {
@@ -643,7 +645,7 @@ class Members implements ActionInterface
 	 * Requires the moderate_forum permission.
 	 * The form is submitted to action=admin;area=viewmembers;sa=query.
 	 */
-	public function search()
+	public function search(): void
 	{
 		// Get a list of all the membergroups and postgroups that can be selected.
 		$this->membergroups = [];
@@ -670,7 +672,7 @@ class Members implements ActionInterface
 	 * The form submits to ?action=admin;area=viewmembers;sa=approve.
 	 * Requires the moderate_forum permission.
 	 */
-	public function browse()
+	public function browse(): void
 	{
 		// Not a lot here!
 		Utils::$context['page_title'] = Lang::$txt['admin_members'];
@@ -1029,7 +1031,7 @@ class Members implements ActionInterface
 	 * Redirects to ?action=admin;area=viewmembers;sa=browse
 	 * with the same parameters as the calling page.
 	 */
-	public function approve()
+	public function approve(): void
 	{
 		// First, check our session.
 		User::$me->checkSession();
@@ -1234,13 +1236,6 @@ class Members implements ActionInterface
 			}
 		}
 
-		// @todo current_language is never set, no idea what this is for. Remove?
-		// Back to the user's language!
-		if (isset($current_language) && $current_language != User::$me->language) {
-			Lang::load('index');
-			Lang::load('ManageMembers');
-		}
-
 		// Log what we did?
 		if (!empty(Config::$modSettings['modlog_enabled']) && in_array($_POST['todo'], ['ok', 'okemail', 'require_activation', 'remind'])) {
 			$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
@@ -1273,9 +1268,9 @@ class Members implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1303,7 +1298,7 @@ class Members implements ActionInterface
 	 * @param bool $get_duplicates Whether to get duplicates (used for the admin member list)
 	 * @return array An array of information for displaying the list of members
 	 */
-	public static function list_getMembers($start, $items_per_page, $sort, $where, $where_params = [], $get_duplicates = false)
+	public static function list_getMembers(int $start, int $items_per_page, string $sort, string $where, array $where_params = [], bool $get_duplicates = false): array
 	{
 		$members = [];
 
@@ -1346,7 +1341,7 @@ class Members implements ActionInterface
 	 * @param array $where_params An array of parameters for $where
 	 * @return int The number of members matching the given situation
 	 */
-	public static function list_getNumMembers($where, $where_params = [])
+	public static function list_getNumMembers(string $where, array $where_params = []): int
 	{
 		// We know how many members there are in total.
 		if (empty($where) || $where == '1=1') {
@@ -1366,7 +1361,7 @@ class Members implements ActionInterface
 			Db::$db->free_result($request);
 		}
 
-		return $num_members;
+		return (int) $num_members;
 	}
 
 	/******************
@@ -1467,7 +1462,7 @@ class Members implements ActionInterface
 	/**
 	 * Fetches all the activation counts for ViewMembers.
 	 */
-	protected function getActivationCounts()
+	protected function getActivationCounts(): void
 	{
 		// Get counts on every type of activation - for sections and filtering alike.
 		$request = Db::$db->query(
@@ -1504,7 +1499,7 @@ class Members implements ActionInterface
 	 *
 	 * @param array $members An array of members
 	 */
-	protected static function populateDuplicateMembers(&$members)
+	protected static function populateDuplicateMembers(array &$members): void
 	{
 		// This will hold all the ip addresses.
 		$ips = [];
@@ -1526,7 +1521,7 @@ class Members implements ActionInterface
 		$ips = array_unique($ips);
 
 		if (empty($ips)) {
-			return false;
+			return;
 		}
 
 		// Fetch all members with this IP address, we'll filter out the current ones in a sec.

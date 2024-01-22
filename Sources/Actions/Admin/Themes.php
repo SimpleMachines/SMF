@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -90,12 +92,12 @@ class Themes implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -130,7 +132,7 @@ class Themes implements ActionInterface
 	 * Uses Themes template
 	 * Uses Admin language file
 	 */
-	public function admin()
+	public function admin(): void
 	{
 		// Are handling any settings?
 		if (isset($_POST['save'])) {
@@ -193,7 +195,7 @@ class Themes implements ActionInterface
 	 * This function lists the available themes and provides an interface to reset
 	 * the paths of all the installed themes.
 	 */
-	public function list()
+	public function list(): void
 	{
 		if (isset($_REQUEST['th'])) {
 			$this->setSettings();
@@ -255,7 +257,7 @@ class Themes implements ActionInterface
 	/**
 	 * Administrative global settings.
 	 */
-	public function setOptions()
+	public function setOptions(): void
 	{
 		$_GET['th'] = (int) ($_GET['th'] ?? $_GET['id'] ?? 0);
 
@@ -670,7 +672,7 @@ class Themes implements ActionInterface
 	 * - requires admin_forum permission.
 	 * - accessed with ?action=admin;area=theme;sa=list&th=xx.
 	 */
-	public function setSettings()
+	public function setSettings(): void
 	{
 		if (empty($_GET['th']) && empty($_GET['id'])) {
 			$this->admin();
@@ -864,7 +866,7 @@ class Themes implements ActionInterface
 	 * - requires an administrator.
 	 * - accessed with ?action=admin;area=theme;sa=remove.
 	 */
-	public function remove()
+	public function remove(): void
 	{
 		User::$me->checkSession('get');
 
@@ -895,7 +897,7 @@ class Themes implements ActionInterface
 	/**
 	 * Handles enabling/disabling a theme from the admin center
 	 */
-	public function enable()
+	public function enable(): void
 	{
 		User::$me->checkSession('get');
 
@@ -931,7 +933,7 @@ class Themes implements ActionInterface
 	 * Requires admin_forum.
 	 * Accessed with ?action=admin;area=theme;sa=install.
 	 */
-	public function install()
+	public function install(): void
 	{
 		User::$me->checkSession('request');
 
@@ -983,8 +985,10 @@ class Themes implements ActionInterface
 	 * Shows an interface for editing the templates.
 	 * - uses the Themes template and edit_template/edit_style sub template.
 	 * - accessed via ?action=admin;area=theme;sa=edit
+	 * 
+	 * @return ?string 'no_themes' returned if we can't find the theme, otherwise nothing is returned.
 	 */
-	public function edit()
+	public function edit(): ?string
 	{
 		// @todo Should this be removed?
 		if (isset($_REQUEST['preview'])) {
@@ -1067,7 +1071,7 @@ class Themes implements ActionInterface
 
 			Utils::$context['sub_template'] = 'edit_browse';
 
-			return;
+			return null;
 		}
 
 		if (substr($_REQUEST['filename'], 0, 1) == '.') {
@@ -1138,7 +1142,7 @@ class Themes implements ActionInterface
 				// Re-create the token so that it can be used
 				SecurityToken::create('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
 
-				return;
+				return null;
 			}
 		}
 
@@ -1194,6 +1198,8 @@ class Themes implements ActionInterface
 
 		// Create a special token to allow editing of multiple files.
 		SecurityToken::create('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
+
+		return null;
 	}
 
 	/**
@@ -1201,7 +1207,7 @@ class Themes implements ActionInterface
 	 *
 	 * @uses template_copy_template()
 	 */
-	public function copy()
+	public function copy(): void
 	{
 		Theme::loadTemplate('Themes');
 
@@ -1327,9 +1333,9 @@ class Themes implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1413,7 +1419,7 @@ class Themes implements ActionInterface
 	 *
 	 * @return array The newly created theme's info.
 	 */
-	protected function installFile()
+	protected function installFile(): ?array
 	{
 		// Set a temp dir for dumping all required files on it.
 		$dirtemp = Utils::$context['themedir'] . '/temp';
@@ -1478,6 +1484,8 @@ class Themes implements ActionInterface
 		}
 
 		ErrorHandler::fatalLang('theme_install_error_title', false);
+
+		return null;
 	}
 
 	/**
@@ -1487,7 +1495,7 @@ class Themes implements ActionInterface
 	 *
 	 * @return array The newly created theme's info.
 	 */
-	protected function installCopy()
+	protected function installCopy(): array
 	{
 		// There's gotta be something to work with.
 		if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy'])) {
@@ -1521,11 +1529,9 @@ class Themes implements ActionInterface
 		mkdir(Utils::$context['to_install']['theme_dir'], 0777);
 
 		// Buy some time.
-		@set_time_limit(600);
+		Utils::sapiSetTimeLimit(600);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiResetTimeout();
 
 		// Create subdirectories for css and javascript files.
 		mkdir(Utils::$context['to_install']['theme_dir'] . '/css', 0777);
@@ -1551,7 +1557,7 @@ class Themes implements ActionInterface
 
 		foreach ($to_copy as $file) {
 			copy(Theme::$current->settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
-			Utils::makeWritable(Utils::$context['to_install']['theme_dir'] . $file, 0777);
+			Utils::makeWritable(Utils::$context['to_install']['theme_dir'] . $file, '0777');
 		}
 
 		// And now the entire images directory!
@@ -1611,7 +1617,7 @@ class Themes implements ActionInterface
 	 *
 	 * @return array The newly created theme's info.
 	 */
-	protected function installDir()
+	protected function installDir(): array
 	{
 		// Cannot use the theme dir as a theme dir.
 		if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath(Utils::$context['themedir'])) {
@@ -1650,9 +1656,9 @@ class Themes implements ActionInterface
 	 *
 	 * @param int $id The theme ID to get the info from.
 	 * @param string[] $variables
-	 * @return array The theme info as an array.
+	 * @return false|array The theme info as an array.
 	 */
-	protected function getSingleTheme($id, array $variables = [])
+	protected function getSingleTheme(int $id, array $variables = []): bool|array
 	{
 		// No data, no fun!
 		if (empty($id)) {
@@ -1714,7 +1720,7 @@ class Themes implements ActionInterface
 	 *
 	 * @param bool $enable_only Whether to fetch only enabled themes. Default is false.
 	 */
-	protected function getAllThemes($enable_only = false)
+	protected function getAllThemes(bool $enable_only = false): void
 	{
 		// Make our known/enable themes a little easier to work with.
 		$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : [];
@@ -1783,7 +1789,7 @@ class Themes implements ActionInterface
 	 *
 	 * Config::$modSettings['knownThemes'] stores themes that the user is able to select.
 	 */
-	protected function getInstalledThemes()
+	protected function getInstalledThemes(): void
 	{
 		// Make our known/enable themes a little easier to work with.
 		$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : [];
@@ -1832,7 +1838,7 @@ class Themes implements ActionInterface
 			// Fix the path and tell if its a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
-				Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+				Utils::$context['themes'][$row['id_theme']]['valid_path'] = $row['value'] !== false && file_exists($row['value']) && is_dir($row['value']);
 			}
 			Utils::$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 		}
@@ -1846,9 +1852,9 @@ class Themes implements ActionInterface
 	 * Removes the entire theme if the .xml file couldn't be found or read.
 	 *
 	 * @param string $path The absolute path to the xml file.
-	 * @return array An array with all the info extracted from the xml file.
+	 * @return false|array An array with all the info extracted from the xml file.
 	 */
-	protected function getThemeInfo($path)
+	protected function getThemeInfo(string $path): bool|array
 	{
 		if (empty($path)) {
 			return false;
@@ -1934,7 +1940,7 @@ class Themes implements ActionInterface
 	 * @param array $to_install An array containing all values to be stored into the DB.
 	 * @return int The newly created theme ID.
 	 */
-	protected function addToDb($to_install = [])
+	protected function addToDb(array $to_install = []): int
 	{
 		// External use? no problem!
 		if (!empty($to_install)) {
@@ -1964,7 +1970,7 @@ class Themes implements ActionInterface
 			list($id_to_update) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			$to_update = $this->getSingleTheme($id_to_update, ['version']);
+			$to_update = $this->getSingleTheme((int) $id_to_update, ['version']);
 
 			// Got something, lets figure it out what to do next.
 			if (!empty($id_to_update) && !empty($to_update['version'])) {
@@ -2090,7 +2096,7 @@ class Themes implements ActionInterface
 	 * @param int $themeID The theme ID
 	 * @return bool true when success, false on error.
 	 */
-	protected function removeFromDb($themeID)
+	protected function removeFromDb(int $themeID): bool
 	{
 		// Can't delete the default theme, sorry!
 		if (empty($themeID) || $themeID == 1) {
@@ -2163,7 +2169,7 @@ class Themes implements ActionInterface
 	 * @param string $path The absolute path to the directory to be removed
 	 * @return bool true when success, false on error.
 	 */
-	protected function deltree($path)
+	protected function deltree(string $path): bool
 	{
 		if (empty($path)) {
 			return false;
@@ -2184,7 +2190,7 @@ class Themes implements ActionInterface
 		}
 
 		reset($objects);
-		rmdir($path);
+		return rmdir($path);
 	}
 
 	/**
@@ -2194,7 +2200,7 @@ class Themes implements ActionInterface
 	 * @param string $relative The relative path (relative to the Themes directory)
 	 * @return array An array of information about the files and directories found
 	 */
-	protected function getFileList($path, $relative)
+	protected function getFileList(string $path, string $relative): array
 	{
 		// Is it even a directory?
 		if (!is_dir($path)) {

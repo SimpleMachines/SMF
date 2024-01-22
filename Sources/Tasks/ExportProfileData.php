@@ -886,7 +886,7 @@ class ExportProfileData extends BackgroundTask
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time'));
+		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {
@@ -1252,8 +1252,6 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
-	 *
-	 * @suppress PHP0417
 	 */
 	protected function exportHtml(): void
 	{
@@ -1305,9 +1303,7 @@ class ExportProfileData extends BackgroundTask
 		$xmldoc = new DOMDocument();
 
 		foreach ($new_exportfiles as $exportfile) {
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Utils::sapiResetTimeout();
 
 			$started = microtime(true);
 			$xmldoc->load($exportfile, $libxml_options);

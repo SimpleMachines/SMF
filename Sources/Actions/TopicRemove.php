@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -33,12 +35,12 @@ class TopicRemove implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -117,9 +119,9 @@ class TopicRemove implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -141,7 +143,7 @@ class TopicRemove implements ActionInterface
 	 *
 	 * @return bool False if it can't be deleted (recycling not enabled or no recycling board set), true if we've confirmed it can be deleted. Dies with an error if it's already been deleted.
 	 */
-	public static function removeDeleteConcurrence()
+	public static function removeDeleteConcurrence(): bool
 	{
 		// No recycle no need to go further
 		if (empty(Config::$modSettings['recycle_enable']) || empty(Config::$modSettings['recycle_board'])) {
@@ -168,6 +170,7 @@ class TopicRemove implements ActionInterface
 		}
 
 		ErrorHandler::fatalLang('post_already_deleted', false, [$confirm_url]);
+		return false;
 	}
 
 	/**
@@ -175,7 +178,7 @@ class TopicRemove implements ActionInterface
 	 *
 	 * Used by SMF\Actions\Admin\Maintenance to prune old topics.
 	 */
-	public static function old()
+	public static function old(): void
 	{
 		User::$me->isAllowedTo('admin_forum');
 		User::$me->checkSession('post', 'admin');

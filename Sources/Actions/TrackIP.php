@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Actions\Profile\BackwardCompatibility;
@@ -22,6 +24,7 @@ use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Profile;
+use SMF\Profile\Tracking;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -58,12 +61,12 @@ class TrackIP implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -237,14 +240,14 @@ class TrackIP implements ActionInterface
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
 			'get_items' => [
-				'function' => 'list_getUserErrors',
+				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrors',
 				'params' => [
 					'le.ip >= ' . $ip_string[0] . ' and le.ip <= ' . $ip_string[1],
 					$fields,
 				],
 			],
 			'get_count' => [
-				'function' => 'list_getUserErrorCount',
+				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrorCount',
 				'params' => [
 					'ip >= ' . $ip_string[0] . ' and ip <= ' . $ip_string[1],
 					$fields,
@@ -350,9 +353,9 @@ class TrackIP implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

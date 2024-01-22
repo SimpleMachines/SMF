@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -72,12 +74,12 @@ class Languages implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -462,7 +464,7 @@ class Languages implements ActionInterface
 	/**
 	 * This lists all the current languages and allows editing of them.
 	 */
-	public function editLanguages()
+	public function editLanguages(): void
 	{
 		// Setting a new default?
 		if (!empty($_POST['set_default']) && !empty($_POST['def_language'])) {
@@ -604,9 +606,8 @@ class Languages implements ActionInterface
 	 * Edit language related settings.
 	 *
 	 * @param bool $return_config Whether to return the $config_vars array (used in admin search)
-	 * @return void|array Returns nothing or the $config_vars array if $return_config is true
 	 */
-	public function settings($return_config = false)
+	public function settings(bool $return_config = false): void
 	{
 		$config_vars = self::getConfigVars();
 
@@ -1439,9 +1440,9 @@ class Languages implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1530,7 +1531,7 @@ class Languages implements ActionInterface
 	 *
 	 * @return int The number of available languages
 	 */
-	public static function list_getNumLanguages()
+	public static function list_getNumLanguages(): int
 	{
 		return count(Lang::get());
 	}
@@ -1543,7 +1544,7 @@ class Languages implements ActionInterface
 	 *
 	 * @return array An array of information about currenty installed languages
 	 */
-	public static function list_getLanguages()
+	public static function list_getLanguages(): array
 	{
 		$languages = [];
 
@@ -1653,7 +1654,7 @@ class Languages implements ActionInterface
 	 * @param bool $to_display Whether or not this is going to be displayed
 	 * @return string The cleaned string
 	 */
-	protected function cleanLangString($string, $to_display = true)
+	protected function cleanLangString(string $string, bool $to_display = true): string
 	{
 		// If going to display we make sure it doesn't have any HTML in it - etc.
 		$new_string = '';

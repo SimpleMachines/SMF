@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -128,11 +130,11 @@ class MessageIndex implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -163,9 +165,9 @@ class MessageIndex implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -188,7 +190,7 @@ class MessageIndex implements ActionInterface
 	 * @param array $boardListOptions An array of options for the board list.
 	 * @return array An array of board info.
 	 */
-	public static function getBoardList($boardListOptions = []): array
+	public static function getBoardList(array $boardListOptions = []): array
 	{
 		if (isset($boardListOptions['excluded_boards'], $boardListOptions['included_boards'])) {
 			Lang::load('Errors');
@@ -263,7 +265,7 @@ class MessageIndex implements ActionInterface
 	 *
 	 * This is static so that it can be called by SMF\Actions\Unread, etc.
 	 */
-	public static function buildTopicContext(array $row)
+	public static function buildTopicContext(array $row): void
 	{
 		// Reference the main color class.
 		$colorClass = 'windowbg';
@@ -311,7 +313,7 @@ class MessageIndex implements ActionInterface
 		if ($row['num_replies'] + 1 > Utils::$context['messages_per_page']) {
 			// We can't pass start by reference.
 			$start = -1;
-			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
+			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, (int) Utils::$context['messages_per_page'], true, false);
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
@@ -551,11 +553,12 @@ class MessageIndex implements ActionInterface
 
 		Utils::$context['maxindex'] = isset($_REQUEST['all']) && !empty(Config::$modSettings['enableAllMessages']) ? Board::$info->total_topics : Utils::$context['topics_per_page'];
 
+		$start = (int) $_REQUEST['start'];
 		// Make sure the starting place makes sense and construct the page index.
 		if ($this->sort_by !== $this->sort_default || !$this->ascending_is_default) {
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		} else {
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		}
 
 		Utils::$context['start'] = &$_REQUEST['start'];

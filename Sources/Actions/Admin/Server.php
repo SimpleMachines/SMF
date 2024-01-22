@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -137,26 +139,34 @@ class Server implements ActionInterface
 	 *
 	 * True if Settings.php is not writable.
 	 */
-	public static $settings_not_writable;
+	public static bool $settings_not_writable;
 
 	/**
 	 * @var bool
 	 *
 	 * True if we are unable to back up Settings.php.
 	 */
-	public static $settings_backup_fail;
+	public static bool $settings_backup_fail;
 
+	/**
+	 * @var bool
+	 *
+	 * True if the host has disabled checking dispace.
+	 */
+	public static bool $diskspace_disabled = false;
+
+	
 	/****************************
 	 * Internal static properties
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/**
 	 * @var bool
@@ -253,7 +263,7 @@ class Server implements ActionInterface
 
 			// Ensure all URLs are aligned with the new force_ssl setting
 			// Treat unset like 0
-			$this->alignURLsWithSSLSetting($_POST['force_ssl'] ?? 0);
+			$this->alignURLsWithSSLSetting((int) $_POST['force_ssl'] ?? 0);
 
 			ACP::saveSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -367,7 +377,7 @@ class Server implements ActionInterface
 			if (!empty($_POST['globalCookiesDomain'])) {
 				$_POST['globalCookiesDomain'] = Url::create((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.'), true)->host;
 
-				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', Url::create(Config::$boardurl))->host) {
+				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', Url::create(Config::$boardurl)->parse(PHP_URL_HOST))) {
 					ErrorHandler::fatalLang('invalid_cookie_domain', false);
 				}
 			}
@@ -389,7 +399,7 @@ class Server implements ActionInterface
 				// Set the new one.
 				Config::$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : Config::$cookiename;
 
-				Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
+				Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
 			}
@@ -527,7 +537,7 @@ class Server implements ActionInterface
 				$_POST['export_dir'] = rtrim($_POST['export_dir'], '/\\');
 			}
 
-			if ($diskspace_disabled) {
+			if ($this->diskspace_disabled) {
 				$_POST['export_min_diskspace_pct'] = 0;
 			}
 
@@ -686,9 +696,9 @@ class Server implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1002,12 +1012,12 @@ class Server implements ActionInterface
 			they report obviously insane values, it's not possible to track disk
 			usage correctly.
 		 */
-		$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
+		self::$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
 
 		$config_vars = [
 			['text', 'export_dir', 40],
 			['int', 'export_expiry', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['days_word']],
-			['int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80, 'disabled' => $diskspace_disabled],
+			['int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80, 'disabled' => self::$diskspace_disabled],
 			['int', 'export_rate', 'min' => 5, 'max' => 500, 'step' => 5, 'subtext' => Lang::$txt['export_rate_desc']],
 		];
 
@@ -1105,7 +1115,7 @@ class Server implements ActionInterface
 	 *
 	 * @param array $config_vars An array of configuration variables
 	 */
-	public static function prepareServerSettingsContext(&$config_vars)
+	public static function prepareServerSettingsContext(array &$config_vars): void
 	{
 		if (!empty(Utils::$context['settings_not_writable'])) {
 			Utils::$context['settings_message'] = [
@@ -1151,7 +1161,7 @@ class Server implements ActionInterface
 					'size' => !empty($config_var[4]) && !is_array($config_var[4]) ? $config_var[4] : 0,
 					'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : [],
 					'name' => $config_var[0],
-					'value' => $config_var[2] == 'file' ? Utils::htmlspecialchars($$varname) : (isset(Config::$modSettings[$config_var[0]]) ? Utils::htmlspecialchars(Config::$modSettings[$config_var[0]]) : (in_array($config_var[3], ['int', 'float']) ? 0 : '')),
+					'value' => $config_var[2] == 'file' ? Utils::htmlspecialchars((string) $$varname) : (isset(Config::$modSettings[$config_var[0]]) ? Utils::htmlspecialchars(Config::$modSettings[$config_var[0]]) : (in_array($config_var[3], ['int', 'float']) ? 0 : '')),
 					'disabled' => !empty(Utils::$context['settings_not_writable']) || !empty($config_var['disabled']),
 					'invalid' => false,
 					'subtext' => !empty($config_var['subtext']) ? $config_var['subtext'] : $subtext,
@@ -1229,7 +1239,7 @@ class Server implements ActionInterface
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyGeneralSettings($return_config = false)
+	public static function modifyGeneralSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::generalConfigVars();
@@ -1238,15 +1248,17 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'general';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the database sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyDatabaseSettings($return_config = false)
+	public static function modifyDatabaseSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::databaseConfigVars();
@@ -1255,6 +1267,8 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'database';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
@@ -1263,7 +1277,7 @@ class Server implements ActionInterface
 	 * @param bool $return_config Whether to return the config_vars array.
 	 * @return void|array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyCookieSettings($return_config = false)
+	public static function modifyCookieSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::cookieConfigVars();
@@ -1272,15 +1286,17 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'cookie';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the security sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyGeneralSecuritySettings($return_config = false)
+	public static function modifyGeneralSecuritySettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::securityConfigVars();
@@ -1289,15 +1305,17 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'security';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the cache sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyCacheSettings($return_config = false)
+	public static function modifyCacheSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::cacheConfigVars();
@@ -1306,15 +1324,17 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'cache';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the export sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyExportSettings($return_config = false)
+	public static function modifyExportSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::exportConfigVars();
@@ -1323,15 +1343,17 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'export';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/**
 	 * Backward compatibility wrapper for the loads sub-action.
 	 *
 	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
+	 * @return ?array Returns nothing or returns the config_vars array.
 	 */
-	public static function modifyLoadBalancingSettings($return_config = false)
+	public static function modifyLoadBalancingSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
 			return self::loadBalancingConfigVars();
@@ -1340,6 +1362,8 @@ class Server implements ActionInterface
 		self::load();
 		self::$obj->subaction = 'loads';
 		self::$obj->execute();
+
+		return null;
 	}
 
 	/******************
@@ -1391,7 +1415,7 @@ class Server implements ActionInterface
 	 *
 	 * @param int $new_force_ssl is the current force_ssl setting.
 	 */
-	protected function alignURLsWithSSLSetting($new_force_ssl = 0)
+	protected function alignURLsWithSSLSetting(int $new_force_ssl = 0): void
 	{
 		// Check Config::$boardurl
 		if (!empty($new_force_ssl)) {
@@ -1497,7 +1521,7 @@ class Server implements ActionInterface
 	 * @param string $url is the url to check.
 	 * @return bool Returns true if the url is based off of Config::$boardurl (without the scheme), false if not
 	 */
-	protected function boardurlMatch($url = ''): bool
+	protected function boardurlMatch(string $url = ''): bool
 	{
 		// Strip the schemes
 		$urlpath = strtr($url, ['http://' => '', 'https://' => '']);
@@ -1516,9 +1540,9 @@ class Server implements ActionInterface
 	 *
 	 * @see SMStats() for more information.
 	 * @link https://www.simplemachines.org/about/stats.php for more info.
-	 *
+	 * @return bool Returns true if we are registered or successfully registered, otherwise false.
 	 */
-	protected function registerSMStats()
+	protected function registerSMStats(): bool
 	{
 		// Already have a key?  Can't register again.
 		if (!empty(Config::$modSettings['sm_stats_key'])) {

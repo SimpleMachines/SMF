@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -96,12 +98,12 @@ class Who implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -220,12 +222,12 @@ class Who implements ActionInterface
 			],
 		);
 		list($totalMembers) = Db::$db->fetch_row($request);
+		$totalMembers = (int) $totalMembers;
 		Db::$db->free_result($request);
 
 		// Prepare some page index variables.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], $_REQUEST['start'], $totalMembers, Config::$modSettings['defaultMaxMembers']);
-
-		Utils::$context['start'] = $_REQUEST['start'];
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], Utils::$context['start'], $totalMembers, (int) Config::$modSettings['defaultMaxMembers']);
 
 		// Look for people online, provided they don't mind if you see they are.
 		Utils::$context['members'] = [];
@@ -351,9 +353,9 @@ class Who implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -387,9 +389,9 @@ class Who implements ActionInterface
 	 *
 	 * @param mixed $urls a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
 	 * @param string|bool $preferred_prefix = false
-	 * @return array an array of descriptions if you passed an array, otherwise the string describing their current location.
+	 * @return array|string an array of descriptions if you passed an array, otherwise the string describing their current location.
 	 */
-	public static function determineActions($urls, $preferred_prefix = false)
+	public static function determineActions(mixed $urls, string|bool $preferred_prefix = false): array|string
 	{
 		if (!User::$me->allowedTo('who_view')) {
 			return [];

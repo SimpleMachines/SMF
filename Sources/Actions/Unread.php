@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -202,12 +204,12 @@ class Unread implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -249,9 +251,9 @@ class Unread implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -326,7 +328,7 @@ class Unread implements ActionInterface
 	/**
 	 * Checks that the load averages aren't too high to show unread posts.
 	 */
-	protected function checkLoadAverage()
+	protected function checkLoadAverage(): void
 	{
 		if (empty(Utils::$context['load_average'])) {
 			return;
@@ -344,7 +346,7 @@ class Unread implements ActionInterface
 	/**
 	 * Checks that the load averages aren't too high to show all unread posts.
 	 */
-	protected function checkLoadAverageAll()
+	protected function checkLoadAverageAll(): void
 	{
 		if (empty(Utils::$context['load_average'])) {
 			return;
@@ -366,7 +368,7 @@ class Unread implements ActionInterface
 	 *
 	 * @todo Break this up further.
 	 */
-	protected function getBoards()
+	protected function getBoards(): void
 	{
 		// Are we specifying any specific board?
 		if (isset($_REQUEST['children']) && (!empty(Board::$info->id) || !empty($_REQUEST['boards']))) {
@@ -507,7 +509,7 @@ class Unread implements ActionInterface
 	/**
 	 * Gets the category name, if applicable.
 	 */
-	protected function getCatName()
+	protected function getCatName(): void
 	{
 		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
@@ -528,7 +530,7 @@ class Unread implements ActionInterface
 	/**
 	 * Figures out how to sort the results.
 	 */
-	protected function setSortMethod()
+	protected function setSortMethod(): void
 	{
 		// We only know these.
 		if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
@@ -564,7 +566,7 @@ class Unread implements ActionInterface
 	/**
 	 * Constructs page index, sets the linktree, next/prev/up links, etc.
 	 */
-	protected function setPaginationAndLinks()
+	protected function setPaginationAndLinks(): void
 	{
 		$not_first_page = Utils::$context['start'] >= Utils::$context['topics_per_page'];
 		$not_last_page = Utils::$context['start'] + Utils::$context['topics_per_page'] < $this->num_topics;
@@ -598,7 +600,7 @@ class Unread implements ActionInterface
 		}
 
 		// Make sure the starting place makes sense and construct the page index.
-		Utils::$context['page_index'] = new PageIndex($this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . Utils::$context['querystring_sort_limits'], Utils::$context['start'], $this->num_topics, Utils::$context['topics_per_page'], true);
+		Utils::$context['page_index'] = new PageIndex($this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . Utils::$context['querystring_sort_limits'], Utils::$context['start'], $this->num_topics, (int) Utils::$context['topics_per_page'], true);
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
 
@@ -619,7 +621,7 @@ class Unread implements ActionInterface
 	/**
 	 *
 	 */
-	protected function setNoTopics()
+	protected function setNoTopics(): void
 	{
 		// Is this an all topics query?
 		if (Utils::$context['showing_all_topics']) {
@@ -640,7 +642,7 @@ class Unread implements ActionInterface
 	/**
 	 * Makes any needed adjustments to $this->selects.
 	 */
-	protected function finalizeSelects()
+	protected function finalizeSelects(): void
 	{
 		if (!empty(Theme::$current->settings['avatars_on_indexes'])) {
 			$this->selects = array_merge($this->selects, [
@@ -661,7 +663,7 @@ class Unread implements ActionInterface
 	/**
 	 * Gets the ID of the earliest message that the current user has not read.
 	 */
-	protected function getEarliestMsg()
+	protected function getEarliestMsg(): void
 	{
 		if (!Utils::$context['showing_all_topics']) {
 			return;
@@ -732,7 +734,7 @@ class Unread implements ActionInterface
 	/**
 	 * Sets $this->topic_request to the appropriate query.
 	 */
-	protected function setTopicRequest()
+	protected function setTopicRequest(): void
 	{
 		if (Config::$modSettings['totalMessages'] > 100000 && Utils::$context['showing_all_topics']) {
 			$this->makeTempTable();
@@ -748,7 +750,7 @@ class Unread implements ActionInterface
 	/**
 	 * For large forums, creates a temporary table to use when showing all unread topics.
 	 */
-	protected function makeTempTable()
+	protected function makeTempTable(): void
 	{
 		Db::$db->query(
 			'',
@@ -782,7 +784,7 @@ class Unread implements ActionInterface
 	/**
 	 * For large forums, sets $this->topic_request with the help of a temporary table.
 	 */
-	protected function getTopicRequestWithTempTable()
+	protected function getTopicRequestWithTempTable(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -847,7 +849,7 @@ class Unread implements ActionInterface
 	/**
 	 * Sets $this->topic_request without the help of a temporary table.
 	 */
-	protected function getTopicRequestWithoutTempTable()
+	protected function getTopicRequestWithoutTempTable(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -872,8 +874,8 @@ class Unread implements ActionInterface
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$this->num_topics = $num_topics ?? 0;
-		$this->min_message = $min_message ?? 0;
+		$this->num_topics = (int) $num_topics ?? 0;
+		$this->min_message = (int) $min_message ?? 0;
 
 		if ($this->num_topics == 0) {
 			$this->setNoTopics();
@@ -916,7 +918,7 @@ class Unread implements ActionInterface
 	/**
 	 *
 	 */
-	protected function getTopics()
+	protected function getTopics(): void
 	{
 		$topic_ids = [];
 
@@ -994,7 +996,7 @@ class Unread implements ActionInterface
 	/**
 	 *
 	 */
-	protected function buildButtons()
+	protected function buildButtons(): void
 	{
 		// Build the recent button array.
 		if ($this->is_topics) {

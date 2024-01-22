@@ -1017,24 +1017,22 @@ class Group implements \ArrayAccess
 		// new additional group.
 		$set_primary = [];
 		$set_additional = [];
-		$member_ids = [];
 
 		/** @var \SMF\User $member */
-		foreach ($members as $key => $member) {
-			$member_ids = $member->id;
+		foreach ($members as $key => $id_member) {
 
 			// Forcing primary.
 			if ($type === 'force_primary') {
-				if (User::$loaded[$member->id]->group_id !== $this->id) {
-					$set_primary[] = $member;
+				if (User::$loaded[$id_member]->group_id !== $this->id) {
+					$set_primary[] = $id_member;
 				}
 			}
 			// They're already in this group.
-			elseif (in_array($this->id, User::$loaded[$member->id]->groups)) {
+			elseif (in_array($this->id, User::$loaded[$id_member]->groups)) {
 				continue;
 			}
 			// They have a different primary group.
-			elseif (User::$loaded[$member->id]->group_id !== self::REGULAR) {
+			elseif (User::$loaded[$id_member]->group_id !== self::REGULAR) {
 				// Skip if we only want to set their primary group.
 				if ($type === 'only_primary') {
 					continue;
@@ -1046,15 +1044,15 @@ class Group implements \ArrayAccess
 				}
 
 				// Set this as an additional group.
-				$set_additional[] = $member;
+				$set_additional[] = $id_member;
 			}
 			// This can only be an additional group.
 			elseif ($type === 'only_additional') {
-				$set_additional[] = $member;
+				$set_additional[] = $id_member;
 			}
 			// They have no primary group, so let's give them one.
 			else {
-				$set_primary[] = $member;
+				$set_primary[] = $id_member;
 			}
 		}
 
@@ -1068,12 +1066,11 @@ class Group implements \ArrayAccess
 
 			$to_set = [];
 
-			/** @var \SMF\User $member */
-			foreach ($set_primary as $member) {
-				$new_additional_groups = array_diff(User::$loaded[$member->id]->groups, [$this->id, User::$loaded[$member->id]->post_group_id]);
+			foreach ($set_primary as $id_member) {
+				$new_additional_groups = array_diff(User::$loaded[$id_member]->groups, [$this->id, User::$loaded[$id_member]->post_group_id]);
 				sort($new_additional_groups);
 
-				$to_set[implode(',', $new_additional_groups)][] = $member->id;
+				$to_set[implode(',', $new_additional_groups)][] = $id_member;
 			}
 
 			foreach ($to_set as $new_additional_groups => $member_ids) {
@@ -1093,44 +1090,39 @@ class Group implements \ArrayAccess
 		Config::updateModSettings(['settings_updated' => time()]);
 
 		if (!empty($set_primary)) {
-			$primarys = array_map(function (\SMF\User $member) {
-				return $member->id;
-			}, $set_primary);
-			User::updateMemberData($primarys, ['id_group' => $this->id]);
+			User::updateMemberData($set_primary, ['id_group' => $this->id]);
 		}
 
 		if (!empty($set_additional)) {
 			$to_set = [];
 
-			/** @var \SMF\User $member */
-			foreach ($set_additional as $member) {
-				$new_additional_groups = array_unique(array_merge(User::$loaded[$member->id]->additional_groups, [$this->id]));
+			foreach ($set_additional as $id_member) {
+				$new_additional_groups = array_unique(array_merge(User::$loaded[$id_member]->additional_groups, [$this->id]));
 				sort($new_additional_groups);
 
-				$to_set[implode(',', $new_additional_groups)][] = $member->id;
+				$to_set[implode(',', $new_additional_groups)][] = $id_member;
 			}
 
-			foreach ($to_set as $new_additional_groups => $mems) {
-				User::updateMemberData($mems, ['additional_groups' => $new_additional_groups]);
+			foreach ($to_set as $new_additional_groups => $member_ids) {
+				User::updateMemberData($member_ids, ['additional_groups' => $new_additional_groups]);
 			}
 		}
 
 		// For historical reasons, the hook expects an array rather than just the name string.
 		$group_names = [$this->id => $this->name];
 
-		IntegrationHook::call('integrate_add_members_to_group', [$member_ids, $this->id, &$group_names]);
+		IntegrationHook::call('integrate_add_members_to_group', [$members, $this->id, &$group_names]);
 
 		// Update their postgroup statistics.
-		Logging::updateStats('postgroups', $member_ids);
+		Logging::updateStats('postgroups', $members);
 
 		// Log the data.
-		/** @var \SMF\User $member */
-		foreach ($members as $member) {
+		foreach ($members as $id_member) {
 			Logging::logAction(
 				'added_to_group',
 				[
 					'group' => $this->name,
-					'member' => $member->id,
+					'member' => $id_member,
 				],
 				'admin',
 			);

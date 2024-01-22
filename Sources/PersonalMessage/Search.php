@@ -166,7 +166,7 @@ class Search
 	 * @param bool $inbox Whether we are searching the inbox or sent items.
 	 *    This param currently does nothing.
 	 */
-	public function __construct(int $inbox)
+	public function __construct(bool $inbox)
 	{
 		/*
 		 * @todo For the moment force the folder to the inbox.

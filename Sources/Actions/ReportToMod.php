@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -100,12 +102,12 @@ class ReportToMod implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -295,9 +297,9 @@ class ReportToMod implements ActionInterface
 		}
 
 		if (isset($_POST['msg'])) {
-			$this->reportMsg($_POST['msg']);
+			$this->reportMsg((int) $_POST['msg']);
 		} else {
-			$this->reportMember($_POST['u']);
+			$this->reportMember((int) $_POST['u']);
 		}
 	}
 
@@ -308,9 +310,9 @@ class ReportToMod implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -331,7 +333,7 @@ class ReportToMod implements ActionInterface
 	 * Backward compatibility wrapper for the reportMsg() method.
 	 * In theory, no modifications should ever have called this, but...
 	 */
-	public static function reportPost($msg, $reason): void
+	public static function reportPost(int $msg, string $reason): void
 	{
 		$_POST['msg'] = (int) $msg;
 		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
@@ -345,7 +347,7 @@ class ReportToMod implements ActionInterface
 	 * Backward compatibility wrapper for the reportMember() method.
 	 * In theory, no modifications should ever have called this, but...
 	 */
-	public static function reportUser($id_member, $reason): void
+	public static function reportUser(int $id_member, string $reason): void
 	{
 		$_POST['u'] = (int) $id_member;
 		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
@@ -383,7 +385,7 @@ class ReportToMod implements ActionInterface
 	/**
 	 * Sets Utils::$context['preview_message'] based on $this->comment.
 	 */
-	protected function setPreview()
+	protected function setPreview(): void
 	{
 		// Set up the preview message.
 		Utils::$context['preview_message'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
@@ -398,7 +400,7 @@ class ReportToMod implements ActionInterface
 	 *
 	 * @param int $msg The ID of the post being reported
 	 */
-	protected function reportMsg(int $msg)
+	protected function reportMsg(int $msg): void
 	{
 		// Get the basic topic information, and make sure they can see it.
 		$request = Db::$db->query(
@@ -538,7 +540,7 @@ class ReportToMod implements ActionInterface
 	 *
 	 * @param int $id_member The ID of the member whose profile is being reported
 	 */
-	protected function reportMember($id_member)
+	protected function reportMember(int $id_member): void
 	{
 		// Get the basic topic information, and make sure they can see it.
 		$_POST['u'] = (int) $id_member;

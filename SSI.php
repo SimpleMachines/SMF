@@ -29,6 +29,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 if (!defined('SMF')) {
 	define('SMF', 'SSI');
 }

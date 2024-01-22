@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Alert;
@@ -58,7 +60,7 @@ class Display implements ActionInterface
 	 *
 	 * Whether all posts in the topic can be viewed on a single page.
 	 */
-	public $can_show_all = false;
+	public bool $can_show_all = false;
 
 	/*********************
 	 * Internal properties
@@ -69,21 +71,21 @@ class Display implements ActionInterface
 	 *
 	 * ID numbers of messages in this topic.
 	 */
-	private $messages = [];
+	private array $messages = [];
 
 	/**
 	 * @var array
 	 *
 	 * ID numbers of the authors of the $messages.
 	 */
-	private $posters = [];
+	private array $posters = [];
 
 	/**
 	 * @var int
 	 *
 	 * Index of the first message.
 	 */
-	private $firstIndex;
+	private int $firstIndex;
 
 	/**
 	 * @var int
@@ -91,18 +93,18 @@ class Display implements ActionInterface
 	 * Requested message in $_REQUEST['start'].
 	 * Might or might not be set.
 	 */
-	private $virtual_msg;
+	private int $virtual_msg;
 
 	/****************************
 	 * Internal static properties
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -150,7 +152,7 @@ class Display implements ActionInterface
 	 *
 	 * @return array|bool Contextual data for a post, or false on failure.
 	 */
-	public function prepareDisplayContext()
+	public function prepareDisplayContext(): array|bool
 	{
 		static $counter = null;
 
@@ -163,6 +165,7 @@ class Display implements ActionInterface
 			return false;
 		}
 
+		/** @var \SMF\Msg $message */
 		$message = Msg::$getter->current();
 		Msg::$getter->next();
 
@@ -284,9 +287,9 @@ class Display implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -854,9 +857,12 @@ class Display implements ActionInterface
 		}
 
 		// Construct the page index, allowing for the .START method...
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', $_REQUEST['start'], Topic::$info->total_visible_posts, Utils::$context['messages_per_page'], true);
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', Utils::$context['start'], Topic::$info->total_visible_posts, (int) Utils::$context['messages_per_page'], true);
 
-		Utils::$context['start'] = $_REQUEST['start'];
+		// SMF has a logic issue where we don't get the proper start in our query, quick fix.
+		// @ TODO; Properly fix this, remove this and load a topic with ?topic=123.msg456
+		$_REQUEST['start'] = Utils::$context['start'];
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 		Utils::$context['page_info'] = [
@@ -1101,7 +1107,7 @@ class Display implements ActionInterface
 	protected function getMessagesAndPosters(): void
 	{
 		$limit = Utils::$context['messages_per_page'];
-		$start = $_REQUEST['start'];
+		$start = (int) $_REQUEST['start'];
 		$ascending = empty(Theme::$current->options['view_newest_first']);
 		$this->firstIndex = 0;
 

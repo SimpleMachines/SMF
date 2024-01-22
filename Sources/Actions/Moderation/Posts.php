@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -74,12 +76,12 @@ class Posts implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -301,12 +303,12 @@ class Posts implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Limit to how many? (obey the user setting)
-		$limit = !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$limit = (int) (!empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages']);
 
 		// Must have a start value.
 		Utils::$context['start'] = $_GET['start'] ?? 0;
 
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? Utils::$context['total_unapproved_topics'] : Utils::$context['total_unapproved_posts'], $limit);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? (int) Utils::$context['total_unapproved_topics'] : (int) Utils::$context['total_unapproved_posts'], $limit);
 
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];
@@ -392,7 +394,7 @@ class Posts implements ActionInterface
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 				'subject' => $row['subject'],
-				'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
+				'body' => BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']),
 				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'poster' => [
 					'id' => $row['id_member'],
@@ -694,9 +696,9 @@ class Posts implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -773,7 +775,7 @@ class Posts implements ActionInterface
 	 * @param string $approve_query Additional restrictions based on the boards the approver can see
 	 * @return array An array of information about the unapproved attachments
 	 */
-	public static function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_query): array
+	public static function list_getUnapprovedAttachments(int $start, int $items_per_page, string $sort, string $approve_query): array
 	{
 		// Get all unapproved attachments.
 		$unapproved_items = [];
@@ -849,7 +851,7 @@ class Posts implements ActionInterface
 	 * @param string $approve_query Additional restrictions based on the boards the approver can see
 	 * @return int The number of unapproved attachments
 	 */
-	public static function list_getNumUnapprovedAttachments($approve_query): int
+	public static function list_getNumUnapprovedAttachments(string $approve_query): int
 	{
 		// How many unapproved attachments in total?
 		$request = Db::$db->query(
@@ -869,7 +871,7 @@ class Posts implements ActionInterface
 		list($total_unapproved_attachments) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $total_unapproved_attachments;
+		return (int) $total_unapproved_attachments;
 	}
 
 	/******************
@@ -898,7 +900,7 @@ class Posts implements ActionInterface
 	 * @param array $messageDetails An array of information about each message, for the log
 	 * @param string $current_view What type of unapproved items we're approving - can be 'topics' or 'replies'
 	 */
-	protected function approveMessages($messages, $messageDetails, $current_view = 'replies'): void
+	protected function approveMessages(array $messages, array $messageDetails, string $current_view = 'replies'): void
 	{
 		if ($current_view == 'topics') {
 			Topic::approve($messages);
@@ -924,7 +926,7 @@ class Posts implements ActionInterface
 	 * @param array $messageDetails An array of information about the messages for the log
 	 * @param string $current_view What type of item we're removing - can be 'topics' or 'replies'
 	 */
-	protected function removeMessages($messages, $messageDetails, $current_view = 'replies'): void
+	protected function removeMessages(array $messages, array $messageDetails, string $current_view = 'replies'): void
 	{
 		// @todo something's not right, Msg::remove() checks permissions, Topic::remove() doesn't
 		if ($current_view == 'topics') {

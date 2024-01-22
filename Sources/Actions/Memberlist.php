@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -91,12 +93,12 @@ class Memberlist implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -231,7 +233,7 @@ class Memberlist implements ActionInterface
 	 * Can be passed a sort parameter, to order the display of members.
 	 * Calls printRows to retrieve the results of the query.
 	 */
-	public function all()
+	public function all(): void
 	{
 		// Only use caching if:
 		// 1. there are at least 2k members,
@@ -316,9 +318,12 @@ class Memberlist implements ActionInterface
 					'first_letter' => $_REQUEST['start'],
 				],
 			);
-			list($_REQUEST['start']) = Db::$db->fetch_row($request);
+			list($start) = Db::$db->fetch_row($request);
+			$start = (int) $start;
 			Db::$db->free_result($request);
 		}
+		else
+			$start = (int) $_REQUEST['start'];
 
 		Utils::$context['letter_links'] = '';
 
@@ -328,7 +333,7 @@ class Memberlist implements ActionInterface
 
 		// Sort out the column information.
 		foreach (Utils::$context['columns'] as $col => $column_details) {
-			Utils::$context['columns'][$col]['href'] = Config::$scripturl . '?action=mlist;sort=' . $col . ';start=' . $_REQUEST['start'];
+			Utils::$context['columns'][$col]['href'] = Config::$scripturl . '?action=mlist;sort=' . $col . ';start=' . $start;
 
 			if ((!isset($_REQUEST['desc']) && $col == $_REQUEST['sort']) || ($col != $_REQUEST['sort'] && !empty($column_details['default_sort_rev']))) {
 				Utils::$context['columns'][$col]['href'] .= ';desc';
@@ -349,21 +354,21 @@ class Memberlist implements ActionInterface
 		Utils::$context['sort_direction'] = !isset($_REQUEST['desc']) ? 'up' : 'down';
 
 		// Construct the page index.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['num_members'], Config::$modSettings['defaultMaxMembers']);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $start, (int) Utils::$context['num_members'], (int) Config::$modSettings['defaultMaxMembers']);
 
 		// Send the data to the template.
-		Utils::$context['start'] = $_REQUEST['start'] + 1;
-		Utils::$context['end'] = min($_REQUEST['start'] + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
+		Utils::$context['start'] = $start + 1;
+		Utils::$context['end'] = min($start + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
 
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-		Utils::$context['page_title'] = sprintf(Lang::$txt['viewing_members'], Utils::$context['start'], Utils::$context['end']);
+		Utils::$context['page_title'] = sprintf(Lang::$txt['viewing_members'], $start, Utils::$context['end']);
 		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $_REQUEST['start'],
+			'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $start,
 			'name' => &Utils::$context['page_title'],
 			'extra_after' => '(' . sprintf(Lang::$txt['of_total_members'], Utils::$context['num_members']) . ')',
 		];
 
-		$limit = $_REQUEST['start'];
+		$limit = $start;
 		$query_parameters = [
 			'regular_id_group' => 0,
 			'is_activated' => 1,
@@ -373,9 +378,9 @@ class Memberlist implements ActionInterface
 
 		// Using cache allows to narrow down the list to be retrieved.
 		if ($use_cache && $_REQUEST['sort'] === 'real_name' && !isset($_REQUEST['desc'])) {
-			$first_offset = max(0, $_REQUEST['start'] - ($_REQUEST['start'] % $this->cache_step_size));
+			$first_offset = max(0, $start - ($start % $this->cache_step_size));
 
-			$second_offset = min($memberlist_cache['num_members'] - 1, ceil(($_REQUEST['start'] + Config::$modSettings['defaultMaxMembers']) / $this->cache_step_size) * $this->cache_step_size);
+			$second_offset = min($memberlist_cache['num_members'] - 1, ceil(($start + Config::$modSettings['defaultMaxMembers']) / $this->cache_step_size) * $this->cache_step_size);
 
 			$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 			$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];
@@ -385,14 +390,14 @@ class Memberlist implements ActionInterface
 
 		// Reverse sorting is a bit more complicated...
 		elseif ($use_cache && $_REQUEST['sort'] === 'real_name') {
-			$first_offset = max(0, floor(($memberlist_cache['num_members'] - Config::$modSettings['defaultMaxMembers'] - $_REQUEST['start']) / $this->cache_step_size) * $this->cache_step_size);
+			$first_offset = max(0, floor(($memberlist_cache['num_members'] - Config::$modSettings['defaultMaxMembers'] - $start) / $this->cache_step_size) * $this->cache_step_size);
 
-			$second_offset = min($memberlist_cache['num_members'] - 1, ceil(($memberlist_cache['num_members'] - $_REQUEST['start']) / $this->cache_step_size) * $this->cache_step_size);
+			$second_offset = min($memberlist_cache['num_members'] - 1, ceil(($memberlist_cache['num_members'] - $start) / $this->cache_step_size) * $this->cache_step_size);
 
 			$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 			$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];
 			$query_parameters['real_name_high'] = $memberlist_cache['index'][$second_offset];
-			$limit = $second_offset - ($memberlist_cache['num_members'] - $_REQUEST['start']) - ($second_offset > $memberlist_cache['num_members'] ? $this->cache_step_size - ($memberlist_cache['num_members'] % $this->cache_step_size) : 0);
+			$limit = $second_offset - ($memberlist_cache['num_members'] - $start) - ($second_offset > $memberlist_cache['num_members'] ? $this->cache_step_size - ($memberlist_cache['num_members'] % $this->cache_step_size) : 0);
 		}
 
 		$custom_fields_qry = '';
@@ -443,10 +448,11 @@ class Memberlist implements ActionInterface
 	 * - If variable 'search' is empty displays search dialog box, using the search sub template.
 	 * - Calls printRows to retrieve the results of the query.
 	 */
-	public function search()
+	public function search(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['mlist_search'];
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
+		$start = (int) $_REQUEST['start'];
 
 		// Can they search custom fields?
 		$request = Db::$db->query(
@@ -501,7 +507,7 @@ class Memberlist implements ActionInterface
 
 			// Build the column link / sort information.
 			foreach (Utils::$context['columns'] as $col => $column_details) {
-				Utils::$context['columns'][$col]['href'] = Config::$scripturl . '?action=mlist;sa=search;start=' . (int) $_REQUEST['start'] . ';sort=' . $col;
+				Utils::$context['columns'][$col]['href'] = Config::$scripturl . '?action=mlist;sa=search;start=' . $start . ';sort=' . $col;
 
 				if ((!isset($_REQUEST['desc']) && $col == $_REQUEST['sort']) || ($col != $_REQUEST['sort'] && !empty($column_details['default_sort_rev']))) {
 					Utils::$context['columns'][$col]['href'] .= ';desc';
@@ -592,9 +598,10 @@ class Memberlist implements ActionInterface
 				$query_parameters,
 			);
 			list($numResults) = Db::$db->fetch_row($request);
+			$numResults = (int) $numResults;
 			Db::$db->free_result($request);
 
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, Config::$modSettings['defaultMaxMembers']);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $start, $numResults, (int) Config::$modSettings['defaultMaxMembers']);
 
 			$custom_fields_qry = '';
 
@@ -617,7 +624,7 @@ class Memberlist implements ActionInterface
 				ORDER BY {raw:sort}
 				LIMIT {int:start}, {int:max}',
 				array_merge($query_parameters, [
-					'start' => $_REQUEST['start'],
+					'start' => $start,
 					'max' => Config::$modSettings['defaultMaxMembers'],
 				]),
 			);
@@ -668,9 +675,9 @@ class Memberlist implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -691,9 +698,9 @@ class Memberlist implements ActionInterface
 	 * Retrieves results of the request passed to it
 	 * Puts results of request into the context for the sub template.
 	 *
-	 * @param resource $request An SQL result resource
+	 * @param object $request An SQL result resource
 	 */
-	public static function printRows($request)
+	public static function printRows(object $request): void
 	{
 		// Get the most posts.
 		$result = Db::$db->query(
@@ -704,6 +711,7 @@ class Memberlist implements ActionInterface
 			],
 		);
 		list($most_posts) = Db::$db->fetch_row($result);
+		$most_posts = (int) $most_posts;
 		Db::$db->free_result($result);
 
 		// Avoid division by zero...
@@ -779,7 +787,7 @@ class Memberlist implements ActionInterface
 	 *
 	 * @return array An array of info about the custom fields for the member list
 	 */
-	public static function getCustFields()
+	public static function getCustFields(): array
 	{
 		$cpf = [];
 

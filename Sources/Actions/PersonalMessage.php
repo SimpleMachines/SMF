@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BrowserDetector;
@@ -258,12 +260,12 @@ class PersonalMessage implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -725,9 +727,9 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -812,7 +814,7 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * @param string $area The area we're currently in
 	 */
-	protected function createMenu($area): void
+	protected function createMenu(string $area): void
 	{
 		// Finalize string values in the menu.
 		array_walk_recursive(
@@ -822,10 +824,12 @@ class PersonalMessage implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-				]);
+				if (is_string($value)) {
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+					]);	
+				}
 			},
 		);
 
@@ -899,7 +903,7 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * Figures out the limit for how many PMs this user can have.
 	 */
-	protected function buildLimitBar()
+	protected function buildLimitBar(): void
 	{
 		if (User::$me->is_admin) {
 			return;
@@ -919,7 +923,7 @@ class PersonalMessage implements ActionInterface
 			list($maxMessage, $minMessage) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			$limit = $minMessage == 0 ? 0 : $maxMessage;
+			$limit = $minMessage == 0 ? 0 : (int) $maxMessage;
 
 			// Save us doing it again!
 			CacheApi::put('msgLimit:' . User::$me->id, $limit, 360);

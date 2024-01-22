@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -137,12 +139,12 @@ class Reports implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -292,7 +294,7 @@ class Reports implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Each board has it's own table.
-			$this->newTable($row['name'], '', 'left', 'auto', 'left', 200, 'left');
+			$this->newTable($row['name'], '', 'left', 'auto', 'left', '200', 'left');
 
 			$this_boardSettings = $boardSettings;
 
@@ -520,7 +522,7 @@ class Reports implements ActionInterface
 		// Now cycle through the board permissions array... lots to do ;)
 		foreach ($board_permissions as $board => $groups) {
 			// Create the table for this board first.
-			$this->newTable($boards[$board]['name'], 'x', 'all', 100, 'center', 200, 'left');
+			$this->newTable($boards[$board]['name'], 'x', 'all', '100', 'center', '200', 'left');
 
 			// Add the header row - shows all the membergroups.
 			$this->addData($member_groups);
@@ -634,7 +636,7 @@ class Reports implements ActionInterface
 		$this->setKeys('cols', $mgSettings);
 
 		// Only one table this time!
-		$this->newTable(Lang::$txt['gr_type_member_groups'], '-', 'all', 100, 'center', 200, 'left');
+		$this->newTable(Lang::$txt['gr_type_member_groups'], '-', 'all', '100', 'center', '200', 'left');
 
 		// Get the shaded column in.
 		$this->addData($mgSettings);
@@ -713,7 +715,7 @@ class Reports implements ActionInterface
 		$this->setKeys('rows', $groups);
 
 		// Create the table first.
-		$this->newTable(Lang::$txt['gr_type_group_perms'], '-', 'all', 100, 'center', 200, 'left');
+		$this->newTable(Lang::$txt['gr_type_group_perms'], '-', 'all', '100', 'center', '200', 'left');
 
 		// Show all the groups
 		$this->addData($groups);
@@ -907,7 +909,7 @@ class Reports implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Each member gets their own table!.
-			$this->newTable($row['real_name'], '', 'left', 'auto', 'left', 200, 'center');
+			$this->newTable($row['real_name'], '', 'left', 'auto', 'left', '200', 'center');
 
 			// First off, add in the side key.
 			$this->addData($staffSettings);
@@ -949,9 +951,9 @@ class Reports implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -1038,7 +1040,7 @@ class Reports implements ActionInterface
 	 * @param string $width_shaded The width of a shaded column (auto means not defined).
 	 * @param string $align_shaded The alignment of data in a shaded column.
 	 */
-	protected function newTable($title = '', $default_value = '', $shading = 'all', $width_normal = 'auto', $align_normal = 'center', $width_shaded = 'auto', $align_shaded = 'auto')
+	protected function newTable(string $title = '', string $default_value = '', string $shading = 'all', string $width_normal = 'auto', string $align_normal = 'center', string $width_shaded = 'auto', string $align_shaded = 'auto'): void
 	{
 		// Set the table count if needed.
 		if (empty($this->table_count)) {
@@ -1087,7 +1089,7 @@ class Reports implements ActionInterface
 	 * @param array $inc_data The data to include
 	 * @param null|string $custom_table = null The ID of a custom table to put the data in
 	 */
-	protected function addData($inc_data, $custom_table = null): void
+	protected function addData(array $inc_data, ?string $custom_table = null): void
 	{
 		// No tables? Create one even though we are probably already in a bad state!
 		if (empty($this->table_count)) {
@@ -1110,7 +1112,7 @@ class Reports implements ActionInterface
 				];
 
 				// Special "hack" the adding separators when doing data by column.
-				if (substr($key, 0, 5) == '#sep#') {
+				if (substr((string) $key, 0, 5) == '#sep#') {
 					$data[$key]['separator'] = true;
 				}
 			}
@@ -1147,7 +1149,7 @@ class Reports implements ActionInterface
 	 * @param string $title The title of the separator
 	 * @param null|string $custom_table The ID of the custom table
 	 */
-	protected function addSeparator($title = '', $custom_table = null)
+	protected function addSeparator(string $title = '', ?string $custom_table = null): void
 	{
 		// No tables - return?
 		if (empty($this->table_count)) {
@@ -1155,7 +1157,7 @@ class Reports implements ActionInterface
 		}
 
 		// Specific table?
-		if ($custom_table !== null && !isset($this->tables[$table])) {
+		if ($custom_table !== null && !isset($this->tables[$custom_table])) {
 			return;
 		}
 
@@ -1218,7 +1220,7 @@ class Reports implements ActionInterface
 	 * @param array $keys The keys
 	 * @param bool $reverse Whether we want to use the values as the keys
 	 */
-	protected function setKeys($method = 'rows', $keys = [], $reverse = false): void
+	protected function setKeys(string $method = 'rows', array $keys = [], bool $reverse = false): void
 	{
 		// Do we want to use the keys of the keys as the keys? :P
 		$this->keys = $reverse ? array_flip($keys) : $keys;

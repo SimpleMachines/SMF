@@ -293,13 +293,13 @@ class SubsPackage
 	 * Destination should not begin with a / if single_file is true.
 	 *
 	 * @param string $data ZIP data
-	 * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
+	 * @param ?string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
 	 * @param bool $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
 	 * @param bool $overwrite If true, will overwrite files with newer modification times. Default is false.
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
+	public static function read_zip_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
 	{
 		umask(0);
 
@@ -374,7 +374,7 @@ class SubsPackage
 				}
 				// If this is a file, and it doesn't exist.... happy days!
 				elseif ($is_file) {
-					$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
+					$write_this = !@file_exists($destination . '/' . $file_info['filename']) || $overwrite;
 				}
 				// This is a directory, so we're gonna want to create it. (probably...)
 				elseif (!$single_file) {
@@ -2933,8 +2933,6 @@ class SubsPackage
 	 *
 	 * @param string $id The name of the backup
 	 * @return bool True if it worked, false if it didn't
-	 * @suppress PHP0417
-	 *
 	 */
 	public static function package_create_backup(string $id = 'backup'): bool
 	{
@@ -3014,11 +3012,9 @@ class SubsPackage
 				$output_file .= $output_ext;
 			}
 
-			@set_time_limit(300);
+			Utils::sapiSetTimeLimit(300);
 
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Utils::sapiResetTimeout();
 
 			// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
 			set_error_handler(

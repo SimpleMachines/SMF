@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -29,6 +31,17 @@ class Warnings implements ActionInterface
 {
 	use BackwardCompatibility;
 
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var bool
+	 *
+	 * Currently enabled moderation settings.
+	 */
+	public static bool $currently_enabled;
+	
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -39,7 +52,7 @@ class Warnings implements ActionInterface
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -66,13 +79,13 @@ class Warnings implements ActionInterface
 
 			// Make sure these don't have an effect.
 			// todo: fix $currently_enabled
-			if (!$currently_enabled && empty($_POST['warning_enable'])) {
+			if (!self::$currently_enabled && empty($_POST['warning_enable'])) {
 				$_POST['warning_watch'] = 0;
 				$_POST['warning_moderate'] = 0;
 				$_POST['warning_mute'] = 0;
 			}
 			// If it was disabled and we're enabling it now, set some sane defaults.
-			elseif (!$currently_enabled && !empty($_POST['warning_enable'])) {
+			elseif (!self::$currently_enabled && !empty($_POST['warning_enable'])) {
 				// Need to add these, these weren't there before...
 				$vars = [
 					'warning_watch' => 10,
@@ -134,9 +147,9 @@ class Warnings implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -166,12 +179,14 @@ class Warnings implements ActionInterface
 		// We need the existing ones for this
 		list($currently_enabled, Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
 
+		self::$currently_enabled = (bool) $currently_enabled;
+
 		$config_vars = [
 			// Warning system?
 			'enable' => ['check', 'warning_enable'],
 		];
 
-		if (!empty(Config::$modSettings['warning_settings']) && $currently_enabled) {
+		if (!empty(Config::$modSettings['warning_settings']) && self::$currently_enabled) {
 			$config_vars += [
 				'',
 				[

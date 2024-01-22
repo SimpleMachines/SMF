@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\BBCodeParser;
@@ -66,12 +68,12 @@ class Register implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -310,7 +312,7 @@ class Register implements ActionInterface
 	/**
 	 * See if a username already exists.
 	 */
-	public function checkUsername()
+	public function checkUsername(): void
 	{
 		// This is XML!
 		Theme::loadTemplate('Xml');
@@ -333,9 +335,9 @@ class Register implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -357,7 +359,7 @@ class Register implements ActionInterface
 	 *
 	 * @param array $reg_errors Holds information about any errors that occurred.
 	 */
-	public static function register($reg_errors = []): void
+	public static function register(array $reg_errors = []): void
 	{
 		self::load();
 		self::$obj->subaction = 'show';

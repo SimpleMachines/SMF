@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -55,9 +57,9 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -88,7 +90,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * For board and topic, make sure we have the necessary ID.
 	 */
-	protected function setId()
+	protected function setId(): void
 	{
 		if (empty(Topic::$topic_id)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
@@ -102,7 +104,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	 *
 	 * sa=on/off is used for email subscribe/unsubscribe links.
 	 */
-	protected function saToMode()
+	protected function saToMode(): void
 	{
 		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : -1;
@@ -113,7 +115,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Sets any additional data needed for the ask template.
 	 */
-	protected function askTemplateData()
+	protected function askTemplateData(): void
 	{
 		Utils::$context[$this->type . '_href'] = Config::$scripturl . '?' . $this->type . '=' . $this->id . '.' . ($_REQUEST['start'] ?? 0);
 		Utils::$context['start'] = $_REQUEST['start'] ?? 0;
@@ -122,7 +124,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Updates the notification preference in the database.
 	 */
-	protected function changePref()
+	protected function changePref(): void
 	{
 		$this->setAlertPref();
 
@@ -135,7 +137,7 @@ class NotifyTopic extends Notify implements ActionInterface
 			[
 				'column' => 'id_' . $this->type,
 				'id' => $this->id,
-				'member' => $this->member_info['id'],
+				'member' => self::$member_info['id'],
 			],
 		);
 		$log = Db::$db->fetch_assoc($request);
@@ -144,7 +146,7 @@ class NotifyTopic extends Notify implements ActionInterface
 		if (empty($log)) {
 			$insert = true;
 			$log = [
-				'id_member' => $this->member_info['id'],
+				'id_member' => self::$member_info['id'],
 				'id_topic' => $this->id,
 				'id_msg' => 0,
 				'unwatched' => (int) ($this->mode === parent::MODE_IGNORE),
@@ -170,9 +172,9 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Gets the success message to display.
 	 */
-	protected function getSuccessMsg()
+	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 }
 
