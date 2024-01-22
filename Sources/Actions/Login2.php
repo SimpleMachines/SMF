@@ -522,8 +522,7 @@ class Login2 implements ActionInterface
 		$other_passwords = [];
 
 		// SMF 1.1 and 2.0 password styles.
-		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40)
-		{
+		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
 			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
 			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
@@ -543,11 +542,9 @@ class Login2 implements ActionInterface
 		}
 
 		// None of the below cases will be used most of the time (because the salt is normally set.)
-		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '')
-		{
+		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
 			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
-			switch (strlen(User::$profiles[User::$my_id]['passwd']))
-			{
+			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
 				case 13:
 					$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
 					$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
@@ -585,10 +582,8 @@ class Login2 implements ActionInterface
 			$other_passwords[] = $_POST['passwrd'];
 		}
 		// If the salt is set let's try some other options
-		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '')
-		{
-			switch (strlen(User::$profiles[User::$my_id]['passwd']))
-			{
+		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
+			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
 				case 32:
 					// MyBB
 					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
