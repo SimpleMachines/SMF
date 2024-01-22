@@ -647,7 +647,7 @@ class Alert implements \ArrayAccess
 
 		foreach ($members as $memID) {
 			foreach (['checkMsgAccess' => 'possible_msgs', 'checkTopicAccess' => 'possible_topics'] as $method => $variable) {
-				$visibility = self::$method(${$variable}[$memID] ?? [], $memID, true);
+				$visibility = self::$method(${$variable}[$memID] ?? [], (int) $memID, true);
 
 				if (!empty($visibility)) {
 					foreach ($props_batch as &$props) {
@@ -672,8 +672,8 @@ class Alert implements \ArrayAccess
 			$inserts[$alert->id] = [
 				$alert->timestamp,
 				$alert->member,
-				$alert->member_started,
-				$alert->member_name,
+				isset($alert->member_started) ? $alert->member_started : 0,
+				isset($alert->member_name) ? $alert->member_name : '',
 				$alert->content_type,
 				$alert->content_id,
 				$alert->content_action,
