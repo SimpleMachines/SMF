@@ -640,7 +640,10 @@ class Membergroups implements ActionInterface
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
-		@list($group) = Group::load($_REQUEST['group']);
+		$groups = Group::load((int) $_REQUEST['group']);
+
+		/** @var \SMF\Group $group */
+		$group = array_shift($groups);
 
 		if (!isset($group) || !($group instanceof Group)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
