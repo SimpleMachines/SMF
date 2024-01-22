@@ -2816,6 +2816,9 @@ class User implements \ArrayAccess
 		// Set a nice default var.
 		$image = '';
 
+		// Make this a string for now. SMF will convert it (back) to a Url object later if needed.
+		$data['avatar'] ??= (string) $data['avatar'];
+
 		// Gravatar has been set as mandatory!
 		if (!empty(Config::$modSettings['gravatarEnabled']) && !empty(Config::$modSettings['gravatarOverride'])) {
 			if (!empty(Config::$modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://')) {
@@ -2829,7 +2832,7 @@ class User implements \ArrayAccess
 			// So it's stored in the member table?
 			if (!empty($data['avatar'])) {
 				// Gravatar.
-				if (stristr((string) $data['avatar'], 'gravatar://')) {
+				if (stristr($data['avatar'], 'gravatar://')) {
 					if ($data['avatar'] == 'gravatar://') {
 						$image = self::getGravatarUrl($data['email']);
 					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
