@@ -1018,7 +1018,7 @@ class Group implements \ArrayAccess
 		$set_primary = [];
 		$set_additional = [];
 
-		/** @var \SMF\User $member */
+		/* @var \SMF\User $member */
 		foreach ($members as $key => $id_member) {
 
 			// Forcing primary.
@@ -1195,7 +1195,7 @@ class Group implements \ArrayAccess
 
 		// Load the user info for the members being removed.
 		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
-		$members = array_map(function (\SMF\User $mem){
+		$members = array_map(function (\SMF\User $mem) {
 			return $mem->id;
 		}, $members);
 

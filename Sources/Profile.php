@@ -1390,7 +1390,7 @@ class Profile extends User implements \ArrayAccess
 				'can_be_primary' => true,
 			],
 		];
-	
+
 		// Do not use array merge here, does not maintain key association.
 		Utils::$context['member_groups'] += $this->assignable_groups;
 

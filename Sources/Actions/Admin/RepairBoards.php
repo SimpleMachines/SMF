@@ -1312,7 +1312,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing topics.
-	 * 
+	 *
 	 * @param array $row Message with missing topic.
 	 */
 	protected function fixMissingTopics(array $row): void
@@ -1384,7 +1384,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove all topics that have zero messages in the messages table.
-	 * 
+	 *
 	 * @param array $topics An array of topic ids.
 	 */
 	protected function fixMissingMessages(array $topics): void
@@ -1410,7 +1410,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing poll options.
-	 * 
+	 *
 	 * @param array $row Message with missing topic.
 	 */
 	protected function fixMissingPollOptions(array $row): void
@@ -1537,7 +1537,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix polls that have no topic.
-	 * 
+	 *
 	 * @param array $row Message with missing topic.
 	 */
 	protected function fixMissingPollTopics(array $row): void
@@ -1627,7 +1627,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing first and last message IDs for a topic.
-	 * 
+	 *
 	 * @param array $row Topic data.
 	 */
 	protected function fixTopicStats(array $row): bool
@@ -1667,7 +1667,7 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to get a message about missing first and last message IDs for a
 	 * topic.
-	 * 
+	 *
 	 * @param array $row Topic data.
 	 */
 	protected function topicStatsMessage(array $row): bool
@@ -1694,7 +1694,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix the recorded number of replies to a topic.
-	 * 
+	 *
 	 * @param array $row Topic data.
 	 */
 	protected function fixTopicStats2(array $row): bool
@@ -1723,7 +1723,7 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to get a message about an incorrect record of the number of
 	 * replies to a topic.
-	 * 
+	 *
 	 * @param array $row Topic data.
 	 */
 	protected function topicStatsMessage2(array $row): bool
@@ -1742,7 +1742,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix the recorded number of unapproved replies to a topic.
-	 * 
+	 *
 	 * @param array $row Topic data.
 	 */
 	protected function fixTopicStats3(array $row): void
@@ -1763,7 +1763,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to give a home to topics that have no board.
-	 * 
+	 *
 	 * @param array $row Topic data.
 	 */
 	protected function fixMissingBoards(array $row): void
@@ -1806,7 +1806,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to give a home to boards that have no category.
-	 * 
+	 *
 	 * @param array $cats An array of missing Categories.
 	 */
 	protected function fixMissingCategories(array $cats): void
@@ -1827,7 +1827,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to give an author to messages that don't have one.
-	 * 
+	 *
 	 * @param array $msgs An array of messages.
 	 */
 	protected function fixMissingPosters(array $msgs): void
@@ -1846,7 +1846,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to let our salvage board adopt orphaned child boards.
-	 * 
+	 *
 	 * @param array $parents An array of board ids.
 	 */
 	protected function fixMissingParents(array $parents): void
@@ -1869,7 +1869,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove non-existent polls from topics.
-	 * 
+	 *
 	 * @param array $polls An array of poll ids.
 	 */
 	protected function fixMissingPolls(array $polls): void
@@ -1887,7 +1887,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove broken links to topics from calendar events.
-	 * 
+	 *
 	 * @param array $events An array of topic ids.
 	 */
 	protected function fixMissingCaledarTopics(array $events): void
@@ -1905,7 +1905,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_topics entries for non-existent topics.
-	 * 
+	 *
 	 * @param array $topics An array of topic ids.
 	 */
 	protected function fixMissingLogTopics(array $topics): void
@@ -1922,7 +1922,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_topics entries for non-existent members.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixMissingLogTopicsMembers(array $members): void
@@ -1939,7 +1939,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_boards entries for non-existent boards.
-	 * 
+	 *
 	 * @param array $boards An array of board ids.
 	 */
 	protected function fixMissingLogBoards(array $boards): void
@@ -1956,7 +1956,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_boards entries for non-existent members.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixMissingLogBoardsMembers(array $members): void
@@ -1973,7 +1973,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_mark_read entries for non-existent boards.
-	 * 
+	 *
 	 * @param array $boards An array of board ids.
 	 */
 	protected function fixMissingLogMarkRead(array $boards): void
@@ -1990,7 +1990,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_mark_read entries for non-existent members.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixMissingLogMarkReadMembers(array $members): void
@@ -2008,7 +2008,7 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to remove non-existent personal messages from the recipients'
 	 * inboxes.
-	 * 
+	 *
 	 * @param array $pms An array of personal message ids.
 	 */
 	protected function fixMissingPMs(array $pms): void
@@ -2025,7 +2025,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove non-existent recipients from personal messages.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixMissingRecipients(array $members): void
@@ -2043,7 +2043,7 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to fix the assigned authorship of PMs from non-existent senders.
 	 * Specifically, such PMs will be shown to have been sent from a guest.
-	 * 
+	 *
 	 * @param array $guestMessages An array of personal messages ids.
 	 */
 	protected function fixMissingSenders(array $guestMessages): void
@@ -2061,7 +2061,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_notify entries for non-existent members.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixMissingNotifyMembers(array $members): void
@@ -2078,7 +2078,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to fix missing log_search_subjects entries for a topic.
-	 * 
+	 *
 	 * @param array $result Search result id
 	 */
 	protected function fixMissingCachedSubject(array $result): void
@@ -2117,7 +2117,7 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to get a message about missing log_search_subjects entries for a
 	 * topic.
-	 * 
+	 *
 	 * @param array $row Search result id
 	 */
 	protected function missingCachedSubjectMessage(array $row): bool
@@ -2133,7 +2133,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove log_search_subjects entries for non-existent topics.
-	 * 
+	 *
 	 * @param array $deleteTopics An array of topic ids.
 	 */
 	protected function fixMissingTopicForCache(array $deleteTopics): void
@@ -2150,7 +2150,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove poll votes made by non-existent members.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixMissingMemberVote(array $members): void
@@ -2167,7 +2167,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove poll votes made in non-existent polls.
-	 * 
+	 *
 	 * @param array $polls An array of poll ids.
 	 */
 	protected function fixMissingLogPollVote(array $polls): void
@@ -2184,7 +2184,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove non-existent comments from reports.
-	 * 
+	 *
 	 * @param array $reports An array of report ids.
 	 */
 	protected function fixReportMissingComments(array $reports): void
@@ -2201,7 +2201,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove comments made on non-existent reports.
-	 * 
+	 *
 	 * @param array $reports An array of report ids.
 	 */
 	protected function fixCommentMissingReport(array $reports): void
@@ -2218,7 +2218,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove requests to join a group made by non-existent members.
-	 * 
+	 *
 	 * @param array $members An array of member ids.
 	 */
 	protected function fixGroupRequestMissingMember(array $members): void
@@ -2235,7 +2235,7 @@ class RepairBoards implements ActionInterface
 
 	/**
 	 * Callback to remove requests to join non-existent groups.
-	 * 
+	 *
 	 * @param array $groups An array of group ids.
 	 */
 	protected function fixGroupRequestMissingGroup(array $groups): void

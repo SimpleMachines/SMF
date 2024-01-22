@@ -519,6 +519,7 @@ class Groups implements ActionInterface
 						$groups = Group::load((int) $group_id);
 
 						$result = false;
+
 						/** @var \SMF\Group $group */
 						if ($groups != [] && ($group = $groups[$group_id]) && $group instanceof Group) {
 							$result = $group->addMembers($members);

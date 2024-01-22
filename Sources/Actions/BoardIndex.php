@@ -419,7 +419,7 @@ class BoardIndex implements ActionInterface
 				}
 
 				// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
-				/** @var \SMF\Category $category */
+				/* @var \SMF\Category $category */
 				if (empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $row_board['id_board']) {
 					$category->new = $category->new || empty($row_board['is_read']);
 				}

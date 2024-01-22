@@ -155,7 +155,7 @@ class Server implements ActionInterface
 	 */
 	public static bool $diskspace_disabled = false;
 
-	
+
 	/****************************
 	 * Internal static properties
 	 ****************************/

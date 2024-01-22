@@ -239,7 +239,7 @@ class AutoSuggest implements ActionInterface
 		}
 
 		$row = Db::$db->fetch_assoc($request);
-		
+
 		if (!empty($row['data'])) {
 			// The file can have either Windows or Linux line endings, but let's
 			// ensure we clean it as best we can.

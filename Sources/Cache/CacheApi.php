@@ -602,11 +602,14 @@ abstract class CacheApi
 
 		if (empty($value)) {
 			return null;
-		} else if (is_string($value)) {
-			return Utils::jsonDecode($value, true);
-		} else {
-			return $value;
 		}
+
+		if (is_string($value)) {
+			return Utils::jsonDecode($value, true);
+		}
+
+			return $value;
+
 	}
 }
 

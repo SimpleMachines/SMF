@@ -493,6 +493,7 @@ class TopicMerge implements ActionInterface
 		);
 
 		$num_replies = 0;
+
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If this is approved, or is fully unapproved.
 			if ($row['approved'] || !empty($first_msg)) {

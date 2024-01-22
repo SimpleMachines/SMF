@@ -672,8 +672,8 @@ class Alert implements \ArrayAccess
 			$inserts[$alert->id] = [
 				$alert->timestamp,
 				$alert->member,
-				isset($alert->member_started) ? $alert->member_started : 0,
-				isset($alert->member_name) ? $alert->member_name : '',
+				$alert->member_started ?? 0,
+				$alert->member_name ?? '',
 				$alert->content_type,
 				$alert->content_id,
 				$alert->content_action,

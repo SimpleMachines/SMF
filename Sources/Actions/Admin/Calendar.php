@@ -246,7 +246,7 @@ class Calendar implements ActionInterface
 					],
 				);
 			} else {
-				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d',mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']));
+				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']));
 
 				if (isset($_REQUEST['edit'])) {
 					Db::$db->query(
@@ -321,7 +321,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Last day for the drop down?
-		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : (int) Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? (int)Utils::$context['holiday']['year'] + 1 : (int) Utils::$context['holiday']['year']));
+		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : (int) Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? (int) Utils::$context['holiday']['year'] + 1 : (int) Utils::$context['holiday']['year']));
 	}
 
 	/**

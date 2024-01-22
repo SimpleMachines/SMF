@@ -170,6 +170,7 @@ class TopicRemove implements ActionInterface
 		}
 
 		ErrorHandler::fatalLang('post_already_deleted', false, [$confirm_url]);
+
 		return false;
 	}
 

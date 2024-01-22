@@ -899,7 +899,7 @@ class Subscriptions implements ActionInterface
 				0,
 				(int) $_POST['month'],
 				(int) $_POST['day'],
-				(int) $_POST['year']
+				(int) $_POST['year'],
 			);
 
 			$endtime = mktime(
@@ -908,7 +908,7 @@ class Subscriptions implements ActionInterface
 				0,
 				(int) $_POST['monthend'],
 				(int) $_POST['dayend'],
-				(int) $_POST['yearend']
+				(int) $_POST['yearend'],
 			);
 
 			// Status.

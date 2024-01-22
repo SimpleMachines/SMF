@@ -828,7 +828,7 @@ class PersonalMessage implements ActionInterface
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
-					]);	
+					]);
 				}
 			},
 		);
