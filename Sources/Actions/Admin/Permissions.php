@@ -3453,6 +3453,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Provide a practical way to modify permissions.
+		$permissions_by_scope['membergroup'] = &$permissions_by_scope['global'];
 		IntegrationHook::call('integrate_load_permissions', [&self::$permission_groups, &$permissions_by_scope, &self::$left_permission_groups, &$hidden_permissions, &$relabel_permissions]);
 
 		// If the hook made changes, sync them back to our master list.
