@@ -2470,7 +2470,7 @@ class Permissions implements ActionInterface
 			];
 		}
 
-		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), (int) $_REQUEST['pid'] ?? null);
+		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : null);
 	}
 
 	/**
