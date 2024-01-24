@@ -5,9 +5,7 @@ Settings.php
 Settings_bak.php
 Settings_org.php
 db_last_error.php
-cache/data*.php
-cache/data*.cache
-cache/*.db3
+cache/*
 Packages/backups/*
 Packages/temp
 *.*~
