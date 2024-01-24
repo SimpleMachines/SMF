@@ -336,7 +336,7 @@ class ErrorHandler
 		}
 
 		// Send a custom header if we have a custom message.
-		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax'])) {
+		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
 			header('X-SMF-errormsg: ' . $error_message);
 		}
 
