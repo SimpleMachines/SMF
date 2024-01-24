@@ -263,7 +263,7 @@ class Server implements ActionInterface
 
 			// Ensure all URLs are aligned with the new force_ssl setting
 			// Treat unset like 0
-			$this->alignURLsWithSSLSetting((int) $_POST['force_ssl'] ?? 0);
+			$this->alignURLsWithSSLSetting((int) ($_POST['force_ssl'] ?? 0));
 
 			ACP::saveSettings($config_vars);
 			$_SESSION['adm-save'] = true;

@@ -874,8 +874,8 @@ class Unread implements ActionInterface
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$this->num_topics = (int) $num_topics ?? 0;
-		$this->min_message = (int) $min_message ?? 0;
+		$this->num_topics = (int) ($num_topics ?? 0);
+		$this->min_message = (int) ($min_message ?? 0);
 
 		if ($this->num_topics == 0) {
 			$this->setNoTopics();

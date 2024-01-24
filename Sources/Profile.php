@@ -2800,8 +2800,8 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Check whether the image is too large.
-		$max_width = (int) Config::$modSettings['avatar_max_width_external'] ?? 0;
-		$max_height = (int) Config::$modSettings['avatar_max_height_external'] ?? 0;
+		$max_width = (int) (Config::$modSettings['avatar_max_width_external'] ?? 0);
+		$max_height = (int) (Config::$modSettings['avatar_max_height_external'] ?? 0);
 
 		if ($image->shouldResize($max_width, $max_height)) {
 			// Try to resize it, unless the admin disabled resizing.
