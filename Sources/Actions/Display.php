@@ -899,7 +899,7 @@ class Display implements ActionInterface
 	}
 
 	/**
-	 * Prepares contextual info about the modertors of this board.
+	 * Prepares contextual info about the moderators of this board.
 	 */
 	protected function setModerators(): void
 	{

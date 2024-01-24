@@ -482,7 +482,7 @@ function template_body_below()
  */
 function template_html_below()
 {
-	// Load in any javascipt that could be deferred to the end of the page
+	// Load in any javascript that could be deferred to the end of the page
 	Theme::template_javascript(true);
 
 	echo '

@@ -38,7 +38,7 @@ class IP implements \Stringable
 		// OpenDNS
 		'208.67.222.222',
 		'208.67.220.220',
-		// CloudFare
+		// CloudFlare
 		'1.1.1.1',
 		'1.0.0.1',
 	];
@@ -211,7 +211,7 @@ class IP implements \Stringable
 	 ***********************/
 
 	/**
-	 * Convenience wrapper for constuctor.
+	 * Convenience wrapper for constructor.
 	 *
 	 * This is just syntactical sugar to ease method chaining.
 	 *
@@ -240,7 +240,7 @@ class IP implements \Stringable
 	 *    '1.2.3.4' -> array('low' => '1.2.3.4', 'high' => '1.2.3.4')
 	 *
 	 *  - If $addr is one IP address with wildcards, the return value will
-	 *    contain the minimum and maxium values possible with those wildcards.
+	 *    contain the minimum and maximum values possible with those wildcards.
 	 *
 	 *    Examples:
 	 *

@@ -45,7 +45,7 @@ class UpdateUnicode extends BackgroundTask
 	public $temp_dir = '';
 
 	/**
-	 * @var string Convenince alias of Config::$sourcedir . '/Unicode'.
+	 * @var string Convenience alias of Config::$sourcedir . '/Unicode'.
 	 */
 	public $unicodedir = '';
 
@@ -774,7 +774,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Builds complete code for the specified element in $this->funcs
 	 * to be inserted into the relevant PHP file. Also builds a regex
-	 * to check whether a copy of the the function is already present
+	 * to check whether a copy of the function is already present
 	 * in the file.
 	 *
 	 * @param string|int $func_name Key of an element in $this->funcs.  If an int is provided, it is considered raw code such as a header, and does not replace a function in the file.

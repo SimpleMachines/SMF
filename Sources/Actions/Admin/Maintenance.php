@@ -130,7 +130,7 @@ class Maintenance implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -879,7 +879,7 @@ class Maintenance implements ActionInterface
 	}
 
 	/**
-	 * Empties all uninmportant logs
+	 * Empties all unimportant logs
 	 */
 	public function emptyLogs(): void
 	{
@@ -1303,7 +1303,7 @@ class Maintenance implements ActionInterface
 				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'text']);
 			}
 
-			// 3rd party integrations may be interested in knowning about this.
+			// 3rd party integrations may be interested in knowing about this.
 			IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
 
 			$colData = Db::$db->list_columns('{db_prefix}messages', true);

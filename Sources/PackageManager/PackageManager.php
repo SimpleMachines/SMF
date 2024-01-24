@@ -1819,7 +1819,7 @@ class PackageManager
 	 */
 	public function permissions(): void
 	{
-		// Let's try and be good, yes?
+		// Let's try to be good, yes?
 		User::$me->checkSession('get');
 
 		// If we're restoring permissions this is just a pass through really.
@@ -2557,7 +2557,7 @@ class PackageManager
 			$_GET['package'] = $url . '/packages.xml?language=' . User::$me->language;
 		}
 
-		// Check to be sure the packages.xml file actually exists where it is should be... or dump out.
+		// Check to be sure the packages.xml file actually exists where it should be... or dump out.
 		if ((isset($_GET['absolute']) || isset($_GET['relative'])) && !SubsPackage::url_exists($_GET['package'])) {
 			ErrorHandler::fatalLang('packageget_unable', false, [$url . '/index.php']);
 		}

@@ -250,7 +250,7 @@ abstract class SearchApi implements SearchApiInterface
 	 *
 	 * The loaded search API.
 	 *
-	 * For backward compatibilty, also referenced as global $searchAPI.
+	 * For backward compatibility, also referenced as global $searchAPI.
 	 */
 	public static $loadedApi;
 
@@ -1472,7 +1472,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function searchSubjectOnly(): void
 	{
-		// We do this to try and avoid duplicate keys on databases not supporting INSERT IGNORE.
+		// We do this to try to avoid duplicate keys on databases not supporting INSERT IGNORE.
 		$inserts = [];
 
 		foreach ($this->searchWords as $orIndex => $words) {

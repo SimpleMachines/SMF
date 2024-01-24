@@ -86,7 +86,7 @@ class Search implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -574,7 +574,7 @@ class Search implements ActionInterface
 					Config::updateModSettings(['search_index' => '']);
 				}
 
-				// Don't let simultanious processes be updating the search index.
+				// Don't let simultaneous processes be updating the search index.
 				if (!empty(Config::$modSettings['search_custom_index_config'])) {
 					Config::updateModSettings(['search_custom_index_config' => '']);
 				}

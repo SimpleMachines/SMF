@@ -666,7 +666,7 @@ class XmlArray
 	/**
 	 * Given an array, return the text from that array. (recursive and privately used.)
 	 *
-	 * @param null|array|string $array An aray of data
+	 * @param null|array|string $array An array of data
 	 * @return string The text from the array
 	 */
 	protected function _fetch(null|array|string $array): string

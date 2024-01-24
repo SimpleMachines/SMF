@@ -941,7 +941,7 @@ class Mail
 	 * @param resource $socket Socket to send on. Type hinting calls it 'mixed' as resource can not be used.
 	 * @param ?string $code The expected response code
 	 * @param string $response The response from the SMTP server
-	 * @return bool|string Whether it responded as such. Otherwise the response code is resturned.
+	 * @return bool|string Whether it responded as such. Otherwise the response code is returned.
 	 */
 	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool|string
 	{

@@ -49,7 +49,7 @@ class GroupMembership implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -232,7 +232,7 @@ class GroupMembership implements ActionInterface
 					if (Profile::$member->group_id == 0 && $can_edit_primary && !empty($new_group_info['can_be_primary'])) {
 						$new_primary = $new_group_id;
 					}
-					// Otherwise, make it an addtional group.
+					// Otherwise, make it an additional group.
 					else {
 						$new_additional_groups[] = $new_group_id;
 					}

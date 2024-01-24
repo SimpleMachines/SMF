@@ -31,7 +31,7 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * Shows group info and allows certain priviledged members to add/remove members.
+ * Shows group info and allows certain privileged members to add/remove members.
  */
 class Groups implements ActionInterface
 {
@@ -88,7 +88,7 @@ class Groups implements ActionInterface
 	 * @var object
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static object $obj;
 

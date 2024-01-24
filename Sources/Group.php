@@ -1551,7 +1551,7 @@ class Group implements \ArrayAccess
 		// This should never happen anyway, but a group can't be both allowed and denied.
 		$changed_boards['allow'] = array_diff($changed_boards['allow'], $changed_boards['deny']);
 
-		// Reset the group's existing access permssions.
+		// Reset the group's existing access permissions.
 		Db::$db->query(
 			'',
 			'DELETE FROM {db_prefix}board_permissions_view

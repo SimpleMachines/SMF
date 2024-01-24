@@ -111,7 +111,7 @@ class SubsPackage
 	 * - destination should not begin with a / if single_file is true.
 	 *
 	 * overwrites existing files with newer modification times if and only if overwrite is true.
-	 * creates the destination directory if it doesn't exist, and is is specified.
+	 * creates the destination directory if it doesn't exist, and is specified.
 	 * requires zlib support be built into PHP.
 	 * returns an array of the files extracted.
 	 * if files_to_extract is not equal to null only extracts file within this array.
@@ -706,7 +706,7 @@ class SubsPackage
 			// Create the list for display.
 			new ItemList($listOptions);
 
-			// If we just restored permissions then whereever we are, we are now done and dusted.
+			// If we just restored permissions then wherever we are, we are now done and dusted.
 			if (!empty($_POST['restore_perms'])) {
 				Utils::obExit();
 			}

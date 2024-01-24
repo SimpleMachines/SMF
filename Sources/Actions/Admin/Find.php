@@ -97,7 +97,7 @@ class Find implements ActionInterface
 	 *
 	 * Load a lot of language files.
 	 *
-	 * MOD AUTHORS: If your mod uses it's own language file for its settings,
+	 * MOD AUTHORS: If your mod uses its own language file for its settings,
 	 * add the language file to this array via the integrate_admin_search hook.
 	 */
 	public array $language_files = [
@@ -148,7 +148,7 @@ class Find implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 

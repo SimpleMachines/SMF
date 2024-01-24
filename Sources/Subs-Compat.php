@@ -42,7 +42,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * the startup process and that contained many utility functions. Everything
 	 * else assumed that those functions were available. Subs.php went the way of
 	 * the dodo in SMF 3.0 after all its functions were migrated elsewhere, but
-	 * mods that rely on backward compatibilty support will still expect all those
+	 * mods that rely on backward compatibility support will still expect all those
 	 * functions to be available.
 	 */
 

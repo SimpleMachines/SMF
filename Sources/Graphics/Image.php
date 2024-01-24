@@ -570,7 +570,7 @@ class Image
 		// Determine the memory requirements for this image. If you want to use
 		// an image formula W x H x bits/8 x channels x Overhead factor you will
 		// need to account for single bit images as GD expands them to an 8 bit
-		// and will greatly overun the calculated value.  The 5 is simply a
+		// and will greatly overrun the calculated value.  The 5 is simply a
 		// shortcut of 8bpp, 3 channels, 1.66 overhead.
 		$needed_memory = ($sizes[0] * $sizes[1] * 5);
 
@@ -1095,7 +1095,7 @@ class Image
 	}
 
 	/**
-	 * Resizes an image using the GD extesion.
+	 * Resizes an image using the GD extension.
 	 *
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
@@ -1198,7 +1198,7 @@ class Image
 	}
 
 	/**
-	 * Resizes an image using the imagick extesion.
+	 * Resizes an image using the imagick extension.
 	 *
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
