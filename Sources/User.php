@@ -935,7 +935,7 @@ class User implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		if (in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && is_string($value)) {
-			$prop = (string) $this->prop_aliases[$prop] ?? $prop;
+			$prop = (string) ($this->prop_aliases[$prop] ?? $prop);
 			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 		}
 

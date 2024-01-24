@@ -3225,7 +3225,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	): array|bool {
 		return PackageManager\SubsPackage::read_tgz_file(
 			$gzfilename,
-			(string) $destination ?? null,
+			isset($destination) ? (string) $destination : null,
 			$single_file,
 			$overwrite,
 			$files_to_extract,
