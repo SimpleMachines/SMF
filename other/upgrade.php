@@ -540,14 +540,14 @@ function load_lang_file()
 	$lang_dir = Config::$languagesdir;
 
 	// Override the language file?
-	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.' . $upcontext['language'] . '.php')) {
-		$_SESSION['upgrader_langfile'] = $upcontext['language'] . '/Install.' . $upcontext['language'] . '.php';
-	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.' . $upcontext['lang'] . '.php')) {
-		$_SESSION['upgrader_langfile'] = $upcontext['lang'] . '/Install.' . $upcontext['lang'] . '.php';
-	} elseif (isset(Config::$language) && file_exists($lang_dir . '/' . Config::$language . '/Install.' . Config::$language . '.php')) {
-		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.' . Config::$language . '.php';
+	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
+		$_SESSION['upgrader_langfile'] = $upcontext['language'] . '/Install.php';
+	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.php')) {
+		$_SESSION['upgrader_langfile'] = $upcontext['lang'] . '/Install.php';
+	} elseif (isset(Config::$language) && file_exists($lang_dir . '/' . Config::$language . '/Install.php')) {
+		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.php';
 	} else {
-		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.en_US.php';
+		$_SESSION['upgrader_langfile'] = 'en_US/Install.php';
 	}
 
 	// Avoid pointless repetition

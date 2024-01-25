@@ -263,7 +263,7 @@ class Lang
 
 			// Keep track of what we're up to, soldier.
 			if (!empty(Config::$db_show_debug)) {
-				Utils::$context['debug']['language_files'][] = $file[2] . '.' . $file[1] . ' (' . (Config::$languagesdir == $file[0] ? 'Base' : basename(Theme::$current->settings['theme_url'] ?? 'unknown')) . ')';
+				Utils::$context['debug']['language_files'][] = $file[2] . '/' . $file[1] . ' (' . (Config::$languagesdir == $file[0] ? 'Base' : basename(Theme::$current->settings['theme_url'] ?? 'unknown')) . ')';
 			}
 
 			// Copyright can't be empty.
@@ -407,7 +407,7 @@ class Lang
 							// Set the language's name.
 							if (!empty($matchNative) && !empty($matchNative[1])) {
 								// Don't mislabel the language if the translator missed this one.
-								if ($entry !== 'en_US' && $matchNative[1] === 'English') {
+								if ($entry !== 'en_US' && $matchNative[1] === 'English (US)') {
 									break;
 								}
 
