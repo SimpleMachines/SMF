@@ -1563,7 +1563,9 @@ VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 
 
 INSERT INTO {$db_prefix}board_permissions_view
 	(id_group, id_board, deny)
-VALUES (-1,1,0), (0,1,0), (2,1,0);
+VALUES (-1, 1, 0),
+	(0, 1, 0),
+	(2, 1, 0);
 # --------------------------------------------------------
 
 #
@@ -1785,6 +1787,7 @@ VALUES ('Independence Day', '1004-07-04'),
 #
 
 INSERT INTO {$db_prefix}categories
+	(id_cat, cat_order, name, description, can_collapse)
 VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
@@ -1864,7 +1867,10 @@ VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.o
 
 INSERT INTO {$db_prefix}permission_profiles
 	(id_profile, profile_name)
-VALUES (1, 'default'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
+VALUES (1, 'default'),
+	(2, 'no_polls'),
+	(3, 'reply_only'),
+	(4, 'read_only');
 # --------------------------------------------------------
 
 #
