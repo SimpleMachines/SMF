@@ -1527,7 +1527,7 @@ function UpgradeOptions()
 	}
 
 	// If we're overriding the language follow it through.
-	if (isset($upcontext['lang']) && file_exists(Config::$languagesdir . '/index.' . $upcontext['lang'] . '.php')) {
+	if (isset($upcontext['lang']) && file_exists(Config::$languagesdir . '/' . $upcontext['lang'] . '/General.php')) {
 		$changes['language'] = $upcontext['lang'];
 	}
 
@@ -1600,8 +1600,9 @@ function UpgradeOptions()
 	}
 
 	// Languages have moved!
-	if (empty(Config::$languagesdir))
+	if (empty(Config::$languagesdir)) {
 		$changes['languagesdir'] = fixRelativePath(Config::$boarddir) . '/Languages';
+	}
 
 	// Add support for $tasksdir var.
 	if (empty(Config::$tasksdir)) {

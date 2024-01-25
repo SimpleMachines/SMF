@@ -248,7 +248,7 @@ class Registration implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
-			$backup_file = dirname($agreement_file) . '/' .(date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
+			$backup_file = dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
 
 			// Off it goes to the agreement file.
 			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
