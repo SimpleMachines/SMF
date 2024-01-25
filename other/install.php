@@ -333,12 +333,12 @@ function load_lang_file()
 		$dir = dir(Config::$languagesdir);
 
 		while ($entry = $dir->read()) {
-			if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.' . $entry . '.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'index.' . $entry . '.php')) {
+			if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
 				continue;
 			}
 
 			// Get the line we need.
-			$fp = @fopen($language_dir . '/' . $entry . '/' . 'index.' . $entry . '.php', 'r');
+			$fp = @fopen(Config::$languagesdir . '/' . $entry . '/' . 'General.php', 'r');
 
 			// Yay!
 			if ($fp)
@@ -354,7 +354,7 @@ function load_lang_file()
 					if (!empty($matchNative) && !empty($matchNative[1]))
 					{
 						// Don't mislabel the language if the translator missed this one.
-						if ($entry !== 'en_US' && $matchNative[1] === 'English')
+						if ($entry !== 'en_US' && $matchNative[1] === 'English (US)')
 							break;
 
 						$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
@@ -419,18 +419,18 @@ function load_lang_file()
 	}
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . '/' . $_SESSION['installer_temp_lang'])) {
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . '/' . $_SESSION['installer_temp_lang'] . '/Install.php')) {
 		// Use the first one...
 		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
-		if ($_SESSION['installer_temp_lang'] == 'Install.en_US.php' && count($incontext['detected_languages']) > 1) {
+		if ($_SESSION['installer_temp_lang'] == 'en_US' && count($incontext['detected_languages']) > 1) {
 			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 		}
 	}
 
 	// Which language are we loading? Assume that the admin likes that language.
-	Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
+	Config::$language = preg_replace('~^[A-Za-z0-9]+$~', '', $_SESSION['installer_temp_lang']);
 
 	// Ensure SMF\Lang knows the path to the language directory.
 	Lang::addDirs(Config::$languagesdir);
@@ -594,7 +594,7 @@ function CheckFilesWritable()
 		'Packages',
 		'Smileys',
 		'Themes',
-		'Languages/agreement.txt',
+		'Languages/en_US/agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
 		'cache/db_last_error.php',

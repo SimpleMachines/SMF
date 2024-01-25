@@ -231,6 +231,7 @@ $txt['upgrade_step_database'] = 'Database Changes';
 $txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
 $txt['upgrade_step_convertjson'] = 'Convert serialized strings to JSON';
 $txt['upgrade_step_delete'] = 'Delete Upgrade.php';
+$txt['upgrade_step_cleanup'] = 'Cleanup';
 
 $txt['upgrade_upgrade_utility'] = 'SMF Upgrade Utility';
 $txt['upgrade_warning'] = 'Warning!';
@@ -358,7 +359,7 @@ $txt['mmessage'] = 'Don\'t worry, your forum will be updated shortly. It will on
 // argument(s): template name (if applicable)
 $txt['error_unexpected_template_call'] = 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug.';
 $txt['error_invalid_template'] = 'Upgrade aborted!  Invalid template: template_%1$s';
-$txt['error_lang_index_missing'] = 'The upgrader was unable to find language files for the selected language, %1$s.<br>SMF will not work in this language without the language files installed.<br><br>Please either install them, or <a href="%2$s?step=0;lang=english">try English instead</a>.';
+$txt['error_lang_general_missing'] = 'The upgrader was unable to find language files for the selected language, %1$s.<br>SMF will not work in this language without the language files installed.<br><br>Please either install them, or <a href="%2$s?step=0;lang=en_US">try English instead</a>.';
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
 $txt['error_upgrade_old_lang_files'] = 'The upgrader found some old or outdated language files for the selected language, %1$s.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="%2$s?skiplang">SKIP</a>] [<a href="%2$s?lang=english">Try English</a>]';

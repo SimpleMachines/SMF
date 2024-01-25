@@ -1,5 +1,8 @@
 # SMF Generated Files #
 #######################
+/Languages/*
+!/Languages/index.php
+!/Languages/en_US/
 /Languages/en_US/agreement.txt
 Settings.php
 Settings_bak.php
