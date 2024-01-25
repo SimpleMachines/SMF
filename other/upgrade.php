@@ -1047,7 +1047,7 @@ function WelcomeLogin()
 	}
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/agreement.txt')) && !is_writable(Config::$languagesdir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/en_US/agreement.txt')) && !is_writable(Config::$languagesdir . '/en_US/agreement.txt')) {
 		return throw_error(Lang::$txt['error_agreement_not_writable']);
 	}
 
@@ -1368,14 +1368,14 @@ function checkLogin()
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
 			// Set the language to that of the user?
-			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$languagesdir . '/index.' . basename($user_language, '.lng') . '.php')) {
+			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
 				$user_language = basename($user_language, '.lng');
-				$temp = substr(@implode('', @file(Config::$languagesdir . '/index.' . $user_language . '.php')), 0, 4096);
-				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+				$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
-				} elseif (!file_exists(Config::$languagesdir . '/Install.' . $user_language . '.php')) {
+				} elseif (!file_exists(Config::$languagesdir . '/' . $user_language . 'Install.php')) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
 				} else {
 					// Set this as the new language.
