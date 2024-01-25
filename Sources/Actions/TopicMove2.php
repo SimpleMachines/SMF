@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -38,12 +40,12 @@ class TopicMove2 implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -317,9 +319,9 @@ class TopicMove2 implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -339,18 +341,18 @@ class TopicMove2 implements ActionInterface
 	/**
 	 * Called after a topic is moved to update $board_link and $topic_link to point to new location
 	 */
-	public static function moveTopicConcurrence()
+	public static function moveTopicConcurrence(): void
 	{
 		if (isset($_GET['current_board'])) {
 			$move_from = (int) $_GET['current_board'];
 		}
 
 		if (empty($move_from) || empty(Board::$info->id) || empty(Topic::$topic_id)) {
-			return true;
+			return;
 		}
 
 		if ($move_from == Board::$info->id) {
-			return true;
+			return;
 		}
 
 		$request = Db::$db->query(

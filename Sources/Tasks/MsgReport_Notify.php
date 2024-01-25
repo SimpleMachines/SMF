@@ -41,7 +41,7 @@ class MsgReport_Notify extends BackgroundTask
 	{
 		// We need to know who can moderate this board - and therefore who can see this report.
 		// First up, people who have moderate_board in the board this topic was in.
-		$members = User::membersAllowedTo('moderate_board', $this->_details['board_id']);
+		$members = User::membersAllowedTo('moderate_board', (int) $this->_details['board_id']);
 
 		// Second, anyone assigned to be a moderator of this board directly.
 		$request = Db::$db->query(
@@ -75,7 +75,7 @@ class MsgReport_Notify extends BackgroundTask
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$members[] = $row['id_member'];
+			$members[] = (int) $row['id_member'];
 		}
 		Db::$db->free_result($request);
 
@@ -110,12 +110,12 @@ class MsgReport_Notify extends BackgroundTask
 
 			foreach ($notifies['alert'] as $member) {
 				$insert_rows[] = [
-					'alert_time' => $this->_details['time'],
-					'id_member' => $member,
-					'id_member_started' => $this->_details['sender_id'],
+					'alert_time' => (int) $this->_details['time'],
+					'id_member' => (int) $member,
+					'id_member_started' => (int) $this->_details['sender_id'],
 					'member_name' => $this->_details['sender_name'],
 					'content_type' => 'msg',
-					'content_id' => $this->_details['msg_id'],
+					'content_id' => (int) $this->_details['msg_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
 					'extra' => Utils::jsonEncode(

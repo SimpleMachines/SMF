@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -46,11 +48,11 @@ class Reminder implements ActionInterface
 	 *********************/
 
 	/**
-	 * @var object
+	 * @var \SMF\User
 	 *
 	 * SMF\User object for the member.
 	 */
-	public object $member;
+	public User $member;
 
 	/**************************
 	 * Public static properties
@@ -74,12 +76,12 @@ class Reminder implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -100,7 +102,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Just shows the main template to ask for a more specific sub-action.
 	 */
-	public function main()
+	public function main(): void
 	{
 		SecurityToken::create('remind');
 	}
@@ -108,7 +110,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Allows the user to pick how they wish to be reminded.
 	 */
-	public function pickType()
+	public function pickType(): ?string
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind');
@@ -163,7 +165,7 @@ class Reminder implements ActionInterface
 			Utils::$context['sub_template'] = 'sent';
 
 			// Don't really.
-			return;
+			return null;
 		}
 
 		// Otherwise are ready to answer the question?
@@ -177,12 +179,14 @@ class Reminder implements ActionInterface
 			'id' => $this->member->id,
 			'name' => $this->member->username,
 		];
+
+		return null;
 	}
 
 	/**
 	 * Allows the user to set their new password.
 	 */
-	public function setPassword()
+	public function setPassword(): void
 	{
 		Lang::load('Login');
 
@@ -208,7 +212,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Actually sets the new password.
 	 */
-	public function setPassword2()
+	public function setPassword2(): void
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind-sp');
@@ -275,7 +279,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Allows the user to enter their secret answer.
 	 */
-	public function secretAnswerInput()
+	public function secretAnswerInput(): void
 	{
 		User::$me->checkSession();
 
@@ -305,7 +309,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Validates the secret answer input by the user.
 	 */
-	public function secretAnswer2()
+	public function secretAnswer2(): void
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind-sai');
@@ -397,9 +401,9 @@ class Reminder implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -439,7 +443,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Loads the requested member.
 	 */
-	protected function loadMember()
+	protected function loadMember(): void
 	{
 		$loaded = [];
 		$err_msg = 'username_no_exist';

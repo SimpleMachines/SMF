@@ -257,9 +257,10 @@ class Groups implements ActionInterface
 		}
 
 		// Load up the group details.
-		@list($group) = Group::load($_REQUEST['group']);
+		$groups = Group::load($_REQUEST['group']);
 
-		if (empty($group->id)) {
+		/** @var \SMF\Group $group */
+		if ($groups == [] || !($group = $groups[$_REQUEST['group']]) || empty($group->id)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
@@ -364,9 +365,10 @@ class Groups implements ActionInterface
 
 			// Do the updates...
 			if (!empty($members)) {
-				@list($group) = Group::load((int) $_REQUEST['group']);
+				$groups = Group::load((int) $_REQUEST['group']);
 
-				if ($group instanceof Group) {
+			/** @var \SMF\Group $group */
+			if ($groups != [] && ($group = $groups[(int) $_REQUEST['group']]) && $group instanceof Group) {
 					$group->addMembers($members, isset($_POST['additional']) ? 'only_additional' : 'auto', true);
 				}
 			}
@@ -514,10 +516,17 @@ class Groups implements ActionInterface
 
 				if (!empty($members_to_add)) {
 					foreach ($members_to_add as $group_id => $members) {
-						@list($group) = Group::load((int) $group_id);
+						$groups = Group::load((int) $group_id);
 
-						if ($group instanceof Group) {
-							$group->addMembers($members);
+						$result = false;
+
+						/** @var \SMF\Group $group */
+						if ($groups != [] && ($group = $groups[$group_id]) && $group instanceof Group) {
+							$result = $group->addMembers($members);
+						}
+
+						if (!$result) {
+							ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 						}
 					}
 				}
@@ -697,9 +706,9 @@ class Groups implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

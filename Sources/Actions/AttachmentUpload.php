@@ -105,20 +105,18 @@ class AttachmentUpload implements ActionInterface
 	protected $_sa = false;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static $obj;
+	protected static self $obj;
 
 	/**
 	 * Wrapper for constructor. Ensures only one instance is created.
 	 *
-	 * @todo Add a reference to Utils::$context['instances'] as well?
-	 *
-	 * @return An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -516,7 +514,7 @@ class AttachmentUpload implements ActionInterface
 	 *
 	 * @param array $data Data for the response if we're not adding an attachment
 	 */
-	protected function setResponse($data = []): void
+	protected function setResponse(array $data = []): void
 	{
 		// Some default values in case something is missed or neglected :P
 		$this->_response = [

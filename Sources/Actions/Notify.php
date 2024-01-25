@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -99,7 +101,7 @@ abstract class Notify
 	 * Information about the user whose notifications preferences are changing.
 	 * Will include ID number and email address.
 	 */
-	protected array $member_info;
+	protected static array $member_info;
 
 	/****************
 	 * Public methods
@@ -153,7 +155,7 @@ abstract class Notify
 	 * @param bool $process_default Whether to apply the default values to the members' values or not.
 	 * @return array An array of user ids => array (pref name -> value), with user id 0 representing the defaults
 	 */
-	public static function getNotifyPrefs($members, $prefs = '', $process_default = false)
+	public static function getNotifyPrefs(int|array $members, string|array $prefs = '', bool $process_default = false): array
 	{
 		// We want this as an array whether it is or not.
 		$members = array_map('intval', (array) $members);
@@ -205,7 +207,7 @@ abstract class Notify
 	 * @param int $memID The user whose preferences you are setting
 	 * @param array $prefs An array key of pref -> value
 	 */
-	public static function setNotifyPrefs($memID, $prefs = [])
+	public static function setNotifyPrefs(int $memID, array $prefs = []): void
 	{
 		if (empty($prefs) || !is_int($memID)) {
 			return;
@@ -232,7 +234,7 @@ abstract class Notify
 	 * @param int $memID The user whose preference you're setting
 	 * @param array $prefs The preferences to delete
 	 */
-	public static function deleteNotifyPrefs($memID, array $prefs)
+	public static function deleteNotifyPrefs(int $memID, array $prefs): void
 	{
 		if (empty($prefs) || empty($memID)) {
 			return;
@@ -256,7 +258,7 @@ abstract class Notify
 	 * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
 	 * @return array The id and email address of the specified member
 	 */
-	public static function getMemberWithToken($type)
+	public static function getMemberWithToken(string $type): array
 	{
 		// Keep it sanitary, folks
 		$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
@@ -281,11 +283,11 @@ abstract class Notify
 			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 		}
 		// todo: fix $this usage
-		$this->member_info = Db::$db->fetch_assoc($request);
+		self::$member_info = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
 		// What token are we expecting?
-		$expected_token = Notify::createUnsubscribeToken($this->member_info['id'], $this->member_info['email'], $type, in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
+		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
 
 		// Don't do anything if the token they gave is wrong
 		if ($_REQUEST['token'] !== $expected_token) {
@@ -293,7 +295,7 @@ abstract class Notify
 		}
 
 		// At this point, we know we have a legitimate unsubscribe request
-		return $this->member_info;
+		return self::$member_info;
 	}
 
 	/**
@@ -305,7 +307,7 @@ abstract class Notify
 	 * @param int $itemID The id of the notification item, if applicable.
 	 * @return string The unsubscribe token
 	 */
-	public static function createUnsubscribeToken($memID, $email, $type = '', $itemID = 0)
+	public static function createUnsubscribeToken(int $memID, string $email, string $type = '', int $itemID = 0): string
 	{
 		$token_items = implode(' ', [$memID, $email, $type, $itemID]);
 
@@ -324,38 +326,38 @@ abstract class Notify
 	 ******************/
 
 	/**
-	 * Sets $this->member_info with info about the member in question.
+	 * Sets self::$member_info with info about the member in question.
 	 */
-	protected function setMemberInfo()
+	protected function setMemberInfo(): void
 	{
 		if (isset($_REQUEST['u'], $_REQUEST['token'])) {
-			$this->member_info = self::getMemberWithToken($this->type);
+			self::$member_info = self::getMemberWithToken($this->type);
 			$this->token = $_REQUEST['token'];
 		}
 		// No token, so try with the current user.
 		else {
 			// Permissions are an important part of anything ;).
 			User::$me->kickIfGuest();
-			$this->member_info = (array) User::$me;
+			self::$member_info = (array) User::$me;
 		}
 	}
 
 	/**
 	 * For board and topic, make sure we have the necessary ID.
 	 */
-	abstract protected function setId();
+	abstract protected function setId(): void;
 
 	/**
 	 * Converts $_GET['sa'] to $_GET['mode'].
 	 *
 	 * sa=on/off is used for email subscribe/unsubscribe links.
 	 */
-	abstract protected function saToMode();
+	abstract protected function saToMode(): void;
 
 	/**
 	 * Sets $this->mode.
 	 */
-	protected function setMode()
+	protected function setMode(): void
 	{
 		$this->saToMode();
 
@@ -372,14 +374,14 @@ abstract class Notify
 	/**
 	 *
 	 */
-	protected function ask()
+	protected function ask(): void
 	{
 		Theme::loadTemplate('Notify');
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 
-		if ($this->member_info['id'] !== User::$me->id) {
+		if (self::$member_info['id'] !== User::$me->id) {
 			Utils::$context['notify_info'] = [
-				'u' => $this->member_info['id'],
+				'u' => self::$member_info['id'],
 				'token' => $_REQUEST['token'],
 			];
 		}
@@ -392,17 +394,17 @@ abstract class Notify
 	/**
 	 * Sets any additional data needed for the ask template.
 	 */
-	abstract protected function askTemplateData();
+	abstract protected function askTemplateData(): void;
 
 	/**
 	 * Updates the notification preference in the database.
 	 */
-	abstract protected function changePref();
+	abstract protected function changePref(): void;
 
 	/**
 	 * Sets $this->alert_pref.
 	 */
-	protected function setAlertPref()
+	protected function setAlertPref(): void
 	{
 		switch ($this->mode) {
 			case self::MODE_IGNORE:
@@ -422,7 +424,8 @@ abstract class Notify
 			// while leaving the alert preference unchanged.
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
-				$this->alert_pref = self::getNotifyPrefs($this->member_info['id'], [$this->type . '_notify_' . $this->id], true) & self::PREF_ALERT;
+				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
+				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_ALERT;
 				break;
 		}
 	}
@@ -430,9 +433,9 @@ abstract class Notify
 	/**
 	 * Updates notification preferences for the board or topic.
 	 */
-	protected function changeBoardTopicPref()
+	protected function changeBoardTopicPref(): void
 	{
-		self::setNotifyPrefs((int) $this->member_info['id'], [$this->type . '_notify_' . $this->id => $this->alert_pref]);
+		self::setNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id => $this->alert_pref]);
 
 		if ($this->alert_pref > self::PREF_NONE) {
 			$id_board = $this->type === 'board' ? $this->id : 0;
@@ -455,7 +458,7 @@ abstract class Notify
 				[
 					'column' => 'id_' . $this->type,
 					'id' => $this->id,
-					'member' => $this->member_info['id'],
+					'member' => self::$member_info['id'],
 				],
 			);
 		}
@@ -464,7 +467,7 @@ abstract class Notify
 	/**
 	 * Adds some stuff to Utils::$context for AJAX output.
 	 */
-	protected function prepareAjaxResponse()
+	protected function prepareAjaxResponse(): void
 	{
 		Utils::$context['xml_data']['errors'] = [
 			'identifier' => 'error',
@@ -481,7 +484,7 @@ abstract class Notify
 	/**
 	 * Shows a confirmation message.
 	 */
-	protected function showConfirmation()
+	protected function showConfirmation(): void
 	{
 		Theme::loadTemplate('Notify');
 		Utils::$context['page_title'] = Lang::$txt['notification'];

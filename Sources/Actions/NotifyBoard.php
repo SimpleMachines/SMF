@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Board;
@@ -40,12 +42,12 @@ class NotifyBoard extends Notify implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/***********************
 	 * Public static methods
@@ -54,9 +56,9 @@ class NotifyBoard extends Notify implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -87,7 +89,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	/**
 	 * For board and topic, make sure we have the necessary ID.
 	 */
-	protected function setId()
+	protected function setId(): void
 	{
 		if (empty(Board::$info->id)) {
 			ErrorHandler::fatalLang('no_board', false);
@@ -101,7 +103,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	 *
 	 * sa=on/off is used for email subscribe/unsubscribe links.
 	 */
-	protected function saToMode()
+	protected function saToMode(): void
 	{
 		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : -1;
@@ -112,7 +114,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	/**
 	 * Sets any additional data needed for the ask template.
 	 */
-	protected function askTemplateData()
+	protected function askTemplateData(): void
 	{
 		Utils::$context['sub_template'] = 'notify_board';
 
@@ -123,7 +125,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	/**
 	 * Updates the notification preference in the database.
 	 */
-	protected function changePref()
+	protected function changePref(): void
 	{
 		$this->setAlertPref();
 		$this->changeBoardTopicPref();
@@ -132,9 +134,9 @@ class NotifyBoard extends Notify implements ActionInterface
 	/**
 	 * Gets the success message to display.
 	 */
-	protected function getSuccessMsg()
+	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return sprintf(Lang::$txt['notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
 	}
 }
 

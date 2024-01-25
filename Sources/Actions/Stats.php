@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Cache\CacheApi;
@@ -34,12 +36,12 @@ class Stats implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -816,9 +818,9 @@ class Stats implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -853,7 +855,7 @@ class Stats implements ActionInterface
 	 * @param string $condition_string An SQL condition string
 	 * @param array $condition_parameters Parameters for $condition_string
 	 */
-	protected function getDailyStats($condition_string, $condition_parameters = [])
+	protected function getDailyStats(string $condition_string, array $condition_parameters = []): void
 	{
 		// Activity by day.
 		$days_result = Db::$db->query(

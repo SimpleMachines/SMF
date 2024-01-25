@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -94,12 +96,12 @@ class Tracking implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -623,9 +625,9 @@ class Tracking implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -652,7 +654,7 @@ class Tracking implements ActionInterface
 	 * @param array $where_vars An array of parameters for $where
 	 * @return array An array of information about the error messages
 	 */
-	public static function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars = []): array
+	public static function list_getUserErrors(int $start, int $items_per_page, string $sort, string $where, array $where_vars = []): array
 	{
 		// Get a list of error messages from this ip (range).
 		$error_messages = [];
@@ -697,7 +699,7 @@ class Tracking implements ActionInterface
 	 * @param array $where_vars The parameters for $where
 	 * @return int Number of user errors
 	 */
-	public static function list_getUserErrorCount($where, $where_vars = []): int
+	public static function list_getUserErrorCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
 			'',

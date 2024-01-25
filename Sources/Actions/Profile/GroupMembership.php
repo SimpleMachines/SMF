@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -44,12 +46,12 @@ class GroupMembership implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -106,6 +108,10 @@ class GroupMembership implements ActionInterface
 		$open_requests = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
+		$open_requests = array_map(function ($request) {
+			return (int) $request['id_group'];
+		}, $open_requests);
+
 		// Show the assignable groups in the templates.
 		foreach (Profile::$member->current_and_assignable_groups as $id => $group) {
 			// Skip "Regular Members" for now.
@@ -114,17 +120,17 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Are they in this group?
-			$member_or_available = in_array($id, Profile::$member->groups) ? 'member' : 'available';
+			$member_or_available = in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
 			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available') {
 				continue;
 			}
 
-			Utils::$context['groups'][$member_or_available][$id] = $group;
+			Utils::$context['groups'][$member_or_available][$group->id] = $group;
 
 			// Do they have a pending request to join this group?
-			Utils::$context['groups'][$member_or_available][$id]->pending = in_array($id, $open_requests);
+			Utils::$context['groups'][$member_or_available][$group->id]->pending = in_array($group->id, $open_requests);
 		}
 
 		// If needed, add "Regular Members" on the end.
@@ -261,9 +267,9 @@ class GroupMembership implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -288,7 +294,6 @@ class GroupMembership implements ActionInterface
 	 */
 	public static function groupMembership2(int $memID): string
 	{
-		// todo: fix return type
 		$u = $_REQUEST['u'] ?? null;
 		$_REQUEST['u'] = $memID;
 
@@ -302,6 +307,8 @@ class GroupMembership implements ActionInterface
 		self::$obj->execute();
 
 		Utils::$context['completed_save'] = $saving;
+
+		return self::$obj->change_type;
 	}
 
 	/******************

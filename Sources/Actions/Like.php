@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Alert;
@@ -73,7 +75,7 @@ class Like implements ActionInterface
 	 * Know if a request comes from an ajax call or not.
 	 * Depends on $_GET['js'] been set.
 	 */
-	protected $js = false;
+	protected bool $js = false;
 
 	/**
 	 * @var string
@@ -81,7 +83,7 @@ class Like implements ActionInterface
 	 * If filled, its value will contain a string matching a key
 	 * on a language var Lang::$txt[$this->error]
 	 */
-	protected $error = false;
+	protected ?string $error = null;
 
 	/**
 	 * @var string
@@ -89,36 +91,36 @@ class Like implements ActionInterface
 	 * The unique type to like, needs to be unique and it needs to be no longer
 	 * than 6 characters, only numbers and letters are allowed.
 	 */
-	protected $type = '';
+	protected string $type = '';
 
 	/**
-	 * @var string
+	 * @var string|bool
 	 *
 	 * A generic string used if you need to pass any extra info.
 	 * It gets set via $_GET['extra'].
 	 */
-	protected $extra = false;
+	protected string|bool $extra = false;
 
 	/**
 	 * @var int
 	 *
 	 * A valid ID to identify the content being liked.
 	 */
-	protected $content = 0;
+	protected int $content = 0;
 
 	/**
 	 * @var int
 	 *
 	 * The number of times the content has been liked.
 	 */
-	protected $num_likes = 0;
+	protected int $num_likes = 0;
 
 	/**
 	 * @var bool
 	 *
 	 * If the current user has already liked this content.
 	 */
-	protected $already_liked = false;
+	protected bool $already_liked = false;
 
 	/**
 	 * @var array
@@ -147,7 +149,7 @@ class Like implements ActionInterface
 	 * 'json'        bool        If true, the class will return a JSON object as
 	 *                           a response instead of HTML. Default: false.
 	 */
-	protected $valid_likes = [
+	protected array $valid_likes = [
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
@@ -161,7 +163,7 @@ class Like implements ActionInterface
 	 *
 	 * The topic ID. Used for liking messages.
 	 */
-	protected $id_topic = 0;
+	protected int $id_topic = 0;
 
 	/**
 	 * @var bool
@@ -171,25 +173,25 @@ class Like implements ActionInterface
 	 * If this is set to false it indicates the method already implemented
 	 * its own way to send back a response.
 	 */
-	protected $set_response = true;
+	protected bool $set_response = true;
 
 	/**
 	 * @var mixed
 	 *
 	 * Data for the response.
 	 */
-	protected $data;
+	protected mixed $data;
 
 	/****************************
 	 * Internal static properties
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -246,7 +248,7 @@ class Like implements ActionInterface
 	 * @return mixed Either return the property or false if there isn't a
 	 *    property with that name.
 	 */
-	public function get($property = ''): mixed
+	public function get(string $property = ''): mixed
 	{
 		return property_exists($this, $property) ? $this->$property : false;
 	}
@@ -258,9 +260,9 @@ class Like implements ActionInterface
 	/**
 	 * Wrapper for constructor. Ensures only one instance is created.
 	 *
-	 * @return An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -560,8 +562,10 @@ class Like implements ActionInterface
 				'like_type' => $this->type,
 			],
 		);
-		list($this->num_likes) = Db::$db->fetch_row($request);
+		list($likes) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
+
+		$this->num_likes = (int) $likes;
 
 		if ($this->subaction == __FUNCTION__) {
 			$this->data = $this->num_likes;
@@ -822,7 +826,7 @@ class Like implements ActionInterface
 	/**
 	 * What's this? I dunno, what are you talking about? Never seen this before, nope. No sir.
 	 */
-	public static function BookOfUnknown()
+	public static function BookOfUnknown(): void
 	{
 		echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>

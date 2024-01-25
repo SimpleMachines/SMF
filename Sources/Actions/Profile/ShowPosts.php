@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -72,12 +74,12 @@ class ShowPosts implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -388,9 +390,9 @@ class ShowPosts implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -495,7 +497,7 @@ class ShowPosts implements ActionInterface
 		list($unwatched_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $unwatched_count;
+		return (int) $unwatched_count;
 	}
 
 	/**
@@ -595,7 +597,7 @@ class ShowPosts implements ActionInterface
 		list($attach_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $attach_count;
+		return (int) $attach_count;
 	}
 
 	/******************
@@ -683,7 +685,7 @@ class ShowPosts implements ActionInterface
 	/**
 	 *
 	 */
-	protected function loadPosts($is_topics = false): void
+	protected function loadPosts(bool $is_topics = false): void
 	{
 		// Default to 10.
 		if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount'])) {
@@ -723,6 +725,7 @@ class ShowPosts implements ActionInterface
 			);
 		}
 		list($msg_count) = Db::$db->fetch_row($request);
+		$msg_count = (int) $msg_count;
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
@@ -751,7 +754,7 @@ class ShowPosts implements ActionInterface
 			$max_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 		}
 
-		$max_index = $max_per_page;
+		$max_index = (int) $max_per_page;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=showposts' . ($is_topics ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msg_count, $max_index);
@@ -857,7 +860,7 @@ class ShowPosts implements ActionInterface
 			Lang::censorText($row['subject']);
 
 			// Do the code.
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			// And the array...
 			Utils::$context['posts'][$counter += $reverse ? -1 : 1] = [

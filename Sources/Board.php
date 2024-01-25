@@ -326,14 +326,14 @@ class Board implements \ArrayAccess
 	 * rather than Board::$board_id. The only exception to this rule is in code
 	 * executed before Board::load() has been called.
 	 */
-	public static $board_id;
+	public static ?int $board_id;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for board we are currently in.
 	 */
-	public static $info;
+	public static ?self $info;
 
 	/**
 	 * @var array
@@ -670,7 +670,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderators',
 				['id_board' => 'int', 'id_member' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderators),
+				array_map(fn ($mod) => [$this->id, $mod], $this->moderators),
 				['id_board', 'id_member'],
 			);
 		}
@@ -690,7 +690,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderator_groups',
 				['id_board' => 'int', 'id_group' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderator_groups),
+				array_map(fn ($mod) => [$this->id, $mod], $this->moderator_groups),
 				['id_board', 'id_group'],
 			);
 		}

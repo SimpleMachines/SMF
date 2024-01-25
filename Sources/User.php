@@ -636,7 +636,7 @@ class User implements \ArrayAccess
 	public static array $loaded = [];
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the current user.
 	 */
@@ -935,7 +935,7 @@ class User implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		if (in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && is_string($value)) {
-			$prop = (string) $this->prop_aliases[$prop] ?? $prop;
+			$prop = (string) ($this->prop_aliases[$prop] ?? $prop);
 			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 		}
 
@@ -2816,6 +2816,9 @@ class User implements \ArrayAccess
 		// Set a nice default var.
 		$image = '';
 
+		// Make this a string for now. SMF will convert it (back) to a Url object later if needed.
+		$data['avatar'] ??= (string) $data['avatar'];
+
 		// Gravatar has been set as mandatory!
 		if (!empty(Config::$modSettings['gravatarEnabled']) && !empty(Config::$modSettings['gravatarOverride'])) {
 			if (!empty(Config::$modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://')) {
@@ -2829,7 +2832,7 @@ class User implements \ArrayAccess
 			// So it's stored in the member table?
 			if (!empty($data['avatar'])) {
 				// Gravatar.
-				if (stristr((string) $data['avatar'], 'gravatar://')) {
+				if (stristr($data['avatar'], 'gravatar://')) {
 					if ($data['avatar'] == 'gravatar://') {
 						$image = self::getGravatarUrl($data['email']);
 					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
@@ -3009,7 +3012,7 @@ class User implements \ArrayAccess
 					$val = 'CASE ';
 
 					foreach ($members as $k => $v) {
-						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count($v, true) . ' ';
+						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count((int) $v, true) . ' ';
 					}
 
 					$val = $val . ' END';
@@ -3025,7 +3028,7 @@ class User implements \ArrayAccess
 
 			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
 			if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', $val, $match)) {
+				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $match)) {
 					if ($match[1] != '+ ') {
 						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
 					}
@@ -3602,7 +3605,7 @@ class User implements \ArrayAccess
 		}
 
 		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (!preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
+		if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
 			return 'restricted_words';
 		}
 

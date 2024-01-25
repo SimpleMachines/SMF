@@ -886,7 +886,7 @@ class ExportProfileData extends BackgroundTask
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
+		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {
@@ -976,7 +976,7 @@ class ExportProfileData extends BackgroundTask
 		$feed = new Feed($datatype, $uid);
 		$feed->format = 'smf';
 		$feed->ascending = true;
-		$feed->limit = !empty(Config::$modSettings['export_rate']) ? Config::$modSettings['export_rate'] : 250;
+		$feed->limit = !empty(Config::$modSettings['export_rate']) ? (int) Config::$modSettings['export_rate'] : 250;
 		$feed->start_after = $start[$datatype];
 
 		Theme::loadEssential();
@@ -996,7 +996,7 @@ class ExportProfileData extends BackgroundTask
 
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) $uid, Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		// Increment the file number until we reach one that doesn't exist.
@@ -1252,8 +1252,6 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
-	 *
-	 * @suppress PHP0417
 	 */
 	protected function exportHtml(): void
 	{
@@ -1305,9 +1303,7 @@ class ExportProfileData extends BackgroundTask
 		$xmldoc = new DOMDocument();
 
 		foreach ($new_exportfiles as $exportfile) {
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Utils::sapiResetTimeout();
 
 			$started = microtime(true);
 			$xmldoc->load($exportfile, $libxml_options);
@@ -1361,7 +1357,7 @@ class ExportProfileData extends BackgroundTask
 
 		// Find any completed files that don't yet have the stylesheet embedded in them.
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		$test_length = strlen($this->stylesheet . Utils::$context['feed']['footer']);
@@ -1503,7 +1499,7 @@ class ExportProfileData extends BackgroundTask
 			// Let mods adjust the XSLT variables.
 			IntegrationHook::call('integrate_export_xslt_variables', [&$xslt_variables, $this->_details['format']]);
 
-			$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
+			$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 			$xslt_variables['dltoken'] = [
 				'value' => hash_hmac('sha1', $idhash, Config::getAuthSecret()),
 			];
@@ -1531,7 +1527,7 @@ class ExportProfileData extends BackgroundTask
 				if (isset($var['xpath'])) {
 					$this->xslt_stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
 				} else {
-					$this->xslt_stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse($var['value'])) . '</xsl:' . $element . '>';
+					$this->xslt_stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse((string) $var['value'])) . '</xsl:' . $element . '>';
 				}
 			}
 
@@ -1883,7 +1879,7 @@ class ExportProfileData extends BackgroundTask
 	 * Adjusts some parse_bbc() parameters for the special case of HTML and
 	 * XML_XSLT exports.
 	 */
-	public static function pre_parsebbc_html(string &$message, array &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
+	public static function pre_parsebbc_html(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
 	{
 		$cache_id = '';
 
@@ -1902,7 +1898,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts some parse_bbc() parameters for the special case of XML exports.
 	 */
-	public static function pre_parsebbc_xml(string &$message, array &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
+	public static function pre_parsebbc_xml(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags, array &$cache_key_extras): void
 	{
 		$cache_id = '';
 
@@ -1922,7 +1918,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Reverses changes made by pre_parsebbc()
 	 */
-	public static function post_parsebbc(string &$message, array &$smileys, string &$cache_id, array &$parse_tags): void
+	public static function post_parsebbc(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
 	{
 		foreach (['disabledBBC', 'smileys_url', 'attachmentThumbnails'] as $var) {
 			if (isset(self::$real_modSettings[$var])) {
@@ -1934,7 +1930,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts certain BBCodes for the special case of exports.
 	 */
-	public static function bbc_codes(array &$codes, bool &$no_autolink_tags): void
+	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
 	{
 		foreach ($codes as &$code) {
 			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.

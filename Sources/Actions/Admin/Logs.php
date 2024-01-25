@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -116,12 +118,12 @@ class Logs implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -177,7 +179,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to ErrorLog::view().
 	 */
-	public function errorlog()
+	public function errorlog(): void
 	{
 		ErrorLog::call();
 	}
@@ -185,7 +187,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Modlog::call().
 	 */
-	public function adminlog()
+	public function adminlog(): void
 	{
 		ModLog::call();
 	}
@@ -193,7 +195,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Modlog::call().
 	 */
-	public function modlog()
+	public function modlog(): void
 	{
 		ModLog::call();
 	}
@@ -201,7 +203,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Bans::log().
 	 */
-	public function banlog()
+	public function banlog(): void
 	{
 		$_REQUEST['sa'] = 'log';
 		Bans::call();
@@ -210,7 +212,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to SearchEngines::logs().
 	 */
-	public function spiderlog()
+	public function spiderlog(): void
 	{
 		$_REQUEST['sa'] = 'logs';
 		SearchEngines::call();
@@ -219,7 +221,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Tasks::log().
 	 */
-	public function tasklog()
+	public function tasklog(): void
 	{
 		$_REQUEST['sa'] = 'tasklog';
 		Tasks::call();
@@ -228,8 +230,6 @@ class Logs implements ActionInterface
 	/**
 	 * Allow to edit the settings on the pruning screen.
 	 *
-	 * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
-	 * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
 	 */
 	public function settings(): void
 	{
@@ -311,9 +311,9 @@ class Logs implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

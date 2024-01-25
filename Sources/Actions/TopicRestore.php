@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -33,12 +35,12 @@ class TopicRestore implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -271,9 +273,9 @@ class TopicRestore implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -308,11 +310,11 @@ class TopicRestore implements ActionInterface
 	/**
 	 * Take a load of messages from one place and stick them in a topic
 	 *
-	 * @param array $msgs The IDs of the posts to merge
+	 * @param array|int $msgs The IDs of the posts to merge
 	 * @param int $from_topic The ID of the topic the messages were originally in
 	 * @param int $target_topic The ID of the topic the messages are being merged into
 	 */
-	protected static function mergePosts($msgs, $from_topic, $target_topic)
+	protected static function mergePosts(array|int $msgs, int $from_topic, int $target_topic): void
 	{
 		// !!! This really needs to be rewritten to take a load of messages from ANY topic, it's also inefficient.
 

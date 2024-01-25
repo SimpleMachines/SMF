@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -100,12 +102,12 @@ class Export implements ActionInterface
 	];
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -122,7 +124,7 @@ class Export implements ActionInterface
 
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$idhash = hash_hmac('sha1', Utils::$context['id_member'], Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) Utils::$context['id_member'], Config::getAuthSecret());
 		$dltoken = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 
 		Utils::$context['completed_exports'] = [];
@@ -303,7 +305,7 @@ class Export implements ActionInterface
 				'included' => $included,
 				'start' => $start,
 				'latest' => $latest,
-				'datatype' => $current_datatype ?? key($included),
+				'datatype' => key($included),
 				'format_settings' => self::$formats[$format],
 				'last_page' => $last_page,
 				'dlfilename' => $dlfilename,
@@ -359,9 +361,9 @@ class Export implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -387,7 +389,7 @@ class Export implements ActionInterface
 	 *
 	 * @return string|bool The path to the directory, or false on error.
 	 */
-	public static function createDir($fallback = ''): string|bool
+	public static function createDir(string $fallback = ''): string|bool
 	{
 		// No supplied fallback, so use the default location.
 		if (empty($fallback)) {
@@ -401,7 +403,7 @@ class Export implements ActionInterface
 
 		// Make sure the directory exists.
 		if (!file_exists(Config::$modSettings['export_dir'])) {
-			@mkdir(Config::$modSettings['export_dir'], null, true);
+			@mkdir(Config::$modSettings['export_dir'], 0750, true);
 		}
 
 		// Make sure the directory has the correct permissions.
@@ -433,7 +435,7 @@ class Export implements ActionInterface
 	 *
 	 * @return array Information about supported data formats for profile exports.
 	 */
-	public static function getFormats()
+	public static function getFormats(): array
 	{
 		static $finalized = false;
 

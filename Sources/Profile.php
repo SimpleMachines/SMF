@@ -965,13 +965,12 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					if (strlen(trim($value)) > 0 && strpos($value, '://') === false) {
 						$value = 'http://' . $value;
+						$value = Url::create($value, true)->validate()->toUtf8();
 					}
 
 					if (strlen($value) < 8 || (substr($value, 0, 7) !== 'http://' && substr($value, 0, 8) !== 'https://')) {
 						$value = '';
 					}
-
-					$value = Url::create($value, true)->validate()->toUtf8();
 
 					return true;
 				},
@@ -1239,8 +1238,8 @@ class Profile extends User implements \ArrayAccess
 		elseif (
 			$this->formatted['avatar']['allow_external']
 			&& (
-				stristr($this->avatar['url'], 'http://')
-				|| stristr($this->avatar['url'], 'https://')
+				stristr($this->avatar['original_url'], 'http://')
+				|| stristr($this->avatar['original_url'], 'https://')
 			)) {
 			$this->formatted['avatar'] += [
 				'choice' => 'external',
@@ -1251,12 +1250,13 @@ class Profile extends User implements \ArrayAccess
 		// Server stored image?
 		elseif (
 			$this->avatar['url'] != ''
+			&& $this->avatar['original_url'] != ''
 			&& $this->formatted['avatar']['allow_server_stored']
-			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['url'])
+			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['original_url'])
 		) {
 			$this->formatted['avatar'] += [
 				'choice' => 'server_stored',
-				'server_pic' => $this->avatar['url'] == '' ? 'blank.png' : $this->avatar['url'],
+				'server_pic' => $this->avatar['original_url'] == '' ? 'blank.png' : $this->avatar['original_url'],
 				'external' => 'http://',
 			];
 		}
@@ -1381,18 +1381,18 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// For the templates.
-		Utils::$context['member_groups'] = array_merge(
-			[
-				0 => [
-					'id' => 0,
-					'name' => Lang::$txt['no_primary_membergroup'],
-					'is_primary' => $this->data['id_group'] == 0,
-					'can_be_additional' => false,
-					'can_be_primary' => true,
-				],
+		Utils::$context['member_groups'] = [
+			0 => [
+				'id' => 0,
+				'name' => Lang::$txt['no_primary_membergroup'],
+				'is_primary' => $this->data['id_group'] == 0,
+				'can_be_additional' => false,
+				'can_be_primary' => true,
 			],
-			$this->assignable_groups,
-		);
+		];
+
+		// Do not use array merge here, does not maintain key association.
+		Utils::$context['member_groups'] += $this->assignable_groups;
 
 		return true;
 	}
@@ -2800,8 +2800,8 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Check whether the image is too large.
-		$max_width = (int) Config::$modSettings['avatar_max_width_external'] ?? 0;
-		$max_height = (int) Config::$modSettings['avatar_max_height_external'] ?? 0;
+		$max_width = (int) (Config::$modSettings['avatar_max_width_external'] ?? 0);
+		$max_height = (int) (Config::$modSettings['avatar_max_height_external'] ?? 0);
 
 		if ($image->shouldResize($max_width, $max_height)) {
 			// Try to resize it, unless the admin disabled resizing.

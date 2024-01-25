@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Config;
@@ -60,12 +62,12 @@ class Activate implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -116,6 +118,8 @@ class Activate implements ActionInterface
 		}
 
 		$row = Db::$db->fetch_assoc($request);
+		$row['id_member'] = (int) $row['id_member'];
+		$row['is_activated'] = (int) $row['is_activated'];
 		Db::$db->free_result($request);
 
 		// Change their email address? (they probably tried a fake one first :P.)
@@ -187,7 +191,7 @@ class Activate implements ActionInterface
 			// This will ensure we don't actually get an error message if it works!
 			Utils::$context['error_title'] = Lang::$txt['invalid_activation_resend'];
 
-			ErrorHandler::fatalLang(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, [], false);
+			ErrorHandler::fatalLang(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, []);
 		}
 
 		// Quit if this code is not right.
@@ -237,9 +241,9 @@ class Activate implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

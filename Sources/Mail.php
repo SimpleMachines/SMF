@@ -41,7 +41,6 @@ class Mail
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether ot not the email was sent properly.
-	 * @suppress PHP0417
 	 */
 	public static function send(
 		array|string $to,
@@ -233,11 +232,9 @@ class Mail
 				restore_error_handler();
 
 				// Wait, wait, I'm still sending here!
-				@set_time_limit(300);
+				Utils::sapiSetTimeLimit(300);
 
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Utils::sapiResetTimeout();
 			}
 		} else {
 			$mail_result = $mail_result && self::sendSmtp($to_array, $subject, $message, $headers);
@@ -363,7 +360,6 @@ class Mail
 	 * @param bool $override_limit Whether to bypass the limit
 	 * @param bool $force_send Whether to forcibly send the messages now (useful when using cron jobs)
 	 * @return bool Whether things were sent
-	 * @suppress PHP0417
 	 */
 	public static function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
 	{
@@ -533,11 +529,9 @@ class Mail
 				$result = mail(strtr($email['to'], ["\r" => '', "\n" => '']), $email['subject'], $email['body'], $email['headers']);
 
 				// Try to stop a timeout, this would be bad...
-				@set_time_limit(300);
+				Utils::sapiSetTimeLimit(300);
 
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Utils::sapiResetTimeout();
 			} else {
 				$result = self::sendSmtp([$email['to']], $email['subject'], $email['body'], $email['headers']);
 			}
@@ -743,7 +737,6 @@ class Mail
 	 * @param string $message Email message
 	 * @param string $headers Email headers
 	 * @return bool Whether it sent or not.
-	 * @suppress PHP0417
 	 */
 	public static function sendSmtp(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
@@ -927,11 +920,9 @@ class Mail
 			}
 
 			// Almost done, almost done... don't stop me just yet!
-			@set_time_limit(300);
+			Utils::sapiSetTimeLimit(300);
 
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Utils::sapiResetTimeout();
 		}
 		fputs($socket, 'QUIT' . "\r\n");
 		fclose($socket);

@@ -271,7 +271,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 			case 'iso_gmdate':
 				$tz = $this->getTimezone();
-				$this->setTimezone(timezone_open('UTC'));
+				$this->setTimezone(new \DateTimeZone('UTC'));
 				$this->modify($value);
 				$this->setTimezone($tz);
 				break;
@@ -283,8 +283,8 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if (in_array($value, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-					$this->setTimezone(timezone_open($value));
+				if ($value instanceof \DateTimeZone || (is_string($value) && in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
+					$this->setTimezone($value);
 				}
 				break;
 
@@ -419,8 +419,8 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Like DateTime::format(), except that it can accept both DateTime format
-	 * specifiers and strftime format specifiers (but not both at once).
+	 * Like DateTime::format(), except that it can accept either DateTime format
+	 * specifiers or strftime format specifiers (but not both at once).
 	 *
 	 * This does not use the system's strftime library or locale setting when
 	 * formatting using strftime format specifiers, so results may vary in a few
@@ -682,6 +682,26 @@ class Time extends \DateTime implements \ArrayAccess
 		return $prefix . $result;
 	}
 
+	/**
+	 * Sets the time zone for the SMF\Time object.
+	 *
+	 * @param \DateTimeZone|string $timezone The desired time zone. Can be a
+	 *    \DateTimeZone object or a valid time zone identifier string.
+	 * @return staitc An reference to this object.
+	 */
+	public function setTimezone(\DateTimeZone|string $timezone): static
+	{
+		if ($timezone instanceof \DateTimeZone) {
+			date_timezone_set($this, $timezone);
+		} elseif (in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
+			date_timezone_set($this, new \DateTimeZone($timezone));
+		} else {
+			throw new \ValueError();
+		}
+
+		return $this;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -701,6 +721,39 @@ class Time extends \DateTime implements \ArrayAccess
 	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): self
 	{
 		return new self($datetime, $timezone);
+	}
+
+	/**
+	 * Convert a \DateTimeInterface object to a Time object.
+	 *
+	 * @param string $object A \DateTimeInterface object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromInterface(\DateTimeInterface $object): static
+	{
+		return new self($object->format('Y-m-d H:i:s.u e'));
+	}
+
+	/**
+	 * Convert a \DateTime object to a Time object.
+	 *
+	 * @param string $object A \DateTime object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromMutable(\DateTime $object): static
+	{
+		return self::createFromInterface($object);
+	}
+
+	/**
+	 * Convert a \DateTimeImmutable object to a Time object.
+	 *
+	 * @param string $object A \DateTimeImmutable object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromImmutable(\DateTimeImmutable $object): static
+	{
+		return self::createFromInterface($object);
 	}
 
 	/**
@@ -1068,7 +1121,6 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = implode('', $format_parts);
 
 		// Finally, strip out any unwanted leftovers.
-		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
@@ -1188,7 +1240,6 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 
 		// Finally, strip out any unwanted leftovers.
-		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.

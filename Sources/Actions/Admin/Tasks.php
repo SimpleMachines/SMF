@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -69,12 +71,12 @@ class Tasks implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -525,9 +527,9 @@ class Tasks implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -570,7 +572,7 @@ class Tasks implements ActionInterface
 	 * @param string $sort A string indicating how to sort things (not used here)
 	 * @return array An array of information about available scheduled tasks
 	 */
-	public static function list_getScheduledTasks($start, $items_per_page, $sort): array
+	public static function list_getScheduledTasks(int $start, int $items_per_page, string $sort): array
 	{
 		$known_tasks = [];
 
@@ -584,7 +586,7 @@ class Tasks implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Find the next for regularity - don't offset as it's always server time!
-			$offset = sprintf(Lang::$txt['scheduled_task_reg_starting'], date('H:i', $row['time_offset']));
+			$offset = sprintf(Lang::$txt['scheduled_task_reg_starting'], date('H:i', (int) $row['time_offset']));
 
 			$repeating = sprintf(Lang::$txt['scheduled_task_reg_repeating'], $row['time_regularity'], Lang::$txt['scheduled_task_reg_unit_' . $row['time_unit']]);
 
@@ -612,7 +614,7 @@ class Tasks implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of info about task log entries
 	 */
-	public static function list_getTaskLogEntries($start, $items_per_page, $sort): array
+	public static function list_getTaskLogEntries(int $start, int $items_per_page, string $sort): array
 	{
 		$log_entries = [];
 
@@ -660,7 +662,7 @@ class Tasks implements ActionInterface
 		list($num_entries) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num_entries;
+		return (int) $num_entries;
 	}
 
 	/******************

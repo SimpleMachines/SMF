@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -55,12 +57,12 @@ class ExportAttachment implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -126,9 +128,9 @@ class ExportAttachment implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -158,7 +160,7 @@ class ExportAttachment implements ActionInterface
 			Profile::load();
 		}
 
-		$this->idhash = hash_hmac('sha1', Profile::$member->id, Config::getAuthSecret());
+		$this->idhash = hash_hmac('sha1', (string) Profile::$member->id, Config::getAuthSecret());
 		$this->dltoken = hash_hmac('sha1', $this->idhash, Config::getAuthSecret());
 
 		$this->attach = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;

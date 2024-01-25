@@ -1018,19 +1018,21 @@ class Group implements \ArrayAccess
 		$set_primary = [];
 		$set_additional = [];
 
-		foreach ($members as $key => $member) {
+		/* @var \SMF\User $member */
+		foreach ($members as $key => $id_member) {
+
 			// Forcing primary.
 			if ($type === 'force_primary') {
-				if (User::$loaded[$member]->group_id !== $this->id) {
-					$set_primary[] = $member;
+				if (User::$loaded[$id_member]->group_id !== $this->id) {
+					$set_primary[] = $id_member;
 				}
 			}
 			// They're already in this group.
-			elseif (in_array($this->id, User::$loaded[$member]->groups)) {
+			elseif (in_array($this->id, User::$loaded[$id_member]->groups)) {
 				continue;
 			}
 			// They have a different primary group.
-			elseif (User::$loaded[$member]->group_id !== self::REGULAR) {
+			elseif (User::$loaded[$id_member]->group_id !== self::REGULAR) {
 				// Skip if we only want to set their primary group.
 				if ($type === 'only_primary') {
 					continue;
@@ -1042,15 +1044,15 @@ class Group implements \ArrayAccess
 				}
 
 				// Set this as an additional group.
-				$set_additional[] = $member;
+				$set_additional[] = $id_member;
 			}
 			// This can only be an additional group.
 			elseif ($type === 'only_additional') {
-				$set_additional[] = $member;
+				$set_additional[] = $id_member;
 			}
 			// They have no primary group, so let's give them one.
 			else {
-				$set_primary[] = $member;
+				$set_primary[] = $id_member;
 			}
 		}
 
@@ -1064,11 +1066,11 @@ class Group implements \ArrayAccess
 
 			$to_set = [];
 
-			foreach ($set_primary as $member) {
-				$new_additional_groups = array_diff(User::$loaded[$member]->groups, [$this->id, User::$loaded[$member]->post_group_id]);
+			foreach ($set_primary as $id_member) {
+				$new_additional_groups = array_diff(User::$loaded[$id_member]->groups, [$this->id, User::$loaded[$id_member]->post_group_id]);
 				sort($new_additional_groups);
 
-				$to_set[implode(',', $new_additional_groups)][] = $member->id;
+				$to_set[implode(',', $new_additional_groups)][] = $id_member;
 			}
 
 			foreach ($to_set as $new_additional_groups => $member_ids) {
@@ -1094,11 +1096,11 @@ class Group implements \ArrayAccess
 		if (!empty($set_additional)) {
 			$to_set = [];
 
-			foreach ($set_additional as $member) {
-				$new_additional_groups = array_unique(array_merge(User::$loaded[$member]->additional_groups, [$this->id]));
+			foreach ($set_additional as $id_member) {
+				$new_additional_groups = array_unique(array_merge(User::$loaded[$id_member]->additional_groups, [$this->id]));
 				sort($new_additional_groups);
 
-				$to_set[implode(',', $new_additional_groups)][] = $member->id;
+				$to_set[implode(',', $new_additional_groups)][] = $id_member;
 			}
 
 			foreach ($to_set as $new_additional_groups => $member_ids) {
@@ -1115,12 +1117,12 @@ class Group implements \ArrayAccess
 		Logging::updateStats('postgroups', $members);
 
 		// Log the data.
-		foreach ($members as $member) {
+		foreach ($members as $id_member) {
 			Logging::logAction(
 				'added_to_group',
 				[
 					'group' => $this->name,
-					'member' => $member,
+					'member' => $id_member,
 				],
 				'admin',
 			);
@@ -1193,6 +1195,9 @@ class Group implements \ArrayAccess
 
 		// Load the user info for the members being removed.
 		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
+		$members = array_map(function (\SMF\User $mem) {
+			return $mem->id;
+		}, $members);
 
 		// Figure out which members should have their primary group changed and
 		// which should have their additional groups changed.
@@ -1646,9 +1651,9 @@ class Group implements \ArrayAccess
 
 			if (isset(self::$loaded[$row['id_group']])) {
 				self::$loaded[$row['id_group']]->set($row);
-				$loaded[] = self::$loaded[$row['id_group']];
+				$loaded[$row['id_group']] = self::$loaded[$row['id_group']];
 			} else {
-				$loaded[] = new self($row['id_group'], $row);
+				$loaded[$row['id_group']] = new self($row['id_group'], $row);
 			}
 		}
 
@@ -1757,7 +1762,8 @@ class Group implements \ArrayAccess
 			],
 		];
 
-		$loaded = array_merge($loaded, self::load([], $query_customizations));
+		// Do not use array merge here, does not maintain key association.
+		$loaded += self::load([], $query_customizations);
 
 		// Return the instances we just loaded.
 		return $loaded;

@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -35,12 +37,12 @@ class ShowAlerts implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -54,7 +56,7 @@ class ShowAlerts implements ActionInterface
 		// Are we opening a specific alert? (i.e.: ?action=profile;area=showalerts;alert=12345)
 		if (!empty($_REQUEST['alert'])) {
 			$alert_id = (int) $_REQUEST['alert'];
-			$alerts = Alert::fetch(User::$me->id, $alert_id);
+			$alerts = Alert::fetch(User::$me->id, [$alert_id]);
 			$alert = array_pop($alerts);
 
 			/*
@@ -70,7 +72,7 @@ class ShowAlerts implements ActionInterface
 			}
 
 			// Mark the alert as read while we're at it.
-			Alert::mark(User::$me->id, $alert_id, 1);
+			Alert::mark(User::$me->id, $alert_id, true);
 
 			// Take the user to the content
 			Utils::redirectexit($alert->target_href);
@@ -184,7 +186,7 @@ class ShowAlerts implements ActionInterface
 					break;
 
 				default:
-					Alert::mark(User::$me->id, $toMark, $action == 'read' ? 1 : 0);
+					Alert::mark(User::$me->id, $toMark, $action == 'read');
 					break;
 			}
 
@@ -203,9 +205,9 @@ class ShowAlerts implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

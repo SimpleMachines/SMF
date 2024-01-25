@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Admin;
 
 use SMF\Actions\ActionInterface;
@@ -74,12 +76,12 @@ class Membergroups implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -640,7 +642,10 @@ class Membergroups implements ActionInterface
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
-		@list($group) = Group::load($_REQUEST['group']);
+		$groups = Group::load((int) $_REQUEST['group']);
+
+		/** @var \SMF\Group $group */
+		$group = array_shift($groups);
 
 		if (!isset($group) || !($group instanceof Group)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
@@ -940,9 +945,9 @@ class Membergroups implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

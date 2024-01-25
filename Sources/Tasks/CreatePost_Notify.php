@@ -209,7 +209,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			// If this post has no quotes or mentions, just delete any obsolete alerts and bail out.
 			if (empty($this->members['quoted']) && empty($this->members['mentioned'])) {
-				$this->updateAlerts($msgOptions['id']);
+				$this->updateAlerts((int) $msgOptions['id']);
 
 				return true;
 			}
@@ -321,7 +321,7 @@ class CreatePost_Notify extends BackgroundTask
 		}
 
 		// Insert the alerts if any
-		$this->updateAlerts($msgOptions['id']);
+		$this->updateAlerts((int) $msgOptions['id']);
 
 		// If there is anyone still to notify via email, create a new task later.
 		$unnotified = array_diff_key($unnotified, array_flip($this->members['emailed']));
@@ -573,17 +573,17 @@ class CreatePost_Notify extends BackgroundTask
 			if ($pref & self::RECEIVE_NOTIFY_ALERT) {
 				$this->alert_rows[] = [
 					'alert_time' => time(),
-					'id_member' => $member_id,
+					'id_member' => (int) $member_id,
 					// Only tell sender's information for new topics and replies
-					'id_member_started' => in_array($type, ['topic', 'reply']) ? $posterOptions['id'] : 0,
+					'id_member_started' => in_array($type, ['topic', 'reply']) ? (int) $posterOptions['id'] : 0,
 					'member_name' => in_array($type, ['topic', 'reply']) ? $posterOptions['name'] : '',
 					'content_type' => $content_type,
-					'content_id' => $topicOptions['id'],
+					'content_id' => (int) $topicOptions['id'],
 					'content_action' => $type,
 					'is_read' => 0,
 					'extra' => Utils::jsonEncode([
-						'topic' => $topicOptions['id'],
-						'board' => $topicOptions['board'],
+						'topic' => (int) $topicOptions['id'],
+						'board' => (int) $topicOptions['board'],
 						'content_subject' => $parsed_message[$localization]['subject'],
 						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, ['reply', 'topic']) ? '.new;topicseen#new' : '.0'),
 					]),
@@ -592,9 +592,9 @@ class CreatePost_Notify extends BackgroundTask
 
 			// Bitwise check: Receiving a email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL) {
-				$itemID = $content_type == 'board' ? $topicOptions['board'] : $topicOptions['id'];
+				$itemID = $content_type == 'board' ? (int) $topicOptions['board'] : (int) $topicOptions['id'];
 
-				$token = Notify::createUnsubscribeToken($member_data['id_member'], $member_data['email_address'], $content_type, $itemID);
+				$token = Notify::createUnsubscribeToken((int) $member_data['id_member'], $member_data['email_address'], $content_type, $itemID);
 
 				$replacements = [
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],

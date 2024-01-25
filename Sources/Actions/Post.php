@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Attachment;
@@ -183,12 +185,12 @@ class Post implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -388,9 +390,9 @@ class Post implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -412,7 +414,7 @@ class Post implements ActionInterface
 	 *
 	 * Needed to allow old mods to pass $post_errors as a function parameter.
 	 */
-	public static function post($post_errors = []): void
+	public static function post(array $post_errors = []): void
 	{
 		self::load();
 		self::$obj->errors = (array) $post_errors;
@@ -481,7 +483,7 @@ class Post implements ActionInterface
 			// Censor, BBC, ...
 			Lang::censorText($row['body']);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			IntegrationHook::call('integrate_getTopic_previous_post', [&$row]);
 
@@ -595,7 +597,7 @@ class Post implements ActionInterface
 
 		// Though the topic should be there, it might have vanished.
 		if (empty(Topic::$info->id)) {
-			ErrorHandler::fatalLang('topic_doesnt_exist', 404);
+			ErrorHandler::fatalLang('topic_doesnt_exist', status: 404);
 		}
 
 		// Did this topic suddenly move? Just checking...
@@ -679,9 +681,9 @@ class Post implements ActionInterface
 			User::$me->isAllowedTo('post_new', $this->boards, true);
 		}
 
-		$this->locked = 0;
-		Utils::$context['already_locked'] = 0;
-		Utils::$context['already_sticky'] = 0;
+		$this->locked = false;
+		Utils::$context['already_locked'] = false;
+		Utils::$context['already_sticky'] = false;
 		Utils::$context['sticky'] = !empty($_REQUEST['sticky']);
 
 		// What options should we show?
@@ -1930,7 +1932,7 @@ class Post implements ActionInterface
 					Utils::$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']] = [
 						'value' => $brd['id'],
 						'selected' => (bool) $brd['selected'],
-						'label' => ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
+						'label' => ($brd['child_level'] > 0 ? str_repeat('==', (int) $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
 					];
 				}
 			}

@@ -1906,9 +1906,13 @@ function fixModSecurity()
 		}
 
 			return true;
-	} elseif (file_exists(Config::$boarddir . '/.htaccess')) {
+	}
+
+	if (file_exists(Config::$boarddir . '/.htaccess')) {
 		return strpos(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>') !== false;
-	} elseif (is_writable(Config::$boarddir)) {
+	}
+
+	if (is_writable(Config::$boarddir)) {
 		if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'w')) {
 			fwrite($ht_handle, $htaccess_addition);
 			fclose($ht_handle);

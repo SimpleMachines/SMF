@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
 use SMF\Attachment;
@@ -244,11 +246,11 @@ class Feed implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -1208,7 +1210,7 @@ class Feed implements ActionInterface
 				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -1761,12 +1763,12 @@ class Feed implements ActionInterface
 				[
 					'tag' => 'last-login',
 					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])],
-					'content' => Time::create('@' . $row['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'registered',
 					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])],
-					'content' => Time::create('@' . $row['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'content' => Time::create('@' . $profile['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'avatar',
@@ -2637,9 +2639,9 @@ class Feed implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of the class.
+	 * @return self An instance of the class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -2950,7 +2952,7 @@ class Feed implements ActionInterface
 	 * Internal methods
 	 ******************/
 
-	protected function setSubaction($subaction)
+	protected function setSubaction(?string $subaction): void
 	{
 		if (isset($subaction, self::$subactions[$subaction])) {
 			$this->subaction = $subaction;
@@ -2961,40 +2963,37 @@ class Feed implements ActionInterface
 		}
 	}
 
-	protected function setMember($member)
+	protected function setMember(?int $member = 0): void
 	{
 		// Member ID was passed to the constructor.
-		if (isset($member)) {
+		if ($member > 0) {
 			$this->member = $member;
 		}
 		// Member ID was set via Utils::$context.
 		elseif (isset(Utils::$context['xmlnews_uid'])) {
-			$this->member = Utils::$context['xmlnews_uid'];
+			$this->member = (int) Utils::$context['xmlnews_uid'];
 		}
 		// Member ID was set via URL parameter.
 		elseif (isset($_GET['u'])) {
-			$this->member = $_GET['u'];
+			$this->member = (int) $_GET['u'];
 		}
 		// Default to current user.
 		else {
 			$this->member = User::$me->id;
 		}
 
-		// Make sure the ID is a number and not "I like trying to hack the database."
-		$this->member = (int) $this->member;
-
 		// For backward compatibility.
 		Utils::$context['xmlnews_uid'] = $this->member;
 	}
 
-	protected function setFormat()
+	protected function setFormat(): void
 	{
 		if (isset($_GET['type'], self::XML_NAMESPACES[$_GET['type']])) {
 			$this->format = $_GET['type'];
 		}
 	}
 
-	protected function setlimit()
+	protected function setlimit(): void
 	{
 		// Limit was set via Utils::$context.
 		if (isset(Utils::$context['xmlnews_limit'])) {
@@ -3108,7 +3107,7 @@ class Feed implements ActionInterface
 	 * @param string $val A string containing a possible URL.
 	 * @return string $val The string with any possible URLs sanitized.
 	 */
-	protected static function fixPossibleUrl($val)
+	protected static function fixPossibleUrl(string $val): string
 	{
 		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl) {
 			return $val;

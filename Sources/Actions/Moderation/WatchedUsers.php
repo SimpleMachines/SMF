@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Moderation;
 
 use SMF\Actions\ActionInterface;
@@ -36,12 +38,12 @@ class WatchedUsers implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -110,7 +112,7 @@ class WatchedUsers implements ActionInterface
 				],
 			],
 			'get_count' => [
-				'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPostsCount' : __CLASS__ . '::list_getWatchedUserCount',
+				'function' => Utils::$context['view_posts'] ? __CLASS__ . '::list_getWatchedUserPostsCount' : __CLASS__ . '::list_getWatchedUserCount',
 				'params' => [
 					$approve_query,
 				],
@@ -241,9 +243,9 @@ class WatchedUsers implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -266,7 +268,7 @@ class WatchedUsers implements ActionInterface
 	 * @param string $approve_query Not used here
 	 * @return int The number of users on the watch list
 	 */
-	public static function list_getWatchedUserCount($approve_query): int
+	public static function list_getWatchedUserCount(string $approve_query): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -280,7 +282,7 @@ class WatchedUsers implements ActionInterface
 		list($totalMembers) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalMembers;
+		return (int) $totalMembers;
 	}
 
 	/**
@@ -290,10 +292,10 @@ class WatchedUsers implements ActionInterface
 	 * @param int $items_per_page The number of items to show per page
 	 * @param string $sort A string indicating how to sort things
 	 * @param string $approve_query A query for approving things. Not used here.
-	 * @param string $dummy Not used here.
+	 * @param array $dummy Not used here.
 	 * @return array An array of info about watched users
 	 */
-	public static function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy): array
+	public static function list_getWatchedUsers(int $start, int $items_per_page, string $sort, string $approve_query, array $dummy): array
 	{
 		$request = Db::$db->query(
 			'',
@@ -399,7 +401,7 @@ class WatchedUsers implements ActionInterface
 	 * @param string $approve_query A query to pull only approved items
 	 * @return int The total number of posts by watched users
 	 */
-	public static function list_getWatchedUserPostsCount($approve_query): int
+	public static function list_getWatchedUserPostsCount(string $approve_query): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -417,7 +419,7 @@ class WatchedUsers implements ActionInterface
 		list($totalMemberPosts) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalMemberPosts;
+		return (int) $totalMemberPosts;
 	}
 
 	/**
@@ -430,7 +432,7 @@ class WatchedUsers implements ActionInterface
 	 * @param int[] $delete_boards An array containing the IDs of boards we can delete posts in
 	 * @return array An array of info about posts by watched users
 	 */
-	public static function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query, $delete_boards): array
+	public static function list_getWatchedUserPosts(int $start, int $items_per_page, string $sort, string $approve_query, array $delete_boards): array
 	{
 		$request = Db::$db->query(
 			'',

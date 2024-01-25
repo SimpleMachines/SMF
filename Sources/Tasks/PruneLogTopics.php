@@ -17,6 +17,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Utils;
 
 /**
  * Prunes log_topics, log_boards, and log_mark_boards_read.
@@ -32,7 +33,6 @@ class PruneLogTopics extends ScheduledTask
 	 *
 	 * @return bool Always returns true.
 	 * @todo PHP 8.2: This can be changed to return type: true.
-	 * @suppress PHP0417
 	 */
 	public function execute(): bool
 	{
@@ -56,11 +56,9 @@ class PruneLogTopics extends ScheduledTask
 		}
 
 		// Try to prevent timeouts
-		@set_time_limit(300);
+		Utils::sapiSetTimeLimit(300);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Utils::sapiResetTimeout();
 
 		// Start off by finding the records in log_boards, log_topics & log_mark_read
 		// for users who haven't been around the longest...

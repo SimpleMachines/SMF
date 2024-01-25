@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions\Profile;
 
 use SMF\Actions\ActionInterface;
@@ -538,12 +540,12 @@ class Main implements ActionInterface
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * An instance of this class.
 	 * This is used by the load() method to prevent mulitple instantiations.
 	 */
-	protected static object $obj;
+	protected static self $obj;
 
 	/****************
 	 * Public methods
@@ -702,9 +704,9 @@ class Main implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(): object
+	public static function load(): self
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
@@ -724,7 +726,7 @@ class Main implements ActionInterface
 	/**
 	 * Backward compatibility wrapper.
 	 */
-	public static function modifyProfile($post_errors = []): void
+	public static function modifyProfile(array $post_errors = []): void
 	{
 		self::load();
 		Profile::$member->save_errors = $post_errors;
@@ -749,6 +751,11 @@ class Main implements ActionInterface
 
 		// Load the data of the member whose profile we are viewing.
 		Profile::load();
+
+		// No profile can be found.
+		if (!isset(Profile::$member->id) || Profile::$member->id == 0) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
 
 		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
 		// And we care about what the current user can do, not what the user whose profile it is.
@@ -791,12 +798,14 @@ class Main implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-					'{session_var}' => Utils::$context['session_var'],
-					'{session_id}' => Utils::$context['session_id'],
-				]);
+				if (is_string($value)) {
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+						'{session_var}' => Utils::$context['session_var'],
+						'{session_id}' => Utils::$context['session_id'],
+					]);
+				}
 			},
 		);
 
@@ -868,9 +877,9 @@ class Main implements ActionInterface
 	 * The menu is always available as Menu::$loaded['profile'], but for
 	 * convenience, this method also returns it.
 	 *
-	 * @return object The profile menu object.
+	 * @return \SMF\Menu The profile menu object.
 	 */
-	protected function createMenu(): object
+	protected function createMenu(): Menu
 	{
 		// Set a few options for the menu.
 		$menuOptions = [
@@ -930,7 +939,7 @@ class Main implements ActionInterface
 					if (!empty($area['token'])) {
 						$security_checks[isset($_REQUEST['save']) ? 'validateToken' : 'needsToken'] = $area['token'];
 
-						$token_name = $area['token'] !== true ? str_replace('%u', Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
+						$token_name = $area['token'] !== true ? str_replace('%u', (string) Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
 
 						$token_type = isset($area['token_type']) && in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
 					}

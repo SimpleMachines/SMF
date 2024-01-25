@@ -20,6 +20,8 @@
  * @version 3.0 Alpha 1
  */
 
+declare(strict_types=1);
+
 /********************************************************
  * Initialize things that are common to all entry points.
  * (i.e. index.php, SSI.php, cron.php, proxy.php)
