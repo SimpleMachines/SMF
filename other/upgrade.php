@@ -568,7 +568,7 @@ function load_lang_file()
 				}
 
 				// Get the line we need.
-				$fp = @fopen($language_dir . '/' . $entry . '/' . 'index.php', 'r');
+				$fp = @fopen(Config::$languagesdir . '/' . $entry . '/' . 'index.php', 'r');
 
 				// Yay!
 				if ($fp) {
@@ -599,7 +599,7 @@ function load_lang_file()
 			$dir->close();
 		}
 		// Our guess was wrong, but that's fine. We'll try again after Config::$Languagesdir is defined.
-		elseif (!isset(Config::$Languagesdir)) {
+		elseif (!isset(Config::$languagesdir)) {
 			// Define a few essential strings for now.
 			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
 			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
@@ -2981,10 +2981,10 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "' . basename(SMF_SETTINGS_BACKUP_FILE) . '".');
 	}
 
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/agreement.txt')) && !is_writable(Config::$languagesdir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/en_US/agreement.txt')) && !is_writable(Config::$languagesdir . '/en_US/agreement.txt')) {
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
 	} elseif (isset(Config::$modSettings['agreement'])) {
-		$fp = fopen(Config::$boarddir . '/agreement.txt', 'w');
+		$fp = fopen(Config::$languagesdir . '/en_US/agreement.txt', 'w');
 		fwrite($fp, Config::$modSettings['agreement']);
 		fclose($fp);
 	}
@@ -3017,22 +3017,22 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 	}
 
-	if (!file_exists(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')) {
+	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
 		print_error('Error: Unable to find language files!', true);
 	} else {
-		$temp = substr(@implode('', @file(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')), 0, 4096);
+		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			print_error('Error: Language files out of date.', true);
 		}
 
-		if (!file_exists(Config::$languagesdir . '/Install.' . $upcontext['language'] . '.php')) {
+		if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/Install.php')) {
 			print_error('Error: Install language is missing for selected language.', true);
 		}
 
 		// Otherwise include it!
-		require_once Config::$languagesdir . '/Install.' . $upcontext['language'] . '.php';
+		require_once Config::$languagesdir . '/' . $upcontext['language'] . '/Install.php';
 	}
 
 	// Do we need to add this setting?
@@ -3956,7 +3956,7 @@ function Cleanup()
 
 	$cleanupSteps = array(
 		0 => 'CleanupLanguages',
-		0 => 'CleanupAgreements'
+		1 => 'CleanupAgreements'
 	);
 
 	$upcontext['steps_count'] = count($cleanupSteps);
@@ -4068,7 +4068,7 @@ function CleanupAgreements()
 		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt')
 			continue;
 
-		rename($Config::$boarddir . '/' . $entry, $Config::$languagesdir . '/' . $entry);
+		rename(Config::$boarddir . '/' . $entry, Config::$languagesdir . '/' . $entry);
 	}
 	$dir->close();
 }
@@ -5378,7 +5378,7 @@ function template_cleanup()
 
 	// Dont any tables so far?
 	if (!empty($upcontext['previous_substeps']))
-		foreach ($upcontext['previous_substeps'] as $substep)
+		foreach ((array) $upcontext['previous_substeps'] as $substep)
 			echo '
 					<br>', Lang::$txt['completed_cleanup_step'], ' &quot;', $substep, '&quot;.';
 

@@ -884,14 +884,14 @@ class Languages implements ActionInterface
 		];
 
 		$madeSave = false;
-		$index_filename = Config::$languagesdir . '/' . $lang_id . '/' . 'index.' . $lang_id . '.php';
+		$general_filename = Config::$languagesdir . '/' . $lang_id . '/General.php';
 
 		if (!empty($_POST['save_main']) && !$current_file) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-mlang');
 
 			// Read in the current file.
-			$current_data = implode('', file($index_filename));
+			$current_data = implode('', file($general_filename));
 
 			// Build the replacements. old => new
 			$replace_array = [];
@@ -902,19 +902,19 @@ class Languages implements ActionInterface
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
 
-			$fp = fopen($index_filename, 'w+');
+			$fp = fopen($general_filename, 'w+');
 			fwrite($fp, $current_data);
 			fclose($fp);
 
 			$madeSave = true;
 		}
 
-		// Quickly load index language entries.
+		// Quickly load General language entries.
 		$old_txt = Lang::$txt;
 
-		require $index_filename;
+		require $general_filename;
 
-		Utils::$context['lang_file_not_writable_message'] = is_writable($index_filename) ? '' : sprintf(Lang::$txt['lang_file_not_writable'], $index_filename);
+		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : sprintf(Lang::$txt['lang_file_not_writable'], $general_filename);
 
 		// Setup the primary settings context.
 		Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr($lang_id, ['_' => ' ', '-utf8' => '']));
@@ -1552,7 +1552,7 @@ class Languages implements ActionInterface
 	/**
 	 * Fetch the actual language information.
 	 * Callback for $listOptions['get_items']['function'] in editLanguages.
-	 * Determines which languages are available by looking for the "index.{language}.php" file.
+	 * Determines which languages are available by looking for the "{language}/General.php" file.
 	 * Also figures out how many users are using a particular language.
 	 *
 	 * @return array An array of information about currently installed languages
