@@ -5258,13 +5258,14 @@ class User implements \ArrayAccess
 			// Make it permanent for members.
 			if (!empty($this->id)) {
 				self::updateMemberData($this->id, ['lngfile' => $this->language]);
+				unset($_SESSION['language']);
 			} else {
 				$_SESSION['language'] = $this->language;
 			}
 
 			// Reload same URL with new language, if applicable.
 			if (isset($_SESSION['old_url'])) {
-				Utils::redirectexit($_SESSION['old_url']);
+				Utils::redirectexit(preg_replace('~language=[^;&$]+~i', '', $_SESSION['old_url']));
 			}
 		}
 		// Carry forward the last language request in this session, if any.
@@ -5272,7 +5273,7 @@ class User implements \ArrayAccess
 			$this->language = strtr($_SESSION['language'], './\\:', '____');
 		}
 		// Can we locate it in the accept language?
-		elseif (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) && class_exists('\Locale')) {
+		elseif ($this->id === 0 && empty($_SESSION['language']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) && class_exists('\Locale')) {
 			foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $match) {
 				[$lang] = explode(';', $match);
 				$lang = \Locale::canonicalize($lang);
