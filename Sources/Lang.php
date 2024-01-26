@@ -199,6 +199,9 @@ class Lang
 			// Try to find the language file.
 			$found = false;
 
+			// Flip this around.
+			$attempts = array_reverse($attempts);
+
 			foreach ($attempts as $k => $file) {
 				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
 					/**
@@ -250,8 +253,6 @@ class Lang
 
 						setlocale(LC_CTYPE, $locale_variants);
 					}
-
-					break;
 				}
 			}
 
