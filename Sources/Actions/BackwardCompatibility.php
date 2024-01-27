@@ -38,7 +38,7 @@ trait BackwardCompatibility
 		self::load();
 
 		if (is_string($sa)) {
-			// make sure its a supported subaction
+			// make sure it's a supported subaction
 			if (array_key_exists($sa, self::$subactions)) {
 				self::$obj->subaction = $sa;
 			}

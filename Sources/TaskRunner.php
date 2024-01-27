@@ -491,7 +491,7 @@ class TaskRunner
 		);
 
 		if ($row = Db::$db->fetch_assoc($request)) {
-			// We found one. Let's try and claim it immediately.
+			// We found one. Let's try to claim it immediately.
 			Db::$db->free_result($request);
 			Db::$db->query(
 				'',

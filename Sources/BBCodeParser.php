@@ -942,7 +942,7 @@ class BBCodeParser
 	/**
 	 * @var array
 	 *
-	 * Version of self::$codes used for interal processing.
+	 * Version of self::$codes used for internal processing.
 	 */
 	private $bbc_codes = [];
 
@@ -1131,7 +1131,7 @@ class BBCodeParser
 	 * @param bool $smileys Whether to parse smileys. Default: true.
 	 * @param string|int $cache_id The cache ID.
 	 *    If $cache_id is left empty, an ID will be generated automatically.
-	 *    Manually specifiying a ID is helpful in cases when an integration hook
+	 *    Manually specifying a ID is helpful in cases when an integration hook
 	 *    wants to identify particular strings to act upon, but is otherwise
 	 *    unnecessary.
 	 * @param array $parse_tags If set, only parses these tags rather than all of them.

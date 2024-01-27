@@ -177,7 +177,7 @@ abstract class DatabaseApi
 	 *
 	 * The number of queries that have been run.
 	 *
-	 * For backward compatibilty, also referenced as global $db_count.
+	 * For backward compatibility, also referenced as global $db_count.
 	 */
 	public static int $count = 0;
 
@@ -186,7 +186,7 @@ abstract class DatabaseApi
 	 *
 	 * Records debugging info when $this->show_debug is true.
 	 *
-	 * For backward compatibilty, also referenced as global $db_cache.
+	 * For backward compatibility, also referenced as global $db_cache.
 	 */
 	public static array $cache = [];
 
@@ -195,7 +195,7 @@ abstract class DatabaseApi
 	 *
 	 * Tracks package install/uninstall actions as they are performed.
 	 *
-	 * For backward compatibilty, also referenced as global $db_package_log.
+	 * For backward compatibility, also referenced as global $db_package_log.
 	 */
 	public static array $package_log = [];
 
@@ -438,7 +438,7 @@ abstract class DatabaseApi
 	 */
 	protected function prefixReservedTables(): void
 	{
-		// Reset $resevedTables to default.
+		// Reset $reservedTables to default.
 		$class_vars = get_class_vars(__CLASS__);
 		$this->reservedTables = $class_vars['reservedTables'];
 

@@ -325,7 +325,7 @@ class Profile extends User implements \ArrayAccess
 		 *
 		 *    - true:           Element can be stored.
 		 *    - false:          Skip this element.
-		 *    - a text string:  An error occured; this is the error message.
+		 *    - a text string:  An error occurred; this is the error message.
 		 *
 		 * function $preload:   A function that is used to load data required
 		 *                      for this element to be displayed. Must return
@@ -2346,7 +2346,7 @@ class Profile extends User implements \ArrayAccess
 					$value = Utils::htmlTrim($value);
 					$valueReference = Utils::htmlspecialcharsDecode($value);
 
-					// Try and avoid some checks. '0' could be a valid non-empty value.
+					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
 						$value = '';
 					}

@@ -95,7 +95,7 @@ class Themes implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -1696,7 +1696,7 @@ class Themes implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$single[$row['variable']] = $row['value'];
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$single['theme_dir'] = realpath($row['value']);
 				$single['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
@@ -1771,7 +1771,7 @@ class Themes implements ActionInterface
 				];
 			}
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
 				Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
@@ -1835,7 +1835,7 @@ class Themes implements ActionInterface
 				];
 			}
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
 				Utils::$context['themes'][$row['id_theme']]['valid_path'] = $row['value'] !== false && file_exists($row['value']) && is_dir($row['value']);

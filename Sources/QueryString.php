@@ -351,7 +351,7 @@ class QueryString
 	/**
 	 * Checks whether a $_REQUEST variable contains an expected value.
 	 *
-	 * The second paramenter, $var, gives the name of the $_REQUEST variable
+	 * The second parameter, $var, gives the name of the $_REQUEST variable
 	 * to check. For example, if $var == 'action', then $_REQUEST['action']
 	 * will be tested.
 	 *

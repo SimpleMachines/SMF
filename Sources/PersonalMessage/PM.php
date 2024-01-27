@@ -2149,7 +2149,7 @@ class PM implements \ArrayAccess
 	}
 
 	/**
-	 * Backward compatibilty wrapper around the non-static canAccess() method.
+	 * Backward compatibility wrapper around the non-static canAccess() method.
 	 *
 	 * Check if the PM is available to the current user.
 	 *

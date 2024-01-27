@@ -918,7 +918,7 @@ class Permissions implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -3530,7 +3530,7 @@ class Permissions implements ActionInterface
 		IntegrationHook::call('integrate_load_illegal_permissions');
 
 		// If the hook added anything, sync that back to our master list.
-		// Because this hook can't tell us what the prerequistes are, we assume
+		// Because this hook can't tell us what the prerequisites are, we assume
 		// that the permission can only be granted by admins.
 		if ($temp != Utils::jsonEncode(self::$illegal)) {
 			foreach (self::$illegal as $permission) {

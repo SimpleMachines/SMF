@@ -86,7 +86,7 @@ class Attachments implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -1847,7 +1847,7 @@ class Attachments implements ActionInterface
 	}
 
 	/**
-	 * Maintance function to move attachments from one directory to another
+	 * Maintenance function to move attachments from one directory to another
 	 */
 	public function transfer(): void
 	{
@@ -1880,7 +1880,7 @@ class Attachments implements ActionInterface
 		}
 
 		if (empty($results)) {
-			// Get the total file count for the progess bar.
+			// Get the total file count for the progress bar.
 			$request = Db::$db->query(
 				'',
 				'SELECT COUNT(*)

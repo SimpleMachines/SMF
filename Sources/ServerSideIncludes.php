@@ -1426,7 +1426,7 @@ class ServerSideIncludes
 	 * Alias: ssi_logOnline()
 	 *
 	 * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
-	 * @return ?array Either displays a list of online users or returns an aray of info about them, depending on output_method.
+	 * @return ?array Either displays a list of online users or returns an array of info about them, depending on output_method.
 	 */
 	public static function logOnline(string $output_method = 'echo'): ?array
 	{
@@ -1845,7 +1845,7 @@ class ServerSideIncludes
 
 		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)] : '';
 
-		// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in Utils::$context.
+		// If mods want to do something with the news, let them do that now. Don't need to pass the news line itself, since it is already in Utils::$context.
 		IntegrationHook::call('integrate_ssi_news');
 
 		if ($output_method != 'echo') {

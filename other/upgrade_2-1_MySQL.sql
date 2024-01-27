@@ -1412,7 +1412,7 @@ $request = Db::$db->query('', '
 	)
 );
 // Check which themes exist in the filesystem & save off their IDs
-// Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
+// Don't delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = Config::$boarddir . '/Themes/core';
 while ($row = Db::$db->fetch_assoc($request))	{
@@ -3363,7 +3363,7 @@ if (in_array('filename', $smileys_columns))
 	}
 }
 
-// Set new default if the old one doesnt exist
+// Set new default if the old one doesn't exist
 // If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
 if (!array_key_exists(Config::$modSettings['smiley_sets_default'], $filtered))
 {

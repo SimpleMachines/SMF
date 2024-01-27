@@ -1843,7 +1843,7 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
 	 *
-	 * @return array|string If succesful, it will return an array of loaded data. String, most likely a Lang::$txt key if there was some error.
+	 * @return array|string If successful, it will return an array of loaded data. String, most likely a Lang::$txt key if there was some error.
 	 */
 	public static function parseAttachBBC(int|string $attachID = 0): array|string
 	{

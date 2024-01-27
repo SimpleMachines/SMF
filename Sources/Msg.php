@@ -66,7 +66,7 @@ class Msg implements \ArrayAccess
 	 * @var int
 	 *
 	 * Unix timestamp when this message was modified.
-	 * Will be 0 if message has never been modifed.
+	 * Will be 0 if message has never been modified.
 	 */
 	public int $modified_time = 0;
 
@@ -587,7 +587,7 @@ class Msg implements \ArrayAccess
 	 * Cleans up links (javascript, etc.) and code/quote sections.
 	 * Won't convert \n's and a few other things if previewing is true.
 	 *
-	 * @param string &$message The mesasge
+	 * @param string &$message The message
 	 * @param bool $previewing Whether we're previewing
 	 */
 	public static function preparsecode(string &$message, bool $previewing = false): void

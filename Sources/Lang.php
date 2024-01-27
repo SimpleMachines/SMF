@@ -129,7 +129,7 @@ class Lang
 	/**
 	 * @var array
 	 *
-	 * Tracks which langauge files we have loaded.
+	 * Tracks which language files we have loaded.
 	 */
 	private static $already_loaded = [];
 

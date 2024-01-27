@@ -220,7 +220,7 @@ function template_admin_browse()
 {
 	template_show_list('approve_list');
 
-	// If we have lots of outstanding members try and make the admin's life easier.
+	// If we have lots of outstanding members try to make the admin's life easier.
 	if (Utils::$context['approve_list']['total_num_items'] > 20)
 	{
 		echo '

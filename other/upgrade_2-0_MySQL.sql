@@ -1720,7 +1720,7 @@ if ($profileCount == 0)
 	{
 		$row['name'] = addslashes($row['name']);
 
-		// Is it a truely local permission board? If so this is a new profile!
+		// Is it a truly local permission board? If so this is a new profile!
 		if ($row['permission_mode'] == 1)
 		{
 			// I know we could cache this, but I think we need to be practical - this is slow but guaranteed to work.

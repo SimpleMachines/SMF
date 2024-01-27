@@ -252,7 +252,7 @@ class Theme
 			$GLOBALS['options']  = &self::$current->options;
 		}
 
-		// Ensure that SMF\Lang knows that it should use this theme's langauge files.
+		// Ensure that SMF\Lang knows that it should use this theme's language files.
 		Lang::addDirs();
 
 		// Initializing sets up a bunch more stuff.
@@ -752,7 +752,7 @@ class Theme
 	{
 		static $loaded = false;
 
-		// Under SSI this function can be called more then once.  That can cause some problems.
+		// Under SSI this function can be called more than once.  That can cause some problems.
 		// So only run the function once unless we are forced to run it again.
 		if ($loaded && !$forceload) {
 			return;

@@ -36,7 +36,7 @@ use SMF\PersonalMessage\PM;
  * For the convenience of theme creators, User::$me is also available as
  * Utils::$context['user'], and its properties can be accessed as if they were
  * array elements. This means that Utils::$context['user']['id'] is
- * interchangable with User::$me->id.
+ * interchangeable with User::$me->id.
  *
  * The data previously available in the deprecated global $user_profile array
  * is now available as User::$profiles. For example, where old code might have
@@ -51,7 +51,7 @@ use SMF\PersonalMessage\PM;
  * populate $memberContext[$id_member], User::$loaded[$id_member]->format() must
  * be called in order to populate User::$loaded[$id_member]->formatted.
  *
- * To faciliate backward compatibility, the deprecated global $user_info array
+ * To facilitate backward compatibility, the deprecated global $user_info array
  * is still available, but it is simply a reference to User::$me.
  *
  * Similarly, the deprecated global $user_settings array is still available, but
@@ -535,7 +535,7 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Permssions that this user has been granted.
+	 * Permissions that this user has been granted.
 	 */
 	public array $permissions = [];
 
@@ -1438,7 +1438,7 @@ class User implements \ArrayAccess
 	/**
 	 * Quickly find out what moderation authority the current user has
 	 *
-	 * Builds the moderator, group and board level querys for the user.
+	 * Builds the moderator, group and board level queries for the user.
 	 *
 	 * Stores the information on the current users moderation powers in
 	 * User::$me->mod_cache and $_SESSION['mc'].
@@ -3931,7 +3931,7 @@ class User implements \ArrayAccess
 		// Nothing found yet.
 		$results = [];
 
-		// This ensures you can't search someones email address if you can't see it.
+		// This ensures you can't search someone's email address if you can't see it.
 		if (($use_wildcards || $maybe_email) && self::$me->allowedTo('moderate_forum')) {
 			$email_condition = '
 				OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';

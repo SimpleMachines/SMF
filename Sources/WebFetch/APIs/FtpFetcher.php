@@ -194,7 +194,7 @@ class FtpFetcher extends WebFetchApi
 	 */
 	public function result(?string $area = null): mixed
 	{
-		// Just return a specifed area or the entire result?
+		// Just return a specified area or the entire result?
 		if (empty($area)) {
 			return $this->response[0];
 		}

@@ -707,7 +707,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 ***********************/
 
 	/**
-	 * Convenience wrapper for constuctor.
+	 * Convenience wrapper for constructor.
 	 *
 	 * This is just syntactical sugar to ease method chaining.
 	 *

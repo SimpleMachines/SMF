@@ -102,7 +102,7 @@ class SecurityToken extends \ArrayObject
 	 * Sets $_SESSION['token'][$type . '-' . $action] to a new instance of this
 	 * class.
 	 *
-	 * Sets Utils::$context[$action . '_token_var'] to the the $var property of
+	 * Sets Utils::$context[$action . '_token_var'] to the $var property of
 	 * the token instance, and Utils::$context[$action . '_token'] to the $val
 	 * property. Also returns that data as an array.
 	 *

@@ -77,7 +77,7 @@ class Languages implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -1478,7 +1478,7 @@ class Languages implements ActionInterface
 
 	/**
 	 * Gets a list of available languages from the mother ship
-	 * Will return a subset if searching, otherwise all avaialble
+	 * Will return a subset if searching, otherwise all available
 	 *
 	 * @return array An array containing information about each available language
 	 */
@@ -1542,7 +1542,7 @@ class Languages implements ActionInterface
 	 * Determines which languages are available by looking for the "index.{language}.php" file.
 	 * Also figures out how many users are using a particular language.
 	 *
-	 * @return array An array of information about currenty installed languages
+	 * @return array An array of information about currently installed languages
 	 */
 	public static function list_getLanguages(): array
 	{

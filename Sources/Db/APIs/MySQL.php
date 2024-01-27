@@ -1257,7 +1257,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		// MySQL If its a text column, we need to add a size.
+		// MySQL If it's a text column, we need to add a size.
 		$cols = $this->list_columns($table_name, true);
 
 		foreach ($index_info['columns'] as &$c) {
@@ -1331,7 +1331,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Query returns a result or true if succesfull, false otherwise.
+		// Query returns a result or true if successful, false otherwise.
 		return $result !== false;
 	}
 
@@ -1449,7 +1449,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Allow for unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
-		// If you need to drop the default, that needs it's own thing...
+		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
@@ -1551,7 +1551,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Loop through the indexes next...
 		foreach ($indexes as $index) {
-			// MySQL If its a text column, we need to add a size.
+			// MySQL If it's a text column, we need to add a size.
 			foreach ($index['columns'] as &$c) {
 				$c = trim($c);
 
@@ -1951,7 +1951,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		parent::__construct();
 
-		// If caller was explict about non_fatal, respect that.
+		// If caller was explicit about non_fatal, respect that.
 		$non_fatal = !empty($options['non_fatal']);
 
 		// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.

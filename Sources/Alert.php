@@ -266,7 +266,7 @@ class Alert implements \ArrayAccess
 	}
 
 	/**
-	 * Perpares this alert for use in the templates.
+	 * Prepares this alert for use in the templates.
 	 *
 	 * @param bool $with_avatar Whether to load the avatar of the alert sender.
 	 * @param bool $show_links Whether to show links in the constituent parts of

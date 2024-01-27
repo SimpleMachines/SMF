@@ -1425,7 +1425,7 @@ class ExportProfileData extends BackgroundTask
 			 * 1. The 'value' can be one of the following:
 			 *    - an integer or string
 			 *    - an XPath expression
-			 *    - raw XML, which may or not not include other XSLT statements.
+			 *    - raw XML, which may or not include other XSLT statements.
 			 *
 			 * 2. Always set 'no_cdata_parse' to true when the value is raw XML.
 			 *

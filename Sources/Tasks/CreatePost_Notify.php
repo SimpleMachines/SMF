@@ -54,7 +54,7 @@ class CreatePost_Notify extends BackgroundTask
 	public const FREQUENCY_WEEKLY_DIGEST = 4;
 
 	/**
-	 * Minutes to wait before sending notifications about about mentions
+	 * Minutes to wait before sending notifications about mentions
 	 * and quotes in unwatched and/or edited posts.
 	 */
 	public const MENTION_DELAY = 5;

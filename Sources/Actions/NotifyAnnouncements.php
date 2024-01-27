@@ -42,7 +42,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -84,7 +84,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	}
 
 	/**
-	 * This does nothing for announcments.
+	 * This does nothing for announcements.
 	 */
 	protected function setId(): void
 	{

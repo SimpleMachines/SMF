@@ -142,7 +142,7 @@ class Reports implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
@@ -293,7 +293,7 @@ class Reports implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			// Each board has it's own table.
+			// Each board has its own table.
 			$this->newTable($row['name'], '', 'left', 'auto', 'left', '200', 'left');
 
 			$this_boardSettings = $boardSettings;

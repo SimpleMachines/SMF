@@ -234,7 +234,7 @@ class PageIndex implements \Stringable
 	{
 		// Why do all this work here rather than in the constructor, you ask?
 		// Because the string should always reflect the object's current
-		// property values, which may have changed after initial constuction.
+		// property values, which may have changed after initial construction.
 
 		// Ensure $this->start is still good, just in case someone changed it.
 		$this->start = $this->fixStart($this->start);

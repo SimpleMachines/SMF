@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 /**
- * Generates, compresses, and expands Univerally Unique Identifers.
+ * Generates, compresses, and expands Universally Unique Identifiers.
  *
  * This class can generate UUIDs of versions 1 through 7.
  *
@@ -124,7 +124,7 @@ class Uuid implements \Stringable
 	public const NAMESPACE_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
 
 	/**
-	 * The predefined namespace UUID for X.500 Distiguishing Names.
+	 * The predefined namespace UUID for X.500 Distinguishing Names.
 	 */
 	public const NAMESPACE_X500 = '6ba7b814-9dad-11d1-80b4-00c04fd430c8';
 
@@ -212,7 +212,7 @@ class Uuid implements \Stringable
 	/**
 	 * Constructor.
 	 *
-	 * Handling of the $input parameter varies depending on the $verion:
+	 * Handling of the $input parameter varies depending on the $version:
 	 *  - For v3 and v5, $input must be a string or \Stringable object to hash.
 	 *  - For v1, v6, and v7, $input can be a Unix timestamp, a parsable
 	 *    date string, a \DateTimeInterface object, or null to use current time.

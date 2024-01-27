@@ -34,7 +34,7 @@ use SMF\Utils;
 /**
  * Contains all the functionality required to be able to edit the core server
  * settings. This includes anything from which an error may result in the forum
- * destroying itself in a firey fury.
+ * destroying itself in a fiery fury.
  *
  * Adding options to one of the setting screens isn't hard. Call prepareDBSettingsContext;
  * The basic format for a checkbox is:
@@ -164,7 +164,7 @@ class Server implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
 	protected static self $obj;
 
