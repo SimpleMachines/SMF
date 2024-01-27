@@ -3278,6 +3278,17 @@ function ConvertUtf8()
 			'yoruba' => 'UTF-8',
 		];
 
+		// Map in the new locales. We do it like this, because we want to try our best to capture
+		// the correct charset no mater what the status of the language upgrade is.
+		foreach ($lang_charsets as $key => $value) {
+			// This could be more efficient, but its upgrade logic.
+			$locale = Lang::getLocaleFromLanguageName($key);
+
+			if ($locale !== null) {
+				$lang_charsets[$locale] = $value;
+			}
+		}
+
 		// Default to ISO-8859-1 unless we detected another supported charset
 		$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
 
