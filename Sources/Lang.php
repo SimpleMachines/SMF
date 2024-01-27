@@ -140,6 +140,13 @@ class Lang
 	 */
 	private static array $localized_copyright = [];
 
+	/**
+	 * @var array
+	 *
+	 * Keeps track of any legacy mapping we did.
+	 */
+	private static $old_language_map = [];
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -254,6 +261,11 @@ class Lang
 						setlocale(LC_CTYPE, $locale_variants);
 					}
 				}
+			}
+
+			// Legacy language calls.
+			if (Config::$backward_compatibility) {
+				$found = self::loadOld($attempts) || $found;
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
@@ -628,19 +640,19 @@ class Lang
 	 * This is the full array.  Languages can map to:
 	 * - null: No translation, langauge is removed and no UTF-8 upgrade possible.
 	 * - Same locales: Merging language into the same locale.
-	 * 
+	 *
 	 * This MAY NOT map the same name to multiple locales.
-	 * This is used to support Upgrading from SMF 2.1 and below.
-	 * 
+	 * This is used to support upgrading from SMF 2.1 and below.
+	 *
 	 * @return array Key/Value array with Key being the old name and value the locale.
 	 */
 	public static function oldLanguageMap(): array
 	{
-		/**
+		/*
 		 *  Some notes:
 		 * - english_pirate isn't a real language, so we use the _x_ to mark it as a 'private language'.
 		 * - Various languages had 'informal', these are not a locale, so we typically just mapped these to the 'root'
-		 * */ 
+		 * */
 		return [
 			'albanian' => 'sq_AL',
 			'arabic' => 'ar_001', // 001 is the region code the whole world, so this means modern standard Arabic.
@@ -697,14 +709,75 @@ class Lang
 	/**
 	 * Given a old language naming, this will return the locale name.
 	 * This is used to support upgrading from SMF 2.1 and below.
-	 * This is also used to support compatibility for customizations. 
-	 * 
+	 * This is also used to support compatibility for customizations.
+	 *
 	 * @param string $lang Language name
 	 * @return ?string Locale is returned if found, null otherwise.
 	 */
 	public static function getLocaleFromLanguageName(string $lang): ?string
 	{
 		return self::oldLanguageMap()[$lang] ?? null;
+	}
+
+	/**
+	 * A backwards compability wrapper for calling the language logic on old namings.
+	 * This is used to support backwards compatibility with SMF 2.1.  Do not rely on
+	 * this API to exist in future versions!
+	 *
+	 * @deprecated 3.0 Only used to support compatibility with old naming formats.
+	 * @param array $attempts The attempts to be made, this is built by the load() function.
+	 * @return bool If we actually loaded anything or not.
+	 */
+	public static function loadOld(array $attempts): bool
+	{
+		if (empty($attempts)) {
+			return false;
+		}
+
+		/**
+		 * $file[] =
+		 * 	0 => Directory
+		 *  1 => File
+		 *  2= Locale.
+		 */
+		$found = false;
+
+		foreach ($attempts as $k => $file) {
+			$oldLanguage = $old_language_map[$file[2]] = $old_language_map[$file[2]] ?? array_search($file[2], self::oldLanguageMap());
+
+			if ($oldLanguage !== false && file_exists($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php')) {
+				/**
+				 * @var string $forum_copyright
+				 * @var array $txt
+				 * @var array $txtBirthdayEmails
+				 * @var array $tztxt
+				 * @var array $editortxt
+				 * @var array $helptxt
+				 */
+				require $file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php';
+
+				// Note that we found it.
+				$found = true;
+
+				// Load the strings into our properties.
+				foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
+					if (!isset(${$var})) {
+						continue;
+					}
+
+					self::${$var} = array_merge(self::${$var}, ${$var});
+
+					unset(${$var});
+				}
+			}
+		}
+
+		// Keep track of what we're up to, soldier.
+		if (!empty(Config::$db_show_debug)) {
+			Utils::$context['debug']['language_files'][] = $file[1] . '.' . $oldLanguage . ' (' . (Config::$languagesdir == $file[0] ? 'Base' : basename(Theme::$current->settings['theme_url'] ?? 'unknown')) . ')';
+		}
+
+		return $found;
 	}
 }
 

@@ -1690,8 +1690,8 @@ class SubsPackage
 			'$themedir' => Theme::$current->settings['default_theme_dir'],
 			'$imagesdir' => Theme::$current->settings['default_theme_dir'] . '/' . basename(Theme::$current->settings['default_images_url']),
 			'$themes_dir' => Config::$boarddir . '/Themes',
-			'$languagedir' => Theme::$current->settings['default_theme_dir'] . '/languages',
-			'$languages_dir' => Theme::$current->settings['default_theme_dir'] . '/languages',
+			'$languagedir' => Config::$languagesdir,
+			'$languages_dir' => Config::$languagesdir,
 			'$smileysdir' => Config::$modSettings['smileys_dir'],
 			'$smileys_dir' => Config::$modSettings['smileys_dir'],
 		];
