@@ -549,7 +549,7 @@ function load_lang_file()
 	} else {
 		$_SESSION['upgrader_lang'] = 'en_US';
 	}
-	
+
 	// Avoid pointless repetition
 	if (isset($_SESSION['upgrader_lang']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php') {
 		return;
@@ -563,6 +563,11 @@ function load_lang_file()
 			$dir = dir($lang_dir);
 
 			while ($entry = $dir->read()) {
+				// We can't have periods.
+				if (strpos($entry, '.') !== false) {
+					continue;
+				}
+
 				if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
 					continue;
 				}
@@ -688,7 +693,7 @@ function load_lang_file()
 
 		// If we have English and some other language, use the other language.
 		if ($_SESSION['upgrader_lang'] == 'en_US' && count($detected_languages) > 1) {
-			list (, $_SESSION['upgrader_lang']) = array_keys($detected_languages);
+			list(, $_SESSION['upgrader_lang']) = array_keys($detected_languages);
 		}
 	}
 
@@ -1032,7 +1037,9 @@ function WelcomeLogin()
 
 	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
 		return throw_error(sprintf(Lang::$txt['error_lang_general_missing'], $upcontext['language'], $upgradeurl));
-	} elseif (!isset($_GET['skiplang'])) {
+	}
+
+	if (!isset($_GET['skiplang'])) {
 		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
 
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
@@ -1040,6 +1047,18 @@ function WelcomeLogin()
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			return throw_error(sprintf(Lang::$txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
 		}
+	}
+
+	// Do we need to update our Settings file with the new language locale?
+	$current_language = Config::$language;
+	$new_locale = Lang::getLocaleFromLanguageName($current_language);
+
+	if ($new_locale !== null) {
+		Config::updateSettingsFile(['language' => $new_locale]);
+	}
+
+	if (empty(Config::$languagesdir)) {
+		Config::updateSettingsFile(['languagesdir' => Config::$boarddir . '/Languages']);
 	}
 
 	if (!makeFilesWritable($writable_files)) {
@@ -1375,7 +1394,7 @@ function checkLogin()
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
-				} elseif (!file_exists(Config::$languagesdir . '/' . $user_language . 'Install.php')) {
+				} elseif (!file_exists(Config::$languagesdir . '/' . $user_language . '/Install.php')) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
 				} else {
 					// Set this as the new language.
@@ -3078,9 +3097,10 @@ function ConvertUtf8()
 	if (!empty($_POST['utf8_done'])) {
 		if ($command_line) {
 			return Cleanup();
-		} else {
-			return true;
 		}
+
+			return true;
+
 	}
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
@@ -3095,9 +3115,10 @@ function ConvertUtf8()
 
 		if ($command_line) {
 			return Cleanup();
-		} else {
-			return true;
 		}
+
+			return true;
+
 	}
 
 		$upcontext['page_title'] = Lang::$txt['converting_utf8'];
@@ -3961,73 +3982,80 @@ function Cleanup()
 	global $command_line, $upcontext, $support_js, $txt;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'cleanup_xml' : 'cleanup';
-	$upcontext['page_title'] = Lang::$txt['upgrade_cleanup'];
+	$upcontext['page_title'] = Lang::$txt['upgrade_step_cleanup'];
 
 	// Done it already - js wise?
-	if (!empty($_POST['cleanup_done']))
+	if (!empty($_POST['cleanup_done'])) {
 		return true;
+	}
 
-	$cleanupSteps = array(
+	$cleanupSteps = [
 		0 => 'CleanupLanguages',
-		1 => 'CleanupAgreements'
-	);
+		1 => 'CleanupAgreements',
+	];
 
 	$upcontext['steps_count'] = count($cleanupSteps);
 	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
-	$upcontext['cur_substep'] = isset($cleanupSteps[$upcontext['cur_substep_num']]) ? $cleanupSteps[$upcontext['cur_substep_num']] : $cleanupSteps[0];
-	$upcontext['cur_substep_name'] = isset($txt['cleanup_' . $upcontext['cur_substep']]) ? $txt['cleanup_' . $upcontext['cur_substep']] : $txt['upgrade_cleanup'];
+	$upcontext['cur_substep'] = $cleanupSteps[$upcontext['cur_substep_num']] ?? $cleanupSteps[0];
+	$upcontext['cur_substep_name'] = $txt['cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
 
-	foreach ($cleanupSteps as $id => $substep)
-		if ($id < $_GET['substep'])
+	foreach ($cleanupSteps as $id => $substep) {
+		if ($id < $_GET['substep']) {
 			$upcontext['previous_substeps'][] = $substep;
+		}
+	}
 
-	if ($command_line)
+	if ($command_line) {
 		echo 'Cleaning up.';
+	}
 
-	if (!$support_js || isset($_GET['xml']))
-	{
+	if (!$support_js || isset($_GET['xml'])) {
 		// Dubstep.
-		for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++)
-		{
+		for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
 			$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
-			$upcontext['cur_substep_name'] = isset($txt['cleanup_' . $cleanupSteps[$substep]]) ? $txt['cleanup_' . $cleanupSteps[$substep]] : $txt['upgrade_cleanup'];
+			$upcontext['cur_substep_name'] = $txt['cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
 			$upcontext['cur_substep_num'] = $substep + 1;
 
-			if ($command_line)
+			if ($command_line) {
 				echo "\n" . ' +++ Clean up \"' . $upcontext['cur_substep_name'] . '"...';
+			}
 
 			// Timeouts
 			nextSubstep($substep);
 
-			if ($command_line)
+			if ($command_line) {
 				echo ' done.';
+			}
 
 			// Just to make sure it doesn't time out.
-			if (function_exists('apache_reset_timeout'))
+			if (function_exists('apache_reset_timeout')) {
 				@apache_reset_timeout();
+			}
 
 			// Do the cleanup stuff.
 			$cleanupSteps[$substep]();
 
 			// If this is XML to keep it nice for the user do one cleanup at a time anyway!
-			if (isset($_GET['xml']))
+			if (isset($_GET['xml'])) {
 				return upgradeExit();
+			}
 		}
 
-		if ($command_line)
-		{
+		if ($command_line) {
 			echo "\n" . 'Successful.' . "\n";
 			flush();
 		}
 
 		$upcontext['step_progress'] = 100;
 		$_GET['substep'] = 0;
+
 		return true;
 	}
 
 	// If this fails we just move on to deleting the upgrade anyway...
 	$_GET['substep'] = 0;
+
 	return false;
 }
 
@@ -4035,30 +4063,32 @@ function CleanupLanguages()
 {
 	global $upcontext, $upgrade_path, $command_line;
 
-	$old_languages_dir = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';;
+	$old_languages_dir = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
 
 	// Can't do this if the old Themes/default/languages directory is not writable.
-	if(!quickFileWritable($old_languages_dir))
+	if(!quickFileWritable($old_languages_dir)) {
 		return;
+	}
 
 	$dir = dir($old_languages_dir);
-	while ($entry = $dir->read())
-	{
-		if (in_array($entry, ['.', '..', 'index.php']))
+
+	while ($entry = $dir->read()) {
+		if (in_array($entry, ['.', '..', 'index.php'])) {
 			continue;
+		}
 
 		// Skip ThemeStrings
-		if (substr($entry, 0, 13) == 'ThemeStrings.')
+		if (substr($entry, 0, 13) == 'ThemeStrings.') {
 			continue;
+		}
 
 		// Rename Settings to ThemeStrings.
-		if (substr($entry, 0, 9) == 'Settings.' && substr($entry, -4) == '.php' && strpos($entry, '-utf8') === false)
-		{
+		if (substr($entry, 0, 9) == 'Settings.' && substr($entry, -4) == '.php' && strpos($entry, '-utf8') === false) {
 			quickFileWritable($old_languages_dir . '/' . $entry);
 			rename($old_languages_dir . '/' . $entry, $old_languages_dir . '/' . str_replace('Settings.', 'ThemeStrings.', $entry));
-		}
-		else
+		} else {
 			deleteFile($old_languages_dir . '/' . $entry);
+		}
 	}
 	$dir->close();
 }
@@ -4068,18 +4098,21 @@ function CleanupAgreements()
 	global $upcontext, $upgrade_path, $command_line;
 
 	// Can't do this if the old Themes/default/languages directory is not writable.
-	if(!quickFileWritable(Config::$boarddir))
+	if(!quickFileWritable(Config::$boarddir)) {
 		return;
+	}
 
 	$dir = dir(Config::$boarddir);
-	while ($entry = $dir->read())
-	{
-		if (in_array($entry, ['.', '..', 'index.php']))
+
+	while ($entry = $dir->read()) {
+		if (in_array($entry, ['.', '..', 'index.php'])) {
 			continue;
+		}
 
 		// Skip anything not agreements.
-		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt')
+		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt') {
 			continue;
+		}
 
 		rename(Config::$boarddir . '/' . $entry, Config::$languagesdir . '/' . $entry);
 	}
@@ -5381,7 +5414,7 @@ function template_cleanup()
 	global $upcontext, $support_js, $is_debug;
 
 	echo '
-				<h3>', Lang::$txt['upgrade_cleanup'], '</h3>
+				<h3>', Lang::$txt['upgrade_step_cleanup'], '</h3>
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="cleanup_done" id="cleanup_done" value="0">
 					<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_substep_num'], '</span> ', Lang::$txt['upgrade_outof'], ' ', $upcontext['steps_count'], ' ', Lang::$txt['upgrade_steps'], '</strong>
@@ -5390,10 +5423,12 @@ function template_cleanup()
 					</div>';
 
 	// Dont any tables so far?
-	if (!empty($upcontext['previous_substeps']))
-		foreach ((array) $upcontext['previous_substeps'] as $substep)
+	if (!empty($upcontext['previous_substeps'])) {
+		foreach ((array) $upcontext['previous_substeps'] as $substep) {
 			echo '
 					<br>', Lang::$txt['completed_cleanup_step'], ' &quot;', $substep, '&quot;.';
+		}
+	}
 
 	echo '
 					<h3 id="current_tab">
@@ -5405,8 +5440,7 @@ function template_cleanup()
 	$upcontext['continue'] = $support_js ? 2 : 1;
 
 	// If javascript allows we want to do this using XML.
-	if ($support_js)
-	{
+	if ($support_js) {
 		echo '
 					<script>
 						let lastSubStep = ', $upcontext['cur_substep_num'], ';
@@ -5432,12 +5466,13 @@ function template_cleanup()
 							updateStepProgress(iStepNum, ', $upcontext['steps_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
 
 		// If debug flood the screen.
-		if ($is_debug)
+		if ($is_debug) {
 			echo '
 							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['completed_cleanup_step'], ' &quot;\' + sCompletedStepName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 							if (document.getElementById(\'debug_section\').scrollHeight)
 								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
+		}
 
 		echo '
 							// Get the next update...

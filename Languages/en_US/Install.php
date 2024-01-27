@@ -344,6 +344,9 @@ $txt['upgrade_completed_time_ms'] = 'Upgrade completed in %2$s minutes and %1$s 
 $txt['upgrade_completed_time_s'] = 'Upgrade completed in %1$s seconds';
 $txt['upgrade_success_time_db'] = 'Successful! Database upgrades completed in %3$d hours, %2$d minutes and %1$d seconds.';
 
+$txt['upgrade_cleanup_completed'] = 'Cleanup has completed';
+$txt['upgrade_current_step'] = 'Current Step';
+
 $txt['upgrade_unsuccessful'] = 'Unsuccessful!';
 $txt['upgrade_thisquery'] = 'This query:';
 $txt['upgrade_causerror'] = 'Caused the error:';
