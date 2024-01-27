@@ -829,6 +829,7 @@ function Credits($in_admin = false)
 					'K@',
 					'metallica48423',
 					'Paul_Pauline',
+					'Rock Lee',
 				),
 			),
 		),
