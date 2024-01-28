@@ -501,7 +501,7 @@ class Registration implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		// Do we have at least default versions of the agreement and privacy policy?
-		$agreement = file_exists(Config::$languagesdir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$languagesdir . '/agreement.txt');
+		$agreement = file_exists(Config::$languagesdir . '/' . Lang::$default . '/agreement.txt') || file_exists(Config::$languagesdir . '/agreement.txt');
 
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 
