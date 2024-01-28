@@ -313,6 +313,7 @@ class Credits implements ActionInterface
 						'K@',
 						'metallica48423',
 						'Paul_Pauline',
+						'Rock Lee',
 					],
 				],
 			],
