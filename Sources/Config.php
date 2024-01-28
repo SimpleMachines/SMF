@@ -777,18 +777,6 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
-		'tasksdir' => [
-			'text' => <<<'END'
-				/**
-				 * @var string
-				 *
-				 * Path to the tasks directory.
-				 */
-				END,
-			'default' => '$sourcedir . \'/Tasks\'',
-			'raw_default' => true,
-			'type' => 'string',
-		],
 		[
 			'text' => <<<'END'
 
@@ -797,8 +785,6 @@ class Config
 					$boarddir = dirname(__FILE__);
 				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
-					$tasksdir = $sourcedir . '/Tasks';
 				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 					$packagesdir = $boarddir . '/Packages';
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
@@ -806,7 +792,7 @@ class Config
 				if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
 					$languagesdir = $boarddir . '/Languages';
 				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'
@@ -950,7 +936,7 @@ class Config
 		}
 
 		// Ensure there are no trailing slashes in these settings.
-		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir', 'languagesdir'] as $var) {
+		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'cachedir', 'languagesdir'] as $var) {
 			if (!is_null(self::${$var})) {
 				self::${$var} = rtrim(self::${$var}, '\\/');
 			}
@@ -966,9 +952,8 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
-		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/Tasks')) {
-			self::$tasksdir = self::$sourcedir . '/Tasks';
-		}
+		// As of 3.0, this is no longer changeable.
+		self::$tasksdir = self::$sourcedir . '/Tasks';
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
