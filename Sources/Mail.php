@@ -58,7 +58,7 @@ class Mail
 
 		// Line breaks need to be \r\n only in windows or for SMTP.
 		// Starting with php 8x, line breaks need to be \r\n even for linux.
-		$line_break = (Utils::$context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
+		$line_break = (Sapi::isOS(Sapi::OS_WINDOWS) || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
 
 		// So far so good.
 		$mail_result = true;

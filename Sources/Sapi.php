@@ -306,7 +306,7 @@ class Sapi
 	 */
 	public static function resetTimeout()
 	{
-		if (!empty(Utils::$context['server']['is_apache']) && function_exists('apache_reset_timeout')) {
+		if (self::isSoftware(self::SERVER_APACHE) && function_exists('apache_reset_timeout')) {
 			try {
 				apache_reset_timeout();
 			} catch (\Exception $e) {
@@ -314,3 +314,5 @@ class Sapi
 		}
 	}
 }
+
+?>
