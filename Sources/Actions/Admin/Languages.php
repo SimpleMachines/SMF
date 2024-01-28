@@ -771,8 +771,7 @@ class Languages implements ActionInterface
 			$dir = dir($theme_dir . '/' . $lang_id);
 
 			while ($entry = $dir->read()) {
-				// We're only after the files for this language.
-				if (!preg_match('~^([A-Za-z]+)\.' . $lang_id . '\.php$~', $entry, $matches)) {
+				if ($entry === 'index.php' || !preg_match('/^(\w+)\.php$/', $entry, $matches)) {
 					continue;
 				}
 
@@ -878,7 +877,7 @@ class Languages implements ActionInterface
 			'native_name' => 'string',
 			'lang_character_set' => 'string',
 			'lang_locale' => 'string',
-			'lang_rtl' => 'string',
+			'lang_rtl' => 'bool',
 			'lang_dictionary' => 'string',
 			'lang_recaptcha' => 'string',
 		];
@@ -922,7 +921,7 @@ class Languages implements ActionInterface
 		foreach ($primary_settings as $setting => $type) {
 			Utils::$context['primary_settings'][$setting] = [
 				'label' => str_replace('lang_', '', $setting),
-				'value' => Lang::$txt[$setting],
+				'value' => $type === 'bool' ? !empty(Lang::$txt[$setting]) : Lang::$txt[$setting],
 			];
 		}
 
