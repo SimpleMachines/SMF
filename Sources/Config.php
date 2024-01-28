@@ -430,7 +430,7 @@ class Config
 				 * The default language file set for the forum.
 				 */
 				END,
-			'default' => 'english',
+			'default' => 'en_US',
 			'type' => 'string',
 		],
 		'boardurl' => [

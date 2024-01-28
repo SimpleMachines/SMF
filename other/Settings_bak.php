@@ -48,7 +48,7 @@ $mbname = 'My Community';
  *
  * The default language file set for the forum.
  */
-$language = 'english';
+$language = 'en_US';
 /**
  * @var string
  *
