@@ -233,11 +233,6 @@ class Lang
 			$lang = User::$me->language ?? self::$default;
 		}
 
-		// Don't repeat this unnecessarily.
-		if (!$force_reload && isset(self::$already_loaded[$template_name]) && self::$already_loaded[$template_name] == $lang) {
-			return $lang;
-		}
-
 		if (empty(self::$dirs)) {
 			self::addDirs();
 		}
@@ -247,6 +242,11 @@ class Lang
 			// Did we call the old index language file? Redirect.
 			if ($template === 'index') {
 				$template = 'General';
+			}
+
+			// Don't repeat this unnecessarily.
+			if (!$force_reload && isset(self::$already_loaded[$template]) && self::$already_loaded[$template] == $lang) {
+				continue;
 			}
 
 			$attempts = [];
@@ -271,14 +271,6 @@ class Lang
 
 			foreach ($attempts as $k => $file) {
 				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
-					/**
-					 * @var string $forum_copyright
-					 * @var array $txt
-					 * @var array $txtBirthdayEmails
-					 * @var array $tztxt
-					 * @var array $editortxt
-					 * @var array $helptxt
-					 */
 					// Include it!
 					// {DIR} / {locale} / {file} .php
 					require $file[0] . '/' . $file[2] . '/' . $file[1] . '.php';
@@ -366,10 +358,10 @@ class Lang
 				}
 				$birthdayEmails = [];
 			}
-		}
 
-		// Remember what we have loaded, and in which language.
-		self::$already_loaded[$template_name] = $lang;
+			// Remember what we have loaded, and in which language.
+			self::$already_loaded[$template] = $lang;
+		}
 
 		// Return the language actually loaded.
 		return $lang;
