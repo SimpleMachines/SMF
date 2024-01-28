@@ -40,6 +40,73 @@ class Lang
 		],
 	];
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Maps SMF 2.x language names to locales for SMF 3.0+.
+	 * This is used to support upgrading from SMF 2.1 and below.
+	 */
+	public const LANG_TO_LOCALE = [
+		'albanian' => 'sq_AL',
+		// 001 is the region code the whole world, so this means modern standard Arabic.
+		'arabic' => 'ar_001',
+		'bulgarian' => 'bg_BG',
+		'cambodian' => 'km_KH',
+		'catalan' => 'ca_ES',
+		'chinese-simplified' => 'zh_Hans',
+		'chinese-traditional' => 'zh_Hant',
+		'croatian' => 'hr_HR',
+		'czech' => 'cs_CZ',
+		// Since 'informal' is not a locale, we just map this to the 'root' locale.
+		'czech_informal' => 'cs',
+		'danish' => 'da_DK',
+		'dutch' => 'nl_NL',
+		'english' => 'en_US',
+		'english_british' => 'en_GB',
+		// english_pirate isn't a real language, so we use the _x_ to mark it as a 'private language'.
+		'english_pirate' => 'en_x_pirate',
+		'esperanto' => 'eo',
+		'finnish' => 'fi_FI',
+		'french' => 'fr_FR',
+		'galician' => 'gl_ES',
+		'german' => 'de_DE',
+		// Since 'informal' is not a locale, we just map this to the 'root' locale.
+		'german_informal' => 'de',
+		'greek' => 'el_GR',
+		'hebrew' => 'he_IL',
+		'hungarian' => 'hu_HU',
+		'indonesian' => 'id_ID',
+		'italian' => 'it_IT',
+		'japanese' => 'ja_JP',
+		'lithuanian' => 'lt_LT',
+		'macedonian' => 'mk_MK',
+		'malay' => 'ms_MY',
+		'norwegian' => 'nb_NO',
+		'persian' => 'fa_IR',
+		'polish' => 'pl_PL',
+		'portuguese_brazilian' => 'pt_BR',
+		'portuguese_pt' => 'pt_PT',
+		'romanian' => 'ro_RO',
+		'russian' => 'ru_RU',
+		// Cyrl indicates Cyrillic script.
+		'serbian_cyrillic' => 'sr_Cyrl',
+		// Latn indicates Latin script.
+		'serbian_latin' => 'sr_Latn',
+		'slovak' => 'sk_SK',
+		'slovenian' => 'sl_SI',
+		'spanish_es' => 'es_ES',
+		// 419 is the region code for Latin America.
+		'spanish_latin' => 'es_419',
+		'swedish' => 'sv_SE',
+		'thai' => 'th_TH',
+		'turkish' => 'tr_TR',
+		'ukrainian' => 'uk_UA',
+		'urdu' => 'ur_PK',
+		'vietnamese' => 'vi_VN',
+	];
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -139,13 +206,6 @@ class Lang
 	 * Tracks the value of $forum_copyright for different languages.
 	 */
 	private static array $localized_copyright = [];
-
-	/**
-	 * @var array
-	 *
-	 * Keeps track of any legacy mapping we did.
-	 */
-	private static $old_language_map = [];
 
 	/***********************
 	 * Public static methods
@@ -636,97 +696,40 @@ class Lang
 	}
 
 	/**
-	 * Mapper for old Language names to locales.
-	 * This is the full array.  Languages can map to:
-	 * - null: No translation, langauge is removed and no UTF-8 upgrade possible.
-	 * - Same locales: Merging language into the same locale.
+	 * Given an SMF 2.x language name, returns the locale code for SMF 3.0+.
 	 *
-	 * This MAY NOT map the same name to multiple locales.
-	 * This is used to support upgrading from SMF 2.1 and below.
-	 *
-	 * @return array Key/Value array with Key being the old name and value the locale.
-	 */
-	public static function oldLanguageMap(): array
-	{
-		/*
-		 *  Some notes:
-		 * - english_pirate isn't a real language, so we use the _x_ to mark it as a 'private language'.
-		 * - Various languages had 'informal', these are not a locale, so we typically just mapped these to the 'root'
-		 * */
-		return [
-			'albanian' => 'sq_AL',
-			'arabic' => 'ar_001', // 001 is the region code the whole world, so this means modern standard Arabic.
-			'bulgarian' => 'bg_BG',
-			'cambodian' => 'km_KH',
-			'catalan' => 'ca_ES',
-			'chinese-simplified' => 'zh_Hans', // Hans indicates the script rather than a country.
-			'chinese-traditional' => 'zh_Hant', // Hant indicates the script rather than a country.
-			'croatian' => 'hr_HR',
-			'czech' => 'cs_CZ',
-			'czech_informal' => 'cs',
-			'danish' => 'da_DK',
-			'dutch' => 'nl_NL',
-			'english' => 'en_US',
-			'english_british' => 'en_GB',
-			'english_pirate' => 'en_x_pirate',
-			'esperanto' => 'eo',
-			'finnish' => 'fi_FI',
-			'french' => 'fr_FR',
-			'galician' => 'gl_ES',
-			'german' => 'de_DE',
-			'german_informal' => 'de',
-			'greek' => 'el_GR',
-			'hebrew' => 'he_IL',
-			'hungarian' => 'hu_HU',
-			'indonesian' => 'id_ID',
-			'italian' => 'it_IT',
-			'japanese' => 'ja_JP',
-			'lithuanian' => 'lt_LT',
-			'macedonian' => 'mk_MK',
-			'malay' => 'ms_MY',
-			'norwegian' => 'nb_NO',
-			'persian' => 'fa_IR',
-			'polish' => 'pl_PL',
-			'portuguese_brazilian' => 'pt_BR',
-			'portuguese_pt' => 'pt_PT',
-			'romanian' => 'ro_RO',
-			'russian' => 'ru_RU',
-			'serbian_cyrillic' => 'sr_Cyrl', // Cyrl indicates Cyrillic script.
-			'serbian_latin' => 'sr_Latn', // Latn indicates Latin script.
-			'slovak' => 'sk_SK',
-			'slovenian' => 'sl_SI',
-			'spanish_es' => 'es_ES',
-			'spanish_latin' => 'es_419', // 419 is the region code for Latin America.
-			'swedish' => 'sv_SE',
-			'thai' => 'th_TH',
-			'turkish' => 'tr_TR',
-			'ukrainian' => 'uk_UA',
-			'urdu' => 'ur_PK',
-			'vietnamese' => 'vi_VN',
-		];
-	}
-
-	/**
-	 * Given a old language naming, this will return the locale name.
 	 * This is used to support upgrading from SMF 2.1 and below.
 	 * This is also used to support compatibility for customizations.
+	 *
+	 * If $lang is already a supported locale, it will simply be returned.
+	 *
+	 * Languages can map to:
+	 * - null: No translation. Language is removed and no upgrade is possible.
+	 * - A locale: The locale code for the language.
 	 *
 	 * @param string $lang Language name
 	 * @return ?string Locale is returned if found, null otherwise.
 	 */
 	public static function getLocaleFromLanguageName(string $lang): ?string
 	{
-		return self::oldLanguageMap()[$lang] ?? null;
+		// Already a locale?
+		// Note: we can't just do in_array($lang, self::LANG_TO_LOCALE) because
+		// new language packs added after 2.1 won't be in self::LANG_TO_LOCALE.
+		if (strlen($lang) === 2 || substr($lang, 2, 1) === '_') {
+			return $lang;
+		}
+
+		return self::LANG_TO_LOCALE[$lang] ?? null;
 	}
 
 	/**
-	 * A backwards compability wrapper for calling the language logic on old namings.
-	 * This is used to support backwards compatibility with SMF 2.1.  Do not rely on
-	 * this API to exist in future versions!
+	 * A backward compability method for loading language files with old names.
+	 * This is used to support backward compatibility with mods from SMF 2.1.
+	 * Do not rely on this method to exist in future versions!
 	 *
-	 * @deprecated 3.0 Only used to support compatibility with old naming formats.
-	 * @param array $attempts The attempts to be made, this is built by the load() function.
-	 * @return bool If we actually loaded anything or not.
+	 * @deprecated 3.0 Only used to support compatibility with old name formats.
+	 * @param array $attempts The attempts to be made; see self::load().
+	 * @return bool Whether we loaded anything or not.
 	 */
 	public static function loadOld(array $attempts): bool
 	{
@@ -734,26 +737,20 @@ class Lang
 			return false;
 		}
 
+		$locale_to_lang = array_flip(self::LANG_TO_LOCALE);
+
+		$found = false;
+
 		/**
 		 * $file[] =
 		 * 	0 => Directory
 		 *  1 => File
 		 *  2= Locale.
 		 */
-		$found = false;
-
 		foreach ($attempts as $k => $file) {
-			$oldLanguage = $old_language_map[$file[2]] = $old_language_map[$file[2]] ?? array_search($file[2], self::oldLanguageMap());
+			$oldLanguage = $locale_to_lang[$file[2]] ?? false;
 
 			if ($oldLanguage !== false && file_exists($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php')) {
-				/**
-				 * @var string $forum_copyright
-				 * @var array $txt
-				 * @var array $txtBirthdayEmails
-				 * @var array $tztxt
-				 * @var array $editortxt
-				 * @var array $helptxt
-				 */
 				require $file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php';
 
 				// Note that we found it.
