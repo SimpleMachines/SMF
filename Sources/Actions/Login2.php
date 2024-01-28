@@ -21,6 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -91,7 +92,7 @@ class Login2 implements ActionInterface
 	public function execute(): void
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 
@@ -144,7 +145,7 @@ class Login2 implements ActionInterface
 
 		Cookie::setLoginCookie((int) $timeout - time(), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
-		Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
+		Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Sapi::needsLoginFix());
 	}
 
 	/**
@@ -829,9 +830,9 @@ class Login2 implements ActionInterface
 
 		// Just log you back out if it's in maintenance mode and you AREN'T an admin.
 		if (empty(Config::$maintenance) || User::$me->allowedTo('admin_forum')) {
-			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Sapi::needsLoginFix());
 		} else {
-			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Sapi::needsLoginFix());
 		}
 	}
 }

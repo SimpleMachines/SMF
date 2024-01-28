@@ -1615,6 +1615,7 @@ class ACP implements ActionInterface
 			$directories += ['template_versions' => Theme::$current->settings['theme_dir']];
 		}
 
+		/** @var string $dirname */
 		foreach ($directories as $type => $dirname) {
 			$this_dir = dir($dirname);
 

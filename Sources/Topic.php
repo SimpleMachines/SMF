@@ -1190,7 +1190,7 @@ class Topic implements \ArrayAccess
 				$recycleTopics = [];
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					Utils::sapiResetTimeout();
+					Sapi::resetTimeout();
 
 					$recycleTopics[] = (int) $row['id_topic'];
 
@@ -1290,7 +1290,7 @@ class Topic implements \ArrayAccess
 		if ($updateBoardCount) {
 			// Decrease the posts/topics...
 			foreach ($adjustBoards as $stats) {
-				Utils::sapiResetTimeout();
+				Sapi::resetTimeout();
 
 				Db::$db->query(
 					'',
@@ -1383,7 +1383,7 @@ class Topic implements \ArrayAccess
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				Utils::sapiResetTimeout();
+				Sapi::resetTimeout();
 
 				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
 				$messages[] = $row['id_msg'];

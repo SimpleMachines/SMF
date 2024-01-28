@@ -25,6 +25,7 @@ use SMF\PackageManager\XmlArray;
 use SMF\User;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
+use SMF\Sapi;
 
 /**
  * Provides the search functionality inside the admin control panel.
@@ -194,7 +195,7 @@ class Find implements ActionInterface
 	public function internal(): void
 	{
 		// Try to get some more memory.
-		Config::setMemoryLimit('128M');
+		sapi::setMemoryLimit('128M');
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 

@@ -232,9 +232,8 @@ class Mail
 				restore_error_handler();
 
 				// Wait, wait, I'm still sending here!
-				Utils::sapiSetTimeLimit(300);
-
-				Utils::sapiResetTimeout();
+				Sapi::setTimeLimit(300);
+				Sapi::resetTimeout();
 			}
 		} else {
 			$mail_result = $mail_result && self::sendSmtp($to_array, $subject, $message, $headers);
@@ -529,9 +528,8 @@ class Mail
 				$result = mail(strtr($email['to'], ["\r" => '', "\n" => '']), $email['subject'], $email['body'], $email['headers']);
 
 				// Try to stop a timeout, this would be bad...
-				Utils::sapiSetTimeLimit(300);
-
-				Utils::sapiResetTimeout();
+				Sapi::setTimeLimit(300);
+				Sapi::resetTimeout();
 			} else {
 				$result = self::sendSmtp([$email['to']], $email['subject'], $email['body'], $email['headers']);
 			}
@@ -920,9 +918,8 @@ class Mail
 			}
 
 			// Almost done, almost done... don't stop me just yet!
-			Utils::sapiSetTimeLimit(300);
-
-			Utils::sapiResetTimeout();
+			Sapi::setTimeLimit(300);
+			Sapi::resetTimeout();
 		}
 		fputs($socket, 'QUIT' . "\r\n");
 		fclose($socket);

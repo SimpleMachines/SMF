@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Sapi;
 use SMF\Utils;
 
 /**
@@ -46,7 +47,7 @@ class DisplayAdminFile implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Config::setMemoryLimit('32M');
+		Sapi::setMemoryLimit('32M');
 
 		if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('no_access', false);

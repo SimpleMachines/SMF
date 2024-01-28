@@ -18,6 +18,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -2620,7 +2621,7 @@ class SubsPackage
 	public static function package_get_contents(string $filename): string
 	{
 		if (!isset(self::$package_cache)) {
-			$mem_check = Config::setMemoryLimit('128M');
+			$mem_check = Sapi::setMemoryLimit('128M');
 
 			// Windows doesn't seem to care about the memory_limit.
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false) {
@@ -2654,7 +2655,7 @@ class SubsPackage
 
 		if (!isset(self::$package_cache)) {
 			// Try to increase the memory limit - we don't want to run out of ram!
-			$mem_check = Config::setMemoryLimit('128M');
+			$mem_check = Sapi::setMemoryLimit('128M');
 
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false) {
 				self::$package_cache = [];
@@ -3013,9 +3014,8 @@ class SubsPackage
 				$output_file .= $output_ext;
 			}
 
-			Utils::sapiSetTimeLimit(300);
-
-			Utils::sapiResetTimeout();
+			Sapi::setTimeLimit(300);
+			Sapi::resetTimeout();
 
 			// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
 			set_error_handler(

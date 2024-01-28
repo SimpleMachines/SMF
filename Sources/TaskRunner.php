@@ -126,7 +126,7 @@ class TaskRunner
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
+			define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {

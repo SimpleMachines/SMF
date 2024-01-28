@@ -26,6 +26,7 @@ use SMF\Profile;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Handles deleting an account.
@@ -213,7 +214,7 @@ class Delete implements ActionInterface
 
 					// This could take a while... but ya know it's gonna be worth it in the end.
 					while ($row = Db::$db->fetch_assoc($request)) {
-						Utils::sapiResetTimeout();
+						Sapi::resetTimeout();
 
 						Msg::remove($row['id_msg']);
 					}

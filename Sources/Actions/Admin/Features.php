@@ -33,6 +33,7 @@ use SMF\Theme;
 use SMF\TimeZone;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Class to manage various core features.
@@ -2008,9 +2009,8 @@ class Features implements ActionInterface
 	protected function pauseSignatureApplySettings(): void
 	{
 		// Try get more time...
-		Utils::sapiSetTimeLimit(600);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Have we exhausted all the time we allowed?
 		if (time() - array_sum(explode(' ', Utils::$context['sig_start'])) < 3) {

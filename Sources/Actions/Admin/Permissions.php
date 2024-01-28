@@ -3258,6 +3258,7 @@ class Permissions implements ActionInterface
 
 		foreach (self::getPermissions() as $permission => $perm_info) {
 			// If this permission shouldn't be given to certain groups (e.g. guests), don't.
+			/** @var string $perm */
 			foreach ([$permission, $perm_info['generic_name']] as $perm) {
 				if (isset(Utils::$context['group']['id']) && in_array(Utils::$context['group']['id'], self::$excluded[$perm] ?? [])) {
 					continue 2;

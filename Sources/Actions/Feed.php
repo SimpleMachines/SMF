@@ -26,6 +26,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -774,7 +775,7 @@ class Feed implements ActionInterface
 
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
-				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
+				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, (int) (Config::$modSettings['xmlnews_maxlen'] - 3)), ["\n" => '<br>']) . '...';
 			}
 
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -1207,7 +1208,7 @@ class Feed implements ActionInterface
 
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
-				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
+				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, (int) (Config::$modSettings['xmlnews_maxlen'] - 3)), ["\n" => '<br>']) . '...';
 			}
 
 			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
@@ -2915,7 +2916,7 @@ class Feed implements ActionInterface
 				$pos = empty($positions) ? $n : min($positions);
 
 				if ($pos - $old > 0) {
-					$cdata .= substr($data, $old, $pos - $old);
+					$cdata .= substr($data, $old, (int) ($pos - $old));
 				}
 
 				if ($pos >= $n) {
@@ -2930,9 +2931,9 @@ class Feed implements ActionInterface
 					}
 
 					if (substr($data, $pos + 1, 1) == '/') {
-						$cdata .= ']]></' . $ns . ':' . substr($data, $pos + 2, $pos2 - $pos - 1) . '<![CDATA[';
+						$cdata .= ']]></' . $ns . ':' . substr($data, $pos + 2, (int) ($pos2 - $pos - 1)) . '<![CDATA[';
 					} else {
-						$cdata .= ']]><' . $ns . ':' . substr($data, $pos + 1, $pos2 - $pos) . '<![CDATA[';
+						$cdata .= ']]><' . $ns . ':' . substr($data, $pos + 1, (int) ($pos2 - $pos)) . '<![CDATA[';
 					}
 
 					$pos = $pos2 + 1;
@@ -3118,13 +3119,13 @@ class Feed implements ActionInterface
 		if (
 			empty(Config::$modSettings['queryless_urls'])
 			|| (
-				Utils::$context['server']['is_cgi']
+				Sapi::isCGI()
 				&& ini_get('cgi.fix_pathinfo') == 0
 				&& @get_cfg_var('cgi.fix_pathinfo') == 0
 			)
 			|| (
-				!Utils::$context['server']['is_apache']
-				&& !Utils::$context['server']['is_lighttpd']
+				!Sapi::isSoftware(Sapi::SERVER_APACHE)
+				&& !Sapi::isSoftware(Sapi::SERVER_LIGHTTPD)
 			)
 		) {
 			return $val;
