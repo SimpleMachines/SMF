@@ -24,6 +24,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -1829,8 +1830,8 @@ class PackageManager
 		}
 
 		// This is a memory eat.
-		Config::setMemoryLimit('128M');
-		@set_time_limit(600);
+		Sapi::setMemoryLimit('128M');
+		Sapi::setTimeLimit();
 
 		// Load up some FTP stuff.
 		SubsPackage::create_chmod_control();
@@ -3258,7 +3259,7 @@ class PackageManager
 						foreach ($upgrades as $upgrade) {
 							// Even if it is for this SMF, is it for the installed version of the mod?
 							if (!$upgrade->exists('@for') || SubsPackage::matchPackageVersion($the_version, $upgrade->fetch('@for'))) {
-								if (!$upgrade->exists('@from') || SubsPackage::matchPackageVersion($installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
+								if (!$upgrade->exists('@from') || SubsPackage::matchPackageVersion((string) $installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
 									$packageInfo['can_upgrade'] = true;
 									break;
 								}

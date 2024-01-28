@@ -62,63 +62,63 @@ class BBCodeParser
 	 *
 	 * If not empty, only these BBCode tags will be parsed.
 	 */
-	public $parse_tags = [];
+	public array $parse_tags = [];
 
 	/**
 	 * @var bool
 	 *
 	 * Whether BBCode should be parsed.
 	 */
-	public $enable_bbc;
+	public bool $enable_bbc;
 
 	/**
 	 * @var bool
 	 *
 	 * Whether to allow certain basic HTML tags in the input.
 	 */
-	public $enable_post_html;
+	public bool $enable_post_html;
 
 	/**
 	 * @var array
 	 *
 	 * List of disabled BBCode tags.
 	 */
-	public $disabled = [];
+	public array $disabled = [];
 
 	/**
 	 * @var bool
 	 *
 	 * Whether to autolink plain text URLs.
 	 */
-	public $autolink_enabled;
+	public bool $autolink_enabled;
 
 	/**
 	 * @var bool
 	 *
 	 * Whether smileys should be parsed.
 	 */
-	public $smileys = true;
+	public bool $smileys = true;
 
 	/**
 	 * @var string
 	 *
 	 * The smiley set to use when parsing smileys.
 	 */
-	public $smiley_set;
+	public string $smiley_set;
 
 	/**
 	 * @var bool
 	 *
 	 * Whether custom smileys are enabled.
 	 */
-	public $custom_smileys_enabled;
+	public bool $custom_smileys_enabled;
 
 	/**
 	 * @var string
 	 *
 	 * URL of the base smileys directory.
 	 */
-	public $smileys_url;
+	public string $smileys_url;
 
 	/**
 	 * @var string
@@ -132,35 +132,35 @@ class BBCodeParser
 	 *
 	 * Shorthand check for whether character encoding is UTF-8.
 	 */
-	public $utf8 = true;
+	public bool $utf8 = true;
 
 	/**
 	 * @var string
 	 *
 	 * Language locale to use.
 	 */
-	public $locale = 'en_US';
+	public string $locale = 'en_US';
 
 	/**
 	 * @var int
 	 *
 	 * User's time offset from UTC.
 	 */
-	public $time_offset;
+	public int $time_offset;
 
 	/**
 	 * @var string
 	 *
 	 * User's strftime format.
 	 */
-	public $time_format;
+	public string $time_format;
 
 	/**
 	 * @var bool
 	 *
 	 * Enables special handling if output is meant for paper printing.
 	 */
-	public $for_print = false;
+	public bool $for_print = false;
 
 	/**************************
 	 * Public static properties
@@ -264,7 +264,7 @@ class BBCodeParser
 	 *	parsed_tags_allowed: An array restricting what BBC can be in the
 	 *	  parsed_equals parameter, if desired.
 	 */
-	public static $codes = [
+	public static array $codes = [
 		[
 			'tag' => 'abbr',
 			'type' => 'unparsed_equals',
@@ -755,7 +755,7 @@ class BBCodeParser
 	 *
 	 * Itemcodes are an alternative syntax for creating lists.
 	 */
-	public static $itemcodes = [
+	public static array $itemcodes = [
 		'*' => 'disc',
 		'@' => 'disc',
 		'+' => 'square',
@@ -771,7 +771,7 @@ class BBCodeParser
 	 *
 	 * BBCodes whose content should be skipped when autolinking URLs.
 	 */
-	public static $no_autolink_tags = [
+	public static array $no_autolink_tags = [
 		'url',
 		'iurl',
 		'email',
@@ -791,7 +791,7 @@ class BBCodeParser
 	 *
 	 * Characters to exclude from a detected URL if they appear at the end.
 	 */
-	public static $excluded_trailing_chars = '!;:.,?';
+	public static string $excluded_trailing_chars = '!;:.,?';
 
 	/**
 	 * @var string
@@ -799,7 +799,7 @@ class BBCodeParser
 	 * Regular expression character class to match all characters allowed to
 	 * appear in a domain name.
 	 */
-	public static $domain_label_chars = '0-9A-Za-z\-' . '\x{A0}-\x{D7FF}' .
+	public static string $domain_label_chars = '0-9A-Za-z\-' . '\x{A0}-\x{D7FF}' .
 		'\x{F900}-\x{FDCF}' . '\x{FDF0}-\x{FFEF}' . '\x{10000}-\x{1FFFD}' .
 		'\x{20000}-\x{2FFFD}' . '\x{30000}-\x{3FFFD}' . '\x{40000}-\x{4FFFD}' .
 		'\x{50000}-\x{5FFFD}' . '\x{60000}-\x{6FFFD}' . '\x{70000}-\x{7FFFD}' .
@@ -812,7 +812,7 @@ class BBCodeParser
 	 *
 	 * URI schemes that require some sort of special handling.
 	 */
-	public static $schemes = [
+	public static array $schemes = [
 		// Schemes whose URI definitions require a domain name in the
 		// authority (or whatever the next part of the URI is).
 		'need_domain' => [
@@ -852,7 +852,7 @@ class BBCodeParser
 	 *
 	 * The 2012 list of top level domains.
 	 */
-	public static $basic_tlds = [
+	public static array $basic_tlds = [
 		'com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
 		'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro',
 		'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am',
@@ -887,42 +887,42 @@ class BBCodeParser
 	 *
 	 * Regular expression to match top level domains.
 	 */
-	protected $tld_regex;
+	protected string $tld_regex;
 
 	/**
 	 * @var string
 	 *
 	 * Regular expression to match all BBCode tags.
 	 */
-	protected $alltags_regex;
+	protected string $alltags_regex;
 
 	/**
 	 * @var string
 	 *
 	 * Regular expression to match URLs.
 	 */
-	protected $url_regex;
+	protected ?string $url_regex = null;
 
 	/**
 	 * @var string
 	 *
 	 * Regular expression to match e-mail addresses.
 	 */
-	protected $email_regex;
+	protected string $email_regex;
 
 	/**
 	 * @var string
 	 *
 	 * Regular expression to match smileys.
 	 */
-	protected $smiley_preg_search;
+	protected ?string $smiley_preg_search = null;
 
 	/**
 	 * @var array
 	 *
 	 * Replacement values for smileys.
 	 */
-	protected $smiley_preg_replacements = [];
+	protected array $smiley_preg_replacements = [];
 
 	/**
 	 * @var array
@@ -937,35 +937,35 @@ class BBCodeParser
 	 * you need to add information to this variable in order to distinguish the
 	 * guest version vs. the member version of the output.
 	 */
-	private $cache_key_extras = [];
+	private array $cache_key_extras = [];
 
 	/**
 	 * @var array
 	 *
 	 * Version of self::$codes used for internal processing.
 	 */
-	private $bbc_codes = [];
+	private array $bbc_codes = [];
 
 	/**
 	 * @var array
 	 *
 	 * Copies of $this->bbc_codes for different locales.
 	 */
-	private $bbc_lang_locales = [];
+	private array $bbc_lang_locales = [];
 
 	/**
 	 * @var string
 	 *
 	 * URL of this host/domain. Needed for the YouTube BBCode.
 	 */
-	private $hosturl;
+	private string $hosturl;
 
 	/**
 	 * @var string
 	 *
 	 * The string in which to parse BBCode.
 	 */
-	private $message = '';
+	private string $message = '';
 
 	/**
 	 * @var array
@@ -976,46 +976,46 @@ class BBCodeParser
 	private $open_tags = [];
 
 	/**
-	 * @var string
+	 * @var null|string|array
 	 *
 	 * The last item of $this->open_tags.
 	 */
-	private $inside;
+	private null|string|array $inside = null;
 
 	/**
 	 * @var int
 	 *
 	 * Current position in $this->message.
 	 */
-	private $pos = -1;
+	private int|bool $pos = -1;
 
 	/**
 	 * @var int
 	 *
 	 * Position where current BBCode tag ends.
 	 */
-	private $pos1;
+	private ?int $pos1 = null;
 
 	/**
 	 * @var int
 	 *
 	 * Previous value of $this->pos.
 	 */
-	private $last_pos;
+	private ?int $last_pos = null;
 
 	/**
 	 * @var array
 	 *
 	 * Placeholders used to protect certain strings from processing.
 	 */
-	private $placeholders = [];
+	private array $placeholders = [];
 
 	/**
 	 * @var int
 	 *
 	 * How many placeholders we have created.
 	 */
-	private $placeholders_counter = 0;
+	private int $placeholders_counter = 0;
 
 	/**
 	 * @var string
@@ -1023,28 +1023,28 @@ class BBCodeParser
 	 * The sprintf format used to create placeholders.
 	 * Uses private use Unicode characters to prevent conflicts.
 	 */
-	private $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
+	private string $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
 
 	/**
 	 * @var array
 	 *
 	 * Holds parsed messages.
 	 */
-	private $results = [];
+	private array $results = [];
 
 	/**
 	 * @var bool
 	 *
 	 * Tracks whether the integration_bbc_codes hook was called.
 	 */
-	private static $integrate_bbc_codes_done = false;
+	private static bool $integrate_bbc_codes_done = false;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * A reference to an existing, reusable instance of this class.
 	 */
-	private static $parser;
+	private static self $parser;
 
 	/*****************
 	 * Public methods.
@@ -1417,7 +1417,7 @@ class BBCodeParser
 
 		// Only try to buy more time if the client didn't quit.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		$parts = preg_split('~(<[A-Za-z]+\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1575,7 +1575,7 @@ class BBCodeParser
 
 		// We are not finished yet, request more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		// Let's pull out any legacy alignments.
@@ -1685,7 +1685,7 @@ class BBCodeParser
 
 		// Almost there, just a little more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
@@ -2048,7 +2048,7 @@ class BBCodeParser
 
 		// Please give us just a little more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		// What about URL's - the pain in the ass of the tag world.
@@ -2730,7 +2730,7 @@ class BBCodeParser
 				$this->last_pos = max($this->last_pos, 0);
 
 				// Pick a block of data to do some raw fixing on.
-				$data = substr($this->message, $this->last_pos, $this->pos - $this->last_pos);
+				$data = substr($this->message, $this->last_pos, (int) ($this->pos - $this->last_pos));
 
 				$data = $this->fixHtml($data);
 
@@ -2742,7 +2742,7 @@ class BBCodeParser
 				$data = strtr($data, ["\t" => '&nbsp;&nbsp;&nbsp;']);
 
 				// If it wasn't changed, no copying or other boring stuff has to happen!
-				if ($data != substr($this->message, $this->last_pos, $this->pos - $this->last_pos)) {
+				if ($data != substr($this->message, $this->last_pos, (int) ($this->pos - $this->last_pos))) {
 					$this->message = substr($this->message, 0, $this->last_pos) . $data . substr($this->message, $this->pos);
 
 					// Since we changed it, look again in case we added or removed a tag.  But we don't want to skip any.
@@ -3619,7 +3619,10 @@ class BBCodeParser
 			return;
 		}
 
-		$look_for = strtolower(substr($this->message, $this->pos + 2, $pos2 - $this->pos - 2));
+		// @todo: $pos2 could be false?
+		$pos2 = (int) $pos2;
+
+		$look_for = strtolower(substr($this->message, $this->pos + 2, (int) ($pos2 - $this->pos - 2)));
 
 		// A closing tag that doesn't match any open tags? Skip it.
 		if (!in_array($look_for, array_map(function ($tag) { return $tag['tag']; }, $this->open_tags))) {
@@ -3691,9 +3694,9 @@ class BBCodeParser
 		}
 
 		foreach ($to_close as $tag) {
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $tag['after'] . "\n" . substr($this->message, $pos2 + 1);
+			$this->message = substr($this->message, 0, $this->pos) . "\n" . $tag['after'] . "\n" . substr($this->message, (int) ($pos2 + 1));
 			$this->pos += strlen($tag['after']) + 2;
-			$pos2 = $this->pos - 1;
+			$pos2 = (int) ($this->pos - 1);
 
 			// See the comment at the end of the big loop - just eating whitespace ;).
 			$whitespace_regex = '';
@@ -3745,7 +3748,7 @@ class BBCodeParser
 			}
 
 			// A test validation?
-			if (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($this->message, $this->pos + 1 + $pt_strlen + 1)) === 0) {
+			if (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($this->message, (int) ($this->pos + 1 + $pt_strlen + 1))) === 0) {
 				continue;
 			}
 
@@ -3773,7 +3776,7 @@ class BBCodeParser
 				}
 
 				// Maybe we just want a /...
-				if ($possible['type'] == 'closed' && $next_c != ']' && substr($this->message, $this->pos + 1 + $pt_strlen, 2) != '/]' && substr($this->message, $this->pos + 1 + $pt_strlen, 3) != ' /]') {
+				if ($possible['type'] == 'closed' && $next_c != ']' && substr($this->message, (int) ($this->pos + 1 + $pt_strlen), 2) != '/]' && substr($this->message, (int) ($this->pos + 1 + $pt_strlen), 3) != ' /]') {
 					continue;
 				}
 
@@ -4099,7 +4102,7 @@ class BBCodeParser
 				return;
 			}
 
-			$data = substr($this->message, $this->pos1, $pos2 - $this->pos1);
+			$data = substr($this->message, $this->pos1, (int) ($pos2 - $this->pos1));
 
 			if (!empty($tag['block_level']) && substr($data, 0, 4) == '<br>') {
 				$data = substr($data, 4);
@@ -4139,6 +4142,7 @@ class BBCodeParser
 				return;
 			}
 
+			$pos2 = (int) $pos2;
 			$pos3 = stripos($this->message, '[/' . substr($this->message, $this->pos + 1, $tag_strlen) . ']', $pos2);
 
 			if ($pos3 === false) {
@@ -4147,7 +4151,7 @@ class BBCodeParser
 
 			$data = [
 				substr($this->message, $pos2 + ($quoted == false ? 1 : 7), $pos3 - ($pos2 + ($quoted == false ? 1 : 7))),
-				substr($this->message, $this->pos1, $pos2 - $this->pos1),
+				substr($this->message, $this->pos1, (int) ($pos2 - $this->pos1)),
 			];
 
 			if (!empty($tag['block_level']) && substr($data[0], 0, 4) == '<br>') {
@@ -4195,7 +4199,7 @@ class BBCodeParser
 			}
 
 			// We want $1 to be the content, and the rest to be csv.
-			$data = explode(',', ',' . substr($this->message, $this->pos1, $pos2 - $this->pos1));
+			$data = explode(',', ',' . substr($this->message, $this->pos1, (int) ($pos2 - $this->pos1)));
 			$data[0] = substr($this->message, $pos2 + 1, $pos3 - $pos2 - 1);
 
 			if (isset($tag['validate'])) {
@@ -4220,7 +4224,7 @@ class BBCodeParser
 				return;
 			}
 
-			$data = explode(',', substr($this->message, $this->pos1, $pos2 - $this->pos1));
+			$data = explode(',', substr($this->message, $this->pos1, (int) ($pos2 - $this->pos1)));
 
 			if (isset($tag['validate'])) {
 				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
@@ -4282,7 +4286,7 @@ class BBCodeParser
 				return;
 			}
 
-			$data = substr($this->message, $this->pos1, $pos2 - $this->pos1);
+			$data = substr($this->message, $this->pos1, (int) ($pos2 - $this->pos1));
 
 			// Validation for my parking, please!
 			if (isset($tag['validate'])) {
@@ -4321,7 +4325,7 @@ class BBCodeParser
 
 		// Are we trimming outside this tag?
 		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
-			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + strlen($matches[0]));
+			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, (int) ($this->pos + 1 + strlen($matches[0])));
 		}
 	}
 

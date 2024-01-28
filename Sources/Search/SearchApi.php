@@ -523,6 +523,20 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function topicSplit(int $id_topic, array $affected_msgs): void
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function topicsMoved(array $topics, int $board_to): void
 	{
 	}

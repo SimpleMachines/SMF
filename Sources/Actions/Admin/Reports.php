@@ -28,6 +28,7 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * This class is exclusively for generating reports to help assist forum
@@ -363,7 +364,7 @@ class Reports implements ActionInterface
 	public function boardPerms(): void
 	{
 		// Get as much memory as possible as this can be big.
-		Config::setMemoryLimit('256M');
+		Sapi::setMemoryLimit('256M');
 
 		if (isset($_REQUEST['boards'])) {
 			if (!is_array($_REQUEST['boards'])) {
@@ -522,7 +523,7 @@ class Reports implements ActionInterface
 		// Now cycle through the board permissions array... lots to do ;)
 		foreach ($board_permissions as $board => $groups) {
 			// Create the table for this board first.
-			$this->newTable($boards[$board]['name'], 'x', 'all', '100', 'center', '200', 'left');
+			$this->newTable((string) $boards[$board]['name'], 'x', 'all', '100', 'center', '200', 'left');
 
 			// Add the header row - shows all the membergroups.
 			$this->addData($member_groups);

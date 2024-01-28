@@ -23,6 +23,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -606,7 +607,7 @@ class Main implements ActionInterface
 
 			if ($this->check_password) {
 				// Check to ensure we're forcing SSL for authentication
-				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 					ErrorHandler::fatalLang('login_ssl_required', false);
 				}
 

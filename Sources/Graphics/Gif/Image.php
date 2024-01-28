@@ -179,9 +179,9 @@ class Image
 				$this->m_data = substr($this->m_data, $this->m_gih->m_nWidth);
 
 				$data =
-					substr($data, 0, $y * $this->m_gih->m_nWidth) .
+					substr($data, 0, (int) ($y * $this->m_gih->m_nWidth)) .
 					$lne .
-					substr($data, ($y + 1) * $this->m_gih->m_nWidth);
+					substr($data, (int) (($y + 1) * $this->m_gih->m_nWidth));
 			}
 		}
 

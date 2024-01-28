@@ -27,6 +27,7 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * This is here for the "repair any errors" feature in the admin center.
@@ -792,7 +793,7 @@ class RepairBoards implements ActionInterface
 		User::$me->isAllowedTo('admin_forum');
 
 		// Try to secure more memory.
-		Config::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		// Start displaying errors without fixing them.
 		if (isset($_GET['fixErrors'])) {
@@ -1160,9 +1161,8 @@ class RepairBoards implements ActionInterface
 		++$this->loops;
 
 		// More time, I need more time!
-		Utils::sapiSetTimeLimit(600);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		$return = true;
 
@@ -1173,7 +1173,7 @@ class RepairBoards implements ActionInterface
 			$return = false;
 		}
 		// Try to stay under our memory limit.
-		elseif ((memory_get_usage() + 65536) > Config::memoryReturnBytes(ini_get('memory_limit'))) {
+		elseif ((memory_get_usage() + 65536) > Sapi::memoryReturnBytes(ini_get('memory_limit'))) {
 			$return = false;
 		}
 		// Errr, wait.  How much time has this taken already?

@@ -27,6 +27,7 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * The admin screen to change the search settings.
@@ -494,9 +495,8 @@ class Search implements ActionInterface
 	public function createmsgindex(): void
 	{
 		// Scotty, we need more time...
-		Utils::sapiSetTimeLimit(600);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		Menu::$loaded['admin']['current_subsection'] = 'method';
 		Utils::$context['page_title'] = Lang::$txt['search_index_custom'];
