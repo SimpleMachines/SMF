@@ -610,6 +610,7 @@ $txt['settings'] = 'Settings';
 $txt['never'] = 'Never';
 $txt['more'] = 'more';
 $txt['etc'] = 'etc.';
+$txt['unknown'] = 'unknown';
 
 $txt['hostname'] = 'Hostname';
 $txt['you_are_post_banned'] = 'Sorry %1$s, you are banned from posting and sending personal messages on this forum.';

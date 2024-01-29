@@ -278,6 +278,11 @@ class Lang
 					// Note that we found it.
 					$found = true;
 
+					// Keep track of what we're up to, soldier.
+					if (!empty(Config::$db_show_debug)) {
+						Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php';
+					}
+
 					// Load the strings into our properties.
 					foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
 						if (!isset(${$var})) {
@@ -324,11 +329,6 @@ class Lang
 			if (!$found && $fatal) {
 				ErrorHandler::log(sprintf(self::$txt['theme_language_error'] ?? 'Unable to load the \'%1$s\' language file.', $template_name . '.' . $lang, 'template'));
 				break;
-			}
-
-			// Keep track of what we're up to, soldier.
-			if (!empty(Config::$db_show_debug)) {
-				Utils::$context['debug']['language_files'][] = $file[2] . '/' . $file[1] . ' (' . (Config::$languagesdir == $file[0] ? 'Base' : basename(Theme::$current->settings['theme_url'] ?? 'unknown')) . ')';
 			}
 
 			// Copyright can't be empty.
@@ -758,12 +758,12 @@ class Lang
 
 					unset(${$var});
 				}
-			}
-		}
 
-		// Keep track of what we're up to, soldier.
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['language_files'][] = $file[1] . '.' . $oldLanguage . ' (' . (Config::$languagesdir == $file[0] ? 'Base' : basename(Theme::$current->settings['theme_url'] ?? 'unknown')) . ')';
+				// Keep track of what we're up to, soldier.
+				if (!empty(Config::$db_show_debug)) {
+					Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php';
+				}
+			}
 		}
 
 		return $found;

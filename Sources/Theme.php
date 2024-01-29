@@ -352,7 +352,7 @@ class Theme
 
 		if ($loaded) {
 			if (Config::$db_show_debug === true) {
-				Utils::$context['debug']['templates'][] = $template_name . ' (' . basename($template_dir) . ')';
+				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
@@ -1622,7 +1622,7 @@ class Theme
 			$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
 
 			foreach (Utils::$context['css_files'] as $file) {
-				Utils::$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
+				Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
 			}
 		}
 
