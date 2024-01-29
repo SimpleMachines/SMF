@@ -321,8 +321,8 @@ class Lang
 			}
 
 			// Legacy language calls.
-			if (Config::$backward_compatibility) {
-				$found = self::loadOld($attempts) || $found;
+			if (!$found && Config::$backward_compatibility) {
+				$found = self::loadOld($attempts);
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
@@ -734,10 +734,11 @@ class Lang
 		$found = false;
 
 		/**
-		 * $file[] =
-		 * 	0 => Directory
-		 *  1 => File
-		 *  2= Locale.
+		 * $file = [
+		 *    0 => Directory
+		 *    1 => File
+		 *    2 => Locale
+		 * ]
 		 */
 		foreach ($attempts as $k => $file) {
 			$oldLanguage = $locale_to_lang[$file[2]] ?? false;
