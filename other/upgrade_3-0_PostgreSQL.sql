@@ -63,5 +63,29 @@ while (!$is_done)
         $args
 	);
 }
+
+// Rename the privacy policy records.
+foreach (Config::$modSettings as $variable => $value) {
+	if (!str_starts_with($variable, 'policy_')) {
+		continue;
+	}
+
+	if (str_starts_with($variable, 'policy_updated_')) {
+		$locale = Lang::getLocaleFromLanguageName(substr($variable, 15));
+		$new_variable = isset($locale) ? 'policy_updated_' . $locale : $variable;
+	} else {
+		$locale = 'policy_' . Lang::getLocaleFromLanguageName(substr($variable, 7));
+		$new_variable = isset($locale) ? 'policy_' . $locale : $variable;
+	}
+
+	if ($variable !== $new_variable) {
+		Config::updateModSettings([
+			$new_variable => $value,
+			$variable => null,
+		]);
+
+		unset($new_variable);
+	}
+}
 ---}
 ---#
