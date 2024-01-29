@@ -5273,10 +5273,12 @@ class User implements \ArrayAccess
 			$this->language = strtr($_SESSION['language'], './\\:', '____');
 		}
 		// Can we locate it in the accept language?
-		elseif ($this->id === 0 && empty($_SESSION['language']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) && class_exists('\Locale')) {
+		elseif ($this->id === 0 && empty($_SESSION['language']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 			foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $match) {
 				[$lang] = explode(';', $match);
-				$lang = \Locale::canonicalize($lang);
+
+				// The strtr fallback is a sad, weak substitute, but we might as well try.
+				$lang = class_exists('\Locale') ? \Locale::canonicalize($lang) : strtr($lang, '-', '_');
 
 				if (is_null($lang)) {
 					continue;
