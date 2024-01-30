@@ -2510,6 +2510,7 @@ ul li.greeting {
 #search_jump_to_select,
 #quick_mod_jump_to_select {
 	width: 29ch;
+	overflow: hidden;
 }
 
 /* Styles for edit event section
