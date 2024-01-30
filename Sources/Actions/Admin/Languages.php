@@ -1583,14 +1583,15 @@ class Languages implements ActionInterface
 		// Get the language files and data...
 		foreach (Utils::$context['languages'] as $lang) {
 			// Load the file to get the character set.
+			// Note: its $txt still, not under Lang::$txt
 			require $lang['location'];
 
 			$languages[$lang['filename']] = [
 				'id' => $lang['filename'],
 				'count' => 0,
-				'char_set' => Lang::$txt['lang_character_set'],
+				'char_set' => $txt['lang_character_set'],
 				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en_US'),
-				'locale' => Lang::$txt['lang_locale'],
+				'locale' => $txt['lang_locale'],
 				'name' => $lang['name'],
 			];
 		}
