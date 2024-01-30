@@ -2551,6 +2551,7 @@ ul li.greeting {
 #quick_mod_jump_to_select,
 #list_integration_hooks select {
 	width: 29ch;
+	overflow: hidden;
 }
 
 /* Styles for edit event section
