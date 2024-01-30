@@ -242,6 +242,12 @@ class Config
 	 */
 	public static $packagesdir;
 	/**
+	 * Path to the Packages directory.
+	 *
+	 * @var string
+	 */
+	public static $languagesdir;
+	/**
 	 * @var string
 	 *
 	 * Path to the tasks directory.
@@ -424,7 +430,7 @@ class Config
 				 * The default language file set for the forum.
 				 */
 				END,
-			'default' => 'english',
+			'default' => 'en_US',
 			'type' => 'string',
 		],
 		'boardurl' => [
@@ -759,6 +765,18 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
+		'languagesdir' => [
+			'text' => <<<'END'
+				/**
+				 * @var string
+				 *
+				 * Path to the Languages directory.
+				 */
+				END,
+			'default' => '__DIR__ . \'/Languages\'',
+			'raw_default' => true,
+			'type' => 'string',
+		],
 		'tasksdir' => [
 			'text' => <<<'END'
 				/**
@@ -775,7 +793,7 @@ class Config
 			'text' => <<<'END'
 
 				# Make sure the paths are correct... at least try to fix them.
-				if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+				if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/SSI.php'))
 					$boarddir = dirname(__FILE__);
 				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 					$sourcedir = $boarddir . '/Sources';
@@ -785,8 +803,10 @@ class Config
 					$packagesdir = $boarddir . '/Packages';
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 					$cachedir = $boarddir . '/cache';
+				if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
+					$languagesdir = $boarddir . '/Languages';
 				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'
@@ -919,7 +939,7 @@ class Config
 						'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
 					]);
 
-					self::${$var} = eval($default);
+					self::${$var} = eval($default . ';');
 				} else {
 					self::${$var} = $def['default'];
 				}
@@ -930,8 +950,10 @@ class Config
 		}
 
 		// Ensure there are no trailing slashes in these settings.
-		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir'] as $var) {
-			self::${$var} = rtrim(self::${$var}, '\\/');
+		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir', 'languagesdir'] as $var) {
+			if (!is_null(self::${$var})) {
+				self::${$var} = rtrim(self::${$var}, '\\/');
+			}
 		}
 
 		// Make sure the paths are correct... at least try to fix them.
@@ -950,6 +972,10 @@ class Config
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
+		}
+
+		if ((empty(self::$languagesdir) || !is_dir(realpath(self::$languagesdir))) && is_dir(self::$boarddir . '/Languages')) {
+			self::$languagesdir = self::$boarddir . '/Languages';
 		}
 
 		// Make absolutely sure the cache directory is defined and writable.

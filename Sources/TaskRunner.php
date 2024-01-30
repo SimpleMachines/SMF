@@ -176,7 +176,7 @@ class TaskRunner
 			$this->cleanRequest();
 
 			// Load the basic Lang::$txt strings.
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications');
 		}
 	}
 

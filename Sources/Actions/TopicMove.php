@@ -136,9 +136,9 @@ class TopicMove implements ActionInterface
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
 		if (User::$me->language != Lang::$default) {
-			Lang::load('index', Lang::$default);
+			Lang::load('General', Lang::$default);
 			$temp = Lang::$txt['movetopic_default'];
-			Lang::load('index');
+			Lang::load('General');
 
 			Lang::$txt['movetopic_default'] = $temp;
 		}

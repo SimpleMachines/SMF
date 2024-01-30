@@ -1096,7 +1096,7 @@ class User implements \ArrayAccess
 	{
 		static $loadedLanguages = [];
 
-		Lang::load('index+Modifications');
+		Lang::load('General+Modifications');
 
 		if (empty(Config::$modSettings['displayFields'])) {
 			$display_custom_fields = false;
@@ -5258,18 +5258,36 @@ class User implements \ArrayAccess
 			// Make it permanent for members.
 			if (!empty($this->id)) {
 				self::updateMemberData($this->id, ['lngfile' => $this->language]);
+				unset($_SESSION['language']);
 			} else {
 				$_SESSION['language'] = $this->language;
 			}
 
 			// Reload same URL with new language, if applicable.
 			if (isset($_SESSION['old_url'])) {
-				Utils::redirectexit($_SESSION['old_url']);
+				Utils::redirectexit(preg_replace('~language=[^;&$]+~i', '', $_SESSION['old_url']));
 			}
 		}
 		// Carry forward the last language request in this session, if any.
 		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')])) {
 			$this->language = strtr($_SESSION['language'], './\\:', '____');
+		}
+		// Can we locate it in the accept language?
+		elseif ($this->id === 0 && empty($_SESSION['language']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $match) {
+				[$lang] = explode(';', $match);
+
+				// The strtr fallback is a sad, weak substitute, but we might as well try.
+				$lang = class_exists('\Locale') ? \Locale::canonicalize($lang) : strtr($lang, '-', '_');
+
+				if (is_null($lang)) {
+					continue;
+				}
+
+				if (isset($languages[$lang])) {
+					$this->language = $_SESSION['language'] = $lang;
+				}
+			}
 		}
 	}
 

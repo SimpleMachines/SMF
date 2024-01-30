@@ -596,7 +596,7 @@ class Attachments implements ActionInterface
 
 				// And change the message to reflect this.
 				if (!empty($messages)) {
-					Lang::load('index', Lang::$default, true);
+					Lang::load('General', Lang::$default, true);
 
 					Db::$db->query(
 						'',
@@ -609,7 +609,7 @@ class Attachments implements ActionInterface
 						],
 					);
 
-					Lang::load('index', User::$me->language, true);
+					Lang::load('General', User::$me->language, true);
 				}
 			}
 		}

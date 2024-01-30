@@ -1690,8 +1690,8 @@ class SubsPackage
 			'$themedir' => Theme::$current->settings['default_theme_dir'],
 			'$imagesdir' => Theme::$current->settings['default_theme_dir'] . '/' . basename(Theme::$current->settings['default_images_url']),
 			'$themes_dir' => Config::$boarddir . '/Themes',
-			'$languagedir' => Theme::$current->settings['default_theme_dir'] . '/languages',
-			'$languages_dir' => Theme::$current->settings['default_theme_dir'] . '/languages',
+			'$languagedir' => Config::$languagesdir,
+			'$languages_dir' => Config::$languagesdir,
 			'$smileysdir' => Config::$modSettings['smileys_dir'],
 			'$smileys_dir' => Config::$modSettings['smileys_dir'],
 		];
@@ -2938,7 +2938,7 @@ class SubsPackage
 	{
 		$files = [];
 
-		$base_files = ['index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
+		$base_files = ['index.php', 'SSI.php', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
 
 		foreach ($base_files as $file) {
 			if (file_exists(Config::$boarddir . '/' . $file)) {
@@ -2948,6 +2948,7 @@ class SubsPackage
 
 		$dirs = [
 			Config::$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr(Config::$sourcedir . '/', '\\', '/'),
+			Config::$languagesdir => empty($_REQUEST['use_full_paths']) ? 'Languages/' : strtr(Config::$languagesdir . '/', '\\', '/'),
 		];
 
 		$request = Db::$db->query(

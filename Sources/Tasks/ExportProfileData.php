@@ -982,7 +982,7 @@ class ExportProfileData extends BackgroundTask
 		Theme::loadEssential();
 		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['theme_dir'];
 		User::$me->language = $lang;
-		Lang::load(implode('+', array_unique(['index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']])), $lang);
+		Lang::load(implode('+', array_unique(['General', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']])), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
 		$feed->query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');

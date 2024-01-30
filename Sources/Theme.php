@@ -297,7 +297,7 @@ class Theme
 		Utils::$context['forum_name'] = Config::$mbname;
 		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-		Lang::load('index+Modifications');
+		Lang::load('General+Modifications');
 
 		// Just in case it wasn't already set elsewhere.
 		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
@@ -352,7 +352,7 @@ class Theme
 
 		if ($loaded) {
 			if (Config::$db_show_debug === true) {
-				Utils::$context['debug']['templates'][] = $template_name . ' (' . basename($template_dir) . ')';
+				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
@@ -1313,7 +1313,7 @@ class Theme
 
 				// If agreement is enabled, at least the english version shall exist
 				if (!empty(Config::$modSettings['requireAgreement'])) {
-					$agreement = !file_exists(Config::$boarddir . '/agreement.txt');
+					$agreement = !file_exists(Config::$languagesdir . '/en_US/agreement.txt');
 				}
 
 				// If privacy policy is enabled, at least the default language version shall exist
@@ -1622,7 +1622,7 @@ class Theme
 			$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
 
 			foreach (Utils::$context['css_files'] as $file) {
-				Utils::$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
+				Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
 			}
 		}
 
@@ -2414,9 +2414,7 @@ class Theme
 		}
 
 		// Any theme-related strings that need to be loaded?
-		if (!empty($this->settings['require_theme_strings'])) {
-			Lang::load('ThemeStrings', '', false);
-		}
+		Lang::load('ThemeStrings', '', false);
 
 		// Make a special URL for the language.
 		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
@@ -2627,14 +2625,14 @@ class Theme
 
 		// Output is fully XML, so no need for the index template.
 		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requiresXML)) {
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications');
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
 		}
 
 		// These actions don't require the index template at all.
 		elseif (!empty(Utils::$context['simple_action'])) {
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications');
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?
@@ -2650,8 +2648,7 @@ class Theme
 			}
 
 			// ...and attempt to load their associated language files.
-			$required_files = implode('+', array_merge($templates, ['Modifications']));
-			Lang::load($required_files, '', false);
+			Lang::load('General+ThemeStrings+Modifications', '', false);
 
 			// Custom template layers?
 			if (isset($this->settings['theme_layers'])) {
