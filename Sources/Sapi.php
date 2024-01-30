@@ -58,7 +58,7 @@ class Sapi
 
 	public const OS_WINDOWS = 'Windows';
 	public const OS_MAC = 'Darwin';
-	public const OS_LINUX = 'linux';
+	public const OS_LINUX = 'Linux';
 
 	/***********************
 	 * Public static methods
@@ -103,14 +103,14 @@ class Sapi
 		foreach ($oses as $os) {
 			switch ($os) {
 				case self::OS_WINDOWS:
-					$is_os = PHP_OS_FAMILY === 'Windows' || DIRECTORY_SEPARATOR === '\\';
+					$is_os = PHP_OS_FAMILY === self::OS_WINDOWS || DIRECTORY_SEPARATOR === '\\';
 					break;
 				case self::OS_MAC:
-					$is_os = PHP_OS_FAMILY === 'Darwin';
+					$is_os = PHP_OS_FAMILY === self::OS_MAC;
 					break;
 				// This may result in false positives because 'linux' is very broad.
 				case self::OS_LINUX:
-					$is_os = PHP_OS_FAMILY === 'Linux';
+					$is_os = PHP_OS_FAMILY === self::OS_LINUX;
 					break;
 			}
 
@@ -149,7 +149,7 @@ class Sapi
 	 * @see https://www.w3.org/TR/charmod-norm/#definitionCaseFolding
 	 * @return bool True if it does, false otherwise
 	 */
-	public static function isCaseFolding(): bool
+	public static function supportsIsoCaseFolding(): bool
 	{
 		return ord(strtolower(chr(138))) === 154;
 	}
@@ -179,7 +179,7 @@ class Sapi
 			'is_cgi' => self::isCGI(),
 			'is_windows' => self::isOS(self::OS_WINDOWS),
 			'is_mac' => self::isOS(self::OS_MAC),
-			'iso_case_folding' => self::isCaseFolding(),
+			'iso_case_folding' => self::supportsIsoCaseFolding(),
 			'needs_login_fix' => self::needsLoginFix()
 		];
 	}

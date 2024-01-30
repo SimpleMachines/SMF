@@ -293,7 +293,7 @@ class FtpConnection
 		}
 
 		// This is pretty simple - store it for later use ;).
-		$this->pasv = ['ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => (int) ($match[5] * 256 + $match[6])];
+		$this->pasv = ['ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]];
 
 		return true;
 	}

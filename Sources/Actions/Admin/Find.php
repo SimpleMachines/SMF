@@ -195,7 +195,7 @@ class Find implements ActionInterface
 	public function internal(): void
 	{
 		// Try to get some more memory.
-		sapi::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 

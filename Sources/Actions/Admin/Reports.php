@@ -523,7 +523,7 @@ class Reports implements ActionInterface
 		// Now cycle through the board permissions array... lots to do ;)
 		foreach ($board_permissions as $board => $groups) {
 			// Create the table for this board first.
-			$this->newTable((string) $boards[$board]['name'], 'x', 'all', '100', 'center', '200', 'left');
+			$this->newTable($boards[$board]['name'], 'x', 'all', '100', 'center', '200', 'left');
 
 			// Add the header row - shows all the membergroups.
 			$this->addData($member_groups);

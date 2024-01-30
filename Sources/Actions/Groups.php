@@ -273,7 +273,7 @@ class Groups implements ActionInterface
 		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 
 		// Load all the group moderators, for fun.
-		$group->loadModerators();
+		User::load($group->loadModerators(), User::LOAD_BY_ID, 'minimal');
 
 		foreach ($group->moderator_ids as $mod_id) {
 			$group->moderators[] = [
