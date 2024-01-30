@@ -2009,7 +2009,7 @@ class Utils
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
-				Sapi::isOS([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
+				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
 			if (defined('SID') && SID != '') {

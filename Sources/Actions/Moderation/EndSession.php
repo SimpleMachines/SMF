@@ -65,9 +65,9 @@ class EndSession implements ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return self An instance of this class.
+	 * @return object An instance of this class.
 	 */
-	public static function load(): self
+	public static function load(): object
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();
