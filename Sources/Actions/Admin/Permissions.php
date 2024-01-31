@@ -3327,7 +3327,11 @@ class Permissions implements ActionInterface
 		// Find the permissions that guests may never have.
 		foreach (self::getPermissions() as $permission => $perm_info) {
 			if (!empty($perm_info['never_guests'])) {
-				self::$never_guests[] = $perm_info['generic_name'];
+				self::$never_guests[] = $permission;
+
+				if (isset($perm_info['generic_name'])) {
+					self::$never_guests[] = $perm_info['generic_name'];
+				}
 			}
 		}
 
