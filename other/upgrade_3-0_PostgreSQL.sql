@@ -12,7 +12,7 @@ $args = ['defaultLang' => 'en_US'];
 $members = [];
 
 // Setup the case statement.
-foreach ((array) Lang::oldLanguageMap() as $lang => $locale) {
+foreach (Lang::LANG_TO_LOCALE as $lang => $locale) {
     $statements[] = ' WHEN lngfile = {string:lang_' . $lang . '} THEN {string:locale_' . $locale . '}';
     $args['lang_' . $lang] = $lang;
     $args['locale_' . $locale] = $locale;
