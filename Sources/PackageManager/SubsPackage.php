@@ -68,7 +68,7 @@ class SubsPackage
 	 * @param bool $single_file If true returns the contents of the file specified by destination if it exists
 	 * @param bool $overwrite Whether to overwrite existing files
 	 * @param null|array $files_to_extract Specific files to extract
-	 * @return array|string|false An array of information about extracted files or false on failure
+	 * @return array|string|false Information about extracted files or false on failure
 	 */
 	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
@@ -121,9 +121,9 @@ class SubsPackage
 	 * @param bool $single_file Whether to only extract a single file
 	 * @param bool $overwrite Whether to overwrite existing data
 	 * @param null|array $files_to_extract If set, only extracts the specified files
-	 * @return array|false An array of information about the extracted files or false on failure
+	 * @return array|string|false Information about the extracted files or false on failure
 	 */
-	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|bool
+	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		// Make sure we have this loaded.
 		Lang::load('Packages');
