@@ -250,7 +250,7 @@ class Feed implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static Feed $obj;
 
 	/****************
 	 * Public methods

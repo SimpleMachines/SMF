@@ -62,7 +62,7 @@ class ExportAttachment implements ActionInterface
 	 * An instance of this class.
 	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static ExportAttachment $obj;
 
 	/****************
 	 * Public methods
