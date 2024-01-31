@@ -663,7 +663,7 @@ function PackageInstallTest()
 		}
 
 		// Don't fail if a file/directory we're trying to create doesn't exist...
-		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')))
+		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')) && $action['error'] != 'ignore')
 		{
 			$context['has_failure'] = true;
 
