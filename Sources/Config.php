@@ -1531,23 +1531,23 @@ class Config
 			'string' =>
 				'(?:' .
 					// match the opening quotation mark...
-					'(["\'])' .
+					'(?P<quote>["\'])' .
 					// then any number of other characters or escaped quotation marks...
-					'(?:.(?!\\1)|\\\(?=\\1))*.?' .
+					'(?:.(?!(?P>quote))|\\\(?=(?P>quote)))*.?' .
 					// then the closing quotation mark.
-					'\\1' .
+					'(?P>quote)' .
 					// Maybe there's a second string concatenated to this one.
 					'(?:\s*\.\s*)*' .
 				')+',
 			// Some numeric values might have been stored as strings.
-			'integer' =>  '["\']?[+-]?\d+["\']?',
-			'double' =>  '["\']?[+-]?\d+\.\d+([Ee][+-]\d+)?["\']?',
+			'integer' =>  '(?P<quote>["\']?)[+-]?\d+(?P>quote)',
+			'double' =>  '(?P<quote>["\']?)[+-]?\d+\.\d+([Ee][+-]\d+)?(?P>quote)',
 			// Some boolean values might have been stored as integers.
-			'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\b\\1)',
+			'boolean' =>  '(?i:TRUE|FALSE|(?P<quote>["\']?)\b[01]\b(?P>quote))',
 			'NULL' =>  '(?i:NULL)',
 			// These use a PCRE subroutine to match nested arrays.
-			'array' =>  'array\s*(\((?' . '>[^()]|(?1))*\))',
-			'object' =>  '\w+::__set_state\(array\s*(\((?' . '>[^()]|(?1))*\))\)',
+			'array' =>  'array\s*(?P<parentheses>\((?' . '>[^()]|(?P>parentheses))*\))|(?P<brackets>\[(?' . '>[^\[\]]|(?P>brackets))*\])',
+			'object' =>  '\w+::__set_state\(array\s*(?P<parentheses>\((?' . '>[^()]|(?P>parentheses))*\))\)',
 		];
 
 		/*
