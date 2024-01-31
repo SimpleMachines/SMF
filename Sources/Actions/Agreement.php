@@ -40,7 +40,7 @@ class Agreement implements ActionInterface
 	 * An instance of the class.
 	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Agreement $obj;
 
 	/****************
 	 * Public methods

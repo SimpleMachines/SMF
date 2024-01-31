@@ -104,7 +104,7 @@ class Display implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static Display $obj;
 
 	/****************
 	 * Public methods

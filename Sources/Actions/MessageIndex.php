@@ -134,7 +134,7 @@ class MessageIndex implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static MessageIndex $obj;
 
 	/****************
 	 * Public methods

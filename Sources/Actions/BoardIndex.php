@@ -48,7 +48,7 @@ class BoardIndex implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static BoardIndex $obj;
 
 	/****************
 	 * Public methods
