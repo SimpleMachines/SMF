@@ -1394,24 +1394,24 @@ class ServerSideIncludes
 		}
 
 		echo '
-			', Lang::numberFormat($return['num_guests']), ' ', $return['num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], ', ', Lang::numberFormat($return['num_users_online']), ' ', $return['num_users_online'] == 1 ? Lang::$txt['user'] : Lang::$txt['users'];
+			', Lang::getTxt('number_of_guests', [$return['num_guests']]), ', ', Lang::getTxt('number_of_members', [$return['num_users_online']]);
 
 		$bracketList = [];
 
 		if (!empty(User::$me->buddies)) {
-			$bracketList[] = Lang::numberFormat($return['num_buddies']) . ' ' . ($return['num_buddies'] == 1 ? Lang::$txt['buddy'] : Lang::$txt['buddies']);
+			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']]);
 		}
 
 		if (!empty($return['num_spiders'])) {
-			$bracketList[] = Lang::numberFormat($return['num_spiders']) . ' ' . ($return['num_spiders'] == 1 ? Lang::$txt['spider'] : Lang::$txt['spiders']);
+			$bracketList[] = Lang::getTxt('number_of_spiders', [$return['num_spiders']]);
 		}
 
 		if (!empty($return['num_users_hidden'])) {
-			$bracketList[] = Lang::numberFormat($return['num_users_hidden']) . ' ' . Lang::$txt['hidden'];
+			$bracketList[] = Lang::getTxt('number_of_hidden_members', [$return['num_users_hidden']]);
 		}
 
 		if (!empty($bracketList)) {
-			echo ' (' . implode(', ', $bracketList) . ')';
+			echo ' (' . Lang::sentenceList($bracketList) . ')';
 		}
 
 		echo '<br>

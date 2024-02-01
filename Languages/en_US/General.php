@@ -99,9 +99,19 @@ $txt['processing'] = 'Processing...';
 
 $txt['modify'] = 'Modify';
 $txt['forum_index'] = '{forum_name} - Index';
-$txt['members'] = 'Members';
 $txt['board_name'] = 'Board name';
 $txt['posts'] = 'Posts';
+
+$txt['member'] = 'Member';
+$txt['members'] = 'Members';
+$txt['member_plural'] = '{0, plural,
+	one {member}
+	other {members}
+}';
+$txt['number_of_members'] = '{0, plural,
+	one {# member}
+	other {# members}
+}';
 
 $txt['member_postcount'] = 'Posts';
 $txt['no_subject'] = '(No subject)';
@@ -762,8 +772,14 @@ $txt['unread_replies'] = 'Updated Topics';
 
 $txt['who_title'] = 'Who\'s Online';
 $txt['who_and'] = ' and ';
-$txt['who_viewing_topic'] = ' are viewing this topic.';
-$txt['who_viewing_board'] = ' are viewing this board.';
+$txt['who_viewing_topic'] = '{num_viewing, plural,
+	one {{list_of_viewers} is viewing this topic.}
+	other {{list_of_viewers} are viewing this topic.}
+}';
+$txt['who_viewing_board'] = '{num_viewing, plural,
+	one {{list_of_viewers} is viewing this board.}
+	other {{list_of_viewers} are viewing this board.}
+}';
 $txt['who_member'] = 'Member';
 
 // No longer used by default theme, but for backwards compat
@@ -777,14 +793,47 @@ $txt['html'] = 'HTML';
 
 $txt['guest'] = 'Guest';
 $txt['guests'] = 'Guests';
+$txt['guest_plural'] = '{0, plural,
+	one {guest}
+	other {guests}
+}';
+$txt['number_of_guests'] = '{0, plural,
+	one {# guest}
+	other {# guests}
+}';
+
 $txt['user'] = 'User';
 $txt['users'] = 'Users';
-$txt['hidden'] = 'Hidden';
+$txt['user_plural'] = '{0, plural,
+	one {user}
+	other {users}
+}';
+$txt['number_of_users'] = '{0, plural,
+	one {# user}
+	other {# users}
+}';
 
-// Plural form of hidden for languages other than English
-$txt['hidden_s'] = 'Hidden';
 $txt['buddy'] = 'Buddy';
 $txt['buddies'] = 'Buddies';
+$txt['buddy_plural'] = '{0, plural, {
+	one {buddy}
+	other {buddies}
+}';
+$txt['number_of_buddy'] = '{0, plural, {
+	one {# buddy}
+	other {# buddies}
+}';
+
+$txt['hidden'] = 'Hidden';
+$txt['hidden_plural'] = '{0, plural, {
+	one {hidden}
+	other {hidden}
+}';
+$txt['number_of_hidden_members'] = '{0, plural, {
+	one {# hidden}
+	other {# hidden}
+}';
+
 $txt['most_online_ever'] = 'Most Online Ever';
 $txt['most_online_today'] = 'Most Online Today';
 
@@ -922,6 +971,14 @@ $txt['show_ignore_user_post'] = 'Show me the post.';
 
 $txt['spider'] = 'Spider';
 $txt['spiders'] = 'Spiders';
+$txt['spider_plural'] = '{0, plural,
+	one {spider}
+	other {spiders}
+}';
+$txt['number_of_spiders'] = '{0, plural,
+	one {# spider}
+	other {# spiders}
+}';
 
 $txt['downloads'] = 'Downloads';
 $txt['filesize'] = 'Filesize';

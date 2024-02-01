@@ -996,7 +996,7 @@ class Members implements ActionInterface
 
 			foreach ($available_filters as $filter) {
 				$filterOptions .= '
-					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? Lang::$txt['user'] : Lang::$txt['users']) . '</option>';
+					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . Lang::getTxt('number_of_users', [$filter['amount']]) . '</option>';
 			}
 
 			$filterOptions .= '

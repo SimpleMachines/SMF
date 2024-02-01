@@ -475,22 +475,24 @@ function template_ic_block_online()
 				</h4>
 			</div>
 			<p class="inline">
-				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::$txt['online'], ': </strong>', Lang::numberFormat(Utils::$context['num_guests']), ' ', Utils::$context['num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], ', ', Lang::numberFormat(Utils::$context['num_users_online']), ' ', Utils::$context['num_users_online'] == 1 ? Lang::$txt['user'] : Lang::$txt['users'];
+				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::$txt['online'], ': </strong>', Lang::getTxt('number_of_guests', [Utils::$context['num_guests']]), ', ', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']]);
 
 	// Handle hidden users and buddies.
 	$bracketList = array();
 
 	if (Utils::$context['show_buddies'])
-		$bracketList[] = Lang::numberFormat(Utils::$context['num_buddies']) . ' ' . (Utils::$context['num_buddies'] == 1 ? Lang::$txt['buddy'] : Lang::$txt['buddies']);
+		$bracketList[] = Lang::getTxt('number_of_buddies', [Utils::$context['num_buddies']]);
 
 	if (!empty(Utils::$context['num_spiders']))
-		$bracketList[] = Lang::numberFormat(Utils::$context['num_spiders']) . ' ' . (Utils::$context['num_spiders'] == 1 ? Lang::$txt['spider'] : Lang::$txt['spiders']);
+		$bracketList[] = Lang::getTxt('number_of_spiders', [Utils::$context['num_spiders']]);
 
 	if (!empty(Utils::$context['num_users_hidden']))
-		$bracketList[] = Lang::numberFormat(Utils::$context['num_users_hidden']) . ' ' . (Utils::$context['num_spiders'] == 1 ? Lang::$txt['hidden'] : Lang::$txt['hidden_s']);
+		$bracketList[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['num_users_hidden']]);
+
+	$bracketList = array_filter($bracketList, 'strlen');
 
 	if (!empty($bracketList))
-		echo ' (' . implode(', ', $bracketList) . ')';
+		echo ' (' . Lang::sentenceList($bracketList) . ')';
 
 	echo Utils::$context['show_who'] ? '</a>' : '', '
 

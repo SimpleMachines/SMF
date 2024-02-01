@@ -34,18 +34,35 @@ function template_main()
 
 	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
-		echo '
-			<p>';
-
 		// Show just numbers...?
-		if (Theme::$current->settings['display_who_viewing'] == 1)
-			echo count(Utils::$context['view_members']), ' ', count(Utils::$context['view_members']) == 1 ? Lang::$txt['who_member'] : Lang::$txt['members'];
+		if (Theme::$current->settings['display_who_viewing'] == 1 || empty(Utils::$context['view_members_list'])) {
+			$list_of_viewers = [
+				Lang::getTxt('number_of_members', [0]),
+			];
+		}
 		// Or show the actual people viewing the topic?
-		else
-			echo empty(Utils::$context['view_members_list']) ? '0 ' . Lang::$txt['members'] : implode(', ', Utils::$context['view_members_list']) . ((empty(Utils::$context['view_num_hidden']) || Utils::$context['can_moderate_forum']) ? '' : ' (+ ' . Utils::$context['view_num_hidden'] . ' ' . Lang::$txt['hidden'] . ')');
+		else {
+			$list_of_viewers = Utils::$context['view_members_list'];
+		}
+
+		if (!empty(Utils::$context['view_num_hidden']) && !Utils::$context['can_moderate_forum']) {
+			$list_of_viewers[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['view_num_hidden']]);
+		}
 
 		// Now show how many guests are here too.
-		echo Lang::$txt['who_and'], Utils::$context['view_num_guests'], ' ', Utils::$context['view_num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], Lang::$txt['who_viewing_board'], '
+		if (!empty(Utils::$context['view_num_guests'])) {
+			$list_of_viewers[] = Lang::getTxt('guest_plural', [Utils::$context['view_num_guests']]);
+		}
+
+		echo '
+			<p>
+				', Lang::getTxt(
+					'who_viewing_board',
+					[
+						'list_of_viewers' => Lang::sentenceList($list_of_viewers),
+						'num_viewing' => count(Utils::$context['view_members_list'] ?? []) + (int) (Utils::$context['view_num_guests'] ?? 0) + (int) (Utils::$context['view_num_hidden'] ?? 0),
+					],
+				), '
 			</p>';
 	}
 
