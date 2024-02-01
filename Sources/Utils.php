@@ -1024,7 +1024,7 @@ class Utils
 	 * @param bool $as_json If true, escape as double-quoted string. Default false.
 	 * @return string The escaped string
 	 */
-	public static function JavaScriptEscape(string $string, bool $as_json = false): string
+	public static function escapeJavaScript(string $string, bool $as_json = false): string
 	{
 		$q = !empty($as_json) ? '"' : '\'';
 

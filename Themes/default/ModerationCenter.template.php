@@ -82,15 +82,15 @@ function template_group_requests_block()
 				aSwapImages: [
 					{
 						sId: \'group_requests_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'group_requests_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_group_requests']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_group_requests']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_group_requests']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_group_requests']), '
 					}
 				],
 				oThemeOptions: {
@@ -147,15 +147,15 @@ function template_watched_users()
 				aSwapImages: [
 					{
 						sId: \'watched_users_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'watched_users_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_watched_users']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_watched_users']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_watched_users']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_watched_users']), '
 					}
 				],
 				oThemeOptions: {
@@ -212,15 +212,15 @@ function template_reported_posts_block()
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_posts_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -277,15 +277,15 @@ function template_reported_users_block()
 				aSwapImages: [
 					{
 						sId: \'reported_users_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_users_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_user_reports']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_user_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_user_reports']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_user_reports']), '
 					}
 				],
 				oThemeOptions: {
