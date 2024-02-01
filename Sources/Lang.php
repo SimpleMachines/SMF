@@ -295,7 +295,7 @@ class Lang
 					}
 
 					// Did this file define the $forum_copyright?
-					if (isset($forum_copyright)) {
+					if (!empty($forum_copyright)) {
 						self::$localized_copyright[$file[2]] = $forum_copyright;
 
 						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['en_US'] ?? ''));
@@ -321,8 +321,13 @@ class Lang
 			}
 
 			// Legacy language calls.
-			if (!$found && Config::$backward_compatibility) {
-				$found = self::loadOld($attempts);
+			/**
+			 * Legacy language calls.
+			 * Under normal conditions, we stop once we find it through the locale lookup.
+			 * Modifications is a special case in which we allow it to be checked everywhere.
+			 */
+			if ((!$found || strpos($template_name, 'Modifications') !== false) && Config::$backward_compatibility) {
+				$found = self::loadOld($attempts) || $found;
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
