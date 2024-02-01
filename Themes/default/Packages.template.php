@@ -14,6 +14,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * The main template
@@ -1134,7 +1135,7 @@ function template_control_chmod()
 		echo '
 					</ul>';
 
-		if (!Utils::$context['server']['is_windows'])
+		if (!Sapi::isOS(Sapi::OS_WINDOWS))
 			echo '
 					<hr>
 					', Lang::$txt['package_chmod_linux'], '<br>

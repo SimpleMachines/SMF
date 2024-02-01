@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\TaskRunner;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
@@ -627,7 +628,7 @@ class UpdateUnicode extends BackgroundTask
 	private function make_temp_dir(): void
 	{
 		if (empty($this->temp_dir)) {
-			$this->temp_dir = rtrim(Config::getTempDir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
+			$this->temp_dir = rtrim(Sapi::getTempDir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
 
 			if (!is_dir($this->temp_dir)) {
 				@mkdir($this->temp_dir);
@@ -1291,10 +1292,10 @@ class UpdateUnicode extends BackgroundTask
 				if (!isset($current_range['end']) || $ord == $current_range['end'] + 1) {
 					$current_range['end'] = $ord;
 				} else {
-					$range_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+					$range_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+						$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
@@ -1304,10 +1305,10 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (isset($current_range['start'])) {
-				$range_string = '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+				$range_string = '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+					$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 
 				$this->funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
@@ -1426,20 +1427,20 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 
 				$current_range = ['start' => $ord, 'end' => $ord];
 			}
 
 			if (isset($current_range['start'])) {
-				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 			}
 
@@ -1876,20 +1877,20 @@ class UpdateUnicode extends BackgroundTask
 						continue;
 					}
 
-					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+						$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
 				}
 
 				if (isset($current_range['start'])) {
-					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+						$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 				}
 

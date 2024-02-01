@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -114,7 +115,7 @@ class Register2 extends Register
 		SecurityToken::validate('register');
 
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('register_ssl_required');
 		}
 
@@ -435,7 +436,7 @@ class Register2 extends Register
 
 			Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
-			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Sapi::needsLoginFix());
 		}
 	}
 

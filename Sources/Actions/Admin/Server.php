@@ -30,6 +30,7 @@ use SMF\Theme;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Contains all the functionality required to be able to edit the core server
@@ -401,7 +402,7 @@ class Server implements ActionInterface
 
 				Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
-				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Sapi::needsLoginFix());
 			}
 
 			// If we disabled 2FA, reset all members and membergroups settings.
@@ -827,7 +828,7 @@ class Server implements ActionInterface
 			['localCookies', Lang::$txt['localCookies'], 'db', 'check', false, 'localCookies'],
 			['globalCookies', Lang::$txt['globalCookies'], 'db', 'check', false, 'globalCookies'],
 			['globalCookiesDomain', Lang::$txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'],
-			['secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !Config::httpsOn()],
+			['secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !Sapi::httpsOn()],
 			['httponlyCookies', Lang::$txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'],
 			['samesiteCookies', Lang::$txt['samesiteCookies'], 'db', 'select', [
 				'none' 		=> Lang::$txt['samesiteNone'],

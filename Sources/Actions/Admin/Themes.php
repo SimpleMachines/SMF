@@ -30,6 +30,7 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * This class concerns itself almost completely with theme administration.
@@ -1530,9 +1531,8 @@ class Themes implements ActionInterface
 		mkdir(Utils::$context['to_install']['theme_dir'], 0777);
 
 		// Buy some time.
-		Utils::sapiSetTimeLimit(600);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Create subdirectories for css and javascript files.
 		mkdir(Utils::$context['to_install']['theme_dir'] . '/css', 0777);

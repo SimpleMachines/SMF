@@ -199,7 +199,7 @@ class Utf8String implements \Stringable
 
 			switch ($case) {
 				case 'title':
-					$this->convertCase($this->string, 'lower', $simple);
+					$this->convertCase('lower', $simple);
 					$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})/u';
 					break;
 
@@ -1047,7 +1047,7 @@ class Utf8String implements \Stringable
 	 */
 	protected function normalizeKCFold(): object
 	{
-		if ($this->isNormalized($this->string, 'kc_casefold')) {
+		if ($this->isNormalized('kc_casefold')) {
 			return $this;
 		}
 

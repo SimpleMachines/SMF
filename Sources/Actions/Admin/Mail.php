@@ -26,6 +26,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Handles mail configuration, as well as reviewing the mail queue.
@@ -581,8 +582,8 @@ class Mail implements ActionInterface
 	protected function pauseMailQueueClear(): void
 	{
 		// Try get more time...
-		Utils::sapiSetTimeLimit(600);
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 5) {

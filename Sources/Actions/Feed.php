@@ -26,6 +26,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -3118,13 +3119,13 @@ class Feed implements ActionInterface
 		if (
 			empty(Config::$modSettings['queryless_urls'])
 			|| (
-				Utils::$context['server']['is_cgi']
+				Sapi::isCGI()
 				&& ini_get('cgi.fix_pathinfo') == 0
 				&& @get_cfg_var('cgi.fix_pathinfo') == 0
 			)
 			|| (
-				!Utils::$context['server']['is_apache']
-				&& !Utils::$context['server']['is_lighttpd']
+				!Sapi::isSoftware(Sapi::SERVER_APACHE)
+				&& !Sapi::isSoftware(Sapi::SERVER_LIGHTTPD)
 			)
 		) {
 			return $val;

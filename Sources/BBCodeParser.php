@@ -1417,7 +1417,7 @@ class BBCodeParser
 
 		// Only try to buy more time if the client didn't quit.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		$parts = preg_split('~(<[A-Za-z]+\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1575,7 +1575,7 @@ class BBCodeParser
 
 		// We are not finished yet, request more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		// Let's pull out any legacy alignments.
@@ -1685,7 +1685,7 @@ class BBCodeParser
 
 		// Almost there, just a little more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
@@ -2048,7 +2048,7 @@ class BBCodeParser
 
 		// Please give us just a little more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		// What about URL's - the pain in the ass of the tag world.

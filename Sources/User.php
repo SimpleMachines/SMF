@@ -2069,7 +2069,7 @@ class User implements \ArrayAccess
 		// Posting the password... check it.
 		if (isset($_POST[$type . '_pass'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required');
 			}
 
@@ -3142,10 +3142,10 @@ class User implements \ArrayAccess
 	public static function delete(int|array $users, bool $check_not_admin = false): void
 	{
 		// Try give us a while to sort this out...
-		@set_time_limit(600);
+		Sapi::setTimeLimit();
 
 		// Try to get some more memory.
-		Config::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		// If it's not an array, make it so!
 		$users = array_unique((array) $users);

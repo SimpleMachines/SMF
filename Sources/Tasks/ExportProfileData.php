@@ -24,6 +24,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
@@ -1303,7 +1304,7 @@ class ExportProfileData extends BackgroundTask
 		$xmldoc = new DOMDocument();
 
 		foreach ($new_exportfiles as $exportfile) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 
 			$started = microtime(true);
 			$xmldoc->load($exportfile, $libxml_options);
