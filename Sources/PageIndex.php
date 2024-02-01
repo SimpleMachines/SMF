@@ -426,7 +426,7 @@ class PageIndex implements \Stringable
 		}
 
 		return strtr($this->expand_pages, [
-			'{LINK}' => Utils::JavaScriptEscape(Utils::htmlspecialchars($this->base_link)),
+			'{LINK}' => Utils::escapeJavaScript(Utils::htmlspecialchars($this->base_link)),
 			'{FIRST_PAGE}' => $first_page,
 			'{LAST_PAGE}' => $last_page,
 			'{PER_PAGE}' => $this->num_per_page,

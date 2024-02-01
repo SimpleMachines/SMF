@@ -244,7 +244,7 @@ function template_login_tfa()
 
 		if (empty(Utils::$context['valid_cors_found']) || Utils::$context['valid_cors_found'] == 'same') {
 			echo '
-									document.location = ', Utils::JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';';
+									document.location = ', Utils::escapeJavaScript(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';';
 		}
 		else {
 			echo '

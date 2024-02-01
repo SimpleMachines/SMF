@@ -64,9 +64,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 	// Now for backward compatibility let's collect few infos in the good ol' style
 	echo '
 			var oEditorHandle_', $editor_id, ' = new smc_Editor({
-				sUniqueId: ', Utils::JavaScriptEscape($editor_id), ',
-				sEditWidth: ', Utils::JavaScriptEscape($editor_context['width']), ',
-				sEditHeight: ', Utils::JavaScriptEscape($editor_context['height']), ',
+				sUniqueId: ', Utils::escapeJavaScript($editor_id), ',
+				sEditWidth: ', Utils::escapeJavaScript($editor_context['width']), ',
+				sEditHeight: ', Utils::escapeJavaScript($editor_context['height']), ',
 				bRichEditOff: ', empty(Config::$modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
 				oSmileyBox: null,
 				oBBCBox: null

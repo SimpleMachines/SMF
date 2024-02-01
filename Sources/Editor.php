@@ -434,7 +434,7 @@ class Editor implements \ArrayAccess
 			'save_draft' => [
 				'type' => 'submit',
 				'value' => Lang::$txt['draft_save'],
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::JavaScriptEscape(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
 				'accessKey' => 'd',
 				'show' => !empty(Utils::$context['drafts_save']),
 			],
@@ -681,16 +681,16 @@ class Editor implements \ArrayAccess
 
 					// Set the tooltip and possibly the command info
 					self::$bbc_handlers .= '
-						sceditor.command.set(' . Utils::JavaScriptEscape($tag['code']) . ', {
-							tooltip: ' . Utils::JavaScriptEscape($tag['description'] ?? $tag['code']);
+						sceditor.command.set(' . Utils::escapeJavaScript($tag['code']) . ', {
+							tooltip: ' . Utils::escapeJavaScript($tag['description'] ?? $tag['code']);
 
 					// Legacy support for 2.0 BBC mods
 					if (isset($tag['before'])) {
 						self::$bbc_handlers .= ',
 							exec: function () {
-								this.insertText(' . Utils::JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . Utils::JavaScriptEscape($tag['after']) : '') . ');
+								this.insertText(' . Utils::escapeJavaScript($tag['before']) . (isset($tag['after']) ? ', ' . Utils::escapeJavaScript($tag['after']) : '') . ');
 							},
-							txtExec: [' . Utils::JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . Utils::JavaScriptEscape($tag['after']) : '') . ']';
+							txtExec: [' . Utils::escapeJavaScript($tag['before']) . (isset($tag['after']) ? ', ' . Utils::escapeJavaScript($tag['after']) : '') . ']';
 					}
 
 					self::$bbc_handlers .= '

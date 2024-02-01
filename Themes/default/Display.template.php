@@ -394,7 +394,7 @@ function template_main()
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
-					sTemplateBodyEdit: ', Utils::JavaScriptEscape('
+					sTemplateBodyEdit: ', Utils::escapeJavaScript('
 						<div id="quick_edit_body_container">
 							<div id="error_box" class="error"></div>
 							<textarea class="editor" name="message" rows="12" tabindex="' . Utils::$context['tabindex']++ . '">%body%</textarea><br>
@@ -405,13 +405,13 @@ function template_main()
 								<input type="submit" name="post" value="' . Lang::$txt['save'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::$txt['spell_check'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::$txt['modify_cancel'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
 							</div>
 						</div>'), ',
-					sTemplateSubjectEdit: ', Utils::JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
-					sTemplateBodyNormal: ', Utils::JavaScriptEscape('%body%'), ',
-					sTemplateSubjectNormal: ', Utils::JavaScriptEscape('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
-					sTemplateTopSubject: ', Utils::JavaScriptEscape('%subject%'), ',
-					sTemplateReasonEdit: ', Utils::JavaScriptEscape(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
-					sTemplateReasonNormal: ', Utils::JavaScriptEscape('%modify_text'), ',
-					sErrorBorderStyle: ', Utils::JavaScriptEscape('1px solid red'), (Utils::$context['can_reply']) ? ',
+					sTemplateSubjectEdit: ', Utils::escapeJavaScript('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
+					sTemplateBodyNormal: ', Utils::escapeJavaScript('%body%'), ',
+					sTemplateSubjectNormal: ', Utils::escapeJavaScript('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
+					sTemplateTopSubject: ', Utils::escapeJavaScript('%subject%'), ',
+					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
+					sTemplateReasonNormal: ', Utils::escapeJavaScript('%modify_text'), ',
+					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), (Utils::$context['can_reply']) ? ',
 					sFormRemoveAccessKeys: \'postmodify\'' : '', '
 				});
 
@@ -453,7 +453,7 @@ function template_main()
 
 	if (!empty(Utils::$context['ignoredMsgs']))
 		echo '
-			ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', Utils::JavaScriptEscape(Lang::$txt['show_ignore_user_post']), ');';
+			ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', Utils::escapeJavaScript(Lang::$txt['show_ignore_user_post']), ');';
 
 	echo '
 		</script>';
