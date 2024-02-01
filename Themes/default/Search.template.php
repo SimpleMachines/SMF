@@ -115,7 +115,6 @@ function template_main()
 				</dd>
 			</dl>
 			<script>
-				createEventListener(window);
 				window.addEventListener("load", initSearch, false);
 			</script>
 			<input type="hidden" name="advanced" value="1">';
@@ -243,12 +242,10 @@ function template_main()
 	</form>
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sControlId: \'userspec\',
-			sSearchType: \'member\',
-			bItemList: false
+			sSearchType: \'member\'
 		});
 	</script>';
 }

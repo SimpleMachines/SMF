@@ -28,16 +28,11 @@ smf_PersonalMessageSend.prototype.init = function()
 
 		// Make the link show the BCC control.
 		var oBccLink = document.getElementById(this.opt.sBccLinkId);
-		oBccLink.instanceRef = this;
-		oBccLink.onclick = function () {
-			this.instanceRef.showBcc();
-			return false;
-		};
+		oBccLink.onclick = this.showBcc.bind(this);
 	}
 
 	var oToControl = document.getElementById(this.opt.sToControlId);
 	this.oToAutoSuggest = new smc_AutoSuggest({
-		sSelf: this.opt.sSelf + '.oToAutoSuggest',
 		sSessionId: this.opt.sSessionId,
 		sSessionVar: this.opt.sSessionVar,
 		sSuggestId: 'to_suggest',
@@ -50,10 +45,9 @@ smf_PersonalMessageSend.prototype.init = function()
 		sItemListContainerId: 'to_item_list_container',
 		aListItems: this.opt.aToRecipients
 	});
-	this.oToAutoSuggest.registerCallback('onBeforeAddItem', this.opt.sSelf + '.callbackAddItem');
+	this.oToAutoSuggest.registerCallback('onBeforeAddItem', this.callbackAddItem.bind(this));
 
 	this.oBccAutoSuggest = new smc_AutoSuggest({
-		sSelf: this.opt.sSelf + '.oBccAutoSuggest',
 		sSessionId: this.opt.sSessionId,
 		sSessionVar: this.opt.sSessionVar,
 		sSuggestId: 'bcc_suggest',
@@ -66,8 +60,7 @@ smf_PersonalMessageSend.prototype.init = function()
 		sItemListContainerId: 'bcc_item_list_container',
 		aListItems: this.opt.aBccRecipients
 	});
-	this.oBccAutoSuggest.registerCallback('onBeforeAddItem', this.opt.sSelf + '.callbackAddItem');
-
+	this.oBccAutoSuggest.registerCallback('onBeforeAddItem', this.callbackAddItem.bind(this));
 }
 
 smf_PersonalMessageSend.prototype.showBcc = function()
@@ -75,14 +68,15 @@ smf_PersonalMessageSend.prototype.showBcc = function()
 	// No longer hide it, show it to the world!
 	this.oBccDiv.style.display = '';
 	this.oBccDiv2.style.display = '';
+
+	return false;
 }
 
-
 // Prevent items to be added twice or to both the 'To' and 'Bcc'.
-smf_PersonalMessageSend.prototype.callbackAddItem = function(oAutoSuggestInstance, sSuggestId)
+smf_PersonalMessageSend.prototype.callbackAddItem = function(sItemId)
 {
-	this.oToAutoSuggest.deleteAddedItem(sSuggestId);
-	this.oBccAutoSuggest.deleteAddedItem(sSuggestId);
+	this.oToAutoSuggest.deleteAddedItem(sItemId);
+	this.oBccAutoSuggest.deleteAddedItem(sItemId);
 
 	return true;
 }

@@ -21,19 +21,6 @@ var is_android = ua.indexOf('android') != -1;
 
 var ajax_indicator_ele = null;
 
-// Some older versions of Mozilla don't have this, for some reason.
-if (!('forms' in document))
-	document.forms = document.getElementsByTagName('form');
-
-// Versions of ie < 9 do not have this built in
-if (!('getElementsByClassName' in document))
-{
-	document.getElementsByClassName = function(className)
-	{
-		return $('".' + className + '"');
-	}
-}
-
 // Get a response from the server.
 function getServerResponse(sUrl, funcCallback, sType, sDataType)
 {
@@ -672,7 +659,7 @@ function isEmptyText(theField)
 	while (theValue.length > 0 && (theValue.charAt(theValue.length - 1) == ' ' || theValue.charAt(theValue.length - 1) == '\t'))
 		theValue = theValue.substring(0, theValue.length - 1);
 
-    return theValue == '';
+	return theValue == '';
 }
 
 // Only allow form submission ONCE.
@@ -787,9 +774,9 @@ function smf_sessionKeepAlive()
 		lastKeepAliveCheck = curTime;
 	}
 
-	window.setTimeout('smf_sessionKeepAlive();', 1200000);
+	window.setTimeout(smf_sessionKeepAlive, 1200000);
 }
-window.setTimeout('smf_sessionKeepAlive();', 1200000);
+window.setTimeout(smf_sessionKeepAlive, 1200000);
 
 // Set a theme option through javascript.
 function smf_setThemeOption(theme_var, theme_value, theme_id, theme_cur_session_id, theme_cur_session_var, theme_additional_vars)
@@ -825,16 +812,13 @@ function expandPages(spanNode, baseLink, firstPage, lastPage, perPage)
 		replacement += baseLink.replace(/%1\$d/, i).replace(/%2\$s/, 1 + i / perPage).replace(/%%/g, '%');
 
 	// Add the new page links.
-	$(spanNode).before(replacement);
+	spanNode.before(replacement);
 
 	if (oldLastPage)
 		// Access the raw DOM element so the native onclick event can be overridden.
-		spanNode.onclick = function ()
-		{
-			expandPages(spanNode, baseLink, lastPage, oldLastPage, perPage);
-		};
+		spanNode.onclick = expandPages.bind(null, spanNode, baseLink, lastPage, oldLastPage, perPage);
 	else
-		$(spanNode).remove();
+		spanNode.remove();
 }
 
 function smc_preCacheImage(sSrc)
@@ -1112,31 +1096,6 @@ function create_ajax_indicator_ele()
 	document.body.appendChild(ajax_indicator_ele);
 }
 
-function createEventListener(oTarget)
-{
-	if (!('addEventListener' in oTarget))
-	{
-		if (oTarget.attachEvent)
-		{
-			oTarget.addEventListener = function (sEvent, funcHandler, bCapture) {
-				oTarget.attachEvent('on' + sEvent, funcHandler);
-			}
-			oTarget.removeEventListener = function (sEvent, funcHandler, bCapture) {
-				oTarget.detachEvent('on' + sEvent, funcHandler);
-			}
-		}
-		else
-		{
-			oTarget.addEventListener = function (sEvent, funcHandler, bCapture) {
-				oTarget['on' + sEvent] = funcHandler;
-			}
-			oTarget.removeEventListener = function (sEvent, funcHandler, bCapture) {
-				oTarget['on' + sEvent] = null;
-			}
-		}
-	}
-}
-
 // This function will retrieve the contents needed for the jump to boxes.
 function grabJumpToContent(elem)
 {
@@ -1225,9 +1184,9 @@ JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 		// If we've reached the currently selected board add all items so far.
 		if (!aBoardsAndCategories[i].isCategory && aBoardsAndCategories[i].id == this.opt.iCurBoardId)
 		{
-				this.dropdownList.insertBefore(oListFragment, this.dropdownList.options[0]);
-				oListFragment = document.createDocumentFragment();
-				continue;
+			this.dropdownList.insertBefore(oListFragment, this.dropdownList.options[0]);
+			oListFragment = document.createDocumentFragment();
+			continue;
 		}
 
 		if (aBoardsAndCategories[i].isCategory)
@@ -1322,8 +1281,6 @@ IconList.prototype.openPopup = function (oDiv, iMessageId)
 		// Start to fetch its contents.
 		ajax_indicator(true);
 		sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=messageicons;board=' + this.opt.iBoardId + ';xml', '', this.onIconsReceived);
-
-		createEventListener(document.body);
 	}
 
 	// Set the position of the container.
@@ -1688,7 +1645,6 @@ function makeToggle(el, text)
 	t.href = 'javascript:void(0);';
 	t.textContent = text;
 	t.className = 'toggle_down';
-	createEventListener(t);
 	t.addEventListener('click', function()
 	{
 		var d = this.nextSibling;
@@ -2100,7 +2056,4 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	}
 
 	location.hash = '#' + this.opts.sPreviewSectionContainerID;
-
-	if (typeof(smf_codeFix) != 'undefined')
-		smf_codeFix();
 }
