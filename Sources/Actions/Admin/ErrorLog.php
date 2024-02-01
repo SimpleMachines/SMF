@@ -148,7 +148,7 @@ class ErrorLog implements ActionInterface
 				'value' => [
 					'sql' => in_array($_GET['filter'], ['message', 'url', 'file']) ? base64_decode(strtr($_GET['value'], [' ' => '+'])) : Db::$db->escape_wildcard_string($_GET['value']),
 				],
-				'href' => ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'],
+				'href' => ';filter=' . $_GET['filter'] . ';value=' . urlencode($_GET['value']),
 				'entity' => $this->filters[$_GET['filter']]['txt'],
 			];
 		}
