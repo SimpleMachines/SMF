@@ -28,12 +28,12 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\TimeZone;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * Class to manage various core features.

@@ -25,12 +25,12 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * Contains all the functionality required to be able to edit the core server

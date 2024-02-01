@@ -4751,7 +4751,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		return Sapi::memoryReturnBytes($val);
 	}
-	 /**
+	/**
 	 * End
 	 * SMF\Sapi
 	 *

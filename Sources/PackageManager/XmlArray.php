@@ -15,7 +15,6 @@
 
 namespace SMF\PackageManager;
 
-use SMF\Config;
 use SMF\Lang;
 use SMF\Sapi;
 

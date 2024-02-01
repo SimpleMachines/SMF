@@ -23,10 +23,10 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * Handles deleting an account.
