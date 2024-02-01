@@ -43,7 +43,7 @@ class Sapi
 		self::SERVER_APACHE => 'Apache',
 		self::SERVER_LITESPEED => 'LiteSpeed',
 		self::SERVER_LIGHTTPD => 'lighttpd',
-		self::SERVER_NGINX => 'nginx'
+		self::SERVER_NGINX => 'nginx',
 	];
 
 	/*****************
@@ -66,7 +66,7 @@ class Sapi
 
 	/**
 	 * Checks if the server is running a specific server software.
-	 * 
+	 *
 	 * @param string|string[] $server The server software as defined in our constants.
 	 * @return bool True if we are running the requested software, false otherwise.
 	 */
@@ -77,10 +77,10 @@ class Sapi
 		foreach ($servers as $server) {
 			if (
 				isset($_SERVER['SERVER_SOFTWARE'])
-				&& strpos($_SERVER['SERVER_SOFTWARE'], self::$server_software[$server] ?? $server) !== false	
+				&& strpos($_SERVER['SERVER_SOFTWARE'], self::$server_software[$server] ?? $server) !== false
 			) {
 				return true;
-			}	
+			}
 		}
 
 		return false;
@@ -88,7 +88,7 @@ class Sapi
 
 	/**
 	 * Checks if the server is running a specific operating system.
-	 * 
+	 *
 	 * @param string|string[] $os The os as defined in our constants
 	 * @return bool True if we are running the requested os, false otherwise.
 	 */
@@ -96,7 +96,7 @@ class Sapi
 	{
 		$oses = (array) $os;
 
-		/** 
+		/*
 		 * Technically we could simplify this down using PHP_OS_FAMILY,
 		 * but to ensure backwards compatibility, we won't yet.
 		 */
@@ -105,9 +105,11 @@ class Sapi
 				case self::OS_WINDOWS:
 					$is_os = PHP_OS_FAMILY === self::OS_WINDOWS || DIRECTORY_SEPARATOR === '\\';
 					break;
+
 				case self::OS_MAC:
 					$is_os = PHP_OS_FAMILY === self::OS_MAC;
 					break;
+
 				// This may result in false positives because 'linux' is very broad.
 				case self::OS_LINUX:
 					$is_os = PHP_OS_FAMILY === self::OS_LINUX;
@@ -125,7 +127,7 @@ class Sapi
 
 	/**
 	 * Checks If we are runnig a CGI instance.
-	 * 
+	 *
 	 * @return bool True if we are running under CGI, false otherwise.
 	 */
 	public static function isCGI(): bool
@@ -135,7 +137,7 @@ class Sapi
 
 	/**
 	 * Checks If we are runnig a CLI (shell/cron) instance.
-	 * 
+	 *
 	 * @return bool True if we are running under CLI, false otherwise.
 	 */
 	public static function isCLI(): bool
@@ -145,7 +147,7 @@ class Sapi
 
 	/**
 	 * Checks if the server is able to support case folding.
-	 * 
+	 *
 	 * @see https://www.w3.org/TR/charmod-norm/#definitionCaseFolding
 	 * @return bool True if it does, false otherwise
 	 */
@@ -156,7 +158,7 @@ class Sapi
 
 	/**
 	 * A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
-	 * 
+	 *
 	 * @return bool True if it does, false otherwise
 	 */
 	public static function needsLoginFix(): bool
@@ -180,7 +182,7 @@ class Sapi
 			'is_windows' => self::isOS(self::OS_WINDOWS),
 			'is_mac' => self::isOS(self::OS_MAC),
 			'iso_case_folding' => self::supportsIsoCaseFolding(),
-			'needs_login_fix' => self::needsLoginFix()
+			'needs_login_fix' => self::needsLoginFix(),
 		];
 	}
 

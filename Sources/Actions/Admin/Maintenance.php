@@ -30,13 +30,13 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * Forum maintenance. Important stuff.

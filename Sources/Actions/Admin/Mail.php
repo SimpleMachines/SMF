@@ -23,10 +23,10 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * Handles mail configuration, as well as reviewing the mail queue.

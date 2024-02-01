@@ -22,12 +22,12 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * The admin screen to change the search settings.
