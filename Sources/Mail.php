@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
-use Socket;
+use SMF\MailAgent\MailAgent;
 
 /**
  * Class for preparing and handling email messages.
@@ -125,10 +125,7 @@ class Mail
 		$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . $line_break : '';
 		$headers .= 'Return-Path: ' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . $line_break;
 		$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . $line_break;
-
-		if ($message_id !== null && empty(Config::$modSettings['mail_no_message_id'])) {
-			$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . $message_id . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
-		}
+		$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . ($message_id ?? 0) . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
 		$headers .= 'X-Mailer: SMF' . $line_break;
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
@@ -198,46 +195,18 @@ class Mail
 			Config::updateModSettings(['mail_recent' => $new_queue_stat]);
 		}
 
-		// SMTP or sendmail?
-		if ($use_sendmail) {
-			$subject = strtr($subject, ["\r" => '', "\n" => '']);
-
-			if (!empty(Config::$modSettings['mail_strip_carriage'])) {
-				$message = strtr($message, ["\r" => '']);
-				$headers = strtr($headers, ["\r" => '']);
-			}
-
-			foreach ($to_array as $to) {
-				set_error_handler(
-					function ($errno, $errstr, $errfile, $errline) {
-						// error was suppressed with the @-operator
-						if (0 === error_reporting()) {
-							return false;
-						}
-
-						throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-					},
-				);
-
-				try {
-					if (!mail(strtr($to, ["\r" => '', "\n" => '']), $subject, $message, $headers)) {
-						ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
-						$mail_result = false;
-					}
-				} catch (\ErrorException $e) {
-					ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-					ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
-					$mail_result = false;
-				}
-				restore_error_handler();
-
-				// Wait, wait, I'm still sending here!
-				Sapi::setTimeLimit(300);
-				Sapi::resetTimeout();
-			}
-		} else {
-			$mail_result = $mail_result && self::sendSmtp($to_array, $subject, $message, $headers);
+		// Loadup the agent.
+		$agent = MailAgent::load();
+		if ($agent === false || !$agent->connect()) {
+			return false;
 		}
+
+		$mail_result = true;
+		foreach ($to_array as $to) {
+			$mail_result = $mail_result && $agent->send($to, $subject, $message, $headers);
+		}
+
+		$agent->disconnect();
 
 		// Everything go smoothly?
 		return $mail_result;

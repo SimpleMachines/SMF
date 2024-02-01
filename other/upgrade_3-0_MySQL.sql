@@ -89,3 +89,23 @@ foreach (Config::$modSettings as $variable => $value) {
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Updating Settings
+/******************************************************************************/
+
+---# Update mail_type
+UPDATE {$db_prefix}settings
+SET value =
+	CASE
+		WHEN value = 0
+			THEN 'SendMail'
+		WHEN value = 1
+			THEN 'SMTP'
+		WHEN value = 2
+			THEN 'SMTPTLS'
+		ELSE
+			value
+		END
+WHERE variable = 'mail_type'
+	AND value IN (0,1,2);
