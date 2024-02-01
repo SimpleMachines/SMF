@@ -590,7 +590,6 @@ function template_browse()
 	echo '
 			<script>
 				var oAdminIndex = new smf_AdminIndex({
-					sSelf: \'oAdminCenter\',
 					bLoadAnnouncements: false,
 					bLoadVersions: false,
 					bLoadUpdateNotification: true,
@@ -1870,7 +1869,7 @@ function template_action_permissions()
 			document.getElementById(\'cont\').value = "', Lang::getTxt('not_done_continue', file: 'Admin'), ' (" + countdown + ")";
 			countdown--;
 
-			setTimeout("doAutoSubmit();", 1000);
+			setTimeout(doAutoSubmit, 1000);
 		}
 	</script>';
 }

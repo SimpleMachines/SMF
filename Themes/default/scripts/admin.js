@@ -444,7 +444,7 @@ function setPreviewTimeout()
 		previewTimeout = null;
 	}
 
-	previewTimeout = window.setTimeout("refreshPreview(true); previewTimeout = null;", 500);
+	previewTimeout = window.setTimeout(function() { refreshPreview(true); previewTimeout = null; }, 500);
 }
 
 function toggleDuration(toChange)

@@ -343,7 +343,7 @@ function template_create_index_progress()
 			document.forms.autoSubmit.b.value = "', Lang::getTxt('search_create_index_continue', file: 'Search'), ' (" + countdown + ")";
 			countdown--;
 
-			setTimeout("doAutoSubmit();", 1000);
+			setTimeout(doAutoSubmit, 1000);
 		}
 	</script>';
 
