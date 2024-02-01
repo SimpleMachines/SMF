@@ -546,6 +546,10 @@ class Lang
 			}
 		}
 
+		if (!is_scalar($target)) {
+			throw new \ValueError();
+		}
+
 		if (empty($args)) {
 			return $target;
 		}
