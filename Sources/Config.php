@@ -1406,6 +1406,11 @@ class Config
 	{
 		static $mtime;
 
+		// A list of settings from earlier versions of SMF that should be deleted if found.
+		$obsolete_settings = [
+			'tasksdir' => 'string',
+		];
+
 		// Should we try to unescape the strings?
 		if (empty($keep_quotes)) {
 			foreach ($config_vars as $var => $val) {
@@ -1508,6 +1513,11 @@ class Config
 			}
 		}
 
+		// Remove obsolete settings from earlier versions of SMF.
+		foreach ($obsolete_settings as $obs => $type) {
+			unset($new_settings_vars[$obs], $settings_vars[$obs], $config_vars[$obs]);
+		}
+
 		/*******************************
 		 * PART 2: Build substitutions *
 		 *******************************/
@@ -1569,6 +1579,14 @@ class Config
 				'placeholder' => '',
 			],
 		];
+
+		// Remove obsolete settings from earlier versions of SMF.
+		foreach ($obsolete_settings as $obs => $type) {
+			$substitutions[$neg_index--] = [
+				'search_pattern' => '~(/\*\*\h*\n(\h*\*[^\n]*\n)*\h*\*/|(//[^\n]*\n)*)\s*\$' . preg_quote($obs) . '\s*=\s*(' . $type_regex[$type] . ');\n?~',
+				'placeholder' => '',
+			];
+		}
 
 		if (defined('SMF_INSTALLING')) {
 			$substitutions[$neg_index--] = [
