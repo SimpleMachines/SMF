@@ -219,15 +219,15 @@ function template_permission_index()
 					aSwapImages: [
 						{
 							sId: \'permissions_panel_toggle\',
-							altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-							altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+							altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+							altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 						}
 					],
 					aSwapLinks: [
 						{
 							sId: \'permissions_panel_link\',
-							msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['permissions_advanced_options']), ',
-							msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['permissions_advanced_options']), '
+							msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['permissions_advanced_options']), ',
+							msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['permissions_advanced_options']), '
 						}
 					],
 					oThemeOptions: {

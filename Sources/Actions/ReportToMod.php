@@ -240,7 +240,7 @@ class ReportToMod implements ActionInterface
 					if ($.trim(error_box.html()) == \'\')
 						error_box.append("<ul id=\'error_list\'></ul>");
 
-					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::JavaScriptEscape(Lang::$txt['post_too_long']) . ' + "</li>");
+					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::escapeJavaScript(Lang::$txt['post_too_long']) . ' + "</li>");
 				}
 			}
 			else

@@ -25,12 +25,12 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\{SubsPackage, XmlArray};
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * This class concerns itself almost completely with theme administration.

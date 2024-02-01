@@ -4751,7 +4751,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		return Sapi::memoryReturnBytes($val);
 	}
-	 /**
+	/**
 	 * End
 	 * SMF\Sapi
 	 *
@@ -5627,7 +5627,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function JavaScriptEscape(string $string, bool $as_json = false): string
 	{
-		return Utils::JavaScriptEscape($string, $as_json);
+		return Utils::escapeJavaScript($string, $as_json);
 	}
 
 	function stripslashes__recursive($var, $level = 0): array|string

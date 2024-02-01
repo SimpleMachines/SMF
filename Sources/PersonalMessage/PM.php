@@ -365,7 +365,7 @@ class PM implements \ArrayAccess
 				'delete' => [
 					'label' => Lang::$txt['delete'],
 					'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $this->id . '%5D=delete;f=' . $this->folder . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Utils::JavaScriptEscape(Lang::$txt['remove_message_question']) . '"',
+					'javascript' => 'data-confirm="' . Utils::escapeJavaScript(Lang::$txt['remove_message_question']) . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 				],

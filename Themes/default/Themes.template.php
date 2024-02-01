@@ -924,7 +924,7 @@ function template_edit_style()
 		<script>
 			var previewData = "";
 			var previewTimeout;
-			var editFilename = ', Utils::JavaScriptEscape(Utils::$context['edit_filename']), ';
+			var editFilename = ', Utils::escapeJavaScript(Utils::$context['edit_filename']), ';
 
 			// Load up a page, but apply our stylesheet.
 			function navigatePreview(url)

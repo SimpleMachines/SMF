@@ -109,8 +109,8 @@ interface SearchApiInterface
 	/**
 	 * Callback when a topic is merged.
 	 *
-	 * @param array $topics The ID(s) of the merged topic(s)
 	 * @param int $id_topic The ID of the topic that messages where merged into
+	 * @param array $topics The ID(s) of the merged topic(s)
 	 * @param array $msgs The ID(s) of the merged messages(s)
 	 * @param ?string Optional rename all subjects for all messages.
 	 */

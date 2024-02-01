@@ -333,7 +333,7 @@ class Attachment implements \ArrayAccess
 				WHERE id_attach = {int:id}
 				LIMIT 1',
 				[
-					'id' => $this->id,
+					'id' => $id,
 				],
 			);
 

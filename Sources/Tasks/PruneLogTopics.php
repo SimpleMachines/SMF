@@ -18,7 +18,6 @@ namespace SMF\Tasks;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Sapi;
-use SMF\Utils;
 
 /**
  * Prunes log_topics, log_boards, and log_mark_boards_read.

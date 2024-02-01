@@ -18,10 +18,10 @@ namespace SMF\Graphics;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Sapi;
 use SMF\Url;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
-use SMF\Sapi;
 
 // IMAGETYPE_AVIF was added in PHP 8.1
 if (!defined('IMAGETYPE_AVIF')) {

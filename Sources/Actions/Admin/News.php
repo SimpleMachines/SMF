@@ -71,7 +71,7 @@ class News extends ACP implements ActionInterface
 	 *
 	 * All occurrences of '{js_escape:...}' in value strings will be replaced at
 	 * runtime with escaped versions of whatever appears between the colon and
-	 * the closing brace. This escaping is done using Utils::JavaScriptEscape().
+	 * the closing brace. This escaping is done using Utils::escapeJavaScript().
 	 */
 	public array $list_options = [
 		'id' => 'news_lists',
@@ -1322,7 +1322,7 @@ class News extends ACP implements ActionInterface
 								break;
 
 							case 'js_escape:':
-								$new_value = Utils::JavaScriptEscape($matches[2]);
+								$new_value = Utils::escapeJavaScript($matches[2]);
 								break;
 
 							default:

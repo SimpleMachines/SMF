@@ -683,14 +683,14 @@ class Theme
 					$value = (array) $value;
 					// no break
 
-				// Apply Utils::JavaScriptEscape() to any strings in the array.
+				// Apply Utils::escapeJavaScript() to any strings in the array.
 				case 'array':
 					$replacements = [];
 					array_walk_recursive(
 						$value,
 						function ($v, $k) use (&$replacements) {
 							if (is_string($v)) {
-								$replacements[json_encode($v)] = Utils::JavaScriptEscape($v, true);
+								$replacements[json_encode($v)] = Utils::escapeJavaScript($v, true);
 							}
 						},
 					);
@@ -698,7 +698,7 @@ class Theme
 					break;
 
 				case 'string':
-					$value = Utils::JavaScriptEscape($value);
+					$value = Utils::escapeJavaScript($value);
 					break;
 
 				default:
@@ -817,8 +817,8 @@ class Theme
 			self::addInlineJavaScript('
 			jQuery(document).ready(function($) {
 				new smc_Popup({
-					heading: ' . Utils::JavaScriptEscape(Lang::$txt['show_personal_messages_heading']) . ',
-					content: ' . Utils::JavaScriptEscape(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'])) . ',
+					heading: ' . Utils::escapeJavaScript(Lang::$txt['show_personal_messages_heading']) . ',
+					content: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'])) . ',
 					icon_class: \'main_icons mail_new\'
 				});
 			});');
@@ -826,7 +826,7 @@ class Theme
 
 		// Add a generic "Are you sure?" confirmation message.
 		self::addInlineJavaScript('
-		var smf_you_sure =' . Utils::JavaScriptEscape(Lang::$txt['quickmod_confirm']) . ';');
+		var smf_you_sure =' . Utils::escapeJavaScript(Lang::$txt['quickmod_confirm']) . ';');
 
 		// Now add the capping code for avatars.
 		if (!empty(Config::$modSettings['avatar_max_width_external']) && !empty(Config::$modSettings['avatar_max_height_external']) && !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_css_resize') {
@@ -1077,7 +1077,7 @@ class Theme
 				'login' => [
 					'title' => Lang::$txt['login'],
 					'href' => Config::$scripturl . '?action=login',
-					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');',
+					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
 					'show' => User::$me->is_guest && !empty(self::$current->settings['login_main_menu']),
 					'sub_buttons' => [
 					],
@@ -2744,13 +2744,13 @@ class Theme
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',
 			'smf_member_id' => User::$me->id,
-			'ajax_notification_text' => Utils::JavaScriptEscape(Lang::$txt['ajax_in_progress']),
-			'help_popup_heading_text' => Utils::JavaScriptEscape(Lang::$txt['help_popup']),
-			'banned_text' => Utils::JavaScriptEscape(Lang::getTxt('your_ban', ['name' => User::$me->name])),
-			'smf_txt_expand' => Utils::JavaScriptEscape(Lang::$txt['code_expand']),
-			'smf_txt_shrink' => Utils::JavaScriptEscape(Lang::$txt['code_shrink']),
-			'smf_collapseAlt' => Utils::JavaScriptEscape(Lang::$txt['hide']),
-			'smf_expandAlt' => Utils::JavaScriptEscape(Lang::$txt['show']),
+			'ajax_notification_text' => Utils::escapeJavaScript(Lang::$txt['ajax_in_progress']),
+			'help_popup_heading_text' => Utils::escapeJavaScript(Lang::$txt['help_popup']),
+			'banned_text' => Utils::escapeJavaScript(Lang::getTxt('your_ban', ['name' => User::$me->name])),
+			'smf_txt_expand' => Utils::escapeJavaScript(Lang::$txt['code_expand']),
+			'smf_txt_shrink' => Utils::escapeJavaScript(Lang::$txt['code_shrink']),
+			'smf_collapseAlt' => Utils::escapeJavaScript(Lang::$txt['hide']),
+			'smf_expandAlt' => Utils::escapeJavaScript(Lang::$txt['show']),
 			'smf_quote_expand' => !empty(Config::$modSettings['quote_expand']) ? Config::$modSettings['quote_expand'] : 'false',
 			'allow_xhjr_credentials' => !empty(Config::$modSettings['allow_cors_credentials']) ? 'true' : 'false',
 		];
@@ -2790,7 +2790,7 @@ class Theme
 		if (empty(Config::$modSettings['cron_is_real_cron'])) {
 			$ts = time();
 			$ts -= $ts % 15;
-			$escaped_boardurl = Utils::JavaScriptEscape(Config::$boardurl);
+			$escaped_boardurl = Utils::escapeJavaScript(Config::$boardurl);
 			self::addInlineJavaScript(<<<END
 					function triggerCron()
 					{

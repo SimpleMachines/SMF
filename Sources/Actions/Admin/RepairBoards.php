@@ -24,10 +24,10 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * This is here for the "repair any errors" feature in the admin center.

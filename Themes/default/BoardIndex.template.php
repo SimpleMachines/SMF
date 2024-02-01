@@ -312,15 +312,15 @@ function template_info_center()
 			aSwapImages: [
 				{
 					sId: \'upshrink_ic\',
-					altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide_infocenter']), ',
-					altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show_infocenter']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide_infocenter']), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show_infocenter']), '
 				}
 			],
 			aSwapLinks: [
 				{
 					sId: \'upshrink_link\',
-					msgExpanded: ', Utils::JavaScriptEscape(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), ',
-					msgCollapsed: ', Utils::JavaScriptEscape(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), '
+					msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), ',
+					msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), '
 				}
 			],
 			oThemeOptions: {

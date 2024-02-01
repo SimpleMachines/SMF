@@ -105,7 +105,7 @@ class AntiSpam implements ActionInterface
 
 		// Thirdly, push some JavaScript for the form to make it work.
 		$nextrow = !empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1;
-		$setup_verification_add_answer = Utils::JavaScriptEscape(Lang::$txt['setup_verification_add_answer']);
+		$setup_verification_add_answer = Utils::escapeJavaScript(Lang::$txt['setup_verification_add_answer']);
 		$default_lang = strtr(Lang::$default, ['-utf8' => '']);
 
 		Theme::addInlineJavaScript(<<<END

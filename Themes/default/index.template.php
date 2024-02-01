@@ -266,7 +266,7 @@ function template_body_above()
 					[
 						'forum_name' => Utils::$context['forum_name_html_safe'],
 						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
 				), '</li>
@@ -280,7 +280,7 @@ function template_body_above()
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
 				</li>
 				<li class="button_login">
-					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');">
+					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
 						<span class="main_icons login"></span>
 						<span class="textmenu">', Lang::$txt['login'], '</span>
 					</a>

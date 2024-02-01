@@ -24,11 +24,11 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Sapi;
 
 /**
  * This class is exclusively for generating reports to help assist forum

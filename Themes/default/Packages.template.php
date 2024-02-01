@@ -406,7 +406,7 @@ function template_view_package()
 	// And a bit more for database changes.
 	if (Utils::$context['uninstalling'] && !empty(Utils::$context['database_changes']))
 		echo '
-		makeToggle(document.getElementById(\'db_changes_div\'), ', Utils::JavaScriptEscape(Lang::$txt['package_db_uninstall_details']), ');';
+		makeToggle(document.getElementById(\'db_changes_div\'), ', Utils::escapeJavaScript(Lang::$txt['package_db_uninstall_details']), ');';
 
 	echo '
 	</script>';
@@ -575,9 +575,9 @@ function template_browse()
 					bLoadVersions: false,
 					bLoadUpdateNotification: true,
 					sUpdateNotificationContainerId: \'update_section\',
-					sUpdateNotificationDefaultTitle: ', Utils::JavaScriptEscape(Lang::$txt['update_available']), ',
-					sUpdateNotificationDefaultMessage: ', Utils::JavaScriptEscape(Lang::$txt['update_message']), ',
-					sUpdateNotificationTemplate: ', Utils::JavaScriptEscape('
+					sUpdateNotificationDefaultTitle: ', Utils::escapeJavaScript(Lang::$txt['update_available']), ',
+					sUpdateNotificationDefaultMessage: ', Utils::escapeJavaScript(Lang::$txt['update_message']), ',
+					sUpdateNotificationTemplate: ', Utils::escapeJavaScript('
 						<h3 id="update_title">
 							%title%
 						</h3>
@@ -585,7 +585,7 @@ function template_browse()
 							%message%
 						</div>
 					'), ',
-					sUpdateNotificationLink: smf_scripturl + ', Utils::JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
+					sUpdateNotificationLink: smf_scripturl + ', Utils::escapeJavaScript('?action=admin;area=packages;pgdownload;auto;package=%package%;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
 				});
 			</script>';
 
@@ -657,15 +657,15 @@ function template_browse()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-					altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 				}
 			],
 			aSwapLinks: [
 				{
 					sId: \'advanced_panel_link\',
-					msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['package_advanced_button']), ',
-					msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['package_advanced_button']), '
+					msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['package_advanced_button']), ',
+					msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['package_advanced_button']), '
 				}
 			]
 		});

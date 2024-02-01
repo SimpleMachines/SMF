@@ -358,7 +358,7 @@ function template_maintain_topics()
 
 			// Toggle icon
 			document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/selected_open.png" : "/selected.png");
-			setInnerHTML(document.getElementById("rotText"), rotSwap ? ', Utils::JavaScriptEscape(Lang::$txt['maintain_old_choose']), ' : ', Utils::JavaScriptEscape(Lang::$txt['maintain_old_all']), ');
+			setInnerHTML(document.getElementById("rotText"), rotSwap ? ', Utils::escapeJavaScript(Lang::$txt['maintain_old_choose']), ' : ', Utils::escapeJavaScript(Lang::$txt['maintain_old_all']), ');
 
 			// Toggle panel
 			$("#rotPanel").slideToggle(300);

@@ -279,7 +279,7 @@ class ServerSideIncludes
 					[
 						'forum_name' => Utils::$context['forum_name_html_safe'],
 						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ');',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ');',
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
 				);

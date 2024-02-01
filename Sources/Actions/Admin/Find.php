@@ -22,10 +22,10 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\XmlArray;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
-use SMF\Sapi;
 
 /**
  * Provides the search functionality inside the admin control panel.

@@ -447,7 +447,7 @@ class Profile extends User implements \ArrayAccess
 					{
 						if (this.email_address.value != "' . (!empty($this->email) ? $this->email : '') . '")
 						{
-							alert(' . Utils::JavaScriptEscape(Lang::$txt['email_change_logout']) . ');
+							alert(' . Utils::escapeJavaScript(Lang::$txt['email_change_logout']) . ');
 							return true;
 						}
 					}, false);' : '',
@@ -1492,7 +1492,7 @@ class Profile extends User implements \ArrayAccess
 			if (this.oldpasswrd.value == "")
 			{
 				event.preventDefault();
-				alert(' . (Utils::JavaScriptEscape(Lang::$txt['required_security_reasons'])) . ');
+				alert(' . (Utils::escapeJavaScript(Lang::$txt['required_security_reasons'])) . ');
 				return false;
 			}
 		}, false);' : ''), true);
