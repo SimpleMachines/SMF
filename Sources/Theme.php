@@ -1945,7 +1945,7 @@ class Theme
 
 		Lang::load('Profile');
 		Lang::load('Themes');
-		Lang::load('Settings');
+		Lang::load('ThemeStrings');
 		self::loadTemplate('Themes');
 
 		// Build the link tree.

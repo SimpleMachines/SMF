@@ -842,7 +842,7 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_extra',
 				'is_dummy' => true,
 				'preload' => function () {
-					Lang::load('Settings');
+					Lang::load('ThemeStrings');
 
 					Utils::$context['allow_no_censored'] = false;
 
