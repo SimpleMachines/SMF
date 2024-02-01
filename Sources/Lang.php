@@ -622,22 +622,7 @@ class Lang
 	 */
 	public static function tokenTxtReplace(string $string = ''): string
 	{
-		if (empty($string)) {
-			return '';
-		}
-
-		$translatable_tokens = preg_match_all('/{(.*?)}/', $string, $matches);
-		$toFind = [];
-		$replaceWith = [];
-
-		if (!empty($matches[1])) {
-			foreach ($matches[1] as $token) {
-				$toFind[] = '{' . $token . '}';
-				$replaceWith[] = self::$txt[$token] ?? $token;
-			}
-		}
-
-		return str_replace($toFind, $replaceWith, $string);
+		return self::formatText($string, self::$txt);
 	}
 
 	/**
