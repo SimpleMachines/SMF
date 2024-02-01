@@ -2465,14 +2465,14 @@ class PackageManager
 			{
 				collapsedDiv.show(\'slow\');
 				icon.removeClass(\'toggle_down\').addClass(\'toggle_up\');
-				icon.prop(\'title\', ' . Utils::JavaScriptEscape(Lang::$txt['hide']) . ');
+				icon.prop(\'title\', ' . Utils::escapeJavaScript(Lang::$txt['hide']) . ');
 			}
 
 			else
 			{
 				collapsedDiv.hide(\'slow\');
 				icon.removeClass(\'toggle_up\').addClass(\'toggle_down\');
-				icon.prop(\'title\', ' . Utils::JavaScriptEscape(Lang::$txt['show']) . ');
+				icon.prop(\'title\', ' . Utils::escapeJavaScript(Lang::$txt['show']) . ');
 			}
 		});', true);
 	}

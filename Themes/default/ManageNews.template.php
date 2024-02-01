@@ -127,15 +127,15 @@ function template_email_members()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-					altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 				}
 			],
 			aSwapLinks: [
 				{
 					sId: \'advanced_panel_link\',
-					msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['advanced']), ',
-					msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['advanced']), '
+					msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['advanced']), ',
+					msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['advanced']), '
 				}
 			]
 		});
@@ -266,21 +266,21 @@ function template_email_members_compose()
 						if (\'opera\' in window)
 						{
 							// Handle the WYSIWYG editor.
-							if (textFields[i] == ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ' && ', Utils::JavaScriptEscape('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
+							if (textFields[i] == ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ' && ', Utils::escapeJavaScript('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
 								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', Utils::$context['post_box_name'], '.getText(false).php_to8bit().php_urlencode();
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.php_to8bit().php_urlencode();
 						}
 						// @todo Currently not sending poll options and option checkboxes.
 						var x = new Array();
-						var textFields = [\'subject\', ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), '];
+						var textFields = [\'subject\', ', Utils::escapeJavaScript(Utils::$context['post_box_name']), '];
 						var checkboxFields = [\'send_html\', \'send_pm\'];
 
 						for (var i = 0, n = textFields.length; i < n; i++)
 							if (textFields[i] in document.forms.newsmodify)
 							{
 								// Handle the WYSIWYG editor.
-								if (textFields[i] == ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ' && ', Utils::JavaScriptEscape('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
+								if (textFields[i] == ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ' && ', Utils::escapeJavaScript('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
 									x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', Utils::$context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
 								else
 									x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();

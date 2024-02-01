@@ -1903,7 +1903,7 @@ class Maintenance implements ActionInterface
 			Utils::$context['insert_after_template'] .= '
 			<script>
 				var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-				hook_name_header.innerHTML += ' . Utils::JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
+				hook_name_header.innerHTML += ' . Utils::escapeJavaScript('<select style="margin-left:15px;" onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
 			</script>';
 		}
 
