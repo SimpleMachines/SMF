@@ -25,6 +25,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -34,7 +35,7 @@ use SMF\Utils;
 /**
  * Contains all the functionality required to be able to edit the core server
  * settings. This includes anything from which an error may result in the forum
- * destroying itself in a firey fury.
+ * destroying itself in a fiery fury.
  *
  * Adding options to one of the setting screens isn't hard. Call prepareDBSettingsContext;
  * The basic format for a checkbox is:
@@ -164,9 +165,9 @@ class Server implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Server $obj;
 
 	/**
 	 * @var bool
@@ -401,7 +402,7 @@ class Server implements ActionInterface
 
 				Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
-				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Sapi::needsLoginFix());
 			}
 
 			// If we disabled 2FA, reset all members and membergroups settings.
@@ -827,7 +828,7 @@ class Server implements ActionInterface
 			['localCookies', Lang::$txt['localCookies'], 'db', 'check', false, 'localCookies'],
 			['globalCookies', Lang::$txt['globalCookies'], 'db', 'check', false, 'globalCookies'],
 			['globalCookiesDomain', Lang::$txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'],
-			['secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !Config::httpsOn()],
+			['secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !Sapi::httpsOn()],
 			['httponlyCookies', Lang::$txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'],
 			['samesiteCookies', Lang::$txt['samesiteCookies'], 'db', 'select', [
 				'none' 		=> Lang::$txt['samesiteNone'],

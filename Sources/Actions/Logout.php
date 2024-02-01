@@ -20,6 +20,7 @@ use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -37,9 +38,9 @@ class Logout extends Login2
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Logout|Login2 $obj;
 
 	/****************
 	 * Public methods
@@ -134,7 +135,7 @@ class Logout extends Login2
 		// Off to the merry board index we go!
 		if ($redirect) {
 			if (empty($_SESSION['logout_url'])) {
-				Utils::redirectexit('', Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit('', Sapi::needsLoginFix());
 			} elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false)) {
 				unset($_SESSION['logout_url']);
 				Utils::redirectexit();
@@ -142,7 +143,7 @@ class Logout extends Login2
 				$temp = $_SESSION['logout_url'];
 				unset($_SESSION['logout_url']);
 
-				Utils::redirectexit($temp, Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit($temp, Sapi::needsLoginFix());
 			}
 		}
 	}

@@ -17,7 +17,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Prunes log_topics, log_boards, and log_mark_boards_read.
@@ -56,9 +56,8 @@ class PruneLogTopics extends ScheduledTask
 		}
 
 		// Try to prevent timeouts
-		Utils::sapiSetTimeLimit(300);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(300);
+		Sapi::resetTimeout();
 
 		// Start off by finding the records in log_boards, log_topics & log_mark_read
 		// for users who haven't been around the longest...

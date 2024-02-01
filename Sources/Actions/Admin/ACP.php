@@ -55,7 +55,7 @@ class ACP implements ActionInterface
 	 * be replaced at runtime with the real values of Config::$scripturl and
 	 * Config::$boardurl.
 	 *
-	 * In this default definintion, all parts of the menu are set as enabled.
+	 * In this default definition, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off depending on
 	 * the forum's saved settings.
 	 *
@@ -714,9 +714,9 @@ class ACP implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static ACP $obj;
 
 	/****************
 	 * Public methods
@@ -1530,7 +1530,7 @@ class ACP implements ActionInterface
 				$header = fread($fp, 4096);
 				fclose($fp);
 
-				// The comment looks rougly like... that.
+				// The comment looks roughly like... that.
 				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 					$version_info['root_versions'][$file] = $match[1];
 				}
@@ -1541,7 +1541,7 @@ class ACP implements ActionInterface
 			}
 		}
 
-		// Load all the files in the Sources directory, except some vendor libraires, index place holderes and non php files.
+		// Load all the files in the Sources directory, except some vendor libraries, index place holders and non php files.
 		$sources_dir = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(
 				Config::$sourcedir,

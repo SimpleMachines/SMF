@@ -38,9 +38,9 @@ class Agreement implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of the class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Agreement $obj;
 
 	/****************
 	 * Public methods
@@ -118,7 +118,7 @@ class Agreement implements ActionInterface
 			return false;
 		}
 
-		$agreement_lang = file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt') ? User::$me->language : 'default';
+		$agreement_lang = file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt') ? User::$me->language : 'default';
 
 		if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang])) {
 			return false;
@@ -177,14 +177,14 @@ class Agreement implements ActionInterface
 		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_agreement']) {
 			// Grab the agreement.
 			// Have we got a localized one?
-			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt')) {
-				Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.' . User::$me->language . '.txt';
-			} elseif (file_exists(Config::$boarddir . '/agreement.txt')) {
-				Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.txt';
+			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/' . User::$me->language . '/agreement.txt';
+			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/en_US/agreement.txt';
 			}
 
 			if (!empty(Utils::$context['agreement_file'])) {
-				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$boarddir => '', '.txt' => '', '.' => '_']);
+				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$languagesdir => '', '.txt' => '', '.' => '_']);
 				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
 			} elseif (Utils::$context['can_accept_agreement']) {
 				ErrorHandler::fatalLang('error_no_agreement', false);

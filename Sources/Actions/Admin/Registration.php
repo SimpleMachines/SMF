@@ -78,9 +78,9 @@ class Registration implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Registration $obj;
 
 	/****************
 	 * Public methods
@@ -216,27 +216,27 @@ class Registration implements ActionInterface
 
 		// Is there more than one to edit?
 		Utils::$context['editable_agreements'] = [
-			'' => Lang::$txt['admin_agreement_default'],
+			'en_US' => Lang::$txt['admin_agreement_default'],
 		];
 
 		// Get our languages.
 		Lang::get();
 
 		// Try to figure out if we have more agreements.
-		foreach (Utils::$context['languages'] as $lang) {
-			if (file_exists(Config::$boarddir . '/agreement.' . $lang['filename'] . '.txt')) {
-				Utils::$context['editable_agreements']['.' . $lang['filename']] = $lang['name'];
+		foreach (Utils::$context['languages'] as $lang_id => $lang) {
+			if (file_exists(Config::$languagesdir . '/' . $lang_id . '/agreement.txt')) {
+				Utils::$context['editable_agreements'][$lang_id] = $lang['name'];
 
 				// Are we editing this?
-				if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == '.' . $lang['filename']) {
-					Utils::$context['current_agreement'] = '.' . $lang['filename'];
+				if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == $lang_id) {
+					Utils::$context['current_agreement'] = $lang_id;
 				}
 			}
 		}
 
-		$agreement_lang = empty(Utils::$context['current_agreement']) ? 'default' : substr(Utils::$context['current_agreement'], 1);
+		$agreement_lang = !empty(Utils::$context['current_agreement']) ? Utils::$context['current_agreement'] : 'en_US';
 
-		$agreement_file = Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt';
+		$agreement_file = Config::$languagesdir . '/' . $agreement_lang . '/agreement.txt';
 
 		Utils::$context['agreement'] = file_exists($agreement_file) ? str_replace("\r", '', file_get_contents($agreement_file)) : '';
 
@@ -248,7 +248,7 @@ class Registration implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
-			$backup_file = (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . $agreement_file;
+			$backup_file = dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
 
 			// Off it goes to the agreement file.
 			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
@@ -281,7 +281,7 @@ class Registration implements ActionInterface
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
-		Utils::$context['warning'] = is_writable($agreement_file) ? '' : Lang::$txt['agreement_not_writable'];
+		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::$txt['agreement_not_writable'];
 
 		Utils::$context['sub_template'] = 'edit_agreement';
 		Utils::$context['page_title'] = Lang::$txt['registration_agreement'];
@@ -501,7 +501,7 @@ class Registration implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		// Do we have at least default versions of the agreement and privacy policy?
-		$agreement = file_exists(Config::$boarddir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$boarddir . '/agreement.txt');
+		$agreement = file_exists(Config::$languagesdir . '/' . Lang::$default . '/agreement.txt') || file_exists(Config::$languagesdir . '/agreement.txt');
 
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 

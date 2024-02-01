@@ -22,6 +22,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\XmlArray;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
@@ -97,7 +98,7 @@ class Find implements ActionInterface
 	 *
 	 * Load a lot of language files.
 	 *
-	 * MOD AUTHORS: If your mod uses it's own language file for its settings,
+	 * MOD AUTHORS: If your mod uses its own language file for its settings,
 	 * add the language file to this array via the integrate_admin_search hook.
 	 */
 	public array $language_files = [
@@ -148,9 +149,9 @@ class Find implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Find $obj;
 
 	/****************
 	 * Public methods
@@ -194,7 +195,7 @@ class Find implements ActionInterface
 	public function internal(): void
 	{
 		// Try to get some more memory.
-		Config::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 

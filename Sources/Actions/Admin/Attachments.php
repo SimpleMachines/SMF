@@ -28,6 +28,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -86,9 +87,9 @@ class Attachments implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Attachments $obj;
 
 	/****************
 	 * Public methods
@@ -596,7 +597,7 @@ class Attachments implements ActionInterface
 
 				// And change the message to reflect this.
 				if (!empty($messages)) {
-					Lang::load('index', Lang::$default, true);
+					Lang::load('General', Lang::$default, true);
 
 					Db::$db->query(
 						'',
@@ -609,7 +610,7 @@ class Attachments implements ActionInterface
 						],
 					);
 
-					Lang::load('index', User::$me->language, true);
+					Lang::load('General', User::$me->language, true);
 				}
 			}
 		}
@@ -734,7 +735,7 @@ class Attachments implements ActionInterface
 		}
 
 		// Try give us a while to sort this out...
-		Utils::sapiSetTimeLimit(600);
+		Sapi::setTimeLimit(600);
 
 		$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
 
@@ -1847,7 +1848,7 @@ class Attachments implements ActionInterface
 	}
 
 	/**
-	 * Maintance function to move attachments from one directory to another
+	 * Maintenance function to move attachments from one directory to another
 	 */
 	public function transfer(): void
 	{
@@ -1880,7 +1881,7 @@ class Attachments implements ActionInterface
 		}
 
 		if (empty($results)) {
-			// Get the total file count for the progess bar.
+			// Get the total file count for the progress bar.
 			$request = Db::$db->query(
 				'',
 				'SELECT COUNT(*)
@@ -1919,9 +1920,9 @@ class Attachments implements ActionInterface
 			$break = false;
 
 			while ($break == false) {
-				Utils::sapiSetTimeLimit(300);
+				Sapi::setTimeLimit(300);
 
-				Utils::sapiResetTimeout();
+				Sapi::resetTimeout();
 
 				// If limits are set, get the file count and size for the destination folder
 				if (
@@ -2160,8 +2161,8 @@ class Attachments implements ActionInterface
 		$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
 		// See if we can find if the server is set up to support the attachment limits
-		$post_max_kb = floor(Config::memoryReturnBytes(ini_get('post_max_size')) / 1024);
-		$file_max_kb = floor(Config::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+		$post_max_kb = floor(Sapi::memoryReturnBytes(ini_get('post_max_size')) / 1024);
+		$file_max_kb = floor(Sapi::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 
 		$config_vars = [
 			['title', 'attachment_manager_settings'],
@@ -2679,9 +2680,9 @@ class Attachments implements ActionInterface
 	protected function pauseAttachmentMaintenance(array $to_fix, int $max_substep = 0): void
 	{
 		// Try get more time...
-		Utils::sapiSetTimeLimit(600);
+		Sapi::setTimeLimit(600);
 
-		Utils::sapiResetTimeout();
+		Sapi::resetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 3 || Utils::$context['starting_substep'] == $_GET['substep']) {

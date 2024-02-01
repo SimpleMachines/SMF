@@ -24,6 +24,7 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -142,9 +143,9 @@ class Reports implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Reports $obj;
 
 	/****************
 	 * Public methods
@@ -293,7 +294,7 @@ class Reports implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			// Each board has it's own table.
+			// Each board has its own table.
 			$this->newTable($row['name'], '', 'left', 'auto', 'left', '200', 'left');
 
 			$this_boardSettings = $boardSettings;
@@ -363,7 +364,7 @@ class Reports implements ActionInterface
 	public function boardPerms(): void
 	{
 		// Get as much memory as possible as this can be big.
-		Config::setMemoryLimit('256M');
+		Sapi::setMemoryLimit('256M');
 
 		if (isset($_REQUEST['boards'])) {
 			if (!is_array($_REQUEST['boards'])) {

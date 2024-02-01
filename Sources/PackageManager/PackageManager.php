@@ -24,6 +24,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -1819,7 +1820,7 @@ class PackageManager
 	 */
 	public function permissions(): void
 	{
-		// Let's try and be good, yes?
+		// Let's try to be good, yes?
 		User::$me->checkSession('get');
 
 		// If we're restoring permissions this is just a pass through really.
@@ -1829,8 +1830,8 @@ class PackageManager
 		}
 
 		// This is a memory eat.
-		Config::setMemoryLimit('128M');
-		@set_time_limit(600);
+		Sapi::setMemoryLimit('128M');
+		Sapi::setTimeLimit();
 
 		// Load up some FTP stuff.
 		SubsPackage::create_chmod_control();
@@ -2557,7 +2558,7 @@ class PackageManager
 			$_GET['package'] = $url . '/packages.xml?language=' . User::$me->language;
 		}
 
-		// Check to be sure the packages.xml file actually exists where it is should be... or dump out.
+		// Check to be sure the packages.xml file actually exists where it should be... or dump out.
 		if ((isset($_GET['absolute']) || isset($_GET['relative'])) && !SubsPackage::url_exists($_GET['package'])) {
 			ErrorHandler::fatalLang('packageget_unable', false, [$url . '/index.php']);
 		}
@@ -3258,7 +3259,7 @@ class PackageManager
 						foreach ($upgrades as $upgrade) {
 							// Even if it is for this SMF, is it for the installed version of the mod?
 							if (!$upgrade->exists('@for') || SubsPackage::matchPackageVersion($the_version, $upgrade->fetch('@for'))) {
-								if (!$upgrade->exists('@from') || SubsPackage::matchPackageVersion($installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
+								if (!$upgrade->exists('@from') || SubsPackage::matchPackageVersion((string) $installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
 									$packageInfo['can_upgrade'] = true;
 									break;
 								}

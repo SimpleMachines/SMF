@@ -162,9 +162,9 @@ class QuickModeration implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static QuickModeration $obj;
 
 	/****************
 	 * Public methods
@@ -494,7 +494,7 @@ class QuickModeration implements ActionInterface
 					);
 
 					while ($row = Db::$db->fetch_row($request)) {
-						$redirect_boards[] = $row[0];
+						$redirect_boards[] = (int) $row[0];
 					}
 					Db::$db->free_result($request);
 
@@ -536,7 +536,7 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$logged_topics[$row['id_topic']] = $row['unwatched'];
+			$logged_topics[(int) $row['id_topic']] = (int) $row['unwatched'];
 		}
 		Db::$db->free_result($request);
 
@@ -592,8 +592,8 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$sticky_cache_boards[$row['id_topic']] = $row['id_board'];
-			$sticky_cache_status[$row['id_topic']] = empty($row['is_sticky']);
+			$sticky_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
+			$sticky_cache_status[(int) $row['id_topic']] = empty($row['is_sticky']);
 		}
 		Db::$db->free_result($request);
 
@@ -637,9 +637,9 @@ class QuickModeration implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($result)) {
-				$locked_topic_ids[] = $row['id_topic'];
-				$lock_cache_boards[$row['id_topic']] = $row['id_board'];
-				$lock_status[$row['id_topic']] = empty($row['locked']);
+				$locked_topic_ids[] = (int) $row['id_topic'];
+				$lock_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
+				$lock_status[(int) $row['id_topic']] = empty($row['locked']);
 			}
 			Db::$db->free_result($result);
 
@@ -660,8 +660,8 @@ class QuickModeration implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($result)) {
-				$lock_status[$row['id_topic']] = empty($row['locked']);
-				$lock_cache_boards[$row['id_topic']] = $row['id_board'];
+				$lock_status[(int) $row['id_topic']] = empty($row['locked']);
+				$lock_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
 			}
 			Db::$db->free_result($result);
 		}
@@ -726,23 +726,23 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$to = $this->topic_actions['move']['to'][$row['id_topic']];
+			$to = $this->topic_actions['move']['to'][(int) $row['id_topic']];
 
 			if (empty($to)) {
 				continue;
 			}
 
 			// Does this topic's board count the posts or not?
-			$countPosts[$row['id_topic']] = empty($row['count_posts']);
+			$countPosts[(int) $row['id_topic']] = empty($row['count_posts']);
 
 			if (!isset($moveTos[$to])) {
 				$moveTos[$to] = [];
 			}
 
-			$moveTos[$to][] = $row['id_topic'];
+			$moveTos[$to][] = (int) $row['id_topic'];
 
 			// For reporting...
-			$moveCache2[] = [$row['id_topic'], $row['id_board'], $to];
+			$moveCache2[] = [(int) $row['id_topic'], (int) $row['id_board'], $to];
 		}
 		Db::$db->free_result($request);
 
@@ -770,7 +770,7 @@ class QuickModeration implements ActionInterface
 				$cp = empty($row['count_posts']);
 
 				// Go through all the topics that are being moved to this board.
-				foreach ($moveTos[$row['id_board']] as $topic) {
+				foreach ($moveTos[(int) $row['id_board']] as $topic) {
 					// If both boards have the same value for post counting then no adjustment needs to be made.
 					if ($countPosts[$topic] != $cp) {
 						// If the board being moved to does count the posts then the other one doesn't so add to their post count.
@@ -797,16 +797,16 @@ class QuickModeration implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					if (!isset($members[$row['id_member']])) {
-						$members[$row['id_member']] = 0;
+						$members[(int) $row['id_member']] = 0;
 					}
 
-					if ($topicRecounts[$row['id_topic']] === '+') {
-						$members[$row['id_member']]++;
+					if ($topicRecounts[(int) $row['id_topic']] === '+') {
+						$members[(int) $row['id_member']]++;
 					} else {
-						$members[$row['id_member']]--;
+						$members[(int) $row['id_member']]--;
 					}
 
-					$members[$row['id_member']] = max(0, $members[$row['id_member']]);
+					$members[(int) $row['id_member']] = max(0, $members[(int) $row['id_member']]);
 				}
 				Db::$db->free_result($request);
 
@@ -860,8 +860,8 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {
-			$removed_topic_ids[] = $row['id_topic'];
-			$remove_cache_boards[$row['id_topic']] = $row['id_board'];
+			$removed_topic_ids[] = (int) $row['id_topic'];
+			$remove_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
 		}
 		Db::$db->free_result($result);
 
@@ -912,8 +912,8 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$approve_topic_ids[] = $row['id_topic'];
-			$approve_cache_members[$row['id_topic']] = $row['id_member_started'];
+			$approve_topic_ids[] = (int) $row['id_topic'];
+			$approve_cache_members[(int) $row['id_topic']] = (int) $row['id_member_started'];
 		}
 		Db::$db->free_result($request);
 

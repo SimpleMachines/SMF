@@ -71,9 +71,9 @@ class Register implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Register $obj;
 
 	/****************
 	 * Public methods
@@ -190,10 +190,10 @@ class Register implements ActionInterface
 		// If you have to agree to the agreement, it needs to be fetched from the file.
 		if (!empty(Config::$modSettings['requireAgreement'])) {
 			// Have we got a localized one?
-			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt')) {
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.' . User::$me->language . '.txt'), true, 'agreement_' . User::$me->language);
-			} elseif (file_exists(Config::$boarddir . '/agreement.txt')) {
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.txt'), true, 'agreement');
+			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
+				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt'), true, 'agreement_' . User::$me->language);
+			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
+				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$languagesdir . '/en_US/agreement.txt'), true, 'agreement');
 			} else {
 				Utils::$context['agreement'] = '';
 			}

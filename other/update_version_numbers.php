@@ -59,7 +59,7 @@ if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== $release_branch) {
 $version_regex = '\d+\.\d+[. ]?(?:(?:(?<= )(?>RC|Beta |Alpha ))?\d+)?';
 
 // Get previous version based on the most recent Git tag
-// This assumes we are using proper sematic versioning in our tags
+// This assumes we are using proper semantic versioning in our tags
 $prev_version = ltrim(trim(shell_exec('git describe --tags --abbrev=0')), 'v');
 
 // Was the new version passed as a command line argument?
@@ -147,7 +147,7 @@ foreach ($files as $file) {
 }
 
 // Update SMF_LANG_VERSION
-preg_match($lang_pattern, file_get_contents("{$basedir}/Themes/default/languages/index.english.php"), $matches);
+preg_match($lang_pattern, file_get_contents("{$basedir}/Languages/en_US/General.php"), $matches);
 
 $lang_version = $matches[0];
 

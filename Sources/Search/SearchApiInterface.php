@@ -109,12 +109,12 @@ interface SearchApiInterface
 	/**
 	 * Callback when a topic is merged.
 	 *
-	 * @param array $topics The ID(s) of the merged topic(s)
 	 * @param int $id_topic The ID of the topic that messages where merged into
+	 * @param array $topics The ID(s) of the merged topic(s)
 	 * @param array $msgs The ID(s) of the merged messages(s)
 	 * @param ?string Optional rename all subjects for all messages.
 	 */
-	//public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void;
+	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void;
 
 	/**
 	 * Callback when a topic is merged.
@@ -122,7 +122,7 @@ interface SearchApiInterface
 	 * @param int $id_topic The ID of the topic that messages where merged into
 	 * @param array $msgs The ID(s) of the merged messages(s)
 	 */
-	//public function topicSplit(int $id_topic, array $affected_msgs): void;
+	public function topicSplit(int $id_topic, array $affected_msgs): void;
 
 	/**
 	 * Callback when a topic is moved.

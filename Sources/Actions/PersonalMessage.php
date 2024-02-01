@@ -85,7 +85,7 @@ class PersonalMessage implements ActionInterface
 	 * be replaced at runtime with the real values of Config::$scripturl and
 	 * Config::$boardurl.
 	 *
-	 * In this default definintion, all parts of the menu are set as enabled.
+	 * In this default definition, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off.
 	 */
 	public array $pm_areas = [
@@ -173,7 +173,7 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * @var int
 	 *
-	 * The display mode we are acutally using.
+	 * The display mode we are actually using.
 	 */
 	public int $mode = self::VIEW_CONV;
 
@@ -263,9 +263,9 @@ class PersonalMessage implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static PersonalMessage $obj;
 
 	/****************
 	 * Public methods

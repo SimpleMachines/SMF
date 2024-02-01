@@ -58,7 +58,7 @@ class Mail
 
 		// Line breaks need to be \r\n only in windows or for SMTP.
 		// Starting with php 8x, line breaks need to be \r\n even for linux.
-		$line_break = (Utils::$context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
+		$line_break = (Sapi::isOS(Sapi::OS_WINDOWS) || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
 
 		// So far so good.
 		$mail_result = true;
@@ -232,9 +232,8 @@ class Mail
 				restore_error_handler();
 
 				// Wait, wait, I'm still sending here!
-				Utils::sapiSetTimeLimit(300);
-
-				Utils::sapiResetTimeout();
+				Sapi::setTimeLimit(300);
+				Sapi::resetTimeout();
 			}
 		} else {
 			$mail_result = $mail_result && self::sendSmtp($to_array, $subject, $message, $headers);
@@ -372,7 +371,7 @@ class Mail
 		if (empty(Lang::$txt)) {
 			Theme::loadEssential();
 			Lang::load('Errors', Lang::$default, false);
-			Lang::load('index', Lang::$default, false);
+			Lang::load('General', Lang::$default, false);
 		}
 
 		// By default send 5 at once.
@@ -529,9 +528,8 @@ class Mail
 				$result = mail(strtr($email['to'], ["\r" => '', "\n" => '']), $email['subject'], $email['body'], $email['headers']);
 
 				// Try to stop a timeout, this would be bad...
-				Utils::sapiSetTimeLimit(300);
-
-				Utils::sapiResetTimeout();
+				Sapi::setTimeLimit(300);
+				Sapi::resetTimeout();
 			} else {
 				$result = self::sendSmtp([$email['to']], $email['subject'], $email['body'], $email['headers']);
 			}
@@ -920,9 +918,8 @@ class Mail
 			}
 
 			// Almost done, almost done... don't stop me just yet!
-			Utils::sapiSetTimeLimit(300);
-
-			Utils::sapiResetTimeout();
+			Sapi::setTimeLimit(300);
+			Sapi::resetTimeout();
 		}
 		fputs($socket, 'QUIT' . "\r\n");
 		fclose($socket);
@@ -941,7 +938,7 @@ class Mail
 	 * @param resource $socket Socket to send on. Type hinting calls it 'mixed' as resource can not be used.
 	 * @param ?string $code The expected response code
 	 * @param string $response The response from the SMTP server
-	 * @return bool|string Whether it responded as such. Otherwise the response code is resturned.
+	 * @return bool|string Whether it responded as such. Otherwise the response code is returned.
 	 */
 	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool|string
 	{

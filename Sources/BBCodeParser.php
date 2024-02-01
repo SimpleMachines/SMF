@@ -942,7 +942,7 @@ class BBCodeParser
 	/**
 	 * @var array
 	 *
-	 * Version of self::$codes used for interal processing.
+	 * Version of self::$codes used for internal processing.
 	 */
 	private $bbc_codes = [];
 
@@ -1131,7 +1131,7 @@ class BBCodeParser
 	 * @param bool $smileys Whether to parse smileys. Default: true.
 	 * @param string|int $cache_id The cache ID.
 	 *    If $cache_id is left empty, an ID will be generated automatically.
-	 *    Manually specifiying a ID is helpful in cases when an integration hook
+	 *    Manually specifying a ID is helpful in cases when an integration hook
 	 *    wants to identify particular strings to act upon, but is otherwise
 	 *    unnecessary.
 	 * @param array $parse_tags If set, only parses these tags rather than all of them.
@@ -1417,7 +1417,7 @@ class BBCodeParser
 
 		// Only try to buy more time if the client didn't quit.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		$parts = preg_split('~(<[A-Za-z]+\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1575,7 +1575,7 @@ class BBCodeParser
 
 		// We are not finished yet, request more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		// Let's pull out any legacy alignments.
@@ -1685,7 +1685,7 @@ class BBCodeParser
 
 		// Almost there, just a little more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
@@ -2048,7 +2048,7 @@ class BBCodeParser
 
 		// Please give us just a little more time.
 		if (connection_aborted()) {
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 		}
 
 		// What about URL's - the pain in the ass of the tag world.

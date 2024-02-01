@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use Exception;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -165,21 +164,8 @@ class Utils
 			self::$context['utf8'] = self::$context['character_set'] === 'UTF-8';
 		}
 
-		// This determines the server... not used in many places, except for login fixing.
-		self::$context['server'] = [
-			'is_iis' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false,
-			'is_apache' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false,
-			'is_litespeed' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false,
-			'is_lighttpd' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false,
-			'is_nginx' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false,
-			'is_cgi' => isset($_SERVER['SERVER_SOFTWARE']) && strpos(php_sapi_name(), 'cgi') !== false,
-			'is_windows' => DIRECTORY_SEPARATOR === '\\',
-			'is_mac' => PHP_OS === 'Darwin',
-			'iso_case_folding' => ord(strtolower(chr(138))) === 154,
-		];
-
-		// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
-		self::$context['server']['needs_login_fix'] = self::$context['server']['is_cgi'] && self::$context['server']['is_iis'];
+		// Load up our $context['server'] data for backwards compatibility
+		Sapi::load();
 	}
 
 	/**
@@ -383,7 +369,7 @@ class Utils
 	 *      'replace_tabs' option is supplied.) Default: false.
 	 * @param array $options An array of boolean options. Possible values are:
 	 *      - no_breaks: Vertical spaces are replaced by " " instead of "\n".
-	 *      - replace_tabs: If true, tabs are are replaced by " " chars.
+	 *      - replace_tabs: If true, tabs are replaced by " " chars.
 	 *      - collapse_hspace: If true, removes extra horizontal spaces.
 	 * @return string The sanitized string.
 	 */
@@ -646,7 +632,7 @@ class Utils
 	 * Note that setting $form to 'kc_casefold' will cause the string's case to
 	 * be folded and will also remove all "default ignorable code points" from
 	 * the string. It should be used (1) when validating identifier strings that
-	 * must be unambigously unique, such as domain names, file names, or even
+	 * must be unambiguously unique, such as domain names, file names, or even
 	 * SMF user names, or (2) when performing caseless matching of strings, such
 	 * as when performing a search or checking for censored words in a post.
 	 *
@@ -1571,7 +1557,7 @@ class Utils
 	 *
 	 * Only exists for backward compatibility purposes.
 	 *
-	 * @param int $min Minumum value. Default: 0.
+	 * @param int $min Minimum value. Default: 0.
 	 * @param int $max Maximum value. Default: PHP_INT_MAX.
 	 * @return int A random integer.
 	 */
@@ -1951,7 +1937,7 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
-	 * @return bool|void If $data is empty, false is returned, othewise the response is sent and execution stopped.
+	 * @return bool|void If $data is empty, false is returned, otherwise the response is sent and execution stopped.
 	 */
 	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{
@@ -2018,14 +2004,12 @@ class Utils
 		if (
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
-				empty(Utils::$context['server']['is_cgi'])
+				!Sapi::isCGI()
 				|| ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
-				!empty(Utils::$context['server']['is_apache'])
-				|| !empty(Utils::$context['server']['is_lighttpd'])
-				|| !empty(Utils::$context['server']['is_litespeed'])
+				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
 			if (defined('SID') && SID != '') {
@@ -2275,33 +2259,6 @@ class Utils
 		}
 
 		return $callable;
-	}
-
-	/**
-	 * Makes call to the Server API (SAPI) to increase the time limit.
-	 *
-	 * @param int $limit Requested amount of time, defaults to 600 seconds.
-	 */
-	public static function sapiSetTimeLimit(int $limit = 600)
-	{
-		try {
-			set_time_limit($limit);
-		} catch (Exception $e) {
-		}
-	}
-	/**
-	 * Makes call to the Server API (SAPI) to reset the timeout.
-	 *
-	 * @suppress PHP0417
-	 */
-	public static function sapiResetTimeout()
-	{
-		if (!empty(Utils::$context['server']['is_apache']) && function_exists('apache_reset_timeout')) {
-			try {
-				apache_reset_timeout();
-			} catch (Exception $e) {
-			}
-		}
 	}
 
 	/*************************

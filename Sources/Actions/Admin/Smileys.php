@@ -162,9 +162,9 @@ class Smileys implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Smileys $obj;
 
 	/****************
 	 * Public methods
@@ -1792,7 +1792,7 @@ class Smileys implements ActionInterface
 					$_POST[$key] = Utils::normalize($_POST[$key]);
 				}
 
-				// Do some preperation with the data... like check the icon exists *somewhere*
+				// Do some preparation with the data... like check the icon exists *somewhere*
 				if (strpos($_POST['icon_filename'], '.png') !== false) {
 					$_POST['icon_filename'] = substr($_POST['icon_filename'], 0, -4);
 				}

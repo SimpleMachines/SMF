@@ -22,6 +22,7 @@ use SMF\PackageManager;
 use SMF\PersonalMessage;
 use SMF\Profile;
 use SMF\Punycode;
+use SMF\Sapi;
 use SMF\Search;
 use SMF\Unicode\Utf8String;
 use SMF\Utils;
@@ -42,7 +43,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * the startup process and that contained many utility functions. Everything
 	 * else assumed that those functions were available. Subs.php went the way of
 	 * the dodo in SMF 3.0 after all its functions were migrated elsewhere, but
-	 * mods that rely on backward compatibilty support will still expect all those
+	 * mods that rely on backward compatibility support will still expect all those
 	 * functions to be available.
 	 */
 
@@ -4738,6 +4739,21 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * End
 	 * SMF\QueryString
+	 *
+	 * Begin
+	 * SMF\Sapi
+	 */
+	function setMemoryLimit(string $needed, bool $in_use = false): bool
+	{
+		return Sapi::setMemoryLimit($needed, $in_use);
+	}
+	function memoryReturnBytes(string $val): int
+	{
+		return Sapi::memoryReturnBytes($val);
+	}
+	/**
+	 * End
+	 * SMF\Sapi
 	 *
 	 * Begin
 	 * SMF\Security

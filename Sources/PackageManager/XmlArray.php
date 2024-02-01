@@ -15,8 +15,8 @@
 
 namespace SMF\PackageManager;
 
-use SMF\Config;
 use SMF\Lang;
+use SMF\Sapi;
 
 /**
  * Class XmlArray
@@ -54,7 +54,7 @@ class XmlArray
 	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
-		Config::setMemoryLimit('32M');
+		Sapi::setMemoryLimit('32M');
 
 		// Set the debug level.
 		$this->debug_level = $level !== null ? $level : error_reporting();
@@ -666,7 +666,7 @@ class XmlArray
 	/**
 	 * Given an array, return the text from that array. (recursive and privately used.)
 	 *
-	 * @param null|array|string $array An aray of data
+	 * @param null|array|string $array An array of data
 	 * @return string The text from the array
 	 */
 	protected function _fetch(null|array|string $array): string

@@ -77,4 +77,4 @@ body:
     id: additional
     attributes:
       label: Additional Information
-      description: Add any refernces, RFCs or other information which may be useful.
+      description: Add any references, RFCs or other information which may be useful.

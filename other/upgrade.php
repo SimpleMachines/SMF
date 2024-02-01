@@ -117,13 +117,14 @@ $upcontext['inactive_timeout'] = 10;
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = [
-	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 2],
-	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 2],
+	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 1],
+	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 1],
 	2 => [3, 'upgrade_step_backup', 'BackupDatabase', 10],
 	3 => [4, 'upgrade_step_database', 'DatabaseChanges', 50],
 	4 => [5, 'upgrade_step_convertjson', 'serialize_to_json', 10],
 	5 => [6, 'upgrade_step_convertutf', 'ConvertUtf8', 20],
-	6 => [7, 'upgrade_step_delete', 'DeleteUpgrade', 1],
+	6 => [7, 'upgrade_step_cleanup', 'Cleanup', 2],
+	7 => [8, 'upgrade_step_delete', 'DeleteUpgrade', 1],
 ];
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -536,25 +537,21 @@ function load_lang_file()
 
 	static $lang_dir = '', $detected_languages = [], $loaded_langfile = '';
 
-	// Do we know where to look for the language files, or shall we just guess for now?
-	$temp = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
-
-	if ($lang_dir != $temp) {
-		$lang_dir = $temp;
-		$detected_languages = [];
-	}
+	$lang_dir = Config::$languagesdir;
 
 	// Override the language file?
-	if (isset($upcontext['language'])) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['language'] . '.php';
-	} elseif (isset($upcontext['lang'])) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['lang'] . '.php';
-	} elseif (isset(Config::$language)) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . Config::$language . '.php';
+	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = $upcontext['language'];
+	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = $upcontext['lang'];
+	} elseif (isset(Config::$language) && file_exists($lang_dir . '/' . Config::$language . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = Config::$language;
+	} else {
+		$_SESSION['upgrader_lang'] = 'en_US';
 	}
 
 	// Avoid pointless repetition
-	if (isset($_SESSION['upgrader_langfile']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_langfile']) {
+	if (isset($_SESSION['upgrader_lang']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php') {
 		return;
 	}
 
@@ -566,19 +563,48 @@ function load_lang_file()
 			$dir = dir($lang_dir);
 
 			while ($entry = $dir->read()) {
-				// Skip any old '-utf8' language files that might be lying around
-				if (strpos($entry, '-utf8') !== false) {
+				// We can't have periods.
+				if (strpos($entry, '.') !== false) {
 					continue;
 				}
 
-				if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
-					$detected_languages[$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+				if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
+					continue;
 				}
+
+				// Get the line we need.
+				$fp = @fopen(Config::$languagesdir . '/' . $entry . '/' . 'General.php', 'r');
+
+				// Yay!
+				if ($fp) {
+					while (($line = fgets($fp)) !== false) {
+						if (strpos($line, '$txt[\'native_name\']') === false) {
+							continue;
+						}
+
+						preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+
+						// Set the language's name.
+						if (!empty($matchNative) && !empty($matchNative[1])) {
+							// Don't mislabel the language if the translator missed this one.
+							if ($entry !== 'en_US' && $matchNative[1] === 'English (US)') {
+								break;
+							}
+
+							$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+							break;
+						}
+					}
+
+					fclose($fp);
+				}
+
+				$detected_languages[$entry] = $langName ?? $entry;
 			}
 			$dir->close();
 		}
-		// Our guess was wrong, but that's fine. We'll try again after Config::$modSettings['theme_dir'] is defined.
-		elseif (!isset(Config::$modSettings['theme_dir'])) {
+		// Our guess was wrong, but that's fine. We'll try again after Config::$Languagesdir is defined.
+		elseif (!isset(Config::$languagesdir)) {
 			// Define a few essential strings for now.
 			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
 			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
@@ -588,6 +614,7 @@ function load_lang_file()
 
 			return;
 		}
+
 	}
 
 	// Didn't find any, show an error message!
@@ -660,13 +687,13 @@ function load_lang_file()
 	}
 
 	// Make sure it exists. If it doesn't, reset it.
-	if (!isset($_SESSION['upgrader_langfile']) || preg_match('~[^\w.-]~', $_SESSION['upgrader_langfile']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_langfile'])) {
+	if (!isset($_SESSION['upgrader_lang']) || preg_match('~^[A-Za-z0-9_-]+$~', $_SESSION['upgrader_lang']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php')) {
 		// Use the first one...
-		list($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+		list($_SESSION['upgrader_lang']) = array_keys($detected_languages);
 
 		// If we have English and some other language, use the other language.
-		if ($_SESSION['upgrader_langfile'] == 'Install.english.php' && count($detected_languages) > 1) {
-			list(, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+		if ($_SESSION['upgrader_lang'] == 'en_US' && count($detected_languages) > 1) {
+			list(, $_SESSION['upgrader_lang']) = array_keys($detected_languages);
 		}
 	}
 
@@ -674,10 +701,10 @@ function load_lang_file()
 	Lang::addDirs($lang_dir);
 
 	// And now load the language files.
-	Lang::load('index+Install', preg_replace('~^Install\.|\.php$~', '', $_SESSION['upgrader_langfile']));
+	Lang::load('General+Install', $_SESSION['upgrader_lang']);
 
 	// Remember what we've done
-	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_langfile'];
+	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php';
 }
 
 // Used to direct the user to another location.
@@ -1008,17 +1035,30 @@ function WelcomeLogin()
 
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
-	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')) {
-		return throw_error(sprintf(Lang::$txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
+	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
+		return throw_error(sprintf(Lang::$txt['error_lang_general_missing'], $upcontext['language'], $upgradeurl));
 	}
 
 	if (!isset($_GET['skiplang'])) {
-		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
-		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+
+		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			return throw_error(sprintf(Lang::$txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
 		}
+	}
+
+	// Do we need to update our Settings file with the new language locale?
+	$current_language = Config::$language;
+	$new_locale = Lang::getLocaleFromLanguageName($current_language);
+
+	if ($new_locale !== null) {
+		Config::updateSettingsFile(['language' => $new_locale]);
+	}
+
+	if (empty(Config::$languagesdir)) {
+		Config::updateSettingsFile(['languagesdir' => Config::$boarddir . '/Languages']);
 	}
 
 	if (!makeFilesWritable($writable_files)) {
@@ -1026,7 +1066,7 @@ function WelcomeLogin()
 	}
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/en_US/agreement.txt')) && !is_writable(Config::$languagesdir . '/en_US/agreement.txt')) {
 		return throw_error(Lang::$txt['error_agreement_not_writable']);
 	}
 
@@ -1347,14 +1387,14 @@ function checkLogin()
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
 			// Set the language to that of the user?
-			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . basename($user_language, '.lng') . '.php')) {
+			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
 				$user_language = basename($user_language, '.lng');
-				$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $user_language . '.php')), 0, 4096);
-				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+				$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
-				} elseif (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $user_language . '.php')) {
+				} elseif (!file_exists(Config::$languagesdir . '/' . $user_language . '/Install.php')) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
 				} else {
 					// Set this as the new language.
@@ -1506,7 +1546,7 @@ function UpgradeOptions()
 	}
 
 	// If we're overriding the language follow it through.
-	if (isset($upcontext['lang']) && file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['lang'] . '.php')) {
+	if (isset($upcontext['lang']) && file_exists(Config::$languagesdir . '/' . $upcontext['lang'] . '/General.php')) {
 		$changes['language'] = $upcontext['lang'];
 	}
 
@@ -1578,9 +1618,9 @@ function UpgradeOptions()
 		$changes['packagesdir'] = fixRelativePath(Config::$boarddir) . '/Packages';
 	}
 
-	// Add support for $tasksdir var.
-	if (empty(Config::$tasksdir)) {
-		$changes['tasksdir'] = fixRelativePath(Config::$sourcedir) . '/Tasks';
+	// Languages have moved!
+	if (empty(Config::$languagesdir)) {
+		$changes['languagesdir'] = fixRelativePath(Config::$boarddir) . '/Languages';
 	}
 
 	// Make sure we fix the language as well.
@@ -1875,7 +1915,7 @@ function DatabaseChanges()
 		return true;
 	}
 
-	return false;
+	return $did_not_do === 0;
 }
 
 // Different versions of the files use different sql_modes
@@ -1918,34 +1958,36 @@ function DeleteUpgrade()
 		'upgradeData' => null,
 	];
 
+	clearstatcache();
+	$current_settings = Config::getCurrentSettings(filemtime(SMF_SETTINGS_FILE));
+
 	// Fix case of Tasks directory.
 	if (
-		is_dir(Config::$tasksdir)
-		&& basename(Config::$tasksdir) !== 'Tasks'
-		&& is_writable(Config::$tasksdir)
-		&& is_writable(dirname(Config::$tasksdir))
+		isset($current_settings['tasksdir'])
+		&& is_dir($current_settings['tasksdir'])
+		&& basename($current_settings['tasksdir']) !== 'Tasks'
+		&& is_writable($current_settings['tasksdir'])
+		&& is_writable(dirname($current_settings['tasksdir']))
 	) {
 		// Do 'tasks' and 'Tasks' both exist?
 		if (
-			!empty(fileinode(realpath(dirname(Config::$tasksdir) . '/tasks')))
-			&& !empty(fileinode(realpath(dirname(Config::$tasksdir) . '/Tasks')))
-			&& fileinode(realpath(Config::$tasksdir)) !== fileinode(realpath(dirname(Config::$tasksdir) . '/Tasks'))
+			!empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/tasks')))
+			&& !empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks')))
+			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks'))
 		) {
 			// Move everything in 'Tasks' to 'tasks'.
-			foreach (glob(realpath(dirname(Config::$tasksdir) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
-				rename($path, realpath(Config::$tasksdir) . DIRECTORY_SEPARATOR . basename($path));
+			foreach (glob(realpath(dirname($current_settings['tasksdir']) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
+				rename($path, realpath($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . basename($path));
 			}
 
 			// Now delete 'Tasks'.
-			rmdir(realpath(dirname(Config::$tasksdir) . '/Tasks'));
+			rmdir(realpath(dirname($current_settings['tasksdir']) . '/Tasks'));
 		}
 
 		// Rename 'tasks' to 'Tasks'.
 		// Do this in two steps to make sure it works on case insensitive file systems.
-		rename(Config::$tasksdir, dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp');
-		rename(dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks');
-
-		$changes['tasksdir'] = dirname(Config::$tasksdir) . '/Tasks';
+		rename($current_settings['tasksdir'], dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp');
+		rename(dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks');
 	}
 
 	// Are we in maintenance mode?
@@ -2957,10 +2999,10 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "' . basename(SMF_SETTINGS_BACKUP_FILE) . '".');
 	}
 
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/en_US/agreement.txt')) && !is_writable(Config::$languagesdir . '/en_US/agreement.txt')) {
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
 	} elseif (isset(Config::$modSettings['agreement'])) {
-		$fp = fopen(Config::$boarddir . '/agreement.txt', 'w');
+		$fp = fopen(Config::$languagesdir . '/en_US/agreement.txt', 'w');
 		fwrite($fp, Config::$modSettings['agreement']);
 		fclose($fp);
 	}
@@ -2993,22 +3035,22 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 	}
 
-	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')) {
+	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
 		print_error('Error: Unable to find language files!', true);
 	} else {
-		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
+		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			print_error('Error: Language files out of date.', true);
 		}
 
-		if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php')) {
+		if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/Install.php')) {
 			print_error('Error: Install language is missing for selected language.', true);
 		}
 
 		// Otherwise include it!
-		require_once Config::$modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php';
+		require_once Config::$languagesdir . '/' . $upcontext['language'] . '/Install.php';
 	}
 
 	// Do we need to add this setting?
@@ -3051,10 +3093,11 @@ function ConvertUtf8()
 	// Done it already?
 	if (!empty($_POST['utf8_done'])) {
 		if ($command_line) {
-			return DeleteUpgrade();
+			return Cleanup();
 		}
 
 			return true;
+
 	}
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
@@ -3068,12 +3111,12 @@ function ConvertUtf8()
 		);
 
 		if ($command_line) {
-			return DeleteUpgrade();
+			return Cleanup();
 		}
 
 			return true;
-	}
 
+	}
 
 		$upcontext['page_title'] = Lang::$txt['converting_utf8'];
 		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
@@ -3252,6 +3295,17 @@ function ConvertUtf8()
 			'vietnamese' => 'UTF-8',
 			'yoruba' => 'UTF-8',
 		];
+
+		// Map in the new locales. We do it like this, because we want to try our best to capture
+		// the correct charset no mater what the status of the language upgrade is.
+		foreach ($lang_charsets as $key => $value) {
+			// This could be more efficient, but its upgrade logic.
+			$locale = Lang::getLocaleFromLanguageName($key);
+
+			if ($locale !== null) {
+				$lang_charsets[$locale] = $value;
+			}
+		}
 
 		// Default to ISO-8859-1 unless we detected another supported charset
 		$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
@@ -3920,6 +3974,148 @@ function serialize_to_json()
 	return false;
 }
 
+function Cleanup()
+{
+	global $command_line, $upcontext, $support_js, $txt;
+
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'cleanup_xml' : 'cleanup';
+	$upcontext['page_title'] = Lang::$txt['upgrade_step_cleanup'];
+
+	// Done it already - js wise?
+	if (!empty($_POST['cleanup_done'])) {
+		return true;
+	}
+
+	$cleanupSteps = [
+		0 => 'CleanupLanguages',
+		1 => 'CleanupAgreements',
+	];
+
+	$upcontext['steps_count'] = count($cleanupSteps);
+	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
+	$upcontext['cur_substep'] = $cleanupSteps[$upcontext['cur_substep_num']] ?? $cleanupSteps[0];
+	$upcontext['cur_substep_name'] = $txt['cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
+	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
+
+	foreach ($cleanupSteps as $id => $substep) {
+		if ($id < $_GET['substep']) {
+			$upcontext['previous_substeps'][] = $substep;
+		}
+	}
+
+	if ($command_line) {
+		echo 'Cleaning up.';
+	}
+
+	if (!$support_js || isset($_GET['xml'])) {
+		// Dubstep.
+		for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
+			$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
+			$upcontext['cur_substep_name'] = $txt['cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
+			$upcontext['cur_substep_num'] = $substep + 1;
+
+			if ($command_line) {
+				echo "\n" . ' +++ Clean up \"' . $upcontext['cur_substep_name'] . '"...';
+			}
+
+			// Timeouts
+			nextSubstep($substep);
+
+			if ($command_line) {
+				echo ' done.';
+			}
+
+			// Just to make sure it doesn't time out.
+			if (function_exists('apache_reset_timeout')) {
+				@apache_reset_timeout();
+			}
+
+			// Do the cleanup stuff.
+			$cleanupSteps[$substep]();
+
+			// If this is XML to keep it nice for the user do one cleanup at a time anyway!
+			if (isset($_GET['xml'])) {
+				return upgradeExit();
+			}
+		}
+
+		if ($command_line) {
+			echo "\n" . 'Successful.' . "\n";
+			flush();
+		}
+
+		$upcontext['step_progress'] = 100;
+		$_GET['substep'] = 0;
+
+		return true;
+	}
+
+	// If this fails we just move on to deleting the upgrade anyway...
+	$_GET['substep'] = 0;
+
+	return false;
+}
+
+function CleanupLanguages()
+{
+	global $upcontext, $upgrade_path, $command_line;
+
+	$old_languages_dir = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
+
+	// Can't do this if the old Themes/default/languages directory is not writable.
+	if(!quickFileWritable($old_languages_dir)) {
+		return;
+	}
+
+	$dir = dir($old_languages_dir);
+
+	while ($entry = $dir->read()) {
+		if (in_array($entry, ['.', '..', 'index.php'])) {
+			continue;
+		}
+
+		// Skip ThemeStrings
+		if (substr($entry, 0, 13) == 'ThemeStrings.') {
+			continue;
+		}
+
+		// Rename Settings to ThemeStrings.
+		if (substr($entry, 0, 9) == 'Settings.' && substr($entry, -4) == '.php' && strpos($entry, '-utf8') === false) {
+			quickFileWritable($old_languages_dir . '/' . $entry);
+			rename($old_languages_dir . '/' . $entry, $old_languages_dir . '/' . str_replace('Settings.', 'ThemeStrings.', $entry));
+		} else {
+			deleteFile($old_languages_dir . '/' . $entry);
+		}
+	}
+	$dir->close();
+}
+
+function CleanupAgreements()
+{
+	global $upcontext, $upgrade_path, $command_line;
+
+	// Can't do this if the old Themes/default/languages directory is not writable.
+	if(!quickFileWritable(Config::$boarddir)) {
+		return;
+	}
+
+	$dir = dir(Config::$boarddir);
+
+	while ($entry = $dir->read()) {
+		if (in_array($entry, ['.', '..', 'index.php'])) {
+			continue;
+		}
+
+		// Skip anything not agreements.
+		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt') {
+			continue;
+		}
+
+		rename(Config::$boarddir . '/' . $entry, Config::$languagesdir . '/' . $entry);
+	}
+	$dir->close();
+}
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 						Templates are below this point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -4527,7 +4723,7 @@ function template_backup_database()
 						<span id="debuginfo"></span>
 					</div>';
 
-	// Dont any tables so far?
+	// Don't any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
 		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
@@ -5126,7 +5322,7 @@ function template_serialize_json()
 						<span id="debuginfo"></span>
 					</div>';
 
-	// Dont any tables so far?
+	// Don't any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
 		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
@@ -5209,6 +5405,98 @@ function template_serialize_json_xml()
 	echo '
 	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
+
+function template_cleanup()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+				<h3>', Lang::$txt['upgrade_step_cleanup'], '</h3>
+				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+					<input type="hidden" name="cleanup_done" id="cleanup_done" value="0">
+					<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_substep_num'], '</span> ', Lang::$txt['upgrade_outof'], ' ', $upcontext['steps_count'], ' ', Lang::$txt['upgrade_steps'], '</strong>
+					<div id="debug_section">
+						<span id="debuginfo"></span>
+					</div>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_substeps'])) {
+		foreach ((array) $upcontext['previous_substeps'] as $substep) {
+			echo '
+					<br>', Lang::$txt['completed_cleanup_step'], ' &quot;', $substep, '&quot;.';
+		}
+	}
+
+	echo '
+					<h3 id="current_tab">
+						', Lang::$txt['upgrade_current_step'], ' &quot;<span id="current_step_name">', $upcontext['cur_substep_name'], '</span>&quot;
+					</h3>
+					<p id="commess" class="', $upcontext['cur_substep_num'] == $upcontext['steps_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_cleanup_completed'], '</p>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js) {
+		echo '
+					<script>
+						let lastSubStep = ', $upcontext['cur_substep_num'], ';
+						function getNextCleanup()
+						{
+							getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastSubStep, onCleanupUpdate);
+						}
+
+						// Got an update!
+						function onCleanupUpdate(oXMLDoc)
+						{
+							let sCurrentStepName = "";
+							let iStepNum = 0;
+							let sCompletedStepName = getInnerHTML(document.getElementById(\'current_step_name\'));
+							for (var i = 0; i < oXMLDoc.getElementsByTagName("step")[0].childNodes.length; i++)
+								sCurrentStepName += oXMLDoc.getElementsByTagName("step")[0].childNodes[i].nodeValue;
+							iStepNum = oXMLDoc.getElementsByTagName("step")[0].getAttribute("num");
+
+							// Update the page.
+							setInnerHTML(document.getElementById(\'tab_done\'), iStepNum);
+							setInnerHTML(document.getElementById(\'current_step_name\'), sCurrentStepName);
+							lastSubStep = iStepNum;
+							updateStepProgress(iStepNum, ', $upcontext['steps_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug) {
+			echo '
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['completed_cleanup_step'], ' &quot;\' + sCompletedStepName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+							if (document.getElementById(\'debug_section\').scrollHeight)
+								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
+		}
+
+		echo '
+							// Get the next update...
+							if (iStepNum == ', $upcontext['steps_count'], ')
+							{
+								document.getElementById(\'commess\').classList.remove("hidden");
+								document.getElementById(\'current_tab\').classList.add("hidden");
+								document.getElementById(\'contbutt\').disabled = 0;
+								document.getElementById(\'cleanup_done\').value = 1;
+							}
+							else
+								getNextCleanup();
+						}
+						getNextCleanup();
+					//# sourceURL=dynamicScript-json.js
+					</script>';
+	}
+}
+
+function template_cleanup_xml()
+{
+	global $upcontext;
+
+	echo '
+	<step num="', $upcontext['cur_substep_num'], '">', $upcontext['cur_substep_name'], '</step>';
+}
+
 
 function template_upgrade_complete()
 {

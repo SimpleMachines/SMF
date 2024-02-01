@@ -82,9 +82,9 @@ class SearchEngines implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static SearchEngines $obj;
 
 	/**
 	 * @var string
@@ -127,7 +127,7 @@ class SearchEngines implements ActionInterface
 
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
-			// Delete the entires.
+			// Delete the entries.
 			Db::$db->query(
 				'',
 				'DELETE FROM {db_prefix}log_spider_stats
@@ -300,7 +300,7 @@ class SearchEngines implements ActionInterface
 			if (!empty($_POST['delete_entries']) && isset($_POST['older'])) {
 				$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
-				// Delete the entires.
+				// Delete the entries.
 				Db::$db->query(
 					'',
 					'DELETE FROM {db_prefix}log_spider_hits

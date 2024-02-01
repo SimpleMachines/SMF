@@ -67,9 +67,9 @@ class Search2 implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Search2 $obj;
 
 	/****************
 	 * Public methods
@@ -245,7 +245,7 @@ class Search2 implements ActionInterface
 	}
 
 	/**
-	 * If comming from the quick search box and trying to search on members,
+	 * If coming from the quick search box and trying to search on members,
 	 * redirect to the right place for that.
 	 */
 	protected function redirectToMemberSearch(): void

@@ -38,7 +38,7 @@ class IP implements \Stringable
 		// OpenDNS
 		'208.67.222.222',
 		'208.67.220.220',
-		// CloudFare
+		// CloudFlare
 		'1.1.1.1',
 		'1.0.0.1',
 	];
@@ -211,7 +211,7 @@ class IP implements \Stringable
 	 ***********************/
 
 	/**
-	 * Convenience wrapper for constuctor.
+	 * Convenience wrapper for constructor.
 	 *
 	 * This is just syntactical sugar to ease method chaining.
 	 *
@@ -240,7 +240,7 @@ class IP implements \Stringable
 	 *    '1.2.3.4' -> array('low' => '1.2.3.4', 'high' => '1.2.3.4')
 	 *
 	 *  - If $addr is one IP address with wildcards, the return value will
-	 *    contain the minimum and maxium values possible with those wildcards.
+	 *    contain the minimum and maximum values possible with those wildcards.
 	 *
 	 *    Examples:
 	 *
@@ -450,7 +450,7 @@ class IP implements \Stringable
 		}
 
 		// Macs can use dscacheutil, host, or nslookup, but this is the recommended one.
-		if (Utils::$context['server']['is_mac']) {
+		if (Sapi::IsOS(Sapi::OS_MAC)) {
 			$test = (string) @shell_exec('dscacheutil -q host -a ' . ($this->isValid(FILTER_FLAG_IPV6) ? 'ipv6_address' : 'ip_address') . ' ' . @escapeshellarg($this->ip));
 
 			if (preg_match('~name:\s+([^\s]+)~i', $test, $match)) {
@@ -459,7 +459,7 @@ class IP implements \Stringable
 		}
 
 		// Try the Unix/Linux host command, perhaps?
-		if (!isset($host) && !Utils::$context['server']['is_windows']) {
+		if (!isset($host) && !Sapi::isOS(Sapi::OS_WINDOWS)) {
 			if (!isset(Config::$modSettings['host_to_dis'])) {
 				$test = (string) @shell_exec('host -W ' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
 			} else {
@@ -481,7 +481,7 @@ class IP implements \Stringable
 		}
 
 		// This is nslookup; available on Windows and Macs.
-		if (!isset($host) && (Utils::$context['server']['is_windows'] || Utils::$context['server']['is_mac'])) {
+		if (!isset($host) && (Sapi::isOS(Sapi::OS_WINDOWS) || Sapi::IsOS(Sapi::OS_MAC))) {
 			$test = (string) @shell_exec('nslookup -timeout=' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
 
 			if (strpos($test, 'Non-existent domain') !== false) {

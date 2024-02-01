@@ -53,9 +53,6 @@ function template_init()
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	Theme::$current->settings['theme_version'] = '2.1';
 
-	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
-	Theme::$current->settings['require_theme_strings'] = false;
-
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
 
@@ -482,7 +479,7 @@ function template_body_below()
  */
 function template_html_below()
 {
-	// Load in any javascipt that could be deferred to the end of the page
+	// Load in any javascript that could be deferred to the end of the page
 	Theme::template_javascript(true);
 
 	echo '

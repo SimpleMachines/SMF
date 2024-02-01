@@ -73,9 +73,9 @@ class Warnings implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Warnings $obj;
 
 	/****************
 	 * Public methods
@@ -692,7 +692,7 @@ class Warnings implements ActionInterface
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page
 	 * @param string $sort A string indicating how to sort the results
-	 * @return array An arrray of info about the available warning templates
+	 * @return array An array of info about the available warning templates
 	 */
 	public static function list_getWarningTemplates(int $start, int $items_per_page, string $sort): array
 	{

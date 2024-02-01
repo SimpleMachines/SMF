@@ -23,6 +23,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -82,9 +83,9 @@ class Mail implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Mail $obj;
 
 	/****************
 	 * Public methods
@@ -587,8 +588,8 @@ class Mail implements ActionInterface
 	protected function pauseMailQueueClear(): void
 	{
 		// Try get more time...
-		Utils::sapiSetTimeLimit(600);
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 5) {

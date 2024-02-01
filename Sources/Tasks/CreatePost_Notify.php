@@ -54,7 +54,7 @@ class CreatePost_Notify extends BackgroundTask
 	public const FREQUENCY_WEEKLY_DIGEST = 4;
 
 	/**
-	 * Minutes to wait before sending notifications about about mentions
+	 * Minutes to wait before sending notifications about mentions
 	 * and quotes in unwatched and/or edited posts.
 	 */
 	public const MENTION_DELAY = 5;
@@ -549,7 +549,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			Lang::load('index+Modifications', $member_data['lngfile'], false);
+			Lang::load('General+Modifications', $member_data['lngfile'], false);
 
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
 

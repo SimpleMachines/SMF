@@ -70,7 +70,7 @@
 				h: $('#' + oSettings.tooltipID).height()
 			}
 
-			// Display limits and window scroll postion
+			// Display limits and window scroll position
 			var oLimits = {
 				x: $(window).scrollLeft(),
 				y: $(window).scrollTop(),
@@ -78,7 +78,7 @@
 				h: $(window).height() - 24
 			};
 
-			// don't go off screen with our tooltop
+			// don't go off screen with our tooltip
 			if ((oPosition.y + oPosition.h > oLimits.y + oLimits.h) && (oPosition.x + oPosition.w > oLimits.x + oLimits.w))
 			{
 				oPosition.x = (oPosition.x - oPosition.w) - 45;

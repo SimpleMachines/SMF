@@ -30,7 +30,7 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * The moderation and adminstration logs are this class's only job.
+ * The moderation and administration logs are this class's only job.
  * It views them, and that's about all it does.
  */
 class Logs implements ActionInterface
@@ -217,9 +217,9 @@ class Logs implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Logs $obj;
 
 	/****************
 	 * Public methods

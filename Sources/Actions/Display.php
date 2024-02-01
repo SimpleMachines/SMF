@@ -104,7 +104,7 @@ class Display implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static Display $obj;
 
 	/****************
 	 * Public methods
@@ -899,7 +899,7 @@ class Display implements ActionInterface
 	}
 
 	/**
-	 * Prepares contextual info about the modertors of this board.
+	 * Prepares contextual info about the moderators of this board.
 	 */
 	protected function setModerators(): void
 	{
@@ -997,9 +997,9 @@ class Display implements ActionInterface
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			} else {
-				Lang::load('index', Lang::$default, false);
+				Lang::load('General', Lang::$default, false);
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('index');
+				Lang::load('General');
 			}
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}

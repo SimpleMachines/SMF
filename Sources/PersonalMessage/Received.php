@@ -49,14 +49,14 @@ class Received implements \ArrayAccess
 	/**
 	 * @var int
 	 *
-	 * ID number of the recipent of the PM.
+	 * ID number of the recipient of the PM.
 	 */
 	public int $member;
 
 	/**
 	 * @var string
 	 *
-	 * Name of the recipent of the PM.
+	 * Name of the recipient of the PM.
 	 */
 	public string $name;
 
@@ -73,42 +73,42 @@ class Received implements \ArrayAccess
 	/**
 	 * @var bool
 	 *
-	 * Whether the recipent has read the PM.
+	 * Whether the recipient has read the PM.
 	 */
 	public bool $unread = true;
 
 	/**
 	 * @var bool
 	 *
-	 * Whether the recipent has replied the PM.
+	 * Whether the recipient has replied the PM.
 	 */
 	public bool $replied = false;
 
 	/**
 	 * @var bool
 	 *
-	 * Whether the recipent has been informed yet that they received the PM.
+	 * Whether the recipient has been informed yet that they received the PM.
 	 */
 	public bool $is_new = false;
 
 	/**
 	 * @var bool
 	 *
-	 * Whether the recipent has deleted the PM.
+	 * Whether the recipient has deleted the PM.
 	 */
 	public bool $deleted = false;
 
 	/**
 	 * @var bool
 	 *
-	 * Whether the PM is in the recipent's inbox folder.
+	 * Whether the PM is in the recipient's inbox folder.
 	 */
 	public bool $in_inbox = true;
 
 	/**
 	 * @var array
 	 *
-	 * Labels assigned to this PM by the recipent.
+	 * Labels assigned to this PM by the recipient.
 	 */
 	public array $labels = [];
 

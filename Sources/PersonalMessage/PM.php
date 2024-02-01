@@ -632,9 +632,9 @@ class PM implements \ArrayAccess
 				if (Lang::$default === User::$me->language) {
 					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 				} else {
-					Lang::load('index', Lang::$default, false);
+					Lang::load('General', Lang::$default, false);
 					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-					Lang::load('index');
+					Lang::load('General');
 				}
 
 				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
@@ -1497,7 +1497,7 @@ class PM implements \ArrayAccess
 		$replacements = [
 			'SUBJECT' => $subject,
 			'MESSAGE' => $message,
-			'SENDER' => Utils::htmlspecialcharsDecode($from['name']),
+			'SENDER' => Utils::htmlspecialcharsDecode((string) $from['name']),
 			'READLINK' => Config::$scripturl . '?action=pm;pmsg=' . $id_pm . '#msg' . $id_pm,
 			'REPLYLINK' => Config::$scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
 			'TOLIST' => implode(', ', $to_names),
@@ -1511,7 +1511,7 @@ class PM implements \ArrayAccess
 			// Censor and parse BBC in the receiver's language. Only do each language once.
 			if (empty($notification_texts[$lang])) {
 				if ($lang != User::$me->language) {
-					Lang::load('index+Modifications', $lang, false);
+					Lang::load('General+Modifications', $lang, false);
 				}
 
 				$notification_texts[$lang]['subject'] = $subject;
@@ -1529,7 +1529,7 @@ class PM implements \ArrayAccess
 				}
 
 				if ($lang != User::$me->language) {
-					Lang::load('index+Modifications', User::$me->language, false);
+					Lang::load('General+Modifications', User::$me->language, false);
 				}
 			}
 
@@ -1546,7 +1546,7 @@ class PM implements \ArrayAccess
 		IntegrationHook::call('integrate_personal_message_after', [&$id_pm, &$log, &$recipients, &$from, &$subject, &$message]);
 
 		// Back to what we were on before!
-		Lang::load('index+PersonalMessage');
+		Lang::load('General+PersonalMessage');
 
 		// Add one to their unread and read message counts.
 		foreach ($all_to as $k => $id) {
@@ -2149,7 +2149,7 @@ class PM implements \ArrayAccess
 	}
 
 	/**
-	 * Backward compatibilty wrapper around the non-static canAccess() method.
+	 * Backward compatibility wrapper around the non-static canAccess() method.
 	 *
 	 * Check if the PM is available to the current user.
 	 *

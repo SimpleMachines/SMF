@@ -25,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\{SubsPackage, XmlArray};
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -95,9 +96,9 @@ class Themes implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Themes $obj;
 
 	/****************
 	 * Public methods
@@ -710,9 +711,6 @@ class Themes implements ActionInterface
 		Theme::loadSubTemplate('init', 'ignore');
 
 		// Also load the actual themes language file - in case of special settings.
-		Lang::load('Settings', '', true, true);
-
-		// And the custom language strings...
 		Lang::load('ThemeStrings', '', false, true);
 
 		// Let the theme take care of the settings.
@@ -1252,25 +1250,27 @@ class Themes implements ActionInterface
 		$templates = [];
 		$lang_files = [];
 
-		$dir = dir(Theme::$current->settings['default_theme_dir']);
-
-		while ($entry = $dir->read()) {
-			if (substr($entry, -13) == '.template.php') {
-				$templates[] = substr($entry, 0, -13);
+		foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir']) as $fileInfo) {
+			if (substr($fileInfo->getFilename(), -13) == '.template.php') {
+				$templates[] = substr($fileInfo->getFilename(), 0, -13);
 			}
 		}
 
-		$dir->close();
+		if (is_dir(Theme::$current->settings['default_theme_dir'] . '/languages')) {
+			foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir'] . '/languages') as $langDir) {
+				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.') {
+					continue;
+				}
 
-		$dir = dir(Theme::$current->settings['default_theme_dir'] . '/languages');
+				$lang_files[$langDir->getFilename()] = [];
 
-		while ($entry = $dir->read()) {
-			if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches)) {
-				$lang_files[] = $matches[1];
+				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
+					if ($fileInfo->getExtension() == 'php') {
+						$lang_files[$langDir->getFilename()][] = $fileInfo->getFilename();
+					}
+				}
 			}
 		}
-
-		$dir->close();
 
 		natcasesort($templates);
 		natcasesort($lang_files);
@@ -1288,39 +1288,41 @@ class Themes implements ActionInterface
 
 		Utils::$context['available_language_files'] = [];
 
-		foreach ($lang_files as $file) {
-			Utils::$context['available_language_files'][$file] = [
-				'filename' => $file . '.php',
-				'value' => $file,
-				'already_exists' => false,
-				'can_copy' => file_exists($theme['theme_dir'] . '/languages') ? is_writable($theme['theme_dir'] . '/languages') : is_writable($theme['theme_dir']),
-			];
-		}
-
-		$dir = dir($theme['theme_dir']);
-
-		while ($entry = $dir->read()) {
-			if (substr($entry, -13) == '.template.php' && isset(Utils::$context['available_templates'][substr($entry, 0, -13)])) {
-				Utils::$context['available_templates'][substr($entry, 0, -13)]['already_exists'] = true;
-
-				Utils::$context['available_templates'][substr($entry, 0, -13)]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $entry);
+		foreach ($lang_files as $dir => $lang_dir) {
+			foreach ($lang_dir as $file) {
+				Utils::$context['available_language_files'][$dir . '/' . $file] = [
+					'filename' => $dir . '/' . $file . '.php',
+					'value' => $dir . '|' . $file,
+					'already_exists' => false,
+					'can_copy' => file_exists($theme['theme_dir'] . '/languages') ? is_writable($theme['theme_dir'] . '/languages') : is_writable($theme['theme_dir']),
+				];
 			}
 		}
 
-		$dir->close();
+		foreach (new \DirectoryIterator($theme['theme_dir']) as $fileInfo) {
+			$theme_basename = substr($fileInfo->getFilename(), 0, -13);
 
-		if (file_exists($theme['theme_dir'] . '/languages')) {
-			$dir = dir($theme['theme_dir'] . '/languages');
+			if (substr($fileInfo->getFilename(), -13) == '.template.php' && isset(Utils::$context['available_templates'][$theme_basename])) {
+				Utils::$context['available_templates'][$theme_basename]['already_exists'] = true;
+				Utils::$context['available_templates'][$theme_basename]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $theme_basename);
+			}
+		}
 
-			while ($entry = $dir->read()) {
-				if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches) && isset(Utils::$context['available_language_files'][$matches[1]])) {
-					Utils::$context['available_language_files'][$matches[1]]['already_exists'] = true;
+		if (is_dir($theme['theme_dir'] . '/languages')) {
+			foreach (new \DirectoryIterator($theme['theme_dir'] . '/languages') as $langDir) {
+				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.') {
+					continue;
+				}
 
-					Utils::$context['available_language_files'][$matches[1]]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
+				$lang_files[$langDir->getFilename()] = [];
+
+				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
+					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
+						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
+						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
+					}
 				}
 			}
-
-			$dir->close();
 		}
 
 		Utils::$context['sub_template'] = 'copy_template';
@@ -1529,9 +1531,8 @@ class Themes implements ActionInterface
 		mkdir(Utils::$context['to_install']['theme_dir'], 0777);
 
 		// Buy some time.
-		Utils::sapiSetTimeLimit(600);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Create subdirectories for css and javascript files.
 		mkdir(Utils::$context['to_install']['theme_dir'] . '/css', 0777);
@@ -1552,7 +1553,7 @@ class Themes implements ActionInterface
 			'/css/rtl.css',
 			'/scripts/theme.js',
 			'/languages/index.php',
-			'/languages/Settings.english.php',
+			'/languages/en_US/ThemeStrings.php',
 		];
 
 		foreach ($to_copy as $file) {
@@ -1696,7 +1697,7 @@ class Themes implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$single[$row['variable']] = $row['value'];
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$single['theme_dir'] = realpath($row['value']);
 				$single['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
@@ -1771,7 +1772,7 @@ class Themes implements ActionInterface
 				];
 			}
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
 				Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
@@ -1835,7 +1836,7 @@ class Themes implements ActionInterface
 				];
 			}
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
 				Utils::$context['themes'][$row['id_theme']]['valid_path'] = $row['value'] !== false && file_exists($row['value']) && is_dir($row['value']);

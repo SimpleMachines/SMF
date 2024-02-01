@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -40,9 +41,9 @@ class Delete implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Delete $obj;
 
 	/****************
 	 * Public methods
@@ -213,7 +214,7 @@ class Delete implements ActionInterface
 
 					// This could take a while... but ya know it's gonna be worth it in the end.
 					while ($row = Db::$db->fetch_assoc($request)) {
-						Utils::sapiResetTimeout();
+						Sapi::resetTimeout();
 
 						Msg::remove($row['id_msg']);
 					}

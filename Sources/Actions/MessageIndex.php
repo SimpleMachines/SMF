@@ -134,7 +134,7 @@ class MessageIndex implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static MessageIndex $obj;
 
 	/****************
 	 * Public methods
@@ -185,7 +185,7 @@ class MessageIndex implements ActionInterface
 	}
 
 	/**
-	 * Buils and returns the list of available boards for a user.
+	 * Builds and returns the list of available boards for a user.
 	 *
 	 * @param array $boardListOptions An array of options for the board list.
 	 * @return array An array of board info.
@@ -881,7 +881,7 @@ class MessageIndex implements ActionInterface
 	}
 
 	/**
-	 * Prepares contextual info about the modertors of this board.
+	 * Prepares contextual info about the moderators of this board.
 	 */
 	protected function setModerators(): void
 	{

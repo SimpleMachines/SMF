@@ -252,7 +252,7 @@ class Theme
 			$GLOBALS['options']  = &self::$current->options;
 		}
 
-		// Ensure that SMF\Lang knows that it should use this theme's langauge files.
+		// Ensure that SMF\Lang knows that it should use this theme's language files.
 		Lang::addDirs();
 
 		// Initializing sets up a bunch more stuff.
@@ -297,7 +297,7 @@ class Theme
 		Utils::$context['forum_name'] = Config::$mbname;
 		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-		Lang::load('index+Modifications');
+		Lang::load('General+Modifications');
 
 		// Just in case it wasn't already set elsewhere.
 		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
@@ -352,7 +352,7 @@ class Theme
 
 		if ($loaded) {
 			if (Config::$db_show_debug === true) {
-				Utils::$context['debug']['templates'][] = $template_name . ' (' . basename($template_dir) . ')';
+				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
@@ -752,7 +752,7 @@ class Theme
 	{
 		static $loaded = false;
 
-		// Under SSI this function can be called more then once.  That can cause some problems.
+		// Under SSI this function can be called more than once.  That can cause some problems.
 		// So only run the function once unless we are forced to run it again.
 		if ($loaded && !$forceload) {
 			return;
@@ -1313,7 +1313,7 @@ class Theme
 
 				// If agreement is enabled, at least the english version shall exist
 				if (!empty(Config::$modSettings['requireAgreement'])) {
-					$agreement = !file_exists(Config::$boarddir . '/agreement.txt');
+					$agreement = !file_exists(Config::$languagesdir . '/en_US/agreement.txt');
 				}
 
 				// If privacy policy is enabled, at least the default language version shall exist
@@ -1622,7 +1622,7 @@ class Theme
 			$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
 
 			foreach (Utils::$context['css_files'] as $file) {
-				Utils::$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
+				Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
 			}
 		}
 
@@ -2414,9 +2414,7 @@ class Theme
 		}
 
 		// Any theme-related strings that need to be loaded?
-		if (!empty($this->settings['require_theme_strings'])) {
-			Lang::load('ThemeStrings', '', false);
-		}
+		Lang::load('ThemeStrings', '', false);
 
 		// Make a special URL for the language.
 		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
@@ -2482,7 +2480,7 @@ class Theme
 	protected function sslRedirect(): void
 	{
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance)
-			&& !Config::httpsOn() && SMF != 'SSI') {
+			&& !Sapi::httpsOn() && SMF != 'SSI') {
 			if (isset($_GET['sslRedirect'])) {
 				Lang::load('Errors');
 				ErrorHandler::fatalLang('login_ssl_required', false);
@@ -2499,7 +2497,7 @@ class Theme
 	{
 		// Check to see if they're accessing it from the wrong place.
 		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
-			$detected_url = Config::httpsOn() ? 'https://' : 'http://';
+			$detected_url = Sapi::httpsOn() ? 'https://' : 'http://';
 
 			$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 
@@ -2627,14 +2625,14 @@ class Theme
 
 		// Output is fully XML, so no need for the index template.
 		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requiresXML)) {
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications');
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
 		}
 
 		// These actions don't require the index template at all.
 		elseif (!empty(Utils::$context['simple_action'])) {
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications');
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?
@@ -2650,8 +2648,7 @@ class Theme
 			}
 
 			// ...and attempt to load their associated language files.
-			$required_files = implode('+', array_merge($templates, ['Modifications']));
-			Lang::load($required_files, '', false);
+			Lang::load('General+ThemeStrings+Modifications', '', false);
 
 			// Custom template layers?
 			if (isset($this->settings['theme_layers'])) {
@@ -2735,7 +2732,7 @@ class Theme
 			'smf_smiley_sets_default' => '"' . Config::$modSettings['smiley_sets_default'] . '"',
 			'smf_avatars_url' => '"' . Config::$modSettings['avatar_url'] . '"',
 			'smf_scripturl' => '"' . Config::$scripturl . '"',
-			'smf_iso_case_folding' => Utils::$context['server']['iso_case_folding'] ? 'true' : 'false',
+			'smf_iso_case_folding' => Sapi::supportsIsoCaseFolding() ? 'true' : 'false',
 			'smf_charset' => '"' . Utils::$context['character_set'] . '"',
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',

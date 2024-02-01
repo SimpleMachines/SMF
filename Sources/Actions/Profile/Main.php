@@ -23,6 +23,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -57,7 +58,7 @@ class Main implements ActionInterface
 	 * be replaced at runtime with the values of Utils::$context['session_var']
 	 * and Utils::$context['session_id'].
 	 *
-	 * In this default definintion, all parts of the menu are set as enabled.
+	 * In this default definition, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off depending on
 	 * the forum's saved settings.
 	 *
@@ -543,9 +544,9 @@ class Main implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Main $obj;
 
 	/****************
 	 * Public methods
@@ -606,7 +607,7 @@ class Main implements ActionInterface
 
 			if ($this->check_password) {
 				// Check to ensure we're forcing SSL for authentication
-				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 					ErrorHandler::fatalLang('login_ssl_required', false);
 				}
 

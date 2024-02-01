@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
 use SMF\TOTP\Auth as Tfa;
@@ -38,9 +39,9 @@ class LoginTFA extends Login2
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static LoginTFA|Login2 $obj;
 
 	/****************
 	 * Public methods
@@ -71,7 +72,7 @@ class LoginTFA extends Login2
 
 		if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
@@ -91,7 +92,7 @@ class LoginTFA extends Login2
 			}
 		} elseif (!empty($_POST['tfa_backup'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 

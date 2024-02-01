@@ -70,7 +70,7 @@ abstract class CacheApi
 	 *
 	 * The loaded cache API, or false on failure.
 	 *
-	 * For backward compatibilty, also referenced as global $cacheAPI.
+	 * For backward compatibility, also referenced as global $cacheAPI.
 	 */
 	public static $loadedApi;
 
@@ -79,16 +79,16 @@ abstract class CacheApi
 	 *
 	 * Records debugging info.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_hits.
+	 * For backward compatibility, also referenced as global $cache_hits.
 	 */
 	public static array $hits = [];
 
 	/**
 	 * @var int
 	 *
-	 * The number of times the cache has been acceesed.
+	 * The number of times the cache has been accessed.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_count.
+	 * For backward compatibility, also referenced as global $cache_count.
 	 */
 	public static int $count_hits = 0;
 
@@ -97,7 +97,7 @@ abstract class CacheApi
 	 *
 	 * Records debugging info.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_misses.
+	 * For backward compatibility, also referenced as global $cache_misses.
 	 */
 	public static array $misses = [];
 
@@ -106,7 +106,7 @@ abstract class CacheApi
 	 *
 	 * The number of times the cache has missed.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_count_misses.
+	 * For backward compatibility, also referenced as global $cache_count_misses.
 	 */
 	public static int $count_misses = 0;
 

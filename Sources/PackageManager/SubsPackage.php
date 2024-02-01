@@ -18,6 +18,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -68,7 +69,7 @@ class SubsPackage
 	 * @param bool $single_file If true returns the contents of the file specified by destination if it exists
 	 * @param bool $overwrite Whether to overwrite existing files
 	 * @param null|array $files_to_extract Specific files to extract
-	 * @return array|string|false An array of information about extracted files or false on failure
+	 * @return array|string|false Information about extracted files or false on failure
 	 */
 	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
@@ -111,7 +112,7 @@ class SubsPackage
 	 * - destination should not begin with a / if single_file is true.
 	 *
 	 * overwrites existing files with newer modification times if and only if overwrite is true.
-	 * creates the destination directory if it doesn't exist, and is is specified.
+	 * creates the destination directory if it doesn't exist, and is specified.
 	 * requires zlib support be built into PHP.
 	 * returns an array of the files extracted.
 	 * if files_to_extract is not equal to null only extracts file within this array.
@@ -121,9 +122,9 @@ class SubsPackage
 	 * @param bool $single_file Whether to only extract a single file
 	 * @param bool $overwrite Whether to overwrite existing data
 	 * @param null|array $files_to_extract If set, only extracts the specified files
-	 * @return array|false An array of information about the extracted files or false on failure
+	 * @return array|string|false Information about the extracted files or false on failure
 	 */
-	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|bool
+	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		// Make sure we have this loaded.
 		Lang::load('Packages');
@@ -706,7 +707,7 @@ class SubsPackage
 			// Create the list for display.
 			new ItemList($listOptions);
 
-			// If we just restored permissions then whereever we are, we are now done and dusted.
+			// If we just restored permissions then wherever we are, we are now done and dusted.
 			if (!empty($_POST['restore_perms'])) {
 				Utils::obExit();
 			}
@@ -1690,8 +1691,8 @@ class SubsPackage
 			'$themedir' => Theme::$current->settings['default_theme_dir'],
 			'$imagesdir' => Theme::$current->settings['default_theme_dir'] . '/' . basename(Theme::$current->settings['default_images_url']),
 			'$themes_dir' => Config::$boarddir . '/Themes',
-			'$languagedir' => Theme::$current->settings['default_theme_dir'] . '/languages',
-			'$languages_dir' => Theme::$current->settings['default_theme_dir'] . '/languages',
+			'$languagedir' => Config::$languagesdir,
+			'$languages_dir' => Config::$languagesdir,
 			'$smileysdir' => Config::$modSettings['smileys_dir'],
 			'$smileys_dir' => Config::$modSettings['smileys_dir'],
 		];
@@ -2620,7 +2621,7 @@ class SubsPackage
 	public static function package_get_contents(string $filename): string
 	{
 		if (!isset(self::$package_cache)) {
-			$mem_check = Config::setMemoryLimit('128M');
+			$mem_check = Sapi::setMemoryLimit('128M');
 
 			// Windows doesn't seem to care about the memory_limit.
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false) {
@@ -2654,7 +2655,7 @@ class SubsPackage
 
 		if (!isset(self::$package_cache)) {
 			// Try to increase the memory limit - we don't want to run out of ram!
-			$mem_check = Config::setMemoryLimit('128M');
+			$mem_check = Sapi::setMemoryLimit('128M');
 
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false) {
 				self::$package_cache = [];
@@ -2938,7 +2939,7 @@ class SubsPackage
 	{
 		$files = [];
 
-		$base_files = ['index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
+		$base_files = ['index.php', 'SSI.php', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
 
 		foreach ($base_files as $file) {
 			if (file_exists(Config::$boarddir . '/' . $file)) {
@@ -2948,6 +2949,7 @@ class SubsPackage
 
 		$dirs = [
 			Config::$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr(Config::$sourcedir . '/', '\\', '/'),
+			Config::$languagesdir => empty($_REQUEST['use_full_paths']) ? 'Languages/' : strtr(Config::$languagesdir . '/', '\\', '/'),
 		];
 
 		$request = Db::$db->query(
@@ -3012,9 +3014,8 @@ class SubsPackage
 				$output_file .= $output_ext;
 			}
 
-			Utils::sapiSetTimeLimit(300);
-
-			Utils::sapiResetTimeout();
+			Sapi::setTimeLimit(300);
+			Sapi::resetTimeout();
 
 			// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
 			set_error_handler(

@@ -109,7 +109,7 @@ class AttachmentUpload implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static AttachmentUpload $obj;
 
 	/**
 	 * Wrapper for constructor. Ensures only one instance is created.
@@ -230,7 +230,7 @@ class AttachmentUpload implements ActionInterface
 		// Process them at once!
 		$this->processAttachments();
 
-		// The attachments was created and moved the the right folder, time to update the DB.
+		// The attachments was created and moved to the right folder, time to update the DB.
 		if (!empty($_SESSION['temp_attachments'])) {
 			$this->createAttach();
 		}

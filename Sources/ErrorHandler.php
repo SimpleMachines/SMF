@@ -49,7 +49,7 @@ class ErrorHandler
 			return;
 		}
 
-		// Ignore errors that should should not be logged.
+		// Ignore errors that should not be logged.
 		$error_match = error_reporting() & $error_level;
 
 		if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging'])) {
@@ -336,7 +336,7 @@ class ErrorHandler
 		}
 
 		// Send a custom header if we have a custom message.
-		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax'])) {
+		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
 			header('X-SMF-errormsg: ' . $error_message);
 		}
 
@@ -660,7 +660,7 @@ class ErrorHandler
 	 * Attempts to use the backup file first, to store the last database error
 	 * and only update db_last_error.php if the first was successful.
 	 *
-	 * @return bool true if succefully able to write the last database error.
+	 * @return bool true if successfully able to write the last database error.
 	 */
 	protected static function logLastDatabaseError(): bool
 	{

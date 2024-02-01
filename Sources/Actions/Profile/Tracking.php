@@ -99,9 +99,9 @@ class Tracking implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Tracking $obj;
 
 	/****************
 	 * Public methods
@@ -116,7 +116,7 @@ class Tracking implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// This is only here for backward compatiblity in case a mod needs it.
+		// This is only here for backward compatibility in case a mod needs it.
 		Utils::$context['tracking_area'] = &$this->subaction;
 
 		// Create the tabs for the template.

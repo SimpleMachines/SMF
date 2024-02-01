@@ -317,7 +317,7 @@ function smf_fileUpload(oOptions) {
 							// Do stuff only if the file was actually accepted and it doesn't have an error status.
 							if (file.accepted && file.status != Dropzone.ERROR) {
 
-								// Need to remove the file size to make sure theres plenty of room for another one.
+								// Need to remove the file size to make sure there's plenty of room for another one.
 								myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
 								// Re-count!
@@ -381,7 +381,7 @@ function smf_fileUpload(oOptions) {
 				$('.attach_remaining').html(Math.max(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length, 0));
 		};
 
-		// The editor needs this to know how to handle embedded attachements
+		// The editor needs this to know how to handle embedded attachments
 		file.addToCurrentAttachmentsList = function (file, response) {
 			current_attachments.push({
 				name: file.name,
@@ -411,7 +411,7 @@ function smf_fileUpload(oOptions) {
 
 		// Do stuff only if the file was actually accepted and it doesn't have an error status.
 		if (file.accepted && file.status != Dropzone.ERROR) {
-			// Need to remove the file size to make sure theres plenty of room for another one.
+			// Need to remove the file size to make sure there's plenty of room for another one.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
 			// Re-count!
@@ -423,7 +423,7 @@ function smf_fileUpload(oOptions) {
 
     // Event for when a file has been canceled
     myDropzone.on("canceled", function(file) {
-        // Need to remove the file size to make sure theres plenty of room for another one.
+        // Need to remove the file size to make sure there's plenty of room for another one.
         myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
         // Re-count!

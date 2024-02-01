@@ -133,7 +133,7 @@ class Poll implements \ArrayAccess
 	/**
 	 * @var string
 	 *
-	 * Name of the member who creted the poll.
+	 * Name of the member who created the poll.
 	 */
 	public string $poster_name = '';
 
@@ -1420,7 +1420,7 @@ class Poll implements \ArrayAccess
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantation via self::load() or self::create().
+	 * Constructor. Protected to force instantiation via self::load() or self::create().
 	 *
 	 * @param int $id The ID number of a poll or topic. Use 0 if unknown.
 	 * @param int $options Bitmask of this class's LOAD_* and CHECK_* constants.

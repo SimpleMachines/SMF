@@ -1362,7 +1362,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Query returns a result or true if succesfull, false otherwise.
+		// Query returns a result or true if successful, false otherwise.
 		return $result !== false;
 	}
 
@@ -1486,7 +1486,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			unset($column_info['default']);
 		}
 
-		// If you need to drop the default, that needs it's own thing...
+		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
@@ -1825,7 +1825,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			// the table
 			$table_query = 'DROP TABLE ' . $short_table_name;
 
-			// and the assosciated sequence, if any
+			// and the associated sequence, if any
 			$sequence_query = 'DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq';
 
 			// drop them
@@ -2041,7 +2041,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 
-		// Do not add the table name to the index if it is arleady there.
+		// Do not add the table name to the index if it is already there.
 		if ($index_name != 'primary' && strpos($index_name, $real_table_name) !== false) {
 			$index_name = str_replace($real_table_name . '_', '', $index_name);
 		}
@@ -2095,7 +2095,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		parent::__construct();
 
-		// If caller was explict about non_fatal, respect that.
+		// If caller was explicit about non_fatal, respect that.
 		$non_fatal = !empty($options['non_fatal']);
 
 		// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.

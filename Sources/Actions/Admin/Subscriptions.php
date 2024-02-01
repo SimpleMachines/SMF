@@ -91,9 +91,9 @@ class Subscriptions implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Subscriptions $obj;
 
 	/****************
 	 * Public methods
@@ -1626,7 +1626,7 @@ class Subscriptions implements ActionInterface
 			}
 		}
 
-		// Firstly, see whether it exists, and is active. If so then this is meerly an extension.
+		// Firstly, see whether it exists, and is active. If so then this is merely an extension.
 		$request = Db::$db->query(
 			'',
 			'SELECT id_sublog, end_time, start_time
@@ -1736,7 +1736,7 @@ class Subscriptions implements ActionInterface
 			],
 		);
 
-		// Now log the subscription - maybe we have a dorment subscription we can restore?
+		// Now log the subscription - maybe we have a dormant subscription we can restore?
 		$request = Db::$db->query(
 			'',
 			'SELECT id_sublog, end_time, start_time

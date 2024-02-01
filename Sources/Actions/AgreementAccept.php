@@ -34,16 +34,16 @@ class AgreementAccept extends Agreement
 	 * @var self
 	 *
 	 * An instance of the class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static AgreementAccept|Agreement $obj;
 
 	/****************
 	 * Public methods
 	 ****************/
 
 	/**
-	 * I solemly swear to no longer chase squirrels.
+	 * I solemnly swear to no longer chase squirrels.
 	 *
 	 * Called when they actually accept the agreement and privacy policy.
 	 * Saves the date when they accepted to the members database table.

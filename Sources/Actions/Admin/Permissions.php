@@ -918,9 +918,9 @@ class Permissions implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Permissions $obj;
 
 	/****************
 	 * Public methods
@@ -3327,7 +3327,11 @@ class Permissions implements ActionInterface
 		// Find the permissions that guests may never have.
 		foreach (self::getPermissions() as $permission => $perm_info) {
 			if (!empty($perm_info['never_guests'])) {
-				self::$never_guests[] = $perm_info['generic_name'];
+				self::$never_guests[] = $permission;
+
+				if (isset($perm_info['generic_name'])) {
+					self::$never_guests[] = $perm_info['generic_name'];
+				}
 			}
 		}
 
@@ -3530,7 +3534,7 @@ class Permissions implements ActionInterface
 		IntegrationHook::call('integrate_load_illegal_permissions');
 
 		// If the hook added anything, sync that back to our master list.
-		// Because this hook can't tell us what the prerequistes are, we assume
+		// Because this hook can't tell us what the prerequisites are, we assume
 		// that the permission can only be granted by admins.
 		if ($temp != Utils::jsonEncode(self::$illegal)) {
 			foreach (self::$illegal as $permission) {

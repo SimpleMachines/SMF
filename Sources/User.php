@@ -36,7 +36,7 @@ use SMF\PersonalMessage\PM;
  * For the convenience of theme creators, User::$me is also available as
  * Utils::$context['user'], and its properties can be accessed as if they were
  * array elements. This means that Utils::$context['user']['id'] is
- * interchangable with User::$me->id.
+ * interchangeable with User::$me->id.
  *
  * The data previously available in the deprecated global $user_profile array
  * is now available as User::$profiles. For example, where old code might have
@@ -51,7 +51,7 @@ use SMF\PersonalMessage\PM;
  * populate $memberContext[$id_member], User::$loaded[$id_member]->format() must
  * be called in order to populate User::$loaded[$id_member]->formatted.
  *
- * To faciliate backward compatibility, the deprecated global $user_info array
+ * To facilitate backward compatibility, the deprecated global $user_info array
  * is still available, but it is simply a reference to User::$me.
  *
  * Similarly, the deprecated global $user_settings array is still available, but
@@ -535,7 +535,7 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Permssions that this user has been granted.
+	 * Permissions that this user has been granted.
 	 */
 	public array $permissions = [];
 
@@ -1096,7 +1096,7 @@ class User implements \ArrayAccess
 	{
 		static $loadedLanguages = [];
 
-		Lang::load('index+Modifications');
+		Lang::load('General+Modifications');
 
 		if (empty(Config::$modSettings['displayFields'])) {
 			$display_custom_fields = false;
@@ -1438,7 +1438,7 @@ class User implements \ArrayAccess
 	/**
 	 * Quickly find out what moderation authority the current user has
 	 *
-	 * Builds the moderator, group and board level querys for the user.
+	 * Builds the moderator, group and board level queries for the user.
 	 *
 	 * Stores the information on the current users moderation powers in
 	 * User::$me->mod_cache and $_SESSION['mc'].
@@ -2069,7 +2069,7 @@ class User implements \ArrayAccess
 		// Posting the password... check it.
 		if (isset($_POST[$type . '_pass'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required');
 			}
 
@@ -3142,10 +3142,10 @@ class User implements \ArrayAccess
 	public static function delete(int|array $users, bool $check_not_admin = false): void
 	{
 		// Try give us a while to sort this out...
-		@set_time_limit(600);
+		Sapi::setTimeLimit();
 
 		// Try to get some more memory.
-		Config::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		// If it's not an array, make it so!
 		$users = array_unique((array) $users);
@@ -3931,7 +3931,7 @@ class User implements \ArrayAccess
 		// Nothing found yet.
 		$results = [];
 
-		// This ensures you can't search someones email address if you can't see it.
+		// This ensures you can't search someone's email address if you can't see it.
 		if (($use_wildcards || $maybe_email) && self::$me->allowedTo('moderate_forum')) {
 			$email_condition = '
 				OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
@@ -5258,18 +5258,36 @@ class User implements \ArrayAccess
 			// Make it permanent for members.
 			if (!empty($this->id)) {
 				self::updateMemberData($this->id, ['lngfile' => $this->language]);
+				unset($_SESSION['language']);
 			} else {
 				$_SESSION['language'] = $this->language;
 			}
 
 			// Reload same URL with new language, if applicable.
 			if (isset($_SESSION['old_url'])) {
-				Utils::redirectexit($_SESSION['old_url']);
+				Utils::redirectexit(preg_replace('~language=[^;&$]+~i', '', $_SESSION['old_url']));
 			}
 		}
 		// Carry forward the last language request in this session, if any.
 		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')])) {
 			$this->language = strtr($_SESSION['language'], './\\:', '____');
+		}
+		// Can we locate it in the accept language?
+		elseif ($this->id === 0 && empty($_SESSION['language']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $match) {
+				[$lang] = explode(';', $match);
+
+				// The strtr fallback is a sad, weak substitute, but we might as well try.
+				$lang = class_exists('\Locale') ? \Locale::canonicalize($lang) : strtr($lang, '-', '_');
+
+				if (is_null($lang)) {
+					continue;
+				}
+
+				if (isset($languages[$lang])) {
+					$this->language = $_SESSION['language'] = $lang;
+				}
+			}
 		}
 	}
 

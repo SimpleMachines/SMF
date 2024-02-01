@@ -30,6 +30,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -130,9 +131,9 @@ class Maintenance implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Maintenance $obj;
 
 	/****************
 	 * Public methods
@@ -879,7 +880,7 @@ class Maintenance implements ActionInterface
 	}
 
 	/**
-	 * Empties all uninmportant logs
+	 * Empties all unimportant logs
 	 */
 	public function emptyLogs(): void
 	{
@@ -994,7 +995,7 @@ class Maintenance implements ActionInterface
 				SecurityToken::create('admin-optimize');
 				Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-optimize_token_var'] . '" value="' . Utils::$context['admin-optimize_token'] . '">';
 
-				Utils::sapiResetTimeout();
+				Sapi::resetTimeout();
 
 				return;
 			}
@@ -1097,7 +1098,7 @@ class Maintenance implements ActionInterface
 			// Make sure we keep stuff unique!
 			$primary_keys = [];
 
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 
 			// Get a list of text columns.
 			$columns = [];
@@ -1303,7 +1304,7 @@ class Maintenance implements ActionInterface
 				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'text']);
 			}
 
-			// 3rd party integrations may be interested in knowning about this.
+			// 3rd party integrations may be interested in knowing about this.
 			IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
 
 			$colData = Db::$db->list_columns('{db_prefix}messages', true);
@@ -1347,7 +1348,7 @@ class Maintenance implements ActionInterface
 			Db::$db->free_result($request);
 
 			// Try for as much time as possible.
-			Utils::sapiSetTimeLimit(600);
+			Sapi::setTimeLimit(600);
 
 			while ($_REQUEST['start'] < $max_msgs) {
 				$request = Db::$db->query(
@@ -1547,7 +1548,7 @@ class Maintenance implements ActionInterface
 		$_REQUEST['start'] = !isset($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 
 		// Ask for some extra time, on big boards this may take a bit
-		Utils::sapiSetTimeLimit(600);
+		Sapi::setTimeLimit(600);
 
 		// Only run this query if we don't have the total number of members that have posted
 		if (!isset($_SESSION['total_members'])) {
@@ -1615,7 +1616,7 @@ class Maintenance implements ActionInterface
 			SecurityToken::create('admin-recountposts');
 			Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-recountposts_token_var'] . '" value="' . Utils::$context['admin-recountposts_token'] . '">';
 
-			Utils::sapiResetTimeout();
+			Sapi::resetTimeout();
 
 			return;
 		}

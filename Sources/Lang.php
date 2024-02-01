@@ -40,6 +40,73 @@ class Lang
 		],
 	];
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Maps SMF 2.x language names to locales for SMF 3.0+.
+	 * This is used to support upgrading from SMF 2.1 and below.
+	 */
+	public const LANG_TO_LOCALE = [
+		'albanian' => 'sq_AL',
+		// 001 is the region code the whole world, so this means modern standard Arabic.
+		'arabic' => 'ar_001',
+		'bulgarian' => 'bg_BG',
+		'cambodian' => 'km_KH',
+		'catalan' => 'ca_ES',
+		'chinese-simplified' => 'zh_Hans',
+		'chinese-traditional' => 'zh_Hant',
+		'croatian' => 'hr_HR',
+		'czech' => 'cs_CZ',
+		// Since 'informal' is not a locale, we just map this to the 'root' locale.
+		'czech_informal' => 'cs',
+		'danish' => 'da_DK',
+		'dutch' => 'nl_NL',
+		'english' => 'en_US',
+		'english_british' => 'en_GB',
+		// english_pirate isn't a real language, so we use the _x_ to mark it as a 'private language'.
+		'english_pirate' => 'en_x_pirate',
+		'esperanto' => 'eo',
+		'finnish' => 'fi_FI',
+		'french' => 'fr_FR',
+		'galician' => 'gl_ES',
+		'german' => 'de_DE',
+		// Since 'informal' is not a locale, we just map this to the 'root' locale.
+		'german_informal' => 'de',
+		'greek' => 'el_GR',
+		'hebrew' => 'he_IL',
+		'hungarian' => 'hu_HU',
+		'indonesian' => 'id_ID',
+		'italian' => 'it_IT',
+		'japanese' => 'ja_JP',
+		'lithuanian' => 'lt_LT',
+		'macedonian' => 'mk_MK',
+		'malay' => 'ms_MY',
+		'norwegian' => 'nb_NO',
+		'persian' => 'fa_IR',
+		'polish' => 'pl_PL',
+		'portuguese_brazilian' => 'pt_BR',
+		'portuguese_pt' => 'pt_PT',
+		'romanian' => 'ro_RO',
+		'russian' => 'ru_RU',
+		// Cyrl indicates Cyrillic script.
+		'serbian_cyrillic' => 'sr_Cyrl',
+		// Latn indicates Latin script.
+		'serbian_latin' => 'sr_Latn',
+		'slovak' => 'sk_SK',
+		'slovenian' => 'sl_SI',
+		'spanish_es' => 'es_ES',
+		// 419 is the region code for Latin America.
+		'spanish_latin' => 'es_419',
+		'swedish' => 'sv_SE',
+		'thai' => 'th_TH',
+		'turkish' => 'tr_TR',
+		'ukrainian' => 'uk_UA',
+		'urdu' => 'ur_PK',
+		'vietnamese' => 'vi_VN',
+	];
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -129,7 +196,7 @@ class Lang
 	/**
 	 * @var array
 	 *
-	 * Tracks which langauge files we have loaded.
+	 * Tracks which language files we have loaded.
 	 */
 	private static $already_loaded = [];
 
@@ -166,17 +233,22 @@ class Lang
 			$lang = User::$me->language ?? self::$default;
 		}
 
-		// Don't repeat this unnecessarily.
-		if (!$force_reload && isset(self::$already_loaded[$template_name]) && self::$already_loaded[$template_name] == $lang) {
-			return $lang;
-		}
-
 		if (empty(self::$dirs)) {
 			self::addDirs();
 		}
 
 		// For each file open it up and write it out!
 		foreach (explode('+', $template_name) as $template) {
+			// Did we call the old index language file? Redirect.
+			if ($template === 'index') {
+				$template = 'General';
+			}
+
+			// Don't repeat this unnecessarily.
+			if (!$force_reload && isset(self::$already_loaded[$template]) && self::$already_loaded[$template] == $lang) {
+				continue;
+			}
+
 			$attempts = [];
 
 			foreach (self::$dirs as $dir) {
@@ -185,30 +257,31 @@ class Lang
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('english', [$lang, self::$default])) {
+			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = [$dir, $template, 'english'];
+					$attempts[] = [$dir, $template, 'en_US'];
 				}
 			}
 
 			// Try to find the language file.
 			$found = false;
 
+			// Flip this around.
+			$attempts = array_reverse($attempts);
+
 			foreach ($attempts as $k => $file) {
-				if (file_exists($file[0] . '/' . $file[1] . '.' . $file[2] . '.php')) {
-					/**
-					 * @var string $forum_copyright
-					 * @var array $txt
-					 * @var array $txtBirthdayEmails
-					 * @var array $tztxt
-					 * @var array $editortxt
-					 * @var array $helptxt
-					 */
+				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
 					// Include it!
-					require $file[0] . '/' . $file[1] . '.' . $file[2] . '.php';
+					// {DIR} / {locale} / {file} .php
+					require $file[0] . '/' . $file[2] . '/' . $file[1] . '.php';
 
 					// Note that we found it.
 					$found = true;
+
+					// Keep track of what we're up to, soldier.
+					if (!empty(Config::$db_show_debug)) {
+						Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php';
+					}
 
 					// Load the strings into our properties.
 					foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
@@ -222,10 +295,10 @@ class Lang
 					}
 
 					// Did this file define the $forum_copyright?
-					if (isset($forum_copyright)) {
+					if (!empty($forum_copyright)) {
 						self::$localized_copyright[$file[2]] = $forum_copyright;
 
-						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['english'] ?? ''));
+						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['en_US'] ?? ''));
 
 						unset($forum_copyright);
 					}
@@ -244,9 +317,17 @@ class Lang
 
 						setlocale(LC_CTYPE, $locale_variants);
 					}
-
-					break;
 				}
+			}
+
+			// Legacy language calls.
+			/**
+			 * Legacy language calls.
+			 * Under normal conditions, we stop once we find it through the locale lookup.
+			 * Modifications is a special case in which we allow it to be checked everywhere.
+			 */
+			if ((!$found || strpos($template_name, 'Modifications') !== false) && Config::$backward_compatibility) {
+				$found = self::loadOld($attempts) || $found;
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
@@ -282,15 +363,10 @@ class Lang
 				}
 				$birthdayEmails = [];
 			}
-		}
 
-		// Keep track of what we're up to, soldier.
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['language_files'][] = $template_name . '.' . $lang . ' (' . basename(Theme::$current->settings['theme_url'] ?? 'unknown') . ')';
+			// Remember what we have loaded, and in which language.
+			self::$already_loaded[$template] = $lang;
 		}
-
-		// Remember what we have loaded, and in which language.
-		self::$already_loaded[$template_name] = $lang;
 
 		// Return the language actually loaded.
 		return $lang;
@@ -318,6 +394,8 @@ class Lang
 		if (!empty($custom_dirs)) {
 			self::$dirs = array_merge($custom_dirs, self::$dirs);
 		} else {
+			self::$dirs[] = Config::$languagesdir;
+
 			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
 			if (empty(Theme::$current->settings['default_theme_dir'])) {
 				Theme::loadEssential();
@@ -354,6 +432,7 @@ class Lang
 
 			// Default language directories to try.
 			$language_directories = [
+				Config::$languagesdir,
 				Theme::$current->settings['default_theme_dir'] . '/languages',
 			];
 
@@ -378,19 +457,13 @@ class Lang
 				$dir = dir($language_dir);
 
 				while ($entry = $dir->read()) {
-					// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-					if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches)) {
+					// Languages are in a sub directory.
+					if (!is_dir($language_dir . '/' . $entry) || !file_exists($language_dir . '/' . $entry . '/General.php')) {
 						continue;
 					}
 
-					$langName = Utils::ucwords(strtr($matches[1], ['_' => ' ']));
-
-					if (($spos = strpos($langName, ' ')) !== false) {
-						$langName = substr($langName, 0, ++$spos) . '(' . substr($langName, $spos) . ')';
-					}
-
 					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry, 'r');
+					$fp = @fopen($language_dir . '/' . $entry . '/General.php', 'r');
 
 					// Yay!
 					if ($fp) {
@@ -404,7 +477,7 @@ class Lang
 							// Set the language's name.
 							if (!empty($matchNative) && !empty($matchNative[1])) {
 								// Don't mislabel the language if the translator missed this one.
-								if ($langName !== 'English' && $matchNative[1] === 'English') {
+								if ($entry !== 'en_US' && $matchNative[1] === 'English (US)') {
 									break;
 								}
 
@@ -418,20 +491,14 @@ class Lang
 					}
 
 					// Build this language entry.
-					Utils::$context['languages'][$matches[1]] = [
-						'name' => $langName,
+					Utils::$context['languages'][$entry] = [
+						'name' => $langName ?? $entry,
 						'selected' => false,
-						'filename' => $matches[1],
-						'location' => $language_dir . '/index.' . $matches[1] . '.php',
+						'filename' => $entry,
+						'location' => $language_dir . '/' . $entry . '/General.php',
 					];
 				}
 				$dir->close();
-			}
-
-			// Avoid confusion when we have more than one English variant installed.
-			// Honestly, our default English version should always have been called "English (US)"
-			if (substr_count(implode(' ', array_keys(Utils::$context['languages'])), 'english') > 1 && Utils::$context['languages']['english']['name'] === 'English') {
-				Utils::$context['languages']['english']['name'] = 'English (US)';
 			}
 
 			// Let's cash in on this deal.
@@ -623,6 +690,89 @@ class Lang
 			self::$decimal_separator,
 			self::$thousands_separator,
 		);
+	}
+
+	/**
+	 * Given an SMF 2.x language name, returns the locale code for SMF 3.0+.
+	 *
+	 * This is used to support upgrading from SMF 2.1 and below.
+	 * This is also used to support compatibility for customizations.
+	 *
+	 * If $lang is already a supported locale, it will simply be returned.
+	 *
+	 * Languages can map to:
+	 * - null: No translation. Language is removed and no upgrade is possible.
+	 * - A locale: The locale code for the language.
+	 *
+	 * @param string $lang Language name
+	 * @return ?string Locale is returned if found, null otherwise.
+	 */
+	public static function getLocaleFromLanguageName(string $lang): ?string
+	{
+		// Already a locale?
+		// Note: we can't just do in_array($lang, self::LANG_TO_LOCALE) because
+		// new language packs added after 2.1 won't be in self::LANG_TO_LOCALE.
+		if (strlen($lang) === 2 || substr($lang, 2, 1) === '_') {
+			return $lang;
+		}
+
+		return self::LANG_TO_LOCALE[$lang] ?? null;
+	}
+
+	/**
+	 * A backward compability method for loading language files with old names.
+	 * This is used to support backward compatibility with mods from SMF 2.1.
+	 * Do not rely on this method to exist in future versions!
+	 *
+	 * @deprecated 3.0 Only used to support compatibility with old name formats.
+	 * @param array $attempts The attempts to be made; see self::load().
+	 * @return bool Whether we loaded anything or not.
+	 */
+	public static function loadOld(array $attempts): bool
+	{
+		if (empty($attempts)) {
+			return false;
+		}
+
+		$locale_to_lang = array_flip(self::LANG_TO_LOCALE);
+
+		$found = false;
+
+		/**
+		 * $file = [
+		 *    0 => Directory
+		 *    1 => File
+		 *    2 => Locale
+		 * ]
+		 */
+		foreach ($attempts as $k => $file) {
+			$oldLanguage = $locale_to_lang[$file[2]] ?? false;
+
+			if ($oldLanguage !== false && file_exists($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php')) {
+				require $file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php';
+
+				// Note that we found it.
+				$found = true;
+
+				// Load the strings into our properties.
+				foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
+					if (!isset(${$var})) {
+						continue;
+					}
+
+					self::${$var} = array_merge(self::${$var}, ${$var});
+
+					unset(${$var});
+				}
+
+				// Keep track of what we're up to, soldier.
+				if (!empty(Config::$db_show_debug)) {
+					Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php';
+				}
+			}
+		}
+
+		return $found;
 	}
 }
 

@@ -173,9 +173,9 @@ class TopicMerge implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static TopicMerge $obj;
 
 	/****************
 	 * Public methods
@@ -606,7 +606,7 @@ class TopicMerge implements ActionInterface
 
 			// Should be in the boardwide language.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index', Lang::$default);
+				Lang::load('General', Lang::$default);
 
 				// Make sure we catch both languages in the reason.
 				$reason_replacements += [
@@ -656,7 +656,7 @@ class TopicMerge implements ActionInterface
 
 			// Restore language strings to normal.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index');
+				Lang::load('General');
 			}
 		}
 
@@ -665,9 +665,9 @@ class TopicMerge implements ActionInterface
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			} else {
-				Lang::load('index', Lang::$default, false);
+				Lang::load('General', Lang::$default, false);
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('index');
+				Lang::load('General');
 			}
 
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
@@ -1228,54 +1228,54 @@ class TopicMerge implements ActionInterface
 			}
 
 			$this->boardTotals[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
-			$this->boardTotals[$row['id_board']]['posts'] += $row['num_replies'] + ($row['approved'] ? 1 : 0);
+			$this->boardTotals[$row['id_board']]['posts'] += (int) $row['num_replies'] + ($row['approved'] ? 1 : 0);
 
 			// In the case of making a redirect, the topic count goes up by one due to the redirect topic.
 			if (isset($_POST['postRedirect'])) {
 				$this->boardTotals[$row['id_board']]['topics']--;
 			}
 
-			$this->topic_data[$row['id_topic']] = [
-				'id' => $row['id_topic'],
-				'board' => $row['id_board'],
-				'poll' => $row['id_poll'],
-				'num_views' => $row['num_views'],
+			$this->topic_data[(int) $row['id_topic']] = [
+				'id' => (int) $row['id_topic'],
+				'board' => (int) $row['id_board'],
+				'poll' => (int) $row['id_poll'],
+				'num_views' => (int) $row['num_views'],
 				'subject' => $row['subject'],
 				'started' => [
 					'time' => Time::create('@' . $row['time_started'])->format(),
-					'timestamp' => $row['time_started'],
+					'timestamp' => (int) $row['time_started'],
 					'href' => empty($row['id_member_started']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member_started'],
 					'link' => empty($row['id_member_started']) ? $row['name_started'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_started'] . '">' . $row['name_started'] . '</a>',
 				],
 				'updated' => [
 					'time' => Time::create('@' . $row['time_updated'])->format(),
-					'timestamp' => $row['time_updated'],
+					'timestamp' => (int) $row['time_updated'],
 					'href' => empty($row['id_member_updated']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'],
 					'link' => empty($row['id_member_updated']) ? $row['name_updated'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['name_updated'] . '</a>',
 				],
-				'approved' => $row['approved'],
+				'approved' => (int) $row['approved'],
 			];
 
-			$this->num_views += $row['num_views'];
-			$this->boards[] = $row['id_board'];
+			$this->num_views += (int) $row['num_views'];
+			$this->boards[] = (int) $row['id_board'];
 
 			// If there's no poll, id_poll == 0...
 			if ($row['id_poll'] > 0) {
-				$this->polls[] = $row['id_poll'];
+				$this->polls[] = (int) $row['id_poll'];
 			}
 
 			// Store the id_topic with the lowest id_first_msg.
 			if (empty($this->firstTopic)) {
-				$this->firstTopic = $row['id_topic'];
+				$this->firstTopic = (int) $row['id_topic'];
 			}
 
 			// Lowest topic id gets selected as surviving topic id. We need to store this board so we can adjust the topic count (This one will not have a redirect topic)
-			if ($row['id_topic'] < $this->lowestTopicId || empty($this->lowestTopicId)) {
-				$this->lowestTopicId = $row['id_topic'];
-				$this->lowestTopicBoard = $row['id_board'];
+			if ((int) $row['id_topic'] < $this->lowestTopicId || empty($this->lowestTopicId)) {
+				$this->lowestTopicId = (int) $row['id_topic'];
+				$this->lowestTopicBoard = (int) $row['id_board'];
 			}
 
-			$this->is_sticky = max($this->is_sticky, $row['is_sticky']);
+			$this->is_sticky = max($this->is_sticky, (int) $row['is_sticky']);
 		}
 		Db::$db->free_result($request);
 	}

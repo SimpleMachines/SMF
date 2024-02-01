@@ -48,7 +48,7 @@ $mbname = 'My Community';
  *
  * The default language file set for the forum.
  */
-$language = 'english';
+$language = 'en_US';
 /**
  * @var string
  *
@@ -218,21 +218,21 @@ $packagesdir = dirname(__FILE__) . '/Packages';
 /**
  * @var string
  *
- * Path to the tasks directory.
+ * Path to the language directory.
  */
-$tasksdir = $sourcedir . '/Tasks';
+$languagesdir = dirname(__FILE__) . '/Languages';
 
 # Make sure the paths are correct... at least try to fix them.
-if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/SSI.php'))
 	$boarddir = dirname(__FILE__);
 if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
-if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
-	$tasksdir = $sourcedir . '/Tasks';
 if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 	$packagesdir = $boarddir . '/Packages';
 if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
+if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
+	$languagesdir = $boarddir . '/Languages';
 
 ######### Legacy Settings #########
 /**

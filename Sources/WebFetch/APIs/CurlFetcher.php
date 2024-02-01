@@ -254,7 +254,7 @@ class CurlFetcher extends WebFetchApi
 	{
 		$max_result = count($this->response) - 1;
 
-		// Just return a specifed area or the entire result?
+		// Just return a specified area or the entire result?
 		if (empty($area)) {
 			return $this->response[$max_result];
 		}

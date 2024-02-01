@@ -109,10 +109,10 @@ class Conversation
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$row = array_map('intval', $row);
 
-			// Did the curent user send this PM?
+			// Did the current user send this PM?
 			$from_me = $row['id_member_from'] == User::$me->id;
 
-			// Did the curent user receive this PM?
+			// Did the current user receive this PM?
 			// $from_me and $to_me can both be true if users send PMs to themselves.
 			$to_me = isset($row['id_member']) && $row['id_member'] == User::$me->id;
 
@@ -216,8 +216,8 @@ class Conversation
 	 *    Does nothing if $folder == 'sent'.
 	 * @param string $sort Instructions on how to sort the results.
 	 * @param bool $descending Whether to sort in descending order.
-	 * @param int $limit The max number of results to retreive. Zero = no limit.
-	 * @param int $offset Offset where we should begin retreiving results.
+	 * @param int $limit The max number of results to retrieve. Zero = no limit.
+	 * @param int $offset Offset where we should begin retrieving results.
 	 *    Does nothing if $limit == 0.
 	 * @return array Keys are head PMs, values are latest PMs.
 	 */

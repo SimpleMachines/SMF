@@ -43,9 +43,9 @@ class TopicMove2 implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static TopicMove2 $obj;
 
 	/****************
 	 * Public methods
@@ -152,9 +152,9 @@ class TopicMove2 implements ActionInterface
 						if (Lang::$default === User::$me->language) {
 							Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 						} else {
-							Lang::load('index', Lang::$default, false);
+							Lang::load('General', Lang::$default, false);
 							Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-							Lang::load('index');
+							Lang::load('General');
 						}
 						CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 					}
@@ -198,7 +198,7 @@ class TopicMove2 implements ActionInterface
 
 			// Should be in the boardwide language.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index', Lang::$default);
+				Lang::load('General', Lang::$default);
 
 				// Make sure we catch both languages in the reason.
 				$reason_replacements += [

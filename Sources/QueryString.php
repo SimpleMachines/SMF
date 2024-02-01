@@ -351,7 +351,7 @@ class QueryString
 	/**
 	 * Checks whether a $_REQUEST variable contains an expected value.
 	 *
-	 * The second paramenter, $var, gives the name of the $_REQUEST variable
+	 * The second parameter, $var, gives the name of the $_REQUEST variable
 	 * to check. For example, if $var == 'action', then $_REQUEST['action']
 	 * will be tested.
 	 *
@@ -431,14 +431,12 @@ class QueryString
 		if (
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
-				!Utils::$context['server']['is_cgi']
+				!Sapi::isCGI()
 				|| ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
-				Utils::$context['server']['is_apache']
-				|| Utils::$context['server']['is_lighttpd']
-				|| Utils::$context['server']['is_litespeed']
+				Sapi::isOS([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
 			// Let's do something special for session ids!

@@ -89,9 +89,9 @@ class Boards implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Boards $obj;
 
 	/****************
 	 * Public methods
@@ -373,7 +373,7 @@ class Boards implements ActionInterface
 				$catOptions['move_after'] = (int) $_POST['cat_order'];
 			}
 
-			// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+			// Try to get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 			$catOptions['cat_name'] = Utils::htmlspecialchars(strip_tags($_POST['cat_name']));
 			$catOptions['cat_desc'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['cat_desc'])));
 			$catOptions['is_collapsible'] = isset($_POST['collapse']);
@@ -684,7 +684,7 @@ class Boards implements ActionInterface
 				ErrorHandler::fatalLang('too_many_groups', false);
 			}
 
-			// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+			// Try to get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 			$boardOptions['board_name'] = Utils::htmlspecialchars(strip_tags($_POST['board_name']));
 			$boardOptions['board_description'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['desc'])));
 

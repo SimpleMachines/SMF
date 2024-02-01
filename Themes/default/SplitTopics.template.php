@@ -187,7 +187,7 @@ function template_select()
 				{
 					// By default, insert the element at the end of the list.
 					sInsertBeforeId = null;
-					// Loop through the list to try and find an item to insert after.
+					// Loop through the list to try to find an item to insert after.
 					oListItems = curList.getElementsByTagName("LI");
 					for (j = 0; j < oListItems.length; j++)
 					{

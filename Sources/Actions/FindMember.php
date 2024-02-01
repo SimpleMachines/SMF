@@ -40,9 +40,9 @@ class FindMember implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static FindMember $obj;
 
 	/****************
 	 * Public methods
@@ -67,7 +67,7 @@ class FindMember implements ActionInterface
 			$_REQUEST['start'] = 0;
 		}
 
-		// Allow the user to pass the input to be added to to the box.
+		// Allow the user to pass the input to be added to the box.
 		Utils::$context['input_box_name'] = isset($_REQUEST['input']) && preg_match('~^[\w-]+$~', $_REQUEST['input']) === 1 ? $_REQUEST['input'] : 'to';
 
 		// Take the delimiter over GET in case it's \n or something.

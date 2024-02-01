@@ -77,9 +77,9 @@ class Languages implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Languages $obj;
 
 	/****************
 	 * Public methods
@@ -709,7 +709,9 @@ class Languages implements ActionInterface
 		Db::$db->free_result($request);
 
 		// This will be where we look
-		$lang_dirs = [];
+		$lang_dirs = [
+			Config::$languagesdir,
+		];
 
 		// There are different kinds of strings
 		$string_types = ['txt', 'helptxt', 'editortxt', 'tztxt', 'txtBirthdayEmails'];
@@ -749,18 +751,27 @@ class Languages implements ActionInterface
 			}
 		}
 
-		$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $file_id . '.' . $lang_id . '.php' : '';
+		$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $lang_id . '/' . $file_id . '.php' : '';
 
 		// Now for every theme get all the files and stick them in context!
-		Utils::$context['possible_files'] = [];
+		Utils::$context['possible_files'] = [
+			0 => [
+				'id' => 0,
+				'name' => Lang::$txt['languages_default'],
+				'files' => [],
+			],
+		];
 
 		foreach ($lang_dirs as $theme => $theme_dir) {
+			if (!is_dir($theme_dir . '/' . $lang_id)) {
+				continue;
+			}
+
 			// Open it up.
-			$dir = dir($theme_dir);
+			$dir = dir($theme_dir . '/' . $lang_id);
 
 			while ($entry = $dir->read()) {
-				// We're only after the files for this language.
-				if (!preg_match('~^([A-Za-z]+)\.' . $lang_id . '\.php$~', $entry, $matches)) {
+				if ($entry === 'index.php' || !preg_match('/^(\w+)\.php$/', $entry, $matches)) {
 					continue;
 				}
 
@@ -809,20 +820,20 @@ class Languages implements ActionInterface
 			// Second, loop through the array to remove the files.
 			foreach ($lang_dirs as $curPath) {
 				foreach (Utils::$context['possible_files'][1]['files'] as $lang) {
-					if (file_exists($curPath . '/' . $lang['id'] . '.' . $lang_id . '.php')) {
-						unlink($curPath . '/' . $lang['id'] . '.' . $lang_id . '.php');
+					if (file_exists($curPath . '/' . $lang_id . '/' . $lang['id'] . '.php')) {
+						unlink($curPath . '/' . $lang_id . '/' . $lang['id'] . '.php');
 					}
 				}
 
 				// Check for the email template.
-				if (file_exists($curPath . '/EmailTemplates.' . $lang_id . '.php')) {
-					unlink($curPath . '/EmailTemplates.' . $lang_id . '.php');
+				if (file_exists($curPath . '/' . $lang_id . '/EmailTemplates.php')) {
+					unlink($curPath . '/' . $lang_id . '/EmailTemplates.php');
 				}
 			}
 
 			// Third, the agreement file.
-			if (file_exists(Config::$boarddir . '/agreement.' . $lang_id . '.txt')) {
-				unlink(Config::$boarddir . '/agreement.' . $lang_id . '.txt');
+			if (file_exists(Config::$languagesdir . '/' . $lang_id . '/agreement.txt')) {
+				unlink(Config::$languagesdir . '/' . $lang_id . '/agreement.txt');
 			}
 
 			// Fourth, a related images folder, if it exists...
@@ -853,7 +864,7 @@ class Languages implements ActionInterface
 
 			// Sixth, if we deleted the default language, set us back to english?
 			if ($lang_id == Lang::$default) {
-				Lang::$default = 'english';
+				Lang::$default = 'en_US';
 				Config::updateSettingsFile(['language' => Lang::$default]);
 			}
 
@@ -866,19 +877,20 @@ class Languages implements ActionInterface
 			'native_name' => 'string',
 			'lang_character_set' => 'string',
 			'lang_locale' => 'string',
-			'lang_rtl' => 'string',
+			'lang_rtl' => 'bool',
 			'lang_dictionary' => 'string',
 			'lang_recaptcha' => 'string',
 		];
 
 		$madeSave = false;
+		$general_filename = Config::$languagesdir . '/' . $lang_id . '/General.php';
 
 		if (!empty($_POST['save_main']) && !$current_file) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-mlang');
 
 			// Read in the current file.
-			$current_data = implode('', file(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php'));
+			$current_data = implode('', file($general_filename));
 
 			// Build the replacements. old => new
 			$replace_array = [];
@@ -889,19 +901,19 @@ class Languages implements ActionInterface
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
 
-			$fp = fopen(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php', 'w+');
+			$fp = fopen($general_filename, 'w+');
 			fwrite($fp, $current_data);
 			fclose($fp);
 
 			$madeSave = true;
 		}
 
-		// Quickly load index language entries.
+		// Quickly load General language entries.
 		$old_txt = Lang::$txt;
 
-		require Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php';
+		require $general_filename;
 
-		Utils::$context['lang_file_not_writable_message'] = is_writable(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php') ? '' : sprintf(Lang::$txt['lang_file_not_writable'], Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php');
+		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : sprintf(Lang::$txt['lang_file_not_writable'], $general_filename);
 
 		// Setup the primary settings context.
 		Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr($lang_id, ['_' => ' ', '-utf8' => '']));
@@ -909,7 +921,7 @@ class Languages implements ActionInterface
 		foreach ($primary_settings as $setting => $type) {
 			Utils::$context['primary_settings'][$setting] = [
 				'label' => str_replace('lang_', '', $setting),
-				'value' => Lang::$txt[$setting],
+				'value' => $type === 'bool' ? !empty(Lang::$txt[$setting]) : Lang::$txt[$setting],
 			];
 		}
 
@@ -1478,7 +1490,7 @@ class Languages implements ActionInterface
 
 	/**
 	 * Gets a list of available languages from the mother ship
-	 * Will return a subset if searching, otherwise all avaialble
+	 * Will return a subset if searching, otherwise all available
 	 *
 	 * @return array An array containing information about each available language
 	 */
@@ -1539,10 +1551,10 @@ class Languages implements ActionInterface
 	/**
 	 * Fetch the actual language information.
 	 * Callback for $listOptions['get_items']['function'] in editLanguages.
-	 * Determines which languages are available by looking for the "index.{language}.php" file.
+	 * Determines which languages are available by looking for the "{language}/General.php" file.
 	 * Also figures out how many users are using a particular language.
 	 *
-	 * @return array An array of information about currenty installed languages
+	 * @return array An array of information about currently installed languages
 	 */
 	public static function list_getLanguages(): array
 	{
@@ -1571,15 +1583,16 @@ class Languages implements ActionInterface
 		// Get the language files and data...
 		foreach (Utils::$context['languages'] as $lang) {
 			// Load the file to get the character set.
-			require Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang['filename'] . '.php';
+			// Note: its $txt still, not under Lang::$txt
+			require $lang['location'];
 
 			$languages[$lang['filename']] = [
 				'id' => $lang['filename'],
 				'count' => 0,
-				'char_set' => Lang::$txt['lang_character_set'],
-				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'english'),
-				'locale' => Lang::$txt['lang_locale'],
-				'name' => Utils::ucwords(strtr($lang['filename'], ['_' => ' ', '-utf8' => ''])),
+				'char_set' => $txt['lang_character_set'],
+				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en_US'),
+				'locale' => $txt['lang_locale'],
+				'name' => $lang['name'],
 			];
 		}
 

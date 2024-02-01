@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Sapi;
 use SMF\Utils;
 
 /**
@@ -33,9 +34,9 @@ class DisplayAdminFile implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static DisplayAdminFile $obj;
 
 	/****************
 	 * Public methods
@@ -46,7 +47,7 @@ class DisplayAdminFile implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Config::setMemoryLimit('32M');
+		Sapi::setMemoryLimit('32M');
 
 		if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('no_access', false);

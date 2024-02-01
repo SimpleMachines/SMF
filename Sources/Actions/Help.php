@@ -61,9 +61,9 @@ class Help implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Help $obj;
 
 	/****************
 	 * Public methods
@@ -92,7 +92,7 @@ class Help implements ActionInterface
 
 		Utils::$context['canonical_url'] = Config::$scripturl . '?action=help';
 
-		// Sections were are going to link...
+		// Sections we are going to link...
 		Utils::$context['manual_sections'] = [
 			'registering' => 'Registering',
 			'logging_in' => 'Logging_In',

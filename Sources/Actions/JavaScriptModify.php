@@ -45,9 +45,9 @@ class JavaScriptModify implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static JavaScriptModify $obj;
 
 	/****************
 	 * Public methods
@@ -231,9 +231,9 @@ class JavaScriptModify implements ActionInterface
 					if (Lang::$default === User::$me->language) {
 						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 					} else {
-						Lang::load('index', Lang::$default, false);
+						Lang::load('General', Lang::$default, false);
 						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-						Lang::load('index');
+						Lang::load('General');
 					}
 					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 				}

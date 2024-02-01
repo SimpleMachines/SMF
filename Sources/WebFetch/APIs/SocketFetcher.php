@@ -98,7 +98,7 @@ class SocketFetcher extends WebFetchApi
 	/**
 	 * @var bool
 	 *
-	 * Whether the response is transfered as chunked data.
+	 * Whether the response is transferred as chunked data.
 	 */
 	private bool $is_chunked = false;
 
@@ -298,7 +298,7 @@ class SocketFetcher extends WebFetchApi
 			do {
 				$line = fgets($this->fp, $this->buffer_size);
 
-				// Encounted a line feed, skip.
+				// Encountered a line feed, skip.
 				if ($line === $this->line_break) {
 					continue;
 				}
@@ -372,7 +372,7 @@ class SocketFetcher extends WebFetchApi
 	{
 		$max_result = count($this->response) - 1;
 
-		// Just return a specifed area or the entire result?
+		// Just return a specified area or the entire result?
 		if (is_null($area)) {
 			return $this->response[$max_result];
 		}

@@ -1163,7 +1163,7 @@ class Topic implements \ArrayAccess
 
 			if (Db::$db->num_rows($requestMembers) > 0) {
 				while ($rowMembers = Db::$db->fetch_assoc($requestMembers)) {
-					User::updateMemberData($rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
+					User::updateMemberData((int) $rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
 				}
 			}
 			Db::$db->free_result($requestMembers);
@@ -1190,9 +1190,9 @@ class Topic implements \ArrayAccess
 				$recycleTopics = [];
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					Utils::sapiResetTimeout();
+					Sapi::resetTimeout();
 
-					$recycleTopics[] = $row['id_topic'];
+					$recycleTopics[] = (int) $row['id_topic'];
 
 					// Set the id_previous_board for this topic - and make it not sticky.
 					Db::$db->query(
@@ -1210,7 +1210,7 @@ class Topic implements \ArrayAccess
 				Db::$db->free_result($request);
 
 				// Move the topics to the recycle board.
-				self::move($recycleTopics, Config::$modSettings['recycle_board']);
+				self::move($recycleTopics, (int) Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
 				require_once Config::$sourcedir . '/Actions/Moderation/Main.php';
@@ -1290,7 +1290,7 @@ class Topic implements \ArrayAccess
 		if ($updateBoardCount) {
 			// Decrease the posts/topics...
 			foreach ($adjustBoards as $stats) {
-				Utils::sapiResetTimeout();
+				Sapi::resetTimeout();
 
 				Db::$db->query(
 					'',
@@ -1383,7 +1383,7 @@ class Topic implements \ArrayAccess
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				Utils::sapiResetTimeout();
+				Sapi::resetTimeout();
 
 				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
 				$messages[] = $row['id_msg'];

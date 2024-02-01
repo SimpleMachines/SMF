@@ -156,7 +156,7 @@ function template_modify_language_entries()
 	echo '
 			<div class="windowbg">
 				<fieldset>
-					<legend>', Utils::$context['primary_settings']['name'], '</legend>
+					<legend>', Utils::$context['primary_settings']['native_name']['value'], '</legend>
 					<dl class="settings">';
 
 	foreach (Utils::$context['primary_settings'] as $setting => $setting_info)

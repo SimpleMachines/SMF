@@ -181,7 +181,7 @@ class SendDigests extends ScheduledTask
 
 		foreach ($langs as $lang) {
 			Lang::load('Post', $lang);
-			Lang::load('index', $lang);
+			Lang::load('General', $lang);
 			Lang::load('EmailTemplates', $lang);
 
 			$langtxt[$lang] = [
@@ -245,7 +245,7 @@ class SendDigests extends ScheduledTask
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . sprintf($langtxt[$lang]['topic_lines'], $topic['subject'], $board['name']);
+							$email['body'] .= "\n" . sprintf((string) $langtxt[$lang]['topic_lines'], $topic['subject'], $board['name']);
 						}
 					}
 				}
@@ -267,7 +267,7 @@ class SendDigests extends ScheduledTask
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . ($topic['count'] == 1 ? sprintf($langtxt[$lang]['replies_one'], $topic['subject']) : sprintf($langtxt[$lang]['replies_many'], $topic['count'], $topic['subject']));
+							$email['body'] .= "\n" . ($topic['count'] == 1 ? sprintf((string) $langtxt[$lang]['replies_one'], $topic['subject']) : sprintf((string) $langtxt[$lang]['replies_many'], $topic['count'], $topic['subject']));
 						}
 					}
 				}

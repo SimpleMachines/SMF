@@ -242,6 +242,12 @@ class Config
 	 */
 	public static $packagesdir;
 	/**
+	 * Path to the Packages directory.
+	 *
+	 * @var string
+	 */
+	public static $languagesdir;
+	/**
 	 * @var string
 	 *
 	 * Path to the tasks directory.
@@ -424,7 +430,7 @@ class Config
 				 * The default language file set for the forum.
 				 */
 				END,
-			'default' => 'english',
+			'default' => 'en_US',
 			'type' => 'string',
 		],
 		'boardurl' => [
@@ -759,15 +765,15 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
-		'tasksdir' => [
+		'languagesdir' => [
 			'text' => <<<'END'
 				/**
 				 * @var string
 				 *
-				 * Path to the tasks directory.
+				 * Path to the Languages directory.
 				 */
 				END,
-			'default' => '$sourcedir . \'/Tasks\'',
+			'default' => '__DIR__ . \'/Languages\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -775,18 +781,18 @@ class Config
 			'text' => <<<'END'
 
 				# Make sure the paths are correct... at least try to fix them.
-				if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+				if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/SSI.php'))
 					$boarddir = dirname(__FILE__);
 				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
-					$tasksdir = $sourcedir . '/Tasks';
 				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 					$packagesdir = $boarddir . '/Packages';
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 					$cachedir = $boarddir . '/cache';
+				if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
+					$languagesdir = $boarddir . '/Languages';
 				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'
@@ -919,7 +925,7 @@ class Config
 						'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
 					]);
 
-					self::${$var} = eval($default);
+					self::${$var} = eval($default . ';');
 				} else {
 					self::${$var} = $def['default'];
 				}
@@ -930,8 +936,10 @@ class Config
 		}
 
 		// Ensure there are no trailing slashes in these settings.
-		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir'] as $var) {
-			self::${$var} = rtrim(self::${$var}, '\\/');
+		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'cachedir', 'languagesdir'] as $var) {
+			if (!is_null(self::${$var})) {
+				self::${$var} = rtrim(self::${$var}, '\\/');
+			}
 		}
 
 		// Make sure the paths are correct... at least try to fix them.
@@ -944,12 +952,15 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
-		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/Tasks')) {
-			self::$tasksdir = self::$sourcedir . '/Tasks';
-		}
+		// As of 3.0, this is no longer changeable.
+		self::$tasksdir = self::$sourcedir . '/Tasks';
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
+		}
+
+		if ((empty(self::$languagesdir) || !is_dir(realpath(self::$languagesdir))) && is_dir(self::$boarddir . '/Languages')) {
+			self::$languagesdir = self::$boarddir . '/Languages';
 		}
 
 		// Make absolutely sure the cache directory is defined and writable.
@@ -988,8 +999,6 @@ class Config
 			eval('function smf_var_export(...$args) { return ' . __CLASS__ . '::varExport(...$args); }');
 			eval('function updateDbLastError(...$args) { return ' . __CLASS__ . '::updateDbLastError(...$args); }');
 			eval('function sm_temp_dir() { return ' . __CLASS__ . '::getTempDir(); }');
-			eval('function setMemoryLimit(...$args) { return ' . __CLASS__ . '::setMemoryLimit(...$args); }');
-			eval('function memoryReturnBytes(...$args) { return ' . __CLASS__ . '::memoryReturnBytes(...$args); }');
 			eval('function smf_seed_generator() { return ' . __CLASS__ . '::generateSeed(); }');
 			eval('function check_cron() {return ' . __CLASS__ . '::checkCron(); }');
 
@@ -1144,7 +1153,7 @@ class Config
 		if (!isset(self::$modSettings['board_manager_groups'])) {
 			$board_managers = User::groupsAllowedTo('manage_boards', null);
 			$board_managers = implode(',', $board_managers['allowed']);
-			Config::updateModSettings(['board_manager_groups' => $board_managers]);
+			self::updateModSettings(['board_manager_groups' => $board_managers]);
 		}
 
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
@@ -1152,22 +1161,22 @@ class Config
 
 		// Ensure the UUID for this forum has been set.
 		if (!isset(self::$modSettings['forum_uuid'])) {
-			Config::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
+			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
 		// Here to justify the name of this function. :P
 		// It should be added to the install and upgrade scripts.
 		// But since the converters need to be updated also. This is easier.
 		if (empty(self::$modSettings['currentAttachmentUploadDir'])) {
-			Config::updateModSettings([
+			self::updateModSettings([
 				'attachmentUploadDir' => Utils::jsonEncode([1 => self::$modSettings['attachmentUploadDir']]),
 				'currentAttachmentUploadDir' => 1,
 			]);
 		}
 
 		// Respect PHP's limits.
-		$post_max_kb = floor(self::memoryReturnBytes(ini_get('post_max_size')) / 1024);
-		$file_max_kb = floor(self::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+		$post_max_kb = floor(Sapi::memoryReturnBytes(ini_get('post_max_size')) / 1024);
+		$file_max_kb = floor(Sapi::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 		self::$modSettings['attachmentPostLimit'] = empty(self::$modSettings['attachmentPostLimit']) ? $post_max_kb : min(self::$modSettings['attachmentPostLimit'], $post_max_kb);
 		self::$modSettings['attachmentSizeLimit'] = empty(self::$modSettings['attachmentSizeLimit']) ? $file_max_kb : min(self::$modSettings['attachmentSizeLimit'], $file_max_kb);
 		self::$modSettings['attachmentNumPerPostLimit'] = !isset(self::$modSettings['attachmentNumPerPostLimit']) ? 4 : self::$modSettings['attachmentNumPerPostLimit'];
@@ -1395,6 +1404,11 @@ class Config
 	{
 		static $mtime;
 
+		// A list of settings from earlier versions of SMF that should be deleted if found.
+		$obsolete_settings = [
+			'tasksdir' => 'string',
+		];
+
 		// Should we try to unescape the strings?
 		if (empty($keep_quotes)) {
 			foreach ($config_vars as $var => $val) {
@@ -1497,6 +1511,11 @@ class Config
 			}
 		}
 
+		// Remove obsolete settings from earlier versions of SMF.
+		foreach ($obsolete_settings as $obs => $type) {
+			unset($new_settings_vars[$obs], $settings_vars[$obs], $config_vars[$obs]);
+		}
+
 		/*******************************
 		 * PART 2: Build substitutions *
 		 *******************************/
@@ -1505,23 +1524,23 @@ class Config
 			'string' =>
 				'(?:' .
 					// match the opening quotation mark...
-					'(["\'])' .
+					'(?P<quote>["\'])' .
 					// then any number of other characters or escaped quotation marks...
-					'(?:.(?!\\1)|\\\(?=\\1))*.?' .
+					'(?:.(?!(?P>quote))|\\\(?=(?P>quote)))*.?' .
 					// then the closing quotation mark.
-					'\\1' .
+					'(?P>quote)' .
 					// Maybe there's a second string concatenated to this one.
 					'(?:\s*\.\s*)*' .
 				')+',
 			// Some numeric values might have been stored as strings.
-			'integer' =>  '["\']?[+-]?\d+["\']?',
-			'double' =>  '["\']?[+-]?\d+\.\d+([Ee][+-]\d+)?["\']?',
+			'integer' =>  '(?P<quote>["\']?)[+-]?\d+(?P>quote)',
+			'double' =>  '(?P<quote>["\']?)[+-]?\d+\.\d+([Ee][+-]\d+)?(?P>quote)',
 			// Some boolean values might have been stored as integers.
-			'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\b\\1)',
+			'boolean' =>  '(?i:TRUE|FALSE|(?P<quote>["\']?)\b[01]\b(?P>quote))',
 			'NULL' =>  '(?i:NULL)',
 			// These use a PCRE subroutine to match nested arrays.
-			'array' =>  'array\s*(\((?' . '>[^()]|(?1))*\))',
-			'object' =>  '\w+::__set_state\(array\s*(\((?' . '>[^()]|(?1))*\))\)',
+			'array' =>  'array\s*(?P<parentheses>\((?' . '>[^()]|(?P>parentheses))*\))|(?P<brackets>\[(?' . '>[^\[\]]|(?P>brackets))*\])',
+			'object' =>  '\w+::__set_state\(array\s*(?P<parentheses>\((?' . '>[^()]|(?P>parentheses))*\))\)',
 		];
 
 		/*
@@ -1558,6 +1577,14 @@ class Config
 				'placeholder' => '',
 			],
 		];
+
+		// Remove obsolete settings from earlier versions of SMF.
+		foreach ($obsolete_settings as $obs => $type) {
+			$substitutions[$neg_index--] = [
+				'search_pattern' => '~(/\*\*\h*\n(\h*\*[^\n]*\n)*\h*\*/|(//[^\n]*\n)*)\s*\$' . preg_quote($obs) . '\s*=\s*(' . $type_regex[$type] . ');\n?~',
+				'placeholder' => '',
+			];
+		}
 
 		if (defined('SMF_INSTALLING')) {
 			$substitutions[$neg_index--] = [
@@ -2397,15 +2424,13 @@ class Config
 			$mtime = defined('TIME_START') ? (int) TIME_START : $_SERVER['REQUEST_TIME'];
 		}
 
-		if (!isset(self::$temp_dir)) {
-			self::getTempDir();
-		}
+		$temp_dir = self::getTempDir();
 
 		// Our temp files.
-		$temp_sfile = tempnam(self::$temp_dir . DIRECTORY_SEPARATOR, pathinfo($file, PATHINFO_FILENAME) . '.');
+		$temp_sfile = tempnam($temp_dir . DIRECTORY_SEPARATOR, pathinfo($file, PATHINFO_FILENAME) . '.');
 
 		if (!empty($backup_file)) {
-			$temp_bfile = tempnam(self::$temp_dir, pathinfo($backup_file, PATHINFO_FILENAME) . '.');
+			$temp_bfile = tempnam($temp_dir, pathinfo($backup_file, PATHINFO_FILENAME) . '.');
 		}
 
 		// We need write permissions.
@@ -2724,7 +2749,7 @@ class Config
 	 *
 	 * @param int $time The timestamp of the last DB error
 	 * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
-	 * @return bool True If we could succesfully put the file or not.
+	 * @return bool True If we could successfully put the file or not.
 	 */
 	public static function updateDbLastError(int $time, bool $update = true): bool
 	{
@@ -2841,84 +2866,6 @@ class Config
 		error_reporting($old_error_reporting);
 
 		return self::$temp_dir;
-	}
-
-	/**
-	 * Helper function to set the system memory to a needed value.
-	 *
-	 * - If the needed memory is greater than current, will attempt to get more.
-	 * - If $in_use is set to true, will also try to take the current memory
-	 *   usage in to account.
-	 *
-	 * @param string $needed The amount of memory to request. E.g.: '256M'.
-	 * @param bool $in_use Set to true to account for current memory usage.
-	 * @return bool Whether we have the needed amount memory.
-	 */
-	public static function setMemoryLimit(string $needed, bool $in_use = false): bool
-	{
-		// Everything in bytes.
-		$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
-		$memory_needed = self::memoryReturnBytes($needed);
-
-		// Should we account for how much is currently being used?
-		if ($in_use) {
-			$memory_needed += memory_get_usage();
-		}
-
-		// If more is needed, request it.
-		if ($memory_current < $memory_needed) {
-			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
-			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
-		}
-
-		$memory_current = max($memory_current, self::memoryReturnBytes(get_cfg_var('memory_limit')));
-
-		// Return success or not.
-		return (bool) ($memory_current >= $memory_needed);
-	}
-
-	/**
-	 * Helper function to convert memory string settings to bytes
-	 *
-	 * @param string $val The byte string, like '256M' or '1G'.
-	 * @return int The string converted to a proper integer in bytes.
-	 */
-	public static function memoryReturnBytes(string $val): int
-	{
-		if (is_integer($val)) {
-			return (int) $val;
-		}
-
-		// Separate the number from the designator.
-		$val = trim($val);
-		$num = intval(substr($val, 0, strlen($val) - 1));
-		$last = strtolower(substr($val, -1));
-
-		// Convert to bytes.
-		switch ($last) {
-			case 'g':
-				$num *= 1024;
-				// no break
-
-			case 'm':
-				$num *= 1024;
-				// no break
-
-			case 'k':
-				$num *= 1024;
-		}
-
-		return $num;
-	}
-
-	/**
-	 * Check if the connection is using HTTPS.
-	 *
-	 * @return bool Whether the connection is using HTTPS.
-	 */
-	public static function httpsOn(): bool
-	{
-		return ($_SERVER['HTTPS'] ?? null) == 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https' || ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? null) == 'on';
 	}
 
 	/**

@@ -79,9 +79,9 @@ class Reminder implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Reminder $obj;
 
 	/****************
 	 * Public methods
@@ -326,7 +326,7 @@ class Reminder implements ActionInterface
 		/*
 		 * Check if the secret answer is correct.
 		 *
-		 * In 2.1 this was changed to use hash_(verify_)passsword, same as the
+		 * In 2.1 this was changed to use hash_(verify_)password, same as the
 		 * password. The length of the hash is 60 characters.
 		 *
 		 * Prior to 2.1 this was a simple md5. The length of the hash is 32

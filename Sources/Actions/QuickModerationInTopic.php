@@ -28,7 +28,7 @@ use SMF\Utils;
  * Handles quick moderation actions from within a topic.
  *
  * Only deals with actions that work on individual messages, such as deleting,
- * restoring, and spliting into a new topic.
+ * restoring, and splitting into a new topic.
  */
 class QuickModerationInTopic implements ActionInterface
 {
@@ -51,9 +51,9 @@ class QuickModerationInTopic implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static QuickModerationInTopic $obj;
 
 	/****************
 	 * Public methods
@@ -115,7 +115,7 @@ class QuickModerationInTopic implements ActionInterface
 	}
 
 	/**
-	 * Redirects to restortopic action,
+	 * Redirects to restoretopic action,
 	 */
 	protected function restore(): void
 	{

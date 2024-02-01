@@ -191,7 +191,7 @@ class Like implements ActionInterface
 	 *
 	 * An instance of this class.
 	 */
-	protected static self $obj;
+	protected static Like $obj;
 
 	/****************
 	 * Public methods

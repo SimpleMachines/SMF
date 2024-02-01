@@ -39,9 +39,9 @@ class TopicMove implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static TopicMove $obj;
 
 	/****************
 	 * Public methods
@@ -136,9 +136,9 @@ class TopicMove implements ActionInterface
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
 		if (User::$me->language != Lang::$default) {
-			Lang::load('index', Lang::$default);
+			Lang::load('General', Lang::$default);
 			$temp = Lang::$txt['movetopic_default'];
-			Lang::load('index');
+			Lang::load('General');
 
 			Lang::$txt['movetopic_default'] = $temp;
 		}

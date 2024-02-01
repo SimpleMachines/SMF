@@ -126,7 +126,7 @@ class TaskRunner
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
+			define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
@@ -176,7 +176,7 @@ class TaskRunner
 			$this->cleanRequest();
 
 			// Load the basic Lang::$txt strings.
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications');
 		}
 	}
 
@@ -491,7 +491,7 @@ class TaskRunner
 		);
 
 		if ($row = Db::$db->fetch_assoc($request)) {
-			// We found one. Let's try and claim it immediately.
+			// We found one. Let's try to claim it immediately.
 			Db::$db->free_result($request);
 			Db::$db->query(
 				'',
@@ -843,6 +843,10 @@ class TaskRunner
 
 		return $next_time;
 	}
+}
+
+if (!empty(\SMF\Config::$backward_compatibility)) {
+	class_alias('\\SMF\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
 }
 
 ?>

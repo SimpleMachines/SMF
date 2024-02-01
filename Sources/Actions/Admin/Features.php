@@ -28,6 +28,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\TimeZone;
@@ -82,9 +83,9 @@ class Features implements ActionInterface
 	 * @var self
 	 *
 	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
+	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static self $obj;
+	protected static Features $obj;
 
 	/****************
 	 * Public methods
@@ -2008,9 +2009,8 @@ class Features implements ActionInterface
 	protected function pauseSignatureApplySettings(): void
 	{
 		// Try get more time...
-		Utils::sapiSetTimeLimit(600);
-
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Have we exhausted all the time we allowed?
 		if (time() - array_sum(explode(' ', Utils::$context['sig_start'])) < 3) {
