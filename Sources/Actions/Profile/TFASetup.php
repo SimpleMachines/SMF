@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
 use SMF\TOTP\Auth as Tfa;
@@ -72,7 +73,7 @@ class TFASetup implements ActionInterface
 		Theme::loadJavaScriptFile('qrcode.js', ['force_current' => false, 'validate' => true]);
 
 		// Check to ensure we're forcing SSL for authentication.
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 

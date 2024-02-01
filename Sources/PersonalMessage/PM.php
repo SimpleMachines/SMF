@@ -1497,7 +1497,7 @@ class PM implements \ArrayAccess
 		$replacements = [
 			'SUBJECT' => $subject,
 			'MESSAGE' => $message,
-			'SENDER' => Utils::htmlspecialcharsDecode($from['name']),
+			'SENDER' => Utils::htmlspecialcharsDecode((string) $from['name']),
 			'READLINK' => Config::$scripturl . '?action=pm;pmsg=' . $id_pm . '#msg' . $id_pm,
 			'REPLYLINK' => Config::$scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
 			'TOLIST' => implode(', ', $to_names),

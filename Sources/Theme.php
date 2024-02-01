@@ -2480,7 +2480,7 @@ class Theme
 	protected function sslRedirect(): void
 	{
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance)
-			&& !Config::httpsOn() && SMF != 'SSI') {
+			&& !Sapi::httpsOn() && SMF != 'SSI') {
 			if (isset($_GET['sslRedirect'])) {
 				Lang::load('Errors');
 				ErrorHandler::fatalLang('login_ssl_required', false);
@@ -2497,7 +2497,7 @@ class Theme
 	{
 		// Check to see if they're accessing it from the wrong place.
 		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
-			$detected_url = Config::httpsOn() ? 'https://' : 'http://';
+			$detected_url = Sapi::httpsOn() ? 'https://' : 'http://';
 
 			$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 
@@ -2732,7 +2732,7 @@ class Theme
 			'smf_smiley_sets_default' => '"' . Config::$modSettings['smiley_sets_default'] . '"',
 			'smf_avatars_url' => '"' . Config::$modSettings['avatar_url'] . '"',
 			'smf_scripturl' => '"' . Config::$scripturl . '"',
-			'smf_iso_case_folding' => Utils::$context['server']['iso_case_folding'] ? 'true' : 'false',
+			'smf_iso_case_folding' => Sapi::supportsIsoCaseFolding() ? 'true' : 'false',
 			'smf_charset' => '"' . Utils::$context['character_set'] . '"',
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',

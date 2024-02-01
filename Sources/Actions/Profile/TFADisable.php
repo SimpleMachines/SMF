@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 
@@ -54,7 +55,7 @@ class TFADisable implements ActionInterface
 		}
 
 		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
-		if (!empty(Config::$modSettings['force_ssl']) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 

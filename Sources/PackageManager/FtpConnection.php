@@ -39,9 +39,9 @@ class FtpConnection
 	public $last_message;
 
 	/**
-	 * @var bool Whether or not this is a passive connection
+	 * @var array{ip: string, port: int} Contains information about passive mode if used.
 	 */
-	public $pasv;
+	public array $pasv = [];
 
 	/**
 	 * Create a new FTP connection...

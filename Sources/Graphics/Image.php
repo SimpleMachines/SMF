@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Url;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
+use SMF\Sapi;
 
 // IMAGETYPE_AVIF was added in PHP 8.1
 if (!defined('IMAGETYPE_AVIF')) {
@@ -222,7 +223,7 @@ class Image
 			}
 
 			// At this point, $source contains raw image data. Save to a temp file.
-			$this->source = tempnam(Config::getTempDir(), '');
+			$this->source = tempnam(Sapi::getTempDir(), '');
 			file_put_contents($this->source, $source);
 
 			$this->is_temp = true;
@@ -562,7 +563,7 @@ class Image
 	{
 		// doing the old 'set it and hope' way?
 		if (empty(Config::$modSettings['attachment_thumb_memory'])) {
-			Config::setMemoryLimit('128M');
+			Sapi::setMemoryLimit('128M');
 
 			return true;
 		}
@@ -575,7 +576,7 @@ class Image
 		$needed_memory = ($sizes[0] * $sizes[1] * 5);
 
 		// if we need more, lets try to get it
-		return Config::setMemoryLimit((string) $needed_memory, true);
+		return Sapi::setMemoryLimit((string) $needed_memory, true);
 	}
 
 	/**
