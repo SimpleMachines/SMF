@@ -777,18 +777,6 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
-		'tasksdir' => [
-			'text' => <<<'END'
-				/**
-				 * @var string
-				 *
-				 * Path to the tasks directory.
-				 */
-				END,
-			'default' => '$sourcedir . \'/Tasks\'',
-			'raw_default' => true,
-			'type' => 'string',
-		],
 		[
 			'text' => <<<'END'
 
@@ -797,8 +785,6 @@ class Config
 					$boarddir = dirname(__FILE__);
 				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
-					$tasksdir = $sourcedir . '/Tasks';
 				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 					$packagesdir = $boarddir . '/Packages';
 				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
@@ -950,7 +936,7 @@ class Config
 		}
 
 		// Ensure there are no trailing slashes in these settings.
-		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir', 'languagesdir'] as $var) {
+		foreach (['boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'cachedir', 'languagesdir'] as $var) {
 			if (!is_null(self::${$var})) {
 				self::${$var} = rtrim(self::${$var}, '\\/');
 			}
@@ -966,9 +952,8 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
-		if ((empty(self::$tasksdir) || !is_dir(realpath(self::$tasksdir))) && is_dir(self::$sourcedir . '/Tasks')) {
-			self::$tasksdir = self::$sourcedir . '/Tasks';
-		}
+		// As of 3.0, this is no longer changeable.
+		self::$tasksdir = self::$sourcedir . '/Tasks';
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
@@ -1421,6 +1406,11 @@ class Config
 	{
 		static $mtime;
 
+		// A list of settings from earlier versions of SMF that should be deleted if found.
+		$obsolete_settings = [
+			'tasksdir' => 'string',
+		];
+
 		// Should we try to unescape the strings?
 		if (empty($keep_quotes)) {
 			foreach ($config_vars as $var => $val) {
@@ -1523,6 +1513,11 @@ class Config
 			}
 		}
 
+		// Remove obsolete settings from earlier versions of SMF.
+		foreach ($obsolete_settings as $obs => $type) {
+			unset($new_settings_vars[$obs], $settings_vars[$obs], $config_vars[$obs]);
+		}
+
 		/*******************************
 		 * PART 2: Build substitutions *
 		 *******************************/
@@ -1584,6 +1579,14 @@ class Config
 				'placeholder' => '',
 			],
 		];
+
+		// Remove obsolete settings from earlier versions of SMF.
+		foreach ($obsolete_settings as $obs => $type) {
+			$substitutions[$neg_index--] = [
+				'search_pattern' => '~(/\*\*\h*\n(\h*\*[^\n]*\n)*\h*\*/|(//[^\n]*\n)*)\s*\$' . preg_quote($obs) . '\s*=\s*(' . $type_regex[$type] . ');\n?~',
+				'placeholder' => '',
+			];
+		}
 
 		if (defined('SMF_INSTALLING')) {
 			$substitutions[$neg_index--] = [

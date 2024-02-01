@@ -1623,11 +1623,6 @@ function UpgradeOptions()
 		$changes['languagesdir'] = fixRelativePath(Config::$boarddir) . '/Languages';
 	}
 
-	// Add support for $tasksdir var.
-	if (empty(Config::$tasksdir)) {
-		$changes['tasksdir'] = fixRelativePath(Config::$sourcedir) . '/Tasks';
-	}
-
 	// Make sure we fix the language as well.
 	if (stristr(Config::$language, '-utf8')) {
 		$changes['language'] = str_ireplace('-utf8', '', Config::$language);
@@ -1963,34 +1958,36 @@ function DeleteUpgrade()
 		'upgradeData' => null,
 	];
 
+	clearstatcache();
+	$current_settings = Config::getCurrentSettings(filemtime(SMF_SETTINGS_FILE));
+
 	// Fix case of Tasks directory.
 	if (
-		is_dir(Config::$tasksdir)
-		&& basename(Config::$tasksdir) !== 'Tasks'
-		&& is_writable(Config::$tasksdir)
-		&& is_writable(dirname(Config::$tasksdir))
+		isset($current_settings['tasksdir'])
+		&& is_dir($current_settings['tasksdir'])
+		&& basename($current_settings['tasksdir']) !== 'Tasks'
+		&& is_writable($current_settings['tasksdir'])
+		&& is_writable(dirname($current_settings['tasksdir']))
 	) {
 		// Do 'tasks' and 'Tasks' both exist?
 		if (
-			!empty(fileinode(realpath(dirname(Config::$tasksdir) . '/tasks')))
-			&& !empty(fileinode(realpath(dirname(Config::$tasksdir) . '/Tasks')))
-			&& fileinode(realpath(Config::$tasksdir)) !== fileinode(realpath(dirname(Config::$tasksdir) . '/Tasks'))
+			!empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/tasks')))
+			&& !empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks')))
+			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks'))
 		) {
 			// Move everything in 'Tasks' to 'tasks'.
-			foreach (glob(realpath(dirname(Config::$tasksdir) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
-				rename($path, realpath(Config::$tasksdir) . DIRECTORY_SEPARATOR . basename($path));
+			foreach (glob(realpath(dirname($current_settings['tasksdir']) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
+				rename($path, realpath($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . basename($path));
 			}
 
 			// Now delete 'Tasks'.
-			rmdir(realpath(dirname(Config::$tasksdir) . '/Tasks'));
+			rmdir(realpath(dirname($current_settings['tasksdir']) . '/Tasks'));
 		}
 
 		// Rename 'tasks' to 'Tasks'.
 		// Do this in two steps to make sure it works on case insensitive file systems.
-		rename(Config::$tasksdir, dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp');
-		rename(dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks');
-
-		$changes['tasksdir'] = dirname(Config::$tasksdir) . '/Tasks';
+		rename($current_settings['tasksdir'], dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp');
+		rename(dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks');
 	}
 
 	// Are we in maintenance mode?
