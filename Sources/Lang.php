@@ -694,6 +694,10 @@ class Lang
 	 */
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
+		if (!is_numeric($number)) {
+			throw new ValueError();
+		}
+
 		if (is_string($number)) {
 			$number = $number + 0;
 		}
