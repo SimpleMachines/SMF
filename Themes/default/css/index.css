@@ -4613,7 +4613,7 @@ h3.catbg {
 	border-width: var(--catbg-border-width);
 	box-shadow: var(--catbg-box-shadow);
 	color: var(--catbg-color);
-	flex: 1 0 auto;
+	flex: 1;
 	font-family: var(--catbg-font-family);
 	font-size: var(--catbg-font-size);
 	font-weight: var(--catbg-font-weight);
@@ -4721,7 +4721,7 @@ h3.titlebg {
 	border-width: var(--titlebg-border-width);
 	box-shadow: var(--titlebg-box-shadow);
 	color: var(--titlebg-color);
-	flex: 1 0 auto;
+	flex: 1;
 	font-family: var(--titlebg-font-family);
 	font-size: var(--titlebg-font-size);
 	font-weight: var(--titlebg-font-weight);
@@ -4815,7 +4815,7 @@ h3.subbg {
 	border-width: var(--subbg-border-width);
 	box-shadow: var(--subbg-box-shadow);
 	color: var(--subbg-color);
-	flex: 1 0 auto;
+	flex: 1;
 	font-family: var(--subbg-font-family);
 	font-size: var(--subbg-font-size);
 	font-weight: var(--subbg-font-weight);
