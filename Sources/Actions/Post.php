@@ -1490,6 +1490,8 @@ class Post implements ActionInterface
 
 			foreach ($attachmentRestrictionTypes as $type) {
 				if (!empty(Config::$modSettings[$type])) {
+					Config::$modSettings[$type] = (int) Config::$modSettings[$type];
+
 					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt('attach_restrict_' . $type, [round(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2), 'unit' => Config::$modSettings[$type] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']]);
 
 					// Show the max number of attachments if not 0.
