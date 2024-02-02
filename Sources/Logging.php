@@ -823,24 +823,66 @@ class Logging
 		$temp = ob_get_contents();
 		ob_clean();
 
-		echo preg_replace('~</body>\s*</html>~', '', $temp), '
-	<div class="smalltext" style="text-align: left; margin: 1ex;">
-		', Lang::$txt['debug_browser'], Utils::$context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))), ')</em><br>
-		', Lang::$txt['debug_templates'], count(Utils::$context['debug']['templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['templates']), '</em>.<br>
-		', Lang::$txt['debug_subtemplates'], count(Utils::$context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sub_templates']), '</em>.<br>
-		', Lang::$txt['debug_language_files'], count(Utils::$context['debug']['language_files']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['language_files']), '</em>.<br>
-		', Lang::$txt['debug_stylesheets'], count(Utils::$context['debug']['sheets']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sheets']), '</em>.<br>
-		', Lang::$txt['debug_hooks'], empty(Utils::$context['debug']['hooks']) ? 0 : count(Utils::$context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']), '</em></span>)', '<br>
-		', (isset(Utils::$context['debug']['instances']) ? (Lang::$txt['debug_instances'] . (empty(Utils::$context['debug']['instances']) ? 0 : count(Utils::$context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys(Utils::$context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
-		', Lang::$txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), Lang::$txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
+		$debug_info = [
+			Lang::getTxt(
+				'debug_browser',
+				[
+					'browser_body_id' => Utils::$context['browser_body_id'],
+					'additional_info' => '(<em>' . implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_templates',
+				[
+					'num' => count(Utils::$context['debug']['templates']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['templates']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_subtemplates',
+				[
+					'num' => count(Utils::$context['debug']['sub_templates']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sub_templates']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_language_files',
+				[
+					'num' => count(Utils::$context['debug']['language_files']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['language_files']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_stylesheets',
+				[
+					'num' => count(Utils::$context['debug']['sheets']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sheets']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_hooks',
+				[
+					'num' => count(Utils::$context['debug']['hooks'] ?? []),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']) . '</em></span>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_files_included',
+				[
+					'num' => count($files),
+					'size' => round($total_size / 1024),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_include_info" style="display: none;"><em>' . implode('</em>, <em>', $files) . '</em></span>)',
+				],
+			),
+		];
 
 		if (function_exists('memory_get_peak_usage')) {
-			echo Lang::$txt['debug_memory_use'], ceil(memory_get_peak_usage() / 1024), Lang::$txt['debug_kb'], '<br>';
+			$debug_info[] = Lang::getTxt('debug_memory_use', ['size' => ceil(memory_get_peak_usage() / 1024)]);
 		}
 
 		// What tokens are active?
 		if (isset($_SESSION['token'])) {
-			echo Lang::$txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
+			$debug_info[] = Lang::getTxt('debug_tokens', ['additional_info' => '<em>' . implode('</em>, <em>', array_keys($_SESSION['token'])) . '</em>']);
 		}
 
 		if (!empty(CacheApi::$enable) && !empty(CacheApi::$hits)) {
@@ -863,10 +905,27 @@ class Logging
 				$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 			}
 
-			echo '
-		', Lang::$txt['debug_cache_hits'], CacheApi::$count_hits, ': ', Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s]), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-		', Lang::$txt['debug_cache_misses'], CacheApi::$count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
+			$debug_info[] = Lang::getTxt(
+				'debug_cache_hits',
+				[
+					'num' => CacheApi::$count_hits,
+					'seconds_bytes_total' => Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s]),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_info" style="display: none;"><em>' . implode('</em>, <em>', $entries) . '</em></span>)',
+				],
+			);
+
+			$debug_info[] = Lang::getTxt(
+				'debug_cache_misses',
+				[
+					'num' => CacheApi::$count_misses,
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_misses_info" style="display: none;"><em>' . implode('</em>, <em>', $missed_entries) . '</em></span>)',
+				],
+			);
 		}
+
+		echo preg_replace('~</body>\s*</html>~', '', $temp), '
+	<div class="smalltext" style="text-align: left; margin: 1ex;">
+		', implode("<br>\n\t\t", $debug_info), '<br>';
 
 		echo '
 		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>

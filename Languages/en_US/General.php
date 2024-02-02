@@ -996,16 +996,15 @@ $txt['prompt_text_img'] = 'Enter image location';
 $txt['autosuggest_delete_item'] = 'Delete Item';
 
 // Debug related - when Config::$db_show_debug is true.
-$txt['debug_templates'] = 'Templates: ';
-$txt['debug_subtemplates'] = 'Sub templates: ';
-$txt['debug_language_files'] = 'Language files: ';
-$txt['debug_stylesheets'] = 'Style sheets: ';
-$txt['debug_files_included'] = 'Files included: ';
-$txt['debug_memory_use'] = 'Memory used: ';
-$txt['debug_kb'] = 'KB.';
+$txt['debug_templates'] = 'Templates: {num, number, integer} {additional_info}';
+$txt['debug_subtemplates'] = 'Sub templates: {num, number, integer} {additional_info}';
+$txt['debug_language_files'] = 'Language files: {num, number, integer} {additional_info}';
+$txt['debug_stylesheets'] = 'Style sheets: {num, number, integer} {additional_info}';
+$txt['debug_files_included'] = 'Files included: {num, number, integer} - {size, number, integer} KB {additional_info}';
+$txt['debug_memory_use'] = 'Memory used: {size, number, integer} KB';
 $txt['debug_show'] = 'show';
-$txt['debug_cache_hits'] = 'Cache hits: ';
-$txt['debug_cache_misses'] = 'Cache misses: ';
+$txt['debug_cache_hits'] = 'Cache hits: {num, number, integer} - {seconds_bytes_total} {additional_info}';
+$txt['debug_cache_misses'] = 'Cache misses: {num, number, integer} {additional_info}';
 $txt['debug_cache_seconds_bytes'] = '{seconds, number, integer}s - {bytes, plural,
 	one {# byte}
 	other {# bytes}
@@ -1036,10 +1035,9 @@ $txt['debug_query_which_took_at'] = '{0, plural,
 } at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
-$txt['debug_tokens'] = 'Tokens: ';
-$txt['debug_browser'] = 'Browser ID: ';
-$txt['debug_hooks'] = 'Hooks called: ';
-$txt['debug_instances'] = 'Instances created: ';
+$txt['debug_tokens'] = 'Tokens: {additional_info}';
+$txt['debug_browser'] = 'Browser ID: {browser_body_id} {additional_info}';
+$txt['debug_hooks'] = 'Hooks called: {num, number, integer} {additional_info}';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 
 // Inline attachments messages.
