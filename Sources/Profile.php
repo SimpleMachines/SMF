@@ -842,7 +842,7 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_extra',
 				'is_dummy' => true,
 				'preload' => function () {
-					Lang::load('Settings');
+					Lang::load('ThemeStrings');
 
 					Utils::$context['allow_no_censored'] = false;
 
@@ -1194,10 +1194,15 @@ class Profile extends User implements \ArrayAccess
 	{
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
 
+		// If its not a Url, make it one.
+		if (!$this->avatar['url'] instanceof Url) {
+			$this->avatar['url'] = new Url($this->avatar['url']);
+		}
+
 		// Default context.
 		$this->formatted['avatar'] += [
-			'custom' => stristr($this->avatar['url'], 'http://') || stristr($this->avatar['url'], 'https://') ? $this->avatar['url'] : 'http://',
-			'selection' => $this->avatar['url'] == '' || (stristr($this->avatar['url'], 'http://') || stristr($this->avatar['url'], 'https://')) ? '' : $this->avatar['url'],
+			'custom' => $this->avatar['url']->isWebsite() ? (string) $this->avatar['url'] : 'http://',
+			'selection' => empty($this->avatar['url']) || !$this->avatar['url']->isWebsite() ? '' : (string) $this->avatar['url'],
 			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_server_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_upload_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_remote_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
@@ -1208,20 +1213,22 @@ class Profile extends User implements \ArrayAccess
 		if (
 			$this->formatted['avatar']['allow_gravatar']
 			&& (
-				stristr($this->avatar['url'], 'gravatar://')
+				$this->avatar['url']->isGravatar()
 				|| !empty(Config::$modSettings['gravatarOverride'])
 			)
 		) {
 			$this->formatted['avatar'] += [
 				'choice' => 'gravatar',
 				'server_pic' => 'blank.png',
-				'external' => $this->avatar['url'] == 'gravatar://' || empty(Config::$modSettings['gravatarAllowExtraEmail']) || (!empty(Config::$modSettings['gravatarOverride']) && substr($this->avatar['url'], 0, 11) != 'gravatar://') ? $this->email : substr($this->avatar['url'], 11),
+				'external' =>
+					empty(Config::$modSettings['gravatarAllowExtraEmail'])
+					|| (!empty(Config::$modSettings['gravatarOverride']) && substr((string) $this->avatar['url'], 0, 11) !== 'gravatar://') ? $this->email : substr($this->avatar['original_url'], 11),
 			];
 			$this->formatted['avatar']['href'] = self::getGravatarUrl($this->formatted['avatar']['external']);
 		}
 		// An attachment?
 		elseif (
-			$this->avatar['original_url'] == ''
+			$this->avatar['url']->isValid()
 			&& $this->avatar['id_attach'] > 0
 			&& $this->formatted['avatar']['allow_upload']
 		) {
@@ -1237,10 +1244,9 @@ class Profile extends User implements \ArrayAccess
 		// Use "avatar_original" here so we show what the user entered even if the image proxy is enabled
 		elseif (
 			$this->formatted['avatar']['allow_external']
-			&& (
-				stristr($this->avatar['original_url'], 'http://')
-				|| stristr($this->avatar['original_url'], 'https://')
-			)) {
+			&& $this->avatar['url']->isWebsite()
+			&& stripos($this->avatar['original_url'], 'http') === 0
+			) {
 			$this->formatted['avatar'] += [
 				'choice' => 'external',
 				'server_pic' => 'blank.png',
@@ -1249,8 +1255,9 @@ class Profile extends User implements \ArrayAccess
 		}
 		// Server stored image?
 		elseif (
-			$this->avatar['url'] != ''
-			&& $this->avatar['original_url'] != ''
+			$this->avatar['url']->isValid()
+			&& stripos($this->avatar['original_url'], 'http') === false
+			&& $this->avatar['original_url'] !== ''
 			&& $this->formatted['avatar']['allow_server_stored']
 			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['original_url'])
 		) {
@@ -2712,7 +2719,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Is it too big?
-		if ($image->shouldResize(Config::$modSettings['avatar_max_width_external'] ?? 0, Config::$modSettings['avatar_max_height_external'] ?? 0)) {
+		if ($image->shouldResize((int) Config::$modSettings['avatar_max_width_external'] ?? 0, (int) Config::$modSettings['avatar_max_height_external'] ?? 0)) {
 			switch (Config::$modSettings['avatar_action_too_large']) {
 				case 'option_download_and_resize':
 					return $this->setAvatarAttachment($image->source);

@@ -273,7 +273,7 @@ class MessageIndex implements ActionInterface
 		// Does the theme support message previews?
 		if (!empty(Config::$modSettings['preview_characters'])) {
 			// Limit them to Config::$modSettings['preview_characters'] characters
-			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], $row['first_smileys'], $row['id_first_msg']), ['<br>' => '&#10;']));
+			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], (bool) $row['first_smileys'], (int) $row['id_first_msg']), ['<br>' => '&#10;']));
 
 			if (Utils::entityStrlen($row['first_body']) > Config::$modSettings['preview_characters']) {
 				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
@@ -288,7 +288,7 @@ class MessageIndex implements ActionInterface
 				$row['last_subject'] = $row['first_subject'];
 				$row['last_body'] = $row['first_body'];
 			} else {
-				$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], $row['last_smileys'], $row['id_last_msg']), ['<br>' => '&#10;']));
+				$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], (bool) $row['last_smileys'], (int) $row['id_last_msg']), ['<br>' => '&#10;']));
 
 				if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters']) {
 					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';

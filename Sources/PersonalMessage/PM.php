@@ -1511,7 +1511,7 @@ class PM implements \ArrayAccess
 			// Censor and parse BBC in the receiver's language. Only do each language once.
 			if (empty($notification_texts[$lang])) {
 				if ($lang != User::$me->language) {
-					Lang::load('General+Modifications', $lang, false);
+					Lang::load('General+Modifications+ThemeStrings', $lang, false);
 				}
 
 				$notification_texts[$lang]['subject'] = $subject;
@@ -1529,7 +1529,7 @@ class PM implements \ArrayAccess
 				}
 
 				if ($lang != User::$me->language) {
-					Lang::load('General+Modifications', User::$me->language, false);
+					Lang::load('General+Modifications+ThemeStrings', User::$me->language, false);
 				}
 			}
 

@@ -1096,7 +1096,7 @@ class User implements \ArrayAccess
 	{
 		static $loadedLanguages = [];
 
-		Lang::load('General+Modifications');
+		Lang::load('General+Modifications+ThemeStrings');
 
 		if (empty(Config::$modSettings['displayFields'])) {
 			$display_custom_fields = false;
@@ -2816,9 +2816,6 @@ class User implements \ArrayAccess
 		// Set a nice default var.
 		$image = '';
 
-		// Make this a string for now. SMF will convert it (back) to a Url object later if needed.
-		$data['avatar'] ??= (string) $data['avatar'];
-
 		// Gravatar has been set as mandatory!
 		if (!empty(Config::$modSettings['gravatarEnabled']) && !empty(Config::$modSettings['gravatarOverride'])) {
 			if (!empty(Config::$modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://')) {
@@ -2829,14 +2826,18 @@ class User implements \ArrayAccess
 		}
 		// Look if the user has a gravatar field or has set an external url as avatar.
 		else {
+			if (!$data['avatar'] instanceof Url) {
+				$data['avatar'] = new Url($data['avatar']);
+			}
+
 			// So it's stored in the member table?
-			if (!empty($data['avatar'])) {
+			if ((string) $data['avatar'] !== '') {
 				// Gravatar.
-				if (stristr($data['avatar'], 'gravatar://')) {
-					if ($data['avatar'] == 'gravatar://') {
+				if ($data['avatar']->isGravatar()) {
+					if ((string) $data['avatar'] === 'gravatar://') {
 						$image = self::getGravatarUrl($data['email']);
 					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
-						$image = self::getGravatarUrl(Utils::entitySubstr($data['avatar'], 11));
+						$image = self::getGravatarUrl(Utils::entitySubstr((string) $data['avatar'], 11));
 					}
 				}
 				// External url.
@@ -2860,12 +2861,13 @@ class User implements \ArrayAccess
 			}
 		}
 
+
 		IntegrationHook::call('integrate_set_avatar_data', [&$image, &$data]);
 
 		// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
 		if (!empty($image)) {
 			return [
-				'name' => !empty($data['avatar']) ? $data['avatar'] : '',
+				'name' => !empty($data['avatar']) ? (string) $data['avatar'] : '',
 				'image' => '<img class="avatar" src="' . $image . '" alt="">',
 				'href' => $image,
 				'url' => $image,
@@ -4714,7 +4716,7 @@ class User implements \ArrayAccess
 		$this->avatar = array_merge(
 			[
 				'original_url' => $profile['avatar_original'] ?? '',
-				'url' => $profile['avatar'] ?? '',
+				'url' => (string) ($profile['avatar'] ?? ''),
 				'filename' => $profile['filename'] ?? '',
 				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == 1,
 				'id_attach' => $profile['id_attach'] ?? 0,

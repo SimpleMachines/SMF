@@ -522,69 +522,11 @@ class Login2 implements ActionInterface
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = [];
 
-		// None of the below cases will be used most of the time (because the salt is normally set.)
-		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
-			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
-			$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
-			$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
-			$other_passwords[] = md5($_POST['passwrd']);
-			$other_passwords[] = sha1($_POST['passwrd']);
-			$other_passwords[] = hash_hmac('md5', $_POST['passwrd'], strtolower(User::$profiles[User::$my_id]['member_name']));
-			$other_passwords[] = md5($_POST['passwrd'] . strtolower(User::$profiles[User::$my_id]['member_name']));
-			$other_passwords[] = md5(md5($_POST['passwrd']));
-			$other_passwords[] = $_POST['passwrd'];
-			$other_passwords[] = crypt($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
-
-			// This one is a strange one... MyPHP, crypt() on the MD5 hash.
-			$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
-
-			// Snitz style - SHA-256.
-			if (strlen(User::$profiles[User::$my_id]['passwd']) == 64 && function_exists('mhash') && defined('MHASH_SHA256')) {
-				$other_passwords[] = hash('sha256', $_POST['passwrd']);
-			}
-
-			// phpBB3.
-			$other_passwords[] = $this->phpBB3_password_check($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
-
-			// APBoard 2 Login Method.
-			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
-		}
-		// If the salt is set let's try some other options
-		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
-			// PHPBB 3 check this function exists in PHP 5.5 or higher
-			if (function_exists('password_verify')) {
-				$other_passwords[] = password_verify($_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
-			}
-
-			// PHP-Fusion
-			$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
-
-			// MyBB
-			$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
-		}
-		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
-		elseif (!empty(Config::$modSettings['enable_password_conversion']) && strlen(User::$profiles[User::$my_id]['passwd']) == 32) {
-			// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
-			$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes(User::$profiles[User::$my_id]['password_salt']));
-
-			// Hmm.. p'raps it's Invision 2 style?
-			$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
-
-			// Some common md5 ones.
-			$other_passwords[] = md5(User::$profiles[User::$my_id]['password_salt'] . $_POST['passwrd']);
-			$other_passwords[] = md5($_POST['passwrd'] . User::$profiles[User::$my_id]['password_salt']);
-		} elseif (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
+		// SMF 1.1 and 2.0 password styles.
+		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
 			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
 			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
-
-			// BurningBoard3 style of hashing.
-			if (!empty(Config::$modSettings['enable_password_conversion'])) {
-				$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd'])));
-			}
-
-			// PunBB
-			$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if (Utils::$context['character_set'] == 'UTF-8' && !empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
@@ -597,6 +539,78 @@ class Login2 implements ActionInterface
 				if (empty($other_passwords['iconv']) && function_exists('mb_convert_encoding')) {
 					$other_passwords[] = sha1(strtolower(mb_convert_encoding(User::$profiles[User::$my_id]['member_name'], 'UTF-8', Config::$modSettings['previousCharacterSet'])) . Utils::htmlspecialcharsDecode(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
 				}
+			}
+		}
+
+		// None of the below cases will be used most of the time (because the salt is normally set.)
+		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
+			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
+			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+				case 13:
+					$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
+					$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
+					$other_passwords[] = crypt($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
+
+					// This one is a strange one... MyPHP, crypt() on the MD5 hash.
+					$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
+					break;
+
+				case 32:
+					$other_passwords[] = md5($_POST['passwrd']);
+					$other_passwords[] = hash_hmac('md5', $_POST['passwrd'], strtolower(User::$profiles[User::$my_id]['member_name']));
+					$other_passwords[] = md5($_POST['passwrd'] . strtolower(User::$profiles[User::$my_id]['member_name']));
+					$other_passwords[] = md5(md5($_POST['passwrd']));
+
+					// APBoard 2 Login Method.
+					$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
+					break;
+
+				case 34:
+					// phpBB3.
+					$other_passwords[] = $this->phpBB3_password_check($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
+					break;
+
+				case 40:
+					$other_passwords[] = sha1($_POST['passwrd']);
+					break;
+
+				case 64:
+					// Snitz style - SHA-256.
+					$other_passwords[] = hash('sha256', $_POST['passwrd']);
+					break;
+			}
+
+			$other_passwords[] = $_POST['passwrd'];
+		}
+		// If the salt is set let's try some other options
+		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
+			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+				case 32:
+					// MyBB
+					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
+
+					// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
+					$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes(User::$profiles[User::$my_id]['password_salt']));
+
+					// Hmm.. p'raps it's Invision 2 style?
+					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
+
+					// Some common md5 ones.
+					$other_passwords[] = md5(User::$profiles[User::$my_id]['password_salt'] . $_POST['passwrd']);
+					$other_passwords[] = md5($_POST['passwrd'] . User::$profiles[User::$my_id]['password_salt']);
+					break;
+
+				case 40:
+					// BurningBoard3 style of hashing.
+					$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd'])));
+					// PunBB
+					$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd']));
+					break;
+
+				case 64:
+					// PHP-Fusion
+					$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
+					break;
 			}
 		}
 

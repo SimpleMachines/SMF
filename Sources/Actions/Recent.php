@@ -204,7 +204,7 @@ class Recent implements ActionInterface
 		Lang::censorText($row['subject']);
 		Lang::censorText($row['body']);
 
-		$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled']), ['<br>' => '&#10;']));
+		$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled']), ['<br>' => '&#10;']));
 
 		if (Utils::entityStrlen($row['body']) > 128) {
 			$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
