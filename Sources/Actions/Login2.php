@@ -553,7 +553,7 @@ class Login2 implements ActionInterface
 
 					// This one is a strange one... MyPHP, crypt() on the MD5 hash.
 					$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
-				break;
+					break;
 
 				case 32:
 					$other_passwords[] = md5($_POST['passwrd']);
@@ -563,21 +563,21 @@ class Login2 implements ActionInterface
 
 					// APBoard 2 Login Method.
 					$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
-				break;
+					break;
 
 				case 34:
 					// phpBB3.
 					$other_passwords[] = $this->phpBB3_password_check($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
-				break;
+					break;
 
 				case 40:
 					$other_passwords[] = sha1($_POST['passwrd']);
-				break;
+					break;
 
 				case 64:
 					// Snitz style - SHA-256.
 					$other_passwords[] = hash('sha256', $_POST['passwrd']);
-				break;
+					break;
 			}
 
 			$other_passwords[] = $_POST['passwrd'];
@@ -598,19 +598,19 @@ class Login2 implements ActionInterface
 					// Some common md5 ones.
 					$other_passwords[] = md5(User::$profiles[User::$my_id]['password_salt'] . $_POST['passwrd']);
 					$other_passwords[] = md5($_POST['passwrd'] . User::$profiles[User::$my_id]['password_salt']);
-				break;
+					break;
 
 				case 40:
 					// BurningBoard3 style of hashing.
 					$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd'])));
 					// PunBB
 					$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd']));
-				break;
+					break;
 
 				case 64:
 					// PHP-Fusion
 					$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
-				break;
+					break;
 			}
 		}
 
