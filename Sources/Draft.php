@@ -505,7 +505,7 @@ class Draft
 			Lang::censorText($row['subject']);
 
 			// BBC-ilize the message.
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], 'draft' . $row['id_draft']);
 
 			// And the array...
 			Utils::$context['drafts'][$counter += $reverse ? -1 : 1] = [
