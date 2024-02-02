@@ -85,8 +85,6 @@ $txt['minutes_short'] = 'mins';
 $txt['hour_short'] = 'hr';
 // Short form of hours
 $txt['hours_short'] = 'hrs';
-// Decimal sign
-$txt['decimal_sign'] = '.';
 
 $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';

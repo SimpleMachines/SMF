@@ -1341,7 +1341,7 @@ class Calendar implements ActionInterface
 				pm: "' . strtolower(Lang::$txt['time_pm']) . '",
 				AM: "' . strtoupper(Lang::$txt['time_am']) . '",
 				PM: "' . strtoupper(Lang::$txt['time_pm']) . '",
-				decimal: "' . Lang::$txt['decimal_sign'] . '",
+				decimal: "' . Lang::$txt['decimal_separator'] . '",
 				mins: "' . Lang::$txt['minutes_short'] . '",
 				hr: "' . Lang::$txt['hour_short'] . '",
 				hrs: "' . Lang::$txt['hours_short'] . '",
