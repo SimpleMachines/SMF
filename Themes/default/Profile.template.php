@@ -2355,7 +2355,8 @@ function template_issueWarning()
 				effectText = "', $text, '";';
 
 	echo '
-			setInnerHTML(document.getElementById(\'cur_level_div\'), slideAmount + \'% (\' + effectText + \')\');
+			let percent_format = "', Lang::getTxt('percent_format'), '";
+			setInnerHTML(document.getElementById(\'cur_level_div\'), percent_format.replace("{0}", slideAmount) + \' (\' + effectText + \')\');
 		}
 	</script>';
 
@@ -2397,9 +2398,9 @@ function template_issueWarning()
 	echo '
 				</dt>
 				<dd>
-					0% <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> 100%
+					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> ', Lang::formatText('{0, number, :: percent}', [100]), '
 					<div class="clear_left">
-						', Lang::$txt['profile_warning_impact'], ': <span id="cur_level_div">', Utils::$context['member']['warning'], '% (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
+						', Lang::$txt['profile_warning_impact'], ': <span id="cur_level_div">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
 					</div>
 				</dd>';
 
