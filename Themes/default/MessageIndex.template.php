@@ -59,7 +59,7 @@ function template_main()
 				', Lang::getTxt(
 					'who_viewing_board',
 					[
-						'list_of_viewers' => Lang::sentenceList($list_of_viewers),
+						'list_of_viewers' => Lang::sentenceList(array_values($list_of_viewers)),
 						'num_viewing' => count(Utils::$context['view_members_list'] ?? []) + (int) (Utils::$context['view_num_guests'] ?? 0) + (int) (Utils::$context['view_num_hidden'] ?? 0),
 					],
 				), '
