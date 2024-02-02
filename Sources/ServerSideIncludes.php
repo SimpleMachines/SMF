@@ -1909,6 +1909,8 @@ class ServerSideIncludes
 			echo '
 				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
 		}
+
+		return null;
 	}
 
 	/**
@@ -1944,6 +1946,8 @@ class ServerSideIncludes
 
 		echo '
 			', implode(', ', (array) $return['calendar_holidays']);
+
+		return null;
 	}
 
 	/**
