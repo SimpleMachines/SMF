@@ -91,6 +91,14 @@ class Url implements \Stringable
 	 */
 	public string $fragment;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	 public const SCHEMA_HTTPS = 'https';
+	 public const SCHEMA_HTTP = 'http';
+	 public const SCHEMA_GRAVATAR = 'gravatar';
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -519,6 +527,45 @@ class Url implements \Stringable
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if this URL has an SSL certificate.
+	 *
+	 * @return bool Whether the URL matches the https or http schema.
+	 */
+	public function IsWebsite(): bool
+	{
+		return $this->isSchema([self::SCHEMA_HTTP, self::SCHEMA_HTTPS]);
+	}
+
+	/**
+	 * Check if this URL has an SSL certificate.
+	 *
+	 * @param string|string[] $schema Schemas to check.
+	 * @return bool Whether the URL matches a schema.
+	 */
+	public function isSchema(string|array $schema): bool
+	{
+		return !empty($this->scheme) && in_array($this->scheme, array_map('strval', (array) $schema));
+	}
+
+	/**
+	 * Check if this URL has an SSL certificate.
+	 *
+	 * @return bool Whether the URL validates as a garavatar.
+	 */
+	public function isGravatar(): bool
+	{
+		return
+			$this->isSchema(self::SCHEMA_GRAVATAR)
+			|| $this->url === 'gravatar://'
+			|| (
+				!empty($this->host) && (
+					$this->host === 'gravatar.com'
+					||  $this->host === 'secure.gravatar.com'
+				)
+			);
 	}
 
 	/***********************
