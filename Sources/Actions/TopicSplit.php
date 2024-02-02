@@ -459,7 +459,7 @@ class TopicSplit implements ActionInterface
 			Lang::censorText($row['subject']);
 			Lang::censorText($row['body']);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			Utils::$context['not_selected']['messages'][$row['id_msg']] = [
 				'id' => $row['id_msg'],
@@ -498,7 +498,7 @@ class TopicSplit implements ActionInterface
 				Lang::censorText($row['subject']);
 				Lang::censorText($row['body']);
 
-				$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+				$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 				Utils::$context['selected']['messages'][$row['id_msg']] = [
 					'id' => $row['id_msg'],
