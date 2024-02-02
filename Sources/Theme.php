@@ -297,7 +297,7 @@ class Theme
 		Utils::$context['forum_name'] = Config::$mbname;
 		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-		Lang::load('General+Modifications+ThemeStrings');
+		Lang::load('General+Modifications');
 
 		// Just in case it wasn't already set elsewhere.
 		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
