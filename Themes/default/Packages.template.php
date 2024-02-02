@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Url;
 use SMF\Utils;
 use SMF\Sapi;
 
@@ -133,7 +134,7 @@ function template_view_package()
 		<form action="', !empty(Utils::$context['post_url']) ? Utils::$context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', Utils::$context['character_set'], '" id="view_package">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Utils::$context['uninstalling'] ? Lang::$txt['package_uninstall_actions'] : Lang::$txt['package_install_actions'], ' &quot;', Utils::$context['package_name'], '&quot;
+					', Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_actions' : 'package_install_actions', Utils::$context), '
 				</h3>
 			</div>';
 
@@ -145,7 +146,7 @@ function template_view_package()
 			<div class="windowbg" style="margin: 0; border-radius: 0;">
 				<label><input type="checkbox" name="do_db_changes">', Lang::$txt['package_db_uninstall'], '</label>
 				<div id="db_changes_div">
-					', Lang::$txt['package_db_uninstall_actions'], ':
+					', Lang::$txt['package_db_uninstall_actions'], '
 					<ul class="normallist smalltext">';
 
 		foreach (Utils::$context['database_changes'] as $change)
@@ -229,7 +230,7 @@ function template_view_package()
 									<td width="30">', $operation_num++, '.</td>
 									<td width="23%">', Lang::$txt[$operation_text], '</td>
 									<td width="50%">', $operation['action'], '</td>
-									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . Lang::$txt['operation_ignore'] . ')' : '', '</strong></td>
+									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', !empty($operation['ignore_failure']) ? Lang::getTxt('operation_description_ignore', ['desc' => $operation['description']]) : $operation['description'], '</strong></td>
 								</tr>';
 				}
 
@@ -320,7 +321,7 @@ function template_view_package()
 									<td width="30">', $operation_num++, '.</td>
 									<td width="23%">', Lang::$txt[$operation_text], '</td>
 									<td width="50%">', $operation['action'], '</td>
-									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . Lang::$txt['operation_ignore'] . ')' : '', '</strong></td>
+									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', !empty($operation['ignore_failure']) ? Lang::getTxt('operation_description_ignore', ['desc' => $operation['description']]) : $operation['description'], '</strong></td>
 								</tr>';
 						}
 
@@ -499,19 +500,19 @@ function template_list()
 			<h3 class="catbg">', Lang::$txt['list_file'], '</h3>
 		</div>
 		<div class="title_bar">
-			<h4 class="titlebg">', Lang::$txt['files_archive'], ' ', Utils::$context['filename'], ':</h4>
+			<h4 class="titlebg">', Lang::getTxt('files_package', Utils::$context), '</h4>
 		</div>
 		<div class="windowbg">
 			<ol>';
 
 	foreach (Utils::$context['files'] as $fileinfo)
 		echo '
-				<li><a href="', Config::$scripturl, '?action=admin;area=packages;sa=examine;package=', Utils::$context['filename'], ';file=', $fileinfo['filename'], '" title="', Lang::$txt['view'], '">', $fileinfo['filename'], '</a> (', $fileinfo['size'], ' ', Lang::$txt['package_bytes'], ')</li>';
+				<li><a href="', Config::$scripturl, '?action=admin;area=packages;sa=examine;package=', Utils::$context['filename'], ';file=', $fileinfo['filename'], '" title="', Lang::$txt['view'], '">', $fileinfo['filename'], '</a> ', Lang::getTxt('package_bytes', $fileinfo), '</li>';
 
 	echo '
 			</ol>
 			<br>
-			<a href="', Config::$scripturl, '?action=admin;area=packages">[ ', Lang::$txt['back'], ' ]</a>
+			<a href="', Config::$scripturl, '?action=admin;area=packages" class="button floatnone">', Lang::$txt['back'], '</a>
 		</div>';
 }
 
@@ -525,11 +526,11 @@ function template_examine()
 			<h3 class="catbg">', Lang::$txt['package_examine_file'], '</h3>
 		</div>
 		<div class="title_bar">
-			<h4 class="titlebg">', Lang::$txt['package_file_contents'], ' ', Utils::$context['filename'], ':</h4>
+			<h4 class="titlebg">', Lang::getTxt('package_file_contents', Utils::$context), '</h4>
 		</div>
 		<div class="windowbg">
 			<pre class="file_content">', Utils::$context['filedata'], '</pre>
-			<a href="', Config::$scripturl, '?action=admin;area=packages;sa=list;package=', Utils::$context['package'], '">[ ', Lang::$txt['list_files'], ' ]</a>
+			<a href="', Config::$scripturl, '?action=admin;area=packages;sa=list;package=', Utils::$context['package'], '" class="button floatnone">', Lang::$txt['list_files'], '</a>
 		</div>';
 }
 
@@ -621,7 +622,7 @@ function template_browse()
 					</p>
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['package_emulate'], ':</strong><br>
+							<strong>', Lang::$txt['package_emulate'], '</strong><br>
 							<span class="smalltext">
 								<a href="#" onclick="return revert();">', Lang::$txt['package_emulate_revert'], '</a>
 							</span>
@@ -700,7 +701,7 @@ function template_servers()
 			<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', Utils::$context['character_set'], '" enctype="multipart/form-data">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['package_upload_select'], ':</strong>
+						<strong>', Lang::$txt['package_upload_select'], '</strong>
 					</dt>
 					<dd>
 						<input type="file" name="package" size="38">
@@ -733,27 +734,27 @@ function template_servers()
 				<form action="', Config::$scripturl, '?action=admin;area=packages;get" method="post" accept-charset="', Utils::$context['character_set'], '">
 					<dl class="settings">
 						<dt>
-							<label for="ftp_server">', Lang::$txt['package_ftp_server'], ':</label>
+							<label for="ftp_server">', Lang::$txt['package_ftp_server'], '</label>
 						</dt>
 						<dd>
 							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['package_ftp']['server'], '">
-							<label for="ftp_port">', Lang::$txt['package_ftp_port'], ':</label>
+							<label for="ftp_port">', Lang::$txt['package_ftp_port'], '</label>
 							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['package_ftp']['port'], '">
 						</dd>
 						<dt>
-							<label for="ftp_username">', Lang::$txt['package_ftp_username'], ':</label>
+							<label for="ftp_username">', Lang::$txt['package_ftp_username'], '</label>
 						</dt>
 						<dd>
 							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', Utils::$context['package_ftp']['username'], '">
 						</dd>
 						<dt>
-							<label for="ftp_password">', Lang::$txt['package_ftp_password'], ':</label>
+							<label for="ftp_password">', Lang::$txt['package_ftp_password'], '</label>
 						</dt>
 						<dd>
 							<input type="password" size="50" name="ftp_password" id="ftp_password">
 						</dd>
 						<dt>
-							<label for="ftp_path">', Lang::$txt['package_ftp_path'], ':</label>
+							<label for="ftp_path">', Lang::$txt['package_ftp_path'], '</label>
 						</dt>
 						<dd>
 							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', Utils::$context['package_ftp']['path'], '">
@@ -776,8 +777,8 @@ function template_servers()
 		echo '
 						<li class="flow_auto">
 							<span class="floatleft">' . $server['name'] . '</span>
-							<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">[ ' . Lang::$txt['delete'] . ' ]</a></span>
-							<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=browse;server=' . $server['id'] . '">[ ' . Lang::$txt['package_browse'] . ' ]</a></span>
+							<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=browse;server=' . $server['id'] . '" class="button">' . Lang::$txt['package_browse'] . '</a></span>
+							' . (!str_ends_with((new Url($server['url']))->host, '.simplemachines.org') ? '<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::$txt['delete'] . '</a></span>' : '') . '
 						</li>';
 	echo '
 					</ul>
@@ -787,13 +788,13 @@ function template_servers()
 					<form action="' . Config::$scripturl . '?action=admin;area=packages;get;sa=add" method="post" accept-charset="', Utils::$context['character_set'], '">
 						<dl class="settings">
 							<dt>
-								<strong>' . Lang::$txt['server_name'] . ':</strong>
+								<strong>' . Lang::$txt['server_name'] . '</strong>
 							</dt>
 							<dd>
 								<input type="text" name="servername" size="44" value="SMF">
 							</dd>
 							<dt>
-								<strong>' . Lang::$txt['serverurl'] . ':</strong>
+								<strong>' . Lang::$txt['serverurl'] . '</strong>
 							</dt>
 							<dd>
 								<input type="text" name="serverurl" size="44" value="https://">
@@ -810,13 +811,13 @@ function template_servers()
 					<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=download;byurl;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 						<dl class="settings">
 							<dt>
-								<strong>' . Lang::$txt['serverurl'] . ':</strong>
+								<strong>' . Lang::$txt['serverurl'] . '</strong>
 							</dt>
 							<dd>
 								<input type="text" name="package" size="44" value="https://">
 							</dd>
 							<dt>
-								<strong>', Lang::$txt['package_download_filename'], ':</strong>
+								<strong>', Lang::$txt['package_download_filename'], '</strong>
 							</dt>
 							<dd>
 								<input type="text" name="filename" size="44"><br>
@@ -842,7 +843,7 @@ function template_package_confirm()
 		</div>
 		<div class="windowbg">
 			<p>', Utils::$context['confirm_message'], '</p>
-			<a href="', Utils::$context['proceed_href'], '">[ ', Lang::$txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', Lang::$txt['package_confirm_go_back'], ' ]</a>
+			<a href="', Utils::$context['proceed_href'], '" class="button floatnone">', Lang::$txt['package_confirm_proceed'], '</a> <a href="JavaScript:history.go(-1);" class="button floatnone">', Lang::$txt['package_confirm_go_back'], '</a>
 		</div>';
 }
 
@@ -915,47 +916,45 @@ function template_package_list()
 				{
 					// 1. Some mod [ Download ].
 					echo '
-						<strong><span id="ps_img_', $i, '_pkg_', $id, '" class="toggle_up" alt="*" style="display: none;"></span> ', $package['can_install'] || !empty($package['can_emulate_install']) ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . Lang::$txt['download'] . ' ]</a>' : $package['name'], '</strong>
+						<strong><span id="ps_img_', $i, '_pkg_', $id, '" class="toggle_up" alt="*" style="display: none;"></span> ', $package['can_install'] || !empty($package['can_emulate_install']) ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '" class="button floatnone">' . Lang::$txt['download'] . '</a>' : $package['name'], '</strong>
 						<ul id="package_section_', $i, '_pkg_', $id, '" class="package_section">';
 
 					// Show the mod type?
 					if ($package['type'] != '')
 						echo '
 							<li class="package_section">
-								', Lang::$txt['package_type'], ':&nbsp; ', Utils::ucwords(Utils::strtolower($package['type'])), '
+								', Lang::getTxt('package_type', ['type' => Utils::ucwords(Utils::strtolower($package['type']))]), '
 							</li>';
 
 					// Show the version number?
 					if ($package['version'] != '')
 						echo '
 							<li class="package_section">
-								', Lang::$txt['mod_version'], ':&nbsp; ', $package['version'], '
+								', Lang::getTxt('package_version', $package), '
 							</li>';
 
 					// How 'bout the author?
 					if (!empty($package['author']) && $package['author']['name'] != '' && isset($package['author']['link']))
 						echo '
 							<li class="package_section">
-								', Lang::$txt['mod_author'], ':&nbsp; ', $package['author']['link'], '
+								', Lang::getTxt('package_author', ['author' => $package['author']['link']]), '
 							</li>';
 
 					// The homepage...
 					if ($package['author']['website']['link'] != '')
 						echo '
 							<li class="package_section">
-								', Lang::$txt['author_website'], ':&nbsp; ', $package['author']['website']['link'], '
+								', Lang::getTxt('author_website', $package['author']['website']), '
 							</li>';
 
 					// Description: bleh bleh!
 					// Location of file: http://someplace/.
 					echo '
 							<li class="package_section">
-								', Lang::$txt['file_location'], ':&nbsp; <a href="', $package['href'], '">', $package['href'], '</a>
+								', Lang::getTxt('file_location', ['link' => '<a href="' . $package['href'] . '">' . $package['href'] . '</a>']), '
 							</li>
 							<li class="package_section">
-								<div class="information">
-									', Lang::$txt['package_description'], ':&nbsp; ', $package['description'], '
-								</div>
+								', Lang::getTxt('package_description', $package), '
 							</li>
 						</ul>';
 				}
@@ -1047,7 +1046,7 @@ function template_downloaded()
 				</li>
 			</ul>
 			<br><br>
-			<p><a href="', Config::$scripturl, '?action=admin;area=packages;get', (isset(Utils::$context['package_server']) ? ';sa=browse;server=' . Utils::$context['package_server'] : ''), '">[ ', Lang::$txt['back'], ' ]</a></p>
+			<p><a href="', Config::$scripturl, '?action=admin;area=packages;get', (isset(Utils::$context['package_server']) ? ';sa=browse;server=' . Utils::$context['package_server'] : ''), '" class="button floatnone">', Lang::$txt['back'], '</a></p>
 		</div>';
 }
 
@@ -1071,19 +1070,19 @@ function template_install_options()
 			<form action="', Config::$scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<dl class="settings">
 					<dt>
-						<label for="pack_server"><strong>', Lang::$txt['package_install_options_ftp_server'], ':</strong></label>
+						<label for="pack_server"><strong>', Lang::$txt['package_install_options_ftp_server'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="pack_server" id="pack_server" value="', Utils::$context['package_ftp_server'], '" size="30">
 					</dd>
 					<dt>
-						<label for="pack_port"><strong>', Lang::$txt['package_install_options_ftp_port'], ':</strong></label>
+						<label for="pack_port"><strong>', Lang::$txt['package_install_options_ftp_port'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="pack_port" id="pack_port" size="3" value="', Utils::$context['package_ftp_port'], '">
 					</dd>
 					<dt>
-						<label for="pack_user"><strong>', Lang::$txt['package_install_options_ftp_user'], ':</strong></label>
+						<label for="pack_user"><strong>', Lang::$txt['package_install_options_ftp_user'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="pack_user" id="pack_user" value="', Utils::$context['package_ftp_username'], '" size="30">
@@ -1160,27 +1159,27 @@ function template_control_chmod()
 					<fieldset>
 					<dl class="settings">
 						<dt>
-							<label for="ftp_server">', Lang::$txt['package_ftp_server'], ':</label>
+							<label for="ftp_server">', Lang::$txt['package_ftp_server'], '</label>
 						</dt>
 						<dd>
 							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['package_ftp']['server'], '">
-							<label for="ftp_port">', Lang::$txt['package_ftp_port'], ':</label>
+							<label for="ftp_port">', Lang::$txt['package_ftp_port'], '</label>
 							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['package_ftp']['port'], '">
 						</dd>
 						<dt>
-							<label for="ftp_username">', Lang::$txt['package_ftp_username'], ':</label>
+							<label for="ftp_username">', Lang::$txt['package_ftp_username'], '</label>
 						</dt>
 						<dd>
 							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', Utils::$context['package_ftp']['username'], '">
 						</dd>
 						<dt>
-							<label for="ftp_password">', Lang::$txt['package_ftp_password'], ':</label>
+							<label for="ftp_password">', Lang::$txt['package_ftp_password'], '</label>
 						</dt>
 						<dd>
 							<input type="password" size="50" name="ftp_password" id="ftp_password">
 						</dd>
 						<dt>
-							<label for="ftp_path">', Lang::$txt['package_ftp_path'], ':</label>
+							<label for="ftp_path">', Lang::$txt['package_ftp_path'], '</label>
 						</dt>
 						<dd>
 							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', Utils::$context['package_ftp']['path'], '">
@@ -1521,7 +1520,7 @@ function template_file_permissions()
 	echo '
 	<div class="noticebox">
 		<div>
-			<strong>', Lang::$txt['package_file_perms_warning'], ':</strong>
+			<strong>', Lang::$txt['package_file_perms_warning'], '</strong>
 			<div class="smalltext">
 				<ol style="margin-top: 2px; margin-bottom: 2px">
 					', Lang::$txt['package_file_perms_warning_desc'], '
@@ -1605,11 +1604,11 @@ function template_file_permissions()
 						<label for="method_individual"><strong>', Lang::$txt['package_file_perms_apply'], '</strong></label>
 					</dt>
 					<dd>
-						<em class="smalltext">', Lang::$txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5"> <a href="', Config::$scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></em>
+						<em class="smalltext">', Lang::$txt['package_file_perms_custom'], ' <input type="text" name="custom_value" value="0755" maxlength="4" size="5"> <a href="', Config::$scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></em>
 					</dd>
 					<dt>
 						<input type="radio" name="method" value="predefined" id="method_predefined">
-						<label for="method_predefined"><strong>', Lang::$txt['package_file_perms_predefined'], ':</strong></label>
+						<label for="method_predefined"><strong>', Lang::$txt['package_file_perms_predefined'], '</strong></label>
 						<select name="predefined" onchange="document.getElementById(\'method_predefined\').checked = \'checked\';">
 							<option value="restricted" selected>', Lang::$txt['package_file_perms_pre_restricted'], '</option>
 							<option value="standard">', Lang::$txt['package_file_perms_pre_standard'], '</option>
@@ -1626,7 +1625,7 @@ function template_file_permissions()
 	if (empty(Utils::$context['ftp_connected']))
 		echo '
 			<p>
-				', Lang::$txt['package_file_perms_ftp_details'], ':
+				', Lang::$txt['package_file_perms_ftp_details'], '
 			</p>
 			', template_control_chmod(), '
 			<div class="noticebox">', Lang::$txt['package_file_perms_ftp_retain'], '</div>';

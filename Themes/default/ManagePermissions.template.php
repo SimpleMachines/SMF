@@ -35,7 +35,7 @@ function template_permission_index()
 	if (!empty(Utils::$context['profile']))
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_for_profile'], ': &quot;', Utils::$context['profile']['name'], '&quot;</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_for_profile', Utils::$context['profile']), '</h3>
 			</div>';
 	else
 		echo '
@@ -77,7 +77,7 @@ function template_permission_index()
 		if (!empty($group['children']))
 			echo '
 							<br>
-							<span class="smalltext">', Lang::$txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
+							<span class="smalltext">', Lang::getTxt('permissions_includes_inherited', ['list' => Lang::sentenceList(array_map(fn ($grp) => '"' . $grp . '"', $group['children']))]), '</span>';
 
 		echo '
 						</td>
@@ -126,7 +126,7 @@ function template_permission_index()
 					<dl class="settings">
 						<dt>
 							<a class="help" href="', Config::$scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-							', Lang::$txt['permissions_apply_pre_defined'], ':
+							', Lang::$txt['permissions_apply_pre_defined'], '
 						</dt>
 						<dd>
 							<select name="predefined">
@@ -138,7 +138,7 @@ function template_permission_index()
 							</select>
 						</dd>
 						<dt>
-							', Lang::$txt['permissions_like_group'], ':
+							', Lang::$txt['permissions_like_group'], '
 						</dt>
 						<dd>
 							<select name="copy_from">
@@ -154,12 +154,12 @@ function template_permission_index()
 						</dd>
 						<dt>
 							<select name="add_remove">
-								<option value="add">', Lang::$txt['permissions_add'], '...</option>
-								<option value="clear">', Lang::$txt['permissions_remove'], '...</option>';
+								<option value="add">', Lang::$txt['permissions_add'], '</option>
+								<option value="clear">', Lang::$txt['permissions_remove'], '</option>';
 
 		if (!empty(Config::$modSettings['permission_enable_deny']))
 			echo '
-								<option value="deny">', Lang::$txt['permissions_deny'], '...</option>';
+								<option value="deny">', Lang::$txt['permissions_deny'], '</option>';
 
 		echo '
 							</select>
@@ -425,13 +425,13 @@ function template_edit_profiles()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['permissions_profile_name'], ':</strong>
+						<strong>', Lang::$txt['permissions_profile_name'], '</strong>
 					</dt>
 					<dd>
 						<input type="text" name="profile_name" value="">
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['permissions_profile_copy_from'], ':</strong>
+						<strong>', Lang::$txt['permissions_profile_copy_from'], '</strong>
 					</dt>
 					<dd>
 						<select name="copy_from">';
@@ -492,10 +492,11 @@ function template_modify_group()
 
 	if (Utils::$context['permission_type'] == 'board')
 		echo '
-				', Lang::$txt['permissions_local_for'], ' &quot;', Utils::$context['group']['name'], '&quot; ', Lang::$txt['permissions_on'], ' &quot;', Utils::$context['profile']['name'], '&quot;';
+				', Lang::getTxt('permissions_for_in', ['group' => Utils::$context['group']['name'], 'profile' => Utils::$context['profile']['name']]);
 	else
 		echo '
-				', Utils::$context['permission_type'] == 'global' ? Lang::$txt['permissions_general'] : Lang::$txt['permissions_board'], ' - &quot;', Utils::$context['group']['name'], '&quot;';
+				', Lang::getTxt(Utils::$context['permission_type'] == 'global' ? 'permissions_general_for' : 'permissions_board_for', ['name' => Utils::$context['group']['name']]);
+
 	echo '
 				</h3>
 			</div>';
@@ -780,15 +781,15 @@ function template_postmod_permissions()
 
 		echo '
 							<div class="padding">
+								<strong>', Lang::$txt['permissions_post_moderation_legend'], '</strong>
 								<ul class="floatleft smalltext block">
-									<strong>', Lang::$txt['permissions_post_moderation_legend'], ':</strong>
 									<li><span class="main_icons post_moderation_allow"></span>', Lang::$txt['permissions_post_moderation_allow'], '</li>
 									<li><span class="main_icons post_moderation_moderate"></span>', Lang::$txt['permissions_post_moderation_moderate'], '</li>
 									<li><span class="main_icons post_moderation_deny"></span>', Lang::$txt['permissions_post_moderation_disallow'], '</li>
 								</ul>
+								<br><br><br>
 								<p class="righttext floatright block">
-									<br><br><br>
-									', Lang::$txt['permissions_post_moderation_select'], ':
+									', Lang::$txt['permissions_post_moderation_select'], '
 									<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
 		foreach (Utils::$context['profiles'] as $profile)
@@ -858,7 +859,7 @@ function template_postmod_permissions()
 			if (!empty($group['children']))
 				echo '
 											<br>
-											<span class="smalltext">', Lang::$txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
+											<span class="smalltext">', Lang::getTxt('permissions_includes_inherited', ['list' => Lang::sentenceList(array_map(fn ($grp) => '"' . $grp . '"', $group['children']))]), '</span>';
 
 			echo '
 										</td>

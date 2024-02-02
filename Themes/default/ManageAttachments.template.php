@@ -51,21 +51,21 @@ function template_maintenance()
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
-				<dt><strong>', Lang::$txt['attachment_total'], ':</strong></dt>
+				<dt><strong>', Lang::$txt['attachment_total'], '</strong></dt>
 				<dd>', Utils::$context['num_attachments'], '</dd>
-				<dt><strong>', Lang::$txt['attachment_manager_total_avatars'], ':</strong></dt>
+				<dt><strong>', Lang::$txt['attachment_manager_total_avatars'], '</strong></dt>
 				<dd>', Utils::$context['num_avatars'], '</dd>
-				<dt><strong>', Lang::$txt['attachmentdir_size'], ':</strong></dt>
-				<dd>', Utils::$context['attachment_total_size'], ' ', Lang::$txt['kilobyte'], '</dd>
-				<dt><strong>', Lang::$txt['attach_current_dir'], ':</strong></dt>
+				<dt><strong>', Lang::$txt['attachmentdir_size'], '</strong></dt>
+				<dd>', Lang::getTxt('size_kilobyte', [Utils::$context['attachment_total_size']]), '</dd>
+				<dt><strong>', Lang::$txt['attach_current_dir'], '</strong></dt>
 				<dd class="word_break">', Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']], '</dd>
-				<dt><strong>', Lang::$txt['attachmentdir_size_current'], ':</strong></dt>
-				<dd>', Utils::$context['attachment_current_size'], ' ', Lang::$txt['kilobyte'], '</dd>
-				<dt><strong>', Lang::$txt['attachment_space'], ':</strong></dt>
-				<dd>', isset(Utils::$context['attachment_space']) ? Utils::$context['attachment_space'] . ' ' . Lang::$txt['kilobyte'] : Lang::$txt['attachmentdir_size_not_set'], '</dd>
-				<dt><strong>', Lang::$txt['attachmentdir_files_current'], ':</strong></dt>
+				<dt><strong>', Lang::$txt['attachmentdir_size_current'], '</strong></dt>
+				<dd>', Lang::getTxt('size_kilobyte', [Utils::$context['attachment_current_size']]), '</dd>
+				<dt><strong>', Lang::$txt['attachment_space'], '</strong></dt>
+				<dd>', isset(Utils::$context['attachment_space']) ? Lang::getTxt('size_kilobyte', [Utils::$context['attachment_space']]) : Lang::$txt['attachmentdir_size_not_set'], '</dd>
+				<dt><strong>', Lang::$txt['attachmentdir_files_current'], '</strong></dt>
 				<dd>', Utils::$context['attachment_current_files'], '</dd>
-				<dt><strong>', Lang::$txt['attachment_files'], ':</strong></dt>
+				<dt><strong>', Lang::$txt['attachment_files'], '</strong></dt>
 				<dd>', isset(Utils::$context['attachment_files']) ? Utils::$context['attachment_files'] : Lang::$txt['attachmentdir_files_not_set'], '</dd>
 			</dl>
 		</div>
@@ -85,7 +85,7 @@ function template_maintenance()
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', Lang::$txt['attachment_remove_old'], '</dt>
-					<dd><input type="number" name="age" value="25" size="4"> ', Lang::$txt['days_word'], '</dd>
+					<dd><input type="number" name="age" value="25" size="4"> ', str_replace('25', '', Lang::getTxt('number_of_days', [25])), '</dd>
 					<dt>', Lang::$txt['attachment_pruning_message'], '</dt>
 					<dd><input type="text" name="notice" value="', Lang::$txt['attachment_delete_admin'], '" size="40"></dd>
 					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
@@ -109,7 +109,7 @@ function template_maintenance()
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', Lang::$txt['attachment_manager_avatars_older'], '</dt>
-					<dd><input type="number" name="age" value="45" size="4"> ', Lang::$txt['days_word'], '</dd>
+					<dd><input type="number" name="age" value="45" size="4"> ', str_replace('45', '', Lang::getTxt('number_of_days', [45])), '</dd>
 					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="avatars">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">

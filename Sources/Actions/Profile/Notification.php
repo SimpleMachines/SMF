@@ -632,15 +632,13 @@ class Notification implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($topic) {
-							$link = $topic['link'];
-
-							if ($topic['new']) {
-								$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
-							}
-
-							$link .= '<br><span class="smalltext"><em>' . Lang::$txt['in'] . ' ' . $topic['board_link'] . '</em></span>';
-
-							return $link;
+							return Lang::getTxt(
+								'topic_in_board',
+								[
+									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : ''),
+									'board_link' => $topic['board_link'],
+								],
+							);
 						},
 					],
 					'sort' => [
@@ -667,13 +665,9 @@ class Notification implements ActionInterface
 						'class' => 'lefttext',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<span class="smalltext">%1$s<br>' . Lang::$txt['by'] . ' %2$s</span>',
-							'params' => [
-								'updated' => false,
-								'poster_updated_link' => false,
-							],
-						],
+						'function' => function ($topic) {
+							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']]) . '</span>';
+						},
 					],
 					'sort' => [
 						'default' => 'ml.id_msg DESC',

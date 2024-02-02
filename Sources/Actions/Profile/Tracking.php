@@ -132,7 +132,7 @@ class Tracking implements ActionInterface
 		}
 
 		// Set a page title.
-		Utils::$context['page_title'] = Lang::$txt['trackUser'] . ' - ' . Lang::$txt[self::$subactions[$this->subaction][1]] . ' - ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt('trackUser_page_title', ['name' => Profile::$member->name, 'subaction' => Lang::$txt[self::$subactions[$this->subaction][1]]]);
 
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
@@ -163,7 +163,7 @@ class Tracking implements ActionInterface
 		// Set the options for the list component.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::$txt['errors_by'] . ' ' . Utils::$context['member']['name'],
+			'title' => Lang::getTxt('errors_by', Utils::$context['member']),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['no_errors_from_user'],
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=user;u=' . Profile::$member->id,

@@ -55,13 +55,13 @@ function template_modifyset()
 		<div class="windowbg noup">
 			<dl class="settings">
 				<dt>
-					<strong><label for="smiley_sets_name">', Lang::$txt['smiley_sets_name'], '</label>: </strong>
+					<strong><label for="smiley_sets_name">', Lang::$txt['smiley_sets_name'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="smiley_sets_name" id="smiley_sets_name" value="', Utils::$context['current_set']['name'], '">
 				</dd>
 				<dt>
-					<strong><label for="smiley_sets_path">', Lang::$txt['smiley_sets_url'], '</label>: </strong>
+					<strong><label for="smiley_sets_path">', Lang::$txt['smiley_sets_url'], '</label></strong>
 				</dt>
 				<dd>
 					', Config::$modSettings['smileys_url'], '/';
@@ -86,7 +86,7 @@ function template_modifyset()
 					/..
 				</dd>
 				<dt>
-					<strong><label for="smiley_sets_default">', Lang::$txt['smiley_set_select_default'], '</label>: </strong>
+					<strong><label for="smiley_sets_default">', Lang::$txt['smiley_set_select_default'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', Utils::$context['current_set']['is_default'] ? ' checked' : '', '>
@@ -113,7 +113,7 @@ function template_modifysmiley()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong>', Lang::$txt['smiley_preview_using_set'], ': </strong>
+					<strong>', Lang::$txt['smiley_preview_using_set'], '</strong>
 					<select id="set" onchange="updatePreview($(\'#smiley_filename_\' + $(\'#set\').val()).val(), $(\'#set\').val());">';
 
 	foreach (Utils::$context['smiley_sets'] as $smiley_set)
@@ -127,7 +127,7 @@ function template_modifysmiley()
 					<img src="', Config::$modSettings['smileys_url'], '/', Config::$modSettings['smiley_sets_default'], '/', Utils::$context['current_smiley']['filename'], '" id="preview" alt="">
 				</dd>
 				<dt>
-					<strong><label for="smiley_filename">', Lang::$txt['smileys_filename'], '</label>: </strong>
+					<strong><label for="smiley_filename">', Lang::$txt['smileys_filename'], '</label></strong>
 				</dt>';
 
 	if (empty(Utils::$context['filenames']))
@@ -163,19 +163,19 @@ function template_modifysmiley()
 			</dl>
 			<dl class="settings">
 				<dt>
-					<strong><label for="smiley_code">', Lang::$txt['smileys_code'], '</label>: </strong>
+					<strong><label for="smiley_code">', Lang::$txt['smileys_code'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="smiley_code" id="smiley_code" value="', Utils::$context['current_smiley']['code'], '">
 				</dd>
 				<dt>
-					<strong><label for="smiley_description">', Lang::$txt['smileys_description'], '</label>: </strong>
+					<strong><label for="smiley_description">', Lang::$txt['smileys_description'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="smiley_description" id="smiley_description" value="', Utils::$context['current_smiley']['description'], '">
 				</dd>
 				<dt>
-					<strong><label for="smiley_location">', Lang::$txt['smileys_location'], '</label>: </strong>
+					<strong><label for="smiley_location">', Lang::$txt['smileys_location'], '</label></strong>
 				</dt>
 				<dd>
 					<select name="smiley_location" id="smiley_location">
@@ -222,13 +222,13 @@ function template_addsmiley()
 			<fieldset id="ex_settings">
 				<dl class="settings">
 					<dt>
-						<strong><label for="preview">', Lang::$txt['smiley_preview'], '</label>: </strong>
+						<strong><label for="preview">', Lang::$txt['smiley_preview'], '</label></strong>
 					</dt>
 					<dd>
 						<img src="', Config::$modSettings['smileys_url'], '/', Config::$modSettings['smiley_sets_default'], '/', Utils::$context['filenames'][Utils::$context['selected_set']]['smiley']['id'], '" id="preview" alt="">
 					</dd>
 					<dt>
-						<strong><label for="smiley_filename">', Lang::$txt['smileys_filename'], '</label>: </strong>
+						<strong><label for="smiley_filename">', Lang::$txt['smileys_filename'], '</label></strong>
 					</dt>
 					<dd>';
 
@@ -268,13 +268,13 @@ function template_addsmiley()
 				<dl class="settings">
 					<dt>
 						<a href="', Config::$scripturl, '?action=helpadmin;help=smiley_sameall" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-						<strong><label for="sameall">', Lang::$txt['smileys_add_upload_all'], ':</label></strong>
+						<strong><label for="sameall">', Lang::$txt['smileys_add_upload_all'], '</label></strong>
 					</dt>
 					<dd>
 						<input type="checkbox" name="sameall" id="sameall" onclick="swapUploads(); selectMethod(\'upload\');" checked>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['smileys_add_upload_choose'], ':</strong>
+						<strong>', Lang::$txt['smileys_add_upload_choose'], '</strong>
 					</dt>
 					<dt class="upload_sameall">
 						', Lang::$txt['smileys_add_upload_choose_desc'], '
@@ -302,19 +302,19 @@ function template_addsmiley()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong><label for="smiley_code">', Lang::$txt['smileys_code'], '</label>: </strong>
+					<strong><label for="smiley_code">', Lang::$txt['smileys_code'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="smiley_code" id="smiley_code" value="">
 				</dd>
 				<dt>
-					<strong><label for="smiley_description">', Lang::$txt['smileys_description'], '</label>: </strong>
+					<strong><label for="smiley_description">', Lang::$txt['smileys_description'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="smiley_description" id="smiley_description" value="">
 				</dd>
 				<dt>
-					<strong><label for="smiley_location">', Lang::$txt['smileys_location'], '</label>: </strong>
+					<strong><label for="smiley_location">', Lang::$txt['smileys_location'], '</label></strong>
 				</dt>
 				<dd>
 					<select name="smiley_location" id="smiley_location">
@@ -352,7 +352,7 @@ function template_setorder()
 			', $location['description'], '
 		</div>
 		<div class="move_smileys windowbg noup">
-			<strong>', empty(Utils::$context['move_smiley']) ? Lang::$txt['smileys_move_select_smiley'] : Lang::$txt['smileys_move_select_destination'], '...</strong><br>';
+			<strong>', empty(Utils::$context['move_smiley']) ? Lang::$txt['smileys_move_select_smiley'] : Lang::$txt['smileys_move_select_destination'], '</strong><br>';
 
 		foreach ($location['rows'] as $row)
 		{
@@ -410,7 +410,7 @@ function template_editicon()
 	if (!Utils::$context['new_icon'])
 		echo '
 				<dt>
-					<strong>', Lang::$txt['smiley_preview'], ': </strong>
+					<strong>', Lang::$txt['smiley_preview'], '</strong>
 				</dt>
 				<dd>
 					<img src="', Utils::$context['icon']['image_url'], '" alt="', Utils::$context['icon']['title'], '">
@@ -424,13 +424,13 @@ function template_editicon()
 					<input type="text" name="icon_filename" id="icon_filename" value="', !empty(Utils::$context['icon']['filename']) ? Utils::$context['icon']['filename'] . '.png' : '', '">
 				</dd>
 				<dt>
-					<strong><label for="icon_description">', Lang::$txt['smileys_description'], '</label>: </strong>
+					<strong><label for="icon_description">', Lang::$txt['smileys_description'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="icon_description" id="icon_description" value="', !empty(Utils::$context['icon']['title']) ? Utils::$context['icon']['title'] : '', '">
 				</dd>
 				<dt>
-					<strong><label for="icon_board_select">', Lang::$txt['icons_board'], '</label>: </strong>
+					<strong><label for="icon_board_select">', Lang::$txt['icons_board'], '</label></strong>
 				</dt>
 				<dd>
 					<select name="icon_board" id="icon_board_select">
@@ -453,7 +453,7 @@ function template_editicon()
 					</select>
 				</dd>
 				<dt>
-					<strong><label for="icon_location">', Lang::$txt['smileys_location'], '</label>: </strong>
+					<strong><label for="icon_location">', Lang::$txt['smileys_location'], '</label></strong>
 				</dt>
 				<dd>
 					<select name="icon_location" id="icon_location">
@@ -463,7 +463,7 @@ function template_editicon()
 	foreach (Utils::$context['icons'] as $id => $data)
 		if (empty(Utils::$context['icon']['id']) || $id != Utils::$context['icon']['id'])
 			echo '
-						<option value="', $id, '"', !empty(Utils::$context['icon']['after']) && $id == Utils::$context['icon']['after'] ? ' selected' : '', '>', Lang::$txt['icons_location_after'], ': ', $data['title'], '</option>';
+						<option value="', $id, '"', !empty(Utils::$context['icon']['after']) && $id == Utils::$context['icon']['after'] ? ' selected' : '', '>', Lang::getTxt('icons_location_after', ['icon' => $data['title']]), '</option>';
 
 	echo '
 					</select>

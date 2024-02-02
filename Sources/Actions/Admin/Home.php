@@ -126,7 +126,7 @@ class Home implements ActionInterface
 			Menu::$loaded['admin']->tab_data = [
 				'title' => Lang::$txt['admin_center'],
 				'help' => '',
-				'description' => '<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
+				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
 					' . Lang::getTxt('admin_main_welcome', Lang::$txt),
 			];
 		}

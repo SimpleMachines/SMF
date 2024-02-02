@@ -53,10 +53,10 @@ function template_reported_posts()
 		echo '
 		<div class="windowbg">
 			<h5>
-				<strong>', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', Lang::$txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+				', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / ', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['topic']['href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
 			</h5>
 			<div class="smalltext">
-				', Lang::$txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -64,7 +64,7 @@ function template_reported_posts()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::$txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
 			', $report['body'], '
@@ -120,7 +120,7 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $report)
 		echo '
 					<li class="smalltext">
-						<a href="', $report['report_href'], '">', $report['subject'], '</a> ', Lang::$txt['mc_reportedp_by'], ' ', $report['author']['link'], '
+						', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['report_href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
 					</li>';
 
 	// Don't have any watched users right now?
@@ -423,7 +423,7 @@ function template_reported_members()
 				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
 			</h5>
 			<div class="smalltext">
-				', Lang::$txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -431,7 +431,7 @@ function template_reported_members()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::$txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
 			', template_quickbuttons($report['quickbuttons'], 'reported_members'), '

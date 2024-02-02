@@ -182,7 +182,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 		if ($verify_context->empty_field && empty($i))
 			echo '
 				<div class="smalltext vv_special">
-					', Lang::$txt['visual_verification_hidden'], ':
+					', Lang::$txt['visual_verification_hidden'], '
 					<input type="text" name="', $_SESSION[$verify_id . '_vv']['empty_field'], '" autocomplete="off" size="30" value="">
 				</div>';
 
@@ -206,7 +206,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				echo '
 				<div class="smalltext" style="margin: 4px 0 8px 0;">
 					<a href="', $verify_context->image_href, ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', Lang::$txt['visual_verification_sound'], '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', Lang::$txt['visual_verification_request_new'], '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
-					', Lang::$txt['visual_verification_description'], ':', $display_type != 'quick_reply' ? '<br>' : '', '
+					', Lang::$txt['visual_verification_description'], $display_type != 'quick_reply' ? '<br>' : '', '
 					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" tabindex="', Utils::$context['tabindex']++, '" autocomplete="off" required>
 				</div>';
 			}

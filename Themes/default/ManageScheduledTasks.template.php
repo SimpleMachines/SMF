@@ -72,18 +72,18 @@ function template_edit_scheduled_tasks()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['scheduled_tasks_name'], ':</strong>
+						<strong>', Lang::$txt['scheduled_tasks_name'], '</strong>
 					</dt>
 					<dd>
 						', Utils::$context['task']['name'], '<br>
 						<span class="smalltext">', Utils::$context['task']['desc'], '</span>
 					</dd>
 					<dt>
-						<strong><label for="regularity">', Lang::$txt['scheduled_task_edit_interval'], ':</label></strong>
+						<strong><label for="regularity">', Lang::$txt['scheduled_task_edit_interval'], '</label></strong>
 					</dt>
 					<dd>
 						', Lang::$txt['scheduled_task_edit_repeat'], '
-						<input type="text" name="regularity" id="regularity" value="', empty(Utils::$context['task']['regularity']) ? 1 : Utils::$context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" maxlength="2">
+						<input type="number" name="regularity" id="regularity" value="', empty(Utils::$context['task']['regularity']) ? 1 : Utils::$context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" min="0">
 						<select name="unit">
 							<option value="m"', empty(Utils::$context['task']['unit']) || Utils::$context['task']['unit'] == 'm' ? ' selected' : '', '>', Lang::$txt['scheduled_task_reg_unit_m'], '</option>
 							<option value="h"', Utils::$context['task']['unit'] == 'h' ? ' selected' : '', '>', Lang::$txt['scheduled_task_reg_unit_h'], '</option>
@@ -92,14 +92,14 @@ function template_edit_scheduled_tasks()
 						</select>
 					</dd>
 					<dt>
-						<strong><label for="start_time">', Lang::$txt['scheduled_task_edit_start_time'], ':</label></strong><br>
+						<strong><label for="start_time">', Lang::$txt['scheduled_task_edit_start_time'], '</label></strong><br>
 						<span class="smalltext">', Lang::$txt['scheduled_task_edit_start_time_desc'], '</span>
 					</dt>
 					<dd>
-						<input type="text" name="offset" id="start_time" value="', Utils::$context['task']['offset_formatted'], '" size="6" maxlength="5">
+						<input type="time" name="offset" id="start_time" value="', Utils::$context['task']['offset_formatted'], '">
 					</dd>
 					<dt>
-						<strong><label for="enabled">', Lang::$txt['scheduled_tasks_enabled'], ':</label></strong>
+						<strong><label for="enabled">', Lang::$txt['scheduled_tasks_enabled'], '</label></strong>
 					</dt>
 					<dd>
 						<input type="checkbox" name="enabled" id="enabled"', !Utils::$context['task']['disabled'] ? ' checked' : '', '>

@@ -79,8 +79,8 @@ $txt['smiley_preview_using_set'] = 'Preview using smiley set';
 $txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\nNote: This won\\\'t remove the images, just the choices.';
 $txt['smileys_location_form_description'] = 'These smileys will appear above the text area, when posting a new forum message or Personal Message.';
 $txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'more\' button.';
-$txt['smileys_move_select_destination'] = 'Select smiley destination';
-$txt['smileys_move_select_smiley'] = 'Select smiley to move';
+$txt['smileys_move_select_destination'] = 'Select smiley destination...';
+$txt['smileys_move_select_smiley'] = 'Select smiley to move...';
 $txt['smileys_move_here'] = 'Move smiley to this location';
 $txt['smileys_no_entries'] = 'There are currently no smileys configured.';
 
@@ -93,7 +93,7 @@ $txt['icons_add_new'] = 'Add new icon';
 $txt['icons_edit_icon'] = 'Edit message icon';
 $txt['icons_new_icon'] = 'New message icon';
 $txt['icons_location_first_icon'] = 'As first icon';
-$txt['icons_location_after'] = 'After';
+$txt['icons_location_after'] = 'After "{icon}"';
 // argument(s): the supported file extension
 $txt['icons_extension_must_be'] = 'File extension must be "{extension}"';
 $txt['icons_no_entries'] = 'There are currently no message icons configured.';

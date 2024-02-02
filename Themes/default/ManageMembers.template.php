@@ -33,7 +33,7 @@ function template_search_members()
 					<div class="msearch_details floatleft">
 						<dl class="settings right">
 							<dt class="righttext">
-								<strong><label for="mem_id">', Lang::$txt['member_id'], ':</label></strong>
+								<strong><label for="mem_id">', Lang::$txt['member_id'], '</label></strong>
 								<select name="types[mem_id]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -46,7 +46,7 @@ function template_search_members()
 								<input type="number" name="mem_id" id="mem_id" value="" size="6">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="age">', Lang::$txt['age'], ':</label></strong>
+								<strong><label for="age">', Lang::$txt['age'], '</label></strong>
 								<select name="types[age]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -59,7 +59,7 @@ function template_search_members()
 								<input type="number" name="age" id="age" value="" size="6">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="posts">', Lang::$txt['member_postcount'], ':</label></strong>
+								<strong><label for="posts">', Lang::$txt['member_postcount'], '</label></strong>
 								<select name="types[posts]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -72,7 +72,7 @@ function template_search_members()
 								<input type="number" name="posts" id="posts" value="" size="6">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="reg_date">', Lang::$txt['date_registered'], ':</label></strong>
+								<strong><label for="reg_date">', Lang::$txt['date_registered'], '</label></strong>
 								<select name="types[reg_date]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -85,7 +85,7 @@ function template_search_members()
 								<input type="date" name="reg_date" id="reg_date" value="" size="10"><span class="smalltext"></span>
 							</dd>
 							<dt class="righttext">
-								<strong><label for="last_online">', Lang::$txt['viewmembers_online'], ':</label></strong>
+								<strong><label for="last_online">', Lang::$txt['viewmembers_online'], '</label></strong>
 								<select name="types[last_online]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -102,25 +102,25 @@ function template_search_members()
 					<div class="msearch_details floatright">
 						<dl class="settings right">
 							<dt class="righttext">
-								<strong><label for="membername">', Lang::$txt['username'], ':</label></strong>
+								<strong><label for="membername">', Lang::$txt['username'], '</label></strong>
 							</dt>
 							<dd>
 								<input type="text" name="membername" id="membername" value="">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="email">', Lang::$txt['email_address'], ':</label></strong>
+								<strong><label for="email">', Lang::$txt['email_address'], '</label></strong>
 							</dt>
 							<dd>
 								<input type="email" name="email" id="email" value="">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="website">', Lang::$txt['website'], ':</label></strong>
+								<strong><label for="website">', Lang::$txt['website'], '</label></strong>
 							</dt>
 							<dd>
 								<input type="url" name="website" id="website" value="">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="ip">', Lang::$txt['ip_address'], ':</label></strong>
+								<strong><label for="ip">', Lang::$txt['ip_address'], '</label></strong>
 							</dt>
 							<dd>
 								<input type="text" name="ip" id="ip" value="">
@@ -221,8 +221,9 @@ function template_admin_browse()
 	template_show_list('approve_list');
 
 	// If we have lots of outstanding members try to make the admin's life easier.
-	if (Utils::$context['approve_list']['total_num_items'] > 20)
+	if (Utils::$context['approve_list']['total_num_items'] > -1)
 	{
+		Utils::$context['browse_type'] = 'activate';
 		echo '
 		<br>
 		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', Utils::$context['character_set'], '" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
@@ -253,13 +254,17 @@ function template_admin_browse()
 			</script>
 
 			<div class="windowbg">
+				<p class="settings">
+					',
+					Lang::getTxt(
+						'admin_browse_outstanding_days',
+						[
+							'input' => '<input type="number" name="time_passed" value="14">',
+							'number' => 14,
+						],
+					), '
+				</p>
 				<dl class="settings">
-					<dt>
-						', Lang::$txt['admin_browse_outstanding_days_1'], ':
-					</dt>
-					<dd>
-						<input type="text" name="time_passed" value="14" maxlength="4" size="3"> ', Lang::$txt['admin_browse_outstanding_days_2'], '.
-					</dd>
 					<dt>
 						', Lang::$txt['admin_browse_outstanding_perform'], ':
 					</dt>
@@ -267,12 +272,12 @@ function template_admin_browse()
 						<select name="todo">
 							', Utils::$context['browse_type'] == 'activate' ? '
 							<option value="ok">' . Lang::$txt['admin_browse_w_activate'] . '</option>' : '', '
-							<option value="okemail">', Utils::$context['browse_type'] == 'approve' ? Lang::$txt['admin_browse_w_approve'] : Lang::$txt['admin_browse_w_activate'], ' ', Lang::$txt['admin_browse_w_email'], '</option>', Utils::$context['browse_type'] == 'activate' ? '' : '
+							<option value="okemail">', Utils::$context['browse_type'] == 'approve' ? Lang::$txt['admin_browse_w_approve_send_email'] : Lang::$txt['admin_browse_w_activate_send_email'], '</option>', Utils::$context['browse_type'] == 'activate' ? '' : '
 							<option value="require_activation">' . Lang::$txt['admin_browse_w_approve_require_activate'] . '</option>', '
 							<option value="reject">', Lang::$txt['admin_browse_w_reject'], '</option>
-							<option value="rejectemail">', Lang::$txt['admin_browse_w_reject'], ' ', Lang::$txt['admin_browse_w_email'], '</option>
+							<option value="rejectemail">', Lang::$txt['admin_browse_w_reject_send_email'], '</option>
 							<option value="delete">', Lang::$txt['admin_browse_w_delete'], '</option>
-							<option value="deleteemail">', Lang::$txt['admin_browse_w_delete'], ' ', Lang::$txt['admin_browse_w_email'], '</option>', Utils::$context['browse_type'] == 'activate' ? '
+							<option value="deleteemail">', Lang::$txt['admin_browse_w_delete_send_email'], '</option>', Utils::$context['browse_type'] == 'activate' ? '
 							<option value="remind">' . Lang::$txt['admin_browse_w_remind'] . '</option>' : '', '
 						</select>
 					</dd>

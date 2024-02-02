@@ -620,7 +620,7 @@ class PersonalMessage implements ActionInterface
 					$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 
 					if (!empty($recipients)) {
-						$report_body .= Lang::$txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
+						$report_body .= Lang::getTxt('pm_report_pm_other_recipients', ['recipients' => Lang::sentenceList($recipients)]) . "\n\n";
 					}
 
 					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';

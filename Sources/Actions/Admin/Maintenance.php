@@ -1974,7 +1974,7 @@ class Maintenance implements ActionInterface
 							$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::$txt['hooks_field_function_method'] . '"></span> ' : '');
 
 							if (!empty($data['included_file']) && !empty($data['real_function'])) {
-								return $instance . Lang::$txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . Lang::$txt['hooks_field_included_file'] . ': ' . $data['included_file'];
+								return $instance . Lang::getTxt('hooks_field_function', $data) . '<br>' . Lang::getTxt('hooks_field_included_file', $data);
 							}
 
 							return $instance . $data['real_function'];

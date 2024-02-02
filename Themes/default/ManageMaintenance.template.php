@@ -261,7 +261,7 @@ function template_maintain_members()
 				</dl>
 				<dl class="settings">
 					<dt>
-						<label for="to"><strong>', Lang::$txt['reattribute_current_member'], ':</strong></label>
+						<label for="to"><strong>', Lang::$txt['reattribute_current_member'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="to" id="to" value="">
@@ -285,13 +285,14 @@ function template_maintain_members()
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="', Utils::$context['character_set'], '" id="membersForm">
 				<p>
-					<a id="membersLink"></a>', Lang::$txt['maintain_members_since1'], '
-					<select name="del_type">
-						<option value="activated" selected>', Lang::$txt['maintain_members_activated'], '</option>
-						<option value="logged">', Lang::$txt['maintain_members_logged_in'], '</option>
-					</select>
-					', Lang::$txt['maintain_members_since2'], '
-					<input type="number" name="maxdays" value="30" size="3">', Lang::$txt['maintain_members_since3'], '
+					<a id="membersLink"></a>',
+					Lang::getTxt(
+						'maintain_members_since',
+						[
+							'input_condition' => '<select name="del_type"><option value="activated" selected>' . Lang::$txt['maintain_members_activated'] . '</option><option value="logged">' . Lang::$txt['maintain_members_logged_in'] . '</option></select>',
+							'input_number' => '<input type="number" name="maxdays" value="30" size="3">',
+						],
+					), '
 				</p>
 				<p>
 					<a href="#membersLink" onclick="swapMembers();"><img src="', Theme::$current->settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', Lang::$txt['maintain_members_all'], '</a>
@@ -386,7 +387,7 @@ function template_maintain_topics()
 	// The otherwise hidden "choose which boards to prune".
 	echo '
 					<p>
-						<a id="rotLink"></a>', Lang::$txt['maintain_old_since_days1'], '<input type="number" name="maxdays" value="30" size="3">', Lang::$txt['maintain_old_since_days2'], '
+						<a id="rotLink"></a>', Lang::getTxt('maintain_old_since_days', ['input_number' => '<input type="number" name="maxdays" value="30" size="3">']), '
 					</p>
 					<p>
 						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing"> ', Lang::$txt['maintain_old_nothing_else'], '</label><br>
@@ -447,7 +448,7 @@ function template_maintain_topics()
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<p>
-					', Lang::$txt['maintain_old_drafts_days'], ' <input type="number" name="draftdays" value="', (!empty(Config::$modSettings['drafts_keep_days']) ? Config::$modSettings['drafts_keep_days'] : 30), '" size="3"> ', Lang::$txt['days_word'], '
+					', Lang::getTxt('maintain_old_drafts_days', ['input_number' => '<input type="number" name="draftdays" value="' . (!empty(Config::$modSettings['drafts_keep_days']) ? Config::$modSettings['drafts_keep_days'] : 30) . '" size="3">']), '
 				</p>
 				<input type="submit" value="', Lang::$txt['maintain_old_remove'], '" data-confirm="', Lang::$txt['maintain_old_drafts_confirm'], '" class="button you_sure">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -460,50 +461,41 @@ function template_maintain_topics()
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=massmove" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<p>
-					<label for="id_board_from">', Lang::$txt['move_topics_from'], ' </label>
-					<select name="id_board_from" id="id_board_from">
-						<option disabled>(', Lang::$txt['move_topics_select_board'], ')</option>';
+					';
 
-	// From board
-	foreach (Utils::$context['categories'] as $category)
-	{
-		echo '
-						<optgroup label="', $category['name'], '">';
+	$board_select = [
+		'<option disabled selected>(' . Lang::$txt['move_topics_select_board'] . ')</option>',
+	];
 
-		foreach ($category['boards'] as $board)
-			echo '
-							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+	foreach (Utils::$context['categories'] as $category){
+		$board_select[] = '<optgroup label="' . $category['name'] . '">';
 
-		echo '
-						</optgroup>';
+		foreach ($category['boards'] as $board) {
+			$board_select[] = "\t" . '<option value="' . $board['id'] . '"> ' . str_repeat('==', $board['child_level']) . '=&gt;&nbsp;' . $board['name'] . '</option>';
+		}
+
+		$board_select[] = '</optgroup>';
 	}
 
+
+	echo Lang::getTxt(
+		'move_topics_from',
+		[
+			'old' => '
+						<select name="id_board_from" id="id_board_from">
+							' . implode("\n\t\t\t\t\t\t", $board_select) . '
+						</select>',
+			'new' => '
+						<select name="id_board_to" id="id_board_to">
+							' . implode("\n\t\t\t\t\t\t", $board_select) . '
+						</select>',
+		],
+	);
+
 	echo '
-					</select>
-					<label for="id_board_to">', Lang::$txt['move_topics_to'], '</label>
-					<select name="id_board_to" id="id_board_to">
-						<option disabled>(', Lang::$txt['move_topics_select_board'], ')</option>';
-
-	// To board
-	foreach (Utils::$context['categories'] as $category)
-	{
-		echo '
-						<optgroup label="', $category['name'], '">';
-
-		foreach ($category['boards'] as $board)
-			echo '
-							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
-
-		echo '
-						</optgroup>';
-	}
-	echo '
-					</select>
 				</p>
 				<p>
-					', Lang::$txt['move_topics_older_than'], '
-					<input type="number" name="maxdays" value="30" size="3">
-					', Lang::$txt['manageposts_days'], ' (', Lang::$txt['move_zero_all'], ')
+					', Lang::getTxt('move_topics_older_than', ['input_number' => '<input type="number" name="maxdays" value="30" size="3">']), ' (', Lang::$txt['move_zero_all'], ')
 				</p>
 				<p>
 					<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" checked> ', Lang::$txt['move_type_locked'], '</label><br>

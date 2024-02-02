@@ -738,20 +738,20 @@ class Members implements ActionInterface
 				];
 			} else {
 				$allowed_actions = [
-					'ok' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_no_email'],
-					'okemail' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_w_email'],
+					'ok' => Lang::$txt['admin_browse_w_approve'],
+					'okemail' => Lang::$txt['admin_browse_w_approve_send_email'],
 					'require_activation' => Lang::$txt['admin_browse_w_approve_require_activate'],
 					'reject' => Lang::$txt['admin_browse_w_reject'],
-					'rejectemail' => Lang::$txt['admin_browse_w_reject'] . ' ' . Lang::$txt['admin_browse_w_email'],
+					'rejectemail' => Lang::$txt['admin_browse_w_reject_send_email'],
 				];
 			}
 		} elseif ($browse_type == 'activate') {
 			$allowed_actions = [
 				'ok' => Lang::$txt['admin_browse_w_activate'],
-				'okemail' => Lang::$txt['admin_browse_w_activate'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'okemail' => Lang::$txt['admin_browse_w_activate_send_email'],
 				'delete' => Lang::$txt['admin_browse_w_delete'],
-				'deleteemail' => Lang::$txt['admin_browse_w_delete'] . ' ' . Lang::$txt['admin_browse_w_email'],
-				'remind' => Lang::$txt['admin_browse_w_remind'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'deleteemail' => Lang::$txt['admin_browse_w_delete_send_email'],
+				'remind' => Lang::$txt['admin_browse_w_remind_send_email'],
 			];
 		}
 
@@ -926,7 +926,7 @@ class Members implements ActionInterface
 								if ($member['id']) {
 									$member_links[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 								} else {
-									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest'] . ')';
+									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest_title'] . ')';
 								}
 							}
 

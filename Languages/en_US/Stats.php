@@ -3,6 +3,7 @@
 // Version: 3.0 Alpha 1; Stats
 
 $txt['most_online'] = 'Most Online';
+$txt['most_online_number_date'] = '{number, number, integer} on {date}';
 
 $txt['stats_center'] = 'Statistics Center';
 $txt['general_stats'] = 'General Statistics';
@@ -29,6 +30,7 @@ $txt['average_topics'] = 'Average topics per day';
 $txt['average_online'] = 'Average online per day';
 $txt['users_online'] = 'Users Online';
 $txt['gender_stats'] = 'Gender stats';
+$txt['gender_stats_number'] = '{gender}: {number, number, integer}';
 $txt['users_online_today'] = 'Online today';
 $txt['num_hits'] = 'Total page views';
 $txt['average_hits'] = 'Average page views per day';

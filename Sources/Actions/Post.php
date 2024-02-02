@@ -1137,7 +1137,7 @@ class Post implements ActionInterface
 		if (!empty($row['modified_time'])) {
 			Utils::$context['last_modified'] = Time::create('@' . $row['modified_time'])->format();
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
-			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::$txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
 		}
 
 		// Get the stuff ready for the form.
@@ -1631,7 +1631,7 @@ class Post implements ActionInterface
 		} elseif (isset($_REQUEST['msg'])) {
 			Utils::$context['page_title'] = Lang::$txt['modify_msg'];
 		} elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject'])) {
-			Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])]);
 		} elseif (empty(Topic::$info->id)) {
 			Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
 		} else {

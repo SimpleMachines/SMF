@@ -247,7 +247,7 @@ function template_credits()
 	// SMF itself
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['credits_forum'], ' ', Lang::$txt['credits_copyright'], '</h3>
+			<h3 class="catbg">', Lang::$txt['credits_forum'], '</h3>
 		</div>
 		<div class="windowbg">
 			', Utils::$context['copyrights']['smf'], '

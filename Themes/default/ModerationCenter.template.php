@@ -58,7 +58,7 @@ function template_group_requests_block()
 	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 				<li class="smalltext">
-					<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', Lang::$txt['mc_groupr_by'], ' ', $request['member']['link'], '
+					', Lang::getTxt('mc_groupr_by', ['group_link' => '<a href="' . $request['request_href'] . '">' . $request['group']['name'] . '</a>', 'member_link' => $request['member']['link']]) ,'
 				</li>';
 
 	// Don't have any watched users right now?
@@ -487,12 +487,12 @@ function template_user_watch_post_callback($post)
 	$output_html = '
 					<div>
 						<div class="floatleft">
-							<strong><a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . Lang::$txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
+							' . Lang::getTxt('mc_post_report', ['report_link' => '<a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a>', 'author_link' => $post['author_link']]) . '
 						</div>
 					</div>
 					<br>
 					<div class="smalltext">
-						' . Lang::$txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . '
+						' . Lang::getTxt('mc_watched_users_posted', ['time' => $post['poster_time']]) . '
 					</div>
 					<div class="list_posts">
 						' . $post['body'] . '
@@ -538,12 +538,12 @@ function template_show_notice()
 			<h3 class="catbg">', Lang::$txt['show_notice'], '</h3>
 		</div>
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::$txt['show_notice_subject'], ': ', Utils::$context['notice_subject'], '</h3>
+			<h3 class="titlebg">', Lang::getTxt('show_notice_subject', ['subject' => Utils::$context['notice_subject']]), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl>
 				<dt>
-					<strong>', Lang::$txt['show_notice_text'], ':</strong>
+					<strong>', Lang::$txt['show_notice_text'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['notice_body'], '
@@ -592,13 +592,13 @@ function template_warn_template()
 				</div>
 				<dl class="settings">
 					<dt>
-						<strong><label for="template_title">', Lang::$txt['mc_warning_template_title'], '</label>:</strong>
+						<strong><label for="template_title">', Lang::$txt['mc_warning_template_title'], '</label></strong>
 					</dt>
 					<dd>
 						<input type="text" id="template_title" name="template_title" value="', Utils::$context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
-						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label>:</strong><br>
+						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label></strong><br>
 						<span class="smalltext">', Lang::$txt['mc_warning_template_body_desc'], '</span>
 					</dt>
 					<dd>

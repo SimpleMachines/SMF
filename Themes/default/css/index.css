@@ -3079,6 +3079,8 @@ h3 .collapse {
 }
 p.moderators {
 	font-size: 0.9em;
+}
+p.moderators a {
 	font-weight: bold;
 }
 span.postby {

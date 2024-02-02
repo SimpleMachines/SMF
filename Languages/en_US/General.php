@@ -111,7 +111,25 @@ $txt['number_of_members'] = '{0, plural,
 	other {# members}
 }';
 
+$txt['number_of_posts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+}';
+$txt['number_of_topics'] = '{0, plural,
+	one {# topic}
+	other {# topics}
+}';
+$txt['number_of_replies'] = '{0, plural,
+	one {# reply}
+	other {# replies}
+}';
+$txt['number_of_views'] = '{0, plural,
+	one {# view}
+	other {# views}
+}';
+
 $txt['member_postcount'] = 'Posts';
+$txt['member_postcount_num'] = 'Posts: {0, number, integer}';
 $txt['no_subject'] = '(No subject)';
 $txt['view_profile'] = 'View profile';
 $txt['guest_title'] = 'Guest';
@@ -168,6 +186,8 @@ $txt['page'] = 'Page';
 $txt['prev'] = 'Previous page';
 $txt['next'] = 'Next page';
 
+$txt['page_title_number'] = '{title} - Page {pagenum, number, integer}';
+
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
 $txt['error_occured'] = 'An error has occurred';
@@ -175,13 +195,21 @@ $txt['at'] = 'at';
 $txt['by'] = 'by';
 $txt['logout'] = 'Log out';
 $txt['started_by'] = 'Started by';
-$txt['topic_started_by'] = 'Started by <strong>{member_link}</strong> in <em>{board_link}</em>';
+$txt['started_by_member'] = 'Started by {member}';
+$txt['started_by_member_in'] = 'Started by <strong>{member}</strong> in <em>{board}</em>';
+$txt['started_by_member_time'] = 'Started by {member}, {time}';
 $txt['replies'] = 'Replies';
 $txt['last_post'] = 'Last post';
 $txt['first_post'] = 'First post';
 $txt['last_poster'] = 'Last post by';
+$txt['last_post_member_date'] = 'Last post by {member} {relative, select,
+	today {{date}}
+	yesterday {{date}}
+	other {on {date}}
+}';
 $txt['last_post_message'] = '<strong>Last post: </strong>{time} <span class="postby">{post_link} by {member_link}</span>';
 $txt['last_post_topic'] = '{post_link}<br>by {member_link}';
+$txt['last_post_updated'] = '{time}<br>by {member_link}';
 $txt['post_by_member'] = '<strong>{subject}</strong> by <strong>{poster}</strong><br>';
 $txt['boardindex_total_posts'] = '{posts, plural,
 	one {# post}
@@ -218,10 +246,10 @@ $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
 $txt['pages'] = 'Pages';
-$txt['users_active'] = 'Users active {0, plural,
-	one {in past # minute}
-	other {in past # minutes}
-}';
+$txt['users_active'] = 'Users active {minutes, plural,
+	one {in the past # minute}
+	other {in the past # minutes}
+}: {list}';
 $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
@@ -331,10 +359,13 @@ $txt['welcome_to_forum'] = 'Welcome to <strong>{forum_name}</strong>.';
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.
 $txt['hello_guest'] = 'Welcome,';
+
+$txt['hello_user'] = 'Hello, {name}.';
 $txt['select_destination'] = 'Please select a destination';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['posted_by'] = 'Posted by';
+$txt['posted_by_member_time'] = 'Posted by {member}, {time}';
 
 $txt['icon_smiley'] = 'Smiley';
 $txt['icon_angry'] = 'Angry';
@@ -356,6 +387,10 @@ $txt['icon_cry'] = 'Cry';
 
 $txt['moderator'] = 'Moderator';
 $txt['moderators'] = 'Moderators';
+$txt['moderators_list'] = '{num, plural,
+	one {Moderator}
+	other {Moderators}
+}: {list}';
 
 $txt['views'] = 'Views';
 $txt['new'] = 'New';
@@ -382,7 +417,25 @@ $txt['members_title'] = 'Members';
 $txt['members_list'] = 'Members List';
 $txt['new_posts'] = 'New Posts';
 $txt['old_posts'] = 'No New Posts';
+$txt['new_posts_stats'] = 'New Posts ({topics, plural,
+	one {# topic}
+	other {# topics}
+}, {posts, plural,
+	one {# post}
+	other {# posts}
+})';
+$txt['old_posts_stats'] = 'No New Posts ({topics, plural,
+	one {# topic}
+	other {# topics}
+}, {posts, plural,
+	one {# post}
+	other {# posts}
+})';
 $txt['redirect_board'] = 'Redirect Board';
+$txt['number_of_redirects'] = '{0, plural,
+	one {# redirect}
+	other {# redirects}
+}';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
@@ -420,9 +473,9 @@ $txt['total_posts'] = 'Total Posts';
 $txt['total_topics'] = 'Total Topics';
 
 $txt['time_logged_in'] = 'Time to stay logged in';
+$txt['always_logged_in'] = 'Forever';
 
 $txt['preview'] = 'Preview';
-$txt['always_logged_in'] = 'Forever';
 
 $txt['logged'] = 'Logged';
 $txt['show_ip'] = 'Show IP address';
@@ -489,7 +542,7 @@ $txt['yesterday'] = '<strong>Yesterday</strong> at ';
 $txt['new_poll'] = 'New poll';
 $txt['poll_question'] = 'Question';
 $txt['poll_vote'] = 'Submit Vote';
-$txt['poll_total_voters'] = 'Total Members Voted';
+$txt['poll_total_voters'] = 'Total Members Voted: <strong>{0, number, integer}</strong>';
 $txt['poll_results'] = 'View results';
 $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';
@@ -502,10 +555,11 @@ $txt['two_weeks'] = '2 Weeks';
 $txt['one_month'] = '1 Month';
 $txt['two_months'] = '2 Months';
 $txt['forever'] = 'Forever';
-$txt['moved'] = 'MOVED';
+$txt['moved'] = 'MOVED: {subject}';
 $txt['move_why'] = 'Please enter a brief description as to<br>why this topic is being moved.';
 $txt['board'] = 'Board';
 $txt['in'] = 'in';
+$txt['topic_in_board'] = '{topic_link}<br><span class="smalltext"><em>in {board_link}</em></span>';
 $txt['sticky_topic'] = 'Sticky Topic';
 
 $txt['delete'] = 'Delete';
@@ -515,6 +569,8 @@ $txt['your_pms'] = 'Your Personal Messages';
 
 $txt['kilobyte'] = 'KB';
 $txt['megabyte'] = 'MB';
+$txt['size_kilobyte'] = '{0, number} KB';
+$txt['size_megabyte'] = '{0, number} MB';
 
 $txt['more_stats'] = '[More Stats]';
 
@@ -656,12 +712,16 @@ $txt['theme_template_error'] = '{type, select,
 $txt['theme_language_error'] = 'Unable to load the {filename} language file.';
 
 $txt['sub_boards'] = 'Sub-Boards';
+$txt['sub_boards_list'] = '<strong id="{id}">{num, plural,
+	one {Sub-Board}
+	other {Sub-Boards}
+}</strong> {list}';
 $txt['restricted_board'] = 'Restricted Board';
 
-$txt['smtp_no_connect'] = 'Could not connect to SMTP host';
+$txt['smtp_no_connect'] = 'Could not connect to SMTP host: {error_number}: {error_message}';
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers. Hostname may need ssl:// prefix.';
 $txt['smtp_bad_response'] = 'Could not get mail server response codes';
-$txt['smtp_error'] = 'Ran into problems sending mail. Error: ';
+$txt['smtp_error'] = 'Ran into problems sending mail. Error: {0}';
 $txt['mail_send_unable'] = 'Unable to send mail to the email address {0}';
 
 $txt['mlist_search'] = 'Search for Members';
@@ -839,7 +899,7 @@ $txt['merge_select_target_board'] = 'Select the target board of the merged topic
 $txt['merge_select_poll'] = 'Select which poll the merged topic should have';
 $txt['merge_topic_list'] = 'Select topics to be merged';
 $txt['merge_select_subject'] = 'Select subject of merged topic';
-$txt['merge_custom_subject'] = 'Custom subject';
+$txt['merge_custom_subject'] = 'Custom subject...';
 $txt['merge_include_notifications'] = 'Include notifications?';
 $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
@@ -856,6 +916,7 @@ $txt['smileys_none'] = 'No Smileys';
 $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 
 $txt['search_results'] = 'Search Results';
+$txt['search_results_for'] = 'Search Results for {params}';
 $txt['search_no_results'] = 'Sorry, no matches were found';
 
 $txt['total_time_logged_d'] = 'd ';
@@ -900,6 +961,7 @@ $txt['ssi_session_broken'] = 'SSI.php was unable to load a session! This may cau
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['preview_title'] = 'Preview post';
+$txt['preview_subject'] = 'Preview of {subject}';
 $txt['preview_fetch'] = 'Fetching preview...';
 $txt['preview_new'] = 'New message';
 $txt['pm_error_while_submitting'] = 'The following error or errors occurred while sending this personal message:';
@@ -909,7 +971,7 @@ $txt['error_old_topic'] = 'Warning: {0, plural,
 	other {this topic has not been posted in for at least # days.}
 }<br>Unless you\'re sure you want to reply, please consider starting a new topic.';
 
-$txt['split_selected_posts'] = 'Selected posts';
+$txt['split_selected_posts'] = 'Selected posts ({reset_link})';
 $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after splitting.';
 $txt['split_reset_selection'] = 'reset selection';
 
@@ -918,6 +980,7 @@ $txt['modify_cancel_all'] = 'Cancel All';
 $txt['mark_read_short'] = 'Mark Read';
 
 $txt['alerts'] = 'Alerts';
+$txt['alerts_member'] = 'Alerts for {member}';
 
 $txt['pm_short'] = 'My Messages';
 $txt['pm_menu_read'] = 'Read your messages';

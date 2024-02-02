@@ -2092,7 +2092,18 @@ class Utils
 		if ($do_header) {
 			// Was the page title set last minute? Also update the HTML safe one.
 			if (!empty(Utils::$context['page_title']) && empty(Utils::$context['page_title_html_safe'])) {
-				Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+				if (empty(Utils::$context['current_page'])) {
+					Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title']));
+				} else {
+					Utils::$context['page_title_html_safe'] = Lang::getTxt(
+						'page_title_number',
+						[
+							'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
+							'pagenum' => Utils::$context['current_page'] + 1,
+						],
+					);
+				}
+
 			}
 
 			// Start up the session URL fixer.

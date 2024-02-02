@@ -35,15 +35,16 @@ $txt['mc_reported_users_none'] = 'There are no pending profile reports.';
 
 $txt['mc_seen'] = '{link} last seen {last_login}';
 $txt['mc_seen_never'] = '{link} never seen';
-$txt['mc_groupr_by'] = 'by';
+$txt['mc_groupr_by'] = '{group_link} by {member_link}';
 $txt['mc_post_report'] = '{report_link} by {author_link}';
 
 $txt['mc_reported_posts_desc'] = 'Here you can review all the post reports raised by members of the community.';
 $txt['mc_reportedp_active'] = 'Active Reports';
 $txt['mc_reportedp_closed'] = 'Old Reports';
 $txt['mc_reportedp_by'] = 'by';
-$txt['mc_reportedp_reported_by'] = 'Reported By';
-$txt['mc_reportedp_last_reported'] = 'Last Reported';
+$txt['mc_reportedp_subject_author'] = '{subject} by {author}';
+$txt['mc_reportedp_reported_by'] = 'Reported by {list}';
+$txt['mc_reportedp_last_reported'] = 'Last Reported {date}';
 $txt['mc_reportedp_none_found'] = 'No Reports Found';
 $txt['mc_reportedp_comment_none_found'] = 'No Moderator comment found';
 $txt['mc_reportedp_comment_edit'] = 'Edit';
@@ -111,10 +112,12 @@ $txt['mc_memberreport_summary'] = '{0, plural,
 $txt['mc_memberreport_whoreported_title'] = 'Members who have reported this profile.';
 
 $txt['show_notice'] = 'Notice Text';
-$txt['show_notice_subject'] = 'Subject';
+$txt['show_notice_subject'] = 'Subject: {subject}';
 $txt['show_notice_text'] = 'Text';
 
 $txt['mc_watched_users_title'] = 'Watched Members';
+$txt['mc_watched_users_title_view_by_post'] = 'Watched Members - View By Post';
+$txt['mc_watched_users_title_view_by_member'] = 'Watched Members - View By Member';
 $txt['mc_watched_users_desc'] = 'Here you can keep a track of all members who have been assigned a &quot;watch&quot; by the moderation team.';
 $txt['mc_watched_users_post'] = 'View by Post';
 $txt['mc_watched_users_warning'] = 'Warning Level';
@@ -124,7 +127,7 @@ $txt['mc_watched_users_no_posts'] = 'There are no posts from watched members.';
 // Don't use entities in the two strings below.
 $txt['mc_watched_users_delete_post'] = 'Are you sure you want to delete this post?';
 $txt['mc_watched_users_delete_posts'] = 'Are you sure you want to delete these posts?';
-$txt['mc_watched_users_posted'] = 'Posted';
+$txt['mc_watched_users_posted'] = 'Posted {time}';
 $txt['mc_watched_users_member'] = 'Member';
 
 $txt['mc_warnings_description'] = 'From this section you can see which warnings have been issued to members of the forum. You can also add and modify the notification templates used when sending a warning to a member.';

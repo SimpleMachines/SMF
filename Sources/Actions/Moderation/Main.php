@@ -272,7 +272,7 @@ class Main implements ActionInterface
 			'title' => Lang::$txt['moderation_center'],
 			'help' => '',
 			'description' => '
-				<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
+				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
 				<br><br>
 				' . Lang::$txt['mc_description'],
 		];

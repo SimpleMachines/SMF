@@ -779,7 +779,7 @@ class Mail
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$socket) {
-				ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+				ErrorHandler::log(Lang::getTxt('smtp_no_connect', ['error_number' => $errno, 'error_message' => $errstr]));
 
 				return false;
 			}
@@ -974,7 +974,7 @@ class Mail
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
 			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::$txt['smtp_error'] . $server_response);
+				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response]));
 			}
 
 			return false;

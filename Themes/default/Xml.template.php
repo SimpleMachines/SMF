@@ -166,7 +166,7 @@ function template_pm()
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', Lang::$txt['preview'], ' - ', !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::$txt['no_subject'], ']]></subject>
+		<subject><![CDATA[', Lang::getTxt('preview_subject', ['subject' => !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::$txt['no_subject']]), ']]></subject>
 		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';

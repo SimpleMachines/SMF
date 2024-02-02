@@ -220,7 +220,7 @@ class TopicMove2 implements ActionInterface
 			$redirect_topic = isset($_POST['redirect_topic']) ? Topic::$topic_id : 0;
 
 			$msgOptions = [
-				'subject' => Lang::$txt['moved'] . ': ' . $subject,
+				'subject' => Lang::getTxt('moved', ['subject' => $subject]),
 				'body' => $_POST['reason'],
 				'icon' => 'moved',
 				'smileys_enabled' => 1,

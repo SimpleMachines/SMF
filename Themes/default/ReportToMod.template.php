@@ -81,7 +81,7 @@ function template_main()
 				<p class="noticebox">', Utils::$context['notice'], '</p>
 				<dl class="settings" id="report_post">
 					<dt>
-						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>:
+						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>
 					</dt>
 					<dd>
 						<textarea type="text" id="report_comment" name="comment" maxlength="254">', Utils::$context['comment_body'], '</textarea>

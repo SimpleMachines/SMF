@@ -1599,7 +1599,7 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
 				</div>';
 		} else {
 			echo Lang::$txt['poll_cannot_see'];
@@ -1686,7 +1686,7 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
 				</div>';
 		} else {
 			echo Lang::$txt['poll_cannot_see'];

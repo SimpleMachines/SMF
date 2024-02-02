@@ -523,7 +523,7 @@ class Who implements ActionInterface
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
 					}
 				} elseif (!empty($actions['action'])) {
-					$data[$k] = Lang::$txt['who_generic'] . ' ' . $actions['action'];
+					$data[$k] = Lang::getTxt('who_generic', $actions);
 				} else {
 					$data[$k] = ['label' => 'who_unknown', 'class' => 'em'];
 				}

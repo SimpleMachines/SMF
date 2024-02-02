@@ -105,7 +105,8 @@ $txt['database_optimized'] = ' table(s) optimized.';
 $txt['database_no_id'] = 'has a non-existent member ID';
 
 $txt['apply_filter'] = 'Apply Filter';
-$txt['applying_filter'] = 'Applying Filter';
+$txt['apply_filter_type'] = 'Apply Filter: {type}';
+$txt['applying_filter'] = '<strong>Applying Filter:</strong> {type} {value}';
 $txt['filter_only_member'] = 'Only show the error messages of this member';
 $txt['filter_only_ip'] = 'Only show the error messages of this IP address';
 $txt['filter_only_session'] = 'Only show the error messages of this session';
@@ -117,6 +118,7 @@ $txt['error_url'] = 'URL of page causing the error';
 $txt['error_message'] = 'Error message';
 $txt['error_file'] = 'File';
 $txt['error_line'] = 'Line';
+$txt['error_file_and_line'] = '{file} (Line {line, number, integer})';
 $txt['clear_filter'] = 'Clear filter';
 $txt['remove_selection'] = 'Remove selection';
 $txt['remove_filtered_results'] = 'Remove all filtered results';
@@ -125,9 +127,10 @@ $txt['remove_selection_confirm'] = 'Are you sure you want to delete the selected
 $txt['remove_filtered_results_confirm'] = 'Are you sure you want to delete the filtered entries?';
 $txt['reverse_direction'] = 'Reverse chronological order of list';
 $txt['error_type'] = 'Type of error';
+$txt['error_type_name'] = 'Type of error: {type}';
 $txt['filter_only_type'] = 'Only show the errors of this type';
 $txt['filter_only_file'] = 'Only show the errors from this file';
-$txt['apply_filter_of_type'] = 'Apply filter of type';
+$txt['apply_filter_of_type'] = 'Apply filter of type: {list}';
 $txt['backtrace_title'] = 'Backtrace information';
 // argument(s): error message, function, filename, line nr, filehash, Config::$scripturl
 $txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, integer}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, integer}</a>';
@@ -182,8 +185,8 @@ $txt['maintain_backup_gz'] = 'Compress the file with gzip.';
 $txt['maintain_backup_save'] = 'Download';
 
 $txt['maintain_old'] = 'Remove old posts';
-$txt['maintain_old_since_days1'] = 'Remove all topics not posted in for ';
-$txt['maintain_old_since_days2'] = ' days, which are:';
+// The argument for this string is an HTML input element.
+$txt['maintain_old_since_days'] = 'Remove all topics not posted in for {input_number} days, which are:';
 $txt['maintain_old_nothing_else'] = 'Any sort of topic.';
 $txt['maintain_old_are_moved'] = 'Moved/merged topic notices.';
 $txt['maintain_old_are_locked'] = 'Locked.';
@@ -194,13 +197,13 @@ $txt['maintain_old_remove'] = 'Remove now';
 $txt['maintain_old_confirm'] = 'Are you really sure you want to delete old posts now?-n-This cannot be undone!';
 
 $txt['maintain_old_drafts'] = 'Remove old drafts';
-$txt['maintain_old_drafts_days'] = 'Remove all drafts older than';
+// The argument for this string is an HTML input element.
+$txt['maintain_old_drafts_days'] = 'Remove all drafts older than {input_number} days.';
 $txt['maintain_old_drafts_confirm'] = 'Are you really sure you want to delete old drafts now?-n-This cannot be undone!';
 $txt['maintain_members'] = 'Remove Inactive Members';
 $txt['maintain_members_ungrouped'] = 'Ungrouped Members <span class="smalltext">(Members with no assigned groups)</span>';
-$txt['maintain_members_since1'] = 'Remove all members who have not';
-$txt['maintain_members_since2'] = 'for';
-$txt['maintain_members_since3'] = 'days.';
+// The arguments for this string are HTML input elements.
+$txt['maintain_members_since'] = 'Remove all members who have not {input_condition} for {input_number} days.';
 $txt['maintain_members_activated'] = 'activated their account';
 $txt['maintain_members_logged_in'] = 'logged in';
 $txt['maintain_members_all'] = 'All Membergroups';
@@ -227,11 +230,12 @@ $txt['entity_convert_proceed'] = 'Proceed';
 // Move topics out.
 $txt['move_topics_maintenance'] = 'Move Topics';
 $txt['move_topics_select_board'] = 'Select Board';
-$txt['move_topics_from'] = 'Move topics from';
-$txt['move_topics_to'] = 'to';
+// The arguments for this string are HTML input elements.
+$txt['move_topics_from'] = 'Move topics from {old} to {new}';
 $txt['move_topics_now'] = 'Move now';
 $txt['move_topics_confirm'] = 'Are you sure you want to move ALL the topics from &quot;%board_from%&quot; to &quot;%board_to%&quot;?';
-$txt['move_topics_older_than'] = 'Move topics not posted in for ';
+// The argument for this string is an HTML input element.
+$txt['move_topics_older_than'] = 'Move topics not posted in for {input_number} days.';
 $txt['move_type_sticky'] = 'Sticky topics';
 $txt['move_type_locked'] = 'Locked topics';
 $txt['move_zero_all'] = 'Enter 0 to move all topics';

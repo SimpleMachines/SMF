@@ -51,7 +51,7 @@ $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair all boards and topics';
 $txt['admin_main_welcome'] = 'This is your &quot;{admin_center}&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="{help}"></span> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
-$txt['administrators'] = 'Forum Administrators';
+$txt['administrators'] = 'Forum Administrators: {list}';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
 $txt['admin_match_whole'] = 'Match whole name only. If unchecked, search within names.';
 $txt['admin_match_case'] = 'Match case. If unchecked, search will be case insensitive.';
@@ -71,7 +71,7 @@ $txt['registration_agreement_desc'] = 'This agreement is shown when a user regis
 $txt['privacy_policy'] = 'Privacy Policy';
 $txt['privacy_policy_desc'] = 'This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration.';
 $txt['errors_list'] = 'Listing of forum errors';
-$txt['errors_found'] = 'The following errors are fouling up your forum';
+$txt['errors_found'] = 'The following errors are fouling up your forum:';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
 $txt['errors_do_recount'] = 'All errors have been fixed and a salvage area has been created. Please click the button below to recount some key statistics.';
 $txt['errors_recount_now'] = 'Recount Statistics';
@@ -141,7 +141,7 @@ $txt['email_variables'] = 'In this message you can use a few &quot;variables&quo
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.<br><span class="alert">This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries\' privacy and anti-spam laws.</span>';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
-$txt['email_done'] = 'done.';
+$txt['email_done'] = '{percentage_done, number, :: percent} complete.';
 
 $txt['warnings'] = 'Warnings';
 $txt['warnings_desc'] = 'This system allows administrators and moderators to issue warnings to users, and can automatically remove user rights as their warning level increases. To take full advantage of this system, &quot;Post Moderation&quot; should be enabled.';
@@ -180,8 +180,7 @@ $txt['ban_remove_selected'] = 'Remove selected';
 $txt['ban_remove_selected_confirm'] = 'Are you sure you want to remove the selected bans?';
 $txt['ban_modify'] = 'Modify';
 $txt['ban_name'] = 'Ban name';
-// Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
-$txt['ban_edit'] = 'Edit ban';
+$txt['ban_edit'] = 'Edit ban "{name}"';
 $txt['ban_add_notes'] = '<strong>Note</strong>: after creating the above ban, you can add additional entries that trigger the ban, like IP addresses, hostnames, and email addresses.';
 $txt['ban_expired'] = 'Expired / disabled';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
@@ -296,8 +295,8 @@ $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected m
 
 $txt['support_credits_title'] = 'Support and Credits';
 $txt['support_title'] = 'Support Information';
-$txt['support_versions_current'] = 'Current SMF version';
-$txt['support_versions_forum'] = 'Forum version';
+$txt['support_versions_current'] = 'Current SMF version: <em id="smfVersion">{version}</em>';
+$txt['support_versions_forum'] = 'Forum version: <em id="yourVersion">{version}</em>';
 $txt['support_versions_db'] = '{db_title} version';
 $txt['support_versions_db_engine'] = '{db_title} engine';
 $txt['support_versions_server'] = 'Server version';
@@ -752,8 +751,8 @@ $txt['hooks_title_list'] = 'Integration Hooks';
 $txt['hooks_field_hook_name'] = 'Hook Name';
 $txt['hooks_field_function_name'] = 'Function Name';
 $txt['hooks_field_function_method'] = 'Function is a method and its class is instantiated';
-$txt['hooks_field_function'] = 'Function';
-$txt['hooks_field_included_file'] = 'Included file';
+$txt['hooks_field_function'] = 'Function: {real_function}';
+$txt['hooks_field_included_file'] = 'Included file : {included_file}';
 $txt['hooks_field_file_name'] = 'File Name';
 $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';

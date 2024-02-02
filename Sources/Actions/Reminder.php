@@ -138,7 +138,7 @@ class Reminder implements ActionInterface
 		$this->member->email = trim($this->member->email);
 
 		if ($this->member->email == '') {
-			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
+			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email]));
 		}
 
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.

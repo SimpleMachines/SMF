@@ -898,7 +898,7 @@ class Membergroups implements ActionInterface
 		IntegrationHook::call('integrate_view_membergroup');
 
 		Utils::$context['sub_template'] = 'edit_group';
-		Utils::$context['page_title'] = Lang::$txt['membergroups_edit_group'];
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_edit_group', ['name' => Utils::$context['group']->name]);
 
 		SecurityToken::create('admin-mmg');
 	}

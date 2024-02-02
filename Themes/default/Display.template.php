@@ -41,7 +41,7 @@ function template_main()
 			<h2 class="display_title">
 				<span id="top_subject">', Utils::$context['subject'], '</span>', (Utils::$context['is_locked']) ? ' <span class="main_icons lock"></span>' : '', (Utils::$context['is_sticky']) ? ' <span class="main_icons sticky"></span>' : '', '
 			</h2>
-			<p>', Lang::$txt['started_by'], ' ', Utils::$context['topic_poster_name'], ', ', Utils::$context['topic_started_time'], '</p>';
+			<p>', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['topic_poster_name'], 'time' => Utils::$context['topic_started_time']]), '</p>';
 
 	// Next - Prev
 	echo '
@@ -126,7 +126,7 @@ function template_main()
 
 			if (Utils::$context['allow_results_view'])
 				echo '
-					<p><strong>', Lang::$txt['poll_total_voters'], ':</strong> ', Utils::$context['poll']['total_votes'], '</p>';
+					<p>', Lang::getTxt('poll_total_voters', [Utils::$context['poll']['total_votes']]), '</p>';
 		}
 		// They are allowed to vote! Go to it!
 		else
@@ -589,7 +589,7 @@ function template_single_post($message)
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-								<li class="postcount">', Lang::$txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
+								<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</li>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && !empty($message['member']['blurb']))
@@ -977,7 +977,7 @@ function template_quickreply()
 		echo '
 						<dl id="post_header">
 							<dt>
-								', Lang::$txt['name'], ':
+								', Lang::$txt['name'], '
 							</dt>
 							<dd>
 								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
@@ -987,7 +987,7 @@ function template_quickreply()
 		{
 			echo '
 							<dt>
-								', Lang::$txt['email'], ':
+								', Lang::$txt['email'], '
 							</dt>
 							<dd>
 								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
@@ -1014,7 +1014,7 @@ function template_quickreply()
 	if (Utils::$context['require_verification'])
 		echo '
 						<div class="post_verification">
-							<strong>', Lang::$txt['verification'], ':</strong>
+							<strong>', Lang::$txt['verification'], '</strong>
 							', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 						</div>';
 

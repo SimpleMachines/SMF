@@ -315,9 +315,8 @@ $txt['custom_edit_mask_regex'] = 'Regex (Advanced)';
 $txt['custom_edit_enclose'] = 'Show Enclosed Within Text (Optional)';
 $txt['custom_edit_enclose_desc'] = 'We <strong>strongly</strong> recommend to use an input mask to validate the input supplied by the user.';
 
-$txt['custom_edit_order_move'] = 'Move ';
-$txt['custom_edit_order_up'] = 'Up';
-$txt['custom_edit_order_down'] = 'Down';
+$txt['custom_edit_order_move_up'] = 'Move Up';
+$txt['custom_edit_order_move_down'] = 'Move Down';
 $txt['custom_edit_placement'] = 'Choose Placement';
 $txt['custom_profile_placement'] = 'Placement';
 $txt['custom_profile_placement_standard'] = 'Standard (with title)';
@@ -416,7 +415,7 @@ $txt['languages_download_info'] = '<strong>Note:</strong>
 
 $txt['languages_download_main_files'] = 'Primary Files';
 $txt['languages_download_filename'] = 'File Name';
-$txt['languages_download_dest'] = 'Destination';
+$txt['languages_download_dest'] = 'Destination: {destination}';
 $txt['languages_download_writable'] = 'Writable';
 $txt['languages_download_version'] = 'Version';
 $txt['languages_download_older'] = 'You have a newer version of this file installed. Overwriting is not recommended.';

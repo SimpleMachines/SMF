@@ -9,7 +9,7 @@ $txt['permissions_allowed'] = 'Allowed';
 $txt['permissions_denied'] = 'Denied';
 $txt['permission_cannot_edit'] = '<strong>Note:</strong> You cannot edit this permission profile as it is a predefined profile included within the forum software by default. If you wish to change the permissions of this profile you must first create a duplicate profile. You can carry out this task by clicking <a href="{url}">here</a>.';
 
-$txt['permissions_for_profile'] = 'Permissions for Profile';
+$txt['permissions_for_profile'] = 'Permissions for Profile "{name}"';
 $txt['permissions_boards_desc'] = 'The list below shows which set of permissions has been assigned to each board on your forum. You may edit the assigned permission profile by either clicking the board name or select &quot;edit all&quot; from the bottom of the page. To edit the profile itself simply click the profile name.';
 $txt['permissions_board_all'] = 'Edit All';
 $txt['permission_profile'] = 'Permission Profile';
@@ -55,7 +55,7 @@ $txt['permissionname_profile_blurb_own'] = 'Own profile';
 $txt['permissionname_profile_blurb_any'] = 'Any profile';
 $txt['permissions_profile_copy_from'] = 'Copy Permissions from';
 
-$txt['permissions_includes_inherited'] = 'Inherited Groups';
+$txt['permissions_includes_inherited'] = 'Inherited Groups: {list}';
 
 $txt['permissions_all'] = 'all';
 $txt['permissions_none'] = 'none';
@@ -69,9 +69,9 @@ $txt['permissions_copy_from_board'] = 'Copy permissions from this board';
 $txt['permissions_select_board'] = 'Select a board';
 $txt['permissions_like_group'] = 'Set permissions like this group';
 $txt['permissions_select_membergroup'] = 'Select a membergroup';
-$txt['permissions_add'] = 'Add permission';
-$txt['permissions_remove'] = 'Clear permission';
-$txt['permissions_deny'] = 'Deny permission';
+$txt['permissions_add'] = 'Add permission...';
+$txt['permissions_remove'] = 'Clear permission...';
+$txt['permissions_deny'] = 'Deny permission...';
 $txt['permissions_select_permission'] = 'Select a permission';
 
 // All of the following block of strings should not use entities, instead use \\" for &quot; etc.
@@ -82,10 +82,11 @@ $txt['permissions_deny_dangerous'] = 'You are about to deny one or more permissi
 $txt['permissions_modify_group'] = 'Modify Group';
 $txt['permissions_general'] = 'General Permissions';
 $txt['permissions_board'] = 'Default Board Profile Permissions';
+$txt['permissions_general_for'] = 'General Permissions for "{name}"';
+$txt['permissions_board_for'] = 'Default Board Profile Permissions for "{name}"';
 $txt['permissions_board_desc'] = '<strong>Note</strong>: changing these board permissions will affect all boards currently assigned the &quot;Default&quot; permissions profile. Boards not using the &quot;Default&quot; profile will not be affected by changes to this page.';
 $txt['permissions_commit'] = 'Save changes';
-$txt['permissions_on'] = 'in profile';
-$txt['permissions_local_for'] = 'Permissions for group';
+$txt['permissions_for_in'] = 'Permissions for "{group}" in "{profile}"';
 $txt['permissions_option_own'] = 'Own';
 $txt['permissions_option_any'] = 'Any';
 $txt['permissions_option_on'] = '&#x2705;';

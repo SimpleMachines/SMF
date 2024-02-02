@@ -53,9 +53,10 @@ $txt['theme_users'] = 'people are using this theme.';
 $txt['theme_pick_variant'] = 'Select Variant';
 
 $txt['theme_edit'] = 'Edit Theme';
+$txt['theme_edit_file'] = 'Edit File {filename}';
 $txt['theme_edit_style'] = 'Modify the stylesheets. (colors, fonts, etc.)';
 $txt['theme_edit_index'] = 'Modify the index template. (the main template)';
-$txt['theme_edit_no_save'] = 'This file cannot be saved because it is not writable. Please make sure the following file is 777 or has the proper permissions';
+$txt['theme_edit_no_save'] = 'The file "{filename}" cannot be saved because it is not writable. Please adjust the file permissions to make it writable, then try again.';
 $txt['theme_edit_save'] = 'Save Changes';
 
 $txt['theme_global_description'] = 'This is the default theme, which means your theme will change along with the administrators\' settings and the board you are viewing.';
@@ -96,7 +97,9 @@ $txt['theme_adding_title'] = 'Obtaining Themes';
 $txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="https://custom.simplemachines.org/themes/" target="_blank" rel="noopener">https://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each theme published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings. Changing these will only affect new members and guests.';
-$txt['theme_options_title'] = 'Change or reset default options';
+$txt['theme_options_title'] = 'Change or reset default options for {theme}';
+
+$txt['theme_settings_for'] = 'Theme Settings for {theme}';
 
 $txt['themeadmin_title'] = 'Themes and Layout settings';
 $txt['themeadmin_description'] = 'Here you can modify the settings for your themes, update theme selections, reset member options, and the like.';
@@ -109,7 +112,7 @@ $txt['themeadmin_install_title'] = 'Manage and Install themes';
 $txt['themeadmin_list_heading'] = 'Theme Settings overview';
 $txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the settings icon for a theme below to set their options, change their directory or URL settings, or to find other options.';
 $txt['themeadmin_list_theme_dir'] = 'Theme directory (templates)';
-$txt['themeadmin_list_invalid'] = '(Warning! this path is not correct.)';
+$txt['themeadmin_list_invalid'] = '(Warning! This path is incorrect.)';
 $txt['themeadmin_list_theme_url'] = 'URL to above directory';
 $txt['themeadmin_list_images_url'] = 'URL to images directory';
 $txt['themeadmin_list_reset'] = 'Reset Theme URLs and Directories';
@@ -119,17 +122,23 @@ $txt['themeadmin_list_reset_go'] = 'Attempt to reset all themes';
 
 $txt['themeadmin_reset_tip'] = 'Each theme may have its own custom options for selection by your members. These include things like avatars, signatures, layout options and other similar options. Here you can change the defaults or reset everyone\'s options.<br><br>Please note that some themes may use the default options, in which case they will not have their own options.';
 $txt['themeadmin_reset_defaults'] = 'Configure guest and new user options for this theme';
-$txt['themeadmin_reset_defaults_current'] = 'options currently set.';
+$txt['themeadmin_reset_defaults_current'] = '({0, plural,
+	one {# option currently set.}
+	other {# options currently set.}
+})';
 $txt['themeadmin_reset_members'] = 'Change current options for all members using this theme';
 $txt['themeadmin_reset_remove'] = 'Remove all members\' options and use the defaults';
-$txt['themeadmin_reset_remove_current'] = 'members currently using their own options.';
+$txt['themeadmin_reset_remove_current'] = '({0, plural,
+	one {# member currently using their own options.}
+	other {# members currently using their own options.}
+})';
 // Don't use entities in the below string.
 $txt['themeadmin_reset_remove_confirm'] = 'Are you sure you want to remove all theme options?-n-This may reset some custom profile fields as well.';
 $txt['themeadmin_reset_options_info'] = 'The options below will reset options for <em>everyone</em>. To change an option, select &quot;change&quot; in the box next to it, and then select a value for it. To use the default, select &quot;default&quot;. Otherwise, use &quot;don\'t change&quot; to keep it as-is.';
 $txt['themeadmin_reset_options_change'] = 'Change';
 $txt['themeadmin_reset_options_none'] = 'Don\'t change';
 $txt['themeadmin_reset_options_default'] = 'Default';
-$txt['themeadmin_reset_options_title'] = 'Change or reset user options';
+$txt['themeadmin_reset_options_title'] = 'Change or reset user options for {theme}';
 
 $txt['themeadmin_edit_browse'] = 'Browse the templates and files in this theme.';
 $txt['themeadmin_edit_style'] = 'Edit this theme\'s stylesheets.';
@@ -147,7 +156,7 @@ $txt['themeadmin_edit_size'] = 'Size';
 $txt['themeadmin_edit_bytes'] = 'B';
 $txt['themeadmin_edit_kilobytes'] = 'KB';
 $txt['themeadmin_edit_error'] = 'The file you tried to save generated the following error:';
-$txt['themeadmin_edit_on_line'] = 'Beginning on line';
+$txt['themeadmin_edit_on_line'] = 'Beginning on line {line, number, integer}';
 $txt['themeadmin_edit_preview'] = 'Preview';
 $txt['themeadmin_selectable'] = 'Themes that the user is able to select';
 $txt['themeadmin_themelist_link'] = 'Show the list of themes';

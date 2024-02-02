@@ -119,7 +119,7 @@ class TrackIP implements ActionInterface
 		}
 
 		if ($this->standalone) {
-			Utils::$context['page_title'] = Lang::$txt['trackIP'] . ' - ' . Utils::$context['ip'];
+			Utils::$context['page_title'] = Lang::getTxt('trackIP_page_title', Utils::$context);
 		}
 
 		Utils::$context['ips'] = [];
@@ -145,7 +145,7 @@ class TrackIP implements ActionInterface
 		// Start with the user messages.
 		$list_options = [
 			'id' => 'track_message_list',
-			'title' => Lang::$txt['messages_from_ip'] . ' ' . Utils::$context['ip'],
+			'title' => Lang::getTxt('messages_from_ip', Utils::$context),
 			'start_var_name' => 'messageStart',
 			'items_per_page' => $max_per_page,
 			'no_items_label' => Lang::$txt['no_messages_from_ip'],
@@ -233,7 +233,7 @@ class TrackIP implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::$txt['errors_from_ip'] . ' ' . Utils::$context['ip'],
+			'title' => Lang::getTxt('errors_from_ip', Utils::$context),
 			'start_var_name' => 'errorStart',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['no_errors_from_ip'],

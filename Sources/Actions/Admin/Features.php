@@ -796,11 +796,11 @@ class Features implements ActionInterface
 							$return = '<p class="centertext bold_text">';
 
 							if ($rowData['field_order'] > 1) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_up'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move_up'] . '"></span></a>';
 							}
 
 							if ($rowData['field_order'] < Utils::$context['custFieldsMaxOrder']) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_down'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move_down'] . '"></span></a>';
 							}
 
 							$return .= '</p>';

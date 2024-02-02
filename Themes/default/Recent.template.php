@@ -45,7 +45,7 @@ function template_recent()
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-				<span class="smalltext">', Lang::$txt['last_poster'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
+				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], '' => str_contains($post['time'], Lang::$txt['today']) ? 'today' : (str_contains($post['time'], Lang::$txt['yesterday']) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
 			</div>
 			<div class="list_posts">', $post['body'], '</div>';
 
@@ -177,9 +177,9 @@ function template_unread()
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
-								', $topic['replies'], ' ', Lang::$txt['replies'], '
+								', Lang::getTxt('number_of_replies', [$topic['replies']]), '
 								<br>
-								', $topic['views'], ' ', Lang::$txt['views'], '
+								', Lang::getTxt('number_of_views', [$topic['views']]), '
 							</p>
 						</div>
 						<div class="lastpost">
@@ -356,9 +356,9 @@ function template_replies()
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
-								', $topic['replies'], ' ', Lang::$txt['replies'], '
+								', Lang::getTxt('number_of_replies', [$topic['replies']]), '
 								<br>
-								', $topic['views'], ' ', Lang::$txt['views'], '
+								', Lang::getTxt('number_of_views', [$topic['views']]), '
 							</p>
 						</div>
 						<div class="lastpost">

@@ -38,9 +38,13 @@ $txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S post, SHIFT+ALT+P pre
 $txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S post or ⌃⌥P preview';
 $txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S post, ⌃⌥P preview, ⌃⌥D save draft';
 $txt['option'] = 'Option';
+$txt['option_number'] = 'Option {0, number, integer}';
 $txt['reset_votes'] = 'Reset vote count';
 $txt['reset_votes_check'] = 'Check this if you want to reset all vote counts to 0.';
-$txt['votes'] = 'votes';
+$txt['number_of_votes'] = '{0, plural,
+	one {# vote}
+	other {# votes}
+}';
 $txt['attach'] = 'Attach';
 $txt['attachment'] = 'Attachment';
 $txt['attachments'] = 'Attachments';
@@ -67,7 +71,7 @@ $txt['report_submit'] = 'Submit';
 $txt['attach_restrict_attachmentPostLimit'] = 'maximum total size {0, number} {unit}';
 $txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size {0, number} {unit}';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '{0, number, integer} per post';
-$txt['attach_restrictions'] = 'Restrictions:';
+$txt['attach_restrictions'] = 'Restrictions: {list}';
 
 $txt['post_additionalopt_attach'] = 'Attachments and other options';
 $txt['post_additionalopt'] = 'Other options';
@@ -82,8 +86,8 @@ $txt['post_visual_verification_label'] = 'Verification';
 $txt['post_visual_verification_desc'] = 'Please enter the code in the image above to make this post.';
 
 $txt['poll_options'] = 'Poll Options';
-$txt['poll_run'] = 'Run the poll for';
-$txt['poll_run_limit'] = '(Leave blank for no limit.)';
+$txt['poll_run'] = 'Number of days to run the poll';
+$txt['poll_run_limit'] = '(0 for no limit)';
 $txt['poll_results_visibility'] = 'Result visibility';
 $txt['poll_results_anyone'] = 'Show the poll\'s results to anyone.';
 $txt['poll_results_voted'] = 'Only show the results after someone has voted.';
@@ -128,11 +132,11 @@ $txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was un
 $txt['error_topic_stickied'] = 'Warning - while you were typing the topic was stickied. Please check the "Sticky this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_unstickied'] = 'Warning - while you were typing the topic was unstickied. Please uncheck the "Sticky this topic" box under "Attachments and Other Options" below if you do not wish to undo this action.';
 
-$txt['announce_this_topic'] = 'Send an announcement about this topic to the members:';
+$txt['announce_this_topic'] = 'Send an announcement about "{subject}" to the following membergroups';
 $txt['announce_title'] = 'Send an announcement';
 $txt['announce_desc'] = 'This form allows you to send an announcement to the selected membergroups about this topic.';
-$txt['announce_sending'] = 'Sending announcement of topic';
-$txt['announce_done'] = 'done';
+$txt['announce_sending'] = 'Sending announcement of topic {subject}';
+$txt['announce_done'] = '{percentage_done, number, :: percent} complete';
 $txt['announce_continue'] = 'Continue';
 $txt['announce_topic'] = 'Announce topic';
 $txt['announce_regular_members'] = 'Regular Members';
@@ -199,7 +203,7 @@ $txt['error_temp_attachments_flushed'] = 'Please note that any files which had b
 $txt['error_cannot_post_attachment'] = 'You don\'t have permission to post attachments in {board}. They have been removed.';
 $txt['error_topic_already_announced'] = 'Please note that this topic has already been announced.';
 
-$txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
+$txt['cant_access_upload_path'] = 'Cannot access attachments upload path ({path})';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is {0, number, integer} KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';

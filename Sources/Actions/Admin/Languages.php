@@ -399,7 +399,7 @@ class Languages implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . Lang::$txt['languages_download_dest'] . ': ' . $rowData['destination'] . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . Lang::$txt['languages_download_older'] : '');
+							return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . Lang::getTxt('languages_download_dest', $rowData) . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . Lang::$txt['languages_download_older'] : '');
 						},
 					],
 				],

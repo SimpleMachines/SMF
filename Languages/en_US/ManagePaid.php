@@ -92,6 +92,12 @@ $txt['no'] = 'No';
 $txt['paid_add_subscription'] = 'Add Subscription';
 $txt['paid_edit_subscription'] = 'Edit Subscription';
 $txt['paid_delete_subscription'] = 'Delete Subscription';
+$txt['paid_add_subscription_name'] = 'Add Subscription "{name}"';
+$txt['paid_edit_subscription_name'] = 'Edit Subscription "{name}"';
+$txt['paid_delete_subscription_name'] = 'Delete Subscription "{name}"';
+$txt['paid_add_subscription_name_for_member'] = 'Add Subscription "{name}" for {member}';
+$txt['paid_edit_subscription_name_for_member'] = 'Edit Subscription "{name}" for {member}';
+$txt['paid_delete_subscription_name_for_member'] = 'Delete Subscription "{name}" for {member}';
 
 $txt['paid_mod_name'] = 'Subscription Name';
 $txt['paid_mod_desc'] = 'Description';

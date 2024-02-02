@@ -27,12 +27,12 @@ $txt['membergroups_can_manage_access'] = 'This group can see all boards because 
 
 $txt['membergroups_cannot_delete_paid'] = 'This group cannot be deleted, it is currently in use by the following paid subscription(s): {0}';
 
-$txt['membergroups_edit_group'] = 'Edit Membergroup';
+$txt['membergroups_edit_group'] = 'Edit Membergroup {name}';
 $txt['membergroups_edit_name'] = 'Group name';
 $txt['membergroups_edit_inherit_permissions'] = 'Inherit permissions';
 $txt['membergroups_edit_inherit_permissions_desc'] = 'Select &quot;No&quot; to enable group to have own permission set.';
 $txt['membergroups_edit_inherit_permissions_no'] = 'No - Use unique permissions';
-$txt['membergroups_edit_inherit_permissions_from'] = 'Inherit from';
+$txt['membergroups_edit_inherit_permissions_from'] = 'Inherit from {group}';
 $txt['membergroups_edit_hidden'] = 'Visibility';
 $txt['membergroups_edit_hidden_no'] = 'Visible';
 $txt['membergroups_edit_hidden_boardindex'] = 'Visible - Apart from in group key';
@@ -107,10 +107,15 @@ $txt['admin_browse_no_members_activate'] = 'No members currently have not activa
 $txt['admin_browse_warn'] = 'all selected members?';
 $txt['admin_browse_outstanding_warn'] = 'all affected members?';
 $txt['admin_browse_w_approve'] = 'Approve';
+$txt['admin_browse_w_approve_send_email'] = 'Approve and send email';
 $txt['admin_browse_w_activate'] = 'Activate';
+$txt['admin_browse_w_activate_send_email'] = 'Activate and send email';
 $txt['admin_browse_w_delete'] = 'Delete';
+$txt['admin_browse_w_delete_send_email'] = 'Delete and send email';
 $txt['admin_browse_w_reject'] = 'Reject';
+$txt['admin_browse_w_reject_send_email'] = 'Reject and send email';
 $txt['admin_browse_w_remind'] = 'Remind';
+$txt['admin_browse_w_remind_send_email'] = 'Remind via email';
 $txt['admin_browse_w_approve_deletion'] = 'Approve (Delete Accounts)';
 $txt['admin_browse_w_email'] = 'and send email';
 $txt['admin_browse_no_email'] = '(no email)';
@@ -125,6 +130,10 @@ $txt['admin_browse_filter_type_4'] = 'Unapproved account deletions';
 $txt['admin_browse_filter_type_5'] = 'Unapproved underage accounts';
 
 $txt['admin_browse_outstanding'] = 'Outstanding Members';
+$txt['admin_browse_outstanding_days'] = 'With all members who registered longer than {input} {number, plural,
+	one {day ago}
+	other {days ago}
+}';
 $txt['admin_browse_outstanding_days_1'] = 'With all members who registered longer than';
 $txt['admin_browse_outstanding_days_2'] = 'days ago';
 $txt['admin_browse_outstanding_perform'] = 'Perform the following action';

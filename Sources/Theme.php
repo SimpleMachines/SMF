@@ -872,7 +872,18 @@ class Theme
 		}
 
 		// Set some specific vars.
-		Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+		if (empty(Utils::$context['current_page'])) {
+			Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title']));
+		} else {
+			Utils::$context['page_title_html_safe'] = Lang::getTxt(
+				'page_title_number',
+				[
+					'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
+					'pagenum' => Utils::$context['current_page'] + 1,
+				],
+			);
+		}
+
 		Utils::$context['meta_keywords'] = !empty(Config::$modSettings['meta_keywords']) ? Utils::htmlspecialchars(Config::$modSettings['meta_keywords']) : '';
 
 		// Content related meta tags, including Open Graph

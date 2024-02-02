@@ -44,7 +44,7 @@ $txt['modlog_remove_all_confirm'] = 'Are you sure you want to completely clear t
 $txt['modlog_go'] = 'Go';
 $txt['modlog_add'] = 'Add';
 $txt['modlog_search'] = 'Quick Search';
-$txt['modlog_by'] = 'By';
+$txt['modlog_search_by'] = 'Quick Search (By {label})';
 $txt['modlog_id'] = '<em>Deleted - ID:{0}</em>';
 
 $txt['modlog_ac_add_warn_template'] = 'Added warning template: &quot;{template}&quot;';

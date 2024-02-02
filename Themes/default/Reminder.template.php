@@ -29,7 +29,7 @@ function template_main()
 			<div class="roundframe">
 				<p class="smalltext centertext">', Lang::$txt['password_reminder_desc'], '</p>
 				<dl>
-					<dt>', Lang::$txt['user_email'], ':</dt>
+					<dt>', Lang::$txt['user_email'], '</dt>
 					<dd><input type="text" name="user" size="30"></dd>
 				</dl>
 				<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
@@ -54,7 +54,7 @@ function template_reminder_pick()
 				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
 			</div>
 			<div class="roundframe">
-				<p><strong>', Lang::$txt['authentication_options'], ':</strong></p>
+				<p><strong>', Lang::$txt['authentication_options'], '</strong></p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked></dt>
 					<label for="reminder_type_email">', Lang::$txt['authentication_password_email'], '</label></dd>
@@ -103,14 +103,14 @@ function template_set_password()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['choose_pass'], ': </dt>
+					<dt>', Lang::$txt['choose_pass'], '</dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
 							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
-					<dt>', Lang::$txt['verify_pass'], ': </dt>
+					<dt>', Lang::$txt['verify_pass'], '</dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
@@ -155,18 +155,18 @@ function template_ask()
 			<div class="roundframe">
 				<p class="smalltext">', Lang::$txt['enter_new_password'], '</p>
 				<dl>
-					<dt>', Lang::$txt['secret_question'], ':</dt>
+					<dt>', Lang::$txt['secret_question'], '</dt>
 					<dd>', Utils::$context['secret_question'], '</dd>
-					<dt>', Lang::$txt['secret_answer'], ':</dt>
+					<dt>', Lang::$txt['secret_answer'], '</dt>
 					<dd><input type="text" name="secret_answer" size="22"></dd>
-					<dt>', Lang::$txt['choose_pass'], ': </dt>
+					<dt>', Lang::$txt['choose_pass'], '</dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
 							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
-					<dt>', Lang::$txt['verify_pass'], ': </dt>
+					<dt>', Lang::$txt['verify_pass'], '</dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">

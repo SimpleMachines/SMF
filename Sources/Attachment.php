@@ -2205,7 +2205,6 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						Lang::load('Admin');
 						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
 					}
 				}

@@ -694,7 +694,7 @@ class Main implements ActionInterface
 
 		// Set the page title if it's not already set...
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = Lang::$txt['profile'] . (isset(Lang::$txt[$menu->current_area]) ? ' - ' . Lang::$txt[$menu->current_area] : '');
+			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area)]), " \n\r\t\v\x00-");
 		}
 	}
 

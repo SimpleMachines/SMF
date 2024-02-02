@@ -34,25 +34,25 @@ function template_modify_subscription()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					', Lang::$txt['paid_mod_name'], ':
+					', Lang::$txt['paid_mod_name'], '
 				</dt>
 				<dd>
 					<input type="text" name="name" value="', Utils::$context['sub']['name'], '" size="30">
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_desc'], ':
+					', Lang::$txt['paid_mod_desc'], '
 				</dt>
 				<dd>
 					<textarea name="desc" rows="3" cols="40">', Utils::$context['sub']['desc'], '</textarea>
 				</dd>
 				<dt>
-					<label for="repeatable_check">', Lang::$txt['paid_mod_repeatable'], '</label>:
+					<label for="repeatable_check">', Lang::$txt['paid_mod_repeatable'], '</label>
 				</dt>
 				<dd>
 					<input type="checkbox" name="repeatable" id="repeatable_check"', empty(Utils::$context['sub']['repeatable']) ? '' : ' checked', '>
 				</dd>
 				<dt>
-					<label for="activated_check">', Lang::$txt['paid_mod_active'], '</label>:<br><span class="smalltext">', Lang::$txt['paid_mod_active_desc'], '</span>
+					<label for="activated_check">', Lang::$txt['paid_mod_active'], '</label><br><span class="smalltext">', Lang::$txt['paid_mod_active_desc'], '</span>
 				</dt>
 				<dd>
 					<input type="checkbox" name="active" id="activated_check"', empty(Utils::$context['sub']['active']) ? '' : ' checked', '>
@@ -61,7 +61,7 @@ function template_modify_subscription()
 			<hr>
 			<dl class="settings">
 				<dt>
-					', Lang::$txt['paid_mod_prim_group'], ':<br>
+					', Lang::$txt['paid_mod_prim_group'], '<br>
 					<span class="smalltext">', Lang::$txt['paid_mod_prim_group_desc'], '</span>
 				</dt>
 				<dd>
@@ -93,14 +93,14 @@ function template_modify_subscription()
 	echo '
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_reminder'], ':<br>
+					', Lang::$txt['paid_mod_reminder'], '<br>
 					<span class="smalltext">', Lang::$txt['paid_mod_reminder_desc'], ' ', Lang::$txt['zero_to_disable'], '</span>
 				</dt>
 				<dd>
 					<input type="number" name="reminder" value="', Utils::$context['sub']['reminder'], '" size="6">
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_email'], ':<br>
+					', Lang::$txt['paid_mod_email'], '<br>
 					<span class="smalltext">', Lang::$txt['paid_mod_email_desc'], '</span>
 				</dt>
 				<dd>
@@ -115,13 +115,13 @@ function template_modify_subscription()
 				<fieldset>
 					<dl class="settings">
 						<dt>
-							', Lang::$txt['paid_cost'], ' (', str_replace('%1.2f', '', Config::$modSettings['paid_currency_symbol']), '):
+							', Lang::$txt['paid_cost'], ' (', str_replace('%1.2f', '', Config::$modSettings['paid_currency_symbol']), ')
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost" value="', empty(Utils::$context['sub']['cost']['fixed']) ? '' : Utils::$context['sub']['cost']['fixed'], '" placeholder="0.00" size="4">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_mod_span'], ':
+							', Lang::$txt['paid_mod_span'], '
 						</dt>
 						<dd>
 							<input type="number" name="span_value" value="', Utils::$context['sub']['span']['value'], '" size="4">
@@ -154,25 +154,25 @@ function template_modify_subscription()
 							<strong>', Lang::$txt['paid_cost'], ' (', preg_replace('~%[df\.\d]+~', '', Config::$modSettings['paid_currency_symbol']), ')</strong>
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_day'], ':
+							', Lang::$txt['paid_per_day'], '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_day" value="', empty(Utils::$context['sub']['cost']['day']) ? '0' : Utils::$context['sub']['cost']['day'], '" size="5">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_week'], ':
+							', Lang::$txt['paid_per_week'], '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_week" value="', empty(Utils::$context['sub']['cost']['week']) ? '0' : Utils::$context['sub']['cost']['week'], '" size="5">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_month'], ':
+							', Lang::$txt['paid_per_month'], '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_month" value="', empty(Utils::$context['sub']['cost']['month']) ? '0' : Utils::$context['sub']['cost']['month'], '" size="5">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_year'], ':
+							', Lang::$txt['paid_per_year'], '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_year" value="', empty(Utils::$context['sub']['cost']['year']) ? '0' : Utils::$context['sub']['cost']['year'], '" size="5">
@@ -220,10 +220,15 @@ function template_modify_user_subscription()
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', Utils::$context['sub_id'], ';lid=', Utils::$context['log_id'], '" method="post">
 		<div class="cat_bar">
-			<h3 class="catbg">
-				', Lang::$txt['paid_' . Utils::$context['action_type'] . '_subscription'], ' - ', Utils::$context['current_subscription']['name'], '
-				', empty(Utils::$context['sub']['username']) ? '' : ' (' . Lang::$txt['user'] . ': ' . Utils::$context['sub']['username'] . ')', '
-			</h3>
+			<h3 class="catbg">',
+				Lang::getTxt(
+					'paid_' . Utils::$context['action_type'] . '_subscription_name' . (empty(Utils::$context['sub']['username']) ? '' : '_for_member'),
+					[
+						'name' => Utils::$context['current_subscription']['name'],
+						'member' => Utils::$context['sub']['username'] ?? '',
+					]
+				),
+			'</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">';
@@ -260,8 +265,7 @@ function template_modify_user_subscription()
 					<option value="', $year, '"', $year == Utils::$context['sub']['start']['year'] ? ' selected' : '', '>', $year, '</option>';
 
 	echo '
-				</select>&nbsp;
-				', (isset(Lang::$txt['calendar_month']) ? Lang::$txt['calendar_month'] : Lang::$txt['calendar_month']), '&nbsp;
+				</select>
 				<select name="month" id="month" onchange="generateDays();">';
 
 	// There are 12 months per year - ensure that they all get listed.
@@ -270,8 +274,7 @@ function template_modify_user_subscription()
 					<option value="', $month, '"', $month == Utils::$context['sub']['start']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
 
 	echo '
-				</select>&nbsp;
-				', (isset(Lang::$txt['calendar_day']) ? Lang::$txt['calendar_day'] : Lang::$txt['calendar_day']), '&nbsp;
+				</select>
 				<select name="day" id="day">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
@@ -281,8 +284,10 @@ function template_modify_user_subscription()
 
 	echo '
 				</select>
-				', Lang::$txt['hour'], ': <input type="text" name="hour" value="', Utils::$context['sub']['start']['hour'], '" size="2">
-				', Lang::$txt['minute'], ': <input type="text" name="minute" value="', Utils::$context['sub']['start']['min'], '" size="2">
+				&nbsp;&nbsp;&nbsp;
+				<input type="number" name="hour" value="', Utils::$context['sub']['start']['hour'], '" size="2" min="0" max="23">
+				:
+				<input type="number" name="minute" value="', Utils::$context['sub']['start']['min'], '" size="2" min="0" max="59">
 			</fieldset>
 			<fieldset>
 				<legend>', Lang::$txt['end_date_and_time'], '</legend>
@@ -294,8 +299,7 @@ function template_modify_user_subscription()
 					<option value="', $year, '"', $year == Utils::$context['sub']['end']['year'] ? ' selected' : '', '>', $year, '</option>';
 
 	echo '
-				</select>&nbsp;
-				', (isset(Lang::$txt['calendar_month']) ? Lang::$txt['calendar_month'] : Lang::$txt['calendar_month']), '&nbsp;
+				</select>
 				<select name="monthend" id="monthend" onchange="generateDays(\'end\');">';
 
 	// There are 12 months per year - ensure that they all get listed.
@@ -304,8 +308,7 @@ function template_modify_user_subscription()
 					<option value="', $month, '"', $month == Utils::$context['sub']['end']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
 
 	echo '
-				</select>&nbsp;
-				', (isset(Lang::$txt['calendar_day']) ? Lang::$txt['calendar_day'] : Lang::$txt['calendar_day']), '&nbsp;
+				</select>
 				<select name="dayend" id="dayend">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
@@ -315,8 +318,10 @@ function template_modify_user_subscription()
 
 	echo '
 				</select>
-				', Lang::$txt['hour'], ': <input type="number" name="hourend" value="', Utils::$context['sub']['end']['hour'], '" size="2">
-				', Lang::$txt['minute'], ': <input type="number" name="minuteend" value="', Utils::$context['sub']['end']['min'], '" size="2">
+				&nbsp;&nbsp;&nbsp;
+				<input type="number" name="hourend" value="', Utils::$context['sub']['end']['hour'], '" size="2" min="0" max="23">
+				:
+				<input type="number" name="minuteend" value="', Utils::$context['sub']['end']['min'], '" size="2" min="0" max="59">
 			</fieldset>
 			<input type="submit" name="save_sub" value="', Lang::$txt['paid_settings_save'], '" class="button">
 		</div><!-- .windowbg -->
@@ -411,12 +416,12 @@ function template_user_subscription()
 
 			if (!$subscription['flexible'])
 				echo '
-				<div><strong>', Lang::$txt['paid_duration'], ':</strong> ', $subscription['length'], '</div>';
+				<div><strong>', Lang::$txt['paid_duration'], '</strong> ', $subscription['length'], '</div>';
 
 			if (User::$me->is_owner)
 			{
 				echo '
-				<strong>', Lang::$txt['paid_cost'], ':</strong>';
+				<strong>', Lang::$txt['paid_cost'], '</strong>';
 
 				if ($subscription['flexible'])
 				{
@@ -514,13 +519,13 @@ function template_choose_payment()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong>', Lang::$txt['subscription'], ':</strong>
+					<strong>', Lang::$txt['subscription'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['sub']['name'], '
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['paid_cost'], ':</strong>
+					<strong>', Lang::$txt['paid_cost'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['cost'], '

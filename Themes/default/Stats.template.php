@@ -32,50 +32,50 @@ function template_main()
 				</h4>
 			</div>
 			<dl class="stats half_content">
-				<dt>', Lang::$txt['total_members'], ':</dt>
+				<dt>', Lang::$txt['total_members'], '</dt>
 				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
-				<dt>', Lang::$txt['total_posts'], ':</dt>
+				<dt>', Lang::$txt['total_posts'], '</dt>
 				<dd>', Utils::$context['num_posts'], '</dd>
-				<dt>', Lang::$txt['total_topics'], ':</dt>
+				<dt>', Lang::$txt['total_topics'], '</dt>
 				<dd>', Utils::$context['num_topics'], '</dd>
-				<dt>', Lang::$txt['total_cats'], ':</dt>
+				<dt>', Lang::$txt['total_cats'], '</dt>
 				<dd>', Utils::$context['num_categories'], '</dd>
-				<dt>', Lang::$txt['users_online'], ':</dt>
+				<dt>', Lang::$txt['users_online'], '</dt>
 				<dd>', Utils::$context['users_online'], '</dd>
-				<dt>', Lang::$txt['most_online'], ':</dt>
-				<dd>', Utils::$context['most_members_online']['number'], ' - ', Utils::$context['most_members_online']['date'], '</dd>
-				<dt>', Lang::$txt['users_online_today'], ':</dt>
+				<dt>', Lang::$txt['most_online'], '</dt>
+				<dd>', Lang::getTxt('most_online_number_date', Utils::$context['most_members_online']), '</dd>
+				<dt>', Lang::$txt['users_online_today'], '</dt>
 				<dd>', Utils::$context['online_today'], '</dd>';
 
 	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', Lang::$txt['num_hits'], ':</dt>
+				<dt>', Lang::$txt['num_hits'], '</dt>
 				<dd>', Utils::$context['num_hits'], '</dd>';
 
 	echo '
 			</dl>
 			<dl class="stats half_content">
-				<dt>', Lang::$txt['average_members'], ':</dt>
+				<dt>', Lang::$txt['average_members'], '</dt>
 				<dd>', Utils::$context['average_members'], '</dd>
-				<dt>', Lang::$txt['average_posts'], ':</dt>
+				<dt>', Lang::$txt['average_posts'], '</dt>
 				<dd>', Utils::$context['average_posts'], '</dd>
-				<dt>', Lang::$txt['average_topics'], ':</dt>
+				<dt>', Lang::$txt['average_topics'], '</dt>
 				<dd>', Utils::$context['average_topics'], '</dd>
-				<dt>', Lang::$txt['total_boards'], ':</dt>
+				<dt>', Lang::$txt['total_boards'], '</dt>
 				<dd>', Utils::$context['num_boards'], '</dd>
-				<dt>', Lang::$txt['latest_member'], ':</dt>
+				<dt>', Lang::$txt['latest_member'], '</dt>
 				<dd>', Utils::$context['common_stats']['latest_member']['link'], '</dd>
-				<dt>', Lang::$txt['average_online'], ':</dt>
+				<dt>', Lang::$txt['average_online'], '</dt>
 				<dd>', Utils::$context['average_online'], '</dd>';
 
 	if (!empty(Utils::$context['gender']))
 	{
 		echo '
-				<dt>', Lang::$txt['gender_stats'], ':</dt>
+				<dt>', Lang::$txt['gender_stats'], '</dt>
 				<dd>';
 
 		foreach (Utils::$context['gender'] as $g => $n)
-			echo Lang::tokenTxtReplace($g), ': ', $n, '<br>';
+			echo Lang::getTxt('gender_stats_number', ['gender' => Lang::tokenTxtReplace($g), 'number' => $n]), '<br>';
 
 		echo '
 				</dd>';
@@ -83,7 +83,7 @@ function template_main()
 
 	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', Lang::$txt['average_hits'], ':</dt>
+				<dt>', Lang::$txt['average_hits'], '</dt>
 				<dd>', Utils::$context['average_hits'], '</dd>';
 
 	echo '

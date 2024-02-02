@@ -126,7 +126,7 @@ function template_modify_category()
 	if (count(Utils::$context['category_order']) > 1)
 	{
 		echo '
-					<dt><strong>', Lang::$txt['order'], ':</strong></dt>
+					<dt><strong>', Lang::$txt['order'], '</strong></dt>
 					<dd>
 						<select name="cat_order">';
 
@@ -142,7 +142,7 @@ function template_modify_category()
 	// Allow the user to edit the category name and/or choose whether you can collapse the category.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['full_name'], ':</strong><br>
+						<strong>', Lang::$txt['full_name'], '</strong><br>
 						<span class="smalltext">', Lang::$txt['name_on_display'], '</span>
 					</dt>
 					<dd>
@@ -219,7 +219,7 @@ function template_confirm_category_delete()
 				<h3 class="catbg">', Lang::$txt['mboards_delete_cat'], '</h3>
 			</div>
 			<div class="windowbg">
-				<p>', Lang::$txt['mboards_delete_cat_contains'], ':</p>
+				<p>', Lang::$txt['mboards_delete_cat_contains'], '</p>
 				<ul>';
 
 	foreach (Utils::$context['category']['children'] as $child)
@@ -235,7 +235,7 @@ function template_confirm_category_delete()
 			<div class="windowbg">
 				<p>
 					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked>', Lang::$txt['mboards_delete_option1'], '</label><br>
-					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"', count(Utils::$context['category_order']) == 1 ? ' disabled' : '', '>', Lang::$txt['mboards_delete_option2'], '</label>:
+					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"', count(Utils::$context['category_order']) == 1 ? ' disabled' : '', '>', Lang::$txt['mboards_delete_option2'], '</label>
 					<select name="cat_to"', count(Utils::$context['category_order']) == 1 ? ' disabled' : '', '>';
 
 	foreach (Utils::$context['category_order'] as $cat)
@@ -277,7 +277,7 @@ function template_modify_board()
 	// Option for choosing the category the board lives in.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['mboards_category'], ':</strong>
+						<strong>', Lang::$txt['mboards_category'], '</strong>
 					</dt>
 					<dd>
 						<select name="new_cat" onchange="if (this.form.order) {this.form.order.disabled = this.options[this.selectedIndex].value != 0; this.form.board_order.disabled = this.options[this.selectedIndex].value != 0 || this.form.order.options[this.form.order.selectedIndex].value == \'\';}">';
@@ -294,7 +294,7 @@ function template_modify_board()
 	{
 		echo '
 					<dt>
-						<strong>', Lang::$txt['order'], ':</strong>
+						<strong>', Lang::$txt['order'], '</strong>
 					</dt>
 					<dd>';
 
@@ -323,21 +323,21 @@ function template_modify_board()
 	// Options for board name and description.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['full_name'], ':</strong><br>
+						<strong>', Lang::$txt['full_name'], '</strong><br>
 						<span class="smalltext">', Lang::$txt['name_on_display'], '</span>
 					</dt>
 					<dd>
 						<input type="text" name="board_name" value="', Utils::$context['board']['name'], '" size="30">
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_description'], ':</strong><br>
+						<strong>', Lang::$txt['mboards_description'], '</strong><br>
 						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::$txt['mboards_description_desc']), '</span>
 					</dt>
 					<dd>
 						<textarea name="desc" rows="3" cols="35">', Utils::$context['board']['description'], '</textarea>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['permission_profile'], ':</strong><br>
+						<strong>', Lang::$txt['permission_profile'], '</strong><br>
 						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? Lang::getTxt('permission_profile_desc', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]) : strip_tags(Lang::$txt['permission_profile_desc']), '</span>
 					</dt>
 					<dd>
@@ -355,7 +355,7 @@ function template_modify_board()
 						</select>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_groups'], ':</strong><br>
+						<strong>', Lang::$txt['mboards_groups'], '</strong><br>
 						<span class="smalltext">', empty(Config::$modSettings['deny_boards_access']) ? Lang::$txt['mboards_groups_desc'] : Lang::$txt['boardsaccess_option_desc'], '</span>';
 
 	echo '
@@ -435,7 +435,7 @@ function template_modify_board()
 	// Options to choose moderators, specify as announcement board and choose whether to count posts here.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['mboards_moderators'], ':</strong><br>
+						<strong>', Lang::$txt['mboards_moderators'], '</strong><br>
 						<span class="smalltext">', Lang::$txt['mboards_moderators_desc'], '</span><br>
 					</dt>
 					<dd>
@@ -443,7 +443,7 @@ function template_modify_board()
 						<div id="moderator_container"></div>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_moderator_groups'], ':</strong><br>
+						<strong>', Lang::$txt['mboards_moderator_groups'], '</strong><br>
 						<span class="smalltext">', Lang::$txt['mboards_moderator_groups_desc'], '</span><br>
 					</dt>
 					<dd>
@@ -465,7 +465,7 @@ function template_modify_board()
 		echo '
 				<dl class="settings">
 					<dt>
-						<strong', Utils::$context['board']['topics'] ? ' style="color: gray;"' : '', '>', Lang::$txt['mboards_redirect'], ':</strong><br>
+						<strong', Utils::$context['board']['topics'] ? ' style="color: gray;"' : '', '>', Lang::$txt['mboards_redirect'], '</strong><br>
 						<span class="smalltext">', Lang::$txt['mboards_redirect_desc'], '</span><br>
 					</dt>
 					<dd>
@@ -476,7 +476,7 @@ function template_modify_board()
 				<div id="redirect_address_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_redirect_url'], ':</strong><br>
+							<strong>', Lang::$txt['mboards_redirect_url'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['mboards_redirect_url_desc'], '</span><br>
 						</dt>
 						<dd>
@@ -490,7 +490,7 @@ function template_modify_board()
 				<div id="reset_redirect_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_redirect_reset'], ':</strong><br>
+							<strong>', Lang::$txt['mboards_redirect_reset'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['mboards_redirect_reset_desc'], '</span><br>
 						</dt>
 						<dd>
@@ -505,7 +505,7 @@ function template_modify_board()
 				<div id="count_posts_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_count_posts'], ':</strong><br>
+							<strong>', Lang::$txt['mboards_count_posts'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['mboards_count_posts_desc'], '</span><br>
 						</dt>
 						<dd>
@@ -519,7 +519,7 @@ function template_modify_board()
 				<div id="board_theme_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_theme'], ':</strong><br>
+							<strong>', Lang::$txt['mboards_theme'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['mboards_theme_desc'], '</span><br>
 						</dt>
 						<dd>
@@ -538,7 +538,7 @@ function template_modify_board()
 				<div id="override_theme_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_override_theme'], ':</strong><br>
+							<strong>', Lang::$txt['mboards_override_theme'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['mboards_override_theme_desc'], '</span><br>
 						</dt>
 						<dd>

@@ -932,7 +932,7 @@ class Logs implements ActionInterface
 				[
 					'position' => 'after_title',
 					'value' => '
-						' . Lang::$txt['modlog_search'] . ' (' . Lang::$txt['modlog_by'] . ': ' . $this->search_info['label'] . '):
+						' . Lang::getTxt('modlog_search_by', $this->search_info) . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars($this->search_info['string']) . '">
 						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button" style="float:none">
 						' . ($this->can_delete ? '

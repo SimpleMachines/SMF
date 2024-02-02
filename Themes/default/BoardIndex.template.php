@@ -186,7 +186,7 @@ function template_bi_board_info($board)
 	// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 	if (!empty($board['link_moderators']))
 		echo '
-		<p class="moderators">', count($board['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
+		<p class="moderators">', Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])]), '</p>';
 }
 
 /**
@@ -198,7 +198,7 @@ function template_bi_board_stats($board)
 {
 	echo '
 		<p>
-			', Lang::$txt['posts'], ': ', Lang::numberFormat($board['posts']), '<br>', Lang::$txt['board_topics'], ': ', Lang::numberFormat($board['topics']), '
+			', Lang::getTxt('number_of_posts', [$board->posts]), '<br>', Lang::getTxt('number_of_topics', [$board->topics]), '
 		</p>';
 }
 
@@ -211,7 +211,7 @@ function template_bi_redirect_stats($board)
 {
 	echo '
 		<p>
-			', Lang::$txt['redirects'], ': ', Lang::numberFormat($board['posts']), '
+			', Lang::getTxt('number_of_redirects', [$board->posts]), '
 		</p>';
 }
 
@@ -245,9 +245,9 @@ function template_bi_board_children($board)
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
-				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::$txt['new_posts'] . ' (' . Lang::$txt['board_topics'] . ': ' . Lang::numberFormat($child['topics']) . ', ' . Lang::$txt['posts'] . ': ' . Lang::numberFormat($child['posts']) . ')" class="new_posts">' . Lang::$txt['new'] . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? Lang::$txt['new_posts'] : Lang::$txt['old_posts']) . ' (' . Lang::$txt['board_topics'] . ': ' . Lang::numberFormat($child['topics']) . ', ' . Lang::$txt['posts'] . ': ' . Lang::numberFormat($child['posts']) . ')">' . $child['name'] . '</a>';
+				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::getTxt('new_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']]) . '" class="new_posts">' . Lang::$txt['new'] . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . Lang::getTxt($child['new'] ? 'new_posts_stats' : 'old_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']]) . '">' . $child['name'] . '</a>';
 			else
-				$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::numberFormat($child['posts']) . ' ' . Lang::$txt['redirects'] . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
+				$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::getTxt('number_of_redirects', [$child['posts']]) . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
 
 			// Has it posts awaiting approval?
 			if ($child['can_approve_posts'] && ($child['unapproved_posts'] || $child['unapproved_topics']))
@@ -258,7 +258,16 @@ function template_bi_board_children($board)
 
 		echo '
 			<div id="board_', $board['id'], '_children" class="children">
-				<p><strong id="child_list_', $board['id'], '">', Lang::$txt['sub_boards'], '</strong>', implode(' ', $children), '</p>
+				<p>',
+				Lang::getTxt(
+					'sub_boards_list',
+					[
+						'id' => 'child_list_' . $board['id'],
+						'num' => count($children),
+						'list' => implode(' ', $children),
+					],
+				),
+				'</p>
 			</div>';
 	}
 }
@@ -456,7 +465,7 @@ function template_ic_block_stats()
 				</h4>
 			</div>
 			<p class="inline">
-				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', Utils::$context['common_stats']['boardindex_total_posts'], !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
 				', (!empty(Utils::$context['latest_post']) ? Lang::$txt['latest_post'] . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a>
 			</p>';
@@ -503,7 +512,7 @@ function template_ic_block_online()
 	if (!empty(Utils::$context['users_online']))
 	{
 		echo '
-				', Lang::getTxt('users_active', [Config::$modSettings['lastActive']]), ': ', implode(', ', Utils::$context['list_users_online']);
+				', Lang::getTxt('users_active', ['minutes' => Config::$modSettings['lastActive'], 'list' => Lang::sentenceList(Utils::$context['list_users_online'])]);
 
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty(Utils::$context['membergroups']))

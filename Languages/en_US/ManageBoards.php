@@ -17,10 +17,6 @@ $txt['collapse_enable'] = 'Collapsible';
 $txt['collapse_desc'] = 'Allow users to collapse this category';
 $txt['cat_modify'] = '(modify)';
 
-$txt['mboards_order_after'] = 'After ';
-$txt['mboards_order_inside'] = 'Inside ';
-$txt['mboards_order_first'] = 'In first place';
-
 $txt['mboards_new_board'] = 'Add Board';
 $txt['mboards_new_cat_name'] = 'New Category';
 $txt['mboards_add_cat_button'] = 'Add Category';
@@ -74,8 +70,10 @@ $txt['mboards_redirect_reset'] = 'Reset redirect count';
 $txt['mboards_redirect_reset_desc'] = 'Selecting this will reset the redirection count for this board to zero.';
 $txt['mboards_current_redirects'] = 'Currently: {0, number, integer}';
 
-$txt['mboards_order_before'] = 'Before';
-$txt['mboards_order_child_of'] = 'Sub-board of';
+$txt['mboards_order_first'] = 'In first place';
+$txt['mboards_order_before'] = 'Before "{0}"';
+$txt['mboards_order_after'] = 'After "{0}"';
+$txt['mboards_order_child_of'] = 'Sub-board of "{0}"';
 $txt['mboards_order_in_category'] = 'In category';
 $txt['mboards_current_position'] = 'Current Position';
 $txt['no_valid_parent'] = 'Board {name} does not have a valid parent. Use the \'find and repair errors\' function to fix this.';

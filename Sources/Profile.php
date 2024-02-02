@@ -421,7 +421,7 @@ class Profile extends User implements \ArrayAccess
 					if (($value = strtotime($value)) === false) {
 						$value = $this->date_registered;
 
-						return Lang::$txt['invalid_registration'] . ' ' . Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
+						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
 					}
 
 					// As long as it doesn't equal "N/A"...

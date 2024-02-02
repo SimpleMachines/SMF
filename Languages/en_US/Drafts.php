@@ -8,12 +8,14 @@ $txt['drafts_show_desc'] = 'This area shows you all the drafts you currently hav
 
 // misc
 $txt['drafts'] = 'Drafts';
+$txt['drafts_member'] = 'Drafts of {member}';
 $txt['draft_save'] = 'Save draft';
 $txt['draft_save_note'] = 'This will save the text of your post, but it will not save attachments, poll or event information.';
 $txt['draft_none'] = 'You have no drafts.';
 $txt['draft_edit'] = 'Edit draft';
 $txt['draft_hide'] = 'Hide drafts';
 $txt['draft_delete'] = 'Delete draft';
+$txt['draft_saved_on'] = 'Draft last saved {date}';
 $txt['draft_last_saved'] = 'Draft last saved <strong>{age, plural,
 	one {# day ago}
 	other {# days ago}

@@ -956,7 +956,7 @@ class Unread implements ActionInterface
 			Utils::$context['topics'][$row['id_topic']]['last_post']['link'] = '<a href="' . Utils::$context['topics'][$row['id_topic']]['last_post']['href'] . '" rel="nofollow">' . $row['last_subject'] . '</a>';
 
 			// Add "started by" string to first post.
-			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('topic_started_by', ['member_link' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board_link' => Utils::$context['topics'][$row['id_topic']]['board']['link']]);
+			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']]);
 
 			// This isn't really necessary, but for the sake of consistency
 			// ensure the topic is marked as new.

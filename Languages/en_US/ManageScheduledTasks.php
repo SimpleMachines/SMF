@@ -59,12 +59,16 @@ $txt['scheduled_task_reg_repeating'] = 'repeating every {time_unit, select,
 		other {# {time_unit}}
 	}}
 }';
+$txt['scheduled_task_reg_unit_m'] = 'minute(s)';
+$txt['scheduled_task_reg_unit_h'] = 'hour(s)';
+$txt['scheduled_task_reg_unit_d'] = 'day(s)';
+$txt['scheduled_task_reg_unit_w'] = 'week(s)';
 
 $txt['scheduled_task_edit'] = 'Edit Scheduled Task';
 $txt['scheduled_task_edit_repeat'] = 'Repeat task every';
 $txt['scheduled_task_edit_interval'] = 'Interval';
 $txt['scheduled_task_edit_start_time'] = 'Start time';
-$txt['scheduled_task_edit_start_time_desc'] = 'Time the first instance of the day should start (hours:minutes)';
+$txt['scheduled_task_edit_start_time_desc'] = 'Time when the first instance of the day should start';
 $txt['scheduled_task_time_offset'] = 'Note the start time should be the offset against the current server time. Current server time is: {server_time}';
 
 $txt['scheduled_view_log'] = 'View Log';

@@ -29,7 +29,7 @@ function template_move()
 				<div class="move_topic">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['move_to'], ':</strong>
+							<strong>', Lang::$txt['move_to'], '</strong>
 						</dt>
 						<dd>
 							<select name="toboard">';
@@ -54,14 +54,14 @@ function template_move()
 	echo '
 					</dl>
 					<label for="reset_subject">
-						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').classList.toggle(\'hidden\');"> ', Lang::$txt['movetopic_change_subject'], '.
+						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').classList.toggle(\'hidden\');"> ', Lang::$txt['movetopic_change_subject'], '
 					</label><br>
 					<fieldset id="subjectArea" class="hidden">
 						<dl class="settings">
-							<dt><strong>', Lang::$txt['movetopic_new_subject'], ':</strong></dt>
+							<dt><strong>', Lang::$txt['movetopic_new_subject'], '</strong></dt>
 							<dd><input type="text" name="custom_subject" size="30" value="', Utils::$context['subject'], '"></dd>
 						</dl>
-						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject"> ', Lang::$txt['movetopic_change_all_subjects'], '.</label>
+						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject"> ', Lang::$txt['movetopic_change_all_subjects'], '</label>
 					</fieldset>';
 
 	// Stick our "create a redirection topic" template in here...
@@ -92,7 +92,7 @@ function template_redirect_options($type)
 {
 	echo '
 					<label for="postRedirect" class="block">
-						<input type="checkbox" name="postRedirect" id="postRedirect"', Utils::$context['is_approved'] ? ' checked' : '', ' onclick="', Utils::$context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . Lang::$txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', Lang::$txt['post_redirection'], '.
+						<input type="checkbox" name="postRedirect" id="postRedirect"', Utils::$context['is_approved'] ? ' checked' : '', ' onclick="', Utils::$context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . Lang::$txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', Lang::$txt['post_redirection'], '
 					</label>
 					<fieldset id="reasonArea"', Utils::$context['is_approved'] ? '' : 'class="hidden"', '>
 						<dl class="settings">
@@ -177,7 +177,7 @@ function template_merge()
 			<div class="windowbg">
 				<dl class="settings merge_topic">
 					<dt>
-						<strong>', Lang::$txt['topic_to_merge'], ':</strong>
+						<strong>', Lang::$txt['topic_to_merge'], '</strong>
 					</dt>
 					<dd>
 						', Utils::$context['origin_subject'], '
@@ -237,7 +237,7 @@ function template_merge()
 			echo '
 						<li>
 							<a href="', Config::$scripturl, '?action=mergetopics;sa=options;board=', Utils::$context['current_board'], '.0;from=', Utils::$context['origin_topic'], ';to=', $topic['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons merge"></span></a>
-							<a href="', Config::$scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', Lang::$txt['started_by'], ' ', $topic['poster']['link'], '
+							<a href="', Config::$scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', Lang::getTxt('started_by_member', ['member' => $topic['poster']['link']]), '
 						</li>';
 
 		echo '
@@ -260,7 +260,7 @@ function template_merge()
 				<div class="windowbg">
 					<dl class="settings merge_topic">
 						<dt>
-							<strong>', Lang::$txt['merge_to_topic_id'], ': </strong>
+							<strong>', Lang::$txt['merge_to_topic_id'], '</strong>
 						</dt>
 						<dd>
 							<input type="hidden" name="topics[]" value="', Utils::$context['origin_topic'], '">
@@ -332,7 +332,7 @@ function template_merge_extra_options()
 		echo '
 						<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected' : '') . '>', $topic['subject'], '</option>';
 	echo '
-						<option value="0">', Lang::$txt['merge_custom_subject'], ':</option>
+						<option value="0">', Lang::$txt['merge_custom_subject'], '</option>
 					</select>
 					<br>
 					<input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;"><br>

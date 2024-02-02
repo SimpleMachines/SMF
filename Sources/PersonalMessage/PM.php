@@ -1008,7 +1008,7 @@ class PM implements \ArrayAccess
 			Lang::censorText(Utils::$context['preview_message']);
 
 			// Set a descriptive title.
-			Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . Utils::$context['preview_subject'];
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => Utils::$context['preview_subject']]);
 
 			// Pretend they messed up but don't ignore if they really did :P.
 			self::reportErrors($post_errors, $namedRecipientList, $recipientList);

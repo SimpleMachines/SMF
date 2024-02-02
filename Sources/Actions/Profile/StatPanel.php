@@ -54,11 +54,11 @@ class StatPanel implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['statPanel_showStats'] . ' ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]);
 
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['statPanel_generalStats'] . ' - ' . Profile::$member->name,
+			'title' => Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]),
 			'icon' => 'stats_info.png',
 		];
 
