@@ -297,7 +297,7 @@ class Theme
 		Utils::$context['forum_name'] = Config::$mbname;
 		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-		Lang::load('General+Modifications');
+		Lang::load('General+Modifications+ThemeStrings');
 
 		// Just in case it wasn't already set elsewhere.
 		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
@@ -1945,7 +1945,7 @@ class Theme
 
 		Lang::load('Profile');
 		Lang::load('Themes');
-		Lang::load('Settings');
+		Lang::load('ThemeStrings');
 		self::loadTemplate('Themes');
 
 		// Build the link tree.
@@ -2625,14 +2625,14 @@ class Theme
 
 		// Output is fully XML, so no need for the index template.
 		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requiresXML)) {
-			Lang::load('General+Modifications');
+			Lang::load('General+Modifications+ThemeStrings');
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
 		}
 
 		// These actions don't require the index template at all.
 		elseif (!empty(Utils::$context['simple_action'])) {
-			Lang::load('General+Modifications');
+			Lang::load('General+Modifications+ThemeStrings');
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?

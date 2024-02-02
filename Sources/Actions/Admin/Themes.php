@@ -1377,7 +1377,7 @@ class Themes implements ActionInterface
 		// Load the important language files...
 		Lang::load('Admin');
 		Lang::load('Themes');
-		Lang::load('Settings');
+		Lang::load('ThemeStrings');
 		Lang::load('Drafts');
 
 		// Default the page title to Theme Administration by default.

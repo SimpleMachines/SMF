@@ -1096,7 +1096,7 @@ class User implements \ArrayAccess
 	{
 		static $loadedLanguages = [];
 
-		Lang::load('General+Modifications');
+		Lang::load('General+Modifications+ThemeStrings');
 
 		if (empty(Config::$modSettings['displayFields'])) {
 			$display_custom_fields = false;
