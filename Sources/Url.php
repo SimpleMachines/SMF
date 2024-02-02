@@ -534,7 +534,7 @@ class Url implements \Stringable
 	 *
 	 * @return bool Whether the URL matches the https or http schema.
 	 */
-	public function IsWebsite(): bool
+	public function isWebsite(): bool
 	{
 		return $this->isSchema([self::SCHEMA_HTTP, self::SCHEMA_HTTPS]);
 	}
