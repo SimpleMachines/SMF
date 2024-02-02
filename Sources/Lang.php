@@ -321,7 +321,7 @@ class Lang
 			}
 
 			// Legacy language calls.
-			/**
+			/*
 			 * Legacy language calls.
 			 * Under normal conditions, we stop once we find it through the locale lookup.
 			 * Modifications is a special case in which we allow it to be checked everywhere.
