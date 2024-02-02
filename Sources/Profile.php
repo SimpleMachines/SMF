@@ -1201,8 +1201,8 @@ class Profile extends User implements \ArrayAccess
 
 		// Default context.
 		$this->formatted['avatar'] += [
-			'custom' => $this->avatar['url']->IsWebsite() ? (string) $this->avatar['url'] : 'http://',
-			'selection' => empty($this->avatar['url']) || !$this->avatar['url']->IsWebsite() ? '' : (string) $this->avatar['url'],
+			'custom' => $this->avatar['url']->isWebsite() ? (string) $this->avatar['url'] : 'http://',
+			'selection' => empty($this->avatar['url']) || !$this->avatar['url']->isWebsite() ? '' : (string) $this->avatar['url'],
 			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_server_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_upload_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_remote_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
@@ -1244,7 +1244,7 @@ class Profile extends User implements \ArrayAccess
 		// Use "avatar_original" here so we show what the user entered even if the image proxy is enabled
 		elseif (
 			$this->formatted['avatar']['allow_external']
-			&& $this->avatar['url']->IsWebsite()
+			&& $this->avatar['url']->isWebsite()
 			&& stripos($this->avatar['original_url'], 'http') === 0
 			) {
 			$this->formatted['avatar'] += [
