@@ -4,7 +4,7 @@ on:
       - release-2.1
   pull_request:
 
-name: Main
+name: PHP Check
 jobs:
   php-cs-fixer:
     name: PHP-CS-Fixer
