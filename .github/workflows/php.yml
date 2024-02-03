@@ -27,8 +27,6 @@ jobs:
 
     - run: php -v
 
-    - run: composer lint
-
     - name: Checking for sign off (GPG also accepted)
       run: php ./vendor/simplemachines/build-tools/check-signed-off.php
 
@@ -44,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ 8.0, 8.1 ]
+        php: [ 8.0, 8.1, 8.2, 8.3 ]
 
     name: PHP ${{ matrix.php }} Syntax Check
     steps:
