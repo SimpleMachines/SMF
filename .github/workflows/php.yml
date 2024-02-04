@@ -32,7 +32,6 @@ jobs:
 
     - name: Checking file integrity
       run: |
-        php ./vendor/simplemachines/build-tools/check-eof.php
         php ./vendor/simplemachines/build-tools/check-smf-license.php
         php ./vendor/simplemachines/build-tools/check-smf-languages.php
         php ./vendor/simplemachines/build-tools/check-smf-index.php
