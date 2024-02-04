@@ -1,16 +1,17 @@
 <?php
-
-declare(strict_types=1);
-
-/*
+/**
  * This file is modified from original CS fixer source code.
  *
- * (c) Fabien Potencier <fabien@symfony.com>
- *	 Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ * Simple Machines Forum (SMF)
  *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2024 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0
  */
+declare(strict_types=1);
 
 namespace SMF\Fixer\Whitespace;
 
@@ -26,9 +27,6 @@ use PhpCsFixer\Tokenizer\Token;
 /**
  * Ensure line endings match SMF standards.
  *
- *
- * @author Fabien Potencier <fabien@symfony.com>
- * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
  * @author Jeremy Darwood	<sleepy@simplemachines.org>
  */
 final class closing_tag_fixer extends AbstractFixer implements WhitespacesAwareFixerInterface
