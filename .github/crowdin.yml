@@ -19,152 +19,147 @@ preserve_hierarchy: true
 #
 files: [
  {
-  source: "Themes/default/languages/Admin.english.php",
-  translation: "%locale%/Themes/default/languages/Admin.%language%.php",
+  source: "Languages/en_US/Admin.php",
+  translation: "Languages/%locale_with_underscore%/Admin.php",
  },
  {
-  source: "Themes/default/languages/Agreement.english.php",
-  translation: "%locale%/Themes/default/languages/Agreement.%language%.php",
+  source: "Languages/en_US/Agreement.php",
+  translation: "Languages/%locale_with_underscore%/Agreement.php",
  },
  {
-  source: "Themes/default/languages/Alerts.english.php",
-  translation: "%locale%/Themes/default/languages/Alerts.%language%.php",
+  source: "Languages/en_US/Alerts.php",
+  translation: "Languages/%locale_with_underscore%/Alerts.php",
  },
  {
-  source: "Themes/default/languages/Drafts.english.php",
-  translation: "%locale%/Themes/default/languages/Drafts.%language%.php",
+  source: "Languages/en_US/Drafts.php",
+  translation: "Languages/%locale_with_underscore%/Drafts.php",
  },
  {
-  source: "Themes/default/languages/Editor.english.php",
-  translation: "%locale%/Themes/default/languages/Editor.%language%.php",
+  source: "Languages/en_US/Editor.php",
+  translation: "Languages/%locale_with_underscore%/Editor.php",
  },
  {
-  source: "Themes/default/languages/EmailTemplates.english.php",
-  translation: "%locale%/Themes/default/languages/EmailTemplates.%language%.php",
+  source: "Languages/en_US/EmailTemplates.php",
+  translation: "Languages/%locale_with_underscore%/EmailTemplates.php",
  },
  {
-  source: "Themes/default/languages/Errors.english.php",
-  translation: "%locale%/Themes/default/languages/Errors.%language%.php",
+  source: "Languages/en_US/Errors.php",
+  translation: "Languages/%locale_with_underscore%/Errors.php",
  },
  {
-  source: "Themes/default/languages/Help.english.php",
-  translation: "%locale%/Themes/default/languages/Help.%language%.php",
+  source: "Languages/en_US/General.php",
+  translation: "Languages/%locale_with_underscore%/General.php",
  },
  {
-  source: "Themes/default/languages/index.english.php",
-  translation: "%locale%/Themes/default/languages/index.%language%.php",
+  source: "Languages/en_US/Help.php",
+  translation: "Languages/%locale_with_underscore%/Help.php",
  },
  {
-  source: "Themes/default/languages/Install.english.php",
-  translation: "%locale%/Themes/default/languages/Install.%language%.php",
+  source: "Languages/en_US/Install.php",
+  translation: "Languages/%locale_with_underscore%/Install.php",
  },
  {
-  source: "Themes/default/languages/Login.english.php",
-  translation: "%locale%/Themes/default/languages/Login.%language%.php",
+  source: "Languages/en_US/Login.php",
+  translation: "Languages/%locale_with_underscore%/Login.php",
  },
  {
-  source: "Themes/default/languages/ManageBoards.english.php",
-  translation: "%locale%/Themes/default/languages/ManageBoards.%language%.php",
+  source: "Languages/en_US/ManageBoards.php",
+  translation: "Languages/%locale_with_underscore%/ManageBoards.php",
  },
  {
-  source: "Themes/default/languages/ManageCalendar.english.php",
-  translation: "%locale%/Themes/default/languages/ManageCalendar.%language%.php",
+  source: "Languages/en_US/ManageCalendar.php",
+  translation: "Languages/%locale_with_underscore%/ManageCalendar.php",
  },
  {
-  source: "Themes/default/languages/ManageMail.english.php",
-  translation: "%locale%/Themes/default/languages/ManageMail.%language%.php",
+  source: "Languages/en_US/ManageMail.php",
+  translation: "Languages/%locale_with_underscore%/ManageMail.php",
  },
  {
-  source: "Themes/default/languages/ManageMaintenance.english.php",
-  translation: "%locale%/Themes/default/languages/ManageMaintenance.%language%.php",
+  source: "Languages/en_US/ManageMaintenance.php",
+  translation: "Languages/%locale_with_underscore%/ManageMaintenance.php",
  },
  {
-  source: "Themes/default/languages/ManageMembers.english.php",
-  translation: "%locale%/Themes/default/languages/ManageMembers.%language%.php",
+  source: "Languages/en_US/ManageMembers.php",
+  translation: "Languages/%locale_with_underscore%/ManageMembers.php",
  },
  {
-  source: "Themes/default/languages/ManagePaid.english.php",
-  translation: "%locale%/Themes/default/languages/ManagePaid.%language%.php",
+  source: "Languages/en_US/ManagePaid.php",
+  translation: "Languages/%locale_with_underscore%/ManagePaid.php",
  },
  {
-  source: "Themes/default/languages/ManagePermissions.english.php",
-  translation: "%locale%/Themes/default/languages/ManagePermissions.%language%.php",
+  source: "Languages/en_US/ManagePermissions.php",
+  translation: "Languages/%locale_with_underscore%/ManagePermissions.php",
  },
  {
-  source: "Themes/default/languages/ManageScheduledTasks.english.php",
-  translation: "%locale%/Themes/default/languages/ManageScheduledTasks.%language%.php",
+  source: "Languages/en_US/ManageScheduledTasks.php",
+  translation: "Languages/%locale_with_underscore%/ManageScheduledTasks.php",
  },
  {
-  source: "Themes/default/languages/ManageSettings.english.php",
-  translation: "%locale%/Themes/default/languages/ManageSettings.%language%.php",
+  source: "Languages/en_US/ManageSettings.php",
+  translation: "Languages/%locale_with_underscore%/ManageSettings.php",
  },
  {
-  source: "Themes/default/languages/ManageSmileys.english.php",
-  translation: "%locale%/Themes/default/languages/ManageSmileys.%language%.php",
+  source: "Languages/en_US/ManageSmileys.php",
+  translation: "Languages/%locale_with_underscore%/ManageSmileys.php",
  },
  {
-  source: "Themes/default/languages/Manual.english.php",
-  translation: "%locale%/Themes/default/languages/Manual.%language%.php",
+  source: "Languages/en_US/Manual.php",
+  translation: "Languages/%locale_with_underscore%/Manual.php",
  },
  {
-  source: "Themes/default/languages/ModerationCenter.english.php",
-  translation: "%locale%/Themes/default/languages/ModerationCenter.%language%.php",
+  source: "Languages/en_US/ModerationCenter.php",
+  translation: "Languages/%locale_with_underscore%/ModerationCenter.php",
  },
  {
-  source: "Themes/default/languages/Modifications.english.php",
-  translation: "%locale%/Themes/default/languages/Modifications.%language%.php",
+  source: "Languages/en_US/Modifications.php",
+  translation: "Languages/%locale_with_underscore%/Modifications.php",
  },
  {
-  source: "Themes/default/languages/Modlog.english.php",
-  translation: "%locale%/Themes/default/languages/Modlog.%language%.php",
+  source: "Languages/en_US/Modlog.php",
+  translation: "Languages/%locale_with_underscore%/Modlog.php",
  },
  {
-  source: "Themes/default/languages/Packages.english.php",
-  translation: "%locale%/Themes/default/languages/Packages.%language%.php",
+  source: "Languages/en_US/Packages.php",
+  translation: "Languages/%locale_with_underscore%/Packages.php",
  },
  {
-  source: "Themes/default/languages/PersonalMessage.english.php",
-  translation: "%locale%/Themes/default/languages/PersonalMessage.%language%.php",
+  source: "Languages/en_US/PersonalMessage.php",
+  translation: "Languages/%locale_with_underscore%/PersonalMessage.php",
  },
  {
-  source: "Themes/default/languages/Post.english.php",
-  translation: "%locale%/Themes/default/languages/Post.%language%.php",
+  source: "Languages/en_US/Post.php",
+  translation: "Languages/%locale_with_underscore%/Post.php",
  },
  {
-  source: "Themes/default/languages/Profile.english.php",
-  translation: "%locale%/Themes/default/languages/Profile.%language%.php",
+  source: "Languages/en_US/Profile.php",
+  translation: "Languages/%locale_with_underscore%/Profile.php",
  },
  {
-  source: "Themes/default/languages/Reports.english.php",
-  translation: "%locale%/Themes/default/languages/Reports.%language%.php",
+  source: "Languages/en_US/Reports.php",
+  translation: "Languages/%locale_with_underscore%/Reports.php",
  },
  {
-  source: "Themes/default/languages/Search.english.php",
-  translation: "%locale%/Themes/default/languages/Search.%language%.php",
+  source: "Languages/en_US/Search.php",
+  translation: "Languages/%locale_with_underscore%/Search.php",
  },
  {
-  source: "Themes/default/languages/Settings.english.php",
-  translation: "%locale%/Themes/default/languages/Settings.%language%.php",
+  source: "Languages/en_US/Stats.php",
+  translation: "Languages/%locale_with_underscore%/Stats.php",
  },
  {
-  source: "Themes/default/languages/Stats.english.php",
-  translation: "%locale%/Themes/default/languages/Stats.%language%.php",
+  source: "Languages/en_US/Themes.php",
+  translation: "Languages/%locale_with_underscore%/Themes.php",
  },
  {
-  source: "Themes/default/languages/Themes.english.php",
-  translation: "%locale%/Themes/default/languages/Themes.%language%.php",
+  source: "Languages/en_US/Timezones.php",
+  translation: "Languages/%locale_with_underscore%/Timezones.php",
  },
  {
-  source: "Themes/default/languages/Timezones.english.php",
-  translation: "%locale%/Themes/default/languages/Timezones.%language%.php",
+  source: "Languages/en_US/Who.php",
+  translation: "Languages/%locale_with_underscore%/Who.php",
  },
  {
-  source: "Themes/default/languages/Who.english.php",
-  translation: "%locale%/Themes/default/languages/Who.%language%.php",
- },
- {
-  source: "agreement.txt",
-  translation: "%locale%/agreement.%language%.txt"
+  source: "Languages/en_US/agreement.txt",
+  translation: "Languages/%locale_with_underscore%/agreement.txt"
  }
-
 ]
