@@ -27,6 +27,9 @@ custom_avatar/
 Sources/Unicode/*.php
 !Sources/Unicode/index.php
 !Sources/Unicode/Utf8String.php
+Sources/Libs/
+!Sources/Libs/index.php
+Sources/composer.lock
 
 # Compiled source #
 ###################
