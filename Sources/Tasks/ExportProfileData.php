@@ -1676,7 +1676,7 @@ class ExportProfileData extends BackgroundTask
 		}
 		// Autoloading is unavailable for background tasks, so we have to do things the hard way...
 		else {
-			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))) {
+			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('SMF\\Minify\\CSS') || !class_exists('SMF\\Minify\\JS'))) {
 				// Include, not require, because minimization is nice to have but not vital here.
 				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exception.php']);
 
@@ -1694,7 +1694,7 @@ class ExportProfileData extends BackgroundTask
 
 				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'JS.php']);
 
-				if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')) {
+				if (!class_exists('SMF\\Minify\\CSS') || !class_exists('SMF\\Minify\\JS')) {
 					Config::$modSettings['minimize_files'] = false;
 				}
 			}

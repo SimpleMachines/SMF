@@ -1705,7 +1705,7 @@ class Theme
 		}
 
 		// No namespaces, sorry!
-		$classType = 'MatthiasMullie\\Minify\\' . strtoupper($type);
+		$classType = 'SMF\\Minify\\' . strtoupper($type);
 
 		$minifier = new $classType();
 
