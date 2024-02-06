@@ -668,11 +668,11 @@ class TopicSplit implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Get the right first and last message dependent on approved state...
 			if (empty($split1_first_msg) || $row['myid_first_msg'] < $split1_first_msg) {
-				$split1_first_msg = $row['myid_first_msg'];
+				$split1_first_msg = (int) $row['myid_first_msg'];
 			}
 
 			if (empty($split1_last_msg) || $row['approved']) {
-				$split1_last_msg = $row['myid_last_msg'];
+				$split1_last_msg = (int) $row['myid_last_msg'];
 			}
 
 			// Get the counts correct...
@@ -715,11 +715,11 @@ class TopicSplit implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// As before get the right first and last message dependent on approved state...
 			if (empty($split2_first_msg) || $row['myid_first_msg'] < $split2_first_msg) {
-				$split2_first_msg = $row['myid_first_msg'];
+				$split2_first_msg = (int) $row['myid_first_msg'];
 			}
 
 			if (empty($split2_last_msg) || $row['approved']) {
-				$split2_last_msg = $row['myid_last_msg'];
+				$split2_last_msg = (int) $row['myid_last_msg'];
 			}
 
 			// Then do the counts again...
@@ -935,7 +935,7 @@ class TopicSplit implements ActionInterface
 
 		// Housekeeping.
 		Logging::updateStats('topic');
-		Msg::updateLastMessages($id_board);
+		Msg::updateLastMessages([$id_board]);
 
 		Logging::logAction('split', ['topic' => $split1_ID_TOPIC, 'new_topic' => $split2_ID_TOPIC, 'board' => $id_board]);
 
