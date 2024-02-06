@@ -60,7 +60,7 @@ class TopicRestore implements ActionInterface
 		}
 
 		// Can we be in here?
-		User::$me->isAllowedTo('move_any', Config::$modSettings['recycle_board']);
+		User::$me->isAllowedTo('move_any', [Config::$modSettings['recycle_board']]);
 
 		$unfound_messages = [];
 		$topics_to_restore = [];
@@ -215,7 +215,7 @@ class TopicRestore implements ActionInterface
 				}
 
 				// Ok we got here so me move them from here to there.
-				Topic::move($row['id_topic'], $row['id_previous_board']);
+				Topic::move([$row['id_topic']], (int) $row['id_previous_board']);
 
 				// Lets see if the board that we are returning to has post count enabled.
 				$request2 = Db::$db->query(

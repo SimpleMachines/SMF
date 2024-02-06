@@ -2758,9 +2758,9 @@ class Msg implements \ArrayAccess
 
 		// And now to update the last message of each board we messed with.
 		if ($recycle) {
-			Msg::updateLastMessages([$row['id_board'], Config::$modSettings['recycle_board']]);
+			self::updateLastMessages([$row['id_board'], Config::$modSettings['recycle_board']]);
 		} else {
-			Msg::updateLastMessages($row['id_board']);
+			self::updateLastMessages([$row['id_board']]);
 		}
 
 		// Close any moderation reports for this message.
