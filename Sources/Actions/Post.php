@@ -791,7 +791,7 @@ class Post implements ActionInterface
 			$("#tz").attr("disabled", this.checked);
 		});	', true);
 
-		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : Config::$modSettings['cal_defaultboard'];
+		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : (int) Config::$modSettings['cal_defaultboard'];
 		Utils::$context['event']->topic = !empty(Topic::$info->id) ? Topic::$info->id : 0;
 	}
 
