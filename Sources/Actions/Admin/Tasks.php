@@ -374,7 +374,7 @@ class Tasks implements ActionInterface
 				'disabled' => $row['disabled'],
 				'offset' => $row['time_offset'],
 				'regularity' => $row['time_regularity'],
-				'offset_formatted' => date('H:i', $row['time_offset']),
+				'offset_formatted' => date('H:i', (int) $row['time_offset']),
 				'unit' => $row['time_unit'],
 			];
 		}
