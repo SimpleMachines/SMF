@@ -724,11 +724,10 @@ class Poll implements \ArrayAccess
 			}
 		} elseif (property_exists($this, $prop)) {
 			if (!isset($this->id) && $prop === 'id') {
-				self::$loaded[$value] = $this;
+				$this->id = (int) $value;
+				self::$loaded[$this->id] = $this;
 
-				if (isset($this->id)) {
-					unset(self::$loaded[$this->id]);
-				}
+				return;
 			}
 
 			settype($value, gettype($this->{$prop}));

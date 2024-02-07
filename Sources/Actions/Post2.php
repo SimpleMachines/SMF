@@ -505,7 +505,7 @@ class Post2 extends Post
 
 		// If we had a draft for this, its time to remove it since it was just posted
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty($_POST['id_draft'])) {
-			Draft::delete($_POST['id_draft']);
+			Draft::delete((int) $_POST['id_draft']);
 		}
 
 		// Editing or posting an event?

@@ -245,7 +245,7 @@ class TopicMerge implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Make the page list.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], $topiccount, Config::$modSettings['defaultMaxTopics'], true);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], (int) $topiccount, (int) Config::$modSettings['defaultMaxTopics'], true);
 
 		// Get the topic's subject.
 		$request = Db::$db->query(

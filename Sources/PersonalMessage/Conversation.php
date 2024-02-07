@@ -205,7 +205,7 @@ class Conversation
 		list($num) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num;
+		return (int) $num;
 	}
 
 	/**

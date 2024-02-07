@@ -422,7 +422,7 @@ class PM implements \ArrayAccess
 
 		$valid_for['both'] = $valid_for['inbox'] | $valid_for['sent'];
 
-		return $valid_for[$folders];
+		return (bool) $valid_for[$folders];
 	}
 
 	/***********************
@@ -766,7 +766,7 @@ class PM implements \ArrayAccess
 		if (!empty(Utils::$context['drafts_save'])) {
 			$reply_to = $_REQUEST['pmsg'] ?? ($_REQUEST['quote'] ?? 0);
 
-			DraftPM::showInEditor(User::$me->id, $reply_to);
+			DraftPM::showInEditor(User::$me->id, (int) $reply_to);
 
 			// Has a specific draft has been selected?
 			// Load its data if there is not a message already in the editor.
