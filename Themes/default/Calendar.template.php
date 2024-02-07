@@ -849,12 +849,12 @@ function template_event_post()
 						<div class="event_options_left" id="event_time_input">
 							<div>
 								<span class="label">', Lang::$txt['start'], '</span>
-								<input type="text" name="start_date" id="start_date" value="', trim(Utils::$context['event']['start_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">
+								<input type="text" name="start_date" id="start_date" value="', trim(Utils::$context['event']['start_date']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">
 								<input type="text" name="start_time" id="start_time" maxlength="11" value="', Utils::$context['event']['start_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input start" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 							<div>
 								<span class="label">', Lang::$txt['end'], '</span>
-								<input type="text" name="end_date" id="end_date" value="', trim(Utils::$context['event']['end_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+								<input type="text" name="end_date" id="end_date" value="', trim(Utils::$context['event']['end_date']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
 								<input type="text" name="end_time" id="end_time" maxlength="11" value="', Utils::$context['event']['end_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input end" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 						</div><!-- #event_time_input -->
