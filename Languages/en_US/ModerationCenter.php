@@ -96,7 +96,7 @@ $txt['mc_modreport_summary'] = '{0, plural,
 	other {There have been # reports concerning this post.}
 } The last report was {1}.';
 $txt['mc_modreport_whoreported_title'] = 'Members who have reported this post';
-$txt['mc_modreport_whoreported_data'] = 'Reported by {message_link} on {datetime}. They left the following message:';
+$txt['mc_modreport_whoreported_data'] = 'Reported by {member_link} on {datetime}. They left the following message:';
 $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
 $txt['mc_modreport_mod_comments'] = 'Moderator Comments';
 $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator comments';
