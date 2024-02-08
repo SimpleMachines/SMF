@@ -112,10 +112,10 @@ class TrackIP implements ActionInterface
 
 		$ip_var = Utils::$context['ip'];
 
-		if (Utils::$context['ip']['low'] !== Utils::$context['ip']['high']) {
+		if ((string) Utils::$context['ip']['low'] !== (string) Utils::$context['ip']['high']) {
 			Utils::$context['ip'] = Utils::$context['ip']['low'] . '-' . Utils::$context['ip']['high'];
 		} else {
-			Utils::$context['ip'] = Utils::$context['ip']['low'];
+			Utils::$context['ip'] = (string) Utils::$context['ip']['low'];
 		}
 
 		if ($this->standalone) {
@@ -322,7 +322,7 @@ class TrackIP implements ActionInterface
 		Utils::$context['additional_track_lists'] = [];
 		IntegrationHook::call('integrate_profile_trackip', [$ip_string, $ip_var]);
 
-		Utils::$context['single_ip'] = ($ip_var['low'] === $ip_var['high']);
+		Utils::$context['single_ip'] = ((string) $ip_var['low'] === (string) $ip_var['high']);
 
 		if (Utils::$context['single_ip']) {
 			Utils::$context['whois_servers'] = [

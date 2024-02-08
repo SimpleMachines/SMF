@@ -238,7 +238,7 @@ class XmlArray
 			$array = $this->_path($array, $el, $lvl, true);
 		}
 
-		return $array !== false;
+		return !empty($array);
 	}
 
 	/**

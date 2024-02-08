@@ -354,10 +354,10 @@ class Attachment implements \ArrayAccess
 
 		if (!empty($image->source)) {
 			$this->is_image = true;
-			$this->mime_type = $image->mime_type;
-			$this->width = $image->width;
-			$this->height = $image->height;
-			$this->embedded_thumb = $image->embedded_thumb;
+			$this->mime_type = (string) $image->mime_type;
+			$this->width = (int) $image->width;
+			$this->height = (int) $image->height;
+			$this->embedded_thumb = (bool) $image->embedded_thumb;
 		}
 
 		unset($image);

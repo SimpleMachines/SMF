@@ -500,7 +500,7 @@ class Received implements \ArrayAccess
 	{
 		$latest = self::getRecent($label, 'pmr.id_pm', true, 1);
 
-		return reset($latest);
+		return (int) reset($latest);
 	}
 
 	/**
