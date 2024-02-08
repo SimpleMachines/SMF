@@ -66,7 +66,7 @@ SMF currently supports <strong>PayPal</strong> as the installed payment method.
 If you install a different payment gateway, you may need to set up a return URL for payment notification. For all payment types, this return URL should be set as:
 <br><br>
 <ul class="bbc_list">
-	<li><strong>%1$s/subscriptions.php</strong></li>
+	<li><strong>{boardurl}/subscriptions.php</strong></li>
 </ul>
 <br>
 You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.';
@@ -92,6 +92,12 @@ $txt['no'] = 'No';
 $txt['paid_add_subscription'] = 'Add Subscription';
 $txt['paid_edit_subscription'] = 'Edit Subscription';
 $txt['paid_delete_subscription'] = 'Delete Subscription';
+$txt['paid_add_subscription_name'] = 'Add Subscription "{name}"';
+$txt['paid_edit_subscription_name'] = 'Edit Subscription "{name}"';
+$txt['paid_delete_subscription_name'] = 'Delete Subscription "{name}"';
+$txt['paid_add_subscription_name_for_member'] = 'Add Subscription "{name}" for {member}';
+$txt['paid_edit_subscription_name_for_member'] = 'Edit Subscription "{name}" for {member}';
+$txt['paid_delete_subscription_name_for_member'] = 'Delete Subscription "{name}" for {member}';
 
 $txt['paid_mod_name'] = 'Subscription Name';
 $txt['paid_mod_desc'] = 'Description';
@@ -137,7 +143,7 @@ $txt['year'] = 'Year';
 
 // View subscribed users.
 $txt['viewing_users_subscribed'] = 'Viewing Users';
-$txt['view_users_subscribed'] = 'Viewing users subscribed to: &quot;%1$s&quot;';
+$txt['view_users_subscribed'] = 'Viewing users subscribed to: &quot;{name}&quot;';
 $txt['no_subscribers'] = 'There are currently no subscribers to this subscription.';
 $txt['add_subscriber'] = 'Add new Subscriber';
 $txt['edit_subscriber'] = 'Edit Subscriber';
@@ -171,7 +177,7 @@ $txt['paid_sub_return'] = 'Return to Subscriptions';
 $txt['paid_current_desc'] = 'Below is a list of all your current and previous subscriptions. To extend an existing subscription simply select it from the list above.';
 $txt['paid_admin_add'] = 'Add This Subscription';
 
-$txt['paid_not_set_currency'] = 'You have not setup your currency yet. Please do so from the <a href="%1$s">Settings</a> section before continuing.';
+$txt['paid_not_set_currency'] = 'You have not setup your currency yet. Please do so from the <a href="{url}">Settings</a> section before continuing.';
 $txt['paid_no_cost_value'] = 'You must enter a cost and subscription length.';
 $txt['paid_invalid_duration'] = 'You must enter a valid duration for this subscription.';
 $txt['paid_invalid_duration_D'] = 'If putting in a subscription length measured in days, you can only use 1 to 90 days. If you want a subscription that long, you should use weeks, months or years.';
@@ -188,10 +194,10 @@ $txt['paid_sub_not_active'] = 'That subscription is not taking any new users.';
 $txt['paid_disabled'] = 'Paid subscriptions are currently disabled.';
 $txt['paid_unknown_transaction_type'] = 'Unknown Paid Subscriptions transaction type.';
 $txt['paid_empty_member'] = 'Paid subscription handler could not recover member ID';
-$txt['paid_could_not_find_member'] = 'Paid subscription handler could not find member with ID: %1$d';
-$txt['paid_count_not_find_subscription'] = 'Paid subscription handler could not find subscription for member ID: %1$s, subscription ID: %2$s';
-$txt['paid_count_not_find_subscription_log'] = 'Paid subscription handler could not find subscription log entry for member ID: %1$s, subscription ID: %2$s';
-$txt['paid_count_not_find_outstanding_payment'] = 'Could not find outstanding payment entry for member ID: %1$s, subscription ID: %2$s so ignoring';
+$txt['paid_could_not_find_member'] = 'Paid subscription handler could not find member with ID: {0, number, integer}';
+$txt['paid_count_not_find_subscription'] = 'Paid subscription handler could not find subscription for member ID: {0, number, integer}, subscription ID: {1, number, integer}';
+$txt['paid_count_not_find_subscription_log'] = 'Paid subscription handler could not find subscription log entry for member ID: {0, number, integer}, subscription ID: {1, number, integer}';
+$txt['paid_count_not_find_outstanding_payment'] = 'Could not find outstanding payment entry for member ID: {0, number, integer}, subscription ID: {1, number, integer} so ignoring';
 $txt['paid_admin_not_setup_gateway'] = 'Sorry, the admin has not yet finished setting up paid subscriptions. Please check back later.';
 $txt['paid_make_recurring'] = 'Make this a recurring payment';
 

@@ -286,7 +286,7 @@ fieldset.admin_group .inactive {
 	border: 1px solid #cacdd3;
 }
 span.package_server {
-	padding: 0 3em;
+	padding-left: 3em;
 }
 pre.file_content {
 	overflow: auto;

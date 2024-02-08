@@ -38,9 +38,13 @@ $txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S post, SHIFT+ALT+P pre
 $txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S post or ⌃⌥P preview';
 $txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S post, ⌃⌥P preview, ⌃⌥D save draft';
 $txt['option'] = 'Option';
+$txt['option_number'] = 'Option {0, number, integer}';
 $txt['reset_votes'] = 'Reset vote count';
 $txt['reset_votes_check'] = 'Check this if you want to reset all vote counts to 0.';
-$txt['votes'] = 'votes';
+$txt['number_of_votes'] = '{0, plural,
+	one {# vote}
+	other {# votes}
+}';
 $txt['attach'] = 'Attach';
 $txt['attachment'] = 'Attachment';
 $txt['attachments'] = 'Attachments';
@@ -51,7 +55,7 @@ $txt['attach_add'] = 'Add files';
 $txt['attach_drop_zone'] = 'Click or drag files here to attach them.';
 $txt['attach_drop_unlimited'] = 'unlimited';
 $txt['attach_drop_zone_no'] = 'Your browser does not support drag and drop file uploads';
-$txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
+$txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are {allowed_extensions}.';
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';
 $txt['restricted_filename'] = 'That is a restricted filename. Please try a different filename.';
 $txt['topic_locked_no_reply'] = 'Warning! This topic is currently/will be locked<br>Only admins and moderators can reply.';
@@ -62,27 +66,12 @@ $txt['error_temp_attachments'] = 'There are attachments found, which you have at
 $txt['js_post_will_require_approval'] = 'Reminder: This post will not appear until approved by a moderator.';
 
 $txt['enter_comment'] = 'Enter comment';
-// Use numeric entities in the below two strings.
-$txt['reported_post'] = 'Reported post';
-$txt['reported_to_mod_by'] = 'by';
 $txt['report_submit'] = 'Submit';
-// Use numeric entities in the below four strings.
-$txt['report_following_post'] = 'The following post, "%1$s" by';
-$txt['reported_by'] = 'has been reported by';
-$txt['board_moderate'] = 'on a board you moderate';
-$txt['report_comment'] = 'The reporter has made the following comment';
 
-// Use numeric entities in the below three strings.
-$txt['report_profile'] = 'Report profile of \'%1$s\'';
-$txt['reported_profile'] = 'Reported user';
-$txt['report_following_user'] = 'The profile of "%1$s" at %2$s';
-
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$s KB';
-$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$s MB';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$s KB';
-$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$s MB';
-$txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$d per post';
-$txt['attach_restrictions'] = 'Restrictions:';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size {0, number} {unit}';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size {0, number} {unit}';
+$txt['attach_restrict_attachmentNumPerPostLimit'] = '{0, number, integer} per post';
+$txt['attach_restrictions'] = 'Restrictions: {list}';
 
 $txt['post_additionalopt_attach'] = 'Attachments and other options';
 $txt['post_additionalopt'] = 'Other options';
@@ -97,15 +86,18 @@ $txt['post_visual_verification_label'] = 'Verification';
 $txt['post_visual_verification_desc'] = 'Please enter the code in the image above to make this post.';
 
 $txt['poll_options'] = 'Poll Options';
-$txt['poll_run'] = 'Run the poll for';
-$txt['poll_run_limit'] = '(Leave blank for no limit.)';
+$txt['poll_run'] = 'Number of days to run the poll';
+$txt['poll_run_limit'] = '(0 for no limit)';
 $txt['poll_results_visibility'] = 'Result visibility';
 $txt['poll_results_anyone'] = 'Show the poll\'s results to anyone.';
 $txt['poll_results_voted'] = 'Only show the results after someone has voted.';
 $txt['poll_results_after'] = 'Only show the results after the poll has expired.';
 $txt['poll_max_votes'] = 'Maximum votes per user';
 $txt['poll_do_change_vote'] = 'Allow users to change vote';
-$txt['poll_too_many_votes'] = 'You selected too many options. For this poll, you may only select %1$s options.';
+$txt['poll_too_many_votes'] = 'You selected too many options. {0, plural,
+	one {For this poll, you may only select # option.}
+	other {For this poll, you may only select # options.}
+}';
 $txt['poll_add_option'] = 'Add Option';
 $txt['poll_guest_vote'] = 'Allow guests to vote';
 
@@ -126,56 +118,61 @@ $txt['more_smileys_title'] = 'Additional smileys';
 $txt['more_smileys_pick'] = 'Pick a smiley';
 $txt['more_smileys_close_window'] = 'Close Window';
 
-$txt['error_new_reply'] = 'Warning - while you were typing a new reply has been posted. You may wish to review your post.';
-$txt['error_new_replies'] = 'Warning - while you were typing %1$d new replies have been posted. You may wish to review your post.';
-$txt['error_new_reply_reading'] = 'Warning - while you were reading a new reply has been posted. You may wish to review your post.';
-$txt['error_new_replies_reading'] = 'Warning - while you were reading %1$d new replies have been posted. You may wish to review your post.';
+$txt['error_new_replies'] = 'Warning - {0, plural,
+	one {while you were typing # new reply has been posted.}
+	other {while you were typing # new replies have been posted.}
+} You may wish to review your post.';
+$txt['error_new_replies_reading'] = 'Warning - {0, plural,
+	one {while you were reading # new reply has been posted.}
+	other {while you were reading # new replies have been posted.}
+} You may wish to review your post.';
 
 $txt['error_topic_locked'] = 'Warning - while you were typing the topic was locked. Please check the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was unlocked. Please uncheck the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_stickied'] = 'Warning - while you were typing the topic was stickied. Please check the "Sticky this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_unstickied'] = 'Warning - while you were typing the topic was unstickied. Please uncheck the "Sticky this topic" box under "Attachments and Other Options" below if you do not wish to undo this action.';
 
-$txt['announce_this_topic'] = 'Send an announcement about this topic to the members:';
+$txt['announce_this_topic'] = 'Send an announcement about "{subject}" to the following membergroups';
 $txt['announce_title'] = 'Send an announcement';
 $txt['announce_desc'] = 'This form allows you to send an announcement to the selected membergroups about this topic.';
-$txt['announce_sending'] = 'Sending announcement of topic';
-$txt['announce_done'] = 'done';
+$txt['announce_sending'] = 'Sending announcement of topic {subject}';
+$txt['announce_done'] = '{percentage_done, number, :: percent} complete';
 $txt['announce_continue'] = 'Continue';
 $txt['announce_topic'] = 'Announce topic';
 $txt['announce_regular_members'] = 'Regular Members';
 
 $txt['digest_subject_daily'] = 'Daily Digest';
 $txt['digest_subject_weekly'] = 'Weekly Digest';
-$txt['digest_intro_daily'] = 'Below is a summary of all activity in your subscribed boards and topics at %1$s today. To unsubscribe please visit the link below.';
-$txt['digest_intro_weekly'] = 'Below is a summary of all activity in your subscribed boards and topics at %1$s this week. To unsubscribe please visit the link below.';
+$txt['digest_intro_daily'] = 'Below is a summary of all activity in your subscribed boards and topics at {forum_name} today. To unsubscribe please visit the link below.';
+$txt['digest_intro_weekly'] = 'Below is a summary of all activity in your subscribed boards and topics at {forum_name} this week. To unsubscribe please visit the link below.';
 $txt['digest_new_topics'] = 'The following topics have been started';
-$txt['digest_new_topics_line'] = '"%1$s" in "%2$s"';
+$txt['digest_new_topics_line'] = '"{subject}" in "{board}"';
 $txt['digest_new_replies'] = 'Replies have been made in the following topics';
-$txt['digest_new_replies_one'] = '1 reply in "%1$s"';
-$txt['digest_new_replies_many'] = '%1$d replies in "%2$s"';
+$txt['digest_num_replies'] = '{0, plural,
+	one {# reply in "{1}"}
+	other {# replies in "{1}"}
+}';
 $txt['digest_mod_actions'] = 'The following moderation actions have taken place';
-$txt['digest_mod_act_sticky'] = '"%1$s" was stickied';
-$txt['digest_mod_act_lock'] = '"%1$s" was locked';
-$txt['digest_mod_act_unlock'] = '"%1$s" was unlocked';
-$txt['digest_mod_act_remove'] = '"%1$s" was removed';
-$txt['digest_mod_act_move'] = '"%1$s" was moved';
-$txt['digest_mod_act_merge'] = '"%1$s" was merged';
-$txt['digest_mod_act_split'] = '"%1$s" was split';
+$txt['digest_mod_act_sticky'] = '"{subject}" was stickied';
+$txt['digest_mod_act_lock'] = '"{subject}" was locked';
+$txt['digest_mod_act_unlock'] = '"{subject}" was unlocked';
+$txt['digest_mod_act_remove'] = '"{subject}" was removed';
+$txt['digest_mod_act_move'] = '"{subject}" was moved';
+$txt['digest_mod_act_merge'] = '"{subject}" was merged';
+$txt['digest_mod_act_split'] = '"{subject}" was split';
 
 $txt['attach_error_title'] = 'Error uploading attachments.';
-$txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
-$txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
-$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s KB.';
+$txt['attach_warning'] = 'There was a problem during the uploading of <strong>{name}</strong>.';
+$txt['attach_check_nag'] = 'Unable to continue due to incomplete data ({0}).';
+$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is {0, number, integer} KB. Space remaining is {1, number, integer} KB.';
 $txt['attach_max_total_file_size_current'] = 'Sorry, you are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB. Please delete one or more attachments.';
 $txt['attach_max_size_progress'] = 'The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
-$txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
+$txt['attach_folder_admin_warning'] = 'The path to the attachments directory ({attach_dir}) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
-$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> remaining';
-$txt['attach_available'] = '%1$s KB available';
-$txt['attach_kb'] = ' (%1$s KB)';
+$txt['attach_remaining'] = '<span class="attach_remaining">{0, number, integer}</span> remaining';
+$txt['attach_available'] = '{0, number, integer} KB available';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
 $txt['attached_files_in_session'] = 'The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.';
 $txt['attached_file_uploaded'] = 'Attachment successfully uploaded!';
@@ -199,22 +196,25 @@ $txt['php_upload_error_6'] = 'Unable to save. Missing a temporary directory. Ple
 $txt['php_upload_error_7'] = 'Failed to write file to disk. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_8'] = 'A PHP extension stopped the file upload. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['error_temp_attachments_new'] = 'There are attachments which you had previously attached but not posted. These attachments are still attached to this post. This post does need to be submitted before these attachments are either saved or removed. You can do that <a href="#postAttachment">here</a>';
-$txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submitted.<br>Click <a href="%1$s">here</a> to remove those attachments. Or <a href="%2$s">here</a> to return to that post.%3$s';
-$txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitted.<br>Click <a href="%1$s">here</a> to remove these attachments.%2$s';
+$txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submitted.<br>Click <a href="{delete_url}">here</a> to remove those attachments, or <a href="{goback_url}">here</a> to return to that post.{file_list}';
+$txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitted.<br>Click <a href="{delete_url}">here</a> to remove these attachments.{file_list}';
 $txt['error_temp_attachments_gone'] = 'Those attachments have now been removed and you have been returned to the page you were previously on';
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted have now been removed.';
-$txt['error_cannot_post_attachment'] = 'You don\'t have permission to post attachments in %1$s. They have been removed.';
+$txt['error_cannot_post_attachment'] = 'You don\'t have permission to post attachments in {board}. They have been removed.';
 $txt['error_topic_already_announced'] = 'Please note that this topic has already been announced.';
 
-$txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
-$txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$s KB.';
+$txt['cant_access_upload_path'] = 'Cannot access attachments upload path ({path})';
+$txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is {0, number, integer} KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment cannot be saved.';
 $txt['avatars_no_write'] = 'The avatars upload directory is not writable. Your avatar cannot be saved.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
-$txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
+$txt['attachments_limit_per_post']['one'] = '{0, plural,
+	one {You may not upload more than # attachment per post}
+	other {You may not upload more than # attachments per post}
+}';
 
 $txt['approval_status'] = 'Approval status';
 $txt['approval_status_1'] = 'Approved';

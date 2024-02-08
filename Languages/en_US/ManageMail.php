@@ -29,14 +29,28 @@ $txt['personal_message'] = 'Personal Message';
 // Do not use numeric entities in below string.
 $txt['mailqueue_clear_list_warning'] = 'Are you sure you wish to send the whole mail queue now? This will override any limits you have set.';
 
-$txt['mq_day'] = '%1.1f Day';
-$txt['mq_days'] = '%1.1f Days';
-$txt['mq_hour'] = '%1.1f Hour';
-$txt['mq_hours'] = '%1.1f Hours';
-$txt['mq_minute'] = '%1$d Minute';
-$txt['mq_minutes'] = '%1$d Minutes';
-$txt['mq_second'] = '%1$d Second';
-$txt['mq_seconds'] = '%1$d Seconds';
+$txt['mq_age'] = '{unit, select,
+	day {{age, plural,
+		one {# day}
+		other {# days}
+	}}
+	hour {{age, plural,
+		one {# hour}
+		other {# hours}
+	}}
+	minute {{age, plural,
+		one {# minute}
+		other {# minutes}
+	}}
+	second {{age, plural,
+		one {# second}
+		other {# seconds}
+	}}
+	other {{age, plural,
+		one {# {unit}}
+		other {# {unit}}
+	}}
+}';
 
 $txt['mq_mpriority_5'] = 'Very Low';
 $txt['mq_mpriority_4'] = 'Low';
@@ -50,6 +64,6 @@ $txt['birthday_subject'] = 'Email subject';
 
 $txt['mailtest_header'] = 'Email Test';
 $txt['mailtest_result_success'] = 'Successfully sent a test message';
-$txt['mailtest_result_failure'] = 'Unable to send a test message, check the <a href="%1$s">error log</a> for more information.';
+$txt['mailtest_result_failure'] = 'Unable to send a test message, check the <a href="{url}">error log</a> for more information.';
 
 ?>

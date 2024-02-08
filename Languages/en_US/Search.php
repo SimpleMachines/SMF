@@ -9,8 +9,7 @@ $txt['any_words'] = 'Match any words';
 $txt['by_user'] = 'By user';
 
 $txt['search_post_age'] = 'Message age';
-$txt['search_between'] = 'between';
-$txt['search_and'] = 'and';
+$txt['search_age_range'] = 'between {min} and {max} days';
 $txt['search_options'] = 'Options';
 $txt['search_show_complete_messages'] = 'Show results as messages';
 $txt['search_subject_only'] = 'Search in topic subjects only';
@@ -25,7 +24,7 @@ $txt['search_orderby_old_first'] = 'Oldest topics first';
 $txt['search_visual_verification_label'] = 'Verification';
 $txt['search_visual_verification_desc'] = 'Please enter the code in the image above to use search.';
 
-$txt['search_specific_topic'] = 'Searching only posts in the topic';
+$txt['search_specific_topic'] = 'Searching only posts in "{topic}"';
 
 $txt['mods_cat_search'] = 'Search';
 $txt['groups_search_posts'] = 'Membergroups with access to the search function';
@@ -52,15 +51,12 @@ $txt['search_method_messages_table_space'] = 'Space used by forum messages in th
 $txt['search_method_messages_index_space'] = 'Space used to index messages in the database';
 $txt['search_method_kilobytes'] = 'KB';
 $txt['search_method_fulltext_index'] = 'Fulltext index';
-$txt['search_method_no_index_exists'] = 'doesn\'t currently exist';
-$txt['search_method_fulltext_create'] = 'create a fulltext index';
-$txt['search_method_fulltext_cannot_create'] = 'cannot be created because fulltext search is not supported for your MySQL engine and version';
-$txt['search_method_index_already_exists'] = 'already created';
-$txt['search_method_fulltext_remove'] = 'remove fulltext index';
-$txt['search_method_index_partial'] = 'partially created';
-$txt['search_index_custom_resume'] = 'resume';
+$txt['search_method_no_index_exists'] = '{index} does not currently exist';
+$txt['search_method_fulltext_cannot_create'] = 'A fulltext index cannot be created because fulltext search is not supported for your database engine and version';
+$txt['search_method_index_already_exists'] = '{index} already created';
+$txt['search_method_index_partial'] = '{index} partially created';
 // This string is used in a javascript confirmation popup; don't use entities.
-$txt['search_method_fulltext_warning'] = 'In order to be able to use fulltext search, you\\\'ll have to create a fulltext index first.';
+$txt['search_method_fulltext_warning'] = 'In order to be able to use fulltext search, you must first create a fulltext index.';
 
 $txt['search_index'] = 'Search index';
 $txt['search_index_none'] = 'No index';
@@ -68,11 +64,11 @@ $txt['search_index_custom'] = 'Custom index';
 $txt['search_index_sphinx'] = 'Sphinx';
 $txt['search_index_sphinx_desc'] = 'The admin panel only allows to switch between search indexes. To adjust further Sphinx settings, use the sphinx_config.php tool.';
 $txt['search_index_label'] = 'Index';
-$txt['search_index_size'] = 'Size';
-$txt['search_index_create_custom'] = 'create custom index';
-$txt['search_index_custom_remove'] = 'remove custom index';
+$txt['search_index_size'] = 'Size:';
+$txt['search_index_remove'] = 'Remove';
+$txt['search_index_resume'] = 'Resume';
 // This string is used in a javascript confirmation popup; don't use entities.
-$txt['search_index_custom_warning'] = 'In order to be able to use a custom index search, you\\\'ll have to create a custom index first!';
+$txt['search_index_custom_warning'] = 'In order to be able to use a custom index search, you must first create a custom index.';
 
 $txt['search_force_index'] = 'Force the use of a search index';
 $txt['search_match_words'] = 'Match whole words only';
@@ -97,13 +93,16 @@ $txt['search_double_index'] = 'You have currently created two indexes on the mes
 
 $txt['search_error_indexed_chars'] = 'Invalid number of indexed characters. At least 3 characters are needed for a useful index.';
 $txt['search_error_max_percentage'] = 'Invalid percentage of words to be skipped. Use a value of at least 5%.';
-$txt['error_string_too_long'] = 'Search string must be less than %1$d characters long.';
+$txt['error_string_too_long'] = '{0, plural,
+	one {Search string must be less than # character long.}
+	other {Search string must be less than # characters long.}
+}';
 
 $txt['search_adjust_query'] = 'Adjust Search Parameters';
 $txt['search_warning_ignored_word'] = 'The following term has been ignored in your search because it is too short';
 $txt['search_warning_ignored_words'] = 'The following terms have been ignored in your search because they are too short';
 $txt['search_adjust_submit'] = 'Revise Search';
-$txt['search_did_you_mean'] = 'You may have meant to search for';
+$txt['search_did_you_mean'] = 'You may have meant to search for {suggested_query}.';
 
 $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 
@@ -156,7 +155,8 @@ $txt['spider_logs_delete_older'] = 'Delete all entries older than';
 $txt['spider_logs_delete_day'] = 'days.';
 $txt['spider_logs_delete_submit'] = 'Delete';
 
-$txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders not seen in %1$s days.';
+// argument: an HTML <input> element.
+$txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders not seen in {input} days.';
 
 // Don't use entities in the below string.
 $txt['spider_logs_delete_confirm'] = 'Are you sure you wish to empty out all log entries?';

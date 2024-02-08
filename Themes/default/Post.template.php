@@ -61,7 +61,7 @@ function template_main()
 				pollOptionNum++
 				pollOptionId++
 
-				setOuterHTML(document.getElementById(\'pollMoreOptions\'), ', Utils::escapeJavaScript('<dt><label for="options-'), ' + pollOptionId + ', Utils::escapeJavaScript('">' . Lang::$txt['option'] . ' '), ' + pollOptionNum + ', Utils::escapeJavaScript('</label>:</dt><dd><input type="text" name="options['), ' + pollOptionId + ', Utils::escapeJavaScript(']" id="options-'), ' + pollOptionId + ', Utils::escapeJavaScript('" value="" size="80" maxlength="255" tabindex="'), ' + pollTabIndex + ', Utils::escapeJavaScript('"></dd><p id="pollMoreOptions"></p>'), ');
+				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999]), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
 			}';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
@@ -132,8 +132,8 @@ function template_main()
 	if (!empty(Config::$modSettings['drafts_post_enabled']))
 		echo '
 					<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
-						sprintf(Lang::$txt['draft_saved'], Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts'), '
-						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . sprintf(Lang::$txt['draft_save_warning'], Config::$modSettings['drafts_keep_days']) . '</strong>' : ''), '
+						Lang::getTxt('draft_saved', ['url' => Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts']), '
+						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']]) . '</strong>' : ''), '
 					</div>';
 
 	// The post header... important stuff
@@ -214,7 +214,7 @@ function template_main()
 		foreach (Utils::$context['choices'] as $choice)
 			echo '
 								<dt>
-									<label for="options-', $choice['id'], '">', Lang::$txt['option'], ' ', $choice['number'], '</label>:
+									<label for="options-', $choice['id'], '">', Lang::getTxt('option_number', [$choice['number']]), '</label>
 								</dt>
 								<dd>
 									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="255">
@@ -229,20 +229,20 @@ function template_main()
 							<legend>', Lang::$txt['poll_options'], '</legend>
 							<dl class="settings poll_options">
 								<dt>
-									<label for="poll_max_votes">', Lang::$txt['poll_max_votes'], ':</label>
+									<label for="poll_max_votes">', Lang::$txt['poll_max_votes'], '</label>
 								</dt>
 								<dd>
-									<input type="text" name="poll_max_votes" id="poll_max_votes" size="2" value="', Utils::$context['poll_options']['max_votes'], '">
+									<input type="number" name="poll_max_votes" id="poll_max_votes" min="1" value="', Utils::$context['poll_options']['max_votes'], '">
 								</dd>
 								<dt>
-									<label for="poll_expire">', Lang::$txt['poll_run'], ':</label><br>
+									<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
 									<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
 								</dt>
 								<dd>
-									<input type="text" name="poll_expire" id="poll_expire" size="2" value="', !empty(Utils::$context['poll_options']['expire']) ? Utils::$context['poll_options']['expire'] : '', '" onchange="pollOptions();" maxlength="4"> ', Lang::$txt['days_word'], '
+									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
 								</dd>
 								<dt>
-									<label for="poll_change_vote">', Lang::$txt['poll_do_change_vote'], ':</label>
+									<label for="poll_change_vote">', Lang::$txt['poll_do_change_vote'], '</label>
 								</dt>
 								<dd>
 									<input type="checkbox" id="poll_change_vote" name="poll_change_vote"', !empty(Utils::$context['poll']['change_vote']) ? ' checked' : '', '>
@@ -251,7 +251,7 @@ function template_main()
 		if (Utils::$context['poll_options']['guest_vote_enabled'])
 			echo '
 								<dt>
-									<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], ':</label>
+									<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], '</label>
 								</dt>
 								<dd>
 									<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll_options']['guest_vote']) ? ' checked' : '', '>
@@ -259,7 +259,7 @@ function template_main()
 
 		echo '
 								<dt>
-									', Lang::$txt['poll_results_visibility'], ':
+									', Lang::$txt['poll_results_visibility'], '
 								</dt>
 								<dd>
 									<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll_options']['hide'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::$txt['poll_results_anyone'], '</label><br>
@@ -290,8 +290,7 @@ function template_main()
 
 		if (Utils::$context['can_post_attachment'])
 			echo '
-										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">
-										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', Lang::$txt['clean_attach'], ')</a>';
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">';
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit']))
 			echo '
@@ -302,7 +301,7 @@ function template_main()
 
 		if (!empty(Utils::$context['attachment_restrictions']))
 			echo '
-									<div class="smalltext">', Lang::$txt['attach_restrictions'], ' ', implode(', ', Utils::$context['attachment_restrictions']), '</div>';
+									<div class="smalltext">', Lang::getTxt('attach_restrictions', ['list' => implode(Lang::$txt['sentence_list_separator'] . ' ', Utils::$context['attachment_restrictions'])]), '</div>';
 
 		echo '
 									<div class="smalltext">
@@ -338,7 +337,7 @@ function template_main()
 										<div class="attachments_bot">
 											<span class="name">' . $attachment['name'] . '</span>', (empty($attachment['approved']) ? '
 											<br>(' . Lang::$txt['awaiting_approval'] . ')' : ''), '
-											<br>', $attachment['size'] < 1024000 ? round($attachment['size'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['size'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'], '
+											<br>', $attachment['size'] < 1024000 ? Lang::getTxt('size_kilobyte', [round($attachment['size'] / 1024, 2)]) : Lang::getTxt('size_megabyte', [round($attachment['size'] / 1024 / 1024, 2)]), '
 										</div>
 									</div>';
 			}
@@ -456,7 +455,7 @@ function template_main()
 					<div id="post_draft_options">
 						<dl class="settings">
 							<dt><strong>', Lang::$txt['subject'], '</strong></dt>
-							<dd><strong>', Lang::$txt['draft_saved_on'], '</strong></dd>';
+							<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''])), '</strong></dd>';
 
 		foreach (Utils::$context['drafts'] as $draft)
 			echo '
@@ -472,7 +471,7 @@ function template_main()
 		echo '
 					<div class="post_verification">
 						<span', !empty(Utils::$context['post_error']['need_qr_verification']) ? ' class="error"' : '', '>
-							<strong>', Lang::$txt['verification'], ':</strong>
+							<strong>', Lang::$txt['verification'], '</strong>
 						</span>
 						', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 					</div>';
@@ -512,10 +511,8 @@ function template_main()
 		<div class="windowbg">
 			<div id="msg%PostID%">
 			<h5 class="floatleft">
-				<span>' . Lang::$txt['posted_by'] . '</span>
-				%PosterName%
+				' . Lang::getTxt('posted_by_member_time', ['member' => '%PosterName%', 'time' => '%PostTime%']) . '&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . Lang::$txt['new'] . '</span>
 			</h5>
-			&nbsp;-&nbsp;%PostTime%&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . Lang::$txt['new'] . '</span>
 			<br class="clear">
 			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . Lang::$txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . Lang::$txt['show_ignore_user_post'] . '</a></div>
 			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>';
@@ -639,9 +636,8 @@ function template_main()
 				<div id="msg', $post['id'], '">
 					<div>
 						<h5 class="floatleft">
-							<span>', Lang::$txt['posted_by'], '</span> ', $post['poster'], '
+							', Lang::getTxt('posted_by_member_time', ['member' => $post['poster'], 'time' => $post['time']]), '
 						</h5>
-						<span class="smalltext">&nbsp;-&nbsp;', $post['time'], '</span>
 					</div>';
 
 			if ($ignoring)
@@ -850,7 +846,7 @@ function template_announce()
 			</div>
 			<div class="windowbg">
 				<p>
-					', Lang::$txt['announce_this_topic'], ' <a href="', Config::$scripturl, '?topic=', Utils::$context['current_topic'], '.0">', Utils::$context['topic_subject'], '</a>
+					', Lang::getTxt('announce_this_topic', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0">' . Utils::$context['topic_subject'] . '</a>']), '
 				</p>
 				<ul>';
 
@@ -890,10 +886,10 @@ function template_announcement_send()
 		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="', Utils::$context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg">
 				<p>
-					', Lang::$txt['announce_sending'], ' <a href="', Config::$scripturl, '?topic=', Utils::$context['current_topic'], '.0" target="_blank" rel="noopener">', Utils::$context['topic_subject'], '</a>
+					', Lang::getTxt('announce_sending', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0" target="_blank" rel="noopener">' . Utils::$context['topic_subject'] . '</a>']),'
 				</p>
 				<div class="progress_bar">
-					<span>', Utils::$context['percentage_done'], '% ', Lang::$txt['announce_done'], '</span>
+					<span>', Lang::getTxt('announce_done', Utils::$context), '</span>
 					<div class="bar" style="width: ', Utils::$context['percentage_done'], '%;"></div>
 				</div>
 				<hr>

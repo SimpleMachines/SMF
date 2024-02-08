@@ -52,18 +52,17 @@ function template_admin()
 								</div>
 								<div class="windowbg nopadding">
 									<div id="version_details" class="padding">
-										<strong>', Lang::$txt['support_versions'], ':</strong><br>
-										', Lang::$txt['support_versions_forum'], ':
-										<em id="yourVersion">', Utils::$context['forum_version'], '</em><br>
-										', Lang::$txt['support_versions_current'], ':
-										<em id="smfVersion">??</em><br>
-										', Utils::$context['can_admin'] ? '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '<br>';
+										<strong>', Lang::$txt['support_versions'], '</strong>
+										<ul>
+											<li>', Lang::getTxt('support_versions_forum', ['version' => Utils::$context['forum_version']]), '</li>
+											<li>', Lang::getTxt('support_versions_current', ['version' => '??']), '</li>
+											<li>', Utils::$context['can_admin'] ? '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '</li>
+										</ul>';
 
 	// Display all the members who can administrate the forum.
 	echo '
 										<br>
-										<strong>', Lang::$txt['administrators'], ':</strong>
-										', implode(', ', Utils::$context['administrators']);
+										', Lang::getTxt('administrators', ['list' => Lang::sentenceList(Utils::$context['administrators'])]);
 
 	// If we have lots of admins... don't show them all.
 	if (!empty(Utils::$context['more_admins_link']))
@@ -121,7 +120,7 @@ function template_admin()
 								</dl>
 							'), ',
 							sAnnouncementMessageTemplate: ', Utils::escapeJavaScript('
-								<dt><a href="%href%">%subject%</a> ' . Lang::$txt['on'] . ' %time%</dt>
+								<dt><a href="%href%">%subject%</a>%time%</dt>
 								<dd>
 									%message%
 								</dd>
@@ -167,11 +166,11 @@ function template_credits()
 						</div>
 						<div class="padding">
 							<img src="', Theme::$current->settings['images_url'], '/smflogo.svg" class="floatright" alt="">
-							<strong>', Lang::$txt['support_versions'], ':</strong><br>
-								', Lang::$txt['support_versions_forum'], ':
-							<em id="yourVersion">', Utils::$context['forum_version'], '</em>', Utils::$context['can_admin'] ? ' <a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '<br>
-								', Lang::$txt['support_versions_current'], ':
-							<em id="smfVersion">??</em><br>';
+							<strong>', Lang::$txt['support_versions'], '</strong>
+							<ul>
+								<li>', Lang::getTxt('support_versions_forum', ['version' => Utils::$context['forum_version']]), Utils::$context['can_admin'] ? ' <a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '</li>
+								<li>', Lang::getTxt('support_versions_current', ['version' => '??']), '</li>
+							</ul>';
 
 	// Display all the variables we have server information for.
 	foreach (Utils::$context['current_versions'] as $version)
@@ -639,19 +638,19 @@ function template_edit_censored()
 								<hr>
 								<dl class="settings">
 									<dt>
-										<strong><label for="allow_no_censored">', Lang::$txt['allow_no_censored'], ':</label></strong>
+										<strong><label for="allow_no_censored">', Lang::$txt['allow_no_censored'], '</label></strong>
 									</dt>
 									<dd>
 										<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty(Config::$modSettings['allow_no_censored']) ? '' : ' checked', '>
 									</dd>
 									<dt>
-										<strong><label for="censorWholeWord_check">', Lang::$txt['censor_whole_words'], ':</label></strong>
+										<strong><label for="censorWholeWord_check">', Lang::$txt['censor_whole_words'], '</label></strong>
 									</dt>
 									<dd>
 										<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty(Config::$modSettings['censorWholeWord']) ? '' : ' checked', '>
 									</dd>
 									<dt>
-										<strong><label for="censorIgnoreCase_check">', Lang::$txt['censor_case'], ':</label></strong>
+										<strong><label for="censorIgnoreCase_check">', Lang::$txt['censor_case'], '</label></strong>
 									</dt>
 									<dd>
 										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty(Config::$modSettings['censorIgnoreCase']) ? '' : ' checked', '>
@@ -749,7 +748,7 @@ function template_show_settings()
 					<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
-					<div class="errorbox">', sprintf(Lang::$txt['settings_not_saved'], Utils::$context['saved_failed']), '</div>';
+					<div class="errorbox">', Lang::getTxt('settings_not_saved', ['reason' => Utils::$context['saved_failed']]), '</div>';
 
 	if (!empty(Utils::$context['settings_pre_javascript']))
 		echo '
@@ -1149,7 +1148,7 @@ function template_edit_profile_field()
 									<dl class="settings">
 										<dt>
 											<a id="field_name_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="field_name">', Lang::$txt['custom_edit_name'], ':</label></strong><br>
+											<strong><label for="field_name">', Lang::$txt['custom_edit_name'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_name_desc'], '</span>
 										</dt>
 										<dd>
@@ -1159,14 +1158,14 @@ function template_edit_profile_field()
 											<a id="field_desc_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
 												<span class="main_icons help" title="', Lang::$txt['help'], '"></span>
 											</a>
-											<strong><label for="field_desc">', Lang::$txt['custom_edit_desc'], ':</label></strong><br>
+											<strong><label for="field_desc">', Lang::$txt['custom_edit_desc'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_name_desc'], '</span>
 										</dt>
 										<dd>
 											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', Utils::$context['field']['desc'], '</textarea>
 										</dd>
 										<dt>
-											<strong><label for="profile_area">', Lang::$txt['custom_edit_profile'], ':</label></strong><br>
+											<strong><label for="profile_area">', Lang::$txt['custom_edit_profile'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_profile_desc'], '</span>
 										</dt>
 										<dd>
@@ -1179,7 +1178,7 @@ function template_edit_profile_field()
 										</dd>
 										<dt>
 											<a id="field_reg_require" href="', Config::$scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="reg">', Lang::$txt['custom_edit_registration'], ':</label></strong>
+											<strong><label for="reg">', Lang::$txt['custom_edit_registration'], '</label></strong>
 										</dt>
 										<dd>
 											<select name="reg" id="reg">
@@ -1189,19 +1188,19 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<strong><label for="display">', Lang::$txt['custom_edit_display'], ':</label></strong>
+											<strong><label for="display">', Lang::$txt['custom_edit_display'], '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="display" id="display"', Utils::$context['field']['display'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="mlist">', Lang::$txt['custom_edit_mlist'], ':</label></strong>
+											<strong><label for="mlist">', Lang::$txt['custom_edit_mlist'], '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="mlist" id="show_mlist"', Utils::$context['field']['mlist'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="placement">', Lang::$txt['custom_edit_placement'], ':</label></strong>
+											<strong><label for="placement">', Lang::$txt['custom_edit_placement'], '</label></strong>
 										</dt>
 										<dd>
 											<select name="placement" id="placement">';
@@ -1215,7 +1214,7 @@ function template_edit_profile_field()
 										</dd>
 										<dt>
 											<a id="field_show_enclosed" href="', Config::$scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="enclose">', Lang::$txt['custom_edit_enclose'], ':</label></strong><br>
+											<strong><label for="enclose">', Lang::$txt['custom_edit_enclose'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_enclose_desc'], '</span>
 										</dt>
 										<dd>
@@ -1227,7 +1226,7 @@ function template_edit_profile_field()
 									<legend>', Lang::$txt['custom_edit_input'], '</legend>
 									<dl class="settings">
 										<dt>
-											<strong><label for="field_type">', Lang::$txt['custom_edit_picktype'], ':</label></strong>
+											<strong><label for="field_type">', Lang::$txt['custom_edit_picktype'], '</label></strong>
 										</dt>
 										<dd>
 											<select name="field_type" id="field_type" onchange="updateInputBoxes();">';
@@ -1240,18 +1239,18 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt id="max_length_dt">
-											<strong><label for="max_length_dd">', Lang::$txt['custom_edit_max_length'], ':</label></strong><br>
+											<strong><label for="max_length_dd">', Lang::$txt['custom_edit_max_length'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_max_length_desc'], '</span>
 										</dt>
 										<dd>
 											<input type="text" name="max_length" id="max_length_dd" value="', Utils::$context['field']['max_length'], '" size="7" maxlength="6">
 										</dd>
 										<dt id="dimension_dt">
-											<strong><label for="dimension_dd">', Lang::$txt['custom_edit_dimension'], ':</label></strong>
+											<strong><label for="dimension_dd">', Lang::$txt['custom_edit_dimension'], '</label></strong>
 										</dt>
 										<dd id="dimension_dd">
-											<strong>', Lang::$txt['custom_edit_dimension_row'], ':</strong> <input type="text" name="rows" value="', Utils::$context['field']['rows'], '" size="5" maxlength="3">
-											<strong>', Lang::$txt['custom_edit_dimension_col'], ':</strong> <input type="text" name="cols" value="', Utils::$context['field']['cols'], '" size="5" maxlength="3">
+											<strong>', Lang::$txt['custom_edit_dimension_row'], '</strong> <input type="text" name="rows" value="', Utils::$context['field']['rows'], '" size="5" maxlength="3">
+											<strong>', Lang::$txt['custom_edit_dimension_col'], '</strong> <input type="text" name="cols" value="', Utils::$context['field']['cols'], '" size="5" maxlength="3">
 										</dd>
 										<dt id="bbc_dt">
 											<strong><label for="bbc_dd">', Lang::$txt['custom_edit_bbc'], '</label></strong>
@@ -1261,7 +1260,7 @@ function template_edit_profile_field()
 										</dd>
 										<dt id="options_dt">
 											<a href="', Config::$scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="options_dd">', Lang::$txt['custom_edit_options'], ':</label></strong><br>
+											<strong><label for="options_dd">', Lang::$txt['custom_edit_options'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_options_desc'], '</span>
 											<br>
 											<span>', Lang::$txt['custom_edit_name_desc'], '</span>
@@ -1277,7 +1276,7 @@ function template_edit_profile_field()
 											[<a href="" onclick="addOption(); return false;">', Lang::$txt['custom_edit_options_more'], '</a>]
 										</dd>
 										<dt id="default_dt">
-											<strong><label for="default_dd">', Lang::$txt['custom_edit_default'], ':</label></strong>
+											<strong><label for="default_dd">', Lang::$txt['custom_edit_default'], '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="default_check" id="default_dd"', Utils::$context['field']['default_check'] ? ' checked' : '', '>
@@ -1289,7 +1288,7 @@ function template_edit_profile_field()
 									<dl class="settings">
 										<dt id="mask_dt">
 											<a id="custom_mask" href="', Config::$scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="mask">', Lang::$txt['custom_edit_mask'], ':</label></strong><br>
+											<strong><label for="mask">', Lang::$txt['custom_edit_mask'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_mask_desc'], '</span>
 										</dt>
 										<dd>
@@ -1305,7 +1304,7 @@ function template_edit_profile_field()
 											</span>
 										</dd>
 										<dt>
-											<strong><label for="private">', Lang::$txt['custom_edit_privacy'], ':</label></strong><br>
+											<strong><label for="private">', Lang::$txt['custom_edit_privacy'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_privacy_desc'], '</span>
 										</dt>
 										<dd>
@@ -1317,14 +1316,14 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt id="can_search_dt">
-											<strong><label for="can_search_dd">', Lang::$txt['custom_edit_can_search'], ':</label></strong><br>
+											<strong><label for="can_search_dd">', Lang::$txt['custom_edit_can_search'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_can_search_desc'], '</span>
 										</dt>
 										<dd>
 											<input type="checkbox" name="can_search" id="can_search_dd"', Utils::$context['field']['can_search'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="can_search_check">', Lang::$txt['custom_edit_active'], ':</label></strong><br>
+											<strong><label for="can_search_check">', Lang::$txt['custom_edit_active'], '</label></strong><br>
 											<span class="smalltext">', Lang::$txt['custom_edit_active_desc'], '</span>
 										</dt>
 										<dd>
@@ -1361,7 +1360,7 @@ function template_admin_search_results()
 							', template_admin_quick_search(), '
 							<h3 class="catbg">
 								<span id="quick_search_results">
-									', sprintf(Lang::$txt['admin_search_results_desc'], Utils::$context['search_term']), '
+									', Lang::getTxt('admin_search_results_desc', Utils::$context), '
 								</span>
 							</h3>
 						</div><!-- #section_header -->
@@ -1487,7 +1486,7 @@ function template_repair_boards()
 		if (!empty(Utils::$context['to_fix']))
 		{
 			echo '
-							', Lang::$txt['errors_found'], ':
+							', Lang::$txt['errors_found'], '
 							<ul>';
 
 			foreach (Utils::$context['repair_errors'] as $error)

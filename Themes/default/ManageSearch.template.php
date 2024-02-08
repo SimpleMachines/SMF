@@ -28,7 +28,7 @@ function template_modify_weights()
 			<dl class="settings">
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><label for="weight1_val">
-					', Lang::$txt['search_weight_frequency'], ':</label>
+					', Lang::$txt['search_weight_frequency'], '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -38,7 +38,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight2_val">', Lang::$txt['search_weight_age'], ':</label>
+					<label for="weight2_val">', Lang::$txt['search_weight_age'], '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -48,7 +48,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight3_val">', Lang::$txt['search_weight_length'], ':</label>
+					<label for="weight3_val">', Lang::$txt['search_weight_length'], '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -58,7 +58,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight4_val">', Lang::$txt['search_weight_subject'], ':</label>
+					<label for="weight4_val">', Lang::$txt['search_weight_subject'], '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -68,7 +68,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight5_val">', Lang::$txt['search_weight_first_message'], ':</label>
+					<label for="weight5_val">', Lang::$txt['search_weight_first_message'], '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -78,7 +78,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight6_val">', Lang::$txt['search_weight_sticky'], ':</label>
+					<label for="weight6_val">', Lang::$txt['search_weight_sticky'], '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -127,13 +127,13 @@ function template_select_search_method()
 	if (!empty(Utils::$context['table_info']))
 		echo '
 				<dt>
-					<strong>', Lang::$txt['search_method_messages_table_space'], ':</strong>
+					<strong>', Lang::$txt['search_method_messages_table_space'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['table_info']['data_length'], '
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['search_method_messages_index_space'], ':</strong>
+					<strong>', Lang::$txt['search_method_messages_index_space'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['table_info']['index_length'], '
@@ -153,6 +153,7 @@ function template_select_search_method()
 	if (Utils::$context['supports_fulltext'])
 	{
 		echo '
+					<hr>
 					<dt>
 						<input type="radio" name="search_index" value="fulltext"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == 'fulltext' ? ' checked' : '', empty(Utils::$context['fulltext_index']) ? ' onclick="alert(\'' . Lang::$txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"' : '', '>
 						', Lang::$txt['search_method_fulltext_index'], '
@@ -162,21 +163,22 @@ function template_select_search_method()
 
 		if (empty(Utils::$context['fulltext_index']) && empty(Utils::$context['cannot_create_fulltext']))
 			echo '
-							<strong>', Lang::$txt['search_index_label'], ':</strong> ', Lang::$txt['search_method_no_index_exists'], ' [<a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createfulltext;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '">', Lang::$txt['search_method_fulltext_create'], '</a>]';
+							', Lang::getTxt('search_method_no_index_exists', ['index' => Lang::$txt['search_method_fulltext_index']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createfulltext;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_create_index_start'], '</a>';
 
 		elseif (empty(Utils::$context['fulltext_index']) && !empty(Utils::$context['cannot_create_fulltext']))
 			echo '
-							<strong>', Lang::$txt['search_index_label'], ':</strong> ', Lang::$txt['search_method_fulltext_cannot_create'];
+							<strong>', Lang::$txt['search_method_fulltext_cannot_create'], '</strong>';
 		else
 			echo '
-							<strong>', Lang::$txt['search_index_label'], ':</strong> ', Lang::$txt['search_method_index_already_exists'], ' [<a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removefulltext;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '">', Lang::$txt['search_method_fulltext_remove'], '</a>]<br>
-							<strong>', Lang::$txt['search_index_size'], ':</strong> ', Utils::$context['table_info']['fulltext_length'];
+							', Lang::getTxt('search_method_index_already_exists', ['index' => Lang::$txt['search_method_fulltext_index']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removefulltext;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_remove'], '</a><br>
+							<strong>', Lang::$txt['search_index_size'], '</strong> ', Utils::$context['table_info']['fulltext_length'];
 		echo '
 						</span>
 					</dd>';
 	}
 
 	echo '
+					<hr>
 					<dt>
 						<input type="radio" name="search_index" value="custom"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == 'custom' ? ' checked' : '', Utils::$context['custom_index'] ? '' : ' onclick="alert(\'' . Lang::$txt['search_index_custom_warning'] . '\'); selectRadioByName(this.form.search_method, \'1\');"', '>
 						', Lang::$txt['search_index_custom'], '
@@ -186,16 +188,16 @@ function template_select_search_method()
 
 	if (Utils::$context['custom_index'])
 		echo '
-							<strong>', Lang::$txt['search_index_label'], ':</strong> ', Lang::$txt['search_method_index_already_exists'], ' [<a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removecustom;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '">', Lang::$txt['search_index_custom_remove'], '</a>]<br>
-							<strong>', Lang::$txt['search_index_size'], ':</strong> ', Utils::$context['table_info']['custom_index_length'];
+							', Lang::getTxt('search_method_index_already_exists', ['index' => Lang::$txt['search_index_custom']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removecustom;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_remove'], '</a><br>
+							<strong>', Lang::$txt['search_index_size'], '</strong> ', Utils::$context['table_info']['custom_index_length'];
 
 	elseif (Utils::$context['partial_custom_index'])
 		echo '
-							<strong>', Lang::$txt['search_index_label'], ':</strong> ', Lang::$txt['search_method_index_partial'], ' [<a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removecustom;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '">', Lang::$txt['search_index_custom_remove'], '</a>] [<a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '">', Lang::$txt['search_index_custom_resume'], '</a>]<br>
-							<strong>', Lang::$txt['search_index_size'], ':</strong> ', Utils::$context['table_info']['custom_index_length'];
+							', Lang::getTxt('search_method_index_partial', ['index' => Lang::$txt['search_index_custom']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_resume'], '</a> <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removecustom;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_remove'], '</a><br>
+							<strong>', Lang::$txt['search_index_size'], '</strong> ', Utils::$context['table_info']['custom_index_length'];
 	else
 		echo '
-							<strong>', Lang::$txt['search_index_label'], ':</strong> ', Lang::$txt['search_method_no_index_exists'], ' [<a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex">', Lang::$txt['search_index_create_custom'], '</a>]';
+							', Lang::getTxt('search_method_no_index_exists', ['index' => Lang::$txt['search_index_custom']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex" class="button floatnone">', Lang::$txt['search_create_index_start'], '</a>';
 	echo '
 						</span>
 					</dd>';
@@ -247,7 +249,7 @@ function template_create_index()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<label for="predefine_select">', Lang::$txt['search_predefined'], ':</label>
+					<label for="predefine_select">', Lang::$txt['search_predefined'], '</label>
 				</dt>
 				<dd>
 					<select name="bytes_per_word" id="predefine_select">
@@ -343,21 +345,21 @@ function template_spider_edit()
 		<div class="windowbg noup">
 			<dl class="settings">
 				<dt>
-					<strong><label for="spider_name">', Lang::$txt['spider_name'], ':</label></strong><br>
+					<strong><label for="spider_name">', Lang::$txt['spider_name'], '</label></strong><br>
 					<span class="smalltext">', Lang::$txt['spider_name_desc'], '</span>
 				</dt>
 				<dd>
 					<input type="text" name="spider_name" id="spider_name" value="', Utils::$context['spider']['name'], '">
 				</dd>
 				<dt>
-					<strong><label for="spider_agent">', Lang::$txt['spider_agent'], ':</label></strong><br>
+					<strong><label for="spider_agent">', Lang::$txt['spider_agent'], '</label></strong><br>
 					<span class="smalltext">', Lang::$txt['spider_agent_desc'], '</span>
 				</dt>
 				<dd>
 					<input type="text" name="spider_agent" id="spider_agent" value="', Utils::$context['spider']['agent'], '">
 				</dd>
 				<dt>
-					<strong><label for="spider_ip">', Lang::$txt['spider_ip_info'], ':</label></strong><br>
+					<strong><label for="spider_ip">', Lang::$txt['spider_ip_info'], '</label></strong><br>
 					<span class="smalltext">', Lang::$txt['spider_ip_info_desc'], '</span>
 				</dt>
 				<dd>
@@ -413,7 +415,7 @@ function template_show_spider_stats()
 			</div>
 			<div class="windowbg">
 				<p>
-					', sprintf(Lang::$txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3">'), '
+					', Lang::getTxt('spider_stats_delete_older', ['input' => '<input type="number" name="older" id="older" value="90" size="3">']), '
 				</p>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-ss_token_var'], '" value="', Utils::$context['admin-ss_token'], '">

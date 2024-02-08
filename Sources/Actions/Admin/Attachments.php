@@ -1999,10 +1999,10 @@ class Attachments implements ActionInterface
 								// Since we're in auto mode. Create a new folder and reset the counters.
 								Attachment::automanageBySpace();
 
-								$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+								$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
 
 								if (!empty($total_not_moved)) {
-									$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
+									$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
 								}
 
 								$dir_files = 0;
@@ -2066,10 +2066,10 @@ class Attachments implements ActionInterface
 				}
 			}
 
-			$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+			$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
 
 			if (!empty($total_not_moved)) {
-				$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
+				$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
 			}
 		}
 
@@ -2173,16 +2173,16 @@ class Attachments implements ActionInterface
 			// Directory and size limits.
 			['select', 'automanage_attachments', [0 => Lang::$txt['attachments_normal'], 1 => Lang::$txt['attachments_auto_space'], 2 => Lang::$txt['attachments_auto_years'], 3 => Lang::$txt['attachments_auto_months'], 4 => Lang::$txt['attachments_auto_16']]],
 			['check', 'use_subdirectories_for_attachments', 'subtext' => Lang::$txt['use_subdirectories_for_attachments_note']],
-			(empty(Config::$modSettings['attachment_basedirectories']) ? ['text', 'basedirectory_for_attachments', 40] : ['var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? Lang::$txt['basedirectory_for_attachments_current'] : sprintf(Lang::$txt['basedirectory_for_attachments_warning'], Config::$scripturl))]),
-			empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? ['var_message', 'attachmentUploadDir_path', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => Lang::$txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path'] : ['var_message', 'attach_current_directory', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? Lang::$txt['attach_current_dir'] : sprintf(Lang::$txt['attach_current_dir_warning'], Config::$scripturl))],
+			(empty(Config::$modSettings['attachment_basedirectories']) ? ['text', 'basedirectory_for_attachments', 40] : ['var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? Lang::$txt['basedirectory_for_attachments_current'] : Lang::getTxt('basedirectory_for_attachments_warning', ['scripturl' => Config::$scripturl]))]),
+			empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? ['var_message', 'attachmentUploadDir_path', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => Lang::$txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path'] : ['var_message', 'attach_current_directory', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? Lang::$txt['attach_current_dir'] : Lang::getTxt('attach_current_dir_warning', ['scripturl' => Config::$scripturl]))],
 			['int', 'attachmentDirFileLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
 			['int', 'attachmentDirSizeLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'postinput' => Lang::$txt['kilobyte']],
 			['check', 'dont_show_attach_under_post', 'subtext' => Lang::$txt['dont_show_attach_under_post_sub']],
 			'',
 
 			// Posting limits
-			['int', 'attachmentPostLimit', 'subtext' => sprintf(Lang::$txt['attachment_ini_max'], $post_max_kb . ' ' . Lang::$txt['kilobyte']), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)],
-			['int', 'attachmentSizeLimit', 'subtext' => sprintf(Lang::$txt['attachment_ini_max'], $file_max_kb . ' ' . Lang::$txt['kilobyte']), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)],
+			['int', 'attachmentPostLimit', 'subtext' => Lang::getTxt('attachment_ini_max', [$post_max_kb]), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)],
+			['int', 'attachmentSizeLimit', 'subtext' => Lang::getTxt('attachment_ini_max', [$file_max_kb]), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)],
 			['int', 'attachmentNumPerPostLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'min' => 0],
 			// Security Items
 			['title', 'attachment_security_settings'],
@@ -2474,7 +2474,7 @@ class Attachments implements ActionInterface
 				'path' => $dir,
 				'current_size' => !empty($expected_size[$id]) ? Lang::numberFormat($expected_size[$id] / 1024, 0) : 0,
 				'num_files' => Lang::numberFormat($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-				'status' => ($is_base_dir ? Lang::$txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf(Lang::$txt['attach_dir_' . $status], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl) . ($error ? '</div>' : ''),
+				'status' => ($is_base_dir ? Lang::$txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . Lang::getTxt('attach_dir_' . $status, ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]) . ($error ? '</div>' : ''),
 			];
 		}
 

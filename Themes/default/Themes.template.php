@@ -50,7 +50,7 @@ function template_main()
 						<input type="checkbox" name="options[theme_allow]" id="options-theme_allow" value="1"', !empty(Config::$modSettings['theme_allow']) ? ' checked' : '', '>
 					</dd>
 					<dt>
-						<label for="known_themes_list">', Lang::$txt['themeadmin_selectable'], '</label>:
+						<label for="known_themes_list">', Lang::$txt['themeadmin_selectable'], '</label>
 					</dt>
 					<dd>
 						<div id="known_themes_list">';
@@ -61,14 +61,14 @@ function template_main()
 
 	echo '
 						</div>
-						<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').classList.remove(\'hidden\'); document.getElementById(\'known_themes_link\').classList.add(\'hidden\'); return false; " id="known_themes_link" class="hidden">[ ', Lang::$txt['themeadmin_themelist_link'], ' ]</a>
+						<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').classList.remove(\'hidden\'); document.getElementById(\'known_themes_link\').classList.add(\'hidden\'); return false; " id="known_themes_link" class="hidden button floatnone">', Lang::$txt['themeadmin_themelist_link'], '</a>
 						<script>
 							document.getElementById("known_themes_list").classList.add(\'hidden\');
 							document.getElementById("known_themes_link").classList.remove(\'hidden\');
 						</script>
 					</dd>
 					<dt>
-						<label for="theme_guests">', Lang::$txt['theme_guests'], ':</label>
+						<label for="theme_guests">', Lang::$txt['theme_guests'], '</label>
 					</dt>
 					<dd>
 						<select name="options[theme_guests]" id="theme_guests">';
@@ -80,10 +80,10 @@ function template_main()
 
 	echo '
 						</select>
-						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=theme;sa=pick;u=-1;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['theme_select'], '</a></span>
+						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=theme;sa=pick;u=-1;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::$txt['theme_select'], '</a></span>
 					</dd>
 					<dt>
-						<label for="theme_reset">', Lang::$txt['theme_reset'], '</label>:
+						<label for="theme_reset">', Lang::$txt['theme_reset'], '</label>
 					</dt>
 					<dd>
 						<select name="theme_reset" id="theme_reset">
@@ -97,7 +97,7 @@ function template_main()
 
 	echo '
 						</select>
-						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=theme;sa=pick;u=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['theme_select'], '</a></span>
+						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=theme;sa=pick;u=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::$txt['theme_select'], '</a></span>
 					</dd>
 				</dl>
 				<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">
@@ -234,11 +234,11 @@ function template_list_themes()
 			</div><!-- .cat_bar -->
 			<div class="windowbg">
 				<dl class="settings themes_list">
-					<dt>', Lang::$txt['themeadmin_list_theme_dir'], ':</dt>
+					<dt>', Lang::$txt['themeadmin_list_theme_dir'], '</dt>
 					<dd', $theme['valid_path'] ? '' : ' class="error"', '>', $theme['theme_dir'], $theme['valid_path'] ? '' : ' ' . Lang::$txt['themeadmin_list_invalid'], '</dd>
-					<dt>', Lang::$txt['themeadmin_list_theme_url'], ':</dt>
+					<dt>', Lang::$txt['themeadmin_list_theme_url'], '</dt>
 					<dd>', $theme['theme_url'], '</dd>
-					<dt>', Lang::$txt['themeadmin_list_images_url'], ':</dt>
+					<dt>', Lang::$txt['themeadmin_list_images_url'], '</dt>
 					<dd>', $theme['images_url'], '</dd>
 				</dl>
 			</div>';
@@ -251,13 +251,13 @@ function template_list_themes()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="reset_dir">', Lang::$txt['themeadmin_list_reset_dir'], '</label>:
+						<label for="reset_dir">', Lang::$txt['themeadmin_list_reset_dir'], '</label>
 					</dt>
 					<dd>
 						<input type="text" name="reset_dir" id="reset_dir" value="', Utils::$context['reset_dir'], '" size="40">
 					</dd>
 					<dt>
-						<label for="reset_url">', Lang::$txt['themeadmin_list_reset_url'], '</label>:
+						<label for="reset_url">', Lang::$txt['themeadmin_list_reset_url'], '</label>
 					</dt>
 					<dd>
 						<input type="text" name="reset_url" id="reset_url" value="', Utils::$context['reset_url'], '" size="40">
@@ -294,13 +294,13 @@ function template_reset_list()
 			<div class="windowbg">
 				<ul>
 					<li>
-						<a href="', Config::$scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=reset">', Lang::$txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', Lang::$txt['themeadmin_reset_defaults_current'], ')</em>
+						<a href="', Config::$scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=reset">', Lang::$txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">', Lang::getTxt('themeadmin_reset_defaults_current', [$theme['num_default_options']]), '</em>
 					</li>
 					<li>
 						<a href="', Config::$scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=reset;who=1">', Lang::$txt['themeadmin_reset_members'], '</a>
 					</li>
 					<li>
-						<a href="', Config::$scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=reset;who=2;', Utils::$context['admin-stor_token_var'], '=', Utils::$context['admin-stor_token'], '" data-confirm="', Lang::$txt['themeadmin_reset_remove_confirm'], '" class="you_sure">', Lang::$txt['themeadmin_reset_remove'], '</a> <em class="smalltext">(', $theme['num_members'], ' ', Lang::$txt['themeadmin_reset_remove_current'], ')</em>
+						<a href="', Config::$scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=reset;who=2;', Utils::$context['admin-stor_token_var'], '=', Utils::$context['admin-stor_token'], '" data-confirm="', Lang::$txt['themeadmin_reset_remove_confirm'], '" class="you_sure">', Lang::$txt['themeadmin_reset_remove'], '</a> <em class="smalltext">', Lang::getTxt('themeadmin_reset_remove_current', [$theme['num_members']]), '</em>
 					</li>
 				</ul>
 			</div>';
@@ -320,7 +320,7 @@ function template_set_options()
 			<input type="hidden" name="who" value="', Utils::$context['theme_options_reset'] ? 1 : 0, '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Utils::$context['theme_options_reset'] ? Lang::$txt['themeadmin_reset_options_title'] : Lang::$txt['theme_options_title'], ' - ', Utils::$context['theme_settings']['name'], '
+					', Lang::getTxt(Utils::$context['theme_options_reset'] ? 'themeadmin_reset_options_title' : 'theme_options_title', ['theme' => Utils::$context['theme_settings']['name']]), '
 				</h3>
 			</div>
 			<div class="information noup">
@@ -365,13 +365,11 @@ function template_set_options()
 		// Show the change option box?
 		if (Utils::$context['theme_options_reset'])
 			echo '
-						<span class="floatleft">
-							<select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
-								<option value="0" selected>', Lang::$txt['themeadmin_reset_options_none'], '</option>
-								<option value="1">', Lang::$txt['themeadmin_reset_options_change'], '</option>
-								<option value="2">', Lang::$txt['themeadmin_reset_options_default'], '</option>
-							</select>
-						</span>';
+						<select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
+							<option value="0" selected>', Lang::$txt['themeadmin_reset_options_none'], '</option>
+							<option value="1">', Lang::$txt['themeadmin_reset_options_change'], '</option>
+							<option value="2">', Lang::$txt['themeadmin_reset_options_default'], '</option>
+						</select>';
 
 		echo '
 						<label for="options_', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>';
@@ -455,7 +453,7 @@ function template_set_settings()
 		<form action="', Config::$scripturl, '?action=admin;area=theme;sa=list;th=', Utils::$context['theme_settings']['theme_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['theme_settings'], ' - ', Utils::$context['theme_settings']['name'], '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('theme_settings_for', ['theme' => Utils::$context['theme_settings']['name']]), '
 				</h3>
 			</div>
 			<div class="windowbg">';
@@ -523,7 +521,7 @@ function template_set_settings()
 				</div>
 				<dl class="settings">
 					<dt>
-						<label for="variant">', Lang::$txt['theme_variants_default'], '</label>:
+						<label for="variant">', Lang::$txt['theme_variants_default'], '</label>
 					</dt>
 					<dd>
 						<select id="variant" name="options[default_variant]" onchange="changeVariant(this.value)">';
@@ -536,7 +534,7 @@ function template_set_settings()
 						</select>
 					</dd>
 					<dt>
-						<label for="disable_user_variant">', Lang::$txt['theme_variants_user_disable'], '</label>:
+						<label for="disable_user_variant">', Lang::$txt['theme_variants_user_disable'], '</label>
 					</dt>
 					<dd>
 						<input type="hidden" name="options[disable_user_variant]" value="0">
@@ -1038,13 +1036,13 @@ function template_edit_style()
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=theme;th=', Utils::$context['theme_id'], ';sa=edit" method="post" accept-charset="', Utils::$context['character_set'], '" name="stylesheetForm" id="stylesheetForm">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['theme_edit'], ' - ', Utils::$context['edit_filename'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('theme_edit_file', ['filename' => Utils::$context['edit_filename']]), '</h3>
 			</div>
 			<div class="windowbg">';
 
 	if (!Utils::$context['allow_save'])
 		echo '
-				', Lang::$txt['theme_edit_no_save'], ': ', Utils::$context['allow_save_filename'], '<br>';
+				', Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']]), '<br>';
 
 	echo '
 				<textarea class="edit_file" name="entire_file" cols="80" rows="20" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', Utils::$context['entire_file'], '</textarea>
@@ -1088,17 +1086,17 @@ function template_edit_template()
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=theme;th=', Utils::$context['theme_id'], ';sa=edit" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['theme_edit'], ' - ', Utils::$context['edit_filename'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('theme_edit_file', ['filename' => Utils::$context['edit_filename']]), '</h3>
 			</div>
 			<div class="windowbg">';
 
 	if (!Utils::$context['allow_save'])
 		echo '
-				', Lang::$txt['theme_edit_no_save'], ': ', Utils::$context['allow_save_filename'], '<br>';
+				', Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']]), '<br>';
 
 	foreach (Utils::$context['file_parts'] as $part)
 		echo '
-				<label for="on_line', $part['line'], '">', Lang::$txt['themeadmin_edit_on_line'], ' ', $part['line'], '</label>:<br>
+				<label for="on_line', $part['line'], '">', Lang::getTxt('themeadmin_edit_on_line', $part), '</label><br>
 				<div class="centertext">
 					<textarea id="on_line', $part['line'], '" name="entire_file[]" cols="80" rows="', $part['lines'] > 14 ? '14' : $part['lines'], '" class="edit_file">', $part['data'], '</textarea>
 				</div>';
@@ -1135,14 +1133,14 @@ function template_edit_file()
 	if (!Utils::$context['allow_save'])
 		echo '
 	<div class="errorbox">
-		', Lang::$txt['theme_edit_no_save'], ': ', Utils::$context['allow_save_filename'], '
+		', Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']]), '
 	</div>';
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=theme;th=', Utils::$context['theme_id'], ';sa=edit" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['theme_edit'], ' - ', Utils::$context['edit_filename'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('theme_edit_file', ['filename' => Utils::$context['edit_filename']]), '</h3>
 			</div>
 			<div class="windowbg">
 				<textarea name="entire_file" id="entire_file" cols="80" rows="20" class="edit_file">', Utils::$context['entire_file'], '</textarea><br>

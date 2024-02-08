@@ -54,11 +54,11 @@ class StatPanel implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['statPanel_showStats'] . ' ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]);
 
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['statPanel_generalStats'] . ' - ' . Profile::$member->name,
+			'title' => Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]),
 			'icon' => 'stats_info.png',
 		];
 
@@ -68,7 +68,15 @@ class StatPanel implements ActionInterface
 		}
 
 		// General user statistics.
-		Utils::$context['time_logged_in'] = Profile::$member->time_logged_in;
+		$time_days = floor(Profile::$member->total_time_logged_in / 86400);
+		$time_hours = floor((Profile::$member->total_time_logged_in % 86400) / 3600);
+		$time_minutes = floor((Profile::$member->total_time_logged_in % 3600) / 60);
+
+		Utils::$context['time_logged_in'] = Lang::sentenceList(array_filter([
+			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days]) : null,
+			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours]) : null,
+			Lang::getTxt('number_of_minutes', [$time_minutes]),
+		]));
 
 		Utils::$context['num_posts'] = Lang::numberFormat(Profile::$member->posts);
 

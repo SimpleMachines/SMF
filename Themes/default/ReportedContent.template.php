@@ -53,10 +53,10 @@ function template_reported_posts()
 		echo '
 		<div class="windowbg">
 			<h5>
-				<strong>', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', Lang::$txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+				', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / ', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['topic']['href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
 			</h5>
 			<div class="smalltext">
-				', Lang::$txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -64,7 +64,7 @@ function template_reported_posts()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::$txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
 			', $report['body'], '
@@ -120,7 +120,7 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $report)
 		echo '
 					<li class="smalltext">
-						<a href="', $report['report_href'], '">', $report['subject'], '</a> ', Lang::$txt['mc_reportedp_by'], ' ', $report['author']['link'], '
+						', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['report_href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
 					</li>';
 
 	// Don't have any watched users right now?
@@ -185,13 +185,13 @@ function template_viewmodreport()
 		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', sprintf(Lang::$txt['mc_viewmodreport'], Utils::$context['report']['message_link'], Utils::$context['report']['author']['link']), '
+					', Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['message_link'], 'author_link' => Utils::$context['report']['author']['link']]), '
 				</h3>
 			</div>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf(Lang::$txt['mc_modreport_summary'], Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']), '
+						', Lang::getTxt('mc_modreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
 					</span>';
 
 	$report_buttons = array(
@@ -227,7 +227,13 @@ function template_viewmodreport()
 		echo '
 			<div class="windowbg">
 				<p class="smalltext">
-					', sprintf(Lang::$txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
+					', Lang::getTxt(
+						'mc_modreport_whoreported_data',
+						[
+							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
+							'datetime' => $comment['time'],
+						],
+					), '
 				</p>
 				<p>', $comment['message'], '</p>
 			</div>';
@@ -417,7 +423,7 @@ function template_reported_members()
 				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
 			</h5>
 			<div class="smalltext">
-				', Lang::$txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -425,7 +431,7 @@ function template_reported_members()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::$txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
 			', template_quickbuttons($report['quickbuttons'], 'reported_members'), '
@@ -467,13 +473,13 @@ function template_viewmemberreport()
 		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', sprintf(Lang::$txt['mc_viewmemberreport'], Utils::$context['report']['user']['link']), '
+					', Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['link']]), '
 				</h3>
 			</div>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf(Lang::$txt['mc_memberreport_summary'], Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']), '
+						', Lang::getTxt('mc_memberreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
 					</span>';
 
 	$report_buttons = array(
@@ -506,7 +512,13 @@ function template_viewmemberreport()
 		echo '
 			<div class="windowbg">
 				<p class="smalltext">
-					', sprintf(Lang::$txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
+					', Lang::getTxt(
+						'mc_modreport_whoreported_data',
+						[
+							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
+							'datetime' => $comment['time'],
+						],
+					), '
 				</p>
 				<p>', $comment['message'], '</p>
 			</div>';

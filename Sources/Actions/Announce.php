@@ -126,7 +126,7 @@ class Announce implements ActionInterface
 		list(Utils::$context['topic_subject']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Lang::censorText(Utils::$context['announce_topic']['subject']);
+		Lang::censorText(Utils::$context['topic_subject']);
 
 		Utils::$context['move'] = isset($_REQUEST['move']) ? 1 : 0;
 		Utils::$context['go_back'] = isset($_REQUEST['goback']) ? 1 : 0;

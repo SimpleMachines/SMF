@@ -402,6 +402,8 @@ class Logs implements ActionInterface
 
 			if (!empty($row['id_topic'])) {
 				$row['extra']['topic'] = $row['id_topic'];
+			} elseif ($row['action'] == 'remove') {
+				$row['extra']['topic'] = $row['extra']['old_topic_id'] ?? '?';
 			}
 
 			if (!empty($row['id_msg'])) {
@@ -624,8 +626,10 @@ class Logs implements ActionInterface
 
 			// Mark up any deleted members, topics and boards.
 			foreach (['board', 'board_from', 'board_to', 'member', 'topic', 'new_topic'] as $type) {
-				if (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type])) {
-					$entries[$k]['extra'][$type] = sprintf(Lang::$txt['modlog_id'], $entry['extra'][$type]);
+				if (in_array($type, ['topic', 'new_topic']) && !empty($entry['extra']['subject'])) {
+					$entries[$k]['extra'][$type] = $entry['extra']['subject'];
+				} elseif (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type])) {
+					$entries[$k]['extra'][$type] = Lang::getTxt('modlog_id', [$entry['extra'][$type]]);
 				}
 			}
 
@@ -642,13 +646,9 @@ class Logs implements ActionInterface
 				$entries[$k]['action_text'] = Lang::$txt['modlog_ac_' . $entry['action']] ?? $entry['action'];
 			}
 
-			$entries[$k]['action_text'] = preg_replace_callback(
-				'~\{([A-Za-z\d_]+)\}~i',
-				function ($matches) use ($entries, $k) {
-					return $entries[$k]['extra'][$matches[1]] ?? '';
-				},
-				$entries[$k]['action_text'],
-			);
+			Lang::$txt['action_text'] = $entries[$k]['action_text'];
+			$entries[$k]['action_text'] = Lang::getTxt('action_text', (array) $entries[$k]['extra']);
+			unset(Lang::$txt['action_text']);
 		}
 
 		// Back we go!
@@ -932,7 +932,7 @@ class Logs implements ActionInterface
 				[
 					'position' => 'after_title',
 					'value' => '
-						' . Lang::$txt['modlog_search'] . ' (' . Lang::$txt['modlog_by'] . ': ' . $this->search_info['label'] . '):
+						' . Lang::getTxt('modlog_search_by', $this->search_info) . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars($this->search_info['string']) . '">
 						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button" style="float:none">
 						' . ($this->can_delete ? '

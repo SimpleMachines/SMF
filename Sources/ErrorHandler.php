@@ -308,7 +308,7 @@ class ErrorHandler
 	 *
 	 * @param string $error The error message.
 	 * @param string|false $log The type of error, or false to not log it.
-	 * @param array $sprintf An array of data to be sprintf()'d into the specified message.
+	 * @param array $sprintf An array of data to be substituted into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
 	 */
 	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403): void
@@ -332,7 +332,7 @@ class ErrorHandler
 		if (empty(Lang::$txt[$error])) {
 			$error_message = $error;
 		} else {
-			$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
+			$error_message = Lang::getTxt($error, $sprintf);
 		}
 
 		// Send a custom header if we have a custom message.
@@ -356,7 +356,7 @@ class ErrorHandler
 			if (empty(Lang::$txt[$error])) {
 				$error_message = $error;
 			} else {
-				$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
+				$error_message = Lang::getTxt($error, $sprintf);
 			}
 
 			self::log($error_message, $log);
@@ -366,7 +366,7 @@ class ErrorHandler
 		if ($reload_lang_file && !empty(Lang::$txt[$error])) {
 			Lang::load('Errors');
 
-			$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
+			$error_message = Lang::getTxt($error, $sprintf);
 		}
 
 		self::logOnline($error, $sprintf);

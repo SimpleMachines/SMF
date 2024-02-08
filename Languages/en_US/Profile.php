@@ -10,6 +10,8 @@ $txt['popup_ignore'] = 'Ignore List';
 $txt['popup_groupmembership'] = 'My Groups';
 $txt['popup_subscriptions'] = 'Subscriptions';
 
+$txt['profile_page_title'] = 'Profile - {current_area}';
+
 $txt['no_profile_edit'] = 'You are not allowed to change this person\'s profile.';
 $txt['website_title'] = 'Website title';
 $txt['website_url'] = 'Website URL';
@@ -51,7 +53,7 @@ $txt['complete_url'] = 'This must be a complete URL.';
 $txt['sig_info'] = 'Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature.';
 $txt['no_signature_set'] = 'No signature set.';
 $txt['no_signature_preview'] = 'No signature to preview.';
-$txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
+$txt['max_sig_characters'] = 'Max characters: {max_length, number, integer}; characters remaining: <span id="signatureLeft">{max_length, number, integer}</span>';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
 $txt['current_time'] = 'Current forum time';
@@ -59,7 +61,7 @@ $txt['current_time'] = 'Current forum time';
 
 $txt['language'] = 'Language';
 $txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
-$txt['invalid_registration'] = 'Invalid Date Registered value, valid example:';
+$txt['invalid_registration'] = 'Invalid date registered value. Valid example: {example}';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
 $txt['required_security_reasons'] = 'For security reasons, your current password is required to make changes to your account.';
@@ -174,24 +176,38 @@ $txt['notifications_boards_none'] = 'You aren\'t receiving notifications on any 
 $txt['notifications_boards_howto'] = 'To request notifications from a specific board, click the &quot;notify&quot; button in the index of that board.';
 $txt['notifications_update'] = 'Unnotify';
 
-$txt['statPanel_showStats'] = 'User statistics for: ';
-$txt['statPanel_users_votes'] = 'Number of Votes cast';
-$txt['statPanel_users_polls'] = 'Number of Polls created';
-$txt['statPanel_total_time_online'] = 'Total time spent Online';
+$txt['statPanel_showStats'] = 'User statistics for {name}';
+$txt['statPanel_users_votes'] = 'Number of votes cast';
+$txt['statPanel_users_polls'] = 'Number of polls created';
+$txt['statPanel_total_time_online'] = 'Total time spent online';
 $txt['statPanel_noPosts'] = 'No posts to speak of!';
-$txt['statPanel_generalStats'] = 'General Statistics';
 $txt['statPanel_posts'] = 'posts';
 $txt['statPanel_topics'] = 'topics';
-$txt['statPanel_total_posts'] = 'Total Posts';
-$txt['statPanel_total_topics'] = 'Total Topics started';
+$txt['statPanel_total_posts'] = 'Total posts';
+$txt['statPanel_total_topics'] = 'Total topics started';
 $txt['statPanel_votes'] = 'votes';
 $txt['statPanel_polls'] = 'polls';
-$txt['statPanel_topBoards'] = 'Most popular Boards by Posts';
-$txt['statPanel_topBoards_posts'] = '%1$d posts of the board\'s %2$d posts (%3$01.2f%%)';
-$txt['statPanel_topBoards_memberposts'] = '%1$d posts of the member\'s %2$d posts (%3$01.2f%%)';
-$txt['statPanel_topBoardsActivity'] = 'Most popular Boards by Activity';
-$txt['statPanel_activityTime'] = 'Posting activity by Time';
-$txt['statPanel_activityTime_posts'] = '%1$d posts (%2$d%%)';
+$txt['statPanel_topBoards'] = 'Most popular boards by posts';
+$txt['statPanel_topBoards_posts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+} of the board\'s {1, plural,
+	one {# post}
+	other {# posts}
+} ({2, number, percent})';
+$txt['statPanel_topBoards_memberposts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+} of the member\'s {1, plural,
+	one {# post}
+	other {# posts}
+} ({2, number, percent})';
+$txt['statPanel_topBoardsActivity'] = 'Most popular boards by activity';
+$txt['statPanel_activityTime'] = 'Posting activity by time';
+$txt['statPanel_activityTime_posts'] = '{0, plural,
+	one {# post}
+	other {# posts}
+} ({1, number, percent})';
 $txt['statPanel_timeOfDay'] = 'Time of Day';
 
 $txt['deleteAccount_warning'] = 'Warning - These actions are irreversible!';
@@ -205,7 +221,7 @@ $txt['deleteAccount_confirm'] = 'Are you completely sure you want to delete this
 $txt['deleteAccount_approval'] = 'Please note that the forum moderators will have to approve this account\'s deletion before it will be removed.';
 $txt['deleteAccount_permanent'] = 'Permanently delete topics/posts instead of recycling them?';
 
-$txt['profile_of_username'] = 'Profile of %1$s';
+$txt['profile_of_username'] = 'Profile of {name}';
 $txt['profileInfo'] = 'Profile Info';
 $txt['showPosts'] = 'Show posts';
 $txt['showPosts_help'] = 'This section allows you to view all posts made by this member. Note that you can only see posts made in areas you currently have access to.';
@@ -221,13 +237,15 @@ $txt['could_not_remove_person'] = 'You could not remove that person from your li
 $txt['editBuddies'] = 'Edit Buddies';
 $txt['editIgnoreList'] = 'Edit Ignore List';
 $txt['trackUser'] = 'Track User';
+$txt['trackUser_page_title'] = 'Track {subaction} of User {name}';
 $txt['trackActivity'] = 'Activity';
 $txt['trackIP'] = 'IP Address';
+$txt['trackIP_page_title'] = 'Track IP Address {ip}';
 $txt['trackLogins'] = 'Logins';
 
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
 // argument(s): forum name
-$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout %1$s. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
+$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout {forum_name}. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
 $txt['notification'] = 'Notifications';
 $txt['notification_info'] = 'SMF allows you to be notified of replies to posts, newly posted topics, and forum announcements. You can change those settings here, or oversee the topics and boards you are currently receiving notifications for.';
@@ -239,6 +257,7 @@ $txt['alerts_show'] = 'Show Alerts';
 
 $txt['profileAction'] = 'Actions';
 $txt['deleteAccount'] = 'Delete this account';
+$txt['delete_account_name'] = 'Delete account of {name}';
 $txt['profileSendIm'] = 'Send personal message';
 $txt['profile_sendpm_short'] = 'Send PM';
 
@@ -246,16 +265,16 @@ $txt['profileBanUser'] = 'Ban this user';
 
 $txt['display_name'] = 'Display name';
 $txt['enter_ip'] = 'Enter IP (range)';
-$txt['errors_by'] = 'Error messages by';
+$txt['errors_by'] = 'Error messages by {name}';
 $txt['errors_desc'] = 'Below is a list of all the recent errors that this user has generated/experienced.';
-$txt['errors_from_ip'] = 'Error messages from IP (range)';
+$txt['errors_from_ip'] = 'Error messages from IP range {ip}';
 $txt['errors_from_ip_desc'] = 'Below is a list of all recent error messages generated by this IP (range).';
 $txt['ip_address'] = 'IP address';
 $txt['ips_in_errors'] = 'IPs used in error messages';
 $txt['ips_in_messages'] = 'IPs used in recent posts';
-$txt['members_from_ip'] = 'Members from IP (range)';
+$txt['members_from_ip'] = 'Members from IP range {ip}';
 $txt['members_in_range'] = 'Members possibly in the same range';
-$txt['messages_from_ip'] = 'Messages posted from IP (range)';
+$txt['messages_from_ip'] = 'Messages posted from IP range {ip}';
 $txt['messages_from_ip_desc'] = 'Below is a list of all messages posted from this IP (range).';
 $txt['trackLogins_desc'] = 'Below is a list of all times this account was logged into.';
 $txt['most_recent_ip'] = 'Most recent IP address';
@@ -267,18 +286,15 @@ $txt['no_messages_from_ip'] = 'No messages from the specified IP (range) found';
 $txt['trackLogins_none_found'] = 'No recent logins were found';
 $txt['none'] = 'None';
 $txt['own_profile_confirm'] = 'Are you sure you want to delete your account?';
-$txt['view_ips_by'] = 'View IPs used by';
+$txt['view_ips_by'] = 'View IPs used by {member}';
 
 $txt['avatar_will_upload'] = 'Upload an avatar';
-$txt['avatar_max_size_wh'] = 'Max size: %1$spx by %2$spx';
-$txt['avatar_max_size_w'] = 'Max size: %1$spx wide';
-$txt['avatar_max_size_h'] = 'Max size: %2$spx high';
+$txt['avatar_max_size_wh'] = 'Max size: {w}px by {h}px';
+$txt['avatar_max_size_w'] = 'Max size: {w}px wide';
+$txt['avatar_max_size_h'] = 'Max size: {h}px high';
 
-// Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
-$txt['send_email'] = 'Send an email to';
-$txt['webmaster'] = 'webmaster';
-$txt['to_ask_password'] = 'to ask for your authentication details';
+$txt['send_email_to_webmaster'] = 'Send an email to <a href="mailto:{webmaster_email}">the administrator</a> to ask for your authentication details.';
 
 $txt['user_email'] = 'Username/Email';
 
@@ -286,10 +302,10 @@ $txt['user_email'] = 'Username/Email';
 $txt['reminder_sent'] = 'A mail has been sent to your email address. Click the link in that mail to set a new password.';
 $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
-$txt['reminder_error'] = '%1$s failed to answer their secret question correctly when attempting to change a forgotten password.';
+$txt['reminder_error'] = '{name} failed to answer their secret question correctly when attempting to change a forgotten password.';
 
-$txt['registration_not_approved'] = 'Sorry, this account has not yet been approved. If you need to change your email address please click <a href="%1$s">here</a>.';
-$txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click <a href="%1$s">here</a>';
+$txt['registration_not_approved'] = 'Sorry, this account has not yet been approved. If you need to change your email address please click <a href="{url}">here</a>.';
+$txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click <a href="{url}">here</a>';
 
 $txt['primary_membergroup'] = 'Primary Membergroup';
 $txt['post_based_membergroup'] = 'Post Based Membergroup';
@@ -308,7 +324,7 @@ $txt['account_approve'] = 'approve';
 $txt['user_is_banned'] = 'User is currently banned';
 $txt['view_ban'] = 'View';
 $txt['user_banned_by_following'] = 'This user is currently affected by the following bans';
-$txt['user_cannot_due_to'] = 'User cannot %1$s as a result of ban: &quot;%2$s&quot;';
+$txt['user_cannot_due_to'] = 'User cannot {list} as a result of ban: &quot;{ban}&quot;';
 $txt['ban_type_post'] = 'post';
 $txt['ban_type_register'] = 'register';
 $txt['ban_type_login'] = 'login';
@@ -351,7 +367,7 @@ $txt['display_quick_mod_none'] = 'don\'t show';
 $txt['display_quick_mod_check'] = 'checkboxes';
 $txt['display_quick_mod_image'] = 'icons';
 
-$txt['whois_title'] = 'Look up IP on a regional whois-server';
+$txt['whois_title'] = 'Look up {ip} on a regional whois-server';
 $txt['whois_apnic'] = 'APNIC (Asia Pacific region)';
 $txt['whois_arin'] = 'ARIN (North America, a portion of the Caribbean and sub-Saharan Africa)';
 $txt['whois_lacnic'] = 'LACNIC (Latin American and Caribbean region)';
@@ -374,10 +390,10 @@ $txt['show_attach_posted'] = 'Posted';
 
 $txt['showPermissions'] = 'Show Permissions';
 $txt['showPermissions_status'] = 'Permission status';
-$txt['showPermissions_help'] = 'This section allows you to view all permissions for this member (denied permissions are <del>struck out</del>).';
-$txt['showPermissions_given'] = 'Given by';
-$txt['showPermissions_denied'] = 'Denied by';
-$txt['showPermissions_permission'] = 'Permission (denied permissions are <del>struck out</del>)';
+$txt['showPermissions_help'] = 'This section allows you to view all permissions for this member (denied permissions are <del class="error">struck out</del>).';
+$txt['showPermissions_given'] = 'Given by {list}';
+$txt['showPermissions_denied'] = 'Denied by {list}';
+$txt['showPermissions_permission'] = 'Permission (denied permissions are <del class="error">struck out</del>)';
 $txt['showPermissions_none_general'] = 'This member has no general permissions set.';
 $txt['showPermissions_none_board'] = 'This member has no board specific permissions set.';
 $txt['showPermissions_all'] = 'As an administrator, this member has all possible permissions.';
@@ -385,10 +401,10 @@ $txt['showPermissions_select'] = 'Board specific permissions for';
 $txt['showPermissions_general'] = 'General Permissions';
 $txt['showPermissions_global'] = 'All boards';
 $txt['showPermissions_restricted_boards'] = 'Restricted boards';
-$txt['showPermissions_restricted_boards_desc'] = 'The following boards are not accessible by this user';
+$txt['showPermissions_restricted_boards_desc'] = 'This user cannot access the {list} boards.';
 
 $txt['local_time'] = 'Local Time';
-$txt['posts_per_day'] = 'per day';
+$txt['posts_per_day'] = '{0, number, float} per day';
 
 $txt['buddy_ignore_desc'] = 'This area allows you to maintain your buddy and ignore lists for this forum. Adding members to these lists will, amongst other things, help control mail and PM traffic, depending on your preferences.';
 
@@ -420,18 +436,50 @@ $txt['request_group_membership_desc'] = 'Before you can join this group your mem
 $txt['submit_request'] = 'Submit Request';
 
 $txt['profile_updated_own'] = 'Your profile has been updated successfully.';
-$txt['profile_updated_else'] = 'The profile of %1$s has been updated successfully.';
+$txt['profile_updated_else'] = 'The profile of {name} has been updated successfully.';
 
-$txt['profile_error_signature_max_length'] = 'Your signature cannot be longer than %1$d characters';
-$txt['profile_error_signature_max_lines'] = 'Your signature cannot span more than %1$d lines';
-$txt['profile_error_signature_max_image_size'] = 'Images in your signature must be no greater than %1$dx%2$d pixels';
-$txt['profile_error_signature_max_image_width'] = 'Images in your signature must be no wider than %1$d pixels';
-$txt['profile_error_signature_max_image_height'] = 'Images in your signature must be no higher than %1$d pixels';
-$txt['profile_error_signature_max_image_count'] = 'You cannot have more than %1$d images in your signature';
-$txt['profile_error_signature_max_font_size'] = 'Text in your signature must be smaller than %1$s in size';
+$txt['profile_error_signature_max_length'] = '{0, plural,
+	one {Your signature cannot be longer than # character}
+	one {Your signature cannot be longer than # characters}
+}';
+$txt['profile_error_signature_max_lines'] = '{0, plural,
+	one {Your signature cannot span more than # line}
+	one {Your signature cannot span more than # lines}
+}';
+$txt['profile_error_signature_max_image_size'] = '{0, plural,
+	one {Images in your signature must be no larger than # pixel {1, plural,
+			one {by # pixel}
+			other {by # pixels}
+		}
+	}
+	other {Images in your signature must be no larger than # pixels {1, plural,
+			one {by # pixel}
+			other {by # pixels}
+		}
+	}
+}';
+$txt['profile_error_signature_max_image_width'] = '{0, plural,
+	one {Images in your signature must be no wider than # pixel}
+	other {Images in your signature must be no wider than # pixels}
+}';
+$txt['profile_error_signature_max_image_height'] = '{0, plural,
+	one {Images in your signature must be no taller than # pixel}
+	other {Images in your signature must be no taller than # pixels}
+}';
+$txt['profile_error_signature_max_image_count'] = '{0, plural,
+	one {You cannot have more than # image in your signature}
+	other {You cannot have more than # images in your signature}
+}';
+$txt['profile_error_signature_max_font_size'] = 'Text in your signature must be smaller than {0} in size';
 $txt['profile_error_signature_allow_smileys'] = 'You are not allowed to use any smileys within your signature';
-$txt['profile_error_signature_max_smileys'] = 'You are not allowed to use more than %1$d smileys within your signature';
-$txt['profile_error_signature_disabled_bbc'] = 'The following BBC is not allowed within your signature: %1$s';
+$txt['profile_error_signature_max_smileys'] = '{0, plural,
+	one {You are not allowed to use more than # smiley within your signature}
+	other {You are not allowed to use more than # smileys within your signature}
+}';
+$txt['profile_error_signature_disabled_bbc'] = '{num_disabled_tags, plural,
+	one {The following BBCode is not allowed within your signature: {list_disabled_tags}}
+	other {The following BBCodes are not allowed within your signature: {list_disabled_tags}}
+}';
 
 $txt['profile_view_warnings'] = 'View Warnings';
 $txt['profile_issue_warning'] = 'Issue a Warning';
@@ -451,7 +499,6 @@ $txt['profile_warning_is_moderation'] = 'posts are moderated';
 $txt['profile_warning_effect_mute'] = 'User will not be able to post.';
 $txt['profile_warning_effect_own_muted'] = 'You will not be able to post.';
 $txt['profile_warning_is_muted'] = 'cannot post';
-$txt['profile_warning_effect_text'] = 'Level >= %1$d: %2$s';
 $txt['profile_warning_notify'] = 'Send a Notification';
 $txt['profile_warning_notify_template'] = 'Select template:';
 $txt['profile_warning_notify_subject'] = 'Notification Subject';
@@ -462,7 +509,7 @@ $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
 $txt['profile_warning_notify_template_outline'] = '{MEMBER},
 
-You have received a warning for %1$s. Please cease these activities and abide by the forum rules otherwise we will take further action.
+You have received a warning for {REASON}. Please cease these activities and abide by the forum rules otherwise we will take further action.
 
 If you wish to discuss this, please get in touch with an administrator.
 
@@ -471,7 +518,7 @@ If you wish to discuss this, please get in touch with an administrator.
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
 $txt['profile_warning_notify_template_outline_post'] = '{MEMBER},
 
-You have received a warning for %1$s in regards to the message:
+You have received a warning for {REASON} in regards to the message:
 {MESSAGE}.
 
 Please cease these activities and abide by the forum rules otherwise we will take further action.
@@ -488,7 +535,7 @@ $txt['profile_warning_notify_for_insulting'] = 'insulting other users and/or sta
 $txt['profile_warning_notify_title_insulting'] = 'Insulting Users/Staff';
 $txt['profile_warning_issue'] = 'Issue Warning';
 $txt['profile_warning_max'] = '(Max 100)';
-$txt['profile_warning_limit_attribute'] = 'Note you can not adjust this user\'s level by more than %1$d%% in a 24 hour period.';
+$txt['profile_warning_limit_attribute'] = 'Note you can not adjust this user\'s level by more than {0, number, percent} in a 24 hour period.';
 $txt['profile_warning_errors_occured'] = 'Warning has not been sent due to following errors';
 $txt['profile_warning_success'] = 'Warning Successfully Issued';
 $txt['profile_warning_new_template'] = 'New Template';
@@ -502,7 +549,7 @@ $txt['profile_warning_previous_reason'] = 'Reason';
 $txt['profile_warning_previous_notice'] = 'View Notice Sent to Member';
 
 $txt['viewwarning'] = 'View Warnings';
-$txt['profile_viewwarning_for_user'] = 'Warnings for %1$s';
+$txt['profile_viewwarning_for_user'] = 'Warnings for {name}';
 $txt['profile_viewwarning_no_warnings'] = 'No warnings have been issued.';
 $txt['profile_viewwarning_desc'] = 'Below is a summary of all the warnings that have been issued by the forum moderation team.';
 $txt['profile_viewwarning_previous_warnings'] = 'Previous Warnings';
@@ -551,16 +598,16 @@ $txt['trackEdit_action_agreement_accepted'] = 'Accepted the registration agreeme
 $txt['trackEdit_action_policy_accepted'] = 'Accepted the privacy policy';
 
 $txt['trackGroupRequests'] = 'Group Requests';
-$txt['trackGroupRequests_title'] = 'Group Requests for %1$s';
+$txt['trackGroupRequests_title'] = 'Group Requests for {name}';
 $txt['requested_group'] = 'Requested Group';
 $txt['requested_group_reason'] = 'Reason Given';
 $txt['requested_group_time'] = 'Date';
 $txt['requested_group_outcome'] = 'Outcome';
 $txt['requested_none'] = 'There are no requests made by this user.';
 $txt['outcome_pending'] = 'Open';
-$txt['outcome_approved'] = 'Approved by %1$s on %2$s';
-$txt['outcome_refused'] = 'Refused by %1$s on %2$s';
-$txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
+$txt['outcome_approved'] = 'Approved by {member_link} on {datetime}';
+$txt['outcome_refused'] = 'Refused by {member_link} on {datetime}';
+$txt['outcome_refused_reason'] = 'Refused by {member_link} on {datetime}. Reason given: {reason}';
 
 $txt['report_profile'] = 'Report this member';
 $txt['notification_remove_pref'] = 'Use default preference';
@@ -569,7 +616,7 @@ $txt['tfadisable'] = 'Disable Two-Factor Authentication';
 $txt['tfa_profile_label'] = 'Two-Factor Authentication';
 $txt['tfa_profile_desc'] = '2FA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password';
 $txt['tfa_profile_enable'] = 'Enable Two-Factor Authentication';
-$txt['tfa_profile_enabled'] = 'Two-Factor Authentication is enabled. <a href="%s">Disable</a>';
+$txt['tfa_profile_enabled'] = 'Two-Factor Authentication is enabled. <a href="{url}">Disable</a>';
 $txt['tfa_profile_disabled'] = 'Two-Factor Authentication is disabled';
 $txt['tfa_title'] = 'Enable Two-Factor Authentication via compatible application';
 $txt['tfa_desc'] = 'In order to have two-factor authentication, you would need a compatible app such as Google Authenticator on your device. Once you have enabled 2FA for your account, you will be required to enter a code from the paired device alongside your username and password in order to successfully login. After you have enabled 2FA, a backup code will be provided in case you lose your paired device.';
@@ -591,7 +638,7 @@ $txt['tfa_code'] = 'Code';
 $txt['tfa_backup_code'] = 'Backup code';
 $txt['tfa_backup_desc'] = 'If you have lost your device or authentication app, you can use the backup code provided to you when two-factor authentication was setup. If you have lost that as well, please contact the administrator.';
 $txt['tfa_wait'] = 'Please wait for about 2 minutes before attempting to log in via two-factor authentication again.';
-$txt['tfa_disable_for_user'] = 'This will disable two-factor authentication for %s.';
+$txt['tfa_disable_for_user'] = 'This will disable two-factor authentication for {name}.';
 $txt['cannot_disable_tfa'] = 'You cannot disable two-factor authentication because it is required on all accounts.';
 $txt['cannot_disable_tfa2'] = 'You cannot disable two-factor authentication because it is required on one or more of the membergroups that you belong to. Contact the administrator for more information.';
 
@@ -602,12 +649,18 @@ $txt['theme_opt_moderation'] = 'Moderation';
 $txt['theme_opt_personal_messages'] = 'Personal Messages';
 
 $txt['export_profile_data'] = 'Download profile data';
-$txt['export_profile_data_desc'] = 'This section allows you to export a copy of your forum profile data to a downloadable file, optionally including your posts and personal messages.<br>Please note:<ul class="bbc_list">%1$s</ul>';
-$txt['export_profile_data_desc_list'] = ['It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.'];
+$txt['export_profile_data_desc'] = 'This section allows you to export a copy of your forum profile data to a downloadable file, optionally including your posts and personal messages.<br>Please note:<ul class="bbc_list">{list}</ul>';
+$txt['export_profile_data_desc_list'] = ['It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => '{0, plural,
+	one {Old export files are deleted after # day.}
+	other {Old export files are deleted after # days.}
+}'];
 $txt['active_exports'] = 'Exports currently in progress';
 $txt['completed_exports'] = 'Completed exports';
 $txt['export_outdated_warning'] = 'This export is out of date. It is missing your most recent data of the following types:';
-$txt['export_file_count'] = '%1$d files.';
+$txt['export_file_count'] = '{0, plural,
+	one {# file.}
+	other {# files.}
+}';
 $txt['export_download_all'] = 'Download all';
 $txt['export_settings'] = 'Export settings';
 $txt['export_include_posts'] = 'Include posts';
@@ -620,7 +673,7 @@ $txt['export_begin'] = 'Begin export';
 $txt['export_restart'] = 'Restart export';
 $txt['export_restart_confirm'] = 'This will delete the current profile export and start over using the new settings. Are you sure you want to do this?';
 $txt['export_cancel'] = 'Cancel';
-$txt['export_file_desc'] = 'Included data: %1$s. File format: %2$s.';
+$txt['export_file_desc'] = 'Included data: {list}. File format: {format}.';
 $txt['export_download_original'] = 'Download original';
 $txt['export_view_source_button'] = 'Toggle source view';
 $txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';

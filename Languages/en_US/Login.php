@@ -4,18 +4,43 @@
 
 // Registration agreement page.
 $txt['registration_agreement'] = 'Registration Agreement';
-$txt['agreement_agree'] = 'I accept the terms of the agreement.';
-$txt['agreement_agree_coppa_above'] = 'I accept the terms of the agreement and I am at least %1$d years old.';
-$txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and I am younger than %1$d years old.';
 $txt['privacy_policy'] = 'Privacy Policy';
-$txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';
-$txt['agreement_policy_agree_coppa_above'] = 'I accept the terms of the agreement and privacy policy, and I am at least %1$d years old.';
-$txt['agreement_policy_agree_coppa_below'] = 'I accept the terms of the agreement and privacy policy, and I am younger than %1$d years old.';
+$txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['policy_agree'] = 'I accept the terms of the privacy policy.';
-$txt['policy_agree_coppa_above'] = 'I accept the terms of the privacy policy, and I am at least %1$d years old.';
-$txt['policy_agree_coppa_below'] = 'I accept the terms of the privacy policy, and I am younger than %1$d years old.';
-$txt['agree_coppa_above'] = 'I am at least %1$d years old.';
-$txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
+$txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';
+
+$txt['agreement_agree_coppa_above'] = 'I accept the terms of the agreement and {0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and {0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
+$txt['agreement_policy_agree_coppa_above'] = 'I accept the terms of the agreement and privacy policy, and {0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['agreement_policy_agree_coppa_below'] = 'I accept the terms of the agreement and privacy policy, and {0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
+$txt['policy_agree_coppa_above'] = 'I accept the terms of the privacy policy, and {0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['policy_agree_coppa_below'] = 'I accept the terms of the privacy policy, and {0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
+$txt['agree_coppa_above'] = '{0, plural,
+	one {I am at least # year old.}
+	other {I am at least # years old.}
+}';
+$txt['agree_coppa_below'] = '{0, plural,
+	one {I am younger than # year old.}
+	other {I am younger than # years old.}
+}';
 
 // Registration form.
 $txt['registration_form'] = 'Registration Form';
@@ -28,14 +53,14 @@ $txt['registration_successful'] = 'Registration successful';
 $txt['now_a_member'] = 'Success! You are now a member of the forum.';
 // Use numeric entities in the below string.
 $txt['your_password'] = 'and your password is';
-$txt['valid_email_needed'] = 'Please enter a valid email address, %1$s.';
+$txt['valid_email_needed'] = 'Please enter a valid email address, {email}.';
 $txt['required_info'] = 'Required Information';
 $txt['identification_by_smf'] = 'Used to identify you on the forum.';
 $txt['additional_information'] = 'Additional Information';
 $txt['warning'] = 'Warning!';
 $txt['only_members_can_access'] = 'Only registered members are allowed to access this section.';
 $txt['login_below'] = 'Please login below.';
-$txt['login_below_or_register'] = 'Please login below or <a href="%1$s">sign up for an account</a> with %2$s';
+$txt['login_below_or_register'] = 'Please login below or <a href="{url}">sign up for an account</a> with {forum_name}';
 
 // Use numeric entities in the below two strings.
 $txt['may_change_in_profile'] = 'You may change it after you login by going to the profile page, or by visiting this page after you login:';
@@ -112,12 +137,14 @@ $txt['admin_register_email_activate'] = 'Require user to activate the account';
 $txt['admin_register_group'] = 'Primary Membergroup';
 $txt['admin_register_group_desc'] = 'Primary membergroup new member will belong to';
 $txt['admin_register_group_none'] = '(no primary membergroup)';
-$txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
+$txt['admin_register_done'] = 'Member {link} has been registered successfully!';
 
 $txt['coppa_title'] = 'Age restricted Forum';
 // argument(s): Utils::$context['forum_name_html_safe']
-$txt['coppa_after_registration'] = 'Thank you for signing up with %1$s.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
-	to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
+$txt['coppa_after_registration'] = 'Thank you for signing up with {forum_name}.<br><br>Because you are {minimum_age, plural,
+	one {less than # year old}
+	other {less than # years old}
+}, it is a legal requirement to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form in new Window';
 $txt['coppa_form_link_download'] = 'Download Form as text file';
 $txt['coppa_send_to_one_option'] = 'Then arrange for your parent/guardian to send the completed form by:';
@@ -126,12 +153,10 @@ $txt['coppa_send_by_post'] = 'Post, to the following address:';
 $txt['coppa_send_by_fax'] = 'Fax, to the following number:';
 $txt['coppa_send_by_phone'] = 'Alternatively, arrange for them to phone the administrator at {PHONE_NUMBER}.';
 
-// argument(s): Utils::$context['forum_name_html_safe']
-$txt['coppa_form_title'] = 'Permission form for registration at %1$s';
+$txt['coppa_form_title'] = 'Permission form for registration at {forum_name}';
 $txt['coppa_form_address'] = 'Address';
 $txt['coppa_form_date'] = 'Date';
-// argument(s): Utils::$context['forum_name_html_safe']
-$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: %1$s, with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
+$txt['coppa_form_body'] = 'I, {parent_name}, give permission for {child_name} (child name) to become a fully registered member of the forum "{forum_name}", with the username "{user_name}".<br><br>I understand that certain personal information entered by "{user_name}" may be shown to other users of the forum.<br><br>Signed:<br>{parent_name} (Parent/Guardian).';
 
 $txt['visual_verification_sound_again'] = 'Play again';
 $txt['visual_verification_sound_close'] = 'Close window';

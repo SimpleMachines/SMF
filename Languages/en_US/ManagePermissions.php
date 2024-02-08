@@ -7,18 +7,17 @@ $txt['permissions_modify'] = 'Modify';
 $txt['permissions_view'] = 'View';
 $txt['permissions_allowed'] = 'Allowed';
 $txt['permissions_denied'] = 'Denied';
-$txt['permission_cannot_edit'] = '<strong>Note:</strong> You cannot edit this permission profile as it is a predefined profile included within the forum software by default. If you wish to change the permissions of this profile you must first create a duplicate profile. You can carry out this task by clicking <a href="%1$s">here</a>.';
+$txt['permission_cannot_edit'] = '<strong>Note:</strong> You cannot edit this permission profile as it is a predefined profile included within the forum software by default. If you wish to change the permissions of this profile you must first create a duplicate profile. You can carry out this task by clicking <a href="{url}">here</a>.';
 
-$txt['permissions_for_profile'] = 'Permissions for Profile';
+$txt['permissions_for_profile'] = 'Permissions for Profile "{name}"';
 $txt['permissions_boards_desc'] = 'The list below shows which set of permissions has been assigned to each board on your forum. You may edit the assigned permission profile by either clicking the board name or select &quot;edit all&quot; from the bottom of the page. To edit the profile itself simply click the profile name.';
 $txt['permissions_board_all'] = 'Edit All';
 $txt['permission_profile'] = 'Permission Profile';
-$txt['permission_profile_desc'] = 'Which <a href="%1$s">permission set</a> the board should use.';
+$txt['permission_profile_desc'] = 'Which <a href="{url}">permission set</a> the board should use.';
 $txt['permission_profile_inherit'] = 'Inherit from parent board';
 
 $txt['permissions_profile'] = 'Profile';
 $txt['permissions_profiles_desc'] = 'Permission profiles are assigned to individual boards to allow you to easily manage your security settings. From this area you can create, edit and delete permission profiles.';
-$txt['permissions_profiles_change_for_board'] = 'Edit Permission Profile For: &quot;%1$s&quot;';
 $txt['permissions_profile_default'] = 'Default';
 $txt['permissions_profile_no_polls'] = 'No Polls';
 $txt['permissions_profile_reply_only'] = 'Reply Only';
@@ -30,9 +29,11 @@ $txt['permissions_profile_new'] = 'New Profile';
 $txt['permissions_profile_new_create'] = 'Create';
 $txt['permissions_profile_name'] = 'Profile Name';
 $txt['permissions_profile_used_by'] = 'Used By';
-$txt['permissions_profile_used_by_one'] = '1 Board';
-$txt['permissions_profile_used_by_many'] = '%1$d Boards';
-$txt['permissions_profile_used_by_none'] = 'No Boards';
+$txt['permissions_profile_used_by_count'] = '{0, plural,
+	=0 {No boards}
+	one {# board}
+	other {# boards}
+}';
 $txt['permissions_profile_do_edit'] = 'Edit';
 $txt['permissions_profile_do_delete'] = 'Delete';
 
@@ -54,7 +55,7 @@ $txt['permissionname_profile_blurb_own'] = 'Own profile';
 $txt['permissionname_profile_blurb_any'] = 'Any profile';
 $txt['permissions_profile_copy_from'] = 'Copy Permissions from';
 
-$txt['permissions_includes_inherited'] = 'Inherited Groups';
+$txt['permissions_includes_inherited'] = 'Inherited Groups: {list}';
 
 $txt['permissions_all'] = 'all';
 $txt['permissions_none'] = 'none';
@@ -68,9 +69,9 @@ $txt['permissions_copy_from_board'] = 'Copy permissions from this board';
 $txt['permissions_select_board'] = 'Select a board';
 $txt['permissions_like_group'] = 'Set permissions like this group';
 $txt['permissions_select_membergroup'] = 'Select a membergroup';
-$txt['permissions_add'] = 'Add permission';
-$txt['permissions_remove'] = 'Clear permission';
-$txt['permissions_deny'] = 'Deny permission';
+$txt['permissions_add'] = 'Add permission...';
+$txt['permissions_remove'] = 'Clear permission...';
+$txt['permissions_deny'] = 'Deny permission...';
 $txt['permissions_select_permission'] = 'Select a permission';
 
 // All of the following block of strings should not use entities, instead use \\" for &quot; etc.
@@ -81,10 +82,11 @@ $txt['permissions_deny_dangerous'] = 'You are about to deny one or more permissi
 $txt['permissions_modify_group'] = 'Modify Group';
 $txt['permissions_general'] = 'General Permissions';
 $txt['permissions_board'] = 'Default Board Profile Permissions';
+$txt['permissions_general_for'] = 'General Permissions for "{name}"';
+$txt['permissions_board_for'] = 'Default Board Profile Permissions for "{name}"';
 $txt['permissions_board_desc'] = '<strong>Note</strong>: changing these board permissions will affect all boards currently assigned the &quot;Default&quot; permissions profile. Boards not using the &quot;Default&quot; profile will not be affected by changes to this page.';
 $txt['permissions_commit'] = 'Save changes';
-$txt['permissions_on'] = 'in profile';
-$txt['permissions_local_for'] = 'Permissions for group';
+$txt['permissions_for_in'] = 'Permissions for "{group}" in "{profile}"';
 $txt['permissions_option_own'] = 'Own';
 $txt['permissions_option_any'] = 'Any';
 $txt['permissions_option_on'] = '&#x2705;';
@@ -325,7 +327,7 @@ $txt['auto_approve_replies'] = 'Post replies to topics, without requiring approv
 $txt['auto_approve_attachments'] = 'Post attachments, without requiring approval';
 
 $txt['permissiongroup_bbc'] = 'BBCode';
-$txt['permissionname_bbc'] = 'Use the [%1$s] BBCode';
+$txt['permissionname_bbc'] = 'Use the [{0}] BBCode';
 $txt['permissionhelp_bbc_html'] = 'This permission allows a member to use the [html] BBCode to embed arbitrary HTML in posts, personal messages, etc.<br><br><strong>Embedding arbitrary HTML can break your site and create major security risks. <u>Do not grant this permission to anyone unless you completely trust them not to break your website!</u></strong>';
 $txt['permissionnote_bbc_html'] = 'Creates a security risk!';
 

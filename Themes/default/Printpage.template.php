@@ -144,7 +144,7 @@ function template_print_above()
 
 	echo '
 		<h1 id="title">', Utils::$context['forum_name_html_safe'], '</h1>
-		<h2 id="linktree">', Utils::$context['category_name'], ' => ', (!empty(Utils::$context['parent_boards']) ? implode(' => ', Utils::$context['parent_boards']) . ' => ' : ''), Utils::$context['board_name'], ' => ', Lang::$txt['topic_started'], ': ', Utils::$context['poster_name'], ' ', Lang::$txt['search_on'], ' ', Utils::$context['post_time'], '</h2>
+		<h2 id="linktree">', Utils::$context['category_name'], ' ▸ ', (!empty(Utils::$context['parent_boards']) ? implode(' ▸ ', Utils::$context['parent_boards']) . ' ▸ ' : ''), Utils::$context['board_name'], ' ▸ ', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['poster_name'], 'time' => Utils::$context['post_time']]), '</h2>
 		<div id="posts">';
 }
 
@@ -156,14 +156,18 @@ function template_main()
 	if (!empty(Utils::$context['poll']))
 	{
 		echo '
-			<div id="poll_data">', Lang::$txt['poll'], '
-				<div class="question">', Lang::$txt['poll_question'], ': <strong>', Utils::$context['poll']['question'], '</strong>';
+			<div id="poll_data">
+				<span>', Lang::$txt['poll'], '</span>
+				<div class="question">
+					', Lang::$txt['poll_question'], ': <strong>', Utils::$context['poll']['question'], '</strong>
+				</div>';
 
 		$options = 1;
 		foreach (Utils::$context['poll']['options'] as $option)
 			echo '
-					<div class="', $option['voted_this'] ? 'voted' : '', '">', Lang::$txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
-						', Utils::$context['allow_results_view'] ? Lang::$txt['votes'] . ': ' . $option['votes'] . '' : '', '
+					<div>
+						', Lang::getTxt('option_number', [$options++]), ': <strong>', $option['option'], '</strong>
+						', Utils::$context['allow_results_view'] ? Lang::getTxt('number_of_votes', [$option['votes']]) : '', '
 					</div>';
 
 		echo '
@@ -174,8 +178,8 @@ function template_main()
 	{
 		echo '
 			<div class="postheader">
-				', Lang::$txt['title'], ': <strong>', $post['subject'], '</strong><br>
-				', Lang::$txt['post_by'], ': <strong>', $post['member'], '</strong> ', Lang::$txt['search_on'], ' <strong>', $post['time'], '</strong>
+				<div><strong>', $post['subject'], '</strong></div>
+				<div>', Lang::getTxt('posted_by_member_time', $post), '</div>
 			</div>
 			<div class="postbody">
 				', $post['body'];

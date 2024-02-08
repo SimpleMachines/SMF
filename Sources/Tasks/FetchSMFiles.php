@@ -71,9 +71,9 @@ class FetchSMFiles extends ScheduledTask
 
 			// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 			if ($file_data === false) {
-				Utils::$context['scheduled_errors']['fetchSMfiles'][] = sprintf(Lang::$txt['st_cannot_retrieve_file'], $url);
+				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url]);
 
-				ErrorHandler::log(sprintf(Lang::$txt['st_cannot_retrieve_file'], $url));
+				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url]));
 
 				return true;
 			}

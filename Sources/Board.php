@@ -735,14 +735,14 @@ class Board implements \ArrayAccess
 			case 'bottom':
 				if (!isset($target_category)) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+					trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
 				}
 				break;
 
 			default:
 				if (!isset($target_board)) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+					trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
 				}
 				break;
 		}
@@ -809,7 +809,7 @@ class Board implements \ArrayAccess
 
 			default:
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+				trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
 				break;
 		}
 

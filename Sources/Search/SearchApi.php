@@ -788,7 +788,7 @@ abstract class SearchApi implements SearchApiInterface
 			// Log the error.
 			Lang::load('Errors');
 
-			ErrorHandler::log(sprintf(Lang::$txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
+			ErrorHandler::log(Lang::getTxt('search_api_not_compatible', ['Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php']), 'critical');
 
 			// Fall back to standard search.
 			if (Config::$modSettings['search_index'] !== 'standard') {

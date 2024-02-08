@@ -1012,7 +1012,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// Number of tables, etc...
-		Lang::$txt['database_numb_tables'] = sprintf(Lang::$txt['database_numb_tables'], Utils::$context['num_tables']);
+		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']]);
 		Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
 		Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 		unset($_SESSION['optimized_tables']);
@@ -1390,7 +1390,7 @@ class Maintenance implements ActionInterface
 			if (!empty($id_msg_exceeding)) {
 				if (count($id_msg_exceeding) > 100) {
 					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = sprintf(Lang::$txt['exceeding_messages_morethan'], count($id_msg_exceeding));
+					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100]);
 				} else {
 					$query_msg = $id_msg_exceeding;
 				}
@@ -1974,7 +1974,7 @@ class Maintenance implements ActionInterface
 							$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::$txt['hooks_field_function_method'] . '"></span> ' : '');
 
 							if (!empty($data['included_file']) && !empty($data['real_function'])) {
-								return $instance . Lang::$txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . Lang::$txt['hooks_field_included_file'] . ': ' . $data['included_file'];
+								return $instance . Lang::getTxt('hooks_field_function', $data) . '<br>' . Lang::getTxt('hooks_field_included_file', $data);
 							}
 
 							return $instance . $data['real_function'];

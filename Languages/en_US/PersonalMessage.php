@@ -16,8 +16,10 @@ $txt['pm_inbox'] = 'Personal Messages Index';
 $txt['send_message'] = 'Send message';
 $txt['pm_add'] = 'Add';
 $txt['make_bcc'] = 'Add BCC';
-$txt['pm_to'] = 'To';
-$txt['pm_bcc'] = 'Bcc';
+$txt['pm_subject'] = 'Subject: {subject}';
+$txt['pm_from'] = 'From: {member}';
+$txt['pm_to'] = 'To: {list}';
+$txt['pm_bcc'] = 'Bcc: {list}';
 $txt['inbox'] = 'Inbox';
 $txt['conversation'] = 'Conversation';
 $txt['messages'] = 'Messages';
@@ -32,23 +34,35 @@ $txt['recipient'] = 'Recipient';
 $txt['delete_selected_confirm'] = 'Are you sure you want to delete all selected personal messages?';
 
 $txt['sent_to'] = 'Sent to';
+// The 'relative' param indicates whether 'date' starts with 'Today' or 'Yesterday'
+$txt['sent_to_date'] = 'Sent to {list} {relative, select,
+	today {{date}}
+	yesterday {{date}}
+	other {on {date}}
+}';
 $txt['reply_to_all'] = 'Reply to All';
 $txt['delete_conversation'] = 'Delete Conversation';
 $txt['remove_conversation'] = 'Remove all messages in this conversation?';
 $txt['pm'] = 'Personal Message';
 
 $txt['pm_capacity'] = 'Capacity';
-$txt['pm_currently_using'] = '%1$s messages, %2$s%% full.';
+$txt['pm_currently_using'] = '{0, plural,
+	one {# message}
+	other {# messages}
+}, {1, number, percent} full.';
 $txt['pm_sent'] = 'Your message has been sent successfully.';
 
-$txt['pm_error_user_not_found'] = 'Unable to find member \'%1$s\'.';
-$txt['pm_error_ignored_by_user'] = 'User \'%1$s\' has blocked your personal message.';
-$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'%1$s\' as their inbox is full.';
-$txt['pm_error_user_cannot_read'] = 'User \'%1$s\' can not receive personal messages.';
-$txt['pm_successfully_sent'] = 'PM successfully sent to \'%1$s\'.';
+$txt['pm_error_user_not_found'] = 'Unable to find member \'{member}\'.';
+$txt['pm_error_ignored_by_user'] = 'User \'{member}\' has blocked your personal message.';
+$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'{member}\' as their inbox is full.';
+$txt['pm_error_user_cannot_read'] = 'User \'{member}\' can not receive personal messages.';
+$txt['pm_successfully_sent'] = 'PM successfully sent to \'{member}\'.';
 $txt['pm_send_report'] = 'Send report';
 $txt['pm_undisclosed_recipients'] = 'Undisclosed recipients';
-$txt['pm_too_many_recipients'] = 'You may not send personal messages to more than %1$d recipient(s) at once.';
+$txt['pm_too_many_recipients'] = '{0, plural,
+	one {You may not send personal messages to more than # recipient at once.}
+	other {You may not send personal messages to more than # recipients at once.}
+}';
 
 $txt['pm_read'] = 'Read';
 $txt['pm_replied'] = 'Replied To';
@@ -78,12 +92,12 @@ $txt['pm_label_name'] = 'Label name';
 $txt['pm_labels_no_exist'] = 'You currently have no labels setup!';
 
 // Labeling Drop Down.
-$txt['pm_current_label'] = 'Label';
-$txt['pm_msg_label_title'] = 'Label message';
+$txt['pm_current_label'] = 'Label: {label}';
+$txt['pm_msg_label_title'] = 'Label message...';
 $txt['pm_msg_label_apply'] = 'Add label';
 $txt['pm_msg_label_remove'] = 'Remove label';
 $txt['pm_msg_label_inbox'] = 'Inbox';
-$txt['pm_sel_label_title'] = 'Label selected';
+$txt['pm_sel_label_title'] = 'Label selected...';
 
 // Menu headings.
 $txt['pm_labels'] = 'Labels';
@@ -107,8 +121,11 @@ $txt['pm_report_message'] = 'Report Message';
 $txt['pm_report_pm_subject'] = '[REPORT] ';
 // In the below string, do not translate "{REPORTER}" or "{SENDER}".
 $txt['pm_report_pm_user_sent'] = '{REPORTER} has reported the below personal message, sent by {SENDER}, for the following reason:';
-$txt['pm_report_pm_other_recipients'] = 'Other recipients of the message include:';
-$txt['pm_report_pm_hidden'] = '%1$d hidden recipient(s)';
+$txt['pm_report_pm_other_recipients'] = 'Other recipients of the message include: {recipients}';
+$txt['pm_report_pm_hidden'] = '{0, plural,
+	one {# hidden recipient}
+	other {# hidden recipients}
+}';
 $txt['pm_report_pm_unedited_below'] = 'Below are the original contents of the personal message which was reported:';
 $txt['pm_report_pm_sent'] = 'Sent:';
 
@@ -127,15 +144,16 @@ $txt['pm_search_options'] = 'Options';
 $txt['pm_search_post_age'] = 'Message age';
 $txt['pm_search_show_complete'] = 'Show full message in results.';
 $txt['pm_search_subject_only'] = 'Search by subject and author only.';
-$txt['pm_search_between'] = 'between';
-$txt['pm_search_between_and'] = 'and';
-$txt['pm_search_between_days'] = 'days';
+$txt['pm_search_age_range'] = 'between {min} and {max} days';
 $txt['pm_search_order'] = 'Search order';
 $txt['pm_search_choose_label'] = 'Choose labels to search by, or search all';
 
 $txt['pm_search_results'] = 'Search results';
 $txt['pm_search_none_found'] = 'No messages found';
-$txt['pm_search_results_info'] = 'Found %1$d matching messages in %2$s.';
+$txt['pm_search_results_info'] = '{0, plural,
+	one {Found # matching message in {1}.}
+	one {Found # matching messages in {1}.}
+}';
 
 $txt['pm_search_orderby_relevant_first'] = 'Most relevant first';
 $txt['pm_search_orderby_recent_first'] = 'Most recent first';
@@ -160,15 +178,14 @@ $txt['pm_rule_save'] = 'Save Rule';
 $txt['pm_delete_selected_rule'] = 'Delete selected rules';
 // Use entities in the below string.
 $txt['pm_js_delete_rule_confirm'] = 'Are you sure you wish to delete the selected rules?';
-$txt['pm_rule_name'] = 'Name';
-$txt['pm_rule_name_desc'] = 'Name to remember this rule by';
-$txt['pm_rule_name_default'] = '[NAME]';
+$txt['pm_rule_name'] = 'Rule Name';
+$txt['pm_rule_name_desc'] = 'Name to remember this rule by.';
 $txt['pm_rule_description'] = 'Description';
 $txt['pm_rule_not_defined'] = 'Add some criteria to begin building this rule description.';
 $txt['pm_rule_js_disabled'] = '<span class="alert"><strong>Note:</strong> You appear to have javascript disabled. We highly recommend you enable javascript to use this feature.</span>';
 $txt['pm_rule_criteria'] = 'Criteria';
-$txt['pm_rule_criteria_add'] = 'Add criteria';
-$txt['pm_rule_criteria_pick'] = 'Choose criteria';
+$txt['pm_rule_criteria_add'] = 'Add another criterion';
+$txt['pm_rule_criteria_pick'] = 'Choose criteria...';
 $txt['pm_rule_mid'] = 'Sender name';
 $txt['pm_rule_gid'] = 'Sender\'s group';
 $txt['pm_rule_sub'] = 'Message subject contains';
@@ -177,10 +194,11 @@ $txt['pm_rule_bud'] = 'Sender is buddy';
 $txt['pm_rule_sel_group'] = 'Select group';
 $txt['pm_rule_logic'] = 'When checking criteria';
 $txt['pm_rule_logic_and'] = 'All criteria must be met';
-$txt['pm_rule_logic_or'] = 'Any criteria can be met';
+$txt['pm_rule_logic_or'] = 'Any criterion can be met';
 $txt['pm_rule_actions'] = 'Actions';
 $txt['pm_rule_sel_action'] = 'Select an action';
-$txt['pm_rule_add_action'] = 'Add action';
+$txt['pm_rule_do_nothing'] = 'Do nothing';
+$txt['pm_rule_add_action'] = 'Add another action';
 $txt['pm_rule_label'] = 'Label message with';
 $txt['pm_rule_sel_label'] = 'Select label';
 $txt['pm_rule_delete'] = 'Delete message';

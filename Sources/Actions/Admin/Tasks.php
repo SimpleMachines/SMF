@@ -369,7 +369,7 @@ class Tasks implements ActionInterface
 				'id' => $row['id_task'],
 				'function' => $row['task'],
 				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
 				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'offset' => $row['time_offset'],
@@ -446,10 +446,13 @@ class Tasks implements ActionInterface
 						'value' => Lang::$txt['scheduled_log_time_taken'],
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => Lang::$txt['scheduled_log_time_taken_seconds'],
+						'getTxt' => [
+							'format' => 'scheduled_log_time_taken_seconds',
 							'params' => [
-								'time_taken' => false,
+								0 => [
+									'column' => 'time_taken',
+									'htmlspecialchars' => false,
+								],
 							],
 						],
 					],
@@ -586,15 +589,15 @@ class Tasks implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Find the next for regularity - don't offset as it's always server time!
-			$offset = sprintf(Lang::$txt['scheduled_task_reg_starting'], date('H:i', (int) $row['time_offset']));
+			$offset = Lang::getTxt('scheduled_task_reg_starting', ['time' => date('H:i', (int) $row['time_offset'])]);
 
-			$repeating = sprintf(Lang::$txt['scheduled_task_reg_repeating'], $row['time_regularity'], Lang::$txt['scheduled_task_reg_unit_' . $row['time_unit']]);
+			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row);
 
 			$known_tasks[] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
 				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
 				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'checked_state' => $row['disabled'] ? '' : 'checked',

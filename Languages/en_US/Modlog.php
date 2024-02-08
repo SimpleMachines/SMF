@@ -26,7 +26,10 @@ $txt['modlog_ac_merge'] = 'Merged topics to create &quot;{topic}&quot;';
 $txt['modlog_ac_split'] = 'Split &quot;{topic}&quot; to create &quot;{new_topic}&quot;';
 $txt['modlog_ac_move'] = 'Moved &quot;{topic}&quot; from &quot;{board_from}&quot; to &quot;{board_to}&quot;';
 $txt['modlog_ac_profile'] = 'Edit the profile of &quot;{member}&quot;';
-$txt['modlog_ac_pruned'] = 'Pruned some posts older than {days} days';
+$txt['modlog_ac_pruned'] = 'Pruned some posts older than {days, plural,
+	one {# day}
+	other {# days}
+}';
 $txt['modlog_ac_news'] = 'Edited the news';
 $txt['modlog_ac_clearlog_moderate'] = 'Cleared the moderation log';
 $txt['modlog_ac_clearlog_admin'] = 'Cleared the administration log';
@@ -41,8 +44,8 @@ $txt['modlog_remove_all_confirm'] = 'Are you sure you want to completely clear t
 $txt['modlog_go'] = 'Go';
 $txt['modlog_add'] = 'Add';
 $txt['modlog_search'] = 'Quick Search';
-$txt['modlog_by'] = 'By';
-$txt['modlog_id'] = '<em>Deleted - ID:%1$d</em>';
+$txt['modlog_search_by'] = 'Quick Search (By {label})';
+$txt['modlog_id'] = '<em>Deleted - ID:{0}</em>';
 
 $txt['modlog_ac_add_warn_template'] = 'Added warning template: &quot;{template}&quot;';
 $txt['modlog_ac_modify_warn_template'] = 'Edited the warning template: &quot;{template}&quot;';

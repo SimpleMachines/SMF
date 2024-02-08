@@ -423,7 +423,7 @@ class Msg implements \ArrayAccess
 				'name' => $this->poster_name,
 				'username' => $this->poster_name,
 				'href' => empty($this->id_member) ? '' : Config::$scripturl . '?action=profile;u=' . $this->id_member,
-				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->poster_name) . '">' . $this->poster_name . '</a>',
+				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->poster_name]) . '">' . $this->poster_name . '</a>',
 			];
 		}
 
@@ -467,11 +467,11 @@ class Msg implements \ArrayAccess
 
 		// Info about last modification to this message.
 		if (!empty($this->formatted['modified']['name'])) {
-			$this->formatted['modified']['last_edit_text'] = sprintf(Lang::$txt['last_edit_by'], $this->formatted['modified']['time'], $this->formatted['modified']['name']);
+			$this->formatted['modified']['last_edit_text'] = Lang::getTxt('last_edit_by', ['time' => $this->formatted['modified']['time'], 'member' => $this->formatted['modified']['name']]);
 
 			// Did they give a reason for editing?
 			if (!empty($this->formatted['modified']['reason'])) {
-				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . sprintf(Lang::$txt['last_edit_reason'], $this->formatted['modified']['reason']);
+				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $this->formatted['modified']['reason']]);
 			}
 		}
 
@@ -1199,7 +1199,7 @@ class Msg implements \ArrayAccess
 				// Couldn't find the current poster?
 				if (Db::$db->num_rows($request) == 0) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['create_post_invalid_member_id'], $posterOptions['id']), E_USER_NOTICE);
+					trigger_error(Lang::getTxt('create_post_invalid_member_id', [$posterOptions['id']]), E_USER_NOTICE);
 					$posterOptions['id'] = 0;
 					$posterOptions['name'] = Lang::$txt['guest_title'];
 					$posterOptions['email'] = '';

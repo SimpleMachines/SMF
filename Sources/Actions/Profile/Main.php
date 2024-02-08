@@ -574,7 +574,7 @@ class Main implements ActionInterface
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : ''),
-			'name' => sprintf(Lang::$txt['profile_of_username'], Profile::$member->formatted['name']),
+			'name' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 		];
 
 		if (!empty($menu->include_data['label'])) {
@@ -694,7 +694,7 @@ class Main implements ActionInterface
 
 		// Set the page title if it's not already set...
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = Lang::$txt['profile'] . (isset(Lang::$txt[$menu->current_area]) ? ' - ' . Lang::$txt[$menu->current_area] : '');
+			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area)]), " \n\r\t\v\x00-");
 		}
 	}
 

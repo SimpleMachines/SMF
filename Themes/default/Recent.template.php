@@ -45,7 +45,7 @@ function template_recent()
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-				<span class="smalltext">', Lang::$txt['last_poster'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
+				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], '' => str_contains($post['time'], Lang::$txt['today']) ? 'today' : (str_contains($post['time'], Lang::$txt['yesterday']) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
 			</div>
 			<div class="list_posts">', $post['body'], '</div>';
 
@@ -177,13 +177,13 @@ function template_unread()
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
-								', $topic['replies'], ' ', Lang::$txt['replies'], '
+								', Lang::getTxt('number_of_replies', [$topic['replies']]), '
 								<br>
-								', $topic['views'], ' ', Lang::$txt['views'], '
+								', Lang::getTxt('number_of_views', [$topic['views']]), '
 							</p>
 						</div>
 						<div class="lastpost">
-							', sprintf(Lang::$txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
+							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '
 						</div>';
 
 			if (Utils::$context['showCheckboxes'])
@@ -227,7 +227,7 @@ function template_unread()
 		echo '
 			<div class="infobox">
 				<p class="centertext">
-					', Utils::$context['showing_all_topics'] ? Lang::$txt['topic_alert_none'] : sprintf(Lang::$txt['unread_topics_visit_none'], Config::$scripturl), '
+					', Utils::$context['showing_all_topics'] ? Lang::$txt['topic_alert_none'] : Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), '
 				</p>
 			</div>';
 
@@ -356,13 +356,13 @@ function template_replies()
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
-								', $topic['replies'], ' ', Lang::$txt['replies'], '
+								', Lang::getTxt('number_of_replies', [$topic['replies']]), '
 								<br>
-								', $topic['views'], ' ', Lang::$txt['views'], '
+								', Lang::getTxt('number_of_views', [$topic['views']]), '
 							</p>
 						</div>
 						<div class="lastpost">
-							', sprintf(Lang::$txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
+							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '
 						</div>';
 
 			if (Utils::$context['showCheckboxes'])

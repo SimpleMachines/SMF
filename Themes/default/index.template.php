@@ -261,7 +261,15 @@ function template_body_above()
 		{
 			echo '
 			<ul class="floatleft">
-				<li class="welcome">', sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');', Config::$scripturl . '?action=signup'), '</li>
+				<li class="welcome">', Lang::getTxt(
+					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'login_url' => Config::$scripturl . '?action=login',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+						'register_url' => Config::$scripturl . '?action=signup',
+					],
+				), '</li>
 			</ul>';
 		}
 		else
@@ -269,7 +277,7 @@ function template_body_above()
 			echo '
 			<ul class="floatleft" id="top_info">
 				<li class="welcome">
-					', sprintf(Lang::$txt['welcome_to_forum'], Utils::$context['forum_name_html_safe']), '
+					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
 				</li>
 				<li class="button_login">
 					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
@@ -295,7 +303,14 @@ function template_body_above()
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf(Lang::$txt['welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return true;'), '</li>
+				<li>', Lang::getTxt(
+					'welcome_guest',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'login_url' => Config::$scripturl . '?action=login',
+						'onclick' => 'return true;',
+					],
+				), '</li>
 			</ul>';
 
 	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1)
@@ -466,7 +481,13 @@ function template_body_below()
 	// Show the load time?
 	if (Utils::$context['show_load_time'])
 		echo '
-		<p>', sprintf(Lang::$txt['page_created_full'], Utils::$context['load_time'], Utils::$context['load_queries']), '</p>';
+		<p>', Lang::getTxt(
+			'page_created_full',
+			[
+				Utils::$context['load_time'],
+				Utils::$context['load_queries']
+			]
+		), '</p>';
 
 	echo '
 		</div>
@@ -772,7 +793,7 @@ function template_maint_warning_above()
 				<strong id="error_serious">', Lang::$txt['forum_in_maintenance'], '</strong>
 			</dt>
 			<dd class="error" id="error_list">
-				', sprintf(Lang::$txt['maintenance_page'], Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
+				', Lang::getTxt('maintenance_page', ['url' => Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]), '
 			</dd>
 		</dl>
 	</div>';

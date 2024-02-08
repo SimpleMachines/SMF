@@ -525,27 +525,21 @@ class Mail implements ActionInterface
 
 		// Just do a bit of an if fest...
 		if ($time_diff > 86400) {
-			$days = round($time_diff / 86400, 1);
-
-			return sprintf($days == 1 ? Lang::$txt['mq_day'] : Lang::$txt['mq_days'], $time_diff / 86400);
+			return Lang::getTxt('mq_age', ['unit' => 'day', 'age' => round($time_diff / 86400, 1)]);
 		}
 
 		// Hours?
 		if ($time_diff > 3600) {
-			$hours = round($time_diff / 3600, 1);
-
-			return sprintf($hours == 1 ? Lang::$txt['mq_hour'] : Lang::$txt['mq_hours'], $hours);
+			return Lang::getTxt('mq_age', ['unit' => 'hour', 'age' => round($time_diff / 3600, 1)]);
 		}
 
 		// Minutes?
 		if ($time_diff > 60) {
-			$minutes = (int) ($time_diff / 60);
-
-			return sprintf($minutes == 1 ? Lang::$txt['mq_minute'] : Lang::$txt['mq_minutes'], $minutes);
+			return Lang::getTxt('mq_age', ['unit' => 'minute', 'age' => (int) ($time_diff / 60)]);
 		}
 
 		// Otherwise must be second
-		return sprintf($time_diff == 1 ? Lang::$txt['mq_second'] : Lang::$txt['mq_seconds'], $time_diff);
+		return Lang::getTxt('mq_age', ['unit' => 'second', 'age' => $time_diff]);
 	}
 
 	/******************

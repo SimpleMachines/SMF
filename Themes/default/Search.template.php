@@ -43,7 +43,7 @@ function template_main()
 		<div id="advanced_search" class="roundframe">
 			<dl class="settings" id="search_options">
 				<dt>
-					<strong><label for="searchfor">', Lang::$txt['search_for'], ':</label></strong>
+					<strong><label for="searchfor">', Lang::$txt['search_for'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="search" name="search" id="searchfor" ', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
@@ -56,7 +56,7 @@ function template_main()
 				</dd>
 
 				<dt>
-					<label for="searchtype">', Lang::$txt['search_match'], ':</label>
+					<label for="searchtype">', Lang::$txt['search_match'], '</label>
 				</dt>
 				<dd>
 					<select name="searchtype" id="searchtype">
@@ -65,13 +65,13 @@ function template_main()
 					</select>
 				</dd>
 				<dt>
-					<label for="userspec">', Lang::$txt['by_user'], ':</label>
+					<label for="userspec">', Lang::$txt['by_user'], '</label>
 				</dt>
 				<dd>
 					<input id="userspec" type="text" name="userspec" value="', empty(Utils::$context['search_params']['userspec']) ? '*' : Utils::$context['search_params']['userspec'], '" size="40">
 				</dd>
 				<dt>
-					<label for="sort">', Lang::$txt['search_order'], ':</label>
+					<label for="sort">', Lang::$txt['search_order'], '</label>
 				</dt>
 				<dd>
 					<select id="sort" name="sort">
@@ -83,7 +83,7 @@ function template_main()
 					</select>
 				</dd>
 				<dt class="righttext options">',
-					Lang::$txt['search_options'], ':
+					Lang::$txt['search_options'], '
 				</dt>
 				<dd class="options">
 					<ul>
@@ -98,13 +98,16 @@ function template_main()
 					</ul>
 				</dd>
 				<dt class="between">',
-					Lang::$txt['search_post_age'], ':
+					Lang::$txt['search_post_age'], '
 				</dt>
 				<dd>
-					<label for="minage">', Lang::$txt['search_between'], ' </label>
-					<input type="number" name="minage" id="minage" value="', empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage'], '" size="5" maxlength="4">
-					<label for="maxage"> ', Lang::$txt['search_and'], ' </label>
-					<input type="number" name="maxage" id="maxage" value="', empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage'], '" size="5" maxlength="4"> ', Lang::$txt['days_word'], '
+					', Lang::getTxt(
+						'search_age_range',
+						[
+							'min' => '<input type="number" name="minage" id="minage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage']) . '">',
+							'max' => '<input type="number" name="maxage" id="maxage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage']) . '">',
+						],
+					), '
 				</dd>
 			</dl>
 			<script>
@@ -117,7 +120,7 @@ function template_main()
 	if (Utils::$context['require_verification'])
 		echo '
 			<p>
-				<strong>', Lang::$txt['verification'], ':</strong>
+				<strong>', Lang::$txt['verification'], '</strong>
 				', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 			</p>';
 
@@ -125,7 +128,7 @@ function template_main()
 	if (!empty(Utils::$context['search_params']['topic']))
 		echo '
 			<p>
-				', Lang::$txt['search_specific_topic'], ' &quot;', Utils::$context['search_topic']['link'], '&quot;.
+				', Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']]), '
 			</p>
 			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">
 			<input type="submit" name="b_search" value="', Lang::$txt['search'], '" class="button">';
@@ -266,7 +269,7 @@ function template_results()
 		if (isset(Utils::$context['did_you_mean']))
 			echo '
 			<p>
-				', Lang::$txt['search_did_you_mean'], ' <a href="', Config::$scripturl, '?action=search2;params=', Utils::$context['did_you_mean_params'], '">', Utils::$context['did_you_mean'], '</a>.
+				', Lang::getTxt('search_did_you_mean', ['suggested_query' => '<a href="' . Config::$scripturl . '?action=search2;params=' . Utils::$context['did_you_mean_params'] . '">' . Utils::$context['did_you_mean'] . '</a>']), '
 			</p>';
 
 		if (!empty(Utils::$context['search_ignored']))
@@ -277,7 +280,7 @@ function template_results()
 
 		echo '
 			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<strong>', Lang::$txt['search_for'], ':</strong>
+				<strong>', Lang::$txt['search_for'], '</strong>
 				<input type="text" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">
 				<input type="submit" name="edit_search" value="', Lang::$txt['search_adjust_submit'], '" class="button">
 				<input type="hidden" name="searchtype" value="', !empty(Utils::$context['search_params']['searchtype']) ? Utils::$context['search_params']['searchtype'] : 0, '">
@@ -322,7 +325,7 @@ function template_results()
 		echo '
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', Lang::$txt['mlist_search_results'], ': ', Utils::$context['search_params']['search'], '</span>
+				<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 			</h2>
 			<div class="floatleft">
 				<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>
@@ -387,7 +390,7 @@ function template_results()
 		echo '
 	<div id="display_head" class="information">
 		<h2 class="display_title">
-			<span>', Lang::$txt['mlist_search_results'], ': ', Utils::$context['search_params']['search'], '</span>
+			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 		</h2>
 		<div class="floatleft">
 			<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>
@@ -430,7 +433,7 @@ function template_results()
 			<h5>
 				', $topic['board']['link'], ' / <a href="', Config::$scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a>
 			</h5>
-			<span class="smalltext">', sprintf(str_replace('<br>', ' ', Lang::$txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
+			<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $item['time'], 'member_link' => '<strong>' . $item['poster']['link'] . '</strong>'])), '</span>
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 

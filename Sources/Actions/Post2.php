@@ -234,7 +234,7 @@ class Post2 extends Post
 				}
 
 				// Now make sure this email address is not banned from posting.
-				User::isBannedEmail($_POST['email'], 'cannot_post', sprintf(Lang::$txt['you_are_post_banned'], Lang::$txt['guest_title']));
+				User::isBannedEmail($_POST['email'], 'cannot_post', Lang::getTxt('you_are_post_banned', ['name' => Lang::$txt['guest_title']]));
 			}
 
 			// In case they are making multiple posts this visit, help them along by storing their name.
@@ -371,7 +371,7 @@ class Post2 extends Post
 				// If there was an initial error just show that message.
 				if ($attachID == 'initial_error') {
 					$attach_errors[] = '<dt>' . Lang::$txt['attach_no_upload'] . '</dt>';
-					$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
+					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
 
 					unset($_SESSION['temp_attachments']);
 
@@ -404,7 +404,7 @@ class Post2 extends Post
 
 				if (!empty($attachmentOptions['errors'])) {
 					// Sort out the errors for display and delete any associated files.
-					$attach_errors[] = '<dt>' . sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '</dt>';
+					$attach_errors[] = '<dt>' . Lang::getTxt('attach_warning', $attachment) . '</dt>';
 
 					$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
@@ -416,7 +416,7 @@ class Post2 extends Post
 								ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 							}
 						} else {
-							$attach_errors[] = '<dd>' . vsprintf(Lang::$txt[$error[0]], (array) $error[1]) . '</dd>';
+							$attach_errors[] = '<dd>' . Lang::getTxt($error[0], (array) $error[1]) . '</dd>';
 						}
 					}
 
@@ -775,7 +775,7 @@ class Post2 extends Post
 
 			unset($_SESSION['already_attached']);
 
-			$this->errors[] = ['cannot_post_attachment', [Board::$info->name]];
+			$this->errors[] = ['cannot_post_attachment', ['board' => Board::$info->name]];
 		}
 	}
 

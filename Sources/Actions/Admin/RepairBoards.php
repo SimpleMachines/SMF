@@ -1009,22 +1009,23 @@ class RepairBoards implements ActionInterface
 						$found_errors = true;
 
 						if (isset($test['message'])) {
-							Utils::$context['repair_errors'][] = Lang::$txt[$test['message']];
+							Utils::$context['repair_errors'][] = Lang::getTxt($test['message']);
 						}
 						// One per row!
 						elseif (isset($test['messages'])) {
 							while ($row = Db::$db->fetch_assoc($request)) {
 								$variables = $test['messages'];
 
+								$txt_key = array_shift($variables);
+								$variables = array_values($variables);
+
 								foreach ($variables as $k => $v) {
-									if ($k == 0 && isset(Lang::$txt[$v])) {
-										$variables[$k] = Lang::$txt[$v];
-									} elseif ($k > 0 && isset($row[$v])) {
+									if (isset($row[$v])) {
 										$variables[$k] = $row[$v];
 									}
 								}
 
-								Utils::$context['repair_errors'][] = call_user_func_array('sprintf', $variables);
+								Utils::$context['repair_errors'][] = Lang::getTxt($txt_key, $variables);
 							}
 						}
 						// A function to process?
@@ -1213,7 +1214,12 @@ class RepairBoards implements ActionInterface
 
 		// What about substeps?
 		Utils::$context['substep_enabled'] = $max_substep != 0;
-		Utils::$context['substep_title'] = sprintf(Lang::$txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (Lang::$txt['repair_operation_' . $current_step_description] ?? $current_step_description));
+		Utils::$context['substep_title'] = Lang::getTxt(
+			'repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking'),
+			[
+				Lang::$txt['repair_operation_' . $current_step_description] ?? $current_step_description,
+			],
+		);
 		Utils::$context['substep_continue_percent'] = $max_substep == 0 ? 0 : round(($_GET['substep'] * 100) / $max_substep, 1);
 
 		$_SESSION['repairboards_to_fix'] = $to_fix;
@@ -1678,15 +1684,15 @@ class RepairBoards implements ActionInterface
 		}
 
 		if ($row['id_first_msg'] != $row['myid_first_msg']) {
-			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_first_id', [$row['id_topic'], $row['id_first_msg']]);
 		}
 
 		if ($row['id_last_msg'] != $row['myid_last_msg']) {
-			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_last_id', [$row['id_topic'], $row['id_last_msg']]);
 		}
 
 		if ($row['approved'] != $row['firstmsg_approved']) {
-			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_approval'], $row['id_topic']);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_approval', [$row['id_topic']]);
 		}
 
 		return true;
@@ -1734,7 +1740,7 @@ class RepairBoards implements ActionInterface
 		}
 
 		if ($row['num_replies'] != $row['my_num_replies']) {
-			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_replies', [$row['id_topic'], $row['num_replies']]);
 		}
 
 		return true;
@@ -2123,7 +2129,7 @@ class RepairBoards implements ActionInterface
 	protected function missingCachedSubjectMessage(array $row): bool
 	{
 		if (count(Utils::text2words($row['subject'])) != 0) {
-			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_missing_cached_subject'], $row['id_topic']);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_missing_cached_subject', [$row['id_topic']]);
 
 			return true;
 		}

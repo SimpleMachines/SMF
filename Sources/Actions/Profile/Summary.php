@@ -64,7 +64,7 @@ class Summary implements ActionInterface
 
 		// Set up the stuff and load the user.
 		Utils::$context += [
-			'page_title' => sprintf(Lang::$txt['profile_of_username'], Profile::$member->formatted['name']),
+			'page_title' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 			'can_send_pm' => User::$me->allowedTo('pm_send'),
 			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
 			'can_issue_warning' => User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
@@ -210,7 +210,7 @@ class Summary implements ActionInterface
 				}
 
 				// Prepare the link for context.
-				$ban_explanation = sprintf(Lang::$txt['user_cannot_due_to'], implode(', ', $ban_restrictions), '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>');
+				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>']);
 
 				Profile::$member->formatted['bans'][$row['id_ban_group']] = [
 					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],

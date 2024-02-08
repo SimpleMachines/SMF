@@ -1445,12 +1445,12 @@ class ACP implements ActionInterface
 				trigger_error(Lang::$txt['get_server_versions_no_database'], E_USER_NOTICE);
 			} else {
 				$versions['db_engine'] = [
-					'title' => sprintf(Lang::$txt['support_versions_db_engine'], Db::$db->title),
+					'title' => Lang::getTxt('support_versions_db_engine', ['db_title' => Db::$db->title]),
 					'version' => Db::$db->get_vendor(),
 				];
 
 				$versions['db_server'] = [
-					'title' => sprintf(Lang::$txt['support_versions_db'], Db::$db->title),
+					'title' => Lang::getTxt('support_versions_db', ['db_title' => Db::$db->title]),
 					'version' => Db::$db->get_version(),
 				];
 			}
@@ -1810,7 +1810,7 @@ class ACP implements ActionInterface
 
 		// They used a wrong password, log it and unset that.
 		if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass'])) {
-			Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], $_SERVER['HTTP_REFERER'] ?? Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], User::$me->ip);
+			Lang::$txt['security_wrong'] = Lang::getTxt('security_wrong', ['referrer' => $_SERVER['HTTP_REFERER'] ?? Lang::$txt['unknown'], 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => User::$me->ip]);
 			ErrorHandler::log(Lang::$txt['security_wrong'], 'critical');
 
 			if (isset($_POST[$type . '_hash_pass'])) {

@@ -36,8 +36,29 @@ $txt['scheduled_task_desc_remove_topic_redirect'] = 'Deletes "MOVED:" topic noti
 $txt['scheduled_task_remove_temp_attachments'] = 'Remove temporary attachment files';
 $txt['scheduled_task_desc_remove_temp_attachments'] = 'Deletes temporary files created while attaching a file to a post that for any reason weren\'t renamed or deleted before.';
 
-$txt['scheduled_task_reg_starting'] = 'Starting at %1$s';
-$txt['scheduled_task_reg_repeating'] = 'repeating every %1$d %2$s';
+$txt['scheduled_task_reg_starting'] = 'Starting at {time}';
+$txt['scheduled_task_reg_repeating'] = 'repeating every {time_unit, select,
+	w {{time_regularity, plural,
+		one {# week}
+		other {# weeks}
+	}}
+	d {{time_regularity, plural,
+		one {# day}
+		other {# days}
+	}}
+	h {{time_regularity, plural,
+		one {# hour}
+		other {# hours}
+	}}
+	m {{time_regularity, plural,
+		one {# minute}
+		other {# minutes}
+	}}
+	other {{time_regularity, plural,
+		one {# {time_unit}}
+		other {# {time_unit}}
+	}}
+}';
 $txt['scheduled_task_reg_unit_m'] = 'minute(s)';
 $txt['scheduled_task_reg_unit_h'] = 'hour(s)';
 $txt['scheduled_task_reg_unit_d'] = 'day(s)';
@@ -47,14 +68,17 @@ $txt['scheduled_task_edit'] = 'Edit Scheduled Task';
 $txt['scheduled_task_edit_repeat'] = 'Repeat task every';
 $txt['scheduled_task_edit_interval'] = 'Interval';
 $txt['scheduled_task_edit_start_time'] = 'Start time';
-$txt['scheduled_task_edit_start_time_desc'] = 'Time the first instance of the day should start (hours:minutes)';
-$txt['scheduled_task_time_offset'] = 'Note the start time should be the offset against the current server time. Current server time is: %1$s';
+$txt['scheduled_task_edit_start_time_desc'] = 'Time when the first instance of the day should start';
+$txt['scheduled_task_time_offset'] = 'Note the start time should be the offset against the current server time. Current server time is: {server_time}';
 
 $txt['scheduled_view_log'] = 'View Log';
 $txt['scheduled_log_empty'] = 'There are currently no task log entries.';
 $txt['scheduled_log_time_run'] = 'Time Run';
 $txt['scheduled_log_time_taken'] = 'Time taken';
-$txt['scheduled_log_time_taken_seconds'] = '%1$d seconds';
+$txt['scheduled_log_time_taken_seconds'] = '{0, plural,
+	one {# second}
+	other {# seconds}
+}';
 $txt['scheduled_log_empty_log'] = 'Clear Log';
 $txt['scheduled_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log?';
 
@@ -62,7 +86,7 @@ $txt['scheduled_task_remove_old_drafts'] = 'Remove old drafts';
 $txt['scheduled_task_desc_remove_old_drafts'] = 'Deletes drafts older than the number of days defined in the draft settings in the admin panel.';
 
 $txt['scheduled_task_prune_log_topics'] = 'Mark Boards as Read';
-$txt['scheduled_task_desc_prune_log_topics'] = 'Marks boards as read for users inactive longer than the number of days defined in the <a href="%1$s?action=admin;area=logs;sa=settings#markread_title">Read Logs settings</a> in the admin panel.';
+$txt['scheduled_task_desc_prune_log_topics'] = 'Marks boards as read for users inactive longer than the number of days defined in the <a href="{scripturl}?action=admin;area=logs;sa=settings#markread_title">Read Logs settings</a> in the admin panel.';
 
 $txt['cron_is_real_cron'] = 'Disable JavaScript-based method of running scheduled tasks.';
 $txt['cron_is_real_cron_desc'] = '<strong>Do not check this box</strong> unless you are <strong><u>sure</u></strong> that you have configured another method to tell your server to run SMF\'s cron.php on a regular basis.';

@@ -738,20 +738,20 @@ class Members implements ActionInterface
 				];
 			} else {
 				$allowed_actions = [
-					'ok' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_no_email'],
-					'okemail' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_w_email'],
+					'ok' => Lang::$txt['admin_browse_w_approve'],
+					'okemail' => Lang::$txt['admin_browse_w_approve_send_email'],
 					'require_activation' => Lang::$txt['admin_browse_w_approve_require_activate'],
 					'reject' => Lang::$txt['admin_browse_w_reject'],
-					'rejectemail' => Lang::$txt['admin_browse_w_reject'] . ' ' . Lang::$txt['admin_browse_w_email'],
+					'rejectemail' => Lang::$txt['admin_browse_w_reject_send_email'],
 				];
 			}
 		} elseif ($browse_type == 'activate') {
 			$allowed_actions = [
 				'ok' => Lang::$txt['admin_browse_w_activate'],
-				'okemail' => Lang::$txt['admin_browse_w_activate'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'okemail' => Lang::$txt['admin_browse_w_activate_send_email'],
 				'delete' => Lang::$txt['admin_browse_w_delete'],
-				'deleteemail' => Lang::$txt['admin_browse_w_delete'] . ' ' . Lang::$txt['admin_browse_w_email'],
-				'remind' => Lang::$txt['admin_browse_w_remind'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'deleteemail' => Lang::$txt['admin_browse_w_delete_send_email'],
+				'remind' => Lang::$txt['admin_browse_w_remind_send_email'],
 			];
 		}
 
@@ -926,7 +926,7 @@ class Members implements ActionInterface
 								if ($member['id']) {
 									$member_links[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 								} else {
-									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest'] . ')';
+									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest_title'] . ')';
 								}
 							}
 
@@ -996,7 +996,7 @@ class Members implements ActionInterface
 
 			foreach ($available_filters as $filter) {
 				$filterOptions .= '
-					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? Lang::$txt['user'] : Lang::$txt['users']) . '</option>';
+					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . Lang::getTxt('number_of_users', [$filter['amount']]) . '</option>';
 			}
 
 			$filterOptions .= '
@@ -1413,7 +1413,7 @@ class Members implements ActionInterface
 		// Do we have approvals
 		if ($this->show_approve) {
 			Utils::$context['tabs']['approve'] = [
-				'label' => sprintf(Lang::$txt['admin_browse_awaiting_approval'], $this->awaiting_approval),
+				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval]),
 				'description' => Lang::$txt['admin_browse_approve_desc'],
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 			];
@@ -1423,7 +1423,7 @@ class Members implements ActionInterface
 		// Do we have activations to show?
 		if ($this->show_activate) {
 			Utils::$context['tabs']['activate'] = [
-				'label' => sprintf(Lang::$txt['admin_browse_awaiting_activate'], $this->awaiting_activation),
+				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation]),
 				'description' => Lang::$txt['admin_browse_activate_desc'],
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 			];

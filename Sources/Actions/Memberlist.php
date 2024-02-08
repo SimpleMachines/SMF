@@ -361,11 +361,11 @@ class Memberlist implements ActionInterface
 		Utils::$context['end'] = min($start + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
 
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-		Utils::$context['page_title'] = sprintf(Lang::$txt['viewing_members'], $start, Utils::$context['end']);
+		Utils::$context['page_title'] = Lang::getTxt('viewing_members', [$start, Utils::$context['end']]);
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $start,
 			'name' => &Utils::$context['page_title'],
-			'extra_after' => '(' . sprintf(Lang::$txt['of_total_members'], Utils::$context['num_members']) . ')',
+			'extra_after' => '(' . Lang::getTxt('of_total_members', [Utils::$context['num_members']]) . ')',
 		];
 
 		$limit = $start;
@@ -648,7 +648,7 @@ class Memberlist implements ActionInterface
 			}
 
 			foreach (Utils::$context['custom_search_fields'] as $field) {
-				Utils::$context['search_fields'][$field['colname']] = sprintf(Lang::$txt['mlist_search_by'], Lang::tokenTxtReplace($field['name']));
+				Utils::$context['search_fields'][$field['colname']] = Lang::getTxt('mlist_search_by', ['field' => Lang::tokenTxtReplace($field['name'])]);
 			}
 
 			Utils::$context['sub_template'] = 'search';

@@ -187,13 +187,12 @@ class SendDigests extends ScheduledTask
 			$langtxt[$lang] = [
 				'subject' => Lang::$txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
 				'char_set' => Lang::$txt['lang_character_set'],
-				'intro' => sprintf(Lang::$txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], Config::$mbname),
+				'intro' => Lang::getTxt('digest_intro_' . ($is_weekly ? 'weekly' : 'daily'), ['forum_name' => Config::$mbname]),
 				'new_topics' => Lang::$txt['digest_new_topics'],
 				'topic_lines' => Lang::$txt['digest_new_topics_line'],
 				'new_replies' => Lang::$txt['digest_new_replies'],
 				'mod_actions' => Lang::$txt['digest_mod_actions'],
-				'replies_one' => Lang::$txt['digest_new_replies_one'],
-				'replies_many' => Lang::$txt['digest_new_replies_many'],
+				'replies' => Lang::$txt['digest_num_replies'],
 				'sticky' => Lang::$txt['digest_mod_act_sticky'],
 				'lock' => Lang::$txt['digest_mod_act_lock'],
 				'unlock' => Lang::$txt['digest_mod_act_unlock'],
@@ -201,7 +200,7 @@ class SendDigests extends ScheduledTask
 				'move' => Lang::$txt['digest_mod_act_move'],
 				'merge' => Lang::$txt['digest_mod_act_merge'],
 				'split' => Lang::$txt['digest_mod_act_split'],
-				'bye' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+				'bye' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 			];
 
 			IntegrationHook::call('integrate_daily_digest_lang', [&$langtxt, $lang]);
@@ -245,7 +244,7 @@ class SendDigests extends ScheduledTask
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . sprintf((string) $langtxt[$lang]['topic_lines'], $topic['subject'], $board['name']);
+							$email['body'] .= "\n" . Lang::formatText($langtxt[$lang]['topic_lines'], ['subject' => $topic['subject'], 'board' => $board['name']]);
 						}
 					}
 				}
@@ -267,7 +266,7 @@ class SendDigests extends ScheduledTask
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . ($topic['count'] == 1 ? sprintf((string) $langtxt[$lang]['replies_one'], $topic['subject']) : sprintf((string) $langtxt[$lang]['replies_many'], $topic['count'], $topic['subject']));
+							$email['body'] .= "\n" . Lang::formatText($langtxt[$lang]['replies'], [$topic['count'], $topic['subject']]);
 						}
 					}
 				}
@@ -294,7 +293,7 @@ class SendDigests extends ScheduledTask
 									$titled = true;
 								}
 
-								$email['body'] .= "\n" . sprintf($langtxt[$lang][$note_type], $topic['subject']);
+								$email['body'] .= "\n" . Lang::formatText($langtxt[$lang][$note_type], $topic);
 							}
 						}
 					}
@@ -308,7 +307,7 @@ class SendDigests extends ScheduledTask
 			}
 
 			// Then just say our goodbyes!
-			$email['body'] .= "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']);
+			$email['body'] .= "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]);
 
 			// Send it - low priority!
 			Mail::send($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);

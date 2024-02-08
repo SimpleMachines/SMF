@@ -221,12 +221,12 @@ class Mail
 
 				try {
 					if (!mail(strtr($to, ["\r" => '', "\n" => '']), $subject, $message, $headers)) {
-						ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
+						ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to]));
 						$mail_result = false;
 					}
 				} catch (\ErrorException $e) {
 					ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-					ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
+					ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to]));
 					$mail_result = false;
 				}
 				restore_error_handler();
@@ -779,7 +779,7 @@ class Mail
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$socket) {
-				ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+				ErrorHandler::log(Lang::getTxt('smtp_no_connect', ['error_number' => $errno, 'error_message' => $errstr]));
 
 				return false;
 			}
@@ -974,7 +974,7 @@ class Mail
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
 			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::$txt['smtp_error'] . $server_response);
+				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response]));
 			}
 
 			return false;
@@ -1153,7 +1153,7 @@ class Mail
 			'THEMEURL' => Theme::$current->settings['theme_url'],
 			'IMAGESURL' => Theme::$current->settings['images_url'],
 			'DEFAULT_THEMEURL' => Theme::$current->settings['default_theme_url'],
-			'REGARDS' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+			'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 		];
 
 		// Split the replacements up into two arrays, for use with str_replace

@@ -220,8 +220,8 @@ class Permissions implements ActionInterface
 	 *  - label: Indicates the Lang::$txt string to use as the generic label for
 	 *         this permission. Defaults to 'permissionname_' . generic_name.
 	 *
-	 *  - vsprintf: Arguments passed to vsprintf() at runtime to generate the
-	 *        finalized form of the label string.
+	 *  - vsprintf: Arguments passed to Lang::formatText() at runtime to generate
+	 *        the finalized form of the label string.
 	 *
 	 *  - never_guests: If true, this permission can never be granted to guests.
 	 *
@@ -1364,7 +1364,7 @@ class Permissions implements ActionInterface
 			if (isset(Utils::$context['profiles'][$row['id_profile']])) {
 				Utils::$context['profiles'][$row['id_profile']]['in_use'] = true;
 				Utils::$context['profiles'][$row['id_profile']]['boards'] = $row['board_count'];
-				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = $row['board_count'] > 1 ? sprintf(Lang::$txt['permissions_profile_used_by_many'], $row['board_count']) : Lang::$txt['permissions_profile_used_by_' . ($row['board_count'] ? 'one' : 'none')];
+				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = Lang::getTxt('permissions_profile_used_by_count', [$row['board_count']]);
 			}
 		}
 		Db::$db->free_result($request);
@@ -1718,7 +1718,7 @@ class Permissions implements ActionInterface
 
 			// Do we need to dynamically generate the label string?
 			if (!empty($perm_info['vsprintf'])) {
-				Lang::$txt[$perm_info['label']] = vsprintf(Lang::$txt[$perm_info['vsprintf'][0]] ?? $perm_info['vsprintf'][0], $perm_info['vsprintf'][1]);
+				Lang::$txt[$perm_info['label']] = Lang::formatText(Lang::$txt[$perm_info['vsprintf'][0]] ?? $perm_info['vsprintf'][0], $perm_info['vsprintf'][1]);
 			}
 		}
 

@@ -225,7 +225,7 @@ class Languages implements ActionInterface
 				// Make sure the files aren't stuck in the cache.
 				SubsPackage::package_flush_cache();
 
-				Utils::$context['install_complete'] = sprintf(Lang::$txt['languages_download_complete_desc'], Config::$scripturl . '?action=admin;area=languages');
+				Utils::$context['install_complete'] = Lang::getTxt('languages_download_complete_desc', ['url' => Config::$scripturl . '?action=admin;area=languages']);
 
 				return;
 			}
@@ -399,7 +399,7 @@ class Languages implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . Lang::$txt['languages_download_dest'] . ': ' . $rowData['destination'] . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . Lang::$txt['languages_download_older'] : '');
+							return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . Lang::getTxt('languages_download_dest', $rowData) . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . Lang::$txt['languages_download_older'] : '');
 						},
 					],
 				],
@@ -913,7 +913,7 @@ class Languages implements ActionInterface
 
 		require $general_filename;
 
-		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : sprintf(Lang::$txt['lang_file_not_writable'], $general_filename);
+		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : Lang::getTxt('lang_file_not_writable', ['file' => $general_filename]);
 
 		// Setup the primary settings context.
 		Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr($lang_id, ['_' => ' ', '-utf8' => '']));
@@ -985,7 +985,7 @@ class Languages implements ActionInterface
 		Utils::$context['can_add_lang_entry'] = [];
 
 		if ($current_file) {
-			Utils::$context['entries_not_writable_message'] = is_writable($current_file) ? '' : sprintf(Lang::$txt['lang_entries_not_writable'], $current_file);
+			Utils::$context['entries_not_writable_message'] = is_writable($current_file) ? '' : Lang::getTxt('lang_entries_not_writable', ['file' => $current_file]);
 
 			// How many strings will PHP let us edit at once?
 			// Each string needs 3 inputs, and there are 5 others in the form.
@@ -1396,7 +1396,7 @@ class Languages implements ActionInterface
 							if (++num_inputs <= max_inputs) {
 								target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
 							} else {
-								alert("' . sprintf(Lang::$txt['languages_max_inputs_warning'], Utils::$context['max_inputs']) . '");
+								alert("' . Lang::getTxt('languages_max_inputs_warning', [Utils::$context['max_inputs']]) . '");
 								$(this).prop("checked", false);
 							}
 						} else {

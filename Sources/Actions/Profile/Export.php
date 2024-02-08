@@ -346,10 +346,10 @@ class Export implements ActionInterface
 		if (empty(Config::$modSettings['export_expiry'])) {
 			unset(Lang::$txt['export_profile_data_desc_list']['expiry']);
 		} else {
-			Lang::$txt['export_profile_data_desc_list']['expiry'] = sprintf(Lang::$txt['export_profile_data_desc_list']['expiry'], Config::$modSettings['export_expiry']);
+			Lang::$txt['export_profile_data_desc_list']['expiry'] = Lang::getTxt(['export_profile_data_desc_list', 'expiry'], [Config::$modSettings['export_expiry']]);
 		}
 
-		Utils::$context['export_profile_data_desc'] = sprintf(Lang::$txt['export_profile_data_desc'], '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>');
+		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>']);
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 	}
@@ -412,7 +412,7 @@ class Export implements ActionInterface
 
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback) {
-				ErrorHandler::log(sprintf(Lang::$txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
+				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback]));
 
 				Config::updateModSettings(['export_dir' => $fallback]);
 

@@ -1012,7 +1012,7 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed->metadata = [
-			'title' => sprintf(Lang::$txt['profile_of_username'], User::$me->name),
+			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name]),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype) {
 					return Lang::$txt[$datatype];
@@ -1130,7 +1130,7 @@ class ExportProfileData extends BackgroundTask
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
 					Lang::load('Errors');
 
-					ErrorHandler::log(sprintf(Lang::$txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
+					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']]));
 
 					$delay = 86400;
 				} else {
@@ -1466,7 +1466,7 @@ class ExportProfileData extends BackgroundTask
 					'value' => $export_formats[$this->_details['format']]['extension'],
 				],
 				'forum_copyright' => [
-					'value' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
+					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 				],
 				'txt_summary_heading' => [
 					'value' => Lang::$txt['summary'],

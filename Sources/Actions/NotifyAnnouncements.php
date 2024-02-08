@@ -140,7 +140,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 
 		// Show a confirmation message.
 		Utils::$context['sub_template'] = 'notify_pref_changed';
-		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
+		Utils::$context['notify_success_msg'] = Lang::getTxt('notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed'), self::$member_info);
 	}
 
 	/**
@@ -148,7 +148,7 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed')], self::$member_info['email']);
+		return Lang::getTxt('notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed'), self::$member_info);
 	}
 }
 

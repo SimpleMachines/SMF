@@ -33,17 +33,18 @@ $txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
 $txt['mc_group_requests_none'] = 'There are no open requests for group membership.';
 $txt['mc_reported_users_none'] = 'There are no pending profile reports.';
 
-$txt['mc_seen'] = '%1$s last seen %2$s';
-$txt['mc_seen_never'] = '%1$s never seen';
-$txt['mc_groupr_by'] = 'by';
-$txt['mc_post_report'] = '%1$s by %2$s';
+$txt['mc_seen'] = '{link} last seen {last_login}';
+$txt['mc_seen_never'] = '{link} never seen';
+$txt['mc_groupr_by'] = '{group_link} by {member_link}';
+$txt['mc_post_report'] = '{report_link} by {author_link}';
 
 $txt['mc_reported_posts_desc'] = 'Here you can review all the post reports raised by members of the community.';
 $txt['mc_reportedp_active'] = 'Active Reports';
 $txt['mc_reportedp_closed'] = 'Old Reports';
 $txt['mc_reportedp_by'] = 'by';
-$txt['mc_reportedp_reported_by'] = 'Reported By';
-$txt['mc_reportedp_last_reported'] = 'Last Reported';
+$txt['mc_reportedp_subject_author'] = '{subject} by {author}';
+$txt['mc_reportedp_reported_by'] = 'Reported by {list}';
+$txt['mc_reportedp_last_reported'] = 'Last Reported {date}';
 $txt['mc_reportedp_none_found'] = 'No Reports Found';
 $txt['mc_reportedp_comment_none_found'] = 'No Moderator comment found';
 $txt['mc_reportedp_comment_edit'] = 'Edit';
@@ -69,7 +70,7 @@ $txt['mc_groupr_none_found'] = 'There are currently no outstanding membergroup r
 $txt['mc_groupr_approved'] = 'Request approved';
 $txt['mc_groupr_rejected'] = 'Request rejected';
 $txt['mc_groupr_submit'] = 'Submit';
-$txt['mc_groupr_reason_desc'] = 'Reason to reject %1$s\'s request to join &quot;%2$s&quot;';
+$txt['mc_groupr_reason_desc'] = 'Reason to reject {member_link}\'s request to join &quot;{group_link}&quot;';
 $txt['mc_groups_reason_title'] = 'Reasons for rejection';
 $txt['with_selected'] = 'With selected';
 $txt['mc_groupr_approve'] = 'Approve request';
@@ -90,25 +91,33 @@ $txt['mc_unapproved_sure'] = 'Are you sure you want to do this?';
 $txt['mc_unapproved_attach_name'] = 'Attachment name';
 $txt['mc_unapproved_attach_size'] = 'Filesize';
 $txt['mc_unapproved_attach_poster'] = 'Poster';
-$txt['mc_viewmodreport'] = 'Moderation report for %1$s by %2$s';
-$txt['mc_modreport_summary'] = 'There have been %1$d report(s) concerning this post. The last report was %2$s.';
+$txt['mc_viewmodreport'] = 'Moderation report for {message_link} by {author_link}';
+$txt['mc_modreport_summary'] = '{0, plural,
+	one {There has been # report concerning this post.}
+	other {There have been # reports concerning this post.}
+} The last report was {1}.';
 $txt['mc_modreport_whoreported_title'] = 'Members who have reported this post';
-$txt['mc_modreport_whoreported_data'] = 'Reported by %1$s on %2$s. They left the following message:';
+$txt['mc_modreport_whoreported_data'] = 'Reported by {member_link} on {datetime}. They left the following message:';
 $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
 $txt['mc_modreport_mod_comments'] = 'Moderator Comments';
 $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator comments';
 $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 $txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
-$txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
-$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this profile. The last report was %2$s.';
+$txt['mc_viewmemberreport'] = 'Report for profile of {member}';
+$txt['mc_memberreport_summary'] = '{0, plural,
+	one {There has been # report concerning this profile.}
+	other {There have been # reports concerning this profile.}
+} The last report was {1}.';
 $txt['mc_memberreport_whoreported_title'] = 'Members who have reported this profile.';
 
 $txt['show_notice'] = 'Notice Text';
-$txt['show_notice_subject'] = 'Subject';
+$txt['show_notice_subject'] = 'Subject: {subject}';
 $txt['show_notice_text'] = 'Text';
 
 $txt['mc_watched_users_title'] = 'Watched Members';
+$txt['mc_watched_users_title_view_by_post'] = 'Watched Members - View By Post';
+$txt['mc_watched_users_title_view_by_member'] = 'Watched Members - View By Member';
 $txt['mc_watched_users_desc'] = 'Here you can keep a track of all members who have been assigned a &quot;watch&quot; by the moderation team.';
 $txt['mc_watched_users_post'] = 'View by Post';
 $txt['mc_watched_users_warning'] = 'Warning Level';
@@ -118,7 +127,7 @@ $txt['mc_watched_users_no_posts'] = 'There are no posts from watched members.';
 // Don't use entities in the two strings below.
 $txt['mc_watched_users_delete_post'] = 'Are you sure you want to delete this post?';
 $txt['mc_watched_users_delete_posts'] = 'Are you sure you want to delete these posts?';
-$txt['mc_watched_users_posted'] = 'Posted';
+$txt['mc_watched_users_posted'] = 'Posted {time}';
 $txt['mc_watched_users_member'] = 'Member';
 
 $txt['mc_warnings_description'] = 'From this section you can see which warnings have been issued to members of the forum. You can also add and modify the notification templates used when sending a warning to a member.';

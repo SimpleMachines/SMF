@@ -1139,7 +1139,7 @@ class Calendar implements ActionInterface
 		$events = $calendarOptions['show_events'] ? self::getEventRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : [];
 		$holidays = $calendarOptions['show_holidays'] ? self::getHolidayRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : [];
 
-		$calendarGrid['week_title'] = sprintf(Lang::$txt['calendar_week_beginning'], Lang::$txt['months'][$first_day_object->format('n')], $first_day_object->format('j'), $first_day_object->format('Y'));
+		$calendarGrid['week_title'] = Lang::getTxt('calendar_week_beginning', ['date' => $first_day_object->format(Time::getDateFormat())]);
 
 		// This holds all the main data - there is at least one month!
 		$calendarGrid['months'] = [];
@@ -1341,7 +1341,7 @@ class Calendar implements ActionInterface
 				pm: "' . strtolower(Lang::$txt['time_pm']) . '",
 				AM: "' . strtoupper(Lang::$txt['time_am']) . '",
 				PM: "' . strtoupper(Lang::$txt['time_pm']) . '",
-				decimal: "' . Lang::$txt['decimal_sign'] . '",
+				decimal: "' . Lang::$txt['decimal_separator'] . '",
 				mins: "' . Lang::$txt['minutes_short'] . '",
 				hr: "' . Lang::$txt['hour_short'] . '",
 				hrs: "' . Lang::$txt['hours_short'] . '",

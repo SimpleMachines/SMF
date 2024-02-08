@@ -296,19 +296,22 @@ class IssueWarning implements ActionInterface
 		foreach (['spamming', 'offence', 'insulting'] as $type) {
 			Utils::$context['notification_templates'][] = [
 				'title' => Lang::$txt['profile_warning_notify_title_' . $type],
-				'body' => sprintf(Lang::$txt['profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : '')], Lang::$txt['profile_warning_notify_for_' . $type]),
+				'body' => Lang::getTxt('profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : ''), ['REASON' => Lang::$txt['profile_warning_notify_for_' . $type]]),
 			];
 		}
 
 		// Replace all the common variables in the templates.
 		foreach (Utils::$context['notification_templates'] as $k => $name) {
-			Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], [
-				'{MEMBER}' => Utils::htmlspecialcharsDecode(Utils::$context['member']['name']),
-				'{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
-				'{SCRIPTURL}' => Config::$scripturl,
-				'{FORUMNAME}' => Config::$mbname,
-				'{REGARDS}' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
-			]);
+			Utils::$context['notification_templates'][$k]['body'] = Lang::formatText(
+				$name['body'],
+				[
+					'MEMBER' => Utils::htmlspecialcharsDecode(Utils::$context['member']['name']),
+					'MESSAGE' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
+					'SCRIPTURL' => Config::$scripturl,
+					'FORUMNAME' => Config::$mbname,
+					'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+				],
+			);
 		}
 	}
 

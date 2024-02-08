@@ -373,7 +373,7 @@ class MessageIndex implements ActionInterface
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
 					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $row['first_display_name']]) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
 				],
 				'time' => Time::create('@' . $row['first_poster_time'])->format(),
 				'timestamp' => $row['first_poster_time'],
@@ -920,11 +920,13 @@ class MessageIndex implements ActionInterface
 
 			$unposts = Board::$info->unapproved_posts ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . Board::$info->id . '">' . (Board::$info->unapproved_posts - Board::$info->unapproved_topics) . '</a>' : 0;
 
-			Utils::$context['unapproved_posts_message'] = sprintf(
-				Lang::$txt['there_are_unapproved_topics'],
-				$untopics,
-				$unposts,
-				Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
+			Utils::$context['unapproved_posts_message'] = Lang::getTxt(
+				'there_are_unapproved_topics',
+				[
+					'topics' => $untopics,
+					'posts' => $unposts,
+					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
+				],
 			);
 		}
 

@@ -44,17 +44,17 @@ function template_login()
 	// Now just get the basic information - username, password, etc.
 	echo '
 					<dl>
-						<dt>', Lang::$txt['username'], ':</dt>
+						<dt>', Lang::$txt['username'], '</dt>
 						<dd>
 							<input type="text" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', Utils::$context['default_username'], '" required>
 						</dd>
-						<dt>', Lang::$txt['password'], ':</dt>
+						<dt>', Lang::$txt['password'], '</dt>
 						<dd>
 							<input type="password" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
 						</dd>
 					</dl>
 					<dl>
-						<dt>', Lang::$txt['time_logged_in'], ':</dt>
+						<dt>', Lang::$txt['time_logged_in'], '</dt>
 						<dd>
 							<select name="cookielength" id="cookielength">';
 
@@ -69,7 +69,7 @@ function template_login()
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete']))
 		echo '
-						<dt class="alert">', Lang::$txt['undelete_account'], ':</dt>
+						<dt class="alert">', Lang::$txt['undelete_account'], '</dt>
 						<dd><input type="checkbox" name="undelete"></dd>';
 
 	echo '
@@ -83,7 +83,7 @@ function template_login()
 	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
 		echo '
 					<p class="smalltext">
-						', sprintf(Lang::$txt['welcome_guest_activate'], Config::$scripturl), '
+						', Lang::getTxt('welcome_guest_activate', ['scripturl' => Config::$scripturl]), '
 					</p>';
 	echo '
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -159,7 +159,7 @@ function template_login()
 		echo '
 				<hr>
 				<div class="centertext">
-					', sprintf(Lang::$txt['register_prompt'], Config::$scripturl), '
+					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl]), '
 				</div>';
 
 	// It is a long story as to why we have this when we're clearly not going to use it.
@@ -198,7 +198,7 @@ function template_login_tfa()
 					<div id="tfaCode">
 						<p style="margin-bottom: 0.5em">', Lang::$txt['tfa_login_desc'], '</p>
 						<div class="centertext">
-							<strong>', Lang::$txt['tfa_code'], ':</strong>
+							<strong>', Lang::$txt['tfa_code'], '</strong>
 							<input type="text" name="tfa_code" value="', !empty(Utils::$context['tfa_value']) ? Utils::$context['tfa_value'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
 						</div>
@@ -210,7 +210,7 @@ function template_login_tfa()
 					<div id="tfaBackup" style="display: none;">
 						<p style="margin-bottom: 0.5em">', Lang::$txt['tfa_backup_desc'], '</p>
 						<div class="centertext">
-							<strong>', Lang::$txt['tfa_backup_code'], ': </strong>
+							<strong>', Lang::$txt['tfa_backup_code'], '</strong>
 							<input type="text" name="tfa_backup" value="', !empty(Utils::$context['tfa_backup']) ? Utils::$context['tfa_backup'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
 						</div>
@@ -302,7 +302,7 @@ function template_kick_guest()
 				', empty(Utils::$context['kick_message']) ? Lang::$txt['only_members_can_access'] : Utils::$context['kick_message'], '<br>';
 
 	if (Utils::$context['can_register'])
-		echo sprintf(Lang::$txt['login_below_or_register'], Config::$scripturl . '?action=signup', Utils::$context['forum_name_html_safe']);
+		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']]);
 	else
 		echo Lang::$txt['login_below'];
 
@@ -315,11 +315,11 @@ function template_kick_guest()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['username'], ':</dt>
+					<dt>', Lang::$txt['username'], '</dt>
 					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', Lang::$txt['password'], ':</dt>
+					<dt>', Lang::$txt['password'], '</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', Lang::$txt['time_logged_in'], ':</dt>
+					<dt>', Lang::$txt['time_logged_in'], '</dt>
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
@@ -371,11 +371,11 @@ function template_maintenance()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['username'], ':</dt>
+					<dt>', Lang::$txt['username'], '</dt>
 					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', Lang::$txt['password'], ':</dt>
+					<dt>', Lang::$txt['password'], '</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', Lang::$txt['time_logged_in'], ':</dt>
+					<dt>', Lang::$txt['time_logged_in'], '</dt>
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
@@ -417,7 +417,7 @@ function template_admin_login()
 				<div class="error">', Lang::$txt['admin_incorrect_password'], '</div>';
 
 	echo '
-				<strong>', Lang::$txt['password'], ':</strong>
+				<strong>', Lang::$txt['password'], '</strong>
 				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" size="24">
 				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><br>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -455,11 +455,11 @@ function template_retry_activate()
 	// You didn't even have an ID?
 	if (empty(Utils::$context['member_id']))
 		echo '
-					<dt>', Lang::$txt['invalid_activation_username'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_username'], '</dt>
 					<dd><input type="text" name="user" size="30"></dd>';
 
 	echo '
-					<dt>', Lang::$txt['invalid_activation_retry'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_retry'], '</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>
 				<p><input type="submit" value="', Lang::$txt['invalid_activation_submit'], '" class="button"></p>
@@ -480,14 +480,14 @@ function template_resend()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['invalid_activation_username'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_username'], '</dt>
 					<dd><input type="text" name="user" size="40" value="', Utils::$context['default_username'], '"></dd>
 				</dl>
 				<p>', Lang::$txt['invalid_activation_new'], '</p>
 				<dl>
-					<dt>', Lang::$txt['invalid_activation_new_email'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_new_email'], '</dt>
 					<dd><input type="text" name="new_email" size="40"></dd>
-					<dt>', Lang::$txt['invalid_activation_password'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_password'], '</dt>
 					<dd><input type="password" name="passwd" size="30"></dd>
 				</dl>';
 
@@ -495,7 +495,7 @@ function template_resend()
 		echo '
 				<p>', Lang::$txt['invalid_activation_known'], '</p>
 				<dl>
-					<dt>', Lang::$txt['invalid_activation_retry'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_retry'], '</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>';
 

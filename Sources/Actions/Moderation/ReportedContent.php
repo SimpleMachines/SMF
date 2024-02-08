@@ -407,10 +407,10 @@ class ReportedContent implements ActionInterface
 
 		// Finally we are done :P
 		if ($this->type == 'members') {
-			Utils::$context['page_title'] = sprintf(Lang::$txt['mc_viewmemberreport'], Utils::$context['report']['user']['name']);
+			Utils::$context['page_title'] = Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['name']]);
 			Utils::$context['sub_template'] = 'viewmemberreport';
 		} else {
-			Utils::$context['page_title'] = sprintf(Lang::$txt['mc_viewmodreport'], Utils::$context['report']['subject'], Utils::$context['report']['author']['name']);
+			Utils::$context['page_title'] = Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['subject'], 'author_link' => Utils::$context['report']['author']['name']]);
 			Utils::$context['sub_template'] = 'viewmodreport';
 		}
 

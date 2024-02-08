@@ -269,7 +269,7 @@ class TopicSplit implements ActionInterface
 	 */
 	public function select(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
+		Utils::$context['page_title'] = Lang::$txt['select_split_posts'];
 
 		// Haven't selected anything have we?
 		$_SESSION['split_selection'][Topic::$topic_id] = empty($_SESSION['split_selection'][Topic::$topic_id]) ? [] : $_SESSION['split_selection'][Topic::$topic_id];

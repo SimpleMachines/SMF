@@ -85,25 +85,55 @@ class HelpAdmin implements ActionInterface
 
 		switch ($_GET['help']) {
 			case 'cal_short_months':
-				Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Lang::$txt['months_short'][1], Lang::$txt['months_titles'][1]);
+				Utils::$context['help_text'] = Lang::formatText(
+					Utils::$context['help_text'],
+					[
+						'short' => Lang::$txt['months_short'][1],
+						'long' => Lang::$txt['months_titles'][1],
+					],
+				);
 				break;
 
 			case 'cal_short_days':
-				Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Lang::$txt['days_short'][1], Lang::$txt['days'][1]);
+				Utils::$context['help_text'] = Lang::formatText(
+					Utils::$context['help_text'],
+					[
+						'short' => Lang::$txt['days_short'][1],
+						'long' => Lang::$txt['days'][1],
+					],
+				);
 				break;
 
 			case 'cron_is_real_cron':
-				Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::$txt['hidden'] . ']', Config::$boardurl);
+				Utils::$context['help_text'] = Lang::formatText(
+					Utils::$context['help_text'],
+					[
+						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::$txt['hidden'] . ']',
+						'boardurl' => Config::$boardurl,
+					],
+				);
 				break;
 
 			case 'queryless_urls':
-				Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? Lang::$helptxt['queryless_urls_supported'] : Lang::$helptxt['queryless_urls_unsupported']));
+				Utils::$context['help_text'] = Lang::formatText(
+					Utils::$context['help_text'],
+					[
+						(isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? 'supported' : 'unsupported'),
+					],
+				);
 				break;
 		}
 
 		// Does this text contain a link that we should fill in?
 		if (preg_match('~%([0-9]+\$)?s\?~', Utils::$context['help_text'], $match)) {
-			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Config::$scripturl, Utils::$context['session_id'], Utils::$context['session_var']);
+			Utils::$context['help_text'] = Lang::formatText(
+				Utils::$context['help_text'],
+				[
+					'scripturl' => Config::$scripturl,
+					'session_id' => Utils::$context['session_id'],
+					'session_var' => Utils::$context['session_var'],
+				],
+			);
 		}
 
 		// Set the page title to something relevant.

@@ -61,8 +61,8 @@ function template_modifydone()
 	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf(Lang::$txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
-		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . sprintf(Lang::$txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']]);
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']]);
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml($modified), ']]></modified>
@@ -89,8 +89,8 @@ function template_modifytopicdone()
 	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf(Lang::$txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
-		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : sprintf(Lang::$txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']]);
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']]);
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
@@ -166,7 +166,7 @@ function template_pm()
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', Lang::$txt['preview'], ' - ', !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::$txt['no_subject'], ']]></subject>
+		<subject><![CDATA[', Lang::getTxt('preview_subject', ['subject' => !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::$txt['no_subject']]), ']]></subject>
 		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';

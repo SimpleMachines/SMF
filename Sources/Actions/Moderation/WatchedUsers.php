@@ -99,7 +99,7 @@ class WatchedUsers implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'watch_user_list',
-			'title' => Lang::$txt['mc_watched_users_title'] . ' - ' . (Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_post'] : Lang::$txt['mc_watched_users_member']),
+			'title' => Lang::$txt['mc_watched_users_title_view_by_' . (Utils::$context['view_posts'] ? 'post' : 'member')],
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_no_posts'] : Lang::$txt['mc_watched_users_none'],
 			'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),

@@ -150,7 +150,7 @@ class Search implements ActionInterface
 				}
 
 				if ($search_error == 'string_too_long') {
-					Lang::$txt['error_string_too_long'] = sprintf(Lang::$txt['error_string_too_long'], SearchApi::MAX_LENGTH);
+					Lang::$txt['error_string_too_long'] = Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH]);
 				}
 
 				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];

@@ -974,7 +974,7 @@ class Display implements ActionInterface
 		Utils::$context['topic_starter_id'] = Topic::$info->id_member_started;
 		Utils::$context['subject'] = Topic::$info->subject;
 		Utils::$context['num_views'] = Lang::numberFormat(Topic::$info->num_views);
-		Utils::$context['num_views_text'] = Utils::$context['num_views'] == 1 ? Lang::$txt['read_one_time'] : sprintf(Lang::$txt['read_many_times'], Utils::$context['num_views']);
+		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']]);
 		Utils::$context['mark_unread_time'] = !empty($this->virtual_msg) ? $this->virtual_msg : Topic::$info->new_from;
 
 		// Default this topic to not marked for notifications... of course...

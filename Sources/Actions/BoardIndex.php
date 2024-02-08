@@ -410,7 +410,7 @@ class BoardIndex implements ActionInterface
 						'new' => false,
 						'css_class' => '',
 						'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!User::$me->is_guest ?
-							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf(Lang::$txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
+							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
 					]);
 
 					$category->parseDescription();
@@ -541,7 +541,7 @@ class BoardIndex implements ActionInterface
 					}
 
 					if (!empty($board->last_post)) {
-						$board->last_post['last_post_message'] = sprintf(Lang::$txt['last_post_message'], $board->last_post['member']['link'], $board->last_post['link'], $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']);
+						$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
 					}
 				}
 			}
@@ -567,7 +567,7 @@ class BoardIndex implements ActionInterface
 				}
 
 				if (!empty($board->last_post)) {
-					$board->last_post['last_post_message'] = sprintf(Lang::$txt['last_post_message'], $board->last_post['member']['link'], $board->last_post['link'], $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']);
+					$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
 				}
 			}
 		}
@@ -608,7 +608,7 @@ class BoardIndex implements ActionInterface
 		Theme::loadTemplate('BoardIndex');
 		Utils::$context['template_layers'][] = 'boardindex_outer';
 
-		Utils::$context['page_title'] = sprintf(Lang::$txt['forum_index'], Utils::$context['forum_name']);
+		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']]);
 
 		// Set a canonical URL for this page.
 		Utils::$context['canonical_url'] = Config::$scripturl;

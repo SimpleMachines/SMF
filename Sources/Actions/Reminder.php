@@ -128,9 +128,9 @@ class Reminder implements ActionInterface
 		if ($this->member->is_activated != 1) {
 			// Awaiting approval...
 			if (trim($this->member->validation_code) == '') {
-				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
 			} else {
-				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_activated', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
 			}
 		}
 
@@ -138,7 +138,7 @@ class Reminder implements ActionInterface
 		$this->member->email = trim($this->member->email);
 
 		if ($this->member->email == '') {
-			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
+			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email]));
 		}
 
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
@@ -344,7 +344,7 @@ class Reminder implements ActionInterface
 				&& md5($_POST['secret_answer']) != $this->member->secret_answer
 			)
 		) {
-			ErrorHandler::log(sprintf(Lang::$txt['reminder_error'], $this->member->username), 'user');
+			ErrorHandler::log(Lang::getTxt('reminder_error', ['name' => $this->member->username]), 'user');
 			ErrorHandler::fatalLang('incorrect_answer', false);
 		}
 

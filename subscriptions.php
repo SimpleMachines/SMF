@@ -111,7 +111,7 @@ $request = Db::$db->query(
 
 // Didn't find them?
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(sprintf(Lang::$txt['paid_could_not_find_member'], $member_id));
+	generateSubscriptionError(Lang::getTxt('paid_could_not_find_member', [$member_id]));
 }
 $member_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -129,7 +129,7 @@ $request = Db::$db->query(
 
 // Didn't find it?
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription'], $member_id, $subscription_id));
+	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription', [$member_id, $subscription_id]));
 }
 
 $subscription_info = Db::$db->fetch_assoc($request);
@@ -150,7 +150,7 @@ $request = Db::$db->query(
 );
 
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription_log'], $member_id, $subscription_id));
+	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription_log', [$member_id, $subscription_id]));
 }
 $subscription_info += Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -211,7 +211,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription()) {
 		$real_details = Utils::jsonDecode($subscription_info['pending_details'], true);
 
 		if (empty($real_details)) {
-			generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
+			generateSubscriptionError(Lang::getTxt('paid_count_not_find_outstanding_payment', [$member_id, $subscription_id]));
 		}
 
 		// Now we just try to find anything pending.

@@ -17,10 +17,6 @@ $txt['collapse_enable'] = 'Collapsible';
 $txt['collapse_desc'] = 'Allow users to collapse this category';
 $txt['cat_modify'] = '(modify)';
 
-$txt['mboards_order_after'] = 'After ';
-$txt['mboards_order_inside'] = 'Inside ';
-$txt['mboards_order_first'] = 'In first place';
-
 $txt['mboards_new_board'] = 'Add Board';
 $txt['mboards_new_cat_name'] = 'New Category';
 $txt['mboards_add_cat_button'] = 'Add Category';
@@ -72,13 +68,15 @@ $txt['mboards_redirect_url'] = 'Address to redirect users to';
 $txt['mboards_redirect_url_desc'] = 'For example: &quot;https://www.simplemachines.org&quot;.';
 $txt['mboards_redirect_reset'] = 'Reset redirect count';
 $txt['mboards_redirect_reset_desc'] = 'Selecting this will reset the redirection count for this board to zero.';
-$txt['mboards_current_redirects'] = 'Currently: %1$s';
+$txt['mboards_current_redirects'] = 'Currently: {0, number, integer}';
 
-$txt['mboards_order_before'] = 'Before';
-$txt['mboards_order_child_of'] = 'Sub-board of';
+$txt['mboards_order_first'] = 'In first place';
+$txt['mboards_order_before'] = 'Before "{0}"';
+$txt['mboards_order_after'] = 'After "{0}"';
+$txt['mboards_order_child_of'] = 'Sub-board of "{0}"';
 $txt['mboards_order_in_category'] = 'In category';
 $txt['mboards_current_position'] = 'Current Position';
-$txt['no_valid_parent'] = 'Board %1$s does not have a valid parent. Use the \'find and repair errors\' function to fix this.';
+$txt['no_valid_parent'] = 'Board {name} does not have a valid parent. Use the \'find and repair errors\' function to fix this.';
 
 $txt['mboards_recycle_disabled_delete'] = 'Note: You must select an alternative recycle bin board or disable recycling before you can delete this board.';
 
@@ -95,7 +93,7 @@ $txt['allow_ignore_boards'] = 'Allow boards to be ignored';
 $txt['deny_boards_access'] = 'Enable the option to deny board access based on membergroup';
 $txt['boardsaccess_option_desc'] = 'For each permission you can choose \'Allow\' (A), \'Disallow\' (X), or <span class="alert">\'Deny\' (D)</span>.<br><br>If you deny access, any member - (including moderators) - in that group will be denied access.<br>For this reason, you should set deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
-$txt['mboards_select_destination'] = 'Select destination for board \'<strong>%1$s</strong>\'';
+$txt['mboards_select_destination'] = 'Select destination for board \'<strong>{name}</strong>\'';
 $txt['mboards_cancel_moving'] = 'Cancel moving';
 $txt['mboards_move'] = 'move';
 

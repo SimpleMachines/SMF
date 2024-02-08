@@ -29,7 +29,7 @@ function template_ask()
 			</div>
 			<div class="windowbg">
 				<p class="split_topics">
-					<strong><label for="subname">', Lang::$txt['subject_new_topic'], '</label>:</strong>
+					<strong><label for="subname">', Lang::$txt['subject_new_topic'], '</label></strong>
 					<input type="text" name="subname" id="subname" value="', Utils::$context['message']['subject'], '" size="25">
 				</p>
 				<ul class="split_topics">
@@ -90,7 +90,7 @@ function template_select()
 		<form action="', Config::$scripturl, '?action=splittopics;sa=splitSelection;board=', Utils::$context['current_board'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div id="not_selected" class="floatleft">
 				<div class="cat_bar">
-					<h3 class="catbg">', Lang::$txt['split'], ' - ', Lang::$txt['select_split_posts'], '</h3>
+					<h3 class="catbg">', Lang::$txt['select_split_posts'], '</h3>
 				</div>
 				<div class="information">
 					', Lang::$txt['please_select_split'], '
@@ -105,7 +105,7 @@ function template_select()
 					<li class="windowbg" id="not_selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatright" href="', Config::$scripturl, '?action=splittopics;sa=selectTopics;subname=', Utils::$context['topic']['subject'], ';topic=', Utils::$context['topic']['id'], '.', Utils::$context['not_selected']['start'], ';start2=', Utils::$context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><span class="main_icons split_sel" title="-&gt;"></span></a>
-							', sprintf(Lang::$txt['post_by_member'], $message['subject'], $message['poster']), '
+							', Lang::getTxt('post_by_member', $message), '
 							<em>', $message['time'], '</em>
 						</div>
 						<div class="post">', $message['body'], '</div>
@@ -117,7 +117,7 @@ function template_select()
 			<div id="selected" class="floatright">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						', Lang::$txt['split_selected_posts'], ' (<a href="', Config::$scripturl, '?action=splittopics;sa=selectTopics;subname=', Utils::$context['topic']['subject'], ';topic=', Utils::$context['topic']['id'], '.', Utils::$context['not_selected']['start'], ';start2=', Utils::$context['selected']['start'], ';move=reset;msg=0" onclick="return select(\'reset\', 0);">', Lang::$txt['split_reset_selection'], '</a>)
+						', Lang::getTxt('split_selected_posts', ['reset_link' => '<a href="' . Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . Utils::$context['topic']['subject'] . ';topic=' . Utils::$context['topic']['id'] . '.' . Utils::$context['not_selected']['start'] . ';start2=' . Utils::$context['selected']['start'] . ';move=reset;msg=0" onclick="return select(\'reset\', 0);">' . Lang::$txt['split_reset_selection'] . '</a>']), '
 					</h3>
 				</div>
 				<div class="information">
@@ -134,7 +134,7 @@ function template_select()
 					<li class="windowbg" id="selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatleft" href="', Config::$scripturl, '?action=splittopics;sa=selectTopics;subname=', Utils::$context['topic']['subject'], ';topic=', Utils::$context['topic']['id'], '.', Utils::$context['not_selected']['start'], ';start2=', Utils::$context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><span class="main_icons split_desel" title="&lt;-"></span></a>
-							', sprintf(Lang::$txt['post_by_member'], $message['subject'], $message['poster']), '
+							', Lang::getTxt('post_by_member', $message), '
 							<em>', $message['time'], '</em>
 						</div>
 						<div class="post">', $message['body'], '</div>

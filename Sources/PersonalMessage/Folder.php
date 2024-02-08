@@ -403,7 +403,7 @@ class Folder
 		} else {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . ';l=' . $this->current_label_id,
-				'name' => Lang::$txt['pm_current_label'] . ': ' . $this->current_label,
+				'name' => Lang::getTxt('pm_current_label', ['label' => $this->current_label]),
 			];
 		}
 

@@ -627,7 +627,7 @@ class TopicMerge implements ActionInterface
 			$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
 
 			foreach ($deleted_topics as $this_old_topic) {
-				$redirect_subject = sprintf(Lang::$txt['merged_subject'], $this->topic_data[$this_old_topic]['subject']);
+				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']]);
 
 				$msgOptions = [
 					'icon' => 'moved',

@@ -137,7 +137,7 @@ class Activate implements ActionInterface
 			}
 
 			if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL)) {
-				ErrorHandler::fatal(sprintf(Lang::$txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
+				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])]), false);
 			}
 
 			// Make sure their email isn't banned.
@@ -200,7 +200,7 @@ class Activate implements ActionInterface
 				ErrorHandler::fatalLang('already_activated', false);
 			} elseif ($row['validation_code'] == '') {
 				Lang::load('Profile');
-				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $row['member_name']]), false);
 			}
 
 			Utils::$context['sub_template'] = 'retry_activate';

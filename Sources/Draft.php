@@ -801,7 +801,7 @@ class Draft
 
 		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
 		<drafts>
-			<draft id="', $id_draft, '"><![CDATA[', Lang::$txt['draft_saved_on'], ': ', Time::create('@' . Utils::$context['draft_saved_on'])->format(), ']]></draft>
+			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
 		</drafts>';
 
 		Utils::obExit(false);

@@ -69,7 +69,7 @@ function template_main()
 
 		echo '
 								<span class="member', $member['is_hidden'] ? ' hidden' : '', '">
-									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $member['name']) . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
+									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $member['name']]) . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
 								</span>';
 
 		if (!empty($member['ip']))
@@ -169,8 +169,7 @@ function template_credits()
 				</dt>
 				<dd>';
 
-			$names = Lang::sentenceList($group['members']);
-			echo sprintf(Lang::$txt['credits_list'], $names);
+			echo Lang::getTxt('credits_list', ['names' => Lang::sentenceList($group['members'])]);
 
 			echo '
 				</dd>';
@@ -248,7 +247,7 @@ function template_credits()
 	// SMF itself
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['credits_forum'], ' ', Lang::$txt['credits_copyright'], '</h3>
+			<h3 class="catbg">', Lang::$txt['credits_forum'], '</h3>
 		</div>
 		<div class="windowbg">
 			', Utils::$context['copyrights']['smf'], '

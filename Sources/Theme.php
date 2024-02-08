@@ -382,7 +382,7 @@ class Theme
 		elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal) {
 			ErrorHandler::fatalLang('theme_template_error', 'template', [(string) $template_name]);
 		} elseif ($fatal) {
-			die(ErrorHandler::log(sprintf(Lang::$txt['theme_template_error'] ?? 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
+			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} template file.', ['template_name' => (string) $template_name, 'type' => 'file']), 'template'));
 		} else {
 			return false;
 		}
@@ -418,7 +418,7 @@ class Theme
 		} elseif ($fatal === false) {
 			ErrorHandler::fatalLang('theme_template_error', 'template', [(string) $sub_template_name]);
 		} elseif ($fatal !== 'ignore') {
-			die(ErrorHandler::log(sprintf(Lang::$txt['theme_template_error'] ?? 'Unable to load the %s sub template!', (string) $sub_template_name), 'template'));
+			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.', ['template_name' => (string) $sub_template_name, 'type' => 'sub']), 'template'));
 		}
 
 		// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
@@ -818,7 +818,7 @@ class Theme
 			jQuery(document).ready(function($) {
 				new smc_Popup({
 					heading: ' . Utils::escapeJavaScript(Lang::$txt['show_personal_messages_heading']) . ',
-					content: ' . Utils::escapeJavaScript(sprintf(Lang::$txt['show_personal_messages'], User::$me->unread_messages, Config::$scripturl . '?action=pm')) . ',
+					content: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'])) . ',
 					icon_class: \'main_icons mail_new\'
 				});
 			});');
@@ -854,7 +854,14 @@ class Theme
 			],
 		];
 
-		Utils::$context['common_stats']['boardindex_total_posts'] = sprintf(Lang::$txt['boardindex_total_posts'], Utils::$context['common_stats']['total_posts'], Utils::$context['common_stats']['total_topics'], Utils::$context['common_stats']['total_members']);
+		Utils::$context['common_stats']['boardindex_total_posts'] = Lang::getTxt(
+			'boardindex_total_posts',
+			[
+				'posts' => Utils::$context['common_stats']['total_posts'],
+				'topics' => Utils::$context['common_stats']['total_topics'],
+				'members' => Utils::$context['common_stats']['total_members'],
+			],
+		);
 
 		if (empty(self::$current->settings['theme_version'])) {
 			self::addJavaScriptVar('smf_scripturl', '"' . Config::$scripturl . '"');
@@ -865,7 +872,18 @@ class Theme
 		}
 
 		// Set some specific vars.
-		Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+		if (empty(Utils::$context['current_page'])) {
+			Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title']));
+		} else {
+			Utils::$context['page_title_html_safe'] = Lang::getTxt(
+				'page_title_number',
+				[
+					'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
+					'pagenum' => Utils::$context['current_page'] + 1,
+				],
+			);
+		}
+
 		Utils::$context['meta_keywords'] = !empty(Config::$modSettings['meta_keywords']) ? Utils::htmlspecialchars(Config::$modSettings['meta_keywords']) : '';
 
 		// Content related meta tags, including Open Graph
@@ -1342,7 +1360,7 @@ class Theme
 
 						if ($securityFile == 'Settings.php~' || $securityFile == 'Settings_bak.php~') {
 							echo '
-					', sprintf(Lang::$txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
+					', Lang::getTxt('not_removed_extra', ['backup_filename' => $securityFile, 'filename' => substr($securityFile, 0, -1)]), '<br>';
 						}
 					}
 
@@ -1376,7 +1394,7 @@ class Theme
 				$showed_banned = true;
 				echo '
 					<div class="windowbg alert" style="margin: 2ex; padding: 2ex; border: 2px dashed red;">
-						', sprintf(Lang::$txt['you_are_post_banned'], User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name);
+						', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name]);
 
 				if (!empty($_SESSION['ban']['cannot_post']['reason'])) {
 					echo '
@@ -1385,7 +1403,7 @@ class Theme
 
 				if (!empty($_SESSION['ban']['expire_time'])) {
 					echo '
-						<div>', sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)), '</div>';
+						<div>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]), '</div>';
 				} else {
 					echo '
 						<div>', Lang::$txt['your_ban_expires_never'], '</div>';
@@ -1408,7 +1426,7 @@ class Theme
 		}
 
 		// Put in the version...
-		printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+		echo Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]);
 	}
 
 	/**
@@ -1698,7 +1716,7 @@ class Theme
 		// File has to exist. If it doesn't, try to create it.
 		if (@fopen($minified_file, 'w') === false || !Utils::makeWritable($minified_file)) {
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
 
 			// The process failed, so roll back to print each individual file.
 			return $data;
@@ -1715,7 +1733,7 @@ class Theme
 			// The file couldn't be located so it won't be added. Log this error.
 			if (empty($toAdd)) {
 				Lang::load('Errors');
-				ErrorHandler::log(sprintf(Lang::$txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
+				ErrorHandler::log(Lang::getTxt('file_minimize_fail', [!empty($file['fileName']) ? $file['fileName'] : $id]), 'general');
 
 				continue;
 			}
@@ -1732,7 +1750,7 @@ class Theme
 		// Minify process failed.
 		if (!filesize($minified_file)) {
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
 
 			// The process failed so roll back to print each individual file.
 			return $data;
@@ -1789,7 +1807,7 @@ class Theme
 		// If any of the files could not be deleted, log an error about it.
 		if (!empty($not_deleted)) {
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
+			ErrorHandler::log(Lang::getTxt('unlink_minimized_fail', [implode('<br>', $not_deleted)]), 'general');
 		}
 	}
 
@@ -2147,7 +2165,7 @@ class Theme
 				Lang::$txt['theme_description'] = '';
 			}
 
-			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf(Lang::$txt['theme_thumbnail_href'], self::$current->settings['images_url']);
+			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Lang::getTxt('theme_thumbnail_href', self::$current->settings);
 
 			Utils::$context['available_themes'][$id_theme]['description'] = Lang::$txt['theme_description'];
 
@@ -2739,7 +2757,7 @@ class Theme
 			'smf_member_id' => User::$me->id,
 			'ajax_notification_text' => Utils::escapeJavaScript(Lang::$txt['ajax_in_progress']),
 			'help_popup_heading_text' => Utils::escapeJavaScript(Lang::$txt['help_popup']),
-			'banned_text' => Utils::escapeJavaScript(sprintf(Lang::$txt['your_ban'], User::$me->name)),
+			'banned_text' => Utils::escapeJavaScript(Lang::getTxt('your_ban', ['name' => User::$me->name])),
 			'smf_txt_expand' => Utils::escapeJavaScript(Lang::$txt['code_expand']),
 			'smf_txt_shrink' => Utils::escapeJavaScript(Lang::$txt['code_shrink']),
 			'smf_collapseAlt' => Utils::escapeJavaScript(Lang::$txt['hide']),
@@ -2965,7 +2983,14 @@ class Theme
 
 				echo "\n\t" . '<body>' . "\n\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t";
 
-				echo sprintf(Lang::$txt['template_parse_error_details'], strtr($filename, [Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '']), Config::$boardurl, Config::$scripturl);
+				echo Lang::getTxt(
+					'template_parse_error_details',
+					[
+						'filename' => strtr($filename, [Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '']),
+						'boardurl' => Config::$boardurl,
+						'scripturl' => Config::$scripturl,
+					],
+				);
 
 				if (!empty($error)) {
 					echo "\n\t\t" . '<hr>' . "\n\t\t" . '<div style="margin: 0 20px;"><pre>', strtr(strtr($error, ['<strong>' . Config::$boarddir => '<strong>...', '<strong>' . strtr(Config::$boarddir, '\\', '/') => '<strong>...']), '\\', '/'), '</pre></div>';

@@ -53,7 +53,7 @@ class ForumProfile implements ActionInterface
 			Profile::$member->loadCustomFields('forumprofile');
 		}
 
-		Utils::$context['page_desc'] = sprintf(Lang::$txt['forumProfile_info'], Utils::$context['forum_name_html_safe']);
+		Utils::$context['page_desc'] = Lang::getTxt('forumProfile_info', ['forum_name' => Utils::$context['forum_name_html_safe']]);
 
 		Utils::$context['show_preview_button'] = true;
 

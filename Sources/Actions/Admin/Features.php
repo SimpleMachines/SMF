@@ -177,7 +177,7 @@ class Features implements ActionInterface
 		$extra = '';
 
 		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[cowsay]')];
+			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'])];
 			$extra = ';cowsay';
 		}
 
@@ -638,7 +638,7 @@ class Features implements ActionInterface
 			];
 		} else {
 			Utils::$context['settings_message'] = [
-				'label' => sprintf(Lang::$txt['signature_settings_warning'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+				'label' => Lang::getTxt('signature_settings_warning', ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
 				'tag' => 'div',
 				'class' => 'centertext',
 			];
@@ -796,11 +796,11 @@ class Features implements ActionInterface
 							$return = '<p class="centertext bold_text">';
 
 							if ($rowData['field_order'] > 1) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_up'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move_up'] . '"></span></a>';
 							}
 
 							if ($rowData['field_order'] < Utils::$context['custFieldsMaxOrder']) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_down'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move_down'] . '"></span></a>';
 							}
 
 							$return .= '</p>';
@@ -1652,7 +1652,7 @@ class Features implements ActionInterface
 		}
 
 		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[' . $bbc . ']')];
+			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'])];
 		}
 
 		Utils::$context['settings_post_javascript'] = '
@@ -1971,7 +1971,7 @@ class Features implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['modSettings_title'],
 			'help' => 'featuresettings',
-			'description' => sprintf(Lang::$txt['modSettings_desc'], Theme::$current->settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+			'description' => Lang::getTxt('modSettings_desc', ['theme_id' => Theme::$current->settings['theme_id'], 'session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
 			'tabs' => [
 				'basic' => [
 				],

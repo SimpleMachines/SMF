@@ -421,7 +421,7 @@ class Profile extends User implements \ArrayAccess
 					if (($value = strtotime($value)) === false) {
 						$value = $this->date_registered;
 
-						return Lang::$txt['invalid_registration'] . ' ' . Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
+						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
 					}
 
 					// As long as it doesn't equal "N/A"...
@@ -791,7 +791,7 @@ class Profile extends User implements \ArrayAccess
 						else {
 							Lang::load('Errors', Lang::$default);
 
-							ErrorHandler::log(sprintf(Lang::$txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
+							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]]));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn ($v) => $v != $set);
 						}
@@ -1321,9 +1321,9 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['signature_warning'] = '';
 
 		if (Utils::$context['signature_limits']['max_image_width'] && Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = sprintf(Lang::$txt['profile_error_signature_max_image_size'], Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_size', [Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']]);
 		} elseif (Utils::$context['signature_limits']['max_image_width'] || Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = sprintf(Lang::$txt['profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height')], Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height'), [Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']]);
 		}
 
 		if (empty(Utils::$context['do_preview'])) {
@@ -1643,7 +1643,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], $this->username);
+		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', ['name' => $this->username]);
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
@@ -1914,14 +1914,14 @@ class Profile extends User implements \ArrayAccess
 
 			// Too many lines?
 			if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2]) {
-				Lang::$txt['profile_error_signature_max_lines'] = sprintf(Lang::$txt['profile_error_signature_max_lines'], $sig_limits[2]);
+				Lang::$txt['profile_error_signature_max_lines'] = Lang::getTxt('profile_error_signature_max_lines', [$sig_limits[2]]);
 
 				return 'signature_max_lines';
 			}
 
 			// Too many images?!
 			if (!empty($sig_limits[3]) && (substr_count(strtolower($unparsed_signature), '[img') + substr_count(strtolower($unparsed_signature), '<img')) > $sig_limits[3]) {
-				Lang::$txt['profile_error_signature_max_image_count'] = sprintf(Lang::$txt['profile_error_signature_max_image_count'], $sig_limits[3]);
+				Lang::$txt['profile_error_signature_max_image_count'] = Lang::getTxt('profile_error_signature_max_image_count', [$sig_limits[3]]);
 
 				return 'signature_max_image_count';
 			}
@@ -1936,7 +1936,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			if (!empty($sig_limits[4]) && $sig_limits[4] > 0 && $smiley_count > $sig_limits[4]) {
-				Lang::$txt['profile_error_signature_max_smileys'] = sprintf(Lang::$txt['profile_error_signature_max_smileys'], $sig_limits[4]);
+				Lang::$txt['profile_error_signature_max_smileys'] = Lang::getTxt('profile_error_signature_max_smileys', [$sig_limits[4]]);
 
 				return 'signature_max_smileys';
 			}
@@ -1958,7 +1958,7 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					if ($limit_broke) {
-						Lang::$txt['profile_error_signature_max_font_size'] = sprintf(Lang::$txt['profile_error_signature_max_font_size'], $limit_broke);
+						Lang::$txt['profile_error_signature_max_font_size'] = Lang::getTxt('profile_error_signature_max_font_size', [$limit_broke]);
 
 						return 'signature_max_font_size';
 					}
@@ -2063,7 +2063,13 @@ class Profile extends User implements \ArrayAccess
 				if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1])) {
 					$disabledTags = array_unique($disabledTags);
 
-					Lang::$txt['profile_error_signature_disabled_bbc'] = sprintf(Lang::$txt['profile_error_signature_disabled_bbc'], implode(', ', $disabledTags));
+					Lang::$txt['profile_error_signature_disabled_bbc'] = Lang::getTxt(
+						'profile_error_signature_disabled_bbc',
+						[
+							'num_disabled_tags' => count($disabledTags),
+							'list_disabled_tags' => Lang::sentenceList($disabledTags),
+						],
+					);
 
 					return 'signature_disabled_bbc';
 				}
@@ -2076,7 +2082,7 @@ class Profile extends User implements \ArrayAccess
 		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1]) {
 			$_POST['signature'] = trim(Utils::htmlspecialchars(str_replace('<br>', "\n", $value), ENT_QUOTES));
 
-			Lang::$txt['profile_error_signature_max_length'] = sprintf(Lang::$txt['profile_error_signature_max_length'], $sig_limits[1]);
+			Lang::$txt['profile_error_signature_max_length'] = Lang::getTxt('profile_error_signature_max_length', [$sig_limits[1]]);
 
 			return 'signature_max_length';
 		}

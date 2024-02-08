@@ -443,12 +443,12 @@ class Who implements ActionInterface
 				}
 				// It's the board index!!  It must be!
 				else {
-					$data[$k] = sprintf(Lang::$txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
+					$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']]);
 				}
 			}
 			// Probably an error or some goon?
 			elseif ($actions['action'] == '') {
-				$data[$k] = sprintf(Lang::$txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
+				$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']]);
 			}
 			// Some other normal action...?
 			else {
@@ -467,11 +467,11 @@ class Who implements ActionInterface
 				}
 				// A subaction anyone can view... if the language string is there, show it.
 				elseif (isset($actions['sa'], Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']])) {
-					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : sprintf(Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']], Config::$scripturl);
+					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : Lang::getTxt('whoall_' . $actions['action'] . '_' . $actions['sa'], ['scripturl' => Config::$scripturl]);
 				}
 				// An action any old fellow can look at. (if ['whoall_' . $action] exists, we know everyone can see it.)
 				elseif (isset(Lang::$txt['whoall_' . $actions['action']])) {
-					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action']]) ? Lang::$txt[$preferred_prefix . $actions['action']] : sprintf(Lang::$txt['whoall_' . $actions['action']], Config::$scripturl);
+					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action']]) ? Lang::$txt[$preferred_prefix . $actions['action']] : Lang::getTxt('whoall_' . $actions['action'], ['scripturl' => Config::$scripturl]);
 				}
 				// Viewable if and only if they can see the board...
 				elseif (isset(Lang::$txt['whotopic_' . $actions['action']])) {
@@ -501,7 +501,7 @@ class Who implements ActionInterface
 					list($id_topic, $subject) = Db::$db->fetch_row($result);
 					Db::$db->free_result($result);
 
-					$data[$k] = sprintf(Lang::$txt['whopost_' . $actions['action']], $id_topic, $subject, Config::$scripturl);
+					$data[$k] = Lang::getTxt('whopost_' . $actions['action'], ['id_topic' => $id_topic, 'subject' => $subject, 'scripturl' => Config::$scripturl]);
 
 					if (empty($id_topic)) {
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
@@ -509,12 +509,12 @@ class Who implements ActionInterface
 				}
 				// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
 				elseif (User::$me->allowedTo('moderate_forum') && isset(Lang::$txt['whoadmin_' . $actions['action']])) {
-					$data[$k] = sprintf(Lang::$txt['whoadmin_' . $actions['action']], Config::$scripturl);
+					$data[$k] = Lang::getTxt('whoadmin_' . $actions['action'], ['scripturl' => Config::$scripturl]);
 				}
 				// Viewable by permission level.
 				elseif (isset(self::$allowedActions[$actions['action']])) {
 					if (User::$me->allowedTo(self::$allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']])) {
-						$data[$k] = sprintf(Lang::$txt['whoallow_' . $actions['action']], Config::$scripturl);
+						$data[$k] = Lang::getTxt('whoallow_' . $actions['action'], ['scripturl' => Config::$scripturl]);
 					} elseif (in_array('moderate_forum', self::$allowedActions[$actions['action']])) {
 						$data[$k] = Lang::$txt['who_moderate'];
 					} elseif (in_array('admin_forum', self::$allowedActions[$actions['action']])) {
@@ -523,7 +523,7 @@ class Who implements ActionInterface
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
 					}
 				} elseif (!empty($actions['action'])) {
-					$data[$k] = Lang::$txt['who_generic'] . ' ' . $actions['action'];
+					$data[$k] = Lang::getTxt('who_generic', $actions);
 				} else {
 					$data[$k] = ['label' => 'who_unknown', 'class' => 'em'];
 				}
@@ -533,7 +533,7 @@ class Who implements ActionInterface
 				Lang::load('Errors');
 
 				if (isset(Lang::$txt[$actions['error']])) {
-					$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : vsprintf(Lang::$txt[$actions['error']], (array) $actions['error_params']));
+					$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : Lang::getTxt($actions['error'], (array) $actions['error_params']));
 				} elseif ($actions['error'] == 'guest_login') {
 					$error_message = str_replace('"', '&quot;', Lang::$txt['who_guest_login']);
 				} else {
@@ -595,7 +595,7 @@ class Who implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($result)) {
 				// Show the topic's subject for each of the actions.
 				foreach ($topic_ids[$row['id_topic']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, $row['id_topic'], Lang::censorText($row['subject']), Config::$scripturl);
+					$data[$k] = Lang::formatText($session_text, ['id_topic' => $row['id_topic'], 'subject' => Lang::censorText($row['subject']), 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);
@@ -619,7 +619,7 @@ class Who implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($result)) {
 				// Put the board name into the string for each member...
 				foreach ($board_ids[$row['id_board']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, $row['id_board'], $row['name'], Config::$scripturl);
+					$data[$k] = Lang::formatText($session_text, ['id_board' => $row['id_board'], 'name' => $row['name'], 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);
@@ -649,7 +649,7 @@ class Who implements ActionInterface
 
 				// Set their action on each - session/text to sprintf.
 				foreach ($profile_ids[$row['id_member']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, $row['id_member'], $row['real_name'], Config::$scripturl);
+					$data[$k] = sprintf($session_text, ['id_member' => $row['id_member'], 'name' => $row['real_name'], 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);

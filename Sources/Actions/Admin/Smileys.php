@@ -428,7 +428,14 @@ class Smileys implements ActionInterface
 		if (isset(Utils::$context['current_set']['import_url'])) {
 			Utils::$context['current_set']['import_url'] .= ';' . Utils::$context['admin-mss_token_var'] . '=' . Utils::$context['admin-mss_token'];
 
-			Utils::$context['smiley_set_unused_message'] = sprintf(Lang::$txt['smiley_set_unused'], Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys', Config::$scripturl . '?action=admin;area=smileys;sa=addsmiley', Utils::$context['current_set']['import_url']);
+			Utils::$context['smiley_set_unused_message'] = Lang::getTxt(
+				'smiley_set_unused',
+				[
+					'edit_url' => Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys',
+					'create_url' => Config::$scripturl . '?action=admin;area=smileys;sa=addsmiley',
+					'import_url' => Utils::$context['current_set']['import_url'],
+				],
+			);
 		}
 
 		$listOptions = [
@@ -1635,7 +1642,7 @@ class Smileys implements ActionInterface
 			if ($action['type'] == 'require-dir') {
 				// Do this one...
 				$thisAction = [
-					'type' => Lang::$txt['package_extract'] . ' ' . ($action['type'] == 'require-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
+					'type' => $action['type'] == 'require-dir' ? Lang::$txt['package_extract_tree'] : Lang::$txt['package_extract_file'],
 					'action' => Utils::htmlspecialchars(strtr($action['destination'], [Config::$boarddir => '.'])),
 				];
 

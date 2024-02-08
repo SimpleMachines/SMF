@@ -43,7 +43,7 @@ function template_ban_edit()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Utils::$context['ban']['is_new'] ? Lang::$txt['ban_add_new'] : Lang::$txt['ban_edit'] . ' \'' . Utils::$context['ban']['name'] . '\'', '
+					', Utils::$context['ban']['is_new'] ? Lang::$txt['ban_add_new'] : Lang::getTxt('ban_edit', Utils::$context['ban']), '
 				</h3>
 			</div>';
 
@@ -64,7 +64,7 @@ function template_ban_edit()
 	if (isset(Utils::$context['ban']['reason']))
 		echo '
 					<dt>
-						<strong><label for="reason">', Lang::$txt['ban_reason'], ':</label></strong><br>
+						<strong><label for="reason">', Lang::$txt['ban_reason'], '</label></strong><br>
 						<span class="smalltext">', Lang::$txt['ban_reason_desc'], '</span>
 					</dt>
 					<dd>
@@ -74,7 +74,7 @@ function template_ban_edit()
 	if (isset(Utils::$context['ban']['notes']))
 		echo '
 					<dt>
-						<strong><label for="ban_notes">', Lang::$txt['ban_notes'], ':</label></strong><br>
+						<strong><label for="ban_notes">', Lang::$txt['ban_notes'], '</label></strong><br>
 						<span class="smalltext">', Lang::$txt['ban_notes_desc'], '</span>
 					</dt>
 					<dd>
@@ -88,7 +88,7 @@ function template_ban_edit()
 						', Lang::$txt['ban_expiration'], '
 					</legend>
 					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'never' ? ' checked' : '', '> <label for="never_expires">', Lang::$txt['never'], '</label><br>
-					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', '> <label for="expires_one_day">', Lang::$txt['ban_will_expire_within'], '</label>: <input type="number" name="expire_date" id="expire_date" size="3" value="', Utils::$context['ban']['expiration']['days'], '"> ', Lang::$txt['ban_days'], '<br>
+					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', '> <label for="expires_one_day">', Lang::$txt['ban_will_expire_within'], '</label> <input type="number" name="expire_date" id="expire_date" size="3" value="', Utils::$context['ban']['expiration']['days'], '"> ', str_replace(Utils::$context['ban']['expiration']['days'], '', Lang::getTxt('number_of_days', [Utils::$context['ban']['expiration']['days']])), '<br>
 					<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'expired' ? ' checked' : '', '> <label for="already_expired">', Lang::$txt['ban_expired'], '</label>
 				</fieldset>
 				<fieldset class="ban_settings floatright">
@@ -139,7 +139,7 @@ function template_ban_edit()
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty(Utils::$context['ban_suggestions']['user']) || isset(Utils::$context['ban']['from_user']) ? ' checked' : '', '>
-							<label for="user_check">', Lang::$txt['ban_on_username'], '</label>:
+							<label for="user_check">', Lang::$txt['ban_on_username'], '</label>
 						</dt>
 						<dd>
 							<input type="text" ', isset(Utils::$context['ban']['from_user']) ? 'readonly value="' . Utils::$context['ban_suggestions']['member']['name'] . '"' : ' value=""', ' name="user" id="user" size="44">
@@ -153,7 +153,7 @@ function template_ban_edit()
 				if (!empty($ban_ips))
 				{
 					echo '
-					<div>', Lang::$txt[$key], ':</div>
+					<div>', Lang::$txt[$key], '</div>
 					<dl class="settings">';
 
 					$count = 0;

@@ -30,13 +30,13 @@ function template_generic_menu_dropdown_above()
 	echo '
 	<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
 		<span class="menu_icon"></span>
-		<span class="text_menu">', sprintf(Lang::$txt['mobile_generic_menu'], $menu_label), '</span>
+		<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '</span>
 	</a>
 	<div id="genericmenu">
 		<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
-					', sprintf(Lang::$txt['mobile_generic_menu'], $menu_label), '
+					', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				', template_generic_menu($menu_context), '
@@ -251,13 +251,13 @@ function template_generic_menu_tabs(&$menu_context)
 		echo '
 					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
 						<span class="menu_icon"></span>
-						<span class="text_menu">', sprintf(Lang::$txt['mobile_generic_menu'], $tab_context['title']), '</span>
+						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '</span>
 					</a>
 					<div id="adm_submenus">
 						<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" class="popup_container">
 							<div class="popup_window description">
 								<div class="popup_heading">
-									', sprintf(Lang::$txt['mobile_generic_menu'], $tab_context['title']), '
+									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '
 									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 								</div>';
 

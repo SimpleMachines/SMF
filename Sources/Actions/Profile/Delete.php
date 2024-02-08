@@ -81,7 +81,7 @@ class Delete implements ActionInterface
 		// Can they do this, or will they need approval?
 		Utils::$context['needs_approval'] = User::$me->is_owner && !empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum');
 
-		Utils::$context['page_title'] = Lang::$txt['deleteAccount'] . ': ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt('deleteAccount', ['name' => Profile::$member->name]);
 	}
 
 	/**

@@ -41,7 +41,7 @@ function template_main()
 			<h2 class="display_title">
 				<span id="top_subject">', Utils::$context['subject'], '</span>', (Utils::$context['is_locked']) ? ' <span class="main_icons lock"></span>' : '', (Utils::$context['is_sticky']) ? ' <span class="main_icons sticky"></span>' : '', '
 			</h2>
-			<p>', Lang::$txt['started_by'], ' ', Utils::$context['topic_poster_name'], ', ', Utils::$context['topic_started_time'], '</p>';
+			<p>', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['topic_poster_name'], 'time' => Utils::$context['topic_started_time']]), '</p>';
 
 	// Next - Prev
 	echo '
@@ -49,18 +49,35 @@ function template_main()
 
 	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
-		echo '
-			<p>';
-
 		// Show just numbers...?
-		if (Theme::$current->settings['display_who_viewing'] == 1)
-			echo count(Utils::$context['view_members']), ' ', count(Utils::$context['view_members']) == 1 ? Lang::$txt['who_member'] : Lang::$txt['members'];
+		if (Theme::$current->settings['display_who_viewing'] == 1 || empty(Utils::$context['view_members_list'])) {
+			$list_of_viewers = [
+				Lang::getTxt('number_of_members', [0]),
+			];
+		}
 		// Or show the actual people viewing the topic?
-		else
-			echo empty(Utils::$context['view_members_list']) ? '0 ' . Lang::$txt['members'] : implode(', ', Utils::$context['view_members_list']) . ((empty(Utils::$context['view_num_hidden']) || Utils::$context['can_moderate_forum']) ? '' : ' (+ ' . Utils::$context['view_num_hidden'] . ' ' . Lang::$txt['hidden'] . ')');
+		else {
+			$list_of_viewers = Utils::$context['view_members_list'];
+		}
+
+		if (!empty(Utils::$context['view_num_hidden']) && !Utils::$context['can_moderate_forum']) {
+			$list_of_viewers[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['view_num_hidden']]);
+		}
 
 		// Now show how many guests are here too.
-		echo Lang::$txt['who_and'], Utils::$context['view_num_guests'], ' ', Utils::$context['view_num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], Lang::$txt['who_viewing_topic'], '
+		if (!empty(Utils::$context['view_num_guests'])) {
+			$list_of_viewers[] = Lang::getTxt('guest_plural', [Utils::$context['view_num_guests']]);
+		}
+
+		echo '
+			<p>
+				', Lang::getTxt(
+					'who_viewing_topic',
+					[
+						'list_of_viewers' => Lang::sentenceList(array_values($list_of_viewers)),
+						'num_viewing' => count(Utils::$context['view_members_list'] ?? []) + (int) (Utils::$context['view_num_guests'] ?? 0) + (int) (Utils::$context['view_num_hidden'] ?? 0),
+					],
+				), '
 			</p>';
 	}
 
@@ -109,7 +126,7 @@ function template_main()
 
 			if (Utils::$context['allow_results_view'])
 				echo '
-					<p><strong>', Lang::$txt['poll_total_voters'], ':</strong> ', Utils::$context['poll']['total_votes'], '</p>';
+					<p>', Lang::getTxt('poll_total_voters', [Utils::$context['poll']['total_votes']]), '</p>';
 		}
 		// They are allowed to vote! Go to it!
 		else
@@ -572,7 +589,7 @@ function template_single_post($message)
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-								<li class="postcount">', Lang::$txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
+								<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</li>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && !empty($message['member']['blurb']))
@@ -694,7 +711,7 @@ function template_single_post($message)
 									<span class="messageicon" ', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf(Lang::$txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
 									<span class="spacer"></span>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
@@ -799,7 +816,7 @@ function template_single_post($message)
 				echo '
 											[<a href="', Config::$scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['approve'], '</a>] [<a href="', Config::$scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['delete'], '</a>] ';
 			echo '
-											<br>', $attachment['formatted_size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf(Lang::$txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf(Lang::$txt['attach_downloaded'], $attachment['downloads'])), '
+											<br>', $attachment['formatted_size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . Lang::getTxt('attach_viewed', [$attachment['downloads']]) : '<br>' . Lang::getTxt('attach_downloaded', [$attachment['downloads']])), '
 										</div><!-- .attachments_bot -->';
 
 			echo '
@@ -838,7 +855,7 @@ function template_single_post($message)
 		{
 			Utils::$context['some_likes'] = true;
 			$count = $message['likes']['count'];
-			$base = 'likes_';
+			$base = 'likes_count';
 
 			if ($message['likes']['you'])
 			{
@@ -846,11 +863,9 @@ function template_single_post($message)
 				$count--;
 			}
 
-			$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
-
 			echo '
 									<li class="like_count smalltext">
-										', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '
+										', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '
 									</li>';
 		}
 
@@ -936,7 +951,7 @@ function template_quickreply()
 	// Show a warning if the topic is old
 	if (!empty(Utils::$context['oldTopicError']))
 		echo '
-					<p class="alert smalltext">', sprintf(Lang::$txt['error_old_topic'], Config::$modSettings['oldTopicDays']), '</p>';
+					<p class="alert smalltext">', Lang::getTxt('error_old_topic', [Config::$modSettings['oldTopicDays']]), '</p>';
 
 	// Does the post need approval?
 	if (!Utils::$context['can_reply_approved'])
@@ -962,7 +977,7 @@ function template_quickreply()
 		echo '
 						<dl id="post_header">
 							<dt>
-								', Lang::$txt['name'], ':
+								', Lang::$txt['name'], '
 							</dt>
 							<dd>
 								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
@@ -972,7 +987,7 @@ function template_quickreply()
 		{
 			echo '
 							<dt>
-								', Lang::$txt['email'], ':
+								', Lang::$txt['email'], '
 							</dt>
 							<dd>
 								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
@@ -999,7 +1014,7 @@ function template_quickreply()
 	if (Utils::$context['require_verification'])
 		echo '
 						<div class="post_verification">
-							<strong>', Lang::$txt['verification'], ':</strong>
+							<strong>', Lang::$txt['verification'], '</strong>
 							', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 						</div>';
 

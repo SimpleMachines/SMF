@@ -369,12 +369,13 @@ class Credits implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$credit_info = Utils::jsonDecode($row['credits'], true);
 
-				$copyright = empty($credit_info['copyright']) ? '' : Lang::$txt['credits_copyright'] . ' © ' . Utils::htmlspecialchars($credit_info['copyright']);
-				$license = empty($credit_info['license']) ? '' : Lang::$txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="' . Utils::htmlspecialchars($credit_info['licenseurl']) . '">' . Utils::htmlspecialchars($credit_info['license']) . '</a>' : Utils::htmlspecialchars($credit_info['license']));
+				$copyright = empty($credit_info['copyright']) ? '' : Lang::getTxt('credits_copyright', ['copyright_holder' => Utils::htmlspecialchars($credit_info['copyright'])]);
 
-				$version = Lang::$txt['credits_version'] . ' ' . $row['version'];
+				$license = empty($credit_info['license']) ? '' : Lang::getTxt('credits_license', ['license' => (!empty($credit_info['licenseurl']) ? '<a href="' . Utils::htmlspecialchars($credit_info['licenseurl']) . '">' . Utils::htmlspecialchars($credit_info['license']) . '</a>' : Utils::htmlspecialchars($credit_info['license']))]);
 
-				$title = (empty($credit_info['title']) ? $row['name'] : Utils::htmlspecialchars($credit_info['title'])) . ': ' . $version;
+				$version = Lang::getTxt('credits_version', $row);
+
+				$title = (empty($credit_info['title']) ? $row['name'] : Utils::htmlspecialchars($credit_info['title'])) . ', ' . $version;
 
 				// Build this one out and stash it away.
 				$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
@@ -388,7 +389,7 @@ class Credits implements ActionInterface
 		Utils::$context['credits_modifications'] = $mods;
 
 		Utils::$context['copyrights'] = [
-			'smf' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
+			'smf' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 			/* Modification Authors:  You may add a copyright statement to this array for your mods.
 				Copyright statements should be in the form of a value only without a array key.  I.E.:
 					'Some Mod by Thantos © 2010',

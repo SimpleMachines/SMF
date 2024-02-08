@@ -607,7 +607,7 @@ class SearchEngines implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Set up a message.
-		Utils::$context['settings_message'] = sprintf(Lang::$txt['spider_settings_desc'], Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::$context['settings_message'] = Lang::getTxt('spider_settings_desc', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]);
 
 		// We need to load the groups for the spider group thingy.
 		$request = Db::$db->query(

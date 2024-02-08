@@ -87,7 +87,7 @@ function template_error_log()
 	if (Utils::$context['has_filter'])
 		echo '
 				<div class="infobox">
-					<strong>', Lang::$txt['applying_filter'], ':</strong> ', Utils::$context['filter']['entity'], ' ', Utils::$context['filter']['value']['html'], '
+					', Lang::getTxt('applying_filter', ['type' => Utils::$context['filter']['entity'], 'value' => Utils::$context['filter']['value']['html']]), '
 				</div>';
 
 	echo '
@@ -95,8 +95,7 @@ function template_error_log()
 					<input type="submit" name="removeSelection" value="', Lang::$txt['remove_selection'], '" data-confirm="', Lang::$txt['remove_selection_confirm'], '" class="button you_sure">
 					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::$txt['remove_all']), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
 					', (Utils::$context['has_filter'] ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . Lang::$txt['clear_filter'] . '</a>' : ''), '
-				</div>
-				', Lang::$txt['apply_filter_of_type'], ':';
+				</div>';
 
 	$error_types = array();
 
@@ -104,7 +103,7 @@ function template_error_log()
 		$error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : 'style="font-weight: normal;"') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
 
 	echo '
-				', implode(' | ', $error_types), '
+				', Lang::getTxt('apply_filter_of_type', ['list' => implode(' | ', $error_types)]), '
 				</div>
 			</div>
 			<div class="pagesection">
@@ -134,29 +133,29 @@ function template_error_log()
 				</div>
 				<div>
 					<div class="half_content">
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_member'], '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_member']]), '"><span class="main_icons filter"></span></a>
 						<strong>', $error['member']['link'], '</strong>';
 
 		if (!empty($error['member']['ip']))
 			echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_ip'], '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_ip']]), '"><span class="main_icons filter"></span></a>
 						<strong><a href="', Config::$scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
 
 		if (!empty($error['member']['session']))
 			echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_session'], '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_session'], '">', $error['member']['session'], '</a>';
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_session']]), '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_session']]), '">', $error['member']['session'], '</a>';
 
 		echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_url'], '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_url']]), '"><span class="main_icons filter"></span></a>
 						<a href="', $error['url']['html'], '" class="bbc_link word_break">', $error['url']['html'], '</a>';
 
 		if (!empty($error['file']))
 			echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_file'], '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', $error['file']['href'], '" onclick="return reqWin(this.href, 600, 480, false);">', $error['file']['file'], '</a> (', Lang::$txt['line'], ' ', $error['file']['line'], ')';
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_file']]), '"><span class="main_icons filter"></span></a> ', Lang::getTxt('error_file_and_line', ['file' => '<a class="bbc_link" href="' . $error['file']['href'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $error['file']['file'] . '</a>', 'line' => $error['file']['line']]);
 
 		echo '
 					</div>
@@ -168,8 +167,8 @@ function template_error_log()
 				</div>
 				<div class="post">
 					<br class="clear">
-					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_type'], '"><span class="main_icons filter"></span></a>', Lang::$txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br>
-					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::$txt['apply_filter'], ': ', Lang::$txt['filter_only_message'], '"><span class="main_icons filter floatleft"></span></a>
+					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_type']]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']]), '<br>
+					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_message']]), '"><span class="main_icons filter floatleft"></span></a>
 					<div class="codeheader"><span class="code floatleft">' . Lang::$txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
 					</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 				</div>
@@ -308,7 +307,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['file']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['error_file'], '</strong></td>
+							<td><strong>', Lang::$txt['file'], '</strong></td>
 						</tr>
 						<tr class="windowbg">
 							<td>', Utils::$context['error_info']['file'], '</td>
@@ -317,7 +316,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['line']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['error_line'], '</strong></td>
+							<td><strong>', Lang::$txt['line'], '</strong></td>
 						</tr>
 						<tr class="windowbg">
 							<td>', Utils::$context['error_info']['line'], '</td>
@@ -359,7 +358,19 @@ function template_show_backtrace()
 				$value->line = -1;
 
 			echo '
-					<li class="backtrace">', sprintf(Lang::$txt['backtrace_info' . ($value->file == Lang::$txt['unknown'] && $value->line == -1 ? '_internal_function' : '')], $key, (!empty($value->class) ? $value->class . $value->type : '') . $value->function, $value->file, $value->line, base64_encode($value->file), Config::$scripturl), '</li>';
+					<li class="backtrace">',
+					Lang::getTxt(
+						'backtrace_info' . ($value->file == Lang::$txt['unknown'] && $value->line == -1 ? '_internal_function' : ''),
+						[
+							$key,
+							(!empty($value->class) ? $value->class . $value->type : '') . $value->function,
+							$value->file,
+							$value->line,
+							base64_encode($value->file),
+							Config::$scripturl,
+						]
+					),
+					'</li>';
 		}
 
 		echo '

@@ -834,11 +834,7 @@ class Post implements ActionInterface
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			if (Utils::$context['new_replies'] == 1) {
-				Lang::$txt['error_new_replies'] = isset($_GET['last_msg']) ? Lang::$txt['error_new_reply_reading'] : Lang::$txt['error_new_reply'];
-			} else {
-				Lang::$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? Lang::$txt['error_new_replies_reading'] : Lang::$txt['error_new_replies'], Utils::$context['new_replies']);
-			}
+			Lang::$txt['error_new_replies'] = Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']]);
 
 			$this->errors[] = 'new_replies';
 
@@ -1141,7 +1137,7 @@ class Post implements ActionInterface
 		if (!empty($row['modified_time'])) {
 			Utils::$context['last_modified'] = Time::create('@' . $row['modified_time'])->format();
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
-			Utils::$context['last_modified_text'] = sprintf(Lang::$txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::$txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
 		}
 
 		// Get the stuff ready for the form.
@@ -1368,11 +1364,11 @@ class Post implements ActionInterface
 							// We have a message id, so we can link back to the old topic they were trying to edit..
 							$goback_url = Config::$scripturl . '?action=post' . (!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
 
-							$this->errors[] = ['temp_attachments_found', [$delete_url, $goback_url, $file_list]];
+							$this->errors[] = ['temp_attachments_found', ['delete_url' => $delete_url, 'goback_url' => $goback_url, 'file_list' => $file_list]];
 
 							Utils::$context['ignore_temp_attachments'] = true;
 						} else {
-							$this->errors[] = ['temp_attachments_lost', [$delete_url, $file_list]];
+							$this->errors[] = ['temp_attachments_lost', ['delete_url' => $delete_url, 'file_list' => $file_list]];
 
 							Utils::$context['ignore_temp_attachments'] = true;
 						}
@@ -1393,7 +1389,7 @@ class Post implements ActionInterface
 					}
 
 					if ($attachID == 'initial_error') {
-						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
+						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
 
 						$this->errors[] = 'attach_initial_error';
 
@@ -1406,10 +1402,10 @@ class Post implements ActionInterface
 					if (!empty($attachment['errors'])) {
 						Lang::$txt['error_attach_errors'] = empty(Lang::$txt['error_attach_errors']) ? '<br>' : '';
 
-						Lang::$txt['error_attach_errors'] .= sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment) . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
-							Lang::$txt['error_attach_errors'] .= (is_array($error) ? vsprintf(Lang::$txt[$error[0]], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
+							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
 						}
 
 						Lang::$txt['error_attach_errors'] .= '</div>';
@@ -1494,13 +1490,15 @@ class Post implements ActionInterface
 
 			foreach ($attachmentRestrictionTypes as $type) {
 				if (!empty(Config::$modSettings[$type])) {
-					Utils::$context['attachment_restrictions'][$type] = sprintf(Lang::$txt['attach_restrict_' . $type . (Config::$modSettings[$type] >= 1024 ? '_MB' : '')], Lang::numberFormat(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2));
+					Config::$modSettings[$type] = (int) Config::$modSettings[$type];
+
+					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt('attach_restrict_' . $type, [round(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2), 'unit' => Config::$modSettings[$type] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']]);
 
 					// Show the max number of attachments if not 0.
 					if ($type == 'attachmentNumPerPostLimit') {
-						Utils::$context['attachment_restrictions'][$type] .= ' (' . sprintf(Lang::$txt['attach_remaining'], max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)) . ')';
+						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)]) . ')';
 					} elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0) {
-						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf(Lang::$txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
+						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)]) . ')</span>';
 					}
 				}
 			}
@@ -1553,8 +1551,8 @@ class Post implements ActionInterface
 				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::$txt['attach_max_total_file_size_current']) . ',
 				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
 				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::$txt['more_attachments_error']) . ',
-				dictInvalidFileType: ' . Utils::escapeJavaScript(sprintf(Lang::$txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
-				dictFileTooBig: ' . Utils::escapeJavaScript(sprintf(Lang::$txt['file_too_big'], Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
+				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context)) . ',
+				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)])) . ',
 				acceptedFiles: ' . Utils::escapeJavaScript($acceptedFiles) . ',
 				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
@@ -1604,7 +1602,7 @@ class Post implements ActionInterface
 			if (is_array($post_error)) {
 				$post_error_id = $post_error[0];
 
-				Utils::$context['post_error'][$post_error_id] = vsprintf(Lang::$txt['error_' . $post_error_id], (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1]);
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $this->minor_errors)) {
@@ -1633,7 +1631,7 @@ class Post implements ActionInterface
 		} elseif (isset($_REQUEST['msg'])) {
 			Utils::$context['page_title'] = Lang::$txt['modify_msg'];
 		} elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject'])) {
-			Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])]);
 		} elseif (empty(Topic::$info->id)) {
 			Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
 		} else {

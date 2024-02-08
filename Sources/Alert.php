@@ -464,17 +464,17 @@ class Alert implements \ArrayAccess
 
 		if (isset(Lang::$txt[$txt_key])) {
 			$substitutions = [
-				'{scripturl}' => Config::$scripturl,
-				'{member_link}' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
+				'scripturl' => Config::$scripturl,
+				'member_link' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
 			];
 
 			if (is_array($this->extra)) {
 				foreach ($this->extra as $k => $v) {
-					$substitutions['{' . $k . '}'] = $v;
+					$substitutions[$k] = $v;
 				}
 			}
 
-			$this->text = strtr(Lang::$txt[$txt_key], $substitutions);
+			$this->text = Lang::getTxt($txt_key, $substitutions);
 		}
 	}
 

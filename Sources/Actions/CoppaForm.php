@@ -80,16 +80,33 @@ class CoppaForm implements ActionInterface
 				Utils::$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 				Utils::$context['template_layers'] = [];
 				Utils::$context['sub_template'] = 'coppa_form';
-				Utils::$context['page_title'] = sprintf(Lang::$txt['coppa_form_title'], Utils::$context['forum_name_html_safe']);
-				Utils::$context['coppa_body'] = str_replace(['{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'], [Utils::$context['ul'], Utils::$context['ul'], $username], sprintf(Lang::$txt['coppa_form_body'], Utils::$context['forum_name_html_safe']));
+				Utils::$context['page_title'] = Lang::getTxt('coppa_form_title', ['forum_name' => Utils::$context['forum_name_html_safe']]);
+				Utils::$context['coppa_body'] = Lang::getTxt(
+					'coppa_form_body',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'parent_name' => Utils::$context['ul'],
+						'child_name' => Utils::$context['ul'],
+						'user_name' => $username,
+					],
+				);
 			}
 			// Downloading.
 			else {
 				// The data.
-				$ul = '                ';
+				$ul = '________________';
 				$crlf = "\r\n";
-				$data = Utils::$context['forum_contacts'] . $crlf . Lang::$txt['coppa_form_address'] . ':' . $crlf . Lang::$txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf(Lang::$txt['coppa_form_body'], Utils::$context['forum_name_html_safe']);
-				$data = str_replace(['{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'], [$ul, $ul, $username, $crlf, $crlf], $data);
+				$data = Utils::$context['forum_contacts'] . $crlf . Lang::$txt['coppa_form_address'] . ':' . $crlf . Lang::$txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf;
+				$data .= Lang::getTxt(
+					'coppa_form_body',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'parent_name' => $ul,
+						'child_name' => $ul,
+						'user_name' => $username,
+					],
+				);
+				$data = str_replace('<br>', $crlf, $data);
 
 				// Send the headers.
 				header('connection: close');
@@ -107,7 +124,7 @@ class CoppaForm implements ActionInterface
 			];
 
 			Utils::$context['coppa'] = [
-				'body' => str_replace('{MINIMUM_AGE}', Config::$modSettings['coppaAge'], sprintf(Lang::$txt['coppa_after_registration'], Utils::$context['forum_name_html_safe'])),
+				'body' => Lang::getTxt('coppa_after_registration', ['forum_name' => Utils::$context['forum_name_html_safe'], 'minimum_age' => Config::$modSettings['coppaAge']]),
 				'many_options' => !empty(Config::$modSettings['coppaPost']) && !empty(Config::$modSettings['coppaFax']),
 				'post' => empty(Config::$modSettings['coppaPost']) ? '' : Config::$modSettings['coppaPost'],
 				'fax' => empty(Config::$modSettings['coppaFax']) ? '' : Config::$modSettings['coppaFax'],

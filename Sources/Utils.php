@@ -2092,7 +2092,18 @@ class Utils
 		if ($do_header) {
 			// Was the page title set last minute? Also update the HTML safe one.
 			if (!empty(Utils::$context['page_title']) && empty(Utils::$context['page_title_html_safe'])) {
-				Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+				if (empty(Utils::$context['current_page'])) {
+					Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title']));
+				} else {
+					Utils::$context['page_title_html_safe'] = Lang::getTxt(
+						'page_title_number',
+						[
+							'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
+							'pagenum' => Utils::$context['current_page'] + 1,
+						],
+					);
+				}
+
 			}
 
 			// Start up the session URL fixer.
@@ -2253,7 +2264,7 @@ class Utils
 
 			// Gotta tell everybody.
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
+			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
 
 			return false;
 		}
@@ -2334,7 +2345,7 @@ class Utils
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {
 					Lang::load('Errors');
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_loading_file'], $path), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path]), 'general');
 
 					// File couldn't be loaded.
 					return false;

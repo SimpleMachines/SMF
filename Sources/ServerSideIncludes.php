@@ -250,12 +250,12 @@ class ServerSideIncludes
 		}
 
 		if ($output_method == 'echo') {
-			printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+			echo Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]);
 
 			return null;
 		}
 
-		return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+		return Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]);
 	}
 
 	/**
@@ -274,9 +274,25 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			if (User::$me->is_guest) {
-				echo sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ');', Config::$scripturl . '?action=signup');
+				echo Lang::getTxt(
+					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'login_url' => Config::$scripturl . '?action=login',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ');',
+						'register_url' => Config::$scripturl . '?action=signup',
+					],
+				);
 			} else {
-				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>', User::$me->allowedTo('pm_read') ? ', ' . (empty(User::$me->messages) ? Lang::$txt['msg_alert_no_messages'] : ((User::$me->messages == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', User::$me->messages)) . ', ' . (User::$me->unread_messages == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], User::$me->unread_messages)))) : '';
+				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>';
+
+				if (User::$me->allowedTo('pm_read')) {
+					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages]);
+
+					if (!empty(User::$me->messages)) {
+						echo ', ', Lang::getTxt('msg_alert_new', [User::$me->unread_messages]);
+					}
+				}
 			}
 
 			return null;
@@ -1061,7 +1077,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo '
-		', sprintf(Lang::$txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
+		', Lang::getTxt('welcome_newest_member', ['member_link' => Utils::$context['common_stats']['latest_member']['link']]), '<br>';
 
 			return null;
 		}
@@ -1378,24 +1394,24 @@ class ServerSideIncludes
 		}
 
 		echo '
-			', Lang::numberFormat($return['num_guests']), ' ', $return['num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], ', ', Lang::numberFormat($return['num_users_online']), ' ', $return['num_users_online'] == 1 ? Lang::$txt['user'] : Lang::$txt['users'];
+			', Lang::getTxt('number_of_guests', [$return['num_guests']]), ', ', Lang::getTxt('number_of_members', [$return['num_users_online']]);
 
 		$bracketList = [];
 
 		if (!empty(User::$me->buddies)) {
-			$bracketList[] = Lang::numberFormat($return['num_buddies']) . ' ' . ($return['num_buddies'] == 1 ? Lang::$txt['buddy'] : Lang::$txt['buddies']);
+			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']]);
 		}
 
 		if (!empty($return['num_spiders'])) {
-			$bracketList[] = Lang::numberFormat($return['num_spiders']) . ' ' . ($return['num_spiders'] == 1 ? Lang::$txt['spider'] : Lang::$txt['spiders']);
+			$bracketList[] = Lang::getTxt('number_of_spiders', [$return['num_spiders']]);
 		}
 
 		if (!empty($return['num_users_hidden'])) {
-			$bracketList[] = Lang::numberFormat($return['num_users_hidden']) . ' ' . Lang::$txt['hidden'];
+			$bracketList[] = Lang::getTxt('number_of_hidden_members', [$return['num_users_hidden']]);
 		}
 
 		if (!empty($bracketList)) {
-			echo ' (' . implode(', ', $bracketList) . ')';
+			echo ' (' . Lang::sentenceList($bracketList) . ')';
 		}
 
 		echo '<br>
@@ -1583,7 +1599,7 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
 				</div>';
 		} else {
 			echo Lang::$txt['poll_cannot_see'];
@@ -1670,7 +1686,7 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
 				</div>';
 		} else {
 			echo Lang::$txt['poll_cannot_see'];
@@ -2290,16 +2306,15 @@ class ServerSideIncludes
 				if (!empty($news['likes']['count'])) {
 					Utils::$context['some_likes'] = true;
 					$count = $news['likes']['count'];
-					$base = 'likes_';
+					$base = 'likes_count';
 
 					if ($news['likes']['you']) {
 						$base = 'you_' . $base;
 						$count--;
 					}
-					$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
 
 					echo '
-							<li class="like_count smalltext">', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '</li>';
+							<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '</li>';
 				}
 
 				echo '
@@ -2790,7 +2805,7 @@ class ServerSideIncludes
 		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
 			// You shouldn't just access SSI.php directly by URL!!
 			if (!isset($_GET['ssi_function'])) {
-				die(sprintf(Lang::$txt['ssi_not_direct'], User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\'']));
 			}
 
 			// Call a function passed by GET.

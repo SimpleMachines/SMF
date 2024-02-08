@@ -927,7 +927,7 @@ class Attachment implements \ArrayAccess
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
 			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {
@@ -1223,12 +1223,12 @@ class Attachment implements \ArrayAccess
 		Utils::$context['attachments']['total_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit']) && $_SESSION['temp_attachments'][$attachID]['size'] > Config::$modSettings['attachmentSizeLimit'] * 1024) {
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)]];
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
 		}
 
 		// Check the total upload size for this post...
 		if (!empty(Config::$modSettings['attachmentPostLimit']) && Utils::$context['attachments']['total_size'] > Config::$modSettings['attachmentPostLimit'] * 1024) {
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['attach_max_total_file_size', [Lang::numberFormat(Config::$modSettings['attachmentPostLimit'], 0), Lang::numberFormat(Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)]];
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['attach_max_total_file_size', [Config::$modSettings['attachmentPostLimit'], Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024)]];
 		}
 
 		// Have we reached the maximum number of files we are allowed?
@@ -1253,7 +1253,7 @@ class Attachment implements \ArrayAccess
 
 			if (!in_array(strtolower(substr(strrchr($_SESSION['temp_attachments'][$attachID]['name'], '.'), 1)), $allowed)) {
 				$allowed_extensions = strtr(strtolower(Config::$modSettings['attachmentExtensions']), [',' => ', ']);
-				$_SESSION['temp_attachments'][$attachID]['errors'][] = ['cant_upload_type', [$allowed_extensions]];
+				$_SESSION['temp_attachments'][$attachID]['errors'][] = ['cant_upload_type', ['allowed_extensions' => $allowed_extensions]];
 			}
 		}
 
@@ -2205,7 +2205,6 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						Lang::load('Admin');
 						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
 					}
 				}

@@ -31,7 +31,7 @@ $txt['smileys_add_upload'] = 'Upload new smiley';
 $txt['smileys_add_upload_choose'] = 'File to upload';
 $txt['smileys_add_upload_choose_desc'] = 'Image to be used by all smiley sets.';
 $txt['smileys_add_upload_all'] = 'Same image for all sets';
-$txt['smileys_add_upload_for'] = 'Image for the %1$s set';
+$txt['smileys_add_upload_for'] = 'Image for the {name} set';
 
 $txt['smileys_enable_note'] = '(otherwise, the default smileys will be used.)';
 $txt['smileys_code'] = 'Code';
@@ -60,9 +60,9 @@ $txt['smiley_set_modify'] = 'Modify';
 $txt['smiley_set_import_info'] = 'Smiley files whose names match with one of the existing smileys will be imported automatically.';
 $txt['smiley_set_unused'] = 'There are unused smiley images in the folder for this smiley set. To use these files, do one of the following:
 	<ul class="bbc_list">
-		<li><a href="%1$s" class="bbc_link">Edit</a> your existing smileys to use them.</li>
-		<li><a href="%2$s" class="bbc_link">Create</a> new smileys for them.</li>
-		<li><a href="%3$s" class="bbc_link">Import</a> them as new smileys automatically.</li>
+		<li><a href="{edit_url}" class="bbc_link">Edit</a> your existing smileys to use them.</li>
+		<li><a href="{create_url}" class="bbc_link">Create</a> new smileys for them.</li>
+		<li><a href="{import_url}" class="bbc_link">Import</a> them as new smileys automatically.</li>
 	</ul>';
 
 $txt['smileys_location'] = 'Location';
@@ -79,8 +79,8 @@ $txt['smiley_preview_using_set'] = 'Preview using smiley set';
 $txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\nNote: This won\\\'t remove the images, just the choices.';
 $txt['smileys_location_form_description'] = 'These smileys will appear above the text area, when posting a new forum message or Personal Message.';
 $txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'more\' button.';
-$txt['smileys_move_select_destination'] = 'Select smiley destination';
-$txt['smileys_move_select_smiley'] = 'Select smiley to move';
+$txt['smileys_move_select_destination'] = 'Select smiley destination...';
+$txt['smileys_move_select_smiley'] = 'Select smiley to move...';
 $txt['smileys_move_here'] = 'Move smiley to this location';
 $txt['smileys_no_entries'] = 'There are currently no smileys configured.';
 
@@ -93,9 +93,9 @@ $txt['icons_add_new'] = 'Add new icon';
 $txt['icons_edit_icon'] = 'Edit message icon';
 $txt['icons_new_icon'] = 'New message icon';
 $txt['icons_location_first_icon'] = 'As first icon';
-$txt['icons_location_after'] = 'After';
+$txt['icons_location_after'] = 'After "{icon}"';
 // argument(s): the supported file extension
-$txt['icons_extension_must_be'] = 'File extension must be "%1$s"';
+$txt['icons_extension_must_be'] = 'File extension must be "{extension}"';
 $txt['icons_no_entries'] = 'There are currently no message icons configured.';
 
 ?>
