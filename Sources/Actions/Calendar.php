@@ -1804,7 +1804,7 @@ class Calendar implements ActionInterface
 		]);
 
 		// Fix for languages those do not use AM/PM
-		if (Lang::$txt['time_am'] == ' ' && Lang::$txt['time_pm'] == ' ') {
+		if (trim(Lang::$txt['time_am']) === '' && trim(Lang::$txt['time_pm']) === '') {
 			return strtr(strtolower($date), $replacements);
 		}
 
