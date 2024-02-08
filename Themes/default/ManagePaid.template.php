@@ -237,7 +237,7 @@ function template_modify_user_subscription()
 	if (Utils::$context['action_type'] == 'add')
 		echo '
 				<dt>
-					<strong>', Lang::$txt['paid_username'], ':</strong><br>
+					<strong>', Lang::$txt['paid_username'], '</strong><br>
 					<span class="smalltext">', Lang::$txt['one_username'], '</span>
 				</dt>
 				<dd>
@@ -246,7 +246,7 @@ function template_modify_user_subscription()
 
 	echo '
 				<dt>
-					<strong>', Lang::$txt['paid_status'], ':</strong>
+					<strong>', Lang::$txt['paid_status'], '</strong>
 				</dt>
 				<dd>
 					<select name="status">

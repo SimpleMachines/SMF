@@ -226,7 +226,7 @@ function template_credits()
 			if (isset($group['title']))
 				echo '
 								<dt>
-									<strong>', $group['title'], ':</strong>
+									<strong>', $group['title'], '</strong>
 								</dt>';
 
 			echo '
