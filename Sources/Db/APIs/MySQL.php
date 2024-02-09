@@ -1348,12 +1348,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (!$reverse) {
 			$types = [
 				'inet' => 'varbinary',
-				'uuid' => 'binary',
 			];
 		} else {
 			$types = [
 				'varbinary' => 'inet',
-				'binary' => 'uuid',
 			];
 		}
 
@@ -1362,19 +1360,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if ($type_name == 'inet' && !$reverse) {
 				$type_size = 16;
 				$type_name = 'varbinary';
-			} elseif ($type_name == 'uuid' && !$reverse) {
-				$type_size = 16;
-				$type_name = 'binary';
 			} elseif ($type_name == 'varbinary' && $reverse && $type_size == 16) {
 				$type_name = 'inet';
 				$type_size = null;
-			} elseif ($type_name == 'binary' && $reverse && $type_size == 16) {
-				$type_name = 'uuid';
-				$type_size = null;
 			} elseif ($type_name == 'varbinary') {
 				$type_name = 'varbinary';
-			} elseif ($type_name == 'binary') {
-				$type_name = 'binary';
 			} else {
 				$type_name = $types[$type_name];
 			}
@@ -1521,7 +1511,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// First - no way do we touch SMF tables.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -1631,13 +1621,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Create the table!
-		$this->query(
+		$result = $this->query(
 			'',
 			$table_query,
 			[
 				'security_override' => true,
 			],
 		);
+
+		return $result;
 
 		// Fill the old data
 		if ($old_table_exists) {
@@ -1692,7 +1684,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// God no - dropping one of these = bad.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -2378,7 +2370,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Sort out the size... and stuff...
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+		list($type, $size) = $this->calculate_type($column['type'], $column['size'] === null ? null : (int) $column['size']);
 
 		// Allow unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';

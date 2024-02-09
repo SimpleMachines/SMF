@@ -34,18 +34,32 @@ abstract class Table
 	public string $name;
 
 	/**
-	 * @var string
+	 * @var \SMF\Db\Schema\Column[]
 	 *
 	 * An array of SMF\Db\Schema\Column objects.
 	 */
 	public array $columns;
 
 	/**
-	 * @var string
+	 * @var \SMF\Db\Schema\Index[]
 	 *
 	 * An array of SMF\Db\Schema\Index objects.
 	 */
-	public array $indices;
+	public array $indices = [];
+
+	/**
+	 * @var array
+	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [];
+
+	/**
+	 * @var array
+	 *
+	 * Data used to populate the table during install.
+	 */
+	public array $initial_data = [];
 
 	/**
 	 * @var string
@@ -87,6 +101,10 @@ abstract class Table
 	 */
 	public function create(array $parameters = [], string $if_exists = 'ignore'): bool
 	{
+		if (!isset($this->columns) || count($this->columns) === 0) {
+			return false;
+		}
+
 		return Db::$db->create_table(
 			$this->name,
 			array_map('get_object_vars', $this->columns),

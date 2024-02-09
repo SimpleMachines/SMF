@@ -31,6 +31,33 @@ class CustomFields extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'col_name' => 'string',
+		'field_name' => 'string',
+		'field_desc' => 'string',
+		'field_type' => 'string',
+		'field_length' => 'int',
+		'field_options' => 'string',
+		'field_order' => 'int',
+		'mask' => 'string',
+		'show_reg' => 'int',
+		'show_display' => 'int',
+		'show_mlist' => 'int',
+		'show_profile' => 'string',
+		'private' => 'int',
+		'active' =>  'int',
+		'bbc' => 'int',
+		'can_search' => 'int',
+		'default_value' => 'string',
+		'enclose' => ' string',
+		'placement' => 'int',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

@@ -31,6 +31,16 @@ class Settings extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'variable' => 'string',
+		'value' => 'string'
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

@@ -31,6 +31,21 @@ class Membergroups extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'id_group' => 'int',
+		'group_name' => 'string',
+		'description' => 'string',
+		'online_color' => 'string',
+		'min_posts' => 'int',
+		'icons' => 'string',
+		'group_type' => 'int',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

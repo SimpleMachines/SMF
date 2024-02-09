@@ -31,6 +31,20 @@ class AdminInfoFiles extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'id_file' => 'int',
+		'filename' => 'string',
+		'path' => 'string',
+		'parameters' => 'string',
+		'data' => 'string',
+		'filetype' => 'string'
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

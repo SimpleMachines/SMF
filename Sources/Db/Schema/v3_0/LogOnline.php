@@ -31,6 +31,13 @@ class LogOnline extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [];
@@ -104,18 +111,6 @@ class LogOnline extends Table
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
-				],
-			),
-			new Index(
-				type: 'primary',
-				columns: [
-					'id_install',
-				],
-			),
-			new Index(
-				name: 'idx_filename',
-				columns: [
-					'filename(15)',
 				],
 			),
 		];

@@ -31,6 +31,20 @@ class Topics extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'id_topic' => 'int',
+		'id_board' => 'int',
+		'id_first_msg' => 'int',
+		'id_last_msg' => 'int',
+		'id_member_started' => 'int',
+		'id_member_updated' => 'int',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

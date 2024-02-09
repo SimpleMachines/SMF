@@ -31,6 +31,13 @@ class Members extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [];
@@ -106,11 +113,13 @@ class Members extends Table
 				name: 'instant_messages',
 				type: 'smallint',
 				not_null: true,
+				default: 0,
 			),
 			new Column(
 				name: 'unread_messages',
 				type: 'smallint',
 				not_null: true,
+				default: 0,
 			),
 			new Column(
 				name: 'new_pm',

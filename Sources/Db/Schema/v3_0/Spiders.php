@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
+use SMF\Db\Schema\Index;
 use SMF\Db\Schema\Table;
 
 /**
@@ -26,6 +27,17 @@ class Spiders extends Table
 	/*******************
 	 * Public properties
 	 *******************/
+
+	/**
+	 * @var array
+	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'spider_name' => 'string',
+		'user_agent' => 'string',
+		'ip_info' => 'string',
+	];
 
 	/**
 	 * @var array
@@ -183,6 +195,15 @@ class Spiders extends Table
 				size: 255,
 				not_null: true,
 				default: '',
+			),
+		];
+
+		$this->indices = [
+			new Index(
+				type: 'primary',
+				columns: [
+					'id_spider',
+				],
 			),
 		];
 	}

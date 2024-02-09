@@ -31,6 +31,13 @@ class LogFloodcontrol extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [];
@@ -74,20 +81,7 @@ class LogFloodcontrol extends Table
 					'ip',
 					'log_type',
 				],
-			),
-			new Index(
-				type: 'primary',
-				columns: [
-					'id_request',
-				],
-			),
-			new Index(
-				name: 'idx_id_member',
-				columns: [
-					'id_member',
-					'id_group',
-				],
-			),
+			)
 		];
 	}
 }

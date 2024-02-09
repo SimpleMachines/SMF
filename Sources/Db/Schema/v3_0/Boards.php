@@ -31,6 +31,24 @@ class Boards extends Table
 	/**
 	 * @var array
 	 *
+	 * Initial columns for inserts.
+	 */
+	public array $initial_columns = [
+		'id_board' => 'int',
+		'id_cat' => 'int',
+		'board_order' => 'int',
+		'id_last_msg' => 'int',
+		'id_msg_updated' => 'int',
+		'name' => 'string',
+		'description' => 'string',
+		'num_topics' => 'int',
+		'num_posts' => 'int',
+		'member_groups' => 'string',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [
