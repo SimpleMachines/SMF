@@ -643,7 +643,7 @@ class Lang
 	 */
 	public static function sentenceList(array $list, string $type = 'and'): string
 	{
-		$list = array_values($list);
+		$list = array_map('strval', array_values($list));
 
 		if (!isset(self::$txt['sentence_list_pattern'][$type])) {
 			$type = 'and';
