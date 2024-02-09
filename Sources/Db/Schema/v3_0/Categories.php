@@ -38,7 +38,7 @@ class Categories extends Table
 		'cat_order' => 'int',
 		'name' => 'string',
 		'description' => 'string',
-		'can_collapse' => 'int'
+		'can_collapse' => 'int',
 	];
 
 	/**

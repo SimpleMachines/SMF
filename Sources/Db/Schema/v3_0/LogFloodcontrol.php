@@ -81,7 +81,7 @@ class LogFloodcontrol extends Table
 					'ip',
 					'log_type',
 				],
-			)
+			),
 		];
 	}
 }

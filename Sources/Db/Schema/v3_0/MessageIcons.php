@@ -36,7 +36,7 @@ class MessageIcons extends Table
 	public array $initial_columns = [
 		'filename' => 'string',
 		'title' => 'string',
-		'icon_order' => 'int'
+		'icon_order' => 'int',
 	];
 
 	/**

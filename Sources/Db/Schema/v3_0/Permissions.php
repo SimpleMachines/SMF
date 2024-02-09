@@ -35,7 +35,7 @@ class Permissions extends Table
 	 */
 	public array $initial_columns = [
 		'id_group' => 'int',
-		'permission' => 'string'
+		'permission' => 'string',
 	];
 
 	/**

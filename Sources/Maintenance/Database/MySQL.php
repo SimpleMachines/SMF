@@ -15,100 +15,143 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Database;
 
-use SMF\Maintenance\DatabaseInterface;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Maintenance\DatabaseInterface;
 
+/**
+ * Database Maintenance for MySQL and variants.
+ */
 class MySQL implements DatabaseInterface
 {
-    public function getTitle(): string
-    {
-        return MYSQL_TITLE;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getTitle(): string
+	{
+		return MYSQL_TITLE;
+	}
 
-    public function getMinimumVersion(): string
-    {
-        return '8.0.35';
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getMinimumVersion(): string
+	{
+		return '8.0.35';
+	}
 
-    public function getServerVersion(): bool|string
-    {
-        if (!function_exists('mysqli_fetch_row')) {
-            return false;
-        }
- 
-        return mysqli_fetch_row(mysqli_query(Db::$db->connection, 'SELECT VERSION();'))[0];
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getServerVersion(): bool|string
+	{
+		if (!function_exists('mysqli_fetch_row')) {
+			return false;
+		}
 
-    public function isSupported(): bool
-    {
-        return function_exists('mysqli_connect');
-    }
+		return mysqli_fetch_row(mysqli_query(Db::$db->connection, 'SELECT VERSION();'))[0];
+	}
 
-    public function SkipSelectDatabase(): bool
-    {
-        return false;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isSupported(): bool
+	{
+		return function_exists('mysqli_connect');
+	}
 
-    public function getDefaultUser(): string
-    {
-        return ini_get('mysql.default_user') === false ? '' : ini_get('mysql.default_user');
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function SkipSelectDatabase(): bool
+	{
+		return false;
+	}
 
-    public function getDefaultPassword(): string
-    {
-        return ini_get('mysql.default_password') === false ? '' : ini_get('mysql.default_password');
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDefaultUser(): string
+	{
+		return ini_get('mysql.default_user') === false ? '' : ini_get('mysql.default_user');
+	}
 
-    public function getDefaultHost(): string
-    {
-        return ini_get('mysql.default_host') === false ? '' : ini_get('mysql.default_host');
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDefaultPassword(): string
+	{
+		return ini_get('mysql.default_password') === false ? '' : ini_get('mysql.default_password');
+	}
 
-    public function getDefaultPort(): int
-    {
-        return ini_get('mysql.default_port') === false ? 3306 : (int) ini_get('mysql.default_port');
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDefaultHost(): string
+	{
+		return ini_get('mysql.default_host') === false ? '' : ini_get('mysql.default_host');
+	}
 
-    public function getDefaultName(): string
-    {
-        return 'smf_';
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDefaultPort(): int
+	{
+		return ini_get('mysql.default_port') === false ? 3306 : (int) ini_get('mysql.default_port');
+	}
 
-    public function checkConfiguration(): bool
-    {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDefaultName(): string
+	{
+		return 'smf_';
+	}
 
-    public function hasPermissions(): bool
-    {
-        // Find database user privileges.
-        $privs = [];
-        $get_privs = Db::$db->query('', 'SHOW PRIVILEGES', []);
+	/**
+	 * {@inheritDoc}
+	 */
+	public function checkConfiguration(): bool
+	{
+		return true;
+	}
 
-        while ($row = Db::$db->fetch_assoc($get_privs)) {
-            if ($row['Privilege'] == 'Alter') {
-                $privs[] = $row['Privilege'];
-            }
-        }
-        Db::$db->free_result($get_privs);
+	/**
+	 * {@inheritDoc}
+	 */
+	public function hasPermissions(): bool
+	{
+		// Find database user privileges.
+		$privs = [];
+		$get_privs = Db::$db->query('', 'SHOW PRIVILEGES', []);
 
-        // Check for the ALTER privilege.
-        if (!in_array('Alter', $privs)) {
-            return false;
-        }
+		while ($row = Db::$db->fetch_assoc($get_privs)) {
+			if ($row['Privilege'] == 'Alter') {
+				$privs[] = $row['Privilege'];
+			}
+		}
+		Db::$db->free_result($get_privs);
 
-        return true;
-    }
+		// Check for the ALTER privilege.
+		return ! (!in_array('Alter', $privs));
+	}
 
-    public function validatePrefix(&$value): bool
-    {
-        $value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
+	/**
+	 * {@inheritDoc}
+	 */
+	public function validatePrefix(&$value): bool
+	{
+		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
-        return true;    
-    }
+		return true;
+	}
 
-    public function utf8Configured(): bool
-    {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function utf8Configured(): bool
+	{
+		return true;
+	}
 }
+
+?>

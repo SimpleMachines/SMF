@@ -17,49 +17,62 @@ namespace SMF\Maintenance\Template;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\TemplateInterface;
-use SMF\Maintenance;
 use SMF\Lang;
+use SMF\Maintenance;
 use SMF\Maintenance\Template;
+use SMF\Maintenance\TemplateInterface;
 
+/**
+ * Tempalte for Installer
+ */
 class Install implements TemplateInterface
 {
-    public static function upper(): void
-    {
-        if (Maintenance::$sub_template)
-        echo '
+    /**
+     * Upper template for installer.
+     */
+	public static function upper(): void
+	{
+		if (Maintenance::$sub_template) {
+		echo '
         <form action="', Maintenance::getSelf(), (Maintenance::$sub_template !== '' ? '?step=' . Maintenance::getCurrentStep() : ''), '" method="post">';
-    }
+		}
+	}
 
-    public static function lower(): void
-    {
-        if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip'])) {
-            echo '
+    /**
+     * Lower template for installer.
+     */
+	public static function lower(): void
+	{
+		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip'])) {
+			echo '
                                 <div class="floatright">';
-    
-            if (!empty(Maintenance::$context['continue'])) {
-                echo '
-                                    <input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
-            }
-    
-            if (!empty(Maintenance::$context['skip'])) {
-                echo '
-                                    <input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
-            }
-            echo '
-                                </div>';
-        }
-    
-        // Show the closing form tag and other data only if not in the last step
-        if (count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
-            echo '
-        </form>';
-        }
-    }
 
-    public static function Welcome(): void
-    {
-        echo '
+			if (!empty(Maintenance::$context['continue'])) {
+				echo '
+                                    <input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
+			}
+
+			if (!empty(Maintenance::$context['skip'])) {
+				echo '
+                                    <input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
+			}
+			echo '
+                                </div>';
+		}
+
+		// Show the closing form tag and other data only if not in the last step
+		if (count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
+			echo '
+        </form>';
+		}
+	}
+
+    /**
+     * Welcome page for installer.
+     */
+	public static function Welcome(): void
+	{
+		echo '
             <script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 
             <p>', sprintf(Lang::$txt['install_welcome_desc'], SMF_VERSION), '</p>
@@ -68,13 +81,13 @@ class Install implements TemplateInterface
                 ', sprintf(Lang::$txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
             </div>';
 
-        // Oh no!
-        if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
-            Template::warningsAndErrors();
-        }
+		// Oh no!
+		if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
+			Template::warningsAndErrors();
+		}
 
-        // For the latest version stuff.
-        echo '
+		// For the latest version stuff.
+		echo '
             <script>
                 // Latest version?
                 function smfCurrentVersion()
@@ -97,43 +110,47 @@ class Install implements TemplateInterface
                 }
                 addLoadEvent(smfCurrentVersion);
             </script>';
-    }
+	}
 
-    public static function CheckFilesWritable(): void
-    {    
-        echo '
+    /**
+     * Check Files Writable page for installer.
+     */
+	public static function CheckFilesWritable(): void
+	{
+		echo '
             <p>', Lang::$txt['ftp_setup_why_info'], '</p>
             <ul class="error_content">
                 <li>', implode('</li>
                 <li>', Maintenance::$context['failed_files']), '</li>
             </ul>';
-    
-        if (isset(Maintenance::$context['systemos'], Maintenance::$context['detected_path']) && Maintenance::$context['systemos'] == 'linux') {
-            echo '
+
+		if (isset(Maintenance::$context['systemos'], Maintenance::$context['detected_path']) && Maintenance::$context['systemos'] == 'linux') {
+			echo '
             <hr>
             <p>', Lang::$txt['chmod_linux_info'], '</p>
             <samp># chmod a+w ', implode(' ' . Maintenance::$context['detected_path'] . '/', Maintenance::$context['failed_files']), '</samp>';
-        }
-    
-        // This is serious!
-        if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
-            Template::warningsAndErrors();
-            return;
-        }
-    
-        echo '
+		}
+
+		// This is serious!
+		if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
+			Template::warningsAndErrors();
+
+			return;
+		}
+
+		echo '
             <hr>
             <p>', Lang::$txt['ftp_setup_info'], '</p>';
-    
-        if (!empty(Maintenance::$context['ftp_errors'])) {
-            echo '
+
+		if (!empty(Maintenance::$context['ftp_errors'])) {
+			echo '
             <div class="error_message">
                 ', Lang::$txt['error_ftp_no_connect'], '<br><br>
                 <code>', implode('<br>', Maintenance::$context['ftp_errors']), '</code>
             </div>';
-        }
-    
-        echo '
+		}
+
+		echo '
             <form action="', Maintenance::$context['form_url'], '" method="post">
                 <dl class="settings">
                     <dt>
@@ -174,44 +191,47 @@ class Install implements TemplateInterface
                 </div>
             </form>
             <a href="', Maintenance::$context['form_url'], '">', Lang::$txt['error_message_click'], '</a> ', Lang::$txt['ftp_setup_again'];
-    }
-    
-    public static function DatabaseSettings(): void
-    {
-        echo '
+	}
+
+    /**
+     * Database Settings page for installer.
+     */
+	public static function DatabaseSettings(): void
+	{
+		echo '
             <p>', Lang::$txt['db_settings_info'], '</p>';
-    
-        Template::warningsAndErrors();
-    
-        echo '
+
+		Template::warningsAndErrors();
+
+		echo '
             <dl class="settings">';
-    
-        // More than one database type?
-        if (count(Maintenance::$context['databases']) > 1) {
-            echo '
+
+		// More than one database type?
+		if (count(Maintenance::$context['databases']) > 1) {
+			echo '
                 <dt>
                     <label for="db_type_input">', Lang::$txt['db_settings_type'], ':</label>
                 </dt>
                 <dd>
                     <select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
-    
-            foreach (Maintenance::$context['databases'] as $key => $db) {
-                echo '
+
+			foreach (Maintenance::$context['databases'] as $key => $db) {
+				echo '
                         <option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
-            }
-    
-            echo '
+			}
+
+			echo '
                     </select>
                     <div class="smalltext">', Lang::$txt['db_settings_type_info'], '</div>
                 </dd>';
-        } else {
-            echo '
+		} else {
+			echo '
                 <dd>
                     <input type="hidden" name="db_type" value="', Maintenance::$context['db']['type'], '">
                 </dd>';
-        }
-    
-        echo '
+		}
+
+		echo '
                 <dt>
                     <label for="db_server_input">', Lang::$txt['db_settings_server'], ':</label>
                 </dt>
@@ -258,9 +278,9 @@ class Install implements TemplateInterface
                     <div class="smalltext">', Lang::$txt['db_settings_prefix_info'], '</div>
                 </dd>
             </dl>';
-    
-        // Toggles a warning related to db names in PostgreSQL
-        echo '
+
+		// Toggles a warning related to db names in PostgreSQL
+		echo '
             <script>
                 function toggleDBInput()
                 {
@@ -270,17 +290,20 @@ class Install implements TemplateInterface
                         document.getElementById(\'db_name_info_warning\').classList.remove(\'hidden\');
                 }
                 toggleDBInput();
-            </script>';    
-    }
+            </script>';
+	}
 
-    public static function ForumSettings(): void
-    {
-        echo '
+    /**
+     * Forum Settings page for installer.
+     */
+	public static function ForumSettings(): void
+	{
+		echo '
             <h3>', Lang::$txt['install_settings_info'], '</h3>';
-    
-        Template::warningsAndErrors();
-    
-        echo '
+
+		Template::warningsAndErrors();
+
+		echo '
             <dl class="settings">
                 <dt>
                     <label for="mbname_input">', Lang::$txt['install_settings_name'], ':</label>
@@ -331,57 +354,63 @@ class Install implements TemplateInterface
                 <dt>', Lang::$txt['force_ssl'], ':</dt>
                 <dd>
                     <input type="checkbox" name="force_ssl" id="force_ssl"', Maintenance::$context['ssl_chkbx_checked'] ? ' checked' : '',
-                        Maintenance::$context['ssl_chkbx_protected'] ? ' disabled' : '', '>
+						Maintenance::$context['ssl_chkbx_protected'] ? ' disabled' : '', '>
                     <label for="force_ssl">', Lang::$txt['force_ssl_label'], '</label>
                     <div class="smalltext"><strong>', Lang::$txt['force_ssl_info'], '</strong></div>
                 </dd>
             </dl>';
-    
-    }
 
-    public static function DatabasePopulation(): void
-    {
-        echo '
+	}
+
+    /**
+     * Database Populate page for installer.
+     */
+	public static function DatabasePopulation(): void
+	{
+		echo '
             <p>', !empty(Maintenance::$context['was_refresh']) ? Lang::$txt['user_refresh_install_desc'] : Lang::$txt['db_populate_info'], '</p>';
-    
-        if (!empty(Maintenance::$context['sql_results'])) {
-            echo '
+
+		if (!empty(Maintenance::$context['sql_results'])) {
+			echo '
             <ul>
                 <li>', implode('</li><li>', Maintenance::$context['sql_results']), '</li>
             </ul>';
-        }
-    
-        if (!empty(Maintenance::$context['failures'])) {
-            echo '
+		}
+
+		if (!empty(Maintenance::$context['failures'])) {
+			echo '
             <div class="red">', Lang::$txt['error_db_queries'], '</div>
             <ul>';
-    
-            foreach (Maintenance::$context['failures'] as $line => $fail) {
-                echo '
-                <li><strong>', Lang::$txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
-            }
-    
-            echo '
-            </ul>';
-        }
-    
-        echo '
-            <p>', Lang::$txt['db_populate_info2'], '</p>';
-    
-            Template::warningsAndErrors();
-    
-        echo '
-            <input type="hidden" name="pop_done" value="1">';
-    }
 
-    public static function AdminAccount(): void
-    {
-        echo '
+			foreach (Maintenance::$context['failures'] as $line => $fail) {
+				echo '
+                <li><strong>', Lang::$txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
+			}
+
+			echo '
+            </ul>';
+		}
+
+		echo '
+            <p>', Lang::$txt['db_populate_info2'], '</p>';
+
+			Template::warningsAndErrors();
+
+		echo '
+            <input type="hidden" name="pop_done" value="1">';
+	}
+
+    /**
+     * Admin Account page for installer.
+     */
+	public static function AdminAccount(): void
+	{
+		echo '
             <p>', Lang::$txt['user_settings_info'], '</p>';
-    
-            Template::warningsAndErrors();
-    
-        echo '
+
+			Template::warningsAndErrors();
+
+		echo '
             <dl class="settings">
                 <dt>
                     <label for="username">', Lang::$txt['user_settings_username'], ':</label>
@@ -419,34 +448,37 @@ class Install implements TemplateInterface
                     <div class="smalltext">', Lang::$txt['user_settings_server_email_info'], '</div>
                 </dd>
             </dl>';
-    
-        if (Maintenance::$context['require_db_confirm']) {
-            echo '
+
+		if (Maintenance::$context['require_db_confirm']) {
+			echo '
             <h2>', Lang::$txt['user_settings_database'], '</h2>
             <p>', Lang::$txt['user_settings_database_info'], '</p>
     
             <div class="lefttext">
                 <input type="password" name="password3" size="30">
             </div>';
-        }
-    }
+		}
+	}
 
-    public static function DeleteInstall(): void
-    {
-        echo '
+    /**
+     * Delete Installer page for installer.
+     */
+	public static function DeleteInstall(): void
+	{
+		echo '
 		<p>', Lang::$txt['congratulations_help'], '</p>';
 
-        Template::warningsAndErrors();
+		Template::warningsAndErrors();
 
-        // Install directory still writable?
-        if (Maintenance::$context['dir_still_writable']) {
-            echo '
+		// Install directory still writable?
+		if (Maintenance::$context['dir_still_writable']) {
+			echo '
             <p><em>', Lang::$txt['still_writable'], '</em></p>';
-        }
+		}
 
-        // Don't show the box if it's like 99% sure it won't work :P.
-        if (Maintenance::$context['probably_delete_install']) {
-            echo '
+		// Don't show the box if it's like 99% sure it won't work :P.
+		if (Maintenance::$context['probably_delete_install']) {
+			echo '
             <label>
                 <input type="checkbox" id="delete_self" onclick="doTheDelete();">
                 <strong>', Lang::$txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . Lang::$txt['delete_installer_maybe'] : '', '</strong>
@@ -462,12 +494,14 @@ class Install implements TemplateInterface
                     theCheck.disabled = true;
                 }
             </script>';
-        }
+		}
 
-        echo '
+		echo '
             <p>', sprintf(Lang::$txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
             <br>
             ', Lang::$txt['good_luck'];
-    }
+	}
 
 }
+
+?>

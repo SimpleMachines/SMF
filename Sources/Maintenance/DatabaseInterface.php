@@ -14,35 +14,115 @@
 declare(strict_types=1);
 
 namespace SMF\Maintenance;
-use SMF\Db\DatabaseApi as Db;
 
+/**
+ * Database Maintenance interface.  Additional database logic is performed and set here.
+ */
 interface DatabaseInterface
 {
-    public function getTitle(): string;
+	/***********************
+	 * Public methods
+	 ***********************/
 
-    public function getMinimumVersion(): string;
+	/**
+	 * Fetch the database title.
+	 * @return string 
+	 */
+	public function getTitle(): string;
 
-    public function getServerVersion(): bool|string;
+	/**
+	 * The minimum version that SMF supports for the database.
+	 * @return string 
+	 */
+	public function getMinimumVersion(): string;
 
-    public function isSupported(): bool;
+	/**
+	 * Get the server version from the server, we must have Config:$db_* defined.
+	 * 
+	 * @return string 
+	 * 		When false, the server connection failed or an error occurred.
+	 * 		Otehrwise a string is returned containing the server version.
+	 */
+	public function getServerVersion(): bool|string;
 
-    public function SkipSelectDatabase(): bool;
+	/**
+	 * Is this database supported.
+	 * 
+	 * @return bool True if we can use this database, false otherwse.
+	 */
+	public function isSupported(): bool;
 
-    public function getDefaultUser(): string;
+	/**
+	 * Skip issuing a select database command.
+	 * 
+	 * @return bool When true, we do not select a database.
+	 */
+	public function SkipSelectDatabase(): bool;
 
-    public function getDefaultPassword(): string;
+	/**
+	 * Default username for a database connection.
+	 * 
+	 * @return string 
+	 */
+	public function getDefaultUser(): string;
 
-    public function getDefaultHost(): string;
+	/**
+	 * Default password for a database connection.
+	 * 
+	 * @return string 
+	 */
+	public function getDefaultPassword(): string;
 
-    public function getDefaultPort(): int;
+	/**
+	 * Default host for a database connection.
+	 * 
+	 * @return string 
+	 */
+	public function getDefaultHost(): string;
 
-    public function getDefaultName(): string;
+	/**
+	 * Default port for a database connection.
+	 * 
+	 * @return int 
+	 */
+	public function getDefaultPort(): int;
 
-    public function checkConfiguration(): bool;
+	/**
+	 * Default database name for a database connection.
+	 * 
+	 * @return string 
+	 */
+	public function getDefaultName(): string;
 
-    public function hasPermissions(): bool;
+	/**
+	 * Performs checks to ensure the server is in a sane configuration.
+	 * 
+	 * @return bool 
+	 */
+	public function checkConfiguration(): bool;
 
-    public function validatePrefix(&$string): bool;
+	/**
+	 * Performs checks to ensure we have proper permissions to the database in order to perform operations.
+	 * 
+	 * @return bool 
+	 */
+	public function hasPermissions(): bool;
 
-    public function utf8Configured(): bool;
+	/**
+	 * Validate a database prefix.
+	 * When an error occurs, use throw new exception, this will be captured.
+	 * 
+	 * @return bool 
+	 */
+	public function validatePrefix(&$string): bool;
+
+	/**
+	 * Checks that the server has the proper support for UTF-8 content..
+	 * When an error occurs, use throw new exception, this will be captured.
+	 * 
+	 * @return bool 
+	 */
+	public function utf8Configured(): bool;
 }
+
+?>

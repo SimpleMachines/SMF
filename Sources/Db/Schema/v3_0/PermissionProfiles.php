@@ -35,7 +35,7 @@ class PermissionProfiles extends Table
 	 */
 	public array $initial_columns = [
 		'id_profile' => 'int',
-		'profile_name' => 'string'
+		'profile_name' => 'string',
 	];
 
 	/**

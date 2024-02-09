@@ -14,8 +14,12 @@
 declare(strict_types=1);
 
 namespace SMF\Maintenance;
-use SMF\Db\DatabaseApi as Db;
 
+/**
+ * Interface for Maintenance Template.
+ */
 interface TemplateInterface
 {
 }
+
+?>

@@ -36,7 +36,7 @@ class Themes extends Table
 	public array $initial_columns = [
 		'id_theme' => 'int',
 		'variable' => 'string',
-		'value' => 'string'
+		'value' => 'string',
 	];
 
 	/**

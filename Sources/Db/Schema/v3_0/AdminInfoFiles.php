@@ -39,7 +39,7 @@ class AdminInfoFiles extends Table
 		'path' => 'string',
 		'parameters' => 'string',
 		'data' => 'string',
-		'filetype' => 'string'
+		'filetype' => 'string',
 	];
 
 	/**

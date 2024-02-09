@@ -41,7 +41,7 @@ class ScheduledTasks extends Table
 		'time_unit' => 'string',
 		'disabled' => 'int',
 		'task' => 'string',
-		'callable' => 'string'
+		'callable' => 'string',
 	];
 
 	/**

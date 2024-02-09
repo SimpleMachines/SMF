@@ -35,7 +35,7 @@ class Settings extends Table
 	 */
 	public array $initial_columns = [
 		'variable' => 'string',
-		'value' => 'string'
+		'value' => 'string',
 	];
 
 	/**

@@ -14,18 +14,20 @@
 declare(strict_types=1);
 
 namespace SMF\Maintenance;
- 
+
 interface ToolsInterface
 {
-    public function getPageTitle(): string;
+	public function getPageTitle(): string;
 
-    public function hasSteps(): bool;
+	public function hasSteps(): bool;
 
-    /**
-     * 
-     * @return \SMF\Maintenance\Step[]
-     */
-    public function getSteps(): array;
+	/**
+	 *
+	 * @return \SMF\Maintenance\Step[]
+	 */
+	public function getSteps(): array;
 
-    public function getStepTitle(): string;
+	public function getStepTitle(): string;
 }
+
+?>

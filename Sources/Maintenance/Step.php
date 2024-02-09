@@ -17,39 +17,41 @@ namespace SMF\Maintenance;
 
 class Step
 {
-    private int $id;
-    private string $name;
-    private ?string $title = null;
-    private string $function;
-    private int $progress;
+	private int $id;
+	private string $name;
+	private ?string $title = null;
+	private string $function;
+	private int $progress;
 
-    public function __construct(int $id, string $name, string $function, int $progres, ?string $title = null)
-    {
-        $this->id = $id;
-        $this->name = $name;
-        $this->title = $title;
-        $this->function = $function;
-        $this->progress = $progres;
-    }
+	public function __construct(int $id, string $name, string $function, int $progres, ?string $title = null)
+	{
+		$this->id = $id;
+		$this->name = $name;
+		$this->title = $title;
+		$this->function = $function;
+		$this->progress = $progres;
+	}
 
-    public function getID(): int
-    {
-        return $this->id;
-    }
-    public function getName(): string
-    {
-        return $this->name;
-    }
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-    public function getFunction(): string
-    {
-        return $this->function;
-    }
-    public function getProgress(): int
-    {
-        return $this->progress;
-    }
+	public function getID(): int
+	{
+		return $this->id;
+	}
+	public function getName(): string
+	{
+		return $this->name;
+	}
+	public function getTitle(): ?string
+	{
+		return $this->title;
+	}
+	public function getFunction(): string
+	{
+		return $this->function;
+	}
+	public function getProgress(): int
+	{
+		return $this->progress;
+	}
 }
+
+?>

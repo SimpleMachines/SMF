@@ -1,14 +1,26 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2024 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 1
+ */
+
 namespace SMF\Maintenance;
-use \SMF\Lang;
-use \SMF\Maintenance;
+
+use SMF\Lang;
+use SMF\Maintenance;
 
 class Template
 {
-    public static function header(): void
-    {
-        echo '<!DOCTYPE html>
+	public static function header(): void
+	{
+		echo '<!DOCTYPE html>
     <html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
     <head>
         <meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
@@ -27,10 +39,10 @@ class Template
             <img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
         </div>
         <div id="wrapper">';
-    
-        // Have we got a language drop down - if so do it on the first step only.
-        if (!empty(Maintenance::$languages) && count(Maintenance::$languages) > 1 && Maintenance::getCurrentStep() == 0) {
-            echo '
+
+		// Have we got a language drop down - if so do it on the first step only.
+		if (!empty(Maintenance::$languages) && count(Maintenance::$languages) > 1 && Maintenance::getCurrentStep() == 0) {
+			echo '
             <div id="upper_section">
                 <div id="inner_section">
                     <div id="inner_wrap">
@@ -38,13 +50,13 @@ class Template
                             <form action="', Maintenance::getSelf(), '" method="get">
                                 <label for="installer_language">', Lang::$txt['installer_language'], ':</label>
                                 <select id="installer_language" name="lang_file" onchange="location.href = \'', Maintenance::getSelf(), '?lang_file=\' + this.options[this.selectedIndex].value;">';
-    
-            foreach (Maintenance::$languages as $lang => $name) {
-                echo '
+
+			foreach (Maintenance::$languages as $lang => $name) {
+				echo '
                                     <option', isset($_SESSION['lang_file']) && $_SESSION['lang_file'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
-            }
-    
-            echo '
+			}
+
+			echo '
                                 </select>
                                 <noscript><input type="submit" value="', Lang::$txt['installer_language_set'], '" class="button"></noscript>
                             </form>
@@ -53,23 +65,23 @@ class Template
                     </div><!-- #inner_wrap -->
                 </div><!-- #inner_section -->
             </div><!-- #upper_section -->';
-        }
-    
-        echo '
+		}
+
+		echo '
             <div id="content_section">
                 <div id="main_content_section">
                     <div id="main_steps">
                         <h2>', Lang::$txt['upgrade_progress'], '</h2>
                         <ul class="steps_list">';
 
-        if (Maintenance::$tool->hasSteps()) {
-            foreach (Maintenance::$tool->getSteps() as $num => $step) {
-                echo '
+		if (Maintenance::$tool->hasSteps()) {
+			foreach (Maintenance::$tool->getSteps() as $num => $step) {
+				echo '
                             <li', $num == Maintenance::getCurrentStep() ? ' class="stepcurrent"' : '', '>', Lang::$txt['upgrade_step'], ' ', $step->getID(), ': ', $step->getName(), '</li>';
-            }
-        }
-    
-        echo '
+			}
+		}
+
+		echo '
                         </ul>
                     </div>
                     <div id="install_progress">
@@ -82,12 +94,12 @@ class Template
                     <div id="main_screen" class="clear">
                         <h2>', Maintenance::$tool->getStepTitle(), '</h2>
                         <div class="panel">';
-    
-    }
 
-    public static function footer(): void
-    {    
-        echo '
+	}
+
+	public static function footer(): void
+	{
+		echo '
                         </div><!-- .panel -->
                     </div><!-- #main_screen -->
                 </div><!-- #main_content_section -->
@@ -101,40 +113,39 @@ class Template
         </div>
     </body>
     </html>';
-    
-    }
 
-    public static function warningsAndErrors(): void
-    {
-        // Errors are very serious..
-        if (!empty(Maintenance::$fatal_error)) {
-            echo '
+	}
+
+	public static function warningsAndErrors(): void
+	{
+		// Errors are very serious..
+		if (!empty(Maintenance::$fatal_error)) {
+			echo '
             <div class="errorbox">
                 <h3>', Lang::$txt['upgrade_critical_error'], '</h3>
                 ', Maintenance::$fatal_error, '
             </div>';
-        }
-        else if (!empty(Maintenance::$errors)) {
-            echo '
+		} elseif (!empty(Maintenance::$errors)) {
+			echo '
             <div class="errorbox">
                 <h3>', Lang::$txt['upgrade_critical_error'], '</h3>
                 ', implode('
                 ', Maintenance::$errors), '
             </div>';
-        }
-        // A warning message?
-        elseif (!empty(Maintenance::$warnings)) {
-            echo '
+		}
+		// A warning message?
+		elseif (!empty(Maintenance::$warnings)) {
+			echo '
             <div class="errorbox">
                 <h3>', Lang::$txt['upgrade_warning'], '</h3>
                 ', implode('
                 ', Maintenance::$warnings), '
             </div>';
-        }
-    }
+		}
+	}
 
-    public static function missingLanguages(): void
-    {
+	public static function missingLanguages(): void
+	{
 		// Let's not cache this message, eh?
 		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
 		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -172,5 +183,7 @@ class Template
 </html>';
 
 		die;
-    }
+	}
 }
+
+?>

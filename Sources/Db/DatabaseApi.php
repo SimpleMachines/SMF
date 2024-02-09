@@ -440,6 +440,7 @@ abstract class DatabaseApi
 	{
 		if (defined('SMF_INSTALLING')) {
 			$this->reservedTables = [];
+
 			return;
 		}
 

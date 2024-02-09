@@ -36,7 +36,7 @@ class UserAlertsPrefs extends Table
 	public array $initial_columns = [
 		'id_member' => 'int',
 		'alert_pref' => 'string',
-		'alert_value' => 'int'
+		'alert_value' => 'int',
 	];
 
 	/**
