@@ -122,7 +122,7 @@ class Column
 		?int $size = null,
 		?bool $unsigned = null,
 		?bool $not_null = null,
-		mixed $default = null,
+		string|float|int|bool|null $default = null,
 		?bool $auto = null,
 		?string $charset = null,
 	) {
