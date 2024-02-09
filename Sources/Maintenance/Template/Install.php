@@ -23,13 +23,13 @@ use SMF\Maintenance\Template;
 use SMF\Maintenance\TemplateInterface;
 
 /**
- * Tempalte for Installer
+ * Template for Installer
  */
 class Install implements TemplateInterface
 {
-    /**
-     * Upper template for installer.
-     */
+	/**
+	 * Upper template for installer.
+	 */
 	public static function upper(): void
 	{
 		if (Maintenance::$sub_template) {
@@ -38,9 +38,9 @@ class Install implements TemplateInterface
 		}
 	}
 
-    /**
-     * Lower template for installer.
-     */
+	/**
+	 * Lower template for installer.
+	 */
 	public static function lower(): void
 	{
 		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip'])) {
@@ -67,9 +67,9 @@ class Install implements TemplateInterface
 		}
 	}
 
-    /**
-     * Welcome page for installer.
-     */
+	/**
+	 * Welcome page for installer.
+	 */
 	public static function Welcome(): void
 	{
 		echo '
@@ -112,9 +112,9 @@ class Install implements TemplateInterface
             </script>';
 	}
 
-    /**
-     * Check Files Writable page for installer.
-     */
+	/**
+	 * Check Files Writable page for installer.
+	 */
 	public static function CheckFilesWritable(): void
 	{
 		echo '
@@ -193,9 +193,9 @@ class Install implements TemplateInterface
             <a href="', Maintenance::$context['form_url'], '">', Lang::$txt['error_message_click'], '</a> ', Lang::$txt['ftp_setup_again'];
 	}
 
-    /**
-     * Database Settings page for installer.
-     */
+	/**
+	 * Database Settings page for installer.
+	 */
 	public static function DatabaseSettings(): void
 	{
 		echo '
@@ -293,9 +293,9 @@ class Install implements TemplateInterface
             </script>';
 	}
 
-    /**
-     * Forum Settings page for installer.
-     */
+	/**
+	 * Forum Settings page for installer.
+	 */
 	public static function ForumSettings(): void
 	{
 		echo '
@@ -362,9 +362,9 @@ class Install implements TemplateInterface
 
 	}
 
-    /**
-     * Database Populate page for installer.
-     */
+	/**
+	 * Database Populate page for installer.
+	 */
 	public static function DatabasePopulation(): void
 	{
 		echo '
@@ -400,9 +400,9 @@ class Install implements TemplateInterface
             <input type="hidden" name="pop_done" value="1">';
 	}
 
-    /**
-     * Admin Account page for installer.
-     */
+	/**
+	 * Admin Account page for installer.
+	 */
 	public static function AdminAccount(): void
 	{
 		echo '
@@ -460,9 +460,9 @@ class Install implements TemplateInterface
 		}
 	}
 
-    /**
-     * Delete Installer page for installer.
-     */
+	/**
+	 * Delete Installer page for installer.
+	 */
 	public static function DeleteInstall(): void
 	{
 		echo '

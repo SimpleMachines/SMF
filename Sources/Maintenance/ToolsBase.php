@@ -20,12 +20,31 @@ use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
 use SMF\Utils;
 
+/**
+ * Base class for all our tools. Includes commonly needed logic among all tools.
+ */
 abstract class ToolsBase
 {
+	/**
+	 * @var string
+	 *
+	 * Script name of the tool we are running.
+	 */
 	public string $script_name;
 
+	/**
+	 * @var FtpConnection
+	 *
+	 * Object container for the FTP session.
+	 */
 	private FtpConnection $ftp;
 
+	/**
+	 * Detects languages installed in SMF's languages folder.
+	 *
+	 * @param array $key_files These language files must exist in order to be considered a valid language.
+	 * @return array List of language that are valid in the format of $locale => $name
+	 */
 	final public function detectLanguages(array $key_files = ['General']): array
 	{
 		static $languages = [];
@@ -84,6 +103,11 @@ abstract class ToolsBase
 		return $languages;
 	}
 
+	/**
+	 * Find all databases that are supported on this system.
+	 *
+	 * @return array An array of supported databases in the format of $db_key => (Object for DatabaseInterface) $db
+	 */
 	public function supportedDatabases(): array
 	{
 		static $dbs = [];
@@ -119,6 +143,10 @@ abstract class ToolsBase
 		return $dbs;
 	}
 
+	/**
+	 * Delete the tool.  This is typically called with a ?delete.
+	 * No output is returned.  Upon successful deletion, the browser is redirected to a blank file.
+	 */
 	final public function deleteTool(): void
 	{
 		if (!empty($this->script_name) && file_exists(Config::$boarddir . '/' . $this->script_name)) {

@@ -19,37 +19,89 @@ use SMF\Maintenance\Template;
 use SMF\Maintenance\TemplateInterface;
 use SMF\Maintenance\ToolsInterface;
 
+/**
+ * Main class for all maintenance actions.
+ */
 class Maintenance
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Tool Types.
+	 */
 	public const INSTALL = 1;
-
 	public const UPGRADE = 2;
-
 	public const CONVERT = 3;
-
 	public const TOOL = 4;
-
 	public const SPECIAL = 99;
 
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * General variables we pass between the logic and template.
+	 */
 	public static array $context = [];
 
+	/**
+	 * List of languages we have for ths tool.
+	 *
+	 * @var array
+	 */
 	public static array $languages = [];
+
+	/**
+	 * List of warnings to display on the page.
+	 * @var array
+	 */
 	public static array $warnings = [];
+
+	/**
+	 * List of errors to display on the page.
+	 * @var array
+	 */
 	public static array $errors = [];
+
+	/**
+	 * Fatal error, we display this error message and do not process anything further until the error has been corrrected.
+	 * This differs from $errors in that we should not continue operations.
+	 *
+	 * @var string
+	 */
 	public static string $fatal_error = '';
 
 
 	/**
+	 * Object containing the tool we are working with.
+	 *
 	 * @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\ToolsBase
 	 */
 	public static ToolsInterface $tool;
 
 	/**
+	 * Object containing the tools template we are working with.
+	 *
 	 * @var \SMF\Maintenance\TemplateInterface
 	 */
 	public static TemplateInterface $template;
+
+	/**
+	 * Sub template to call during output.
+	 *
+	 * @var string
+	 */
 	public static string $sub_template = '';
 
+	/**
+	 * List of valid tools. The Special tool is a self contained logic, while other tools are located in the Tools directory.
+	 *
+	 * @var array
+	 */
 	private static array $valid_tools = [
 		self::INSTALL => 'Install',
 		self::UPGRADE => 'Upgrade',
@@ -58,13 +110,27 @@ class Maintenance
 		self::SPECIAL => 'Special',
 	];
 
+	/**
+	 * How far we have progressed.
+	 *
+	 * @var int
+	 */
 	public static int $overall_percent = 0;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
 		Security::frameOptionsHeader('SAMEORIGIN');
 	}
 
+	/**
+	 * This is the main call to get stuff done.
+	 *
+	 * @var int The tool type we are running.
+	 */
 	public function execute(int $type): void
 	{
 		if (!self::toolIsValid($type)) {
@@ -123,53 +189,102 @@ class Maintenance
 		self::exit();
 	}
 
+	/**
+	 * The lowest PHP version we support.
+	 * This can not be a int, as we have 2 decimals.
+	 *
+	 * @return string The lowest PHP version we support.
+	 */
 	public static function getRequiredVersionForPHP(): string
 	{
 		return '8.0.1';
 	}
 
-	// See if we think they have already installed it?
+	/**
+	 * See if we think they have already installed it?
+	 *
+	 * @return bool True if we believe SMF has been installed, false otherwise.
+	 */
 	public static function isInstalled(): bool
 	{
 		return ! (Config::$image_proxy_secret === 'smfisawesome' && Config::$db_passwd === '' && Config::$boardurl === 'http://127.0.0.1/smf');
 	}
 
-
+	/**
+	 * The URL to the script.
+	 *
+	 * @return string The URL to the script.
+	 */
 	public static function getSelf(): string
 	{
 		return $_SERVER['PHP_SELF'];
 	}
 
+	/**
+	 * Get the base directory in which the forum root is.
+	 *
+	 * @return string The directory name we are in.
+	 */
 	public static function getBaseDir(): string
 	{
 		return dirname(SMF_SETTINGS_FILE);
 	}
 
+	/**
+	 * Fetch our current step.
+	 *
+	 * @return int Current Step.
+	 */
 	public static function getCurrentStep(): int
 	{
 		return isset($_GET['step']) ? (int) $_GET['step'] : 0;
 	}
 
+	/**
+	 * Fetch our current sub-step.
+	 *
+	 * @return int Current Sub-Step
+	 */
 	public static function getCurrentSubStep(): int
 	{
 		return isset($_GET['substep']) ? (int) $_GET['substep'] : 0;
 	}
 
+	/**
+	 * Set our current sub-step. This is public as our tool needs to update this.
+	 *
+	 * @param null|int $substep The sub-step we on.  If null is passed, we will auto increment from the current.
+	 */
 	public static function setCurrentSubStep(?int $substep = null): void
 	{
 		$_GET['substep'] = $substep ?? (self::getCurrentSubStep() + 1);
 	}
 
+	/**
+	 * Fetch our current starting position. This is used for loops inside steps.
+	 *
+	 * @return int Current starting position.
+	 */
 	public static function getCurrentStart(): int
 	{
 		return isset($_GET['start']) ? (int) $_GET['start'] : 0;
 	}
 
+	/**
+	 * Set our current start. This is public as our tool needs to update this.
+	 *
+	 * @param null|int $substep The starting position we on.  If null is passed, we will auto increment from the current.
+	 */
 	public static function setCurrentStart(?int $start = null): void
 	{
 		$_GET['start'] = $start ?? (self::getCurrentStart() + 1);
 	}
 
+	/**
+	 * Determine the language file we want to load. This doesn't validate it exists, just that its a sane value to try.
+	 *
+	 * @return string Language we will load.
+	 */
 	public static function getRequestedLanguage(): string
 	{
 		if (isset($_GET['lang_file'])) {
@@ -183,26 +298,51 @@ class Maintenance
 		}
 
 			return 'en_US';
-
-
 	}
 
+	/**
+	 * Set's the sub template we will use. A check is made to ensure that we can call it.
+	 *
+	 * @param string $tmpl Template to use.
+	 */
 	public static function setSubTemplate(string $tmpl): void
 	{
 		if (method_exists(self::$template, $tmpl)) {
 			self::$sub_template = $tmpl;
 		}
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+
+	/**
+	 * Checks that the tool we requested is valid.
+	 *
+	 * @param int $type Tool we are trying to use.
+	 * @return bool True if it is valid, false otherwise.
+	 */
 	private static function toolIsValid(int $type): bool
 	{
 		return isset(self::$valid_tools[$type]);
 	}
 
+	/**
+	 * Set the current step. Tools do not gain access to this and its proteted.
+	 * @param null|int $step
+	 */
 	private static function setCurrentStep(?int $step = null): void
 	{
 		$_GET['step'] = $step ?? (self::getCurrentStep() + 1);
 	}
 
+	/**
+	 * Exit the script. This will wrap the templates.
+	 *
+	 * @param bool $fallThrough If true, we just skip templates and do nothing.
+	 * @return never All execution is stopped here.
+	 */
 	private static function exit(bool $fallThrough = false): void
 	{
 		// Send character set.

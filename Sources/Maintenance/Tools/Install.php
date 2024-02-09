@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Tools;
 
+use ArrayIterator;
 use Exception;
 use SMF\Config;
 use SMF\Cookie;
@@ -36,16 +37,58 @@ use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
+/**
+ * Installer tool.
+ */
 class Install extends ToolsBase implements ToolsInterface
 {
-	private string $schema_version = 'v3_0';
+	/*******************
+	 * Public properties
+	 *******************/
 
+	/**
+	 * @var bool
+	 *
+	 * When true, we can continue, when false the continue button is removed.
+	 */
 	public bool $continue = true;
+
+	/**
+	 * @var bool
+	 *
+	 * When true, we can skip this step, otherwise false and no skip option.
+	 */
 	public bool $skip = false;
 
-	public string $script_name = 'Setup.php';
+	/**
+	 * @var string
+	 *
+	 * The name of the script this tool uses. This is used by various actions and links.
+	 */
+	public string $script_name = 'install.php';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var null|string
+	 *
+	 * Custom page title, otherwise we send the defaults.
+	 */
 	private ?string $page_title = null;
+
+	/**
+	 * @var string
+	 *
+	 * SMF Schema we have selected for this tool.
+	 */
+	private string $schema_version = 'v3_0';
+
+	/****************
+	 * Public methods
+	 ****************/
+
 	public function __construct()
 	{
 		Maintenance::$languages = $this->detectLanguages(['General', 'Install']);
@@ -72,17 +115,32 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 	}
 
+	/**
+	 * Gets our page title to be sent to the template.
+	 * Selection is in the following order:
+	 *  1. A custom page title.
+	 *  2. Step has provided a title.
+	 *  3. Default for the installer tool.
+	 *
+	 * @return string Page Title
+	 */
 	public function getPageTitle(): string
 	{
 		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? Lang::$txt['smf_installer'];
 	}
 
+	/**
+	 * If a tool does not contain steps, this should be false, true otherwise.
+	 *
+	 * @return bool Whether or not a tool has steps.
+	 */
 	public function hasSteps(): bool
 	{
 		return true;
 	}
 
 	/**
+	 * Installer Steps
 	 *
 	 * @return \SMF\Maintenance\Step[]
 	 */
@@ -93,56 +151,66 @@ class Install extends ToolsBase implements ToolsInterface
 				id: 1,
 				name: Lang::$txt['install_step_welcome'],
 				function: 'Welcome',
-				progres: 0,
+				progress: 0,
 			),
 			1 => new Step(
 				id: 2,
 				name: Lang::$txt['install_step_writable'],
 				function: 'CheckFilesWritable',
-				progres: 10,
+				progress: 10,
 			),
 			2 => new Step(
 				id: 3,
 				name: Lang::$txt['install_step_databaseset'],
 				title: Lang::$txt['db_settings'],
 				function: 'DatabaseSettings',
-				progres: 15,
+				progress: 15,
 			),
 			3 => new Step(
 				id: 4,
 				name: Lang::$txt['install_step_forum'],
 				title: Lang::$txt['install_settings'],
 				function: 'ForumSettings',
-				progres: 40,
+				progress: 40,
 			),
 			4 => new Step(
 				id: 5,
 				name: Lang::$txt['install_step_databasechange'],
 				title: Lang::$txt['db_populate'],
 				function: 'DatabasePopulation',
-				progres: 15,
+				progress: 15,
 			),
 			5 => new Step(
 				id: 6,
 				name: Lang::$txt['install_step_admin'],
 				title: Lang::$txt['user_settings'],
 				function: 'AdminAccount',
-				progres: 20,
+				progress: 20,
 			),
 			6 => new Step(
 				id: 7,
 				name: Lang::$txt['install_step_delete'],
 				function: 'DeleteInstall',
-				progres: 0,
+				progress: 0,
 			),
 		];
 	}
 
+	/**
+	 * Gets the title for the step we are performing
+	 *
+	 * @return string
+	 */
 	public function getStepTitle(): string
 	{
 		return $this->getSteps()[Maintenance::getCurrentStep()]->getName();
 	}
 
+	/**
+	 * Welcome action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
 	public function Welcome(): bool
 	{
 		// Done the submission?
@@ -214,7 +282,12 @@ class Install extends ToolsBase implements ToolsInterface
 		return false;
 	}
 
-	public function CheckFilesWritable()
+	/**
+	 * Check Files Writable action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
+	public function CheckFilesWritable(): bool
 	{
 		$writable_files = [
 			'attachments',
@@ -414,6 +487,11 @@ class Install extends ToolsBase implements ToolsInterface
 		return true;
 	}
 
+	/**
+	 * Database Settings action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
 	public function DatabaseSettings()
 	{
 		Maintenance::$context['continue'] = true;
@@ -604,6 +682,11 @@ class Install extends ToolsBase implements ToolsInterface
 		return true;
 	}
 
+	/**
+	 * Forum Settings action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
 	public function ForumSettings()
 	{
 		// Let's see if we got the database type correct.
@@ -741,6 +824,11 @@ class Install extends ToolsBase implements ToolsInterface
 		return true;
 	}
 
+	/**
+	 * Database Population action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
 	public function DatabasePopulation(): bool
 	{
 		Maintenance::$context['continue'] = true;
@@ -941,6 +1029,11 @@ class Install extends ToolsBase implements ToolsInterface
 		return false;
 	}
 
+	/**
+	 * Admin Account action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
 	public function AdminAccount(): bool
 	{
 		Maintenance::$context['continue'] = true;
@@ -1150,6 +1243,11 @@ class Install extends ToolsBase implements ToolsInterface
 		return false;
 	}
 
+	/**
+	 * Delete Install action.
+	 *
+	 * @return bool True if we can continue, false otherwise.
+	 */
 	public function DeleteInstall(): bool
 	{
 		Maintenance::$context['continue'] = false;
@@ -1302,7 +1400,11 @@ class Install extends ToolsBase implements ToolsInterface
 		return false;
 	}
 
-	// Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
+	/**
+	 * Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
+	 *
+	 * @return bool True if we could create the file or do not need to.  False if this failed.
+	 */
 	private function checkAndTryToFixModSecurity(): bool
 	{
 		$htaccess_addition = '
@@ -1354,21 +1456,47 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 	}
 
-	private function createCookieName(string $db_name, string $db_prefix)
+	/**
+	 * Creates a unique cookie name based on some inputs.
+	 *
+	 * @param string $db_name The database named provided by Config::$db_name.
+	 * @param string $db_prefix The database prefix provided by Config::$db_prefix.
+	 * @return string The cookie name.
+	 */
+	private function createCookieName(string $db_name, string $db_prefix): string
 	{
 		return 'SMFCookie' . abs(crc32($db_name . preg_replace('~[^A-Za-z0-9_$]~', '', $db_prefix)) % 1000);
 	}
 
-	private function createAuthSecret()
+	/**
+	 * Generates a Config::$auth_secret string.
+	 *
+	 * @return string a cryptographic string.
+	 */
+	private function createAuthSecret(): string
 	{
 		return bin2hex(random_bytes(32));
 	}
 
-	private function createImageProxySecret()
+	/**
+	 * Generates a Config::$image_proxy_secret string.
+	 *
+	 * @return string a cryptographic string.
+	 */
+	private function createImageProxySecret(): string
 	{
 		return bin2hex(random_bytes(10));
 	}
-	private function updateSettingsFile($vars, $rebuild = false): bool
+
+	/**
+	 * Wrapper for SMF's Config::updateSettingsFile.
+	 * SMF may not be ready for us to write yet or the config file may not be writable. Make it safe.
+	 *
+	 * @param array $vars An Key/Value array of all the settings we will update.
+	 * @param bool $rebuild When true, we will force the settings file tor rebuild.
+	 * @return bool True if we could update the settings file, false otherwise.
+	 */
+	private function updateSettingsFile(array $vars, bool $rebuild = false): bool
 	{
 		if (!is_writable(SMF_SETTINGS_FILE)) {
 			@chmod(SMF_SETTINGS_FILE, 0777);
@@ -1381,6 +1509,12 @@ class Install extends ToolsBase implements ToolsInterface
 		return Config::updateSettingsFile($vars, false, $rebuild);
 	}
 
+	/**
+	 * Wrapper for loading the database.
+	 * If the database has already been loaded, we don't try again.
+	 *
+	 * @throws Exception
+	 */
 	private function loadDatabase(): void
 	{
 		// Connect the database.
@@ -1389,6 +1523,12 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 	}
 
+	/**
+	 * Given a database type, loads the maintenance database object.
+	 *
+	 * @param string $db_type The database type, typically from Config::$db_type.
+	 * @return DatabaseInterface The database object.
+	 */
 	private function getMaintenanceDatabase(string $db_type): DatabaseInterface
 	{
 		/** @var \SMF\Maintenance\DatabaseInterface $db_class */
@@ -1399,11 +1539,22 @@ class Install extends ToolsBase implements ToolsInterface
 		return new $db_class();
 	}
 
+	/**
+	 * Determine the default host, used during install to populate Config::$boardurl.
+	 *
+	 * @return string The host we have determined to be on.
+	 */
 	private function defaultHost(): string
 	{
 		return empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 	}
 
+	/**
+	 * Given a board url, this will clean up some mistakes and other errors.
+	 *
+	 * @param string $boardurl Input boardurl
+	 * @return string Returned board url.
+	 */
 	private function cleanBoardUrl(string $boardurl): string
 	{
 		if (substr($boardurl, -10) == '/index.php') {
@@ -1432,10 +1583,13 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
+	 * Fetch al the tables for our schema.
 	 *
+	 * @param string $base_directory Root directory for all of our schemas.
+	 * @param string $schema_version Schema we are loading.
 	 * @return \ArrayIterator|\SMF\Db\Schema\Table[]
 	 */
-	private function getTables(string $base_directory, string $schema_version): \ArrayIterator
+	private function getTables(string $base_directory, string $schema_version): ArrayIterator
 	{
 		$files = [];
 
@@ -1454,9 +1608,14 @@ class Install extends ToolsBase implements ToolsInterface
 
 		ksort($files);
 
-		return new \ArrayIterator($files);
+		return new ArrayIterator($files);
 	}
 
+	/**
+	 * Determine if we need to enable or disable (during upgrades) SMF stat collection.
+	 *
+	 * @param array $settings Settings array, passed by reference.
+	 */
 	private function togglleSmStats(array &$settings): void
 	{
 		if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
@@ -1500,6 +1659,11 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 	}
 
+	/**
+	 * Attempt to determine what our time zone is.  If this can't be determined we return nothing.
+	 *
+	 * @return null|string A valid time zone or nothing.
+	 */
 	private function determineTimezone(): ?string
 	{
 		if (isset(Config::$modSettings['default_timezone']) || !function_exists('date_default_timezone_set')) {
@@ -1532,6 +1696,10 @@ class Install extends ToolsBase implements ToolsInterface
 		return null;
 	}
 
+	/**
+	 * Populating smileys are a bit complicated, so its performed here rather than inline.
+	 *
+	 */
 	private function populateSmileys(): void
 	{
 		// Populate the smiley_files table.
@@ -1584,7 +1752,6 @@ class Install extends ToolsBase implements ToolsInterface
 			$smiley_inserts,
 			['id_smiley', 'smiley_set'],
 		);
-
 	}
 }
 

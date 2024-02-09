@@ -16,8 +16,14 @@ namespace SMF\Maintenance;
 use SMF\Lang;
 use SMF\Maintenance;
 
+/**
+ * Template for Maintenance scripts.
+ */
 class Template
 {
+	/**
+	 * header template.
+	 */
 	public static function header(): void
 	{
 		echo '<!DOCTYPE html>
@@ -97,6 +103,9 @@ class Template
 
 	}
 
+	/**
+	 * footer template.
+	 */
 	public static function footer(): void
 	{
 		echo '
@@ -116,6 +125,9 @@ class Template
 
 	}
 
+	/**
+	 * A simple errors display.
+	 */
 	public static function warningsAndErrors(): void
 	{
 		// Errors are very serious..
@@ -144,6 +156,9 @@ class Template
 		}
 	}
 
+	/**
+	 * Shows a fatal error message if we are missing language files.
+	 */
 	public static function missingLanguages(): void
 	{
 		// Let's not cache this message, eh?
