@@ -26,6 +26,54 @@ $txt['percent_format'] = '{0}%';
 // Currency format. '{0}' will be replaced by the numerical value. '¤' will be replaced by the relevant currency symbol. HTML entities (e.g. '&nbsp;') are supported in this string.
 $txt['currency_format'] = '¤{0}';
 
+// Ordinal numbers.
+$txt['ordinal'] = '{0, selectordinal,
+	one {#st}
+	two {#nd}
+	few {#rd}
+	other {#th}
+}';
+// Ordinal numbers, but spelling out values less than 10.
+$txt['ordinal_spellout'] = '{0, selectordinal,
+	=1 {first}
+	=2 {second}
+	=3 {third}
+	=4 {fourth}
+	=5 {fifth}
+	=6 {sixth}
+	=7 {seventh}
+	=8 {eighth}
+	=9 {ninth}
+	one {#st}
+	two {#nd}
+	few {#rd}
+	other {#th}
+}';
+// Interprets negative ordinal numbers as counting from the end. For example, "-2" becomes "2nd to last".
+$txt['ordinal_last'] = '{0, selectordinal,
+	=-1 {last}
+	one {{0, number, :: sign-never}st to last}
+	two {{0, number, :: sign-never}nd to last}
+	few {{0, number, :: sign-never}rd to last}
+	other {{0, number, :: sign-never}th to last}
+}';
+// Interprets negative ordinal numbers as counting from the end, but spelling out values less than 10. For example, "-2" becomes "second to last", but "-22" becomes "22nd to last".
+$txt['ordinal_spellout_last'] = '{0, selectordinal,
+	=-1 {last}
+	=-2 {second to last}
+	=-3 {third to last}
+	=-4 {fourth to last}
+	=-5 {fifth to last}
+	=-6 {sixth to last}
+	=-7 {seventh to last}
+	=-8 {eighth to last}
+	=-9 {ninth to last}
+	one {{0, number, :: sign-never}st to last}
+	two {{0, number, :: sign-never}nd to last}
+	few {{0, number, :: sign-never}rd to last}
+	other {{0, number, :: sign-never}th to last}
+}';
+
 // Formats for time units.
 $txt['number_of_years'] = '{0, plural,
 	one {# year}
