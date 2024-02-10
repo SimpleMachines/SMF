@@ -96,6 +96,8 @@ function template_show_upcoming_list($grid_name)
 				</div>
 				<ul>';
 
+		$first_shown = [];
+
 		foreach ($calendar_data['events'] as $date => $date_events)
 		{
 			foreach ($date_events as $event)
@@ -149,6 +151,19 @@ function template_show_upcoming_list($grid_name)
 
 				if (!empty($event['location']))
 					echo '<br>', $event['location'];
+
+				// If the first occurrence is not visible on the current page,
+				// we mention it in the RRULE description.
+				if ($event->is_first) {
+					$first_shown[] = $event->id_event;
+				}
+
+				$rrule_description = $event->getParentEvent()->recurrence_iterator->getRRule()->getDescription($event, !in_array($event->id_event, $first_shown));
+
+				if (!empty($rrule_description)) {
+					echo '
+						<br>', $rrule_description;
+				}
 
 				echo '
 					</li>';

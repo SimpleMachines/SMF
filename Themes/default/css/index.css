@@ -3826,7 +3826,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .generic_list_wrapper .information div {
 	background: none;
 }
-.information a:not(.button) {
+.information a:not(.button):not(.bbc_link) {
 	font-weight: bold;
 }
 p.information img {

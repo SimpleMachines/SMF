@@ -15,6 +15,11 @@ declare(strict_types=1);
 
 namespace SMF\Calendar;
 
+use SMF\Config;
+use SMF\Lang;
+use SMF\Time;
+use SMF\Utils;
+
 /**
  * Represents a recurrence rule from RFC 5545.
  */
@@ -514,6 +519,551 @@ class RRule implements \Stringable
 		}
 
 		return implode(';', $rrule);
+	}
+
+	/**
+	 * Builds a human-readable description of this RRule.
+	 *
+	 * @param EventOccurrence $occurrence The event occurrence that is currently
+	 *    being viewed.
+	 * @param ?bool $show_start Whether to show the start date in the description.
+	 *    If not set, will be determined automatically.
+	 */
+	public function getDescription(EventOccurrence $occurrence, ?bool $show_start = null): string
+	{
+		if (($this->count ?? 0) === 1) {
+			return '';
+		}
+
+		// Just in case...
+		Lang::load('General+Modifications');
+
+		if (!empty($this->bysetpos)) {
+			$description = $this->getDescriptionBySetPos($occurrence->getParentEvent()->start);
+		} else {
+			$description = $this->getDescriptionNormal($occurrence->getParentEvent()->start);
+		}
+
+		// When the repetition ends.
+		if (isset($this->until)) {
+			if (
+				!in_array($this->freq, ['HOURLY', 'MINUTELY', 'SECONDLY'])
+				&& empty($this->byhour)
+				&& empty($this->byminute)
+				&& empty($this->bysecond)
+			) {
+				$until = Time::createFromInterface($this->until)->format(Time::getDateFormat());
+			} else {
+				$until = Time::createFromInterface($this->until)->format();
+			}
+
+			$description .= ' ' . Lang::getTxt('calendar_rrule_desc_until', ['date' => $until]);
+		} elseif (!empty($this->count)) {
+			$description .= ' ' . Lang::getTxt('calendar_rrule_desc_count', ['count' => $this->count]);
+		}
+
+		$description = Lang::getTxt(
+			'calendar_rrule_desc',
+			[
+				'rrule_description' => $description,
+				'start_date' => ($show_start ?? !$occurrence->is_first) ? '<a href="' . Config::$scripturl . '?action=calendar;event=' . $occurrence->id_event . '" class="bbc_link">' . Time::createFromInterface($occurrence->getParentEvent()->start)->format($occurrence->allday ? Time::getDateFormat() : null, false) . '</a>' : 'false',
+			],
+		);
+
+		return Utils::normalizeSpaces(
+			$description,
+			true,
+			true,
+			[
+				'no_breaks' => true,
+				'collapse_hspace' => true,
+			],
+		);
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Gets the description without any BYSETPOS considerations.
+	 *
+	 * @param \DateTimeInterface $start
+	 */
+	protected function getDescriptionNormal(\DateTimeInterface $start): string
+	{
+		$description = [];
+
+		// Basic frequency interval (e.g. "Every year", "Every 3 weeks", etc.)
+		$description['frequency_interval'] = Lang::getTxt('calendar_rrule_desc_frequency_interval', ['freq' => $this->freq, 'interval' => $this->interval]);
+
+		$this->getDescriptionByDay($start, $description);
+		$this->getDescriptionByMonth($start, $description);
+		$this->getDescriptionByWeekNo($start, $description);
+		$this->getDescriptionByYearDay($start, $description);
+		$this->getDescriptionByMonthDay($start, $description);
+		$this->getDescriptionByTime($start, $description);
+
+		return implode(' ', $description);
+	}
+
+	/**
+	 * Gets the description with BYSETPOS considerations.
+	 *
+	 * @param \DateTimeInterface $start
+	 */
+	protected function getDescriptionBySetPos(\DateTimeInterface $start): string
+	{
+		$description = [];
+
+		// BYSETPOS can theoretically be used with any RRule, but it only really
+		// makes much sense to use it with BYDAY and BYMONTH (and that is the
+		// only way it will ever be used in events created by SMF). For that
+		// reason, it is really awkward to build a custom BYSETPOS description
+		// for RRules that contain any BY* values besides BYDAY and BYMONTH.
+		// So in the rare case that we are given such an RRule, we just use
+		// 'the nth instance of "<normal description>"' and call it good enough.
+		if (
+			empty($byweekno)
+			&& empty($byyearday)
+			&& empty($bymonthday)
+			&& empty($byhour)
+			&& empty($byminute)
+			&& empty($bysecond)
+		) {
+			if (!empty($this->byday)) {
+				$days_long_or_short = count($this->byday) > 3 ? 'days_short' : 'days';
+
+				$day_names = [];
+
+				foreach ($this->byday as $day) {
+					if (in_array($day, self::WEEKDAYS)) {
+						$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day, self::WEEKDAYS) + 1) % 7];
+					} else {
+						$desc_byday = 'calendar_rrule_desc_byday';
+
+						list($num, $name) = preg_split('/(?=MO|TU|WE|TH|FR|SA|SU)/', $day);
+						$num = empty($num) ? 1 : (int) $num;
+
+						$nth = Lang::getTxt($num < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($num)]);
+						$day_name = Lang::$txt[$days_long_or_short][(array_search($name, self::WEEKDAYS) + 1) % 7];
+
+						$day_names[] = Lang::getTxt('calendar_rrule_desc_ordinal_day_name', ['ordinal' => $nth, 'day_name' => $day_name]);
+					}
+				}
+
+				$description['byday'] = Lang::sentenceList($day_names, 'xor');
+			}
+
+			if (!empty($this->bymonth)) {
+				if (($this->freq === 'MONTHLY' || $this->freq === 'YEARLY') && ($this->interval ?? 1) === 1) {
+					unset($description['frequency_interval']);
+				}
+
+				$months_titles = [];
+
+				foreach ($this->bymonth as $month_num) {
+					$months_titles[] = Lang::$txt['month_titles'][$month_num];
+				}
+
+				$description['bymonth'] = Lang::getTxt('calendar_rrule_desc_bymonth', ['months_titles' => Lang::sentenceList($months_titles)]);
+			}
+
+			// Basic frequency interval (e.g. "Every year", "Every 3 weeks", etc.)
+			$frequency_interval = Lang::getTxt('calendar_rrule_desc_frequency_interval', ['freq' => $this->freq, 'interval' => $this->interval]);
+		} else {
+			$description[] = '<q>' . $this->getDescriptionNormal($start) . '</q>';
+		}
+
+		$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bysetpos);
+
+		return (isset($frequency_interval) ? $frequency_interval . ' ' : '') . Lang::getTxt(
+			'calendar_rrule_desc_bysetpos',
+			[
+				'ordinal_list' => Lang::sentenceList($ordinals),
+				'count' => count($this->bysetpos),
+				'rrule_description' => implode(' ', $description),
+			],
+		);
+	}
+
+	/**
+	 * Day of week (e.g. "on Monday", "on Monday and Tuesday", "on the 3rd Monday")
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param array &$description
+	 */
+	protected function getDescriptionByDay(\DateTimeInterface $start, array &$description): void
+	{
+		if (empty($this->byday)) {
+			return;
+		}
+
+		if (($this->freq === 'DAILY' || $this->freq === 'WEEKLY') && ($this->interval ?? 1) === 1) {
+			unset($description['frequency_interval']);
+		}
+
+		$desc_byday = ($this->freq === 'YEARLY' && empty($this->byweekno)) || $this->freq === 'MONTHLY' ? 'calendar_rrule_desc_byday_every' : 'calendar_rrule_desc_byday';
+
+		$days_long_or_short = count($this->byday) > 3 ? 'days_short' : 'days';
+
+		$day_names = [];
+
+		foreach ($this->byday as $day) {
+			if (in_array($day, self::WEEKDAYS)) {
+				$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day, self::WEEKDAYS) + 1) % 7];
+			} else {
+				$desc_byday = 'calendar_rrule_desc_byday';
+
+				list($num, $name) = preg_split('/(?=MO|TU|WE|TH|FR|SA|SU)/', $day);
+				$num = empty($num) ? 1 : (int) $num;
+
+				$nth = Lang::getTxt($num < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($num)]);
+				$day_name = Lang::$txt[$days_long_or_short][(array_search($name, self::WEEKDAYS) + 1) % 7];
+
+				$day_names[] = Lang::getTxt('calendar_rrule_desc_ordinal_day_name', ['ordinal' => $nth, 'day_name' => $day_name]);
+			}
+		}
+
+		$description['byday'] = Lang::getTxt($desc_byday, ['day_names' => Lang::sentenceList($day_names)]);
+
+		if (
+			$desc_byday === 'calendar_rrule_desc_byday_every'
+			&& ($this->interval ?? 1) > 1
+			&& (
+				$this->freq === 'MONTHLY'
+				|| (
+					$this->freq === 'YEARLY'
+					&& empty($this->bymonth)
+					&& empty($this->byweekno)
+					&& empty($this->byyearday)
+					&& empty($this->bymonthday)
+				)
+			)
+		) {
+			$description['bymonth'] = Lang::getTxt(
+				'calendar_rrule_desc_bygeneric',
+				[
+					'list' => Lang::getTxt(
+						'calendar_rrule_desc_frequency_interval_ordinal',
+						[
+							'freq' => $this->freq,
+							'interval' => $this->interval,
+						],
+					),
+				],
+			);
+
+			unset($description['frequency_interval']);
+		}
+	}
+
+	/**
+	 * Months (e.g. "in January", "in March and April")
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param array &$description
+	 */
+	protected function getDescriptionByMonth(\DateTimeInterface $start, array &$description): void
+	{
+		if (empty($this->bymonth)) {
+			return;
+		}
+
+		if (($this->freq === 'MONTHLY' || $this->freq === 'YEARLY') && ($this->interval ?? 1) === 1) {
+			unset($description['frequency_interval']);
+		}
+
+		$months_titles = [];
+
+		foreach ($this->bymonth as $month_num) {
+			$months_titles[] = Lang::$txt['months_titles'][$month_num];
+		}
+
+		$description['bymonth'] = Lang::getTxt('calendar_rrule_desc_bymonth', ['months_titles' => Lang::sentenceList($months_titles)]);
+	}
+
+	/**
+	 * Week number (e.g. "in the 3rd week of the year")
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param array &$description
+	 */
+	protected function getDescriptionByWeekNo(\DateTimeInterface $start, array &$description): void
+	{
+		if (empty($this->byweekno)) {
+			return;
+		}
+
+		if ($this->freq === 'YEARLY' && ($this->interval ?? 1) === 1) {
+			unset($description['frequency_interval']);
+		}
+
+		$ordinals = array_map(fn ($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byweekno);
+		$description['byweekno'] = Lang::getTxt('calendar_rrule_desc_byweekno', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
+	}
+
+	/**
+	 * Day of year (e.g. "on the 3rd day of the year")
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param array &$description
+	 */
+	protected function getDescriptionByYearDay(\DateTimeInterface $start, array &$description): void
+	{
+		if (empty($this->byyearday)) {
+			return;
+		}
+
+		if ($this->freq === 'YEARLY' && ($this->interval ?? 1) === 1) {
+			unset($description['frequency_interval']);
+		}
+
+		$ordinals = array_map(fn ($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byyearday);
+		$description['byeyarday'] = Lang::getTxt('calendar_rrule_desc_byyearday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
+	}
+
+	/**
+	 * Day of month (e.g. "on the 3rd day of the month")
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param array &$description
+	 */
+	protected function getDescriptionByMonthDay(\DateTimeInterface $start, array &$description): void
+	{
+		if (empty($this->bymonthday)) {
+			return;
+		}
+
+		if ($this->freq === 'MONTHLY' && ($this->interval ?? 1) === 1) {
+			unset($description['frequency_interval']);
+		}
+
+		// Special cases for when we have both day names and month days.
+		if (
+			count($this->byday ?? []) >= 1
+			&& array_intersect($this->byday, self::WEEKDAYS) === $this->byday
+		) {
+			$days_long_or_short = count($this->byday) > 3 ? 'days_short' : 'days';
+
+			// "Friday the 13th"
+			if (count($this->bymonthday) === 1 && count($this->byday) === 1) {
+				$named_monthday = Lang::getTxt(
+					'calendar_rrule_desc_named_monthday',
+					[
+						'day_name' => Lang::$txt[$days_long_or_short][(array_search($this->byday[0], self::WEEKDAYS) + 1) % 7],
+						'ordinal_month_day' => Lang::getTxt('ordinal', $this->bymonthday),
+						'cardinal_month_day' => $this->bymonthday[0],
+					],
+				);
+
+				if ($this->freq === 'MONTHLY') {
+					$description['frequency_interval'] = Lang::getTxt(
+						'calendar_rrule_desc_frequency_interval',
+						[
+							'freq' => $named_monthday,
+						],
+					);
+
+					unset($description['byday']);
+				} else {
+					$description['byday'] = Lang::getTxt(
+						'calendar_rrule_desc_byday',
+						[
+							'day_names' => $named_monthday,
+						],
+					);
+				}
+			}
+			// "the first Tuesday or Thursday that is the second, third, or fourth day of the month"
+			else {
+				foreach ($this->byday as $day_abbrev) {
+					$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day_abbrev, self::WEEKDAYS) + 1) % 7];
+				}
+
+				$ordinal_form = max(array_map('abs', $this->bymonthday)) < 10 && count($this->bymonthday) <= 3 ? 'ordinal_spellout' : 'ordinal';
+
+				$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? $ordinal_form . '_last' : $ordinal_form, [abs($n)]), $this->bymonthday);
+
+				$description['byday'] = Lang::getTxt(
+					'calendar_rrule_desc_byday',
+					[
+						'day_names' => Lang::getTxt(
+							'calendar_rrule_desc_named_monthdays',
+							[
+								'ordinal_list' => Lang::sentenceList($ordinals, 'or'),
+								'day_name' => Lang::sentenceList($day_names, 'or'),
+							],
+						),
+					],
+				);
+			}
+		}
+		// Normal case.
+		else {
+			$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bymonthday);
+			$description['bymonthday'] = Lang::getTxt('calendar_rrule_desc_bymonthday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
+		}
+	}
+
+	/**
+	 * Hour, minute, and second.
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param array &$description
+	 */
+	protected function getDescriptionByTime(\DateTimeInterface $start, array &$description): void
+	{
+		// Hour, minute, and second.
+		$time_format = Time::getTimeFormat();
+
+		// Do we need to show seconds?
+		if (!empty($this->bysecond) || $this->freq === 'SECONDLY') {
+			if (Time::isStrftimeFormat($time_format)) {
+				if (!str_contains($time_format, '%S')) {
+					if (str_contains($time_format, '%M')) {
+						$time_format = str_replace('%M', '%M:%S', $time_format);
+					} else {
+						if (str_contains($time_format, '%I')) {
+							$time_format = str_replace('%I', '%I:%M:%S', $time_format);
+						} elseif (str_contains($time_format, '%l')) {
+							$time_format = str_replace('%l', '%l:%M:%S', $time_format);
+						} elseif (str_contains($time_format, '%H')) {
+							$time_format = str_replace('%H', '%H:%M:%S', $time_format);
+						} elseif (str_contains($time_format, '%k')) {
+							$time_format = str_replace('%k', '%k:%M:%S', $time_format);
+						} else {
+							$time_format = '%H:%M:%S';
+						}
+					}
+				}
+			} else {
+				if (!str_contains($time_format, 's')) {
+					if (str_contains($time_format, 'i')) {
+						$time_format = str_replace('i', 'i:s', $time_format);
+					} else {
+						if (str_contains($time_format, 'h')) {
+							$time_format = str_replace('h', 'h:i:s', $time_format);
+						} elseif (str_contains($time_format, 'g')) {
+							$time_format = str_replace('g', 'g:i:s', $time_format);
+						} elseif (str_contains($time_format, 'H')) {
+							$time_format = str_replace('H', 'H:i:s', $time_format);
+						} elseif (str_contains($time_format, 'G')) {
+							$time_format = str_replace('G', 'G:i:s', $time_format);
+						} else {
+							$time_format = 'H:i:s';
+						}
+					}
+				}
+			}
+		}
+
+		$min = Time::createFromInterface($start);
+
+		$max = Time::createFromInterface($start)->setTime(
+			(int) (isset($this->byhour) ? max($this->byhour) : $start->format('H')),
+			(int) (isset($this->byminute) ? max($this->byminute) : $start->format('i')),
+			(int) (isset($this->bysecond) ? max($this->bysecond) : $start->format('s')),
+		);
+
+		// Seconds.
+		if (!empty($this->bysecond)) {
+			if ($this->freq === 'SECONDLY' && ($this->interval ?? 1) === 1) {
+				unset($description['frequency_interval']);
+			}
+
+			if (range(min($this->bysecond), max($this->bysecond)) === $this->bysecond) {
+				$list = Lang::getTxt(
+					'calendar_rrule_desc_between',
+					[
+						'min' => $min->format('s'),
+						'max' => Lang::getTxt('number_of_seconds', [$max->format('s')]),
+					],
+				);
+			} else {
+				$list = $this->bysecond;
+
+				sort($list);
+				$list[array_key_last($list)] = Lang::getTxt('number_of_seconds', [$list[array_key_last($list)]]);
+				$list = Lang::sentenceList($list);
+			}
+
+			$description['bytime'] = Lang::getTxt('calendar_rrule_desc_bytime', ['times_list' => $list]);
+		}
+
+		// Minutes.
+		if (!empty($this->byminute)) {
+			if ($this->freq === 'MINUTELY' && ($this->interval ?? 1) === 1) {
+				unset($description['frequency_interval']);
+			}
+
+			if (range(min($this->byminute), max($this->byminute)) === $this->byminute) {
+				$list = Lang::getTxt(
+					'calendar_rrule_desc_between',
+					[
+						'min' => $min->format('i'),
+						'max' => Lang::getTxt('number_of_minutes', [$max->format('i')]),
+					],
+				);
+
+				if (!isset($description['bytime'])) {
+					$description['bytime'] = Lang::getTxt('calendar_rrule_desc_byminute', ['minute_list' => $list]);
+				} else {
+					$description['bytime'] .= ' ' . Lang::getTxt('calendar_rrule_desc_byminute', ['minute_list' => $list]);
+				}
+			} else {
+				$list = $this->byminute;
+
+				sort($list);
+				$list[array_key_last($list)] = Lang::getTxt('number_of_minutes', [$list[array_key_last($list)]]);
+				$list = Lang::sentenceList($list);
+
+				if (!isset($description['bytime'])) {
+					$description['bytime'] = Lang::getTxt('calendar_rrule_desc_bytime', ['times_list' => Lang::getTxt('calendar_rrule_desc_byminute', ['minute_list' => $list])]);
+				} else {
+					$description['bytime'] .= ' ' . Lang::getTxt('calendar_rrule_desc_bygeneric', ['list' => Lang::getTxt('calendar_rrule_desc_byminute', ['minute_list' => $list])]);
+				}
+			}
+		} elseif (!empty($this->bysecond)) {
+			$description['bytime'] .= ' ' . Lang::getTxt('calendar_rrule_desc_bygeneric', ['list' => Lang::getTxt('calendar_rrule_desc_frequency_interval', ['freq' => 'MINUTELY', 'interval' => 1])]);
+		}
+
+		// Hours.
+		if (!empty($this->byhour)) {
+			if ($this->freq === 'HOURLY' && ($this->interval ?? 1) === 1) {
+				unset($description['frequency_interval']);
+			}
+
+			if (range(min($this->byhour), max($this->byhour)) === $this->byhour) {
+				$list = Lang::getTxt(
+					'calendar_rrule_desc_between',
+					[
+						'min' => $min->format($time_format),
+						'max' => $max->format($time_format),
+					],
+				);
+
+				if (!isset($description['bytime'])) {
+					$description['bytime'] = $list;
+				} else {
+					$description['bytime'] .= ' ' . $list;
+				}
+			} else {
+				$list = $this->byhour;
+
+				sort($list);
+				$list[array_key_last($list)] = Lang::getTxt('number_of_hours', [$list[array_key_last($list)]]);
+				$list = Lang::sentenceList($list);
+
+				if (!isset($description['bytime'])) {
+					$description['bytime'] = Lang::getTxt('calendar_rrule_desc_bytime', ['times_list' => $list]);
+				} else {
+					$description['bytime'] .= ' ' . Lang::getTxt('calendar_rrule_desc_bygeneric', ['list' => $list]);
+				}
+			}
+		} elseif (!empty($this->byminute)) {
+			$description['bytime'] .= ' ' . Lang::getTxt('calendar_rrule_desc_bygeneric', ['list' => Lang::getTxt('calendar_rrule_desc_frequency_interval', ['freq' => 'HOURLY', 'interval' => 1])]);
+		}
 	}
 }
 

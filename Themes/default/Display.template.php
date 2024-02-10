@@ -236,6 +236,13 @@ function template_main()
 				echo '
 					<br>', $event['location'];
 
+			$rrule_description = $event->getParentEvent()->recurrence_iterator->getRRule()->getDescription($event);
+
+			if (!empty($rrule_description)) {
+				echo '
+					<br>', $rrule_description;
+			}
+
 			echo '
 				</li>';
 		}
