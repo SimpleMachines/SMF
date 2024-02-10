@@ -114,26 +114,26 @@ class LogComments extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_comment',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_recipient',
 				columns: [
 					'id_recipient',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_comment_type',
 				columns: [
 					'comment_type(8)',

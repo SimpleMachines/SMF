@@ -74,14 +74,14 @@ class Qanda extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_question',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_lngfile',
 				columns: [
 					'lngfile',

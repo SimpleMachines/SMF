@@ -121,14 +121,14 @@ class AdminInfoFiles extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_file',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_filename',
 				columns: [
 					'filename(30)',

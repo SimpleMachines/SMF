@@ -103,20 +103,20 @@ class MailQueue extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_mail',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_time_sent',
 				columns: [
 					'time_sent',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_mail_priority',
 				columns: [
 					'priority',

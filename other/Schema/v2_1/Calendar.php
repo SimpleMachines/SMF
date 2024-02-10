@@ -115,26 +115,26 @@ class Calendar extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_event',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_start_date',
 				columns: [
 					'start_date',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_end_date',
 				columns: [
 					'end_date',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_topic',
 				columns: [
 					'id_topic',

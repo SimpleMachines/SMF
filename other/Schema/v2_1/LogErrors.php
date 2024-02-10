@@ -119,26 +119,26 @@ class LogErrors extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_error',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_ip',
 				columns: [
 					'ip',

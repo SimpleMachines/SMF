@@ -41,11 +41,11 @@ abstract class Table
 	public array $columns;
 
 	/**
-	 * @var \SMF\Db\Schema\Index[]
+	 * @var \SMF\Db\Schema\Indices[]
 	 *
-	 * An array of SMF\Db\Schema\Index objects.
+	 * An array of SMF\Db\Schema\Indices objects.
 	 */
-	public array $indices = [];
+	public array $indexes = [];
 
 	/**
 	 * @var array
@@ -108,7 +108,7 @@ abstract class Table
 		return Db::$db->create_table(
 			$this->name,
 			array_map('get_object_vars', $this->columns),
-			array_map('get_object_vars', $this->indices),
+			array_map('get_object_vars', $this->indexes),
 			$parameters,
 			$if_exists,
 		);

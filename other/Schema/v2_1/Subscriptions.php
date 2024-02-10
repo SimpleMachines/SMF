@@ -123,14 +123,14 @@ class Subscriptions extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_subscribe',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_active',
 				columns: [
 					'active',

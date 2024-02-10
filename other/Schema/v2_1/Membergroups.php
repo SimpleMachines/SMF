@@ -191,14 +191,14 @@ class Membergroups extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_group',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_min_posts',
 				columns: [
 					'min_posts',

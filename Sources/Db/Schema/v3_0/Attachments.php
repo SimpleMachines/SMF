@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\Indices;
 use SMF\Db\Schema\Table;
 
 /**
@@ -158,14 +158,14 @@ class Attachments extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_attach',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [
@@ -173,19 +173,19 @@ class Attachments extends Table
 					'id_attach',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_msg',
 				columns: [
 					'id_msg',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_attachment_type',
 				columns: [
 					'attachment_type',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_thumb',
 				columns: [
 					'id_thumb',

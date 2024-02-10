@@ -149,14 +149,14 @@ class MessageIcons extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_icon',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_board',
 				columns: [
 					'id_board',

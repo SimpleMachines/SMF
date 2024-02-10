@@ -61,15 +61,15 @@ class LogSearchSubjects extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'word',
 					'id_topic',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',

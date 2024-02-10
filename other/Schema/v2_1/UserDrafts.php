@@ -140,14 +140,14 @@ class UserDrafts extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_draft',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [

@@ -90,26 +90,26 @@ class LogReportedComments extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_comment',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_report',
 				columns: [
 					'id_report',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_time_sent',
 				columns: [
 					'time_sent',

@@ -73,8 +73,8 @@ class LogSpiderStats extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'stat_date',

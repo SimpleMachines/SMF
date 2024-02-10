@@ -70,8 +70,8 @@ class LogPolls extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				name: 'idx_id_poll',
 				columns: [
 					'id_poll',

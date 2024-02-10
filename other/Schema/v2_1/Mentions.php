@@ -75,8 +75,8 @@ class Mentions extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'content_id',
@@ -84,14 +84,14 @@ class Mentions extends Table
 					'id_mentioned',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'content',
 				columns: [
 					'content_id',
 					'content_type',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'mentionee',
 				columns: [
 					'id_member',

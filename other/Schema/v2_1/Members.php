@@ -362,92 +362,92 @@ class Members extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_member_name',
 				columns: [
 					'member_name',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_real_name',
 				columns: [
 					'real_name',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_email_address',
 				columns: [
 					'email_address',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_date_registered',
 				columns: [
 					'date_registered',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_group',
 				columns: [
 					'id_group',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_birthdate',
 				columns: [
 					'birthdate',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_posts',
 				columns: [
 					'posts',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_last_login',
 				columns: [
 					'last_login',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_lngfile',
 				columns: [
 					'lngfile(30)',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_post_group',
 				columns: [
 					'id_post_group',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_warning',
 				columns: [
 					'warning',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_total_time_logged_in',
 				columns: [
 					'total_time_logged_in',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_theme',
 				columns: [
 					'id_theme',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_active_real_name',
 				columns: [
 					'is_activated',

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\Indices;
 use SMF\Db\Schema\Table;
 
 /**
@@ -126,26 +126,26 @@ class LogErrors extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_error',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_ip',
 				columns: [
 					'ip',

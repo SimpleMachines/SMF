@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\Indices;
 use SMF\Db\Schema\Table;
 
 /**
@@ -82,8 +82,8 @@ class Mentions extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'content_id',
@@ -91,14 +91,14 @@ class Mentions extends Table
 					'id_mentioned',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'content',
 				columns: [
 					'content_id',
 					'content_type',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'mentionee',
 				columns: [
 					'id_member',

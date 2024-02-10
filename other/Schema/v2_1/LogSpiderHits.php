@@ -82,14 +82,14 @@ class LogSpiderHits extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_hit',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_processed',
 				columns: [
 					'processed',

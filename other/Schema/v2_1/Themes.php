@@ -127,8 +127,8 @@ class Themes extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_theme',
@@ -136,7 +136,7 @@ class Themes extends Table
 					'variable(30)',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',

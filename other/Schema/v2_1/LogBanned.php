@@ -81,14 +81,14 @@ class LogBanned extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_ban_log',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',

@@ -74,8 +74,8 @@ class UserLikes extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'content_id',
@@ -83,14 +83,14 @@ class UserLikes extends Table
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'content',
 				columns: [
 					'content_id',
 					'content_type',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'liker',
 				columns: [
 					'id_member',

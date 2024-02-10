@@ -210,26 +210,26 @@ class ScheduledTasks extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_task',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_next_time',
 				columns: [
 					'next_time',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_disabled',
 				columns: [
 					'disabled',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_task',
 				type: 'unique',
 				columns: [

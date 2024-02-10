@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\Indices;
 use SMF\Db\Schema\Table;
 
 /**
@@ -139,38 +139,38 @@ class LogReported extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_report',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_closed',
 				columns: [
 					'closed',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_time_started',
 				columns: [
 					'time_started',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_msg',
 				columns: [
 					'id_msg',

@@ -605,14 +605,14 @@ class CalendarHolidays extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_holiday',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_event_date',
 				columns: [
 					'event_date',

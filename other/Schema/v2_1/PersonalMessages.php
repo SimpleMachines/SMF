@@ -102,27 +102,27 @@ class PersonalMessages extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_pm',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member_from',
 					'deleted_by_sender',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_msgtime',
 				columns: [
 					'msgtime',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_pm_head',
 				columns: [
 					'id_pm_head',

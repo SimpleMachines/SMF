@@ -74,8 +74,8 @@ class LogNotify extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_member',
@@ -83,7 +83,7 @@ class LogNotify extends Table
 					'id_board',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',

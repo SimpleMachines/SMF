@@ -95,15 +95,15 @@ class PmRecipients extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_pm',
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [

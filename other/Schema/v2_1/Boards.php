@@ -195,14 +195,14 @@ class Boards extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_board',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_categories',
 				type: 'unique',
 				columns: [
@@ -210,19 +210,19 @@ class Boards extends Table
 					'id_board',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_parent',
 				columns: [
 					'id_parent',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_msg_updated',
 				columns: [
 					'id_msg_updated',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_member_groups',
 				columns: [
 					'member_groups(48)',

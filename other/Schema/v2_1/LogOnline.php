@@ -87,32 +87,32 @@ class LogOnline extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'session',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Index(
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_install',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_filename',
 				columns: [
 					'filename(15)',

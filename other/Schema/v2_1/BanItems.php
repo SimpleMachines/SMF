@@ -100,20 +100,20 @@ class BanItems extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_ban',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_ban_group',
 				columns: [
 					'id_ban_group',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_ban_ip',
 				columns: [
 					'ip_low',

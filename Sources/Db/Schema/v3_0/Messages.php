@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\Indices;
 use SMF\Db\Schema\Table;
 
 /**
@@ -201,14 +201,14 @@ class Messages extends Table
 			),
 		];
 
-		$this->indices = [
-			new Index(
+		$this->indexes = [
+			new Indices(
 				type: 'primary',
 				columns: [
 					'id_msg',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_board',
 				type: 'unique',
 				columns: [
@@ -217,7 +217,7 @@ class Messages extends Table
 					'approved',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [
@@ -225,28 +225,28 @@ class Messages extends Table
 					'id_msg',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_ip_index',
 				columns: [
 					'poster_ip',
 					'id_topic',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_participation',
 				columns: [
 					'id_member',
 					'id_topic',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_show_posts',
 				columns: [
 					'id_member',
 					'id_board',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_id_member_msg',
 				columns: [
 					'id_member',
@@ -254,7 +254,7 @@ class Messages extends Table
 					'id_msg',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_current_topic',
 				columns: [
 					'id_topic',
@@ -263,7 +263,7 @@ class Messages extends Table
 					'approved',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_related_ip',
 				columns: [
 					'id_member',
@@ -271,7 +271,7 @@ class Messages extends Table
 					'id_msg',
 				],
 			),
-			new Index(
+			new Indices(
 				name: 'idx_likes',
 				columns: [
 					'likes',
