@@ -597,7 +597,7 @@ function template_edit_reserved_words()
 			<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", Utils::$context['reserved_words']), '</textarea>
 			<div class="form_grid">
 				<div>
-					<label for="matchword">', Lang::$txt['admin_match_whole'], '</div>
+					<label for="matchword">', Lang::$txt['admin_match_whole'], '</label>
 				</div>
 				<div>
 					<input type="checkbox" name="matchword" id="matchword"', Utils::$context['reserved_word_options']['match_word'] ? ' checked' : '', '>

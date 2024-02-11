@@ -42,7 +42,7 @@ function template_fatal_error()
 				', Utils::$context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg" ', Utils::$context['error_code'], '>
+		<div class="windowbg" id="http_', Utils::$context['error_code'], '">
 			', Utils::$context['error_message'], '
 		</div>
 	</div>';

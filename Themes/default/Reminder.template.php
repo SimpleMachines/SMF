@@ -50,7 +50,7 @@ function template_reminder_pick()
 		<div class="windowbg form_grid">
 			<p class="descbox">', Lang::$txt['authentication_options'], ':</p>
 			<p>
-				<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checkeiv></label>
+				<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked></label>
 				<label for="reminder_type_email">', Lang::$txt['authentication_password_email'], '</label></div>
 			</p>
 			<p>
