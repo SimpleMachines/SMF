@@ -10,7 +10,7 @@
 	float: right;
 }
 .action_admin .table_grid td {
-	border: 1px solid #ddd;
+	border: var(--border_width) var(--border_style) var(--border_color);
 	border-top: 0;
 }
 .action_admin .generic_list .flow_auto {
@@ -28,7 +28,7 @@ a.help span {
 	margin-right: 2px;
 }
 .table_caption, tr.table_caption td {
-	color: #000;
+	color: var(--black);
 	font-size: 10px;
 	font-weight: bold;
 }
@@ -43,7 +43,7 @@ fieldset dl {
 }
 legend {
 	font-weight: bold;
-	color: #000;
+	color: var(--black);
 }
 
 /* Styles for the admin home screen.
@@ -73,13 +73,13 @@ legend {
 	padding: 5px 0;
 	overflow: auto;
 	line-height: 1.7em;
-	border-bottom: double #ccc;
+	border-bottom: double var(--border_color);
 }
 .search_results li:last-child {
 	border: none;
 }
 .search_results li a strong {
-	color: #346;
+	color: var(--link);
 }
 .search_results li p {
 	padding: 0 20px;
@@ -107,22 +107,22 @@ legend {
 }
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
-	border-top: 1px solid #bf6900;
+	border-top: var(--border_width) var(--border_style) var(--border_color);
 }
 #smfAnnouncements dt a {
-	color: #bf6900;
+	color: var(--link);
 	font-weight: bold;
 	display: block;
 }
 #smfAnnouncements dd {
 	margin: 0;
 	padding: 6px 12px;
-	border-top: double #ddd;
+	border-top: double var(--border_color);
 }
 
 fieldset.admin_group legend {
-	background: #eaf1f4;
-	border: 1px solid #cacdd3;
+	background: var(--window_bg_color);
+	border: var(--border_width) var(--border_style) var(--border_color);
 	padding: 1px 5px;
 	border-radius: 3px;
 }
@@ -278,12 +278,12 @@ fieldset.admin_group .inactive {
 	border: none;
 }
 #package_list li {
-	border: 1px solid #cacdd3;
+	border: var(--border_width) var(--border_style) var(--border_color);
 	padding: 0.2em;
 	margin: 1px;
 }
 .package_section {
-	border: 1px solid #cacdd3;
+	border: var(--border_width) var(--border_style) var(--border_color);
 }
 span.package_server {
 	padding-left: 3em;
@@ -313,23 +313,23 @@ pre.file_content {
 	text-align: center;
 }
 .perm_read {
-	background-color: #d1f7bf;
+	background-color: var(--perm_read_bg_color);
 	width: 8%;
 }
 .perm_writable {
-	background-color: #ffbbbb;
+	background-color: var(--perm_writable_bg_color);
 	width: 8%;
 }
 .perm_execute {
-	background-color: #fdd7af;
+	background-color: var(--perm_execute_bg_color);
 	width: 8%;
 }
 .perm_custom {
-	background-color: #c2c6c0;
+	background-color: var(--perm_custom_bg_color);
 	width: 8%;
 }
 .perm_no_change {
-	background-color: #eee;
+	background-color: var(--perm_no_change_bg_color);
 	width: 8%;
 }
 
@@ -351,27 +351,27 @@ pre.file_content {
 	padding: 8px 0;
 	margin: 0;
 	border-radius: 0;
-	border: 1px solid #ddd;
+	border: var(--border_width) var(--border_style) var(--border_color);
 	border-bottom: none;
 }
 #manage_boards li.windowbg:first-child {
 	border-top: none;
 }
 #manage_boards li.windowbg:last-child {
-	border-bottom: 1px solid #ddd;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
 }
 #manage_boards li.windowbg:hover {
-	background: #d0e7f8;
+	background: var(--window_table_row_bg_hover_color);
 }
 #manage_boards li .floatleft {
 	font-weight: bold;
 	padding: 0 6px;
 }
 #manage_boards li#recycle_board {
-	background-color: #dee;
+	background-color: var(--manage_boards_li_recycle_board_bg_color);
 }
 #manage_boards li.redirect_board, #manage_boards li.redirect_board:hover {
-	background-color: #eed;
+	background-color: var(--manage_boards_li_redirect_board_bg_color);
 }
 .move_links {
 	padding: 0 13px 0 0;
@@ -387,7 +387,7 @@ pre.file_content {
 	margin: 0 0 8px 0;
 }
 #manage_boards span.post_group, #manage_boards span.regular_members {
-	border-bottom: 1px dotted #000;
+	border-bottom: 1px dotted var(--border_color);
 	cursor: help;
 }
 .select_all_box {
@@ -405,7 +405,7 @@ dl.right dt {
 
 /* Styles for the manage membergroups section. */
 .denyboards_layout .board:hover {
-	background: #e3e9ec;
+	background: var(--window_table_row_bg_hover_color);
 }
 .all_boards_in_cat {
 	margin-left: 2.5em;
@@ -461,15 +461,15 @@ span.search_weight {
 }
 .perm_boards li {
 	list-style-type: none;
-	border: 1px solid #cacdd3;
+	border: var(--border_width) var(--border_style) var(--border_color);
 	border-top: 0;
 	padding: 0.2em;
 }
 .perm_boards li:first-child {
-	border-top: 1px solid #cacdd3;
+	border-top: var(--border_width) var(--border_style) var(--border_color);
 }
 .perm_groups {
-	background-color: #fff;
+	background-color: var(--perm_groups_bg_color);
 }
 .perms {
 	width: 20px;
@@ -530,7 +530,7 @@ ul.moderation_notes {
 }
 ul.moderation_notes li {
 	padding: 0.2em;
-	border-bottom: 1px solid #ccc;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
 }
 .notes {
 	margin-top: 0.4em;
@@ -551,6 +551,10 @@ ul.moderation_notes li {
 	display: flex;
 	flex-flow: wrap;
 	gap: 0 1em;
+}
+.report_results th {
+	border-left: var(--border_width) var(--border_style) var(--border_color);
+	border-right: var(--border_width) var(--border_style) var(--border_color);
 }
 .report_result {
 	margin: 1ex 0 !important;
@@ -577,13 +581,13 @@ h3.config_hd {
 }
 
 .windowbg.highlight2 {
-	background: #d0e7f8;
+	background: var(--window_table_row_bg_hover_color);
 }
 
 /* Css edit page */
 #css_preview_box {
 	margin-bottom: 2ex;
-	border: 1px solid #777;
+	border: var(--border_width) var(--border_style) var(--border_color);
 	width: 100%;
 	height: 400px;
 }
@@ -597,11 +601,11 @@ h3.config_hd {
 }
 
 .move_smileys a:hover img {
-	border-color: #71a0c8;
+	border-color: var(--move_smileys_link_hover_img_border_color);
 }
 
 .move_smileys .selected_item {
-	border-color: #ffb42d;
+	border-color: var(--move_smileys_selected_item_border_color);
 }
 
 /* Progress bars */
