@@ -37,7 +37,7 @@
 .sy-list{width:100%;list-style:none;margin:0;padding:0;position:relative}
 .sy-list.horizontal{-o-transition:left ease;-webkit-transition:left ease;transition:left ease}
 .sy-list.vertical{-o-transition:top ease;-webkit-transition:top ease;transition:top ease}
-.sy-slide{width:100%;padding:12px 16px;position: absolute;top: 0}
+.sy-slide{width:100%;padding: 0px;position: absolute;top: 0}
 .sy-slide.kenburns{width:140%;left:-20%}
 .sy-slide.kenburns.useCSS{-o-transition-property:opacity;-webkit-transition-property:opacity;transition-property:opacity}
 .sy-slide.kenburns.useCSS.sy-ken:nth-child(1n){-webkit-animation-name:left-right;-webkit-animation-fill-mode:forwards;-o-animation-name:left-right;-o-animation-fill-mode:forwards;animation-name:left-right;animation-fill-mode:forwards}
@@ -47,8 +47,8 @@
 .sy-slide > a > img{margin:0;padding:0;display:block;max-width:100%;border:0}
 .sy-pager{overflow:hidden;display:block;width:100%;margin:1em 0 0;padding:0;list-style:none;text-align:center}
 .sy-pager li{display:inline-block;width:1.2em;height:1.2em;margin:0 0.5em;border-radius:50%}
-.sy-pager li.sy-active a{background-color:#557EA0}
-.sy-pager li a{width:100%;height:100%;display:block;background-color:#ccc;text-indent:-9999px;background-size:2em;border-radius:50%}
+.sy-pager li.sy-active a{background-color:var(--link)}
+.sy-pager li a{width:100%;height:100%;display:block;background-color:var(--window_bg_odd_color);text-indent:-9999px;background-size:2em;border-radius:50%}
 .sy-pager li a:link,.sy-pager li a:visited{opacity:1}
 .sy-pager li a:hover,.sy-pager li a:focus{opacity:.6}
 .sy-filler{width:100%;padding-top: 2px !important}

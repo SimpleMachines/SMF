@@ -1,9 +1,5 @@
 /* Some very big stuff? Dunno... */
 @media (min-width: 856px) and (max-width: 1024px) {
-	.lastpost {
-		width: 20%;
-		margin: 3px 0 0 5px;
-	}
 	#alerts .alert_time {
 		display: none;
 	}
@@ -72,7 +68,7 @@
 		margin: 0 auto;
 	}
 	#mobile_action .notify_dropdown a {
-		border-bottom: 1px solid #999;
+		border-bottom: var(--border_width) var(--border_style) var(--border_color);
 	}
 	#mobile_action .notify_dropdown a:last-of-type {
 		border-bottom: none;
@@ -110,7 +106,7 @@
 
 	/* Stuff */
 	#top_info {
-		padding: 5px;
+		padding: 1px;
 	}
 	.infolinks {
 		display: inline-block;
@@ -156,7 +152,7 @@
 	#footer {
 		padding: 10px;
 	}
-	#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
+	#top_section .inner_wrap, #wrapper, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
 		width: 100%;
 	}
 	#upper_section, #inner_section, #content_section {
@@ -194,11 +190,15 @@
 		min-height: 2em;
 	}
 	.up_contain .lastpost {
-		border-top: 1px solid #ddd;
+		background: var(--children_bg_color);
+		border-top: var(--border_width) var(--border_style) var(--border_color);
 		min-height: initial;
 	}
 	.lastpost p {
 		margin: 5px;
+	}
+	.board_lastpost {
+		padding: 0px 0px 0px 0px;
 	}
 	span.postby {
 		display: inline-block;
@@ -218,10 +218,6 @@
 	}
 	#messageindex .info {
 		padding: 8px 10px;
-	}
-	.info_block {
-		display: block;
-		width: 95%;
 	}
 	.moderation a {
 		padding: 3px;
@@ -387,7 +383,7 @@
 	}
 	/* Hide me */
 	#inner_wrap.hide_720, #inner_wrap time, #inner_wrap .news,
-	#search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#search_form,	 #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
@@ -470,6 +466,7 @@
 	}
 	#main_menu {
 		margin: 0;
+		border: none;
 	}
 	.popup_window,
 	#main_menu .popup_window,
@@ -500,7 +497,7 @@
 	a[class^="mobile_generic_menu_"] {
 		display: flex;
 		align-items: center;
-		margin: 0 0 4px 0;
+		margin: 9px 0px 0px 0px;
 	}
 	a[class^="mobile_generic_menu_"] {
 		margin: 8px 0;
@@ -545,7 +542,9 @@
 		position: absolute;
 		padding: 5px 0;
 		right: 10px;
-		font: 83.33%/150% Arial, sans-serif;
+		font-family: var(--dropmenu_subsections_font_family);
+		font-size: var(--dropmenu_subsections_font_size);
+		line-height: var(--dropmenu_subsections_line_height);
 		content: "\25bc" !important;
 	}
 	.dropmenu li ul,
@@ -553,6 +552,7 @@
 		position: relative;
 		border-radius: 0;
 		left: 0;
+		top: 0;
 		box-shadow: none;
 	}
 	/* 3rd level menu tests */
@@ -577,9 +577,11 @@
 /* Entry level phones */
 @media (max-width: 480px) {
 	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px;
-		max-width: 300px;
-		margin: 10px 0;
+		padding: 0px;
+		max-width: 220px;
+		margin: 0px;
+		min-height: 80px;
+		display: inline-flex;
 	}
 	.board_moderators {
 		display: none;
@@ -853,4 +855,11 @@
 /* iPhone Tests */
 @media (max-width: 320px) {
 
+}
+
+/*Unread Links Hide*/
+@media (max-width: 770px) {
+    .unread_links {
+		display: none;
+	}
 }

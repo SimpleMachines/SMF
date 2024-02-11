@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -53,11 +53,17 @@ function template_init()
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	Theme::$current->settings['theme_version'] = '2.1';
 
+	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
+    Theme::$current->settings['require_theme_strings'] = false;
+
+	// Define the Theme variants.
+	Theme::$current->settings['theme_variants'] = array('light', 'dark');
+
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last post on the board index.
-	Theme::$current->settings['avatars_on_boardIndex'] = false;
+	Theme::$current->settings['avatars_on_boardIndex'] = true;
 
 	// Set the following variable to true if this theme wants to display the login and register buttons in the main forum menu.
 	Theme::$current->settings['login_main_menu'] = false;
@@ -84,6 +90,7 @@ function template_init()
  */
 function template_html_above()
 {
+	Theme::loadCSSFile('https://use.fontawesome.com/releases/v6.1.2/css/all.css', array('external' => true));
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', '>
@@ -118,6 +125,8 @@ function template_html_above()
 			'integrate_load_theme' hook for adding multiple files, or using
 			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
+
+	Theme::loadCSSFile('custom.css', array('minimize' => true));
 
 	// load in any css from mods or themes so they can overwrite if wanted
 	Theme::template_css();
@@ -197,24 +206,31 @@ function template_html_above()
  */
 function template_body_above()
 {
-	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
-	echo '
-	<div id="top_section">
-		<div class="inner_wrap">';
 
+	// Header
+	echo '
+	<div id="header">
+		<div class="inner_wrap">
+			<h1 class="forumtitle">
+				<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
+			</h1>';
+
+    //User Panel
 	// If the user is logged in, display some things that might be useful.
+	echo '
+	<div class="user_panel">';
 	if (User::$me->is_logged)
 	{
 		// Firstly, the user's menu
 		echo '
-			<ul class="floatleft" id="top_info">
+			<ul id="top_info">
 				<li>
 					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
 
 		if (!empty(User::$me->avatar))
 			echo User::$me->avatar['image'];
 
-		echo '<span class="textmenu">', User::$me->name, '</span></a>
+		echo '</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
@@ -224,7 +240,7 @@ function template_body_above()
 				<li>
 					<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
 						<span class="main_icons inbox"></span>
-						<span class="textmenu">', Lang::$txt['pm_short'], '</span>', !empty(User::$me->unread_messages) ? '
+						', !empty(User::$me->unread_messages) ? '
 						<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
 					</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
@@ -235,7 +251,7 @@ function template_body_above()
 				<li>
 					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
 						<span class="main_icons alerts"></span>
-						<span class="textmenu">', Lang::$txt['alerts'], '</span>', !empty(User::$me->alerts) ? '
+						', !empty(User::$me->alerts) ? '
 						<span class="amt">' . User::$me->alerts . '</span>' : '', '
 					</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
@@ -260,7 +276,6 @@ function template_body_above()
 		if (!empty(Theme::$current->settings['login_main_menu']))
 		{
 			echo '
-			<ul class="floatleft">
 				<li class="welcome">', Lang::getTxt(
 					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
 					[
@@ -270,12 +285,13 @@ function template_body_above()
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
 				), '</li>
+			<ul>
 			</ul>';
 		}
 		else
 		{
 			echo '
-			<ul class="floatleft" id="top_info">
+			<ul id="top_info">
 				<li class="welcome">
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
 				</li>
@@ -330,124 +346,49 @@ function template_body_above()
 				</noscript>
 			</form>';
 	}
-
-	if (Utils::$context['allow_search'])
-	{
-		echo '
-			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="search" name="search" value="">&nbsp;';
-
-		// Using the quick search dropdown?
-		$selected = !empty(Utils::$context['current_topic']) ? 'current_topic' : (!empty(Utils::$context['current_board']) ? 'current_board' : 'all');
-
-		echo '
-				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', Lang::$txt['search_entireforum'], ' </option>';
-
-		// Can't limit it to a specific topic if we are not in one
-		if (!empty(Utils::$context['current_topic']))
-			echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', Lang::$txt['search_thistopic'], '</option>';
-
-		// Can't limit it to a specific board if we are not in one
-		if (!empty(Utils::$context['current_board']))
-			echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', Lang::$txt['search_thisboard'], '</option>';
-
-		// Can't search for members if we can't see the memberlist
-		if (!empty(Utils::$context['allow_memberlist']))
-			echo '
-					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', Lang::$txt['search_members'], ' </option>';
-
-		echo '
-				</select>';
-
-		// Search within current topic?
-		if (!empty(Utils::$context['current_topic']))
-			echo '
-				<input type="hidden" name="sd_topic" value="', Utils::$context['current_topic'], '">';
-
-		// If we're on a certain board, limit it to this board ;).
-		elseif (!empty(Utils::$context['current_board']))
-			echo '
-				<input type="hidden" name="sd_brd" value="', Utils::$context['current_board'], '">';
-
-		echo '
-				<input type="submit" name="search2" value="', Lang::$txt['search'], '" class="button">
-				<input type="hidden" name="advanced" value="0">
-			</form>';
-	}
-
-	echo '
-		</div><!-- .inner_wrap -->
-	</div><!-- #top_section -->';
-
-	echo '
-	<div id="header">
-		<h1 class="forumtitle">
-			<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
-		</h1>';
-
-	echo '
-		', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '';
-
-	echo '
-	</div>
-	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap"', !User::$me->is_logged ? ' class="hide_720"' : '', '>
-					<div class="user">
-						<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
-
-	if (User::$me->is_logged)
-		echo '
-						<ul class="unread_links">
-							<li>
-								<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
-							</li>
-							<li>
-								<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
-							</li>
-						</ul>';
-
-	echo '
-					</div>';
-
-	// Show a random news item? (or you could pick one from news_lines...)
-	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
-		echo '
-					<div class="news">
-						<h2>', Lang::$txt['news'], ': </h2>
-						<p>', Utils::$context['random_news_line'], '</p>
-					</div>';
-
-	echo '
-				</div>';
+	    echo '
+			</div>
+		</div>
+	</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	// Load mobile menu here
 	echo '
-				<a class="mobile_user_menu">
-					<span class="menu_icon"></span>
+			<a class="mobile_user_menu">
+				<span class="menu_icon"></span>
 					<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
 				</a>
 				<div id="main_menu">
+				  <div class="inner_wrap">
 					<div id="mobile_user_menu" class="popup_container">
 						<div class="popup_window description">
 							<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
 								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-							</div>
+							</div>';
+							if (User::$me->is_logged)
+							echo '
+							    <div class="unread_links floatright">
+									<ul class="unread_links">
+										<li>
+											<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
+										</li>
+										<li>
+											<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
+										</li>
+									</ul>
+							    </div>';
+                            echo '
 							', template_menu(), '
 						</div>
 					</div>
-				</div>';
+		        </div>
+			</div>';
+
+	// Wrapper
+	echo '
+	<div id="wrapper">';
 
 	theme_linktree();
-
-	echo '
-			</div><!-- #inner_section -->
-		</div><!-- #upper_section -->';
 
 	// The main content should go here.
 	echo '
@@ -474,7 +415,7 @@ function template_body_below()
 	// There is now a global "Go to top" link at the right.
 	echo '
 		<ul>
-			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', Lang::$txt['go_up'], ' &#9650;</a></li>
+			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], '<i class="fa-solid fa-circle-question"></i></a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . '<i class="fa-solid fa-list-ul"></i></a>' : '', ' | <a href="#top_section">', Lang::$txt['go_up'], ' &#9650;</a></li>
 			<li class="copyright">', Theme::copyright(), '</li>
 		</ul>';
 
@@ -500,7 +441,7 @@ function template_body_below()
  */
 function template_html_below()
 {
-	// Load in any javascript that could be deferred to the end of the page
+	// Load in any javascipt that could be deferred to the end of the page
 	Theme::template_javascript(true);
 
 	echo '
