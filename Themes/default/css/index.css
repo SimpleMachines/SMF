@@ -96,13 +96,11 @@ input:focus, select:focus, textarea:focus {
 	box-shadow: var(--input-box-shadow_focus);
 	border-color: var(--input-border-color_focus);
 	border-width: var(--input-border-width_focus);
-	outline: none;
 	text-shadow: var(--input-text-shadow_focus);
 }
 input:focus-visible, textarea:focus-visible {
-	outline-color: var(--input-outline-color);
-	outline-style: solid;
-	outline-width: var(--input-outline-width);
+	outline: var(--input-outline);
+	outline-offset: var(--input-outline-offset);
 }
 /* Shadows and borders for sceditor might look strange */
 .sceditor-container textarea {
@@ -204,10 +202,8 @@ button.active:is(:hover, :focus, :focus-visible), .button.active:is(:hover, :foc
 	color: var(--button-color_active_hover);
 }
 button:focus-visible, .button:focus-visible, input[type="button"]:focus-visible {
-	outline-color: var(--button-outline-color);
+	outline: var(--button-outline);
 	outline-offset: var(--button-outline-offset);
-	outline-style: var(--button-outline-style);
-	outline-width: var(--button-outline-width);
 }
 /* Give disabled input elements a different style */
 input[disabled], textarea[disabled], select[disabled], button[disabled]
@@ -603,9 +599,8 @@ blockquote cite::before {
 	border-color: var(--bbc-link-border-color_hover);
 }
 .bbc_link:focus, .bbc_link:focus-visible {
-	outline-style: solid;
-	outline-color: var(--bbc-link-outline-color);
-	outline-offset: 0;
+	outline: var(--bbc-link-outline);
+	outline-offset: var(--bbc-link-outline-offset);
 }
 .bbc_size {
 	line-height: 1.4em;
@@ -1043,10 +1038,8 @@ img.sort, .sort {
 	text-shadow: var(--topinfo-text-shadow_focus);
 }
 #top_info > li > a:focus-visible {
-	outline-color: var(--topinfo-outline-color);
+	outline: var(--topinfo-outline);
 	outline-offset: var(--topinfo-outline-offset);
-	outline-style: var(--topinfo-outline-style);
-	outline-width: var(--topinfo-outline-width);
 }
 #top_info > li > a.active {
 	background: var(--topinfo-bg_active);
@@ -1143,6 +1136,7 @@ img.sort, .sort {
 	border-color: var(--topmenu-header-border-color);
 	border-style: var(--topmenu-header-border-style);
 	border-width: var(--topmenu-header-border-width);
+	color: var(--topmenu-header-color);
 	font-size: var(--topmenu-header-font-size);
 	padding-block: var(--topmenu-header-padding-block);
 	padding-inline: var(--topmenu-header-padding-inline);
@@ -1247,10 +1241,8 @@ ol.profile_user_links {
 }
 .profile_user_links li a:focus-visible,
 .profile_user_links li:has(:focus-visible) a {
-	outline-color: var(--profilelinks-item-outline-color);
+	outline: var(--profilelinks-item-outline);
 	outline-offset: var(--profilelinks-item-outline-offset);
-	outline-style: var(--profilelinks-item-outline-style);
-	outline-width: var(--profilelinks-item-outline-width);
 }
 .profile_user_links i::before,
 .profile_user_links span.main_icons::before {
@@ -1331,6 +1323,7 @@ a.generic_notification:hover .details,
 .generic_notification span.main_icons {
 	color: var(--genericnoti-icon-color);
 	font-size: 0.75em;
+	inset-inline-end: -0.35em;
 	top: 0.25em;
 	position: absolute;
 }
@@ -1477,10 +1470,8 @@ a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
 }
 .dropmenu > li > a:focus-visible,
 .dropmenu > li:has(:focus-visible) > a {
-	outline-color: var(--dropmenu-a1-outline-color);
+	outline: var(--dropmenu-a1-outline);
 	outline-offset: var(--dropmenu-a1-outline-offset);
-	outline-style: var(--dropmenu-a1-outline-style);
-	outline-width: var(--dropmenu-a1-outline-width);
 }
 .dropmenu > li > a.active {
 	background: var(--dropmenu-a1-bg_active);
@@ -1585,10 +1576,8 @@ a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
 }
 .dropmenu ul a:focus-visible,
 .dropmenu ul li:has(:focus-visible) > a {
-	outline-color: var(--dropmenu-an-outline-color);
+	outline: var(--dropmenu-an-outline);
 	outline-offset: var(--dropmenu-an-outline-offset);
-	outline-style: var(--dropmenu-an-outline-style);
-	outline-width: var(--dropmenu-an-outline-width);
 }
 .dropmenu ul a:is(.active, .chosen) {
 	background: var(--dropmenu-an-bg_active);
@@ -1724,12 +1713,10 @@ a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
 	background: var(--buttonlist-link-bg_active_focus);
 	color: var(--buttonlist-link-color_active_focus);
 }
-.buttonlist > li > a:foccus-visible,
+.buttonlist > li > a:focus-visible,
 .buttonlist > li.inline_mod_check:focus-visible {
-	outline-color: var(--buttonlist-link-outline-color);
+	outline: var(--buttonlist-link-outline);
 	outline-offset: var(--buttonlist-link-outline-offset);
-	outline-style: var(--buttonlist-link-outline-style);
-	outline-width: var(--buttonlist-link-outline-width);
 }
 .buttonlist > li > a.sub_buttons::after {
 	font-family: "Font Awesome 6 Free";
@@ -1907,11 +1894,9 @@ html[lang="el-GR"] .buttonlist > li > a {
 	background: var(--pages-link-bg_active_focus);
 	color: var(--pages-link-color_active_hover);
 }
-.pagelinks a.nav_page:foccus-visible {
-	outline-color: var(--pages-link-outline-color);
+.pagelinks a.nav_page:focus-visible {
+	outline: var(--pages-link-outline);
 	outline-offset: var(--pages-link-outline-offset);
-	outline-style: var(--pages-link-outline-style);
-	outline-width: var(--pages-link-outline-width);
 }
 .pages::after, .jump_to::after, .code::after,
 strong[id^='child_list_']::after {
@@ -2391,12 +2376,10 @@ ul li.greeting {
 	text-decoration: var(--quickbuttons-link-text-decoration_focus);
 	text-shadow: var(--quickbuttons-link-text-shadow_focus);
 }
-.quickbuttons > li > a:foccus-visible,
+.quickbuttons > li > a:focus-visible,
 .quickbuttons > li.inline_mod_check:focus-visible {
-	outline-color: var(--quickbuttons-link-outline-color);
+	outline: var(--quickbuttons-link-outline);
 	outline-offset: var(--quickbuttons-link-outline-offset);
-	outline-style: var(--quickbuttons-link-outline-style);
-	outline-width: var(--quickbuttons-link-outline-width);
 }
 .quickbuttons > li > a.sub_buttons::after {
 	font-family: "Font Awesome 6 Free";
@@ -2478,10 +2461,8 @@ ul li.greeting {
 	text-shadow: var(--quickoptions-link-text-shadow_focus);
 }
 .quickoptions li a:focus-visible {
-	outline-color: var(--quickoptions-link-outline-color);
+	outline: var(--quickoptions-link-outline);
 	outline-offset: var(--quickbuttons-link-outline-offset);
-	outline-style: var(--quickbuttons-link-outline-style);
-	outline-width: var(--quickbuttons-link-outline-width);
 }
 .quickoptions li i::before,
 .quickoptions li span.main_icons::before {
@@ -4327,6 +4308,8 @@ img.smiley {
 }
 /* Next and previous topic links */
 .nextlinks {
+	display: flex;
+	justify-content: flex-end;
 	text-transform: capitalize;
 }
 /* Styles for the quick reply area. */
@@ -4645,10 +4628,8 @@ h3.catbg a:is(:focus, :focus-visible) {
 	text-shadow: var(--catbg-text-shadow_focus);
 }
 h3.catbg a:focus-visible {
-	outline-color: var(--catbg-outline-color);
+	outline: var(--catbg-outline);
 	outline-offset: var(--catbg-outline-offset);
-	outline-style: var(--catbg-outline-style);
-	outline-width: var(--catbg-outline-color);
 }
 h3.catbg span.main_icons {
 	padding-inline-end: 0.5em;
@@ -4759,10 +4740,8 @@ h3.titlebg a:is(:focus, :focus-visible) {
 }
 h4.titlebg a:focus-visible,
 h3.titlebg a:focus-visible {
-	outline-color: var(--titlebg-outline-color);
+	outline: var(--titlebg-outline);
 	outline-offset: var(--titlebg-outline-offset);
-	outline-style: var(--titlebg-outline-style);
-	outline-width: var(--titlebg-outline-color);
 }
 
 /** Sub_bar / subbg **/
@@ -4853,10 +4832,8 @@ h3.subbg a:is(:focus, :focus-visible) {
 }
 h4.subbg a:focus-visible,
 h3.subbg a:focus-visible {
-	outline-color: var(--subbg-outline-color);
+	outline: var(--subbg-outline);
 	outline-offset: var(--subbg-outline-offset);
-	outline-style: var(--subbg-outline-style);
-	outline-width: var(--subbg-outline-color);
 }
 
 /* Roundframe */
