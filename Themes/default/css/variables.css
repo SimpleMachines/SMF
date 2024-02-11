@@ -83,9 +83,9 @@
 	/** Inputs, Select and Textarea **/
 	--input-accent-color:                             var(--primary-color-500);
 	--input-bg:                                       hsl(0, 0%, 100%);
-	--input-bg_disabled:                              hsl(0, 0%, 70%);
+	--input-bg_disabled:                              hsl(0, 0%, 80%);
 	--input-bg_focus:                                 var(--input-bg);
-	--input-bg_hover:                                 rgb(253, 253, 253);
+	--input-bg_hover:                                 var(--input-bg);
 	--input-bg_invalid:                               hsl(0, 100%, 97%);
 	--input-bg_valid:                                 hsl(100, 100%, 97%);
 	--input-border-color:                             var(--primary-color-300);
@@ -101,7 +101,7 @@
 	--input-box-shadow:                               none;
 	--input-box-shadow_disabled:                      none;
 	--input-box-shadow_focus:                         var(--input-box-shadow_hover);
-	--input-box-shadow_hover:                         1px 1px 2px 0 rgba(0,0,0,0.1) inset;
+	--input-box-shadow_hover:                         1px 1px 2px -1px rgba(0,0,0,0.1) inset;
 	--input-color:                                    black;
 	--input-color_disabled:                           gray;
 	--input-color_focus:                              black;
@@ -111,9 +111,8 @@
 	--input-line-height:                              1.5;
 	--input-margin-block:                             0;
 	--input-margin-inline:                            0;
-	--input-outline-color:                            var(--primary-color-200);
-	--input-outline-offset:                           2px;
-	--input-outline-width:                            1px;
+	--input-outline:                                  auto;
+	--input-outline-offset:                           0;
 	--input-padding-block:                            0;
 	--input-padding-inline:                           0.6em;
 	--input-text-shadow:                              none;
@@ -159,10 +158,8 @@
 	--button-line-height:                             1;
 	--button-margin-block:                            0;
 	--button-margin-inline:                           0;
-	--button-outline-color:                           var(--primary-color-300);
+	--button-outline:                                 auto;
 	--button-outline-offset:                          0.15em;
-	--button-outline-style:                           solid;
-	--button-outline-width:                           1px;
 	--button-padding-block:                           0.25em;
 	--button-padding-inline:                          0.75em;
 	--button-text-decoration:                         none;
@@ -496,10 +493,8 @@
 	--topinfo-line-height:                            1;
 	--topinfo-margin-block:                           0;
 	--topinfo-margin-inline:                          0;
-	--topinfo-outline-color:                          var(--primary-color-200);
+	--topinfo-outline:                                auto;
 	--topinfo-outline-offset:                         0.15em;
-	--topinfo-outline-style:                          solid;
-	--topinfo-outline-width:                          1px;
 	--topinfo-padding-block:                          0.5em;
 	--topinfo-padding-inline:                         0.5em;
 	--topinfo-text-decoration:                        none;
@@ -536,7 +531,7 @@
 	--topmenu-border-width:                           0;
 	--topmenu-border-width_focus:                     var(--topmenu-border-width_hover);
 	--topmenu-border-width_hover:                     var(--topmenu-border-width);
-	--topmenu-box-shadow:                             3px 3px 4px rgba(0, 0, 0, 0.3), 0px -1px 1px -1px rgba(0, 0, 0, 0.2) ;
+	--topmenu-box-shadow:                             3px 3px 4px rgba(0, 0, 0, 0.3), 0px -1px 1px -1px rgba(0, 0, 0, 0.2);
 	--topmenu-box-shadow_focus:                       var(--topmenu-box-shadow_hover);
 	--topmenu-box-shadow_hover:                       var(--topmenu-box-shadow);
 	--topmenu-color:                                  inherit;
@@ -544,7 +539,7 @@
 	--topmenu-color_hover:                            inherit;
 	--topmenu-font-size:                              1em;
 	--topmenu-font-weight:                            400;
-	--topmenu-height:                                 30em;
+	--topmenu-height:                                 22em;
 	--topmenu-line-height:                            1;
 	--topmenu-margin-block:                           2px 0;
 	--topmenu-margin-inline:                          0;
@@ -558,6 +553,7 @@
 	--topmenu-header-border-color:                    var(--primary-color-100);
 	--topmenu-header-border-style:                    solid;
 	--topmenu-header-border-width:                    0 0 1px;
+	--topmenu-header-color:                           inherit;
 	--topmenu-header-font-size:                       1em;
 	--topmenu-header-padding-block:                   0.25em;
 	--topmenu-header-padding-inline:                  0.75em;
@@ -601,6 +597,8 @@
 	--profilelinks-item-height:                       2em;
 	--profilelinks-item-margin-block:                 var(--dropmenu-an-margin-block);
 	--profilelinks-item-margin-inline:                var(--dropmenu-an-margin-inline);
+	--profilelinks-item-outline:                      auto;
+	--profilelinks-item-outline-offset:               0;
 	--profilelinks-item-padding-block:                var(--dropmenu-an-padding-block);
 	--profilelinks-item-padding-inline:               var(--dropmenu-an-padding-inline);
 	--profilelinks-item-text-decoration:              var(--dropmenu-an-text-decoration);
@@ -777,10 +775,8 @@
 	--dropmenu-a1-margin-inline:                      0;
 	--dropmenu-a1-padding-block:                      0.2em;
 	--dropmenu-a1-padding-inline:                     0.75em;
-	--dropmenu-a1-outline-color:                      var(--secondary-color-500);
+	--dropmenu-a1-outline:                            auto;
 	--dropmenu-a1-outline-offset:                     0;
-	--dropmenu-a1-outline-style:                      solid;
-	--dropmenu-a1-outline-width:                      2px;
 	--dropmenu-a1-text-decoration:                    none;
 	--dropmenu-a1-text-decoration_active:             none;
 	--dropmenu-a1-text-decoration_focus:              none;
@@ -841,10 +837,8 @@
 	--dropmenu-an-margin-inline:                      0;
 	--dropmenu-an-padding-block:                      0.2em;
 	--dropmenu-an-padding-inline:                     0.75em;
-	--dropmenu-an-outline-color:                      var(--secondary-color-200);
+	--dropmenu-an-outline:                            auto;
 	--dropmenu-an-outline-offset:                     0;
-	--dropmenu-an-outline-style:                      solid;
-	--dropmenu-an-outline-width:                      0;
 	--dropmenu-an-text-decoration:                    none;
 	--dropmenu-an-text-decoration_active:             none;
 	--dropmenu-an-text-decoration_focus:              none;
@@ -896,10 +890,8 @@
 	--quickbuttons-link-line-height:                  1;
 	--quickbuttons-link-margin-block:                 0;
 	--quickbuttons-link-margin-inline:                0;
-	--quickbuttons-link-outline-color:                var(--primary-color-300);
-	--quickbuttons-link-outline-offset:               0.15em;
-	--quickbuttons-link-outline-style:                solid;
-	--quickbuttons-link-outline-width:                1px;
+	--quickbuttons-link-outline:                      auto;
+	--quickbuttons-link-outline-offset:               0.1em;
 	--quickbuttons-link-padding-block:                0.6em;
 	--quickbuttons-link-padding-inline:               0.75em;
 	--quickbuttons-link-text-decoration:              none;
@@ -956,10 +948,8 @@
 	--quickoptions-link-margin-inline:                0;
 	--quickoptions-link-padding-block:                0.2em;
 	--quickoptions-link-padding-inline:               0.75em;
-	--quickoptions-link-outline-color:                var(--secondary-color-200);
+	--quickoptions-link-outline:                      auto;
 	--quickoptions-link-outline-offset:               0;
-	--quickoptions-link-outline-style:                solid;
-	--quickoptions-link-outline-width:                0;
 	--quickoptions-link-text-decoration:              none;
 	--quickoptions-link-text-decoration_focus:        none;
 	--quickoptions-link-text-decoration_hover:        none;
@@ -1020,10 +1010,8 @@
 	--buttonlist-link-line-height:                    1;
 	--buttonlist-link-margin-block:                   0;
 	--buttonlist-link-margin-inline:                  0;
-	--buttonlist-link-outline-color:                  var(--primary-color-300);
+	--buttonlist-link-outline:                        auto;
 	--buttonlist-link-outline-offset:                 0.15em;
-	--buttonlist-link-outline-style:                  solid;
-	--buttonlist-link-outline-width:                  1px;
 	--buttonlist-link-padding-block:                  0.6em;
 	--buttonlist-link-padding-inline:                 0.75em;
 	--buttonlist-link-text-decoration:                none;
@@ -1103,10 +1091,8 @@
 	--pages-link-line-height:                         1;
 	--pages-link-margin-block:                        0;
 	--pages-link-margin-inline:                       0;
-	--pages-link-outline-color:                       var(--primary-color-300);
+	--pages-link-outline:                             auto;
 	--pages-link-outline-offset:                      0.15em;
-	--pages-link-outline-style:                       solid;
-	--pages-link-outline-width:                       1px;
 	--pages-link-padding-block:                       0.6em;
 	--pages-link-padding-inline:                      0.75em;
 	--pages-link-text-decoration:                     none;
@@ -1164,10 +1150,8 @@
 	--catbg-font-weight_hover:                        inherit;
 	--catbg-margin-block:                             0;
 	--catbg-margin-inline:                            0;
-	--catbg-outline-color:                            var(--catbg-color);
+	--catbg-outline:                                  auto;
 	--catbg-outline-offset:                           0;
-	--catbg-outline-style:                            solid;
-	--catbg-outline-width:                            1px;
 	--catbg-padding-block:                            0;
 	--catbg-padding-inline:                           0;
 	--catbg-text-decoration:                          none;
@@ -1222,10 +1206,8 @@
 	--titlebg-font-weight_hover:                      var(--titlebg-font-weight);
 	--titlebg-margin-block:                           0;
 	--titlebg-margin-inline:                          0;
-	--titlebg-outline-color:                          var(--title_bar-border-color);
+	--titlebg-outline:                                auto;
 	--titlebg-outline-offset:                         0;
-	--titlebg-outline-style:                          solid;
-	--titlebg-outline-width:                          1px;
 	--titlebg-padding-block:                          0;
 	--titlebg-padding-inline:                         0;
 	--titlebg-text-decoration:                        none;
@@ -1280,10 +1262,8 @@
 	--subbg-font-weight_hover:                        var(--subbg-font-weight);
 	--subbg-margin-block:                             0;
 	--subbg-margin-inline:                            0;
-	--subbg-outline-color:                            var(--subtitlbg-border-color);
+	--subbg-outline:                                  auto;
 	--subbg-outline-offset:                           0;
-	--subbg-outline-style:                            solid;
-	--subbg-outline-width:                            1px;
 	--subbg-padding-block:                            0;
 	--subbg-padding-inline:                           0;
 	--subbg-text-decoration:                          none;
@@ -1464,7 +1444,8 @@
 	--bbc-link-border-style:                          solid;
 	--bbc-link-border-width:                          0 0 1px;
 	--bbc-link-border-color_hover:                    var(--body-link-color_hover);
-	--bbc-link-outline-color:                         var(--body-link-color_focus);
+	--bbc-link-outline:                               1px solid var(--body-link-color_focus);
+	--bbc-link-outline-offset:                        0;
 
 	/** Auto Suggest Control **/
 	--autosuggest-bg:                                 transparent;
@@ -1852,7 +1833,7 @@
 	--errorfile-item-border-color:                    var(--window-border-color);
 	--errorfile-item-border-style:                    solid;
 	--errorfile-item-border-width:                    0;
-	--errorfile-item-box-shadow:                      var(--roundframe-color);
+	--errorfile-item-box-shadow:                      var(--roundframe-box-shadow);
 	--errorfile-item-color:                           var(--roundframe-color);
 	--errorfile-item-padding-block:                   0;
 	--errorfile-item-padding-inline:                  0.25em;

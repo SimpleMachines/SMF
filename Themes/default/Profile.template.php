@@ -88,7 +88,7 @@ function template_profile_popup()
 
 	echo '
 			</ol>
-		</div><!-- .profile_user_links -->';
+		</div>';
 }
 
 /**

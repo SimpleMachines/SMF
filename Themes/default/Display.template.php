@@ -45,7 +45,7 @@ function template_main()
 
 	// Next - Prev
 	echo '
-			<span class="nextlinks floatright">', Utils::$context['previous_next'], '</span>';
+			<span class="nextlinks">', Utils::$context['previous_next'], '</span>';
 
 	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
