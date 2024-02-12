@@ -622,7 +622,7 @@
 	--genericnoti-color_hover:                        var(--body-color);
 	--genericnoti-font-size:                          1em;
 	--genericnoti-gap:                                0.25em 1em;
-	--genericnoti-height:                             3.5em;
+	--genericnoti-height:                             var(--genericnoti-avatar-height);
 	--genericnoti-margin-block:                       0;
 	--genericnoti-margin-inline:                      0;
 	--genericnoti-padding-block:                      0.5em;
