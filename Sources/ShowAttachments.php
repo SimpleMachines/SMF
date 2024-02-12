@@ -333,7 +333,7 @@ function showAttachment()
 		$utf8name = $_REQUEST['attach'] . ' - ' . $utf8name;
 
 	// On mobile devices, audio and video should be served inline so the browser can play them.
-	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))
+	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') === 0 || strpos($file['mime_type'], 'video/') === 0)))
 		$disposition = 'inline';
 	else
 		$disposition = 'attachment';
