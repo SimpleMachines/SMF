@@ -89,7 +89,7 @@ class Summary implements ActionInterface
 		if (empty(Profile::$member->date_registered) || $days_registered < 1) {
 			Profile::$member->formatted['posts_per_day'] = Lang::$txt['not_applicable'];
 		} else {
-			Profile::$member->formatted['posts_per_day'] = Lang::numberFormat(Profile::$member->formatted['real_posts'] / $days_registered, 3);
+			Profile::$member->formatted['posts_per_day'] = Profile::$member->formatted['real_posts'] / $days_registered;
 		}
 
 		// Set the age...

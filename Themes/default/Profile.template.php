@@ -298,7 +298,7 @@ function template_summary()
 	if (!isset(Utils::$context['disabled_fields']['posts']))
 		echo '
 				<dt>', Lang::$txt['profile_posts'], '</dt>
-				<dd>', Utils::$context['member']['posts'], ' (', Lang::getTxt('posts_per_day', [Utils::$context['member']['posts_per_day']]), ')</dd>';
+				<dd>', Utils::$context['member']['posts'], ' (', is_numeric(Utils::$context['member']['posts_per_day']) ? Lang::getTxt('posts_per_day', [Utils::$context['member']['posts_per_day']]) : Utils::$context['member']['posts_per_day'], ')</dd>';
 
 	if (Utils::$context['member']['show_email'])
 		echo '
