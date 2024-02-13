@@ -1348,10 +1348,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (!$reverse) {
 			$types = [
 				'inet' => 'varbinary',
+				'uuid' => 'binary',
 			];
 		} else {
 			$types = [
 				'varbinary' => 'inet',
+				'binary' => 'uuid',
 			];
 		}
 
@@ -1360,11 +1362,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if ($type_name == 'inet' && !$reverse) {
 				$type_size = 16;
 				$type_name = 'varbinary';
+			} elseif ($type_name == 'uuid' && !$reverse) {
+				$type_size = 16;
+				$type_name = 'binary';
 			} elseif ($type_name == 'varbinary' && $reverse && $type_size == 16) {
 				$type_name = 'inet';
 				$type_size = null;
+			} elseif ($type_name == 'binary' && $reverse && $type_size == 16) {
+				$type_name = 'uuid';
+				$type_size = null;
 			} elseif ($type_name == 'varbinary') {
 				$type_name = 'varbinary';
+			} elseif ($type_name == 'binary') {
+				$type_name = 'binary';
 			} else {
 				$type_name = $types[$type_name];
 			}
@@ -1628,8 +1638,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				'security_override' => true,
 			],
 		);
-
-		return $result;
 
 		// Fill the old data
 		if ($old_table_exists) {
