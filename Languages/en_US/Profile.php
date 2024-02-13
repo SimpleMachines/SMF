@@ -404,7 +404,7 @@ $txt['showPermissions_restricted_boards'] = 'Restricted boards';
 $txt['showPermissions_restricted_boards_desc'] = 'This user cannot access the {list} boards.';
 
 $txt['local_time'] = 'Local Time';
-$txt['posts_per_day'] = '{0, number, float} per day';
+$txt['posts_per_day'] = '{0, number, :: .0##} per day';
 
 $txt['buddy_ignore_desc'] = 'This area allows you to maintain your buddy and ignore lists for this forum. Adding members to these lists will, amongst other things, help control mail and PM traffic, depending on your preferences.';
 
