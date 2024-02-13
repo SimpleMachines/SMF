@@ -727,10 +727,7 @@ $txt['calendar_how_edit'] = 'how do you edit these events?';
 $txt['calendar_link_event'] = 'Link Event To Post';
 $txt['calendar_confirm_delete'] = 'Are you sure you want to delete this event?';
 $txt['calendar_linked_events'] = 'Linked Events';
-$txt['calendar_click_all'] = '{num_birthdays, plural,
-	one {click to see all #}
-	other {click to see all #}
-}';
+$txt['calendar_click_all'] = 'Show all';
 $txt['calendar_allday'] = 'All day';
 $txt['calendar_timezone'] = 'Time zone';
 $txt['calendar_list'] = 'List';

@@ -526,7 +526,7 @@ $txt['attach_repair_file_wrong_size'] = '{0, plural,
 	other {# attachments/avatars are being reported as the wrong filesize}
 }';
 $txt['attach_repair_file_size_of_zero'] = '{0, plural,
-	one {# attachments/avatars has a size of zero on disk. (This will be deleted)}
+	one {# attachment/avatar has a size of zero on disk. (This will be deleted)}
 	other {# attachments/avatars have a size of zero on disk. (These will be deleted)}
 }';
 $txt['attach_repair_attachment_no_msg'] = '{0, plural,
@@ -752,7 +752,7 @@ $txt['hooks_field_hook_name'] = 'Hook Name';
 $txt['hooks_field_function_name'] = 'Function Name';
 $txt['hooks_field_function_method'] = 'Function is a method and its class is instantiated';
 $txt['hooks_field_function'] = 'Function: {real_function}';
-$txt['hooks_field_included_file'] = 'Included file : {included_file}';
+$txt['hooks_field_included_file'] = 'Included file: {included_file}';
 $txt['hooks_field_file_name'] = 'File Name';
 $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';

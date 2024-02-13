@@ -250,7 +250,7 @@ $txt['post_upload_error'] = 'The post data is missing. This error can be caused 
 $txt['quoted_post_deleted'] = 'The post you are trying to quote either does not exist, was deleted, or is no longer viewable by you.';
 $txt['pm_too_many_per_hour'] = '{0, plural,
 	one {You have exceeded the limit of # personal message per hour.}
-	other {lYou have exceeded the limit of # personal messages per hour.}
+	other {You have exceeded the limit of # personal messages per hour.}
 }';
 
 $txt['register_only_once'] = 'Sorry, but you are not allowed to register multiple accounts at the same time from the same computer.';
