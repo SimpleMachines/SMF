@@ -343,15 +343,15 @@ $txt['upgrade_time_hms'] = 'The upgrade script has been running for the last {h,
 	one {# hour}
 	other {# hours}
 }, {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 }, and {s, plural,
 	one {# second}
 	other {# seconds}
 }.';
 $txt['upgrade_time_ms'] = 'The upgrade script has been running for the last {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 } and {s, plural,
 	one {# second}
 	other {# seconds}
@@ -364,15 +364,15 @@ $txt['upgrade_time_updated_hms'] = 'The upgrade script was last updated {h, plur
 	one {# hour}
 	other {# hours}
 }, {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 }, and {s, plural,
 	one {# second}
 	other {# seconds}
 } ago.';
 $txt['upgrade_time_updated_hm'] = 'The upgrade script was last updated {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 } and {s, plural,
 	one {# second}
 	other {# seconds}
@@ -385,15 +385,15 @@ $txt['upgrade_completed_time_hms'] = 'Upgrade completed in {h, plural,
 	one {# hour}
 	other {# hours}
 }, {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 }, and {s, plural,
 	one {# second}
 	other {# seconds}
 }';
 $txt['upgrade_completed_time_ms'] = 'Upgrade completed in {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 } and {s, plural,
 	one {# second}
 	other {# seconds}
@@ -406,8 +406,8 @@ $txt['upgrade_success_time_db'] = 'Successful! Database upgrades completed in {h
 	one {# hour}
 	other {# hours}
 }, {m, plural,
-	one {# minutes}
-	other {# minutess}
+	one {# minute}
+	other {# minutes}
 }, and {s, plural,
 	one {# second}
 	other {# seconds}

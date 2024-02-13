@@ -152,7 +152,7 @@ $txt['pm_search_results'] = 'Search results';
 $txt['pm_search_none_found'] = 'No messages found';
 $txt['pm_search_results_info'] = '{0, plural,
 	one {Found # matching message in {1}.}
-	one {Found # matching messages in {1}.}
+	other {Found # matching messages in {1}.}
 }';
 
 $txt['pm_search_orderby_relevant_first'] = 'Most relevant first';
