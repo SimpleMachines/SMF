@@ -17,7 +17,6 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Localization\MessageFormatter;
-use ValueError;
 
 /**
  * Handles the localizable strings shown in SMF's user interface.
@@ -698,7 +697,7 @@ class Lang
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
 		if (!is_numeric($number)) {
-			throw new ValueError();
+			throw new \ValueError();
 		}
 
 		if (is_string($number)) {
