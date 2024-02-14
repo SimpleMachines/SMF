@@ -207,7 +207,7 @@ class Maintenance
 	 */
 	public static function isInstalled(): bool
 	{
-		return ! (Config::$image_proxy_secret === 'smfisawesome' && Config::$db_passwd === '' && Config::$boardurl === 'http://127.0.0.1/smf');
+		return !(Config::$image_proxy_secret === 'smfisawesome' && Config::$db_passwd === '' && Config::$boardurl === 'http://127.0.0.1/smf');
 	}
 
 	/**
@@ -227,7 +227,56 @@ class Maintenance
 	 */
 	public static function getBaseDir(): string
 	{
-		return dirname(SMF_SETTINGS_FILE);
+		if (class_exists('\\SMF\\Config')) {
+			if (!isset(Config::$boarddir)) {
+				Config::load();
+			}
+
+			if (isset(Config::$boarddir)) {
+				return Config::$boarddir;
+			}
+		}
+
+		// If SMF\Config::$boarddir was not available for some reason, try doing it manually.
+		if (!in_array(SMF_SETTINGS_FILE, get_included_files())) {
+			require SMF_SETTINGS_FILE;
+		} else {
+			$settingsText = trim(file_get_contents(SMF_SETTINGS_FILE));
+
+			if (substr($settingsText, 0, 5) == '<' . '?php') {
+				$settingsText = substr($settingsText, 5);
+			}
+
+			if (substr($settingsText, -2) == '?' . '>') {
+				$settingsText = substr($settingsText, 0, -2);
+			}
+
+			// Since we're using eval, we need to manually replace these with strings.
+			$settingsText = strtr($settingsText, [
+				'__FILE__' => var_export(SMF_SETTINGS_FILE, true),
+				'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
+			]);
+
+			// Prevents warnings about constants that are already defined.
+			$settingsText = preg_replace_callback(
+				'~\bdefine\s*\(\s*(["\'])(\w+)\1~',
+				function ($matches) {
+					return 'define(\'' . bin2hex(random_bytes(16)) . '\'';
+				},
+				$settingsText,
+			);
+
+			// Handle eval errors gracefully in all PHP versions.
+			try {
+				if ($settingsText !== '' && @eval($settingsText) === false) {
+					throw new \ErrorException('eval error');
+				}
+			} catch (\Throwable $e) {
+			} catch (\ErrorException $e) {
+			}
+		}
+
+		return $boarddir ?? dirname(__DIR__);
 	}
 
 	/**
