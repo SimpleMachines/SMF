@@ -1631,7 +1631,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Create the table!
-		$result = $this->query(
+		$this->query(
 			'',
 			$table_query,
 			[
