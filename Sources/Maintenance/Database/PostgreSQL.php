@@ -63,7 +63,7 @@ class PostgreSQL implements DatabaseInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function SkipSelectDatabase(): bool
+	public function skipSelectDatabase(): bool
 	{
 		return true;
 	}

@@ -62,7 +62,7 @@ class MySQL implements DatabaseInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function SkipSelectDatabase(): bool
+	public function skipSelectDatabase(): bool
 	{
 		return false;
 	}
@@ -132,7 +132,7 @@ class MySQL implements DatabaseInterface
 		Db::$db->free_result($get_privs);
 
 		// Check for the ALTER privilege.
-		return ! (!in_array('Alter', $privs));
+		return !(!in_array('Alter', $privs));
 	}
 
 	/**

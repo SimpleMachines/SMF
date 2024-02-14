@@ -70,7 +70,7 @@ class Install implements TemplateInterface
 	/**
 	 * Welcome page for installer.
 	 */
-	public static function Welcome(): void
+	public static function welcome(): void
 	{
 		echo '
             <script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
@@ -115,7 +115,7 @@ class Install implements TemplateInterface
 	/**
 	 * Check Files Writable page for installer.
 	 */
-	public static function CheckFilesWritable(): void
+	public static function checkFilesWritable(): void
 	{
 		echo '
             <p>', Lang::$txt['ftp_setup_why_info'], '</p>
@@ -196,7 +196,7 @@ class Install implements TemplateInterface
 	/**
 	 * Database Settings page for installer.
 	 */
-	public static function DatabaseSettings(): void
+	public static function databaseSettings(): void
 	{
 		echo '
             <p>', Lang::$txt['db_settings_info'], '</p>';
@@ -296,7 +296,7 @@ class Install implements TemplateInterface
 	/**
 	 * Forum Settings page for installer.
 	 */
-	public static function ForumSettings(): void
+	public static function forumSettings(): void
 	{
 		echo '
             <h3>', Lang::$txt['install_settings_info'], '</h3>';
@@ -365,7 +365,7 @@ class Install implements TemplateInterface
 	/**
 	 * Database Populate page for installer.
 	 */
-	public static function DatabasePopulation(): void
+	public static function databasePopulation(): void
 	{
 		echo '
             <p>', !empty(Maintenance::$context['was_refresh']) ? Lang::$txt['user_refresh_install_desc'] : Lang::$txt['db_populate_info'], '</p>';
@@ -403,7 +403,7 @@ class Install implements TemplateInterface
 	/**
 	 * Admin Account page for installer.
 	 */
-	public static function AdminAccount(): void
+	public static function adminAccount(): void
 	{
 		echo '
             <p>', Lang::$txt['user_settings_info'], '</p>';
@@ -463,7 +463,7 @@ class Install implements TemplateInterface
 	/**
 	 * Delete Installer page for installer.
 	 */
-	public static function DeleteInstall(): void
+	public static function deleteInstall(): void
 	{
 		echo '
 		<p>', Lang::$txt['congratulations_help'], '</p>';
@@ -501,7 +501,6 @@ class Install implements TemplateInterface
             <br>
             ', Lang::$txt['good_luck'];
 	}
-
 }
 
 ?>

@@ -151,47 +151,47 @@ class Install extends ToolsBase implements ToolsInterface
 				id: 1,
 				name: Lang::$txt['install_step_welcome'],
 				title: Lang::$txt['install_welcome'],
-				function: 'Welcome',
+				function: 'welcome',
 				progress: 0,
 			),
 			1 => new Step(
 				id: 2,
 				name: Lang::$txt['install_step_writable'],
-				function: 'CheckFilesWritable',
+				function: 'checkFilesWritable',
 				progress: 10,
 			),
 			2 => new Step(
 				id: 3,
 				name: Lang::$txt['install_step_databaseset'],
 				title: Lang::$txt['db_settings'],
-				function: 'DatabaseSettings',
+				function: 'databaseSettings',
 				progress: 15,
 			),
 			3 => new Step(
 				id: 4,
 				name: Lang::$txt['install_step_forum'],
 				title: Lang::$txt['install_settings'],
-				function: 'ForumSettings',
+				function: 'forumSettings',
 				progress: 40,
 			),
 			4 => new Step(
 				id: 5,
 				name: Lang::$txt['install_step_databasechange'],
 				title: Lang::$txt['db_populate'],
-				function: 'DatabasePopulation',
+				function: 'databasePopulation',
 				progress: 15,
 			),
 			5 => new Step(
 				id: 6,
 				name: Lang::$txt['install_step_admin'],
 				title: Lang::$txt['user_settings'],
-				function: 'AdminAccount',
+				function: 'adminAccount',
 				progress: 20,
 			),
 			6 => new Step(
 				id: 7,
 				name: Lang::$txt['install_step_delete'],
-				function: 'DeleteInstall',
+				function: 'deleteInstall',
 				progress: 0,
 			),
 		];
@@ -212,7 +212,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function Welcome(): bool
+	public function welcome(): bool
 	{
 		// Done the submission?
 		if (isset($_POST['contbutt'])) {
@@ -288,7 +288,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function CheckFilesWritable(): bool
+	public function checkFilesWritable(): bool
 	{
 		$writable_files = [
 			'attachments',
@@ -493,7 +493,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function DatabaseSettings()
+	public function databaseSettings()
 	{
 		Maintenance::$context['continue'] = true;
 		Maintenance::$context['databases'] = [];
@@ -688,7 +688,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function ForumSettings()
+	public function forumSettings()
 	{
 		// Let's see if we got the database type correct.
 		if (isset($_POST['db_type'], $this->supportedDatabases()[$_POST['db_type']])) {
@@ -830,7 +830,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function DatabasePopulation(): bool
+	public function databasePopulation(): bool
 	{
 		Maintenance::$context['continue'] = true;
 
@@ -981,7 +981,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Make sure UTF will be used globally.
 		$newSettings['global_character_set'] = 'UTF-8';
 
-		$this->togglleSmStats($newSettings);
+		$this->toggleSmStats($newSettings);
 
 		// Are we enabling SSL?
 		if (!empty($_POST['force_ssl'])) {
@@ -1035,7 +1035,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function AdminAccount(): bool
+	public function adminAccount(): bool
 	{
 		Maintenance::$context['continue'] = true;
 
@@ -1249,7 +1249,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function DeleteInstall(): bool
+	public function deleteInstall(): bool
 	{
 		Maintenance::$context['continue'] = false;
 
@@ -1302,7 +1302,6 @@ class Install extends ToolsBase implements ToolsInterface
 			Db::$db->free_result($request);
 		}
 
-
 		// Automatically log them in ;)
 		if (isset(Maintenance::$context['member_id'], Maintenance::$context['member_salt'])) {
 			Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['member_id'], Cookie::encrypt($_POST['password1'], Maintenance::$context['member_salt']));
@@ -1341,7 +1340,6 @@ class Install extends ToolsBase implements ToolsInterface
 				['session_id'],
 			);
 		}
-
 
 		Logging::updateStats('member');
 		Logging::updateStats('message');
@@ -1390,8 +1388,8 @@ class Install extends ToolsBase implements ToolsInterface
 		]);
 
 		// Some final context for the template.
-		Maintenance::$context['dir_still_writable'] = is_writable(Config::$boarddir) && substr(__FILE__, 1, 2) != ':\\';
-		Maintenance::$context['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(Config::$boarddir) || is_writable(__FILE__);
+		Maintenance::$context['dir_still_writable'] = is_writable(Config::$boarddir);
+		Maintenance::$context['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(Config::$boarddir) || is_writable(Config::$boarddir . '/' . $this->script_name);
 
 		// Update hash's cost to an appropriate setting
 		Config::updateModSettings([
@@ -1400,6 +1398,10 @@ class Install extends ToolsBase implements ToolsInterface
 
 		return false;
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
@@ -1499,13 +1501,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private function updateSettingsFile(array $vars, bool $rebuild = false): bool
 	{
-		if (!is_writable(SMF_SETTINGS_FILE)) {
-			@chmod(SMF_SETTINGS_FILE, 0777);
-
-			if (!is_writable(SMF_SETTINGS_FILE)) {
-				return false;
-			}
-		}
+		Utils::makeWritable(SMF_SETTINGS_FILE);
 
 		return Config::updateSettingsFile($vars, false, $rebuild);
 	}
@@ -1584,7 +1580,7 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Fetch al the tables for our schema.
+	 * Fetch all the tables for our schema.
 	 *
 	 * @param string $base_directory Root directory for all of our schemas.
 	 * @param string $schema_version Schema we are loading.
@@ -1617,9 +1613,14 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @param array $settings Settings array, passed by reference.
 	 */
-	private function togglleSmStats(array &$settings): void
+	private function toggleSmStats(array &$settings): void
 	{
-		if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
+		if (
+			!empty($_POST['stats'])
+			&& substr(Config::$boardurl, 0, 16) != 'http://localhost'
+			&& empty(Config::$modSettings['allow_sm_stats'])
+			&& empty(Config::$modSettings['enable_sm_stats'])
+		) {
 			Maintenance::$context['allow_sm_stats'] = true;
 
 			// Attempt to register the site etc.

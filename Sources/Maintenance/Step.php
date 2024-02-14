@@ -20,31 +20,39 @@ namespace SMF\Maintenance;
  */
 class Step
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var int
 	 *
-	 * ID of the step.  Typically this is one higher than the ID found in the array.
+	 * ID of the step.
+	 * Typically this is one higher than the ID found in the array.
 	 */
 	private int $id;
 
 	/**
 	 * @var string
 	 *
-	 * Name of the step.  If we are showing steps, this will be displayed in the step list.
+	 * Name of the step.
+	 * If we are showing steps, this will be displayed in the step list.
 	 */
 	private string $name;
 
 	/**
 	 * @var null|string
 	 *
-	 * The Page title we will display for this step.  If null, we will fall back to the $name or default for the maintenance task.
+	 * The page title to display for this step.
+	 * If null, we will fall back to the value of $name.
 	 */
 	private ?string $title = null;
 
 	/**
 	 * @var string
 	 *
-	 * Function to call.  This is actually the method inside the tool and must be public.
+	 * Function to call.
+	 * This is actually the method inside the tool and must be public.
 	 */
 	private string $function;
 
@@ -59,7 +67,16 @@ class Step
 	 * Public methods
 	 ****************/
 
-
+	/**
+	 * Constructor.
+	 *
+	 * @param int $id ID of the step.
+	 * @param string $name Name of the step.
+	 * @param string $function Function to call.
+	 * @param int $progress The amount of progress to be made when this step completes.
+	 * @param ?string $title The page title we will display for this step.
+	 *    If null, defaults to $name.
+	 */
 	public function __construct(int $id, string $name, string $function, int $progress, ?string $title = null)
 	{
 		$this->id = $id;
@@ -70,9 +87,10 @@ class Step
 	}
 
 	/**
-	 * Fetches the ID of the Step
+	 * Fetches the ID of this step.
 	 *
-	 * @return int ID of the step.  Typically this is one higher than the ID found in the array.
+	 * @return int ID of the step. Typically this is one higher than the ID
+	 *    found in the array.
 	 */
 	public function getID(): int
 	{
@@ -80,9 +98,10 @@ class Step
 	}
 
 	/**
-	 * Fetch the Name of the Step
+	 * Fetches the name of this step.
 	 *
-	 * @return string Name of the step.  If we are showing steps, this will be displayed in the step list.
+	 * @return string Name of the step. If we are showing steps, this will be
+	 *    displayed in the step list.
 	 */
 	public function getName(): string
 	{
@@ -90,20 +109,21 @@ class Step
 	}
 
 	/**
-	 * Fetch the title.
+	 * Fetches the title of this step.
 	 *
 	 * @see $title
-	 * @return null|string The Page title we will display for this step.  If null, we will fall back to the $name or default for the maintenance task.
+	 * @return string The page title to display for this step.
 	 */
-	public function getTitle(): ?string
+	public function getTitle(): string
 	{
-		return $this->title;
+		return $this->title ?? $this->name;
 	}
 
 	/**
-	 * Fetch the function.
+	 * Fetches the function called by this step.
 	 *
-	 * @return string Function to call.  This is actually the method inside the tool and must be public.
+	 * @return string Function to call. This is actually the method inside the
+	 *    tool and must be public.
 	 */
 	public function getFunction(): string
 	{
@@ -111,7 +131,7 @@ class Step
 	}
 
 	/**
-	 * Fetch the progress.
+	 * Fetches the progress value of this step.
 	 *
 	 * @return int The amount of progress to be made when this step completes.
 	 */

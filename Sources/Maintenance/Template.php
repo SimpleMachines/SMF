@@ -22,7 +22,7 @@ use SMF\Maintenance;
 class Template
 {
 	/**
-	 * header template.
+	 * Header template.
 	 */
 	public static function header(): void
 	{
@@ -104,7 +104,7 @@ class Template
 	}
 
 	/**
-	 * footer template.
+	 * Footer template.
 	 */
 	public static function footer(): void
 	{

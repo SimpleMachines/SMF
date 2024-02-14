@@ -20,9 +20,9 @@ namespace SMF\Maintenance;
  */
 interface DatabaseInterface
 {
-	/***********************
+	/****************
 	 * Public methods
-	 ***********************/
+	 ****************/
 
 	/**
 	 * Fetch the database title.
@@ -57,7 +57,7 @@ interface DatabaseInterface
 	 *
 	 * @return bool When true, we do not select a database.
 	 */
-	public function SkipSelectDatabase(): bool;
+	public function skipSelectDatabase(): bool;
 
 	/**
 	 * Default username for a database connection.
