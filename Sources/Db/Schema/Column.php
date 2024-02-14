@@ -63,12 +63,8 @@ class Column
 	 */
 	public ?bool $not_null;
 
-	/**
-	 * @var mixed
-	 *
-	 * Default value of the column.
-	 */
-	public mixed $default;
+	/** @var string|float|int|bool|null Default value of the column. */
+	public string|float|int|bool|null $default;
 
 	/**
 	 * @var ?bool
