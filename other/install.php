@@ -31,7 +31,7 @@ use SMF\Maintenance;
  * 1. Define some constants we need.
  */
 
- if (!defined('SMF')) {
+if (!defined('SMF')) {
 	define('SMF', 1);
 }
 
@@ -66,8 +66,6 @@ if (!defined('SMF_USER_AGENT')) {
 if (!defined('TIME_START')) {
 	define('TIME_START', microtime(true));
 }
-
-DEFINE('SMF_SETTINGS_FILE', __DIR__ . '/NewSettings.php');
 
 if (!defined('SMF_SETTINGS_FILE')) {
 	define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
@@ -138,7 +136,7 @@ call_user_func(function () {
 /*
  * 3. Load some other essential includes.
  */
-require_once 'Sources/Autoloader.php';
+require_once SMF\Config::$sourcedir . '/Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
