@@ -600,7 +600,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Better find the database file!
 		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')) {
-			Maintenance::$fatal_error = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
+			Maintenance::$fatal_error = Lang::getTxt('error_db_file', ['Db/APIs/' . Db::getClass(Config::$db_type) . '.php']);
 
 			return false;
 		}
@@ -636,7 +636,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
 		if (($db_version = $db->getServerVersion()) === false || version_compare($db->getMinimumVersion(), preg_replace('~^\D*|\-.+?$~', '', $db_version = $db->getServerVersion())) > 0) {
-			Maintenance::$fatal_error = sprintf(Lang::$txt['error_db_too_low'], $db->getTitle());
+			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => $db->getTitle()]);
 
 			return false;
 		}
@@ -673,7 +673,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 			// Okay, now let's try to connect...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
-				Maintenance::$fatal_error = sprintf(Lang::$txt['error_db_database'], Db::$db->name);
+				Maintenance::$fatal_error = Lang::getTxt('error_db_database', ['db_name' => Db::$db->name]);
 
 				return false;
 			}
@@ -974,7 +974,7 @@ class Install extends ToolsBase implements ToolsInterface
 			if ($number === 0) {
 				unset(Maintenance::$context['sql_results'][$key]);
 			} else {
-				Maintenance::$context['sql_results'][$key] = sprintf(Lang::$txt['db_populate_' . $key], $number);
+				Maintenance::$context['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number]);
 			}
 		}
 
@@ -998,7 +998,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Setup Smieys.
 		$this->populateSmileys();
 
-	// Let's optimize those new tables, but not on InnoDB, ok? (SMF will check this)
+		// Let's optimize those new tables, but not on InnoDB, ok? (SMF will check this)
 		$install_tables->rewind();
 
 		foreach ($install_tables as $tbl) {
@@ -1080,7 +1080,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Db::$db->free_result($request);
 
 		// Trying to create an account?
-		 if (!isset($_POST['password1'])  || empty($_POST['contbutt'])) {
+		if (!isset($_POST['password1'])  || empty($_POST['contbutt'])) {
 			return false;
 		}
 
@@ -1111,7 +1111,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		if (!file_exists(Config::$sourcedir . '/Utils.php')) {
-			Maintenance::$fatal_error = sprintf(Lang::$txt['error_sourcefile_missing'], 'Utils.php');
+			Maintenance::$fatal_error = Lang::getTxt('error_sourcefile_missing', ['file' => 'Utils.php']);
 
 			return false;
 		}
@@ -1155,7 +1155,7 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		} elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
-			Maintenance::$fatal_error = sprintf(Lang::$txt['error_valid_admin_email_needed'], $_POST['username']);
+			Maintenance::$fatal_error = Lang::$txt['error_valid_admin_email_needed'];
 
 			return false;
 		} elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {

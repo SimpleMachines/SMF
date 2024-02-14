@@ -195,6 +195,10 @@ class Maintenance
 		self::exit();
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * The lowest PHP version we support.
 	 * This can not be a int, as we have 2 decimals.
@@ -352,7 +356,7 @@ class Maintenance
 			return $_SESSION['lang_file'];
 		}
 
-			return 'en_US';
+		return 'en_US';
 	}
 
 	/**
@@ -370,7 +374,6 @@ class Maintenance
 	/******************
 	 * Internal methods
 	 ******************/
-
 
 	/**
 	 * Checks that the tool we requested is valid.
@@ -395,16 +398,16 @@ class Maintenance
 	/**
 	 * Exit the script. This will wrap the templates.
 	 *
-	 * @param bool $fallThrough If true, we just skip templates and do nothing.
+	 * @param bool $fallthrough If true, we just skip templates and do nothing.
 	 * @return never All execution is stopped here.
 	 */
-	private static function exit(bool $fallThrough = false): void
+	private static function exit(bool $fallthrough = false): void
 	{
 		// Send character set.
 		header('content-type: text/html; charset=' . (Lang::$txt['lang_character_set'] ?? 'UTF-8'));
 
 		// We usually dump our templates out.
-		if (!$fallThrough) {
+		if (!$fallthrough) {
 			// The top bit.
 			Template::header();
 			call_user_func([self::$template, 'upper']);
