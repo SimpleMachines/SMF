@@ -27,120 +27,24 @@ use SMF\Maintenance;
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
-/*
- * 1. Define some constants we need.
- */
-
 if (!defined('SMF')) {
-	define('SMF', 1);
-}
-
-if (!defined('SMF_VERSION')) {
-	define('SMF_VERSION', '3.0 Alpha 1');
-}
-
-if (!defined('SMF_FULL_VERSION')) {
-	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-}
-
-if (!defined('SMF_SOFTWARE_YEAR')) {
-	define('SMF_SOFTWARE_YEAR', '2024');
-}
-
-if (!defined('JQUERY_VERSION')) {
-	define('JQUERY_VERSION', '3.6.3');
-}
-
-if (!defined('POSTGRE_TITLE')) {
-	define('POSTGRE_TITLE', 'PostgreSQL');
-}
-
-if (!defined('MYSQL_TITLE')) {
-	define('MYSQL_TITLE', 'MySQL');
-}
-
-if (!defined('SMF_USER_AGENT')) {
-	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
-}
-
-if (!defined('TIME_START')) {
-	define('TIME_START', microtime(true));
-}
-
-if (!defined('SMF_SETTINGS_FILE')) {
-	define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
-}
-
-if (!defined('SMF_SETTINGS_BACKUP_FILE')) {
-	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . '/' . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
-}
-
-/*
- * 2. Load the Settings.php file.
- */
-
-if (!is_file(SMF_SETTINGS_FILE) || !is_readable(SMF_SETTINGS_FILE)) {
-	die('File not readable: ' . basename(SMF_SETTINGS_FILE));
-}
-
-// Don't load it twice.
-if (in_array(SMF_SETTINGS_FILE, get_included_files())) {
-	return;
+	define('SMF', 'INSTALL');
 }
 
 define('SMF_INSTALLING', 1);
 
-// If anything goes wrong loading Settings.php, make sure the admin knows it.
-if (SMF === 1) {
-	// In pre-release versions, report all errors.
-	if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
-		error_reporting(E_ALL);
-	}
-	// Otherwise, report all errors except for deprecation notices.
-	else {
-		error_reporting(E_ALL & ~E_DEPRECATED);
-	}
-
-    ob_start();
+// In pre-release versions, report all errors.
+if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
+	error_reporting(E_ALL);
+}
+// Otherwise, report all errors except for deprecation notices.
+else {
+	error_reporting(E_ALL & ~E_DEPRECATED);
 }
 
-// This is wrapped in a closure to keep the global namespace clean.
-call_user_func(function () {
-	require_once SMF_SETTINGS_FILE;
+ob_start();
 
-	// Ensure $sourcedir is valid.
-	$sourcedir = rtrim($sourcedir, '\\/');
-
-	if ((empty($sourcedir) || !is_dir(realpath($sourcedir)))) {
-		$boarddir = rtrim($boarddir, '\\/');
-
-		if (empty($boarddir) || !is_dir(realpath($boarddir))) {
-			$boarddir = __DIR__;
-		}
-
-		if (is_dir($boarddir . '/Sources')) {
-			$sourcedir = $boarddir . '/Sources';
-		}
-	}
-
-	// We need this class, or nothing works.
-	if (!is_file($sourcedir . '/Config.php') || !is_readable($sourcedir . '/Config.php')) {
-		die('File not readable: (Sources)/Config.php');
-	}
-
-	// Pass all the settings to SMF\Config.
-	require_once $sourcedir . '/Config.php';
-	SMF\Config::set(get_defined_vars());
-});
-
-/*
- * 3. Load some other essential includes.
- */
-require_once SMF\Config::$sourcedir . '/Autoloader.php';
-
-// Ensure we don't trip over disabled internal functions
-require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
+// Initialize.
+require_once __DIR__ . '/index.php';
 
 (new SMF\Maintenance())->execute(Maintenance::INSTALL);
-
-exit;
