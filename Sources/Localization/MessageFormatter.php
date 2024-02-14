@@ -197,7 +197,7 @@ class MessageFormatter
 						$offset = 0;
 					}
 
-					$args[$arg_name] -= $offset;
+					$arg_offset = $args[$arg_name] - $offset;
 
 					preg_match_all('/(?P<rule>=\d+|zero|one|two|few|many|other)\b\s*(?P<sel>{(?' . '>[^{}]|(?2))*})/', $rest, $cases, PREG_SET_ORDER);
 
@@ -209,9 +209,9 @@ class MessageFormatter
 								str_starts_with($case['rule'], '=')
 								&& $args[$arg_name] == substr($case['rule'], 1)
 							)
-							|| $case['rule'] === self::getPluralizationCategory($args[$arg_name], 'cardinal')
+							|| $case['rule'] === self::getPluralizationCategory($arg_offset, 'cardinal')
 						) {
-							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $args[$arg_name]]);
+							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $arg_offset]);
 							break 2;
 						}
 					}
@@ -219,6 +219,16 @@ class MessageFormatter
 					break;
 
 				case 'selectordinal':
+					if (str_starts_with($rest, 'offset:')) {
+						preg_match('/^offset:(\d+)/', $rest, $offset_matches);
+						$offset = $offset_matches[1];
+						$rest = trim(substr($rest, strlen($offset_matches[0])));
+					} else {
+						$offset = 0;
+					}
+
+					$arg_offset = $args[$arg_name] - $offset;
+
 					preg_match_all('/(?P<rule>=\d+|zero|one|two|few|many|other)\b\s*(?P<sel>{(?' . '>[^{}]|(?2))*})/', $rest, $cases, PREG_SET_ORDER);
 
 					foreach ($cases as $case) {
@@ -229,9 +239,9 @@ class MessageFormatter
 								str_starts_with($case['rule'], '=')
 								&& $args[$arg_name] == substr($case['rule'], 1)
 							)
-							|| $case['rule'] === self::getPluralizationCategory($args[$arg_name], 'ordinal')
+							|| $case['rule'] === self::getPluralizationCategory($arg_offset, 'ordinal')
 						) {
-							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $args[$arg_name]]);
+							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $arg_offset]);
 							break 2;
 						}
 					}
