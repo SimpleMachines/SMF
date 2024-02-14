@@ -91,14 +91,14 @@ class Install extends ToolsBase implements ToolsInterface
 
 	public function __construct()
 	{
-		Maintenance::$languages = $this->detectLanguages(['General', 'Install']);
+		Maintenance::$languages = $this->detectLanguages(['General', 'Maintenance']);
 
 		if (empty(Maintenance::$languages)) {
 			if (!Sapi::isCLI()) {
 				Template::missingLanguages();
 			}
 
-			throw new Exception('This installer was unable to find this tools\'s language file or files.');
+			throw new Exception('This script was unable to find this tools\'s language file or files.');
 		} else {
 			$requested_lang = Maintenance::getRequestedLanguage();
 
@@ -106,7 +106,7 @@ class Install extends ToolsBase implements ToolsInterface
 			Lang::addDirs(Config::$languagesdir);
 
 			// And now load the language file.
-			Lang::load('Install', $requested_lang);
+			Lang::load('Maintenance', $requested_lang);
 
 			// Assume that the admin likes that language.
 			if ($requested_lang !== 'en_US') {
@@ -150,6 +150,7 @@ class Install extends ToolsBase implements ToolsInterface
 			0 => new Step(
 				id: 1,
 				name: Lang::$txt['install_step_welcome'],
+				title: Lang::$txt['install_welcome'],
 				function: 'Welcome',
 				progress: 0,
 			),

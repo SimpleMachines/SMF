@@ -54,8 +54,8 @@ class Template
                     <div id="inner_wrap">
                         <div class="news">
                             <form action="', Maintenance::getSelf(), '" method="get">
-                                <label for="installer_language">', Lang::$txt['installer_language'], ':</label>
-                                <select id="installer_language" name="lang_file" onchange="location.href = \'', Maintenance::getSelf(), '?lang_file=\' + this.options[this.selectedIndex].value;">';
+                                <label for="maintenance_language">', Lang::$txt['maintenance_language'], ':</label>
+                                <select id="maintenance_language" name="lang_file" onchange="location.href = \'', Maintenance::getSelf(), '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
 			foreach (Maintenance::$languages as $lang => $name) {
 				echo '
@@ -64,7 +64,7 @@ class Template
 
 			echo '
                                 </select>
-                                <noscript><input type="submit" value="', Lang::$txt['installer_language_set'], '" class="button"></noscript>
+                                <noscript><input type="submit" value="', Lang::$txt['action_set'], '" class="button"></noscript>
                             </form>
                         </div><!-- .news -->
                         <hr class="clear">
@@ -77,13 +77,13 @@ class Template
             <div id="content_section">
                 <div id="main_content_section">
                     <div id="main_steps">
-                        <h2>', Lang::$txt['upgrade_progress'], '</h2>
+                        <h2>', Lang::$txt['maintenance_progress'], '</h2>
                         <ul class="steps_list">';
 
 		if (Maintenance::$tool->hasSteps()) {
 			foreach (Maintenance::$tool->getSteps() as $num => $step) {
 				echo '
-                            <li', $num == Maintenance::getCurrentStep() ? ' class="stepcurrent"' : '', '>', Lang::$txt['upgrade_step'], ' ', $step->getID(), ': ', $step->getName(), '</li>';
+                            <li', $num == Maintenance::getCurrentStep() ? ' class="stepcurrent"' : '', '>', Lang::$txt['maintenance_step'], ' ', $step->getID(), ': ', $step->getName(), '</li>';
 			}
 		}
 
@@ -92,7 +92,7 @@ class Template
                     </div>
                     <div id="install_progress">
                         <div id="progress_bar" class="progress_bar progress_green">
-                            <h3>' . Lang::$txt['upgrade_overall_progress'], '</h3>
+                            <h3>' . Lang::$txt['maintenance_overall_progress'], '</h3>
                             <span id="overall_text">', Maintenance::$overall_percent, '%</span>
                             <div id="overall_progress" class="bar" style="width: ', Maintenance::$overall_percent, '%;"></div>
                         </div>
@@ -134,13 +134,13 @@ class Template
 		if (!empty(Maintenance::$fatal_error)) {
 			echo '
             <div class="errorbox">
-                <h3>', Lang::$txt['upgrade_critical_error'], '</h3>
+                <h3>', Lang::$txt['critical_error'], '</h3>
                 ', Maintenance::$fatal_error, '
             </div>';
 		} elseif (!empty(Maintenance::$errors)) {
 			echo '
             <div class="errorbox">
-                <h3>', Lang::$txt['upgrade_critical_error'], '</h3>
+                <h3>', Lang::$txt['critical_error'], '</h3>
                 ', implode('
                 ', Maintenance::$errors), '
             </div>';
@@ -149,7 +149,7 @@ class Template
 		elseif (!empty(Maintenance::$warnings)) {
 			echo '
             <div class="errorbox">
-                <h3>', Lang::$txt['upgrade_warning'], '</h3>
+                <h3>', Lang::$txt['warning'], '</h3>
                 ', implode('
                 ', Maintenance::$warnings), '
             </div>';

@@ -108,6 +108,16 @@ class Lang
 		'vietnamese' => 'vi_VN',
 	];
 
+	/**
+	 * Maps the 2.1 file names to the names used in SMF 3.0+.
+	 * This is used to support upgrading from SMF 2.1 and below.
+	 */
+	public const FILE_RENAMES = [
+		'index' => 'Genera',
+		'Settings' => 'ThemeStrings',
+		'Install' => 'Maintenance'
+	];
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -233,9 +243,9 @@ class Lang
 
 		// For each file open it up and write it out!
 		foreach (explode('+', $template_name) as $template) {
-			// Did we call the old index language file? Redirect.
-			if ($template === 'index') {
-				$template = 'General';
+			// Did we call the old language file? Redirect.
+			if (isset(self::FILE_RENAMES[$template])) {
+				$template = self::FILE_RENAMES[$template];
 			}
 
 			// Don't repeat this unnecessarily.

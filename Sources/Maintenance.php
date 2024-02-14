@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use Exception;
+use SMF\Db\DatabaseApi AS Db;
 use SMF\Maintenance\Template;
 use SMF\Maintenance\TemplateInterface;
 use SMF\Maintenance\ToolsInterface;
@@ -68,7 +70,7 @@ class Maintenance
 	public static array $errors = [];
 
 	/**
-	 * Fatal error, we display this error message and do not process anything further until the error has been corrrected.
+	 * Fatal error, we display this error message and do not process anything further until the error has been corrected.
 	 * This differs from $errors in that we should not continue operations.
 	 *
 	 * @var string
@@ -137,18 +139,22 @@ class Maintenance
 			die('Invalid Tool selected');
 		}
 
+        // Handle the CLI.
+        if (Sapi::isCLI()) {
+            Maintenance::parseCliArguments();
+        }
+
 		/** @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\ToolsBase $tool_class */
 		$tool_class = '\\SMF\\Maintenance\\Tools\\' . self::$valid_tools[$type];
 
 		require_once Config::$sourcedir . '/Maintenance/Tools/' . self::$valid_tools[$type] . '.php';
 		self::$tool = new $tool_class();
 
-
-		/** @var \SMF\Maintenance\TemplateInterface $templ_class */
-		$templ_class = '\\SMF\\Maintenance\\Template\\' . self::$valid_tools[$type];
+		/** @var \SMF\Maintenance\TemplateInterface $template_class */
+		$template_class = '\\SMF\\Maintenance\\Template\\' . self::$valid_tools[$type];
 
 		require_once Config::$sourcedir . '/Maintenance/Template/' . self::$valid_tools[$type] . '.php';
-		self::$template = new $templ_class();
+		self::$template = new $template_class();
 
 		// This is really quite simple; if ?delete is on the URL, delete the installer...
 		if (isset($_GET['delete'])) {
@@ -417,6 +423,88 @@ class Maintenance
 
 		// Bang - gone!
 		die();
+	}
+
+	/**
+	 * Handle parsing the CLI inputs.
+	 * Nothing is returned, we push everything into $_REQUEST, which isn't pretty, but we don't handle the input any other way currently.
+	 */
+	protected static function parseCliArguments(): void
+	{
+		if (!Sapi::isCLI()) {
+			return;
+		}
+
+		if (!empty($_SERVER['argv']) && Sapi::isCLI()) {
+			for ($i = 1; $i < count($_SERVER['argv']); $i++) {
+				if (preg_match('/^--([^=]+)=(.*)/', $_SERVER['argv'][$i], $match)) {
+					$_REQUEST[$match[1]] = $match[2];
+				}
+			}
+		}		
+	}
+
+	/**
+	 * Safely startup a database for maintenance actions.
+	 */
+	public static function loadDatabase(): void
+	{
+		if (!class_exists('SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
+			throw new Exception(Lang::$txt['error_db_missing']);
+		}
+
+		// Make the connection...
+		if (empty(Db::$db_connection)) {
+			Db::load(['non_fatal' => true]);
+		} else {
+			// If we've returned here, ping/reconnect to be safe
+			Db::$db->ping(Db::$db_connection);
+		}
+	
+		// Oh dear god!!
+		if (Db::$db_connection === null) {
+			// Get error info...  Recast just in case we get false or 0...
+			$error_message = Db::$db->connect_error();
+
+			if (empty($error_message)) {
+				$error_message = '';
+			}
+			$error_number = Db::$db->connect_errno();
+
+			if (empty($error_number)) {
+				$error_number = '';
+			}
+			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
+
+			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
+		}
+	
+		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1) {
+			Db::$db->query(
+				'',
+				'SET NAMES {string:db_character_set}',
+				[
+					'db_error_skip' => true,
+					'db_character_set' => Config::$db_character_set,
+				],
+			);
+		}
+	
+		// Load the modSettings data...
+		$request = Db::$db->query(
+			'',
+			'SELECT variable, value
+			FROM {db_prefix}settings',
+			[
+				'db_error_skip' => true,
+			],
+		);
+		Config::$modSettings = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			Config::$modSettings[$row['variable']] = $row['value'];
+		}
+		Db::$db->free_result($request);
 	}
 }
 

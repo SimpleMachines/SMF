@@ -49,12 +49,12 @@ class Install implements TemplateInterface
 
 			if (!empty(Maintenance::$context['continue'])) {
 				echo '
-                                    <input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
+                                    <input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['action_continue'], '" onclick="return submitThisOnce(this);" class="button">';
 			}
 
 			if (!empty(Maintenance::$context['skip'])) {
 				echo '
-                                    <input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
+                                    <input type="submit" id="skip" name="skip" value="', Lang::$txt['action_skip'], '" onclick="return submitThisOnce(this);" class="button">';
 			}
 			echo '
                                 </div>';
@@ -384,7 +384,7 @@ class Install implements TemplateInterface
 
 			foreach (Maintenance::$context['failures'] as $line => $fail) {
 				echo '
-                <li><strong>', Lang::$txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
+                <li>', nl2br(htmlspecialchars($fail)), '</li>';
 			}
 
 			echo '
@@ -481,7 +481,7 @@ class Install implements TemplateInterface
 			echo '
             <label>
                 <input type="checkbox" id="delete_self" onclick="doTheDelete();">
-                <strong>', Lang::$txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . Lang::$txt['delete_installer_maybe'] : '', '</strong>
+                <strong>', Lang::getTxt('delete_tool', ['Script' => basename(Maintenance::getSelf())]), !isset($_SESSION['temp_ftp']) ? ' ' . Lang::$txt['delete_tool_maybe'] : '', '</strong>
             </label>
             <script>
                 function doTheDelete()
