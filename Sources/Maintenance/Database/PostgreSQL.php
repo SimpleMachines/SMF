@@ -172,7 +172,7 @@ class PostgreSQL implements DatabaseInterface
 			return true;
 		}
 
-		throw new \Exception(sprintf(Lang::$txt['error_utf8_version'], $this->getMinimumVersion()));
+		throw new \Exception(Lang::getTxt('error_utf8_version', ['utf8_version' => $this->getMinimumVersion()]));
 	}
 
 }

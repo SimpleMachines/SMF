@@ -20,7 +20,7 @@ namespace SMF\Maintenance;
  */
 interface CleanupInterface
 {
-    /**
+	/**
 	 * Cleanup task we will execute.
 	 *
 	 * @return bool True if successful (or skipped), false otherwise.

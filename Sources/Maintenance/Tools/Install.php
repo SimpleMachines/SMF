@@ -23,7 +23,6 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Maintenance;
-use SMF\Maintenance\DatabaseInterface;
 use SMF\Maintenance\Step;
 use SMF\Maintenance\Template;
 use SMF\Maintenance\ToolsBase;
@@ -723,7 +722,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		Maintenance::$context['continue'] = true;
 
-		$db = $this->getMaintenanceDatabase(Config::$db_type);
+		$db = $this->loadMaintenanceDatabase(Config::$db_type);
 
 		// We have a failure of database configuration.
 		try {
@@ -1015,7 +1014,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Find out if we have permissions we didn't use, but will need for the future.
 		// @@ TODO: This was at this location in the original code, it should come earlier.
-		$db = $this->getMaintenanceDatabase(Config::$db_type);
+		$db = $this->loadMaintenanceDatabase(Config::$db_type);
 
 		if (!$db->hasPermissions()) {
 			Maintenance::$fatal_error = Lang::$txt['error_db_alter_priv'];
@@ -1518,22 +1517,6 @@ class Install extends ToolsBase implements ToolsInterface
 		if (empty(Db::$db->connection)) {
 			Db::load();
 		}
-	}
-
-	/**
-	 * Given a database type, loads the maintenance database object.
-	 *
-	 * @param string $db_type The database type, typically from Config::$db_type.
-	 * @return DatabaseInterface The database object.
-	 */
-	private function getMaintenanceDatabase(string $db_type): DatabaseInterface
-	{
-		/** @var \SMF\Maintenance\DatabaseInterface $db_class */
-		$db_class = '\\SMF\\Maintenance\\Database\\' . $db_type;
-
-		require_once Config::$sourcedir . '/Maintenance/Database/' . $db_type . '.php';
-
-		return new $db_class();
 	}
 
 	/**

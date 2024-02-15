@@ -115,7 +115,7 @@ class Lang
 	public const FILE_RENAMES = [
 		'index' => 'Genera',
 		'Settings' => 'ThemeStrings',
-		'Install' => 'Maintenance'
+		'Install' => 'Maintenance',
 	];
 
 	/**************************

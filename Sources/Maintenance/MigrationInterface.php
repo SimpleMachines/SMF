@@ -20,7 +20,7 @@ namespace SMF\Maintenance;
  */
 interface MigrationInterface
 {
-    /**
+	/**
 	 * Cleanup migration we will execute.
 	 *
 	 * @return bool True if successful (or skipped), false otherwise.

@@ -32,7 +32,7 @@ class Install implements TemplateInterface
 	 */
 	public static function upper(): void
 	{
-		if (Maintenance::$sub_template) {
+		if (count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
 		echo '
         <form action="', Maintenance::getSelf(), (Maintenance::$sub_template !== '' ? '?step=' . Maintenance::getCurrentStep() : ''), '" method="post">';
 		}
@@ -75,10 +75,10 @@ class Install implements TemplateInterface
 		echo '
             <script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 
-            <p>', sprintf(Lang::$txt['install_welcome_desc'], SMF_VERSION), '</p>
+            <p>', Lang::getTxt('install_welcome_desc', ['SMF_VERSION' => SMF_VERSION]), '</p>
             <div id="version_warning" class="noticebox hidden">
                 <h3>', Lang::$txt['error_warning_notice'], '</h3>
-                ', sprintf(Lang::$txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
+                ', Lang::getTxt('error_script_outdated', ['smfVersion' => '<em id="smfVersion" style="white-space: nowrap;">??</em>', 'yourVersion' => '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>']), '
             </div>';
 
 		// Oh no!
@@ -497,7 +497,7 @@ class Install implements TemplateInterface
 		}
 
 		echo '
-            <p>', sprintf(Lang::$txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
+            <p>', Lang::getTxt('go_to_your_forum', ['scripturl' => Config::$boardurl . '/index.php']), '</p>
             <br>
             ', Lang::$txt['good_luck'];
 	}

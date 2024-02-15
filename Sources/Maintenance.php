@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use Exception;
-use SMF\Db\DatabaseApi AS Db;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Template;
 use SMF\Maintenance\TemplateInterface;
 use SMF\Maintenance\ToolsInterface;
@@ -77,6 +77,34 @@ class Maintenance
 	 */
 	public static string $fatal_error = '';
 
+	/**
+	 * Our Theme url, defaults if we can't find it.
+	 *
+	 * @var string
+	 */
+	public static string $theme_url = 'Themes/default';
+
+	/**
+	 * Our theme dir, this is set during construct.
+	 * @var string
+	 */
+	public static string $theme_dir = '';
+
+	/**
+	 * Our Images url, defaults if we can't find it.
+	 *
+	 * @var string
+	 */
+	public static string $images_url = 'Themes/default/images';
+
+	/**
+	 * String to be appended to our urls.
+	 *
+	 * Upgrade logic will automatically maintain this.
+	 *
+	 * @var string
+	 */
+	public static string $query_string = '';
 
 	/**
 	 * Object containing the tool we are working with.
@@ -126,6 +154,7 @@ class Maintenance
 	public function __construct()
 	{
 		Security::frameOptionsHeader('SAMEORIGIN');
+		self::$theme_dir = dirname(SMF_SETTINGS_FILE) . '/Themes/default';
 	}
 
 	/**
@@ -139,10 +168,10 @@ class Maintenance
 			die('Invalid Tool selected');
 		}
 
-        // Handle the CLI.
-        if (Sapi::isCLI()) {
-            Maintenance::parseCliArguments();
-        }
+		// Handle the CLI.
+		if (Sapi::isCLI()) {
+			Maintenance::parseCliArguments();
+		}
 
 		/** @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\ToolsBase $tool_class */
 		$tool_class = '\\SMF\\Maintenance\\Tools\\' . self::$valid_tools[$type];
@@ -371,6 +400,162 @@ class Maintenance
 		}
 	}
 
+	/**
+	 * Safely startup a database for maintenance actions.
+	 */
+	public static function loadDatabase(): void
+	{
+		if (!class_exists('SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
+			throw new Exception(Lang::$txt['error_db_missing']);
+		}
+
+		// Make the connection...
+		if (empty(Db::$db_connection)) {
+			Db::load(['non_fatal' => true]);
+		} else {
+			// If we've returned here, ping/reconnect to be safe
+			Db::$db->ping(Db::$db_connection);
+		}
+
+		// Oh dear god!!
+		if (Db::$db_connection === null) {
+			// Get error info...  Recast just in case we get false or 0...
+			$error_message = Db::$db->connect_error();
+
+			if (empty($error_message)) {
+				$error_message = '';
+			}
+			$error_number = Db::$db->connect_errno();
+
+			if (empty($error_number)) {
+				$error_number = '';
+			}
+			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
+
+			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
+		}
+
+		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1) {
+			Db::$db->query(
+				'',
+				'SET NAMES {string:db_character_set}',
+				[
+					'db_error_skip' => true,
+					'db_character_set' => Config::$db_character_set,
+				],
+			);
+		}
+
+		// Load the modSettings data...
+		$request = Db::$db->query(
+			'',
+			'SELECT variable, value
+			FROM {db_prefix}settings',
+			[
+				'db_error_skip' => true,
+			],
+		);
+		Config::$modSettings = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			Config::$modSettings[$row['variable']] = $row['value'];
+		}
+		Db::$db->free_result($request);
+
+		// We have a datbase, attempt to find our theme data now.
+		self::setThemeData();
+	}
+
+	/**
+	 * Attempts to login an administrator.  If the account does not have administrate forum permission, they are rejected.
+	 * This will attempt using the SMF 2.0 method if specified.
+	 *
+	 * @param string $username The admins username
+	 * @param string $password The admins password, as of PHP 8.2, this will not be included in any stack traces.
+	 * @param bool $use_old_hashing True if we want to allow SMF 2.0 hashing, false otherwise.
+	 * @return int The id of the user if they are an admin, 0 otherwise
+	 */
+	public static function loginAdmin(
+		string $username,
+		#[\SensitiveParameter]
+		string $password,
+		bool $use_old_hashing = false,
+	): int {
+		$id = 0;
+
+		$request = Db::$db->query(
+			'',
+			'SELECT id_member, member_name, passwd, id_group, additional_groups, lngfile
+			FROM {db_prefix}members
+			WHERE member_name = {string:member_name}',
+			[
+				'member_name' => $username,
+				'db_error_skip' => true,
+			],
+		);
+
+		if (Db::$db->num_rows($request) != 0) {
+			list($id_member, $name, $password, $id_group, $addGroups, $user_language) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			$groups = explode(',', $addGroups);
+			$groups[] = (int) $id_group;
+
+			foreach ($groups as $k => $v) {
+				$groups[$k] = (int) $v;
+			}
+
+			$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
+
+			// SMF 2.1 + uses bcrypt, SMF 2.0 is sha1.
+			if (Security::hashVerifyPassword((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : ''))) {
+				$id = (int) $id_member;
+			} elseif ($password === $sha_passwd) {
+				$id = (int) $id_member;
+			}
+
+			// We have a valid login.
+			if ($id > 0 && !in_array(1, $groups)) {
+				$request = Db::$db->query(
+					'',
+					'SELECT permission
+					FROM {db_prefix}permissions
+					WHERE id_group IN ({array_int:groups})
+						AND permission = {string:admin_forum}',
+					[
+						'groups' => $groups,
+						'admin_forum' => 'admin_forum',
+						'db_error_skip' => true,
+					],
+				);
+
+				if (Db::$db->num_rows($request) == 0) {
+					$id = 0;
+				}
+				Db::$db->free_result($request);
+			}
+		}
+
+		if ($id > 0 && !empty($user_language)) {
+			$_SESSION['lang_file'] = strtr((string) $user_language, './\\:', '____');
+		}
+
+		return $id;
+	}
+
+	/**
+	 * Attempts to login using the database password.
+	 *
+	 * @param string $password The database password, as of PHP 8.2, this will not be included in any stack traces.
+	 * @return bool True if this is valid, false otherwise.
+	 */
+	public static function loginWithDatabasePassword(
+		#[\SensitiveParameter]
+		string $password,
+	): bool {
+		return Config::$db_passwd === $password;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -444,70 +629,68 @@ class Maintenance
 					$_REQUEST[$match[1]] = $match[2];
 				}
 			}
-		}		
+		}
 	}
 
 	/**
-	 * Safely startup a database for maintenance actions.
+	 * Fetch the theme information for the default theme.  If this can't be loaded, we fall back to a guess.
 	 */
-	public static function loadDatabase(): void
+	protected static function setThemeData(): void
 	{
-		if (!class_exists('SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
-			throw new Exception(Lang::$txt['error_db_missing']);
-		}
+		$themesData = [
+			'theme_url' => 'Themes/default',
+			'theme_dir' => basename(SMF_SETTINGS_FILE) . '/Themes/default',
+			'images_url' => 'Themes/default/images',
+		];
 
-		// Make the connection...
-		if (empty(Db::$db_connection)) {
-			Db::load(['non_fatal' => true]);
-		} else {
-			// If we've returned here, ping/reconnect to be safe
-			Db::$db->ping(Db::$db_connection);
-		}
-	
-		// Oh dear god!!
-		if (Db::$db_connection === null) {
-			// Get error info...  Recast just in case we get false or 0...
-			$error_message = Db::$db->connect_error();
-
-			if (empty($error_message)) {
-				$error_message = '';
-			}
-			$error_number = Db::$db->connect_errno();
-
-			if (empty($error_number)) {
-				$error_number = '';
-			}
-			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
-
-			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
-		}
-	
-		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1) {
-			Db::$db->query(
+		// This only exists if we're on SMF ;)
+		if (isset(Config::$modSettings['smfVersion'])) {
+			$request = Db::$db->query(
 				'',
-				'SET NAMES {string:db_character_set}',
+				'SELECT variable, value
+				FROM {db_prefix}themes
+				WHERE id_theme = {int:id_theme}
+					AND variable IN ({string:theme_url}, {string:theme_dir}, {string:images_url})',
 				[
+					'id_theme' => 1,
+					'theme_url' => 'theme_url',
+					'theme_dir' => 'theme_dir',
+					'images_url' => 'images_url',
 					'db_error_skip' => true,
-					'db_character_set' => Config::$db_character_set,
 				],
 			);
-		}
-	
-		// Load the modSettings data...
-		$request = Db::$db->query(
-			'',
-			'SELECT variable, value
-			FROM {db_prefix}settings',
-			[
-				'db_error_skip' => true,
-			],
-		);
-		Config::$modSettings = [];
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			Config::$modSettings[$row['variable']] = $row['value'];
+			while ($row = Db::$db->fetch_assoc($request)) {
+				self::$$row['variable'] = $row['value'];
+			}
+			Db::$db->free_result($request);
+
+			if (Sapi::httpsOn()) {
+				self::$theme_url = strtr(self::$theme_url, ['http://' => 'https://']);
+				self::$images_url = strtr(self::$images_url, ['http://' => 'https://']);
+			}
 		}
-		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Handle a response for our javascript logic.
+	 *
+	 * This always returns a success header, which is used to handle continues.
+	 *
+	 * @param mixed $data
+	 * @param bool $success True if the result was succesful, false otherwise.
+	 */
+	private function jsonResponse(mixed $data, bool $success = true): void
+	{
+		ob_end_clean();
+		header('content-type: text/json; charset=UTF-8');
+
+		echo json_encode([
+			'success' => $success,
+			'data' => $data,
+		]);
+
+		die;
 	}
 }
 
