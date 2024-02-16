@@ -17,6 +17,8 @@ namespace SMF\Localization;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Time;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -179,10 +181,86 @@ class MessageFormatter
 
 					break;
 
-				// @todo
-				// case 'date':
-				// case 'time':
-				// 	break;
+				case 'ordinal':
+					$final .= self::formatMessage(Lang::$txt['ordinal'], [$args[$arg_name]]);
+					break;
+
+				case 'date':
+					if ($args[$arg_name] instanceof \DateTimeInterface) {
+						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+					} elseif (is_numeric($args[$arg_name])) {
+						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
+					} elseif (is_string($args[$arg_name])) {
+						$args[$arg_name] = date_create($args[$arg_name]);
+
+						if ($args[$arg_name] === false) {
+							$args[$arg_name] = new Time();
+						} else {
+							$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+						}
+					} else {
+						$args[$arg_name] = new Time();
+					}
+
+					// Trying to produce the same output as \IntlDateFormatter
+					// would require a lot of complex code, so we're just going
+					// for simple fallbacks here.
+					switch ($rest) {
+						case 'full':
+						case 'long':
+							$fmt = Time::getDateFormat();
+							$relative = true;
+							break;
+
+						case 'short':
+							$fmt = 'Y-m-d';
+							$relative = false;
+
+						case 'medium':
+						default:
+							$fmt = Time::getShortDateFormat();
+							$relative = true;
+							break;
+					}
+
+					$final .= $args[$arg_name]->format($fmt, $relative);
+					break;
+
+				case 'time':
+					if ($args[$arg_name] instanceof \DateTimeInterface) {
+						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+					} elseif (is_numeric($args[$arg_name])) {
+						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
+					} elseif (is_string($args[$arg_name])) {
+						$args[$arg_name] = date_create($args[$arg_name]);
+
+						if ($args[$arg_name] === false) {
+							$args[$arg_name] = new Time();
+						} else {
+							$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+						}
+					} else {
+						$args[$arg_name] = new Time();
+					}
+
+					// Trying to produce the same output as \IntlDateFormatter
+					// would require a lot of complex code, so we're just going
+					// for simple fallbacks here.
+					switch ($rest) {
+						case 'full':
+						case 'long':
+							$fmt = Time::getTimeFormat();
+							break;
+
+						case 'short':
+						case 'medium':
+						default:
+							$fmt = Time::getShortTimeFormat();
+							break;
+					}
+
+					$final .= $args[$arg_name]->format($fmt);
+					break;
 
 				// @todo
 				// case 'duration':
