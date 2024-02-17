@@ -400,6 +400,38 @@ class UpdateUnicode extends BackgroundTask
 			],
 			'data' => [],
 		],
+		'currencies' => [
+			'file' => 'Currencies.php',
+			'key_type' => 'string',
+			'val_type' => 'array',
+			'desc' => [
+				'Helper function for SMF\Localization\MessageFormatter::formatMessage.',
+				'',
+				'Rules compiled from:',
+				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/currencyData.json',
+			],
+			'return' => [
+				'type' => 'array',
+				'desc' => 'Information about different currencies',
+			],
+			'data' => [],
+		],
+		'country_currencies' => [
+			'file' => 'Currencies.php',
+			'key_type' => 'string',
+			'val_type' => 'array',
+			'desc' => [
+				'Helper function for SMF\Localization\MessageFormatter::formatMessage.',
+				'',
+				'Rules compiled from:',
+				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/currencyData.json',
+			],
+			'return' => [
+				'type' => 'array',
+				'desc' => 'Information about currencies used in different countries',
+			],
+			'data' => [],
+		],
 	];
 
 	/**
@@ -430,6 +462,7 @@ class UpdateUnicode extends BackgroundTask
 		self::DATA_URL_CLDR => [
 			'cldr-core/supplemental/plurals.json',
 			'cldr-core/supplemental/ordinals.json',
+			'cldr-core/supplemental/currencyData.json',
 		],
 	];
 
@@ -577,6 +610,7 @@ class UpdateUnicode extends BackgroundTask
 		 * CLDR data *
 		 *************/
 		$success = $this->build_plurals() & $success;
+		$success = $this->build_currencies() & $success;
 
 		$this->export_funcs_to_file();
 
@@ -2041,6 +2075,61 @@ class UpdateUnicode extends BackgroundTask
 				}
 			}
 		}
+
+		return true;
+	}
+
+	/**
+	 * Builds information about different currencies.
+	 */
+	private function build_currencies(): bool
+	{
+		$sourcefile = 'cldr-core/supplemental/currencyData.json';
+
+		$local_file = $this->fetch_unicode_file($sourcefile, self::DATA_URL_CLDR);
+
+		if (empty($local_file)) {
+			return false;
+		}
+
+		$data = json_decode(file_get_contents($local_file), true);
+
+		foreach ($data['supplemental']['currencyData']['region'] as $cc => $region_currency_info) {
+			foreach ($region_currency_info as $region_currencies) {
+				foreach ($region_currencies as $currency_code => $currency_info) {
+					if (!empty($currency_info['_to'])) {
+						continue;
+					}
+
+					if (isset($currency_info['_tender']) && $currency_info['_tender'] === 'false') {
+						continue;
+					}
+
+					$this->funcs['country_currencies']['data'][$cc][] = var_export($currency_code, true);
+
+					// Set these to the default for now.
+					$this->funcs['currencies']['data'][$currency_code]['digits'] = 2;
+					$this->funcs['currencies']['data'][$currency_code]['rounding'] = 0;
+				}
+			}
+		}
+
+		foreach ($data['supplemental']['currencyData']['fractions'] as $currency_code => $fractions) {
+			if (!isset($this->funcs['currencies']['data'][$currency_code]) && $currency_code !== 'DEFAULT') {
+				continue;
+			}
+
+			foreach (['_digits', '_rounding', '_cashDigits', '_cashRounding'] as $key) {
+				if (!isset($fractions[$key])) {
+					continue;
+				}
+
+				$this->funcs['currencies']['data'][$currency_code][substr($key, 1)] = $fractions[$key];
+			}
+		}
+
+		ksort($this->funcs['currencies']['data']);
+		ksort($this->funcs['country_currencies']['data']);
 
 		return true;
 	}
