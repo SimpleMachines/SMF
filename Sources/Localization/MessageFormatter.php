@@ -155,6 +155,8 @@ class MessageFormatter
 			$rest = trim($rest);
 
 			switch ($fmt_type) {
+				// @todo Implement 'spellout' properly.
+				case 'spellout':
 				case 'number':
 					if (str_starts_with($rest, '::')) {
 						$final .= self::applyNumberSkeleton($args[$arg_name] ?? 0, ltrim(substr($rest, 2)));
@@ -168,9 +170,60 @@ class MessageFormatter
 								$final .= self::applyNumberSkeleton(round(($args[$arg_name] ?? 0), 2), 'percent scale/100');
 								break;
 
-							// @todo
-							// case 'currency':
-							// 	break;
+							// For this one, we need to figure out a default currency to use...
+							case 'currency':
+								// If paid subscriptions are set up, use that currency.
+								if (isset(Config::$modSettings['paid_currency'])) {
+									$currency = Config::$modSettings['paid_currency'];
+								}
+								// Try to guess the currency based on country.
+								else {
+									require_once Config::$sourcedir . '/Unicode/Currencies.php';
+									$country_currencies = country_currencies();
+
+									// If the admin wants to prioritize a certain country, use that.
+									if (!empty(Config::$modSettings['timezone_priority_countries'])) {
+										$cc = explode(',', Config::$modSettings['timezone_priority_countries'])[0];
+									}
+									// Guess based on the locale.
+									else {
+										[$lang, $cc] = explode('_', Lang::$txt['lang_locale']);
+
+										if (!isset($country_currencies[$cc])) {
+											switch ($lang) {
+												case 'cs':
+													$cc = 'CZ';
+													break;
+
+												case 'de':
+													$cc = 'DE';
+													break;
+
+												case 'en':
+													$cc = 'US';
+													break;
+
+												case 'sr':
+													$cc = 'SR';
+													break;
+
+												case 'zh':
+													$cc = 'CN';
+													break;
+
+												default:
+													$cc = '';
+													break;
+											}
+										}
+									}
+
+									$currency = $country_currencies[$cc] ?? 'XXX';
+								}
+
+								$final .= self::applyNumberSkeleton($args[$arg_name] ?? 0, 'currency/' . $currency);
+
+								break;
 
 							default:
 								$skeleton = is_int($args[$arg_name] + 0) ? '' : '.000';
@@ -262,9 +315,21 @@ class MessageFormatter
 					$final .= $args[$arg_name]->format($fmt);
 					break;
 
-				// @todo
-				// case 'duration':
-				// 	break;
+				case 'duration':
+					// Input is a number of seconds.
+					$args[$arg_name] = (int) $args[$arg_name];
+
+					$seconds = sprintf('%02d', $args[$arg_name] % 60);
+					$minutes = sprintf('%02d', $args[$arg_name] >= 60 ? (int) ($args[$arg_name] / 60) % 60 : 0);
+					$hours = sprintf('%02d', $args[$arg_name] >= 3600 ? (int) ($args[$arg_name] / 3600) : 0);
+
+					if ($hours === '00' && $minutes === '00') {
+						$final .= Lang::getTxt('number_of_seconds', [$seconds]);
+					} else {
+						$final .= ltrim(implode(':', [$hours, $minutes, $seconds]), '0:');
+					}
+
+					break;
 
 				case 'plural':
 					if (str_starts_with($rest, 'offset:')) {
@@ -341,7 +406,11 @@ class MessageFormatter
 					break;
 
 				default:
-					$final .= $rest;
+					if (is_scalar($args[$arg_name]) || $args[$arg_name] instanceof \Stringable) {
+						$final .= (string) $args[$arg_name];
+					} else {
+						$final .= $part;
+					}
 					break;
 			}
 		}
@@ -718,7 +787,24 @@ class MessageFormatter
 						break;
 
 					case 'currency':
-						$post_processing[] = fn ($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::$txt['currency_format'], ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? $options[0] . "\u{A0}"]);
+						require_once Config::$sourcedir . '/Unicode/Currencies.php';
+
+						$currencies = currencies();
+
+						if (!isset($currencies[$options[0]])) {
+							$options[0] = 'DEFAULT';
+						}
+
+						$currency = $currencies[$options[0]];
+
+						if ($currency['digits'] === 0) {
+							$number = strval(intval($number));
+						} else {
+							$number = sprintf('%0.' . $currency['digits'] . 'F', $number);
+						}
+
+						$post_processing[] = fn ($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::$txt['currency_format'], ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
+
 						break;
 
 					case 'group-auto':
