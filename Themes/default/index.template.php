@@ -475,12 +475,12 @@ function theme_linktree($force_show = false)
 function template_menu()
 {
 	echo '
-	<a class="mobile_user_menu">
-		<span class="menu_icon"></span>
-			<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
-	</a>
 	<nav id="main_menu">
 		<div class="inner_wrap">
+			<a class="mobile_user_menu">
+				<span class="main_icons navigation"></span>
+				<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
+			</a>
 			<div id="mobile_user_menu" class="popup_container">
 				<div class="popup_window description">
 					<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '

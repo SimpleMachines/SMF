@@ -28,18 +28,18 @@ function template_generic_menu_dropdown_above()
 	// Load the menu
 	// Add mobile menu as well
 	echo '
-	<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
-		<span class="menu_icon"></span>
-		<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '</span>
-	</a>
 	<div id="genericmenu">
+		<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
+			<span class="main_icons navigation"></span>
+			<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '</span>
+		</a>
 		<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
-				', template_generic_menu($menu_context), '
+				', template_generic_menu($menu_context, $menu_label), '
 			</div>
 		</div>
 	</div>
@@ -75,10 +75,10 @@ function template_generic_menu_dropdown_below()
  *
  * @param array $menu_context An array of menu information
  */
-function template_generic_menu(&$menu_context)
+function template_generic_menu(&$menu_context, $menu_label)
 {
 	echo '
-				<div class="generic_menu">
+				<nav class="generic_menu" aria-label="', sprintf(Lang::$txt['mobile_generic_menu'], $menu_label), '">
 					<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '">';
 
 	// Main areas first.
@@ -137,7 +137,7 @@ function template_generic_menu(&$menu_context)
 
 	echo '
 					</ul><!-- .dropmenu -->
-				</div><!-- .generic_menu -->';
+				</nav><!-- .generic_menu -->';
 }
 
 /**
