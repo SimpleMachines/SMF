@@ -20,14 +20,22 @@ use SMF\Utils;
  */
 function template_login()
 {
-	echo '
+	if (empty(Utils::$context['from_ajax']))
+		echo '
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="main_icons login"></span> ', Lang::$txt['login'], '
 				</h3>
-			</div>
-			<form action="', Utils::$context['login_url'], '" name="frmLogin" method="post" accept-charset="', Utils::$context['character_set'], '"> class="windowbg form_grid">';
+			</div>';
+
+	echo '
+			<form action="', Utils::$context['login_url'], '" name="frmLogin" method="post" accept-charset="', Utils::$context['character_set'], '" class="form_grid';
+
+	if (empty(Utils::$context['from_ajax']))
+		echo ' windowbg';
+
+	echo '">';
 
 	// Did they make a mistake last time?
 	if (!empty(Utils::$context['login_errors']))
@@ -64,12 +72,14 @@ function template_login()
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete']))
 		echo '
-				<label class="alert">', Lang::$txt['undelete_account'], ':</label>
-				<div><input type="checkbox" name="undelete"></div>';
+				<div class="checkbox">
+					<input type="checkbox" name="undelete">
+					<label class="alert">', Lang::$txt['undelete_account'], ':</label>
+				</div>';
 
 	echo '
 				<input type="submit" value="', Lang::$txt['login'], '" class="button">
-				<p class="smalltext">
+				<p class="smalltext centertext">
 					<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
 				</p>';
 
@@ -102,12 +112,15 @@ function template_login()
 	if (!empty(Utils::$context['can_register']))
 		echo '
 				<hr>
-				<div class="centertext">
-					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl]), '
-				</div>';
+				<p class="centertext">
+					', sprintf(Lang::$txt['register_prompt'], Config::$scripturl), '
+				</p>';
 
 	echo '
-			</form>
+			</form>';
+
+	if (empty(Utils::$context['from_ajax']))
+		echo '
 		</div><!-- .login -->';
 }
 
@@ -116,13 +129,16 @@ function template_login()
  */
 function template_login_tfa()
 {
-	echo '
+	if (empty(Utils::$context['from_ajax']))
+		echo '
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::$txt['tfa_profile_label'], '
 				</h3>
-			</div>
+			</div>';
+
+	echo '
 			<div class="windowbg">';
 
 	if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error']))
@@ -171,7 +187,7 @@ function template_login_tfa()
 							if (data.indexOf("<bo" + "dy") > -1)
 								document.location = ', Utils::JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';
 							else {
-								$(form).parent().html($(data).find(".windowbg form_grid").html());
+								$(form).parent().html($(data).find(".windowbg").html());
 							}
 						});
 					});';
@@ -182,7 +198,10 @@ function template_login_tfa()
 						form.getElementById("tfaCode").style.display = "";
 					});
 				</script>
-			</div><!-- .windowbg -->
+			</div><!-- .windowbg -->';
+
+	if (empty(Utils::$context['from_ajax']))
+		echo '
 		</div><!-- .login -->';
 }
 
@@ -206,7 +225,7 @@ function template_kick_guest()
 			';
 
 	if (Utils::$context['can_register'])
-		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']]);
+		echo sprintf(Lang::$txt['login_below_or_register'], Config::$scripturl . '?action=signup', Utils::$context['forum_name_html_safe']);
 	else
 		echo Lang::$txt['login_below'];
 

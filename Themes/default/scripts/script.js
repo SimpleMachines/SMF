@@ -338,13 +338,13 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
 	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
-	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
+	var sHeader = sHeader || help_popup_heading_text;
 
 	var containerOptions;
-	if (typeof(sIcon) == 'string' && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null)
+	if (sIcon && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null)
 		containerOptions = {heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon};
 	else
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (typeof(sIcon) != 'string' ? 'help' : sIcon)};
+		containerOptions = {heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (sIcon || 'help')};
 
 	// Create the div that we are going to load
 	var oContainer = new smc_Popup(containerOptions);
@@ -361,11 +361,8 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		},
 		type: "GET",
 		dataType: "html",
-		beforeSend: function () {
-		},
 		success: function (data, textStatus, xhr) {
-			var help_content = $('<div id="temp_help">').html(data).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
-			oPopup_body.html(help_content);
+			oPopup_body.html(data);
 		},
 		error: function (xhr, textStatus, errorThrown) {
 			oPopup_body.html(textStatus);
@@ -481,44 +478,98 @@ smc_PopupMenu.prototype.closeAll = function ()
 function smc_Popup(oOptions)
 {
 	this.opt = oOptions;
-	this.popup_id = this.opt.custom_id ? this.opt.custom_id : 'smf_popup';
+	this.popup_id = this.opt.custom_id || 'smf_popup';
 	this.show();
 }
 
 smc_Popup.prototype.show = function ()
 {
-	popup_class = 'popup_window ' + (this.opt.custom_class ? this.opt.custom_class : 'description');
+	popup_class = 'popup_window ' + (this.opt.custom_class || 'description');
 	if (this.opt.icon_class)
 		icon = '<span class="' + this.opt.icon_class + '"></span> ';
 	else
 		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
-	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="main_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
+	this.cover = document.createElement("div");
+	this.cover.id = this.popup_id;
+	this.cover.className = 'popup_container';
+	const root = document.createElement("div");
+	const heading = document.createElement("div");
+	const content = document.createElement("div");
+	const a = document.createElement("a");
+	heading.insertAdjacentHTML('beforeend', icon);
+	heading.append(this.opt.heading);
+	heading.append(a);
+	root.append(heading, content);
+	this.cover.appendChild(root);
+	root.className = popup_class;
+	content.className = 'popup_content';
+	content.innerHTML = this.opt.content;
+	heading.className = 'popup_heading';
+	a.className = 'main_icons hide_popup';
+	a.setAttribute('role', 'button');
+	a.setAttribute('tabindex', '0');
+	a.addEventListener("click", this.hide.bind(this));
+	this.cover.addEventListener('click', function(e)
+	{
+		if (e.target === this.cover)
+			this.hide();
+	}.bind(this));
+	document.body.appendChild(this.cover);
 
 	// Show it
-	this.popup_body = $('#' + this.popup_id).children('.popup_window');
-	this.popup_body.parent().fadeIn(300);
+	$(this.cover).fadeIn(300, function()
+	{
+		var focusableEls = root.querySelectorAll('a[href]:not([href="javascript:self.close();"]), area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex^="-"])');
+		this.focusableEls = Array.prototype.slice.call(focusableEls);
+		this.firstFocusableEl = focusableEls[0];
+		this.lastFocusableEl = focusableEls[focusableEls.length - 1];
 
-	// Trigger hide on escape or mouse click
-	var popup_instance = this;
-	$(document).mouseup(function (e) {
-		if ($('#' + popup_instance.popup_id).has(e.target).length === 0)
-			popup_instance.hide();
-	}).keyup(function(e){
-		if (e.keyCode == 27)
-			popup_instance.hide();
-	});
-	$('#' + this.popup_id).find('.hide_popup').click(function (){ return popup_instance.hide(); });
+		this.focusedElBeforeOpen = document.activeElement;
+		if (focusableEls[1])
+			focusableEls[1].focus();
+	}.bind(this));
 
-	return false;
+	root.addEventListener('keydown', function(e)
+	{
+		switch (e.keyCode)
+		{
+			case 9:
+				if (this.focusableEls.length == 1)
+				{
+					e.preventDefault();
+					break;
+				}
+
+				if (e.shiftKey && document.activeElement === this.firstFocusableEl)
+				{
+					e.preventDefault();
+					this.lastFocusableEl.focus();
+				}
+				else if (!e.shiftKey && document.activeElement === this.lastFocusableEl)
+				{
+					e.preventDefault();
+					this.firstFocusableEl.focus();
+				}
+				break;
+			case 27:
+				this.hide();
+				break;
+		}
+	}.bind(this));
+
+	// Disable document scrolling..
+	document.body.style.overflow = 'hidden';
 }
 
 smc_Popup.prototype.hide = function ()
 {
-	$('#' + this.popup_id).fadeOut(300, function(){ $(this).remove(); });
+	if (this.focusedElBeforeOpen)
+		this.focusedElBeforeOpen.focus();
 
-	return false;
+	document.body.style.overflow = '';
+	$(this.cover).fadeOut(300, function() { this.remove(); });
 }
 
 // Remember the current position.

@@ -15,7 +15,6 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
 
-// @todo
 /*	This template file contains only the sub template fatal_error. It is
 	shown when an error occurs, and should show at least a back button and
 	Utils::$context['error_message'].
@@ -26,12 +25,12 @@ use SMF\Utils;
  */
 function template_fatal_error()
 {
-	if (!empty(Utils::$context['simple_action']))
+	if (!empty(Utils::$context['simple_action']) || !empty(Utils::$context['from_ajax']))
 		echo '
-	<strong>
+	<h4>
 		', Utils::$context['error_title'], '
-	</strong><br>
-	<div ', Utils::$context['error_code'], 'class="padding">
+	</h4>
+	<div ', Utils::$context['error_code'], '>
 		', Utils::$context['error_message'], '
 	</div>';
 	else
@@ -43,10 +42,8 @@ function template_fatal_error()
 				', Utils::$context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg">
-			<div ', Utils::$context['error_code'], 'class="padding">
-				', Utils::$context['error_message'], '
-			</div>
+		<div class="windowbg" ', Utils::$context['error_code'], '>
+			', Utils::$context['error_message'], '
 		</div>
 	</div>';
 

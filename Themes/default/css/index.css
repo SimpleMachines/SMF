@@ -1694,19 +1694,7 @@ a[class^="mobile_generic_menu_"] {
 .top_menu {
 	min-width: 25em;
 }
-.top_menu .login {
-	width: 100%;
-}
-.top_menu .login dt {
-	text-align: left;
-	width: 55%;
-}
-.top_menu .login dd {
-	width: 43%;
-}
-.top_menu .login input {
-	width: 90%;
-}
+
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
 	margin: -2em 0 0 15.3em;
@@ -3152,13 +3140,6 @@ dl.addrules dt.floatleft {
 	width: 100%;
 	height: 100%;
 	background: var(--popup_container_bg_color);
-	z-index: 6;
-}
-#genericmenu > .popup_container {
-	z-index: 5;
-}
-#adm_submenus > .popup_container {
-	z-index: 4;
 }
 .popup_window,
 #main_menu .popup_window,
@@ -3166,7 +3147,6 @@ dl.addrules dt.floatleft {
 #adm_submenus .popup_window {
 	position: relative;
 	width: auto;
-	z-index: 99;
 	box-shadow: var(--popup_window_box_shadow);
 	border: 1px solid var(--popup_window_border_color);
 	border-radius: var(--popup_window_border_radius);
@@ -3182,6 +3162,8 @@ dl.addrules dt.floatleft {
 .popup_heading {
 	padding: var(--popup_heading_padding);
 	color: var(--popup_heading_txt_color);
+	display: flex;
+	gap: .5em;
 }
 .popup_content {
 	color: var(--popup_content_txt_color);
@@ -3209,8 +3191,8 @@ dl.addrules dt.floatleft {
 	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
 }
 .main_icons.hide_popup {
-	float: right;
 	color: var(--white);
+	margin-left: auto;
 }
 .popup_heading .icon {
 	vertical-align: middle;
@@ -3219,12 +3201,10 @@ dl.addrules dt.floatleft {
 
 .generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
 	background: var(--window_bg_color);
-	margin: 12px 0 0 0;
 	padding: 12px 16px;
 	border: var(--border_width) var(--border_style) var(--border_color);
 	overflow: auto;
 }
-/* Here comes the glory... */
 .windowbg:nth-of-type(even), .bg.even {
 	background: var(--window_bg_even_color);
 }
@@ -3244,6 +3224,7 @@ tr.windowbg:hover {
 
 /* Special treatment for #forumposts area */
 #forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2, #pmFolder .windowbg {
+	margin: 12px 0 0 0;
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
@@ -5265,10 +5246,6 @@ h3.catbg .icon {
 	content: "\f234";
 }
 /* Login */
-.main_icons.login {
-	width: auto;
-}
-.fa-login::before,
 .main_icons.login::before {
 	content: "\f2f6";
 }
