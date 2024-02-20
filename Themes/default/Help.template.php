@@ -21,7 +21,8 @@ use SMF\Utils;
 function template_popup()
 {
 	// Since this is a popup of its own we need to start the html, etc.
-	echo '<!DOCTYPE html>
+	if (!isset($_REQUEST['ajax']))
+		echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="UTF-8">
@@ -32,9 +33,12 @@ function template_popup()
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
-			', Utils::$context['help_text'], '<br>
-			<br>
-			<a href="javascript:self.close();">', Lang::getTxt('close_window', file: 'Help'), '</a>
+			';
+
+	echo Utils::$context['help_text'];
+
+	if (!isset($_REQUEST['ajax']))
+		echo '
 		</div>
 	</body>
 </html>';
