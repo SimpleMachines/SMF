@@ -146,7 +146,7 @@ function template_modify_category()
 						<span class="smalltext">', Lang::getTxt('name_on_display', file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
-						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30" tabindex="', Utils::$context['tabindex']++, '">
+						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30">
 					</dd>
 					<dt>
 						<strong>', Lang::getTxt('mboards_description', file: 'ManageBoards'), '</strong><br>
@@ -160,7 +160,7 @@ function template_modify_category()
 						<span class="smalltext">', Lang::getTxt('collapse_desc', file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
-						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
+						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', '>
 					</dd>';
 
 	// Show any category settings added by mods using the 'integrate_edit_category' hook.
@@ -185,11 +185,11 @@ function template_modify_category()
 
 	if (isset(Utils::$context['category']['is_new']))
 		echo '
-				<input type="submit" name="add" value="', Lang::getTxt('mboards_add_cat_button', file: 'ManageBoards'), '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">';
+				<input type="submit" name="add" value="', Lang::$txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::getTxt('modify', file: 'General'), '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
-				<input type="submit" name="delete" value="', Lang::getTxt('mboards_delete_cat', file: 'ManageBoards'), '" data-confirm="', Lang::getTxt('cat_delete_confirm', file: 'ManageBoards'), '" class="button you_sure">';
+				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" class="button">
+				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_cat'], '" data-confirm="', Lang::$txt['cat_delete_confirm'], '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
