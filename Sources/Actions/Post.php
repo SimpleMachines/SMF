@@ -354,7 +354,7 @@ class Post implements ActionInterface, Routable
 			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
 		}
 
-		// quotedText.js
+		Theme::loadJavaScriptFile('post.js', ['defer' => true, 'minimize' => true], 'smf_post');
 		Theme::loadJavaScriptFile('quotedText.js', ['defer' => true, 'minimize' => true], 'smf_quotedText');
 
 		// Knowing the current board ID might be handy.
@@ -1005,8 +1005,6 @@ class Post implements ActionInterface, Routable
 					'is_last' => false,
 				];
 			}
-			Utils::$context['last_choice_id'] = $choice_id;
-			Utils::$context['choices'][count(Utils::$context['choices']) - 1]['is_last'] = true;
 		}
 
 		// Are you... a guest?

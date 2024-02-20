@@ -1010,15 +1010,11 @@ class Poll implements \ArrayAccess
 			'guest_vote' => !empty($_POST['poll_guest_vote']),
 		]);
 
-		// Make all five poll choices empty.
-		Utils::$context['last_choice_id'] = 4;
-
-		for ($i = 0; $i <= Utils::$context['last_choice_id']; $i++) {
+		for ($i = 0; $i <= 4; $i++) {
 			$this->addChoice([
 				'id' => $i,
 				'number' => $i + 1,
 				'label' => '',
-				'is_last' => $i === Utils::$context['last_choice_id'],
 			], true);
 		}
 	}
