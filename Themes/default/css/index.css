@@ -1441,7 +1441,8 @@ ul li.greeting {
 #display_jump_to_select,
 #message_index_jump_to_select,
 #search_jump_to_select,
-#quick_mod_jump_to_select {
+#quick_mod_jump_to_select,
+#list_integration_hooks select {
 	width: 29ch;
 	overflow: hidden;
 }
