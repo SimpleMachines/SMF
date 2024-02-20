@@ -90,7 +90,6 @@ function template_init()
  */
 function template_html_above()
 {
-	Theme::loadCSSFile('https://use.fontawesome.com/releases/v6.1.2/css/all.css', array('external' => true));
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace("_", "-", substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), "."))) . '"' : '', '>
