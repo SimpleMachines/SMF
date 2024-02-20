@@ -1506,24 +1506,10 @@ function expandThumb(thumbID)
 	return false;
 }
 
-function pollOptions()
-{
-	var expire_time = document.getElementById('poll_expire');
-
-	if (isEmptyText(expire_time) || expire_time.value == 0)
-	{
-		document.forms.postmodify.poll_hide[2].disabled = true;
-		if (document.forms.postmodify.poll_hide[2].checked)
-			document.forms.postmodify.poll_hide[1].checked = true;
-	}
-	else
-		document.forms.postmodify.poll_hide[2].disabled = false;
-}
-
 function generateDays(offset)
 {
 	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : '';
+	offset ||= '';
 
 	var days = 0, selected = 0;
 	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
@@ -1542,7 +1528,7 @@ function generateDays(offset)
 
 	days = monthLength[monthElement.value - 1];
 
-	for (i = 1; i <= days; i++)
+	for (let i = 1; i <= days; i++)
 		dayElement.options[dayElement.length] = new Option(i, i);
 
 	if (selected < days)

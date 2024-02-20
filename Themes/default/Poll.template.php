@@ -19,27 +19,6 @@ use SMF\Utils;
  */
 function template_main()
 {
-	// Some javascript for adding more options.
-	echo '
-	<script>
-		var pollOptionNum = 0;
-		var pollOptionId = ', Utils::$context['last_choice_id'], ';
-
-		function addPollOption()
-		{
-			if (pollOptionNum == 0)
-			{
-				for (var i = 0; i < document.forms.postmodify.elements.length; i++)
-					if (document.forms.postmodify.elements[i].id.substr(0, 8) == "options-")
-						pollOptionNum++;
-			}
-			pollOptionNum++
-			pollOptionId++
-
-			setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', strtr(Lang::getTxt('option_number', [999]), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
-		}
-	</script>';
-
 	if (!empty(Utils::$context['poll_error']['messages']))
 		echo '
 			<div class="errorbox">
@@ -67,8 +46,8 @@ function template_main()
 					<input type="hidden" name="poll" value="', Utils::$context['poll']['id'], '">
 					<fieldset id="poll_main">
 						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
-						<dl class="settings poll_options">
 							<dt>', Lang::$txt['poll_question'], '</dt>
+						<dl class="settings poll_options" data-more-txt="', Lang::$txt['poll_add_option'], '" data-option-txt="', Lang::$txt['option'], '">
 							<dd><input type="text" name="question" size="80" value="', Utils::$context['poll']['question'], '"></dd>';
 
 	foreach (Utils::$context['choices'] as $choice)
@@ -89,9 +68,7 @@ function template_main()
 	}
 
 	echo '
-							<p id="pollMoreOptions"></p>
 						</dl>
-						<strong><a href="javascript:addPollOption(); void(0);">(', Lang::$txt['poll_add_option'], ')</a></strong>
 					</fieldset>
 					<fieldset id="poll_options">
 						<legend>', Lang::$txt['poll_options'], '</legend>
@@ -108,7 +85,7 @@ function template_main()
 							</dd>
 							<dt>
 								<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-								<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
+								<small><i>', Lang::$txt['poll_run_limit'], '</i></small>
 							</dt>
 							<dd>
 								<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll']['expiration']), '" onchange="this.form.poll_hide[2].disabled = isEmptyText(this) || this.value == 0; if (this.form.poll_hide[2].checked) this.form.poll_hide[1].checked = true;">
@@ -123,7 +100,7 @@ function template_main()
 		if (Utils::$context['poll']['guest_vote_allowed'])
 			echo '
 							<dt>
-								<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], '</label>
+								<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], ':</label>
 							</dt>
 							<dd>
 								<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll']['guest_vote']) ? ' checked' : '', '>
@@ -132,7 +109,7 @@ function template_main()
 
 	echo '
 							<dt>
-								', Lang::$txt['poll_results_visibility'], '
+								', Lang::$txt['poll_results_visibility'], ':
 							</dt>
 							<dd>
 								<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll']['hide_results'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::$txt['poll_results_anyone'], '</label><br>

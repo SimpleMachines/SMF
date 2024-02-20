@@ -42,28 +42,6 @@ function template_main()
 	echo '
 			};';
 
-	// If this is a poll - use some javascript to ensure the user doesn't create a poll with illegal option combinations.
-	if (Utils::$context['make_poll'])
-		echo '
-			var pollOptionNum = 0, pollTabIndex;
-			var pollOptionId = ', Utils::$context['last_choice_id'], ';
-			function addPollOption()
-			{
-				if (pollOptionNum == 0)
-				{
-					for (var i = 0, n = document.forms.postmodify.elements.length; i < n; i++)
-						if (document.forms.postmodify.elements[i].id.substr(0, 8) == \'options-\')
-						{
-							pollOptionNum++;
-							pollTabIndex = document.forms.postmodify.elements[i].tabIndex;
-						}
-				}
-				pollOptionNum++
-				pollOptionId++
-
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999]), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
-			}';
-
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
 	if (Utils::$context['make_event'])
 		echo '
@@ -164,7 +142,7 @@ function template_main()
 					<div id="edit_poll">
 						<fieldset id="poll_main">
 							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
-							<dl class="settings poll_options">
+							<dl class="settings poll_options" data-more-txt="', Lang::$txt['poll_add_option'], '" data-option-txt="', Lang::$txt['option'], '">
 								<dt>', Lang::$txt['poll_question'], '</dt>
 								<dd>
 									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" tabindex="', Utils::$context['tabindex']++, '" size="80">
@@ -181,9 +159,7 @@ function template_main()
 								</dd>';
 
 		echo '
-								<p id="pollMoreOptions"></p>
 							</dl>
-							<strong><a href="javascript:addPollOption(); void(0);">(', Lang::$txt['poll_add_option'], ')</a></strong>
 						</fieldset>
 						<fieldset id="poll_options">
 							<legend>', Lang::$txt['poll_options'], '</legend>
@@ -196,7 +172,7 @@ function template_main()
 								</dd>
 								<dt>
 									<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-									<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
+									<small><i>', Lang::$txt['poll_run_limit'], '</i></small>
 								</dt>
 								<dd>
 									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
@@ -250,7 +226,8 @@ function template_main()
 
 		if (Utils::$context['can_post_attachment'])
 			echo '
-										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">';
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">
+										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', Lang::$txt['clean_attach'], ')</a>';
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit']))
 			echo '
