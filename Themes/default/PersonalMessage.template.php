@@ -987,7 +987,7 @@ function template_send()
 
 	// Main message editing box.
 	echo '
-		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
+		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="main_icons inbox icon" title="', Lang::getTxt('new_message', file: 'PersonalMessage'), '"></span> ', Lang::getTxt('new_message', file: 'PersonalMessage'), '
@@ -1121,14 +1121,6 @@ function template_send()
 			{
 				if (window.XMLHttpRequest)
 				{
-					// Opera didn\'t support setRequestHeader() before 8.01.
-					// @todo Remove support for old browsers
-					if (\'opera\' in window)
-					{
-						var test = new XMLHttpRequest();
-						if (!(\'setRequestHeader\' in test))
-							return submitThisOnce(document.forms.postmodify);
-					}
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
 					var textFields = [\'subject\', ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ', \'to\', \'bcc\'];
@@ -1159,8 +1151,6 @@ function template_send()
 
 					return false;
 				}
-				else
-					return submitThisOnce(document.forms.postmodify);
 			}
 			function onDocSent(XMLDoc)
 			{

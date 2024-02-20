@@ -150,7 +150,7 @@ function template_view_package()
 	}
 
 	echo '
-		<form action="', !empty(Utils::$context['post_url']) ? Utils::$context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="UTF-8" id="view_package">
+		<form action="', !empty(Utils::$context['post_url']) ? Utils::$context['post_url'] : '#', '" method="post" accept-charset="UTF-8" id="view_package">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_actions' : 'package_install_actions', Utils::$context, file: 'Packages'), '
@@ -365,7 +365,7 @@ function template_view_package()
 	if (!Utils::$context['ftp_needed'] && (!empty(Utils::$context['actions']) || !empty(Utils::$context['database_changes'])))
 		echo '
 			<div class="righttext padding">
-				<input type="submit" value="', Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_now' : 'package_install_now', file: 'Packages'), '" onclick="return ', !empty(Utils::$context['has_failure']) ? '(submitThisOnce(this) &amp;&amp; confirm(\'' . Lang::getTxt(Utils::$context['uninstalling'] ? 'package_will_fail_popup_uninstall' : 'package_will_fail_popup', file: 'Packages') . '\'))' : 'submitThisOnce(this)', ';" class="button">
+				<input type="submit" value="', Utils::$context['uninstalling'] ? Lang::$txt['package_uninstall_now'] : Lang::$txt['package_install_now'], '" class="button', !empty(Utils::$context['has_failure']) ? ' you_sure" data-confirm="' . (Utils::$context['uninstalling'] ? Lang::$txt['package_will_fail_popup_uninstall'] : Lang::$txt['package_will_fail_popup']) : '', '">
 			</div>';
 
 	// If we need ftp information then demand it!

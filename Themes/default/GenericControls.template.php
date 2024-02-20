@@ -93,7 +93,6 @@ function template_control_richedit_buttons($editor_id)
 	foreach (Utils::$context['richedit_buttons'] as $name => $button) {
 		if ($name == 'preview') {
 			$button['value'] = isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $button['value'];
-			$button['onclick'] = $editor_context['preview_type'] == Editor::PREVIEW_XML ? '' : 'return submitThisOnce(this);';
 			$button['show'] = $editor_context['preview_type'];
 		}
 

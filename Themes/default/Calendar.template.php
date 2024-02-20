@@ -844,7 +844,7 @@ function template_calendar_top($calendar_data)
 function template_event_post()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="UTF-8" onsubmit="submitonce(this);">';
+		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="UTF-8">';
 
 	if (!empty(Utils::$context['event']->new))
 		echo '

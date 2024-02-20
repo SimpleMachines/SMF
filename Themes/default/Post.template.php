@@ -26,11 +26,6 @@ function template_main()
 	echo '
 		<script>';
 
-	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
-	if (BrowserDetector::isBrowser('is_firefox'))
-		echo '
-			window.addEventListener("pageshow", reActivate, false);';
-
 	// Start with message icons - and any missing from this theme.
 	echo '
 			var icon_urls = {';

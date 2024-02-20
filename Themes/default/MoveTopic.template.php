@@ -21,7 +21,7 @@ function template_move()
 {
 	echo '
 	<div id="move_topic" class="lower_padding">
-		<form action="', Config::$scripturl, '?action=movetopic2;current_board=' . Utils::$context['current_board'] . ';topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="UTF-8" onsubmit="submitonce(this);">
+		<form action="', Config::$scripturl, '?action=movetopic2;current_board=' . Utils::$context['current_board'] . ';topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::getTxt('move_topic', file: 'General'), '</h3>
 			</div>
@@ -68,7 +68,7 @@ function template_move()
 	template_redirect_options('move');
 
 	echo '
-					<input type="submit" value="', Lang::getTxt('move_topic', file: 'General'), '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+					<input type="submit" value="', Lang::$txt['move_topic'], '" accesskey="s" class="button">
 				</div><!-- .move_topic -->
 			</div><!-- .windowbg -->';
 
