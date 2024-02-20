@@ -1025,7 +1025,7 @@ function template_send()
 	// Autosuggest will be added by the JavaScript later on.
 	echo '
 					<dd id="pm_to" class="clear_right">
-						<input type="text" name="to" id="to_control" value="', Utils::$context['to_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">';
+						<input type="text" name="to" id="to_control" value="', Utils::$context['to_value'], '" size="20">';
 
 	// A link to add BCC, only visible with JavaScript enabled.
 	echo '
@@ -1044,7 +1044,7 @@ function template_send()
 						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', trim(Lang::getTxt('pm_bcc', ['list' => ''])), '</span>
 					</dt>
 					<dd id="bcc_div2">
-						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">
+						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" size="20">
 						<div id="bcc_item_list_container"></div>
 					</dd>';
 
@@ -1054,7 +1054,7 @@ function template_send()
 						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::$txt['subject'], '</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" name="subject" value="', Utils::$context['subject'], '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>';
 

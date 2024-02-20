@@ -146,7 +146,7 @@ function template_modify_category()
 						<span class="smalltext">', Lang::$txt['name_on_display'], '</span>
 					</dt>
 					<dd>
-						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30" tabindex="', Utils::$context['tabindex']++, '">
+						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30">
 					</dd>
 					<dt>
 						<strong>', Lang::$txt['mboards_description'], '</strong><br>
@@ -160,7 +160,7 @@ function template_modify_category()
 						<span class="smalltext">', Lang::$txt['collapse_desc'], '</span>
 					</dt>
 					<dd>
-						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
+						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', '>
 					</dd>';
 
 	// Show any category settings added by mods using the 'integrate_edit_category' hook.
@@ -185,10 +185,10 @@ function template_modify_category()
 
 	if (isset(Utils::$context['category']['is_new']))
 		echo '
-				<input type="submit" name="add" value="', Lang::$txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">';
+				<input type="submit" name="add" value="', Lang::$txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
+				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" class="button">
 				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_cat'], '" data-confirm="', Lang::$txt['cat_delete_confirm'], '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">

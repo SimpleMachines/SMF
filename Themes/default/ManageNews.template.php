@@ -216,7 +216,7 @@ function template_email_members_compose()
 						<label', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' for="subject" id="caption_subject">', Lang::$txt['subject'], '</label>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" id="subject" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="84"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" id="subject" name="subject" value="', Utils::$context['subject'], '" size="80" maxlength="84"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>
 				<div id="bbcBox_message"></div>';

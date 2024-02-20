@@ -825,12 +825,12 @@ function template_calendar_top($calendar_data)
 
 	echo '
 			<form action="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="date" name="start_date" id="start_date" value="', $calendar_data['iso_start_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">';
+				<input type="date" name="start_date" id="start_date" value="', $calendar_data['iso_start_date'], '" class="date_input start" data-type="date">';
 
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', Utils::strtolower(Lang::$txt['to']), '</span>
-				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" class="date_input end" data-type="date">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::$txt['view'], '">

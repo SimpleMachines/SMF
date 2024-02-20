@@ -351,19 +351,19 @@ function template_main()
 					sTemplateBodyEdit: ', Utils::escapeJavaScript('
 						<div id="quick_edit_body_container">
 							<div id="error_box" class="error"></div>
-							<textarea class="editor" name="message" rows="12" tabindex="' . Utils::$context['tabindex']++ . '">%body%</textarea><br>
+							<textarea class="editor" name="message" rows="12">%body%</textarea><br>
 							<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
 							<input type="hidden" name="topic" value="' . Utils::$context['current_topic'] . '">
 							<input type="hidden" name="msg" value="%msg_id%">
 							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . Lang::$txt['save'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::$txt['spell_check'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::$txt['modify_cancel'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
+								<input type="submit" name="post" value="' . Lang::$txt['save'] . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::$txt['spell_check'] . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::$txt['modify_cancel'] . '" onclick="return oQuickModify.modifyCancel();" class="button">
 							</div>
 						</div>'), ',
-					sTemplateSubjectEdit: ', Utils::escapeJavaScript('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
+					sTemplateSubjectEdit: ', Utils::escapeJavaScript('<input type="text" name="subject" value="%subject%" size="80" maxlength="80">'), ',
 					sTemplateBodyNormal: ', Utils::escapeJavaScript('%body%'), ',
 					sTemplateSubjectNormal: ', Utils::escapeJavaScript('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 					sTemplateTopSubject: ', Utils::escapeJavaScript('%subject%'), ',
-					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
+					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" class="quickModifyMargin">'), ',
 					sTemplateReasonNormal: ', Utils::escapeJavaScript('%modify_text'), ',
 					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), (Utils::$context['can_reply']) ? ',
 					sFormRemoveAccessKeys: \'postmodify\'' : '', '
@@ -917,7 +917,7 @@ function template_quickreply()
 								', Lang::$txt['name'], '
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" required>
 							</dd>';
 
 		if (empty(Config::$modSettings['guest_post_no_email']))
@@ -927,7 +927,7 @@ function template_quickreply()
 								', Lang::$txt['email'], '
 							</dt>
 							<dd>
-								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" required>
 							</dd>';
 		}
 
