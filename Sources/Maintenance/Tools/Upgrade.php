@@ -168,7 +168,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			 Lang::addDirs(Config::$languagesdir);
 
 			 // And now load the language file.
-			 Lang::load('Maintenance', $requested_lang);
+			 Lang::load('General+Maintenance', $requested_lang);
 
 			 // Assume that the admin likes that language.
 			 if ($requested_lang !== $this->default_language) {
@@ -320,14 +320,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Check for some key files - one template, one language, and a new and an old source file.
-		$check = @file_exists(Config::$modSettings['theme_dir'] . '/index.template.php')
+		$check = @file_exists(Maintenance::$theme_dir . '/index.template.php')
 			&& @file_exists(Config::$sourcedir . '/QueryString.php')
 			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
-			&& @file_exists(dirname(__FILE__) . '/Maintenance/Migration/v3_0/Migration0001.php');
+			&& @file_exists(Config::$sourcedir . '/Maintenance/Migration/v3_0/Migration0001.php');
 
 		// Need legacy scripts?
 		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 3.0) {
-			$check &= @file_exists(dirname(__FILE__) . '/Maintenance/Migration/v2_1/Migration0001.php');
+			$check &= @file_exists(Config::$sourcedir . '/Maintenance/Migration/v2_1/Migration0001.php');
 		}
 
 		if (!$check) {
@@ -437,7 +437,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$current_language = Config::$language;
 		$new_locale = Lang::getLocaleFromLanguageName($current_language);
 
-		if ($new_locale !== null) {
+		if ($new_locale !== null && $new_locale != Config::$language) {
 			Config::updateSettingsFile(['language' => $new_locale]);
 		}
 
@@ -448,12 +448,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Try to make all the files writable, if we can not, we will display a chmod page to attempt this with additional permissions.
 		if ($this->makeFilesWritable($writable_files)) {
 			Maintenance::$context['chmod']['files'] = $writable_files;
+
 			return false;
 		}
-	
+
 		// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
 		if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/' . $this->default_language . '/agreement.txt')) && !is_writable(Config::$languagesdir . '/' . $this->default_language . '/agreement.txt')) {
 			Maintenance::$fatal_error = Lang::$txt['error_agreement_not_writable'];
+
 			return false;
 		}
 
@@ -489,7 +491,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		if ($this->attachmentDirectoryIsValid()) {
 			Maintenance::$warnings[] = Lang::$txt['warning_att_dir_missing'];
 		}
-	
 
 		// Attempting to login.
 		if (empty(Maintenance::$errors) && isset($_POST['contbutt']) && (!empty($_POST['db_pass']) || (!empty($_POST['user']) && !empty($_POST['pass'])))) {
@@ -519,8 +520,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 				return true;
 			}
-		}
-		else if (empty(Maintenance::$errors)) {
+		} elseif (empty(Maintenance::$errors)) {
 			Maintenance::$context['continue'] = true;
 		}
 
@@ -551,14 +551,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$this->getUpgradeData();
 
-		$this->time_started = ((int) $this->upgradeData['started']) ?? time();
-		$this->time_updated = ((int) $this->upgradeData['updated']) ?? time();
-		$this->debug = ((bool) $this->upgradeData['debug']) ?? false;
-		$this->skipped_migrations = ((array) $this->upgradeData['skipped']) ?? [];
-		$this->user['id'] = ((int) $this->upgradeData['user_id']) ?? 0;
-		$this->user['name'] = $this->upgradeData['user_name'] ?? '';
-		$this->user['step'] = $this->upgradeData['step'] ?? 0;
-
 		// Template needs to know about this.
 		Maintenance::$context['started'] = $this->time_started;
 		Maintenance::$context['updated'] = $this->time_updated;
@@ -570,11 +562,19 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 *
 	 * @return array Upgrade data.
 	 */
-	private function getUpgradeData(): array
+	private function getUpgradeData(): void
 	{
 		$defined_vars = Config::getCurrentSettings();
 
-		return $defined_vars['upgradeData'] ?? [];
+		$data = $defined_vars['upgradeData'] ?? [];
+
+		$this->time_started = isset($this->upgradeData['started']) ? (int) $this->upgradeData['started'] : time();
+		$this->time_updated = isset($this->upgradeData['updated']) ? (int) $this->upgradeData['updated'] : time();
+		$this->debug = !empty($this->upgradeData['debug']);
+		$this->skipped_migrations = !empty($this->upgradeData['skipped']) && is_array($this->upgradeData['skipped']) ? $this->upgradeData['skipped'] : [];
+		$this->user['id'] = isset($this->upgradeData['user_id']) ? (int) $this->upgradeData['user_id'] : 0;
+		$this->user['name'] = isset($this->upgradeData['user_name']) ? (int) $this->upgradeData['user_name'] : 0;
+		$this->user['step'] = isset($this->upgradeData['step']) ? (int) $this->upgradeData['step'] : 0;
 	}
 
 	/**
@@ -596,7 +596,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Verify that the attachment directory is valid during the upgrade.
-	 * 
+	 *
 	 * This function safely checks both a serialized and json encoded attachment directory information.
 	 * When multiple attachment directories exist, all are checked.
 	 *

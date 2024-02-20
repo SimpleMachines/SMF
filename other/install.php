@@ -33,6 +33,11 @@ if (!defined('SMF')) {
 
 define('SMF_INSTALLING', 1);
 
+ob_start();
+
+// Initialize.
+require_once __DIR__ . '/index.php';
+
 // In pre-release versions, report all errors.
 if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 	error_reporting(E_ALL);
@@ -41,10 +46,5 @@ if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 else {
 	error_reporting(E_ALL & ~E_DEPRECATED);
 }
-
-ob_start();
-
-// Initialize.
-require_once __DIR__ . '/index.php';
 
 (new SMF\Maintenance())->execute(Maintenance::INSTALL);

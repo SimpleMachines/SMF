@@ -227,6 +227,7 @@ $txt['default_angel_smiley'] = 'Angel';
 // Upgrade - Welcome Login Page
 $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';
 $txt['error_no_javascript'] = 'No javascript support was detected!  Please enable javascript in your browser settings.';
+$txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF {SMF_VERSION}. All files appear to be in place and the upgrade can now proceed.';
 
 
 
@@ -411,7 +412,6 @@ $txt['upgrade_ftp_files'] = 'The following files need to be made writable to con
 $txt['upgrade_ftp_shell'] = 'If you have a shell account, the command below can automatically correct permissions on these files';
 $txt['upgrade_ftp_error'] = 'The following error was encountered when trying to connect:';
 
-$txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF {SMF_VERSION}. All files appear to be in place and the upgrade can now proceed.';
 $txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the <a href="{url}">Simple Machines Website</a>';
 $txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
 $txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">{SMF_VERSION}</em>.<br><br>It is recommended that you visit the <a href="{url}">Simple Machines Website</a> to ensure you are upgrading to the latest version.';

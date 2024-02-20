@@ -150,7 +150,7 @@ class Maintenance
 	/**
 	 * Disable security functions such as login checks.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	public static bool $disable_security = false;
 
@@ -673,7 +673,7 @@ class Maintenance
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				self::$$row['variable'] = $row['value'];
+				self::${$row['variable']} = $row['value'];
 			}
 			Db::$db->free_result($request);
 

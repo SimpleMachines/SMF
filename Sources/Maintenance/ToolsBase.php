@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
@@ -102,9 +103,9 @@ abstract class ToolsBase
 	public function loadMaintenanceDatabase(string $db_type): DatabaseInterface
 	{
 		/** @var \SMF\Maintenance\DatabaseInterface $db_class */
-		$db_class = '\\SMF\\Maintenance\\Database\\' . $db_type;
+		$db_class = '\\SMF\\Maintenance\\Database\\' . Db::getClass(Config::$db_type);
 
-		require_once Config::$sourcedir . '/Maintenance/Database/' . $db_type . '.php';
+		require_once Config::$sourcedir . '/Maintenance/Database/' . Db::getClass(Config::$db_type) . '.php';
 
 		return new $db_class();
 	}

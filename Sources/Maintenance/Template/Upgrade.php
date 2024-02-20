@@ -19,7 +19,6 @@ use SMF\Lang;
 use SMF\Maintenance;
 use SMF\Maintenance\Template;
 use SMF\Maintenance\TemplateInterface;
-use SMF\Maintenance\ToolsInterface;
 use SMF\Sapi;
 
 /**
@@ -86,14 +85,18 @@ class Upgrade implements TemplateInterface
 		echo '
 			<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 			<h3>', Lang::getTxt('upgrade_ready_proceed', ['SMF_VERSION' => SMF_VERSION]), '</h3>
-			<input type="hidden" name="', Maintenance::$context['login_token_var'], '" value="', Maintenance::$context['login_token'], '">
 
 			<div id="version_warning" class="noticebox hidden">
 				<h3>', Lang::$txt['upgrade_warning'], '</h3>
 				', Lang::getTxt('upgrade_warning_out_of_date', ['SMF_VERSION' => SMF_VERSION, 'url' => 'https://www.simplemachines.org']), '
 			</div>';
 
-	
+			if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
+				Template::warningsAndErrors();
+
+				return;
+			}
+
 		// Show a CHMOD form.
 		self::chmod();
 
@@ -129,6 +132,7 @@ class Upgrade implements TemplateInterface
 
 		/** @var \SMF\Maintenance\Tools\Upgrade Maintenance::$tool */
 		$tool = &Maintenance::$tool;
+
 		if ((time() - Maintenance::$context['updated']) > $tool->inactive_timeout) {
 			echo '
 				<p>', Lang::$txt['upgrade_run'], '</p>';
@@ -158,7 +162,7 @@ class Upgrade implements TemplateInterface
 			echo '
 											<div class="smalltext red">', Lang::$txt['upgrade_wrong_username'], '</div>';
 		}
-				
+
 		echo '
 		</dd>
 		<dt>
@@ -187,7 +191,13 @@ class Upgrade implements TemplateInterface
 	</dl>
 	<span class="smalltext">
 		', Lang::$txt['upgrade_bypass'], '
-	</span>
+	</span>';
+
+	if (!empty(Maintenance::$context['login_token_var'])) {
+		echo '
+	<input type="hidden" name="', Maintenance::$context['login_token_var'], '" value="', Maintenance::$context['login_token'], '">';
+	}
+		echo '
 	<input type="hidden" name="login_attempt" id="login_attempt" value="1">
 	<input type="hidden" name="js_works" id="js_works" value="0">';
 
@@ -232,14 +242,15 @@ class Upgrade implements TemplateInterface
 	/**
 	 * Did we call the chmod template?
 	 *
-	 * @var boolean True if we did, false otherwise.
+	 * @var bool True if we did, false otherwise.
 	 */
 	private static bool $chmod_called = false;
 
 	/**
 	 * Template for CHMOD.
-	*/
-	protected static function chmod() {
+	 */
+	protected static function chmod()
+	{
 		// Don't call me twice!
 		if (self::$chmod_called) {
 			return;
