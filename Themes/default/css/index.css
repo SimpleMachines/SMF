@@ -165,6 +165,10 @@ input[disabled], textarea[disabled], select[disabled], .button.disabled, .button
 	opacity: 0.8;
 	cursor: default;
 }
+[inert] > * {
+  opacity: 0.5;
+}
+
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
 	border: none;

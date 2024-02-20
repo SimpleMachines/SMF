@@ -1,4 +1,3 @@
-var smf_formSubmitted = false;
 var lastKeepAliveCheck = new Date().getTime();
 var smf_editorArray = new Array();
 
@@ -663,24 +662,19 @@ function isEmptyText(theField)
 }
 
 // Only allow form submission ONCE.
-function submitonce(theform)
+function submitonce(oForm)
 {
-	smf_formSubmitted = true;
-
-	// If there are any editors warn them submit is coming!
-	for (var i = 0; i < smf_editorArray.length; i++)
-		smf_editorArray[i].doSubmit();
+	oForm.inert = true;
 }
 function submitThisOnce(oControl)
 {
 	// oControl might also be a form.
-	var oForm = 'form' in oControl ? oControl.form : oControl;
+	return (oControl.form || oControl).inert !== true;
+}
+function reActivateThis(oForm)
+{
+	oForm.inert = false;
 
-	var aTextareas = oForm.getElementsByTagName('textarea');
-	for (var i = 0, n = aTextareas.length; i < n; i++)
-		aTextareas[i].readOnly = true;
-
-	return !smf_formSubmitted;
 }
 
 // Deprecated, as innerHTML is supported everywhere.
@@ -1824,9 +1818,6 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 {
 	event.preventDefault();
 
-	if (!this.previewXMLSupported)
-		return submitThisOnce(document.forms.postmodify);
-
 	var new_replies = new Array();
 	if (window.XMLHttpRequest)
 	{
@@ -1887,8 +1878,6 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 
 		return false;
 	}
-	else
-		return submitThisOnce(document.forms.postmodify);
 }
 
 smc_preview_post.prototype.onDocSent = function (XMLDoc)

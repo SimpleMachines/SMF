@@ -28,6 +28,24 @@ function smc_toggleImageDimensions()
 // Add a load event for the function above.
 window.addEventListener("load", smc_toggleImageDimensions);
 
+// Disable all fields on form submit.
+window.addEventListener('load', function () {
+	for (const form of document.forms) {
+		form.addEventListener('submit', function () {
+			submitonce(this);
+		});
+	}
+});
+
+// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
+if (is_ff) {
+	window.addEventListener("pageshow", function () {
+		for (const form of document.forms) {
+			reActivateThis(form);
+		}
+	});
+}
+
 // Adds a button to a certain button strip.
 function smf_addButton(sButtonStripId, bUseImage, oOptions)
 {

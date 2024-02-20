@@ -35,7 +35,7 @@ function template_main()
 	// Start the main poll form.
 	echo '
 	<div id="edit_poll">
-		<form action="' . Config::$scripturl . '?action=editpoll2', Utils::$context['is_edit'] ? '' : ';add', ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . '" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
+		<form action="' . Config::$scripturl . '?action=editpoll2', Utils::$context['is_edit'] ? '' : ';add', ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . '" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>';
@@ -127,7 +127,7 @@ function template_main()
 						<input type="checkbox" name="resetVoteCount" value="on"> ' . Lang::$txt['reset_votes_check'] . '
 					</fieldset>';
 	echo '
-					<input type="submit" name="post" value="', Lang::$txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+					<input type="submit" name="post" value="', Lang::$txt['save'], '" accesskey="s" class="button">
 				</div><!-- .roundframe -->
 			</div>
 			<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">

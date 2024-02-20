@@ -297,8 +297,6 @@ function template_email_members_compose()
 
 						return false;
 					}
-					else
-						return submitThisOnce(document.forms.newsmodify);
 				}
 				function onDocSent(XMLDoc)
 				{
