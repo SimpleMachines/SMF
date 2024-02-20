@@ -26,6 +26,7 @@ use SMF\Maintenance\ToolsBase;
 use SMF\Maintenance\ToolsInterface;
 use SMF\QueryString;
 use SMF\Sapi;
+use SMF\SecurityToken;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
@@ -82,6 +83,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	public array $user = [
 		'id' => 0,
 		'name' => 'Guest',
+		'step' => 0,
 	];
 
 	/**
@@ -90,6 +92,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Migrations we skipped.
 	 */
 	public array $skipped_migrations = [];
+
+	/**
+	 * @var int
+	 *
+	 * The amount of seconds allowed between logins.
+	 * If the first user to login is inactive for this amount of seconds, a second login is allowed.
+	 */
+	public int $inactive_timeout = 10;
 
 	/*********************
 	 * Internal properties
@@ -117,14 +127,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	protected int $migration_time_limit = 3;
 
 	/**
-	 * @var int
-	 *
-	 * The amount of seconds allowed between logins.
-	 * If the first user to login is inactive for this amount of seconds, a second login is allowed.
-	 */
-	protected int $inactive_timeout = 10;
-
-	/**
 	 * @var array
 	 *
 	 * Upgrade data stored in our Settings.php as we progress through the upgrade.
@@ -137,6 +139,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * The time we started the upgrade, populated by upgrade itself.
 	 */
 	protected int $time_started = 0;
+
+	/**
+	 * English is the default language.
+	 *
+	 * @var string
+	 */
+	protected string $default_language = 'en_US';
 
 	/****************
 	 * Public methods
@@ -162,7 +171,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			 Lang::load('Maintenance', $requested_lang);
 
 			 // Assume that the admin likes that language.
-			 if ($requested_lang !== 'en_US') {
+			 if ($requested_lang !== $this->default_language) {
 				 Config::$language = $requested_lang;
 			 }
 		 }
@@ -199,9 +208,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Is this a large forum? We may do special logic then.
-		$this->is_large_forum = (empty(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] <= '1.1 RC1') && !empty(Config::$modSettings['totalMessages']) && Config::$modSettings['totalMessages'] > 75000;
+		Maintenance::$context['is_large_forum'] = $this->is_large_forum = (empty(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] <= '1.1 RC1') && !empty(Config::$modSettings['totalMessages']) && Config::$modSettings['totalMessages'] > 75000;
 
-		// Should we check that theya are logged in?
+		// Should we check that they are logged in?
 		if (Maintenance::getCurrentSubStep() > 0 && !isset($_SESSION['is_logged'])) {
 			Maintenance::setCurrentSubStep(0);
 		}
@@ -296,7 +305,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function welcomeLogin(): bool
 	{
-		// Needs to at least meet our miniumn version.
+		// Needs to at least meet our minium version.
 		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>='))) {
 			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
 
@@ -314,23 +323,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$check = @file_exists(Config::$modSettings['theme_dir'] . '/index.template.php')
 			&& @file_exists(Config::$sourcedir . '/QueryString.php')
 			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
-			&& @file_exists(dirname(__FILE__) . '/Maintennace/Migration/v3_0/Migration0001.php');
+			&& @file_exists(dirname(__FILE__) . '/Maintenance/Migration/v3_0/Migration0001.php');
 
 		// Need legacy scripts?
 		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 3.0) {
-			$check &= @file_exists(dirname(__FILE__) . '/Maintennace/Migration/v2_1/Migration0001.php');
+			$check &= @file_exists(dirname(__FILE__) . '/Maintenance/Migration/v2_1/Migration0001.php');
 		}
 
 		if (!$check) {
 			// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
 			Maintenance::$fatal_error = Lang::$txt['error_upgrade_files_missing'];
-
-			return false;
-		}
-
-		// Needs to at least meet our miniumn version.
-		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>='))) {
-			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
 
 			return false;
 		}
@@ -411,28 +413,96 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Check the cache directory.
-		$cachedir_temp = empty(Config::$cachedir) ? Config::$boarddir . '/cache' : Config::$cachedir;
+		$cache_dir_temp = empty(Config::$cachedir) ? Config::$boarddir . '/cache' : Config::$cachedir;
 
-		if (!file_exists($cachedir_temp)) {
-			@mkdir($cachedir_temp);
+		if (!file_exists($cache_dir_temp)) {
+			@mkdir($cache_dir_temp);
 		}
 
-		if (!file_exists($cachedir_temp)) {
+		if (!file_exists($cache_dir_temp)) {
 			Maintenance::$fatal_error = Lang::$txt['error_cache_not_found'];
 
 			return false;
 		}
 
-		$this->quickFileWritable($cachedir_temp . '/db_last_error.php');
+		$this->quickFileWritable($cache_dir_temp . '/db_last_error.php');
 
+		if (!is_writable($cache_dir_temp . '/db_last_error.php')) {
+			Maintenance::$fatal_error = Lang::getTxt('error_dir_not_writable', ['dir' => $cache_dir_temp]);
+
+			return false;
+		}
+
+		// Do we need to update our Settings file with the new language locale?
+		$current_language = Config::$language;
+		$new_locale = Lang::getLocaleFromLanguageName($current_language);
+
+		if ($new_locale !== null) {
+			Config::updateSettingsFile(['language' => $new_locale]);
+		}
+
+		if (empty(Config::$languagesdir)) {
+			Config::updateSettingsFile(['languagesdir' => Config::$boarddir . '/Languages']);
+		}
+
+		// Try to make all the files writable, if we can not, we will display a chmod page to attempt this with additional permissions.
+		if ($this->makeFilesWritable($writable_files)) {
+			Maintenance::$context['chmod']['files'] = $writable_files;
+			return false;
+		}
+	
+		// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
+		if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/' . $this->default_language . '/agreement.txt')) && !is_writable(Config::$languagesdir . '/' . $this->default_language . '/agreement.txt')) {
+			Maintenance::$fatal_error = Lang::$txt['error_agreement_not_writable'];
+			return false;
+		}
+
+		// Confirm mbstring is loaded...
+		if (!extension_loaded('mbstring')) {
+			Maintenance::$errors[] = Lang::$txt['install_no_mbstring'];
+		}
+
+		// Confirm fileinfo is loaded...
+		if (!extension_loaded('fileinfo')) {
+			Maintenance::$errors[] = Lang::$txt['install_no_fileinfo'];
+		}
+
+		// Check for https stream support.
+		$supported_streams = stream_get_wrappers();
+
+		if (!in_array('https', $supported_streams)) {
+			Maintenance::$warnings[] = Lang::$txt['install_no_https'];
+		}
+
+		// First, check the avatar directory...
+		// Note it wasn't specified in YabbSE, but there was no smfVersion either.
+		if (!empty(Config::$modSettings['smfVersion']) && !is_dir(Config::$modSettings['avatar_directory'])) {
+			Maintenance::$warnings[] = Lang::$txt['warning_av_missing'];
+		}
+
+		// Next, check the custom avatar directory...  Note this is optional in 2.0.
+		if (!empty(Config::$modSettings['custom_avatar_dir']) && !is_dir(Config::$modSettings['custom_avatar_dir'])) {
+				Maintenance::$warnings[] = Lang::$txt['warning_custom_av_missing'];
+		}
+
+		// Ensure we have a valid attachment directory.
+		if ($this->attachmentDirectoryIsValid()) {
+			Maintenance::$warnings[] = Lang::$txt['warning_att_dir_missing'];
+		}
+	
 
 		// Attempting to login.
-		if (isset($_POST['contbutt']) && (!empty($_POST['db_pass']) || (!empty($_POST['user']) && !empty($_POST['pass'])))) {
+		if (empty(Maintenance::$errors) && isset($_POST['contbutt']) && (!empty($_POST['db_pass']) || (!empty($_POST['user']) && !empty($_POST['pass'])))) {
+			if (!SecurityToken::validate('login')) {
+				return false;
+			}
+
 			// Let them login, if they know the database password.
 			if (!empty($_POST['db_pass']) && Maintenance::loginWithDatabasePassword((string) $_POST['db_pass'])) {
 				$this->user = [
 					'id' => 0,
 					'name' => 'Database Admin',
+					'step' => Maintenance::getCurrentStep(),
 				];
 				$_SESSION['is_logged'] = true;
 
@@ -443,13 +513,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				$this->user = [
 					'id' => $id,
 					'name' => (string) $_POST['user'],
+					'step' => Maintenance::getCurrentStep(),
 				];
 				$_SESSION['is_logged'] = true;
 
 				return true;
 			}
 		}
+		else if (empty(Maintenance::$errors)) {
+			Maintenance::$context['continue'] = true;
+		}
 
+		Maintenance::$context += SecurityToken::create('login');
 
 		return false;
 	}
@@ -466,7 +541,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Config::$language = str_ireplace('-utf8', '', basename(Config::$language, '.lng'));
 		}
 
-		// SMF 1.x didn't support mulitple database types.
+		// SMF 1.x didn't support multiple database types.
 		// SMF 2.0 used 'mysqli' for a short time.
 		if (empty(Config::$db_type) || Config::$db_type == 'mysqli') {
 			Config::$db_type = 'mysql';
@@ -482,6 +557,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->skipped_migrations = ((array) $this->upgradeData['skipped']) ?? [];
 		$this->user['id'] = ((int) $this->upgradeData['user_id']) ?? 0;
 		$this->user['name'] = $this->upgradeData['user_name'] ?? '';
+		$this->user['step'] = $this->upgradeData['step'] ?? 0;
+
+		// Template needs to know about this.
+		Maintenance::$context['started'] = $this->time_started;
+		Maintenance::$context['updated'] = $this->time_updated;
+		Maintenance::$context['user'] = $this->user;
 	}
 
 	/**
@@ -511,6 +592,90 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			'user_id' => $this->user['id'],
 			'user_name' => $this->user['name'],
 		])]);
+	}
+
+	/**
+	 * Verify that the attachment directory is valid during the upgrade.
+	 * 
+	 * This function safely checks both a serialized and json encoded attachment directory information.
+	 * When multiple attachment directories exist, all are checked.
+	 *
+	 * @return bool True if no errors found during attachment testing, false otherwise.
+	 */
+	private function attachmentDirectoryIsValid(): bool
+	{
+		// A bit more complex, since it may be json or serialized, and it may be an array or just a string...
+
+		// PHP currently has a terrible handling with unserialize in which errors are fatal and not catch-able.  Lets borrow some code from the RFC that intends to fix this
+		// https://wiki.php.net/rfc/improve_unserialize_error_handling
+		try {
+			set_error_handler(static function ($severity, $message, $file, $line) {
+				throw new \ErrorException($message, 0, $severity, $file, $line);
+			});
+			$ser_test = @unserialize(Config::$modSettings['attachmentUploadDir']);
+		} catch (\Throwable $e) {
+			$ser_test = false;
+		} finally {
+			restore_error_handler();
+		}
+
+		// Json is simple, it can be caught.
+		try {
+			$json_test = @json_decode(Config::$modSettings['attachmentUploadDir'], true);
+		} catch (\Throwable $e) {
+			$json_test = null;
+		}
+
+		$string_test = !empty(Config::$modSettings['attachmentUploadDir']) && is_string(Config::$modSettings['attachmentUploadDir']) && is_dir(Config::$modSettings['attachmentUploadDir']);
+
+		// String?
+		$attach_directory_problem_found = false;
+
+		if ($string_test === true) {
+			// OK...
+		}
+		// An array already?
+		elseif (is_array(Config::$modSettings['attachmentUploadDir'])) {
+			foreach(Config::$modSettings['attachmentUploadDir'] as $dir) {
+				if (!empty($dir) && !is_dir($dir)) {
+					$attach_directory_problem_found = true;
+				}
+			}
+		}
+		// Serialized?
+		elseif ($ser_test !== false) {
+			if (is_array($ser_test)) {
+				foreach($ser_test as $dir) {
+					if (!empty($dir) && !is_dir($dir)) {
+						$attach_directory_problem_found = true;
+					}
+				}
+			} else {
+				if (!empty($ser_test) && !is_dir($ser_test)) {
+					$attach_directory_problem_found = true;
+				}
+			}
+		}
+		// Json?  Note the test returns null if encoding was unsuccessful
+		elseif ($json_test !== null) {
+			if (is_array($json_test)) {
+				foreach($json_test as $dir) {
+					if (!is_dir($dir)) {
+						$attach_directory_problem_found = true;
+					}
+				}
+			} else {
+				if (!is_dir($json_test)) {
+					$attach_directory_problem_found = true;
+				}
+			}
+		}
+		// Unclear, needs a look...
+		else {
+			$attach_directory_problem_found = true;
+		}
+
+		return $attach_directory_problem_found;
 	}
 }
 

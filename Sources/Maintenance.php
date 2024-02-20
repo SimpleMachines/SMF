@@ -147,6 +147,13 @@ class Maintenance
 	 */
 	public static int $overall_percent = 0;
 
+	/**
+	 * Disable security functions such as login checks.
+	 *
+	 * @var boolean
+	 */
+	public static bool $disable_security = false;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -155,6 +162,11 @@ class Maintenance
 	{
 		Security::frameOptionsHeader('SAMEORIGIN');
 		self::$theme_dir = dirname(SMF_SETTINGS_FILE) . '/Themes/default';
+
+		if (!defined('DISABLE_TOOL_SECURITY')) {
+			define('DISABLE_TOOL_SECURITY', false);
+		}
+		self::$disable_security = DISABLE_TOOL_SECURITY;
 	}
 
 	/**

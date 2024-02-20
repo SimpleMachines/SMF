@@ -28,6 +28,7 @@ $txt['critical_error'] = 'Critical Error!';
 $txt['warning'] = 'Warning!';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
 $txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\\\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
+$txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
 
 // Progress bars and steps.
 $txt['maintenance_progress'] = 'Progress';
@@ -230,6 +231,49 @@ $txt['error_no_javascript'] = 'No javascript support was detected!  Please enabl
 
 
 
+// We represent the time here in backwards variables, as it makes the code easier.
+$txt['upgrade_time_hms'] = 'The upgrade script has been running for the last {h, plural,
+	one {# hour}
+	other {# hours}
+}, {m, plural,
+	one {# minute}
+	other {# minutes}
+}, and {s, plural,
+	one {# second}
+	other {# seconds}
+}.';
+$txt['upgrade_time_ms'] = 'The upgrade script has been running for the last {m, plural,
+	one {# minute}
+	other {# minutes}
+} and {s, plural,
+	one {# second}
+	other {# seconds}
+}.';
+$txt['upgrade_time_s'] = 'The upgrade script has been running for the last {s, plural,
+	one {# second}
+	other {# seconds}
+}.';
+$txt['upgrade_time_updated_hms'] = 'The upgrade script was last updated {h, plural,
+	one {# hour}
+	other {# hours}
+}, {m, plural,
+	one {# minute}
+	other {# minutes}
+}, and {s, plural,
+	one {# second}
+	other {# seconds}
+} ago.';
+$txt['upgrade_time_updated_ms'] = 'The upgrade script was last updated {m, plural,
+	one {# minute}
+	other {# minutes}
+} and {s, plural,
+	one {# second}
+	other {# seconds}
+} ago.';
+$txt['upgrade_time_updated_s'] = 'The upgrade script was last updated {s, plural,
+	one {# second}
+	other {# seconds}
+} ago.';
 
 
 
@@ -382,49 +426,6 @@ $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to faci
 $txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:';
 $txt['upgrade_time_user'] = '&quot;{name}&quot; is running the upgrade script.';
 
-// We represent the time here in backwards variables, as it makes the code easier.
-$txt['upgrade_time_hms'] = 'The upgrade script has been running for the last {h, plural,
-	one {# hour}
-	other {# hours}
-}, {m, plural,
-	one {# minute}
-	other {# minutes}
-}, and {s, plural,
-	one {# second}
-	other {# seconds}
-}.';
-$txt['upgrade_time_ms'] = 'The upgrade script has been running for the last {m, plural,
-	one {# minute}
-	other {# minutes}
-} and {s, plural,
-	one {# second}
-	other {# seconds}
-}.';
-$txt['upgrade_time_s'] = 'The upgrade script has been running for the last {s, plural,
-	one {# second}
-	other {# seconds}
-}.';
-$txt['upgrade_time_updated_hms'] = 'The upgrade script was last updated {h, plural,
-	one {# hour}
-	other {# hours}
-}, {m, plural,
-	one {# minute}
-	other {# minutes}
-}, and {s, plural,
-	one {# second}
-	other {# seconds}
-} ago.';
-$txt['upgrade_time_updated_hm'] = 'The upgrade script was last updated {m, plural,
-	one {# minute}
-	other {# minutes}
-} and {s, plural,
-	one {# second}
-	other {# seconds}
-} ago.';
-$txt['upgrade_time_updated_s'] = 'The upgrade script was last updated {s, plural,
-	one {# second}
-	other {# seconds}
-} ago.';
 $txt['upgrade_completed_time_hms'] = 'Upgrade completed in {h, plural,
 	one {# hour}
 	other {# hours}
@@ -484,7 +485,6 @@ $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files
 $txt['error_upgrade_old_lang_files'] = 'The upgrader found some old or outdated language files for the selected language, {lang}.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="{url}?skiplang">SKIP</a>] [<a href="{url}?lang=english">Try English</a>]';
 $txt['error_db_too_low'] = 'Your {name} version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.';
 $txt['error_db_privileges'] = 'The {name} user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';
-$txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
 $txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod\'d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
 $txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
