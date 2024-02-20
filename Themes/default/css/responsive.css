@@ -482,12 +482,9 @@
 	}
 	a.mobile_user_menu,
 	a[class^="mobile_generic_menu_"] {
-		display: flex;
 		align-items: center;
-		margin: 9px 0px 0px 0px;
-	}
-	a[class^="mobile_generic_menu_"] {
-		margin: 8px 0;
+		display: flex;
+		
 	}
 	.menu_icon {
 		display: inline-block;
