@@ -17,6 +17,8 @@ namespace SMF\Localization;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Time;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -153,6 +155,8 @@ class MessageFormatter
 			$rest = trim($rest);
 
 			switch ($fmt_type) {
+				// @todo Implement 'spellout' properly.
+				case 'spellout':
 				case 'number':
 					if (str_starts_with($rest, '::')) {
 						$final .= self::applyNumberSkeleton($args[$arg_name] ?? 0, ltrim(substr($rest, 2)));
@@ -166,9 +170,60 @@ class MessageFormatter
 								$final .= self::applyNumberSkeleton(round(($args[$arg_name] ?? 0), 2), 'percent scale/100');
 								break;
 
-							// @todo
-							// case 'currency':
-							// 	break;
+							// For this one, we need to figure out a default currency to use...
+							case 'currency':
+								// If paid subscriptions are set up, use that currency.
+								if (isset(Config::$modSettings['paid_currency'])) {
+									$currency = Config::$modSettings['paid_currency'];
+								}
+								// Try to guess the currency based on country.
+								else {
+									require_once Config::$sourcedir . '/Unicode/Currencies.php';
+									$country_currencies = country_currencies();
+
+									// If the admin wants to prioritize a certain country, use that.
+									if (!empty(Config::$modSettings['timezone_priority_countries'])) {
+										$cc = explode(',', Config::$modSettings['timezone_priority_countries'])[0];
+									}
+									// Guess based on the locale.
+									else {
+										[$lang, $cc] = explode('_', Lang::$txt['lang_locale']);
+
+										if (!isset($country_currencies[$cc])) {
+											switch ($lang) {
+												case 'cs':
+													$cc = 'CZ';
+													break;
+
+												case 'de':
+													$cc = 'DE';
+													break;
+
+												case 'en':
+													$cc = 'US';
+													break;
+
+												case 'sr':
+													$cc = 'SR';
+													break;
+
+												case 'zh':
+													$cc = 'CN';
+													break;
+
+												default:
+													$cc = '';
+													break;
+											}
+										}
+									}
+
+									$currency = $country_currencies[$cc] ?? 'XXX';
+								}
+
+								$final .= self::applyNumberSkeleton($args[$arg_name] ?? 0, 'currency/' . $currency);
+
+								break;
 
 							default:
 								$skeleton = is_int($args[$arg_name] + 0) ? '' : '.000';
@@ -179,14 +234,102 @@ class MessageFormatter
 
 					break;
 
-				// @todo
-				// case 'date':
-				// case 'time':
-				// 	break;
+				case 'ordinal':
+					$final .= self::formatMessage(Lang::$txt['ordinal'], [$args[$arg_name]]);
+					break;
 
-				// @todo
-				// case 'duration':
-				// 	break;
+				case 'date':
+					if ($args[$arg_name] instanceof \DateTimeInterface) {
+						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+					} elseif (is_numeric($args[$arg_name])) {
+						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
+					} elseif (is_string($args[$arg_name])) {
+						$args[$arg_name] = date_create($args[$arg_name]);
+
+						if ($args[$arg_name] === false) {
+							$args[$arg_name] = new Time();
+						} else {
+							$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+						}
+					} else {
+						$args[$arg_name] = new Time();
+					}
+
+					// Trying to produce the same output as \IntlDateFormatter
+					// would require a lot of complex code, so we're just going
+					// for simple fallbacks here.
+					switch ($rest) {
+						case 'full':
+						case 'long':
+							$fmt = Time::getDateFormat();
+							$relative = true;
+							break;
+
+						case 'short':
+							$fmt = 'Y-m-d';
+							$relative = false;
+
+						case 'medium':
+						default:
+							$fmt = Time::getShortDateFormat();
+							$relative = true;
+							break;
+					}
+
+					$final .= $args[$arg_name]->format($fmt, $relative);
+					break;
+
+				case 'time':
+					if ($args[$arg_name] instanceof \DateTimeInterface) {
+						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+					} elseif (is_numeric($args[$arg_name])) {
+						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
+					} elseif (is_string($args[$arg_name])) {
+						$args[$arg_name] = date_create($args[$arg_name]);
+
+						if ($args[$arg_name] === false) {
+							$args[$arg_name] = new Time();
+						} else {
+							$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
+						}
+					} else {
+						$args[$arg_name] = new Time();
+					}
+
+					// Trying to produce the same output as \IntlDateFormatter
+					// would require a lot of complex code, so we're just going
+					// for simple fallbacks here.
+					switch ($rest) {
+						case 'full':
+						case 'long':
+							$fmt = Time::getTimeFormat();
+							break;
+
+						case 'short':
+						case 'medium':
+						default:
+							$fmt = Time::getShortTimeFormat();
+							break;
+					}
+
+					$final .= $args[$arg_name]->format($fmt);
+					break;
+
+				case 'duration':
+					// Input is a number of seconds.
+					$args[$arg_name] = (int) $args[$arg_name];
+
+					$seconds = sprintf('%02d', $args[$arg_name] % 60);
+					$minutes = sprintf('%02d', $args[$arg_name] >= 60 ? (int) ($args[$arg_name] / 60) % 60 : 0);
+					$hours = sprintf('%02d', $args[$arg_name] >= 3600 ? (int) ($args[$arg_name] / 3600) : 0);
+
+					if ($hours === '00' && $minutes === '00') {
+						$final .= Lang::getTxt('number_of_seconds', [$seconds]);
+					} else {
+						$final .= ltrim(implode(':', [$hours, $minutes, $seconds]), '0:');
+					}
+
+					break;
 
 				case 'plural':
 					if (str_starts_with($rest, 'offset:')) {
@@ -197,7 +340,7 @@ class MessageFormatter
 						$offset = 0;
 					}
 
-					$args[$arg_name] -= $offset;
+					$arg_offset = $args[$arg_name] - $offset;
 
 					preg_match_all('/(?P<rule>=\d+|zero|one|two|few|many|other)\b\s*(?P<sel>{(?' . '>[^{}]|(?2))*})/', $rest, $cases, PREG_SET_ORDER);
 
@@ -209,9 +352,9 @@ class MessageFormatter
 								str_starts_with($case['rule'], '=')
 								&& $args[$arg_name] == substr($case['rule'], 1)
 							)
-							|| $case['rule'] === self::getPluralizationCategory($args[$arg_name], 'cardinal')
+							|| $case['rule'] === self::getPluralizationCategory($arg_offset, 'cardinal')
 						) {
-							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $args[$arg_name]]);
+							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $arg_offset]);
 							break 2;
 						}
 					}
@@ -219,6 +362,16 @@ class MessageFormatter
 					break;
 
 				case 'selectordinal':
+					if (str_starts_with($rest, 'offset:')) {
+						preg_match('/^offset:(\d+)/', $rest, $offset_matches);
+						$offset = $offset_matches[1];
+						$rest = trim(substr($rest, strlen($offset_matches[0])));
+					} else {
+						$offset = 0;
+					}
+
+					$arg_offset = $args[$arg_name] - $offset;
+
 					preg_match_all('/(?P<rule>=\d+|zero|one|two|few|many|other)\b\s*(?P<sel>{(?' . '>[^{}]|(?2))*})/', $rest, $cases, PREG_SET_ORDER);
 
 					foreach ($cases as $case) {
@@ -229,9 +382,9 @@ class MessageFormatter
 								str_starts_with($case['rule'], '=')
 								&& $args[$arg_name] == substr($case['rule'], 1)
 							)
-							|| $case['rule'] === self::getPluralizationCategory($args[$arg_name], 'ordinal')
+							|| $case['rule'] === self::getPluralizationCategory($arg_offset, 'ordinal')
 						) {
-							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $args[$arg_name]]);
+							$final .= strtr(self::formatMessage($case['sel'], $args), ['#' => $arg_offset]);
 							break 2;
 						}
 					}
@@ -253,7 +406,11 @@ class MessageFormatter
 					break;
 
 				default:
-					$final .= $rest;
+					if (is_scalar($args[$arg_name]) || $args[$arg_name] instanceof \Stringable) {
+						$final .= (string) $args[$arg_name];
+					} else {
+						$final .= $part;
+					}
 					break;
 			}
 		}
@@ -630,7 +787,24 @@ class MessageFormatter
 						break;
 
 					case 'currency':
-						$post_processing[] = fn ($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::$txt['currency_format'], ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? $options[0] . "\u{A0}"]);
+						require_once Config::$sourcedir . '/Unicode/Currencies.php';
+
+						$currencies = currencies();
+
+						if (!isset($currencies[$options[0]])) {
+							$options[0] = 'DEFAULT';
+						}
+
+						$currency = $currencies[$options[0]];
+
+						if ($currency['digits'] === 0) {
+							$number = strval(intval($number));
+						} else {
+							$number = sprintf('%0.' . $currency['digits'] . 'F', $number);
+						}
+
+						$post_processing[] = fn ($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::$txt['currency_format'], ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
+
 						break;
 
 					case 'group-auto':

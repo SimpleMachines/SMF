@@ -49,29 +49,29 @@ $txt['ordinal_spellout'] = '{0, selectordinal,
 	few {#rd}
 	other {#th}
 }';
-// Interprets negative ordinal numbers as counting from the end. For example, "-2" becomes "2nd to last".
+// Interprets ordinal numbers as counting from the end. For example, "2" becomes "2nd to last".
 $txt['ordinal_last'] = '{0, selectordinal,
-	=-1 {last}
-	one {{0, number, :: sign-never}st to last}
-	two {{0, number, :: sign-never}nd to last}
-	few {{0, number, :: sign-never}rd to last}
-	other {{0, number, :: sign-never}th to last}
+	=1 {last}
+	one {#st to last}
+	two {#nd to last}
+	few {#rd to last}
+	other {#th to last}
 }';
-// Interprets negative ordinal numbers as counting from the end, but spelling out values less than 10. For example, "-2" becomes "second to last", but "-22" becomes "22nd to last".
+// Interprets ordinal numbers as counting from the end, but spelling out values less than 10. For example, "2" becomes "second to last", but "22" becomes "22nd to last".
 $txt['ordinal_spellout_last'] = '{0, selectordinal,
-	=-1 {last}
-	=-2 {second to last}
-	=-3 {third to last}
-	=-4 {fourth to last}
-	=-5 {fifth to last}
-	=-6 {sixth to last}
-	=-7 {seventh to last}
-	=-8 {eighth to last}
-	=-9 {ninth to last}
-	one {{0, number, :: sign-never}st to last}
-	two {{0, number, :: sign-never}nd to last}
-	few {{0, number, :: sign-never}rd to last}
-	other {{0, number, :: sign-never}th to last}
+	=1 {last}
+	=2 {second to last}
+	=3 {third to last}
+	=4 {fourth to last}
+	=5 {fifth to last}
+	=6 {sixth to last}
+	=7 {seventh to last}
+	=8 {eighth to last}
+	=9 {ninth to last}
+	one {#st to last}
+	two {#nd to last}
+	few {#rd to last}
+	other {#th to last}
 }';
 
 // Formats for time units.
