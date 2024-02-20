@@ -2687,6 +2687,24 @@ class Theme
 	 */
 	protected function loadCss(): void
 	{
+		// Load FontAwesome
+		$FontAwesomeUrls = [
+			'cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/' . FONTAWESOME_VERSION . '/css/all.min.css',
+			'fontawesome_cdn' => 'https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css',
+		];
+
+		if (isset(Config::$modSettings['fontawesome_source']) && array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
+			self::loadCSSFile($FontAwesomeUrls[Config::$modSettings['fontawesome_source']], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		} elseif (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] == 'local') {
+			self::loadCSSFile('fontawesome.min.css', ['default_theme' => true, 'minimize' => true, 'order_pos' => -100], 'smf_fontawesome');
+		} elseif (isset(Config::$modSettings['fontawesome_source'], Config::$modSettings['fontawesome_custom']) && Config::$modSettings['fontawesome_source'] == 'custom') {
+			self::loadCSSFile(Config::$modSettings['fontawesome_custom'], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		}
+		// Fall back to the fa forum default
+		else {
+			self::loadCSSFile('https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css', ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		}
+
 		// And of course, let's load the default CSS file.
 		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
 
