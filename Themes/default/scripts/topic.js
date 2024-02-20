@@ -278,35 +278,16 @@ function QuickModify(oOptions)
 	this.sCurMessageId = '';
 	this.oCurMessageDiv = null;
 	this.oCurSubjectDiv = null;
-	this.sMessageBuffer = '';
-	this.sSubjectBuffer = '';
-	this.aAccessKeys = new Array();
+
+	for (const el of document.getElementsByClassName(this.opt.sClassName)) {
+		el.hidden = false;
+		el.addEventListener('click', this.modifyMsg.bind(this, el.id.match(/\d+/)));
+	}
 }
 
 // Function called when a user presses the edit button.
 QuickModify.prototype.modifyMsg = function (iMessageId)
 {
-	// Add backwards compatibility with old themes.
-	if (typeof(sSessionVar) == 'undefined')
-		sSessionVar = 'sesc';
-
-	// Removes the accesskeys from the quickreply inputs and saves them in an array to use them later
-	if (typeof(this.opt.sFormRemoveAccessKeys) != 'undefined')
-	{
-		if (typeof(document.forms[this.opt.sFormRemoveAccessKeys]))
-		{
-			var aInputs = document.forms[this.opt.sFormRemoveAccessKeys].getElementsByTagName('input');
-			for (var i = 0; i < aInputs.length; i++)
-			{
-				if (aInputs[i].accessKey != '')
-				{
-					this.aAccessKeys[aInputs[i].name] = aInputs[i].accessKey;
-					aInputs[i].accessKey = '';
-				}
-			}
-		}
-	}
-
 	// First cancel if there's another message still being edited.
 	if (this.bInEditMode)
 		this.modifyCancel();
@@ -316,7 +297,7 @@ QuickModify.prototype.modifyMsg = function (iMessageId)
 
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, '', this.onMessageReceived);
+	getXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, this.onMessageReceived);
 
 	// Jump to the message
 	document.getElementById('msg' + iMessageId).scrollIntoView();
@@ -338,28 +319,68 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 		return this.modifyCancel();
 
 	// Replace the body part.
-	for (var i = 0; i < XMLDoc.getElementsByTagName("message")[0].childNodes.length; i++)
+	for (let i = 0; i < XMLDoc.getElementsByTagName("message")[0].childNodes.length; i++)
 		sBodyText += XMLDoc.getElementsByTagName("message")[0].childNodes[i].nodeValue;
+
 	this.oCurMessageDiv = document.getElementById(this.sCurMessageId);
-	this.sMessageBuffer = getInnerHTML(this.oCurMessageDiv);
+	this.oCurSubjectDiv = document.getElementById('subject_' + this.sCurMessageId.substring(4));
+	if (this.oCurSubjectDiv !== null)
+		this.oCurSubjectDiv.hidden = true;
+	this.oCurMessageDiv.hidden = true;
 
-	// We have to force the body to lose its dollar signs thanks to IE.
-	sBodyText = sBodyText.replace(/\$/g, '{&dollarfix;$}');
+	// Actually create the content.
+	const form = document.createElement("form");
+	form.id = "quickModifyForm";
 
-	// Actually create the content, with a bodge for disappearing dollar signs.
-	setInnerHTML(this.oCurMessageDiv, this.opt.sTemplateBodyEdit.replace(/%msg_id%/g, this.sCurMessageId.substr(4)).replace(/%body%/, sBodyText).replace(/\{&dollarfix;\$\}/g, '$'));
+	var messageInput = document.createElement("textarea");
+	messageInput.name = "message";
+	messageInput.cols = "80";
+	messageInput.rows = "10";
+	messageInput.innerHTML = sBodyText;
+	messageInput.addEventListener('keydown', function(e) {
+		if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+			this.modifySave();
+		}
+		if (e.key === "Escape") {
+			this.modifyCancel();
+		}
+	}.bind(this));
 
-	// Replace the subject part.
-	this.oCurSubjectDiv = document.getElementById('subject_' + this.sCurMessageId.substr(4));
-	this.sSubjectBuffer = getInnerHTML(this.oCurSubjectDiv);
+	var subjectInput = document.createElement("input");
+	subjectInput.name = "subject";
+	subjectInput.maxLength = "80";
+	subjectInput.size = "80";
+	subjectInput.value = XMLDoc.getElementsByTagName('subject')[0].childNodes[0].nodeValue;
 
-	sSubjectText = XMLDoc.getElementsByTagName('subject')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
-	setInnerHTML(this.oCurSubjectDiv, this.opt.sTemplateSubjectEdit.replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
+	const reasonLabel = document.createElement("label");
+	const reasonInput = document.createElement("input");
+	reasonInput.name = "modify_reason";
+	reasonInput.maxLength = "80";
+	reasonInput.size = "80";
+	reasonInput.value = XMLDoc.getElementsByTagName('reason')[0].childNodes[0].nodeValue;
 
-	// Field for editing reason.
-	sReasonText = XMLDoc.getElementsByTagName('reason')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
+	const buttonGroup = document.createElement("div");
+	buttonGroup.className = 'buttonlistend';
 
-	$(this.oCurMessageDiv).prepend(this.opt.sTemplateReasonEdit.replace(/%modify_reason%/, sReasonText).replace(/\{&dollarfix;\$\}/g, '$'));
+	const cancelButton = document.createElement("button");
+	cancelButton.className = 'button';
+	cancelButton.textContent = this.opt.sCancelButtonText;
+	cancelButton.addEventListener('click', this.modifyCancel.bind(this));
+
+	const saveButton = document.createElement("button");
+	saveButton.className = 'button active';
+	saveButton.textContent = this.opt.sSaveButtonText;
+	saveButton.addEventListener('click', this.modifySave.bind(this));
+
+	reasonLabel.append(this.opt.sTemplateReasonEdit, reasonInput);
+	buttonGroup.append(saveButton, cancelButton);
+	form.append(subjectInput, messageInput, reasonLabel, buttonGroup);
+	this.oCurMessageDiv.after(form);
+	messageInput.focus();
+
+	if (this.opt.funcOnAfterCreate) {
+		this.opt.funcOnAfterCreate.call(this, form);
+	}
 
 	return true;
 }
@@ -367,76 +388,47 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 // Function in case the user presses cancel (or other circumstances cause it).
 QuickModify.prototype.modifyCancel = function ()
 {
-	// Roll back the HTML to its original state.
 	if (this.oCurMessageDiv)
 	{
-		this.oCurMessageDiv.innerHTML = this.sMessageBuffer;
-		this.oCurSubjectDiv.innerHTML = this.sSubjectBuffer;
+		this.oCurMessageDiv.hidden = false;
+		if (this.oCurSubjectDiv !== null)
+			this.oCurSubjectDiv.hidden = false;
+		document.forms.quickModifyForm.remove();
 	}
 
 	// No longer in edit mode, that's right.
 	this.bInEditMode = false;
 
-	// Let's put back the accesskeys to their original place
-	if (typeof(this.opt.sFormRemoveAccessKeys) != 'undefined')
-	{
-		if (typeof(document.forms[this.opt.sFormRemoveAccessKeys]))
-		{
-			var aInputs = document.forms[this.opt.sFormRemoveAccessKeys].getElementsByTagName('input');
-			for (var i = 0; i < aInputs.length; i++)
-			{
-				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
-				{
-					aInputs[i].accessKey = this.aAccessKeys[aInputs[i].name];
-				}
-			}
-		}
-	}
-
 	return false;
 }
 
 // The function called after a user wants to save his precious message.
-QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
+QuickModify.prototype.modifySave = function (e)
 {
+	e && e.preventDefault && e.preventDefault();
+
 	// We cannot save if we weren't in edit mode.
-	if (!this.bInEditMode)
+	if (!this.bInEditMode) {
 		return true;
-
-	// Add backwards compatibility with old themes.
-	if (typeof(sSessionVar) == 'undefined')
-		sSessionVar = 'sesc';
-
-	// Let's put back the accesskeys to their original place
-	if (typeof(this.opt.sFormRemoveAccessKeys) != 'undefined')
-	{
-		if (typeof(document.forms[this.opt.sFormRemoveAccessKeys]))
-		{
-			var aInputs = document.forms[this.opt.sFormRemoveAccessKeys].getElementsByTagName('input');
-			for (var i = 0; i < aInputs.length; i++)
-			{
-				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
-				{
-					aInputs[i].accessKey = this.aAccessKeys[aInputs[i].name];
-				}
-			}
-		}
 	}
 
-	var i, x = new Array(),
-		oCaller = this,
-		formData = {
-			subject : document.forms.quickModForm['subject'].value,
-			message : document.forms.quickModForm['message'].value,
-			topic : parseInt(document.forms.quickModForm.elements['topic'].value),
-			msg : parseInt(document.forms.quickModForm.elements['msg'].value),
-			modify_reason : document.forms.quickModForm.elements['modify_reason'].value
-		};
+	const x = [];
+	submitThisOnce(document.forms.quickModifyForm);
+	const form = document.forms.quickModifyForm;
+
+	if (form.firstChild.className === 'errorbox') {
+		form.firstChild.remove();
+		form.message.style.border = '';
+		form.subject.style.border = '';
+	}
+
+	for (const el of form.elements) {
+		x.push(el.name + '=' + el.value.php_to8bit().php_urlencode());
+	}
 
 	// Send in the XMLhttp request and let's hope for the best.
 	ajax_indicator(true);
-
-	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", formData, this.onModifyDone);
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";msg=" + this.oCurMessageDiv.id.match(/\d+/) + ";" + smf_session_var + "=" + smf_session_id + ";xml", x.join("&"), this.onModifyDone);
 
 	return false;
 }
@@ -450,9 +442,16 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 	// If we didn't get a valid document, just cancel.
 	if (!XMLDoc || !XMLDoc.getElementsByTagName('smf')[0])
 	{
+		reActivateThis(document.forms.quickModifyForm);
+		document.forms.quickModifyForm.message.focus();
+
 		// Mozilla will nicely tell us what's wrong.
-		if (XMLDoc.childNodes.length > 0 && XMLDoc.firstChild.nodeName == 'parsererror')
-			setInnerHTML(document.getElementById('error_box'), XMLDoc.firstChild.textContent);
+		if (XMLDoc.childNodes.length > 0 && XMLDoc.firstChild.nodeName == 'parsererror') {
+			const oDiv = document.createElement('div');
+			oDiv.innerHTML = XMLDoc.firstChild.textContent;
+			oDiv.className = 'errorbox';
+			document.forms.quickModifyForm.prepend(oDiv);
+		}
 		else
 			this.modifyCancel();
 
@@ -465,40 +464,51 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 
 	if (body)
 	{
+		this.bInEditMode = false;
 		// Show new body.
-		var bodyText = '';
-		for (var i = 0; i < body.childNodes.length; i++)
+		let bodyText = '';
+		for (let i = 0; i < body.childNodes.length; i++)
 			bodyText += body.childNodes[i].nodeValue;
 
-		this.sMessageBuffer = this.opt.sTemplateBodyNormal.replace(/%body%/, bodyText.replace(/\$/g, '{&dollarfix;$}')).replace(/\{&dollarfix;\$\}/g,'$');
-		setInnerHTML(this.oCurMessageDiv, this.sMessageBuffer);
+		this.oCurMessageDiv.innerHTML = bodyText;
+		this.oCurMessageDiv.hidden = false;
 
-		// Show new subject, but only if we want to...
-		var oSubject = message.getElementsByTagName('subject')[0];
-		var sSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
-		var sTopSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
-		this.sSubjectBuffer = this.opt.sTemplateSubjectNormal.replace(/%msg_id%/g, this.sCurMessageId.substr(4)).replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g,'$');
-		setInnerHTML(this.oCurSubjectDiv, this.sSubjectBuffer);
+		// Show new subject div, update in case it changed.
+		if (this.oCurSubjectDiv !== null) {
+			let oSubject = message.getElementsByTagName('subject')[0],
+				sSubjectText = oSubject.childNodes[0].nodeValue;
 
-		// If this is the first message, also update the topic subject.
-		if (oSubject.getAttribute('is_first') == '1')
-			setInnerHTML(document.getElementById('top_subject'), this.opt.sTemplateTopSubject.replace(/%subject%/, sTopSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
+			this.oCurSubjectDiv.innerHTML = sSubjectText;
+			this.oCurSubjectDiv.hidden = false;
+		}
+
+		document.forms.quickModifyForm.remove();
 
 		// Show this message as 'modified on x by y'.
 		if (this.opt.bShowModify)
-			$('#modified_' + this.sCurMessageId.substr(4)).html(message.getElementsByTagName('modified')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'));
+		{
+			let modified = document.getElementById('modified_' + this.sCurMessageId.substring(4));
+			modified.innerHTML = message.getElementsByTagName('modified')[0].childNodes[0].nodeValue;
+		}
 
 		// Show a message indicating the edit was successfully done.
-		$('<div/>',{
-			text: message.getElementsByTagName('success')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'),
-			class: 'infobox'
-		}).prependTo('#' + this.sCurMessageId).delay(5000).fadeOutAndRemove(400);
+		const oDiv = document.createElement('div');
+		oDiv.textContent = message.getElementsByTagName('success')[0].childNodes[0].nodeValue;
+		oDiv.className = 'infobox';
+		this.oCurMessageDiv.before(oDiv);
+		setTimeout(() => oDiv.remove(), 4000);
 	}
 	else if (error)
 	{
-		setInnerHTML(document.getElementById('error_box'), error.childNodes[0].nodeValue);
-		document.forms.quickModForm.message.style.border = error.getAttribute('in_body') == '1' ? this.opt.sErrorBorderStyle : '';
-		document.forms.quickModForm.subject.style.border = error.getAttribute('in_subject') == '1' ? this.opt.sErrorBorderStyle : '';
+		reActivateThis(document.forms.quickModifyForm);
+		const oDiv = document.createElement('div');
+		oDiv.innerHTML = error.childNodes[0].nodeValue;
+		oDiv.className = 'errorbox';
+		document.forms.quickModifyForm.prepend(oDiv);
+
+		document.forms.quickModifyForm.message.focus();
+		document.forms.quickModifyForm.message.style.border = error.getAttribute('in_body') == '1' ? this.opt.sErrorBorderStyle : '';
+		document.forms.quickModifyForm.subject.style.border = error.getAttribute('in_subject') == '1' ? this.opt.sErrorBorderStyle : '';
 	}
 }
 
