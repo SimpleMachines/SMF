@@ -75,8 +75,12 @@ textarea {
 .monospace, .bbc_code, .bbc_tt, .phpcode, pre {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
-
-#quick_edit_body_container textarea,
+#quickModifyForm,
+#quickModifyForm label {
+	display: flex;
+	flex-direction: column;
+	gap: .5em;
+}
 .move_topic textarea,
 dd textarea {
 	width: 100%;
@@ -557,13 +561,6 @@ strong[id^='child_list_']::after {
 }
 .current_page::after, .codeoperation::after {
 	content: "]";
-}
-
-/* Posts and personal messages displayed throughout the forum. */
-.post {
-	overflow: auto;
-	line-height: 1.4em;
-	padding: 1px 0;
 }
 
 /* Calendar colors for birthdays, events and holidays */
@@ -1106,9 +1103,17 @@ a[class^="mobile_generic_menu_"] {
 
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
-.buttonlist, .buttonrow, .pagelinks {
-	z-index: 100;
-	padding: 5px 0 5px 0;
+.buttonlist, .buttonlistend, .buttonrow, .pagelinks, .pagesection {
+	align-items: baseline;
+	display: flex;
+	gap: .5em;
+}
+/* Items in mobile menu must be vertical. */
+.popup_window .buttonlist {
+	flex-direction: column;
+}
+.buttonlistend {
+	justify-content: end;
 }
 .button, .quickbuttons > li > a, .inline_mod_check {
 	display: inline-block;
@@ -1542,11 +1547,6 @@ ul li.greeting {
 #quick_mod_jump_to_select,
 #list_integration_hooks select {
 	width: 29ch;
-}
-
-.quickModifyMargin {
-	margin: 10px 0 5px 0;
-	padding-bottom: 5px;
 }
 
 /* Styles for edit event section
