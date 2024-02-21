@@ -149,8 +149,8 @@ function template_show_upcoming_list($grid_name)
 						echo ' ', $event['tz_abbrev'], '</time>';
 				}
 
-				if (!empty($event['location']))
-					echo '<br>', $event['location'];
+				if ($event['location'] != '')
+					echo '<br>', nl2br($event['location']);
 
 				// If the first occurrence is not visible on the current page,
 				// we mention it in the RRULE description.
