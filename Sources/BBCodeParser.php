@@ -41,7 +41,6 @@ use SMF\Db\DatabaseApi as Db;
  *
  *     integrate_bbc_codes            (Used to add or modify BBC)
  *     integrate_smileys              (Used for alternative smiley handling)
- *     integrate_autolinker_schemes   (Used by the autolinker)
  *
  * The following integration hooks are called during parsing:
  *
@@ -62,105 +61,98 @@ class BBCodeParser
 	 *
 	 * If not empty, only these BBCode tags will be parsed.
 	 */
-	public $parse_tags = [];
+	public array $parse_tags = [];
 
 	/**
 	 * @var bool
 	 *
 	 * Whether BBCode should be parsed.
 	 */
-	public $enable_bbc;
+	public bool $enable_bbc;
 
 	/**
 	 * @var bool
 	 *
 	 * Whether to allow certain basic HTML tags in the input.
 	 */
-	public $enable_post_html;
+	public bool $enable_post_html;
 
 	/**
 	 * @var array
 	 *
 	 * List of disabled BBCode tags.
 	 */
-	public $disabled = [];
-
-	/**
-	 * @var bool
-	 *
-	 * Whether to autolink plain text URLs.
-	 */
-	public $autolink_enabled;
+	public array $disabled = [];
 
 	/**
 	 * @var bool
 	 *
 	 * Whether smileys should be parsed.
 	 */
-	public $smileys = true;
+	public bool $smileys = true;
 
 	/**
 	 * @var string
 	 *
 	 * The smiley set to use when parsing smileys.
 	 */
-	public $smiley_set;
+	public string $smiley_set;
 
 	/**
 	 * @var bool
 	 *
 	 * Whether custom smileys are enabled.
 	 */
-	public $custom_smileys_enabled;
+	public bool $custom_smileys_enabled;
 
 	/**
 	 * @var string
 	 *
 	 * URL of the base smileys directory.
 	 */
-	public $smileys_url;
+	public string $smileys_url;
 
 	/**
 	 * @var string
 	 *
 	 * The character encoding of the strings to be parsed.
 	 */
-	public $encoding = 'UTF-8';
+	public string $encoding = 'UTF-8';
 
 	/**
 	 * @var bool
 	 *
 	 * Shorthand check for whether character encoding is UTF-8.
 	 */
-	public $utf8 = true;
+	public bool $utf8 = true;
 
 	/**
 	 * @var string
 	 *
 	 * Language locale to use.
 	 */
-	public $locale = 'en_US';
+	public string $locale = 'en_US';
 
 	/**
 	 * @var int
 	 *
 	 * User's time offset from UTC.
 	 */
-	public $time_offset;
+	public int $time_offset;
 
 	/**
 	 * @var string
 	 *
 	 * User's strftime format.
 	 */
-	public $time_format;
+	public string $time_format;
 
 	/**
 	 * @var bool
 	 *
 	 * Enables special handling if output is meant for paper printing.
 	 */
-	public $for_print = false;
+	public bool $for_print = false;
 
 	/**************************
 	 * Public static properties
@@ -264,7 +256,7 @@ class BBCodeParser
 	 *	parsed_tags_allowed: An array restricting what BBC can be in the
 	 *	  parsed_equals parameter, if desired.
 	 */
-	public static $codes = [
+	public static array $codes = [
 		[
 			'tag' => 'abbr',
 			'type' => 'unparsed_equals',
@@ -755,7 +747,7 @@ class BBCodeParser
 	 *
 	 * Itemcodes are an alternative syntax for creating lists.
 	 */
-	public static $itemcodes = [
+	public static array $itemcodes = [
 		'*' => 'disc',
 		'@' => 'disc',
 		'+' => 'square',
@@ -766,163 +758,30 @@ class BBCodeParser
 		'0' => 'circle',
 	];
 
-	/**
-	 * @var array
-	 *
-	 * BBCodes whose content should be skipped when autolinking URLs.
-	 */
-	public static $no_autolink_tags = [
-		'url',
-		'iurl',
-		'email',
-		'img',
-		'html',
-		'attach',
-		'ftp',
-		'flash',
-		'member',
-		'code',
-		'php',
-		'nobbc',
-	];
-
-	/**
-	 * @var string
-	 *
-	 * Characters to exclude from a detected URL if they appear at the end.
-	 */
-	public static $excluded_trailing_chars = '!;:.,?';
-
-	/**
-	 * @var string
-	 *
-	 * Regular expression character class to match all characters allowed to
-	 * appear in a domain name.
-	 */
-	public static $domain_label_chars = '0-9A-Za-z\-' . '\x{A0}-\x{D7FF}' .
-		'\x{F900}-\x{FDCF}' . '\x{FDF0}-\x{FFEF}' . '\x{10000}-\x{1FFFD}' .
-		'\x{20000}-\x{2FFFD}' . '\x{30000}-\x{3FFFD}' . '\x{40000}-\x{4FFFD}' .
-		'\x{50000}-\x{5FFFD}' . '\x{60000}-\x{6FFFD}' . '\x{70000}-\x{7FFFD}' .
-		'\x{80000}-\x{8FFFD}' . '\x{90000}-\x{9FFFD}' . '\x{A0000}-\x{AFFFD}' .
-		'\x{B0000}-\x{BFFFD}' . '\x{C0000}-\x{CFFFD}' . '\x{D0000}-\x{DFFFD}' .
-		'\x{E1000}-\x{EFFFD}';
-
-	/**
-	 * @var array
-	 *
-	 * URI schemes that require some sort of special handling.
-	 */
-	public static $schemes = [
-		// Schemes whose URI definitions require a domain name in the
-		// authority (or whatever the next part of the URI is).
-		'need_domain' => [
-			'aaa', 'aaas', 'acap', 'acct', 'afp', 'cap', 'cid', 'coap',
-			'coap+tcp', 'coap+ws', 'coaps', 'coaps+tcp', 'coaps+ws', 'crid',
-			'cvs', 'dict', 'dns', 'feed', 'fish', 'ftp', 'git', 'go', 'gopher',
-			'h323', 'http', 'https', 'iax', 'icap', 'im', 'imap', 'ipp', 'ipps',
-			'irc', 'irc6', 'ircs', 'ldap', 'ldaps', 'mailto', 'mid', 'mupdate',
-			'nfs', 'nntp', 'pop', 'pres', 'reload', 'rsync', 'rtsp', 'sftp',
-			'sieve', 'sip', 'sips', 'smb', 'snmp', 'soap.beep', 'soap.beeps',
-			'ssh', 'svn', 'stun', 'stuns', 'telnet', 'tftp', 'tip', 'tn3270',
-			'turn', 'turns', 'tv', 'udp', 'vemmi', 'vnc', 'webcal', 'ws', 'wss',
-			'xmlrpc.beep', 'xmlrpc.beeps', 'xmpp', 'z39.50', 'z39.50r',
-			'z39.50s',
-		],
-
-		// Schemes that allow an empty authority ("://" followed by "/")
-		'empty_authority' => [
-			'file', 'ni', 'nih',
-		],
-
-		// Schemes that do not use an authority but still have a reasonable
-		// chance of working as clickable links.
-		'no_authority' => [
-			'about', 'callto', 'geo', 'gg', 'leaptofrogans', 'magnet', 'mailto',
-			'maps', 'news', 'ni', 'nih', 'service', 'skype', 'sms', 'tel', 'tv',
-		],
-
-		// Schemes that should never be autolinked.
-		'forbidden' => [
-			'javascript', 'data',
-		],
-	];
-
-	/**
-	 * @var array
-	 *
-	 * The 2012 list of top level domains.
-	 */
-	public static $basic_tlds = [
-		'com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
-		'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro',
-		'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am',
-		'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
-		'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt',
-		'bv', 'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck',
-		'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj',
-		'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi',
-		'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh',
-		'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
-		'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io',
-		'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki',
-		'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk',
-		'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh',
-		'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv',
-		'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no',
-		'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
-		'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
-		'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl',
-		'sm', 'sn', 'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc',
-		'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt',
-		'tv', 'tw', 'tz', 'ua', 'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've',
-		'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye', 'yt', 'za', 'zm', 'zw',
-	];
-
 	/*********************
 	 * Internal properties
 	 *********************/
 
 	/**
-	 * @var string
-	 *
-	 * Regular expression to match top level domains.
-	 */
-	protected $tld_regex;
-
-	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * Regular expression to match all BBCode tags.
 	 */
-	protected $alltags_regex;
+	protected ?string $alltags_regex = null;
 
 	/**
-	 * @var string
-	 *
-	 * Regular expression to match URLs.
-	 */
-	protected $url_regex;
-
-	/**
-	 * @var string
-	 *
-	 * Regular expression to match e-mail addresses.
-	 */
-	protected $email_regex;
-
-	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * Regular expression to match smileys.
 	 */
-	protected $smiley_preg_search;
+	protected ?string $smiley_preg_search = null;
 
 	/**
 	 * @var array
 	 *
 	 * Replacement values for smileys.
 	 */
-	protected $smiley_preg_replacements = [];
+	protected array $smiley_preg_replacements = [];
 
 	/**
 	 * @var array
@@ -937,35 +796,35 @@ class BBCodeParser
 	 * you need to add information to this variable in order to distinguish the
 	 * guest version vs. the member version of the output.
 	 */
-	private $cache_key_extras = [];
+	private array $cache_key_extras = [];
 
 	/**
 	 * @var array
 	 *
 	 * Version of self::$codes used for internal processing.
 	 */
-	private $bbc_codes = [];
+	private array $bbc_codes = [];
 
 	/**
 	 * @var array
 	 *
 	 * Copies of $this->bbc_codes for different locales.
 	 */
-	private $bbc_lang_locales = [];
+	private array $bbc_lang_locales = [];
 
 	/**
 	 * @var string
 	 *
 	 * URL of this host/domain. Needed for the YouTube BBCode.
 	 */
-	private $hosturl;
+	private string $hosturl;
 
 	/**
 	 * @var string
 	 *
 	 * The string in which to parse BBCode.
 	 */
-	private $message = '';
+	private string $message = '';
 
 	/**
 	 * @var array
@@ -973,49 +832,49 @@ class BBCodeParser
 	 * BBCode tags that are currently open at any given step of processing
 	 * $this->message.
 	 */
-	private $open_tags = [];
+	private array $open_tags = [];
 
 	/**
-	 * @var string
+	 * @var ?array
 	 *
 	 * The last item of $this->open_tags.
 	 */
-	private $inside;
+	private ?array $inside = null;
 
 	/**
-	 * @var int
+	 * @var int|bool
 	 *
 	 * Current position in $this->message.
 	 */
-	private $pos = -1;
+	private int|bool $pos = -1;
 
 	/**
-	 * @var int
+	 * @var ?int
 	 *
 	 * Position where current BBCode tag ends.
 	 */
-	private $pos1;
+	private ?int $pos1 = null;
 
 	/**
 	 * @var int
 	 *
 	 * Previous value of $this->pos.
 	 */
-	private $last_pos;
+	private ?int $last_pos = null;
 
 	/**
 	 * @var array
 	 *
 	 * Placeholders used to protect certain strings from processing.
 	 */
-	private $placeholders = [];
+	private array $placeholders = [];
 
 	/**
 	 * @var int
 	 *
 	 * How many placeholders we have created.
 	 */
-	private $placeholders_counter = 0;
+	private int $placeholders_counter = 0;
 
 	/**
 	 * @var string
@@ -1023,28 +882,28 @@ class BBCodeParser
 	 * The sprintf format used to create placeholders.
 	 * Uses private use Unicode characters to prevent conflicts.
 	 */
-	private $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
+	private string $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
 
 	/**
 	 * @var array
 	 *
 	 * Holds parsed messages.
 	 */
-	private $results = [];
+	private array $results = [];
 
 	/**
 	 * @var bool
 	 *
 	 * Tracks whether the integration_bbc_codes hook was called.
 	 */
-	private static $integrate_bbc_codes_done = false;
+	private static bool $integrate_bbc_codes_done = false;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * A reference to an existing, reusable instance of this class.
 	 */
-	private static $parser;
+	private static self $parser;
 
 	/*****************
 	 * Public methods.
@@ -1092,18 +951,6 @@ class BBCodeParser
 				return strcmp($a['tag'], $b['tag']);
 			},
 		);
-
-		/********************
-		 * Set up autolinker.
-		 ********************/
-		$this->autolink_enabled = !empty(Config::$modSettings['autoLinkUrls']);
-
-		if (!$this->utf8) {
-			self::$domain_label_chars = '0-9A-Za-z\-';
-		}
-
-		// In case a mod wants to control behaviour for a special URI scheme.
-		IntegrationHook::call('integrate_autolinker_schemes', [&self::$schemes]);
 
 		/*************************
 		 * Set up smileys parsing.
@@ -1190,10 +1037,6 @@ class BBCodeParser
 			$this->parse_tags,
 			$this->enable_post_html,
 			$this->for_print,
-			// Autolinker settings.
-			$this->autolink_enabled,
-			self::$no_autolink_tags,
-			$this->url_regex,
 			// Smiley settings.
 			$this->smileys,
 			$this->smiley_set,
@@ -2128,6 +1971,20 @@ class BBCodeParser
 		return $string;
 	}
 
+	/**
+	 * Gets a regular expression to match all known BBC tags.
+	 *
+	 * @return string A copy of $this->alltags_regex.
+	 */
+	public function getAllTagsRegex(): string
+	{
+		if (!isset($this->alltags_regex)) {
+			$this->setAllTagsRegex();
+		}
+
+		return $this->alltags_regex;
+	}
+
 	/************************
 	 * Public static methods.
 	 ************************/
@@ -2331,6 +2188,40 @@ class BBCodeParser
 	public function htmlToBbc(string $string): string
 	{
 		return self::load()->unparse($string);
+	}
+
+	/**
+	 * Wrapper for the integrate_bbc_codes hook.
+	 * Prevents duplication in self::$codes.
+	 */
+	public static function integrateBBC(): void
+	{
+		// Only do this once.
+		if (self::$integrate_bbc_codes_done !== true) {
+			IntegrationHook::call('integrate_bbc_codes', [&self::$codes, &Autolinker::$no_autolink_tags]);
+
+			// Prevent duplicates.
+			$temp = [];
+
+			// Reverse order because mods typically append to the array.
+			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
+				$value = self::$codes[$i];
+
+				// Since validation functions may be closures, and
+				// closures cannot be serialized, leave that part out.
+				unset($value['validate']);
+
+				$serialized = serialize($value);
+
+				if (!in_array($serialized, $temp)) {
+					$temp[] = $serialized;
+				} else {
+					unset(self::$codes[$i]);
+				}
+			}
+
+			self::$integrate_bbc_codes_done = true;
+		}
 	}
 
 	/****************************
@@ -2712,6 +2603,8 @@ class BBCodeParser
 
 		$this->setAllTagsRegex();
 
+		$this->message = Autolinker::load()->makeLinks($this->message);
+
 		while ($this->pos !== false) {
 			$this->last_pos = isset($this->last_pos) ? max($this->pos, $this->last_pos) : $this->pos;
 
@@ -2733,8 +2626,6 @@ class BBCodeParser
 				$data = substr($this->message, $this->last_pos, $this->pos - $this->last_pos);
 
 				$data = $this->fixHtml($data);
-
-				$data = $this->autoLink($data);
 
 				// Restore any placeholders
 				$data = strtr($data, $this->placeholders);
@@ -2838,117 +2729,6 @@ class BBCodeParser
 
 		// Cleanup whitespace.
 		$this->message = strtr($this->message, ['  ' => ' &nbsp;', "\r" => '', "\n" => '<br>', '<br> ' => '<br>&nbsp;', '&#13;' => "\n"]);
-	}
-
-	/**
-	 * Detects plain text URLs and formats them as BBCode links.
-	 *
-	 * @param string $data The string to autolink.
-	 * @return string The string with linked URLs.
-	 */
-	protected function autoLink(string $data): string
-	{
-		if (empty($this->autolink_enabled)) {
-			return $data;
-		}
-
-		// Are we inside tags that should be auto linked?
-		$no_autolink_area = false;
-
-		if (!empty($this->open_tags)) {
-			foreach ($this->open_tags as $open_tag) {
-				if (in_array($open_tag['tag'], self::$no_autolink_tags)) {
-					$no_autolink_area = true;
-				}
-			}
-		}
-
-		if (!$no_autolink_area) {
-			// An &nbsp; right after a URL can break the autolinker
-			if (strpos($data, '&nbsp;') !== false) {
-				$this->placeholders[html_entity_decode('&nbsp;', 0, $this->encoding)] = '&nbsp;';
-				$data = strtr($data, ['&nbsp;' => html_entity_decode('&nbsp;', 0, $this->encoding)]);
-			}
-
-			// Parse any URLs
-			if (!isset($this->disabled['url']) && strpos($data, '[url') === false) {
-				$this->setUrlRegex();
-
-				$tmp_data = preg_replace_callback(
-					'~' . $this->url_regex . '~i' . ($this->utf8 ? 'u' : ''),
-					function ($matches) {
-						$url = array_shift($matches);
-
-						// If this isn't a clean URL, bail out
-						if ($url !== (string) Url::create($url)->sanitize()) {
-							return $url;
-						}
-
-						// Ensure the host name is in its canonical form.
-						$url = new Url($url, true);
-
-						if (!isset($url->scheme)) {
-							$url->scheme = '';
-						}
-
-						if ($url->scheme == 'mailto') {
-							if (isset($this->disabled['email'])) {
-								return $url;
-							}
-
-							// Is this version of PHP capable of validating this email address?
-							$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
-
-							$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
-
-							if (!$can_validate || filter_var($url->path, FILTER_VALIDATE_EMAIL, $flags) !== false) {
-								return '[email=' . $url->path . ']' . $url . '[/email]';
-							}
-
-							return $url;
-						}
-
-						// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
-						if (empty($url->scheme)) {
-							$full_url = new Url('//' . ltrim((string) $url, ':/'));
-						} else {
-							$full_url = clone $url;
-						}
-
-						// Make sure that $full_url really is valid
-						if (
-							in_array($url->scheme, self::$schemes['forbidden'])
-							|| (
-								!in_array($url->scheme, self::$schemes['no_authority'])
-								&& !$full_url->isValid()
-							)
-						) {
-							return $url;
-						}
-
-						return '[url=&quot;' . str_replace(['[', ']'], ['&#91;', '&#93;'], (string) $full_url->toAscii()) . '&quot;]' . $url . '[/url]';
-					},
-					$data,
-				);
-
-				if (!is_null($tmp_data)) {
-					$data = $tmp_data;
-				}
-			}
-
-			// Next, emails...  Must be careful not to step on enablePostHTML logic above...
-			if (!isset($this->disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false && stripos($data, 'mailto:') === false) {
-				$this->setEmailRegex();
-
-				$tmp_data = preg_replace('~' . $this->email_regex . '~i' . ($this->utf8 ? 'u' : ''), '[email]$0[/email]', $data);
-
-				if (!is_null($tmp_data)) {
-					$data = $tmp_data;
-				}
-			}
-		}
-
-		return $data;
 	}
 
 	/**
@@ -3147,347 +2927,6 @@ class BBCodeParser
 	}
 
 	/**
-	 * Sets $this->url_regex.
-	 */
-	protected function setUrlRegex(): void
-	{
-		// Don't repeat this unnecessarily.
-		if (!empty($this->url_regex)) {
-			return;
-		}
-
-		$this->setTldRegex();
-
-		// PCRE subroutines for efficiency.
-		$pcre_subroutines = [
-			'tlds' => $this->tld_regex,
-			'pct' => '%[0-9A-Fa-f]{2}',
-			'space_lookahead' => '(?=$|\s|<br>)',
-			'space_lookbehind' => '(?<=^|\s|<br>)',
-			'domain_label_char' => '[' . self::$domain_label_chars . ']',
-			'not_domain_label_char' => '[^' . self::$domain_label_chars . ']',
-			'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)(?!\.(?P>domain_label_char))',
-			'no_domain' => '(?:(?P>domain_label_char)|[._\\~!$&\'()*+,;=:@]|(?P>pct))+',
-			'scheme_need_domain' => Utils::buildRegex(self::$schemes['need_domain'], '~'),
-			'scheme_empty_authority' => Utils::buildRegex(self::$schemes['empty_authority'], '~'),
-			'scheme_no_authority' => Utils::buildRegex(self::$schemes['no_authority'], '~'),
-			'scheme_any' => '[A-Za-z][0-9A-Za-z+\-.]*',
-			'user_info' => '(?:(?P>domain_label_char)|[._\\~!$&\'()*+,;=:]|(?P>pct))+',
-			'dec_octet' => '(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)',
-			'h16' => '[0-9A-Fa-f]{1,4}',
-			'ipv4' => '(?:\b(?:(?P>dec_octet)\.){3}(?P>dec_octet)\b)',
-			'ipv6' => '\[(?:' . implode('|', [
-				'(?:(?P>h16):){7}(?P>h16)',
-				'(?:(?P>h16):){1,7}:',
-				'(?:(?P>h16):){1,6}(?::(?P>h16))',
-				'(?:(?P>h16):){1,5}(?::(?P>h16)){1,2}',
-				'(?:(?P>h16):){1,4}(?::(?P>h16)){1,3}',
-				'(?:(?P>h16):){1,3}(?::(?P>h16)){1,4}',
-				'(?:(?P>h16):){1,2}(?::(?P>h16)){1,5}',
-				'(?P>h16):(?::(?P>h16)){1,6}',
-				':(?:(?::(?P>h16)){1,7}|:)',
-				'fe80:(?::(?P>h16)){0,4}%[0-9A-Za-z]+',
-				'::(ffff(:0{1,4})?:)?(?P>ipv4)',
-				'(?:(?P>h16):){1,4}:(?P>ipv4)',
-			]) . ')\]',
-			'host' => '(?:' . implode('|', [
-				'localhost',
-				'(?P>domain)',
-				'(?P>ipv4)',
-				'(?P>ipv6)',
-			]) . ')',
-			'authority' => '(?:(?P>user_info)@)?(?P>host)(?::\d+)?',
-		];
-
-		// Brackets and quotation marks are problematic at the end of an IRI.
-		// E.g.: `http://foo.com/baz(qux)` vs. `(http://foo.com/baz_qux)`
-		// In the first case, the user probably intended the `)` as part of the
-		// IRI, but not in the second case. To account for this, we test for
-		// balanced pairs within the IRI.
-		$balanced_pairs = [
-			// Brackets and parentheses
-			'(' => ')', // '&#x28;' => '&#x29;',
-			'[' => ']', // '&#x5B;' => '&#x5D;',
-			'{' => '}', // '&#x7B;' => '&#x7D;',
-
-			// Double quotation marks
-			'"' => '"', // '&#x22;' => '&#x22;',
-			'“' => '”', // '&#x201C;' => '&#x201D;',
-			'„' => '”', // '&#x201E;' => '&#x201D;',
-			'‟' => '”', // '&#x201F;' => '&#x201D;',
-			'«' => '»', // '&#xAB;' => '&#xBB;',
-
-			// Single quotation marks
-			"'" => "'", // '&#x27;' => '&#x27;',
-			'‘' => '’', // '&#x2018;' => '&#x2019;',
-			'‚' => '’', // '&#x201A;' => '&#x2019;',
-			'‛' => '’', // '&#x201B;' => '&#x2019;',
-			'‹' => '›', // '&#x2039;' => '&#x203A;',
-		];
-
-		foreach ($balanced_pairs as $pair_opener => $pair_closer) {
-			$balanced_pairs[htmlspecialchars($pair_opener)] = htmlspecialchars($pair_closer);
-		}
-
-		$bracket_quote_chars = '';
-		$bracket_quote_entities = [];
-
-		foreach ($balanced_pairs as $pair_opener => $pair_closer) {
-			if ($pair_opener == $pair_closer) {
-				$pair_closer = '';
-			}
-
-			foreach ([$pair_opener, $pair_closer] as $bracket_quote) {
-				if (strpos($bracket_quote, '&') === false) {
-					$bracket_quote_chars .= $bracket_quote;
-				} else {
-					$bracket_quote_entities[] = substr($bracket_quote, 1);
-				}
-			}
-		}
-		$bracket_quote_chars = str_replace(['[', ']'], ['\[', '\]'], $bracket_quote_chars);
-
-		$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . Utils::buildRegex($bracket_quote_entities, '~');
-		$pcre_subroutines['allowed_entities'] = '&(?!' . Utils::buildRegex(array_merge($bracket_quote_entities, ['lt;', 'gt;']), '~') . ')';
-		$pcre_subroutines['excluded_lookahead'] = '(?![' . self::$excluded_trailing_chars . ']*(?P>space_lookahead))';
-
-		foreach (['path', 'query', 'fragment'] as $part) {
-			switch ($part) {
-				case 'path':
-					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '/#&';
-					$part_excluded_trailing_chars = str_replace('?', '', self::$excluded_trailing_chars);
-					break;
-
-				case 'query':
-					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '#&';
-					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
-					break;
-
-				default:
-					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '&';
-					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
-					break;
-			}
-			$pcre_subroutines[$part . '_allowed'] = '[^' . $part_disallowed_chars . ']|(?P>allowed_entities)|[' . $part_excluded_trailing_chars . '](?P>excluded_lookahead)';
-
-			$balanced_construct_regex = [];
-
-			foreach ($balanced_pairs as $pair_opener => $pair_closer) {
-				$balanced_construct_regex[] = preg_quote($pair_opener) . '(?P>' . $part . '_recursive)*+' . preg_quote($pair_closer);
-			}
-
-			$pcre_subroutines[$part . '_balanced'] = '(?:' . implode('|', $balanced_construct_regex) . ')(?P>' . $part . '_allowed)*+';
-			$pcre_subroutines[$part . '_recursive'] = '(?' . '>(?P>' . $part . '_allowed)|(?P>' . $part . '_balanced))';
-
-			$pcre_subroutines[$part . '_segment'] =
-				// Allowed characters besides brackets and quotation marks
-				'(?P>' . $part . '_allowed)*+' .
-				// Brackets and quotation marks that are either...
-				'(?:' .
-					// part of a balanced construct
-					'(?P>' . $part . '_balanced)' .
-					// or
-					'|' .
-					// unpaired but not at the end
-					'(?P>bracket_quote)(?=(?P>' . $part . '_allowed))' .
-				')*+';
-		}
-
-		// Time to build this monster!
-		$this->url_regex =
-		// 1. IRI scheme and domain components
-		'(?:' .
-			// 1a. IRIs with a scheme, or at least an opening "//"
-			'(?:' .
-
-				// URI scheme (or lack thereof for schemeless URLs)
-				'(?' . '>' .
-					// URI scheme and colon
-					'\b' .
-					'(?:' .
-						// Either a scheme that need a domain in the authority
-						// (Remember for later that we need a domain)
-						'(?P<need_domain>(?P>scheme_need_domain)):' .
-						// or
-						'|' .
-						// a scheme that allows an empty authority
-						// (Remember for later that the authority can be empty)
-						'(?P<empty_authority>(?P>scheme_empty_authority)):' .
-						// or
-						'|' .
-						// a scheme that uses no authority
-						'(?P>scheme_no_authority):(?!//)' .
-						// or
-						'|' .
-						// another scheme, but only if it is followed by "://"
-						'(?P>scheme_any):(?=//)' .
-					')' .
-
-					// or
-					'|' .
-
-					// An empty string followed by "//" for schemeless URLs
-					'(?P<schemeless>(?=//))' .
-				')' .
-
-				// IRI authority chunk (maybe)
-				'(?:' .
-					// (Keep track of whether we find a valid authority or not)
-					'(?P<has_authority>' .
-						// 2 slashes before the authority itself
-						'//' .
-						'(?:' .
-							// If there was no scheme...
-							'(?(<schemeless>)' .
-								// require an authority that contains a domain.
-								'(?P>authority)' .
-
-								// Else if a domain is needed...
-								'|(?(<need_domain>)' .
-									// require an authority with a domain.
-									'(?P>authority)' .
-
-									// Else if an empty authority is allowed...
-									'|(?(<empty_authority>)' .
-										// then require either
-										'(?:' .
-											// empty string, followed by a "/"
-											'(?=/)' .
-											// or
-											'|' .
-											// an authority with a domain.
-											'(?P>authority)' .
-										')' .
-
-										// Else just a run of IRI characters.
-										'|(?P>no_domain)' .
-									')' .
-								')' .
-							')' .
-						')' .
-						// Followed by a non-domain character or end of line
-						'(?=(?P>not_domain_label_char)|$)' .
-					')' .
-
-					// or, if there is a scheme but no authority
-					// (e.g. "mailto:" URLs)...
-					'|' .
-
-					// A run of IRI characters
-					'(?P>no_domain)' .
-					// If scheme needs a domain, require a dot and a TLD
-					'(?(<need_domain>)\.(?P>tlds))' .
-					// Followed by a non-domain character or end of line
-					'(?=(?P>not_domain_label_char)|$)' .
-				')' .
-			')' .
-
-			// Or, if there is neither a scheme nor an authority...
-			'|' .
-
-			// 1b. Naked domains
-			// (e.g. "example.com" in "Go to example.com for an example.")
-			'(?P<naked_domain>' .
-				// Preceded by start of line or a space
-				'(?P>space_lookbehind)' .
-				// A domain name
-				'(?P>domain)' .
-				// Followed by a non-domain character or end of line
-				'(?=(?P>not_domain_label_char)|$)' .
-			')' .
-		')' .
-
-		// 2. IRI path, query, and fragment components (if present)
-		'(?:' .
-			// If the IRI has an authority or is a naked domain and any of these
-			// components exist, the path must start with a single "/".
-			// Note: technically, it is valid to append a query or fragment
-			// directly to the authority chunk without a "/", but supporting
-			// that in the autolinker would produce a lot of false positives,
-			// so we don't.
-			'(?=' .
-				// If we found an authority above...
-				'(?(<has_authority>)' .
-					// require a "/"
-					'/' .
-					// Else if we found a naked domain above...
-					'|(?(<naked_domain>)' .
-						// require a "/"
-						'/' .
-					')' .
-				')' .
-			')' .
-
-			// 2.a. Path component, if any.
-			'(?:' .
-				// Can have one or more segments
-				'(?:' .
-					// Not preceded by a "/", except in the special case of an
-					// empty authority immediately before the path.
-					'(?(<empty_authority>)' .
-						'(?:(?<=://)|(?<!/))' .
-						'|' .
-						'(?<!/)' .
-					')' .
-					// Initial "/"
-					'/' .
-					// Then a run of allowed path segment characters
-					'(?P>path_segment)*+' .
-				')*+' .
-			')' .
-
-			// 2.b. Query component, if any.
-			'(?:' .
-				// Initial "?" that is not last character.
-				'\?' . '(?=(?P>bracket_quote)*(?P>query_allowed))' .
-				// Then a run of allowed query characters
-				'(?P>query_segment)*+' .
-			')?' .
-
-			// 2.c. Fragment component, if any.
-			'(?:' .
-				// Initial "#" that is not last character.
-				'#' . '(?=(?P>bracket_quote)*(?P>fragment_allowed))' .
-				// Then a run of allowed fragment characters
-				'(?P>fragment_segment)*+' .
-			')?' .
-		')?+';
-
-		// Finally, define the PCRE subroutines in the regex.
-		$this->url_regex .= '(?(DEFINE)';
-
-		foreach ($pcre_subroutines as $name => $subroutine) {
-			$this->url_regex .= '(?<' . $name . '>' . $subroutine . ')';
-		}
-
-		$this->url_regex .= ')';
-	}
-
-	/**
-	 * Sets $this->email_regex.
-	 */
-	protected function setEmailRegex(): void
-	{
-		if (!empty($this->email_regex)) {
-			return;
-		}
-
-		$this->setTldRegex();
-
-		// Preceded by a space or start of line
-		$this->email_regex = '(?<=^|\s|<br>)' .
-
-		// An email address
-		'[' . self::$domain_label_chars . '_.]{1,80}' .
-		'@' .
-		'[' . self::$domain_label_chars . '.]+' .
-		'\.' . $this->tld_regex .
-
-		// Followed by a non-domain character or end of line
-		'(?=[^' . self::$domain_label_chars . ']|$)';
-	}
-
-	/**
 	 * Sets $this->alltags_regex.
 	 */
 	protected function setAllTagsRegex(): void
@@ -3501,17 +2940,6 @@ class BBCodeParser
 		}
 
 		$this->alltags_regex = '(?' . '>\b' . Utils::buildRegex(array_unique($alltags)) . '\b|' . Utils::buildRegex(array_keys(self::$itemcodes)) . ')';
-	}
-
-	/**
-	 * Sets $this->tld_regex.
-	 */
-	protected function setTldRegex(): void
-	{
-		if (!isset($this->tld_regex)) {
-			Url::setTldRegex();
-			$this->tld_regex = Config::$modSettings['tld_regex'];
-		}
 	}
 
 	/**
@@ -4769,44 +4197,6 @@ class BBCodeParser
 
 		foreach ($to_reset as $var) {
 			$this->{$var} = $class_vars[$var];
-		}
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Wrapper for the integrate_bbc_codes hook.
-	 * Prevents duplication in self::$codes.
-	 */
-	protected static function integrateBBC(): void
-	{
-		// Only do this once.
-		if (self::$integrate_bbc_codes_done !== true) {
-			IntegrationHook::call('integrate_bbc_codes', [&self::$codes, &self::$no_autolink_tags]);
-
-			// Prevent duplicates.
-			$temp = [];
-
-			// Reverse order because mods typically append to the array.
-			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
-				$value = self::$codes[$i];
-
-				// Since validation functions may be closures, and
-				// closures cannot be serialized, leave that part out.
-				unset($value['validate']);
-
-				$serialized = serialize($value);
-
-				if (!in_array($serialized, $temp)) {
-					$temp[] = $serialized;
-				} else {
-					unset(self::$codes[$i]);
-				}
-			}
-
-			self::$integrate_bbc_codes_done = true;
 		}
 	}
 }
