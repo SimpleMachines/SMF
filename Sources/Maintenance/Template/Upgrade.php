@@ -87,24 +87,28 @@ class Upgrade implements TemplateInterface
 			<h3>', Lang::getTxt('upgrade_ready_proceed', ['SMF_VERSION' => SMF_VERSION]), '</h3>
 
 			<div id="version_warning" class="noticebox hidden">
-				<h3>', Lang::$txt['upgrade_warning'], '</h3>
+				<h3>', Lang::$txt['error_warning_notice'], '</h3>
 				', Lang::getTxt('upgrade_warning_out_of_date', ['SMF_VERSION' => SMF_VERSION, 'url' => 'https://www.simplemachines.org']), '
 			</div>';
 
-			if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
-				Template::warningsAndErrors();
+		Template::warningsAndErrors();
 
-				return;
-			}
+		if (!empty(Maintenance::$fatal_error)) {
+			return;
+		}
 
 		// Show a CHMOD form.
 		self::chmod();
+
+		if (!empty(Maintenance::$context['chmod']['files'])) {
+			return;
+		}
 
 		// For large, pre 1.1 RC2 forums give them a warning about the possible impact of this upgrade!
 		if (Maintenance::$context['is_large_forum']) {
 			echo '
 			<div class="errorbox">
-				<h3>', Lang::$txt['upgrade_warning'], '</h3>
+				<h3>', Lang::$txt['error_warning_notice'], '</h3>
 				', Lang::$txt['upgrade_warning_lots_data'], '
 			</div>';
 		}
@@ -112,7 +116,7 @@ class Upgrade implements TemplateInterface
 		// Paths are incorrect?
 		echo '
 			<div class="errorbox', (file_exists(Maintenance::$theme_dir . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
-				<h3>', Lang::$txt['upgrade_critical_error'], '</h3>
+				<h3>', Lang::$txt['critical_error'], '</h3>
 				', Lang::getTxt('upgrade_error_script_js', ['url' => 'https://download.simplemachines.org/?tools']), '
 			</div>';
 
@@ -193,13 +197,14 @@ class Upgrade implements TemplateInterface
 		', Lang::$txt['upgrade_bypass'], '
 	</span>';
 
-	if (!empty(Maintenance::$context['login_token_var'])) {
-		echo '
+		if (!empty(Maintenance::$context['login_token_var'])) {
+			echo '
 	<input type="hidden" name="', Maintenance::$context['login_token_var'], '" value="', Maintenance::$context['login_token'], '">';
-	}
+		}
+
 		echo '
 	<input type="hidden" name="login_attempt" id="login_attempt" value="1">
-	<input type="hidden" name="js_works" id="js_works" value="0">';
+	<input type="hidden" name="js_support" id="js_support" value="0">';
 
 		// Say we want the continue button!
 		Maintenance::$context['continue'] = !empty(Maintenance::$context['user']['id']) && time() - Maintenance::$context['updated'] < $tool->inactive_timeout ? 2 : 1;
@@ -207,8 +212,8 @@ class Upgrade implements TemplateInterface
 		// This defines whether javascript is going to work elsewhere :D
 		echo '
 	<script>
-		if (\'XMLHttpRequest\' in window && document.getElementById(\'js_works\'))
-			document.getElementById(\'js_works\').value = 1;
+		if (\'XMLHttpRequest\' in window && document.getElementById(\'js_support\'))
+			document.getElementById(\'js_support\').value = 1;
 
 		// Latest version?
 		function smfCurrentVersion()
@@ -229,15 +234,122 @@ class Upgrade implements TemplateInterface
 			if (currentVersion < window.smfVersion)
 				document.getElementById(\'version_warning\').classList.remove(\'hidden\');
 		}
-		addLoadEvent(smfCurrentVersion);
+		addEventListener("load", smfCurrentVersion);
 
 		// This checks that the script file even exists!
 		if (typeof(smfSelectText) == \'undefined\')
 			document.getElementById(\'js_script_missing_error\').classList.remove(\'hidden\');
-
 	</script>';
 	}
 
+	/**
+	 * Upgrade options template.
+	 */
+	public static function upgradeOptions(): void
+	{
+		echo '
+		<h3>', Lang::$txt['upgrade_areyouready'], '</h3>';
+
+		Template::warningsAndErrors();
+
+		if (!empty(Maintenance::$fatal_error)) {
+			return;
+		}
+
+		echo '
+		<ul class="upgrade_settings">
+			<li>
+				<input type="checkbox" name="backup" id="backup" value="1" checked>
+				<label for="backup">', Lang::$txt['upgrade_backup_table'], ' &quot;backup_' . Maintenance::$context['db_prefix'] . '&quot;.</label>
+				(', Lang::$txt['upgrade_recommended'], ')
+			</li>
+			<li>
+				<input type="checkbox" name="maint" id="maint" value="1" checked>
+				<label for="maint">', Lang::$txt['upgrade_maintenance'], '</label>
+				<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', Lang::$txt['upgrade_customize'], '</a>)</span>
+				<div id="mainmess" class="hidden">
+					<strong class="smalltext">', Lang::$txt['upgrade_maintenance_title'], ' </strong><br>
+					<input type="text" name="maintitle" size="30" value="', Maintenance::$context['message_title'], '"><br>
+					<strong class="smalltext">', Lang::$txt['upgrade_maintenance_message'], ' </strong><br>
+					<textarea name="mainmessage" rows="3" cols="50">', Maintenance::$context['message_body'], '</textarea>
+				</div>
+			</li>
+			<li>
+				<input type="checkbox" name="debug" id="debug" value="1">
+				<label for="debug">', Lang::$txt['upgrade_debug_info'], '</label>
+			</li>
+			<li>
+				<input type="checkbox" name="empty_error" id="empty_error" value="1">
+				<label for="empty_error">', Lang::$txt['upgrade_empty_errorlog'], '</label>
+			</li>';
+
+		if (!empty(Maintenance::$context['karma_installed']['good']) || !empty(Maintenance::$context['karma_installed']['bad'])) {
+		echo '
+			<li>
+				<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
+				<label for="delete_karma">', Lang::$txt['upgrade_delete_karma'], '</label>
+			</li>';
+		}
+
+		// If attachment step has been run previously, offer an option to do it again.
+		// Helpful if folks had improper attachment folders specified previously.
+		if (!empty(Maintenance::$context['attachment_conversion'])) {
+		echo '
+			<li>
+				<input type="checkbox" name="reprocess_attachments" id="reprocess_attachments" value="1">
+				<label for="reprocess_attachments">', Lang::$txt['upgrade_reprocess_attachments'], '</label>
+			</li>';
+		}
+
+		echo '
+			<li>
+				<input type="checkbox" name="stats" id="stats" value="1"', Maintenance::$context['sm_stats_configured'] ? '' : ' checked="checked"', '>
+				<label for="stat">
+					', Lang::$txt['upgrade_stats_collection'], '<br>
+					<span class="smalltext">', Lang::getTxt('upgrade_stats_info', ['url' => 'https://www.simplemachines.org/about/stats.php']), '</a></span>
+				</label>
+			</li>
+			<li>
+				<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty(Maintenance::$context['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
+				<label for="migrateSettings">
+					', Lang::$txt['upgrade_migrate_settings_file'], '
+				</label>
+			</li>
+		</ul>
+		<input type="hidden" name="upcont" value="1">';
+	}
+
+	/**
+	 * Backup database template.
+	 */
+	public static function backupDatabase(): void
+	{
+
+	}
+
+	/**
+	 * Migrations template.
+	 */
+	public static function migrations(): void
+	{
+
+	}
+
+	/**
+	 * Cleanup template.
+	 */
+	public static function cleanup(): void
+	{
+
+	}
+
+	/**
+	 * Delete upgrade template.
+	 */
+	public static function deleteUpgrade(): void
+	{
+
+	}
 
 	/**
 	 * Did we call the chmod template?

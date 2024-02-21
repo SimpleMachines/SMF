@@ -27,6 +27,7 @@ use SMF\Maintenance\ToolsInterface;
 use SMF\QueryString;
 use SMF\Sapi;
 use SMF\SecurityToken;
+use SMF\Session;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
@@ -84,6 +85,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		'id' => 0,
 		'name' => 'Guest',
 		'step' => 0,
+		'maint' => 0,
 	];
 
 	/**
@@ -147,6 +149,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	protected string $default_language = 'en_US';
 
+	protected array $cache_migration = [
+		'smf' => 'FileBase',
+		'apc' => 'FileBase',
+		'apcu' => 'Apcu',
+		'memcache' => 'MemcacheImplementation',
+		'memcached' => 'MemcachedImplementation',
+		'postgres' => 'Postgres',
+		'sqlite' => 'Sqlite',
+		'xcache' => 'FileBase',
+		'zend' => 'Zend',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -168,7 +182,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			 Lang::addDirs(Config::$languagesdir);
 
 			 // And now load the language file.
-			 Lang::load('General+Maintenance', $requested_lang);
+			 Lang::load('General+Maintenance+Errors', $requested_lang);
 
 			 // Assume that the admin likes that language.
 			 if ($requested_lang !== $this->default_language) {
@@ -193,6 +207,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// SMF\Config, and SMF\Utils.
 		Config::load();
 		Utils::load();
+		Session::load();
 
 		$this->prepareUpgrade();
 
@@ -305,6 +320,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function welcomeLogin(): bool
 	{
+		if (!empty($_SESSION['is_logged'])) {
+			return true;
+		}
+
 		// Needs to at least meet our minium version.
 		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>='))) {
 			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
@@ -446,7 +465,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Try to make all the files writable, if we can not, we will display a chmod page to attempt this with additional permissions.
-		if ($this->makeFilesWritable($writable_files)) {
+		if (!$this->makeFilesWritable($writable_files)) {
 			Maintenance::$context['chmod']['files'] = $writable_files;
 
 			return false;
@@ -493,8 +512,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Attempting to login.
-		if (empty(Maintenance::$errors) && isset($_POST['contbutt']) && (!empty($_POST['db_pass']) || (!empty($_POST['user']) && !empty($_POST['pass'])))) {
-			if (!SecurityToken::validate('login')) {
+		if (empty(Maintenance::$errors) && isset($_POST['contbutt']) && (!empty($_POST['db_pass']) || (!empty($_POST['user']) && !empty($_POST['passwrd'])))) {
+			if (!SecurityToken::validate('login', 'post', false)) {
+				Maintenance::$errors[] = Lang::$txt['token_verify_fail'];
+				Maintenance::$context += SecurityToken::create('login');
+				var_dump($_SESSION['token']);
+
 				return false;
 			}
 
@@ -510,7 +533,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				return true;
 			}
 
-			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['pass'])) > 0) {
+			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'])) > 0) {
 				$this->user = [
 					'id' => $id,
 					'name' => (string) $_POST['user'],
@@ -529,6 +552,234 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		return false;
 	}
 
+	/**
+	 * Allow the administrator to select options for the upgrade.
+	 *
+	 * @return bool True if we are continuing, false we are presenting upgrade options.
+	 */
+	public function upgradeOptions(): bool
+	{
+		$member_columns = Db::$db->list_columns('{db_prefix}members');
+		Maintenance::$context['karma_installed'] = [
+			'good' => in_array('karma_good', $member_columns),
+			'bad' => in_array('karma_bad', $member_columns),
+		];
+		unset($member_columns);
+
+		Maintenance::$context['migrate_settings_recommended'] = empty(Config::$modSettings['smfVersion']) || version_compare(strtolower(Config::$modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
+
+		Maintenance::$context['db_prefix'] = Config::$db_prefix;
+
+		Maintenance::$context['message_title'] = htmlspecialchars(Config::$mtitle);
+		Maintenance::$context['message_body'] = htmlspecialchars(Config::$mmessage);
+
+		Maintenance::$context['attachment_conversion'] = Config::$modSettings['attachments_21_done'];
+
+		Maintenance::$context['sm_stats_configured'] = !(empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']));
+
+		// If we've not submitted then we're done.
+		if (empty($_POST['upcont'])) {
+			Maintenance::$context['continue'] = true;
+
+			return false;
+		}
+
+		$maintenance_db = $this->loadMaintenanceDatabase(Config::$db_type);
+
+		$maintenance_db->setSqlMode('strict');
+
+		$file_settings = [];
+		$db_settings = [];
+
+		// Firstly, if they're enabling SM stat collection just do it.
+		$this->toggleSmStats($db_settings);
+
+		// Deleting old karma stuff?
+		$_SESSION['delete_karma'] = !empty($_POST['delete_karma']);
+
+		// Emptying the error log?
+		$_SESSION['empty_error'] = !empty($_POST['empty_error']);
+
+		// Reprocessing attachments?
+		$_SESSION['reprocess_attachments'] = !empty($_POST['reprocess_attachments']);
+
+		// Add proxy settings.
+		if (!isset(Config::$image_proxy_secret) || Config::$image_proxy_secret == 'smfisawesome') {
+			$file_settings['image_proxy_secret'] = bin2hex(random_bytes(10));
+		}
+
+		if (!isset(Config::$image_proxy_maxsize)) {
+			$file_settings['image_proxy_maxsize'] = 5190;
+		}
+
+		if (!isset(Config::$image_proxy_enabled)) {
+			$file_settings['image_proxy_enabled'] = false;
+		}
+
+		if (stripos(Config::$boardurl, 'https://') !== false && !isset(Config::$modSettings['force_ssl'])) {
+			$db_settings['force_ssl'] = 1;
+		}
+
+		// If we're overriding the language follow it through.
+		if (Maintenance::getRequestedLanguage() != Config::$language) {
+			$file_settings['language'] = Maintenance::getRequestedLanguage();
+		}
+
+		// Enter the form into maintenance mode.
+		if (!empty($_POST['maint'])) {
+			$file_settings['maintenance'] = 2;
+			// Remember what it was...
+			Maintenance::$context['user']['main'] = Config::$maintenance;
+
+			if (!empty($_POST['maintitle'])) {
+				$file_settings['mtitle'] = $_POST['maintitle'];
+				$file_settings['mmessage'] = $_POST['mainmessage'];
+			} else {
+				$file_settings['mtitle'] = Lang::$txt['mtitle'];
+				$file_settings['mmessage'] = Lang::$txt['mmessage'];
+			}
+		}
+
+		// Fix some old paths.
+		if (substr(Config::$boarddir, 0, 1) == '.') {
+			$file_settings['boarddir'] = $this->fixRelativePath(Config::$boarddir);
+		}
+
+		if (substr(Config::$sourcedir, 0, 1) == '.') {
+			$file_settings['sourcedir'] = $this->fixRelativePath(Config::$sourcedir);
+		}
+
+		if (empty(Config::$cachedir) || substr(Config::$cachedir, 0, 1) == '.') {
+			$file_settings['cachedir'] = $this->fixRelativePath(Config::$boarddir) . '/cache';
+		}
+
+		// Maybe we haven't had this option yet?
+		if (empty(Config::$packagesdir)) {
+			$file_settings['packagesdir'] = $this->fixRelativePath(Config::$boarddir) . '/Packages';
+		}
+
+		// Languages have moved!
+		if (empty(Config::$languagesdir)) {
+			$file_settings['languagesdir'] = $this->fixRelativePath(Config::$boarddir) . '/Languages';
+		}
+
+		// Make sure we fix the language as well.
+		if (stristr(Config::$language, '-utf8')) {
+			$file_settings['language'] = str_ireplace('-utf8', '', Config::$language);
+		}
+
+		// Maybe we are on the old language naming? User settings will get fixed up later.
+		if (isset(Lang::LANG_TO_LOCALE[Config::$language])) {
+			$file_settings['language'] = Lang::LANG_TO_LOCALE[Config::$language];
+		}
+
+		// Migrate cache settings.
+		// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
+		if (!isset(Config::$cache_enable)) {
+			$file_settings += [
+				'cache_accelerator' => $this->cache_migration[Config::$cache_accelerator] ?? Config::$cache_accelerator,
+				'cache_enable' => !empty(Config::$modSettings['cache_enable']) ? Config::$modSettings['cache_enable'] : 0,
+				'cache_memcached' => !empty(Config::$modSettings['cache_memcached']) ? Config::$modSettings['cache_memcached'] : '',
+			];
+		}
+
+		// If they have a "host:port" setup for the host, split that into separate values
+		// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
+		if (strpos(Config::$db_server, ':') !== false) {
+			list(Config::$db_server, Config::$db_port) = explode(':', Config::$db_server);
+
+			$file_settings['db_server'] = Config::$db_server;
+
+			// Only set this if we're not using the default port
+			if (Config::$db_port != $maintenance_db->getDefaultPort()) {
+				$file_settings['db_port'] = (int) Config::$db_port;
+			}
+		}
+
+		// If db_port is set and is the same as the default, set it to 0.
+		if (!empty(Config::$db_port) && Config::$db_port != $maintenance_db->getDefaultPort()) {
+			$file_settings['db_port'] = 0;
+		}
+
+		// Update the databas with new settings.
+		Config::updateModSettings($db_settings);
+
+		// Update Settings.php with the new settings, and rebuild if they selected that option.
+		$res = Config::updateSettingsFile($file_settings, false, !empty($_POST['migrateSettings']));
+
+		if (Sapi::isCLI() && $res) {
+			echo ' Successful.' . "\n";
+		} elseif (Sapi::isCLI() && !$res) {
+			echo ' FAILURE.' . "\n";
+
+			die;
+		}
+
+		// Are we doing debug?
+		if (isset($_POST['debug'])) {
+			Maintenance::$context['debug'] = true;
+		}
+
+		// If we've got here then let's proceed to the next step!
+		return true;
+	}
+
+	/**
+	 * Backup our database.
+	 * @return bool True if we are done backing up or skipped.  False otherwise.
+	 */
+	public function backupDatabase(): bool
+	{
+		// If we're not backing up then jump one.
+		return (bool) (empty($_POST['backup']));
+	}
+
+	/**
+	 * Perform database migration actions.
+	 * This performs steps as required to make changes safely to the database.
+	 * Each migration is tracked as a substep.
+	 * We check if the migration is a canidate, if it is not, we skip the substep.
+	 * The migration may loop over multiple times, returning false. In such cases, it will use the start to check its offset.
+	 *
+	 * @return bool True if we are done upgrading, false if we need to timeout and wait.
+	 */
+	public function migrations(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Perform cleanup actions.
+	 * This operates similar to migrations, but is designed for operations against the file system to optimize the installation.
+	 * Each cleanup is tracked as a substep.
+	 * We check if the cleanup is a canidate, if it is not, we skip the substep.
+	 * The cleanup may loop over multiple times, returning false. In such cases, it will use the start to check its offset.
+	 *
+	 * @return bool True if we are done upgrading, false if we need to timeout and wait.
+	 */
+	public function cleanup(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Upgrade is completed, offer help if things went wrong, or congrats if evertyhing upgraded.
+	 * Offer a option to delete the upgrade file.
+	 *
+	 * @return bool
+	 */
+	public function deleteUpgrade(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Write out our current information to our settings file to track the upgrade progress.
+	 */
+	public function preExit(): void
+	{
+		$this->saveUpgradeData();
+	}
 
 	/**
 	 * Prepare the configuration to handle support with some older installs .
@@ -575,6 +826,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->user['id'] = isset($this->upgradeData['user_id']) ? (int) $this->upgradeData['user_id'] : 0;
 		$this->user['name'] = isset($this->upgradeData['user_name']) ? (int) $this->upgradeData['user_name'] : 0;
 		$this->user['step'] = isset($this->upgradeData['step']) ? (int) $this->upgradeData['step'] : 0;
+		$this->user['maint'] = isset($this->upgradeData['maint']) ? (int) $this->user['maint'] : Config::$maintenance;
 	}
 
 	/**
@@ -586,11 +838,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	{
 		return Config::updateSettingsFile(['upgradeData' => json_encode([
 			'started' => $this->time_started,
-			'updated' => $this->upgradeData['updated'],
+			'updated' => $this->time_updated,
 			'debug' => $this->debug,
 			'skipped' => $this->skipped_migrations,
 			'user_id' => $this->user['id'],
 			'user_name' => $this->user['name'],
+			'maint' => $this->user['maint'],
 		])]);
 	}
 
@@ -676,6 +929,59 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		return $attach_directory_problem_found;
+	}
+
+	/**
+	 * Determine if we need to enable or disable (during upgrades) SMF stat collection.
+	 *
+	 * @param array $settings Settings array, passed by reference.
+	 */
+	private function toggleSmStats(array &$settings): void
+	{
+		if (
+			!empty($_POST['stats'])
+			&& substr(Config::$boardurl, 0, 16) != 'http://localhost'
+			&& empty(Config::$modSettings['allow_sm_stats'])
+			&& empty(Config::$modSettings['enable_sm_stats'])
+		) {
+			Maintenance::$context['allow_sm_stats'] = true;
+
+			// Attempt to register the site etc.
+			$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+
+			if (!$fp) {
+				$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+			}
+
+			if (!$fp) {
+				return;
+			}
+
+			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
+			$out .= 'Host: www.simplemachines.org' . "\r\n";
+			$out .= 'Connection: Close' . "\r\n\r\n";
+			fwrite($fp, $out);
+
+			$return_data = '';
+
+			while (!feof($fp)) {
+				$return_data .= fgets($fp, 128);
+			}
+
+			fclose($fp);
+
+			// Get the unique site ID.
+			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
+
+			if (!empty($ID[1])) {
+				$settings['sm_stats_key'] = $ID[1];
+				$settings['enable_sm_stats'] = 1;
+			}
+		}
+		// Don't remove stat collection unless we unchecked the box for real, not from the loop.
+		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
+			$settings[] = ['enable_sm_stats', null];
+		}
 	}
 }
 

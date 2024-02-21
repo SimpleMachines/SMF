@@ -95,6 +95,15 @@ abstract class ToolsBase
 	}
 
 	/**
+	 * Last chance to do anything before we exit.
+	 *
+	 * Some tools may call this to save where are at.
+	 */
+	public function preExit(): void
+	{
+	}
+
+	/**
 	 * Given a database type, loads the maintenance database object.
 	 *
 	 * @param string $db_type The database type, typically from Config::$db_type.
@@ -353,7 +362,19 @@ abstract class ToolsBase
 	   Maintenance::$context['chmod']['files'] = $files;
 
 	   return (bool) (empty($files));
-   }
+	}
+
+	/**
+	 * Takes a string in and cleans up issues with path entries.
+	 *
+	 * @param string $path Dirty path
+	 * @return string Clean path
+	 */
+	final public function fixRelativePath(string $path): string
+	{
+		// Fix the . at the start, clear any duplicate slashes, and fix any trailing slash...
+		return addslashes(preg_replace(['~^\.([/\\\]|$)~', '~[/]+~', '~[\\\]+~', '~[/\\\]$~'], [dirname(SMF_SETTINGS_FILE) . '$1', '/', '\\', ''], $path));
+	}
 
 	/***********************
 	 * Public static methods

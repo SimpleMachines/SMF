@@ -117,12 +117,20 @@ interface DatabaseInterface
 	public function validatePrefix(&$string): bool;
 
 	/**
-	 * Checks that the server has the proper support for UTF-8 content..
+	 * Checks that the server has the proper support for UTF-8 content.
 	 * When an error occurs, use throw new exception, this will be captured.
 	 *
 	 * @return bool
 	 */
 	public function utf8Configured(): bool;
+
+	/**
+	 * Perform additional changes to our SQL connection in order to perform commands that are not strict SQL.
+	 *
+	 * @param string $mode The SQL mode we wish to be in, either 'default' or 'strict'.
+	 * @return bool
+	 */
+	public function setSqlMode(string $mode = 'default'): bool;
 }
 
 ?>

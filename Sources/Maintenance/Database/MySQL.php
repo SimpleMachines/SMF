@@ -152,6 +152,24 @@ class MySQL implements DatabaseInterface
 	{
 		return true;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setSqlMode(string $mode = 'default'): bool
+	{
+		$sql_mode = '';
+
+		if ($mode === 'strict') {
+			$sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
+		}
+
+		Db::$db->query('', 'SET SESSION sql_mode = {string:modes}', [
+			'sql_mode' => $sql_mode,
+		]);
+
+		return true;
+	}
 }
 
 ?>

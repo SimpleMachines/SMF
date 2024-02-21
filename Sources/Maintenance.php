@@ -233,6 +233,9 @@ class Maintenance
 			self::$sub_template = self::$tool->getSteps()[self::getCurrentStep()]->getFunction();
 		}
 
+		// Make a final call before we are done..
+		self::$tool->preExit();
+
 		self::exit();
 	}
 

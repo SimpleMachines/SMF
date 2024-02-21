@@ -175,6 +175,13 @@ class PostgreSQL implements DatabaseInterface
 		throw new \Exception(Lang::getTxt('error_utf8_version', ['utf8_version' => $this->getMinimumVersion()]));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setSqlMode(string $mode = 'default'): bool
+	{
+		return true;
+	}
 }
 
 ?>
