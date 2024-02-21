@@ -440,11 +440,11 @@ $txt['profile_updated_else'] = 'The profile of {name} has been updated successfu
 
 $txt['profile_error_signature_max_length'] = '{0, plural,
 	one {Your signature cannot be longer than # character}
-	one {Your signature cannot be longer than # characters}
+	other {Your signature cannot be longer than # characters}
 }';
 $txt['profile_error_signature_max_lines'] = '{0, plural,
 	one {Your signature cannot span more than # line}
-	one {Your signature cannot span more than # lines}
+	other {Your signature cannot span more than # lines}
 }';
 $txt['profile_error_signature_max_image_size'] = '{0, plural,
 	one {Images in your signature must be no larger than # pixel {1, plural,

@@ -140,7 +140,10 @@ $txt['package_other_themes_desc'] = 'To use this modification in themes other th
 // Don't use entities in the below string.
 $txt['package_theme_failure_warning'] = 'At least one error was encountered during a test install of this theme. Are you sure you wish to attempt installation?';
 
-$txt['package_bytes'] = '({size, number, integer} bytes)';
+$txt['package_bytes'] = '({size, plural,
+	one {# byte}
+	other {# bytes}
+})';
 
 $txt['package_action_missing'] = 'File not found';
 $txt['package_action_error'] = 'Modification parse error';
