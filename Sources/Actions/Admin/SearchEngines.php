@@ -150,6 +150,9 @@ class SearchEngines implements ActionInterface
 		list($min_date, $max_date) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
+		$min_date = (string) $min_date;
+		$max_date = (string) $max_date;
+
 		$min_year = (int) substr($min_date, 0, 4);
 		$max_year = (int) substr($max_date, 0, 4);
 		$min_month = (int) substr($min_date, 5, 2);

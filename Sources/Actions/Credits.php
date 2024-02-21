@@ -76,7 +76,7 @@ class Credits implements ActionInterface
 
 		Utils::$context['credits'] = [
 			[
-				'pretext' => Lang::$txt['credits_intro'],
+				'pretext' => Lang::getTxt('credits_intro', ['SMF_VERSION' => SMF_VERSION]),
 				'title' => Lang::$txt['credits_team'],
 				'groups' => [
 					[
