@@ -545,6 +545,12 @@ class BBCodeParser
 			'type' => 'unparsed_content',
 			'content' => '$1',
 		],
+		// This one only exists to prevent autolinking in its content.
+		[
+			'tag' => 'nolink',
+			'before' => '',
+			'after' => '',
+		],
 		[
 			'tag' => 'php',
 			'type' => 'unparsed_content',
@@ -2602,8 +2608,6 @@ class BBCodeParser
 		$this->message = strtr($this->message, ["\n" => '<br>']);
 
 		$this->setAllTagsRegex();
-
-		$this->message = Autolinker::load()->makeLinks($this->message);
 
 		while ($this->pos !== false) {
 			$this->last_pos = isset($this->last_pos) ? max($this->pos, $this->last_pos) : $this->pos;
