@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -136,6 +137,11 @@ class JavaScriptModify implements ActionInterface
 				unset($_POST['message']);
 			} else {
 				$_POST['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
+
+				// Check for links with broken URLs.
+				if ($_POST['message'] !== Autolinker::load()->fixUrlsInBBC($_POST['message'])) {
+					$post_errors[] = 'links_malformed';
+				}
 
 				Msg::preparsecode($_POST['message']);
 
@@ -298,7 +304,7 @@ class JavaScriptModify implements ActionInterface
 					'id' => $row['id_msg'],
 					'errors' => [],
 					'error_in_subject' => in_array('no_subject', $post_errors),
-					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors),
+					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors) || in_array('links_malformed', $post_errors),
 				];
 
 				Lang::load('Errors');

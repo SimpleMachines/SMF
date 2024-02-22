@@ -18,6 +18,7 @@ namespace SMF\PersonalMessage;
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\ArrayAccessHelper;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -968,8 +969,17 @@ class PM implements \ArrayAccess
 		} elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_REQUEST['message']) > Config::$modSettings['max_messageLength']) {
 			$post_errors[] = 'long_message';
 		} else {
-			// Preparse the message.
 			$message = $_REQUEST['message'];
+
+			// Check for links with broken URLs.
+			if (
+				!isset($_POST['save_draft'])
+				&& $message !== Autolinker::load()->fixUrlsInBBC($message)
+			) {
+				$post_errors[] = 'links_malformed_review';
+			}
+
+			// Preparse the message.
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
