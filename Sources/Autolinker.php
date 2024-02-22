@@ -140,6 +140,20 @@ class Autolinker
 		'nolink',
 	];
 
+	/**
+	 * @var array
+	 *
+	 * BBCodes in which to fix URL strings.
+	 *
+	 * Mods can add to this list using the integrate_autolinker_fix_tags hook.
+	 */
+	public static array $tags_to_fix = [
+		'url',
+		'iurl',
+		'img',
+		'ftp',
+	];
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -213,6 +227,13 @@ class Autolinker
 	 * Ensures we only call integrate_autolinker_schemes once.
 	 */
 	protected static bool $integrate_autolinker_schemes_done = false;
+
+	/**
+	 * @var bool
+	 *
+	 * Ensures we only call integrate_autolinker_fix_tags once.
+	 */
+	protected static bool $integrate_autolinker_fix_tags_done = false;
 
 	/**
 	 * @var self
@@ -607,6 +628,115 @@ class Autolinker
 		}
 
 		return $new_string;
+	}
+
+	/**
+	 * Checks URLs inside BBCodes and fixes them if invalid.
+	 *
+	 * @param string $string The string containing the BBCodes.
+	 * @return string The fixed string.
+	 */
+	public function fixUrlsInBBC(string $string): string
+	{
+		static $tags_to_fix_regex;
+
+		// In case a mod wants to add tags to the list of BBC to fix URLs in.
+		if (!self::$integrate_autolinker_fix_tags_done) {
+			IntegrationHook::call('integrate_autolinker_fix_tags', [&self::$tags_to_fix]);
+
+			self::$tags_to_fix = array_unique(self::$tags_to_fix);
+
+			self::$integrate_autolinker_fix_tags_done = true;
+		}
+
+		$tags_to_fix_regex = $tags_to_fix_regex ?? Utils::buildRegex((array) self::$tags_to_fix, '~');
+
+		$parts = preg_split('~(\[/?' . $tags_to_fix_regex . '\b[^\]]*\])~u', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+			if ($i % 4 == 1) {
+				unset($href, $bbc);
+
+				$bbc = substr(ltrim($parts[$i], '['), 0, strcspn(ltrim($parts[$i], '['), ' =]'));
+
+				if (str_contains($parts[$i], '=')) {
+					$href = substr($parts[$i], strpos($parts[$i], '=') + 1, -1);
+
+					if (str_starts_with($href, '&quot;')) {
+						$href = substr($href, 6, -6);
+					}
+
+					if (str_starts_with($href, '"')) {
+						$href = substr($href, 1, -1);
+					}
+
+					$detected_urls = $this->detectUrls($href);
+
+					if (empty($detected_urls)) {
+						$parts[$i] = '';
+						$parts[$i + 2] = '';
+						continue;
+					}
+
+					$url = reset($detected_urls);
+
+					$parts[$i] = str_replace($href, $url, $parts[$i]);
+				}
+			} elseif ($i % 4 == 2) {
+				$detected_urls = $this->detectUrls($parts[$i], true);
+
+				// Not a valid URL.
+				if (empty($detected_urls) && empty($href)) {
+					$parts[$i - 1] = '';
+					$parts[$i + 1] = '';
+					continue;
+				}
+
+				$first_url = reset($detected_urls);
+
+				// Valid URL.
+				if (count($detected_urls) === 1 && $parts[$i] === $first_url) {
+					// BBC param is unnecessary if it is identical to the content.
+					if (!empty($href) && $href === $first_url) {
+						$parts[$i - 1] = '[' . $bbc . ']';
+					}
+
+					// Nothing else needs to change.
+					continue;
+				}
+
+				// One URL, plus some unexpected cruft...
+				if (count($detected_urls) === 1) {
+					foreach ($detected_urls as $url) {
+						if (!str_starts_with($parts[$i], $url)) {
+							$parts[$i - 1] = substr($parts[$i], 0, strpos($parts[$i], $url)) . $parts[$i - 1];
+							$parts[$i] = substr($parts[$i], strpos($parts[$i], $url));
+						}
+
+						if (!str_ends_with($parts[$i], $url)) {
+							$parts[$i + 1] .= substr($parts[$i], strlen($url));
+							$parts[$i] = substr($parts[$i], 0, strlen($url));
+						}
+					}
+				}
+
+				// Multiple URLs inside one BBCode? Weird. Fix them.
+				if (count($detected_urls) > 1) {
+					$parts[$i - 1] = '';
+					$parts[$i + 1] = '';
+
+					$parts[$i] = strtr(
+						$parts[$i],
+						array_combine(
+							$detected_urls,
+							array_map(fn ($url) => '[' . $bbc . ']' . $url . '[/' . $bbc . ']', $detected_urls),
+						),
+					);
+				}
+			}
+		}
+
+		return implode('', $parts);
 	}
 
 	/************************

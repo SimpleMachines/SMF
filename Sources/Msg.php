@@ -705,6 +705,7 @@ class Msg implements \ArrayAccess
 		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
 		// Now that we've fixed all the code tags, let's fix the img and url tags...
+		$message = Autolinker::load()->fixUrlsInBBC($message);
 		self::fixTags($message);
 
 		// Replace /me.+?\n with [me=name]dsf[/me]\n.
