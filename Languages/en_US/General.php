@@ -50,7 +50,7 @@ $txt['ordinal_spellout'] = '{0, selectordinal,
 	other {#th}
 }';
 // Interprets ordinal numbers as counting from the end. For example, "2" becomes "2nd to last".
-$txt['ordinal_last'] = '{0, selectordinal,
+$txt['ordinal_last'] = '{0, selectordinal, offset:0
 	=1 {last}
 	one {#st to last}
 	two {#nd to last}
@@ -58,7 +58,7 @@ $txt['ordinal_last'] = '{0, selectordinal,
 	other {#th to last}
 }';
 // Interprets ordinal numbers as counting from the end, but spelling out values less than 10. For example, "2" becomes "second to last", but "22" becomes "22nd to last".
-$txt['ordinal_spellout_last'] = '{0, selectordinal,
+$txt['ordinal_spellout_last'] = '{0, selectordinal, offset:0
 	=1 {last}
 	=2 {second to last}
 	=3 {third to last}
