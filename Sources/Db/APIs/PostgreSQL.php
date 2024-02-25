@@ -812,7 +812,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function backup_table(string $table, string $backup_table): object
+	public function backup_table(string $table, string $backup_table): object|bool
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
