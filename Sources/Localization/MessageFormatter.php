@@ -123,7 +123,9 @@ class MessageFormatter
 				self::$message_formatters[Lang::$txt['lang_locale']][$message] = new \MessageFormatter(Lang::$txt['lang_locale'], $message);
 			}
 
-			return strtr(self::$message_formatters[Lang::$txt['lang_locale']][$message]->format(array_filter($args, 'is_scalar')), array_flip($placeholders));
+			$fmt = self::$message_formatters[Lang::$txt['lang_locale']][$message]->format(array_filter($args, 'is_scalar'));
+
+			return $fmt == false ? '' : strtr($fmt, array_flip($placeholders));
 		}
 
 		// Parse $message and build the finalized string.

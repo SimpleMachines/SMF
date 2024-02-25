@@ -49,16 +49,16 @@ $txt['ordinal_spellout'] = '{0, selectordinal,
 	few {#rd}
 	other {#th}
 }';
-// Interprets ordinal numbers as counting from the end. For example, "2" becomes "2nd to last".
-$txt['ordinal_last'] = '{0, selectordinal,
+// Interprets ordinal numbers as counting from the end. For example, "2" becomes "2nd to last". Note that some languages need to change the offset value from "offset:0" to "offset:1", but CrowdIn does not allow translators to do that. To work around this limitation, translators can set the value of the "ordinal_last_offset" string to "1". Then SMF will replace "offset:0" with "offset:1" in this string at runtime.
+$txt['ordinal_last'] = '{0, selectordinal, offset:0
 	=1 {last}
 	one {#st to last}
 	two {#nd to last}
 	few {#rd to last}
 	other {#th to last}
 }';
-// Interprets ordinal numbers as counting from the end, but spelling out values less than 10. For example, "2" becomes "second to last", but "22" becomes "22nd to last".
-$txt['ordinal_spellout_last'] = '{0, selectordinal,
+// Interprets ordinal numbers as counting from the end, but spelling out values less than 10. For example, "2" becomes "second to last", but "22" becomes "22nd to last". Note that some languages need to change the offset value from "offset:0" to "offset:1", but CrowdIn does not allow translators to do that. To work around this limitation, translators can set the value of the "ordinal_last_offset" string to "1". Then SMF will replace "offset:0" with "offset:1" in this string at runtime.
+$txt['ordinal_spellout_last'] = '{0, selectordinal, offset:0
 	=1 {last}
 	=2 {second to last}
 	=3 {third to last}
@@ -73,6 +73,8 @@ $txt['ordinal_spellout_last'] = '{0, selectordinal,
 	few {#rd to last}
 	other {#th to last}
 }';
+// Offset to apply when formatting "ordinal_last" and "ordinal_spellout_last" values. This is a workaround for a CrowdIn limitation that won't let translators change the offset value in those strings. For example, setting this to "1" will cause SMF to change "offset:0" to "offset:1" in those strings at runtime.
+$txt['ordinal_last_offset'] = '0';
 
 // Formats for time units.
 $txt['number_of_years'] = '{0, plural,

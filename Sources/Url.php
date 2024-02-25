@@ -31,6 +31,14 @@ class Url implements \Stringable
 {
 	use BackwardCompatibility;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	 public const SCHEME_HTTPS = 'https';
+	 public const SCHEME_HTTP = 'http';
+	 public const SCHEME_GRAVATAR = 'gravatar';
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -90,14 +98,6 @@ class Url implements \Stringable
 	 * The fragment component of the URL.
 	 */
 	public string $fragment;
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	 public const SCHEMA_HTTPS = 'https';
-	 public const SCHEMA_HTTP = 'http';
-	 public const SCHEMA_GRAVATAR = 'gravatar';
 
 	/*********************
 	 * Internal properties
@@ -460,7 +460,7 @@ class Url implements \Stringable
 	}
 
 	/**
-	 * Check if this URL has an SSL certificate.
+	 * Checks if this URL has an SSL certificate.
 	 *
 	 * @return bool Whether the URL has an SSL certificate.
 	 */
@@ -496,7 +496,7 @@ class Url implements \Stringable
 	}
 
 	/**
-	 * Check if this URL has a redirect to https:// by querying headers.
+	 * Checks if this URL has a redirect to https:// by querying headers.
 	 *
 	 * @return bool Whether a redirect to HTTPS was found.
 	 */
@@ -530,38 +530,39 @@ class Url implements \Stringable
 	}
 
 	/**
-	 * Check if this URL has an SSL certificate.
+	 * Checks if this URL points to a website.
 	 *
-	 * @return bool Whether the URL matches the https or http schema.
+	 * @return bool Whether the URL matches the https or http schemes.
 	 */
 	public function isWebsite(): bool
 	{
-		return $this->isSchema([self::SCHEMA_HTTP, self::SCHEMA_HTTPS]);
+		return $this->isScheme([self::SCHEME_HTTP, self::SCHEME_HTTPS]);
 	}
 
 	/**
-	 * Check if this URL has an SSL certificate.
+	 * Check if this URL uses one of the specified schemes.
 	 *
-	 * @param string|string[] $schema Schemas to check.
-	 * @return bool Whether the URL matches a schema.
+	 * @param string|string[] $schema Schemes to check.
+	 * @return bool Whether the URL matches a scheme.
 	 */
-	public function isSchema(string|array $schema): bool
+	public function isSchema(string|array $scheme): bool
 	{
 		return !empty($this->scheme) && in_array($this->scheme, array_map('strval', (array) $schema));
 	}
 
 	/**
-	 * Check if this URL has an SSL certificate.
+	 * Checks if this is a Gravatar URL.
 	 *
-	 * @return bool Whether the URL validates as a garavatar.
+	 * @return bool Whether this is a Gravatar URL.
 	 */
 	public function isGravatar(): bool
 	{
 		return
-			$this->isSchema(self::SCHEMA_GRAVATAR)
+			$this->isScheme(self::SCHEME_GRAVATAR)
 			|| $this->url === 'gravatar://'
 			|| (
-				!empty($this->host) && (
+				!empty($this->host)
+				&& (
 					$this->host === 'gravatar.com'
 					||  $this->host === 'secure.gravatar.com'
 				)
