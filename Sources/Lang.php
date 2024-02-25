@@ -559,6 +559,20 @@ class Lang
 			return $target;
 		}
 
+		// Workaround for a CrowdIn limitation that won't allow translators to
+		// change offset values in strings.
+		if (
+			count($txt_key) === 0
+			&& in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
+			&& isset(self::$txt['ordinal_last_offset'])
+		) {
+			$target = str_replace(
+				'offset:0',
+				'offset:' . self::$txt['ordinal_last_offset'],
+				$target,
+			);
+		}
+
 		return self::formatText($target, $args);
 	}
 
