@@ -46,7 +46,7 @@ class FtpConnection
 	/**
 	 * Create a new FTP connection...
 	 *
-	 * @param string $ftp_server The server to connect to
+	 * @param ?string $ftp_server The server to connect to
 	 * @param int $ftp_port The port to connect to
 	 * @param string $ftp_user The username
 	 * @param string $ftp_pass The password

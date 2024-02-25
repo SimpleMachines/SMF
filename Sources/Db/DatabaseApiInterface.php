@@ -267,9 +267,9 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $table The name of the table to backup
 	 * @param string $backup_table The name of the backup table for this table
-	 * @return resource -the request handle to the table creation query
+	 * @return resource|false -the request handle to the table creation query, false if it failed.
 	 */
-	public function backup_table(string $table, string $backup_table): object;
+	public function backup_table(string $table, string $backup_table): object|bool;
 
 	/**
 	 * This function optimizes a table.
