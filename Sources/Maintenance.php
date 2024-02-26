@@ -154,6 +154,36 @@ class Maintenance
 	 */
 	public static bool $disable_security = false;
 
+	/**
+	 * Total number of sub steps.
+	 * When set, the sub-step progress bar is shown.  The current is obtain from getCurrentSubStep().
+	 *
+	 * @var null|int Null when we do not have any sub steps, int greater than 0 otherwise.
+	 */
+	public static ?int $total_substeps = null;
+
+	/**
+	 * Name of the sub step, used on templates and outputting progress.
+	 *
+	 * @var string
+	 */
+	public static string $substep_name = '';
+
+	/**
+	 * Total number of sub items.
+	 * When set, the items progress bar is shown.  The current is obtain from getCurrentStart().
+	 *
+	 * @var null|int Null when we do not have any items, int greater than 0 otherwise.
+	 */
+	public static ?int $total_items = null;
+
+	/**
+	 * Only filled in during debugging, name of the item name.
+	 *
+	 * @var string
+	 */
+	public static string $item_name = '';
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -218,9 +248,11 @@ class Maintenance
 					break;
 				}
 
-				if (method_exists(self::$tool, $step->getFunction())) {
+					// Time to move on.
 					self::setCurrentStep();
-				}
+					self::setCurrentSubStep(0);
+					self::setCurrentStart(0);
+
 
 				// No warnings pass on.
 				self::$context['warning'] = '';
@@ -364,6 +396,16 @@ class Maintenance
 	}
 
 	/**
+	 * Returns a percent indicating the progression through our sub steps.
+	 *
+	 * @return int Int representing a percent out of 100 on completion of sub steps.
+	 */
+	public static function getSubStepProgress(): int
+	{
+		return (int) (Maintenance::getCurrentSubStep() / Maintenance::$total_substeps);
+	}
+
+	/**
 	 * Fetch our current starting position. This is used for loops inside steps.
 	 *
 	 * @return int Current starting position.
@@ -381,6 +423,16 @@ class Maintenance
 	public static function setCurrentStart(?int $start = null): void
 	{
 		$_GET['start'] = $start ?? (self::getCurrentStart() + 1);
+	}
+
+	/**
+	 * Returns a percent indicating the progression through our sub steps.
+	 *
+	 * @return int Int representing a percent out of 100 on completion of sub steps.
+	 */
+	public static function getItemsProgress(): int
+	{
+		return Maintenance::$total_items === null || Maintenance::$total_items === 0 ? 0 : (int) (Maintenance::getCurrentStart() / Maintenance::$total_items);
 	}
 
 	/**
@@ -571,28 +623,52 @@ class Maintenance
 		return Config::$db_passwd === $password;
 	}
 
-	/******************
-	 * Internal methods
-	 ******************/
-
 	/**
-	 * Checks that the tool we requested is valid.
+	 * Returns a string formated for the current time elasped.
 	 *
-	 * @param int $type Tool we are trying to use.
-	 * @return bool True if it is valid, false otherwise.
+	 * @return string Formatted string.
 	 */
-	private static function toolIsValid(int $type): bool
+	public static function getTimeElasped(): string
 	{
-		return isset(self::$valid_tools[$type]);
+		// How long have we been running this?
+		$elapsed = time() - Maintenance::$context['started'];
+		$mins = (int) ($elapsed / 60);
+		$seconds = $elapsed - $mins * 60;
+
+		return Lang::getTxt('mainteannce_time_elasped_ms', ['m' => $mins, 's' => $seconds]);
 	}
 
 	/**
-	 * Set the current step. Tools do not gain access to this and its proteted.
-	 * @param null|int $step
+	 * Check if we are out of time.  Try to buy some more.
+	 * If this is CLI, returns true.
+	 *
+	 * @return bool True if we need to exit the script soon, false otherwise.
 	 */
-	private static function setCurrentStep(?int $step = null): void
+	public static function isOutOfTime(): bool
 	{
-		$_GET['step'] = $step ?? (self::getCurrentStep() + 1);
+		if (Sapi::isCLI()) {
+			if (time() - Maintenance::$context['started'] > 1 && !Maintenance::$tool->isDebug()) {
+				echo '.';
+			}
+
+			return false;
+		}
+
+		Sapi::setTimeLimit(300);
+		Sapi::resetTimeout();
+
+		// Still have time left.
+		return ! (time() - Maintenance::$context['started'] <= 3);
+	}
+
+	public static function setQueryString(): string
+	{
+		// Always ensure this is updated.
+		$_GET['step'] = Maintenance::getCurrentStep();
+
+		Maintenance::$query_string = http_build_query($_GET, '', ';');
+
+		return Maintenance::$query_string;
 	}
 
 	/**
@@ -601,7 +677,7 @@ class Maintenance
 	 * @param bool $fallthrough If true, we just skip templates and do nothing.
 	 * @return never All execution is stopped here.
 	 */
-	private static function exit(bool $fallthrough = false): void
+	public static function exit(bool $fallthrough = false): void
 	{
 		// Send character set.
 		header('content-type: text/html; charset=' . (Lang::$txt['lang_character_set'] ?? 'UTF-8'));
@@ -626,6 +702,51 @@ class Maintenance
 
 		// Bang - gone!
 		die();
+	}
+
+	/**
+	 * Handle a response for our javascript logic.
+	 *
+	 * This always returns a success header, which is used to handle continues.
+	 *
+	 * @param mixed $data
+	 * @param bool $success True if the result was succesful, false otherwise.
+	 */
+	public static function jsonResponse(mixed $data, bool $success = true): void
+	{
+		ob_end_clean();
+		header('content-type: text/json; charset=UTF-8');
+
+		echo json_encode([
+			'success' => $success,
+			'data' => $data,
+		]);
+
+		die;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Checks that the tool we requested is valid.
+	 *
+	 * @param int $type Tool we are trying to use.
+	 * @return bool True if it is valid, false otherwise.
+	 */
+	private static function toolIsValid(int $type): bool
+	{
+		return isset(self::$valid_tools[$type]);
+	}
+
+	/**
+	 * Set the current step. Tools do not gain access to this and its proteted.
+	 * @param null|int $step
+	 */
+	private static function setCurrentStep(?int $step = null): void
+	{
+		$_GET['step'] = $step ?? (self::getCurrentStep() + 1);
 	}
 
 	/**
@@ -685,27 +806,6 @@ class Maintenance
 				self::$images_url = strtr(self::$images_url, ['http://' => 'https://']);
 			}
 		}
-	}
-
-	/**
-	 * Handle a response for our javascript logic.
-	 *
-	 * This always returns a success header, which is used to handle continues.
-	 *
-	 * @param mixed $data
-	 * @param bool $success True if the result was succesful, false otherwise.
-	 */
-	private function jsonResponse(mixed $data, bool $success = true): void
-	{
-		ob_end_clean();
-		header('content-type: text/json; charset=UTF-8');
-
-		echo json_encode([
-			'success' => $success,
-			'data' => $data,
-		]);
-
-		die;
 	}
 }
 

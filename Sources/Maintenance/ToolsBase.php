@@ -50,6 +50,13 @@ abstract class ToolsBase
 	 */
 	private FtpConnection $ftp;
 
+	/**
+	 * @var bool
+	 *
+	 * Debugging the upgrade.
+	 */
+	public bool $debug = false;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -117,6 +124,16 @@ abstract class ToolsBase
 		require_once Config::$sourcedir . '/Maintenance/Database/' . Db::getClass(Config::$db_type) . '.php';
 
 		return new $db_class();
+	}
+
+	/**
+	 * Used by various places to determine if the tool is in debug mode or not.
+	 *
+	 * @return bool
+	 */
+	public function isDebug(): bool
+	{
+		return $this->debug ?? false;
 	}
 
 	/**
@@ -375,10 +392,6 @@ abstract class ToolsBase
 		// Fix the . at the start, clear any duplicate slashes, and fix any trailing slash...
 		return addslashes(preg_replace(['~^\.([/\\\]|$)~', '~[/]+~', '~[\\\]+~', '~[/\\\]$~'], [dirname(SMF_SETTINGS_FILE) . '$1', '/', '\\', ''], $path));
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
 
 	/**
 	 * Detects languages installed in SMF's languages folder.

@@ -32,17 +32,24 @@ class Template
         <meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
         <meta name="robots" content="noindex">
         <title>', Maintenance::$tool->getPageTitle(), '</title>
-        <link rel="stylesheet" href="Themes/default/css/index.css">
-        <link rel="stylesheet" href="Themes/default/css/install.css">', Lang::$txt['lang_rtl'] == '1' ? '
-        <link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
-        <script src="Themes/default/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
-        <script src="Themes/default/scripts/script.js"></script>
+        <link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">
+        <link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css">', Lang::$txt['lang_rtl'] == '1' ? '
+        <link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css">' : '', '
+        <script src="', Maintenance::$theme_url, '/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
+        <script src="', Maintenance::$theme_url, '/scripts/script.js"></script>
+        <script>
+		    const smf_scripturl = \'', Maintenance::getSelf(), '\';
+            const smf_charset = \'UTF-8\';
+            const allow_xhjr_credentials = true;
+            const isDebug = ', Maintenance::$tool->isDebug() ? 'true' : 'false', ';
+            let startPercent = ', Maintenance::$overall_percent, ';
+        </script>
     </head>
     <body>
         <div id="footerfix">
         <div id="header">
-            <h1 class="forumtitle">', Maintenance::$tool->getPageTitle(), '</h1>
-            <img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
+            <h1 class="forumtitle">', Maintenance::$tool->getScriptName(), '</h1>
+            <img id="smflogo" src="', Maintenance::$theme_url, '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
         </div>
         <div id="wrapper">';
 
@@ -95,7 +102,27 @@ class Template
                             <h3>' . Lang::$txt['maintenance_overall_progress'], '</h3>
                             <span id="overall_text">', Maintenance::$overall_percent, '%</span>
                             <div id="overall_progress" class="bar" style="width: ', Maintenance::$overall_percent, '%;"></div>
+                        </div>';
+
+		if (Maintenance::$total_substeps !== null) {
+			echo '
+                        <div id="progress_bar_step" class="progress_bar progress_yellow">
+                            <h3>', Lang::$txt['maintenance_substep_progress'], '</h3>
+                            <div id="step_progress" class="bar" style="width: ', Maintenance::getSubStepProgress(), '%;"></div>
+                            <span id="step_text">', Maintenance::getSubStepProgress(), '%</span>
+                        </div>';
+		}
+
+		echo '
+                        <div id="substep_bar_div" class="progress_bar ', Maintenance::$total_items !== null ? '' : 'hidden', '">
+                            <h3 id="start_name">', trim(strtr(Maintenance::$item_name, ['.' => ''])), '</h3>
+                            <div id="substep_progress" class="bar" style="width: ', Maintenance::getItemsProgress(), '%;"></div>
+                            <span id="substep_text">', Maintenance::getItemsProgress(), '%</span>
                         </div>
+
+                        <div id="time_elapsed" class="smalltext time_elapsed">
+    						', Maintenance::getTimeElasped(), '
+    					</div>
                     </div>
                     <div id="main_screen" class="clear">
                         <h2>', Maintenance::$tool->getStepTitle(), '</h2>
@@ -120,6 +147,39 @@ class Template
                 <li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">' . SMF_FULL_VERSION . ' &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
             </ul>
         </div>
+        <script>
+            // This function dynamically updates the step progress bar - and overall one as required.
+            function updateProgress(current, max, step_weight, step_progress)
+            {
+                // What out the actual percent.
+                const width = parseInt((current / max) * 100);
+                if (document.getElementById("step_progress")) {
+                    document.getElementById("step_progress").style.width = width + "%";
+                    setInnerHTML(document.getElementById("step_text"), width + "%");
+                }
+
+                if (step_weight && document.getElementById("overall_progress")) {
+                    step_progress = step_progress ?? 0;
+                    const overall_progress = step_weight * ((100 - step_progress) / 100);
+                    const overall_width = parseInt(startPercent + width * (overall_progress / 100));
+
+                    document.getElementById("overall_progress").style.width = overall_width + "%";
+                    setInnerHTML(document.getElementById("overall_text"), overall_width + "%");
+                }
+            }
+
+            // This function dynamically updates the item progress bar.
+            function updateItemsProgress(current, max)
+            {
+                // What out the actual percent.
+                const width = parseInt((current / max) * 100);
+
+                if (document.getElementById("item_progress")) {
+                    document.getElementById("item_progress").style.width = width + "%";
+                    setInnerHTML(document.getElementById("item_text"), width + "%");
+                }
+            }
+        </script>
     </body>
     </html>';
 

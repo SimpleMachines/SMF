@@ -33,7 +33,7 @@ class Upgrade implements TemplateInterface
 	{
 		if (count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
 		echo '
-        <form action="', Maintenance::getSelf(), (Maintenance::$query_string !== '' ? '?' . Maintenance::$query_string : ''), '" method="post">';
+        <form id="upform" action="', Maintenance::getSelf(), '?' . Maintenance::setQueryString(), '" method="post">';
 		}
 	}
 
@@ -42,6 +42,16 @@ class Upgrade implements TemplateInterface
 	 */
 	public static function lower(): void
 	{
+		if (!empty(Maintenance::$context['pause'])) {
+			echo '
+								<em>', Lang::$txt['upgrade_incomplete'], '.</em><br>
+	
+								<h2 style="margin-top: 2ex;">', Lang::$txt['upgrade_not_quite_done'], '</h2>
+								<h3>
+									', Lang::$txt['upgrade_paused_overload'], '
+								</h3>';
+		}
+
 		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip'])) {
 			echo '
                                 <div class="floatright">';
@@ -64,6 +74,35 @@ class Upgrade implements TemplateInterface
 			echo '
         </form>';
 		}
+
+		// Are we on a pause?
+		if (!empty(Maintenance::$context['pause'])) {
+			echo '
+		<script defer>
+			window.onload = doAutoSubmit;
+		</script>';
+		}
+
+		echo '
+		<script>
+		let countdown = 3;
+		let dontSubmit = false;
+		function doAutoSubmit()
+		{
+			if (countdown == 0 && !dontSubmit) {
+				document.getElementById("upform").submit();
+			}
+			else if (countdown == -1) {
+				return;
+			}
+
+			document.getElementById("contbutt").value = "', Lang::$txt['action_continue'], ' (" + countdown + ")";
+			countdown--;
+
+			setTimeout("doAutoSubmit();", 1000);
+		}
+		</script>';
+
 	}
 
 	/**
@@ -324,7 +363,106 @@ class Upgrade implements TemplateInterface
 	 */
 	public static function backupDatabase(): void
 	{
+		echo '
+		<h3>', Lang::$txt['upgrade_wait'], '</h3>';
 
+		echo '
+			<input type="hidden" name="backup_done" id="backup_done" value="0">
+			<strong>', Lang::getTxt('upgrade_completedtables_outof', Maintenance::$context), '</strong>
+			<div id="debug_section">
+				<span id="debuginfo"></span>
+			</div>';
+
+		echo '
+			<h3 id="current_tab">
+				', Lang::$txt['upgrade_current_table'], ' &quot;<span id="current_table">', Maintenance::$context['cur_table_name'], '</span>&quot;
+			</h3>
+			<p id="commess" class="', Maintenance::$context['cur_table_num'] == Maintenance::$context['table_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_backup_complete'], '</p>';
+
+		echo '
+            <div class="errorbox" id="errorbox" style="display: none;">
+                <h3>', Lang::$txt['critical_error'], '</h3>
+                <span>', Lang::$txt['error_unknown'], '</span>
+            </div>';
+
+		// Continue please!
+		Maintenance::$context['continue'] = true;
+
+		// Pour me a cup of javascript.
+		echo '
+					<script>
+						const iTotalTables = ', Maintenance::$context['table_count'], ';
+						const iStepWeight = ', Maintenance::$context['step_weight'], ';
+						let iLastTableIndex = ', Maintenance::$context['cur_table_num'], ';
+						let iStepProgress = 0;
+						let sCurrentTableName = "";
+
+						function getNextTables()
+						{
+							const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json".replace(/substep=\d+/, "substep=" + iLastTableIndex);
+
+							fetch(url, {
+								method: "GET",
+								credentials: "include",
+							}).then(function(response){
+								response.json().then(function(json) {
+									if (json.success != true) {
+										document.getElementById("errorbox").style.display = "";
+										document.getElementById("contbutt").disabled = 0;
+										document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);				
+										return;
+									}
+
+									sCurrentTableName = json.data.current_table_name;
+									iLastTableIndex = parseInt(json.data.current_table_index);
+									iStepProgress = parseInt(json.data.substep_progres);
+
+									// Update the page.
+									setInnerHTML(document.getElementById("tab_done"), iLastTableIndex);
+									setInnerHTML(document.getElementById("current_table"), sCurrentTableName);
+
+									updateProgress(iLastTableIndex, iTotalTables, iStepWeight, iStepProgress);
+
+									if (isDebug) {
+										setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::$txt['upgrade_completed_table'], ' &quot;" + sCurrentTableName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
+
+										if (document.getElementById("debug_section").scrollHeight) {
+											document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+										}
+									}
+
+									// Are we done yet?
+									if (iLastTableIndex == iTotalTables) {
+										document.getElementById("commess").classList.remove("hidden");
+										document.getElementById("current_tab").classList.add("hidden");
+										document.getElementById("contbutt").disabled = 0;
+										document.getElementById("backup_done").value = 1;
+
+										setTimeout("doAutoSubmit();", 1000);
+									}
+									else {
+										getNextTables();
+									}
+								});
+							}).catch(function(error) {
+								console.log("Fetch Error:", error);
+
+								document.getElementById("errorbox").style.display = "";
+								if (isDebug) {
+									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
+									document.getElementById("contbutt").disabled = 0;
+									document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);				
+								}
+							});
+						}
+
+						// Lets try to let the browser handle this.
+						window.addEventListener("load", (event) => {
+							document.getElementById("contbutt").disabled = 1;
+							getNextTables();
+						});
+					//# sourceURL=dynamicScript-bkup.js
+					</script>';
 	}
 
 	/**

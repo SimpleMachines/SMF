@@ -115,6 +115,16 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
+	 * Get the script name
+	 *
+	 * @return string Page Title
+	 */
+	public function getScriptName(): string
+	{
+		return Lang::$txt['smf_installer'];
+	}
+
+	/**
 	 * Gets our page title to be sent to the template.
 	 * Selection is in the following order:
 	 *  1. A custom page title.
@@ -125,7 +135,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public function getPageTitle(): string
 	{
-		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? Lang::$txt['smf_installer'];
+		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? $this->getScriptName();
 	}
 
 	/**

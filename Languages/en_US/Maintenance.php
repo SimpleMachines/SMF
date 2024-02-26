@@ -29,11 +29,20 @@ $txt['warning'] = 'Warning!';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
 $txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\\\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
 $txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
+$txt['error_unknown'] = 'Unknown Error!';
 
 // Progress bars and steps.
 $txt['maintenance_progress'] = 'Progress';
 $txt['maintenance_step'] = 'Step';
 $txt['maintenance_overall_progress'] = 'Overall Progress';
+$txt['maintenance_substep_progress'] = 'Step Progress';
+$txt['mainteannce_time_elasped_ms'] = 'Time Elapsed {m, plural,
+	one {# minute}
+	other {# minutes}
+} and {s, plural,
+	one {# second}
+	other {# seconds}
+}';
 
 // File Permissions.
 $txt['chmod_linux_info'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
@@ -229,9 +238,6 @@ $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';
 $txt['error_no_javascript'] = 'No javascript support was detected!  Please enable javascript in your browser settings.';
 $txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF {SMF_VERSION}. All files appear to be in place and the upgrade can now proceed.';
 
-
-
-
 // We represent the time here in backwards variables, as it makes the code easier.
 $txt['upgrade_time_hms'] = 'The upgrade script has been running for the last {h, plural,
 	one {# hour}
@@ -276,7 +282,11 @@ $txt['upgrade_time_updated_s'] = 'The upgrade script was last updated {s, plural
 	other {# seconds}
 } ago.';
 
-
+// Upgrade - Backup database.
+$txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">{cur_table_num}</span> {table_count, plural,
+	one {out of # table}
+	other {out of # tables}
+}.';
 
 
 
@@ -378,7 +388,6 @@ $txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Pr
 $txt['upgrade_db_complete2'] = 'Database Updates Complete! Click Continue to Proceed.';
 $txt['upgrade_script'] = 'Executing upgrade script';
 $txt['upgrade_error'] = 'Error!';
-$txt['upgrade_unknown_error'] = 'Unknown Error!';
 /* Same sentence, 3 different strings */
 $txt['upgrade_completed'] = 'Completed';
 $txt['upgrade_outof'] = 'out of';
@@ -464,10 +473,6 @@ $txt['upgrade_current_step'] = 'Current Step';
 $txt['upgrade_unsuccessful'] = 'Unsuccessful!';
 $txt['upgrade_thisquery'] = 'This query:';
 $txt['upgrade_causerror'] = 'Caused the error:';
-$txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">{cur_table_num}</span> {table_count, plural,
-	one {out of # table}
-	other {out of # tables}
-}.';
 $txt['upgrade_success'] = 'Successful!';
 $txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: ';
 $txt['upgrade_respondtime'] = 'Server has not responded for {0, number, integer} seconds. It may be worth waiting a little longer before trying again.';

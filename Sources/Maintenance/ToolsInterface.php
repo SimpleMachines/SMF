@@ -21,6 +21,13 @@ namespace SMF\Maintenance;
 interface ToolsInterface
 {
 	/**
+	 * Get the script name
+	 *
+	 * @return string Page Title
+	 */
+	public function getScriptName(): string;
+
+	/**
 	 * Page title for the tool.  The tool may override and just change.
 	 *
 	 * @return string

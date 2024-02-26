@@ -31,6 +31,7 @@ use SMF\Session;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
+use ValueError;
 
 /**
  * Upgrade tool.
@@ -120,13 +121,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * @var bool
 	 */
 	private bool $is_large_forum = false;
-
-	/**
-	 * @var int
-	 *
-	 * The maximum time a single migration may take, in seconds.
-	 */
-	protected int $migration_time_limit = 3;
 
 	/**
 	 * @var array
@@ -231,6 +225,17 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 	}
 
+
+	/**
+	 * Get the script name
+	 *
+	 * @return string Page Title
+	 */
+	public function getScriptName(): string
+	{
+		return Lang::$txt['smf_upgrade'];
+	}
+
 	/**
 	 * Gets our page title to be sent to the template.
 	 * Selection is in the following order:
@@ -242,7 +247,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function getPageTitle(): string
 	{
-		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? Lang::$txt['smf_upgrade'];
+		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? $this->getScriptName();
 	}
 
 	/**
@@ -717,7 +722,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Are we doing debug?
 		if (isset($_POST['debug'])) {
-			Maintenance::$context['debug'] = true;
+			$this->debug = true;
 		}
 
 		// If we've got here then let's proceed to the next step!
@@ -730,8 +735,75 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function backupDatabase(): bool
 	{
+		// Done it already - js wise?
+		if (!empty($_POST['backup_done'])) {
+			return true;
+		}
+
+
 		// If we're not backing up then jump one.
-		return (bool) (empty($_POST['backup']));
+		if (!isset($_GET['json']) && empty($_POST['backup'])) {
+			return true;
+		}
+
+		$maintenance_db = $this->loadMaintenanceDatabase(Config::$db_type);
+		$maintenance_db->setSqlMode('default');
+
+		// Get all the table names.
+		$filter = str_replace('_', '\_', preg_match('~^`(.+?)`\.(.+?)$~', Config::$db_prefix, $match) != 0 ? $match[2] : Config::$db_prefix) . '%';
+		$db = preg_match('~^`(.+?)`\.(.+?)$~', Config::$db_prefix, $match) != 0 ? strtr($match[1], ['`' => '']) : false;
+		$tables = Db::$db->list_tables($db, $filter);
+
+		// Filter out backup tables.
+		$table_names = array_filter($tables, function ($table) {
+			return stripos($table, 'backup_') !== 0;
+		});
+		Maintenance::$total_substeps = count($table_names);
+
+		// Template things.
+		Maintenance::$context['table_count'] = Maintenance::$total_substeps;
+		Maintenance::$context['cur_table_num'] = Maintenance::getCurrentSubStep();
+		Maintenance::$context['cur_table_name'] = str_replace(Config::$db_prefix, '', $table_names[Maintenance::getCurrentSubStep()]);
+
+		if (Sapi::isCLI()) {
+			echo 'Backing Up Tables.';
+		}
+
+		// Only run this when it is called via a json
+		if (isset($_GET['json'])) {
+			// Backup each table!
+			while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
+				$this->checkAndHandleTimeout();
+
+				$current_table = $table_names[Maintenance::getCurrentSubStep()];
+				$this->doBackupTable($current_table);
+
+				// Increase our current substep by 1.
+				Maintenance::setCurrentSubStep();
+
+				// If this is JSON to keep it nice for the user do one table at a time anyway!
+				if (isset($_GET['json'])) {
+					Maintenance::jsonResponse(
+						[
+							'current_table_name' => str_replace(Config::$db_prefix, '', $current_table),
+							'current_table_index' => Maintenance::getCurrentSubStep(),
+							'substep_progres' => Maintenance::getSubStepProgress(),
+						],
+					);
+				}
+			}
+
+			if (Sapi::isCLI()) {
+				echo "\n" . ' Successful.\'' . "\n";
+				flush();
+			}
+			Maintenance::setCurrentSubStep(Maintenance::$total_substeps);
+
+			// Make sure we move on!
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -982,6 +1054,56 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
 			$settings[] = ['enable_sm_stats', null];
 		}
+	}
+
+	/**
+	 * This will check if we need to handle a timeout, if so, it sets up data for the next round.
+	 *
+	 * @throws ValueError
+	 * @throws Exception
+	 */
+	private function checkAndHandleTimeout(): void
+	{
+		if (!Maintenance::isOutOfTime()) {
+			return;
+		}
+
+		// If this is not json, we need to do a few things.
+		if (!isset($_GET['json'])) {
+			// We're going to pause after this!
+			Maintenance::$context['pause'] = true;
+
+			Maintenance::setQueryString();
+		}
+
+		Maintenance::exit();
+
+		throw new Exception('Zombies!');
+	}
+
+	/**
+	 * Actually backup a table.
+	 *
+	 * @param mixed $table_name Name of the table to be backed up
+	 * @return bool True if succesfull, false otherwise.
+	 */
+	public function doBackupTable($table): bool
+	{
+		global $command_line;
+
+		if (Sapi::isCLI()) {
+			echo "\n" . ' +++ Backing up \"' . str_replace(Config::$db_prefix, '', $table) . '"...';
+			flush();
+		}
+
+		// @@TODO: Check result? Should be a object, false if it failed.
+		Db::$db->backup_table($table, 'backup_' . $table);
+
+		if (Sapi::isCLI()) {
+			echo ' done.';
+		}
+
+		return true;
 	}
 }
 
