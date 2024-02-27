@@ -542,10 +542,10 @@ class Url implements \Stringable
 	/**
 	 * Check if this URL uses one of the specified schemes.
 	 *
-	 * @param string|string[] $schema Schemes to check.
+	 * @param string|string[] $scheme Schemes to check.
 	 * @return bool Whether the URL matches a scheme.
 	 */
-	public function isSchema(string|array $scheme): bool
+	public function isScheme(string|array $scheme): bool
 	{
 		return !empty($this->scheme) && in_array($this->scheme, array_map('strval', (array) $schema));
 	}
