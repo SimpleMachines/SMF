@@ -263,9 +263,6 @@ div#admin_menu {
 	margin-right: 0;
 	margin-left: 5px;
 }
-#avatar_server_stored div {
-	float: right;
-}
 #detailedinfo dt, #tracking dt {
 	float: right;
 }

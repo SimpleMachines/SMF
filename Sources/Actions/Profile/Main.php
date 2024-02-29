@@ -583,11 +583,11 @@ class Main implements ActionInterface
 		}
 
 		// Set the template for this area and add the profile layer.
+		Theme::loadTemplate('Profile');
+		Theme::loadJavaScriptFile('profile.js', ['defer' => true, 'minimize' => true], 'smf_profile');
+		Theme::loadCSSFile('profile.css', ['minimize' => true], 'smf_profile');
 		Utils::$context['sub_template'] = $menu->include_data['sub_template'] ?? $menu->include_data['function'];
-
 		Utils::$context['template_layers'][] = 'profile';
-
-		Theme::loadJavaScriptFile('profile.js', ['defer' => false, 'minimize' => true], 'smf_profile');
 
 		// Right - are we saving - if so let's save the old data first.
 		if (Utils::$context['completed_save']) {
@@ -716,8 +716,6 @@ class Main implements ActionInterface
 		if (empty(Profile::$member->save_errors)) {
 			Lang::load('Profile+Drafts');
 		}
-
-		Theme::loadTemplate('Profile');
 
 		// Load the data of the member whose profile we are viewing.
 		Profile::load();
