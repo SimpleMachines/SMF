@@ -113,7 +113,7 @@ class Lang
 	 * This is used to support upgrading from SMF 2.1 and below.
 	 */
 	public const FILE_RENAMES = [
-		'index' => 'Genera',
+		'index' => 'General',
 		'Settings' => 'ThemeStrings',
 		'Install' => 'Maintenance',
 	];
