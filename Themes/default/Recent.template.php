@@ -214,7 +214,7 @@ function template_unread()
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button">', $txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', $txt['go_up'], '</a>
 					', $context['page_index'], '
 				</div>';
 
@@ -395,7 +395,7 @@ function template_replies()
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button">', $txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', $txt['go_up'], '</a>
 					', $context['page_index'], '
 				</div>';
 
