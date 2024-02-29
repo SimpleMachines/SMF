@@ -1860,25 +1860,49 @@
 	--filepermission-bg_read:                         hsl(101, 78%, 86%);
 	--filepermission-bg_write:                        hsl(0, 100%, 87%);
 
-
-
-
-	/** @TODO: The whole popup thing will take a bit longer to cleanup **/
-	/* Popup Windows */
-	--popup_container_bg_color:                      hsla(204, 33%, 24%, 0.5);
-	--popup_content_bg_color:                      linear-gradient(to bottom, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 95%) 100%);
-	--popup_content_txt_color:                      #222;
-	--popup_content_border_color:                      hsl(0, 0%, 73%);
-	--popup_content_border_style:                      solid;
-	--popup_content_border_width:                      1px;
-	--popup_content_border_radius:                      6px 6px 2px 2px;
-	--popup_content_box_shadow:                      0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
-	--popup_content_padding:         10px 8px;
-	--popup_heading_txt_color:         hsl(0, 0%, 100%);
-	--popup_heading_padding:         10px 8px;
-	--popup_window_bg_color:         hsl(207, 31%, 32%);
-	--popup_window_box_shadow:         0 3px 6px rgba(0, 0, 0, 0.5);
-	--popup_window_border_color:         hsl(0, 0%, 47%);
-	--popup_window_border_radius:         7px 7px 3px 3px;
-	--popup_window_padding:         0px 6px 6px 6px;
+	/** Popup Container **/
+	--popup-bg:                                       hsla(204, 33%, 24%, 0.6);
+	/** Popup Window **/
+	--popup-window-bg:                                hsl(var(--primary-color-hue), 65%, 98%);
+	--popup-window-border-color:                      var(--primary-color-500);
+	--popup-window-border-radius:                     0.25em;
+	--popup-window-border-style:                      solid;
+	--popup-window-border-width:                      1px;
+	--popup-window-box-shadow:                        none;
+	--popup-window-margin-block:                      0;
+	--popup-window-margin-inline:                     auto;
+	--popup-window-padding-block:                     0 0.5em;
+	--popup-window-padding-inline:                    0;
+	/** Popup Heading **/
+	--popup-heading-bg:                               hsl(var(--primary-color-hue), 50%, 95%);
+	--popup-heading-border-color:                     var(--primary-color-800);
+	--popup-heading-border-radius:                    0.25em 0.25em 0 0;
+	--popup-heading-border-style:                     solid;
+	--popup-heading-border-width:                     0 0 1px;
+	--popup-heading-box-shadow:                       none;
+	--popup-heading-color:                            var(--primary-color-800);
+	--popup-heading-font-size:                        1.1em;
+	--popup-heading-gap:                              0.5em;
+	--popup-heading-margin-block:                     0 0.5em;
+	--popup-heading-margin-inline:                    0;
+	--popup-heading-padding-block:                    0.5em;
+	--popup-heading-padding-inline:                   1em;
+	--popup-heading-text-decoration:                  none;
+	--popup-heading-text-shadow:                      none;
+	--popup-heading-text-transform:                   none;
+	/** Popup Content **/
+	--popup-content-bg:                               var(--window-bg);
+	--popup-content-border-color:                     var(--window-border-color);
+	--popup-content-border-radius:                    0;
+	--popup-content-border-style:                     var(--window-border-style);
+	--popup-content-border-width:                     0;
+	--popup-content-box-shadow:                       var(--window-box-shadow);
+	--popup-content-color:                            var(--window-color);
+	--popup-content-font-size:                        0.95em;
+	--popup-content-height:                           30em;
+	--popup-content-line-height:                      1.6em;
+	--popup-content-margin-block:                     0;
+	--popup-content-margin-inline:                    0.5em;
+	--popup-content-padding-block:                    0.5em;
+	--popup-content-padding-inline:                   0.5em;
 }
