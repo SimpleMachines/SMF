@@ -39,6 +39,47 @@
 		display: none !important;
 	}
 
+@media (min-width: 720px) and (max-width: 799px) {
+	#top_info .welcome {
+		display: none;
+	}
+	/* Calendar */
+	#event_time_options {
+		width: 44%;
+	}
+	#event_title {
+		padding: 0;
+	}
+	#evtitle {
+		width: 98%;
+	}
+	.event_options_left, .event_options_right {
+		display: block;
+		max-width: unset;
+		width: unset;
+	}
+	#event_title input[type="text"] {
+		width: 100%;
+	}
+	#post_event #event_board select {
+		width: calc(100% - 90px);
+		max-width: unset;
+	}
+}
+
+@media screen and (min-width: 721px) {
+	#mobile_action {
+		display: none !important;
+	}
+}
+
+/* We have shared things... */
+@media screen and (max-width: 720px) {
+	/* Remove some content from the hooks table */
+	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
+	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
+		display: none;
+	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
@@ -416,93 +457,56 @@
 	}
 }
 
-/* Tricky menu */
+/* Mobile Menus */
 @media (min-width: 561px) {
-	#mobile_user_menu.popup_container {
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
+		all: unset;
 		display: block !important;
 	}
-	div[id^="mobile_generic_menu_"].popup_container {
-		display: block !important;
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_window {
+		all: unset;
 	}
-	#main_menu .popup_window,
-	#genericmenu .popup_window,
-	#adm_submenus .popup_window {
-		box-shadow: none;
-		border-width: 0;
-		background: none;
+	nav#main_menu .popup_window {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--dropmenu-a1-gap);
+		justify-content: space-between;
+	}
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_heading {
+		display: none;
 	}
 }
 @media (max-width: 560px) {
-	/* This is general */
-	#main_menu .popup_container,
-	#genericmenu .popup_container,
-	#adm_submenus .popup_container {
-		display: none;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-	}
-	#main_menu .popup_heading,
-	#genericmenu .popup_heading,
-	#adm_submenus .popup_heading {
+	a.mobile_user_menu,
+	nav:where(#genericmenu, #adm_submenus) a {
 		display: block;
 	}
-	#main_menu {
-		margin: 0;
-		border: none;
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
+		--popup-heading-border-width: 0;
+		display: none;
 	}
-	.popup_window,
-	#main_menu .popup_window,
-	#genericmenu .popup_window,
-	#adm_submenus .popup_window {
-		display: flex;
-		flex-direction: column;
-		top: 15%;
+	nav#main_menu .popup_container {
+		--popup-window-bg: var(--nav-bg);
+		--popup-heading-bg: var(--nav-bg);
+		--popup-heading-color: var(--mobilenav-color);
+	}
+	nav:where(#genericmenu, #adm_submenus) .popup_container {
+		--popup-window-bg: var(--genericmenu-bg);
+		--popup-heading-bg: var(--genericmenu-bg);
+		--popup-heading-color: var(--mobilegeneric-color);
+	}
+	.popup_window {
 		width: 95vw;
 		min-height: auto;
 		max-height: 90vh;
 		overflow-x: hidden;
 		overflow-y: scroll;
 	}
-	#adm_submenus {
-		padding: 0;
-	}
-	#adm_submenus .dropmenu li {
-		float: left;
-		margin: 0;
-	}
-	.generic_menu {
-		display: none;
-	}
-	#mobile_user_menu .dropmenu,
-	div[id^="mobile_generic_menu_"] .generic_menu {
-		display: block;
-	}
-	a.mobile_user_menu,
-	a[class^="mobile_generic_menu_"] {
-		align-items: center;
-		display: flex;
-		
-	}
-	.menu_icon {
-		display: inline-block;
-		background: url(../images/icons/menu.svg) no-repeat;
-		height: 24px;
-		width: 24px;
-	}
 	.dropmenu {
 		flex-direction: column;
 	}
-	.dropmenu li, .dropmenu li:hover,
-	.dropmenu li a, .dropmenu li a:hover,
-	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
-	.dropmenu li ul, .dropmenu li li, .dropmenu li li a {
+	.dropmenu li {
 		width: 100%;
-		
-		border-left: 0;
-		border-right: 0;
 	}
 	.dropmenu li.subsections > a::after {
 		display: block;

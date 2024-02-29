@@ -1124,7 +1124,7 @@ img.sort, .sort {
 	text-transform: var(--topmenu-text-transform);
 	top: 100%;
 	width: var(--topmenu-width);
-	z-index: 2;
+	z-index: 4;
 }
 .top_menu:hover {
 	background: var(--topmenu-bg_hover);
@@ -1381,13 +1381,13 @@ a.mobile_user_menu:hover {
 	text-decoration: var(--mobilenav-text-decoration_hover);
 	text-shadow: var(--mobilenav-text-shadow_hover);
 }
-a.mobile_user_menu:is(:focus, :focus-visiblle, :focus-within) {
+a.mobile_user_menu:is(:focus, :focus-visible, :focus-within) {
 	color: var(--mobilenav-color_focus);
 	font-weight: var(--mobilenav-font-weight_focus);
 	text-decoration: var(--mobilenav-text-decoration_focus);
 	text-shadow: var(--mobilenav-text-shadow_focus);
 }
-a[class^="mobile_generic_menu_"]{
+nav:where(#genericmenu, #adm_submenus) a {
 	color: var(--mobilegeneric-color);
 	display: none;
 	font-size: var(--mobilegeneric-font-size);
@@ -1398,23 +1398,17 @@ a[class^="mobile_generic_menu_"]{
 	text-decoration: var(--mobilegeneric-text-decoration);
 	text-shadow: var(--mobilegeneric-text-shadow);
 }
-a[class^="mobile_generic_menu_"]:hover {
+nav:where(#genericmenu, #adm_submenus) a:hover {
 	color: var(--mobilegeneric-color_hover);
 	font-weight: var(--mobilegeneric-font-weight_hover);
 	text-decoration: var(--mobilegeneric-text-decoration_hover);
 	text-shadow: var(--mobilegeneric-text-shadow_hover);
 }
-a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
+nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-within) {
 	color: var(--mobilegeneric-color_focus);
 	font-weight: var(--mobilegeneric-font-weight_focus);
 	text-decoration: var(--mobilegeneric-text-decoration_focus);
 	text-shadow: var(--mobilegeneric-text-shadow_focus);
-}
-#mobile_user_menu .popup_window {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--dropmenu-main-gap);
-	justify-content: space-between;
 }
 /* Generic Menu */
 #genericmenu,
@@ -1429,7 +1423,6 @@ a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
 	padding-block: var(--genericmenu-padding-block);
 	padding-inline: var(--genericmenu-padding-inline);
 }
-
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
 /* Dropmenu Level 1. */
@@ -1529,7 +1522,7 @@ a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
 	padding-block: var(--dropmenu-child-padding-block);
 	padding-inline: var(--dropmenu-child-padding-inline);
 	position: absolute;
-	z-index: 1;
+	z-index: 4;
 }
 .dropmenu li > ul:not([style]) {
 	opacity: 0;
@@ -1749,6 +1742,9 @@ a[class^="mobile_generic_menu_"]:is(:focus, :focus-visiblle, :focus-within) {
 }
 html[lang="el-GR"] .buttonlist > li > a {
 	text-transform: capitalize;
+}
+#mobile_action {
+	display: none;
 }
 
 /* Buttonlist dropmenu/top_menu/dropdown */
@@ -2429,7 +2425,7 @@ ul li.greeting {
 	position: absolute;
 	width: var(--quickoptions-width);
 	top: 100%;
-	z-index: 2;
+	z-index: 3;
 }
 .quickoptions:hover ul {
 	display: flex;
@@ -3222,70 +3218,73 @@ dl.addrules dt.floatleft {
 
 /* Styles for popup windows */
 .popup_container {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: var(--popup_container_bg_color);
-}
-.popup_window,
-#main_menu .popup_window,
-#genericmenu .popup_window,
-#adm_submenus .popup_window {
-	position: relative;
-	width: auto;
-	box-shadow: var(--popup_window_box_shadow);
-	border: 1px solid var(--popup_window_border_color);
-	border-radius: var(--popup_window_border_radius);
-	margin: 0 auto;
+	background: var(--popup-bg);
+	height: auto;
+	inset: 0;
+	margin: 0;
 	padding: 0;
+	position: fixed;
+	width: 100%;
+	z-index: 6;
 }
 .popup_window {
-	top: 15%;
+	background: var(--popup-window-bg);
+	border-color: var(--popup-window-border-color);
+	border-radius: var(--popup-window-border-radius);
+	border-style: var(--popup-window-border-style);
+	border-width: var(--popup-window-border-width);
+	box-shadow: var(--popup-window-box-shadow);
+	margin-block: var(--popup-window-margin-block);
+	margin-inline: var(--popup-window-margin-inline);
+	padding-block: var(--popup-window-padding-block);
+	padding-inline: var(--popup-window-padding-inline);
+	position: relative;	
+	top: 20%;
 	width: 480px;
-	padding: var(--popup_window_padding);
-	background: var(--popup_window_bg_color);
 }
 .popup_heading {
-	padding: var(--popup_heading_padding);
-	color: var(--popup_heading_txt_color);
+	align-items: center;
+	background: var(--popup-heading-bg);
+	border-color: var(--popup-heading-border-color);
+	border-radius: var(--popup-heading-border-radius);
+	border-style: var(--popup-heading-border-style);
+	border-width: var(--popup-heading-border-width);
+	box-shadow: var(--popup-heading-box-shadow);
+	color: var(--popup-heading-color);
 	display: flex;
-	gap: .5em;
+	font-size: var(--popup-heading-font-size);
+	gap: var(--popup-heading-gap);
+	margin-block: var(--popup-heading-margin-block);
+	margin-inline: var(--popup-heading-margin-inline);
+	padding-block: var(--popup-heading-padding-block);
+	padding-inline: var(--popup-heading-padding-inline);
+	text-decoration: var(--popup-heading-text-decoration);
+	text-shadow: var(--popup-heading-text-shadow);
+	text-transform: var(--popup-heading-text-transform);
+}
+.popup_heading .hide_popup {
+	color: var(--popup-heading-color);
+	float: inline-end;
+	margin-inline-start: auto;
+	text-decoration: none;
 }
 .popup_content {
-	color: var(--popup_content_txt_color);
-	line-height: 1.6em;
-	max-height: 30em;
+	background: var(--popup-content-bg);
+	background: var(--popup-content-bg);
+	border-color: var(--popup-content-border-color);
+	border-radius: var(--popup-content-border-radius);
+	border-style: var(--popup-content-border-style);
+	border-width: var(--popup-content-border-width);
+	box-shadow: var(--popup-content-box-shadow);
+	color: var(--popup-content-color);
+	font-size: var(--popup-content-font-size);
+	line-height: var(--popup-content-line-height);
+	margin-block: var(--popup-content-margin-block);
+	margin-inline: var(--popup-content-margin-inline);
+	max-height: var(--popup-content-height);
+	padding-block: var(--popup-content-padding-block);
+	padding-inline: var(--popup-content-padding-inline);
 	overflow: auto;
-	padding: var(--popup_content_padding);
-	background: var(--popup_content_bg_color);
-	border: var(--popup_content_border_width) var(--popup_content_border_style) var(--popup_content_border_color);
-	border-radius: var(--popup_content_border_radius);
-	box-shadow: var(--popup_content_box_shadow);
-}
-#main_menu .popup_heading,
-#genericmenu .popup_heading,
-#adm_submenus .popup_heading {
-	display: none;
-}
-#main_menu .popup_container,
-#genericmenu > .popup_container,
-#adm_submenus > .popup_container {
-	display: block;
-	position: relative;
-	background: none;
-	margin: 0;
-	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
-}
-.main_icons.hide_popup {
-	color: var(--white);
-	margin-left: auto;
-}
-.popup_heading .icon {
-	vertical-align: middle;
-	margin: -4px 4px 0 0;
 }
 
 /* Windowbg */
@@ -5043,7 +5042,7 @@ tr[id^='list_news_lists_'] textarea {
 }
 
 div.sceditor-container:not(.sceditor-maximize) {
-	z-index: 4;
+	z-index: 3;
 }
 
 #attach_current_directory {
