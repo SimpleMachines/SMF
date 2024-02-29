@@ -235,7 +235,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['supported_databases'] = $this->supportedDatabases();
 
 		// Needs to at least meet our miniumn version.
-		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>='))) {
+		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>'))) {
 			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
 
 			return false;
@@ -502,7 +502,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function databaseSettings()
+	public function databaseSettings(): bool
 	{
 		Maintenance::$context['continue'] = true;
 		Maintenance::$context['databases'] = [];
@@ -697,7 +697,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we can continue, false otherwise.
 	 */
-	public function forumSettings()
+	public function forumSettings(): bool
 	{
 		// Let's see if we got the database type correct.
 		if (isset($_POST['db_type'], $this->supportedDatabases()[$_POST['db_type']])) {
