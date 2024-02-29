@@ -661,10 +661,10 @@ class Theme
 	 * This is cleaner and easier for modders than Theme::addInlineJavaScript().
 	 *
 	 * @param string $key The key for this variable
-	 * @param string $value The value
+	 * @param mixed $value The value
 	 * @param bool $escape Whether or not to escape the value
 	 */
-	public static function addJavaScriptVar(string $key, string $value, bool $escape = false): void
+	public static function addJavaScriptVar(string $key, mixed $value, bool $escape = false): void
 	{
 		// Variable name must be a valid string.
 		if (!is_string($key) || $key === '' || is_numeric($key)) {
