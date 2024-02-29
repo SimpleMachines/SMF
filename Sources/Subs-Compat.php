@@ -5158,7 +5158,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		SMF\Theme::loadJavaScriptFile($fileName, $params, $id);
 	}
 
-	function addJavaScriptVar(string $key, string $value, bool $escape = false)
+	function addJavaScriptVar(string $key, mixed $value, bool $escape = false)
 	{
 		return SMF\Theme::addJavaScriptVar($key, $value, $escape);
 	}
