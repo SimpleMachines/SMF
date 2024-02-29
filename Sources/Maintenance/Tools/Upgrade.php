@@ -116,9 +116,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	private ?string $page_title = null;
 
 	/**
-	 * Additional safety measures for timeout protection are done for large forums.
-	 *
 	 * @var bool
+	 *
+	 * Additional safety measures for timeout protection are done for large forums.
 	 */
 	private bool $is_large_forum = false;
 
@@ -137,12 +137,17 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	protected int $time_started = 0;
 
 	/**
-	 * English is the default language.
-	 *
 	 * @var string
+	 *
+	 * English is the default language.
 	 */
 	protected string $default_language = 'en_US';
 
+	/**
+	 * @var array
+	 *
+	 * Maps old cache accelerator settings to new ones.
+	 */
 	protected array $cache_migration = [
 		'smf' => 'FileBase',
 		'apc' => 'FileBase',
@@ -159,6 +164,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Public methods
 	 ****************/
 
+	 /**
+	  * Constructor.
+	  */
 	 public function __construct()
 	 {
 		Maintenance::$languages = $this->detectLanguages(['General', 'Maintenance']);
@@ -225,7 +233,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 	}
 
-
 	/**
 	 * Get the script name
 	 *
@@ -238,6 +245,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Gets our page title to be sent to the template.
+	 *
 	 * Selection is in the following order:
 	 *  1. A custom page title.
 	 *  2. Step has provided a title.
@@ -259,7 +267,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	{
 		return true;
 	}
-
 
 	/**
 	 * Upgrade Steps
@@ -731,6 +738,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Backup our database.
+	 *
 	 * @return bool True if we are done backing up or skipped.  False otherwise.
 	 */
 	public function backupDatabase(): bool
@@ -739,7 +747,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		if (!empty($_POST['backup_done'])) {
 			return true;
 		}
-
 
 		// If we're not backing up then jump one.
 		if (!isset($_GET['json']) && empty($_POST['backup'])) {
@@ -854,8 +861,36 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Prepare the configuration to handle support with some older installs .
+	 * Actually backup a table.
 	 *
+	 * @param mixed $table_name Name of the table to be backed up
+	 * @return bool True if succesfull, false otherwise.
+	 */
+	public function doBackupTable($table): bool
+	{
+		global $command_line;
+
+		if (Sapi::isCLI()) {
+			echo "\n" . ' +++ Backing up \"' . str_replace(Config::$db_prefix, '', $table) . '"...';
+			flush();
+		}
+
+		// @@TODO: Check result? Should be a object, false if it failed.
+		Db::$db->backup_table($table, 'backup_' . $table);
+
+		if (Sapi::isCLI()) {
+			echo ' done.';
+		}
+
+		return true;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Prepare the configuration to handle support with some older installs.
 	 */
 	private function prepareUpgrade(): void
 	{
@@ -882,8 +917,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Get our upgrade data.
-	 *
-	 * @return array Upgrade data.
 	 */
 	private function getUpgradeData(): void
 	{
@@ -1079,31 +1112,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::exit();
 
 		throw new Exception('Zombies!');
-	}
-
-	/**
-	 * Actually backup a table.
-	 *
-	 * @param mixed $table_name Name of the table to be backed up
-	 * @return bool True if succesfull, false otherwise.
-	 */
-	public function doBackupTable($table): bool
-	{
-		global $command_line;
-
-		if (Sapi::isCLI()) {
-			echo "\n" . ' +++ Backing up \"' . str_replace(Config::$db_prefix, '', $table) . '"...';
-			flush();
-		}
-
-		// @@TODO: Check result? Should be a object, false if it failed.
-		Db::$db->backup_table($table, 'backup_' . $table);
-
-		if (Sapi::isCLI()) {
-			echo ' done.';
-		}
-
-		return true;
 	}
 }
 

@@ -88,6 +88,9 @@ class Install extends ToolsBase implements ToolsInterface
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct()
 	{
 		Maintenance::$languages = $this->detectLanguages(['General', 'Maintenance']);
@@ -126,6 +129,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Gets our page title to be sent to the template.
+	 *
 	 * Selection is in the following order:
 	 *  1. A custom page title.
 	 *  2. Step has provided a title.
@@ -451,47 +455,45 @@ class Install extends ToolsBase implements ToolsInterface
 				return false;
 			}
 
+			$_SESSION['ftp'] = [
+				'server' => $_POST['ftp']['server'],
+				'port' => $_POST['ftp']['port'],
+				'username' => $_POST['ftp']['username'],
+				'password' => $_POST['ftp']['password'],
+				'path' => $_POST['ftp']['path'],
+			];
 
-				$_SESSION['ftp'] = [
-					'server' => $_POST['ftp']['server'],
-					'port' => $_POST['ftp']['port'],
-					'username' => $_POST['ftp']['username'],
-					'password' => $_POST['ftp']['password'],
-					'path' => $_POST['ftp']['path'],
+			$failed_files_updated = [];
+
+			foreach ($failed_files as $file) {
+				if (!is_writable(Config::$boarddir . '/' . $file)) {
+					$ftp->chmod($file, 0755);
+				}
+
+				if (!is_writable(Config::$boarddir . '/' . $file)) {
+					$ftp->chmod($file, 0777);
+				}
+
+				if (!is_writable(Config::$boarddir . '/' . $file)) {
+					$failed_files_updated[] = $file;
+					Maintenance::$context['ftp_errors'][] = rtrim($ftp->last_message) . ' -> ' . $file . "\n";
+				}
+			}
+
+			$ftp->close();
+
+			// Are there any errors left?
+			if (count($failed_files_updated) >= 1) {
+				// Guess there are...
+				Maintenance::$context['failed_files'] = $failed_files_updated;
+
+				// Set the username etc, into context.
+				Maintenance::$context['ftp'] = $_SESSION['ftp'] += [
+					'path_msg' => Lang::$txt['ftp_path_info'],
 				];
 
-				$failed_files_updated = [];
-
-				foreach ($failed_files as $file) {
-					if (!is_writable(Config::$boarddir . '/' . $file)) {
-						$ftp->chmod($file, 0755);
-					}
-
-					if (!is_writable(Config::$boarddir . '/' . $file)) {
-						$ftp->chmod($file, 0777);
-					}
-
-					if (!is_writable(Config::$boarddir . '/' . $file)) {
-						$failed_files_updated[] = $file;
-						Maintenance::$context['ftp_errors'][] = rtrim($ftp->last_message) . ' -> ' . $file . "\n";
-					}
-				}
-
-				$ftp->close();
-
-				// Are there any errors left?
-				if (count($failed_files_updated) >= 1) {
-					// Guess there are...
-					Maintenance::$context['failed_files'] = $failed_files_updated;
-
-					// Set the username etc, into context.
-					Maintenance::$context['ftp'] = $_SESSION['ftp'] += [
-						'path_msg' => Lang::$txt['ftp_path_info'],
-					];
-
-					return false;
-				}
-
+				return false;
+			}
 		}
 
 		return true;
@@ -1240,9 +1242,10 @@ class Install extends ToolsBase implements ToolsInterface
 				if ((int) Maintenance::$context['member_id'] > 0) {
 					return true;
 				}
-					Maintenance::$fatal_error = trim(Db::$db->error(Db::$db->connection));
 
-					return false;
+				Maintenance::$fatal_error = trim(Db::$db->error(Db::$db->connection));
+
+				return false;
 
 			} catch (Exception $exception) {
 				Maintenance::$fatal_error = $exception->getMessage();
@@ -1444,10 +1447,10 @@ class Install extends ToolsBase implements ToolsInterface
 					return true;
 				}
 
-					return false;
+				return false;
 			}
 
-				return true;
+			return true;
 		}
 
 		if (file_exists(Config::$boarddir . '/.htaccess')) {
@@ -1462,10 +1465,10 @@ class Install extends ToolsBase implements ToolsInterface
 				return true;
 			}
 
-				return false;
+			return false;
 		}
 
-			return false;
+		return false;
 	}
 
 	/**
