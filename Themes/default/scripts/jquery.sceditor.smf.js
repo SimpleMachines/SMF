@@ -203,6 +203,15 @@
 
 			isPatched = true;
 		}
+
+		// Fix for minor bug where the toolbar buttons wouldn't initially be active.
+		if (options.autofocus) {
+			const rangeHelper = instance.getRangeHelper();
+			rangeHelper.saveRange();
+			instance.blur();
+			instance.focus();
+			rangeHelper.restoreRange();
+		}
 	};
 })(jQuery);
 
