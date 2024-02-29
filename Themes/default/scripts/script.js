@@ -1587,16 +1587,62 @@ function makeToggle(el, text)
 {
 	var t = document.createElement("a");
 	t.href = 'javascript:void(0);';
-	t.textContent = text;
+	t.textContent = text || el.dataset.text;
 	t.className = 'toggle_down';
 	t.addEventListener('click', function()
 	{
-		var d = this.nextSibling;
-		d.classList.toggle('hidden');
-		this.className = this.className == 'toggle_down' ? 'toggle_up' : 'toggle_down';
-	}, false);
-	el.classList.add('hidden');
-	el.parentNode.insertBefore(t, el);
+		el.hidden = !el.hidden;
+		this.className = el.hidden ? 'toggle_down' : 'toggle_up';
+	});
+	el.hidden = true;
+	el.before(t, ' ');
+}
+
+function makeChecks(f)
+{
+	// Set state dependinng on the status of the checkboxes.
+	const update = (els, b) =>
+	{
+		let checkedCount = 0;
+		for (const el of els)
+			if (el.checked)
+				checkedCount++;
+
+		b.checked = checkedCount == els.length;
+		b.indeterminate = checkedCount > 0 && checkedCount != els.length;
+	};
+
+	for (const div of f)
+		if (div.nodeName == "FIELDSET")
+		{
+			const aEls = [...div.elements];
+			if (!aEls.every(o => o.nodeName == "INPUT" && o.type == "checkbox"))
+				continue;
+
+			// Add master checkbox to the legend.
+			var
+				a = document.createElement("legend"),
+				b = document.createElement("input"),
+				c = document.createElement("label");
+			b.type = "checkbox";
+			c.append(b, div.dataset.c || div.firstElementChild.textContent);
+			a.appendChild(c);
+			update(div.elements, b);
+
+			// Prepend it to the fieldset if there is no legend.
+			if (div.firstElementChild.tagName == 'LEGEND')
+				div.firstElementChild.replaceWith(a);
+			else
+				div.prepend(a);
+
+			aEls.forEach(el => el.addEventListener("click", update.bind(null, div.elements, b)));
+			b.addEventListener("click", function(els)
+			{
+				for (const o of els)
+					if (o.nodeName == "INPUT" && o.type == "checkbox")
+						o.checked = this.checked;
+			}.bind(b, div.elements));
+		}
 }
 
 function smc_resize(selector)
