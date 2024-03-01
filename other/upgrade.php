@@ -1,15 +1,6 @@
 <?php
 
 /**
- * This is the file where SMF gets initialized. It defines common constants,
- * loads the settings in Settings.php, ensures all the directory paths are
- * correct, and includes some essential source files.
- *
- * If this file is included by another file, the initialization is all that will
- * happen. But if this file is executed directly (the typical scenario), then it
- * will also instantiate and execute an SMF\Forum object.
- *
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -33,11 +24,6 @@ if (!defined('SMF')) {
 
 define('SMF_INSTALLING', 1);
 
-ob_start();
-
-// Initialize.
-require_once __DIR__ . '/index.php';
-
 // In pre-release versions, report all errors.
 if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 	error_reporting(E_ALL);
@@ -46,5 +32,10 @@ if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 else {
 	error_reporting(E_ALL & ~E_DEPRECATED);
 }
+
+ob_start();
+
+// Initialize.
+require_once __DIR__ . '/index.php';
 
 (new SMF\Maintenance())->execute(Maintenance::UPGRADE);
