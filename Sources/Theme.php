@@ -2747,17 +2747,25 @@ class Theme
 				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
 			}
 
+			if (!empty($this->settings['has_dark_mode'])) {
+				if (Utils::$context['theme_variant'] == '' || Utils::$context['theme_variant'] == 'system') {
+					foreach (['light',  'dark'] as $var) {
+						self::loadCSSFile('index_' . $var . '.css', ['order_pos' => 301, 'attributes' => ['media' => '(prefers-color-scheme: ' . $var . ')']], 'smf_index_' . $var);
+					}
+				} else {
+					self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 301], 'smf_index_' . Utils::$context['theme_variant']);
+				}
+			} elseif (Utils::$context['theme_variant'] != '') {
+				self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index_' . Utils::$context['theme_variant']);
+
+				if (Utils::$context['right_to_left']) {
+					self::loadCSSFile('rtl_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl_' . Utils::$context['theme_variant']);
+				}
+			}
+
 			// Do this to keep things easier in the templates.
 			Utils::$context['theme_variant'] = '_' . Utils::$context['theme_variant'];
 			Utils::$context['theme_variant_url'] = Utils::$context['theme_variant'] . '/';
-
-			if (!empty(Utils::$context['theme_variant'])) {
-				self::loadCSSFile('index' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index' . Utils::$context['theme_variant']);
-
-				if (Utils::$context['right_to_left']) {
-					self::loadCSSFile('rtl' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl' . Utils::$context['theme_variant']);
-				}
-			}
 		}
 	}
 

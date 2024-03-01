@@ -48,16 +48,51 @@ use SMF\User;
  */
 function template_init()
 {
-	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
+	/*
+	 * Utils::$context, Theme::$current->$options and Lang::$txt may
+	 * be available for use, but might not be fully populated yet.
+	 */
 
-	// The version this template/theme is for. This should probably be the version of SMF it was created for.
+	/*
+	 * The version this template/theme is for. This should
+	 * be the version of the forum it was created for.
+	 */
 	Theme::$current->settings['theme_version'] = '2.1';
 
-	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
+	/*
+	 * Whether this theme requires the optional theme strings
+	 * file to be loaded. (ThemeStrings.[language].php)
+	 *
+	 * Note that this is the only language file that is not theme
+	 * dependant and does not live in `/Languages`, but rather, a
+	 * dedicated `/languages` folder with the theme files.
+	 */
     Theme::$current->settings['require_theme_strings'] = false;
 
-	// Define the Theme variants.
-	Theme::$current->settings['theme_variants'] = array('light', 'dark');
+	/*
+	 * Whether this theme supports a dark mode.
+	 *
+	 * There must be three theme variants defined in order
+	 * for this to work:`system`, `light`, and `dark`.
+	 *
+	 * `system` isn't a real variant; rather, it loads both the light and
+	 * the dark variants, utilizing the CSS media query `prefers-color-scheme`.
+	 * The browser then downloads both files; the one with the matching
+	 * query is fetched at high priority, while the other one is
+	 * downloaded at low priority and isn't rendered.
+	 *
+	 * Set this to `false` to revert back to the standard behavior
+	 * of only loading one variant at a time.
+	 */
+	Theme::$current->settings['has_dark_mode'] = true;
+
+	/*
+	 * Define the theme variants. Each variant has its own CSS file.
+	 *
+	 * Example:
+	 * - index_light.css is loaded when the user selects the `light` variant.
+	 */
+	Theme::$current->settings['theme_variants'] = ['system', 'light', 'dark'];
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
