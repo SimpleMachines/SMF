@@ -197,6 +197,9 @@ class Maintenance
 			define('DISABLE_TOOL_SECURITY', false);
 		}
 		self::$disable_security = DISABLE_TOOL_SECURITY;
+
+		// This might be overwritten by the tool, but we need a default value.
+		self::$context['started'] = (int) TIME_START;
 	}
 
 	/**
@@ -212,7 +215,7 @@ class Maintenance
 
 		// Handle the CLI.
 		if (Sapi::isCLI()) {
-			Maintenance::parseCliArguments();
+			self::parseCliArguments();
 		}
 
 		/** @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\ToolsBase $tool_class */
@@ -402,7 +405,7 @@ class Maintenance
 	 */
 	public static function getSubStepProgress(): int
 	{
-		return (int) (Maintenance::getCurrentSubStep() / Maintenance::$total_substeps);
+		return (int) (self::getCurrentSubStep() / self::$total_substeps);
 	}
 
 	/**
@@ -432,7 +435,7 @@ class Maintenance
 	 */
 	public static function getItemsProgress(): int
 	{
-		return Maintenance::$total_items === null || Maintenance::$total_items === 0 ? 0 : (int) (Maintenance::getCurrentStart() / Maintenance::$total_items);
+		return self::$total_items === null || self::$total_items === 0 ? 0 : (int) (self::getCurrentStart() / self::$total_items);
 	}
 
 	/**
@@ -628,10 +631,10 @@ class Maintenance
 	 *
 	 * @return string Formatted string.
 	 */
-	public static function getTimeElasped(): string
+	public static function getTimeElapsed(): string
 	{
 		// How long have we been running this?
-		$elapsed = time() - Maintenance::$context['started'];
+		$elapsed = time() - (int) self::$context['started'];
 		$mins = (int) ($elapsed / 60);
 		$seconds = $elapsed - $mins * 60;
 
@@ -647,7 +650,7 @@ class Maintenance
 	public static function isOutOfTime(): bool
 	{
 		if (Sapi::isCLI()) {
-			if (time() - Maintenance::$context['started'] > 1 && !Maintenance::$tool->isDebug()) {
+			if (time() - self::$context['started'] > 1 && !self::$tool->isDebug()) {
 				echo '.';
 			}
 
@@ -658,17 +661,17 @@ class Maintenance
 		Sapi::resetTimeout();
 
 		// Still have time left.
-		return ! (time() - Maintenance::$context['started'] <= 3);
+		return !(time() - self::$context['started'] <= 3);
 	}
 
 	public static function setQueryString(): string
 	{
 		// Always ensure this is updated.
-		$_GET['step'] = Maintenance::getCurrentStep();
+		$_GET['step'] = self::getCurrentStep();
 
-		Maintenance::$query_string = http_build_query($_GET, '', ';');
+		self::$query_string = http_build_query($_GET, '', ';');
 
-		return Maintenance::$query_string;
+		return self::$query_string;
 	}
 
 	/**

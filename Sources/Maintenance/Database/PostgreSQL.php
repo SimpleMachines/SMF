@@ -105,7 +105,7 @@ class PostgreSQL implements DatabaseInterface
 	 */
 	public function getDefaultName(): string
 	{
-		return 'smf_';
+		return 'smf';
 	}
 
 	public function checkConfiguration(): bool

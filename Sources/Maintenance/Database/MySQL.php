@@ -104,7 +104,7 @@ class MySQL implements DatabaseInterface
 	 */
 	public function getDefaultName(): string
 	{
-		return 'smf_';
+		return 'smf';
 	}
 
 	/**

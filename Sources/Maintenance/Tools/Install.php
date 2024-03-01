@@ -84,6 +84,13 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private string $schema_version = 'v3_0';
 
+	/**
+	 * @var int
+	 *
+	 * The time we started installing.
+	 */
+	protected int $time_started = 0;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -108,13 +115,18 @@ class Install extends ToolsBase implements ToolsInterface
 			Lang::addDirs(Config::$languagesdir);
 
 			// And now load the language file.
-			Lang::load('Maintenance', $requested_lang);
+			Lang::load('General+Maintenance', $requested_lang);
 
 			// Assume that the admin likes that language.
 			if ($requested_lang !== 'en_US') {
 				Config::$language = $requested_lang;
 			}
 		}
+
+		$this->getUpgradeData();
+
+		// Template needs to know about this.
+		Maintenance::$context['started'] = $this->time_started;
 	}
 
 	/**
@@ -526,10 +538,12 @@ class Install extends ToolsBase implements ToolsInterface
 					'user' => $db->getDefaultUser(),
 					'name' => $db->getDefaultName(),
 					'pass' => $db->getDefaultPassword(),
-					'port' => $db->getDefaultPort(),
-					'prefix' => 'smf_',
+					'port' => '',
+					'prefix' => substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 3) . '_',
 					'type' => $key,
 				];
+
+				$foundOne = true;
 			}
 		}
 
@@ -1411,6 +1425,14 @@ class Install extends ToolsBase implements ToolsInterface
 		return false;
 	}
 
+	/**
+	 * Write out our current information to our settings file to track the upgrade progress.
+	 */
+	public function preExit(): void
+	{
+		$this->saveUpgradeData();
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1501,6 +1523,30 @@ class Install extends ToolsBase implements ToolsInterface
 	private function createImageProxySecret(): string
 	{
 		return bin2hex(random_bytes(10));
+	}
+
+	/**
+	 * Get our upgrade data.
+	 */
+	private function getUpgradeData(): void
+	{
+		$defined_vars = Config::getCurrentSettings();
+
+		$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode($defined_vars['upgradeData'], true) : [];
+
+		$this->time_started = isset($data['started']) ? (int) $data['started'] : time();
+	}
+
+	/**
+	 * Save our data.
+	 *
+	 * @return bool True if we could update our settings file, false otherwise.
+	 */
+	private function saveUpgradeData(): bool
+	{
+		return Config::updateSettingsFile(['upgradeData' => json_encode([
+			'started' => $this->time_started,
+		])]);
 	}
 
 	/**
@@ -1653,7 +1699,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 		// Don't remove stat collection unless we unchecked the box for real, not from the loop.
 		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
-			$settings[] = ['enable_sm_stats', null];
+			$settings['enable_sm_stats'] = null;
 		}
 	}
 

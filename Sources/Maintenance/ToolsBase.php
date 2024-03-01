@@ -98,6 +98,8 @@ abstract class ToolsBase
 			$dbs[substr($entry, 0, -4)] = $db;
 		}
 
+		ksort($dbs);
+
 		return $dbs;
 	}
 

@@ -217,7 +217,7 @@ class Install implements TemplateInterface
 
 			foreach (Maintenance::$context['databases'] as $key => $db) {
 				echo '
-                        <option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
+                        <option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $key, '</option>';
 			}
 
 			echo '
@@ -481,7 +481,7 @@ class Install implements TemplateInterface
 			echo '
             <label>
                 <input type="checkbox" id="delete_self" onclick="doTheDelete();">
-                <strong>', Lang::getTxt('delete_tool', ['Script' => basename(Maintenance::getSelf())]), !isset($_SESSION['temp_ftp']) ? ' ' . Lang::$txt['delete_tool_maybe'] : '', '</strong>
+                <strong>', Lang::getTxt('delete_tool', ['SCRIPT' => basename(Maintenance::getSelf())]), !isset($_SESSION['temp_ftp']) ? ' ' . Lang::$txt['delete_tool_maybe'] : '', '</strong>
             </label>
             <script>
                 function doTheDelete()

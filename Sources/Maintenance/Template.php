@@ -121,7 +121,7 @@ class Template
                         </div>
 
                         <div id="time_elapsed" class="smalltext time_elapsed">
-    						', Maintenance::getTimeElasped(), '
+    						', Maintenance::getTimeElapsed(), '
     					</div>
                     </div>
                     <div id="main_screen" class="clear">
