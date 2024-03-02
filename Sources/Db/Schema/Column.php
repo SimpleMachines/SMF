@@ -63,7 +63,11 @@ class Column
 	 */
 	public ?bool $not_null;
 
-	/** @var string|float|int|bool|null Default value of the column. */
+	/**
+	 * @var string|float|int|bool|null
+	 *
+	 * Default value of the column.
+	 */
 	public string|float|int|bool|null $default;
 
 	/**

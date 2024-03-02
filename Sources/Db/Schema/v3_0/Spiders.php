@@ -31,17 +31,6 @@ class Spiders extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'spider_name' => 'string',
-		'user_agent' => 'string',
-		'ip_info' => 'string',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

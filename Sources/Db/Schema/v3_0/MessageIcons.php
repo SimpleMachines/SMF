@@ -31,17 +31,6 @@ class MessageIcons extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'filename' => 'string',
-		'title' => 'string',
-		'icon_order' => 'int',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

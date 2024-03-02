@@ -31,25 +31,6 @@ class Messages extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'id_msg' => 'int',
-		'id_msg_modified' => 'int',
-		'id_topic' => 'int',
-		'id_board' => 'int',
-		'poster_time' => 'int',
-		'subject' => 'string',
-		'poster_name' => 'string',
-		'poster_email' => 'string',
-		'modified_name' => 'string',
-		'body' => 'string',
-		'icon' => 'string',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

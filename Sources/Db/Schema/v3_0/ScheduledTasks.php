@@ -31,22 +31,6 @@ class ScheduledTasks extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'id_task' => 'int',
-		'next_time' => 'int',
-		'time_offset' => 'int',
-		'time_regularity' => 'int',
-		'time_unit' => 'string',
-		'disabled' => 'int',
-		'task' => 'string',
-		'callable' => 'string',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

@@ -31,16 +31,6 @@ class CalendarHolidays extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'title' => 'string',
-		'event_date' => 'date',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

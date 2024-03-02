@@ -31,17 +31,6 @@ class UserAlertsPrefs extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'id_member' => 'int',
-		'alert_pref' => 'string',
-		'alert_value' => 'int',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

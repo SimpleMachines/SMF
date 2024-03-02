@@ -950,19 +950,23 @@ class Install extends ToolsBase implements ToolsInterface
 
 			try {
 				if (!empty($tbl->initial_data)) {
-					foreach ($tbl->initial_data as &$col) {
-						foreach ($col as $key => &$value) {
+					$casts = [];
+					$insert_columns = [];
+
+					foreach ($tbl->columns as $column) {
+						$casts[$column->name] = in_array($column->type, ['tinyint', 'smallint', 'mediumint', 'bigint', 'int', 'integer']) ? 'int' : 'string';
+					}
+
+					foreach ($tbl->initial_data as &$row) {
+						foreach ($row as $column => &$value) {
+							if (!isset($insert_columns[$column])) {
+								$insert_columns[$column] = $casts[$column];
+							}
+
+							$value = settype($value, $casts[$column]);
+
 							if (is_string($value)) {
 								$value = strtr($value, $replaces);
-							} elseif (isset($tbl->initial_columns[$key])) {
-								switch ($tbl->initial_columns[$key]) {
-									case 'int':
-										$value = (int) $value;
-										break;
-
-									default:
-										$value = (string) $value;
-								}
 							}
 						}
 					}
@@ -970,9 +974,9 @@ class Install extends ToolsBase implements ToolsInterface
 					$result = Db::$db->insert(
 						'replace',
 						$tbl->name,
-						$tbl->initial_columns,
+						$insert_columns,
 						$tbl->initial_data,
-						array_keys($tbl->initial_columns),
+						array_keys($insert_columns),
 					);
 
 					if ($result || $result === null) {

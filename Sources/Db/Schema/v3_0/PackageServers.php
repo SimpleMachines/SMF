@@ -31,17 +31,6 @@ class PackageServers extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'name' => 'string',
-		'url' => 'string',
-		'validation_url' => 'string',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [

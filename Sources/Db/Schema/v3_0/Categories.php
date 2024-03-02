@@ -31,19 +31,6 @@ class Categories extends Table
 	/**
 	 * @var array
 	 *
-	 * Initial columns for inserts.
-	 */
-	public array $initial_columns = [
-		'id_cat' => 'int',
-		'cat_order' => 'int',
-		'name' => 'string',
-		'description' => 'string',
-		'can_collapse' => 'int',
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Data used to populate the table during install.
 	 */
 	public array $initial_data = [
