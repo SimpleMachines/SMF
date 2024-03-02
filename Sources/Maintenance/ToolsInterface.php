@@ -28,7 +28,9 @@ interface ToolsInterface
 	public function getScriptName(): string;
 
 	/**
-	 * Page title for the tool.  The tool may override and just change.
+	 * Page title for the tool.
+	 *
+	 * The tool may override and just change.
 	 *
 	 * @return string
 	 */
@@ -42,7 +44,9 @@ interface ToolsInterface
 	public function hasSteps(): bool;
 
 	/**
-	 * The steps for a tool.  If a tool does not have steps, it should return an empty array.
+	 * The steps for a tool.
+	 *
+	 * If a tool does not have steps, it should return an empty array.
 	 *
 	 * @return \SMF\Maintenance\Step[]
 	 */

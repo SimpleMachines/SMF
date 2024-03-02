@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use Exception;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Template;
 use SMF\Maintenance\TemplateInterface;
@@ -253,7 +252,10 @@ class Maintenance
 				self::$context['skip'] = false;
 
 				// Call the step and if it returns false that means pause!
-				if (method_exists(self::$tool, $step->getFunction()) && self::$tool->{$step->getFunction()}() === false) {
+				if (
+					method_exists(self::$tool, $step->getFunction())
+					&& self::$tool->{$step->getFunction()}() === false
+				) {
 					break;
 				}
 
@@ -287,7 +289,7 @@ class Maintenance
 	/**
 	 * See if we think they have already installed it?
 	 *
-	 * @return bool True if we believe SMF has been installed, false otherwise.
+	 * @return bool Whether we believe SMF has been installed.
 	 */
 	public static function isInstalled(): bool
 	{
@@ -440,7 +442,9 @@ class Maintenance
 	}
 
 	/**
-	 * Determine the language file we want to load. This doesn't validate it exists, just that its a sane value to try.
+	 * Determine the language file we want to load.
+	 *
+	 * This doesn't validate it exists, just that its a sane value to try.
 	 *
 	 * @return string Language we will load.
 	 */
@@ -460,7 +464,9 @@ class Maintenance
 	}
 
 	/**
-	 * Set's the sub template we will use. A check is made to ensure that we can call it.
+	 * Sets the sub template we will use.
+	 *
+	 * A check is made to ensure that we can call it.
 	 *
 	 * @param string $tmpl Template to use.
 	 */
@@ -472,12 +478,12 @@ class Maintenance
 	}
 
 	/**
-	 * Safely startup a database for maintenance actions.
+	 * Safely start up a database for maintenance actions.
 	 */
 	public static function loadDatabase(): void
 	{
 		if (!class_exists('SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
-			throw new Exception(Lang::$txt['error_db_missing']);
+			throw new \Exception(Lang::$txt['error_db_missing']);
 		}
 
 		// Make the connection...
@@ -506,7 +512,11 @@ class Maintenance
 			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
 		}
 
-		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1) {
+		if (
+			Config::$db_type == 'mysql'
+			&& isset(Config::$db_character_set)
+			&& preg_match('~^\w+$~', Config::$db_character_set) === 1
+		) {
 			Db::$db->query(
 				'',
 				'SET NAMES {string:db_character_set}',
@@ -533,18 +543,22 @@ class Maintenance
 		}
 		Db::$db->free_result($request);
 
-		// We have a datbase, attempt to find our theme data now.
+		// We have a database, attempt to find our theme data now.
 		self::setThemeData();
 	}
 
 	/**
-	 * Attempts to login an administrator.  If the account does not have administrate forum permission, they are rejected.
+	 * Attempts to login an administrator.
+	 *
+	 * If the account does not have admin_forum permission, they are rejected.
+	 *
 	 * This will attempt using the SMF 2.0 method if specified.
 	 *
-	 * @param string $username The admins username
-	 * @param string $password The admins password, as of PHP 8.2, this will not be included in any stack traces.
-	 * @param bool $use_old_hashing True if we want to allow SMF 2.0 hashing, false otherwise.
-	 * @return int The id of the user if they are an admin, 0 otherwise
+	 * @param string $username The admin's username
+	 * @param string $password The admin's password.
+	 *    As of PHP 8.2, this will not be included in any stack traces.
+	 * @param bool $use_old_hashing Whether to allow SMF 2.0 hashing.
+	 * @return int The id of the user if they are an admin, 0 otherwise.
 	 */
 	public static function loginAdmin(
 		string $username,
@@ -617,8 +631,9 @@ class Maintenance
 	/**
 	 * Attempts to login using the database password.
 	 *
-	 * @param string $password The database password, as of PHP 8.2, this will not be included in any stack traces.
-	 * @return bool True if this is valid, false otherwise.
+	 * @param string $password The database password.
+	 *    As of PHP 8.2, this will not be included in any stack traces.
+	 * @return bool Whether this is valid.
 	 */
 	public static function loginWithDatabasePassword(
 		#[\SensitiveParameter]
@@ -646,7 +661,7 @@ class Maintenance
 	 * Check if we are out of time.  Try to buy some more.
 	 * If this is CLI, returns true.
 	 *
-	 * @return bool True if we need to exit the script soon, false otherwise.
+	 * @return bool Whether we need to exit the script soon.
 	 */
 	public static function isOutOfTime(): bool
 	{
@@ -665,6 +680,11 @@ class Maintenance
 		return !(time() - self::$context['started'] <= 3);
 	}
 
+	/**
+	 * Sets (and returns) the value of self::$query_string;
+	 *
+	 * @return string A copy of self::$query_string.
+	 */
 	public static function setQueryString(): string
 	{
 		// Always ensure this is updated.
@@ -709,12 +729,12 @@ class Maintenance
 	}
 
 	/**
-	 * Handle a response for our javascript logic.
+	 * Handle a response for our JavaScript logic.
 	 *
 	 * This always returns a success header, which is used to handle continues.
 	 *
 	 * @param mixed $data
-	 * @param bool $success True if the result was succesful, false otherwise.
+	 * @param bool $success Whether the result was successful.
 	 */
 	public static function jsonResponse(mixed $data, bool $success = true): void
 	{
@@ -737,7 +757,7 @@ class Maintenance
 	 * Checks that the tool we requested is valid.
 	 *
 	 * @param int $type Tool we are trying to use.
-	 * @return bool True if it is valid, false otherwise.
+	 * @return bool Whether it is valid.
 	 */
 	private static function toolIsValid(int $type): bool
 	{

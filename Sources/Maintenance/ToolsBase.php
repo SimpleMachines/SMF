@@ -64,7 +64,8 @@ abstract class ToolsBase
 	/**
 	 * Find all databases that are supported on this system.
 	 *
-	 * @return array An array of supported databases in the format of $db_key => (Object for DatabaseInterface) $db
+	 * @return array An array of supported databases in the format of
+	 *    $db_key => (Object for DatabaseInterface) $db
 	 */
 	public function supportedDatabases(): array
 	{
@@ -106,7 +107,7 @@ abstract class ToolsBase
 	/**
 	 * Last chance to do anything before we exit.
 	 *
-	 * Some tools may call this to save where are at.
+	 * Some tools may call this to save their progress, etc.
 	 */
 	public function preExit(): void
 	{
@@ -186,11 +187,11 @@ abstract class ToolsBase
 	 */
 	final public function makeFilesWritable(array &$files): bool
 	{
-	   if (empty($files)) {
-		   return true;
-	   }
+		if (empty($files)) {
+			return true;
+		}
 
-	   $failure = false;
+		$failure = false;
 
 		// On linux, it's easy - just use is_writable!
 		// Windows is trickier.  Let's try opening for r+...
@@ -242,26 +243,26 @@ abstract class ToolsBase
 			}
 		}
 
-	   if (empty($files)) {
-		   return true;
-	   }
+		if (empty($files)) {
+			return true;
+		}
 
-	   if (!isset($_SERVER)) {
-		   return !$failure;
-	   }
+		if (!isset($_SERVER)) {
+			return !$failure;
+		}
 
-	   // What still needs to be done?
-	   Maintenance::$context['chmod_files'] = $files;
+		// What still needs to be done?
+		Maintenance::$context['chmod_files'] = $files;
 
-	   // If it's windows it's a mess...
-	   if ($failure && Sapi::isOS(Sapi::OS_WINDOWS)) {
-		   Maintenance::$context['chmod']['ftp_error'] = 'total_mess';
+		// If it's windows it's a mess...
+		if ($failure && Sapi::isOS(Sapi::OS_WINDOWS)) {
+			Maintenance::$context['chmod']['ftp_error'] = 'total_mess';
 
-		   return false;
-	   }
+			return false;
+		}
 
-	   // We're going to have to use... FTP!
-	   if ($failure) {
+		// We're going to have to use... FTP!
+		if ($failure) {
 			// Load any session data we might have...
 			if (!isset($_POST['ftp_username']) && isset($_SESSION['temp_ftp'])) {
 				Maintenance::$context['chmod']['server'] = $_SESSION['temp_ftp']['server'];
@@ -279,108 +280,107 @@ abstract class ToolsBase
 				Maintenance::$context['chmod']['path'] = $_POST['ftp_path'];
 			}
 
-		   if (isset(Maintenance::$context['chmod']['username'])) {
-			   $ftp = new FtpConnection(Maintenance::$context['chmod']['server'], Maintenance::$context['chmod']['port'], Maintenance::$context['chmod']['username'], Maintenance::$context['chmod']['password']);
+			if (isset(Maintenance::$context['chmod']['username'])) {
+				$ftp = new FtpConnection(Maintenance::$context['chmod']['server'], Maintenance::$context['chmod']['port'], Maintenance::$context['chmod']['username'], Maintenance::$context['chmod']['password']);
 
-			   if ($ftp->error === false) {
-				   // Try it without /home/abc just in case they messed up.
-				   if (!$ftp->chdir(Maintenance::$context['chmod']['path'])) {
+				if ($ftp->error === false) {
+					// Try it without /home/abc just in case they messed up.
+					if (!$ftp->chdir(Maintenance::$context['chmod']['path'])) {
 					Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message;
-					   $ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', Maintenance::$context['chmod']['path']));
-				   }
-			   }
-		   }
+						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', Maintenance::$context['chmod']['path']));
+					}
+				}
+			}
 
-		   if (!isset($ftp) || $ftp->error !== false) {
-			   if (!isset($ftp)) {
-				   $ftp = new FtpConnection(null);
-			   }
-			   // Save the error so we can mess with listing...
-			   elseif ($ftp->error !== false && !isset(Maintenance::$context['chmod']['ftp_error'])) {
+			if (!isset($ftp) || $ftp->error !== false) {
+				if (!isset($ftp)) {
+					$ftp = new FtpConnection(null);
+				}
+				// Save the error so we can mess with listing...
+				elseif ($ftp->error !== false && !isset(Maintenance::$context['chmod']['ftp_error'])) {
 				Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
-			   }
+				}
 
-			   list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+				list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
 
-			   if ($found_path || !isset(Maintenance::$context['chmod']['path'])) {
+				if ($found_path || !isset(Maintenance::$context['chmod']['path'])) {
 				Maintenance::$context['chmod']['path'] = $detect_path;
-			   }
+				}
 
-			   if (!isset(Maintenance::$context['chmod']['username'])) {
+				if (!isset(Maintenance::$context['chmod']['username'])) {
 				Maintenance::$context['chmod']['username'] = $username;
-			   }
+				}
 
-			   // Don't forget the login token.
-			   Maintenance::$context += SecurityToken::create('login');
+				// Don't forget the login token.
+				Maintenance::$context += SecurityToken::create('login');
 
-			   return false;
-		   }
+				return false;
+			}
 
+			// We want to do a relative path for FTP.
+			if (!in_array(Maintenance::$context['chmod']['path'], ['', '/'])) {
+				$ftp_root = strtr(Config::$boarddir, [Maintenance::$context['chmod']['path'] => '']);
 
-			   // We want to do a relative path for FTP.
-			   if (!in_array(Maintenance::$context['chmod']['path'], ['', '/'])) {
-				   $ftp_root = strtr(Config::$boarddir, [Maintenance::$context['chmod']['path'] => '']);
+				if (substr($ftp_root, -1) == '/' && (Maintenance::$context['chmod']['path'] == '' || Maintenance::$context['chmod']['path'][0] === '/')) {
+					$ftp_root = substr($ftp_root, 0, -1);
+				}
+			} else {
+				$ftp_root = Config::$boarddir;
+			}
 
-				   if (substr($ftp_root, -1) == '/' && (Maintenance::$context['chmod']['path'] == '' || Maintenance::$context['chmod']['path'][0] === '/')) {
-					   $ftp_root = substr($ftp_root, 0, -1);
-				   }
-			   } else {
-				   $ftp_root = Config::$boarddir;
-			   }
+			// Save the info for next time!
+			$_SESSION['temp_ftp'] = [
+				'server' => Maintenance::$context['chmod']['server'],
+				'port' => Maintenance::$context['chmod']['port'],
+				'username' => Maintenance::$context['chmod']['username'],
+				'password' => Maintenance::$context['chmod']['password'],
+				'path' => Maintenance::$context['chmod']['path'],
+				'root' => $ftp_root,
+			];
 
-			   // Save the info for next time!
-			   $_SESSION['temp_ftp'] = [
-			   	'server' => Maintenance::$context['chmod']['server'],
-			   	'port' => Maintenance::$context['chmod']['port'],
-			   	'username' => Maintenance::$context['chmod']['username'],
-			   	'password' => Maintenance::$context['chmod']['password'],
-			   	'path' => Maintenance::$context['chmod']['path'],
-			   	'root' => $ftp_root,
-			   ];
+			foreach ($files as $k => $file) {
+				if (!is_writable($file)) {
+					$ftp->chmod($file, 0755);
+				}
 
-			   foreach ($files as $k => $file) {
-				   if (!is_writable($file)) {
-					   $ftp->chmod($file, 0755);
-				   }
+				if (!is_writable($file)) {
+					$ftp->chmod($file, 0777);
+				}
 
-				   if (!is_writable($file)) {
-					   $ftp->chmod($file, 0777);
-				   }
+				// Assuming that didn't work calculate the path without the boarddir.
+				if (!is_writable($file)) {
+					if (strpos($file, Config::$boarddir) === 0) {
+						$ftp_file = strtr($file, [$_SESSION['installer_temp_ftp']['root'] => '']);
+						$ftp->chmod($ftp_file, 0755);
 
-				   // Assuming that didn't work calculate the path without the boarddir.
-				   if (!is_writable($file)) {
-					   if (strpos($file, Config::$boarddir) === 0) {
-						   $ftp_file = strtr($file, [$_SESSION['installer_temp_ftp']['root'] => '']);
-						   $ftp->chmod($ftp_file, 0755);
+						if (!is_writable($file)) {
+							$ftp->chmod($ftp_file, 0777);
+						}
+						// Sometimes an extra slash can help...
+						$ftp_file = '/' . $ftp_file;
 
-						   if (!is_writable($file)) {
-							   $ftp->chmod($ftp_file, 0777);
-						   }
-						   // Sometimes an extra slash can help...
-						   $ftp_file = '/' . $ftp_file;
+						if (!is_writable($file)) {
+							$ftp->chmod($ftp_file, 0755);
+						}
 
-						   if (!is_writable($file)) {
-							   $ftp->chmod($ftp_file, 0755);
-						   }
+						if (!is_writable($file)) {
+							$ftp->chmod($ftp_file, 0777);
+						}
+					}
+				}
 
-						   if (!is_writable($file)) {
-							   $ftp->chmod($ftp_file, 0777);
-						   }
-					   }
-				   }
+				if (is_writable($file)) {
+					unset($files[$k]);
+				}
+			}
 
-				   if (is_writable($file)) {
-					   unset($files[$k]);
-				   }
-			   }
+			$ftp->close();
+		}
 
-			   $ftp->close();
-	   }
+		// What remains?
+		Maintenance::$context['chmod']['files'] = $files;
 
-	   // What remains?
-	   Maintenance::$context['chmod']['files'] = $files;
-
-	   return (bool) (empty($files));
+		return (bool) (empty($files));
 	}
 
 	/**
@@ -399,7 +399,7 @@ abstract class ToolsBase
 	 * Detects languages installed in SMF's languages folder.
 	 *
 	 * @param array $key_files Language files that must exist in order to be
-	 *    considered a valid language.
+	 *	 considered a valid language.
 	 * @return array List of valid languages in the format of $locale => $name
 	 */
 	final public function detectLanguages(array $key_files = ['General']): array
