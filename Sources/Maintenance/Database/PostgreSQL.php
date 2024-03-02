@@ -182,6 +182,25 @@ class PostgreSQL implements DatabaseInterface
 	{
 		return true;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function processError(string $error_msg, string $query): mixed
+	{
+		if (in_array(substr(trim($query), 0, 8), ['CREATE T', 'CREATE S', 'DROP TABL', 'ALTER TA', 'CREATE I', 'CREATE U'])) {
+			if (strpos($error_msg, 'exist') !== false) {
+				return false;
+			}
+		} elseif (strpos(trim($query), 'INSERT ') !== false) {
+			if (strpos($error_msg, 'duplicate') !== false) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 }
 
 ?>

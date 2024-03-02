@@ -459,6 +459,31 @@ abstract class ToolsBase
 
 		return $languages;
 	}
+
+	/**
+	 * This will check if we need to handle a timeout, if so, it sets up data for the next round.
+	 *
+	 * @throws \ValueError
+	 * @throws \Exception
+	 */
+	public function checkAndHandleTimeout(): void
+	{
+		if (!Maintenance::isOutOfTime()) {
+			return;
+		}
+
+		// If this is not json, we need to do a few things.
+		if (!isset($_GET['json'])) {
+			// We're going to pause after this!
+			Maintenance::$context['pause'] = true;
+
+			Maintenance::setQueryString();
+		}
+
+		Maintenance::exit();
+
+		throw new \Exception('Zombies!');
+	}
 }
 
 ?>

@@ -52,13 +52,19 @@ class Upgrade implements TemplateInterface
 								</h3>';
 		}
 
-		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip'])) {
+
+		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip']) || !empty(Maintenance::$context['try_again'])) {
 			echo '
                                 <div class="floatright">';
 
 			if (!empty(Maintenance::$context['continue'])) {
 				echo '
                                     <input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['action_continue'], '" onclick="return submitThisOnce(this);" class="button">';
+			}
+
+			if (!empty(Maintenance::$context['try_again'])) {
+				echo '
+                                    <input type="submit" id="try_again" name="try_again" value="', Lang::$txt['error_message_try_again'], '" onclick="return submitThisOnce(this);" class="button">';
 			}
 
 			if (!empty(Maintenance::$context['skip'])) {

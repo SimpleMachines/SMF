@@ -18,6 +18,7 @@ namespace SMF\Maintenance\Migration\v3_0;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
+use SMF\Maintenance;
 use SMF\Maintenance\Migration;
 
 class Migration0001 extends Migration
@@ -47,7 +48,7 @@ class Migration0001 extends Migration
 
 		while (!$is_done) {
 			// @@ TODO: Handle sub steps.
-			nextSubStep($substep);
+			$this->handleTimeout();
 
 			// Skip errors here so we don't croak if the columns don't exist...
 			$request = Db::$db->query(
@@ -93,6 +94,8 @@ class Migration0001 extends Migration
                 WHERE id_member IN ({array_int:search_members})',
 				$args,
 			);
+
+			Maintenance::setCurrentStart();
 		}
 
 		// Rename the privacy policy records.
@@ -118,6 +121,8 @@ class Migration0001 extends Migration
 				unset($new_variable);
 			}
 		}
+
+		return true;
 	}
 }
 

@@ -131,6 +131,18 @@ interface DatabaseInterface
 	 * @return bool
 	 */
 	public function setSqlMode(string $mode = 'default'): bool;
+
+	/**
+	 * When an error occurs with a query ran through a wrapper, we send errors here.
+	 *
+	 * @param string $error_msg as returend by the database interfaces call.
+	 * @param string $query Query we ran
+	 * @return mixed
+	 * 				False if we should not do anything,
+	 * 				True if we should stop for error.
+	 * 				Result from a query can also be returned, if we are able to correct the query.
+	 */
+	public function processError(string $error_msg, string $query): mixed;
 }
 
 ?>

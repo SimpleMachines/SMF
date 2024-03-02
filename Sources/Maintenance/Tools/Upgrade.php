@@ -31,7 +31,6 @@ use SMF\Session;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use ValueError;
 
 /**
  * Upgrade tool.
@@ -742,6 +741,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			die;
 		}
 
+		// Empty our error log.
+		if (!empty($_POST['empty_error'])) {
+			Db::$db->query(
+				'truncate_table',
+				'
+				TRUNCATE {db_prefix}log_errors',
+				[],
+			);
+		}
+
 		// Are we doing debug?
 		if (isset($_POST['debug'])) {
 			$this->debug = true;
@@ -1102,31 +1111,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
 			$settings[] = ['enable_sm_stats', null];
 		}
-	}
-
-	/**
-	 * This will check if we need to handle a timeout, if so, it sets up data for the next round.
-	 *
-	 * @throws ValueError
-	 * @throws Exception
-	 */
-	private function checkAndHandleTimeout(): void
-	{
-		if (!Maintenance::isOutOfTime()) {
-			return;
-		}
-
-		// If this is not json, we need to do a few things.
-		if (!isset($_GET['json'])) {
-			// We're going to pause after this!
-			Maintenance::$context['pause'] = true;
-
-			Maintenance::setQueryString();
-		}
-
-		Maintenance::exit();
-
-		throw new Exception('Zombies!');
 	}
 }
 
