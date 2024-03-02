@@ -251,7 +251,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['supported_databases'] = $this->supportedDatabases();
 
 		// Needs to at least meet our miniumn version.
-		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>'))) {
+		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>'))) {
 			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
 
 			return false;

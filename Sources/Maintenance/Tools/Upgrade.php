@@ -337,7 +337,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Needs to at least meet our minium version.
-		if ((version_compare(Maintenance::getRequiredVersionForPHP(), PHP_VERSION, '>='))) {
+		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>='))) {
 			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
 
 			return false;

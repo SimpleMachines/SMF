@@ -31,6 +31,12 @@ class Maintenance
 	 *****************/
 
 	/**
+	 * The lowest PHP version we support.
+	 * This can not be a int, as we have 2 decimals.
+	 */
+	public const PHP_MIN_VERSION = '8.0.1';
+
+	/**
 	 * Tool Types.
 	 */
 	public const INSTALL = 1;
@@ -251,15 +257,15 @@ class Maintenance
 					break;
 				}
 
-					// Time to move on.
-					self::setCurrentStep();
-					self::setCurrentSubStep(0);
-					self::setCurrentStart(0);
-
+				// Time to move on.
+				self::setCurrentStep();
+				self::setCurrentSubStep(0);
+				self::setCurrentStart(0);
 
 				// No warnings pass on.
 				self::$context['warning'] = '';
 			}
+
 			self::$overall_percent += (int) $step->getProgress();
 		}
 
@@ -277,17 +283,6 @@ class Maintenance
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * The lowest PHP version we support.
-	 * This can not be a int, as we have 2 decimals.
-	 *
-	 * @return string The lowest PHP version we support.
-	 */
-	public static function getRequiredVersionForPHP(): string
-	{
-		return '8.0.1';
-	}
 
 	/**
 	 * See if we think they have already installed it?
