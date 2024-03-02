@@ -403,10 +403,10 @@ class Install extends ToolsBase implements ToolsInterface
 		// It's not going to be possible to use FTP on windows to solve the problem...
 		if ($failure && Sapi::isOS(Sapi::OS_WINDOWS)) {
 			Maintenance::$fatal_error = Lang::$txt['error_windows_chmod'] . '
-                        <ul class="error_content">
-                            <li>' . implode('</li>
-                            <li>', $failed_files) . '</li>
-                        </ul>';
+						<ul class="error_content">
+							<li>' . implode('</li>
+							<li>', $failed_files) . '</li>
+						</ul>';
 
 			return false;
 		}
@@ -874,7 +874,7 @@ class Install extends ToolsBase implements ToolsInterface
 		$result = Db::$db->query(
 			'',
 			'SELECT variable, value
-            FROM {db_prefix}settings',
+			FROM {db_prefix}settings',
 			[
 				'db_error_skip' => true,
 			],
@@ -1088,9 +1088,9 @@ class Install extends ToolsBase implements ToolsInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT id_member
-            FROM {db_prefix}members
-            WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
-            LIMIT 1',
+			FROM {db_prefix}members
+			WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
+			LIMIT 1',
 			[
 				'db_error_skip' => true,
 				'admin_group' => 1,
@@ -1314,7 +1314,7 @@ class Install extends ToolsBase implements ToolsInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT variable, value
-            FROM {db_prefix}settings',
+			FROM {db_prefix}settings',
 			[
 				'db_error_skip' => true,
 			],
@@ -1336,8 +1336,8 @@ class Install extends ToolsBase implements ToolsInterface
 		$result = Db::$db->query(
 			'',
 			'SELECT value
-            FROM {db_prefix}settings
-            WHERE variable = {string:db_sessions}',
+			FROM {db_prefix}settings
+			WHERE variable = {string:db_sessions}',
 			[
 				'db_sessions' => 'databaseSession_enable',
 				'db_error_skip' => true,
@@ -1374,10 +1374,10 @@ class Install extends ToolsBase implements ToolsInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT id_msg
-            FROM {db_prefix}messages
-            WHERE id_msg = 1
-                AND modified_time = 0
-            LIMIT 1',
+			FROM {db_prefix}messages
+			WHERE id_msg = 1
+				AND modified_time = 0
+			LIMIT 1',
 			[
 				'db_error_skip' => true,
 			],
@@ -1445,13 +1445,13 @@ class Install extends ToolsBase implements ToolsInterface
 	private function checkAndTryToFixModSecurity(): bool
 	{
 		$htaccess_addition = '
-    <IfModule mod_security.c>
-        # Turn off mod_security filtering.  SMF is a big boy, it doesn\'t need its hands held.
-        SecFilterEngine Off
+	<IfModule mod_security.c>
+		# Turn off mod_security filtering.  SMF is a big boy, it doesn\'t need its hands held.
+		SecFilterEngine Off
 
-        # The below probably isn\'t needed, but better safe than sorry.
-        SecFilterScanPOST Off
-    </IfModule>';
+		# The below probably isn\'t needed, but better safe than sorry.
+		SecFilterScanPOST Off
+	</IfModule>';
 
 		if (!function_exists('apache_get_modules') || !in_array('mod_security', apache_get_modules())) {
 			return true;
@@ -1778,7 +1778,7 @@ class Install extends ToolsBase implements ToolsInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT id_smiley, code
-            FROM {db_prefix}smileys',
+			FROM {db_prefix}smileys',
 			[],
 		);
 
