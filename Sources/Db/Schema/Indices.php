@@ -39,7 +39,7 @@ class Indices
 	public array $columns = [];
 
 	/**
-	 * @var bool
+	 * @var ?string
 	 *
 	 * Allowed values: 'primary', 'unique', or null for a normal index.
 	 */
