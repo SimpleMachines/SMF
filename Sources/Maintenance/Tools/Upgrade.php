@@ -922,16 +922,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	{
 		$defined_vars = Config::getCurrentSettings();
 
-		$data = $defined_vars['upgradeData'] ?? [];
+		$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode($defined_vars['upgradeData'], true) : [];
 
-		$this->time_started = isset($this->upgradeData['started']) ? (int) $this->upgradeData['started'] : time();
-		$this->time_updated = isset($this->upgradeData['updated']) ? (int) $this->upgradeData['updated'] : time();
-		$this->debug = !empty($this->upgradeData['debug']);
-		$this->skipped_migrations = !empty($this->upgradeData['skipped']) && is_array($this->upgradeData['skipped']) ? $this->upgradeData['skipped'] : [];
-		$this->user['id'] = isset($this->upgradeData['user_id']) ? (int) $this->upgradeData['user_id'] : 0;
-		$this->user['name'] = isset($this->upgradeData['user_name']) ? (int) $this->upgradeData['user_name'] : 0;
-		$this->user['step'] = isset($this->upgradeData['step']) ? (int) $this->upgradeData['step'] : 0;
-		$this->user['maint'] = isset($this->upgradeData['maint']) ? (int) $this->user['maint'] : Config::$maintenance;
+		$this->time_started = isset($data['started']) ? (int) $data['started'] : time();
+		$this->time_updated = isset($data['updated']) ? (int) $data['updated'] : time();
+		$this->debug = !empty($data['debug']);
+		$this->skipped_migrations = !empty($data['skipped']) && is_array($data['skipped']) ? $data['skipped'] : [];
+		$this->user['id'] = isset($data['user_id']) ? (int) $data['user_id'] : 0;
+		$this->user['name'] = isset($data['user_name']) ? (int) $data['user_name'] : 0;
+		$this->user['step'] = isset($data['step']) ? (int) $data['step'] : 0;
+		$this->user['maint'] = isset($data['maint']) ? (int) $data['maint'] : Config::$maintenance;
 	}
 
 	/**
