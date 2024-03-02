@@ -291,7 +291,13 @@ class Maintenance
 	 */
 	public static function isInstalled(): bool
 	{
-		return !(Config::$image_proxy_secret === 'smfisawesome' && Config::$db_passwd === '' && Config::$boardurl === 'http://127.0.0.1/smf');
+		foreach (['image_proxy_secret', 'db_passwd', 'boardurl'] as $var) {
+			if (Config::${$var} === Config::$settings_defs[$var]['default']) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
