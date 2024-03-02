@@ -896,12 +896,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 		Config::$modSettings['disableQueryCheck'] = true;
 
-		// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
-		if (Sapi::isOS(Sapi::OS_WINDOWS)) {
-			$attachdir = $path . 'attachments';
-		} else {
-			$attachdir = $path . '/attachments';
-		}
+		$attachdir = $path . '/attachments';
 
 		$replaces = [
 			'{$db_prefix}' => Db::$db->prefix,
