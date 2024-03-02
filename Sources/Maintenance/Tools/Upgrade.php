@@ -357,7 +357,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			&& @file_exists(Config::$sourcedir . '/Maintenance/Migration/v3_0/Migration0001.php');
 
 		// Need legacy scripts?
-		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 3.0) {
+		if (
+			!isset(Config::$modSettings['smfVersion'])
+			|| version_compare(
+				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
+				substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . '.dev.0',
+				'<',
+			)
+		) {
 			$check &= @file_exists(Config::$sourcedir . '/Maintenance/Migration/v2_1/Migration0001.php');
 		}
 
@@ -578,7 +585,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		];
 		unset($member_columns);
 
-		Maintenance::$context['migrate_settings_recommended'] = empty(Config::$modSettings['smfVersion']) || version_compare(strtolower(Config::$modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
+		Maintenance::$context['migrate_settings_recommended'] =
+			empty(Config::$modSettings['smfVersion'])
+			|| version_compare(
+				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
+				substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . '.dev.0',
+				'<',
+			);
 
 		Maintenance::$context['db_prefix'] = Config::$db_prefix;
 
