@@ -595,7 +595,7 @@ class Maintenance
 			// SMF 2.1 + uses bcrypt, SMF 2.0 is sha1.
 			if (Security::hashVerifyPassword((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : ''))) {
 				$id = (int) $id_member;
-			} elseif ($password === $sha_passwd) {
+			} elseif ($use_old_hashing && $password === $sha_passwd) {
 				$id = (int) $id_member;
 			}
 

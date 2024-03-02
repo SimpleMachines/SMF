@@ -552,7 +552,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				return true;
 			}
 
-			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'])) > 0) {
+			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])), '2.1.dev.0', '<');
+
+			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'], $use_old_hashing)) > 0) {
 				$this->user = [
 					'id' => $id,
 					'name' => (string) $_POST['user'],
