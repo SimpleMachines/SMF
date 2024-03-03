@@ -60,7 +60,9 @@ class Migration
 	 */
 	protected function handleTimeout(?int $start = 0): void
 	{
-		Maintenance::setCurrentStart($start);
+		if ($start !== null) {
+			Maintenance::setCurrentStart($start);
+		}
 
 		Maintenance::$tool->checkAndHandleTimeout();
 	}
