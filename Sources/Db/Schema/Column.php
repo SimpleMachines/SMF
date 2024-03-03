@@ -87,7 +87,7 @@ class Column
 	public ?string $charset;
 
 	/**
-	 * @var ?bool
+	 * @var bool
 	 *
 	 * Set this to true to drop the default during an ALTER TABLE operation.
 	 *

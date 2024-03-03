@@ -22,6 +22,7 @@ $txt['still_writable'] = 'Your forum directory is still writable. It is a good i
 $txt['delete_tool'] = 'Click here to delete this {SCRIPT} file now.';
 $txt['delete_tool_maybe'] = '<em>(does not work on all servers.)</em>';
 $txt['error_message_click'] = 'Click here';
+$txt['error_message_try_again'] = 'Click here to try again.';
 
 // Errors and warnings.
 $txt['critical_error'] = 'Critical Error!';
@@ -30,6 +31,10 @@ $txt['error_db_queries'] = 'Some of the queries were not executed properly. This
 $txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\\\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
 $txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
 $txt['error_unknown'] = 'Unknown Error!';
+$txt['query_unsuccessful'] = 'Unsuccessful!';
+$txt['query_failed'] = 'This query: {QUERY_STRING}
+Caused the error: {QUERY_ERROR}';
+
 
 // Progress bars and steps.
 $txt['maintenance_progress'] = 'Progress';
@@ -470,13 +475,9 @@ $txt['upgrade_success_time_db'] = 'Successful! Database upgrades completed in {h
 $txt['upgrade_cleanup_completed'] = 'Cleanup has completed';
 $txt['upgrade_current_step'] = 'Current Step';
 
-$txt['upgrade_unsuccessful'] = 'Unsuccessful!';
-$txt['upgrade_thisquery'] = 'This query:';
-$txt['upgrade_causerror'] = 'Caused the error:';
 $txt['upgrade_success'] = 'Successful!';
 $txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: ';
 $txt['upgrade_respondtime'] = 'Server has not responded for {0, number, integer} seconds. It may be worth waiting a little longer before trying again.';
-$txt['upgrade_respondtime_clickhere'] = 'Click here to try again.';
 $txt['mtitle'] = 'Upgrading the forum...';
 $txt['mmessage'] = 'Don\'t worry, your forum will be updated shortly. It will only be a minute ;).';
 
