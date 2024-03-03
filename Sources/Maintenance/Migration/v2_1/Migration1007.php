@@ -15,14 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\BBCodeParser;
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v3_0\MemberLogins;
-use SMF\Maintenance;
 use SMF\Maintenance\Migration;
-use SMF\Db\Schema\v3_0;
-use SMF\Utils;
 
 class Migration0001 extends Migration
 {
@@ -49,38 +43,44 @@ class Migration0001 extends Migration
 			UPDATE attachments
 			SET width = 0,
 				height = 1
-			WHERE 
+			WHERE
 				(width > 0 OR height > 0)
 				AND POSITION({literal:image} IN mime_type) IS NULL
 		*/
 
-		$attachs = array();
+		$attachs = [];
 		// If id_member = 0, then it's not an avatar
 		// If attachment_type = 0, then it's also not a thumbnail
 		// Theory says there shouldn't be *that* many of these
-		$request = Db::$db->query('', '
+		$request = Db::$db->query(
+			'',
+			'
 			SELECT id_attach, mime_type, width, height
 			FROM {db_prefix}attachments
 			WHERE id_member = 0
-				AND attachment_type = 0'
+				AND attachment_type = 0',
 		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0) {
 				$attachs[] = $row['id_attach'];
+			}
 		}
 		Db::$db->free_result($request);
-		
-		if (!empty($attachs))
-			Db::$db->query('', '
+
+		if (!empty($attachs)) {
+			Db::$db->query(
+				'',
+				'
 				UPDATE {db_prefix}attachments
 				SET width = 0,
 					height = 0
 				WHERE id_attach IN ({array_int:attachs})',
-				array(
+				[
 					'attachs' => $attachs,
-				)
+				],
 			);
+		}
 
 			return true;
 	}

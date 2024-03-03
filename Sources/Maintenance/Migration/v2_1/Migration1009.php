@@ -15,14 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\BBCodeParser;
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance;
-use SMF\Maintenance\Migration;
-use SMF\Db\Schema\v3_0;
 use SMF\Db\Schema\v3_0\LogGroupRequests;
-use SMF\Utils;
+use SMF\Maintenance\Migration;
 
 class Migration0001 extends Migration
 {
@@ -63,13 +58,13 @@ class Migration0001 extends Migration
 
 		foreach ($logGroupRequestsTable->indexes as $idx) {
 			// Column exists, don't need to do this.
-			if ($idx->name =='idx_id_member' && in_array($idx->name, $existing_indexes)) {
+			if ($idx->name == 'idx_id_member' && in_array($idx->name, $existing_indexes)) {
 				continue;
 			}
 
 			$idx->add('{db_prefix}log_group_requests');
 		}
-			
+
 		return true;
 	}
 }

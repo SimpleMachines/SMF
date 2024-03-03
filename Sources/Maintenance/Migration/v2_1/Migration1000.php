@@ -17,10 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v3_0\MemberLogins;
-use SMF\Maintenance;
 use SMF\Maintenance\Migration;
-use SMF\Db\Schema\v3_0;
 use SMF\Security;
 
 class Migration0001 extends Migration
@@ -71,23 +68,24 @@ class Migration0001 extends Migration
 
 		// Copying the current "allow users to disable word censor" setting.
 		if (!isset(Config::$modSettings['allow_no_censored'])) {
-			$request = $this->query('', '
+			$request = $this->query(
+				'',
+				'
 				SELECT value
 				FROM {db_prefix}themes
 				WHERE variable={string:allow_no_censored}
 				AND id_theme = 1 OR id_theme = {int:default_theme}',
-			[
-				'allow_no_censored' => 'allow_no_censored',
-				'default_theme' => Config::$modSettings['theme_default']
-			]);
-		
+				[
+					'allow_no_censored' => 'allow_no_censored',
+					'default_theme' => Config::$modSettings['theme_default'],
+				],
+			);
+
 			// Is it set for either "default" or the one they've set as default?
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if ($row['value'] == 1)
-				{
+			while ($row = Db::$db->fetch_assoc($request)) {
+				if ($row['value'] == 1) {
 					$newSettings['allow_no_censored'] = 1;
-		
+
 					// Don't do this twice...
 					break;
 				}
@@ -97,35 +95,38 @@ class Migration0001 extends Migration
 		// Add all any settings to the settings table.
 		foreach ($newSettings as $key => $default) {
 			if (!isset(Config::$modSettings[$key])) {
-				$newSettings[$key] = $default;	
+				$newSettings[$key] = $default;
 			}
 		}
 
 		// Enable some settings we ripped from Theme settings.
-		$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
+		$ripped_settings = ['show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group'];
 
-		$request = Db::$db->query('', '
+		$request = Db::$db->query(
+			'',
+			'
 			SELECT variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN({array_string:ripped_settings})
 				AND id_member = 0
 				AND id_theme = 1',
-			array(
+			[
 				'ripped_settings' => $ripped_settings,
-			)
+			],
 		);
-	
-		$inserts = array();
+
+		$inserts = [];
+
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (!isset(Config::$modSettings[$row['variable']])) {
-				$newSettings[$row['variable']] = $row['value'];	
+				$newSettings[$row['variable']] = $row['value'];
 			}
 		}
 		Db::$db->free_result($request);
 
 		// Calculate appropriate hash cost.
 		if (!isset(Config::$modSettings['bcrypt_hash_cost'])) {
-			$newSettings['bcrypt_hash_cost'] = Security::hashBenchmark();	
+			$newSettings['bcrypt_hash_cost'] = Security::hashBenchmark();
 		}
 
 		// Adding new profile data export settings.

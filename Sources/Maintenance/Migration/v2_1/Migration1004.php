@@ -17,10 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v3_0\MemberLogins;
-use SMF\Maintenance;
 use SMF\Maintenance\Migration;
-use SMF\Db\Schema\v3_0;
 
 class Migration0001 extends Migration
 {
@@ -48,19 +45,22 @@ class Migration0001 extends Migration
 			SELECT id_member, id_cat
 			FROM {db_prefix}collapsed_categories');
 
-		$inserts = array();
-		while ($row = Db::$db->fetch_assoc($request))
-			$inserts[] = array($row['id_member'], 1, 'collapse_category_' . $row['id_cat'], $row['id_cat']);
+		$inserts = [];
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$inserts[] = [$row['id_member'], 1, 'collapse_category_' . $row['id_cat'], $row['id_cat']];
+		}
 		Db::$db->free_result($request);
 
 		$result = false;
 
 		if (!empty($inserts)) {
-			$result = Db::$db->insert('replace',
+			$result = Db::$db->insert(
+				'replace',
 				'{db_prefix}themes',
-				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+				['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
 				$inserts,
-				array('id_theme', 'id_member', 'variable')
+				['id_theme', 'id_member', 'variable'],
 			);
 		}
 

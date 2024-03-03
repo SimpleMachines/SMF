@@ -18,10 +18,8 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v3_0\MemberLogins;
 use SMF\Maintenance;
 use SMF\Maintenance\Migration;
-use SMF\Db\Schema\v3_0;
 use SMF\Utils;
 
 class Migration0001 extends Migration
@@ -45,26 +43,30 @@ class Migration0001 extends Migration
 	public function execute(): bool
 	{
 
-		$request = Db::$db->query('', '
+		$request = Db::$db->query(
+			'',
+			'
 			SELECT name, description, id_board
 			FROM {db_prefix}boards
 			WHERE id_board > {int:start}',
 			[
-				'start' => Maintenance::getCurrentStart()
-			]
+				'start' => Maintenance::getCurrentStart(),
+			],
 		);
 
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			Db::$db->query('', '
+		while ($row = Db::$db->fetch_assoc($request)) {
+			Db::$db->query(
+				'',
+				'
 				UPDATE {db_prefix}boards
 				SET name = {string:name}, description = {string:description}
 				WHERE id = {int:id}',
 				[
 					'id' => $row['id'],
 					'name' => Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($row['name']))),
-					'description' => Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($row['description']))),	
-				]);
+					'description' => Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($row['description']))),
+				],
+			);
 
 			Maintenance::setCurrentStart();
 			$this->handleTimeout();

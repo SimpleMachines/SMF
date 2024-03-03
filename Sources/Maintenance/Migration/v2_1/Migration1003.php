@@ -18,9 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\MemberLogins;
-use SMF\Maintenance;
 use SMF\Maintenance\Migration;
-use SMF\Db\Schema\v3_0;
 
 class Migration0001 extends Migration
 {
@@ -46,7 +44,7 @@ class Migration0001 extends Migration
 
 		if (!in_array(Config::$db_prefix . 'member_logins', $tables)) {
 			$member_logins = new MemberLogins();
-			$member_logins->create();	
+			$member_logins->create();
 		}
 
 		return true;
