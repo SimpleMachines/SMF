@@ -228,8 +228,8 @@ class QueryString
 		}
 
 		// Some mail providers like to encode semicolons in activation URLs...
-		if (!empty($_REQUEST['action']) && substr($_SERVER['QUERY_STRING'], 0, 18) == 'action=activate%3b') {
-			header('location: ' . Config::$scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
+		if (!empty($_REQUEST['action']) && substr(strtolower($_SERVER['QUERY_STRING']), 0, 18) == 'action=activate%3b') {
+			header('location: ' . Config::$scripturl . '?' . str_ireplace('%3b', ';', $_SERVER['QUERY_STRING']));
 
 			exit;
 		}
