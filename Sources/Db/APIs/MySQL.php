@@ -1268,7 +1268,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			// If a size was already specified, we won't be able to match it anyways.
 			if (
 				!isset($cols[$c])
-				|| !in_array($cols[$c]['type'], ['text', 'mediumntext', 'largetext', 'varchar', 'char'])
+				|| !in_array($cols[$c]['type'], ['text', 'mediumtext', 'largetext', 'varchar', 'char'])
 				|| (
 					isset($size)
 					&& $size <= 191
@@ -1575,7 +1575,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				if (
 					$key === false
 					|| !isset($columns[$key])
-					|| !in_array($columns[$key]['type'], ['text', 'mediumntext', 'largetext', 'varchar', 'char'])
+					|| !in_array($columns[$key]['type'], ['text', 'mediumtext', 'largetext', 'varchar', 'char'])
 					|| (
 						isset($size)
 						&& $size <= 191
