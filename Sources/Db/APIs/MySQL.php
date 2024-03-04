@@ -1349,6 +1349,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$types = [
 				'inet' => 'varbinary',
 				'uuid' => 'binary',
+				'mediumtext' => 'text',
+				'largetext' => 'text',
 			];
 		} else {
 			$types = [
