@@ -172,7 +172,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			if (
 				$key === false
 				|| !isset($columns[$key])
-				|| !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char'))
+				|| !in_array($columns[$key]['type'], array('text', 'mediumtext', 'largetext', 'varchar', 'char'))
 				|| (
 					isset($size)
 					&& $size <= 191
@@ -534,7 +534,7 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 		// If a size was already specified, we won't be able to match it anyways.
 		if (
 			!isset($cols[$c])
-			|| !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char'))
+			|| !in_array($cols[$c]['type'], array('text', 'mediumtext', 'largetext', 'varchar', 'char'))
 			|| (
 				isset($size)
 				&& $size <= 191
