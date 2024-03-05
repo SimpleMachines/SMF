@@ -1349,8 +1349,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$types = [
 				'inet' => 'varbinary',
 				'uuid' => 'binary',
-				'mediumtext' => 'text',
-				'largetext' => 'text',
 			];
 		} else {
 			$types = [
@@ -2385,7 +2383,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Allow unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';
 
-		if ($size !== null) {
+		if ($size > 0) {
 			$type = $type . '(' . $size . ')';
 		}
 
