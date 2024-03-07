@@ -1383,7 +1383,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'tinyint' => 'smallint',
 				'tinytext' => 'character varying',
 				'mediumtext' => 'text',
-				'largetext' => 'text',
+				'longtext' => 'text',
 				'inet' => 'inet',
 				'time' => 'time without time zone',
 				'datetime' => 'timestamp without time zone',
