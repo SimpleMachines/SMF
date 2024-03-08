@@ -407,6 +407,8 @@ class Event implements \ArrayAccess
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
+		Lang::load('Calendar');
+
 		// Just in case someone passes -2 or something.
 		$id = max(-1, $id);
 

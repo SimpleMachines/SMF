@@ -494,7 +494,7 @@ class Calendar implements ActionInterface
 	protected function __construct()
 	{
 		// Everything's gonna need this.
-		Lang::load('ManageCalendar');
+		Lang::load('Calendar+ManageCalendar');
 
 		if (empty(Config::$modSettings['cal_enabled'])) {
 			unset(self::$subactions['holidays'], self::$subactions['editholiday']);

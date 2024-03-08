@@ -234,7 +234,7 @@ class Post implements ActionInterface
 	 */
 	public function show(): void
 	{
-		Lang::load('Post');
+		Lang::load('Post+Calendar');
 
 		if (!empty(Config::$modSettings['drafts_post_enabled'])) {
 			Lang::load('Drafts');

@@ -1064,6 +1064,8 @@ class Display implements ActionInterface
 			&& !empty(Config::$modSettings['cal_showInTopic'])
 			&& !empty(Config::$modSettings['cal_enabled'])
 		) {
+			Lang::load('Calendar');
+
 			foreach(Event::load(Topic::$info->id, true) as $event) {
 				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
 					$occurrence = $event->getLastOccurrence();
@@ -1348,6 +1350,7 @@ class Display implements ActionInterface
 		}
 
 		if (Topic::$info->permissions['calendar_post']) {
+			Lang::load('Calendar');
 			Utils::$context['mod_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
 		}
 

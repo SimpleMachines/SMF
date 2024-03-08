@@ -536,7 +536,7 @@ class RRule implements \Stringable
 		}
 
 		// Just in case...
-		Lang::load('General+Modifications');
+		Lang::load('General+Calendar');
 
 		if (!empty($this->bysetpos)) {
 			$description = $this->getDescriptionBySetPos($occurrence->getParentEvent()->start);

@@ -1540,6 +1540,8 @@ class Calendar implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		Lang::load('Calendar');
+
 		if ($_GET['action'] === 'clock') {
 			$this->subaction = 'clock';
 		} elseif (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {

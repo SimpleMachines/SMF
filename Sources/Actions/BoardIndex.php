@@ -605,6 +605,8 @@ class BoardIndex implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		Lang::load('Calendar');
+
 		Theme::loadTemplate('BoardIndex');
 		Utils::$context['template_layers'][] = 'boardindex_outer';
 

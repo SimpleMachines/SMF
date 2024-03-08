@@ -1883,7 +1883,6 @@ class ServerSideIncludes
 	 */
 	public static function todaysBirthdays(string $output_method = 'echo'): ?array
 	{
-
 		if (!self::$setup_done) {
 			new self();
 		}
@@ -2033,6 +2032,8 @@ class ServerSideIncludes
 		if ($output_method != 'echo') {
 			return $return;
 		}
+
+		Lang::load('Calendar');
 
 		if (!empty($return['calendar_holidays'])) {
 			echo '
@@ -2434,6 +2435,8 @@ class ServerSideIncludes
 		if ($output_method != 'echo' || empty($return)) {
 			return $return;
 		}
+
+		Lang::load('Calendar');
 
 		// Well the output method is echo.
 		echo '
