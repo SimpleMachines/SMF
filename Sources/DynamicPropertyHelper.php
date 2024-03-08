@@ -77,9 +77,9 @@ namespace SMF;
  *        );
  *
  *    ... then getting $this->foo will get the value returned by the class's
- *    getFoo() method. The callable must be a stand-alone function or a static
- *    method in order to keep PHP happy. The current object will be passed to
- *    the callable as its first argument.
+ *    getFoo() method. The callable must be a static method in order to keep PHP
+ *    happy. The current object will be passed to the callable as its first
+ *    argument.
  */
 trait DynamicPropertyHelper
 {
@@ -211,7 +211,7 @@ trait DynamicPropertyHelper
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties are calculated dynamically.
-			if (is_callable($real_prop)) {
+			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
 				return call_user_func($real_prop, $this);
 			}
 
@@ -252,7 +252,7 @@ trait DynamicPropertyHelper
 			$real_prop = ltrim($this->prop_aliases[$prop], '!');
 
 			// A callable property is set if it returns a non-null value.
-			if (is_callable($real_prop)) {
+			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
 				return call_user_func($real_prop, $this) !== null;
 			}
 
