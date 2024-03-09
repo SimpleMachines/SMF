@@ -999,7 +999,6 @@ function template_quickreply()
 				bIsFull: true
 			});
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 			var oJumpAnchor = "quickreply_anchor";
 		</script>';
 }
