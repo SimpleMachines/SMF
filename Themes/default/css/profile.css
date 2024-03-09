@@ -15,11 +15,8 @@
 	box-shadow: var(--basicinfo-box-shadow);
 	display: flex;
 	flex-direction: column;
-	gap: var(--basicinfo-gap);
-	margin-block: var(--basicinfo-margin-block);
-	margin-inline: var(--basicinfo-margin-inline);
-	padding-block: var(--basicinfo-padding-block);
-	padding-inline: var(--basicinfo-padding-inline);
+	gap: .25em 0;
+	padding: .75em 1em;
 	text-align: center;
 }
 #basicinfo h4 {
@@ -185,12 +182,10 @@
 	box-shadow: var(--post-inner-box-shadow);
 	clear: both;
 	hyphens: auto;
-	margin-block: var(--post-inner-margin-block);
-	margin-inline: var(--post-inner-margin-inline);
+	margin-block: .5em 0;
 	min-height: var(--post-inner-height);
 	overflow-wrap: break-word;
-	padding-block: var(--post-inner-padding-block);
-	padding-inline: var(--post-inner-padding-inline);
+	padding: 1.25em .5em;
 	word-wrap: break-word;
 }
 .topic h4 {
@@ -255,11 +250,11 @@
 	margin: 0;
 	padding: 0;
 }
-
 #theme_settings li {
 	margin: 10px 0;
 	padding: 0;
 }
+
 /* Paid Subscriptions */
 #paid_subscription {
 	width: 100%;

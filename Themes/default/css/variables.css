@@ -9,10 +9,7 @@
 	--body-font-size:                                 0.6889rem + 0.5682vw;
 	--body-font-size-max:                             1.125rem;
 	--body-font-size-min:                             0.8125rem;
-	--body-margin-block:                              0;
-	--body-margin-inline:                             0;
-	--body-padding-block:                             0;
-	--body-padding-inline:                            0;
+
 	/** Body Links **/
 	--body-link-color:                                hsl(var(--primary-color-hue), 75%, 33%);
 	--body-link-color_focus:                          var(--body-link-color_hover);
@@ -25,10 +22,6 @@
 
 	/** Wrapper **/
 	--wrapper-width:                                  1200px;
-	--wrapper-margin-block:                           0;
-	--wrapper-margin-inline:                          auto;
-	--wrapper-padding-block:                          0;
-	--wrapper-padding-inline:                         0;
 
 	/** Avatar General **/
 	--avatar-border-radius:                           50%;
@@ -44,10 +37,6 @@
 	--horizontalrule-border-width:                    0;
 	--horizontalrule-box-shadow:                      0 1px 0 #bababa inset;
 	--horizontalrule-height:                          2px;
-	--horizontalrule-margin-block:                    1em;
-	--horizontalrule-margin-inline:                   0;
-	--horizontalrule-padding-block:                   0;
-	--horizontalrule-padding-inline:                  0;
 
 	/** Heading Reset **/
 	--heading-color:                                  #454545;
@@ -82,8 +71,6 @@
 	--input-font-size:                                0.8em;
 	--input-height:                                   2.25em;
 	--input-line-height:                              1.5;
-	--input-margin-block:                             0;
-	--input-margin-inline:                            0;
 	--input-outline:                                  auto;
 	--input-outline-offset:                           0;
 	--input-padding-block:                            0;
@@ -129,12 +116,8 @@
 	--button-gap:                                     0.2em 0.5em;
 	--button-height:                                  2.5em;
 	--button-line-height:                             1;
-	--button-margin-block:                            0;
-	--button-margin-inline:                           0;
 	--button-outline:                                 auto;
 	--button-outline-offset:                          0.15em;
-	--button-padding-block:                           0.25em;
-	--button-padding-inline:                          0.75em;
 	--button-text-decoration:                         none;
 	--button-text-decoration_active:                  none;
 	--button-text-decoration_focus:                   none;
@@ -152,10 +135,6 @@
 	--fieldset-border-style:                          solid;
 	--fieldset-border-width:                          1px;
 	--fieldset-box-shadow:                            none;
-	--fieldset-margin-block:                          0 0.5em;
-	--fieldset-margin-inline:                         0;
-	--fieldset-padding-block:                         1.5em;
-	--fieldset-padding-inline:                        var(--fieldset-padding-block);
 	/** Fieldset Legend **/
 	--fieldset-legend-bg:                             transparent;
 	--fieldset-legend-border-color:                   transparent;
@@ -164,10 +143,6 @@
 	--fieldset-legend-border-width:                   0;
 	--fieldset-legend-box-shadow:                     none;
 	--fieldset-legend-color:                          hsl(0, 0%, 33%);
-	--fieldset-legend-margin-block:                   0;
-	--fieldset-legend-margin-inline:                  0;
-	--fieldset-legend-padding-block:                  0;
-	--fieldset-legend-padding-inline:                 0;
 
 	/** Details **/
 	--details-bg:                                     transparent;
@@ -179,10 +154,6 @@
 	--details-border-width:                           1px 0;
 	--details-box-shadow:                             none;
 	--details-box-shadow_open:                        none;
-	--details-margin-block:                           0 0.5em;
-	--details-margin-inline:                          0;
-	--details-padding-block:                          0;
-	--details-padding-inline:                         0;
 	/** Details Summary **/
 	--details-summary-bg:                             transparent;
 	--details-summary-bg_open:                        transparent;
@@ -208,10 +179,6 @@
 	--header-border-width:                            0;
 	--header-box-shadow:                              none;
 	--header-height:                                  80px;
-	--header-margin-block:                            0;
-	--header-margin-inline:                           0;
-	--header-padding-block:                           0.5em;
-	--header-padding-inline:                          0.2em;
 
 	/** Forum Title **/
 	--forumtitle-color:                               hsl(213, 58%, 37%);
@@ -220,10 +187,6 @@
 	--forumtitle-font-family:                         "Tahoma", sans-serif;
 	--forumtitle-font-size:                           1.8em;
 	--forumtitle-font-weight:                         400;
-	--forumtitle-margin-block:                        0;
-	--forumtitle-margin-inline:                       0;
-	--forumtitle-padding-block:                       0;
-	--forumtitle-padding-inline:                      0;
 	--forumtitle-text-decoration:                     none;
 	--forumtitle-text-decoration_focus:               var(--forumtitle-text-decoration_hover);
 	--forumtitle-text-decoration_hover:               underline;
@@ -239,11 +202,6 @@
 	--contentsection-border-width:                    0;
 	--contentsection-box-shadow:                      none;
 	--contentsection-color:                           inherit;
-	--contentsection-clear:                           both;
-	--contentsection-margin-block:                    0;
-	--contentsection-margin-inline:                   auto;
-	--contentsection-padding-block:                   0;
-	--contentsection-padding-inline:                  0;
 
 	/** Footer **/
 	--footer-bg:                                      var(--primary-color-700);
@@ -254,12 +212,7 @@
 	--footer-box-shadow:                              none;
 	--footer-color:                                   hsl(0, 0%, 96%);
 	--footer-font-size:                               0.85em;
-	--footer-gap:                                     1.25em 0.25em;
-	--footer-height:                                  0;
-	--footer-margin-block:                            4em 0;
-	--footer-margin-inline:                           0;
-	--footer-padding-block:                           0.75em;
-	--footer-padding-inline:                          0;
+	--footer-height:                                  35px;
 	/** Footer Links **/
 	--footer-link-color:                              #fff;
 	--footer-link-color_focus:                        var(--footer-link-color_hover);
@@ -281,10 +234,6 @@
 	--navigatesection-border-style:                   solid;
 	--navigatesection-border-width:                   1px;
 	--navigatesection-box-shadow:                     0px 0px 1px 1px rgb(255,255,255) inset;
-	--navigatesection-margin-block:                   0.5em 0.75em;
-	--navigatesection-margin-inline:                  0;
-	--navigatesection-padding-block:                  0;
-	--navigatesection-padding-inline:                 0;
 	
 	/* Breadcrumb */
 	--breadcrumb-bg:                                  var(--navigatesection-bg);
@@ -296,20 +245,11 @@
 	--breadcrumb-color:                               hsl(0, 0%, 27%);
 	--breadcrumb-font-size:                           0.9em;
 	--breadcrumb-font-family:                         inherit;
-	--breadcrumb-gap:                                 0.25em 0.15em;
-	--breadcrumb-margin-block:                        0;
-	--breadcrumb-margin-inline:                       0;
-	--breadcrumb-padding-block:                       0.75em;
-	--breadcrumb-padding-inline:                      0.75em;
 	/** Breadcrumb Divider **/
 	--breadcrumb-divider-color:                       hsl(206, 38%, 40%);
 	--breadcrumb-divider-font-family:                 Arial, sans-serif;
 	--breadcrumb-divider-font-size:                   0.8em;
 	--breadcrumb-divider-line-height:                 150%;
-	--breadcrumb-divider-margin-block:                0;
-	--breadcrumb-divider-margin-inline:               0;
-	--breadcrumb-divider-padding-block:               0;
-	--breadcrumb-divider-padding-inline:              0.4em;
 	/** Breadcrumb Link **/
 	--breadcrumb-link-color:                          var(--primary-color-800);
 	--breadcrumb-link-color_focus:                    var(--breadcrumb-link-color_hover);
@@ -319,12 +259,7 @@
 	--breadcrumb-link-font-weight_active:             700;
 	--breadcrumb-link-font-weight_focus:              var(--breadcrumb-link-font-weight_hover);
 	--breadcrumb-link-font-weight_hover:              var(--breadcrumb-link-font-weight);
-	--breadcrumb-link-gap:                            0 0.25em;
 	--breadcrumb-link-line-height:                    1;
-	--breadcrumb-link-margin-block:                   0;
-	--breadcrumb-link-margin-inline:                  0;
-	--breadcrumb-link-padding-block:                  0.2em;
-	--breadcrumb-link-padding-inline:                 0.2em;
 	--breadcrumb-link-text-decoration:                none;
 	--breadcrumb-link-text-decoration_active:         none;
 	--breadcrumb-link-text-decoration_focus:          none;
@@ -342,11 +277,7 @@
 	--sectionhead-border-width:                       0 1px 1px;
 	--sectionhead-box-shadow:                         var(--breadcrumb-box-shadow);
 	--sectionhead-color:                              #333;
-	--sectionhead-gap:                                0.25em 0;
-	--sectionhead-margin-block:                       -2px 0.75em;
-	--sectionhead-margin-inline:                      0;
-	--sectionhead-padding-block:                      0.5em 1em;
-	--sectionhead-padding-inline:                     var(--breadcrumb-padding-inline);
+
 	/** Sectin Head Title **/
 	--sectionhead-title-color:                        inherit;
 	--sectionhead-title-color_focus:                  inherit;
@@ -356,10 +287,6 @@
 	--sectionhead-title-font-weight_focus:            normal;
 	--sectionhead-title-font-weight_hover:            normal;
 	--sectionhead-title-line-height:                  1em;
-	--sectionhead-title-margin-block:                 0 0.25em;
-	--sectionhead-title-margin-inline:                0;
-	--sectionhead-title-padding-block:                0;
-	--sectionhead-title-padding-inline:               0;
 	--sectionhead-title-text-decoration:              none;
 	--sectionhead-title-text-decoration_focus:        none;
 	--sectionhead-title-text-decoration_hover:        none;
@@ -370,11 +297,6 @@
 	--sectionhead-text-color:                         hsl(0, 0%, 58%);
 	--sectionhead-text-font-size:                     1em;
 	--sectionhead-text-font-weight:                   normal;
-	--sectionhead-text-line-height:                   1em;
-	--sectionhead-text-margin-block:                  0;
-	--sectionhead-text-margin-inline:                 0;
-	--sectionhead-text-padding-block:                 0;
-	--sectionhead-text-padding-inline:                0;
 	/** Section Head Link **/
 	--sectionhead-link-color:                         var(--body-link-color);
 	--sectionhead-link-color_focus:                   var(--body-link-color_focus);
@@ -383,6 +305,7 @@
 	--sectionhead-link-font-weight:                   700;
 	--sectionhead-link-font-weight_focus:             var(--sectionhead-link-font-weight_hover);
 	--sectionhead-link-font-weight_hover:             var(--sectionhead-link-font-weight);
+	--sectionhead-text-line-height:                   1.2;
 	--sectionhead-link-text-decoration:               none;
 	--sectionhead-link-text-decoration_focus:         none;
 	--sectionhead-link-text-decoration_hover:         none;
@@ -400,10 +323,6 @@
 	--newsfader-color:                                inherit;
 	--newsfader-font-size:                            0.9em;
 	--newsfader-height:                               5em;
-	--newsfader-margin-block:                         0.5em 1em;
-	--newsfader-margin-inline:                        0;
-	--newsfader-padding-block:                        0.8em;
-	--newsfader-padding-inline:                       var(--newsfader-padding-block);
 	/** News Fader Icon **/
 	--newsfader-icon-bg:                              hsl(var(--primary-color-hue), 100%, 91%);
 	--newsfader-icon-color:                           var(--primary-color-800);
@@ -418,12 +337,7 @@
 	--newsfader-pager-border-style:                   solid;
 	--newsfader-pager-border-width:                   1px;
 	--newsfader-pager-box-shadow:                     none;
-	--newsfader-pager-gap:                            0.5em;
 	--newsfader-pager-height:                         1em;
-	--newsfader-pager-margin-block:                   0;
-	--newsfader-pager-margin-inline:                  0;
-	--newsfader-pager-padding-block:                  0;
-	--newsfader-pager-padding-inline:                 0;
 	--newsfader-pager-width:                          var(--newsfader-pager-height);
 
 	/** Top Info **/
@@ -461,15 +375,10 @@
 	--topinfo-font-weight_active:                     400;
 	--topinfo-font-weight_focus:                      var(--topinfo-font-weight_hover);
 	--topinfo-font-weight_hover:                      400;
-	--topinfo-gap:                                    0.25em 0.4em;
 	--topinfo-height:                                 50px;
 	--topinfo-line-height:                            1;
-	--topinfo-margin-block:                           0;
-	--topinfo-margin-inline:                          0;
 	--topinfo-outline:                                auto;
 	--topinfo-outline-offset:                         0.15em;
-	--topinfo-padding-block:                          0.5em;
-	--topinfo-padding-inline:                         0.5em;
 	--topinfo-text-decoration:                        none;
 	--topinfo-text-decoration_active:                 none;
 	--topinfo-text-decoration_focus:                  none;
@@ -486,10 +395,6 @@
 	--topinfo-avatar-border-width:                    0;
 	--topinfo-avatar-box-shadow:                      none;
 	--topinfo-avatar-height:                          calc(var(--topinfo-height) * 0.6);
-	--topinfo-avatar-margin-block:                    0;
-	--topinfo-avatar-margin-inline:                   0;
-	--topinfo-avatar-padding-block:                   0;
-	--topinfo-avatar-padding-inline:                  0;
 	--topinfo-avatar-width:                           var(--topinfo-avatar-height);
 
 	/** Top Menu **/
@@ -514,10 +419,6 @@
 	--topmenu-font-weight:                            400;
 	--topmenu-height:                                 22em;
 	--topmenu-line-height:                            1;
-	--topmenu-margin-block:                           2px 0;
-	--topmenu-margin-inline:                          0;
-	--topmenu-padding-block:                          0;
-	--topmenu-padding-inline:                         0;
 	--topmenu-text-shadow:                            none;
 	--topmenu-text-transform:                         normal;
 	--topmenu-width:                                  20em;
@@ -528,16 +429,12 @@
 	--topmenu-header-border-width:                    0 0 1px;
 	--topmenu-header-color:                           inherit;
 	--topmenu-header-font-size:                       1em;
-	--topmenu-header-padding-block:                   0.25em;
-	--topmenu-header-padding-inline:                  0.75em;
 	/** Top Menu Body **/
 	--topmenu-body-bg:                                transparent;
 	--topmenu-body-border-color:                      transparent;
 	--topmenu-body-border-style:                      solid;
 	--topmenu-body-border-width:                      0;
 	--topmenu-body-font-size:                         1em;
-	--topmenu-body-padding-block:                     0;
-	--topmenu-body-padding-inline:                    0;
 
 	/** Profile Links **/
 	--profilelinks-bg:                                transparent;
@@ -549,10 +446,6 @@
 	--profilelinks-font-size:                         inherit;
 	--profilelinks-gap:                               0;
 	--profilelinks-grid:                              auto / 1fr 1fr;
-	--profilelinks-marign-block:                      0;
-	--profilelinks-margin-inline:                     0;
-	--profilelinks-padding-block:                     0.25em;
-	--profilelinks-padding-inline:                    var(--profilelinks-padding-block);
 	/** Profile Links Item **/
 	--profilelinks-item-bg:                           var(--dropmenu-an-bg);
 	--profilelinks-item-bg_focus:                     var(--dropmenu-an-bg_focus);
@@ -566,14 +459,9 @@
 	--profilelinks-item-font-weight:                  var(--dropmenu-an-font-weight);
 	--profilelinks-item-font-weight_focus:            var(--dropmenu-an-font-weight_focus);
 	--profilelinks-item-font-weight_hover:            var(--dropmenu-an-font-weight_hover);
-	--profilelinks-item-gap:                          var(--dropmenu-an-gap);
 	--profilelinks-item-height:                       2em;
-	--profilelinks-item-margin-block:                 var(--dropmenu-an-margin-block);
-	--profilelinks-item-margin-inline:                var(--dropmenu-an-margin-inline);
 	--profilelinks-item-outline:                      auto;
 	--profilelinks-item-outline-offset:               0;
-	--profilelinks-item-padding-block:                var(--dropmenu-an-padding-block);
-	--profilelinks-item-padding-inline:               var(--dropmenu-an-padding-inline);
 	--profilelinks-item-text-decoration:              var(--dropmenu-an-text-decoration);
 	--profilelinks-item-text-decoration_focus:        var(--dropmenu-an-text-decoration_focus);
 	--profilelinks-item-text-decoration_hover:        var(--dropmenu-an-text-decoration_hover);
@@ -596,10 +484,6 @@
 	--genericnoti-font-size:                          1em;
 	--genericnoti-gap:                                0.25em 1em;
 	--genericnoti-height:                             var(--genericnoti-avatar-height);
-	--genericnoti-margin-block:                       0;
-	--genericnoti-margin-inline:                      0;
-	--genericnoti-padding-block:                      0.5em;
-	--genericnoti-padding-inline:                     0.5em;
 	/** Generic Noti Avatar **/
 	--genericnoti-avatar-height:                      2.5em;
 	--genericnoti-avatar-width:                       var(--genericnoti-avatar-height);
@@ -609,9 +493,6 @@
 	/** Generic Noti Link **/
 	--genericnoti-link-color:                         var(--body-link-color);
 	--genericnoti-link-color_hover:                   var(--body-link-color_hover);
-	/** Generic Noti Read **/
-	--genericnoti-read-padding-block:                 1em;
-	--genericnoti-read-padding-inline:                0.75em;
 
 	/** AMT **/
 	--amt-bg:                                         var(--secondary-color-700);
@@ -642,8 +523,6 @@
 	--new-font-weight_focus:                          var(--new-font-weight_hover);
 	--new-font-weight_hover:                          var(--new-font-weight);
 	--new-line-height:                                15px;
-	--new-padding-block:                              0.1em;
-	--new-padding-inline:                             0.6em;
 	--new-text-decoration:                            none;
 	--new-text-decoration_focus:                      var(--new-text-decoration_hover);
 	--new-text-decoration_hover:                      none;
@@ -657,10 +536,6 @@
 	--nav-border-style:                               solid;
 	--nav-border-width:                               2px 0;
 	--nav-height:                                     55px;
-	--nav-margin-block:                               0;
-	--nav-margin-inline:                              0;
-	--nav-padding-block:                              0.6em;
-	--nav-padding-inline:                             0;
 
 	/** Mobile Nav **/
 	--mobilenav-color:                                #fff;
@@ -670,9 +545,6 @@
 	--mobilenav-font-weight:                          700;
 	--mobilenav-font-weight_focus:                    var(--mobilenav-font-weight_hover);
 	--mobilenav-font-weight_hover:                    700;
-	--mobilenav-gap:                                  0 0.75em;
-	--mobilenav-padding-block:                        0.25em;
-	--mobilenav-padding-inline:                       0;
 	--mobilenav-text-decoration:                      none;
 	--mobilenav-text-shadow:                          none;
 	--mobilenav-text-shadow_focus:                    none;
@@ -685,30 +557,17 @@
 	--mobilegeneric-font-weight:                      400;
 	--mobilegeneric-font-weight_focus:                var(--mobilegeneric-font-weight_hover);
 	--mobilegeneric-font-weight_hover:                var(--mobilegeneric-font-weight);
-	--mobilegeneric-gap:                              0 0.75em;
-	--mobilegeneric-padding-block:                    0.25em;
-	--mobilegeneric-padding-inline:                   0.5em;
 	--mobilegeneric-text-decoration:                  none;
 	--mobilegeneric-text-shadow:                      none;
 	--mobilegeneric-text-shadow_focus:                none;
 	--mobilegeneric-text-shadow_hover:                none;
 
 	/** Generic Menu **/
-	--genericmenu-bg:                                 var(--primary-color-800);
+	--genericmenu-bg:                                 var(--primary-color-800) ;
 	--genericmenu-border-color:                       transparent;
 	--genericmenu-border-radius:                      0.25em;
 	--genericmenu-border-style:                       solid;
 	--genericmenu-border-width:                       0;
-	--genericmenu-margin-block:                       0.25em;
-	--genericmenu-margin-inline:                      0;
-	--genericmenu-padding-block:                      0.5em;
-	--genericmenu-padding-inline:                     0.25em;
-	/** Dropmenu list **/
-	--dropmenu-main-gap:                              0.5em;
-	--dropmenu-main-margin-block:                     0;
-	--dropmenu-main-margin-inline:                    0;
-	--dropmenu-main-padding-block:                    0;
-	--dropmenu-main-padding-inline:                   0;
 	/** Dropmenu first level links **/
 	--dropmenu-a1-bg:                                 transparent;
 	--dropmenu-a1-bg_active:                          #fff;
@@ -742,12 +601,7 @@
 	--dropmenu-a1-font-weight_active:                 700;
 	--dropmenu-a1-font-weight_focus:                  400;
 	--dropmenu-a1-font-weight_hover:                  400;
-	--dropmenu-a1-gap:                                0.5em;
 	--dropmenu-a1-height:                             2.75em;
-	--dropmenu-a1-margin-block:                       0;
-	--dropmenu-a1-margin-inline:                      0;
-	--dropmenu-a1-padding-block:                      0.2em;
-	--dropmenu-a1-padding-inline:                     0.75em;
 	--dropmenu-a1-outline:                            auto;
 	--dropmenu-a1-outline-offset:                     0;
 	--dropmenu-a1-text-decoration:                    none;
@@ -765,11 +619,6 @@
 	--dropmenu-child-border-style:                    solid;
 	--dropmenu-child-border-width:                    1px;
 	--dropmenu-child-box-shadow:                      3px 3px 4px rgba(0, 0, 0, 0.3);
-	--dropmenu-child-gap:                             0;
-	--dropmenu-child-margin-block:                    0;
-	--dropmenu-child-margin-inline:                   0;
-	--dropmenu-child-padding-block:                   0.25em;
-	--dropmenu-child-padding-inline:                  0.25em;
 	--dropmenu-child-width:                           15em;
 	/** Dropmenu n level links **/
 	--dropmenu-an-bg:                                 transparent;
@@ -804,12 +653,7 @@
 	--dropmenu-an-font-weight_active:                 700;
 	--dropmenu-an-font-weight_focus:                  400;
 	--dropmenu-an-font-weight_hover:                  400;
-	--dropmenu-an-gap:                                0.2em 0.5em;
 	--dropmenu-an-height:                             2.5em;
-	--dropmenu-an-margin-block:                       0;
-	--dropmenu-an-margin-inline:                      0;
-	--dropmenu-an-padding-block:                      0.2em;
-	--dropmenu-an-padding-inline:                     0.75em;
 	--dropmenu-an-outline:                            auto;
 	--dropmenu-an-outline-offset:                     0;
 	--dropmenu-an-text-decoration:                    none;
@@ -828,11 +672,6 @@
 	--quickbuttons-border-style:                      solid;
 	--quickbuttons-border-width:                      0;
 	--quickbuttons-box-shadow:                        none;
-	--quickbuttons-gap:                               0.25em;
-	--quickbuttons-margin-block:                      0.25em;
-	--quickbuttons-margin-inline:                     0;
-	--quickbuttons-padding-block:                     0;
-	--quickbuttons-padding-inline:                    0;
 	/** Quickbuttons Link **/
 	--quickbuttons-link-bg:                           hsl(var(--primary-color-hue), 20%, 85%);
 	--quickbuttons-link-bg_focus:                     var(--quickbuttons-link-bg_hover);
@@ -858,15 +697,10 @@
 	--quickbuttons-link-font-weight:                  400;
 	--quickbuttons-link-font-weight_focus:            var(--quickbuttons-link-font-weight_hover);
 	--quickbuttons-link-font-weight_hover:            var(--quickbuttons-link-font-weight);
-	--quickbuttons-link-gap:                          0.2em 0.5em;
 	--quickbuttons-link-height:                       2em;
 	--quickbuttons-link-line-height:                  1;
-	--quickbuttons-link-margin-block:                 0;
-	--quickbuttons-link-margin-inline:                0;
 	--quickbuttons-link-outline:                      auto;
 	--quickbuttons-link-outline-offset:               0.1em;
-	--quickbuttons-link-padding-block:                0.6em;
-	--quickbuttons-link-padding-inline:               0.75em;
 	--quickbuttons-link-text-decoration:              none;
 	--quickbuttons-link-text-decoration_active:       var(--quickbuttons-link-text-decoration);
 	--quickbuttons-link-text-decoration_focus:        var(--quickbuttons-link-text-decoration_hover);
@@ -884,11 +718,6 @@
 	--quickoptions-border-style:                      solid;
 	--quickoptions-border-width:                      1px;
 	--quickoptions-box-shadow:                        3px 3px 4px rgba(0, 0, 0, 0.3);
-	--quickoptions-gap:                               0;
-	--quickoptions-margin-block:                      0;
-	--quickoptions-margin-inline:                     0;
-	--quickoptions-padding-block:                     0.2em;
-	--quickoptions-padding-inline:                    0.2em;
 	--quickoptions-width:                             14em;
 	/** Post Options Link **/
 	--quickoptions-link-bg:                           transparent;
@@ -915,12 +744,7 @@
 	--quickoptions-link-font-weight:                  400;
 	--quickoptions-link-font-weight_focus:            400;
 	--quickoptions-link-font-weight_hover:            400;
-	--quickoptions-link-gap:                          0.2em 0.5em;
 	--quickoptions-link-height:                       2.5em;
-	--quickoptions-link-margin-block:                 0;
-	--quickoptions-link-margin-inline:                0;
-	--quickoptions-link-padding-block:                0.2em;
-	--quickoptions-link-padding-inline:               0.75em;
 	--quickoptions-link-outline:                      auto;
 	--quickoptions-link-outline-offset:               0;
 	--quickoptions-link-text-decoration:              none;
@@ -937,11 +761,6 @@
 	--buttonlist-border-style:                        solid;
 	--buttonlist-border-width:                        0;
 	--buttonlist-box-shadow:                          none;
-	--buttonlist-gap:                                 0.5em;
-	--buttonlist-margin-block:                        0.25em;
-	--buttonlist-margin-inline:                       0;
-	--buttonlist-padding-block:                       0;
-	--buttonlist-padding-inline:                      0;
 	/** Buttonlist Link **/
 	--buttonlist-link-bg:                             hsl(var(--primary-color-hue), 20%, 85%);
 	--buttonlist-link-bg_active:                      var(--secondary-color-700);
@@ -978,15 +797,10 @@
 	--buttonlist-link-font-weight_active:             var(--buttonlist-link-font-weight);
 	--buttonlist-link-font-weight_focus:              var(--buttonlist-link-font-weight_hover);
 	--buttonlist-link-font-weight_hover:              var(--buttonlist-link-font-weight);
-	--buttonlist-link-gap:                            0.2em 0.5em;
 	--buttonlist-link-height:                         2em;
 	--buttonlist-link-line-height:                    1;
-	--buttonlist-link-margin-block:                   0;
-	--buttonlist-link-margin-inline:                  0;
 	--buttonlist-link-outline:                        auto;
 	--buttonlist-link-outline-offset:                 0.15em;
-	--buttonlist-link-padding-block:                  0.6em;
-	--buttonlist-link-padding-inline:                 0.75em;
 	--buttonlist-link-text-decoration:                none;
 	--buttonlist-link-text-decoration_active:         var(--buttonlist-link-text-decoration);
 	--buttonlist-link-text-decoration_focus:          var(--buttonlist-link-text-decoration_hover);
@@ -1005,11 +819,6 @@
 	--pagesection-border-width:                       0;
 	--pagesection-box-shadow:                         none;
 	--pagesection-color:                              inherit;
-	--pagesection-clear:                              both;
-	--pagesection-margin-block:                       0.25em;
-	--pagesection-margin-inline:                      auto;
-	--pagesection-padding-block:                      0;
-	--pagesection-padding-inline:                     0;
 
 	/** Pages **/
 	--pages-bg:                                       transparent;
@@ -1018,11 +827,6 @@
 	--pages-border-style:                             solid;
 	--pages-border-width:                             0;
 	--pages-box-shadow:                               none;
-	--pages-gap:                                      0.2em;
-	--pages-margin-block:                             0;
-	--pages-margin-inline:                            0;
-	--pages-padding-block:                            0;
-	--pages-padding-inline:                           0;
 	/** Page Link **/
 	--pages-link-bg:                                  var(--buttonlist-link-bg);
 	--pages-link-bg_active:                           var(--buttonlist-link-bg_active);
@@ -1059,15 +863,10 @@
 	--pages-link-font-weight_active:                  700;
 	--pages-link-font-weight_focus:                   var(--pages-link-font-weight_hover);
 	--pages-link-font-weight_hover:                   var(--pages-link-font-weight);
-	--pages-link-gap:                                 0.2em 0.5em;
 	--pages-link-height:                              2em;
 	--pages-link-line-height:                         1;
-	--pages-link-margin-block:                        0;
-	--pages-link-margin-inline:                       0;
 	--pages-link-outline:                             auto;
 	--pages-link-outline-offset:                      0.15em;
-	--pages-link-padding-block:                       0.6em;
-	--pages-link-padding-inline:                      0.75em;
 	--pages-link-text-decoration:                     none;
 	--pages-link-text-decoration_active:              var(--pages-link-text-decoration);
 	--pages-link-text-decoration_focus:               var(--pages-link-text-decoration_hover);
@@ -1093,13 +892,7 @@
 	--catbar-font-weight:                             400;
 	--catbar-font-weight_focus:                       400;
 	--catbar-font-weight_hover:                       400;
-	--catbar-gap:                                     0 0.5em;
-	--catbar-line-height:                             1;
 	--catbar-height:                                  2.5em;
-	--catbar-margin-block:                            0.25em;
-	--catbar-margin-inline:                           0;
-	--catbar-padding-block:                           0.5em;
-	--catbar-padding-inline:                          0.75em;
 	--catbar-text-decoration:                         none;
 	--catbar-text-decoration_focus:                   none;
 	--catbar-text-decoration_hover:                   none;
@@ -1121,12 +914,8 @@
 	--catbg-font-weight:                              inherit;
 	--catbg-font-weight_focus:                        inherit;
 	--catbg-font-weight_hover:                        inherit;
-	--catbg-margin-block:                             0;
-	--catbg-margin-inline:                            0;
 	--catbg-outline:                                  auto;
 	--catbg-outline-offset:                           0;
-	--catbg-padding-block:                            0;
-	--catbg-padding-inline:                           0;
 	--catbg-text-decoration:                          none;
 	--catbg-text-decoration_focus:                    none;
 	--catbg-text-decoration_hover:                    none;
@@ -1149,13 +938,7 @@
 	--titlebar-font-weight:                           400;
 	--titlebar-font-weight_focus:                     var(--titlebar-font-weight_hover);
 	--titlebar-font-weight_hover:                     var(--titlebar-font-weight);
-	--titlebar-gap:                                   0 0.5em;
-	--titlebar-line-height:                           1;
 	--titlebar-height:                                2.25em;
-	--titlebar-margin-block:                          0.25em;
-	--titlebar-margin-inline:                         0;
-	--titlebar-padding-block:                         0.25em;
-	--titlebar-padding-inline:                        1em;
 	--titlebar-text-decoration:                       none;
 	--titlebar-text-decoration_focus:                 none;
 	--titlebar-text-decoration_hover:                 none;
@@ -1177,12 +960,8 @@
 	--titlebg-font-weight:                            700;
 	--titlebg-font-weight_focus:                      var(--titlebg-font-weight_hover);
 	--titlebg-font-weight_hover:                      var(--titlebg-font-weight);
-	--titlebg-margin-block:                           0;
-	--titlebg-margin-inline:                          0;
 	--titlebg-outline:                                auto;
 	--titlebg-outline-offset:                         0;
-	--titlebg-padding-block:                          0;
-	--titlebg-padding-inline:                         0;
 	--titlebg-text-decoration:                        none;
 	--titlebg-text-decoration_focus:                  none;
 	--titlebg-text-decoration_hover:                  none;
@@ -1205,13 +984,7 @@
 	--subbar-font-weight:                             400;
 	--subbar-font-weight_focus:                       var(--subbar-font-weight_hover);
 	--subbar-font-weight_hover:                       var(--subbar-font-weight);
-	--subbar-gap:                                     0.5em;
-	--subbar-line-height:                             1;
 	--subbar-height:                                  auto;
-	--subbar-margin-block:                            0;
-	--subbar-margin-inline:                           0;
-	--subbar-padding-block:                           0.5em;
-	--subbar-padding-inline:                          0.5em;
 	--subbar-text-decoration:                         none;
 	--subbar-text-decoration_focus:                   none;
 	--subbar-text-decoration_hover:                   none;
@@ -1233,12 +1006,8 @@
 	--subbg-font-weight:                              inherit;
 	--subbg-font-weight_focus:                        var(--subbg-font-weight_hover);
 	--subbg-font-weight_hover:                        var(--subbg-font-weight);
-	--subbg-margin-block:                             0;
-	--subbg-margin-inline:                            0;
 	--subbg-outline:                                  auto;
 	--subbg-outline-offset:                           0;
-	--subbg-padding-block:                            0;
-	--subbg-padding-inline:                           0;
 	--subbg-text-decoration:                          none;
 	--subbg-text-decoration_focus:                    none;
 	--subbg-text-decoration_hover:                    none;
@@ -1296,10 +1065,6 @@
 	--roundframe-box-shadow:                          none;
 	--roundframe-color:                               inherit;
 	--roundframe-font-size:                           1em;
-	--roundframe-margin-block:                        0.5em 0;
-	--roundframe-margin-inline:                       0;
-	--roundframe-padding-block:                       0.75em;
-	--roundframe-padding-inline:                      1em;
 	--roundframe-text-shadow:                         none;
 
 	/** Information Area **/
@@ -1311,20 +1076,12 @@
 	--information-box-shadow:                         none;
 	--information-color:                              inherit;
 	--information-font-size:                          0.95em;
-	--information-margin-block:                       0 0.5em;
-	--information-margin-inline:                      0;
-	--information-padding-block:                      1em;
-	--information-padding-inline:                     0.75em;
 	--information-text-shadow:                        none;
 
 	/** General Box styles **/
 	--generalbox-border-style:                        solid;
 	--generalbox-border-width:                        2px 0;
 	--generalbox-font-size:                           1.1em;
-	--generalbox-margin-block:                        0.75em 0.25em;
-	--generalbox-margin-inline:                       0;
-	--generalbox-padding-block:                       0.75em;
-	--generalbox-padding-inline:                      3em 1.5em;
 	--generalbox-text-shadow:                         none;
 	--generalbox-text-transform:                      normal;
 
@@ -1347,10 +1104,6 @@
 	--descbox-border-color:                           hsl(0, 0%, 77%);
 	--descbox-border-style:                           solid;
 	--descbox-border-width:                           1px;
-	--descbox-margin-block:                           0.5em;
-	--descbox-margin-inline:                          0;
-	--descbox-padding-block:                          0.5em;
-	--descbox-padding-inline:                         0.75em;
 
 	/** Code Block **/
 	--code-bg:                                        hsl(0, 0%, 90%);
@@ -1361,18 +1114,10 @@
 	--code-box-shadow:                                none;
 	--code-font-size:                                 0.8rem;
 	--code-height:                                    25em;
-	--code-margin-block:                              0.2em 0.4em;
-	--code-margin-inline:                             0.2em;
-	--code-padding-block:                             0.2em;
-	--code-padding-inline:                            1em;
 	/** Code Header **/
 	--code-header-color:                              hsl(0, 0%, 40%);
 	--code-header-font-size:                          0.9em;
 	--code-header-font-weight:                        400;
-	--code-header-margin-block:                       0.2em 0.4em;
-	--code-header-margin-inline:                      0.2em;
-	--code-header-padding-block:                      0.2em;
-	--code-header-padding-inline:                     0.25em;
 	--code-header-text-decoration:                    none;
 
 	/** Quote Block **/
@@ -1383,10 +1128,6 @@
 	--quote-border-width:                             1px 1px 2px;
 	--quote-box-shadow:                               none;
 	--quote-font-size:                                0.8em;
-	--quote-margin-block:                             0.2em 0.5em;
-	--quote-margin-inline:                            0.25em;
-	--quote-padding-block:                            0.5em;
-	--quote-padding-inline:                           1em;
 	/** Alternate Quote **/
 	--quote-alternate-bg:                             hsl(var(--primary-color-hue), 22%, 95%);
 	/** Quote Cite **/
@@ -1398,18 +1139,10 @@
 	--quote-cite-box-shadow:                          none;
 	--quote-cite-color:                               #4d4d4d;
 	--quote-cite-font-size:                           0.9em;
-	--quote-cite-margin-block:                        0 0.5em;
-	--quote-cite-margin-inline:                       0;
-	--quote-cite-padding-block:                       0;
-	--quote-cite-padding-inline:                      0.2em;
 	/** Quote Header **/
 	--quote-header-color:                             hsl(0, 0%, 40%);
 	--quote-header-font-size:                         0.9em;
 	--quote-header-font-weight:                       400;
-	--quote-header-margin-block:                      0.2em 0.4em;
-	--quote-header-margin-inline:                     0.2em;
-	--quote-header-padding-block:                     0.2em;
-	--quote-header-padding-inline:                    0.25em;
 	--quote-header-text-decoration:                   none;
 
 	/** Post BBC Links **/
@@ -1427,10 +1160,6 @@
 	--autosuggest-border-style:                       solid;
 	--autosuggest-border-width:                       1px;
 	--autosuggest-box-shadow:                         none;
-	--autosuggest-margin-block:                       0;
-	--autosuggest-margin-inline:                      0;
-	--autosuggest-padding-block:                      0;
-	--autosuggest-padding-inline:                     0;
 	/** Auto Suggest Item **/
 	--autosuggest-item-bg:                            hsl(0, 0%, 87%);
 	--autosuggest-item-bg_hover:                      hsl(0, 0%, 53%);
@@ -1445,10 +1174,6 @@
 	--autosuggest-item-font-size_hover:               var(--autosuggest-item-font-size);
 	--autosuggest-item-font-weight:                   50px;
 	--autosuggest-item-font-weight_hover:             50px;
-	--autosuggest-item-margin-block:                  0;
-	--autosuggest-item-margin-inline:                 0;
-	--autosuggest-item-padding-block:                 0.2em;
-	--autosuggest-item-padding-inline:                0.25em;
 
 	/* Mentions */
 	--mentions-bg:                                    hsl(0, 0%, 100%);
@@ -1457,10 +1182,6 @@
 	--mentions-border-style:                          solid;
 	--mentions-border-width:                          1px;
 	--mentions-box-shadow:                            0 0 5px rgba(0, 0, 0, 0.1);
-	--mentions-margin-block:                          1.5em 0.25em;
-	--mentions-margin-inline:                         0;
-	--mentions-padding-block:                         0;
-	--mentions-padding-inline:                        0;
 	--mentions-width:                                 120px;
 	/** Mentions Item **/
 	--mentions-item-bg:                               #f2f2f2;
@@ -1475,10 +1196,6 @@
 	--mentions-item-font-size_current:                var(--mentions-item-font-size);
 	--mentions-item-font-weight:                      50px;
 	--mentions-item-font-weight_current:              50px;
-	--mentions-item-margin-block:                     0;
-	--mentions-item-margin-inline:                    0;
-	--mentions-item-padding-block:                    0.2em;
-	--mentions-item-padding-inline:                   0.25em;
 
 	/** AJAX Notification Bar **/
 	--ajaxinprogress-bg:                              hsl(0, 0%, 100%);
@@ -1488,17 +1205,10 @@
 	--ajaxinprogress-color:                           var(--secondary-color-600);
 	--ajaxinprogress-font-size:                       1.5em;
 	--ajaxinprogress-font-weight:                     400;
-	--ajaxinprogress-margin-block:                    0;
-	--ajaxinprogress-margin-inline:                   0;
-	--ajaxinprogress-padding-block:                   0.75em;
-	--ajaxinprogress-padding-inline:                  1.25em;
+	--ajaxinprogress-line-height:                     25px;
 	/** AJAX Notification Bar Link **/
 	--ajaxinprogress-link-color:                      var(--secondary-color-900);
 	--ajaxinprogress-link-font-size:                  0.9em;
-	--ajaxinprogress-link-margin-block:               0;
-	--ajaxinprogress-link-margin-inline:              0 2em;
-	--ajaxinprogress-link-padding-block:              0;
-	--ajaxinprogress-link-padding-inline:             0;
 	--ajaxinprogress-link-text-decoration:            underline;
 
 	/** Moderation Links **/
@@ -1511,10 +1221,6 @@
 	--moderationlink-color:                           #222;
 	--moderationlink-font-size:                       0.65em;
 	--moderationlink-font-weight:                     700;
-	--moderationlink-margin-block:                    0;
-	--moderationlink-margin-inline:                   0;
-	--moderationlink-padding-block:                   0.1em;
-	--moderationlink-padding-inline:                  0.75em;
 
 	/** ToolTips **/
 	--tooltip-bg:                                     hsl(0, 0%, 100%);
@@ -1524,18 +1230,8 @@
 	--tooltip-border-width:                           1px;
 	--tooltip-box-shadow:                             1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
 	--tooltip-color:                                  #333333;
-	--tooltip-margin-block:                           0;
-	--tooltip-margin-inline:                          0;
-	--tooltip-padding-block:                          0.5em;
-	--tooltip-padding-inline:                         0.75em;
 	--tooltip-width:                                  350px;
 
-	/** Info Center **/
-	--infocenter-gap:                                 0.5em 0;
-	--infocenter-margin-block:                        0;
-	--infocenter-margin-inline:                       0;
-	--infocenter-padding-block:                       0;
-	--infocenter-padding-inline:                      0;
 	/** Info Center Block **/
 	--infoblock-bg:                                   var(--window-bg);
 	--infoblock-border-color:                         var(--window-border-color);
@@ -1543,20 +1239,13 @@
 	--infoblock-border-style:                         solid;
 	--infoblock-border-width:                         0;
 	--infoblock-box-shadow:                           0px 2px 0px hsl(210, 11%, 85%);
-	--infoblock-gap:                                  0;
-	--infoblock-margin-block:                         0;
-	--infoblock-margin-inline:                        0;
-	--infoblock-padding-block:                        0;
-	--infoblock-padding-inline:                       0;
 	/** Info Center Icon **/
 	--infoblock-icon-bg:                              hsl(0, 0%, 96%);
 	--infoblock-icon-box-shadow:                      0;
 	--infoblock-icon-color:                           inherit;
 	--infoblock-icon-font-size:                       1em;
-	--infoblock-icon-padding-block:                   0.5em;
-	--infoblock-icon-padding-inline:                  1.25em;
 	--infoblock-icon-width:                           3em;
-	/** INfo Center Information **/
+	/** Info Center Information **/
 	--infoblock-info-bg:                              transparent;
 	--infoblock-info-border-color:                    transparent;
 	--infoblock-info-border-radius:                   var(--infoblock-border-radius);
@@ -1564,9 +1253,6 @@
 	--infoblock-info-border-width:                    0;
 	--infoblock-info-box-shadow:                      none;
 	--infoblock-info-color:                           inherit;
-	--infoblock-info-gap:                             0.2em;
-	--infoblock-info-padding-block:                   0.25em;
-	--infoblock-info-padding-inline:                  0.5em;
 
 	/** Generic Bar **/
 	--genericbar-bg:                                  hsl(0, 0%, 100%);
@@ -1580,8 +1266,6 @@
 	--genericbar-font-weight:                         400;
 	--genericbar-height:                              1em;
 	--genericbar-line-height:                         1.4em;
-	--genericbar-padding-block:                       0;
-	--genericbar-padding-inline:                      0;
 	--genericbar-text-shadow:                         1px 1px hsla(0, 0%, 100%, 0.4);
 	--genericbar-width:                               1em;
 	/** Inner Generic Bar **/
@@ -1605,9 +1289,7 @@
 	--progressbar-font-size:                          1.15em;
 	--progressbar-font-weight:                        700;
 	--progressbar-height:                             var(--genericbar-height);
-	--progressbar-line-height:                        var(--genericbar-line-height);
-	--progressbar-padding-block:                      var(--genericbar-padding-block);
-	--progressbar-padding-inline:                     var(--genericbar-padding-inline);
+	--progressbar-line-height:                        1.4em;
 	--progressbar-text-shadow:                        var(--genericbar-text-shadow);
 	/** Inner Progress Bar **/
 	--progressbar-inner-bg:                           hsl(100, 67%, 55%) linear-gradient(135deg, hsla(0, 0%, 100%, 0.15) 25%, transparent 25%, transparent 50%, hsla(0, 0%, 100%, 0.15) 50%, hsla(0, 0%, 100%, 0.15) 75%, transparent 75%, transparent) center / 2em 2em;
@@ -1621,39 +1303,18 @@
 	--progressbar-inner-border-width:                 0;
 	--progressbar-inner-box-shadow:                   -1px 1px 0 hsla(0, 0%, 100%, 0.25) inset, 1px -1px 0 hsla(0, 0%, 0%, 0.1) inset;
 
-	/** Post Wrapper **/
-	--postwrapper-gap:                                0 0;
-	--postwrapper-grid:                               auto / var(--poster-width) 1fr;
-	--postwrapper-padding-block:                      0;
-	--postwrapper-padding-inline:                     0;
-
 	/** Poster **/
 	--poster-bg:                                      hsla(0, 0%, 90%, 0.35);
 	--poster-font-size:                               inherit;
-	--poster-gap:                                     0.25em 0.75em;
 	--poster-grid-row:                                1/3;
-	--poster-margin-block:                            0;
-	--poster-margin-inline:                           0;
-	--poster-padding-block:                           0.5em;
-	--poster-padding-inline:                          0.5em;
 	--poster-width:                                   190px; /* Don't set this in em. It will eat too much space if people need to set large text sizes. */
 	/** Poster Title **/
 	--poster-title-bg:                                transparent;
 	--poster-title-color:                             var(--body-link-color);
 	--poster-title-font-size:                         1.15em;
 	--poster-title-font-weight:                       400;
-	--poster-title-margin-block:                      0;
-	--poster-title-margin-inline:                     0;
-	--poster-title-padding-block:                     0;
-	--poster-title-padding-inline:                    0;
 	--poster-title-text-decoration:                   none;
 	--poster-title-text-shadow:                       none;
-
-	/** Postarea **/
-	--postarea-margin-block:                          0;
-	--postarea-margin-inline:                         0;
-	--postarea-padding-block:                         0.5em;
-	--postarea-padding-inline:                        0.5em;
 
 	/** Post Inner **/
 	--post-inner-bg:                                  transparent;
@@ -1663,10 +1324,6 @@
 	--post-inner-border-width:                        1px 0 0;
 	--post-inner-box-shadow:                          0 1px 0 hsl(0, 0%, 100%) inset;
 	--post-inner-height:                              85px;
-	--post-inner-margin-block:                        0.5em 0;
-	--post-inner-margin-inline:                       0;
-	--post-inner-padding-block:                       1.25em;
-	--post-inner-padding-inline:                      0.5em;
 
 	/* On/Off Icons (User Status) */
 	--userstatus-border-radius:                       50%;
@@ -1684,8 +1341,6 @@
 
 	/* Two Factor Auth Code Container */
 	--tfacode-bg:                                     var(--primary-color-50);
-	--tfacode-padding-block:                          0.25em;
-	--tfacode-padding-inline:                         0.25em;
 	
 	/** Basic Colors **/
 	--black:                                          hsl(0, 0%, 0%);
@@ -1723,10 +1378,6 @@
 	--attachments-box-shadow:                         0 1px 0 hsl(0, 0%, 100%) inset;
 	--attachments-font-size:                          0.9em;
 	--attachments-line-height:                        1.4em;
-	--attachments-margin-block:                       0;
-	--attachments-margin-inline:                      0;
-	--attachments-padding-block:                      1em 0.25em;
-	--attachments-padding-inline:                     0.25em;
 
 	/** Signature **/
 	--signature-bg:                                   transparent;
@@ -1737,16 +1388,6 @@
 	--signature-box-shadow:                           0 1px 0 hsl(0, 0%, 100%) inset;
 	--signature-font-size:                            0.9em;
 	--signature-line-height:                          1.4em;
-	--signature-margin-block:                         0;
-	--signature-margin-inline:                        0;
-	--signature-padding-block:                        1em 0.25em;
-	--signature-padding-inline:                       0.25em;
-
-	/** Profile Summary **/
-	--profilesummary-gap:                             0;
-	--profilesummary-grid:                            auto / var(--basicinfo-width) 1fr;
-	--profilesummary-padding-block:                   0;
-	--profilesummary-padding-inline:                  0;
 
 	/** Basic Info **/
 	--basicinfo-bg:                                   hsla(0, 0%, 85%, 0.2);
@@ -1755,11 +1396,6 @@
 	--basicinfo-border-style:                         solid;
 	--basicinfo-border-width:                         0;
 	--basicinfo-box-shadow:                           none;
-	--basicinfo-gap:                                  0.25em 0;
-	--basicinfo-margin-block:                         0;
-	--basicinfo-margin-inline:                        0;
-	--basicinfo-padding-block:                        var(--roundframe-padding-block);
-	--basicinfo-padding-inline:                       var(--roundframe-padding-inline);
 	--basicinfo-width:                                18%;
 
 	/** Basic Info **/
@@ -1769,11 +1405,6 @@
 	--detailedinfo-border-style:                      solid;
 	--detailedinfo-border-width:                      0;
 	--detailedinfo-box-shadow:                        none;
-	--detailedinfo-gap:                               0.75em 0;
-	--detailedinfo-margin-block:                      0;
-	--detailedinfo-margin-inline:                     0;
-	--detailedinfo-padding-block:                     var(--roundframe-padding-block);
-	--detailedinfo-padding-inline:                    var(--roundframe-padding-inline);
 	--detailedinfo-width:                             100%;
 
 	/* Toggle */
@@ -1786,10 +1417,6 @@
 	--toggle-box-shadow:                              0 1px 2px rgba(0, 0, 0, .2), 0 1px 1px #fff inset, 0 -5px 4px rgba(0,0,0,.1) inset;
 	--toggle-box-shadow_hover:                        0 1px 2px rgba(0, 0, 0, 0.25) inset;
 	--toggle-height:                                  17px;
-	--toggle-margin-block:                            0;
-	--toggle-margin-inline:                           0.2em;
-	--toggle-padding-block:                           0;
-	--toggle-padding-inline:                          0;
 	--toggle-width:                                   17px;
 
 	/** Error File **/
@@ -1797,8 +1424,6 @@
 	--errorfile-box-shadow:                           none;
 	--errorfile-font-family:                          monospace;
 	--errorfile-font-size:                            1em;
-	--errorfile-padding-block:                        0.5em;
-	--errorfile-padding-inline:                       0.2em;
 	/** Error File Item **/
 	--errorfile-item-bg:                              var(--window-even-bg);
 	--errorfile-item-bg_line:                         var(--roundframe-bg);
@@ -1808,8 +1433,6 @@
 	--errorfile-item-border-width:                    0;
 	--errorfile-item-box-shadow:                      var(--roundframe-box-shadow);
 	--errorfile-item-color:                           var(--roundframe-color);
-	--errorfile-item-padding-block:                   0;
-	--errorfile-item-padding-inline:                  0.25em;
 
 	/** PM Capacity **/
 	--capacitybar-bg:                                 hsl(206, 30%, 95%);
@@ -1822,8 +1445,6 @@
 	--capacitybar-border-width:                       1px;
 	--capacitybar-box-shadow:                         none;
 	--capacitybar-height:                             0.8em;
-	--capacitybar-margin-block:                       0.2em 0;
-	--capacitybar-margin-inline:                      0.5em;
 	--capacitybar-width:                              10em;
 
 	/** File Permissions **/
@@ -1842,10 +1463,6 @@
 	--popup-window-border-style:                      solid;
 	--popup-window-border-width:                      1px;
 	--popup-window-box-shadow:                        none;
-	--popup-window-margin-block:                      0;
-	--popup-window-margin-inline:                     auto;
-	--popup-window-padding-block:                     0 0.5em;
-	--popup-window-padding-inline:                    0;
 	/** Popup Heading **/
 	--popup-heading-bg:                               hsl(var(--primary-color-hue), 50%, 95%);
 	--popup-heading-border-color:                     var(--primary-color-800);
@@ -1855,11 +1472,6 @@
 	--popup-heading-box-shadow:                       none;
 	--popup-heading-color:                            var(--primary-color-800);
 	--popup-heading-font-size:                        1.1em;
-	--popup-heading-gap:                              0.5em;
-	--popup-heading-margin-block:                     0 0.5em;
-	--popup-heading-margin-inline:                    0;
-	--popup-heading-padding-block:                    0.5em;
-	--popup-heading-padding-inline:                   1em;
 	--popup-heading-text-decoration:                  none;
 	--popup-heading-text-shadow:                      none;
 	--popup-heading-text-transform:                   none;
@@ -1874,8 +1486,4 @@
 	--popup-content-font-size:                        0.95em;
 	--popup-content-height:                           30em;
 	--popup-content-line-height:                      1.6em;
-	--popup-content-margin-block:                     0;
-	--popup-content-margin-inline:                    0.5em;
-	--popup-content-padding-block:                    0.5em;
-	--popup-content-padding-inline:                   0.5em;
 }
