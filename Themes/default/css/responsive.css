@@ -175,10 +175,10 @@
 	nav#main_menu,
 	.navigate_section,
 	#content_section {
-		--_padding-inline: 0.5em;
-		--contentsection-padding-inline: var(--_padding-inline);
-		--nav-padding-inline: var(--_padding-inline);
-		--navigatesection-margin-inline: var(--_padding-inline);
+		padding-inline: .5em;
+	}
+	.navigate_section {
+		margin-inline: .5em;
 	}
 	#boardindex_table .stats {
 		display: none;
@@ -531,7 +531,7 @@
 		flex-wrap: wrap;
 	}
 	h1.forumtitle {
-		--forumtitle-margin-inline: auto;
+		margin-inline: auto;
 	}
 	.board_moderators {
 		display: none;
@@ -545,7 +545,7 @@
 		max-width: calc(100vw - 17px);
 	}
 	#footer {
-		--footer-padding-inline: 0.5em;
+		padding-inline: 0.5em;
 	}
 	#footer .inner_wrap {
 		justify-content: center;
