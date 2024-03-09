@@ -148,6 +148,7 @@ input[type="number"][size="6"] {
 }
 /* Buttons styling */
 button, .button, a.button, input[type="button"] {
+	align-items: center;
 	background: var(--button-bg);
 	border-color: var(--button-border-color);
 	border-radius: var(--button-border-radius);
@@ -156,6 +157,7 @@ button, .button, a.button, input[type="button"] {
 	box-shadow: var(--button-box-shadow);
 	color: var(--button-color);
 	cursor: var(--button-cursor);
+	display: inline-flex;
 	font-size: var(--button-font-size);
 	font-weight: var(--button-font-weight);
 	gap: var(--button-gap);
@@ -1756,7 +1758,8 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 html[lang="el-GR"] .buttonlist > li > a {
 	text-transform: capitalize;
 }
-#mobile_action {
+#mobile_action,
+#mobile_moderation {
 	display: none;
 }
 
@@ -1821,6 +1824,7 @@ html[lang="el-GR"] .buttonlist > li > a {
 .mobile_buttons {
 	display: none;
 	flex: 1;
+	gap: 0.5em;
 }
 
 /* the page navigation area */

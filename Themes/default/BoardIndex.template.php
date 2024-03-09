@@ -314,7 +314,7 @@ function template_info_center()
 	<div id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<a href="#" id="upshrink_link">', sprintf(Lang::$txt['info_center_title'], Utils::$context['forum_name_html_safe']), '</a>
+				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</a>
 			</h3>
 			<span class="toggle_up" id="upshrink_ic" title="', Lang::$txt['hide_infocenter'], '" style="display: none;"></span>
 		</div>

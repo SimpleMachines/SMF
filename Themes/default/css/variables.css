@@ -1590,7 +1590,7 @@
 	--genericbar-inner-border-radius:                 var(--genericbar-border-radius);
 	--genericbar-inner-border-style:                  solid;
 	--genericbar-inner-border-width:                  0;
-	--genericbar-inner-box-shadow:                    4px -4px 8px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 8px hsla(0, 0%, 100%, 0.3) inset;
+	--genericbar-inner-box-shadow:                    4px -4px 4px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 4px hsla(0, 0%, 100%, 0.3) inset;
 	--genericbar-inner-box-shadow_vertical:           4px -4px 4px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 4px hsla(0, 0%, 100%, 0.3) inset;
 	--genericbar-inner-color:                         hsla(0, 0%, 0%, 0.8);
 
