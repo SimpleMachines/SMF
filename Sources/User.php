@@ -2299,7 +2299,7 @@ class User implements \ArrayAccess
 		$cache_key = hash('md5', $this->id . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 		if (isset($this->perm_cache[$cache_key])) {
-			return $this->perm_cache[$cache_key];
+			return !empty($this->perm_cache[$cache_key]);
 		}
 
 		$request = Db::$db->query(
