@@ -715,7 +715,7 @@ $(function() {
 			new smc_Toggle({
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
-				aHeader: $('#category_' + catid),
+				aHeader: document.getElementById('category_' + catid),
 				aSwappableContainers: [
 					'category_' + catid + '_boards'
 				],

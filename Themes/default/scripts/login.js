@@ -1,30 +1,34 @@
-function smf_Login(oOptions) {
-	this.opt = oOptions;
-}
+class SMF_Login {
+	constructor(oOptions) {
+		this.opt = oOptions;
+	}
 
-smf_Login.prototype.login = function() {
-	const
-		opt = this.opt,
-		form = opt.oForm,
-		isSameCors = opt.sCors == '' || opt.sCors  == 'same',
-		url = new URL(form.action);
+	login() {
+		const opt = this.opt;
+		const form = opt.oForm;
+		const isSameCors = opt.sCors == '' || opt.sCors == 'same';
+		const url = new URL(form.action);
+		url.searchParams.set('ajax', '1');
 
-	url.searchParams.set('ajax', '1');
+		form.addEventListener("submit", function (e) {
+			e.preventDefault();
 
-	form.addEventListener("submit", e => {
-		e.preventDefault();
-
-		$.ajax({
-			url: url.toString(),
-			method: "POST",
-			headers: {
-				"X-SMF-AJAX": 1
-			},
-			xhrFields: {
-				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-			},
-			data: new URLSearchParams(new FormData(form)).toString(),
-			success: function(data) {
+			fetch(url.toString(), {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+					"X-SMF-AJAX": 1
+				},
+				credentials: typeof allow_xhjr_credentials !== "undefined" ? "include" : "same-origin",
+				body: new URLSearchParams(new FormData(form)).toString()
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error("Network response was not ok.");
+				}
+				return response.text();
+			})
+			.then(data => {
 				/*
 				 * While a nice action is to replace the document body after a login,
 				 * this may fail on CORS requests because the action may not be
@@ -38,22 +42,15 @@ smf_Login.prototype.login = function() {
 						document.write(data);
 						document.close();
 					} else {
-						$(form).parent().html($(data).find(".windowbg form_grid").html());
+						form.parentNode.innerHTML = data;
 					}
 				} else {
 					window.location.reload();
 				}
-			},
-			error: function(xhr) {
-				var data = xhr.responseText;
-				if (data.indexOf("<body") > -1) {
-					document.open();
-					document.write(data);
-					document.close();
-				}
-				else
-					$(form).parent().html($(data).filter("#fatal_error").html());
-			}
+			})
+			.catch(error => {
+				console.error("Error:", error);
+			});
 		});
-	});
+	}
 }

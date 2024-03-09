@@ -64,127 +64,121 @@ function disableAutoComplete()
 		}
 }
 
-function calcCharLeft()
-{
-	var oldSignature = "", currentSignature = this.value;
-	var currentChars = 0;
+function calcCharLeft() {
+	let oldSignature = "";
+	const currentSignature = this.value;
+	let currentChars = 0;
 
-	if (!document.getElementById("signatureLeft"))
+	const el = document.getElementById("signatureLeft")) {
+	if (!el) {
 		return;
+	}
 
-	if (oldSignature != currentSignature)
-	{
+	if (oldSignature !== currentSignature) {
 		oldSignature = currentSignature;
 
-		var currentChars = currentSignature.replace(/\r/, "").length;
-		if (is_opera)
+		currentChars = currentSignature.replace(/\r/, "").length;
+		if (is_opera) {
 			currentChars = currentSignature.replace(/\r/g, "").length;
+		}
 
-		if (currentChars > maxLength)
-			document.getElementById("signatureLeft").className = "error";
-		else
-			document.getElementById("signatureLeft").className = "";
+		if (currentChars > maxLength) {
+			el.className = "error";
+		} else {
+			el.className = "";
+		}
 
-		if (currentChars > maxLength)
+		if (currentChars > maxLength) {
 			ajax_getSignaturePreview(false);
-		// Only hide it if the only errors were signature errors...
-		else if (currentChars <= maxLength)
-		{
-			// Are there any errors to begin with?
-			if ($(document).has("#list_errors"))
-			{
-				// Remove any signature errors
-				$("#list_errors").remove(".sig_error");
-
-				// Don't hide this if other errors remain
-				if (!$("#list_errors").has("li"))
-				{
-					$("#profile_error").css({display:"none"});
-					$("#profile_error").html('');
+		} else if (currentChars <= maxLength) {
+			if (document.contains(document.getElementById("list_errors"))) {
+				const listErrors = document.getElementById("list_errors");
+				listErrors.querySelectorAll(".sig_error").forEach(error => error.remove());
+				if (!listErrors.querySelector("li")) {
+					document.getElementById("profile_error").style.display = "none";
+					document.getElementById("profile_error").innerHTML = '';
 				}
 			}
 		}
 	}
 
-	setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentChars);
+	el.innerHTML = maxLength - currentChars;
 }
 
-function ajax_getSignaturePreview (showPreview)
-{
-	showPreview = (typeof showPreview == 'undefined') ? false : showPreview;
-
+function ajax_getSignaturePreview(showPreview = false) {
 	// Is the error box already visible?
-	var errorbox_visible = $("#profile_error").is(":visible");
+	const errorBox = document.getElementById("profile_error");
+	const errorbox_visible = errorBox.style.display !== "none";
 
-	$.ajax({
-		type: "POST",
-		url: smf_scripturl + "?action=xmlhttp;sa=previews;xml",
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		data: {item: "sig_preview", signature: $("#signature").val(), user: $('input[name="u"]').attr("value")},
-		context: document.body,
-		success: function(request){
-			if (showPreview)
-			{
-				var signatures = new Array("current", "preview");
-				for (var i = 0; i < signatures.length; i++)
-				{
-					$("#" + signatures[i] + "_signature").css({display:""});
-					$("#" + signatures[i] + "_signature_display").css({display:""}).html($(request).find('[type="' + signatures[i] + '"]').text() + '<hr>');
+	const signature = encodeURIComponent(this.form.signature.value);
+	const user = this.form.u.value;
+	const allowCredentials = typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false;
+
+	fetch(smf_scripturl + "?action=xmlhttp;sa=previews;xml", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+				"X-SMF-AJAX": 1
+			},
+			body: "item=sig_preview&signature=" + signature + "&user=" + user,
+			credentials: allowCredentials ? "include" : "same-origin"
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Network response was not ok.");
+			}
+			return response.text();
+		})
+		.then(responseData => {
+			const parser = new DOMParser();
+			const xmlDoc = parser.parseFromString(responseData, "application/xml");
+
+			if (showPreview) {
+				const signatures = ["current", "preview"];
+				for (const sig of signatures) {
+					const sigElement = document.getElementById(sig + "_signature");
+					const sigDisplayElement = document.getElementById(sig + "_signature_display");
+					sigElement.style.display = "";
+					sigDisplayElement.style.display = "";
+					sigDisplayElement.innerHTML = xmlDoc.querySelector('[type="' + sig + '"]').textContent + '<hr>';
 				}
 			}
 
-			if ($(request).find("error").text() != '')
-			{
-				// If the box isn't already visible...
-				// 1. Add the initial HTML
-				// 2. Make it visible
-				if (!errorbox_visible)
-				{
-					// Build our HTML...
-					var errors_html = '<span>' + $(request).find('[type="errors_occurred"]').text() + '</span><ul id="list_errors"></ul>';
+			const errorNodes = xmlDoc.querySelectorAll("error");
+			const errorsOccurred = xmlDoc.querySelector('[type="errors_occurred"]').textContent;
 
-					// Add it to the box...
-					$("#profile_error").html(errors_html);
-
-					// Make it visible
-					$("#profile_error").css({display: ""});
-				}
-				else
-				{
-					// Remove any existing signature-related errors...
-					$("#list_errors").remove(".sig_error");
+			if (errorNodes.length > 0) {
+				if (!errorbox_visible) {
+					const errorsHtml = "<span>" + errorsOccurred + "</span><ul id='list_errors'></ul>";
+					errorBox.innerHTML = errorsHtml;
+					errorBox.style.display = "";
+				} else {
+					const existingErrors = errorBox.querySelectorAll(".sig_error");
+					for (const error of existingErrors) {
+						error.remove();
+					}
 				}
 
-				var errors = $(request).find('[type="error"]');
-				var errors_list = '';
-
-				for (var i = 0; i < errors.length; i++)
-					errors_list += '<li class="sig_error">' + $(errors).text() + '</li>';
-
-				$("#list_errors").html(errors_list);
-			}
-			// If there were more errors besides signature-related ones, don't hide it
-			else
-			{
-				// Remove any signature errors first...
-				$("#list_errors").remove(".sig_error");
-
-				// If it still has content, there are other non-signature errors...
-				if (!$("#list_errors").has("li"))
-				{
-					$("#profile_error").css({display:"none"});
-					$("#profile_error").html('');
+				let errorsList = '';
+				for (const errorNode of errorNodes) {
+					errorsList += "<li class='sig_error'>" + errorNode.textContent + "</li>";
+				}
+				document.getElementById("list_errors").innerHTML = errorsList;
+			} else {
+				const listErrors = document.getElementById("list_errors");
+				const sigErrors = listErrors.querySelectorAll(".sig_error");
+				for (const error of sigErrors) {
+					error.remove();
+				}
+				if (!listErrors.querySelector("li")) {
+					errorBox.style.display = "none";
+					errorBox.innerHTML = '';
 				}
 			}
-		return false;
-		},
-	});
-	return false;
+		})
+		.catch(error => {
+			console.error("Error:", error);
+		});
 }
 
 function changeSel(f, opts)
@@ -376,8 +370,6 @@ window.addEventListener("DOMContentLoaded", function() {
 	if (!f)
 		return;
 
-console.log(f)
-
 	let tmp = f['additional_groups[]'];
 	if (tmp)
 		makeToggle(tmp[0].parentNode);
@@ -464,8 +456,6 @@ function populateNotifyTemplate() {
 		return;
 
 	const el = this.nextElementSibling;
-	el.href = el.href.replacce('0', opt.value);
-
 	for (const tpl of notification_templates)
 		if (opt.text == tpl.title) {
 			this.form.warn_body.value = tpl.body;
@@ -481,40 +471,53 @@ function updateSlider() {
 }
 
 function ajax_getTemplatePreview() {
-	$.ajax({
-		type: "POST",
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		url: smf_scripturl + '?action=xmlhttp;sa=previews;xml',
-		data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
-		context: document.body,
-		success: function(request) {
-			$("#box_preview").css({display:""});
-			$("#body_preview").html($(request).find('body').text());
-			if ($(request).find("error").text() != '')
-			{
-				$("#profile_error").css({display:""});
-				var errors_html = '<ul class="list_errors">';
-				var errors = $(request).find('error').each(function() {
-					errors_html += '<li>' + $(this).text() + '</li>';
-				});
-				errors_html += '</ul>';
+	const allowCredentials = typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false;
+	const title = encodeURIComponent(this.form.warn_sub.value);
+	const body = encodeURIComponent(this.form.warn_body.value);
+	const data = "item=warning_preview&title=" + title + "&body=" + body + "&issuing=true";
 
-				$("#profile_error").html(errors_html);
-			}
-			else
-			{
-				$("#profile_error").css({display:"none"});
-				$("#error_list").html('');
-			}
-		return false;
+	fetch(smf_scripturl + '?action=xmlhttp;sa=previews;xml', {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded",
+			"X-SMF-AJAX": "1"
 		},
+		body: data,
+		credentials: allowCredentials ? "include" : "same-origin"
+	})
+	.then(response => {
+		if (!response.ok) {
+			throw new Error("Network response was not ok.");
+		}
+		return response.text();
+	})
+	.then(responseData => {
+		const parser = new DOMParser();
+		const xmlDoc = parser.parseFromString(responseData, "application/xml");
+		const boxPreview = document.getElementById("box_preview");
+		const bodyPreview = document.getElementById("body_preview");
+		const profileError = document.getElementById("profile_error");
+		const errorNodes = xmlDoc.querySelectorAll("error");
+
+		boxPreview.style.display = "";
+		bodyPreview.innerHTML = xmlDoc.querySelector('body').textContent;
+
+		if (errorNodes.length > 0) {
+			profileError.style.display = "";
+			let errorsHtml = '<ul class="list_errors">';
+			errorNodes.forEach(errorNode => {
+				errorsHtml += '<li>' + errorNode.textContent + '</li>';
+			});
+			errorsHtml += '</ul>';
+			profileError.innerHTML = errorsHtml;
+		} else {
+			profileError.style.display = "none";
+			profileError.innerHTML = '';
+		}
+	})
+	.catch(error => {
+		console.error("Error:", error);
 	});
-	return false;
 }
 
 function changeVariant(iThemeId, el)

@@ -1,5 +1,4 @@
 var lastKeepAliveCheck = new Date().getTime();
-var smf_editorArray = new Array();
 
 // Some very basic browser detection - from Mozilla's sniffer page.
 var ua = navigator.userAgent.toLowerCase();
@@ -45,58 +44,97 @@ function getServerResponse(sUrl, funcCallback, sType, sDataType)
 	});
 }
 
+class smc_Request {
+	static fetch(sUrl, oOptions, iMilliseconds) {
+		let timeout;
+		let options = oOptions || {};
+
+		if (iMilliseconds) {
+			const controller = new AbortController;
+			options.signal = controller.signal;
+			if (options.signal) {
+				options.signal.addEventListener("abort", () => controller.abort());
+			}
+			timeout = setTimeout(() => controller.abort(), iMilliseconds);
+		}
+		if (typeof allow_xhjr_credentials !== "undefined" && allow_xhjr_credentials) {
+			options.credentials = 'include';
+		}
+		if (options.headers) {
+			if (options.headers instanceof Headers) {
+				options.headers.set("X-SMF-AJAX", 1);
+			} else {
+				options.headers["X-SMF-AJAX"] = 1;
+			}
+		} else {
+			options.headers = {
+				"X-SMF-AJAX": 1
+			};
+		}
+		const promise = fetch(sUrl, options);
+
+		if (iMilliseconds) {
+			return promise.finally(() => clearTimeout(timeout));
+		}
+
+		return promise;
+	};
+
+	static fetchXML(sUrl, oOptions, iMilliseconds) {
+		return this.fetch(sUrl, oOptions, iMilliseconds).then(res => res.text()).then(str => (new DOMParser).parseFromString(str, "text/xml"));
+	};
+}
+
 // Load an XML document.
-function getXMLDocument(sUrl, funcCallback)
+function getXMLDocument(sUrl, funcCallback, iMilliseconds)
 {
 	var oCaller = this;
 
-	return $.ajax({
-		type: 'GET',
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		cache: false,
-		dataType: 'xml',
-		success: function(responseXML) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, responseXML);
-			}
-		},
-	});
+	const promise = smc_Request.fetchXML(sUrl, null, iMilliseconds);
+
+	if (funcCallback) {
+		promise.then(data => {
+			funcCallback.call(oCaller, data);
+
+			return data;
+		});
+		promise.catch(data => {
+			funcCallback.call(oCaller, data);
+
+			return data;
+		});
+	}
+
+	return promise;
 }
 
 // Send a post form to the server.
 function sendXMLDocument(sUrl, sContent, funcCallback)
 {
 	var oCaller = this;
-	var oSendDoc = $.ajax({
-		type: 'POST',
-		url: sUrl,
+
+	const promise = smc_Request.fetchXML(sUrl, {
+		method: 'POST',
 		headers: {
-			"X-SMF-AJAX": 1
+			'Content-Type': 'application/x-www-form-urlencoded'
 		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		data: sContent,
-		beforeSend: function(xhr) {
-			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		},
-		dataType: 'xml',
-		success: function(responseXML) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, responseXML);
-			}
-		},
+		body: sContent
 	});
 
-	return true;
+	if (funcCallback) {
+		promise.then(data => {
+			funcCallback.call(oCaller, data);
+
+			return data;
+		});
+		promise.catch(data => {
+			funcCallback.call(oCaller, data);
+
+			return data;
+		});
+	}
+
+	return promise;
 }
 
 // A property we'll be needing for php_to8bit.
@@ -323,69 +361,65 @@ function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
-	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
-	var sHeader = sHeader || help_popup_heading_text;
+	const sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
+	sHeader = sHeader || help_popup_heading_text;
 
-	var containerOptions;
-	if (sIcon && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null)
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon};
-	else
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (sIcon || 'help')};
+	let containerOptions;
+	if (sIcon && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null) {
+		containerOptions = { heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon };
+	} else {
+		containerOptions = { heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (sIcon || 'help') };
+	}
 
 	// Create the div that we are going to load
-	var oContainer = new smc_Popup(containerOptions);
-	var oPopup_body = $('#' + oContainer.popup_id).find('.popup_content');
+	const oContainer = new smc_Popup(containerOptions);
+	const oPopup_body = oContainer.cover.querySelector('.popup_content');
 
 	// Load the help page content (we just want the text to show)
-	$.ajax({
-		url: desktopURL + ';ajax',
+	fetch(desktopURL + ';ajax', {
+		method: 'GET',
 		headers: {
-			'X-SMF-AJAX': 1
+			'X-SMF-AJAX': '1',
+
+			// @fixme This is checked for in SMF\Actions\Login2::checkAjax().
+			"X-Requested-With": "XMLHttpRequest"
 		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		type: "GET",
-		dataType: "html",
-		success: function (data, textStatus, xhr) {
-			oPopup_body.html(data);
-		},
-		error: function (xhr, textStatus, errorThrown) {
-			oPopup_body.html(textStatus);
-		},
-		statusCode: {
-			403: function(res, status, xhr) {
-				let errorMsg = res.getResponseHeader('x-smf-errormsg');
-				oPopup_body.html(errorMsg ?? banned_text);
-			},
-			500: function() {
-				oPopup_body.html('500 Internal Server Error');
-			}
-		}
-	});
+		credentials: typeof allow_xhjr_credentials !== 'undefined' ? 'include' : 'omit'
+	})
+		.then((res, rej) => res.ok ? res.text() : rej(res))
+		.then(data => {
+			oPopup_body.innerHTML = data;
+		})
+		.catch(error => {
+			const errorMsg = error.headers.get('x-smf-errormsg');
+			oPopup_body.innerHTML = errorMsg || error.message || banned_text;
+		});
+
 	return false;
 }
 
 // Create the popup menus for the top level/user menu area.
 function smc_PopupMenu(oOptions)
 {
-	this.opt = (typeof oOptions == 'object') ? oOptions : {};
+	this.opt = oOptions || {};
 	this.opt.menus = {};
 }
 
 smc_PopupMenu.prototype.add = function (sItem, sUrl)
 {
-	var $menu = $('#' + sItem + '_menu'), $item = $('#' + sItem + '_menu_top');
-	if ($item.length == 0)
+	const menu = document.getElementById(sItem + '_menu');
+	const item = document.getElementById(sItem + '_menu_top');
+
+	if (!item) {
 		return;
+	}
 
-	this.opt.menus[sItem] = {open: false, loaded: false, sUrl: sUrl, itemObj: $item, menuObj: $menu };
+	this.opt.menus[sItem] = { open: false, loaded: false, sUrl: sUrl, itemObj: item, menuObj: menu };
 
-	$item.click({obj: this}, function (e) {
+	item.addEventListener('click', function(e) {
 		e.preventDefault();
-
-		e.data.obj.toggle(sItem);
-	});
+		this.toggle(sItem);
+	}.bind(this));
 }
 
 smc_PopupMenu.prototype.toggle = function (sItem)
@@ -400,48 +434,50 @@ smc_PopupMenu.prototype.open = function (sItem)
 {
 	this.closeAll();
 
-	if (!this.opt.menus[sItem].loaded)
-	{
-		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
+	if (!this.opt.menus[sItem].loaded) {
+		this.opt.menus[sItem].menuObj.innerHTML = '<div class="loading">' + (ajax_notification_text || '') + '</div>';
 
-		$.ajax({
-			url: this.opt.menus[sItem].sUrl + ';ajax',
+		fetch(this.opt.menus[sItem].sUrl + ';ajax', {
+			method: "GET",
 			headers: {
-				'X-SMF-AJAX': 1
+				'X-SMF-AJAX': 1,
 			},
-			xhrFields: {
-				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-			},
-			type: "GET",
-			dataType: "html",
-			context: this.opt.menus[sItem].menuObj,
-			success: function (data, textStatus, xhr) {
-				this.html(data);
+			credentials: typeof allow_xhjr_credentials !== "undefined" ? 'include' : 'same-origin',
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
 			}
+			return response.text();
+		})
+		.then(data => {
+			this.opt.menus[sItem].menuObj.innerHTML = data;
+			this.opt.menus[sItem].loaded = true;
 		});
-
-		this.opt.menus[sItem].loaded = true;
 	}
 
-	this.opt.menus[sItem].menuObj.addClass('visible');
-	this.opt.menus[sItem].itemObj.addClass('open');
+	this.opt.menus[sItem].menuObj.classList.add('visible');
+	this.opt.menus[sItem].itemObj.classList.add('open');
 	this.opt.menus[sItem].open = true;
 
 	// Now set up closing the menu if we click off.
-	$(document).on('click.menu', {obj: this}, function(e) {
-		if ($(e.target).closest(e.data.obj.opt.menus[sItem].menuObj.parent()).length)
+	this.opt.menus[sItem].handleClickOutside = function(e) {
+		if (e.target.closest('#' + this.opt.menus[sItem].itemObj.id) || e.target.closest('#' + this.opt.menus[sItem].menuObj.id)) {
 			return;
-		e.data.obj.closeAll();
-		$(document).off('click.menu');
-	});
+		}
+
+		this.closeAll();
+	}.bind(this);
+
+	document.addEventListener('click', this.opt.menus[sItem].handleClickOutside);
 }
 
 smc_PopupMenu.prototype.close = function (sItem)
 {
-	this.opt.menus[sItem].menuObj.removeClass('visible');
-	this.opt.menus[sItem].itemObj.removeClass('open');
+	this.opt.menus[sItem].menuObj.classList.remove('visible');
+	this.opt.menus[sItem].itemObj.classList.remove('open');
 	this.opt.menus[sItem].open = false;
-	$(document).off('click.menu');
+	document.removeEventListener('click', this.opt.menus[sItem].handleClickOutside);
 }
 
 smc_PopupMenu.prototype.closeAll = function ()
@@ -474,39 +510,41 @@ smc_Popup.prototype.show = function ()
 	const root = document.createElement("div");
 	const heading = document.createElement("div");
 	const content = document.createElement("div");
-	const a = document.createElement("a");
+	const button = document.createElement("button");
 	heading.insertAdjacentHTML('beforeend', icon);
 	heading.append(this.opt.heading);
-	heading.append(a);
+	heading.append(button);
 	root.append(heading, content);
 	this.cover.appendChild(root);
 	root.className = popup_class;
 	content.className = 'popup_content';
 	content.innerHTML = this.opt.content;
 	heading.className = 'popup_heading';
-	a.className = 'main_icons hide_popup';
-	a.setAttribute('role', 'button');
-	a.setAttribute('tabindex', '0');
-	a.addEventListener("click", this.hide.bind(this));
-	this.cover.addEventListener('click', function(e)
-	{
-		if (e.target === this.cover)
-			this.hide();
-	}.bind(this));
+	button.className = 'main_icons hide_popup link reset';
+	button.addEventListener("click", this.hide.bind(this));
 	document.body.appendChild(this.cover);
 
 	// Show it
-	$(this.cover).fadeIn(300, function()
+	this.cover.classList.add('fade-in');
+
+	const onAnimationEnd = function()
 	{
-		var focusableEls = root.querySelectorAll('a[href]:not([href="javascript:self.close();"]), area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex^="-"])');
-		this.focusableEls = Array.prototype.slice.call(focusableEls);
+		const focusableEls = Array.from(root.querySelectorAll('a[href]:not([href="javascript:self.close();"]), area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex^="-"])'));
+		this.focusableEls = focusableEls;
 		this.firstFocusableEl = focusableEls[0];
 		this.lastFocusableEl = focusableEls[focusableEls.length - 1];
 
 		this.focusedElBeforeOpen = document.activeElement;
-		if (focusableEls[1])
-			focusableEls[1].focus();
-	}.bind(this));
+		if (focusableEls[1]) focusableEls[1].focus();
+
+		this.cover.addEventListener('click', function(e)
+		{
+			if (e.target === this.cover)
+				this.hide();
+		}.bind(this));
+	};
+
+	this.cover.addEventListener('animationend', onAnimationEnd.bind(this), { once: true });
 
 	root.addEventListener('keydown', function(e)
 	{
@@ -530,14 +568,15 @@ smc_Popup.prototype.show = function ()
 					this.firstFocusableEl.focus();
 				}
 				break;
+
 			case 27:
 				this.hide();
 				break;
 		}
 	}.bind(this));
 
-	// Disable document scrolling..
-	document.body.style.overflow = 'hidden';
+	// Disable document scrolling.
+	document.body.style.overflow = 'clip';
 }
 
 smc_Popup.prototype.hide = function ()
@@ -546,15 +585,15 @@ smc_Popup.prototype.hide = function ()
 		this.focusedElBeforeOpen.focus();
 
 	document.body.style.overflow = '';
-	$(this.cover).fadeOut(300, function() { this.remove(); });
-}
 
-// Remember the current position.
-function storeCaret(oTextHandle)
-{
-	// Only bother if it will be useful.
-	if ('createTextRange' in oTextHandle)
-		oTextHandle.caretPos = document.selection.createRange().duplicate();
+	this.cover.classList.remove('fade-in');
+	this.cover.classList.add('fade-out');
+
+	const onAnimationEnd = function()
+	{
+		this.cover.remove();
+	};
+	this.cover.addEventListener('animationend', onAnimationEnd.bind(this), { once: true });
 }
 
 // Replaces the currently selected text with the passed text.
@@ -645,20 +684,6 @@ function surroundText(text1, text2, oTextHandle)
 // Checks if the passed input's value is nothing.
 function isEmptyText(theField)
 {
-	// Copy the value so changes can be made..
-	if (typeof(theField) == 'string')
-		var theValue = theField;
-	else
-		var theValue = theField.value;
-
-	// Strip whitespace off the left side.
-	while (theValue.length > 0 && (theValue.charAt(0) == ' ' || theValue.charAt(0) == '\t'))
-		theValue = theValue.substring(1, theValue.length);
-	// Strip whitespace off the right side.
-	while (theValue.length > 0 && (theValue.charAt(theValue.length - 1) == ' ' || theValue.charAt(theValue.length - 1) == '\t'))
-		theValue = theValue.substring(0, theValue.length - 1);
-
-	return theValue == '';
 }
 
 // Only allow form submission ONCE.
@@ -675,6 +700,8 @@ function reActivateThis(oForm)
 {
 	oForm.inert = false;
 
+	// It can either be a string or a form element...
+	return (theField.value || theField).trim() == '';
 }
 
 // Deprecated, as innerHTML is supported everywhere.
@@ -737,7 +764,7 @@ function selectRadioByName(oRadioGroup, sName)
 function selectAllRadio(oInvertCheckbox, oForm, sMask, sValue, bIgnoreDisabled)
 {
 	for (var i = 0; i < oForm.length; i++)
-		if (oForm[i].name != undefined && oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue && (!oForm[i].disabled || (typeof(bIgnoreDisabled) == 'boolean' && bIgnoreDisabled)))
+		if (oForm[i].name != undefined && oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue && (!oForm[i].disabled || bIgnoreDisabled))
 			oForm[i].checked = true;
 }
 
@@ -746,10 +773,10 @@ function invertAll(oInvertCheckbox, oForm, sMask, bIgnoreDisabled)
 {
 	for (var i = 0; i < oForm.length; i++)
 	{
-		if (!('name' in oForm[i]) || (typeof(sMask) == 'string' && oForm[i].name.substr(0, sMask.length) != sMask && oForm[i].id.substr(0, sMask.length) != sMask))
+		if (!('name' in oForm[i]) || (oForm[i].name.substr(0, sMask.length) != sMask && oForm[i].id.substr(0, sMask.length) != sMask))
 			continue;
 
-		if (!oForm[i].disabled || (typeof(bIgnoreDisabled) == 'boolean' && bIgnoreDisabled))
+		if (!oForm[i].disabled || bIgnoreDisabled)
 			oForm[i].checked = oInvertCheckbox.checked;
 	}
 }
@@ -775,17 +802,8 @@ window.setTimeout(smf_sessionKeepAlive, 1200000);
 // Set a theme option through javascript.
 function smf_setThemeOption(theme_var, theme_value, theme_id, theme_cur_session_id, theme_cur_session_var, theme_additional_vars)
 {
-	// Compatibility.
-	if (theme_cur_session_id == null)
-		theme_cur_session_id = smf_session_id;
-	if (typeof(theme_cur_session_var) == 'undefined')
-		theme_cur_session_var = 'sesc';
-
-	if (theme_additional_vars == null)
-		theme_additional_vars = '';
-
 	var tempImage = new Image();
-	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + theme_var + ';val=' + theme_value + ';' + theme_cur_session_var + '=' + theme_cur_session_id + theme_additional_vars + (theme_id == null ? '' : '&th=' + theme_id) + ';time=' + (new Date().getTime());
+	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + theme_var + ';val=' + theme_value + ';' + theme_cur_session_var + '=' + theme_cur_session_id + (theme_additional_vars || '') + (theme_id == null ? '' : '&th=' + theme_id) + ';time=' + (new Date().getTime());
 }
 
 // Shows the page numbers by clicking the dots (in compact view).
@@ -806,10 +824,9 @@ function expandPages(spanNode, baseLink, firstPage, lastPage, perPage)
 		replacement += baseLink.replace(/%1\$d/, i).replace(/%2\$s/, 1 + i / perPage).replace(/%%/g, '%');
 
 	// Add the new page links.
-	spanNode.before(replacement);
+	spanNode.insertAdjacentHTML('beforebegin', replacement);
 
 	if (oldLastPage)
-		// Access the raw DOM element so the native onclick event can be overridden.
 		spanNode.onclick = expandPages.bind(null, spanNode, baseLink, lastPage, oldLastPage, perPage);
 	else
 		spanNode.remove();
@@ -952,88 +969,70 @@ smc_Toggle.prototype.init = function ()
 smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 {
 	// Default bInit to false.
-	bInit = typeof(bInit) !== 'undefined';
+	bInit = typeof bInit !== 'undefined';
 
 	// Handle custom function hook before collapse.
-	if (!bInit && bCollapse && 'funcOnBeforeCollapse' in this.opt)
-	{
-		this.tmpMethod = this.opt.funcOnBeforeCollapse;
-		this.tmpMethod();
-		delete this.tmpMethod;
-	}
-
-	// Handle custom function hook before expand.
-	else if (!bInit && !bCollapse && 'funcOnBeforeExpand' in this.opt)
-	{
-		this.tmpMethod = this.opt.funcOnBeforeExpand;
-		this.tmpMethod();
-		delete this.tmpMethod;
+	if (!bInit && bCollapse && this.opt.funcOnBeforeCollapse) {
+		this.opt.funcOnBeforeCollapse.call(this);
+	} else if (!bInit && !bCollapse && this.opt.funcOnBeforeExpand) {
+		this.opt.funcOnBeforeExpand.call(this);
 	}
 
 	// Loop through all the images that need to be toggled.
-	if ('aSwapImages' in this.opt)
-	{
-		for (var i = 0, n = this.opt.aSwapImages.length; i < n; i++)
-		{
-			this.opt.aSwapImages[i].altExpanded = this.opt.aSwapImages[i].altExpanded ? this.opt.aSwapImages[i].altExpanded : smf_collapseAlt;
-			this.opt.aSwapImages[i].altCollapsed = this.opt.aSwapImages[i].altCollapsed ? this.opt.aSwapImages[i].altCollapsed : smf_expandAlt;
-			if (this.opt.aSwapImages[i].isCSS)
-			{
-				$('#' + this.opt.aSwapImages[i].sId).toggleClass(this.opt.aSwapImages[i].cssCollapsed, bCollapse).toggleClass(this.opt.aSwapImages[i].cssExpanded, !bCollapse).attr('title', bCollapse ? this.opt.aSwapImages[i].altCollapsed : this.opt.aSwapImages[i].altExpanded);
-			}
-			else
-			{
-				var oImage = document.getElementById(this.opt.aSwapImages[i].sId);
-				if (typeof(oImage) == 'object' && oImage != null)
-				{
-					// Only (re)load the image if it's changed.
-					var sTargetSource = bCollapse ? this.opt.aSwapImages[i].srcCollapsed : this.opt.aSwapImages[i].srcExpanded;
-					if (oImage.src != sTargetSource)
-						oImage.src = sTargetSource;
+	if (this.opt.aSwapImages) {
+		for (const i in this.opt.aSwapImages) {
+			const image = this.opt.aSwapImages[i];
+			const altExpanded = image.altExpanded ? image.altExpanded : smf_collapseAlt;
+			const altCollapsed = image.altCollapsed ? image.altCollapsed : smf_expandAlt;
+			const oImage = document.getElementById(image.sId);
 
-					oImage.alt = oImage.title = bCollapse ? this.opt.aSwapImages[i].altCollapsed : this.opt.aSwapImages[i].altExpanded;
+			if (oImage) {
+				if (image.isCSS) {
+					oImage.classList.toggle(image.cssCollapsed, bCollapse);
+					oImage.classList.toggle(image.cssExpanded, !bCollapse);
+				} else {
+					const sTargetSource = bCollapse ? image.srcCollapsed : image.srcExpanded;
+					if (oImage.src !== sTargetSource) {
+						oImage.src = sTargetSource;
+					}
 				}
+
+				oImage.alt = oImage.title = bCollapse ? altCollapsed : altExpanded;
 			}
 		}
 	}
 
 	// Loop through all the links that need to be toggled.
-	if ('aSwapLinks' in this.opt)
-	{
-		for (var i = 0, n = this.opt.aSwapLinks.length; i < n; i++)
-		{
-			var oLink = document.getElementById(this.opt.aSwapLinks[i].sId);
-			if (typeof(oLink) == 'object' && oLink != null)
-				setInnerHTML(oLink, bCollapse ? this.opt.aSwapLinks[i].msgCollapsed : this.opt.aSwapLinks[i].msgExpanded);
+	if (this.opt.aSwapLinks) {
+		for (const link of this.opt.aSwapLinks) {
+			const oLink = document.getElementById(link.sId);
+			if (oLink) {
+				oLink.innerHTML = bCollapse ? link.msgCollapsed : link.msgExpanded;
+			}
 		}
 	}
 
 	// Now go through all the sections to be collapsed.
-	for (var i = 0, n = this.opt.aSwappableContainers.length; i < n; i++)
-	{
-		if (this.opt.aSwappableContainers[i] == null)
-			continue;
+	if (this.opt.aSwappableContainers) {
+		for (const containerId of this.opt.aSwappableContainers) {
+			if (containerId === null) continue;
 
-		var oContainer = document.getElementById(this.opt.aSwappableContainers[i]);
-		if (typeof(oContainer) == 'object' && oContainer != null)
-		{
-			if (!!this.opt.bNoAnimate || bInit)
-			{
-				$(oContainer).toggle(!bCollapse);
-			}
-			else
-			{
-				if (bCollapse)
-				{
-					if (this.opt.aHeader != null && this.opt.aHeader.hasClass('cat_bar'))
-						$(this.opt.aHeader).addClass('collapsed');
-					$(oContainer).slideUp();
-				}
-				else
-				{
-					if (this.opt.aHeader != null && this.opt.aHeader.hasClass('cat_bar'))
-						$(this.opt.aHeader).removeClass('collapsed');
-					$(oContainer).slideDown();
+			const oContainer = document.getElementById(containerId);
+			if (oContainer) {
+				if (!!this.opt.bNoAnimate || bInit) {
+					oContainer.style.display = bCollapse ? 'none' : '';
+				} else {
+					if (bCollapse) {
+						if (this.opt.aHeader != null && this.opt.aHeader.classList.contains('cat_bar')) {
+							this.opt.aHeader.classList.add('collapsed');
+						}
+						oContainer.style.display = 'none';
+					} else {
+						if (this.opt.aHeader != null && this.opt.aHeader.classList.contains('cat_bar')) {
+							this.opt.aHeader.classList.remove('collapsed');
+						}
+						oContainer.style.display = '';
+					}
 				}
 			}
 		}
@@ -1043,11 +1042,13 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 	this.bCollapsed = bCollapse;
 
 	// Update the cookie, if desired.
-	if ('oCookieOptions' in this.opt && this.opt.oCookieOptions.bUseCookie)
+	if (this.opt.oCookieOptions && this.opt.oCookieOptions.bUseCookie) {
 		this.oCookie.set(this.opt.oCookieOptions.sCookieName, this.bCollapsed | 0);
+	}
 
-	if (!bInit && 'oThemeOptions' in this.opt && this.opt.oThemeOptions.bUseThemeSettings)
-		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed | 0, 'sThemeId' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sThemeId : null, smf_session_id, smf_session_var, 'sAdditionalVars' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sAdditionalVars : null);
+	if (!bInit && this.opt.oThemeOptions && this.opt.oThemeOptions.bUseThemeSettings) {
+		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed | 0, this.opt.oThemeOptions.sThemeId ?? null, smf_session_id, smf_session_var, this.opt.oThemeOptions.sAdditionalVars ?? null);
+	}
 }
 
 smc_Toggle.prototype.toggle = function()
@@ -1093,31 +1094,28 @@ function create_ajax_indicator_ele()
 // This function will retrieve the contents needed for the jump to boxes.
 function grabJumpToContent(elem)
 {
-	var oXMLDoc = getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml');
-	var aBoardsAndCategories = [];
-
 	ajax_indicator(true);
 
-	oXMLDoc.done(function(data, textStatus, jqXHR){
+	getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', function(oXMLDoc)
+	{
+		let aBoardsAndCategories = [];
+		const items = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('item');
 
-		var items = $(data).find('item');
-			items.each(function(i) {
-			aBoardsAndCategories[i] = {
-				id: parseInt($(this).attr('id')),
-				isCategory: $(this).attr('type') == 'category',
-				name: this.firstChild.nodeValue.removeEntities(),
+		for (const item of items)
+		{
+			aBoardsAndCategories.push({
+				id: parseInt(item.getAttribute('id')),
+				isCategory: item.getAttribute('type') === 'category',
+				name: item.firstChild.nodeValue.removeEntities(),
 				is_current: false,
-				isRedirect: parseInt($(this).attr('is_redirect')),
-				childLevel: parseInt($(this).attr('childlevel'))
-			}
-		});
+				isRedirect: parseInt(item.getAttribute('is_redirect')),
+				childLevel: parseInt(item.getAttribute('childlevel'))
+			});
+		}
 
 		ajax_indicator(false);
 
-		for (var i = 0, n = aJumpTo.length; i < n; i++)
-		{
-			aJumpTo[i].fillSelect(aBoardsAndCategories);
-		}
+		this.fillSelect(aBoardsAndCategories);
 	});
 }
 
@@ -1131,90 +1129,99 @@ function JumpTo(oJumpToOptions)
 	this.dropdownList = null;
 	this.showSelect();
 
-	// Register a change event after the select has been created.
-	$('#' + this.opt.sContainerId).one('mouseenter', function() {
-		grabJumpToContent(this);
-	});
+	const el = document.getElementById(this.opt.sContainerId);
+	this.oContainer = el;
+	let timeout = null;
+
+	// Detect if a "coarse pointer" (usually a touch screen) is the primary input device.
+	if (window.matchMedia("(pointer: coarse)").matches) {
+		el.onfocus = () => {
+			(this.opt.funcFetchData || grabJumpToContent).call(this);
+
+			el.onfocus = null;
+		};
+	} else {
+		el.onmouseover = () => {
+			timeout = setTimeout(() => {
+				(this.opt.funcFetchData || grabJumpToContent).call(this);
+
+				el.onmouseover = null;
+				el.onmouseout = null;
+			}, 200);
+		};
+		el.onmouseout = () => {
+			clearTimeout(timeout);
+		};
+	}
 }
 
 // Show the initial select box (onload). Method of the JumpTo class.
 JumpTo.prototype.showSelect = function ()
 {
-	var sChildLevelPrefix = '';
-	for (var i = this.opt.iCurBoardChildLevel; i > 0; i--)
-		sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
-	this.dropdownList = document.getElementById(this.opt.sContainerId + '_select');
+	const el = this.oContainer;
+	el.innerHTML = this.opt.sJumpToTemplate
+		.replace(/%select_id%/, this.opt.sContainerId + '_select')
+		.replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + this.opt.sBoardChildLevelIndicator.repeat(this.opt.iCurBoardChildLevel) + this.opt.sBoardPrefix + this.opt.sCurBoardName
+		.removeEntities() + '</option></select>');
+
+	if (this.opt.sGoButtonLabel) {
+		const btn = document.createElement('button');
+		btn.textContent = this.opt.sGoButtonLabel;
+		btn.className = 'button';
+		btn.addEventListener('click', () => {
+			window.location.href = smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0';
+		});
+		el.append(' ', btn);
+	}
+	this.dropdownList = el.getElementById(this.opt.sContainerId + '_select');
+
+	this.dropdownList.onchange = function() {
+		const val = this.options[this.selectedIndex].value;
+		if (this.selectedIndex > 0 && val)
+			window.location.href = smf_scripturl + (val.startsWith('?') ? val.substring(1) : val);
+	};
 }
 
 // Fill the jump to box with entries. Method of the JumpTo class.
 JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 {
-	// Don't do this twice.
-	$('#' + this.opt.sContainerId).off('mouseenter');
-
 	// Create an option that'll be above and below the category.
-	var oDashOption = document.createElement('option');
-	oDashOption.appendChild(document.createTextNode(this.opt.sCatSeparator));
+	const oDashOption = new Option(this.opt.sCatSeparator, '');
 	oDashOption.disabled = 'disabled';
-	oDashOption.value = '';
-
-	if ('onbeforeactivate' in document)
-		this.dropdownList.onbeforeactivate = null;
-	else
-		this.dropdownList.onfocus = null;
 
 	if (this.opt.bNoRedirect)
 		this.dropdownList.options[0].disabled = 'disabled';
 
 	// Create a document fragment that'll allowing inserting big parts at once.
-	var oListFragment = document.createDocumentFragment();
+	const oListFragment = document.createDocumentFragment();
 
 	// Loop through all items to be added.
-	for (var i = 0, n = aBoardsAndCategories.length; i < n; i++)
-	{
-		var j, sChildLevelPrefix, oOption;
-
+	for (const item of aBoardsAndCategories) {
 		// If we've reached the currently selected board add all items so far.
-		if (!aBoardsAndCategories[i].isCategory && aBoardsAndCategories[i].id == this.opt.iCurBoardId)
-		{
+		if (!item.isCategory && item.id == this.opt.iCurBoardId) {
 			this.dropdownList.insertBefore(oListFragment, this.dropdownList.options[0]);
 			oListFragment = document.createDocumentFragment();
 			continue;
 		}
 
-		if (aBoardsAndCategories[i].isCategory)
+		if (item.isCategory)
 			oListFragment.appendChild(oDashOption.cloneNode(true));
-		else
-			for (j = aBoardsAndCategories[i].childLevel, sChildLevelPrefix = ''; j > 0; j--)
-				sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
 
-		oOption = document.createElement('option');
-		oOption.appendChild(document.createTextNode((aBoardsAndCategories[i].isCategory ? this.opt.sCatPrefix : sChildLevelPrefix + this.opt.sBoardPrefix) + aBoardsAndCategories[i].name));
-		if (!this.opt.bNoRedirect)
-			oOption.value = aBoardsAndCategories[i].isCategory ? '#c' + aBoardsAndCategories[i].id : '?board=' + aBoardsAndCategories[i].id + '.0';
-		else
-		{
-			if (aBoardsAndCategories[i].isCategory || aBoardsAndCategories[i].isRedirect)
-				oOption.disabled = 'disabled';
-			else
-				oOption.value = aBoardsAndCategories[i].id;
+		const oOption = new Option(
+			(item.isCategory ? this.opt.sCatPrefix : this.opt.sBoardChildLevelIndicator.repeat(item.childLevel) + this.opt.sBoardPrefix) + item.name,
+			item.isCategory ? '#c' + item.id : '?board=' + item.id + '.0'
+		);
+		if (this.opt.bNoRedirect && (item.isCategory || item.isRedirect)) {
+			oOption.disabled = 'disabled';
 		}
 		oListFragment.appendChild(oOption);
-
-		if (aBoardsAndCategories[i].isCategory)
+ 
+		if (item.isCategory)
 			oListFragment.appendChild(oDashOption.cloneNode(true));
 	}
 
 	// Add the remaining items after the currently selected item.
 	this.dropdownList.appendChild(oListFragment);
-
-	// Add an onchange action
-	if (!this.opt.bNoRedirect)
-		this.dropdownList.onchange = function() {
-			if (this.selectedIndex > 0 && this.options[this.selectedIndex].value)
-				window.location.href = smf_scripturl + this.options[this.selectedIndex].value.substr(smf_scripturl.indexOf('?') == -1 || this.options[this.selectedIndex].value.substr(0, 1) != '?' ? 0 : 1);
-		}
 }
 
 // A global array containing all IconList objects.
@@ -1416,37 +1423,13 @@ function smf_itemPos(itemHandle)
 }
 
 // This function takes the script URL and prepares it to allow the query string to be appended to it.
-function smf_prepareScriptUrl(sUrl)
-{
-	return sUrl.indexOf('?') == -1 ? sUrl + '?' : sUrl + (sUrl.charAt(sUrl.length - 1) == '?' || sUrl.charAt(sUrl.length - 1) == '&' || sUrl.charAt(sUrl.length - 1) == ';' ? '' : ';');
+// If `sUrl` does not end with `?`, `&`, or `;`, append `?` or `;`, depending on whether the URL already contains a query string.
+function smf_prepareScriptUrl(sUrl) {
+	return sUrl + (!sUrl.includes('?') ? '?' : /[&;]$/.test(sUrl) ? '' : ';');
 }
 
-var aOnloadEvents = new Array();
-function addLoadEvent(fNewOnload)
-{
-	// If there's no event set, just set this one
-	if (typeof(fNewOnload) == 'function' && (!('onload' in window) || typeof(window.onload) != 'function'))
-		window.onload = fNewOnload;
-
-	// If there's just one event, setup the array.
-	else if (aOnloadEvents.length == 0)
-	{
-		aOnloadEvents[0] = window.onload;
-		aOnloadEvents[1] = fNewOnload;
-		window.onload = function() {
-			for (var i = 0, n = aOnloadEvents.length; i < n; i++)
-			{
-				if (typeof(aOnloadEvents[i]) == 'function')
-					aOnloadEvents[i]();
-				else if (typeof(aOnloadEvents[i]) == 'string')
-					eval(aOnloadEvents[i]);
-			}
-		}
-	}
-
-	// This isn't the first event function, add it to the list.
-	else
-		aOnloadEvents[aOnloadEvents.length] = fNewOnload;
+function addLoadEvent(fNewOnload) {
+	window.addEventListener("load", fNewOnload);
 }
 
 // A function used to clean the attachments on post page
@@ -1503,7 +1486,7 @@ function expandThumb(thumbID)
 function generateDays(offset)
 {
 	// Work around JavaScript's lack of support for default values...
-	offset ||= '';
+	offset = typeof(offset) != 'undefined' ? offset : '';
 
 	var days = 0, selected = 0;
 	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
@@ -1522,7 +1505,7 @@ function generateDays(offset)
 
 	days = monthLength[monthElement.value - 1];
 
-	for (let i = 1; i <= days; i++)
+	for (i = 1; i <= days; i++)
 		dayElement.options[dayElement.length] = new Option(i, i);
 
 	if (selected < days)
@@ -1639,207 +1622,182 @@ function makeChecks(f)
 			}.bind(b, div.elements));
 		}
 }
+function smc_resize(selector) {
+	const allElements = [];
 
-function smc_resize(selector)
-{
-	var allElements = [];
+	const elements = document.querySelectorAll(selector);
+	for (const element of elements) {
+		element.removeAttribute('width');
+		element.removeAttribute('height');
 
-	$(selector).each(function(){
-		$thisElement = $(this);
+		const basedElement = element.parentElement;
+		const defaultWidth = element.clientWidth;
+		const defaultHeight = element.clientHeight;
+		const aspectRatio = defaultHeight / defaultWidth;
 
-		// Get rid of the width and height attributes.
-		$thisElement.removeAttr('width').removeAttr('height');
+		allElements.push({ element, basedElement, defaultWidth, defaultHeight, aspectRatio });
+	}
 
-		// Get the default vars.
-		$thisElement.basedElement = $thisElement.parent();
-		$thisElement.defaultWidth = $thisElement.width();
-		$thisElement.defaultHeight = $thisElement.height();
-		$thisElement.aspectRatio = $thisElement.defaultHeight / $thisElement.defaultWidth;
+	window.addEventListener('resize', () => {
+		for (const innerElement of allElements) {
+			const newWidth = innerElement.basedElement.clientWidth;
+			const newHeight = (newWidth * innerElement.aspectRatio) <= innerElement.defaultHeight ? (newWidth * innerElement.aspectRatio) : innerElement.defaultHeight;
+			const applyResize = (newWidth <= innerElement.defaultWidth);
+			const applyWidth = !applyResize ? innerElement.defaultWidth : newWidth;
+			const applyHeight = !applyResize ? innerElement.defaultHeight : newHeight;
 
-		allElements.push($thisElement);
-	});
-
-	$(window).resize(function(){
-		$(allElements).each(function(){
-			_innerElement = this;
-
-			// Get the new width and height.
-			var newWidth = _innerElement.basedElement.width();
-			var newHeight = (newWidth * _innerElement.aspectRatio) <= _innerElement.defaultHeight ? (newWidth * _innerElement.aspectRatio) : _innerElement.defaultHeight;
-
-			// If the new width is lower than the "default width" then apply some resizing. No? then go back to our default sizes
-			var applyResize = (newWidth <= _innerElement.defaultWidth),
-				applyWidth = !applyResize ? _innerElement.defaultWidth : newWidth,
-				applyHeight = !applyResize ? _innerElement.defaultHeight : newHeight;
-
-			// Gotta check the applied width and height is actually something!
 			if (applyWidth <= 0 && applyHeight <= 0) {
-				applyWidth = _innerElement.defaultWidth;
-				applyHeight = _innerElement.defaultHeight;
+				applyWidth = innerElement.defaultWidth;
+				applyHeight = innerElement.defaultHeight;
 			}
 
-			// Finally resize the element!
-			_innerElement.width(applyWidth).height(applyHeight);
-		});
+			innerElement.element.style.width = applyWidth + 'px';
+			innerElement.element.style.height = applyHeight + 'px';
+		}
+	});
 
-	// Kick off one resize to fix all elements on page load.
-	}).resize();
+	window.dispatchEvent(new Event('resize'));
 }
 
-$(function() {
-	$('.buttonlist li > .top_menu').each(function(index, item) {
-		$(item).prev().click(function(e) {
+document.addEventListener('DOMContentLoaded', () => {
+	const dropMenus = document.querySelectorAll('.buttonlist > .dropmenu');
+	for (const item of dropMenus) {
+		const prevElement = item.previousElementSibling;
+
+		prevElement.addEventListener('click', e => {
 			e.stopPropagation();
 			e.preventDefault();
 
-			if ($(item).is(':visible')) {
-				$(item).removeClass('visible');
-
+			if (window.getComputedStyle(item).display === 'block') {
+				item.style.display = 'none';
 				return true;
 			}
 
-			$(item).addClass('visible');
+			item.style.display = 'block';
+			item.style.top = (prevElement.offsetTop + prevElement.offsetHeight) + 'px';
+			item.style.left = Math.max(prevElement.offsetLeft - item.offsetWidth + prevElement.offsetWidth, 0) + 'px';
+			item.style.height = item.querySelector('div:first-child').offsetHeight + 'px';
 		});
-		$(document).click(function() {
-			$(item).removeClass('visible');
+
+		document.addEventListener('click', () => {
+			item.style.display = 'none';
 		});
-	});
+	}
 
-	// Generic confirmation message.
-	$(document).on('click', '.you_sure', function() {
-		if (this.getAttribute('type') === 'checkbox' && !this.checked) {
-			return true;
-		}
+	const sureElements = document.querySelectorAll('.you_sure');
+	for (const element of sureElements) {
+		element.addEventListener('click', () => {
+			const customMessage = element.getAttribute('data-confirm');
+			const timeBefore = new Date();
+			const result = confirm(customMessage ? customMessage.replace(/-n-/g, "\n") : smf_you_sure);
+			const timeAfter = new Date();
 
-		var custom_message = $(this).attr('data-confirm');
-		var timeBefore = new Date();
-		var result = confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
-		var timeAfter = new Date();
+			if (!result && (timeAfter - timeBefore) < 10) {
+				return true;
+			}
 
-		// Check if the browser disabled the alert
-		if (!result && (timeAfter - timeBefore) < 10)
-			return true;
-
-		return result;
-	});
-
-	// Expand quotes
-	if ((typeof(smf_quote_expand) != 'undefined') && (smf_quote_expand > 0))
-	{
-		$('blockquote').each(function(index, item) {
-
-			let cite = $(item).find('cite').first();
-			let quote_height = parseInt($(item).height());
-
-			if(quote_height < smf_quote_expand)
-				return;
-
-			$(item).css({
-				'overflow-y': 'hidden',
-				'max-height': smf_quote_expand +'px'
-			});
-
-			let anchor = $('<a/>', {
-				text: ' [' + smf_txt_expand + ']',
-				class: 'expand'
-			});
-
-			if (cite.length)
-				cite.append(anchor);
-
-			$(item).on('click', 'a.expand', function(event) {
-				event.preventDefault();
-
-				if (smf_quote_expand < parseInt($(item).height()))
-				{
-					cite.find('a.expand').text(' ['+ smf_txt_expand +']');
-					$(item).css({
-						'overflow-y': 'hidden',
-						'max-height': smf_quote_expand +'px'
-					});
-				}
-
-				else
-				{
-					cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
-					$(item).css({
-						'overflow-y': 'visible',
-						'max-height': (quote_height + 10) +'px'
-					});
-
-					expand_quote_parent($(item));
-				}
-
-				return false;
-			});
+			return result;
 		});
 	}
 
 	attachBbCodeEvents(document);
 });
 
-function expand_quote_parent(oElement)
-{
-	$.each(oElement.parentsUntil('div.inner'), function( index, value ) {
-		$(value).css({
-			'overflow-y': 'visible',
-			'max-height': '',
-		}).find('a.expand').first().text(' ['+ smf_txt_shrink +']');
-	});
-}
-
 function attachBbCodeEvents(parent)
 {
 	parent.querySelectorAll('.bbc_code').forEach(item =>
 	{
-		const selectButton = document.createElement('button');
-		selectButton.textContent = item.dataset.selectTxt;
-		selectButton.className = 'reset link';
-		selectButton.addEventListener('click', function() 
-		{
-			window.getSelection().selectAllChildren(item);
-		});
-		item.previousSibling.append(' [', selectButton, ']');
+		const d = item.dataset;
+		const selectText = d.selectTxt;
+		const expandText = d.expandTxt;
+
+		if (selectText) {
+			const selectButton = document.createElement('button');
+			selectButton.textContent = selectText;
+			selectButton.className = 'reset link';
+			selectButton.addEventListener('click', () => {
+				window.getSelection().selectAllChildren(item);
+			});
+			item.previousSibling.append(' [', selectButton, ']');
+		}
 
 		// Show the Expand bbc button if needed
 		if (item.innerHeight < item.scrollHeight)
 			return;
 
-		const expandButton = document.createElement('button');
-		expandButton.textContent = item.dataset.expandTxt;
-		expandButton.className = 'reset link';
-		expandButton.addEventListener('click', function()
-		{
-			if (item.classList.contains('expand_code'))
-			{
-				item.classList.remove('expand_code');
-				this.textContent = item.dataset.expandTxt;
-			}
-			else
-			{
-				item.classList.add('expand_code');
-				this.textContent = item.dataset.shrinkTxt;
-			}
-		});
-		item.previousSibling.append(' [', expandButton, ']');
+		if (expandText) {
+			const expandButton = document.createElement('button');
+			expandButton.textContent = expandText;
+			expandButton.className = 'reset link';
+			expandButton.addEventListener('click', function() {
+				if (item.classList.contains('expand_code'))  {
+					item.classList.remove('expand_code');
+					this.textContent = expandText;
+				} else {
+					item.classList.add('expand_code');
+					this.textContent = d.shrinkTxt;
+				}
+			});
+			item.previousSibling.append(' [', expandButton, ']');
+		}
 	});
+
+	// Expand quotes
+	if (smf_quote_expand && !/\D/.test(smf_quote_expand))
+		for (const el of parent.getElementsByTagName('blockquote'))
+		{
+			if (el.offsetHeight < smf_quote_expand)
+				return;
+
+			const fn = (p, idx, l) =>
+			{
+				for (const a of p.getElementsByTagName('a'))
+					if (a.href || idx === '0')
+						a.setAttribute('tabindex', idx);
+			};
+
+			// Disable tabbing for all hidden anchor links.
+			fn(el, '-1', a);
+
+			const a = document.createElement('a');
+			a.textContent = smf_txt_expand;
+			a.className = 'expand';
+			a.setAttribute('role', 'button');
+			if (el.parentNode.tagName != 'BLOCKQUOTE')
+				a.setAttribute('tabindex', '0');
+			a.addEventListener('click', function()
+			{
+				const d = this.parentNode;
+				d.classList.remove('expand');
+				this.remove();
+				fn(d, '0');
+			});
+			a.addEventListener('keydown', function(e)
+			{
+				// Keypresses other then Enter and Space should not trigger a command
+				if (e.keyCode != 13 && e.keyCode != 32)
+					return;
+
+				this.click();
+				e.preventDefault();
+			});
+			el.classList.add('expand');
+			el.style.setProperty('--height', smf_quote_expand + 'px');
+			el.append(a);
+		}
 }
 
 function avatar_fallback(e) {
-    var e = window.e || e;
 	var default_url = smf_avatars_url + '/default.png';
 
-    if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
-        return;
+	if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
+		return;
 
 	e.target.src = default_url;
 	return true;
 }
 
-if (document.addEventListener)
-    document.addEventListener("error", avatar_fallback, true);
-else
-    document.attachEvent("error", avatar_fallback);
+document.addEventListener("error", avatar_fallback, true);
 
 // SMF Preview handler.
 function smc_preview_post(oOptions)

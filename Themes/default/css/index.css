@@ -529,6 +529,23 @@ blockquote {
 blockquote blockquote {
 	font-size: 1em;
 }
+blockquote.expand {
+	position: relative;
+	overflow: clip;
+	height: var(--height);
+}
+blockquote a.expand {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 75px;
+	display: flex;
+	justify-content: center;
+	align-items: end;
+	background: linear-gradient(to bottom,rgba(249,249,249,0) 0%,#F9F9F9 80%);
+	padding: 5px;
+}
 blockquote cite {
 	background: var(--quote-cite-bg);
 	border-color: var(--quote-cite-border-color);
@@ -5097,4 +5114,32 @@ input:checked + .slider:before {
 	content: "\f185";
 	font-weight: 700;
 	font-family: "Font Awesome 6 Free";
+}
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Fade-out animation */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Apply fade-in and fade-out animations */
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease forwards;
 }
