@@ -68,7 +68,8 @@
 }
 
 @media screen and (min-width: 721px) {
-	#mobile_action {
+	#mobile_action,
+	#mobile_moderation {
 		display: none !important;
 	}
 }
@@ -102,12 +103,6 @@
 	#mobile_action .notify_dropdown {
 		top: 0.25em;
 		position: relative;
-	}
-	.mobile_buttons {
-		margin: 5px 0;
-	}
-	.mobile_buttons .button {
-		margin: 0;
 	}
 	.pagesection .buttonlist, #moderationbuttons {
 		display: none;
