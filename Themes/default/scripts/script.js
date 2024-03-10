@@ -1716,6 +1716,7 @@ function attachBbCodeEvents(parent)
 		if (selectText) {
 			const selectButton = document.createElement('button');
 			selectButton.textContent = selectText;
+			selectButton.type = 'button';
 			selectButton.className = 'reset link';
 			selectButton.addEventListener('click', () => {
 				window.getSelection().selectAllChildren(item);
@@ -1730,6 +1731,7 @@ function attachBbCodeEvents(parent)
 		if (expandText) {
 			const expandButton = document.createElement('button');
 			expandButton.textContent = expandText;
+			expandButton.type = 'button';
 			expandButton.className = 'reset link';
 			expandButton.addEventListener('click', function() {
 				if (item.classList.contains('expand_code'))  {
