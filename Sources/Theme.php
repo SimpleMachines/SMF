@@ -2211,16 +2211,8 @@ class Theme
 			Lang::$txt['theme_description'] = $current_description;
 		}
 
-		self::addJavaScriptVar(
-			'oThemeVariants',
-			Utils::jsonEncode(array_map(
-				function ($theme) {
-					return $theme['variants'];
-				},
-				Utils::$context['available_themes'],
-			)),
-		);
-		self::loadJavaScriptFile('profile.js', ['defer' => false, 'minimize' => true], 'smf_profile');
+		self::loadCSSFile('profile.css', ['minimize' => true], 'smf_profile');
+		self::loadJavaScriptFile('profile.js', ['defer' => true, 'minimize' => true], 'smf_profile');
 		self::$current->settings['images_url'] = $current_images_url;
 		self::$current->settings['theme_variants'] = $current_theme_variants;
 

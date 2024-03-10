@@ -1440,6 +1440,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	padding-block: var(--genericmenu-padding-block);
 	padding-inline: var(--genericmenu-padding-inline);
 }
+
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
 /* Dropmenu Level 1. */

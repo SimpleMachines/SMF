@@ -684,6 +684,8 @@ function surroundText(text1, text2, oTextHandle)
 // Checks if the passed input's value is nothing.
 function isEmptyText(theField)
 {
+	// It can either be a string or a form element...
+	return (theField.value || theField).trim() == '';
 }
 
 // Only allow form submission ONCE.
@@ -699,9 +701,6 @@ function submitThisOnce(oControl)
 function reActivateThis(oForm)
 {
 	oForm.inert = false;
-
-	// It can either be a string or a form element...
-	return (theField.value || theField).trim() == '';
 }
 
 // Deprecated, as innerHTML is supported everywhere.
@@ -1175,11 +1174,14 @@ JumpTo.prototype.showSelect = function ()
 	}
 	this.dropdownList = el.getElementById(this.opt.sContainerId + '_select');
 
-	this.dropdownList.onchange = function() {
-		const val = this.options[this.selectedIndex].value;
-		if (this.selectedIndex > 0 && val)
-			window.location.href = smf_scripturl + (val.startsWith('?') ? val.substring(1) : val);
-	};
+	// Add an onchange action
+	if (!this.opt.bNoRedirect) {
+		this.dropdownList.onchange = function() {
+			const val = this.options[this.selectedIndex].value;
+			if (this.selectedIndex > 0 && val)
+				window.location.href = smf_scripturl + (val.startsWith('?') ? val.substring(1) : val);
+		};
+	}
 }
 
 // Fill the jump to box with entries. Method of the JumpTo class.

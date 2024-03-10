@@ -69,7 +69,7 @@ function calcCharLeft() {
 	const currentSignature = this.value;
 	let currentChars = 0;
 
-	const el = document.getElementById("signatureLeft")) {
+	const el = document.getElementById("signatureLeft" );
 	if (!el) {
 		return;
 	}
@@ -419,6 +419,14 @@ window.addEventListener("DOMContentLoaded", function() {
 		f.warn_temp.after(' ', a, document.createElement('br'));
 	}
 
+	if (f.id = 'pick_theme') {
+		for (const el of f) {
+			if (el.dataset.themeId) {
+				el.addEventListener('change', changeVariant);
+			}
+		}
+	}
+
 	if (f.export_format_select) {
 		const toggleExport = function() {
 			const flag = completed_formats.indexOf(this.value) > -1;
@@ -520,12 +528,22 @@ function ajax_getTemplatePreview() {
 	});
 }
 
-function changeVariant(iThemeId, el)
+function changeVariant()
 {
-	document.getElementById('theme_thumb_' + iThemeId).src = oThemeVariants[iThemeId][el.value]['thumbnail'];
-	const href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
-	document.getElementById('theme_thumb_preview_' + iThemeId).href = href;
-	document.getElementById('theme_preview_' + iThemeId).href = href;
+	const id = this.dataset.themeId; 
+	for (const image of document.images)
+		if (image.id == 'theme_thumb_' + id) {
+			image.src = this.options[this.selectedIndex].dataset.url;
+
+			break;
+		}
+
+	for (const link of document.links)
+		if (link.id == 'theme_thumb_preview_' + id || link.id == 'theme_preview_' + id) {
+			link.href = this.form.action + ';theme=' + id + ';variant=' + this.value;
+
+			break;
+		}
 }
 
 function export_download_all()
