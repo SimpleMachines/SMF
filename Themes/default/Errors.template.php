@@ -120,18 +120,23 @@ function template_error_log()
 	{
 		echo '
 			<div class="windowbg word_break">
-				<div class="counter" style="padding: 0 10px 10px 0">', $error['id'], '</div>
 				<div class="topic_details">
-					<span class="floatright">
-						<input type="checkbox" name="delete[]" value="', $error['id'], '">
-					</span>
 					<h5>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? '' : ';desc', Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" title="', Lang::$txt['reverse_direction'], '"><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></a> ', $error['time'], '
+						<span>
+							<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? '' : ';desc', Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" title="', Lang::$txt['reverse_direction'], '"><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></a>
+							<span>', $error['time'], '</span>
+						</span>
 					</h5>
-					<hr class="clear">
+					<div class="counter">
+						#', $error['id'], '
+						<input type="checkbox" name="delete[]" value="', $error['id'], '">
+					</div>
 				</div>
-				<div>
-					<div class="half_content">
+				<div class="list_item">
+					<h6 class="righttext">
+						<span class="main_icons details"></span> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', Lang::$txt['backtrace_title'], '</a>
+					</h6>
+					<div class="post">
 						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_member']]), '"><span class="main_icons filter"></span></a>
 						<strong>', $error['member']['link'], '</strong>';
 
@@ -158,18 +163,14 @@ function template_error_log()
 
 		echo '
 					</div>
-					<div class="half_content">
-						<strong class="floatright">
-							<span class="main_icons details"></span> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', Lang::$txt['backtrace_title'], '</a>
-						</strong>
+
+					<div class="post">
+						<br class="clear">
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_type']]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']]), '<br>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_message']]), '"><span class="main_icons filter floatleft"></span></a>
+						<div class="codeheader"><span class="code floatleft">' . Lang::$txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
+						</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 					</div>
-				</div>
-				<div class="post">
-					<br class="clear">
-					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_type']]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']]), '<br>
-					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_message']]), '"><span class="main_icons filter floatleft"></span></a>
-					<div class="codeheader"><span class="code floatleft">' . Lang::$txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
-					</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 				</div>
 			</div>';
 	}

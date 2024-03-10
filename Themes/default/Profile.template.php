@@ -509,12 +509,12 @@ function template_showPosts()
 		{
 			echo '
 		<div class="', $post['css_class'], '">
-			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>
-					<strong><a href="', Config::$scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', Config::$scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
+					<span><a href="', Config::$scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', Config::$scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></span>
 				</h5>
 				<span class="smalltext">', $post['time'], '</span>
+				<div class="counter">#', $post['counter'], '</div>
 			</div>';
 
 			if (!$post['approved'])
@@ -524,10 +524,8 @@ function template_showPosts()
 			</div>';
 
 			echo '
-			<div class="post">
-				<div class="inner">
-					', $post['body'], '
-				</div>
+			<div class="list_item">
+				', $post['body'], '
 			</div><!-- .post -->';
 
 			// Post options
@@ -674,10 +672,9 @@ function template_showDrafts()
 		{
 			echo '
 		<div class="windowbg">
-			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
 				<h5>
-					<strong><a href="', Config::$scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
+					<span><a href="', Config::$scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</span>';
 
 			if (!empty($draft['sticky']))
 				echo '
@@ -690,17 +687,16 @@ function template_showDrafts()
 			echo '
 				</h5>
 				<span class="smalltext">', Lang::getTxt('draft_saved_on', ['date' => $draft['time']]), '</span>
+				<div class="counter">#', $draft['counter'], '</div>
 			</div><!-- .topic_details -->
-			<div class="list_posts">
+			<div class="list_item">
 				', $draft['body'], '
-			</div>
-			<div class="floatright">';
+			</div>';
 
 			// Draft buttons
 			template_quickbuttons($draft['quickbuttons'], 'profile_drafts');
 
 			echo '
-			</div><!-- .floatright -->
 		</div><!-- .windowbg -->';
 		}
 	}
