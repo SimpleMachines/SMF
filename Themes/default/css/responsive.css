@@ -81,10 +81,6 @@
 	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
 		display: none;
 	}
-	/* New Mobile Action/Mod Pop (Test) */
-	.moderationbuttons_check {
-		display: none;
-	}
 	.moderationbuttons_mobile_check {
 		display: inline-block;
 	}

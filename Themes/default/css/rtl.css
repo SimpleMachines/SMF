@@ -81,24 +81,6 @@ img#smflogo {
 	text-align: left;
 }
 
-/* poster and postarea + moderation area underneath */
-.poster {
-	float: right;
-}
-.postarea, .moderatorbar {
-	margin: 0 175px 0 0;
-}
-.keyinfo h5::after {
-	clear: left;
-}
-.moderatorbar {
-	clear: left;
-}
-/* poster details and list of items */
-.poster h4, .poster ul {
-	padding: 0;
-	margin: 0;
-}
 .post_verification #verification_control {
 	margin: .3em 1em .3em 0;
 }

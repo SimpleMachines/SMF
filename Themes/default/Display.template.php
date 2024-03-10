@@ -628,18 +628,18 @@ function template_single_post($message)
 								</div>';
 
 	echo '
-								', !empty($message['counter']) ? '<span class="page_number floatright">#' . $message['counter'] . '</span>' : '', '
 								<div class="postinfo">
 									<span class="messageicon" ', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
-									<span class="spacer"></span>';
+									<span class="date smalltext">
+										<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '">', $message['time'], '</a>
+									</span>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
 	echo '
-									<span class="smalltext modified floatright', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
+									<span class="smalltext modified', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
 
 	if (!empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']))
 		echo
@@ -648,6 +648,7 @@ function template_single_post($message)
 	echo '
 									</span>
 								</div>
+								', !empty($message['counter']) ? '<span class="page_number">#' . $message['counter'] . '</span>' : '', '
 								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
 							</div><!-- .keyinfo -->';
 
@@ -763,7 +764,7 @@ function template_single_post($message)
 	if (!empty(Config::$modSettings['enable_likes']))
 	{
 		echo '
-								<ul class="floatleft">';
+								<ul class="likes">';
 
 		if (!empty($message['likes']['can_like']))
 		{

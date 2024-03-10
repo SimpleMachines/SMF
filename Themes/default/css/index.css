@@ -3255,9 +3255,6 @@ td.windowbg {
 div#editlang_desc {
 	margin-bottom: 8px;
 }
-.topic_details .smalltext {
-	font-size: 0.9em;
-}
 .table_grid tr.windowbg td.centercol {
 	text-align: center;
 }
@@ -3686,181 +3683,8 @@ div#pollmoderation {
 	margin-left: 1em;
 }
 
-/* On to the posts */
-#forumposts {
-	clear: both;
-	margin: 8px 0 0 0;
-}
-#forumposts .cat_bar {
-	margin: 0 0 -4px 0;
-}
-/* Topic information */
-#forumposts .catbg img {
-	margin: 0 4px -2px 0;
-}
-#forumposts .catbg span {
-	white-space: pre;
-	/* Specific sizing for clarity without ClearType. */
-	font-size: 0.818em;
-	font-weight: normal;
-	padding: 2px 0;
-}
-/* poster and postarea + moderation area underneath */
-.post_wrapper::after {
-	content: "";
-	display: block;
-	clear: both;
-}
-.post_wrapper {
-	display: grid;
-	grid: auto / var(--poster-width) 1fr;
-}
-/* poster details and list of items */
-.poster {
-	background: var(--poster-bg);
-	display: flex;
-	flex-direction: column;
-	font-size: var(--poster-font-size);
-	gap: var(--poster-gap);
-	grid-row: var(--poster-grid-row);
-	hyphens: auto;
-	overflow-wrap: break-word;
-	padding: .5em;
-	word-wrap: break-word;
-	width: var(--poster-width);
-}
-.poster h4 {
-	background: var(--poster-title-bg);
-	font-size: var(--poster-title-font-size);
-	font-weight: var(--poster-title-font-weight);
-	text-align: center;
-}
-.poster h4,
-.poster h4 a {
-	color: var(--poster-title-color);
-	text-decoration: var(--poster-title-text-decoration);
-	text-shadow: var(--poster-title-text-shadow);
-}
-.user_info {
-	display: flex;
-	flex-direction: column;
-	gap: var(--poster-gap);
-	text-align: center;
-}
-.poster img {
-	vertical-align: middle;
-}
-.user_info li.membergroup {
-	font-weight: 700;
-}
-/* @todo Re-code this a bit to give background on anchor. */
-.user_info li.poster_online, .poster li.poster_online:hover {
-	padding: 1px 1px 1px 1px;
-	margin: 3px 10px;
-}
-.user_info li.poster_online a {
-	color: var(--poster_online_link_color);
-	line-height: 1.6em;
-}
-.user_info li.poster_online:hover, .user_info li.poster_online:hover a {
-	text-decoration: underline;
-}
-.user_info li.warning a img {
-	vertical-align: bottom;
-	padding: 0 2px;
-}
-.user_info .profile_icons,
-.user_info .im_icons ol {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--poster-gap);
-	justify-content: center;
-}
-.user_info .profile_icons a,
-.user_info .im_icons a {
-	display: inline-flex;
-}
-.user_info img.avatar {
-	max-width: 100%;
-	object-fit: scale-down;
-}
-/* The post area */
-.postarea, .moderatorbar {
-	grid-column: 2/-1;
-	min-width: 0;
-	padding: .5em;
-}
-.postarea div.flow_hidden {
-	width: 100%;
-}
-.moderatorbar {
-	clear: right;
-}
 
 
-.messageicon {
-	display: inline-block;
-}
-.messageicon img, #iconList img {
-	vertical-align: middle;
-}
-.keyinfo .postinfo {
-	padding: 1px 0 5px 0;
-	line-height: 1.5em;
-	font-size: 0.9em;
-	font-weight: bold;
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
-	align-items: center;
-}
-.keyinfo .postinfo::after, .under_message::after {
-	content: "";
-	clear: right;
-	display: block;
-}
-.keyinfo .postinfo .spacer {
-	flex: 1 1 auto;
-}
-.keyinfo .postinfo .modified {
-	font-weight: normal;
-	font-style: italic;
-	padding: 2px 4px 0 4px;
-}
-/* PMs postinfo */
-#personal_messages .keyinfo .postinfo {
-	flex-direction: column;
-	align-items: flex-start;
-	font-weight: normal;
-}
-#reason::before {
-	content: " - ";
-}
-.subject_title a {
-	font-size: 0.9em;
-	font-weight: bold;
-}
-.subject_hidden a {
-	display: none;
-}
-.page_number {
-	padding: 4px 0 0 4px;
-	line-height: 1.5em;
-}
-.inner {
-	background: var(--post-inner-bg);
-	border-color: var(--post-inner-border-color);
-	border-radius: var(--post-inner-border-radius);
-	border-style: var(--post-inner-border-style);
-	border-width: var(--post-inner-border-width);
-	box-shadow: var(--post-inner-box-shadow);
-	margin-block: .5em 0;
-	min-height: var(--post-inner-height);
-	overflow-wrap: break-word;
-	padding: 1.25em .5em;
-	word-wrap: break-word;
-}
 img.smiley {
 	vertical-align: bottom;
 }
@@ -3892,12 +3716,14 @@ img.smiley {
 #forumposts .post_separator {
 	display: none;
 }
+
 /* Next and previous topic links */
 .nextlinks {
 	display: flex;
 	justify-content: flex-end;
 	text-transform: capitalize;
 }
+
 /* Styles for the quick reply area. */
 #quickreply {
 	clear: both;
@@ -4029,7 +3855,17 @@ ul.post_options li {
 	margin: 4px 0 4px 12px;
 }
 /* All the signatures used in the forum. */
-.signature, .attachments, .under_message,
+.signature {
+	background: var(--signature-bg);
+	border-color: var(--signature-border-color);
+	border-radius: var(--signature-border-radius);
+	border-style: var(--signature-border-style);
+	border-width: var(--signature-border-width);
+	box-shadow: var(--signature-box-shadow);
+	font-size: var(--signature-font-size);
+	line-height: var(--signature-line-height);
+}
+.attachments,
 .custom_fields_above_signature,
 .custom_fields_below_signature {
 	width: 100%;
@@ -4052,24 +3888,7 @@ ul.post_options li {
 	padding-block: 1em .25em;
 	padding-inline: .25em;
 }
-/* Signatures */
-.signature {
-	background: var(--signature-bg);
-	border-color: var(--signature-border-color);
-	border-radius: var(--signature-border-radius);
-	border-style: var(--signature-border-style);
-	border-width: var(--signature-border-width);
-	box-shadow: var(--signature-box-shadow);
-	font-size: var(--signature-font-size);
-	line-height: var(--signature-line-height);
-	padding-block: 1em .25em;
-	padding-inline: .25em;
-}
-.under_message {
-	overflow: visible;
-	border: none;
-	box-shadow: none;
-}
+
 .smflikebutton {
 	margin-top: 4px;
 }
