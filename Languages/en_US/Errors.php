@@ -161,6 +161,7 @@ $txt['event_title_missing'] = 'Event title is missing.';
 $txt['invalid_date'] = 'Invalid date.';
 $txt['missing_event_id'] = 'Missing event ID.';
 $txt['cant_edit_event'] = 'You do not have permission to edit this event.';
+$txt['event_already_linked'] = 'This event is already linked to another topic.';
 $txt['missing_board_id'] = 'Board ID is missing.';
 $txt['missing_topic_id'] = 'Topic ID is missing.';
 $txt['topic_doesnt_exist'] = 'Topic does not exist.';

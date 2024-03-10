@@ -1591,11 +1591,6 @@ function generateDays(offset)
 		dayElement.selectedIndex = selected;
 }
 
-function toggleLinked(form)
-{
-	form.board.disabled = !form.link_to_board.checked;
-}
-
 function initSearch()
 {
 	if (document.forms.searchform.search.value.indexOf("%u") != -1)

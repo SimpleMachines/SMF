@@ -359,7 +359,7 @@ class Calendar implements ActionInterface
 			User::$me->checkSession();
 
 			// Validate the post...
-			if (!isset($_POST['link_to_board'])) {
+			if (!in_array($_POST['link_to'] ?? '', ['board', 'topic'])) {
 				self::validateEventPost();
 			}
 
@@ -369,8 +369,15 @@ class Calendar implements ActionInterface
 			}
 
 			// New - and directing?
-			if (isset($_POST['link_to_board']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
+			if (in_array($_POST['link_to'] ?? '', ['board', 'topic']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
 				$_REQUEST['calendar'] = 1;
+
+				if (empty($_POST['topic'])) {
+					unset($_POST['topic']);
+				} elseif (isset($_POST['link_to']) && $_POST['link_to'] === 'topic') {
+					$_REQUEST['msg'] = Topic::load((int) $_POST['topic'])->id_first_msg;
+				}
+
 				Post::call();
 
 				return;
@@ -784,53 +791,82 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Does permission checks to see if an event can be linked to a board/topic.
+	 * Does permission checks to see if the current user can link the current
+	 * topic to a calendar event.
 	 *
-	 * Checks if the current user can link the current topic to the calendar, permissions et al.
-	 * This requires the calendar_post permission, a forum moderator, or a topic starter.
-	 * Expects the Topic::$topic_id and Board::$info->id variables to be set.
-	 * If the user doesn't have proper permissions, an error will be shown.
+	 * To succeed, the following conditions must be met:
+	 *
+	 * 1. The calendar must be enabled.
+	 *
+	 * 2. If an event is passed to the $event parameter, the current user must
+	 *    be able to edit that event. Otherwise, the current user must be able
+	 *    to create new events.
+	 *
+	 * 3. There must be a current topic (i.e. Topic::$topic_id must be set).
+	 *
+	 * 4. The current user must be able to edit the first post in the current
+	 *    topic.
+	 *
+	 * @param bool $trigger_error Whether to trigger an error if the user cannot
+	 *    link an event to this topic. Default: true.
+	 * @param ?Event $event The event that the user wants to link to the current
+	 *    topic, or null if the user wants to create a new event.
+	 * @return bool Whether the user can link an event to the current topic.
 	 */
-	public static function canLinkEvent(): void
+	public static function canLinkEvent(bool $trigger_error = true, ?Event $event = null): bool
 	{
-		// If you can't post, you can't link.
-		User::$me->isAllowedTo('calendar_post');
+		// Is the calendar enabled?
+		if (empty(Config::$modSettings['cal_enabled'])) {
+			if ($trigger_error) {
+				ErrorHandler::fatalLang('calendar_off', false);
+			}
 
-		// No board?  No topic?!?
-		if (empty(Board::$info->id)) {
-			ErrorHandler::fatalLang('missing_board_id', false);
+			return false;
 		}
 
+		// Can the user create or edit the event?
+		$perm = !isset($event) ? 'calendar_post' : ($event->member === User::$me->id ? 'calendar_edit_own' : 'calendar_edit_any');
+
+		if (!User::$me->allowedTo($perm)) {
+			if ($trigger_error) {
+				User::$me->isAllowedTo($perm);
+			}
+
+			return false;
+		}
+
+		// Are we in a topic?
 		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('missing_topic_id', false);
+			if ($trigger_error) {
+				ErrorHandler::fatalLang('missing_topic_id', false);
+			}
+
+			return false;
 		}
 
-		// Administrator, Moderator, or owner.  Period.
-		if (!User::$me->allowedTo('admin_forum') && !User::$me->allowedTo('moderate_board')) {
-			// Not admin or a moderator of this board. You better be the owner - or else.
-			$result = Db::$db->query(
-				'',
-				'SELECT id_member_started
-				FROM {db_prefix}topics
-				WHERE id_topic = {int:current_topic}
-				LIMIT 1',
-				[
-					'current_topic' => Topic::$topic_id,
-				],
-			);
+		// Don't let guests edit the posts of other guests.
+		if (User::$me->is_guest) {
+			if ($trigger_error) {
+				ErrorHandler::fatalLang('not_your_topic', false);
+			}
 
-			if ($row = Db::$db->fetch_assoc($result)) {
-				// Not the owner of the topic.
-				if ($row['id_member_started'] != User::$me->id) {
-					ErrorHandler::fatalLang('not_your_topic', 'user');
-				}
-			}
-			// Topic/Board doesn't exist.....
-			else {
-				ErrorHandler::fatalLang('calendar_no_topic', 'general');
-			}
-			Db::$db->free_result($result);
+			return false;
 		}
+
+		// Linking an event counts as modifying the first post.
+		Topic::load();
+
+		$perm = User::$me->started ? ['modify_own', 'modify_any'] : 'modify_any';
+
+		if (!User::$me->allowedTo($perm, Topic::$info->id_board, true)) {
+			if ($trigger_error) {
+				User::$me->isAllowedTo($perm, Topic::$info->id_board, true);
+			}
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

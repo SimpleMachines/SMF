@@ -1,6 +1,6 @@
 window.addEventListener("DOMContentLoaded", updateEventUI);
 
-for (const elem of document.querySelectorAll("#start_date, #start_time, #end_date, #end_time, #allday, #tz, #rrule, #freq, #end_option, #monthly_option_type_bymonthday, #monthly_option_type_byday, #byday_num_select_0, #byday_name_select_0, #weekly_options .rrule_input[name=\'BYDAY\[\]\'], #monthly_options .rrule_input[name=\'BYDAY_num\[\]\'], #monthly_options .rrule_input[name=\'BYDAY_name\[\]\'], #monthly_options .rrule_input[name=\'BYMONTHDAY\[\]\']")) {
+for (const elem of document.querySelectorAll("#start_date, #start_time, #end_date, #end_time, #allday, #tz, #rrule, #freq, #end_option, #monthly_option_type_bymonthday, #monthly_option_type_byday, #byday_num_select_0, #byday_name_select_0, #weekly_options .rrule_input[name=\'BYDAY\[\]\'], #monthly_options .rrule_input[name=\'BYDAY_num\[\]\'], #monthly_options .rrule_input[name=\'BYDAY_name\[\]\'], #monthly_options .rrule_input[name=\'BYMONTHDAY\[\]\'], #event_link_to label, #event_link_to input, #topic_link_to label, #topic_link_to input")) {
 	elem.addEventListener("change", updateEventUI);
 }
 
@@ -19,16 +19,19 @@ for (const elem of document.querySelectorAll("#rdate_list a, #exdate_list a")) {
 let rdates_count = document.querySelectorAll("#rdate_list input[type='date']").length;
 let exdates_count = document.querySelectorAll("#exdate_list input[type='date']").length;
 
-let current_start_date = new Date(document.getElementById("start_date").value + 'T' + document.getElementById("start_time").value);
-let current_end_date = new Date(document.getElementById("end_date").value + 'T' + document.getElementById("end_time").value);
+let current_start_date = new Date(document.getElementById("start_date").value + 'T' + (document.getElementById("allday").checked ? '12:00:00' : document.getElementById("start_time").value));
+let current_end_date = new Date(document.getElementById("end_date").value + 'T' + (document.getElementById("allday").checked ? '12:00:00' : document.getElementById("end_time").value));
 
 const weekday_abbrevs = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
 // Update all the parts of the event editing UI.
 function updateEventUI()
 {
-	let start_date = new Date(document.getElementById("start_date").value + 'T' + document.getElementById("start_time").value);
-	let end_date = new Date(document.getElementById("end_date").value + 'T' + document.getElementById("end_time").value);
+	toggleNewOrExistingEvent();
+	toggleNewOrExistingTopic();
+
+	let start_date = new Date(document.getElementById("start_date").value + 'T' + (document.getElementById("allday").checked ? '12:00:00' : document.getElementById("start_time").value));
+	let end_date = new Date(document.getElementById("end_date").value + 'T' + (document.getElementById("allday").checked ? '12:00:00' : document.getElementById("end_time").value));
 
 	let weekday = getWeekday(start_date);
 
@@ -705,4 +708,54 @@ function removeRDateOrExDate()
 	}
 
 	this.parentElement.remove();
+}
+
+function toggleNewOrExistingEvent()
+{
+	if (!document.getElementById("event_link_to")) {
+		return;
+	}
+
+	if (document.getElementById("event_link_to_new").checked === true) {
+		document.getElementById("event_new").style.display = '';
+		document.getElementById("event_id_to_link").style.display = 'none';
+		document.querySelector("#event_id_to_link input").disabled = true;
+	} else {
+		document.getElementById("event_new").style.display = 'none';
+		document.getElementById("event_id_to_link").style.display = '';
+		document.querySelector("#event_id_to_link input").disabled = false;
+	}
+}
+
+function toggleNewOrExistingTopic()
+{
+	if (!document.getElementById("topic_link_to")) {
+		return;
+	}
+
+	if (document.getElementById("event_board")) {
+		document.getElementById("event_board").style.display = 'none';
+		document.querySelector("#event_board select").disabled = true;
+	}
+
+	if (document.getElementById("event_topic")) {
+		document.getElementById("event_topic").style.display = 'none';
+		document.querySelector("#event_topic input").disabled = true;
+	}
+
+	if (
+		document.getElementById("event_board")
+		&& document.getElementById("link_to_board")
+		&& document.getElementById("link_to_board").checked === true
+	) {
+		document.getElementById("event_board").style.display = '';
+		document.querySelector("#event_board select").disabled = false;
+	} else if (
+		document.getElementById("event_topic")
+		&& document.getElementById("link_to_topic")
+		&& document.getElementById("link_to_topic").checked === true
+	) {
+		document.getElementById("event_topic").style.display = '';
+		document.querySelector("#event_topic input").disabled = false;
+	}
 }

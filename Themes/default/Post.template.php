@@ -144,10 +144,13 @@ function template_main()
 	if (Utils::$context['make_event'])
 	{
 		echo '
-					<hr class="clear">
 					<div id="post_event">';
 
 		template_event_options();
+
+		if (!empty(Utils::$context['linked_calendar_events'])) {
+			template_linked_events();
+		}
 
 		echo '
 					</div><!-- #post_event -->';

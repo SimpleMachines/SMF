@@ -753,6 +753,19 @@ class Post implements ActionInterface
 		// Permissions check!
 		User::$me->isAllowedTo('calendar_post');
 
+		// Are there any other linked events besides this one?
+		foreach (Event::load(Topic::$topic_id, true) as $event) {
+			if ($event->id === Utils::$context['event']->id) {
+				continue;
+			}
+
+			if (($occurrence = $event->getUpcomingOccurrence()) === false) {
+				$occurrence = $event->getLastOccurrence();
+			}
+
+			Utils::$context['linked_calendar_events'][] = $occurrence;
+		}
+
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		$time_string = Time::getShortTimeFormat();
 
@@ -796,8 +809,8 @@ class Post implements ActionInterface
 		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 
-		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : (int) Config::$modSettings['cal_defaultboard'];
-		Utils::$context['event']->topic = !empty(Topic::$info->id) ? Topic::$info->id : 0;
+		Utils::$context['event']->board = !empty(Utils::$context['event']->board) ? Utils::$context['event']->board : (Board::$info->id ?? (int) Config::$modSettings['cal_defaultboard']);
+		Utils::$context['event']->topic = !empty(Utils::$context['event']->topic) ? Utils::$context['event']->topic : -1;
 	}
 
 	/**

@@ -14,6 +14,8 @@
 use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -24,42 +26,194 @@ use SMF\Utils;
 function template_event_options()
 {
 	echo '
-					<fieldset id="event_options">
-						<legend>', Lang::$txt['calendar_event_options'], '</legend>
-						<input type="hidden" name="calendar" value="1">';
+				<fieldset id="event_options">
+					<legend>', Lang::$txt['calendar_event_options'], '</legend>
+					<input type="hidden" name="calendar" value="1">
+					<input type="hidden" name="eventid" value="', Utils::$context['event']->id, '">
+					<input type="hidden" name="recurrenceid" value="', Utils::$context['event']->selected_occurrence->id, '">';
 
-	// If this is a new event let the user specify which board they want the linked post to be put into.
-	if (!empty(Utils::$context['event']->new) && !empty(Utils::$context['event']->categories)) {
+	// Allow the user to link events to topics.
+	if (
+		Utils::$context['event']->type === Event::TYPE_EVENT
+		&& (
+			Utils::$context['event']->new
+			|| Utils::$context['event']->selected_occurrence->is_first
+		)
+	) {
+		if (empty(Utils::$context['event']->topic)) {
+			template_event_board();
+		} elseif (Utils::$context['event']->topic === (Topic::$topic_id ?? NAN)) {
+			template_event_unlink();
+		} elseif (Utils::$context['event']->new) {
+			template_event_link_to();
+		}
+	}
+
+	template_event_new();
+
+	echo '
+				</fieldset>';
+}
+
+/**
+ * Template for linking an existing topic to an event.
+ */
+function template_event_link_to()
+{
+	// If user cannot edit existing events, we don't need to bother showing these options at all.
+	if (!User::$me->allowedTo('calendar_edit_any') && !User::$me->allowedTo('calendar_edit_own')) {
+		return;
+	}
+
+	// If user can both create and edit events, show both options.
+	if (User::$me->allowedTo('calendar_post')) {
 		echo '
-						<dl id="event_board">
-							<dt class="clear">
-								<label>', Lang::$txt['calendar_post_in'], '</label>
-							</dt>
-							<dd>
-								<input type="checkbox" name="link_to_board"', (!empty(Utils::$context['event']->board) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
-								<select name="board"', empty(Utils::$context['event']->board) ? ' disabled' : '', '>';
+					<dl id="event_link_to">
+						<dt class="clear">
+							' . Lang::$txt['calendar_link_to'] . '
+						</dt>
+						<dd>
+							<label>
+								<input type="radio" id="event_link_to_new" name="event_link_to" value="new" checked>
+								<span>' . Lang::$txt['calendar_event_new'] . '</span>
+							</label>
+							<label>
+								<input type="radio" name="event_link_to" value="existing">
+								<span>' . Lang::$txt['calendar_event_existing'] . '</span>
+							</label>
+						</dd>
+					</dl>';
+	}
+
+	// Let the user specify an existing event to link to.
+	echo '
+					<dl id="event_id_to_link">
+						<dt class="clear">
+							' . Lang::$txt['calendar_link_event_id'] . '
+						</dt>
+						<dd>
+							<input type="text" name="event_id_to_link">
+						</dd>
+					</dl>';
+}
+
+/**
+ * Template for unlinking a topic and an event.
+ */
+function template_event_unlink()
+{
+	if (empty(Utils::$context['event']->topic) || empty(Config::$modSettings['cal_allow_unlinked'])) {
+		return;
+	}
+
+	echo '
+					<dl>
+						<dt class="clear">
+							' . Lang::$txt['calendar_unlink'] . '
+						</dt>
+						<dd>
+							<input type="checkbox" name="unlink">
+						</dd>
+					</dl>
+					<hr class="clear">';
+}
+
+/**
+ * Template for choosing a board to create a linked topic in.
+ */
+function template_event_board()
+{
+	// If user cannot create new events, skip this.
+	if (!User::$me->allowedTo('calendar_post')) {
+		return;
+	}
+
+	echo '
+					<dl id="topic_link_to">
+						<dt class="clear">
+							' . Lang::$txt['calendar_post_in'] . '
+						</dt>
+						<dd>';
+
+	if (!empty(Config::$modSettings['cal_allow_unlinked'])) {
+		echo '
+							<label>
+								<input type="radio" id="link_to_none" name="link_to" value="none"' . (empty(Utils::$context['event']->topic) ? ' checked' : '') . '>
+								' . Lang::$txt['calendar_only'] . '
+							</label>';
+	}
+
+	if (!empty(Utils::$context['event']->categories)) {
+		echo '
+							<label>
+								<input type="radio" id="link_to_board" name="link_to" value="board"' . (empty(Utils::$context['event']->topic) && empty(Config::$modSettings['cal_allow_unlinked']) ? ' checked' : '') . '>
+								' . Lang::$txt['new_topic'] . '
+							</label>';
+	}
+
+	echo '
+							<label>
+								<input type="radio" id="link_to_topic" name="link_to" value="topic"' . (!empty(Utils::$context['event']->topic) ? ' checked' : '') . '>
+								' . Lang::$txt['calendar_topic_existing'] . '
+							</label>
+						</dd>
+					</dl>';
+
+
+	if (!empty(Utils::$context['event']->categories)) {
+		echo '
+					<dl id="event_board">
+						<dt class="clear">
+							<label>' . Lang::$txt['board_name'] . '</label>
+						</dt>
+						<dd>';
+		echo '
+							<select name="board"', empty(Utils::$context['event']->board) ? ' disabled' : '', '>';
 
 		foreach (Utils::$context['event']->categories as $category) {
 			echo '
-									<optgroup label="', $category['name'], '">';
+								<optgroup label="', $category['name'], '">';
 
 			foreach ($category['boards'] as $board) {
 				echo '
-										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
+									<option value="', $board['id'], '"', $board['id'] == Utils::$context['event']->board ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 			}
 
 			echo '
-									</optgroup>';
+								</optgroup>';
 		}
 
 		echo '
-								</select>
-							</dd>
-						</dl>';
+							</select>
+						</dd>
+					</dl>';
+	}
+
+	echo '
+					<dl id="event_topic">
+						<dt class="clear">
+							<label>' . Lang::$txt['calendar_link_topic_id'] . '</label>
+						</dt>
+						<dd>
+							<input type="text" name="topic" value="' . (!empty(Utils::$context['event']->topic) ? Utils::$context['event']->topic : '') . '">
+						</dd>
+					</dl>
+					<hr class="clear">';
+}
+
+/**
+ * Template for entering info about a new event.
+ */
+function template_event_new()
+{
+	// If user cannot create new events, skip this.
+	if (!User::$me->allowedTo('calendar_post')) {
+		return;
 	}
 
 	// Basic event info
 	echo '
+					<div id="event_new">
 						<dl id="event_basic_info">
 							<dt class="clear">
 								<label', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>', Lang::$txt['calendar_event_title'], '</label>
@@ -132,7 +286,8 @@ function template_event_options()
 	}
 
 	echo '
-					</fieldset>';
+					</div>';
+
 }
 
 /**
@@ -512,6 +667,90 @@ function template_rrule()
 
 	echo '
 						</details>';
+}
+
+/**
+ * Template to show linked events.
+ */
+function template_linked_events()
+{
+	if (empty(Utils::$context['linked_calendar_events'])) {
+		return;
+	}
+
+	echo '
+				<div class="information events">
+					<ul>';
+
+	foreach (Utils::$context['linked_calendar_events'] as $event) {
+		echo '
+						<li>
+							<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event['id_event'], (!$event->is_first ? ';start_date=' . $event['start_date'] : ''), '">', $event['title'], '</a></strong>';
+
+		if ($event['can_edit']) {
+			echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::$txt['calendar_edit'], '"></span></a>';
+		}
+
+		if ($event['can_export']) {
+			echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', Lang::$txt['calendar_export'], '"></span></a>';
+		}
+
+		echo '
+							<br>';
+
+		if (!empty($event['allday'])) {
+			echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), '</time>', ($event['start_date'] != $event['end_date']) ? ' &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date_local']) . '</time>' : '';
+		} else {
+			// Display event info relative to user's local timezone
+			echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), ', ', trim($event['start_time_local']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+
+			if ($event['start_date_local'] != $event['end_date_local']) {
+				echo trim($event['end_date_local']) . ', ';
+			}
+
+			echo trim($event['end_time_local']);
+
+			// Display event info relative to original timezone
+			if ($event['start_date_local'] . $event['start_time_local'] != $event['start_date_orig'] . $event['start_time_orig']) {
+				echo '</time> (<time datetime="' . $event['start_iso_gmdate'] . '">';
+
+				if ($event['start_date_orig'] != $event['start_date_local'] || $event['end_date_orig'] != $event['end_date_local'] || $event['start_date_orig'] != $event['end_date_orig']) {
+					echo trim($event['start_date_orig']), ', ';
+				}
+
+				echo trim($event['start_time_orig']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+
+				if ($event['start_date_orig'] != $event['end_date_orig']) {
+					echo trim($event['end_date_orig']) . ', ';
+				}
+
+				echo trim($event['end_time_orig']), ' ', $event['tz_abbrev'], '</time>)';
+			}
+			// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion
+			else {
+				echo ' ', $event['tz_abbrev'], '</time>';
+			}
+		}
+
+		if (!empty($event['location'])) {
+			echo '
+							<br>', $event['location'];
+		}
+
+		$rrule_description = $event->getParentEvent()->recurrence_iterator->getRRule()->getDescription($event);
+
+		if (!empty($rrule_description)) {
+			echo '
+							<br>', $rrule_description;
+		}
+
+		echo '
+						</li>';
+	}
+
+	echo '
+					</ul>
+				</div>';
 }
 
 ?>

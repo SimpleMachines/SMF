@@ -1066,7 +1066,7 @@ class Display implements ActionInterface
 		) {
 			Lang::load('Calendar');
 
-			foreach(Event::load(Topic::$info->id, true) as $event) {
+			foreach (Topic::$info->getLinkedEvents() as $event) {
 				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
 					$occurrence = $event->getLastOccurrence();
 				}
@@ -1075,6 +1075,8 @@ class Display implements ActionInterface
 			}
 
 			if (!empty(Utils::$context['linked_calendar_events'])) {
+				Theme::loadTemplate('EventEditor');
+
 				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
 			}
 		}
@@ -1293,6 +1295,11 @@ class Display implements ActionInterface
 			Utils::$context['normal_buttons']['add_poll'] = ['text' => 'add_poll', 'url' => Config::$scripturl . '?action=editpoll;add;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start']];
 		}
 
+		if (Calendar::canLinkEvent(false)) {
+			Lang::load('Calendar');
+			Utils::$context['normal_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
+		}
+
 		if (Topic::$info->permissions['can_mark_unread']) {
 			Utils::$context['normal_buttons']['mark_unread'] = ['text' => 'mark_unread', 'url' => Config::$scripturl . '?action=markasread;sa=topic;t=' . Utils::$context['mark_unread_time'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
@@ -1347,11 +1354,6 @@ class Display implements ActionInterface
 
 		if (Topic::$info->permissions['can_merge']) {
 			Utils::$context['mod_buttons']['merge'] = ['text' => 'merge', 'url' => Config::$scripturl . '?action=mergetopics;board=' . Utils::$context['current_board'] . '.0;from=' . Utils::$context['current_topic']];
-		}
-
-		if (Topic::$info->permissions['calendar_post']) {
-			Lang::load('Calendar');
-			Utils::$context['mod_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
 		}
 
 		// Restore topic. eh?  No monkey business.

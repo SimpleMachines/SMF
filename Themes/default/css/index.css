@@ -143,6 +143,9 @@ fieldset legend {
 	box-shadow: none;
 	border: none;
 }
+fieldset legend a {
+	font-weight: normal;
+}
 summary {
 	margin: 5px 0;
 }
@@ -1464,13 +1467,22 @@ ul li.greeting {
 
 /* Styles for edit event section
 ---------------------------------------------------- */
+#post_header + #post_event {
+	margin: 1em 0 2em;
+}
 #post_event .roundframe {
 	padding: 12px 12%;
 	overflow: auto;
 }
 #post_event fieldset {
-	padding: 6px;
+	padding: 6px 12px;
 	clear: both;
+	margin-bottom: 12px;
+}
+#post_event fieldset:not(:last-child) {
+	margin-bottom: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 #post_event span.label {
 	margin: 0 0.5em 0 2px;
@@ -1557,6 +1569,11 @@ ul li.greeting {
 }
 .bymonthday_label input:disabled + span {
 	opacity: 0.5;
+}
+#event_link_to label,
+#topic_link_to label {
+	margin-right: 2ch;
+	display: inline-block;
 }
 
 /* Styles for the recent messages section.

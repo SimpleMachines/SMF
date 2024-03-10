@@ -879,7 +879,9 @@ function template_event_post()
 	template_event_options();
 
 	echo '
-					<input type="submit" value="', empty(Utils::$context['event']->new) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button">
+					<div class="buttonlist">
+						<input type="submit" value="', empty(Utils::$context['event']->new) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button floatright">
+					</div>
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</div><!-- .roundframe -->
 			</div><!-- #post_event -->
