@@ -292,6 +292,7 @@ class PersonalMessage implements ActionInterface, Routable
 	public function execute(): void
 	{
 		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
+		Theme::loadCSSFile('postbit.css', ['minimize' => true], 'smf_post');
 
 		$this->buildLimitBar();
 
