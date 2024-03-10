@@ -1042,8 +1042,8 @@ class Display implements ActionInterface
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
 			Theme::loadCSSFile('tribute.css', ['minimize' => true], 'smf_tribute');
-			Theme::loadJavaScriptFile('tribute.js', array('defer' => true, 'minimize' => true), 'smf_tribute');
-			Theme::loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
+			Theme::loadJavaScriptFile('tribute.js', ['defer' => true, 'minimize' => true], 'smf_tribute');
+			Theme::loadJavaScriptFile('mentions.js', ['defer' => true, 'minimize' => true], 'smf_mentions');
 		}
 
 		// Did we report a post to a moderator just now?
