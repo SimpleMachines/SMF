@@ -14,6 +14,7 @@ use SMF\Config;
 use SMF\Editor;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Verifier;
 
@@ -57,6 +58,10 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		echo '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});';
+
+	if (!empty(Config::$modSettings['enable_mentions']) && User::hasPermission('mention'))
+		echo '
+				$(".sceditor-container").find("textarea").each(function() { tribute.attach($(this)) });';
 
 	echo '
 			});';
