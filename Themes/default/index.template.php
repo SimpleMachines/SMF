@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -14,7 +14,6 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\IntegrationHook;
 use SMF\Theme;
-use SMF\Time;
 use SMF\Utils;
 use SMF\User;
 
@@ -57,7 +56,7 @@ function template_init()
 	 * The version this template/theme is for. This should
 	 * be the version of the forum it was created for.
 	 */
-	Theme::$current->settings['theme_version'] = '2.1';
+	Theme::$current->settings['theme_version'] = '3.0';
 
 	/*
 	 * Whether this theme requires the optional theme strings
@@ -72,12 +71,11 @@ function template_init()
 	/*
 	 * Whether this theme supports a dark mode.
 	 *
-	 * Set this to `false` to revert back to the standard behavior
-	 * of only loading one variant at a time.
+	 * Set this to `false` to disable.
 	 * 
 	 * A not so trivial note:
 	 * A 'dark' theme with dark mode is exactly the same as a 'light'
-	 * theme with dark mode. This means the default CSS file should
+	 * theme with dark mode. This means the index.css file should
 	 * always contain the light colors.
 	 */
 	Theme::$current->settings['has_dark_mode'] = true;
@@ -87,6 +85,9 @@ function template_init()
 	 *
 	 * Example:
 	 * - index_red.css is loaded when the user selects the `red` variant.
+	 * 
+	 * Additionally, a variants.css file is always loaded as well, in
+	 * case you'd rather keep the styles in a single file or they're minimal.
 	 */
 	Theme::$current->settings['theme_variants'] = [];
 
@@ -100,7 +101,7 @@ function template_init()
 	Theme::$current->settings['login_main_menu'] = false;
 
 	// This defines the formatting for the page indexes used throughout the forum.
-	Theme::$current->settings['page_index'] = array(
+	Theme::$current->settings['page_index'] = [
 		'extra_before' => '<span class="pages">' . Lang::$txt['pages'] . '</span>',
 		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
@@ -108,12 +109,12 @@ function template_init()
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 		'next_page' => '<span class="main_icons next_page"></span>',
 		'extra_after' => '',
-	);
+	];
 
 	// Allow css/js files to be disabled for this specific theme.
 	// Add the identifier as an array key. IE array('smf_script'); Some external files might not add identifiers, on those cases SMF uses its filename as reference.
 	if (!isset(Theme::$current->settings['disable_files']))
-		Theme::$current->settings['disable_files'] = array();
+		Theme::$current->settings['disable_files'] = [];
 }
 
 /**

@@ -394,8 +394,8 @@ function template_ic_block_recent()
 	elseif (!empty(Utils::$context['latest_posts']))
 	{
 		echo '
-				<table id="ic_recentposts">
-					<tr class="windowbg">
+				<table class="table_grid" id="ic_recentposts">
+					<tr class="roundframe">
 						<th class="recentpost">', Lang::$txt['message'], '</th>
 						<th class="recentposter">', Lang::$txt['author'], '</th>
 						<th class="recentboard">', Lang::$txt['board'], '</th>
@@ -408,7 +408,7 @@ function template_ic_block_recent()
 		foreach (Utils::$context['latest_posts'] as $post)
 			echo '
 					<tr class="windowbg">
-						<td class="recentpost"><strong>', $post['link'], '</strong></td>
+						<td class="recentpost">', $post['link'], '</td>
 						<td class="recentposter">', $post['member']['link'], '</td>
 						<td class="recentboard">', $post['board']['link'], '</td>
 						<td class="recenttime">', $post['time'], '</td>
