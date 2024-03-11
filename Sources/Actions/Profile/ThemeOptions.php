@@ -50,13 +50,13 @@ class ThemeOptions implements ActionInterface
 			Utils::$context['additional_options'] = [];
 
 			// Theme Variants
-			if (!empty(Theme::$current->settings['theme_variants'])) {
+			if (!empty(Theme::$current->settings['theme_variants']) && (empty(Theme::$current->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
 				$available_variants = [];
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
-					$available_variants[] = Lang::$txt['variant_' . $variant] ?? $variant;
+					$available_variants[$variant] = Lang::$txt['variant_' . $variant] ?? $variant;
 				}
 
-				Utils::$context['additional_options'][] = Lang::$txt['theme_op_variant'];
+				Utils::$context['additional_options'][] = Lang::$txt['theme_opt_variant'];
 				Utils::$context['additional_options'][] = [
 					'id' => 'theme_variant',
 					'label' => Lang::$txt['theme_pick_variant'],
@@ -67,10 +67,10 @@ class ThemeOptions implements ActionInterface
 			}
 
 			// Theme Color Mode
-			if (!empty(Theme::$current->settings['has_dark_mode'])) {
+			if (!empty(Theme::$current->settings['has_dark_mode']) && (empty(Theme::$current->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum'))) {
 				$available_modes = [];
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
-					$available_modes[] = Lang::$txt['colormode_' . $mode] ?? $mode;
+					$available_modes[$mode] = Lang::$txt['colormode_' . $mode] ?? $mode;
 				}
 
 				Utils::$context['additional_options'][] = Lang::$txt['theme_opt_colormode'];

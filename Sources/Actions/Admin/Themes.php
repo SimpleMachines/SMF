@@ -599,10 +599,10 @@ class Themes implements ActionInterface
 			if (!empty(Theme::$current->settings['theme_variants'])) {
 				$available_variants = [];
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
-					$available_variants[] = Lang::$txt['variant_' . $variant] ?? $variant;
+					$available_variants[$variant] = Lang::$txt['variant_' . $variant] ?? $variant;
 				}
 
-				Utils::$context['options'][] = Lang::$txt['theme_op_variant'];
+				Utils::$context['options'][] = Lang::$txt['theme_opt_variant'];
 				Utils::$context['options'][] = [
 					'id' => 'theme_variant',
 					'label' => Lang::$txt['theme_pick_variant'],
@@ -616,7 +616,7 @@ class Themes implements ActionInterface
 			if (!empty(Theme::$current->settings['has_dark_mode'])) {
 				$available_modes = [];
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
-					$available_modes[] = Lang::$txt['colormode_' . $mode] ?? $mode;
+					$available_modes[$mode] = Lang::$txt['colormode_' . $mode] ?? $mode;
 				}
 
 				Utils::$context['options'][] = Lang::$txt['theme_opt_colormode'];
