@@ -1,0 +1,4 @@
+:root[data-mode="dark"],
+:root[data-mode="system"] {
+	--body-bg: black;
+}

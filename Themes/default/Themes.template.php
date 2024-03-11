@@ -511,8 +511,7 @@ function template_set_settings()
 				</dl>';
 
 	// Do we allow theme variants?
-	if (!empty(Utils::$context['theme_variants']))
-	{
+	if (!empty(Utils::$context['theme_variants'])) {
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg config_hd">
@@ -542,6 +541,38 @@ function template_set_settings()
 					</dd>
 				</dl>
 				<img src="', Utils::$context['theme_variants'][Utils::$context['default_variant']]['thumbnail'], '" id="variant_preview" alt="">';
+	}
+
+	// Color modes for the theme?
+	if (!empty(Theme::$current->settings['has_dark_mode'])) {
+		echo '
+				<div class="title_bar">
+					<h3 class="titlebg config_hd">
+						', Lang::$txt['theme_colormodes'], '
+					</h3>
+				</div>
+				<dl class="settings">
+					<dt>
+						<label for="colormode">', Lang::$txt['theme_colormode_default'], '</label>
+					</dt>
+					<dd>
+						<select id="colormode" name="options[default_colormode]">';
+
+		foreach (Theme::$current->settings['theme_colormodes'] as $mode)
+			echo '
+							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::$txt['colormode_' . $mode], '</option>';
+
+		echo '
+						</select>
+					</dd>
+					<dt>
+						<label for="disable_user_mode">', Lang::$txt['theme_colormode_user_disable'], '</label>
+					</dt>
+					<dd>
+						<input type="hidden" name="options[disable_user_mode]" value="0">
+						<input type="checkbox" name="options[disable_user_mode]" id="disable_user_mode"', !empty(Utils::$context['theme_settings']['disable_user_mode']) ? ' checked' : '', ' value="1">
+					</dd>
+				</dl>';
 	}
 
 	echo '
