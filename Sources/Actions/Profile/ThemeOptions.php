@@ -43,6 +43,49 @@ class ThemeOptions implements ActionInterface
 		Theme::loadTemplate('Settings');
 		Theme::loadSubTemplate('options');
 
+		// Check for variants or dark mode
+		if (!empty(Theme::$current->settings['theme_variants']) || !empty(Theme::$current->settings['has_dark_mode'])) {
+
+			Lang::load('Themes');
+			Utils::$context['additional_options'] = [];
+
+			// Theme Variants
+			if (!empty(Theme::$current->settings['theme_variants'])) {
+				$available_variants = [];
+				foreach (Theme::$current->settings['theme_variants'] as $variant) {
+					$available_variants[] = Lang::$txt['variant_' . $variant] ?? $variant;
+				}
+
+				Utils::$context['additional_options'][] = Lang::$txt['theme_op_variant'];
+				Utils::$context['additional_options'][] = [
+					'id' => 'theme_variant',
+					'label' => Lang::$txt['theme_pick_variant'],
+					'options' => $available_variants,
+					'default' => isset(Theme::$current->settings['default_variant']) && !empty(Theme::$current->settings['default_variant']) ? Theme::$current->settings['default_variant'] : Theme::$current->settings['theme_variants'][0],
+					'enabled' => !empty(Theme::$current->settings['theme_variants']),
+				];
+			}
+
+			// Theme Color Mode
+			if (!empty(Theme::$current->settings['has_dark_mode'])) {
+				$available_modes = [];
+				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
+					$available_modes[] = Lang::$txt['colormode_' . $mode] ?? $mode;
+				}
+
+				Utils::$context['additional_options'][] = Lang::$txt['theme_opt_colormode'];
+				Utils::$context['additional_options'][] = [
+					'id' => 'theme_colormode',
+					'label' => Lang::$txt['theme_pick_colormode'],
+					'options' => $available_modes,
+					'default' => isset(Theme::$current->settings['default_colormode']) && !empty(Theme::$current->settings['default_colormode']) ? Theme::$current->settings['default_colormode'] : Theme::$current->settings['theme_colormodes'][0],
+					'enabled' => !empty(Theme::$current->settings['has_dark_mode']),
+				];
+			}
+
+			Utils::$context['theme_options'] = array_merge(Utils::$context['additional_options'], Utils::$context['theme_options']);
+		}
+
 		// Let mods hook into the theme options.
 		IntegrationHook::call('integrate_theme_options');
 

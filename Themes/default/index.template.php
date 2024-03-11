@@ -72,17 +72,13 @@ function template_init()
 	/*
 	 * Whether this theme supports a dark mode.
 	 *
-	 * There must be three theme variants defined in order
-	 * for this to work:`system`, `light`, and `dark`.
-	 *
-	 * `system` isn't a real variant; rather, it loads both the light and
-	 * the dark variants, utilizing the CSS media query `prefers-color-scheme`.
-	 * The browser then downloads both files; the one with the matching
-	 * query is fetched at high priority, while the other one is
-	 * downloaded at low priority and isn't rendered.
-	 *
 	 * Set this to `false` to revert back to the standard behavior
 	 * of only loading one variant at a time.
+	 * 
+	 * A not so trivial note:
+	 * A 'dark' theme with dark mode is exactly the same as a 'light'
+	 * theme with dark mode. This means the default CSS file should
+	 * always contain the light colors.
 	 */
 	Theme::$current->settings['has_dark_mode'] = true;
 
@@ -90,9 +86,9 @@ function template_init()
 	 * Define the theme variants. Each variant has its own CSS file.
 	 *
 	 * Example:
-	 * - index_light.css is loaded when the user selects the `light` variant.
+	 * - index_red.css is loaded when the user selects the `red` variant.
 	 */
-	Theme::$current->settings['theme_variants'] = ['system', 'light', 'dark'];
+	Theme::$current->settings['theme_variants'] = [];
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
@@ -127,7 +123,7 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', !empty(Theme::$current->settings['theme_variants']) ? str_replace('_', '', ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default')) : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?: 'light') . '' : '', '>
 <head>
 	<meta charset="', Utils::$context['character_set'], '">';
 

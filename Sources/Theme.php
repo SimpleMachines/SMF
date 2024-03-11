@@ -2174,35 +2174,24 @@ class Theme
 			// Are there any variants?
 			Utils::$context['available_themes'][$id_theme]['variants'] = [];
 
-			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
-				$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
-
-				if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
-					self::$current->settings['theme_variants'] = [];
-
-					// Fill settings up.
-					eval(($matches[1] === '$' ? 'global $settings; ' : 'use SMF\\Theme; ') . $matches[0]);
-
-					if (!empty(self::$current->settings['theme_variants'])) {
-						foreach (self::$current->settings['theme_variants'] as $variant) {
-							Utils::$context['available_themes'][$id_theme]['variants'][$variant] = [
-								'label' => Lang::$txt['variant_' . $variant] ?? $variant,
-								'thumbnail' => file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : (file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') ? $theme_data['images_url'] . '/thumbnail.png' : ''),
-							];
-						}
-
-						Utils::$context['available_themes'][$id_theme]['selected_variant'] = $_GET['vrt'] ?? (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty(self::$current->settings['default_variant']) ? self::$current->settings['default_variant'] : self::$current->settings['theme_variants'][0]));
-
-						if (!isset(Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'])) {
-							Utils::$context['available_themes'][$id_theme]['selected_variant'] = self::$current->settings['theme_variants'][0];
-						}
-
-						Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
-
-						// Allow themes to override the text.
-						Utils::$context['available_themes'][$id_theme]['pick_label'] = Lang::$txt['variant_pick'] ?? Lang::$txt['theme_pick_variant'];
-					}
+			if (!empty(self::$current->settings['theme_variants']) && (empty(Theme::$current->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
+				foreach (self::$current->settings['theme_variants'] as $variant) {
+					Utils::$context['available_themes'][$id_theme]['variants'][$variant] = [
+						'label' => Lang::$txt['variant_' . $variant] ?? $variant,
+						'thumbnail' => file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : (file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') ? $theme_data['images_url'] . '/thumbnail.png' : ''),
+					];
 				}
+
+				Utils::$context['available_themes'][$id_theme]['selected_variant'] = $_GET['vrt'] ?? (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty(self::$current->settings['default_variant']) ? self::$current->settings['default_variant'] : self::$current->settings['theme_variants'][0]));
+
+				if (!isset(Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'])) {
+					Utils::$context['available_themes'][$id_theme]['selected_variant'] = self::$current->settings['theme_variants'][0];
+				}
+
+				Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
+
+				// Allow themes to override the text.
+				Utils::$context['available_themes'][$id_theme]['pick_label'] = Lang::$txt['theme_pick_variant'];
 			}
 
 			// Restore language stuff.
@@ -2432,7 +2421,7 @@ class Theme
 		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
 
 		$this->loadCss();
-
+		$this->loadMode();
 		$this->loadVariant();
 
 		Utils::$context['tabindex'] = 1;
@@ -2701,7 +2690,7 @@ class Theme
 		self::loadCSSFile('icons.css', ['minimize' => true, 'order_pos' => -200], 'smf_icons');
 
 		// Variables
-		self::loadCSSFile('variables.css', ['minimize' => true, 'order_pos' => 0], 'smf_variables');
+		self::loadCSSFile('variables.css', ['minimize' => true, 'order_pos' => -2], 'smf_variables');
 
 		// And of course, let's load the default CSS file.
 		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
@@ -2715,6 +2704,36 @@ class Theme
 	}
 
 	/**
+	 * Loads the theme mode, if applicable.
+	 */
+	protected function loadMode(): void
+	{
+		Utils::$context['theme_colormode'] = '';
+
+		if (!empty($this->settings['has_dark_mode'])) {
+			// Theme Modes
+			$this->settings['theme_colormodes'] = ['light', 'system', 'dark'];
+
+			// Overriding - for previews and that ilk.
+			if (!empty($_REQUEST['mode'])) {
+				$_SESSION['theme_colormode'] = $_REQUEST['mode'];
+			}
+
+			// User selection?
+			if (empty($this->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum')) {
+				Utils::$context['theme_colormode'] = !empty($_SESSION['theme_colormode']) && in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes']) ? $_SESSION['theme_colormode'] : (!empty($this->options['theme_colormode']) && in_array($this->options['theme_colormode'], $this->settings['theme_colormodes']) ? $this->options['theme_colormode'] : '');
+			}
+
+			// If no color mode, set a default
+			if (empty(Utils::$context['theme_colormode']) || !in_array(Utils::$context['theme_colormode'], $this->settings['theme_colormodes'])) {
+				Utils::$context['theme_colormode'] = !empty($this->settings['default_colormode']) && in_array($this->settings['default_colormode'], $this->settings['theme_colormodes']) ? $this->settings['default_colormode'] : $this->settings['theme_colormodes'][0];
+			}
+
+			self::loadCSSFile('dark.css', ['order_pos' => 2, 'attributes' => (Utils::$context['theme_colormode'] == 'system' ? ['media' => '(prefers-color-scheme: dark)'] : [])], 'smf_dark');
+		}
+	}
+
+	/**
 	 * Loads the correct theme variant, if applicable.
 	 */
 	protected function loadVariant(): void
@@ -2724,10 +2743,22 @@ class Theme
 		Utils::$context['theme_variant_url'] = '';
 
 		if (!empty($this->settings['theme_variants'])) {
+			// Add the default variant
+			$this->settings['theme_variants'] = array_unique(array_merge(['default'], $this->settings['theme_variants']));
+
 			// Overriding - for previews and that ilk.
 			if (!empty($_REQUEST['variant'])) {
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
 			}
+
+			/**
+			 * Attempt to load a variants file for variable overriding
+			 * using data attribute (:root[data-variant="variant"])
+			 * 
+			 * This is useful when you only want a single file for
+			 * recoloring the variants.
+			 */
+			self::loadCSSFile('variants.css', ['order_pos' => 0], 'smf_variants');
 
 			// User selection?
 			if (empty($this->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum')) {
@@ -2739,25 +2770,9 @@ class Theme
 				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
 			}
 
-			if (!empty($this->settings['has_dark_mode'])) {
-				if (Utils::$context['theme_variant'] == '' || Utils::$context['theme_variant'] == 'system') {
-					foreach (['light',  'dark'] as $var) {
-						self::loadCSSFile('index_' . $var . '.css', ['order_pos' => 301, 'attributes' => ['media' => '(prefers-color-scheme: ' . $var . ')']], 'smf_index_' . $var);
-					}
-				} else {
-					self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 301], 'smf_index_' . Utils::$context['theme_variant']);
-				}
-			} elseif (Utils::$context['theme_variant'] != '') {
-				self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index_' . Utils::$context['theme_variant']);
-
-				if (Utils::$context['right_to_left']) {
-					self::loadCSSFile('rtl_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl_' . Utils::$context['theme_variant']);
-				}
+			if (!empty(Utils::$context['theme_variant']) && Utils::$context['theme_variant'] !== 'default') {
+				self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 2], 'smf_index' . Utils::$context['theme_variant']);
 			}
-
-			// Do this to keep things easier in the templates.
-			Utils::$context['theme_variant'] = '_' . Utils::$context['theme_variant'];
-			Utils::$context['theme_variant_url'] = Utils::$context['theme_variant'] . '/';
 		}
 	}
 
@@ -2769,6 +2784,7 @@ class Theme
 		// Default JS variables for use in every theme
 		Utils::$context['javascript_vars'] = [
 			'smf_theme_url' => '"' . $this->settings['theme_url'] . '"',
+			'smf_theme_id' => self::$current->settings['theme_id'],
 			'smf_default_theme_url' => '"' . $this->settings['default_theme_url'] . '"',
 			'smf_images_url' => '"' . $this->settings['images_url'] . '"',
 			'smf_smileys_url' => '"' . Config::$modSettings['smileys_url'] . '"',

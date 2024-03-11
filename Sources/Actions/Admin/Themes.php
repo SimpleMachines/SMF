@@ -591,7 +591,49 @@ class Themes implements ActionInterface
 		Utils::$context['sub_template'] = 'set_options';
 		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
 
-		Utils::$context['options'] = Utils::$context['theme_options'];
+		// Check for variants or dark mode
+		if (!empty(Theme::$current->settings['theme_variants']) || !empty(Theme::$current->settings['has_dark_mode'])) {
+			Utils::$context['options'] = [];
+
+			// Theme Variants
+			if (!empty(Theme::$current->settings['theme_variants'])) {
+				$available_variants = [];
+				foreach (Theme::$current->settings['theme_variants'] as $variant) {
+					$available_variants[] = Lang::$txt['variant_' . $variant] ?? $variant;
+				}
+
+				Utils::$context['options'][] = Lang::$txt['theme_op_variant'];
+				Utils::$context['options'][] = [
+					'id' => 'theme_variant',
+					'label' => Lang::$txt['theme_pick_variant'],
+					'options' => $available_variants,
+					'default' => isset(Theme::$current->settings['default_variant']) && !empty(Theme::$current->settings['default_variant']) ? Theme::$current->settings['default_variant'] : Theme::$current->settings['theme_variants'][0],
+					'enabled' => !empty(Theme::$current->settings['theme_variants']),
+				];
+			}
+
+			// Theme Color Mode
+			if (!empty(Theme::$current->settings['has_dark_mode'])) {
+				$available_modes = [];
+				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
+					$available_modes[] = Lang::$txt['colormode_' . $mode] ?? $mode;
+				}
+
+				Utils::$context['options'][] = Lang::$txt['theme_opt_colormode'];
+				Utils::$context['options'][] = [
+					'id' => 'theme_colormode',
+					'label' => Lang::$txt['theme_pick_colormode'],
+					'options' => $available_modes,
+					'default' => isset(Theme::$current->settings['default_colormode']) && !empty(Theme::$current->settings['default_colormode']) ? Theme::$current->settings['default_colormode'] : Theme::$current->settings['theme_colormodes'][0],
+					'enabled' => !empty(Theme::$current->settings['has_dark_mode']),
+				];
+			}
+
+			Utils::$context['options'] = array_merge(Utils::$context['options'], Utils::$context['theme_options']);
+		} else {
+			Utils::$context['options'] = Utils::$context['theme_options'];
+		}
+
 		Utils::$context['theme_settings'] = Theme::$current->settings;
 
 		if (empty($_REQUEST['who'])) {
@@ -825,6 +867,9 @@ class Themes implements ActionInterface
 		// Do we support variants?
 		if (!empty(Theme::$current->settings['theme_variants'])) {
 			Utils::$context['theme_variants'] = [];
+
+			// Add the default variant
+			Theme::$current->settings['theme_variants'] = array_unique(array_merge(['default'], Theme::$current->settings['theme_variants']));
 
 			foreach (Theme::$current->settings['theme_variants'] as $variant) {
 				// Have any text, old chap?
