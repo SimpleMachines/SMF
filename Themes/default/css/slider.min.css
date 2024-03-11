@@ -46,7 +46,7 @@
 .sy-slide > img{margin:0;padding:0;display:block;max-width:100%;border:0}
 .sy-slide > a > img{margin:0;padding:0;display:block;max-width:100%;border:0}
 .sy-pager{overflow:hidden;display:block;width:100%;margin:1em 0 0;padding:0;list-style:none;text-align:center}
-.sy-pager li{display:inline-block;width:1.2em;height:1.2em;margin:0 0.5em;border-radius:50%}
+.sy-pager li{display:inline-block;width:1.2em;height:1.2em;margin:0;border-radius:50%}
 .sy-pager li.sy-active a{background:var(--body-link-color)}
 .sy-pager li a{width:100%;height:100%;display:block;background:var(--window-bg);text-indent:-9999px;background-size:2em;border-radius:50%}
 .sy-pager li a:link,.sy-pager li a:visited{opacity:1}

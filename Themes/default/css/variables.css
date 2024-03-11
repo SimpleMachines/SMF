@@ -44,6 +44,7 @@
 	--body-link-font-weight:                          400;
 	--body-link-font-weight_focus:                    var(--body-link-font-weight);
 	--body-link-font-weight_hover:                    var(--body-link-font-weight);
+
 	/** Strong **/
 	--strong-color:                                   #454545;
 
@@ -91,7 +92,7 @@
 	--input-box-shadow_disabled:                      none;
 	--input-box-shadow_focus:                         var(--input-box-shadow_hover);
 	--input-box-shadow_hover:                         1px 1px 2px -1px rgba(0,0,0,0.1) inset;
-	--input-color:                                    black;
+	--input-color:                                    #292929;
 	--input-color_disabled:                           gray;
 	--input-color_focus:                              black;
 	--input-color_hover:                              black;
@@ -184,7 +185,7 @@
 	/** Details Summary **/
 	--details-summary-bg:                             transparent;
 	--details-summary-bg_open:                        transparent;
-	--details-summary-border-color:                   hsl(0, 0%, 93%);
+	--details-summary-border-color:                   var(--roundframe-border-color);
 	--details-summary-border-radius:                  0.25em;
 	--details-summary-border-style:                   solid;
 	--details-summary-border-width:                   1px;
@@ -305,7 +306,7 @@
 	--sectionhead-box-shadow:                         var(--breadcrumb-box-shadow);
 	--sectionhead-color:                              #333;
 
-	/** Sectin Head Title **/
+	/** Section Head Title **/
 	--sectionhead-title-color:                        inherit;
 	--sectionhead-title-color_focus:                  inherit;
 	--sectionhead-title-color_hover:                  inherit;
@@ -500,7 +501,6 @@
 	--genericnoti-bg:                                 var(--window-bg);
 	--genericnoti-bg_focus:                           var(--genericnoti-bg_hover);
 	--genericnoti-bg_hover:                           var(--window-bg_hover);
-	--genericnoti-bg_unread:                          hsl(120, 100%, 90%);
 	--genericnoti-border-color:                       var(--window-border-color);
 	--genericnoti-border-radius:                      1px;
 	--genericnoti-border-style:                       solid;
@@ -590,7 +590,7 @@
 	--mobilegeneric-text-shadow_hover:                none;
 
 	/** Generic Menu **/
-	--genericmenu-bg:                                 var(--primary-color-800) ;
+	--genericmenu-bg:                                 var(--primary-color-800);
 	--genericmenu-border-color:                       transparent;
 	--genericmenu-border-radius:                      0.25em;
 	--genericmenu-border-style:                       solid;
@@ -700,42 +700,42 @@
 	--quickbuttons-border-width:                      0;
 	--quickbuttons-box-shadow:                        none;
 	/** Quickbuttons Link **/
-	--quickbuttons-link-bg:                           hsl(var(--primary-color-hue), 20%, 85%);
-	--quickbuttons-link-bg_focus:                     var(--quickbuttons-link-bg_hover);
-	--quickbuttons-link-bg_hover:                     hsl(var(--primary-color-hue), 20%, 80%);
-	--quickbuttons-link-border-color:                 transparent;
-	--quickbuttons-link-border-color_focus:           var(--quickbuttons-link-border-color_focus);
-	--quickbuttons-link-border-color_hover:           var(--quickbuttons-link-border-color_hover);
+	--quickbuttons-link-bg:                           var(--buttonlist-link-bg);
+	--quickbuttons-link-bg_focus:                     var(--buttonlist-link-bg_focus);
+	--quickbuttons-link-bg_hover:                     var(--buttonlist-link-bg_hover);
+	--quickbuttons-link-border-color:                 var(--buttonlist-link-border-color);
+	--quickbuttons-link-border-color_focus:           var(--buttonlist-link-border-color_focus);
+	--quickbuttons-link-border-color_hover:           var(--buttonlist-link-border-color_hover);
 	--quickbuttons-link-border-radius:                0.2em;
-	--quickbuttons-link-border-radius_focus:          var(--quickbuttons-link-border-radius_hover);
-	--quickbuttons-link-border-radius_hover:          var(--quickbuttons-link-border-radius);
-	--quickbuttons-link-border-style:                 solid;
+	--quickbuttons-link-border-radius_focus:          var(--buttonlist-link-border-radius_hover);
+	--quickbuttons-link-border-radius_hover:          var(--buttonlist-link-border-radius);
+	--quickbuttons-link-border-style:                 var(--buttonlist-border-style);
 	--quickbuttons-link-border-width:                 0;
-	--quickbuttons-link-border-width_focus:           var(--quickbuttons-link-border-width_hover);
-	--quickbuttons-link-border-width_hover:           var(--quickbuttons-link-border-width);
+	--quickbuttons-link-border-width_focus:           var(--buttonlist-link-border-width_hover);
+	--quickbuttons-link-border-width_hover:           var(--buttonlist-link-border-width);
 	--quickbuttons-link-box-shadow:                   none;
-	--quickbuttons-link-box-shadow_focus:             var(--quickbuttons-link-box-shadow_hover);
-	--quickbuttons-link-box-shadow_hover:             var(--quickbuttons-link-box-shadow);
-	--quickbuttons-link-color:                        #222;
-	--quickbuttons-link-color_focus:                  var(--quickbuttons-link-color_hover);
-	--quickbuttons-link-color_hover:                  var(--primary-color-900);
+	--quickbuttons-link-box-shadow_focus:             var(--buttonlist-link-box-shadow_hover);
+	--quickbuttons-link-box-shadow_hover:             var(--buttonlist-link-box-shadow);
+	--quickbuttons-link-color:                        var(--buttonlist-link-color);
+	--quickbuttons-link-color_focus:                  var(--buttonlist-link-color_hover);
+	--quickbuttons-link-color_hover:                  var(--buttonlist-link-color_hover);
 	--quickbuttons-link-cursor:                       pointer;
 	--quickbuttons-link-font-size:                    0.9em;
-	--quickbuttons-link-font-weight:                  400;
-	--quickbuttons-link-font-weight_focus:            var(--quickbuttons-link-font-weight_hover);
-	--quickbuttons-link-font-weight_hover:            var(--quickbuttons-link-font-weight);
+	--quickbuttons-link-font-weight:                  var(--buttonlist-link-font-weight);
+	--quickbuttons-link-font-weight_focus:            var(--buttonlist-link-font-weight_hover);
+	--quickbuttons-link-font-weight_hover:            var(--buttonlist-link-font-weight);
 	--quickbuttons-link-height:                       2em;
 	--quickbuttons-link-line-height:                  1;
 	--quickbuttons-link-outline:                      auto;
 	--quickbuttons-link-outline-offset:               0.1em;
-	--quickbuttons-link-text-decoration:              none;
-	--quickbuttons-link-text-decoration_active:       var(--quickbuttons-link-text-decoration);
-	--quickbuttons-link-text-decoration_focus:        var(--quickbuttons-link-text-decoration_hover);
-	--quickbuttons-link-text-decoration_hover:        var(--quickbuttons-link-text-decoration);
-	--quickbuttons-link-text-shadow:                  none;
-	--quickbuttons-link-text-shadow_active:           var(--quickbuttons-link-text-shadow);
-	--quickbuttons-link-text-shadow_focus:            var(--quickbuttons-link-text-shadow_hover);
-	--quickbuttons-link-text-shadow_hover:            var(--quickbuttons-link-text-shadow);
+	--quickbuttons-link-text-decoration:              var(--buttonlist-link-text-decoration);
+	--quickbuttons-link-text-decoration_active:       var(--buttonlist-link-text-decoration);
+	--quickbuttons-link-text-decoration_focus:        var(--buttonlist-link-text-decoration_hover);
+	--quickbuttons-link-text-decoration_hover:        var(--buttonlist-link-text-decoration);
+	--quickbuttons-link-text-shadow:                  var(--buttonlist-link-text-shadow);
+	--quickbuttons-link-text-shadow_active:           var(--buttonlist-link-text-shadow);
+	--quickbuttons-link-text-shadow_focus:            var(--buttonlist-link-text-shadow_hover);
+	--quickbuttons-link-text-shadow_hover:            var(--buttonlist-link-text-shadow);
 	--quickbuttons-link-text-transform:               normal;
 
 	/** Quick Options **/
@@ -747,14 +747,12 @@
 	--quickoptions-box-shadow:                        3px 3px 4px rgba(0, 0, 0, 0.3);
 	--quickoptions-width:                             14em;
 	/** Post Options Link **/
-	--quickoptions-link-bg:                           transparent;
-	--quickoptions-link-bg_active_hover:              var(--dropmenu-an-bg_active);
-	--quickoptions-link-bg_active_focus:              var(--dropmenu-an-bg_active);
-	--quickoptions-link-bg_focus:                     var(--dropmenu-an-bg_hover);
-	--quickoptions-link-bg_hover:                     hsl(var(--primary-color-hue), 36%, 91%);
-	--quickoptions-link-border-color:                 transparent;
-	--quickoptions-link-border-color_focus:           var(--dropmenu-a1-border-color_hover);
-	--quickoptions-link-border-color_hover:           transparent;
+	--quickoptions-link-bg:                           var(--dropmenu-an-bg);
+	--quickoptions-link-bg_focus:                     var(--dropmenu-an-bg_focus);
+	--quickoptions-link-bg_hover:                     var(--dropmenu-an-bg_hover);
+	--quickoptions-link-border-color:                 var(--dropmenu-an-border-color);
+	--quickoptions-link-border-color_focus:           var(--dropmenu-an-border-color_focus);
+	--quickoptions-link-border-color_hover:           var(--dropmenu-an-border-color_hover);
 	--quickoptions-link-border-radius:                0.25em;
 	--quickoptions-link-border-style:                 solid;
 	--quickoptions-link-border-width:                 0;
@@ -763,9 +761,9 @@
 	--quickoptions-link-box-shadow:                   none;
 	--quickoptions-link-box-shadow_focus:             none;
 	--quickoptions-link-box-shadow_hover:             none;
-	--quickoptions-link-color:                        #2b2b2b;
-	--quickoptions-link-color_focus:                  var(--dropmenu-a1-color_hover);
-	--quickoptions-link-color_hover:                  #252525;
+	--quickoptions-link-color:                        var(--dropmenu-an-color);
+	--quickoptions-link-color_focus:                  var(--dropmenu-an-color_focus);
+	--quickoptions-link-color_hover:                  var(--dropmenu-an-color_hover);
 	--quickoptions-link-font-family:                  inherit;
 	--quickoptions-link-font-size:                    0.75em;
 	--quickoptions-link-font-weight:                  400;
@@ -814,7 +812,7 @@
 	--buttonlist-link-box-shadow_hover:               var(--buttonlist-link-box-shadow);
 	--buttonlist-link-color:                          #222;
 	--buttonlist-link-color_active:                   var(--buttonlist-link-color);
-	--buttonlist-link-color_active_focus:              var(--buttonlist-link-color_active_hover);
+	--buttonlist-link-color_active_focus:             var(--buttonlist-link-color_active_hover);
 	--buttonlist-link-color_active_hover:             #000;
 	--buttonlist-link-color_focus:                    var(--buttonlist-link-color_hover);
 	--buttonlist-link-color_hover:                    var(--primary-color-900);
@@ -1055,10 +1053,10 @@
 	--window-margin-inline:                           0;
 	--window-padding-block:                           0.5em;
 	--window-padding-inline:                          1em;
-	/** Windowbg alternate0**/
+	/** Windowbg alternate **/
 	--window-even-bg:                                 hsl(var(--primary-color-hue), 22%, 97%);
 	--window-even-bg_hover:                           var(--window-bg_hover);
-	--window-target-bg:                               hsl(60, 100%, 94%);
+	--window-target-bg:                               hsl(var(--primary-color-hue), 100%, 97%);
 	/** Approvepost and Approvetopic **/
 	--window-approvetopic-bg:                         hsl(21, 66%, 69%);
 	--window-approvepost-bg:                          hsl(0, 100%, 90%);
@@ -1149,7 +1147,7 @@
 
 	/** Quote Block **/
 	--quote-bg:                                       hsl(var(--primary-color-hue), 32%, 93%);
-	--quote-border-color:                             hsl(195, 17%, 86%) hsl(var(--primary-color-hue), 25%, 70%);
+	--quote-border-color:                             hsl(var(--primary-color-hue), 17%, 86%) hsl(var(--primary-color-hue), 25%, 70%);
 	--quote-border-radius:                            1px 2px;
 	--quote-border-style:                             solid;
 	--quote-border-width:                             1px 1px 2px;
@@ -1268,7 +1266,7 @@
 	--infoblock-box-shadow:                           0px 2px 0px hsl(210, 11%, 85%);
 	/** Info Center Icon **/
 	--infoblock-icon-bg:                              hsl(0, 0%, 96%);
-	--infoblock-icon-box-shadow:                      0;
+	--infoblock-icon-box-shadow:                      none;
 	--infoblock-icon-color:                           inherit;
 	--infoblock-icon-font-size:                       1em;
 	--infoblock-icon-width:                           3em;
@@ -1296,13 +1294,13 @@
 	--genericbar-text-shadow:                         1px 1px hsla(0, 0%, 100%, 0.4);
 	--genericbar-width:                               1em;
 	/** Inner Generic Bar **/
-	--genericbar-inner-bg:                            var(--secondary-color-300);
+	--genericbar-inner-bg:                            hsl(var(--primary-color-hue), 20%, 75%);
 	--genericbar-inner-border-color:                  transparent;
 	--genericbar-inner-border-radius:                 var(--genericbar-border-radius);
 	--genericbar-inner-border-style:                  solid;
 	--genericbar-inner-border-width:                  0;
-	--genericbar-inner-box-shadow:                    4px -4px 4px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 4px hsla(0, 0%, 100%, 0.3) inset;
-	--genericbar-inner-box-shadow_vertical:           4px -4px 4px hsla(0, 0%, 0%, 0.1) inset, 4px 4px 4px hsla(0, 0%, 100%, 0.3) inset;
+	--genericbar-inner-box-shadow:                    2px -6px 6px 2px hsla(0, 0%, 100%, 0.2) inset;
+	--genericbar-inner-box-shadow_vertical:           -6px 2px 6px 2px hsla(0, 0%, 100%, 0.2) inset;
 	--genericbar-inner-color:                         hsla(0, 0%, 0%, 0.8);
 
 	/** Progress Bar **/
@@ -1378,7 +1376,7 @@
 	--orange:                                         hsl(39, 100%, 50%);
 
 	/* Calendar */
-	--calendar-gap:                                   0 1em;
+	--calendar-gap:                                   0 1.25em;
 	--calendar-grid:                                  auto / 15em 1fr;
 	/** Calendar Events **/
 	--calendar-birthday-bg:                           hsla(264, 100%, 50%, 0.1);
@@ -1389,12 +1387,13 @@
 	--calendar-disabled-bg:                           #eee;
 	--calendar-event-bg:                              hsla(117, 92%, 52%, 0.1);
 	--calendar-event-bg_hover:                        hsla(117, 92%, 52%, 0.2);
-	--calendar-event-color:                           hsl(120, 90%, 28%);
+	--calendar-event-color:                           hsl(120, 90%, 20%);
 	--calendar-holiday-bg:                            hsla(var(--primary-color-hue), 45%, 65%, 0.25);
 	--calendar-holiday-bg_hover:                      hsla(var(--primary-color-hue), 55%, 65%, 0.35);
-	--calendar-holiday-color:                         hsl(var(--primary-color-hue), 100%, 50%);
+	--calendar-holiday-color:                         hsl(var(--primary-color-hue), 100%, 35%);
 	--calendar-today-bg:                              var(--primary-color-50);
-	--calendar-th-bg:                                 #e7eaef;
+	--calendar-today-color:                           #000;
+	--calendar-th-bg:                                 var(--titlebar-bg);
 
 	/** Attachments **/
 	--attachments-bg:                                 transparent;
@@ -1425,7 +1424,7 @@
 	--basicinfo-box-shadow:                           none;
 	--basicinfo-width:                                18%;
 
-	/** Basic Info **/
+	/** Detailed Info **/
 	--detailedinfo-bg:                                transparent;
 	--detailedinfo-border-color:                      hsl(0, 0%, 80%);
 	--detailedinfo-border-radius:                     0;
@@ -1482,7 +1481,7 @@
 	--filepermission-bg_write:                        hsl(0, 100%, 87%);
 
 	/** Popup Container **/
-	--popup-bg:                                       hsla(204, 33%, 24%, 0.6);
+	--popup-bg:                                       hsla(var(--primary-color-hue), 15%, 25%, 75%);
 	/** Popup Window **/
 	--popup-window-bg:                                hsl(var(--primary-color-hue), 65%, 98%);
 	--popup-window-border-color:                      var(--primary-color-500);
