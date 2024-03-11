@@ -89,6 +89,7 @@ input:hover, select:hover, textarea:hover {
 	box-shadow: var(--input-box-shadow_hover);
 	border-color: var(--input-border-color_hover);
 	border-width: var(--input-border-width_hover);
+	color: var(--input-color_hover);
 	text-shadow: var(--input-text-shadow_hover);
 }
 input:focus, select:focus, textarea:focus {
@@ -97,6 +98,7 @@ input:focus, select:focus, textarea:focus {
 	box-shadow: var(--input-box-shadow_focus);
 	border-color: var(--input-border-color_focus);
 	border-width: var(--input-border-width_focus);
+	color: var(--input-color_focus);
 	text-shadow: var(--input-text-shadow_focus);
 }
 select[size] {
@@ -938,10 +940,8 @@ img.sort, .sort {
 	cursor: var(--autosuggest-item-cursor);
 	font-size: var(--autosuggest-item-font-size_hover);
 	font-weight: var(--autosuggest-item-font-weight_hover);
-	margin-block: var(--autosuggest-item-margin-block);
-	margin-inline: var(--autosuggest-item-margin-inline);
-	padding-block: var(--autosuggest-item-padding-block);
-	padding-inline: var(--autosuggest-item-padding-inline);
+	margin: 0;
+	padding: .2em .25em;
 }
 .auto_suggest_item:last-of-type,
 .auto_suggest_item_hover:last-of-type {
@@ -1064,12 +1064,8 @@ img.sort, .sort {
 	font-size: 0.5em;
 	content: " \25BC";
 }
-#top_info > li.button_login > a {
-    font-size: var(--top_info_button_login_link_font_size);
-}
-
-#top_info > li.button_signup > a {
-    font-size: var(--top_info_button_signup_link_font_size);
+#top_info > li:where(.button_login, .button_signup) > a {
+    font-size: .75em;
 }
 #top_info .amt {
 	inset-inline-end: 0;
@@ -1129,7 +1125,7 @@ img.sort, .sort {
 	border-width: var(--topmenu-header-border-width);
 	color: var(--topmenu-header-color);
 	font-size: var(--topmenu-header-font-size);
-	padding: .25em .75em;
+	padding: .6em .75em;
 }
 .top_menu .body {
 	background: var(--topmenu-body-bg);
@@ -1397,6 +1393,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	border-radius: var(--dropmenu-a1-border-radius);
 	border-style: var(--dropmenu-a1-border-style);
 	border-width: var(--dropmenu-a1-border-width);
+	box-shadow: var(--dropmenu-a1-box-shadow);
 	color: var(--dropmenu-a1-color);
 	display: flex;
 	font-family: var(--dropmenu-a1-font-family);
@@ -1413,6 +1410,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	background: var(--dropmenu-a1-bg_hover);
 	border-color: var(--dropmenu-a1-border-color_hover);
 	border-width: var(--dropmenu-a1-border-width_hover);
+	box-shadow: var(--dropmenu-a1-box-shadow_hover);
 	color: var(--dropmenu-a1-color_hover);
 	font-weight: var(--dropmenu-a1-font-weight_hover);
 	text-decoration: var(--dropmenu-a1-text-decoration_hover);
@@ -1423,6 +1421,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	background: var(--dropmenu-a1-bg_focus);
 	border-color: var(--dropmenu-a1-border-color_focus);
 	border-width: var(--dropmenu-a1-border-width_focus);
+	box-shadow: var(--dropmenu-a1-box-shadow_focus);
 	color: var(--dropmenu-a1-color_focus);
 	font-weight: var(--dropmenu-a1-font-weight_focus);
 	text-decoration: var(--dropmenu-a1-text-decoration_focus);
@@ -1437,6 +1436,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	background: var(--dropmenu-a1-bg_active);
 	border-color: var(--dropmenu-a1-border-color_active);
 	border-width: var(--dropmenu-a1-border-width_active);
+	box-shadow: var(--dropmenu-a1-box-shadow_active);
 	color: var(--dropmenu-a1-color_active);
 	font-weight: var(--dropmenu-a1-font-weight_active);
 	text-decoration: var(--dropmenu-a1-text-decoration_active);
@@ -2627,10 +2627,6 @@ fieldset.merge_options {
 #admin_login .centertext a.help img, .custom_field a img {
 	vertical-align: middle;
 }
-
-tr.windowbg td, tr.bg td, .table_grid tr td {
-	padding: 4px 8px;
-}
 #credits p {
 	font-style: italic;
 }
@@ -2773,7 +2769,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	border-width: var(--genericbar-inner-border-width);
 	bottom: 0;
 	box-shadow: var(--genericbar-inner-box-shadow);
-	color: var(--genericbar-inner-color);
+	color: red;
 	display: block;
 	inset-inline-start: 0;
 	transition: width .3s;
@@ -3087,11 +3083,11 @@ dl.addrules dt.floatleft {
 	border-width: var(--tooltip-border-width);
 	box-shadow: var(--tooltip-box-shadow);
 	color: var(--tooltip-color);
-	left: -9999px;
+	inset-inline-start: -9999px;
 	max-width: var(--tooltip-width);
 	margin: 0;
-	padding: .5em .75em;
 	overflow-wrap: break-word;
+	padding: .5em .75em;
 	position: absolute;
 	word-wrap: break-word; /* IE fallback */
 	z-index: 999;
@@ -3099,6 +3095,7 @@ dl.addrules dt.floatleft {
 
 /* Styles for popup windows */
 .popup_container {
+	backdrop-filter: blur(3px);
 	background: var(--popup-bg);
 	height: auto;
 	inset: 0;
@@ -3139,10 +3136,16 @@ dl.addrules dt.floatleft {
 	text-shadow: var(--popup-heading-text-shadow);
 	text-transform: var(--popup-heading-text-transform);
 }
-.popup_heading .hide_popup {
+.popup_heading .hide_popup,
+.popup_heading button.hide_popup {
+	align-self: center;
 	color: var(--popup-heading-color);
+	display: flex;
 	float: inline-end;
 	margin-inline-start: auto;
+	text-decoration: none;
+}
+.popup_heading button.hide_popup:hover {
 	text-decoration: none;
 }
 .popup_content {
@@ -3445,35 +3448,36 @@ span.postby {
 	clear: both;
 	padding: 0px;
 }
-#info_center .sub_bar {
-	border-top: 1px var(--window-border-style) var(--window-border-color);
-}
 #info_center .sub_bar:first-child {
 	border-top: none;
 }
-#upshrink_stats {
-	margin-top: 0px;
-}
 #ic_recentposts {
+	font-size: 0.9em;
 	line-height: 1.6em;
 	width: 100%;
-	margin: 0px 0px 0px 4px;
-	font-size: 0.9em;
+}
+#ic_recentposts th,
+#ic_recentposts td {
+	padding-inline: var(--window-padding-inline);
 }
 #ic_recentposts th {
 	text-align: left;
-	padding: 0 4px 0 0;
 }
 #ic_recentposts td {
-	border-top: 1px var(--window-border-style) var(--window-border-color);
-	padding: 0 4px 0 0;
+	padding-block: .25em;
 	vertical-align: top;
 }
-#ic_recentposts tr:first-child td {
-	border-top: none;
+#ic_recentposts tr {
+	--window-border-width: 1px 0;
 }
-#ic_recentposts .recentpost strong {
+#ic_recentposts tr:last-child {
+	--window-border-width: 0;
+}
+#ic_recentposts .recentpost {
 	width: 40%;
+}
+#ic_recentposts .recentpost a {
+	font-weight: 700;
 }
 #ic_recentposts .recentposter {
 	width: 15%;
@@ -3484,31 +3488,24 @@ span.postby {
 #ic_recentposts .recenttime {
 	width: 25%;
 }
-#ic_recentposts .recenttime strong {
-	color: var(--body_txt_color);
-}
-#ic_recentposts .windowbg {
-	background: none;
-}
-#upshrink_stats p.inline {
-	border: none;
-	margin: 0;
-	padding: 0px 6px;
-	line-height: 1.6em;
-	font-size: 0.9em;
-}
-#upshrink_stats p.inline span {
-	margin: 0;
-	padding: 4px 0 0 0;
-}
-#upshrink_stats span.membergroups {
-	display: block;
-}
 
 /* Info Center Blocks */
 #upshrink_stats {
 	display: grid;
 	gap: .5em 0;
+}
+#upshrink_stats p.inline {
+	border: none;
+	font-size: 0.9em;
+	line-height: 1.6em;
+	padding-inline: 6px;
+}
+#upshrink_stats p.inline span {
+	margin: 0;
+	padding-block: .25em 0;
+}
+#upshrink_stats span.membergroups {
+	display: block;
 }
 .info_block {
 	background: var(--infoblock-bg);
@@ -4441,20 +4438,20 @@ h3.profile_hd::before,
 	margin: 0;
 	padding: 0;
 }
-#display_head a {
+#display_head a:not(.button) {
 	color: var(--sectionhead-link-color);
 	font-size: var(--sectionhead-link-font-size);
 	font-weight: var(--sectionhead-link-font-weight);
 	text-decoration: var(--sectionhead-link-text-decoration);
 	text-shadow: var(--sectionhead-link-text-shadow);
 }
-#display_head a:hover {
+#display_head a:not(.button):hover {
 	color: var(--sectionhead-link-color_hover);
 	font-weight: var(--sectionhead-link-font-weight_hover);
 	text-decoration: var(--sectionhead-link-text-decoration_hover);
 	text-shadow: var(--sectionhead-link-text-shadow_hover);
 }
-#display_head a:focus {
+#display_head a:not(.button):focus {
 	color: var(--sectionhead-link-color_focus);
 	font-weight: var(--sectionhead-link-font-weight_focus);
 	text-decoration: var(--sectionhead-link-text-decoration_focus);
