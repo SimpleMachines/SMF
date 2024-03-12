@@ -2717,6 +2717,17 @@ class Theme
 			// Overriding - for previews and that ilk.
 			if (!empty($_REQUEST['mode'])) {
 				$_SESSION['theme_colormode'] = $_REQUEST['mode'];
+
+				// If the user is logged, save this to their profile
+				if (User::$me->is_logged && in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
+					Db::$db->insert(
+						'replace',
+						'{db_prefix}themes',
+						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
+						[self::$current->settings['theme_id'], User::$me->id, 'theme_colormode', $_SESSION['theme_colormode']],
+						['id_theme', 'id_member', 'variable'],
+					);
+				}
 			}
 
 			// User selection?
@@ -2749,6 +2760,17 @@ class Theme
 			// Overriding - for previews and that ilk.
 			if (!empty($_REQUEST['variant'])) {
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
+
+				// If the user is logged, save this to their profile
+				if (User::$me->is_logged && in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
+					Db::$db->insert(
+						'replace',
+						'{db_prefix}themes',
+						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
+						[self::$current->settings['theme_id'], User::$me->id, 'theme_variant', $_SESSION['id_variant']],
+						['id_theme', 'id_member', 'variable'],
+					);
+				}
 			}
 
 			/**
