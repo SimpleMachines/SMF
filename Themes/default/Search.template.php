@@ -255,8 +255,36 @@ function template_main()
  */
 function template_results()
 {
-	if (isset(Utils::$context['did_you_mean']) || empty(Utils::$context['topics']) || !empty(Utils::$context['search_ignored']))
-	{
+	echo '
+	<div id="display_head">
+		<h2 class="display_title">
+			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
+		</h2>
+		<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>';
+
+		// Was anything even found?
+		if (!empty(Utils::$context['topics']))
+		{
+			echo '
+		<div class="floatright">
+			<span class="padding">', Lang::$txt['search_order'], '</span>
+			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
+				<option value="relevance|desc">', Lang::$txt['search_orderby_relevant_first'], '</option>
+				<option value="num_replies|desc"', Utils::$context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', Lang::$txt['search_orderby_large_first'], '</option>
+				<option value="num_replies|asc"', Utils::$context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', Lang::$txt['search_orderby_small_first'], '</option>
+				<option value="id_msg|desc"', Utils::$context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', Lang::$txt['search_orderby_recent_first'], '</option>
+				<option value="id_msg|asc"', Utils::$context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', Lang::$txt['search_orderby_old_first'], '</option>
+			</select>
+		</div>
+	</div>
+		<div class="pagesection">
+			<div class="pagelinks">', Utils::$context['page_index'], '</div>';
+		}
+
+	echo '
+	</div>';
+
+	if (isset(Utils::$context['did_you_mean']) || empty(Utils::$context['topics']) || !empty(Utils::$context['search_ignored'])) {
 		echo '
 	<div id="search_results">
 		<div class="cat_bar">
@@ -295,8 +323,7 @@ function template_results()
 	</div><!-- #search_results -->';
 	}
 
-	if (Utils::$context['compact'])
-	{
+	if (Utils::$context['compact']) {
 		echo '
 	<form id="new_search" name="new_search" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<input type="hidden" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
@@ -308,18 +335,8 @@ function template_results()
 		echo '
 	</form>';
 
-		echo '
-		<div id="display_head">
-			<h2 class="display_title">
-				<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
-			</h2>
-			<div class="floatleft">
-				<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>
-			</div>';
-
 		// Was anything even found?
-		if (!empty(Utils::$context['topics']))
-		{
+		if (!empty(Utils::$context['topics'])) {
 			echo '
 			<div class="floatright">
 				<span class="padding">', Lang::$txt['search_order'], '</span>
@@ -341,7 +358,6 @@ function template_results()
 		else
 		{
 			echo '
-		</div>
 		<div class="roundframe noup">', Lang::$txt['search_no_results'], '</div>';
 		}
 
@@ -375,18 +391,8 @@ function template_results()
 	}
 	else
 	{
-		echo '
-	<div id="display_head">
-		<h2 class="display_title">
-			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
-		</h2>
-		<div class="floatleft">
-			<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>
-		</div>';
-
 		// Was anything even found?
-		if (!empty(Utils::$context['topics']))
-		{
+		if (!empty(Utils::$context['topics'])) {
 			echo '
 		<div class="floatright">
 			<span class="padding">', Lang::$txt['search_order'], '</span>
@@ -408,7 +414,6 @@ function template_results()
 		else
 		{
 			echo '
-	</div>
 	<div class="roundframe noup">', Lang::$txt['search_no_results'], '</div>';
 		}
 
