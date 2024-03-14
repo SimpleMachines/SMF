@@ -109,9 +109,9 @@ function template_reported_posts_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::$txt['mc_recent_reports'], '</a>
 			</h3>
+			<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', '" style="display: none;"></span>
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
 			<div class="modbox">
@@ -323,9 +323,9 @@ function template_reported_members_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_members_toggle" class="', !empty(Utils::$context['admin_prefs']['mcru']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=reportedmembers" id="reported_members_link">', Lang::$txt['mc_recent_member_reports'], '</a>
 			</h3>
+			<span id="reported_members_toggle" class="', !empty(Utils::$context['admin_prefs']['mcru']) ? 'toggle_down' : 'toggle_up', '" style="display: none;"></span>
 		</div>
 		<div class="windowbg" id="reported_users_panel">
 			<div class="modbox">

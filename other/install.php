@@ -1972,6 +1972,7 @@ function template_install_above()
 
 	<script src="Themes/default/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
+	<script src="Themes/default/scripts/theme.js"></script>
 </head>
 <body>
 	<div id="footerfix">
@@ -2047,12 +2048,12 @@ function template_install_below()
 
 		if (!empty($incontext['continue'])) {
 			echo '
-								<input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
+								<input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" class="button">';
 		}
 
 		if (!empty($incontext['skip'])) {
 			echo '
-								<input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
+								<input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" class="button">';
 		}
 		echo '
 							</div>';
@@ -2228,7 +2229,7 @@ function template_chmod_files()
 				</dd>
 			</dl>
 			<div class="righttext buttons">
-				<input type="submit" value="', Lang::$txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button">
+				<input type="submit" value="', Lang::$txt['ftp_connect'], '" class="button">
 			</div>
 		</form>
 		<a href="', $incontext['form_url'], '">', Lang::$txt['error_message_click'], '</a> ', Lang::$txt['ftp_setup_again'];

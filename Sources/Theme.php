@@ -2209,16 +2209,8 @@ class Theme
 			Lang::$txt['theme_description'] = $current_description;
 		}
 
-		self::addJavaScriptVar(
-			'oThemeVariants',
-			Utils::jsonEncode(array_map(
-				function ($theme) {
-					return $theme['variants'];
-				},
-				Utils::$context['available_themes'],
-			)),
-		);
-		self::loadJavaScriptFile('profile.js', ['defer' => false, 'minimize' => true], 'smf_profile');
+		self::loadCSSFile('profile.css', ['minimize' => true], 'smf_profile');
+		self::loadJavaScriptFile('profile.js', ['defer' => true, 'minimize' => true], 'smf_profile');
 		self::$current->settings['images_url'] = $current_images_url;
 		self::$current->settings['theme_variants'] = $current_theme_variants;
 
@@ -2685,6 +2677,30 @@ class Theme
 	 */
 	protected function loadCss(): void
 	{
+		// Load FontAwesome
+		$FontAwesomeUrls = [
+			'cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/' . FONTAWESOME_VERSION . '/css/all.min.css',
+			'fontawesome_cdn' => 'https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css',
+		];
+
+		if (isset(Config::$modSettings['fontawesome_source']) && array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
+			self::loadCSSFile($FontAwesomeUrls[Config::$modSettings['fontawesome_source']], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		} elseif (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] == 'local') {
+			self::loadCSSFile('fontawesome.min.css', ['default_theme' => true, 'minimize' => true, 'order_pos' => -100], 'smf_fontawesome');
+		} elseif (isset(Config::$modSettings['fontawesome_source'], Config::$modSettings['fontawesome_custom']) && Config::$modSettings['fontawesome_source'] == 'custom') {
+			self::loadCSSFile(Config::$modSettings['fontawesome_custom'], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		}
+		// Fall back to the fa forum default
+		else {
+			self::loadCSSFile('https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css', ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		}
+
+		// Icons
+		self::loadCSSFile('icons.css', ['minimize' => true, 'order_pos' => -200], 'smf_icons');
+
+		// Variables
+		self::loadCSSFile('variables.css', ['minimize' => true, 'order_pos' => 0], 'smf_variables');
+
 		// And of course, let's load the default CSS file.
 		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
 
@@ -2721,17 +2737,25 @@ class Theme
 				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
 			}
 
+			if (!empty($this->settings['has_dark_mode'])) {
+				if (Utils::$context['theme_variant'] == '' || Utils::$context['theme_variant'] == 'system') {
+					foreach (['light',  'dark'] as $var) {
+						self::loadCSSFile('index_' . $var . '.css', ['order_pos' => 301, 'attributes' => ['media' => '(prefers-color-scheme: ' . $var . ')']], 'smf_index_' . $var);
+					}
+				} else {
+					self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 301], 'smf_index_' . Utils::$context['theme_variant']);
+				}
+			} elseif (Utils::$context['theme_variant'] != '') {
+				self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index_' . Utils::$context['theme_variant']);
+
+				if (Utils::$context['right_to_left']) {
+					self::loadCSSFile('rtl_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl_' . Utils::$context['theme_variant']);
+				}
+			}
+
 			// Do this to keep things easier in the templates.
 			Utils::$context['theme_variant'] = '_' . Utils::$context['theme_variant'];
 			Utils::$context['theme_variant_url'] = Utils::$context['theme_variant'] . '/';
-
-			if (!empty(Utils::$context['theme_variant'])) {
-				self::loadCSSFile('index' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index' . Utils::$context['theme_variant']);
-
-				if (Utils::$context['right_to_left']) {
-					self::loadCSSFile('rtl' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl' . Utils::$context['theme_variant']);
-				}
-			}
 		}
 	}
 
@@ -2786,16 +2810,11 @@ class Theme
 		}
 
 		// Queue our JQuery plugins!
-		self::loadJavaScriptFile('smf_jquery_plugins.js', ['minimize' => true], 'smf_jquery_plugins');
-
-		if (!User::$me->is_guest) {
-			self::loadJavaScriptFile('jquery.custom-scrollbar.js', ['minimize' => true], 'smf_jquery_scrollbar');
-			self::loadCSSFile('jquery.custom-scrollbar.css', ['force_current' => false, 'validate' => true], 'smf_scrollbar');
-		}
+		self::loadJavaScriptFile('smf_jquery_plugins.js', ['defer' => true, 'minimize' => true], 'smf_jquery_plugins');
 
 		// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
 		self::loadJavaScriptFile('script.js', ['defer' => false, 'minimize' => true], 'smf_script');
-		self::loadJavaScriptFile('theme.js', ['minimize' => true], 'smf_theme');
+		self::loadJavaScriptFile('theme.js', ['defer' => true, 'minimize' => true], 'smf_theme');
 
 		// And we should probably trigger the cron too.
 		if (empty(Config::$modSettings['cron_is_real_cron'])) {

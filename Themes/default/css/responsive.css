@@ -1,9 +1,5 @@
 /* Some very big stuff? Dunno... */
 @media (min-width: 856px) and (max-width: 1024px) {
-	.lastpost {
-		width: 20%;
-		margin: 3px 0 0 5px;
-	}
 	#alerts .alert_time {
 		display: none;
 	}
@@ -72,6 +68,12 @@
 	}
 }
 
+@media screen and (min-width: 721px) {
+	#mobile_action {
+		display: none !important;
+	}
+}
+
 /* We have shared things... */
 @media screen and (max-width: 720px) {
 	/* Remove some content from the hooks table */
@@ -99,22 +101,8 @@
 		height: auto;
 	}
 	#mobile_action .notify_dropdown {
-		top: 0 !important;
-		left: 0 !important;
+		top: 0.25em;
 		position: relative;
-	}
-	#mobile_action .top_menu {
-		padding: 0;
-		margin: 0 auto;
-	}
-	#mobile_action .notify_dropdown a {
-		border-bottom: 1px solid #999;
-	}
-	#mobile_action .notify_dropdown a:last-of-type {
-		border-bottom: none;
-	}
-	#mobile_action .notify_dropdown span {
-		display: none;
 	}
 	.mobile_buttons {
 		margin: 5px 0;
@@ -125,13 +113,16 @@
 	.pagesection .buttonlist, #moderationbuttons {
 		display: none;
 	}
+	.buttonlist > li, .buttonlist > li > a {
+		width: 100%;
+	}
 	.mobile_buttons {
-		display: block;
+		display: inline-flex;
 	}
 
 	/* Stuff */
 	#top_info {
-		padding: 5px;
+		padding: 1px;
 	}
 	.infolinks {
 		display: inline-block;
@@ -169,19 +160,16 @@
 	.action_home {
 		width: 100% !important;
 	}
-	#wrapper {
-		border-left: 0;
-		border-right: 0;
-		border-radius: 0;
-	}
-	#footer {
-		padding: 10px;
-	}
-	#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
+	#wrapper, #top_section .inner_wrap, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
 		width: 100%;
 	}
-	#upper_section, #inner_section, #content_section {
-		border-radius: 0;
+	nav#main_menu,
+	.navigate_section,
+	#content_section {
+		--_padding-inline: 0.5em;
+		--contentsection-padding-inline: var(--_padding-inline);
+		--nav-padding-inline: var(--_padding-inline);
+		--navigatesection-margin-inline: var(--_padding-inline);
 	}
 	#boardindex_table .stats {
 		display: none;
@@ -215,11 +203,15 @@
 		min-height: 2em;
 	}
 	.up_contain .lastpost {
-		border-top: 1px solid #ddd;
+		background: var(--children_bg_color);
+		border-top: var(--border_width) var(--border_style) var(--border_color);
 		min-height: initial;
 	}
 	.lastpost p {
 		margin: 5px;
+	}
+	.board_lastpost {
+		padding: 0px 0px 0px 0px;
 	}
 	span.postby {
 		display: inline-block;
@@ -239,10 +231,6 @@
 	}
 	#messageindex .info {
 		padding: 8px 10px;
-	}
-	.info_block {
-		display: block;
-		width: 95%;
 	}
 	.moderation a {
 		padding: 3px;
@@ -403,7 +391,7 @@
 	}
 	/* Hide me */
 	#inner_wrap.hide_720, #inner_wrap time, #inner_wrap .news,
-	#search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#search_form,	 #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
@@ -450,130 +438,63 @@
 	}
 }
 
-/* Tricky menu */
+/* Mobile Menus */
 @media (min-width: 561px) {
-	#mobile_user_menu.popup_container {
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
+		all: unset;
 		display: block !important;
 	}
-	div[id^="mobile_generic_menu_"].popup_container {
-		display: block !important;
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_window {
+		all: unset;
 	}
-	#main_menu .popup_window,
-	#genericmenu .popup_window,
-	#adm_submenus .popup_window {
-		box-shadow: none;
-		border-width: 0;
-		background: none;
+	nav#main_menu .popup_window {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--dropmenu-a1-gap);
+		justify-content: space-between;
+	}
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_heading {
+		display: none;
 	}
 }
 @media (max-width: 560px) {
-	/* This is general */
-	#main_menu .popup_container,
-	#genericmenu .popup_container,
-	#adm_submenus .popup_container {
-		display: none;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 5;
-	}
-	#main_menu .popup_heading,
-	#genericmenu .popup_heading,
-	#adm_submenus .popup_heading {
+	a.mobile_user_menu,
+	nav:where(#genericmenu, #adm_submenus) a {
 		display: block;
 	}
-	#main_menu {
-		margin: 0;
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
+		--popup-heading-border-width: 0;
+		display: none;
 	}
-	.popup_window,
-	#main_menu .popup_window,
-	#genericmenu .popup_window,
-	#adm_submenus .popup_window {
-		top: 15%;
+	nav#main_menu .popup_container {
+		--popup-window-bg: var(--nav-bg);
+		--popup-heading-bg: var(--nav-bg);
+		--popup-heading-color: var(--mobilenav-color);
+	}
+	nav:where(#genericmenu, #adm_submenus) .popup_container {
+		--popup-window-bg: var(--genericmenu-bg);
+		--popup-heading-bg: var(--genericmenu-bg);
+		--popup-heading-color: var(--mobilegeneric-color);
+	}
+	.popup_window {
 		width: 95vw;
 		min-height: auto;
 		max-height: 90vh;
 		overflow-x: hidden;
 		overflow-y: scroll;
 	}
-	#adm_submenus {
-		padding: 0;
+	.dropmenu {
+		flex-direction: column;
 	}
-	#adm_submenus .dropmenu li {
-		float: left;
-		margin: 0;
-	}
-	.generic_menu {
-		display: none;
-	}
-	#mobile_user_menu .dropmenu,
-	div[id^="mobile_generic_menu_"] .generic_menu {
-		display: block;
-	}
-	a.mobile_user_menu,
-	a[class^="mobile_generic_menu_"] {
-		display: flex;
-		align-items: center;
-		margin: 0 0 4px 0;
-	}
-	a[class^="mobile_generic_menu_"] {
-		margin: 8px 0;
-	}
-	.menu_icon {
-		display: inline-block;
-		background: url(../images/icons/menu.svg) no-repeat;
-		height: 24px;
-		width: 24px;
-	}
-	.dropmenu li, .dropmenu li:hover,
-	.dropmenu li a, .dropmenu li a:hover,
-	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
-	.dropmenu li ul, .dropmenu li li, .dropmenu li li a {
+	.dropmenu li {
 		width: 100%;
-		padding: 0;
-		margin: 0;
-		border-left: 0;
-		border-right: 0;
-	}
-	.dropmenu li a, .dropmenu li a:hover {
-		text-indent: 10px;
-		border-radius: 0;
-		padding: 5px 0 !important;
-	}
-	.dropmenu li li li a,
-	.dropmenu li li li a:hover {
-		padding: 5px 24px !important;
-	}
-	.dropmenu li a, .dropmenu li:hover a,
-	.dropmenu li a.active, .dropmenu li a.active:hover,
-	.dropmenu ul li a:hover, .dropmenu li li a:hover,
-	.dropmenu ul li li:hover, .dropmenu li ul,
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		border-left: 0;
-		border-right: 0;
-	}
-	.dropmenu ul li a {
-		width: auto !important;
 	}
 	.dropmenu li.subsections > a::after {
-		position: absolute;
-		padding: 5px 0;
-		right: 10px;
-		font: 83.33%/150% Arial, sans-serif;
-		content: "\25bc" !important;
+		display: block;
+		content: "\25bc";
 	}
-	.dropmenu li ul,
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		position: relative;
-		border-radius: 0;
-		left: 0;
-		box-shadow: none;
-	}
-	/* 3rd level menu tests */
-	.dropmenu li ul ul {
-		margin: 0 !important;
+	.dropmenu li > ul {
+		position: static;
 	}
 }
 
@@ -592,10 +513,11 @@
 
 /* Entry level phones */
 @media (max-width: 480px) {
-	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px;
-		max-width: 300px;
-		margin: 10px 0;
+	#header .inner_wrap {
+		flex-wrap: wrap;
+	}
+	h1.forumtitle {
+		--forumtitle-margin-inline: auto;
 	}
 	.board_moderators {
 		display: none;
@@ -609,16 +531,12 @@
 		max-width: calc(100vw - 17px);
 	}
 	#footer {
-		text-align: center;
+		--footer-padding-inline: 0.5em;
 	}
-	#footer ul {
-		width: 100%;
-		float: none;
+	#footer .inner_wrap {
+		justify-content: center;
 	}
-	#footer li {
-		display: block;
-		float: none;
-	}
+	
 	/* MessageIndex */
 	#main_content_section .pagelinks {
 		display: block;
@@ -631,29 +549,11 @@
 		display: block;
 		width: 100%;
 	}
-	/* some new stuff for far better UX */
-	.mobile_subject {
-		position: relative;
-	}
 	fieldset {
 		max-width: 100%;
 		min-width: unset;
 	}
-	/* Register Page */
-	#registration .button {
-		font-size: 0.67em;
-	}
-	dl.register_form, dl.register_form dt, dl.register_form dd {
-		float: none;
-		width: 100%;
-	}
-	/* Login Page */
-	.login dt, .login dd {
-		float: none;
-		width: 100%;
-		text-align: left;
-	}
-	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, .login select {
+	.login input[type=text], .login select {
 		width: 100%;
 	}
 
@@ -861,9 +761,4 @@
 	.inlineblock_480 {
 		display: inline-block;
 	}
-}
-
-/* iPhone Tests */
-@media (max-width: 320px) {
-
 }

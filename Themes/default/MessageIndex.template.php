@@ -21,7 +21,7 @@ use SMF\User;
  */
 function template_main()
 {
-	echo '<div id="display_head" class="information">
+	echo '<div id="display_head">
 			<h2 class="display_title">', Utils::$context['name'], '</h2>';
 
 	if (isset(Utils::$context['description']) && Utils::$context['description'] != '')
@@ -202,7 +202,7 @@ function template_main()
 						<img src="', $topic['first_post']['icon_url'], '" alt="">
 						', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 					</div>
-					<div class="info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_block', '">
+					<div class="info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_qmod', '">
 						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
 
 			// Now we handle the icons
@@ -324,12 +324,12 @@ function template_main()
 
 		echo '
 	<div class="pagesection">
-		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
 		', Utils::$context['menu_separator'], '
 		<div class="pagelinks floatleft">
 			<a href="#main_content_section" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 			', Utils::$context['page_index'], '
-		</div>';
+		</div>
+		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 		// Mobile action buttons (bottom)
 		if (!empty(Utils::$context['normal_buttons']))
@@ -472,8 +472,25 @@ function template_bi_redirect_stats($board)
 function template_bi_board_lastpost($board)
 {
 	if (!empty($board['last_post']['id']))
+	{
+		if (!empty($board['last_post']['member']['avatar']))
 		echo '
-			<p>', $board['last_post']['last_post_message'], '</p>';
+					<span class="board_avatar"><a href="', $board['last_post']['member']['href'], '"><img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt=""></a></span>';
+		else
+		echo '
+					<span class="board_avatar"><a href="#"></a></span>';
+
+		echo '
+					<p class="board_lastpost">';
+		echo '
+		<span>
+		' . $board['last_post']['link'] .'
+		</span>
+		<span class="postby">
+		' . $board['last_post']['member']['link'] . ' : '. timeformat($board['last_post']['timestamp']). '
+		</span>';
+		echo ' </p>';
+	}
 }
 
 /**

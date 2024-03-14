@@ -59,7 +59,7 @@ class Summary implements ActionInterface
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
 			'title' => Lang::$txt['summary'],
-			'icon_class' => 'main_icons profile_hd',
+			'icon_class' => 'main_icons profile medium_icon',
 		];
 
 		// Set up the stuff and load the user.

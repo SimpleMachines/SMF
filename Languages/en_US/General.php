@@ -235,6 +235,7 @@ $txt['home'] = 'Home';
 $txt['page'] = 'Page';
 $txt['prev'] = 'Previous page';
 $txt['next'] = 'Next page';
+$txt['breadcrumb'] = 'Breadcrumb';
 
 $txt['page_title_number'] = '{title} - Page {pagenum, number, integer}';
 

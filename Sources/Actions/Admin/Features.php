@@ -1563,10 +1563,10 @@ class Features implements ActionInterface
 				'select',
 				'jquery_source',
 				[
-					'cdn' => Lang::$txt['jquery_google_cdn'],
-					'jquery_cdn' => Lang::$txt['jquery_jquery_cdn'],
-					'microsoft_cdn' => Lang::$txt['jquery_microsoft_cdn'],
-					'local' => Lang::$txt['jquery_local'],
+					'cdn' => Lang::$txt['google_cdn'],
+					'jquery_cdn' => Lang::$txt['jquery_cdn'],
+					'microsoft_cdn' => Lang::$txt['microsoft_cdn'],
+					'local' => Lang::$txt['local_cdn'],
 					'custom' => Lang::$txt['jquery_custom'],
 				],
 				'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}',
@@ -1575,6 +1575,24 @@ class Features implements ActionInterface
 				'text',
 				'jquery_custom',
 				'disabled' => !isset(Config::$modSettings['jquery_source']) || (isset(Config::$modSettings['jquery_source']) && Config::$modSettings['jquery_source'] != 'custom'), 'size' => 75,
+			],
+
+			// FontAwesome source
+			[
+				'select',
+				'fontawesome_source',
+				[
+					'cdn' => Lang::$txt['cloudflare_cdn'],
+					'fontawesome_cdn' => Lang::$txt['fontawesome_cdn'],
+					'local' => Lang::$txt['local_cdn'],
+					'custom' => Lang::$txt['fontawesome_custom'],
+				],
+				'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'fontawesome_custom\').disabled = false; } else {document.getElementById(\'fontawesome_custom\').disabled = true;}',
+			],
+			[
+				'text',
+				'fontawesome_custom',
+				'disabled' => !isset(Config::$modSettings['fontawesome_source']) || (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] != 'custom'), 'size' => 75,
 			],
 			'',
 

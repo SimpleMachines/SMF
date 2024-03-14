@@ -107,7 +107,7 @@ class BuddyIgnoreLists implements ActionInterface
 		Menu::$loaded['profile']->tab_data = [
 			'title' => Lang::$txt['editBuddyIgnoreLists'],
 			'description' => Lang::$txt['buddy_ignore_desc'],
-			'icon_class' => 'main_icons profile_hd',
+			'icon_class' => 'main_icons profile medium_icon',
 			'tabs' => [
 				'buddies' => [],
 				'ignore' => [],

@@ -77,7 +77,6 @@ class Maintenance implements ActionInterface
 	public static array $subactions = [
 		'routine' => [
 			'function' => 'routine',
-			'template' => 'maintain_routine',
 			'activities' => [
 				'version' => 'version',
 				'repair' => 'repair',
@@ -89,7 +88,6 @@ class Maintenance implements ActionInterface
 		],
 		'database' => [
 			'function' => 'database',
-			'template' => 'maintain_database',
 			'activities' => [
 				'optimize' => 'optimize',
 				'convertentities' => 'entitiesToUnicode',
@@ -171,6 +169,12 @@ class Maintenance implements ActionInterface
 		if (isset($_GET['done']) && in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
 			Utils::$context['maintenance_finished'] = Lang::$txt['maintain_' . $_GET['done']];
 		}
+		Utils::$context['template_layers'][] = 'maintain';
+		Utils::$context['options'] = array_combine(
+			array_keys(self::$subactions[$this->subaction]['activities']),
+			array_fill(0, count(self::$subactions[$this->subaction]['activities']), []),
+		);
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=maintain';
 	}
 
 	/**
@@ -178,25 +182,32 @@ class Maintenance implements ActionInterface
 	 */
 	public function database(): void
 	{
+		Utils::$context['template_layers'][] = 'maintain';
+		Utils::$context['options'] = array_combine(
+			array_keys(self::$subactions[$this->subaction]['activities']),
+			array_fill(0, count(self::$subactions[$this->subaction]['activities']), []),
+		);
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=maintain;sa=database';
+
 		// Show some conversion options?
-		Utils::$context['convert_entities'] = isset(Config::$modSettings['global_character_set']) && Config::$modSettings['global_character_set'] === 'UTF-8';
+		if (!isset(Config::$modSettings['global_character_set']) || Config::$modSettings['global_character_set'] !== 'UTF-8') {
+			unset(Utils::$context['options']['convertentities']);
+		}
 
 		if (Config::$db_type == 'mysql') {
-			$colData = Db::$db->list_columns('{db_prefix}messages', true);
+			$body_type = array_column(Db::$db->list_columns('{db_prefix}messages', true), 'type', 'name')['body'];
+			Utils::$context['options']['convertmsgbody']['title'] = Lang::$txt[($body_type == 'text' ? 'mediumtext' : 'text') . '_title'];
+			Utils::$context['options']['convertmsgbody']['info'] = Lang::$txt['mediumtext_info'];
 
-			foreach ($colData as $column) {
-				if ($column['name'] == 'body') {
-					$body_type = $column['type'];
-				}
+			if ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536) {
+				Utils::$context['options']['convertmsgbody']['after'] = '<p class="infobox">' . Lang::$txt['convert_to_suggest_text'] . '</p>';
 			}
-
-			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-
-			Utils::$context['convert_to_suggest'] = ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536);
+		} else {
+			unset(Utils::$context['options']['convertmsgbody']);
 		}
 
 		if (isset($_GET['done']) && $_GET['done'] == 'convertentities') {
-			Utils::$context['maintenance_finished'] = Lang::$txt['entity_convert_title'];
+			Utils::$context['maintenance_finished'] = Lang::$txt['maintain_convertentities_title'];
 		}
 	}
 

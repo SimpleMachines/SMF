@@ -342,14 +342,14 @@ class BBCodeParser
 		[
 			'tag' => 'code',
 			'type' => 'unparsed_content',
-			'content' => '<div class="codeheader"><span class="code">{txt_code}</span> <a class="codeoperation smf_select_text">{txt_code_select}</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="{txt_code_shrink}" data-expand-txt="{txt_code_expand}">{txt_code_expand}</a></div><code class="bbc_code">$1</code>',
+			'content' => '<div class="codeheader">{txt_code}</div><pre data-select-txt="{txt_code_select}" data-shrink-txt="{txt_code_shrink}" data-expand-txt="{txt_code_expand}" class="bbc_code"><code>$1</code></pre>',
 			'validate' => __CLASS__ . '::codeValidate',
 			'block_level' => true,
 		],
 		[
 			'tag' => 'code',
 			'type' => 'unparsed_equals_content',
-			'content' => '<div class="codeheader"><span class="code">{txt_code}</span> ($2) <a class="codeoperation smf_select_text">{txt_code_select}</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="{txt_code_shrink}" data-expand-txt="{txt_code_expand}">{txt_code_expand}</a></div><code class="bbc_code">$1</code>',
+			'content' => '<div class="codeheader">{txt_code} ($2)</div><pre data-select-txt="{txt_code_select}" data-shrink-txt="{txt_code_shrink}" data-expand-txt="{txt_code_expand}" class="bbc_code"><code>$1</code></pre>',
 			'validate' => __CLASS__ . '::codeValidate',
 			'block_level' => true,
 		],
@@ -2212,16 +2212,20 @@ class BBCodeParser
 		// Remove special characters.
 		$code = Utils::htmlspecialcharsDecode(strtr($code, ['<br />' => "\n", '<br>' => "\n", "\t" => 'SMF_TAB();', '&#91;' => '[']));
 
-		$oldlevel = error_reporting(0);
-
-		$buffer = str_replace(["\n", "\r"], '', @highlight_string($code, true));
-
-		error_reporting($oldlevel);
+		$patterns = ['/<\/?(?:pre|code)[^>]*>/'];
+		$replacements = [''];
 
 		// Yes, I know this is kludging it, but this is the best way to preserve tabs from PHP :P.
-		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
+		$patterns[] = '/SMF_TAB(?:<\/(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);/';
+		$replacements[] = "\t";
 
-		return strtr($buffer, ['\'' => '&#039;', '<code>' => '', '</code>' => '']);
+		// PHP 8.3 changed this to return real linebreaks, but SMF still expects HTML breaks.
+		if (version_compare(PHP_VERSION, '8.3', '>=')) {
+			$patterns[] = "/\n/";
+			$replacements[] = '<br />';
+		}
+
+		return strtr(preg_replace($patterns, $replacements, highlight_string($code, true)), array('\'' => '&#039;'));
 	}
 
 	/**
@@ -2446,33 +2450,26 @@ class BBCodeParser
 		if (!isset($disabled['code'])) {
 			$code = is_array($data) ? $data[0] : $data;
 
-			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++) {
+			for ($i = 0, $n = count($parts); $i < $n; $i++) {
 				// Do PHP code coloring?
-				if ($php_parts[$php_i] != '&lt;?php') {
+				if ($parts[$i] != '&lt;?php') {
 					continue;
 				}
 
-				$php_string = '';
-
-				while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;') {
-					$php_string .= $php_parts[$php_i];
-					$php_parts[$php_i++] = '';
+				$string = '';
+				while ($i + 1 < $n && $parts[$i] != '?&gt;') {
+					$string .= $parts[$i];
+					$parts[$i++] = '';
 				}
-
-				$php_parts[$php_i] = self::highlightPhpCode($php_string . $php_parts[$php_i]);
+				$parts[$i] = self::highlightPhpCode($string . $parts[$i]);
 			}
 
-			// Fix the PHP code stuff...
-			$code = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
-
-			$code = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $code);
-
 			if (is_array($data)) {
-				$data[0] = $code;
+				$data[0] = implode('', $parts);
 			} else {
-				$data = $code;
+				$data = implode('', $parts);
 			}
 		}
 	}

@@ -116,7 +116,7 @@ class Calendar implements ActionInterface
 
 		// This is gonna be needed...
 		Theme::loadTemplate('Calendar');
-		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'], 'smf_calendar');
+		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true], 'smf_calendar');
 
 		// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
 		if (isset($_GET['event'])) {

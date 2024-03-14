@@ -85,11 +85,13 @@ class Activate implements ActionInterface
 				ErrorHandler::fatalLang('no_access', false);
 			}
 
+			Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 			Utils::$context['member_id'] = 0;
 			Utils::$context['sub_template'] = 'resend';
 			Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
 			Utils::$context['can_activate'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == '1';
 			Utils::$context['default_username'] = $_GET['user'] ?? '';
+			Utils::$context['default_password'] = '';
 
 			return;
 		}
@@ -224,6 +226,7 @@ class Activate implements ActionInterface
 			Mail::adminNotify('activation', $row['id_member'], $row['member_name']);
 		}
 
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context += [
 			'page_title' => Lang::$txt['registration_successful'],
 			'sub_template' => 'login',

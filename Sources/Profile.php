@@ -1277,12 +1277,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Get a list of all the server stored avatars.
-		if ($this->formatted['avatar']['allow_server_stored']) {
-			Utils::$context['avatar_list'] = [];
-			Utils::$context['avatars'] = is_dir(Config::$modSettings['avatar_directory']) ? $this->getAvatars('', 0) : [];
-		} else {
-			Utils::$context['avatars'] = [];
-		}
+		Utils::$context['avatars'] = $this->formatted['avatar']['allow_server_stored'] && is_dir(Config::$modSettings['avatar_directory']) ? $this->getAvatars('', 0) : [];
 
 		// Second level selected avatar...
 		Utils::$context['avatar_selected'] = substr((string) strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
@@ -1489,20 +1484,13 @@ class Profile extends User implements \ArrayAccess
 			}
 		}
 
-		// Some spicy JS.
+		Theme::addJavaScriptVar('require_password', !empty(Utils::$context['require_password']), true);
+		Theme::addJavaScriptVar('required_security_reasons', Lang::$txt['required_security_reasons'], true);
+		Theme::addJavaScriptVar('autodetect', Lang::$txt['timeoffset_autodetect'], true);
+
+		// Backwards compatibility.
 		Theme::addInlineJavaScript('
-		var form_handle = document.forms.creator;
-		createEventListener(form_handle);
-		' . (!empty(Utils::$context['require_password']) ? '
-		form_handle.addEventListener("submit", function(event)
-		{
-			if (this.oldpasswrd.value == "")
-			{
-				event.preventDefault();
-				alert(' . (Utils::escapeJavaScript(Lang::$txt['required_security_reasons'])) . ');
-				return false;
-			}
-		}, false);' : ''), true);
+		var form_handle = document.forms.creator;', true);
 
 		// Any onsubmit JavaScript?
 		if (!empty(Utils::$context['profile_onsubmit_javascript'])) {
@@ -2535,7 +2523,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $level How many levels we should go in the directory.
 	 * @return array An array of information about the files and directories found.
 	 */
-	protected function getAvatars(string $directory, int $level = 0): array
+	protected function getAvatars(string $directory = '', int $level = 0): array
 	{
 		$result = [];
 
@@ -2543,7 +2531,7 @@ class Profile extends User implements \ArrayAccess
 		$files = [];
 
 		// Open the directory..
-		$dir = dir(Config::$modSettings['avatar_directory'] . (!empty($directory) ? '/' : '') . $directory);
+		$dir = dir(Config::$modSettings['avatar_directory'] . '/' . $directory);
 
 		if (!$dir) {
 			return [];
@@ -2575,10 +2563,12 @@ class Profile extends User implements \ArrayAccess
 			];
 		}
 
-		foreach ($dirs as $line) {
-			$tmp = $this->getAvatars($directory . (!empty($directory) ? '/' : '') . $line, $level + 1);
+		$directory .= $directory != '' ? '/' : '';
 
-			if (!empty($tmp)) {
+		foreach ($dirs as $line) {
+			$tmp = $this->getAvatars($directory . $line, $level + 1);
+
+			if ($tmp != []) {
 				$result[] = [
 					'filename' => Utils::htmlspecialchars($line),
 					'checked' => strpos(Utils::$context['member']['avatar']['server_pic'], $line . '/') !== false,
@@ -2592,31 +2582,20 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		foreach ($files as $line) {
-			$filename = substr($line, 0, (strlen($line) - strlen(strrchr($line, '.'))));
-			$extension = substr(strrchr($line, '.'), 1);
+			$found = preg_match('/([^.]+)\.(jpe?g|png|gif|bmp)$/i', $line, $match);
 
 			// Make sure it is an image.
 			// @todo Change this to use MIME type.
-			if (
-				strcasecmp($extension, 'gif') != 0
-				&& strcasecmp($extension, 'jpg') != 0
-				&& strcasecmp($extension, 'jpeg') != 0
-				&& strcasecmp($extension, 'png') != 0
-				&& strcasecmp($extension, 'bmp') != 0
-			) {
+			if ($found !== 1) {
 				continue;
 			}
 
 			$result[] = [
 				'filename' => Utils::htmlspecialchars($line),
-				'checked' => $line == Utils::$context['member']['avatar']['server_pic'],
-				'name' => Utils::htmlspecialchars(str_replace('_', ' ', $filename)),
+				'checked' => $directory . $line == Utils::$context['member']['avatar']['server_pic'],
+				'name' => Utils::htmlspecialchars(str_replace('_', ' ', $match[1])),
 				'is_dir' => false,
 			];
-
-			if ($level == 1) {
-				Utils::$context['avatar_list'][] = $directory . '/' . $line;
-			}
 		}
 
 		return $result;
@@ -2660,8 +2639,6 @@ class Profile extends User implements \ArrayAccess
 		if (
 			// Named 'blank.png'
 			$this->new_data['avatar'] == 'blank.png'
-			// Not inside the expected directory.
-			|| strpos($avatar_path, Config::$modSettings['avatar_directory'] . '/') !== 0
 			// Not a file.
 			|| !is_file($avatar_path)
 			// Not a valid image file.

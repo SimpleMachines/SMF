@@ -8,53 +8,62 @@ $(function() {
 	$('a.bbc_link img').parent().css('border', '0');
 });
 
-// The purpose of this code is to fix the height of overflow: auto blocks, because some browsers can't figure it out for themselves.
-function smf_codeBoxFix()
-{
-	var codeFix = $('code');
-	$.each(codeFix, function(index, tag)
-	{
-		if (is_webkit && $(tag).height() < 20)
-			$(tag).css({height: ($(tag).height() + 20) + 'px'});
-
-		else if (is_ff && ($(tag)[0].scrollWidth > $(tag).innerWidth() || $(tag).innerWidth() == 0))
-			$(tag).css({overflow: 'scroll'});
-
-		// Holy conditional, Batman!
-		else if (
-			'currentStyle' in $(tag) && $(tag)[0].currentStyle.overflow == 'auto'
-			&& ($(tag).innerHeight() == '' || $(tag).innerHeight() == 'auto')
-			&& ($(tag)[0].scrollWidth > $(tag).innerWidth() || $(tag).innerWidth == 0)
-			&& ($(tag).outerHeight() != 0)
-		)
-			$(tag).css({height: ($(tag).height + 24) + 'px'});
-	});
-}
-
-// Add a fix for code stuff?
-if (is_ie || is_webkit || is_ff)
-	addLoadEvent(smf_codeBoxFix);
-
 // Toggles the element height and width styles of an image.
 function smc_toggleImageDimensions()
 {
-	$('.postarea .bbc_img.resized').each(function(index, item)
+	var oImages = document.getElementsByTagName('IMG');
+	for (oImage in oImages)
 	{
-		$(item).click(function(e)
+		// Not a resized image? Skip it.
+		if (oImages[oImage].className == undefined || oImages[oImage].className.indexOf('bbc_img resized') == -1)
+			continue;
+
+		oImages[oImage].addEventListener('click', function()
 		{
-			$(item).toggleClass('original_size');
+			this.classList.toggle('original_size');
 		});
-	});
+	}
 }
 
 // Add a load event for the function above.
-addLoadEvent(smc_toggleImageDimensions);
+window.addEventListener("load", smc_toggleImageDimensions);
 
-function smf_addButton(stripId, image, options)
+// Disable all fields on form submit.
+window.addEventListener('load', function () {
+	for (const form of document.forms) {
+		form.addEventListener('submit', function () {
+			submitonce(this);
+		});
+	}
+});
+
+// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
+if (is_ff) {
+	window.addEventListener("pageshow", function () {
+		for (const form of document.forms) {
+			reActivateThis(form);
+		}
+	});
+}
+
+// Adds a button to a certain button strip.
+function smf_addButton(sButtonStripId, bUseImage, oOptions)
 {
-	$('#' + stripId).append(
-		'<a href="' + options.sUrl + '" class="button last" ' + ('sCustom' in options ? options.sCustom : '') + ' ' + ('sId' in options ? ' id="' + options.sId + '_text"' : '') + '>'
-			+ options.sText +
-		'</a>'
-	);
+	var oButtonStrip = document.getElementById(sButtonStripId);
+	var oNewButton = document.createElement("a");
+	oNewButton.href = oOptions.sUrl;
+	oNewButton.textContent = oOptions.sText;
+	oNewButton.className = 'button';
+
+	if (oOptions.sId)
+		oNewButton.id = oOptions.sId;
+
+	if (oOptions.aEvents)
+		oOptions.aEvents.forEach(function (e)
+		{
+			oNewButton.addEventListener(e[0], e[1]);
+		});
+	oButtonStrip.appendChild(oNewButton);
+
+	return oNewButton;
 }

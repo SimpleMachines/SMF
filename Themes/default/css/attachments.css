@@ -1,3 +1,12 @@
+:root {
+
+	--post_attachments_area_border_color: hsl(0, 0%, 93%);;
+	--post_attachments_area_border_style: dotted;
+	--post_attachments_area_border_width: 1px;
+	--post_attachments_area_hover_border_color: hsl(207, 31%, 48%);
+
+}
+
 /* For the revamped attachments UI introduced in 2.1.4 */
 
 /* Stuff common to both Display.template.php and Post.template.php */
@@ -51,8 +60,8 @@ div#post_attachments_area.roundframe {
 	box-shadow: none;
 }
 #post_attachments_area #postAttachment .attached {
-	border-right: 1px dotted #ddd;
-	border-top: 1px dotted #ddd;
+	border-right: var(--post_attachments_area_border_width) vaR(--post_attachments_area_border_style) var(--post_attachments_area_border_color);
+	border-top: var(--post_attachments_area_border_width) vaR(--post_attachments_area_border_style) var(--post_attachments_area_border_color);
 	padding-top: 9px;
 	width: 200px;
 	position: relative;
@@ -173,7 +182,7 @@ div#post_attachments_area.roundframe {
 	min-height: initial;
 }
 #post_attachments_area #attachment_upload.dz-drag-hover {
-	border-color: #557ea0;
+	border-color: var(--post_attachments_area_hover_border_color);
 }
 #post_attachments_area .dz-clickable {
 	cursor: pointer;

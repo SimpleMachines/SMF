@@ -147,8 +147,8 @@ function template_show_upcoming_list($grid_name)
 						echo ' ', $event['tz_abbrev'], '</time>';
 				}
 
-				if (!empty($event['location']))
-					echo '<br>', $event['location'];
+				if ($event['location'] != '')
+					echo '<br>', nl2br($event['location']);
 
 				echo '
 					</li>';
@@ -287,7 +287,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 	if (empty($calendar_data['disable_day_titles']))
 	{
 		echo '
-				<tr>';
+				<tr class="title_bar">';
 
 		// If we're showing week links, there's an extra column ahead of the week links, so let's think ahead and be prepared!
 		if ($show_week_links === true)
@@ -567,7 +567,7 @@ function template_show_week_grid($grid_name)
 		// The main table grid for $this week.
 		echo '
 				<table class="table_grid calendar_week">
-					<tr>
+					<tr class="title_bar">
 						<th class="days" scope="col">', Lang::$txt['calendar_day'], '</th>';
 		if (!empty($calendar_data['show_events']))
 			echo '
@@ -747,25 +747,23 @@ function template_calendar_top($calendar_data)
 {
 	echo '
 		<div class="calendar_top roundframe', empty($calendar_data['disable_title']) ? ' noup' : '', '">
-			<div id="calendar_viewselector" class="buttonrow floatleft">
+			<div id="calendar_viewselector" class="buttonrow">
 				<a href="', Config::$scripturl, '?action=calendar;viewlist;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewlist' ? ' active' : '', '">', Lang::$txt['calendar_list'], '</a>
 				<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewmonth' ? ' active' : '', '">', Lang::$txt['calendar_month'], '</a>
 				<a href="', Config::$scripturl, '?action=calendar;viewweek;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewweek' ? ' active' : '', '">', Lang::$txt['calendar_week'], '</a>
 			</div>
-			', template_button_strip(Utils::$context['calendar_buttons'], 'right');
-
-	echo '
 			<form action="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" value="', trim($calendar_data['start_date']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">';
+				<input type="text" name="start_date" id="start_date" value="', trim($calendar_data['start_date']), '" class="date_input start" data-type="date">';
 
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', strtolower(Lang::$txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" value="', trim($calendar_data['end_date']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="text" name="end_date" id="end_date" value="', trim($calendar_data['end_date']), '" class="date_input end" data-type="date">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::$txt['view'], '">
 			</form>
+			', template_button_strip(Utils::$context['calendar_buttons'], 'right'), '
 		</div><!-- .calendar_top -->';
 }
 
@@ -775,7 +773,7 @@ function template_calendar_top($calendar_data)
 function template_event_post()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);">';
+		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', Utils::$context['character_set'], '">';
 
 	if (!empty(Utils::$context['event']['new']))
 		echo '
@@ -810,7 +808,7 @@ function template_event_post()
 						<input type="hidden" name="calendar" value="1">
 						<div class="event_options_left" id="event_title">
 							<div>
-								<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', Utils::$context['event']['title'], '" tabindex="', Utils::$context['tabindex']++, '">
+								<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', Utils::$context['event']['title'], '">
 							</div>
 						</div>';
 
@@ -849,19 +847,19 @@ function template_event_post()
 						<div class="event_options_left" id="event_time_input">
 							<div>
 								<span class="label">', Lang::$txt['start'], '</span>
-								<input type="text" name="start_date" id="start_date" value="', trim(Utils::$context['event']['start_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">
-								<input type="text" name="start_time" id="start_time" maxlength="11" value="', Utils::$context['event']['start_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input start" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
+								<input type="text" name="start_date" id="start_date" value="', trim(Utils::$context['event']['start_date_orig']), '" class="date_input start" data-type="date">
+								<input type="text" name="start_time" id="start_time" maxlength="11" value="', Utils::$context['event']['start_time_orig'], '" class="time_input start" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 							<div>
 								<span class="label">', Lang::$txt['end'], '</span>
-								<input type="text" name="end_date" id="end_date" value="', trim(Utils::$context['event']['end_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-								<input type="text" name="end_time" id="end_time" maxlength="11" value="', Utils::$context['event']['end_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input end" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
+								<input type="text" name="end_date" id="end_date" value="', trim(Utils::$context['event']['end_date_orig']), '" class="date_input end" data-type="date"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+								<input type="text" name="end_time" id="end_time" maxlength="11" value="', Utils::$context['event']['end_time_orig'], '" class="time_input end" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 						</div><!-- #event_time_input -->
 						<div class="event_options_right" id="event_time_options">
 							<div id="event_allday">
 								<label for="allday"><span class="label">', Lang::$txt['calendar_allday'], '</span></label>
-								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']['allday']) ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
+								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']['allday']) ? ' checked' : '', '>
 							</div>
 							<div id="event_timezone">
 								<span class="label">', Lang::$txt['calendar_timezone'], '</span>
@@ -877,7 +875,7 @@ function template_event_post()
 						</div><!-- #event_time_options -->
 						<div>
 							<span class="label">', Lang::$txt['location'], '</span>
-							<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty(Utils::$context['event']['location']) ? Utils::$context['event']['location'] : '', '" tabindex="', Utils::$context['tabindex']++, '">
+							<textarea name="event_location" id="event_location" maxlength="255" style="height: 100px;" maxlength="255">', Utils::$context['event']['location'], '</textarea>
 						</div>
 					</fieldset>';
 
@@ -983,7 +981,7 @@ function template_bcd()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)
@@ -1078,7 +1076,7 @@ function template_hms()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)
@@ -1171,7 +1169,7 @@ function template_omfg()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)

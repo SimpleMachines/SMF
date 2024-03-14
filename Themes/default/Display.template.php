@@ -37,7 +37,7 @@ function template_main()
 
 	// Show new topic info here?
 	echo '
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span id="top_subject">', Utils::$context['subject'], '</span>', (Utils::$context['is_locked']) ? ' <span class="main_icons lock"></span>' : '', (Utils::$context['is_sticky']) ? ' <span class="main_icons sticky"></span>' : '', '
 			</h2>
@@ -45,7 +45,7 @@ function template_main()
 
 	// Next - Prev
 	echo '
-			<span class="nextlinks floatright">', Utils::$context['previous_next'], '</span>';
+			<span class="nextlinks">', Utils::$context['previous_next'], '</span>';
 
 	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
@@ -232,9 +232,8 @@ function template_main()
 					echo ' ', $event['tz_abbrev'], '</time>';
 			}
 
-			if (!empty($event['location']))
-				echo '
-					<br>', $event['location'];
+			if ($event['location'] != '')
+				echo '<br>', nl2br($event['location']);
 
 			echo '
 				</li>';
@@ -247,12 +246,12 @@ function template_main()
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection top">
-			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
-			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
 				<a href="#bot" class="button">', Lang::$txt['go_down'], '</a>
 				', Utils::$context['page_index'], '
-			</div>';
+			</div>
+			', Utils::$context['menu_separator'], '
+			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 	// Mobile action - moderation buttons (top)
 	if (!empty(Utils::$context['normal_buttons']))
@@ -284,12 +283,12 @@ function template_main()
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection">
-			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
-			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
 				<a href="#main_content_section" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 				', Utils::$context['page_index'], '
-			</div>';
+			</div>
+			', Utils::$context['menu_separator'], '
+			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 	// Mobile action - moderation buttons (bottom)
 	if (!empty(Utils::$context['normal_buttons']))
@@ -353,7 +352,6 @@ function template_main()
 	{
 		echo '
 			var oInTopicModeration = new InTopicModeration({
-				sSelf: \'oInTopicModeration\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -379,7 +377,6 @@ function template_main()
 		// Add it to the mobile button strip as well
 		echo '
 			var oInTopicModerationMobile = new InTopicModeration({
-				sSelf: \'oInTopicModerationMobile\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -411,25 +408,10 @@ function template_main()
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
-					sTemplateBodyEdit: ', Utils::escapeJavaScript('
-						<div id="quick_edit_body_container">
-							<div id="error_box" class="error"></div>
-							<textarea class="editor" name="message" rows="12" tabindex="' . Utils::$context['tabindex']++ . '">%body%</textarea><br>
-							<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-							<input type="hidden" name="topic" value="' . Utils::$context['current_topic'] . '">
-							<input type="hidden" name="msg" value="%msg_id%">
-							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . Lang::$txt['save'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::$txt['spell_check'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::$txt['modify_cancel'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
-							</div>
-						</div>'), ',
-					sTemplateSubjectEdit: ', Utils::escapeJavaScript('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
-					sTemplateBodyNormal: ', Utils::escapeJavaScript('%body%'), ',
-					sTemplateSubjectNormal: ', Utils::escapeJavaScript('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
-					sTemplateTopSubject: ', Utils::escapeJavaScript('%subject%'), ',
-					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
-					sTemplateReasonNormal: ', Utils::escapeJavaScript('%modify_text'), ',
-					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), (Utils::$context['can_reply']) ? ',
-					sFormRemoveAccessKeys: \'postmodify\'' : '', '
+					sSaveButtonText: ', Utils::escapeJavaScript(Lang::$txt['save']), ',
+					sCancelButtonText: ', Utils::escapeJavaScript(Lang::$txt['modify_cancel']), ',
+					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit']) . ',
+					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), '
 				});
 
 				aJumpTo[aJumpTo.length] = new JumpTo({
@@ -980,7 +962,7 @@ function template_quickreply()
 								', Lang::$txt['name'], '
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" required>
 							</dd>';
 
 		if (empty(Config::$modSettings['guest_post_no_email']))
@@ -990,7 +972,7 @@ function template_quickreply()
 								', Lang::$txt['email'], '
 							</dt>
 							<dd>
-								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" required>
 							</dd>';
 		}
 
@@ -1035,7 +1017,6 @@ function template_quickreply()
 		echo '
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
-				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
 				sLastID: \'id_draft\',', !empty(Utils::$context['post_box_name']) ? '
 				sSceditorID: \'' . Utils::$context['post_box_name'] . '\',' : '', '
@@ -1067,7 +1048,6 @@ function template_quickreply()
 				bIsFull: true
 			});
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 			var oJumpAnchor = "quickreply_anchor";
 		</script>';
 }

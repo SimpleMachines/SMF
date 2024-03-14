@@ -266,6 +266,7 @@ $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the 
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><strong>DO NOTE:</strong> This option might cause a severe load at your server with many users online.';
 $helptxt['alerts_auto_purge'] = 'Once an alert has been read, it is rarely needed again. For performance reasons, it is a good idea to automatically delete them after a while.';
 $helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Google CDN, jQuery CDN</em> and <em>Microsoft CDN</em> will load the jQuery library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
+$helptxt['fontawesome_source'] = 'This will determine the source used to load the Font Awesome Library. <em>Cloudflare CDN</em>, and <em>Font Awesome CDN</em> will load the Font Awesome library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
 		&quot;5&quot; to display: 1 ... 3 4 [5] 6 7 ... 9';

@@ -73,6 +73,7 @@ class Login extends Login2
 		parent::checkAjax();
 
 		// Get the template ready.... not really much else to do.
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context['page_title'] = Lang::$txt['login'];
 		Utils::$context['default_username'] = &$_REQUEST['u'];
 		Utils::$context['default_password'] = '';

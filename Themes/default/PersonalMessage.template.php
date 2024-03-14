@@ -60,18 +60,26 @@ function template_pm_popup()
 {
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
-		<div class="pm_bar">
-			<div class="pm_sending block">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send">' . Lang::$txt['pm_new_short'] . '</a>' : '', '
-				', Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts">' . Lang::$txt['pm_drafts_short'] . '</a>' : '', '
-				<a href="', Config::$scripturl, '?action=pm;sa=settings" class="floatright">', Lang::$txt['pm_settings_short'], '</a>
-			</div>
-			<div class="pm_mailbox centertext">
-				<a href="', Config::$scripturl, '?action=pm" class="button">', Lang::$txt['inbox'], '</a>
-				<a href="', Config::$scripturl, '?action=pm;f=sent" class="button">', Lang::$txt['sent_items'], '</a>
+		<div class="header">
+			<a href="', Config::$scripturl, '?action=pm" class="button">
+				', Lang::$txt['inbox'], '
+			</a>
+			<div class="options">
+				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send" title="' . Lang::$txt['pm_new_short'] . '">
+					<span class="main_icons newpm"></span>
+				</a>' : '', '
+				', Utils::$context['can_draft'] ? ' <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts" title="' . Lang::$txt['pm_drafts_short'] . '">
+					<span class="main_icons drafts"></span>
+				</a>' : '', '
+				<a href="', Config::$scripturl, '?action=pm;f=sent" title="', Lang::$txt['sent_items'], '">
+					<span class="main_icons sent"></span>
+				</a>
+				<a href="', Config::$scripturl, '?action=pm;sa=settings" title="', Lang::$txt['pm_settings_short'], '">
+					<span class="main_icons settings"></span>
+				</a>
 			</div>
 		</div>
-		<div class="pm_unread">';
+		<div class="body">';
 
 	if (empty(Utils::$context['unread_pms']))
 		echo '
@@ -80,22 +88,22 @@ function template_pm_popup()
 	{
 		foreach (Utils::$context['unread_pms'] as $id_pm => $pm_details)
 			echo '
-			<div class="unread_notify">
-				<div class="unread_notify_image">
+			<div class="generic_notification">
+				<div class="avatar">
 					', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+					<span class="main_icons ', $pm_details['replied_to_you'] ? 'replied" title="' . Lang::$txt['pm_you_were_replied_to'] . '"' : 'im_off" title="' . Lang::$txt['pm_was_sent_to_you'] . '"', '></span>
 				</div>
 				<div class="details">
-					<div class="subject">', $pm_details['pm_link'], '</div>
-					<div class="sender">
-						', $pm_details['replied_to_you'] ? '<span class="main_icons replied centericon" style="margin-right: 4px" title="' . Lang::$txt['pm_you_were_replied_to'] . '"></span>' : '<span class="main_icons im_off centericon" style="margin-right: 4px" title="' . Lang::$txt['pm_was_sent_to_you'] . '"></span>',
-						!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '
-					</div>
+					', $pm_details['pm_link'], '
 				</div>
-			</div>';
+				<div class="time">
+					', !empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '
+				</div>
+			</div><!-- .generic_notification -->';
 	}
 
 	echo '
-		</div><!-- #pm_unread -->';
+		</div>';
 }
 
 /**
@@ -816,8 +824,9 @@ function template_search()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', Lang::$txt['pm_search_choose_label'], '</a>
+						<a href="#" id="advanced_panel_link">', Lang::$txt['pm_search_choose_label'], '</a>
 					</h3>
+					<span id="advanced_panel_toggle" class="toggle_up" style="display: none;"></span>
 				</div>
 				<div id="advanced_panel_div">
 					<ul id="search_labels">';
@@ -985,7 +994,7 @@ function template_send()
 
 	// Main message editing box.
 	echo '
-		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
+		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="main_icons inbox icon" title="', Lang::$txt['new_message'], '"></span> ', Lang::$txt['new_message'], '
@@ -1025,7 +1034,7 @@ function template_send()
 	// Autosuggest will be added by the JavaScript later on.
 	echo '
 					<dd id="pm_to" class="clear_right">
-						<input type="text" name="to" id="to_control" value="', Utils::$context['to_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">';
+						<input type="text" name="to" id="to_control" value="', Utils::$context['to_value'], '" size="20">';
 
 	// A link to add BCC, only visible with JavaScript enabled.
 	echo '
@@ -1044,7 +1053,7 @@ function template_send()
 						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', trim(Lang::getTxt('pm_bcc', ['list' => ''])), '</span>
 					</dt>
 					<dd id="bcc_div2">
-						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">
+						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" size="20">
 						<div id="bcc_item_list_container"></div>
 					</dd>';
 
@@ -1054,7 +1063,7 @@ function template_send()
 						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::$txt['subject'], '</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" name="subject" value="', Utils::$context['subject'], '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>';
 
@@ -1068,8 +1077,9 @@ function template_send()
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a></strong>
+						<a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a>
 					</h4>
+					<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 				</div>
 				<div id="post_draft_options">
 					<dl class="settings">
@@ -1119,14 +1129,6 @@ function template_send()
 			{
 				if (window.XMLHttpRequest)
 				{
-					// Opera didn\'t support setRequestHeader() before 8.01.
-					// @todo Remove support for old browsers
-					if (\'opera\' in window)
-					{
-						var test = new XMLHttpRequest();
-						if (!(\'setRequestHeader\' in test))
-							return submitThisOnce(document.forms.postmodify);
-					}
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
 					var textFields = [\'subject\', ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ', \'to\', \'bcc\'];
@@ -1157,8 +1159,6 @@ function template_send()
 
 					return false;
 				}
-				else
-					return submitThisOnce(document.forms.postmodify);
 			}
 			function onDocSent(XMLDoc)
 			{
@@ -1256,7 +1256,6 @@ function template_send()
 	echo '
 		<script>
 			var oPersonalMessageSend = new smf_PersonalMessageSend({
-				sSelf: \'oPersonalMessageSend\',
 				sSessionId: smf_session_id,
 				sSessionVar: smf_session_var,
 				sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',

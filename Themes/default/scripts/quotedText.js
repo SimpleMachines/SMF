@@ -1,171 +1,97 @@
-// Traverse the DOM tree in our spinoff of jQuery's closest()
-function getClosest(el, divID)
-{
+function getClosest(el, divID) {
 	if (typeof divID == 'undefined' || divID == false)
 		return null;
 
-	do
-	{
-		// End the loop if quick edit is detected.
+	do {
 		if (el.nodeName === 'TEXTAREA' || el.nodeName === 'INPUT' || el.id === 'error_box')
 			break;
 
-		if (el.id === divID)
-		{
+		if (el.id === divID) {
 			return el;
 		}
-	}
-	while (el = el.parentNode);
+	} while (el = el.parentNode);
 
-	// not found :(
 	return null;
 }
 
-function getSelectedText(divID)
-{
-	if (typeof divID == 'undefined' || divID == false)
-		return false;
+function getSelectedText(node) {
+	const selection = window.getSelection();
+	for (let i = 0; i < selection.rangeCount; i++) {
+		const range = selection.getRangeAt(i);
 
-	var text = '',
-	selection,
-	found = 0,
-	container = document.createElement("div");
+		if (range.intersectsNode(node)) {
+			const frag = range.cloneContents();
+			const s = getClosest(range.startContainer, node.id);
+			const e = getClosest(range.endContainer, node.id);
 
-	if (window.getSelection)
-	{
-		selection = window.getSelection();
-		text = selection.toString();
-	}
-	else if (document.selection && document.selection.type != 'Control')
-	{
-		selection = document.selection.createRange();
-		text = selection.text;
-	}
-
-	// Need to be sure the selected text does belong to the right div.
-	for (var i = 0; i < selection.rangeCount; i++) {
-			s = getClosest(selection.getRangeAt(i).startContainer, divID);
-			e = getClosest(selection.getRangeAt(i).endContainer, divID);
-
-			if (s !== null && e !== null)
-			{
-				found = 1;
-				container.appendChild(selection.getRangeAt(i).cloneContents());
-				text = container.innerHTML;
-				break;
+			if (s && e) {
+				const container = document.createElement("div");
+				container.appendChild(range.cloneContents());
+				return container.innerHTML;
+			} else {
+				const el = frag.getElementById(node.id);
+				return el?.innerHTML;
 			}
 		}
-
-	return found === 1 ? text : false;
+	}
 }
 
-function quotedTextClick(oOptions)
-{
-		text = '';
+let selectedText;
 
-		// The process has been started, hide the button.
-		$('#quoteSelected_' + oOptions.msgID).hide();
+function quotedTextClick(msgID, e) {
+	e.preventDefault();
 
-		// Do a call to make sure this is a valid message.
-		$.ajax({
-			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject.bRichTextEnabled ? 1 : 0),
-			type: 'GET',
-			headers: {
-				"X-SMF-AJAX": 1
-			},
-			xhrFields: {
-				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-			},
-			dataType: 'xml',
-			beforeSend: function () {
-				ajax_indicator(true);
-			},
-			complete: function(jqXHR, textStatus){
-				ajax_indicator(false);
-			},
-			success: function (data, textStatus, xhr) {
-				// Convert all smileys from images back to smiley code
-				oOptions.text = oOptions.text.replaceAll(/<img src=".*?" alt="(.*?)" title=".*?" class="smiley">/, '$1');
+	ajax_indicator(true);
+	selectedText = selectedText.replaceAll(/<img src=".*?" alt="(.*?)" title=".*?" class="smiley">/, '$1');
 
-				// Search the xml data to get the quote tag.
-				text = $(data).find('quote').text();
+	fetch(smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + msgID + ';xml', {
+		method: 'GET',
+		headers: {
+			"X-SMF-AJAX": 1
+		},
+		credentials: typeof allow_xhjr_credentials !== "undefined" ? 'include' : 'omit'
+	}).finally (() => {
+		ajax_indicator(false);
+	}).then(response => {
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		return response.text();
+	}).then(data => (new DOMParser).parseFromString(data, 'text/xml').getElementsByTagName('quote')[0].textContent)
+	.then(data => {
+		const text = data.match(/^\[quote(.*)]/ig) + selectedText + '[/quote]' + '\n\n';
+		const oEditor = sceditor.instance(document.getElementById(oEditorID));
+		oEditor.insert(oEditor.toBBCode(text));
 
-				// Insert the selected text between the quotes BBC tags.
-				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
-
-				// Get the editor stuff.
-				var e = $('#' + oEditorID).get(0);
-				var oEditor = sceditor.instance(e);
-
-				// Convert any HTML into BBC tags.
-				text = oEditor.toBBCode(text);
-
-				// Push the text to the editor.
-				oEditor.insert(text);
-
-				// Move the view to the quick reply box. If available.
-				if (typeof oJumpAnchor != 'undefined'){
-					if (navigator.appName == 'Microsoft Internet Explorer')
-						window.location.hash = oJumpAnchor;
-					else
-						window.location.hash = '#' + oJumpAnchor;
-				}
-			},
-			error: function (xhr, textStatus, errorThrown) {
-				// @todo Show some error.
-			}
-		});
+		// Manually move cursor to after the quote.
+		var
+			rangeHelper = oEditor.getRangeHelper(),
+			parent = rangeHelper.parentNode();
+		if (parent && parent.nodeName === 'BLOCKQUOTE') {
+			var range = rangeHelper.selectedRange();
+			range.setStartAfter(parent);
+			rangeHelper.selectRange(range);
+		}
+		window.location.hash = '#' + oJumpAnchor;
+		oEditor.focus();
+	}).catch(error => {
+		console.error('There has been a problem with your fetch operation:', error);
+	});
 }
 
-$(function() {
+addEventListener('load', () => {
+	const els = document.querySelectorAll('.inner, .list_posts');
 
-	// Event for handling selected quotes.
-	$(document).on('mouseup', '.inner, .list_posts', function() {
+	for (const el of els) {
+		const btn = document.getElementById('quoteSelected_' + el.dataset.msgid);
+		btn.querySelector('a').addEventListener('click', quotedTextClick.bind(btn, el.dataset.msgid));
+	}
 
-		// Get everything we need.
-		var oSelected = {
-			divID : $(this).attr('id'),
-			msgID : $(this).data('msgid'),
-		};
-
-		// Get any selected text.
-		oSelected.text = getSelectedText(oSelected.divID);
-
-		// Do we have some selected text?
-		if (typeof oSelected.text == 'undefined' || oSelected.text == false)
-			return true;
-
-		// Show the "quote this" button.
-		$('#quoteSelected_' + oSelected.msgID).show();
-
-		// Remove any previous selection
-		$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
-
-		$(document).one('click', '#quoteSelected_' + oSelected.msgID + ' a', function(e) {
-			e.preventDefault();
-			quotedTextClick(oSelected);
-		});
-
-		// Register global on click listener to catch deselect clicks outside of the div.
-		$(document).on('click.ondeselecttext' + oSelected.msgID, function() {
-			// Delay the check a bit to allow the deselection to happen.
-			setTimeout(function() {
-				selectedText = getSelectedText(oSelected.divID);
-
-				if (typeof selectedText != 'undefined' && selectedText != false)
-					return;
-
-				// Remove any 'click' event to the button.
-				$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
-
-				// Hide the button.
-				$('#quoteSelected_' + oSelected.msgID).hide();
-
-				// Remove this on click listener
-				$(document).off('click.ondeselecttext' + oSelected.msgID);
-			}, 1);
-		});
-
-		return true;
+	document.addEventListener('selectionchange', () => {
+		for (const el of els) {
+			selectedText = getSelectedText(el);
+			const btn = document.getElementById('quoteSelected_' + el.dataset.msgid);
+			btn.style.display = !selectedText ? 'none' : '';
+		}
 	});
 });

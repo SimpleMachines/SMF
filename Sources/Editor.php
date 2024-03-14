@@ -169,21 +169,18 @@ class Editor implements \ArrayAccess
 	public static array $bbc_toolbar = [];
 
 	/**
-	 * @var string
+	 * @var array
 	 *
 	 *
 	 */
-	public static string $bbc_handlers = '';
+	public static array $bbc_handlers = [];
 
 	/**
 	 * @var array
 	 *
 	 *
 	 */
-	public static array $smileys_toolbar = [
-		'postform' => [],
-		'popup' => [],
-	];
+	public static array $smileys_toolbar = [];
 
 	/****************************
 	 * Internal static properties
@@ -239,7 +236,7 @@ class Editor implements \ArrayAccess
 
 		$this->buildBbcToolbar();
 		$this->buildSmileysToolbar();
-		$this->setSCEditorOptions();
+		$this->setSCEditorOptions($options);
 
 		self::$loaded[$this->id] = $this;
 
@@ -378,13 +375,11 @@ class Editor implements \ArrayAccess
 		 */
 		Theme::loadCSSFile('jquery.sceditor.theme.css', ['force_current' => true, 'validate' => true], 'smf_jquery_sceditor_theme');
 
-		// JS makes the editor go round
-		Theme::loadJavaScriptFile('editor.js', ['minimize' => true], 'smf_editor');
 		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
 		Theme::loadJavaScriptFile('jquery.sceditor.smf.js', ['minimize' => true], 'smf_sceditor_smf');
 
 		$scExtraLangs = '
-		$.sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
+		sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
 			"Width (optional):": "' . Lang::$editortxt['width'] . '",
 			"Height (optional):": "' . Lang::$editortxt['height'] . '",
 			"Insert": "' . Lang::$editortxt['insert'] . '",
@@ -434,7 +429,7 @@ class Editor implements \ArrayAccess
 			'save_draft' => [
 				'type' => 'submit',
 				'value' => Lang::$txt['draft_save'],
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ');' : '',
 				'accessKey' => 'd',
 				'show' => !empty(Utils::$context['drafts_save']),
 			],
@@ -461,7 +456,7 @@ class Editor implements \ArrayAccess
 	 */
 	protected function buildBbcToolbar(): void
 	{
-		if (!empty(self::$bbc_tags)) {
+		if (self::$bbc_tags != []) {
 			return;
 		}
 
@@ -471,14 +466,13 @@ class Editor implements \ArrayAccess
 		Utils::$context['bbcodes_handlers'] = &self::$bbc_handlers;
 
 		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
-		// Note: 'before' and 'after' are deprecated as of SMF 2.1. Instead, use a separate JS file to configure the functionality of your toolbar buttons.
 		/*
 			array(
 				'code' => 'b', // Required
 				'description' => Lang::$editortxt['bold'], // Required
 				'image' => 'bold', // Optional
-				'before' => '[b]', // Deprecated
-				'after' => '[/b]', // Deprecated
+				'before' => '[b]', // Optional
+				'after' => '[/b]', // Optional
 			),
 		*/
 		self::$bbc_tags[] = [
@@ -540,14 +534,12 @@ class Editor implements \ArrayAccess
 				'code' => 'color',
 				'description' => Lang::$editortxt['font_color'],
 			],
-		];
-
-		if (empty(Config::$modSettings['disable_wysiwyg'])) {
-			self::$bbc_tags[count(self::$bbc_tags) - 1][] = [
+			[],
+			[
 				'code' => 'removeformat',
 				'description' => Lang::$editortxt['remove_formatting'],
-			];
-		}
+			],
+		];
 
 		self::$bbc_tags[] = [
 			[
@@ -606,15 +598,13 @@ class Editor implements \ArrayAccess
 				'code' => 'maximize',
 				'description' => Lang::$editortxt['maximize'],
 			],
-		];
-
-		if (empty(Config::$modSettings['disable_wysiwyg'])) {
-			self::$bbc_tags[count(self::$bbc_tags) - 1][] = [
+			[
 				'code' => 'source',
 				'description' => Lang::$editortxt['view_source'],
-			];
-		}
+			],
+		];
 
+		// Map BBC tags to SCEditor commands.
 		$editor_tag_map = [
 			'b' => 'bold',
 			'i' => 'italic',
@@ -627,11 +617,13 @@ class Editor implements \ArrayAccess
 			'hr' => 'horizontalrule',
 		];
 
-		// Allow mods to modify BBC buttons.
-		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
-
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
+
+		if (empty(Config::$modSettings['disable_wysiwyg'])) {
+			self::$disabled_tags['removeformat'] = true;
+			self::$disabled_tags['orderedlist'] = true;
+		}
 
 		foreach ($disabled_bbc as $tag) {
 			$tag = trim($tag);
@@ -646,66 +638,51 @@ class Editor implements \ArrayAccess
 				self::$disabled_tags['floatright'] = true;
 			}
 
-			foreach ($editor_tag_map as $tag_name => $tag_alias) {
-				if ($tag === $tag_name) {
-					self::$disabled_tags[$tag_alias] = true;
-				}
-			}
-
-			self::$disabled_tags[$tag] = true;
+			self::$disabled_tags[$editor_tag_map[$tag] ?? $tag] = true;
 		}
 
-		$bbcodes_styles = '';
+		// Allow mods to modify BBC buttons.
+		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
 
-		foreach (self::$bbc_tags as $row => $tag_row) {
+		$group = 0;
+
+		foreach (self::$bbc_tags as $row => $tagRow) {
 			if (!isset(self::$bbc_toolbar[$row])) {
 				self::$bbc_toolbar[$row] = [];
 			}
 
-			$tags_row = [];
+			foreach ($tagRow as $tag) {
+				if (isset($tag['code']) && !isset(self::$disabled_tags[$tag['code']])) {
+					$thisTag = $editor_tag_map[$tag['code']] ?? $tag['code'];
+					self::$bbc_toolbar[$row][$group][] = $thisTag;
 
-			foreach ($tag_row as $tag) {
-				if (empty($tag['code'])) {
-					self::$bbc_toolbar[$row][] = implode(',', $tags_row);
-					$tags_row = [];
-				} elseif (empty(self::$disabled_tags[$tag['code']])) {
-					$tags_row[] = $tag['code'];
-
-					// If we have a custom button image, set it now.
-					if (isset($tag['image'])) {
-						$bbcodes_styles .= '
-						.sceditor-button-' . $tag['code'] . ' div {
-							background: url(\'' . Theme::$current->settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
-						}';
+					if (isset($tag['before']) || isset($tag['image'])) {
+						self::$bbc_handlers[$thisTag] = $tag;
 					}
-
-					// Set the tooltip and possibly the command info
-					self::$bbc_handlers .= '
-						sceditor.command.set(' . Utils::escapeJavaScript($tag['code']) . ', {
-							tooltip: ' . Utils::escapeJavaScript($tag['description'] ?? $tag['code']);
-
-					// Legacy support for 2.0 BBC mods
-					if (isset($tag['before'])) {
-						self::$bbc_handlers .= ',
-							exec: function () {
-								this.insertText(' . Utils::escapeJavaScript($tag['before']) . (isset($tag['after']) ? ', ' . Utils::escapeJavaScript($tag['after']) : '') . ');
-							},
-							txtExec: [' . Utils::escapeJavaScript($tag['before']) . (isset($tag['after']) ? ', ' . Utils::escapeJavaScript($tag['after']) : '') . ']';
-					}
-
-					self::$bbc_handlers .= '
-						});';
+				} else {
+					$group++;
 				}
 			}
-
-			if (!empty($tags_row)) {
-				self::$bbc_toolbar[$row][] = implode(',', $tags_row);
-			}
 		}
+	}
 
-		if (!empty($bbcodes_styles)) {
-			Theme::addInlineCss($bbcodes_styles);
-		}
+	/**
+	 * Recursively implodes an array
+	 *
+	 * @param string[] $glue    list of values that glue elements together
+	 * @param array    $pieces  multi-dimensional array to recursively implode
+	 * @param int      $counter internal
+	 *
+	 * @return string imploded array
+	 */
+	protected function implodeRecursive(array $glue, array $pieces, int $counter = 0): string {
+		return implode(
+			$glue[$counter++],
+			array_map(
+				fn($v) => is_array($v) ? $this->implodeRecursive($glue, $v, $counter) : $v,
+				$pieces
+			)
+		);
 	}
 
 	/**
@@ -713,11 +690,11 @@ class Editor implements \ArrayAccess
 	 */
 	protected function buildSmileysToolbar(): void
 	{
-		if ($this->disable_smiley_box || !empty(self::$smileys_toolbar['postform']) || !empty(self::$smileys_toolbar['popup'])) {
+		if ($this->disable_smiley_box || self::$smileys_toolbar != []) {
 			return;
 		}
 
-		Utils::$context['smileys'] = self::$smileys_toolbar;
+		Utils::$context['smileys'] = &self::$smileys_toolbar;
 
 		if (User::$me->smiley_set != 'none') {
 			// Cache for longer when customized smiley codes aren't enabled
@@ -740,22 +717,9 @@ class Editor implements \ArrayAccess
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					$row['description'] = !empty(Lang::$txt['icon_' . strtolower($row['description'])]) ? Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($row['description'])]) : Utils::htmlspecialchars($row['description']);
-
-					self::$smileys_toolbar[empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
+					self::$smileys_toolbar[] = $row;
 				}
 				Db::$db->free_result($request);
-
-				foreach (self::$smileys_toolbar as $section => $smiley_rows) {
-					foreach ($smiley_rows as $rowIndex => $smileys) {
-						self::$smileys_toolbar[$section][$rowIndex]['smileys'][count($smileys['smileys']) - 1]['isLast'] = true;
-					}
-
-					if (!empty($smiley_rows)) {
-						self::$smileys_toolbar[$section][count($smiley_rows) - 1]['isLast'] = true;
-					}
-				}
-
 				CacheApi::put('posting_smileys_' . User::$me->smiley_set, self::$smileys_toolbar, $cache_time);
 			} else {
 				self::$smileys_toolbar = $temp;
@@ -765,91 +729,71 @@ class Editor implements \ArrayAccess
 
 	/**
 	 * Initialize the smiley toolbar, if enabled and not already loaded.
+	 *
+	 * @param array $editorOptions Various options for the editor.
 	 */
-	protected function setSCEditorOptions(): void
+	protected function setSCEditorOptions($editorOptions)
 	{
-		// Set up the SCEditor options
 		$this->sce_options = [
 			'width' => $this->width ?? '100%',
 			'height' => $this->height ?? '175px',
 			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
+			'autoUpdate' => true,
 			'emoticonsCompat' => true,
-			'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
+			'emoticons' => [],
+			'emoticonsEnabled' => !$this->disable_smiley_box,
+			'emoticonsRoot' => Theme::$current->settings['smileys_url'] . '/',
+			'colors' => [
+				['black', Lang::$editortxt['black']],
+				['red', Lang::$editortxt['red']],
+				['yellow', Lang::$editortxt['yellow']],
+				['pink', Lang::$editortxt['pink']],
+				['green', Lang::$editortxt['green']],
+				['orange', Lang::$editortxt['orange']],
+				['purple', Lang::$editortxt['purple']],
+				['blue', Lang::$editortxt['blue']],
+				['beige', Lang::$editortxt['beige']],
+				['brown', Lang::$editortxt['brown']],
+				['teal', Lang::$editortxt['teal']],
+				['navy', Lang::$editortxt['navy']],
+				['maroon', Lang::$editortxt['maroon']],
+				['limegreen', Lang::$editortxt['lime_green']],
+				['white', Lang::$editortxt['white']],
+			],
+			'fonts' => 'Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana',
+			'icons' => 'monocons',
 			'format' => 'bbcode',
-			'plugins' => '',
+			'plugins' => 'smf,' . implode(',', $editorOptions['plugins'] ?? []),
+			'toolbar' => $this->implodeRecursive(['||', '|', ','], self::$bbc_toolbar),
+			'customTextualCommands' => self::$bbc_handlers,
+			'startInSourceMode' => !$this->rich_active,
 			'bbcodeTrim' => false,
-		];
+			'resizeWidth' => false,
+			'resizeMaxHeight' => -1,
+			'locale' => $this->locale ?? 'en',
+			'autofocus' => $this->id != 'quickReply',
+			'rtl' => !empty(Utils::$context['right_to_left']),
+			'parserOptions' => [
+				'txtVars' => [
+					'code' => Lang::$txt['code'],
+				],
+			],
+		] + ($editorOptions['options'] ?? []);
 
-		if (!empty($this->locale)) {
-			$this->sce_options['locale'] = $this->locale;
-		}
+		if ($this->sce_options['emoticonsEnabled']) {
+			$translations = [
+				0 => 'dropdown',
+				2 => 'more',
+			];
+			$prevRowIndex = 0;
 
-		if (!empty(Utils::$context['right_to_left'])) {
-			$this->sce_options['rtl'] = true;
-		}
-
-		if ($this->id != 'quickReply') {
-			$this->sce_options['autofocus'] = true;
-		}
-
-		$this->sce_options['emoticons'] = [];
-		$this->sce_options['emoticonsDescriptions'] = [];
-		$this->sce_options['emoticonsEnabled'] = false;
-
-		if ((!empty(self::$smileys_toolbar['postform']) || !empty(self::$smileys_toolbar['popup'])) && !$this->disable_smiley_box) {
-			$this->sce_options['emoticonsEnabled'] = true;
-			$this->sce_options['emoticons']['dropdown'] = [];
-			$this->sce_options['emoticons']['popup'] = [];
-
-			$count_locations = count(self::$smileys_toolbar);
-
-			foreach (self::$smileys_toolbar as $location => $smiley_rows) {
-				$count_locations--;
-
-				unset($smiley_location);
-
-				if ($location == 'postform') {
-					$smiley_location = &$this->sce_options['emoticons']['dropdown'];
-				} elseif ($location == 'popup') {
-					$smiley_location = &$this->sce_options['emoticons']['popup'];
-				}
-
-				$num_rows = count($smiley_rows);
-
-				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
-				$empty_placeholder = 0;
-
-				foreach ($smiley_rows as $smiley_row) {
-					foreach ($smiley_row['smileys'] as $smiley) {
-						$smiley_location[$smiley['code']] = Theme::$current->settings['smileys_url'] . '/' . $smiley['filename'];
-
-						$this->sce_options['emoticonsDescriptions'][$smiley['code']] = $smiley['description'];
-					}
-
-					if (empty($smiley_row['isLast']) && $num_rows != 1) {
-						$smiley_location['-' . $empty_placeholder++] = '';
-					}
-				}
-			}
-		}
-
-		$this->sce_options['parserOptions']['txtVars'] = [
-			'code' => Lang::$txt['code'],
-		];
-
-		$this->sce_options['toolbar'] = '';
-
-		if (!empty(Config::$modSettings['enableBBC'])) {
-			$count_tags = count(self::$bbc_tags);
-
-			foreach (self::$bbc_toolbar as $i => $buttonRow) {
-				$this->sce_options['toolbar'] .= implode('|', $buttonRow);
-
-				$count_tags--;
-
-				if (!empty($count_tags)) {
-					$this->sce_options['toolbar'] .= '||';
-				}
+			foreach (self::$smileys_toolbar as $smiley) {
+				$this->sce_options['emoticons'][$translations[$smiley['hidden']]][$smiley['code']] = [
+					'newRow' => $smiley['smiley_row'] != $prevRowIndex,
+					'url' => $smiley['filename'],
+					'tooltip' => Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($smiley['description'])] ?? $smiley['description']),
+				];
+				$prevRowIndex = $smiley['smiley_row'];
 			}
 		}
 

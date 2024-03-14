@@ -123,7 +123,7 @@ class Tracking implements ActionInterface
 		Menu::$loaded['profile']->tab_data = [
 			'title' => Lang::$txt['tracking'],
 			'description' => Lang::$txt['tracking_description'],
-			'icon_class' => 'main_icons profile_hd',
+			'icon_class' => 'main_icons profile medium_icon',
 			'tabs' => [],
 		];
 

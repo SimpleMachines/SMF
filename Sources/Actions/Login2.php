@@ -240,6 +240,7 @@ class Login2 implements ActionInterface
 
 		// Load the template stuff.
 		Theme::loadTemplate('Login');
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context['sub_template'] = 'login';
 
 		// Create a one time token.

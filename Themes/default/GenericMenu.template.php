@@ -28,21 +28,21 @@ function template_generic_menu_dropdown_above()
 	// Load the menu
 	// Add mobile menu as well
 	echo '
-	<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
-		<span class="menu_icon"></span>
-		<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '</span>
-	</a>
-	<div id="genericmenu">
+	<nav id="genericmenu" aria-label="', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '">
+		<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
+			<span class="main_icons navigation"></span>
+			<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '</span>
+		</a>
 		<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
-				', template_generic_menu($menu_context), '
+				', template_generic_menu($menu_context, $menu_label), '
 			</div>
 		</div>
-	</div>
+	</nav>
 	<script>
 		$( ".mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).click(function() {
 			$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).show();
@@ -75,18 +75,17 @@ function template_generic_menu_dropdown_below()
  *
  * @param array $menu_context An array of menu information
  */
-function template_generic_menu(&$menu_context)
+function template_generic_menu(&$menu_context, $menu_label)
 {
 	echo '
-				<div class="generic_menu">
-					<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '">';
+				<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '">';
 
 	// Main areas first.
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], !empty($section['amt']) ? ' <span class="amt">' . $section['amt'] . '</span>' : '', '</a>
-							<ul>';
+					<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], !empty($section['amt']) ? ' <span class="amt">' . $section['amt'] . '</span>' : '', '</a>
+						<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
 		// @todo Code for additional_items class was deprecated and has been removed. Suggest following up in Sources if required.
@@ -97,8 +96,8 @@ function template_generic_menu(&$menu_context)
 				continue;
 
 			echo '
-								<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
-									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
+							<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
+								<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty(Utils::$context['tabs']))
@@ -108,7 +107,7 @@ function template_generic_menu(&$menu_context)
 			if (!empty($area['subsections']) && empty($area['hide_subsections']))
 			{
 				echo '
-									<ul>';
+								<ul>';
 
 				foreach ($area['subsections'] as $sa => $sub)
 				{
@@ -118,26 +117,25 @@ function template_generic_menu(&$menu_context)
 					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
-										<li>
-											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], !empty($sub['amt']) ? ' <span class="amt">' . $sub['amt'] . '</span>' : '', '</a>
-										</li>';
+									<li>
+										<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], !empty($sub['amt']) ? ' <span class="amt">' . $sub['amt'] . '</span>' : '', '</a>
+									</li>';
 				}
 
 				echo '
-									</ul>';
+								</ul>';
 			}
 
 			echo '
-								</li>';
+							</li>';
 		}
 		echo '
-							</ul>
-						</li>';
+						</ul>
+					</li>';
 	}
 
 	echo '
-					</ul><!-- .dropmenu -->
-				</div><!-- .generic_menu -->';
+				</ul><!-- .dropmenu -->';
 }
 
 /**
@@ -153,13 +151,7 @@ function template_generic_menu_tabs(&$menu_context)
 	if (!empty($tab_context['title']))
 	{
 		echo '
-					<div class="cat_bar">';
-
-		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
-		if (function_exists('template_admin_quick_search'))
-			template_admin_quick_search();
-
-		echo '
+					<div class="cat_bar">
 						<h3 class="catbg">';
 
 		// Exactly how many tabs do we have?
@@ -233,7 +225,13 @@ function template_generic_menu_tabs(&$menu_context)
 								', $tab_context['title'];
 
 		echo '
-						</h3>
+						</h3>';
+
+		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
+		if (function_exists('template_admin_quick_search'))
+			template_admin_quick_search();
+
+		echo '
 					</div><!-- .cat_bar -->';
 	}
 
@@ -249,21 +247,18 @@ function template_generic_menu_tabs(&$menu_context)
 	{
 		// The admin tabs.
 		echo '
-					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
-						<span class="menu_icon"></span>
-						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '</span>
-					</a>
-					<div id="adm_submenus">
+					<nav id="adm_submenus" aria-label="', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '">
+						<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
+							<span class="main_icons navigation"></span>
+							<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '</span>
+						</a>
 						<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" class="popup_container">
 							<div class="popup_window description">
 								<div class="popup_heading">
 									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '
 									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-								</div>';
-
-		echo '
-								<div class="generic_menu">
-									<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '_tabs">';
+								</div>
+								<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '_tabs">';
 
 		foreach ($tab_context['tabs'] as $sa => $tab)
 		{
@@ -272,23 +267,22 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($tab['is_selected']))
 				echo '
-										<li>
-											<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-										</li>';
+									<li>
+										<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+									</li>';
 			else
 				echo '
-										<li>
-											<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-										</li>';
+									<li>
+										<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+									</li>';
 		}
 
 		// The end of tabs
 		echo '
-									</ul>
-								</div>
+								</ul>
 							</div>
 						</div>
-					</div><!-- #adm_submenus -->
+					</nav><!-- #adm_submenus -->
 					<script>
 						$( ".mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" ).click(function() {
 							$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" ).show();

@@ -59,7 +59,7 @@ class StatPanel implements ActionInterface
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
 			'title' => Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]),
-			'icon' => 'stats_info.png',
+			'icon_class' => 'main_icons stats',
 		];
 
 		// Is the load average too high to allow searching just now?

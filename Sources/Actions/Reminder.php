@@ -264,6 +264,7 @@ class Reminder implements ActionInterface
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
 		Theme::loadTemplate('Login');
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context += [
 			'page_title' => Lang::$txt['reminder_password_set'],
 			'sub_template' => 'login',
@@ -382,6 +383,7 @@ class Reminder implements ActionInterface
 
 		// Tell them it went fine.
 		Theme::loadTemplate('Login');
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context += [
 			'page_title' => Lang::$txt['reminder_password_set'],
 			'sub_template' => 'login',

@@ -61,11 +61,11 @@ function template_maintain_database()
 	if (Utils::$context['convert_entities'])
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['entity_convert_title'], '</h3>
+			<h3 class="catbg">', Lang::$txt['maintain_convertentities_title'], '</h3>
 		</div>
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>', Lang::$txt['entity_convert_introduction'], '</p>
+				<p>', Lang::$txt['maintain_convertentities_introduction'], '</p>
 				<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
@@ -76,10 +76,7 @@ function template_maintain_database()
 	</div><!-- #manage_maintenance -->';
 }
 
-/**
- * Template for the routine maintenance tasks.
- */
-function template_maintain_routine()
+function template_maintain_above()
 {
 	// Starts off with general maintenance procedures.
 	echo '
@@ -91,84 +88,35 @@ function template_maintain_routine()
 		<div class="infobox">
 			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
 		</div>';
+}
+
+function template_maintain_below()
+{
+	echo '
+	</div><!-- #manage_maintenance -->';
+}
+
+/**
+ * Template for the routine maintenance tasks.
+ */
+function template_maintain_options()
+{
+	echo '
+		<form action="', Utils::$context['post_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '" class="windowbg option_form">';
+
+	foreach (Utils::$context['options'] as $option => $val)
+		echo '
+			<label>
+				<input type="radio" name="activity" value="', $option, '">
+				<b>', $val['title'] ?? Lang::$txt['maintain_' . $option], '</b>
+				<p>', $val['info'] ?? Lang::$txt['maintain_' . $option . '_info'], $val['after'] ?? '', '</p>
+			</label><br>';
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_version'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>
-					', Lang::$txt['maintain_version_info'], '
-					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_errors'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=repairboards" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>
-					', Lang::$txt['maintain_errors_info'], '
-					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_recount'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>
-					', Lang::$txt['maintain_recount_info'], '
-					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_rebuild_settings'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=rebuild_settings" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>
-					', Lang::$txt['maintain_rebuild_settings_info'], '
-					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_logs'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=logs" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>
-					', Lang::$txt['maintain_logs_info'], '
-					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_cache'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<p>
-					', Lang::$txt['maintain_cache_info'], '
-					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
+			<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
+		</form>
 	</div><!-- #manage_maintenance -->';
 }
 
@@ -324,15 +272,13 @@ function template_maintain_members()
 	</div><!-- #manage_maintenance -->
 
 	<script>
-		var oAttributeMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAttributeMemberSuggest\',
+		var oAttributeMemberSuggest = new 	smc_AutoSuggest({
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'attributeMember\',
 			sControlId: \'to\',
 			sSearchType: \'member\',
 			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
-			bItemList: false
 		});
 	</script>';
 }
@@ -549,12 +495,12 @@ function template_convert_entities()
 	echo '
 	<div id="manage_maintenance">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['entity_convert_title'], '</h3>
+			<h3 class="catbg">', Lang::$txt['maintain_convertentities_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<p>', Lang::$txt['entity_convert_introduction'], '</p>
+			<p>', Lang::$txt['maintain_convertentities_introduction'], '</p>
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities;start=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
-			<input type="submit" value="', Lang::$txt['entity_convert_proceed'], '" class="button">
+			<input type="submit" value="', Lang::$txt['maintain_convertentities_proceed'], '" class="button">
 			</form>
 		</div>
 	</div>';
@@ -596,7 +542,7 @@ function template_convert_msgbody()
 			<hr>
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-			<input type="submit" name="do_conversion" value="', Lang::$txt['entity_convert_proceed'], '" class="button">
+			<input type="submit" name="do_conversion" value="', Lang::$txt['maintain_convertentities_proceed'], '" class="button">
 			</form>
 		</div><!-- .windowbg -->
 	</div><!-- #manage_maintenance -->';
