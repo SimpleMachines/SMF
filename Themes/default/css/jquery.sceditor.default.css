@@ -1,33 +1,17 @@
 /*! SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
-html, p, .bbc_code code::before, table {
+html, p, .bbc_code code::before, table, body, h1, h2, h3, h4, h5, h6 {
 	margin: 0;
 	padding: 0;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 14px;
-	color: #111;
-	line-height: 1.25;
-	overflow: visible;
 }
 html {
+	display: flex;
 	height: 100%;
 }
-.ios {
-	/* Needed for iOS scrolling bug fix */
-	overflow: auto;
-	-webkit-overflow-scrolling: touch;
-}
-.ios body {
-	/* Needed for iOS scrolling bug fix */
-	position: relative;
-	overflow: auto;
-}
 body {
-	/* Needed to make sure body covers the whole editor and that
-		long lines don't cause horizontal scrolling */
-	min-height: 100%;
-	word-wrap: break-word;
-	margin: 0 5px;
-	padding: 0;
+	flex: 1;
+	background: var(--input-bg);
+	color: var(--input-color);
+	font: 1em / var(--input-line-height) var(--body-font-family);
 }
 
 ul, ol {
@@ -87,11 +71,6 @@ blockquote cite::before {
 blockquote cite + br,
 blockquote br:last-child {
 	display: none;
-}
-
-h1, h2, h3, h4, h5, h6 {
-	padding: 0;
-	margin: 0;
 }
 
 /* Make sure images stay within bounds */

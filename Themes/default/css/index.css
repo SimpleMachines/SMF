@@ -228,11 +228,6 @@ img, input, select, textarea {
 #chrome input {
 	font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
-/* The following is necessary */
-textarea {
-	font-size: 1em;
-}
-
 /* Use a consistent monospace font everywhere */
 .monospace, .bbc_code, .phpcode, pre {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
@@ -4193,25 +4188,6 @@ ul.post_options li {
 }
 .post_verification #verification_control {
 	margin: 4px 0 4px 12px;
-}
-/* The BBC buttons */
-#bbcBox_message {
-	margin: 10px 6px;
-}
-#bbcBox_message div {
-	margin: 2px 0;
-	vertical-align: top;
-}
-#bbcBox_message div img {
-	margin: 0 1px 0 0;
-	vertical-align: top;
-}
-#bbcBox_message select {
-	margin: 0 2px;
-}
-/* The smiley strip */
-#smileyBox_message {
-	margin: 6px;
 }
 /* All the signatures used in the forum. */
 .signature, .attachments, .under_message,
