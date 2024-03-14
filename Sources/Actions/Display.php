@@ -1320,9 +1320,6 @@ class Display implements ActionInterface, Routable
 			'labels' => [
 				'post_button' => Lang::getTxt('post', file: 'General'),
 			],
-			// add height and width for the editor
-			'height' => '150px',
-			'width' => '100%',
 			// We do HTML preview here.
 			'preview_type' => Editor::PREVIEW_HTML,
 			// This is required

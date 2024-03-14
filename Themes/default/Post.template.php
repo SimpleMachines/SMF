@@ -28,14 +28,7 @@ function template_main()
 
 	// Start with message icons - and any missing from this theme.
 	echo '
-			var icon_urls = {';
-
-	foreach (Utils::$context['icons'] as $icon)
-		echo '
-				\'', $icon['value'], '\': \'', $icon['url'], '\'', $icon['is_last'] ? '' : ',';
-
-	echo '
-			};';
+			var icon_urls = ', json_encode(array_column(Utils::$context['icons'], 'url', 'value'), JSON_UNESCAPED_SLASHES), ';';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
 	if (Utils::$context['make_event'])
@@ -203,8 +196,7 @@ function template_main()
 	}
 
 	// Show the actual posting area...
-	echo '
-					', template_control_richedit(Utils::$context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
+	template_control_richedit('message', 'smileyBox_message', 'bbcBox_message');
 
 	// Show attachments.
 	if (!empty(Utils::$context['current_attachments']) || Utils::$context['can_post_attachment'])
@@ -412,7 +404,7 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<span id="post_confirm_buttons">
-						', template_control_richedit_buttons(Utils::$context['post_box_name']);
+						', template_control_richedit_buttons('message');
 
 	echo '
 					</span>
@@ -467,7 +459,7 @@ function template_main()
 				sErrorsListContainerID: "error_list",
 				sCaptionContainerID: "caption_%ID%",
 				sNewImageContainerID: "image_new_%ID%",
-				sPostBoxContainerID: ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ',
+				sPostBoxContainerID: ', Utils::escapeJavaScript('message'), ',
 				bMakePoll: ', Utils::$context['make_poll'] ? 'true' : 'false', ',
 				sTxtPreviewTitle: ', Utils::escapeJavaScript(Lang::getTxt('preview_title', file: 'General')), ',
 				sTxtPreviewFetch: ', Utils::escapeJavaScript(Lang::getTxt('preview_fetch', file: 'General')), ',

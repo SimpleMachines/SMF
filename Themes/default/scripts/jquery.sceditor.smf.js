@@ -9,606 +9,267 @@
  * @version 3.0 Alpha 2
  */
 
-(function ($) {
-	var extensionMethods = {
-		insertQuoteFast: function (messageid)
+(sceditor => {
+	sceditor.plugins.smf = function ()
+	{
+		let editor;
+		let opts;
+		let line;
+
+		const appendEmoticon = (code, {newrow, url, tooltip}) => {
+			if (newrow)
+				line.appendChild(document.createElement('br'));
+
+			const i = document.createElement("img");
+			i.src = opts.emoticonsRoot + url;
+			i.alt = code;
+			i.title = tooltip;
+			i.addEventListener('click', function (e)
+			{
+				if (editor.inSourceMode())
+					editor.insertText(' ' + this.alt + ' ');
+				else
+					editor.wysiwygEditorInsertHtml(' <img src="' + this.src + '" data-sceditor-emoticon="' + this.alt + '"> ');
+
+				e.preventDefault();
+			});
+			line.appendChild(i);
+		};
+
+		const createPopup = el => {
+			const t = document.createElement("div");
+			const cover = document.createElement('div');
+			const root = document.createElement('div');
+
+			const hide = () => {
+				cover.classList.remove('show');
+				document.removeEventListener('keydown', esc);
+			};
+
+			var esc = ({keyCode}) => {
+				if (keyCode === 27)
+					hide();
+			};
+
+			const a = document.createElement('button');
+
+			root.appendChild(a);
+			cover.appendChild(root);
+			document.body.appendChild(cover);
+			root.id = 'popup-container';
+			cover.id = 'popup';
+			a.id = 'close';
+			cover.addEventListener('click', ({target}) => {
+				if (target.id === 'popup')
+					hide();
+			});
+			a.addEventListener('click', hide);
+			document.addEventListener('keydown', esc);
+			root.appendChild(el);
+			root.appendChild(a);
+			cover.classList.add('show');
+			editor.hidePopup = hide;
+		};
+
+		const ev = ({children, nextSibling}, col, row) => {
+			for (let i = 1; i <= 144; i++)
+				children[i - 1].className = Math.ceil(i / 12) <= col && (i % 12 || 12) <= row ? 'active' : '';
+
+			nextSibling.textContent = col + 'x' + row;
+		};
+
+		const tbl = callback => {
+			const content = document.createElement('div');
+			content.className = 'sceditor-insert-table';
+			const div = document.createElement('div');
+			div.className = 'sceditor-insert-table-grid';
+			div.addEventListener('mouseleave', ev.bind(null, div, 0, 0));
+			const div2 = document.createElement('div');
+			div2.className = 'largetext';
+			div2.textContent = '0x0';
+
+			for (let i = 1; i <= 144; i++)
+			{
+				const row = i % 12 || 12;
+				const col = Math.ceil(i / 12);
+				const span = document.createElement('span');
+				span.className = 'windowbg';
+				span.addEventListener('mouseenter', ev.bind(null, div, col, row));
+				span.addEventListener('click', function (col, row) {
+					callback(col, row);
+					editor.hidePopup();
+					editor.focus();
+				}.bind(null, col, row));
+				div.appendChild(span);
+			}
+			content.append(div, div2);
+			createPopup(content);
+		};
+
+		this.init = function ()
 		{
-			var self = this;
-			getXMLDocument(
-				smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + messageid + ';xml',
-				function(XMLDoc)
+			editor = this;
+			opts = editor.opts;
+
+			if (opts.emoticonsEnabled)
+			{
+				const emoticons = opts.emoticons;
+				content = opts.smileyContainer;
+				if (emoticons.dropdown && content)
 				{
-					var text = '';
-
-					for (var i = 0, n = XMLDoc.getElementsByTagName('quote')[0].childNodes.length; i < n; i++)
-						text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
-					self.insert(text);
-
-					// Manually move cursor to after the quote.
-					var
-						rangeHelper = self.getRangeHelper(),
-						parent = rangeHelper.parentNode();
-					if (parent && parent.nodeName === 'BLOCKQUOTE')
-					{
-						var range = rangeHelper.selectedRange();
-						range.setStartAfter(parent);
-						rangeHelper.selectRange(range);
-					}
-
-					ajax_indicator(false);
+					line = document.createElement('div');
+					sceditor.utils.each(emoticons.dropdown, appendEmoticon);
+					content.appendChild(line);
 				}
-			);
-		},
-		InsertText: function (text, bClear) {
-			if (bClear)
-				this.val('');
 
-			this.insert(text);
-		},
-		getText: function (filter) {
-			var current_value = '';
-
-			if (this.inSourceMode())
-				current_value = this.getSourceEditorValue(false);
-			else
-				current_value = this.getWysiwygEditorValue(filter);
-
-			return current_value;
-		},
-		appendEmoticon: function (code, emoticon, description) {
-			if (emoticon == '')
-				line.append($('<br>'));
-			else
-				line.append($('<img>')
-					.attr({
-						src: emoticon,
-						alt: code,
-						title: description,
-					})
-					.click(function (e) {
-						var	start = '', end = '';
-
-						if (base.opts.emoticonsCompat)
-						{
-							start = '<span> ';
-							end = ' </span>';
-						}
-
-						if (base.inSourceMode())
-							base.sourceEditorInsertText(' ' + $(this).attr('alt') + ' ');
-						else
-							base.wysiwygEditorInsertHtml(start + '<img src="' + $(this).attr("src") + '" data-sceditor-emoticon="' + $(this).attr('alt') + '">' + end);
+				if (emoticons.more)
+				{
+					const moreButton = document.createElement('button');
+					moreButton.type = 'button';
+					moreButton.className = 'button';
+					moreButton.textContent = editor._('More');
+					moreButton.addEventListener('click', e => {
+						line = document.createElement('div');
+						sceditor.utils.each(emoticons.more, appendEmoticon);
+						createPopup(line);
 
 						e.preventDefault();
-					})
+					});
+					content.appendChild(moreButton);
+				}
+				content.className = 'sceditor-insertemoticon';
+			}
+			editor.commands.table = {
+				state(parents, firstBlock) {
+					return firstBlock && firstBlock.closest('table') ? 1 : 0;
+				},
+				exec() {
+					tbl((cols, rows) => {
+						editor.wysiwygEditorInsertHtml(
+						'<table><tr><td>',
+						'</td>'+ Array(cols).join('<td><br></td>') + Array(rows).join('</tr><tr>' + Array(cols+1).join('<td><br></td>')) + '</tr></table>'
+						);
+					});
+				},
+				txtExec() {
+					tbl((cols, rows) => {
+						editor.insertText(
+						'[table]\n[tr]\n[td]',
+						'[/td]'+ Array(cols).join('\n[td][/td]') + Array(rows).join('\n[/tr]\n[tr]' + Array(cols+1).join('\n[td][/td]')) + '\n[/tr]\n[/table]'
+						);
+					});
+				},
+			};
+
+			const fn = editor.createDropDown;
+			this.createDropDown = function (menuItem, name, content) {
+				fn(menuItem, name, content);
+				document.body.appendChild(document.querySelector('.sceditor-dropdown'));
+			};
+
+			editor.insertQuoteFast = messageid =>
+			{
+				getXMLDocument(
+					smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + messageid + ';xml',
+					XMLDoc =>
+					{
+						var text = '';
+
+						for (var i = 0, n = XMLDoc.getElementsByTagName('quote')[0].childNodes.length; i < n; i++)
+							text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
+						editor.insert(text);
+
+						// Manually move cursor to after the quote.
+						var
+							rangeHelper = editor.getRangeHelper(),
+							parent = rangeHelper.parentNode();
+						if (parent && parent.nodeName === 'BLOCKQUOTE')
+						{
+							var range = rangeHelper.selectedRange();
+							range.setStartAfter(parent);
+							rangeHelper.selectRange(range);
+						}
+
+						ajax_indicator(false);
+					}
 				);
-		},
-		storeLastState: function (){
-			this.wasSource = this.inSourceMode();
-		},
-		setTextMode: function () {
-			if (!this.inSourceMode())
-				this.toggleSourceMode();
-		},
-		createPermanentDropDown: function () {
-			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
-			var popup_exists = false;
-			content = $('<div class="sceditor-insertemoticon">');
-			line = $('<div>');
-			base = this;
+			};
 
-			for (smiley_popup in this.opts.emoticons.popup)
+			editor.addStyleshet = path =>
 			{
-				popup_exists = true;
-				break;
-			}
-			if (popup_exists)
-			{
-				base.opts.emoticons.more = base.opts.emoticons.popup;
-				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
-					if ($(".sceditor-smileyPopup").length > 0)
-					{
-						$(".sceditor-smileyPopup").fadeIn('fast');
+				const iframe = editor.getContentAreaContainer();
+				const el = iframe.contentDocument.createElement('link');
+				el.type = 'text/css';
+				el.href = path;
+
+				iframe.contentDocument.head.appendChild(el);
+			};
+		};
+
+		let buttons = {};
+
+		this.signalReady = function ()
+		{
+			for (const group of this.opts.toolbarContainer.children[0].children) {
+				for (const button of group.children) {
+					const cmd = button.dataset.sceditorCommand;
+					buttons[cmd] = button;
+
+					// Create a pseudo linebreak.
+					if (this.opts.toolbar.includes(cmd + '||')) {
+						button.parentNode.after(document.createElement('div'));
 					}
-					else
-					{
-						var emoticons = $.extend({}, base.opts.emoticons.popup);
-						var popup_position;
-						var titlebar = $('<div class="catbg sceditor-popup-grip"/>');
-						popupContent = $('<div id="sceditor-popup"/>');
-						allowHide = true;
-						line = $('<div id="sceditor-popup-smiley"/>');
-						adjheight = 0;
 
-						popupContent.append(titlebar);
-						closeButton = $('<span class="button">').text(base._('Close')).click(function () {
-							$(".sceditor-smileyPopup").fadeOut('fast');
-						});
-						$(document).mouseup(function (e) {
-							if (allowHide && !popupContent.is(e.target) && popupContent.has(e.target).length === 0)
-								$(smileyPopup).fadeOut('fast');
-						}).keyup(function (e) {
-							if (e.keyCode === 27)
-								$(smileyPopup).fadeOut('fast');
-						});
+					// Add icon to custom buttons.
+					if (this.opts.customTextualCommands[cmd]) {
+						button.firstChild.style.backgroundImage = 'url(' + smf_default_theme_url + '/images/bbc/' + this.opts.customTextualCommands[cmd].image + '.png)';
+					}
 
-						$.each(emoticons, function( code, emoticon ) {
-							base.appendEmoticon(code, emoticon, base.opts.emoticonsDescriptions[code]);
-						});
+					// Add arrowhead to buttons.
+					if (this.opts.commandsWithDropdown[cmd]) {
+						button.classList.add('with-dropdown');
+					}
 
-						if (line.children().length > 0)
-							popupContent.append(line);
-						if (typeof closeButton !== "undefined")
-							popupContent.append(closeButton);
+					// This button uses text without an icon.
+					if (this.opts.textOnlyCommands[cmd]) {
+						button.classList.add('text');
+					}
 
-						// IE needs unselectable attr to stop it from unselecting the text in the editor.
-						// The editor can cope if IE does unselect the text it's just not nice.
-						if (base.ieUnselectable !== false) {
-							content = $(content);
-							content.find(':not(input,textarea)').filter(function () { return this.nodeType===1; }).attr('unselectable', 'on');
+					// Show text alongside the icon on this button.
+					if (this.opts.commandsWithText[cmd]) {
+						button.classList.add('text-icon');
+					}
+				}
+			}
+
+			// Copy variables from variants into ifrane.
+			const iframe = editor.getContentAreaContainer();
+			const el = iframe.contentDocument.createElement('style');
+			el.type = 'text/css';
+
+			for (const sheet of document.styleSheets) {
+				if (sheet.href?.includes('/index_') || sheet.href?.includes('/variables')) {
+					for (const rule of sheet.cssRules) {
+						el.innerHTML += rule.cssText;
+					}
+				} else if (sheet.href?.includes('/minified_')) {
+					for (const rule of sheet.cssRules) {
+						if (rule.selectorText == ':root') {
+							el.innerHTML += rule.cssText;
 						}
-
-						dropdownIgnoreLastClick = true;
-						adjheight = closeButton.height() + titlebar.height();
-						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
-							.append(popupContent)
-							.appendTo($('.sceditor-container'));
-
-						$('.sceditor-smileyPopup').animaDrag({
-							speed: 150,
-							interval: 120,
-							during: function (e) {
-								$(this).height(this.startheight);
-								$(this).width(this.startwidth);
-							},
-							before: function (e) {
-								this.startheight = $(this).innerHeight();
-								this.startwidth = $(this).innerWidth();
-							},
-							grip: '.sceditor-popup-grip'
-						});
-						// stop clicks within the dropdown from being handled
-						$dropdown.click(function (e) {
-							e.stopPropagation();
-						});
-					}
-				});
-			}
-			$.each(emoticons, function( code, emoticon ) {
-				base.appendEmoticon(code, emoticon, base.opts.emoticonsDescriptions[code]);
-			});
-			if (line.children().length > 0)
-				content.append(line);
-			$(".sceditor-toolbar").append(content);
-			if (typeof moreButton !== "undefined")
-				content.append($('<center/>').append(moreButton));
-		}
-	};
-
-	// Our custom autolinker plugin.
-	sceditor.plugins.autolinker = function () {
-		if (typeof autolinker_regexes === 'undefined') {
-			return;
-		}
-
-		const testOnKeyDown = [
-			'Enter',
-			'ArrowLeft',
-			'ArrowRight',
-			'ArrowUp',
-			'ArrowDown',
-			'End',
-			'Home',
-			'PageDown',
-			'PageUp',
-		];
-
-		// Detects and links plain text URLs when the user presses certain keys down.
-		this.signalKeydownEvent = function (e) {
-			if (this.inSourceMode() || !testOnKeyDown.includes(e.key)) {
-				return;
-			}
-
-			const rangeHelper = this.getRangeHelper();
-			const range = rangeHelper.selectedRange();
-
-			// Are we in a link or a span that was specifically set not to autolink?
-			if (
-				range.endContainer.parentNode.closest('a')
-				|| range.endContainer.parentNode.closest('span.nolink')
-			) {
-				return;
-			}
-
-			// Only do this when the caret is at the end of a string of non-space characters.
-			if (range.endContainer.textContent.substring(range.endOffset).match(/^\S/)) {
-				return;
-			}
-
-			// We want to search from the start of the current text node to the caret position.
-			let str = range.endContainer.textContent.substring(0, range.endOffset);
-
-			let found = false;
-
-			for (const [name, regex] of autolinker_regexes.entries()) {
-				if (!name.startsWith('keypress_')) {
-					continue;
-				}
-
-				// Ensure the search always starts from the beginning.
-				regex.lastIndex = 0;
-
-				// Append a space so that the keyup regex will match.
-				const url = regex.exec(str + " ");
-
-				if (url !== null) {
-					found = true;
-
-					insertAutolink(this, str, url, regex, name, rangeHelper);
-
-					break;
-				}
-			}
-
-			if (!found) {
-				removeAutolink(rangeHelper, range.startOffset);
-			}
-		};
-
-		// Detects and links plain text URLs when user releases a key.
-		this.signalKeyupEvent = function (e) {
-			if (this.inSourceMode()) {
-				return;
-			}
-
-			const rangeHelper = this.getRangeHelper();
-			const range = rangeHelper.selectedRange();
-
-			// Are we in a span that was specifically set not to autolink?
-			if (range.endContainer.parentNode.closest('span.nolink')) {
-				return;
-			}
-
-			// We want to search from the start of the current text node to the caret position.
-			let str = range.endContainer.textContent.substring(0, range.endOffset);
-
-			let found = false;
-
-			if (!testOnKeyDown.includes(e.key)) {
-				for (const [name, regex] of autolinker_regexes.entries()) {
-					if (!name.startsWith('keypress_')) {
-						continue;
-					}
-
-					// Ensure the search always starts from the beginning.
-					regex.lastIndex = 0;
-
-					const url = regex.exec(str);
-
-					if (url !== null) {
-						found = true;
-
-						insertAutolink(this, str, url, regex, name, rangeHelper);
-
-						// Put the caret back where it was originally.
-						rangeHelper.selectRange(range);
-
-						break;
 					}
 				}
 			}
-		};
 
-		// Used when editing an existing link or an "nolink" span.
-		this.signalInputEvent = function (e) {
-			if (this.inSourceMode() && ['insertText', 'insertLineBreak', 'insertParagraph'].includes(e.inputType)) {
-				const caretPos = this.sourceEditorCaret().start;
-				const val = this.val();
-				const valBefore = val.substring(0, caretPos);
-				const valAfter = val.substring(caretPos);
-
-				for (const [name, regex] of autolinker_regexes.entries()) {
-					if (!name.startsWith('keypress_')) {
-						continue;
-					}
-
-					// Ensure the search always starts from the beginning.
-					regex.lastIndex = 0;
-
-					let found = false;
-					let url = regex.exec(valBefore);
-
-					if (url !== null) {
-						// Wrap in BBC tags.
-						this.sourceEditorCaret({start: url.index, end: regex.lastIndex});
-
-						const bbc_tag = name.endsWith('email') ? 'email' : url[0].startsWith(smf_scripturl) ? 'iurl' : 'url';
-
-						const tag_param = name.endsWith('naked_domain') ? '="//' + url[0] + '"' : '';
-
-						this.insert('[' + bbc_tag + tag_param + ']', '[/' + bbc_tag + ']');
-
-						// Bump the caret along by the length of the inserted tags.
-						this.sourceEditorCaret({start: caretPos + bbc_tag.length * 2 + tag_param.length + 5, end: caretPos + bbc_tag.length * 2 + tag_param.length + 5});
-
-						// Don't try any more regular expressions.
-						break;
-					}
-				}
-
-				return;
-			}
-
-			const rangeHelper = this.getRangeHelper();
-			const range = rangeHelper.selectedRange();
-			const parent = rangeHelper.parentNode();
-			const container = parent.parentNode;
-			const containerParent = container.parentNode;
-
-			// Adding text immediately after an existing link.
-			if (
-				e.inputType === 'insertText'
-				&& parent.nodeType === Node.TEXT_NODE
-				&& parent.textContent === e.data
-				&& parent.previousSibling
-				&& parent.previousSibling.nodeType === Node.ELEMENT_NODE
-				&& parent.previousSibling.nodeName === 'A'
-				&& parent.previousSibling.href.replace(/\/$/, '').replace(/^mailto:/, '').startsWith(parent.previousSibling.textContent.replace(/\/$/, '').replace(/^mailto:/, ''))
-			) {
-				// Turn the link back into plain text.
-				parent.previousSibling.replaceWith(parent.previousSibling.textContent);
-				containerParent.normalize();
-
-				// Put the caret back where it was originally.
-				rangeHelper.selectRange(range);
-			}
-
-			// Inside an existing link.
-			if (
-				container.nodeType === Node.ELEMENT_NODE
-				&& container.nodeName === 'A'
-			) {
-				containerParent.normalize();
-				const str = container.textContent;
-
-				// Pressed backspace inside a link.
-				if (e.inputType === 'deleteContentBackward') {
-					const caretPos = range.startOffset;
-
-					// Turn the link back into plain text.
-					const strBefore = document.createTextNode(str.substring(0, caretPos));
-					const strAfter = document.createTextNode(str.substring(caretPos));
-
-					containerParent.insertBefore(strBefore, container);
-					containerParent.replaceChild(strAfter, container);
-					containerParent.normalize();
-
-					// Put the caret back where it was originally.
-					rangeHelper.selectRange(range);
-					return;
-				}
-
-				// Any other edits.
-				for (const [name, regex] of autolinker_regexes.entries()) {
-					if (name.startsWith('keypress_') || name.startsWith('paste_')) {
-						continue;
-					}
-
-					// Ensure the search always starts from the beginning.
-					regex.lastIndex = 0;
-
-					// If text content is a URL, update the href.
-					if (regex.test(str)) {
-						container.href = (name === 'email' ? 'mailto:' : '') + str;
-						break;
-					}
-				}
-
-				return;
-			}
-
-			// Inside a span that was specifically set not to autolink.
-			if (
-				container.nodeType === Node.ELEMENT_NODE
-				&& container.nodeName === 'SPAN'
-				&& container.classList.contains('nolink')
-			) {
-				const caretPos = range.startOffset;
-
-				containerParent.normalize();
-				const str = container.textContent;
-
-				let url = null;
-
-				for (const [name, regex] of autolinker_regexes.entries()) {
-					if (name.startsWith('keypress_') || name.startsWith('paste_')) {
-						continue;
-					}
-
-					// Ensure the search always starts from the beginning.
-					regex.lastIndex = 0;
-
-					url = regex.exec(str);
-
-					if (url !== null) {
-						break;
-					}
-				}
-
-				// If the nolink span no longer contains a URL, remove the span.
-				if (url === null) {
-					const strBefore = document.createTextNode(str.substring(0, caretPos));
-					const strAfter = document.createTextNode(str.substring(caretPos));
-
-					containerParent.insertBefore(strBefore, container);
-					containerParent.replaceChild(strAfter, container);
-					containerParent.normalize();
-
-					// Put the caret back where it was originally.
-					rangeHelper.selectRange(range);
-					return;
-				}
-
-				// Move any trailing spaces out of the nolink span.
-				const trailing = str.match(/\s+$/);
-
-				if (trailing !== null && str.replace(/\s+$/, '') === url[0]) {
-					const newText = document.createTextNode(trailing[0]);
-					const newSpan = document.createElement('span');
-					newSpan.classList.add('nolink')
-					newSpan.textContent = url[0];
-
-					containerParent.insertBefore(newSpan, container);
-					containerParent.insertBefore(newText, container);
-					containerParent.removeChild(container);
-					containerParent.normalize();
-
-					// Put the caret back where it was originally.
-					rangeHelper.selectRange(range);
-				}
-			}
-		};
-
-		// Autolink URLs that are pasted into the editor.
-		this.signalPasteRaw = function (data) {
-			if (!data.html && data.text) {
-				data.html = data.text;
-			}
-
-			for (const [name, regex] of autolinker_regexes.entries()) {
-				if (!name.startsWith('paste_')) {
-					continue;
-				}
-
-				const url = regex.exec(data.html);
-
-				if (url !== null) {
-					const bbc_tag = name === 'paste_email' ? 'email' : (url[0].startsWith(smf_scripturl) ? 'iurl' : 'url');
-
-					data.html = data.html.replace(regex, '<a data-type="' + bbc_tag + '" href="' + (bbc_tag === 'email' ? 'mailto:' : '') + url[0] + '">' + url[0] + '</a>');
-
-					break;
-				}
-			}
-		};
-
-		// Helper for this.signalKeydownEvent and this.signalKeyupEvent.
-		function insertAutolink(editor, str, url, regex, regex_name, rangeHelper) {
-			// Trim off trailing brackets and quotes that aren't part of balanced pairs.
-			let found_trailing_bracket_quote = false;
-			do {
-				for (const [opener, closer] of autolinker_balanced_pairs.entries()) {
-					found_trailing_bracket_quote = url[0].endsWith(opener) || url[0].endsWith(closer);
-
-					if (url[0].endsWith(opener)) {
-						url[0] = url[0].slice(0, -1);
-						regex.lastIndex--;
-						break;
-					}
-
-					if (url[0].endsWith(closer)) {
-						let allowed_closers = 0;
-
-						for (const char of url[0]) {
-						    if (char === opener) {
-						    	allowed_closers++;
-						    } else if (char === closer) {
-						    	allowed_closers--;
-						    }
-						}
-
-						if (allowed_closers < 0) {
-							url[0] = url[0].slice(0, -1);
-							regex.lastIndex--;
-						} else {
-							found_trailing_bracket_quote = false;
-						}
-
-						break;
-					}
-				}
-			} while (found_trailing_bracket_quote);
-
-			// Which BBC do we want to use?
-			const bbc_tag = regex_name.endsWith('email') ? 'email' : (url[0].startsWith(smf_scripturl) ? 'iurl' : 'url');
-
-			// Set start of selection to the start of the URL.
-			rangeHelper.selectOuterText(str.length - url.index, 0);
-
-			// Set end of selection to the end of the URL.
-			let selectedRange = rangeHelper.selectedRange();
-			selectedRange.setEnd(rangeHelper.parentNode(), selectedRange.endOffset - (str.length - url.index - url[0].length));
-
-			// Prepend '//' to naked domains.
-			if (regex_name.endsWith('naked_domain')) {
-				url[0] = '//' + url[0];
-			}
-
-			// Insert the URL.
-			editor.wysiwygEditorInsertHtml('<a data-type="' + bbc_tag + '" href="' + url[0] + '">' + url[0] + '</a>');
-		}
-
-		// Helper for this.signalKeydownEvent.
-		function removeAutolink(rangeHelper, caretPos) {
-			const container = rangeHelper.parentNode().parentNode;
-
-			if (
-				container.nodeType === Node.ELEMENT_NODE
-				&& container.nodeName === 'A'
-				&& container.href.replace(/\/$/, '').replace(/^mailto:/, '') === container.textContent.replace(/\/$/, '')
-			) {
-				const url = container.textContent;
-				const containerParent = container.parentNode;
-
-				if (caretPos === url.length) {
-					container.replaceWith(url);
-					containerParent.normalize();
-
-					rangeHelper.selectOuterText(0, caretPos);
-					let selectedRange = rangeHelper.selectedRange();
-					selectedRange.setStart(rangeHelper.parentNode(), selectedRange.endOffset);
-				}
-			}
-		}
-	};
-
-	var createFn = sceditor.create;
-	var isPatched = false;
-
-	sceditor.create = function (textarea, options) {
-		textarea.value = textarea.value.replaceAll(/\t/, '[tab]');
-
-		// Call the original create function
-		createFn(textarea, options);
-
-		textarea.value = textarea.value.replaceAll(/\[tab\]/, '\t');
-
-		// Constructor isn't exposed so get reference to it when
-		// creating the first instance and extend it then
-		var instance = sceditor.instance(textarea);
-		if (!isPatched && instance) {
-			const wysiwygEditor = instance.getContentAreaContainer();
-			const editorContainer = wysiwygEditor.parentElement;
-			const sourceEditor = editorContainer.querySelector("textarea");
-
-			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
-			window.addEventListener('beforeunload', instance.updateOriginal, false);
-
-			/*
-			 * Stop SCEditor from resizing the entire container. Long
-			 * toolbars and tons of smilies play havoc with this.
-			 * Only resize the text areas instead.
-			 */
-			editorContainer.removeAttribute("style");
-			sourceEditor.style.height = options.height;
-			sourceEditor.style.flexBasis = options.height;
+			iframe.contentDocument.head.appendChild(el);
 
 			// Override these functions in order to convince SCEditor not to
-			// delete tabs. Supporting Markdown means we need to keep them.
-			const getSourceVal = instance.getSourceEditorValue;
-			const setSourceVal = instance.setSourceEditorValue;
+			// delete tabs.  Supporting Markdown means we need to keep them.
+			const getSourceVal = editor.getSourceEditorValue;
+			const setSourceVal = editor.setSourceEditorValue;
+			const sourceEditor = editor.getContentAreaContainer().nextSibling;
 
-			instance.getSourceEditorValue = function (filter) {
+			editor.getSourceEditorValue = function (filter) {
 				if (filter !== false) {
 					sourceEditor.value = sourceEditor.value.replaceAll(/\t/, '[tab]');
 				}
@@ -616,23 +277,65 @@
 				return getSourceVal(filter);
 			};
 
-			instance.setSourceEditorValue = function (value) {
+			editor.setSourceEditorValue = function (value) {
 				setSourceVal(value.replaceAll(/\[tab\]/, '\t'));
 			};
+		};
+	};
 
-			isPatched = true;
-		}
-
-		// Fix for minor bug where the toolbar buttons wouldn't initially be active.
-		if (options.autofocus) {
-			const rangeHelper = instance.getRangeHelper();
-			rangeHelper.saveRange();
-			instance.blur();
-			instance.focus();
-			rangeHelper.restoreRange();
+	const setCustomTextualCommands = cmds => {
+		for (let c in cmds) {
+			const cmd = cmds[c];
+			const obj = {
+				tooltip: cmd.description || c
+			};
+			if (!sceditor.commands[c] && cmd.before) {
+				obj.exec = function() {
+					this.insertText(cmd.before, cmd.after || '');
+				};
+				obj.txtExec = [cmd.before, cmd.after || ''];
+			}
+			sceditor.command.set(c, obj);
 		}
 	};
-})(jQuery);
+
+	const createFn = sceditor.create;
+	sceditor.create = (textarea, options, bbcContainer, smileyContainer) => {
+		setCustomTextualCommands(options.customTextualCommands);
+		options.original = textarea;
+
+		if (typeof oQuickModify !== "undefined") {
+			oQuickModify.opt.sceOptions = options;
+		}
+
+		if (typeof bbcContainer === 'string')
+			options.toolbarContainer = document.getElementById(bbcContainer);
+
+		if (typeof smileyContainer === 'string')
+			options.smileyContainer = document.getElementById(smileyContainer);
+
+		if (bbcContainer === true || !options.toolbarContainer) {
+			options.toolbarContainer = document.createElement("div");
+			textarea.before(options.toolbarContainer);
+		} else {
+			options.toolbar = '';
+		}
+
+		if (smileyContainer === true || !options.smileyContainer) {
+			options.smileyContainer = document.createElement("div");
+			textarea.before(options.smileyContainer);
+		} else {
+			options.emoticons = {};
+		}
+
+		textarea.value = textarea.value.replaceAll(/\t/, '[tab]');
+
+		// Call the original create function
+		createFn(textarea, options);
+
+		textarea.value = textarea.value.replaceAll(/\[tab\]/, '\t');
+	};
+})(sceditor);
 
 sceditor.command.set(
 	'pre', {
@@ -641,13 +344,12 @@ sceditor.command.set(
 			this.wysiwygEditorInsertHtml('<pre>', '</pre>');
 		}
 	}
-);
-sceditor.command.set(
+).set(
 	'link', {
-		exec: function (caller) {
-			var editor = this;
+		exec(caller) {
+			const editor = this;
 
-			editor.commands.link._dropDown(editor, caller, function (url, text) {
+			editor.commands.link._dropDown(editor, caller, (url, text) => {
 				if (!editor.getRangeHelper().selectedHtml() || text) {
 					text = text || url;
 
@@ -657,8 +359,6 @@ sceditor.command.set(
 						sceditor.escapeEntities(text, true) + '</a>'
 					);
 				} else {
-					// Can't just use `editor.execCommand('createlink', url)`
-					// because we need to set a custom attribute.
 					editor.wysiwygEditorInsertHtml(
 						'<a data-type="url" href="' +
 						sceditor.escapeEntities(url) + '">', '</a>'
@@ -667,15 +367,14 @@ sceditor.command.set(
 			});
 		}
 	}
-);
-sceditor.command.set(
+).set(
 	'unlink', {
-		state: function () {
+		state() {
 			if (this.inSourceMode()) {
 				return 0;
 			}
 
-			const rangeHelper = this.getRangeHelper()
+			const rangeHelper = this.getRangeHelper();
 			const container = rangeHelper.parentNode().parentNode;
 
 			if (container.nodeType === Node.ELEMENT_NODE && container.nodeName === 'SPAN' && container.classList.contains('nolink')) {
@@ -688,8 +387,8 @@ sceditor.command.set(
 
 			return 0;
 		},
-		exec: function () {
-			const rangeHelper = this.getRangeHelper()
+		exec() {
+			const rangeHelper = this.getRangeHelper();
 			const container = rangeHelper.parentNode().parentNode;
 
 			if (
@@ -728,7 +427,7 @@ sceditor.command.set(
 				}
 			}
 		},
-		txtExec: function () {
+		txtExec() {
 			let caretPos = this.sourceEditorCaret().start;
 			const val = this.val();
 			const valBefore = val.substring(0, caretPos);
@@ -820,11 +519,9 @@ sceditor.command.set(
 			}
 		},
 	}
-);
-
-sceditor.command.set(
+).set(
 	'bulletlist', {
-		txtExec: function (caller, selected) {
+		txtExec(caller, selected) {
 			if (selected)
 				this.insertText(
 					'[list]\n[li]' +
@@ -835,11 +532,9 @@ sceditor.command.set(
 				this.insertText('[list]\n[li]', '[/li]\n[li][/li]\n[/list]');
 		}
 	}
-);
-
-sceditor.command.set(
+).set(
 	'orderedlist', {
-		txtExec: function (caller, selected) {
+		txtExec(caller, selected) {
 			if (selected)
 				this.insertText(
 					'[list type=decimal]\n[li]' +
@@ -850,24 +545,14 @@ sceditor.command.set(
 				this.insertText('[list type=decimal]\n[li]', '[/li]\n[li][/li]\n[/list]');
 		}
 	}
-);
-
-sceditor.command.set(
-	'table', {
-		txtExec: ["[table]\n[tr]\n[td]", "[/td]\n[/tr]\n[/table]"]
-	}
-);
-
-sceditor.command.set(
+).set(
 	'floatleft', {
 		txtExec: ["[float=left max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
 		}
 	}
-);
-
-sceditor.command.set(
+).set(
 	'floatright', {
 		txtExec: ["[float=right max=45%]", "[/float]"],
 		exec: function () {
@@ -908,7 +593,7 @@ sceditor.command.set(
 				});
 			}
 
-			editor.createDropDown(caller, 'heading-picker', content);
+			editor.createDropDown(caller, 'item-picker', content);
 		},
 		state: function (parent, firstBlock) {
 			return sceditor.dom.closest(this.currentNode(), 'h1, h2, h3, h4, h5, h6') ? 1 : 0;
@@ -917,51 +602,37 @@ sceditor.command.set(
 			var editor = this;
 
 			editor.commands.heading._dropDown(editor, caller, function (tag) {
-				let caretPos = editor.sourceEditorCaret().start;
-
-				if (tag.match(/h[1-6]/)) {
-					editor.insert('[' + tag + ']', '[/' + tag + ']');
-					editor.toggleSourceMode();
-					editor.toggleSourceMode();
-					editor.sourceEditorCaret({start: caretPos, end: caretPos});
-				}
+				editor.insert('[' + tag + ']', '[/' + tag + ']');
 			});
 		},
 		exec: function (caller) {
 			var editor = this;
 
 			editor.commands.heading._dropDown(editor, caller, function (tag) {
-				const rangeHelper = editor.getRangeHelper()
-				const container = rangeHelper.parentNode().parentNode;
-				const containerParent = container.parentNode;
-				const content = container.innerHTML;
+				const rangeHelper = editor.getRangeHelper();
+				const container = rangeHelper.parentNode().parentNode.closest('h1, h2, h3, h4, h5, h6');
+
+				if (!container) {
+					return;
+				}
 
 				if (
 					container.nodeType === Node.ELEMENT_NODE
 					&& container.nodeName.match(/H[1-6]/)
 				) {
+					const content = container.innerHTML;
 					let newElement = document.createElement(tag.match(/h[1-6]/) ? tag : 'p');
 					newElement.innerHTML = content;
 					container.replaceWith(newElement);
-					containerParent.normalize();
-					rangeHelper.selectOuterText(0, content.length);
+					container.parentNode.normalize();
+					const range = rangeHelper.selectedRange();
+					range.setStartAfter(newElement);
+					rangeHelper.selectRange(range);
 				} else if (tag.match(/h[1-6]/)) {
 					editor.insert('[' + tag + ']', '[/' + tag + ']');
 				}
 			});
 		},
-	}
-);
-
-sceditor.command.set(
-	'maximize', {
-		shortcut: ''
-	}
-);
-
-sceditor.command.set(
-	'source', {
-		shortcut: ''
 	}
 );
 
@@ -975,9 +646,55 @@ sceditor.command.set(
 			});
 		}
 	}
-);
+).set(
+	'color', {
+		_dropDown(editor, caller, callback)
+		{
+			const content = document.createElement('div');
 
-sceditor.command.set(
+			for (const [color, name] of editor.opts.colors)
+			{
+				const link = document.createElement('a');
+				const span = document.createElement('span');
+				link.setAttribute('data-color', color);
+				link.textContent = name;
+				span.style.backgroundColor = color;
+				link.addEventListener('click', function (e) {
+					callback(this.getAttribute('data-color'));
+					editor.closeDropDown(true);
+					e.preventDefault();
+				});
+				link.appendChild(span);
+				content.appendChild(link);
+			}
+
+			editor.createDropDown(caller, 'item-picker', content);
+		}
+	}
+).set(
+	'size', {
+		_dropDown(editor, caller, callback)
+		{
+			const content = document.createElement('div');
+
+			for (let i = 1; i <= 7; i++)
+			{
+				const link = document.createElement('a');
+				link.setAttribute('data-size', i);
+				link.textContent = i;
+				link.addEventListener('click', function (e) {
+					callback(this.getAttribute('data-size'));
+					editor.closeDropDown(true);
+					e.preventDefault();
+				});
+				content.appendChild(link);
+				link.style.fontSize = i * 6 + 'px';
+			}
+
+			editor.createDropDown(caller, 'item-picker', content);
+		}
+	}
+).set(
 	'email', {
 		exec: function (caller)
 		{
@@ -1006,28 +723,24 @@ sceditor.command.set(
 			);
 		},
 	}
-);
-
-sceditor.command.set(
+).set(
 	'image', {
-		exec: function (caller)
-		{
-			var editor = this;
+		exec(caller) {
+			const editor = this;
 
 			editor.commands.image._dropDown(
 				editor,
 				caller,
 				'',
-				function (url, width, height)
-				{
-					var attrs = ['src="' + sceditor.escapeEntities(url) + '"'];
+				(url, width, height) => {
+					const attrs = ['src="' + sceditor.escapeEntities(url) + '"'];
 
 					if (width)
 						attrs.push('width="' + sceditor.escapeEntities(width, true) + '"');
 
 					if (height)
 						attrs.push('height="' + sceditor.escapeEntities(height, true) + '"');
-
+ 
 					editor.wysiwygEditorInsertHtml(
 						'<img ' + attrs.join(' ') + '>'
 					);
@@ -1075,6 +788,31 @@ sceditor.command.set(
 	}
 );
 
+let itemCodes = [
+	['*', 'disc'],
+	['@', 'disc'],
+	['+', 'square'],
+	['x', 'square'],
+	['o', 'circle'],
+	['O', 'circle'],
+	['0', 'circle'],
+];
+for (const [code, attr] of itemCodes)
+{
+	sceditor.formats.bbcode.set(code, {
+		tags: {
+			li: {
+				'data-itemcode': [code]
+			}
+		},
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '0', 'o', 'O'],
+		excludeClosing: true,
+		html: '<li type="' + attr + '" data-itemcode="' + code + '">{0}</li>',
+		format: '[' + code + ']{0}',
+	});
+}
+
 // This pseudo-BBCode exists solely to convince SCEditor not to delete tab characters.
 sceditor.formats.bbcode.set(
 	'tab', {
@@ -1098,32 +836,25 @@ sceditor.formats.bbcode.set(
 				title: null
 			}
 		},
-		format: function (element, content) {
-			return '[abbr=' + $(element).attr('title') + ']' + content + '[/abbr]';
+		format(element, content) {
+			return '[abbr=' + element.getAttribute('title') + ']' + content + '[/abbr]';
 		},
-		html: function (element, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				return content;
-
-			return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
-		}
+		html: '<abbr title="{defaultattr}">{0}</abbr>'
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'list', {
 		breakStart: true,
 		isInline: false,
 		// allowedChildren: ['*', 'li'], // Disabled for SCE 2.1.2 because it triggers a bug with inserting extra line breaks
-		html: function (element, attrs, content) {
-			var style = '';
-			var code = 'ul';
-			var olTypes = new Array('decimal', 'decimal-leading-zero', 'lower-roman', 'upper-roman', 'lower-alpha', 'upper-alpha', 'lower-greek', 'upper-greek', 'lower-latin', 'upper-latin', 'hebrew', 'armenian', 'georgian', 'cjk-ideographic', 'hiragana', 'katakana', 'hiragana-iroha', 'katakana-iroha');
+		html(element, {type}, content) {
+			let style = '';
+			let code = 'ul';
+			const olTypes = ['decimal', 'decimal-leading-zero', 'lower-roman', 'upper-roman', 'lower-alpha', 'upper-alpha', 'lower-greek', 'upper-greek', 'lower-latin', 'upper-latin', 'hebrew', 'armenian', 'georgian', 'cjk-ideographic', 'hiragana', 'katakana', 'hiragana-iroha', 'katakana-iroha'];
 
-			if (attrs.type) {
-				style = ' style="list-style-type: ' + attrs.type + '"';
+			if (type) {
+				style = ' style="list-style-type: ' + type + '"';
 
-				if (olTypes.indexOf(attrs.type) > -1)
+				if (olTypes.includes(type))
 					code = 'ol';
 			}
 			else
@@ -1132,9 +863,7 @@ sceditor.formats.bbcode.set(
 			return '<' + code + style + '>' + content + '</' + code + '>';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'ul', {
 		tags: {
 			ul: null
@@ -1142,16 +871,15 @@ sceditor.formats.bbcode.set(
 		breakStart: true,
 		isInline: false,
 		html: '<ul>{0}</ul>',
-		format: function (element, content) {
-			if ($(element).css('list-style-type') == 'disc')
+		format(element, content) {
+			const type = element.getAttribute('type') || element.style.listStyleType;
+			if (type == 'disc')
 				return '[list]' + content + '[/list]';
 			else
-				return '[list type=' + $(element).css('list-style-type') + ']' + content + '[/list]';
+				return '[list type=' + type + ']' + content + '[/list]';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'ol', {
 		tags: {
 			ol: null
@@ -1159,135 +887,34 @@ sceditor.formats.bbcode.set(
 		breakStart: true,
 		isInline: false,
 		html: '<ol>{0}</ol>',
-		format: function (element, content) {
-			if ($(element).css('list-style-type') == 'none')
-				return '[list type=decimal]' + content + '[/list]';
-			else
-				return '[list type=' + $(element).css('list-style-type') + ']' + content + '[/list]';
+		format(element, content) {
+			const type = element.getAttribute('type') || element.style.listStyleType;
+			if (type == 'none')
+				type = 'decimal';
+
+			return '[list type=' + type + ']' + content + '[/list]';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'li', {
 		tags: {
 			li: null
 		},
 		isInline: false,
 		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		html: '<li data-bbc-tag="li">{0}</li>',
-		format: function (element, content) {
-			var	element = $(element),
-				token = 'li',
-				allowedTokens = ['li', '*', '@', '+', 'x', 'o', 'O', '0'];
+		html: '<li data-itemcode="li">{0}</li>',
+		format(element, content) {
+			let token = 'li';
+			const tok = element.getAttribute('data-itemcode');
+			const allowedTokens = ['li', '*', '@', '+', 'x', 'o', 'O', '0'];
 
-			if (element.attr('data-bbc-tag') && allowedTokens.indexOf(element.attr('data-bbc-tag') > -1))
-				token = element.attr('data-bbc-tag');
+			if (tok && allowedTokens.includes(tok))
+				token = tok;
 
 			return '[' + token + ']' + content + (token === 'li' ? '[/' + token + ']' : '');
 		},
 	}
-);
-sceditor.formats.bbcode.set(
-	'*', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['*']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="disc" data-bbc-tag="*">{0}</li>',
-		format: '[*]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
-	'@', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['@']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="disc" data-bbc-tag="@">{0}</li>',
-		format: '[@]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
-	'+', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['+']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="square" data-bbc-tag="+">{0}</li>',
-		format: '[+]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
-	'x', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['x']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="square" data-bbc-tag="x">{0}</li>',
-		format: '[x]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
-	'o', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['o']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="circle" data-bbc-tag="o">{0}</li>',
-		format: '[o]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
-	'O', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['O']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="circle" data-bbc-tag="O">{0}</li>',
-		format: '[o]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
-	'0', {
-		tags: {
-			li: {
-				'data-bbc-tag': ['0']
-			}
-		},
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
-		excludeClosing: true,
-		html: '<li type="circle" data-bbc-tag="0">{0}</li>',
-		format: '[o]{0}',
-	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'img', {
 		tags: {
 			img: {
@@ -1295,25 +922,11 @@ sceditor.formats.bbcode.set(
 			}
 		},
 		allowsEmpty: true,
-		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
-		format: function (element, content) {
-			var	element = $(element),
-				attribs = '',
-				style = function (name) {
-					return element.style ? element.style[name] : null;
-				};
-
+		quoteType: sceditor.BBCodeParser.QuoteType.never,
+		format(element, content) {
 			// check if this is an emoticon image
-			if (typeof element.attr('data-sceditor-emoticon') !== "undefined")
+			if (element.hasAttribute('data-sceditor-emoticon'))
 				return content;
-
-			// only add width and height if one is specified
-			if (element.attr('width') || style('width'))
-				attribs += " width=" + element.attr('width');
-			if (element.attr('height') || style('height'))
-				attribs += " height=" + element.attr('height');
-			if (element.attr('alt'))
-				attribs += " alt=" + element.attr('alt');
 
 			// Is this an attachment?
 			if (element.attr('data-attachment'))
@@ -1326,29 +939,39 @@ sceditor.formats.bbcode.set(
 			}
 			else if (element.attr('title'))
 				attribs += " title=" + element.attr('title');
+			let attribs = '';
+			const width = element.getAttribute('width') || element.style.width;
+			const height = element.getAttribute('height') || element.style.height;
 
-			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
+			if (width)
+				attribs += " width=" + width;
+			if (height)
+				attribs += " height=" + height;
+			if (element.alt)
+				attribs += " alt=" + element.alt;
+			if (element.title)
+				attribs += " title=" + element.title;
+
+			return '[img' + attribs + ']' + element.src + '[/img]';
 		},
-		html: function (token, attrs, content) {
-			var	parts,
-				attribs = '';
+		html(token, {width, height, alt, title}, content) {
+			let parts;
+			let attribs = '';
 
 			// handle [img width=340 height=240]url[/img]
-			if (typeof attrs.width !== "undefined")
-				attribs += ' width="' + attrs.width + '"';
-			if (typeof attrs.height !== "undefined")
-				attribs += ' height="' + attrs.height + '"';
-			if (typeof attrs.alt !== "undefined")
-				attribs += ' alt="' + attrs.alt + '"';
-			if (typeof attrs.title !== "undefined")
-				attribs += ' title="' + attrs.title + '"';
+			if (typeof width !== "undefined")
+				attribs += ' width="' + width + '"';
+			if (typeof height !== "undefined")
+				attribs += ' height="' + height + '"';
+			if (typeof alt !== "undefined")
+				attribs += ' alt="' + alt + '"';
+			if (typeof title !== "undefined")
+				attribs += ' title="' + title + '"';
 
 			return '<img' + attribs + ' src="' + content + '">';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'attach', {
 		tags: {
 			img: {
@@ -1440,22 +1063,20 @@ sceditor.formats.bbcode.set(
 				if (typeof attrs.height !== "undefined")
 					attribs += ' height="' + attrs.height + '"';
 
-				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';preview;image';
+				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
 				contentIMG = new Image();
 					contentIMG.src = contentUrl;
 			}
 
 			// If not an image, show a boring ol' link
 			if (typeof contentUrl === "undefined" || contentIMG.getAttribute('width') == 0)
-				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';file"' + attribs + '>' + content + '</a>';
+				return '<a data-type="attach" href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + content + '</a>';
 			// Show our purdy li'l picture
 			else
 				return '<img' + attribs + ' src="' + contentUrl + '">';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'email', {
 		allowsEmpty: true,
 		quoteType: sceditor.BBCodeParser.QuoteType.never,
@@ -1478,14 +1099,12 @@ sceditor.formats.bbcode.set(
 		}
 	}
 );
-
 sceditor.formats.bbcode.set(
 	'url', {
 		allowsEmpty: true,
-		quoteType: sceditor.BBCodeParser.QuoteType.always,
-		format(element, content)
-		{
-			if (element.hasAttribute('data-type') && element.getAttribute('data-type') != 'url')
+		quoteType: sceditor.BBCodeParser.QuoteType.never,
+		format(element, content) {
+			if (element.getAttribute('data-type') != 'url')
 				return content;
 
 			if (decodeURI(element.href).replace(/\/$/, '') === content.replace(/\/$/, '')) {
@@ -1494,34 +1113,30 @@ sceditor.formats.bbcode.set(
 
 			return '[url=' + decodeURI(element.href) + ']' + content + '[/url]';
 		},
-		html: function (token, attrs, content)
-		{
-			return '<a data-type="url" href="' + encodeURI(attrs.defaultattr || content) + '">' + content + '</a>';
+		html(token, {defaultattr}, content) {
+			return '<a data-type="url" href="' + encodeURI(defaultattr || content) + '">' + content + '</a>';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'iurl', {
 		allowsEmpty: true,
-		quoteType: sceditor.BBCodeParser.QuoteType.always,
+		quoteType: sceditor.BBCodeParser.QuoteType.never,
 		tags: {
 			a: {
 				'data-type': ['iurl']
 			}
 		},
-		format: function (element, content)
-		{
-			if (decodeURI(element.href).replace(/\/$/, '') === content.replace(/\/$/, '')) {
-				return '[iurl]' + content + '[/iurl]';
-			}
-
-			return '[iurl=' + decodeURI(element.href) + ']' + content + '[/iurl]';
+		format({href}, content) {
+			return '[iurl=' + href + ']' + content + '[/iurl]';
 		},
-		html: function (token, attrs, content)
-		{
-			return '<a data-type="iurl" href="' + encodeURI(attrs.defaultattr || content) + '">' + content + '</a>';
+		html(token, {defaultattr}, content) {
+			return '<a data-type="iurl" href="' + (defaultattr || content) + '">' + content + '</a>';
 		}
+	})
+.set(
+	'ftp', {
+		allowsEmpty: true,
+		quoteType: sceditor.BBCodeParser.QuoteType.never,
 	}
 );
 
@@ -1533,28 +1148,62 @@ sceditor.formats.bbcode.set(
 				'class': 'nolink'
 			},
 		},
-		format: function (element, content) {
-			return '[nolink]' + content + '[/nolink]';
-		},
-		html: function (token, attrs, content)
-		{
-			return '<span class="nolink">' + content + '</span>';
-		}
+		format: '[nolink]{0}[/nolink]',
+		html: '<span class="nolink">{0}</span>'
 	}
 );
 
 sceditor.formats.bbcode.set(
 	'pre', {
 		tags: {
+			a: {
+				'data-type': ['ftp']
+			}
+		},
+		format({href}, content) {
+			return (href == content ? '[ftp]' : '[ftp=' + href + ']') + content + '[/ftp]';
+		},
+		html(token, {defaultattr}, content) {
+			return '<a data-type="ftp" href="' + (defaultattr || content) + '">' + content + '</a>';
+		}
+	})
+	.set('table', {
+		breakStart: true,
+		isHtmlInline: false,
+		skipLastLineBreak: false,
+	})
+	.set('tr', {
+		breakStart: true,
+	})
+	.set('tt', {
+		tags: {
+			tt: null,
+			span: {'class': ['tt']}
+		},
+		format: '[tt]{0}[/tt]',
+		html: '<span class="tt">{0}</span>'
+	})
+	.set('pre', {
+		tags: {
 			pre: null
 		},
 		isBlock: true,
-		format: "[pre]{0}[/pre]",
-		html: "<pre>{0}</pre>\n"
-	}
-);
-
-sceditor.formats.bbcode.set(
+		format: '[pre]{0}[/pre]',
+		html: '<pre>{0}</pre>'
+	})
+	.set('me', {
+		tags: {
+			div: {
+				'data-name' : null
+			}
+		},
+		isInline: false,
+		format(element, content) {
+			return '[me=' + element.getAttribute('data-name') + ']' + content.replace(element.getAttribute('data-name') + ' ', '') + '[/me]';
+		},
+		html: '<div class="meaction" data-name="{defaultattr}">* {defaultattr} {0}</div>'
+	})
+.set(
 	'php', {
 		tags: {
 			code: {
@@ -1615,15 +1264,13 @@ sceditor.formats.bbcode.set(
 
 			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 		},
-		html: function (element, attrs, content) {
-			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
+		html(element, {defaultattr}, content) {
+			const from = defaultattr ? ' data-title="' + defaultattr + '"'  : '';
 
 			return '<pre class="bbc_code"><code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>') + '</code></pre>';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'quote', {
 		tags: {
 			blockquote: null,
@@ -1632,12 +1279,11 @@ sceditor.formats.bbcode.set(
 		quoteType: sceditor.BBCodeParser.QuoteType.never,
 		breakBefore: false,
 		isInline: false,
-		format: function (element, content)
-		{
-			var attrs = '';
-			var author = element.getAttribute('data-author');
-			var date = element.getAttribute('data-date');
-			var link = element.getAttribute('data-link');
+		format(element, content) {
+			let attrs = '';
+			const author = element.getAttribute('data-author');
+			const date = element.getAttribute('data-date');
+			const link = element.getAttribute('data-link');
 
 			// The <cite> contains only the graphic for the quote, so we can skip it
 			if (element.tagName === 'CITE')
@@ -1652,11 +1298,13 @@ sceditor.formats.bbcode.set(
 
 			return '[quote' + attrs + ']' + content + '[/quote]';
 		},
-		html: function (element, attrs, content)
-		{
-			var attr_author = '', author = '';
-			var attr_date = '', sDate = '';
-			var attr_link = '', link = '';
+		html(element, attrs, content) {
+			let attr_author = '';
+			let author = '';
+			let attr_date = '';
+			let sDate = '';
+			let attr_link = '';
+			let link = '';
 
 			if (attrs.author || attrs.defaultattr)
 			{
@@ -1683,9 +1331,7 @@ sceditor.formats.bbcode.set(
 			return '<blockquote data-author="' + attr_author + '" data-date="' + attr_date + '" data-link="' + attr_link + '"><cite>' + (author || bbc_quote) + ' ' + sDate + '</cite>' + content + '</blockquote>';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'font', {
 		format: function (element, content) {
 			var element = $(element);
@@ -1707,9 +1353,7 @@ sceditor.formats.bbcode.set(
 			return '[font=' + font + ']' + content + '[/font]';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'member', {
 		isInline: true,
 		tags: {
@@ -1727,9 +1371,7 @@ sceditor.formats.bbcode.set(
 			return '<a href="' + smf_scripturl +'?action=profile;u='+ attrs.defaultattr + '" class="mention" data-type="mention" data-mention="'+ attrs.defaultattr + '">@'+ content.replace('@', '') +'</a>';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'float', {
 		tags: {
 			div: {
@@ -1758,27 +1400,17 @@ sceditor.formats.bbcode.set(
 			return '<div class="' + floatclass + '"' + style + '>' + content + '</div>';
 		}
 	}
-);
-
-sceditor.formats.bbcode.set(
+).set(
 	'youtube', {
-		allowsEmpty: true,
 		tags: {
 			div: {
-				class: 'videocontainer'
+				'data-youtube-id': null
 			}
 		},
 		isInline: false,
 		skipLastLineBreak: true,
-		format: function (element, content) {
-			youtube_id = $(element).find('iframe').data('youtube-id');
-
-			if (typeof youtube_id !== "undefined")
-				return '[youtube]' + youtube_id + '[/youtube]';
-			else
-				return content;
-		},
-		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
+		format: el => `[youtube]${el.getAttribute('data-youtube-id')}[/youtube]`,
+		html: '<div data-youtube-id="{0}"><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" allowfullscreen></iframe></div>'
 	}
 );
 
