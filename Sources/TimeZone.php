@@ -2247,7 +2247,7 @@ class TimeZone extends \DateTimeZone
 					$zones[$tzkey]['dst_type'] = $tz->getDstType();
 					$zones[$tzkey]['abbrs'] = $tz->getAbbreviations($when);
 
-					$metazone_label = $tz->getMetaZoneLabel();
+					$metazone_label = $tz->getMetaZoneLabel($when);
 
 					if (!empty($metazone_label)) {
 						$zones[$tzkey]['metazone'] = $metazone_label;
