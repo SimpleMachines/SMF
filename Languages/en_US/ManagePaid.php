@@ -44,7 +44,7 @@ $txt['paid_currency'] = 'Select Currency';
 $txt['paid_currency_code'] = 'Currency Code';
 $txt['paid_currency_code_desc'] = 'Code used by payment merchants';
 $txt['paid_currency_symbol'] = 'Symbol used by payment method';
-$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes. For example $%1.2f, %1.2f EUR etc';
+$txt['paid_currency_symbol_desc'] = 'Use "%1.2f" to specify where the number goes. For example $%1.2f, %1.2f EUR etc';
 $txt['paid_settings_save'] = 'Save';
 
 $txt['paypal_email'] = 'PayPal email address';
@@ -81,7 +81,7 @@ $txt['paid_pending'] = 'Pending Payment';
 $txt['paid_finished'] = 'Finished';
 $txt['paid_total'] = 'Total';
 $txt['paid_is_active'] = 'Activated';
-$txt['paid_none_yet'] = 'You haven\'t set up any subscriptions yet.';
+$txt['paid_none_yet'] = 'You have not set up any subscriptions yet.';
 $txt['paid_payments_pending'] = 'Payments Pending';
 $txt['paid_order'] = 'Order';
 
@@ -122,14 +122,14 @@ $txt['paid_mod_prim_group'] = 'Primary Group upon Subscription';
 $txt['paid_mod_prim_group_desc'] = 'Primary group to put the user into when they subscribe.';
 $txt['paid_mod_add_groups'] = 'Additional Groups upon Subscription';
 $txt['paid_mod_add_groups_desc'] = 'Additional groups to add the user to after subscription.';
-$txt['paid_mod_no_group'] = 'Don\'t Change';
+$txt['paid_mod_no_group'] = 'Do not Change';
 $txt['paid_mod_edit_note'] = 'Note that as this group has existing subscribers the group settings cannot be changed!';
 $txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br><br>If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br>';
 $txt['paid_mod_repeatable'] = 'Allow user to auto-renew this subscription';
 $txt['paid_mod_fixed_price'] = 'Subscription for fixed price and period';
 $txt['paid_mod_flexible_price'] = 'Subscription price varies on duration ordered';
 $txt['paid_mod_price_breakdown'] = 'Flexible Price Breakdown';
-$txt['paid_mod_price_breakdown_desc'] = 'Define here how much the subscription should cost dependent on the period they subscribe for. For example, it could cost 12USD to subscribe for a month, but only 100USD for a year. If you don\'t want to define a price for a particular period of time leave it blank.';
+$txt['paid_mod_price_breakdown_desc'] = 'Define here how much the subscription should cost dependent on the period they subscribe for. For example, it could cost 12USD to subscribe for a month, but only 100USD for a year. If you do not want to define a price for a particular period of time leave it blank.';
 $txt['flexible'] = 'Flexible';
 
 $txt['paid_per_day'] = 'Price per Day';

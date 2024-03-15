@@ -17,7 +17,7 @@ $txt['membergroups_guests_na'] = 'n/a';
 $txt['membergroups_group_name'] = 'Membergroup name';
 $txt['membergroups_new_board'] = 'Visible Boards';
 $txt['membergroups_new_board_desc'] = 'Boards the membergroup can see';
-$txt['membergroups_new_board_post_groups'] = '<em>Note: normally, post groups don\'t need access because the group the member is in will give them access.</em>';
+$txt['membergroups_new_board_post_groups'] = '<em>Note: normally, post groups do not need access because the group the member is in will give them access.</em>';
 $txt['membergroups_new_as_inherit'] = 'inherit from';
 $txt['membergroups_new_as_type'] = 'by type';
 $txt['membergroups_new_as_copy'] = 'based off of';
@@ -51,7 +51,7 @@ $txt['membergroups_min_posts'] = 'Required posts';
 $txt['membergroups_online_color'] = 'Color in online list';
 $txt['membergroups_icon_count'] = 'Number of icon images';
 $txt['membergroups_icon_image'] = 'Icon image filename';
-$txt['membergroups_icon_image_note'] = 'You can upload custom images to the forum\'s default theme directory to be able to select them here. Different images can be used in different themes, just give them the same name.';
+$txt['membergroups_icon_image_note'] = 'You can upload custom images to the forum’s default theme directory to be able to select them here. Different images can be used in different themes, just give them the same name.';
 $txt['membergroups_icon_image_size'] = 'Max size allowed 128x32px';
 $txt['membergroups_max_messages'] = 'Max personal messages';
 $txt['membergroups_max_messages_note'] = '0 = unlimited';
@@ -140,7 +140,7 @@ $txt['admin_browse_outstanding_perform'] = 'Perform the following action';
 $txt['admin_browse_outstanding_go'] = 'Perform Action';
 
 $txt['check_for_duplicate'] = 'Check for duplicates';
-$txt['dont_check_for_duplicate'] = 'Don\'t check for duplicates';
+$txt['dont_check_for_duplicate'] = 'Do not check for duplicates';
 $txt['duplicates'] = 'Duplicates';
 
 $txt['not_activated'] = 'Not activated';

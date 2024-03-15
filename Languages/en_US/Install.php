@@ -43,10 +43,10 @@ $txt['default_category_name'] = 'General Category';
 $txt['default_time_format'] = '%b %d, %Y, %I:%M %p';
 $txt['default_news'] = 'SMF - Just Installed!';
 $txt['default_reserved_names'] = 'Admin\nWebmaster\nGuest\nroot';
-$txt['default_fugue_smileyset_name'] = 'Fugue\'s Set';
-$txt['default_alienine_smileyset_name'] = 'Alienine\'s Set';
-$txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
-$txt['default_akyhne_smileyset_name'] = 'Akyhne\'s Set';
+$txt['default_fugue_smileyset_name'] = 'Fugue’s Set';
+$txt['default_alienine_smileyset_name'] = 'Alienine’s Set';
+$txt['default_aaron_smileyset_name'] = 'Aaron’s Set';
+$txt['default_akyhne_smileyset_name'] = 'Akyhne’s Set';
 $txt['default_legacy_smileyset_name'] = '2.0 Default';
 $txt['default_theme_name'] = 'SMF Default Theme - Curve2';
 
@@ -92,7 +92,7 @@ $txt['install_settings_name'] = 'Forum name';
 $txt['install_settings_name_info'] = 'This is the name of your forum, ie. &quot;The Testing Forum&quot;.';
 $txt['install_settings_name_default'] = 'My Community';
 $txt['install_settings_url'] = 'Forum URL';
-$txt['install_settings_url_info'] = 'This is the URL to your forum <strong>without the trailing \'/\'!</strong>.<br>In most cases, you can leave the default value in this box alone - it is usually right.';
+$txt['install_settings_url_info'] = 'This is the URL to your forum <strong>without the trailing "/"!</strong>.<br>In most cases, you can leave the default value in this box alone - it is usually right.';
 $txt['install_settings_reg_mode'] = 'Registration Mode';
 $txt['install_settings_reg_modes'] = 'Registration Modes';
 $txt['install_settings_reg_immediate'] = 'Immediate Registration';
@@ -176,7 +176,7 @@ $txt['error_db_queries'] = 'Some of the queries were not executed properly. This
 $txt['error_db_queries_line'] = 'Line #';
 $txt['error_db_missing'] = 'The installer was unable to detect any database support in PHP. Please ask your host to ensure that PHP was compiled with the desired database, or that the proper extension is being loaded.';
 $txt['error_db_script_missing'] = 'The installer could not find any install script files for the detected databases. Please check you have uploaded the necessary install script files to your forum directory, for example &quot;{file}&quot;';
-$txt['error_session_missing'] = 'The installer was unable to detect sessions support in your server\'s installation of PHP. Please ask your host to ensure that PHP was compiled with session support (which in fact is the PHP default, meaning your host currently has explicitly disabled it).';
+$txt['error_session_missing'] = 'The installer was unable to detect sessions support in your server’s installation of PHP. Please ask your host to ensure that PHP was compiled with session support (which in fact is the PHP default, meaning your host currently has explicitly disabled it).';
 $txt['error_user_settings_again_match'] = 'You typed in two completely different passwords!';
 $txt['error_user_settings_no_password'] = 'Your password must be at least four characters long.';
 $txt['error_user_settings_taken'] = 'Sorry, a member is already registered with that username and/or email address.<br><br>A new account has not been created.';
@@ -184,9 +184,9 @@ $txt['error_user_settings_query'] = 'A database error occurred while trying to c
 $txt['error_sourcefile_missing'] = 'Unable to find the Sources/{file} file. Please make sure it was uploaded properly, and then try again.';
 $txt['error_db_alter_priv'] = 'The database account you specified does not have permission to ALTER, CREATE, and/or DROP tables in the database. This is necessary for SMF to function properly.';
 $txt['error_versions_do_not_match'] = 'The installer has detected another version of SMF already installed with the specified information. If you are trying to upgrade, you should use the upgrader, not the installer.<br><br>Otherwise, you may wish to use different information, or create a backup and then delete the data currently in the database.';
-$txt['error_mod_security'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that won\'t block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a>';
-$txt['error_mod_security_no_write'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that won\'t block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a><br><br>Alternatively, you may wish to use your ftp client to chmod .htaccess in the forum directory to be writable (777), and then refresh this page.';
-$txt['error_utf8_version'] = 'The current version of your database doesn\'t support the use of the UTF-8 character set. You can still install SMF without any problems, but only with UTF-8 support unchecked. If you would like to switch over to UTF-8 in the future (e.g. after the database server of your forum has been upgraded to version >= {utf8_version}), you can convert your forum to UTF-8 through the admin panel.';
+$txt['error_mod_security'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that will not block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a>';
+$txt['error_mod_security_no_write'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that will not block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a><br><br>Alternatively, you may wish to use your ftp client to chmod .htaccess in the forum directory to be writable (777), and then refresh this page.';
+$txt['error_utf8_version'] = 'The current version of your database does not support the use of the UTF-8 character set. You can still install SMF without any problems, but only with UTF-8 support unchecked. If you would like to switch over to UTF-8 in the future (e.g. after the database server of your forum has been upgraded to version >= {utf8_version}), you can convert your forum to UTF-8 through the admin panel.';
 $txt['error_valid_admin_email_needed'] = 'You have not entered a valid email address for your administrator account.';
 $txt['error_valid_server_email_needed'] = 'You have not entered a valid webmaster email address.';
 $txt['error_already_installed'] = 'The installer has detected that you already have SMF installed. It is strongly advised that you do <strong>not</strong> try to overwrite an existing installation, continuing with installation <strong>may result in the loss or corruption of existing data</strong>.<br><br>If you wish to upgrade please visit the <a href="https://www.simplemachines.org">Simple Machines Website</a> and download the latest <em>upgrade</em> package.<br><br>If you wish to overwrite your existing installation, including all data, it is recommended that you delete the existing database tables and replace Settings.php and try again.';
@@ -428,7 +428,7 @@ $txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: '
 $txt['upgrade_respondtime'] = 'Server has not responded for {0, number, integer} seconds. It may be worth waiting a little longer before trying again.';
 $txt['upgrade_respondtime_clickhere'] = 'Click here to try again.';
 $txt['mtitle'] = 'Upgrading the forum...';
-$txt['mmessage'] = 'Don\'t worry, your forum will be updated shortly. It will only be a minute ;).';
+$txt['mmessage'] = 'Don’t worry, your forum will be updated shortly. It will only be a minute ;).';
 
 // Upgrader error messages
 // argument(s): template name (if applicable)
@@ -438,12 +438,12 @@ $txt['error_lang_index_missing'] = 'The upgrader was unable to find language fil
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
 $txt['error_upgrade_old_lang_files'] = 'The upgrader found some old or outdated language files for the selected language, {lang}.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="{url}?skiplang">SKIP</a>] [<a href="{url}?lang=english">Try English</a>]';
-$txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
+$txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF’s minimum installations requirements.<br><br>Please ask your host to upgrade.';
 $txt['error_db_too_low'] = 'Your {name} version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.';
 $txt['error_db_privileges'] = 'The {name} user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';
 $txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
-$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod\'d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
+$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod’d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
 $txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
 
 $txt['warning_lang_old'] = 'The language files for your selected language, {user_language}, have not been updated to the latest version. Upgrade will continue with the forum default, {default_language}.';

@@ -59,13 +59,13 @@ $txt['samesiteCookies'] = 'Force cookies to be sent only to first parties';
 $txt['samesiteNone'] = 'None';
 $txt['samesiteLax'] = 'Lax';
 $txt['samesiteStrict'] = 'Strict';
-$txt['samesiteSecureRequired'] = 'If SameSite Cookies is set to \'None\', cookies must be secure.';
+$txt['samesiteSecureRequired'] = 'If SameSite Cookies is set to "None", cookies must be secure.';
 $txt['securityDisable'] = 'Disable administration security';
 $txt['securityDisable_moderate'] = 'Disable moderation security';
 $txt['send_validation_onChange'] = 'Require reactivation after email change';
 $txt['approveAccountDeletion'] = 'Require admin approval when member deletes account';
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
-$txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
+$txt['disallow_sendBody'] = 'Do not allow post text in notifications';
 $txt['enable_ajax_alerts'] = 'Allow AJAX desktop notifications for alerts';
 $txt['alerts_auto_purge'] = 'Automatically delete read alerts';
 $txt['alerts_auto_purge_7'] = 'After 1 week';
@@ -101,7 +101,7 @@ $txt['onlineEnable'] = 'Show online/offline status in posts and PMs';
 $txt['defaultMaxMembers'] = 'Members per page in member list';
 $txt['timeLoadPageEnable'] = 'Display time taken to create every page';
 $txt['disableHostnameLookup'] = 'Disable hostname lookups';
-$txt['who_enabled'] = 'Enable who\'s online list';
+$txt['who_enabled'] = 'Enable who’s online list';
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'For search engines. Leave blank for default.';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
@@ -179,7 +179,7 @@ $txt['posts_require_captcha_desc'] = '(0 for no limit, moderators are exempt)';
 $txt['search_enable_captcha'] = 'Require verification on all guest searches';
 $txt['setting_guests_require_captcha'] = 'Guests must pass verification when making a post';
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
-$txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language ({name}) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
+$txt['question_not_defined'] = 'You need to add a question and answer for your forum’s default language ({name}) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
 
 $txt['configure_verification_means'] = 'Configure Verification methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
@@ -197,7 +197,7 @@ $txt['setting_image_verification_sample'] = 'Sample';
 
 // reCAPTCHA
 $txt['recaptcha_configure'] = 'reCAPTCHA Verification System';
-$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin">Get your reCAPTCHA key here</a>.';
+$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don’t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin">Get your reCAPTCHA key here</a>.';
 $txt['recaptcha_enabled'] = 'Use reCAPTCHA Verification System';
 $txt['recaptcha_enable_desc'] = 'This augments the built-in visual verification';
 $txt['recaptcha_theme'] = 'reCAPTCHA Theme';
@@ -207,7 +207,7 @@ $txt['recaptcha_site_key'] = 'Site Key';
 $txt['recaptcha_site_key_desc'] = 'This will be set in the HTML code your site serves to users.';
 $txt['recaptcha_secret_key'] = 'Secret Key';
 $txt['recaptcha_secret_key_desc'] = 'This is for communication between your site and Google. Be sure to keep it a secret.';
-$txt['recaptcha_no_key_question'] = 'Don\'t have a key for reCAPTCHA?';
+$txt['recaptcha_no_key_question'] = 'Don’t have a key for reCAPTCHA?';
 $txt['recaptcha_get_key'] = 'Get your reCAPTCHA key here.';
 $txt['languages_recaptcha'] = 'ReCAPTCHA language';
 
@@ -409,7 +409,7 @@ $txt['languages_download_note'] = 'This page lists all the files that are contai
 $txt['languages_download_info'] = '<strong>Note:</strong>
 	<ul class="normallist">
 		<li>Files which have the status &quot;Not Writable&quot; means SMF will not be able to copy this file to the directory at the present and you must make the destination writable either using an FTP client or by filling in your details at the bottom of the page.</li>
-		<li>The Version information for a file displays the last SMF version which it was updated for. If it is indicated in green then this is a newer version than you have at current. If amber this indicates it\'s the same version number as at current, red indicates you have a newer version installed than contained in the pack.</li>
+		<li>The Version information for a file displays the last SMF version which it was updated for. If it is indicated in green then this is a newer version than you have at current. If amber this indicates it is the same version number as at current, red indicates you have a newer version installed than contained in the pack.</li>
 		<li>Where a file already exists on your forum the &quot;Already Exists&quot; column will have one of two values. &quot;Identical&quot; indicates that the file already exists in an identical form and need not be overwritten. &quot;Different&quot; means that the contents vary in some way and overwriting is probably the optimum solution.</li>
 	</ul>';
 

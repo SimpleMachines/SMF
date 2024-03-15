@@ -45,7 +45,7 @@ $txt['agree_coppa_below'] = '{0, plural,
 // Registration form.
 $txt['registration_form'] = 'Registration Form';
 $txt['need_username'] = 'You need to fill in a username.';
-$txt['no_password'] = 'You didn\'t enter your password.';
+$txt['no_password'] = 'You did not enter your password.';
 $txt['incorrect_password'] = 'Password incorrect';
 $txt['choose_username'] = 'Choose username';
 $txt['maintain_mode'] = 'Maintenance Mode';
@@ -74,7 +74,7 @@ $txt['activate_account'] = 'Account activation';
 $txt['activate_success'] = 'Your account has been successfully activated. You can now proceed to login.';
 $txt['activate_not_completed1'] = 'Your email address needs to be validated before you can login.';
 $txt['activate_not_completed2'] = 'Need another activation email?';
-$txt['activate_after_registration'] = 'Thank you for signing up. You will receive an email soon with a link to activate your account. If you don\'t receive an email after some time, check your spam folder.';
+$txt['activate_after_registration'] = 'Thank you for signing up. You will receive an email soon with a link to activate your account. If you do not receive an email after some time, check your spam folder.';
 $txt['invalid_userid'] = 'User does not exist';
 $txt['invalid_activation_code'] = 'Invalid activation code';
 $txt['invalid_activation_username'] = 'Username or email';
@@ -144,7 +144,7 @@ $txt['coppa_title'] = 'Age restricted Forum';
 $txt['coppa_after_registration'] = 'Thank you for signing up with {forum_name}.<br><br>Because you are {minimum_age, plural,
 	one {less than # year old}
 	other {less than # years old}
-}, it is a legal requirement to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
+}, it is a legal requirement to obtain your parent or guardian’s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form in new Window';
 $txt['coppa_form_link_download'] = 'Download Form as text file';
 $txt['coppa_send_to_one_option'] = 'Then arrange for your parent/guardian to send the completed form by:';

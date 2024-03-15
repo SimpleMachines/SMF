@@ -10,7 +10,7 @@ $txt['message_body_not_filled'] = 'The message body was not filled out. It is re
 $txt['add_bbc'] = 'Add BBC tags';
 
 $txt['disable_smileys'] = 'Disable smileys';
-$txt['dont_use_smileys'] = 'Don\'t use smileys';
+$txt['dont_use_smileys'] = 'Do not use smileys';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['posted_on'] = 'Posted on';
 $txt['standard'] = 'Standard';
@@ -89,7 +89,7 @@ $txt['poll_options'] = 'Poll Options';
 $txt['poll_run'] = 'Number of days to run the poll';
 $txt['poll_run_limit'] = '(0 for no limit)';
 $txt['poll_results_visibility'] = 'Result visibility';
-$txt['poll_results_anyone'] = 'Show the poll\'s results to anyone.';
+$txt['poll_results_anyone'] = 'Show the poll’s results to anyone.';
 $txt['poll_results_voted'] = 'Only show the results after someone has voted.';
 $txt['poll_results_after'] = 'Only show the results after the poll has expired.';
 $txt['poll_max_votes'] = 'Maximum votes per user';
@@ -111,7 +111,7 @@ $txt['spellcheck_ignore_all'] = 'Ignore All';
 
 $txt['more_attachments'] = 'more attachments';
 // Don't use entities in the below string.
-$txt['more_attachments_error'] = 'Sorry, you aren\'t allowed to post any more attachments.';
+$txt['more_attachments_error'] = 'Sorry, you are not allowed to post any more attachments.';
 
 $txt['more_smileys'] = 'more';
 $txt['more_smileys_title'] = 'Additional smileys';
@@ -200,12 +200,12 @@ $txt['error_temp_attachments_found'] = 'The following attachments were found whi
 $txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitted.<br>Click <a href="{delete_url}">here</a> to remove these attachments.{file_list}';
 $txt['error_temp_attachments_gone'] = 'Those attachments have now been removed and you have been returned to the page you were previously on';
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted have now been removed.';
-$txt['error_cannot_post_attachment'] = 'You don\'t have permission to post attachments in {board}. They have been removed.';
+$txt['error_cannot_post_attachment'] = 'You do not have permission to post attachments in {board}. They have been removed.';
 $txt['error_topic_already_announced'] = 'Please note that this topic has already been announced.';
 
 $txt['cant_access_upload_path'] = 'Cannot access attachments upload path ({path})';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is {0, number, integer} KB.';
-$txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
+$txt['attach_timeout'] = 'Your attachment could not be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment cannot be saved.';
