@@ -55,7 +55,7 @@ $txt['whoall_unread'] = 'Viewing unread topics since their last visit.';
 $txt['whoall_unreadreplies'] = 'Viewing unread replies since their last visit.';
 $txt['whoall_unwatchtopic'] = 'Unwatching a topic.';
 // argument(s): Config::$scripturl
-$txt['whoall_who'] = 'Viewing <a href="{scripturl}?action=who">Who\'s Online</a>.';
+$txt['whoall_who'] = 'Viewing <a href="{scripturl}?action=who">Who’s Online</a>.';
 
 $txt['whoall_collapse_collapse'] = 'Collapsing a category.';
 $txt['whoall_collapse_expand'] = 'Expanding a category.';
@@ -162,7 +162,7 @@ $txt['who_board'] = 'Viewing the board <a href="{scripturl}?board={id_board}.0">
 // argument(s): Config::$scripturl, Utils::$context['forum_name_html_safe']
 $txt['who_index'] = 'Viewing the board index of <a href="{scripturl}">{forum_name}</a>.';
 // argument(s): member id, real name, Config::$scripturl
-$txt['who_viewprofile'] = 'Viewing <a href="{scripturl}?action=profile;u={id_member}">{name}</a>\'s profile.';
+$txt['who_viewprofile'] = 'Viewing <a href="{scripturl}?action=profile;u={id_member}">{name}</a>’s profile.';
 // argument(s): member id, real name, Config::$scripturl
 $txt['who_viewownprofile'] = 'Viewing <a href="{scripturl}?action=profile;u={id_member}">their own profile</a>.';
 // argument(s): member id, real name, Config::$scripturl
@@ -174,7 +174,7 @@ $txt['who_poll'] = 'Posting a new poll in <a href="{scripturl}?board={id_board}.
 
 // Credits text
 $txt['credits'] = 'Credits';
-$txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF {SMF_VERSION} what it is today; shaping and directing our project, all through the thick and the thin. It wouldn\'t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
+$txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF {SMF_VERSION} what it is today; shaping and directing our project, all through the thick and the thin. It wouldn’t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
 $txt['credits_team'] = 'The Team';
 $txt['credits_special'] = 'Special Thanks';
 $txt['credits_list'] = '{names}.';

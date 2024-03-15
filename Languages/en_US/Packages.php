@@ -70,7 +70,7 @@ $txt['package_version'] = 'Version: {version}';
 $txt['package_version_header'] = 'Version';
 $txt['package_installed_time'] = 'Installed';
 $txt['package_author'] = 'Author: {author}';
-$txt['author_website'] = 'Author\'s Website: {link}';
+$txt['author_website'] = 'Author’s Website: {link}';
 $txt['package_no_description'] = 'No description given';
 $txt['package_description'] = 'Description: {description}';
 $txt['file_location'] = 'Location of file: {link}';
@@ -125,7 +125,7 @@ $txt['execute_credits_action'] = 'Credits: {title}';
 $txt['package_install_actions'] = 'Installation actions for {package_name}';
 $txt['package_uninstall_actions'] = 'Uninstallation actions for {package_name}';
 $txt['package_will_fail_title'] = 'Error in package {0}';
-$txt['package_will_fail_warning'] = 'At least one error was encountered during a test {0} of this package.<br>It is <strong>strongly</strong> recommended that you do not continue with {0} unless you know what you are doing, and have made a backup very recently.<br><br>This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
+$txt['package_will_fail_warning'] = 'At least one error was encountered during a test {0} of this package.<br>It is <strong>strongly</strong> recommended that you do not continue with {0} unless you know what you are doing, and have made a backup very recently.<br><br>This error may be caused by a conflict between the package you are trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
 $txt['package_will_fail_unknown_action'] = 'The package is trying to perform an unknown action: {0}';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
@@ -136,7 +136,7 @@ $txt['package_install_now'] = 'Install now';
 $txt['package_uninstall_now'] = 'Uninstall now';
 $txt['package_other_themes'] = 'Install in other themes';
 $txt['package_other_themes_uninstall'] = 'Uninstall in other themes';
-$txt['package_other_themes_desc'] = 'To use this modification in themes other than the default, the package manager needs to make additional changes to the other themes. If you\'d like to install this modification in the other themes, please select these themes below.';
+$txt['package_other_themes_desc'] = 'To use this modification in themes other than the default, the package manager needs to make additional changes to the other themes. If you would like to install this modification in the other themes, please select these themes below.';
 // Don't use entities in the below string.
 $txt['package_theme_failure_warning'] = 'At least one error was encountered during a test install of this theme. Are you sure you wish to attempt installation?';
 
@@ -156,7 +156,7 @@ $txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because 
 
 $txt['package_install_options'] = 'Installation Options';
 $txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and FTP access';
-$txt['package_install_options_ftp_why'] = 'Using the package manager\'s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br>Here you can set the default values for some fields.';
+$txt['package_install_options_ftp_why'] = 'Using the package manager’s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br>Here you can set the default values for some fields.';
 $txt['package_install_options_ftp_server'] = 'FTP Server';
 $txt['package_install_options_ftp_port'] = 'Port';
 $txt['package_install_options_ftp_user'] = 'Username';
@@ -193,7 +193,7 @@ $txt['package_modification_missing'] = 'The file could not be found.';
 $txt['package_no_zlib'] = 'zlib';
 $txt['package_no_phar'] = 'phar';
 $txt['package_no_package_manager'] = 'the package manager';
-$txt['package_no_lib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>"{0}"</strong>. Without this, {1} cannot function. Please contact your host about this for more information.';
+$txt['package_no_lib'] = 'Sorry, your PHP configuration does not have support for <strong>"{0}"</strong>. Without this, {1} cannot function. Please contact your host about this for more information.';
 
 $txt['package_cleanperms_title'] = 'Cleanup Permissions';
 $txt['package_cleanperms_desc'] = 'This interface allows you to reset the permissions for files throughout your installation, so as to increase security or solve any permission problems you may encounter while installing packages.';

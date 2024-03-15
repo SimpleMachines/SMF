@@ -322,7 +322,7 @@ $txt['there_are_unapproved_topics'] = 'There are {topics, plural,
 $txt['send_message'] = 'Send message';
 
 $txt['msg_alert'] = '{total, plural,
-	=0 {you don\'t have any messages}
+	=0 {you don’t have any messages}
 	one {you have <a href="{url}"># message</a> {unread, plural,
 		=0 {}
 		one {, # is new}
@@ -402,7 +402,7 @@ $txt['error_invalid_characters_username'] = 'Invalid character used in Username.
 $txt['welcome_guest'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a>.';
 $txt['welcome_guest_register'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a> or <a href="{register_url}">sign up</a>.';
 $txt['welcome_guest_activate'] = '<a href="{scripturl}?action=activate">Did you miss your activation email?</a>';
-$txt['register_prompt'] = 'Don\'t have an account? <a href="{scripturl}?action=signup">Sign up</a>.';
+$txt['register_prompt'] = 'Don’t have an account? <a href="{scripturl}?action=signup">Sign up</a>.';
 $txt['welcome_to_forum'] = 'Welcome to <strong>{forum_name}</strong>.';
 
 // @todo the following to sprintf
@@ -584,7 +584,7 @@ $txt['tried_to_repair'] = 'SMF has detected and automatically tried to repair an
 $txt['template_parse_error'] = 'Template Parse Error!';
 $txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system. This problem should only be temporary, so please come back later and try again. If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
 // argument(s): filename, Config::$boardurl, Config::$scripturl
-$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>{filename}</strong></pre> template or language file. Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>). To see more specific error information from PHP, try <a href="{boardurl}{filename}">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="{scripturl}?theme=1">use the default theme</a>.';
+$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>{filename}</strong></pre> template or language file. Please check the syntax and try again - remember, single quotes (<pre>&apos;</pre>) often have to be escaped with a slash (<pre>\\</pre>). To see more specific error information from PHP, try <a href="{boardurl}{filename}">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="{scripturl}?theme=1">use the default theme</a>.';
 $txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 
 $txt['today'] = '<strong>Today</strong> at ';
@@ -721,7 +721,7 @@ $txt['calendar_post_event'] = 'Post Event';
 $txt['calendar'] = 'Calendar';
 $txt['calendar_link'] = 'Link to Calendar';
 $txt['calendar_upcoming'] = 'Upcoming Calendar';
-$txt['calendar_today'] = 'Today\'s Calendar';
+$txt['calendar_today'] = 'Today’s Calendar';
 $txt['calendar_week'] = 'Week';
 $txt['calendar_week_beginning'] = 'Week beginning {date}';
 $txt['calendar_numb_days'] = 'Number of Days';
@@ -735,9 +735,9 @@ $txt['calendar_timezone'] = 'Time zone';
 $txt['calendar_list'] = 'List';
 $txt['calendar_empty'] = 'There are no events to display.';
 
-$txt['movetopic_change_subject'] = 'Change the topic\'s subject';
+$txt['movetopic_change_subject'] = 'Change the topic’s subject';
 $txt['movetopic_new_subject'] = 'New subject';
-$txt['movetopic_change_all_subjects'] = 'Change every message\'s subject';
+$txt['movetopic_change_all_subjects'] = 'Change every message’s subject';
 $txt['move_topic_unapproved_js'] = 'Warning! This topic has not yet been approved.\\n\\nIt is not recommended that you create a redirection topic unless you intend to approve the post immediately following the move.';
 $txt['movetopic_auto_board'] = '[BOARD]';
 $txt['movetopic_auto_topic'] = '[TOPIC LINK]';
@@ -875,7 +875,7 @@ $txt['updated_topics_visit_none'] = 'No updated topics found since your last vis
 $txt['unread_topics_all'] = 'All Unread Topics';
 $txt['unread_replies'] = 'Updated Topics';
 
-$txt['who_title'] = 'Who\'s Online';
+$txt['who_title'] = 'Who’s Online';
 $txt['who_and'] = ' and ';
 $txt['who_viewing_topic'] = '{num_viewing, plural,
 	one {{list_of_viewers} is viewing this topic.}
@@ -1016,7 +1016,7 @@ $txt['error_while_submitting'] = 'The message has the following error or errors 
 $txt['error_old_topic'] = 'Warning: {0, plural,
 	one {this topic has not been posted in for at least # day.}
 	other {this topic has not been posted in for at least # days.}
-}<br>Unless you\'re sure you want to reply, please consider starting a new topic.';
+}<br>Unless you are sure you want to reply, please consider starting a new topic.';
 
 $txt['split_selected_posts'] = 'Selected posts ({reset_link})';
 $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after splitting.';
@@ -1059,7 +1059,7 @@ $txt['account'] = 'Account Settings';
 $txt['theme'] = 'Look and Layout';
 $txt['forumprofile'] = 'Forum Profile';
 $txt['activate_changed_email_title'] = 'Email Address Changed';
-$txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
+$txt['activate_changed_email_desc'] = 'You have changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
 $txt['modSettings_title'] = 'Features and Options';
 $txt['package'] = 'Package Manager';
 $txt['errorlog'] = 'Error Log';
