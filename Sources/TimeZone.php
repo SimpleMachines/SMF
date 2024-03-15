@@ -2244,7 +2244,7 @@ class TimeZone extends \DateTimeZone
 				// Don't overwrite our preferred tzids
 				if (empty($zones[$tzkey]['tzid'])) {
 					$zones[$tzkey]['tzid'] = $tzid;
-					$zones[$tzkey]['dst_type'] = $tz->getDstType();
+					$zones[$tzkey]['dst_type'] = $tz->getDstType($when);
 					$zones[$tzkey]['abbrs'] = $tz->getAbbreviations($when);
 
 					$metazone_label = $tz->getMetaZoneLabel($when);
@@ -2260,7 +2260,7 @@ class TimeZone extends \DateTimeZone
 				$offsets[$tzkey] = $tzinfo[0]['offset'];
 				$std_offsets[$tzkey] = $tz->getStandardOffset($when);
 
-				switch ($tz->getDstType()) {
+				switch ($tz->getDstType($when)) {
 					case self::DST_SWITCHES:
 						$dst_types[$tzkey] = 'c';
 						break;
