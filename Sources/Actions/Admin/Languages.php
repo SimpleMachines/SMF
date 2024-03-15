@@ -1686,6 +1686,10 @@ class Languages implements ActionInterface
 			$in_string = 0;
 			$is_escape = false;
 
+			// Present &apos; entity as a character.
+			// We'll revert it back to an entity when saving.
+			$string = str_replace('&apos;', "\\'", $string);
+
 			for ($i = 0; $i < strlen($string); $i++) {
 				// Handle escapes first.
 				if ($string[$i] == '\\') {
@@ -1856,8 +1860,10 @@ class Languages implements ActionInterface
 				}
 				// A single quote?
 				elseif ($string[$i] == '\'') {
-					// Must be in a string so escape it.
-					$new_string .= '\\';
+					// Replace with an entity.
+					$new_string .= '&apos;';
+
+					continue;
 				}
 
 				// Finally add the character to the string!
