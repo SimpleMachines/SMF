@@ -1048,14 +1048,23 @@ class Languages implements ActionInterface
 				}
 
 				// These are arrays that need breaking out.
-				if (strpos($entryValue['entry'], 'array(') === 0 && substr($entryValue['entry'], -1) === ')') {
+				if (
+					(
+						str_starts_with($entryValue['entry'], 'array(')
+						&& str_ends_with($entryValue['entry'], ')')
+					)
+					|| (
+						str_starts_with($entryValue['entry'], '[')
+						&& str_ends_with($entryValue['entry'], ']')
+					)
+				) {
 					// No, you may not use multidimensional arrays of Lang::$txt strings. Madness stalks that path.
 					if (isset($entryValue['subkey'])) {
 						continue;
 					}
 
 					// Trim off the array construct bits.
-					$entryValue['entry'] = substr($entryValue['entry'], strpos($entryValue['entry'], 'array(') + 6, -1);
+					$entryValue['entry'] = substr($entryValue['entry'], str_starts_with($entryValue['entry'], 'array(') ? 6 : 1, -1);
 
 					// This crazy regex extracts each array element, even if the value contains commas or escaped quotes
 					// The keys can be either integers or strings
@@ -1190,7 +1199,7 @@ class Languages implements ActionInterface
 						// Now create the string!
 						$final_saves[$entryKey] = [
 							'find' => $entryValue['full'],
-							'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
+							'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = [' . implode(', ', $items) . '];' . $entryValue['cruft'],
 						];
 					}
 				}
