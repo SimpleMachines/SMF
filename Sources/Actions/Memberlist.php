@@ -294,30 +294,7 @@ class Memberlist implements ActionInterface, Routable
 			$_REQUEST['sort'] = 'real_name';
 		}
 
-		if (!is_numeric($_REQUEST['start'])) {
-			if (preg_match('~^[^\'\\\\/]~u', Utils::strtolower($_REQUEST['start']), $match) === 0) {
-				ErrorHandler::fatal('Are you a wannabe hacker?', false);
-			}
-
-			$_REQUEST['start'] = $match[0];
-
-			$request = Db::$db->query(
-				'substring',
-				'SELECT COUNT(*)
-				FROM {db_prefix}members
-				WHERE LOWER(SUBSTRING(real_name, 1, 1)) < {string:first_letter}
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => User::ACTIVATED,
-					'first_letter' => $_REQUEST['start'],
-				],
-			);
-			list($start) = Db::$db->fetch_row($request);
-			$start = (int) $start;
-			Db::$db->free_result($request);
-		} else {
-			$start = (int) $_REQUEST['start'];
-		}
+		$start = (int) $_REQUEST['start'];
 
 		Utils::$context['letter_links'] = '';
 
@@ -425,20 +402,6 @@ class Memberlist implements ActionInterface, Routable
 		);
 		$this->printRows($request);
 		Db::$db->free_result($request);
-
-		// Add anchors at the start of each letter.
-		if ($_REQUEST['sort'] == 'real_name') {
-			$last_letter = '';
-
-			foreach (Utils::$context['members'] as $i => $dummy) {
-				$this_letter = Utils::strtolower(Utils::entitySubstr(Utils::$context['members'][$i]['name'], 0, 1));
-
-				if ($this_letter != $last_letter && preg_match('~[a-z]~', $this_letter) === 1) {
-					Utils::$context['members'][$i]['sort_letter'] = Utils::htmlspecialchars($this_letter);
-					$last_letter = $this_letter;
-				}
-			}
-		}
 	}
 
 	/**
