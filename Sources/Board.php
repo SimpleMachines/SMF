@@ -626,14 +626,16 @@ class Board implements \ArrayAccess
 		}
 
 		// Before we add new access_groups or deny_groups, remove all of the old entries.
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:this_board}',
-			[
-				'this_board' => $this->id,
-			],
-		);
+		if ($access_groups != [] || $deny_groups != []) {
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}board_permissions_view
+				WHERE id_board = {int:this_board}',
+				[
+					'this_board' => $this->id,
+				],
+			);
+		}
 
 		$inserts = [];
 
