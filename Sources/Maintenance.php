@@ -293,8 +293,10 @@ class Maintenance
 	 */
 	public static function isInstalled(): bool
 	{
+		$settings_defs = Config::getSettingsDefs();
+
 		foreach (['image_proxy_secret', 'db_passwd', 'boardurl'] as $var) {
-			if (Config::${$var} === Config::$settings_defs[$var]['default']) {
+			if (Config::${$var} === $settings_defs[$var]['default']) {
 				return false;
 			}
 		}
