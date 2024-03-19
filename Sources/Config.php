@@ -2535,51 +2535,121 @@ class Config
 	}
 
 	/**
-	 * A wrapper around var_export whose output matches SMF coding conventions.
+	 * A wrapper around var_export() that enhances it for SMF's purposes:
 	 *
-	 * @todo Add special handling for objects?
+	 * 1. Produces output that matches SMF's coding standard.
 	 *
-	 * @param mixed $var The variable to export
-	 * @return string A PHP-parseable representation of the variable's value
+	 * 2. Converts raw line breaks and tabs in strings to PHP escaped characters
+	 *    (i.e. "\r", "\n" and "\t"), which makes some things easier elsewhere.
+	 *
+	 * 3. Exports objects that do not implement the __set_state() method in a
+	 *    way that will nevertheless allow them to be re-imported successfully.
+	 *
+	 * @param mixed $var The variable to export.
+	 * @return string A PHP-parseable representation of the variable's value.
 	 */
 	public static function varExport(mixed $var): string
 	{
-		/*
-		 * Old versions of updateSettingsFile couldn't handle multi-line values.
-		 * Even though technically we can now, we'll keep arrays on one line for
-		 * the sake of backwards compatibility.
-		 */
+		static $depth = 0;
+		static $object_recursion = 0;
+
+		// Objects.
+		if (is_object($var)) {
+			// First, check for object recursion.
+			try {
+				$prev_error_handler = set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+					throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+				});
+
+				$temp = var_export($var, true);
+
+				set_error_handler($prev_error_handler);
+			} catch (\ErrorException $e) {
+				set_error_handler($prev_error_handler);
+
+				// If this is the second layer of recursion we have encountered,
+				// set the parent object's property that contains the recursion
+				// to null and bail out.
+				if ($object_recursion++ > 0) {
+					return 'null';
+				}
+
+				$temp = var_export($var, true);
+			}
+
+			// \stdClass is exported as '(object) array(...)'
+			if (str_starts_with($temp, '(object) array')) {
+				return '(object) ' . self::varExport((array) $var);
+			}
+
+			// For classes without __set_state(), try serializing.
+			if (!method_exists($var, '__set_state')) {
+				try {
+					$serialized = serialize($var);
+
+					return 'unserialize(' . self::varExport($serialized) . ')';
+				} catch (\Throwable $e) {
+					// Can't be serialized. Just move on.
+				}
+			}
+
+			$var_as_array = [];
+
+			foreach ((array) $var as $key => $value) {
+				if (str_starts_with($key, "\0")) {
+					$key = substr($key, strpos($key, "\0", 1) + 1);
+				}
+
+				$var_as_array[$key] = $value;
+			}
+
+			return '\\' . $var::class . '::__set_state(' . self::varExport($var_as_array) . ')';
+		}
+
+		// Arrays. We like tab indentation and short array syntax.
 		if (is_array($var)) {
 			$return = [];
 
+			$is_simple_list = array_is_list($var) && $var === array_filter($var, 'is_scalar');
+
 			foreach ($var as $key => $value) {
-				$return[] = var_export($key, true) . ' => ' . self::varExport($value);
+				++$depth;
+				$return[] = ($depth > 1 && $is_simple_list ? '' : var_export($key, true) . ' => ') . self::varExport($value);
+				--$depth;
 			}
 
-			return 'array(' . implode(', ', $return) . ')';
+			if ($return === []) {
+				return '[]';
+			}
+
+			if ($depth > 0 && $is_simple_list) {
+				return '[' . implode(', ', $return) . ']';
+			}
+
+			return "[\n" . str_repeat("\t", $depth + 1) . implode(",\n" . str_repeat("\t", $depth + 1), $return) . ",\n" . str_repeat("\t", $depth) . ']';
 		}
 
-		// For the same reason, replace literal returns and newlines with "\r" and "\n"
-		if (is_string($var) && (strpos($var, "\n") !== false || strpos($var, "\r") !== false)) {
+		// Show strings on a single line and make tab characters obvious.
+		// These changes aren't necessary to conform to SMF's coding standard,
+		// but they simplify some things elsewhere.
+		if (is_string($var)) {
 			return strtr(
 				preg_replace_callback(
-					'/[\r\n]+/',
-					function ($m) {
-						return '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n']) . '" . \'';
-					},
+					'/[\r\n\t]+/',
+					fn ($m) => '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n', "\t" => '\t']) . '" . \'',
 					var_export($var, true),
 				),
 				["'' . " => '', " . ''" => ''],
 			);
 		}
+
 		// We typically use lowercase true/false/null.
-		elseif (in_array(gettype($var), ['boolean', 'NULL'])) {
+		if (in_array(gettype($var), ['boolean', 'NULL'])) {
 			return strtolower(var_export($var, true));
 		}
+
 		// Nothing special.
-		else {
-			return var_export($var, true);
-		}
+		return var_export($var, true);
 	}
 
 	/**
