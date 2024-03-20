@@ -61,7 +61,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 	if (!empty(Config::$modSettings['enable_mentions']) && User::hasPermission('mention'))
 		echo '
-				$(".sceditor-container").find("textarea").each(function() { tribute.attach($(this)) });';
+				$(".sceditor-container").find("textarea").each(function() { typeof tribute === "object" && tribute.attach($(this)) });';
 
 	echo '
 			});';
