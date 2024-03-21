@@ -1981,7 +1981,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 			array(
 				'tz' => strtotime('1999-03-27T21:00:00+0000'),
-				'tzid' => 'Etc/GMT-5'
+				'tzid' => 'Asia/Aqtau'
 			),
 		),
 
