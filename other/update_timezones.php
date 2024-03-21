@@ -26,7 +26,7 @@
  *    they are spelled correctly and make sense.
  *
  * 2. If the TZDB added an entirely new time zone, a new chunk of fallback code
- *    will be added to get_tzid_fallbacks(), with an "ADD INFO HERE" comment
+ *    will be added to TimeZone::$fallbacks, with an "ADD INFO HERE" comment
  *    above it.
  *
  *     - Replace "ADD INFO HERE" with something meaningful before commiting,
@@ -46,7 +46,7 @@
  *     - All "OPTIONS" comments should be removed before commiting.
  *
  * 4. Newly created time zones are also appended to their country's list in the
- *    get_sorted_tzids_for_country() function.
+ *    TimeZone::$sorted_tzids array.
  *
  *     - Adjust the position of the new tzid in that list by comparing the
  *       city's population with the populations of the other listed cities.
@@ -200,9 +200,9 @@ class TimezoneUpdater
 	 */
 	public function execute()
 	{
-		$this->fetch_tzdb_updates();
-		$this->update_timezone_class();
-		$this->update_timezones_langfile();
+		$this->fetchTzdbUpdates();
+		$this->updateTimezoneClass();
+		$this->updateTimezonesLangfile();
 
 		// Changed in unexpected ways?
 		if (!empty($this->tz_data['changed']['wtf'])) {
@@ -224,11 +224,11 @@ class TimezoneUpdater
 	 *
 	 * The data is saved in $this->tz_data.
 	 */
-	private function fetch_tzdb_updates(): void
+	private function fetchTzdbUpdates(): void
 	{
 		$fetched = [];
 
-		$this->fetch_tzdb_tags();
+		$this->fetchTzdbTags();
 
 		foreach (['prev', 'curr'] as $build) {
 			if ($build == 'prev') {
@@ -241,11 +241,11 @@ class TimezoneUpdater
 
 			$backzone_exists = $tag >= '2014g';
 
-			list($fetched['zones'], $fetched['links']) = $this->get_primary_zones($this->tzdb_tags[$tag]);
+			list($fetched['zones'], $fetched['links']) = $this->getPrimaryZones($this->tzdb_tags[$tag]);
 
-			$fetched['backward_links'] = $this->get_backlinks($this->tzdb_tags[$tag]);
+			$fetched['backward_links'] = $this->getBacklinks($this->tzdb_tags[$tag]);
 
-			list($fetched['backzones'], $fetched['backzone_links']) = $backzone_exists ? $this->get_backzones($this->tzdb_tags[$tag]) : [[], []];
+			list($fetched['backzones'], $fetched['backzone_links']) = $backzone_exists ? $this->getBackzones($this->tzdb_tags[$tag]) : [[], []];
 
 			$this->tz_data[$build]['all'] = array_unique(array_merge(
 				$fetched['zones'],
@@ -335,7 +335,7 @@ class TimezoneUpdater
 	 *   necessary because new versions of the TZDB sometimes contain
 	 *   corrections to previous data.
 	 */
-	private function update_timezone_class(): void
+	private function updateTimezoneClass(): void
 	{
 		$file_contents = file_get_contents(Config::$sourcedir . '/TimeZone.php');
 
@@ -352,7 +352,7 @@ class TimezoneUpdater
 				}
 			}
 
-			// Rename it in get_sorted_tzids_for_country()
+			// Rename it in TimeZone::$sorted_tzids
 			if (!preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=,\n)~', $file_contents)) {
 				$file_contents = preg_replace('~\n\h+\K\'' . $old_tzid . '\'(?=,\n)~', "'{$new_tzid}'", $file_contents);
 
@@ -365,7 +365,7 @@ class TimezoneUpdater
 
 			// Ensure the fallback code is added.
 			$insert_before = '(?=\n\h+/\*\s+\* 2. Newly created time zones.)';
-			$code = $this->generate_rename_fallback_code([$old_tzid => $new_tzid]);
+			$code = $this->generateRenameFallbackCode([$old_tzid => $new_tzid]);
 
 			$search_for = preg_quote(substr(trim($code), 0, strpos(trim($code), "\n")), '~');
 			$search_for = preg_replace('~\s+~', '\s+', $search_for);
@@ -383,12 +383,12 @@ class TimezoneUpdater
 
 		// Insert fallback code for any additions.
 		if (!empty($this->tz_data['changed']['additions'])) {
-			$fallbacks = $this->build_fallbacks();
+			$fallbacks = $this->buildFallbacks();
 
 			foreach ($this->tz_data['changed']['additions'] as $tzid) {
-				// Ensure it is present in get_sorted_tzids_for_country()
+				// Ensure it is present in TimeZone::$sorted_tzids
 				if (!preg_match('~\n\h+\K\'' . $tzid . '\'(?=,\n)~', $file_contents)) {
-					$cc = $this->get_cc_for_tzid($tzid, $this->curr_commit);
+					$cc = $this->getCcForTzid($tzid, $this->curr_commit);
 
 					$file_contents = preg_replace("~('{$cc}'\s*=>\s*\[(?:\s*'[^']+',)*\n)(\h*)(\],)~", '$1$2' . "\t'{$tzid}',\n" . '$2$3', $file_contents);
 
@@ -401,7 +401,7 @@ class TimezoneUpdater
 
 				// Ensure the fallback code is added.
 				$insert_before = '(?=\s+\];\s+/\**\s+\* Internal static properties)';
-				$code = $this->generate_full_fallback_code([$tzid => $fallbacks[$tzid]]);
+				$code = $this->generateFullFallbackCode([$tzid => $fallbacks[$tzid]]);
 
 				$search_for = preg_quote(substr(trim($code), 0, strpos(trim($code), "\n")), '~');
 				$search_for = preg_replace('~\s+~', '\s+', $search_for);
@@ -525,7 +525,7 @@ class TimezoneUpdater
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
 
 		// Any new meta-zones to add?
-		$file_contents = $this->update_metazones($file_contents);
+		$file_contents = $this->updateMetazones($file_contents);
 
 		// Save the changes again.
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
@@ -539,15 +539,14 @@ class TimezoneUpdater
 	 * @param string $file_contents String content of TimeZone.php.
 	 * @return string Modified copy of $file_contents.
 	 */
-	private function update_metazones(string $file_contents): string
+	private function updateMetazones(string $file_contents): string
 	{
-		// include Config::$sourcedir . '/TimeZone.php';
 		include Config::$languagesdir . '/en_US/Timezones.php';
 
 		$metazones = TimeZone::getTzidMetazones();
 		$canonical_non_metazones = array_diff($this->tz_data['curr']['canonical'], array_keys($metazones));
 
-		$this->build_zones();
+		$this->buildZones();
 
 		array_walk(
 			$this->zones,
@@ -556,7 +555,7 @@ class TimezoneUpdater
 			},
 		);
 
-		$this->build_timezone_transitions();
+		$this->buildTransitions();
 
 		$not_in_a_metazone = [];
 
@@ -646,7 +645,7 @@ class TimezoneUpdater
 				$tzid = reset($tzids);
 
 				// Build a list of possible fallback zones for this zone.
-				$possible_fallback_zones = $this->build_possible_fallback_zones($tzid);
+				$possible_fallback_zones = $this->buildPossibleFallbackZones($tzid);
 
 				// Build a preliminary list of fallbacks.
 				$fallbacks[$tzid] = [];
@@ -659,7 +658,7 @@ class TimezoneUpdater
 						continue;
 					}
 
-					foreach ($this->find_fallbacks($possible_fallback_zones, $entry, $tzid, $prev_fallback_tzid, $not_in_a_metazone[$year]) as $fallback) {
+					foreach ($this->findFallbacks($possible_fallback_zones, $entry, $tzid, $prev_fallback_tzid, $not_in_a_metazone[$year]) as $fallback) {
 						$prev_fallback_tzid = $fallback['tzid'];
 						$fallbacks[$tzid][] = $fallback;
 					}
@@ -677,7 +676,7 @@ class TimezoneUpdater
 						continue;
 					}
 
-					$date_fallback = new DateTime($fallbacks[$tzid][$i]['ts']);
+					$date_fallback = new \DateTime($fallbacks[$tzid][$i]['ts']);
 
 					if ($date_fallback->getTimestamp() > $end_date->getTimestamp()) {
 						continue;
@@ -709,12 +708,12 @@ class TimezoneUpdater
 					continue;
 				}
 
-				// Sort for stability. Use get_sorted_tzids_for_country() data to guess
+				// Sort for stability. Use TimeZone::$sorted_tzids data to guess
 				// which tzid might be a good representative for the others.
 				$sorted_tzids = [];
 
 				foreach ($tzids as $tzid) {
-					$cc = $this->get_cc_for_tzid($tzid, $this->curr_commit);
+					$cc = $this->getCcForTzid($tzid, $this->curr_commit);
 
 					if (isset($sorted_tzids[$cc])) {
 						continue;
@@ -776,7 +775,7 @@ class TimezoneUpdater
 					// If source was one of the backward or backzone files, guess based on latitude and/or country code.
 					elseif ($this->zones[$tzid]['latitude'] > 13) {
 						$metazone['tztxt_key'] = 'North_' . $metazone['tztxt_key'];
-					} elseif ($this->zones[$tzid]['latitude'] > 7 && in_array($this->get_cc_for_tzid($tzid, $this->curr_commit), ['NI', 'CR', 'PA'])) {
+					} elseif ($this->zones[$tzid]['latitude'] > 7 && in_array($this->getCcForTzid($tzid, $this->curr_commit), ['NI', 'CR', 'PA'])) {
 						$metazone['tztxt_key'] = 'North_' . $metazone['tztxt_key'];
 					} else {
 						$metazone['tztxt_key'] = 'South_' . $metazone['tztxt_key'];
@@ -850,7 +849,7 @@ class TimezoneUpdater
 	 * - Makes sure that $txt['iso3166'] is up to date, just in case a
 	 *   new country has come into existence since the last update.
 	 */
-	private function update_timezones_langfile(): void
+	private function updateTimezonesLangfile(): void
 	{
 		// Perform any renames.
 		$file_contents = file_get_contents(Config::$languagesdir . '/en_US/Timezones.php');
@@ -878,7 +877,7 @@ class TimezoneUpdater
 				}
 
 				// Get a label from the CLDR.
-				list($label) = $this->get_tzid_label($metazone['tzid']);
+				list($label) = $this->getTzidLabel($metazone['tzid']);
 
 				$label .= ' %1$s Time';
 
@@ -921,7 +920,7 @@ class TimezoneUpdater
 				$added_txt_msg = "Added \$txt['{$tzid}'] to Languages/en_US/Timezones.php.\n";
 
 				// Get a label from the CLDR.
-				list($label, $msg) = $this->get_tzid_label($tzid);
+				list($label, $msg) = $this->getTzidLabel($tzid);
 
 				$txt[$tzid] = $label;
 
@@ -940,7 +939,7 @@ class TimezoneUpdater
 		}
 
 		// Ensure $txt['iso3166'] is up to date.
-		$iso3166_tab = $this->fetch_tzdb_file('iso3166.tab', $this->curr_commit);
+		$iso3166_tab = $this->fetchTzdbFile('iso3166.tab', $this->curr_commit);
 
 		foreach (explode("\n", $iso3166_tab) as $line) {
 			$line = trim(substr($line, 0, strcspn($line, '#')));
@@ -1020,7 +1019,7 @@ class TimezoneUpdater
 	 * Returns a list of Git tags and the associated commit hashes for
 	 * each release of the TZDB available on GitHub.
 	 */
-	private function fetch_tzdb_tags(): void
+	private function fetchTzdbTags(): void
 	{
 		foreach (json_decode(WebFetchApi::fetch(self::TZDB_TAGS_URL), true) as $tag) {
 			$this->tzdb_tags[$tag['name']] = $tag['commit']['sha'];
@@ -1040,7 +1039,7 @@ class TimezoneUpdater
 	 * @param string $commit Git commit hash of a specific TZDB version.
 	 * @return array Canonical and linked time zone identifiers.
 	 */
-	private function get_primary_zones(string $commit = 'main'): array
+	private function getPrimaryZones(string $commit = 'main'): array
 	{
 		$canonical = [];
 		$links = [];
@@ -1058,7 +1057,7 @@ class TimezoneUpdater
 		];
 
 		foreach ($filenames as $filename) {
-			$file_contents = $this->fetch_tzdb_file($filename, $commit);
+			$file_contents = $this->fetchTzdbFile($filename, $commit);
 
 			foreach (explode("\n", $file_contents) as $line) {
 				$line = trim(substr($line, 0, strcspn($line, '#')));
@@ -1083,17 +1082,17 @@ class TimezoneUpdater
 	/**
 	 * Builds an array of backward compatibility time zone identifiers.
 	 *
-	 * These supplement the linked tzids supplied by get_primary_zones()
+	 * These supplement the linked tzids supplied by getPrimaryZones()
 	 * and are formatted the same way (i.e. 'link' => 'target')
 	 *
 	 * @param string $commit Git commit hash of a specific TZDB version.
 	 * @return array Linked time zone identifiers.
 	 */
-	private function get_backlinks(string $commit): array
+	private function getBacklinks(string $commit): array
 	{
 		$backlinks = [];
 
-		$file_contents = $this->fetch_tzdb_file('backward', $commit);
+		$file_contents = $this->fetchTzdbFile('backward', $commit);
 
 		foreach (explode("\n", $file_contents) as $line) {
 			$line = trim(substr($line, 0, strcspn($line, '#')));
@@ -1115,19 +1114,19 @@ class TimezoneUpdater
 	}
 
 	/**
-	 * Similar to get_primary_zones() in all respects, except that it
+	 * Similar to getPrimaryZones() in all respects, except that it
 	 * returns the pre-1970 data contained in the TZDB's backzone file
 	 * rather than the main data files.
 	 *
 	 * @param string $commit Git commit hash of a specific TZDB version.
 	 * @return array Canonical and linked time zone identifiers.
 	 */
-	private function get_backzones(string $commit): array
+	private function getBackzones(string $commit): array
 	{
 		$backzones = [];
 		$backzone_links = [];
 
-		$file_contents = $this->fetch_tzdb_file('backzone', $commit);
+		$file_contents = $this->fetchTzdbFile('backzone', $commit);
 
 		foreach (explode("\n", $file_contents) as $line) {
 			$line = str_replace('#PACKRATLIST zone.tab ', '', $line);
@@ -1157,7 +1156,7 @@ class TimezoneUpdater
 	 * @param string $commit Git commit hash of a specific TZDB version.
 	 * @return string The content of the file.
 	 */
-	private function fetch_tzdb_file(string $filename, string $commit): string
+	private function fetchTzdbFile(string $filename, string $commit): string
 	{
 		 static $files;
 
@@ -1180,9 +1179,9 @@ class TimezoneUpdater
 	 * @param string $commit Git commit hash of a specific TZDB version.
 	 * @return string A two-character country code, or '??' if not found.
 	 */
-	private function get_cc_for_tzid(string $tzid, string $commit): string
+	private function getCcForTzid(string $tzid, string $commit): string
 	{
-		preg_match('~^(\w\w)\h+[+\-\d]+\h+' . $tzid . '~m', $this->fetch_tzdb_file('zone.tab', $commit), $matches);
+		preg_match('~^(\w\w)\h+[+\-\d]+\h+' . $tzid . '~m', $this->fetchTzdbFile('zone.tab', $commit), $matches);
 
 		return $matches[1] ?? '??';
 	}
@@ -1193,7 +1192,7 @@ class TimezoneUpdater
 	 * @param string $tzid A time zone identifier.
 	 * @return array The label text, and possibly an "ACTION NEEDED" message.
 	 */
-	private function get_tzid_label(string $tzid): array
+	private function getTzidLabel(string $tzid): array
 	{
 		static $cldr_json;
 
@@ -1232,18 +1231,18 @@ class TimezoneUpdater
 	 *
 	 * @return array Fallback info for the new time zones.
 	 */
-	private function build_fallbacks(): array
+	private function buildFallbacks(): array
 	{
 		$date_min = new \DateTime(self::DATE_MIN);
 
-		$this->build_zones();
+		$this->buildZones();
 
 		// See if we can find suitable fallbacks for each newly added zone.
 		$fallbacks = [];
 
 		foreach ($this->tz_data['changed']['additions'] as $tzid) {
 			// Build a list of possible fallback zones for this zone.
-			$possible_fallback_zones = $this->build_possible_fallback_zones($tzid);
+			$possible_fallback_zones = $this->buildPossibleFallbackZones($tzid);
 
 			// Build a preliminary list of fallbacks.
 			$fallbacks[$tzid] = [];
@@ -1262,7 +1261,7 @@ class TimezoneUpdater
 					continue;
 				}
 
-				foreach ($this->find_fallbacks($possible_fallback_zones, $entry, $tzid, $prev_fallback_tzid, $this->tz_data['changed']['new']) as $fallback) {
+				foreach ($this->findFallbacks($possible_fallback_zones, $entry, $tzid, $prev_fallback_tzid, $this->tz_data['changed']['new']) as $fallback) {
 					$prev_fallback_tzid = $fallback['tzid'];
 					$fallbacks[$tzid][] = $fallback;
 				}
@@ -1355,14 +1354,14 @@ class TimezoneUpdater
 	 * consist of a series of fallbacks for different times during the
 	 * overall period of the entry.
 	 *
-	 * @param array $pfzs Array returned from build_possible_fallback_zones()
+	 * @param array $pfzs Array returned from buildPossibleFallbackZones()
 	 * @param array $entry An element from $this->zones[$tzid]['entries']
 	 * @param string $tzid A time zone identifier
 	 * @param string $prev_fallback_tzid A time zone identifier
 	 * @param array $skip_tzids Tzids that should not be used as fallbacks.
 	 * @return array Fallback data for the entry.
 	 */
-	private function find_fallbacks(array $pfzs, array $entry, string $tzid, string $prev_fallback_tzid, array $skip_tzids): array
+	private function findFallbacks(array $pfzs, array $entry, string $tzid, string $prev_fallback_tzid, array $skip_tzids): array
 	{
 		static $depth = 0;
 
@@ -1467,7 +1466,7 @@ class TimezoneUpdater
 						$partial_entry = $entry;
 						$partial_entry['from_utc'] = $pfz_date_until->format('c');
 
-						$fallbacks = array_merge($fallbacks, $this->find_fallbacks($pfzs, $partial_entry, $tzid, $pfz['tzid'], $skip_tzids));
+						$fallbacks = array_merge($fallbacks, $this->findFallbacks($pfzs, $partial_entry, $tzid, $pfz['tzid'], $skip_tzids));
 
 						$depth--;
 					}
@@ -1519,7 +1518,7 @@ class TimezoneUpdater
 	 * link to it, and whether it is new (where "new" means not present
 	 * in the earliest version of the TZDB that we are considering).
 	 */
-	private function build_zones(): void
+	private function buildZones(): void
 	{
 		if (!empty($this->zones)) {
 			return;
@@ -1548,7 +1547,7 @@ class TimezoneUpdater
 		foreach ($filenames as $filename) {
 			$tzid = '';
 
-			foreach (explode("\n", $this->fetch_tzdb_file($filename, $this->curr_commit)) as $line_num => $line) {
+			foreach (explode("\n", $this->fetchTzdbFile($filename, $this->curr_commit)) as $line_num => $line) {
 				$line = rtrim(substr($line, 0, strcspn($line, '#')));
 
 				if ($line === '') {
@@ -1608,7 +1607,7 @@ class TimezoneUpdater
 					$entry['until_suffix'] = 'u';
 				} else {
 					// Rewrite date into PHP-parseable format.
-					$entry['until'] = $this->rewrite_date_string($entry['until']);
+					$entry['until'] = $this->rewriteDateString($entry['until']);
 
 					// Find the suffix. Determines which zone the until timestamp is in.
 					preg_match('/\d+:\d+(|[wsugz])$/', $entry['until'], $matches);
@@ -1637,7 +1636,7 @@ class TimezoneUpdater
 		}
 
 		// Set coordinates and country codes for each zone.
-		foreach (explode("\n", $this->fetch_tzdb_file('zone.tab', $this->curr_commit)) as $line_num => $line) {
+		foreach (explode("\n", $this->fetchTzdbFile('zone.tab', $this->curr_commit)) as $line_num => $line) {
 			$line = rtrim(substr($line, 0, strcspn($line, '#')));
 
 			if ($line === '') {
@@ -1714,7 +1713,7 @@ class TimezoneUpdater
 		}
 
 		// Set UTC versions of every entry's 'from' and 'until' dates.
-		$this->build_timezone_transitions(true);
+		$this->buildTransitions(true);
 	}
 
 	/**
@@ -1728,7 +1727,7 @@ class TimezoneUpdater
 	 *
 	 * @param bool $rebuild If true, force a rebuild.
 	 */
-	private function build_timezone_transitions(bool $rebuild = false): void
+	private function buildTransitions(bool $rebuild = false): void
 	{
 		static $zones_hash = '';
 
@@ -1892,7 +1891,7 @@ class TimezoneUpdater
 					$default_letter = '-';
 					$default_save = 0;
 
-					$rule_transitions = $this->get_applicable_rule_transitions($entry['rules'], $unadjusted_date_strings, (int) $std_offset, (string) $prev_save);
+					$rule_transitions = $this->getApplicableRuleTransitions($entry['rules'], $unadjusted_date_strings, (int) $std_offset, (string) $prev_save);
 
 					// Figure out the state when the entry starts.
 					foreach ($rule_transitions as $date_string => $info) {
@@ -2063,7 +2062,7 @@ class TimezoneUpdater
 	 * @param array $new_tzid A time zone identifier
 	 * @return array A subset of $this->zones that might work as fallbacks for $new_tzid
 	 */
-	private function build_possible_fallback_zones($new_tzid): array
+	private function buildPossibleFallbackZones($new_tzid): array
 	{
 		$new_zone = $this->zones[$new_tzid];
 
@@ -2082,7 +2081,7 @@ class TimezoneUpdater
 			}
 
 			// Obviously won't work if it's on the other side of the planet.
-			$possible_fallback_zones[$tzid]['distance'] = $this->get_distance_from($possible_fallback_zones[$tzid], $this->zones[$new_tzid]);
+			$possible_fallback_zones[$tzid]['distance'] = $this->getDistanceFrom($possible_fallback_zones[$tzid], $this->zones[$new_tzid]);
 
 			if ($possible_fallback_zones[$tzid]['distance'] > 6 * 15) {
 				unset($possible_fallback_zones[$tzid]);
@@ -2169,7 +2168,7 @@ class TimezoneUpdater
 	 * @param string $prev_save The daylight saving value that applied just before $entry_start.
 	 * @return array Transition rules.
 	 */
-	private function get_applicable_rule_transitions(string $rule_name, array $unadjusted_date_strings, int $std_offset, string $prev_save): array
+	private function getApplicableRuleTransitions(string $rule_name, array $unadjusted_date_strings, int $std_offset, string $prev_save): array
 	{
 		static $rule_transitions = [];
 
@@ -2177,7 +2176,7 @@ class TimezoneUpdater
 		$date_max = new \DateTime(self::DATE_MAX);
 
 		if (!isset($rule_transitions[$rule_name])) {
-			$rules = $this->get_rules();
+			$rules = $this->getRules();
 
 			foreach ($rules[$rule_name] as $rule_num => $rule) {
 				preg_match('/(\d+(?::\d+)*)([wsugz]|)$/', $rule['at'], $matches);
@@ -2195,7 +2194,7 @@ class TimezoneUpdater
 				}
 
 				for ($year = $year_from; $year <= $year_to; $year++) {
-					$transition_date_string = $this->rewrite_date_string(
+					$transition_date_string = $this->rewriteDateString(
 						implode(' ', [
 							$year,
 							$rule['in'],
@@ -2267,7 +2266,7 @@ class TimezoneUpdater
 	 *
 	 * @return array Compiled rules, indexed by rule name.
 	 */
-	private function get_rules(): array
+	private function getRules(): array
 	{
 		static $rules = [];
 
@@ -2292,7 +2291,7 @@ class TimezoneUpdater
 		foreach ($filenames as $filename) {
 			$tzid = '';
 
-			foreach (explode("\n", $this->fetch_tzdb_file($filename, $this->curr_commit)) as $line_num => $line) {
+			foreach (explode("\n", $this->fetchTzdbFile($filename, $this->curr_commit)) as $line_num => $line) {
 				$line = rtrim(substr($line, 0, strcspn($line, '#')));
 
 				if ($line === '') {
@@ -2357,7 +2356,7 @@ class TimezoneUpdater
 	 * @param array $from_zone Another element from the $this->zones array.
 	 * @return float The distance (in degrees) between the two locations.
 	 */
-	private function get_distance_from($this_zone, $from_zone): float
+	private function getDistanceFrom($this_zone, $from_zone): float
 	{
 		foreach (['latitude', 'longitude'] as $varname) {
 			if (!isset($this_zone[$varname])) {
@@ -2379,7 +2378,7 @@ class TimezoneUpdater
 	 * @param string $date_string A date string in TZDB format.
 	 * @return string A date string that can be parsed by strtotime()
 	 */
-	private function rewrite_date_string(string $date_string): string
+	private function rewriteDateString(string $date_string): string
 	{
 		$month = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec';
 		$weekday = 'Sun|Mon|Tue|Wed|Thu|Fri|Sat';
@@ -2426,12 +2425,12 @@ class TimezoneUpdater
 	}
 
 	/**
-	 * Generates PHP code to insert into get_tzid_fallbacks() for renamed tzids.
+	 * Generates PHP code to insert into TimeZone::$fallbacks for renamed tzids.
 	 *
 	 * @param array $renamed_tzids Key-value pairs of renamed tzids.
-	 * @return string PHP code to insert into get_tzid_fallbacks()
+	 * @return string PHP code to insert into TimeZone::$fallbacks
 	 */
-	private function generate_rename_fallback_code(array $renamed_tzids): string
+	private function generateRenameFallbackCode(array $renamed_tzids): string
 	{
 		$generated = [];
 
@@ -2465,13 +2464,13 @@ class TimezoneUpdater
 	}
 
 	/**
-	 * Generates PHP code to insert into get_tzid_fallbacks() for new tzids.
-	 * Uses the fallback data created by build_fallbacks() to do so.
+	 * Generates PHP code to insert into TimeZone::$fallbacks for new tzids.
+	 * Uses the fallback data created by $this->buildFallbacks() to do so.
 	 *
 	 * @param array $fallbacks Fallback info for tzids.
-	 * @return string PHP code to insert into get_tzid_fallbacks()
+	 * @return string PHP code to insert into TimeZone::$fallbacks
 	 */
-	private function generate_full_fallback_code(array $fallbacks): string
+	private function generateFullFallbackCode(array $fallbacks): string
 	{
 		$generated = '';
 
