@@ -48,7 +48,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	if ($error_call > 2)
 	{
 		var_dump($backtrace);
-		die('Error loop.');
+		die('Error loop. Possible reason, database table log_errors is broken.');
 	}
 
 	// Check if error logging is actually on.
