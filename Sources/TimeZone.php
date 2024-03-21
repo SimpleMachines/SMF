@@ -1912,7 +1912,7 @@ class TimeZone extends \DateTimeZone
 			],
 			[
 				'ts' => '1999-03-27T21:00:00+0000',
-				'tzid' => 'Etc/GMT-5',
+				'tzid' => 'Asia/Aqtau',
 			],
 		],
 
