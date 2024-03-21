@@ -33,6 +33,15 @@ function AdminMain()
 	loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
 	loadCSSFile('admin.css', array(), 'smf_admin');
 
+	loadCSSFile('coloris.min.css', array(), 'coloris');
+	loadJavaScriptFile('coloris.min.js', array('minimize' => true), 'coloris');
+	addInlineJavaScript('
+	Coloris({
+		rtl: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
+		themeMode: "auto",
+		format: "auto",
+	});', true);
+
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
 
