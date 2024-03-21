@@ -146,7 +146,7 @@ $db_error_send = false;
  *
  * @var null|bool
  */
-$db_mb4 = null;
+$db_mb4 = true;
 
 ########## Cache Info ##########
 /**
@@ -239,7 +239,7 @@ if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 
 ######### Legacy Settings #########
 # UTF-8 is now the only character set supported in 2.1.
-$db_character_set = 'utf8';
+$db_character_set = 'utf8mb4';
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.

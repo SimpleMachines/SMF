@@ -101,9 +101,8 @@ function reloadSettings()
 	if (empty($modSettings['force_ssl']))
 		$image_proxy_enabled = false;
 
-	// UTF-8 ?
-	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
-	$context['utf8'] = $utf8;
+	// Preserve legacy utf8 variables in case used by mods
+	$context['utf8'] = $utf8 = 'UTF-8';
 
 	// Set a list of common functions.
 	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
@@ -115,9 +114,9 @@ function reloadSettings()
 		{
 			return (string) $string;
 		};
-	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
+	$fix_utf8mb4 = function($string) use ($smcFunc)
 	{
-		if (!$utf8 || $smcFunc['db_mb4'])
+		if ($smcFunc['db_mb4'])
 			return $string;
 
 		$i = 0;
@@ -162,26 +161,26 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4, &$smcFunc)
+		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'UTF-8') use ($ent_check, $fix_utf8mb4, &$smcFunc)
 		{
 			$string = $smcFunc['normalize']($string);
 
-			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
+			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $charset)));
 		},
-		'htmltrim' => function($string) use ($utf8, $ent_check)
+		'htmltrim' => function($string) use ($ent_check)
 		{
 			// Preg_replace space characters depend on the character set in use
-			$space_chars = $utf8 ? '\p{Z}\p{C}' : '\x00-\x20\x80-\xA0';
+			$space_chars = '\p{Z}\p{C}';
 
-			return preg_replace('~^(?:[' . $space_chars . ']|&nbsp;)+|(?:[' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
+			return preg_replace('~^(?:[' . $space_chars . ']|&nbsp;)+|(?:[' . $space_chars . ']|&nbsp;)+$~u', '', $ent_check($string));
 		},
-		'strlen' => function($string) use ($ent_list, $utf8, $ent_check)
+		'strlen' => function($string) use ($ent_list, $ent_check)
 		{
-			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
+			return strlen(preg_replace('~' . $ent_list . '|.~u', '_', $ent_check($string)));
 		},
-		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $ent_list, $modSettings)
+		'strpos' => function($haystack, $needle, $offset = 0) use ($ent_check, $ent_list, $modSettings)
 		{
-			$haystack_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$haystack_arr = preg_split('~(' . $ent_list . '|.)~u', $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			if (strlen($needle) === 1)
 			{
@@ -190,7 +189,7 @@ function reloadSettings()
 			}
 			else
 			{
-				$needle_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+				$needle_arr = preg_split('~(' . $ent_list . '|.)~u' . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 				$needle_size = count($needle_arr);
 
 				$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
@@ -204,9 +203,9 @@ function reloadSettings()
 				return false;
 			}
 		},
-		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $ent_list, $modSettings)
+		'substr' => function($string, $start, $length = null) use ($ent_check, $ent_list, $modSettings)
 		{
-			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$ent_arr = preg_split('~(' . $ent_list . '|.)~u' . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
 		'strtolower' => function($string) use (&$smcFunc)
@@ -220,10 +219,10 @@ function reloadSettings()
 		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
 			$string = $ent_check($string);
-			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~' . ($utf8 ? 'u' : ''), $string, $matches);
+			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~u', $string, $matches);
 			$string = $matches[0];
 			while (strlen($string) > $length)
-				$string = preg_replace('~(?:' . $ent_list . '|.)$~' . ($utf8 ? 'u' : ''), '', $string);
+				$string = preg_replace('~(?:' . $ent_list . '|.)$~u', '', $string);
 			return $string;
 		},
 		'ucfirst' => function($string) use (&$smcFunc)
@@ -321,14 +320,11 @@ function reloadSettings()
 
 			return random_bytes($length);
 		},
-		'normalize' => function($string, $form = 'c') use ($utf8)
+		'normalize' => function($string, $form = 'c')
 		{
 			global $sourcedir;
 
 			$string = (string) $string;
-
-			if (!$utf8)
-				return $string;
 
 			require_once($sourcedir . '/Subs-Charset.php');
 
@@ -3302,7 +3298,6 @@ function getBoardParents($id_parent)
 
 /**
  * Attempt to reload our known languages.
- * It will try to choose only utf8 or non-utf8 languages.
  *
  * @param bool $use_cache Whether or not to use the cache
  * @return array An array of information about available languages
@@ -3507,7 +3502,7 @@ function template_include($filename, $once = false)
 			ob_start();
 
 		if (isset($_GET['debug']))
-			header('content-type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: application/xhtml+xml; charset=UTF-8');
 
 		// Don't cache error pages!!
 		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');

@@ -1891,7 +1891,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),
-	INDEX idx_lngfile (lngfile)
+	INDEX idx_lngfile (lngfile(191))
 ) ENGINE=MyISAM;
 ---#
 
@@ -3197,7 +3197,7 @@ DROP INDEX idx_active_real_name;
 
 ---# Updating members active_real_name (add)
 ALTER TABLE {$db_prefix}members
-ADD INDEX idx_active_real_name (is_activated, real_name);
+ADD INDEX idx_active_real_name (is_activated, real_name(191));
 ---#
 
 ---# Updating messages drop old ipIndex
@@ -3897,4 +3897,47 @@ foreach($files AS $filename)
 	unset($_GET['last_action_id']);
 	unset($_GET['total_fixes']);
 ---}
+---#
+
+/******************************************************************************/
+--- Prepare indexes for mb4
+/******************************************************************************/
+---# Real_name column drop
+ALTER TABLE {$db_prefix}members
+DROP INDEX idx_real_name;
+---#
+
+---# Real_name column drop - old alt name
+ALTER TABLE {$db_prefix}members
+DROP INDEX real_name;
+---#
+
+---# Real_name column recreate
+ALTER TABLE {$db_prefix}members
+ADD INDEX idx_real_name (real_name(191));
+---#
+
+---# Email column drop
+ALTER TABLE {$db_prefix}members
+DROP INDEX idx_email_address;
+---#
+
+---# Email column drop - old alt name
+ALTER TABLE {$db_prefix}members
+DROP INDEX email_address;
+---#
+
+---# Email column recreate
+ALTER TABLE {$db_prefix}members
+ADD INDEX idx_email_address (email_address(191));
+---#
+
+---# Lngfile column drop
+ALTER TABLE {$db_prefix}qanda
+DROP INDEX idx_lngfile;
+---#
+
+---# Lngfile column recreate
+ALTER TABLE {$db_prefix}qanda
+ADD INDEX idx_lngfile (lngfile(191));
 ---#
