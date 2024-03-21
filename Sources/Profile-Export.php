@@ -1926,6 +1926,7 @@ function export_load_css_js()
 		'jpeg' => 'image/jpeg',
 		'tiff' => 'image/tiff',
 		'svg' => 'image/svg+xml',
+		'webp' => 'image/webp',
 	);
 
 	foreach (glob(implode(DIRECTORY_SEPARATOR, array($modSettings['smileys_dir'], $user_info['smiley_set'], '*.*'))) as $smiley_file)

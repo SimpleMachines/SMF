@@ -489,7 +489,8 @@ function reloadSettings()
 		IMAGETYPE_BMP => 'bmp',
 		IMAGETYPE_TIFF_II => 'tiff',
 		IMAGETYPE_TIFF_MM => 'tiff',
-		IMAGETYPE_IFF => 'iff'
+		IMAGETYPE_IFF => 'iff',
+		IMAGETYPE_WEBP => 'webp'
 	);
 
 	// Define a list of allowed tags for descriptions.

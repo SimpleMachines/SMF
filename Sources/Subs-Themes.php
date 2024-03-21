@@ -619,7 +619,7 @@ function get_file_listing($path, $relative)
 				'is_writable' => is_writable($path . '/' . $entry),
 				'is_directory' => false,
 				'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
-				'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
+				'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png|webp)$~', $entry) != 0,
 				'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
 				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 				'size' => $size,

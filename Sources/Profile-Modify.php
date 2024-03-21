@@ -491,7 +491,7 @@ function loadProfileFields($force_reload = false)
 				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
 				foreach ($no_smiley_sets as $set)
 				{
-					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
 
 					// Just use some image or other
@@ -1900,7 +1900,7 @@ function getAvatars($directory, $level)
 		$extension = substr(strrchr($line, '.'), 1);
 
 		// Make sure it is an image.
-		if (strcasecmp($extension, 'gif') != 0 && strcasecmp($extension, 'jpg') != 0 && strcasecmp($extension, 'jpeg') != 0 && strcasecmp($extension, 'png') != 0 && strcasecmp($extension, 'bmp') != 0)
+		if (strcasecmp($extension, 'gif') != 0 && strcasecmp($extension, 'jpg') != 0 && strcasecmp($extension, 'jpeg') != 0 && strcasecmp($extension, 'png') != 0 && strcasecmp($extension, 'bmp') != 0 && strcasecmp($extension, 'webp') != 0)
 			continue;
 
 		$result[] = array(
@@ -3718,7 +3718,8 @@ function profileSaveAvatarData(&$value)
 					'1' => 'gif',
 					'2' => 'jpg',
 					'3' => 'png',
-					'6' => 'bmp'
+					'6' => 'bmp',
+					'18' => 'webp'
 				);
 
 				$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';

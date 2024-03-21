@@ -1343,7 +1343,7 @@ function ExamineFile()
 	$context['filename'] = $_REQUEST['file'];
 
 	// Let the unpacker do the work.... but make sure we handle images properly.
-	if (in_array(strtolower(strrchr($_REQUEST['file'], '.')), array('.bmp', '.gif', '.jpeg', '.jpg', '.png')))
+	if (in_array(strtolower(strrchr($_REQUEST['file'], '.')), array('.bmp', '.gif', '.jpeg', '.jpg', '.png', '.webp')))
 		$context['filedata'] = '<img src="' . $scripturl . '?action=admin;area=packages;sa=examine;package=' . $_REQUEST['package'] . ';file=' . $_REQUEST['file'] . ';raw" alt="' . $_REQUEST['file'] . '">';
 	else
 	{
