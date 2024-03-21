@@ -96,7 +96,7 @@ class TimezoneUpdater
 	 * version of PHP that SMF supports, e.g. 2015g (a.k.a. 2015.7) for PHP 7.0.
 	 * Leave blank to use the earliest release available.
 	 */
-	public const TZDB_PREV_TAG = '2015g';
+	public const TZDB_PREV_TAG = '2020d';
 
 	/**
 	 * Git tag of the most recent version of the TZDB to check against.
