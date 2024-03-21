@@ -96,7 +96,7 @@ function template_generic_menu(&$menu_context)
 				continue;
 
 			echo '
-								<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
+								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>
 									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
@@ -104,16 +104,13 @@ function template_generic_menu(&$menu_context)
 				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
-			if (!empty($area['subsections']) && empty($area['hide_subsections']))
+			if (!empty($area['subsections']))
 			{
 				echo '
 									<ul>';
 
 				foreach ($area['subsections'] as $sa => $sub)
 				{
-					if (!empty($sub['disabled']))
-						continue;
-
 					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
@@ -168,13 +165,6 @@ function template_generic_menu_tabs(&$menu_context)
 		{
 			foreach ($context['tabs'] as $id => $tab)
 			{
-				// Can this not be accessed?
-				if (!empty($tab['disabled']))
-				{
-					$tab_context['tabs'][$id]['disabled'] = true;
-					continue;
-				}
-
 				// Did this not even exist - or do we not have a label?
 				if (!isset($tab_context['tabs'][$id]))
 					$tab_context['tabs'][$id] = array('label' => $tab['label']);
@@ -268,7 +258,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 		foreach ($tab_context['tabs'] as $sa => $tab)
 		{
-			if (!empty($tab['disabled']))
+			if (empty($tab['label']))
 				continue;
 
 			if (!empty($tab['is_selected']))
