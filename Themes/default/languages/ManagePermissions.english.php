@@ -162,6 +162,8 @@ $txt['permissionname_profile_upload_avatar'] = 'Upload an avatar to the server';
 $txt['permissionhelp_profile_upload_avatar'] = 'This permission will allow a user to upload their personal avatar to the server.';
 $txt['permissionname_profile_remote_avatar'] = 'Choose a remotely stored avatar';
 $txt['permissionhelp_profile_remote_avatar'] = 'Because avatars might influence the page creation time negatively, it is possible to disallow certain membergroups to use avatars from external servers.';
+$txt['permissionname_profile_gravatar'] = 'Choose a Gravatar';
+$txt['permissionhelp_profile_gravatar'] = 'Because Gravatars might influence the page creation time negatively, it is possible to disallow certain membergroups to use Gravatars.';
 
 $txt['permissiongroup_profile_account'] = 'Member Accounts';
 $txt['permissionname_profile_identity'] = 'Edit account settings';
