@@ -527,6 +527,38 @@ class TimezoneUpdater
 		// Any new meta-zones to add?
 		$file_contents = $this->updateMetazones($file_contents);
 
+		// Have any time zones changed their country codes?
+		foreach ($this->zones as $tzid => $zone) {
+			$cc = $this->getCcForTzid($tzid, $this->curr_commit);
+
+			if ($cc !== '??' && !in_array($tzid, TimeZone::$sorted_tzids[$cc] ?? [])) {
+				// Remove the existing occurrence of the tzid in TimeZone::$sorted_tzids.
+				$file_contents = preg_replace('~\n\h+\'' . $tzid . '\',?(?=\n)~', '', $file_contents);
+
+				// A brand new country code?
+				if (!isset(TimeZone::$sorted_tzids[$cc])) {
+					foreach (TimeZone::$sorted_tzids as $existing_cc => $tzids) {
+						if ($existing_cc > $cc) {
+							break;
+						}
+					}
+
+					$file_contents = preg_replace("~(\n\h+)('{$existing_cc}' => \[)~", "$1'{$cc}' => [$1],$0", $file_contents);
+
+					TimeZone::$sorted_tzids[$cc] = [$tzid];
+				}
+
+				// Add the tzid to the correct country code's list.
+				$file_contents = preg_replace("~('{$cc}'\s*=>\s*\[(?:\s*'[^']+',)*\n)(\h*)(\],)~", '$1$2' . "\t'{$tzid}',\n" . '$2$3', $file_contents);
+
+				if (preg_match('~\n\h+\K\'' . $tzid . '\'(?=,\n)~', $file_contents)) {
+					echo "Moved {$tzid} to '{$cc}' in TimeZone::\$sorted_tzids.\n\n";
+
+					$this->files_updated = true;
+				}
+			}
+		}
+
 		// Save the changes again.
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
 	}
