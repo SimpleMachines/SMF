@@ -1802,6 +1802,12 @@ class Calendar implements ActionInterface
 		$replacements += array_combine(array_map('strtolower', Lang::$txt['days_short']), [
 			'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
 		]);
+
+		// Fix for languages those do not use AM/PM
+		if (trim(Lang::$txt['time_am']) === '' && trim(Lang::$txt['time_pm']) === '') {
+			return strtr(strtolower($date), $replacements);
+		}
+
 		// Find all possible variants of AM and PM for this language.
 		$replacements[strtolower(Lang::$txt['time_am'])] = 'AM';
 		$replacements[strtolower(Lang::$txt['time_pm'])] = 'PM';
