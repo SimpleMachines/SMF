@@ -53,11 +53,11 @@
  *       A quick Google or Wikipedia search is your friend here.
  *
  * 5. If a new "meta-zone" is required, new entries for it will be added to
- *    TimeZone::getTzidMetazones() and to the $tztxt array in the language file.
+ *    TimeZone::$metazones and to the $tztxt array in the language file.
  *
- *     - The new entry in TimeZone::getTzidMetazones() will have an "OPTIONS"
- *       comment listing all the tzids in this new meta-zone. Feel free to use
- *       any of them as the representative tzid for the meta-zone. All "OPTIONS"
+ *     - The new entry in TimeZone::$metazones will have an "OPTIONS" comment
+ *       listing all the tzids in this new meta-zone. Feel free to use any of
+ *       them as the representative tzid for the meta-zone. All "OPTIONS"
  *       comments should be removed before commiting.
  *
  *     - Also feel free to edit the $tztxt key for the new meta-zone. Just make
@@ -341,7 +341,7 @@ class TimezoneUpdater
 
 		// Handle any renames.
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
-			// Rename it in TimeZone::getTzidMetazones()
+			// Rename it in TimeZone::$metazones
 			if (!preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=\s+=>\s+\'\w+\',)~', $file_contents)) {
 				$file_contents = preg_replace('~\n\h+\K\'' . $old_tzid . '\'(?=\s+=>\s+\'\w+\',)~', "'{$new_tzid}'", $file_contents);
 
@@ -749,7 +749,7 @@ class TimezoneUpdater
 		// Do we need any new metazones?
 		if (!empty($this->new_metazones)) {
 			// Any new metazones to create?
-			preg_match('/\h*\$tzid_metazones\h*=\h*\[[^\]]*\];/', $file_contents, $matches);
+			preg_match('/\h*public static array \$metazones\h*=\h*\[[^\]]*\];/', $file_contents, $matches);
 			$existing_tzid_metazones_code = $matches[0];
 
 			// Need some more info about this new metazone.
@@ -812,7 +812,7 @@ class TimezoneUpdater
 
 							$added[] = $tzid;
 
-							echo "Created new metazone for {$tzid} in TimeZone::getTzidMetazones().\n";
+							echo "Created new metazone for {$tzid} in TimeZone::\$metazones.\n";
 							echo "ACTION NEEDED: Review the automatically generated \$tztxt key, '" . $metazone['tztxt_key'] . "'.\n\n";
 
 							$this->files_updated = true;
@@ -883,7 +883,7 @@ class TimezoneUpdater
 
 				$tztxt[$metazone['tztxt_key']] = $label;
 
-				echo "Added \$tztxt['" . $metazone['tztxt_key'] . "'] to Languages/en_US/Timezones.php.\n";
+				echo "Added \$tztxt['{$metazone['tztxt_key']}'] to Languages/en_US/Timezones.php.\n";
 				echo "ACTION NEEDED: Review the metazone label text, '{$label}'.\n\n";
 
 				$this->files_updated = true;
