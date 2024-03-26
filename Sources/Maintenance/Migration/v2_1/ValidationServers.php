@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 
-class Migration1011 extends MigrationBase
+class ValidationServers extends MigrationBase
 {
 	/*******************
 	 * Public properties

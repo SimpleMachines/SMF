@@ -18,7 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Maintenance;
 
-class Migration0201 extends MigrationBase
+class PostgreSQLSequences extends MigrationBase
 {
 	/*******************
 	 * Public properties

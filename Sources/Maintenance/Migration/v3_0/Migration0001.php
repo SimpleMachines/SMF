@@ -20,7 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance;
 
-class Migration0001 extends MigrationBase
+class LanguageDirectory extends MigrationBase
 {
 	/*******************
 	 * Public properties

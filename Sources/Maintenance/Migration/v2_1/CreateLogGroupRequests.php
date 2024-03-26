@@ -18,7 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\LogGroupRequests;
 
-class Migration1009 extends MigrationBase
+class CreateLogGroupRequests extends MigrationBase
 {
 	/*******************
 	 * Public properties

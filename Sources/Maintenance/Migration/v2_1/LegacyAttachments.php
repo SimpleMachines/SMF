@@ -19,7 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 
-class Migration1006 extends MigrationBase
+class LegacyAttachments extends MigrationBase
 {
 	/*******************
 	 * Public properties

@@ -15,11 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v3_0\BackgroundTasks;
 
-class Migration1016 extends MigrationBase
+class MovedTopics extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -28,7 +26,16 @@ class Migration1016 extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Adding background tasks support';
+	public string $name = 'Adding support for MOVED topics enhancements';
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
+	protected array $newColumns = ['redirect_expires', 'id_redirect_topic'];
 
 	/****************
 	 * Public methods
@@ -47,12 +54,16 @@ class Migration1016 extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$background_tasks_table = new BackgroundTasks();
+		$TopicsTable = new \SMF\Db\Schema\v3_0\Topics();
+		$existing_columns = Db::$db->list_columns('{db_prefix}' . $TopicsTable->name);
 
-		$tables = Db::$db->list_tables();
+		foreach ($TopicsTable->columns as $column) {
+			// Column exists, don't need to do this.
+			if (in_array($column->name, $this->newColumns) && in_array($column->name, $existing_columns)) {
+				continue;
+			}
 
-		if (!in_array(Config::$db_prefix . $background_tasks_table->name, $tables)) {
-			$background_tasks_table->create();
+			$column->add('{db_prefix}' . $TopicsTable->name);
 		}
 
 		return true;

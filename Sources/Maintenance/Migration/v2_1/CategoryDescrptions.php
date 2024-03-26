@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 
-class Migration1018 extends MigrationBase
+class CategoryDescrptions extends MigrationBase
 {
 	/*******************
 	 * Public properties

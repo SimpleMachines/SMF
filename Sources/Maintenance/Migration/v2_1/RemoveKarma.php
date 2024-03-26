@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 
-class Migration1001 extends MigrationBase
+class RemoveKarma extends MigrationBase
 {
 	/*******************
 	 * Public properties

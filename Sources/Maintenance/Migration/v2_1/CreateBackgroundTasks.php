@@ -19,7 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\BackgroundTasks;
 
-class Migration1015 extends MigrationBase
+class CreateBackgroundTasks extends MigrationBase
 {
 	/*******************
 	 * Public properties

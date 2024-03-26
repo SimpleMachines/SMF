@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 
-class Migration1007 extends MigrationBase
+class AttachmentSizes extends MigrationBase
 {
 	/*******************
 	 * Public properties

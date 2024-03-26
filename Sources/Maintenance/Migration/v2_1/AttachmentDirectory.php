@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 
-class Migration1008 extends MigrationBase
+class AttachmentDirectory extends MigrationBase
 {
 	/*******************
 	 * Public properties

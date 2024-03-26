@@ -21,7 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 use SMF\Utils;
 
-class Migration1005 extends MigrationBase
+class BoardDescriptions extends MigrationBase
 {
 	/*******************
 	 * Public properties

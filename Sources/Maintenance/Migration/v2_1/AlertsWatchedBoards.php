@@ -18,7 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 
-class Migration1020 extends MigrationBase
+class AlertsWatchedBoards extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -27,7 +27,7 @@ class Migration1020 extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Upgrading auto notify setting';
+	public string $name = 'Creating alert prefs for watched boards';
 
 	/*********************
 	 * Internal properties
@@ -60,9 +60,9 @@ class Migration1020 extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}themes WHERE variable = {string:auto_notify}', ['auto_notify' => 'auto_notify']);
-		list($maxMembers) = Db::$db->fetch_row($request);
-		Maintenance::$total_items = (int) $maxMembers;
+		$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
+		list($maxBoards) = Db::$db->fetch_row($request);
+		Maintenance::$total_items = (int) $maxBoards;
 		Db::$db->free_result($request);
 
 		$start = Maintenance::getCurrentStart();
@@ -76,13 +76,11 @@ class Migration1020 extends MigrationBase
 			$request = Db::$db->query(
 				'',
 				'
-				SELECT id_member, value
-				FROM {db_prefix}themes
-				WHERE variable = {string:auto_notify}
-				ORDER BY id_member
+				SELECT SELECT id_member, ({literal:board_notify_} || id_topic) as alert_pref, 1 as alert_value
+				FROM {db_prefix}log_notify
+				WHERE id_member <> 0 AND id_board <> 0
 				LIMIT {int:start}, {int:limit}',
 				[
-					'auto_notify' => 'auto_notify',
 					'start' => $start,
 					'limit' => $this->limit,
 				],
@@ -107,10 +105,6 @@ class Migration1020 extends MigrationBase
 
 			Maintenance::setCurrentStart($start + $this->limit);
 		}
-
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}themes
-			WHERE variable = {literal:auto_notify}');
 
 		return true;
 	}

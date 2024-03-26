@@ -19,7 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 
-class Migration1002 extends MigrationBase
+class FixDates extends MigrationBase
 {
 	/*******************
 	 * Public properties

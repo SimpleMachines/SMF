@@ -19,7 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 
-class Migration1019 extends MigrationBase
+class CreateAlerts extends MigrationBase
 {
 	/*******************
 	 * Public properties

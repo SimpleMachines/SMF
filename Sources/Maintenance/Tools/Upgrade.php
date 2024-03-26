@@ -35,6 +35,47 @@ use SMF\Utils;
  */
 class Upgrade extends ToolsBase implements ToolsInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Migration substeps to perform, listed in order.
+	 */
+	public const MIGRATIONS = [
+		// Migration steps for 2.0 -> 2.1
+		'v2_1' => [
+			'PostgreSQLSequences',
+			'PostgreSQLFindInSet',
+			'NewSettings',
+			'RemoveKarma',
+			'FixDates',
+			'CreateMemberLogins',
+			'CollapsedCategories',
+			'BoardDescriptions',
+			'LegacyAttachments',
+			'AttachmentSizes',
+			'AttachmentDirectory',
+			'CreateLogGroupRequests',
+			'PackageManagerColumns',
+			'ValidationServers',
+			'SessionIDs',
+			'MovedTopics',
+			'NewScheduledTasks',
+			'CreateBackgroundTasks',
+			'CategoryDescrptions',
+			'CreateAlerts',
+			'AutoNotify',
+			'AlertsWatchedTopics',
+			'AlertsWatchedBoards',
+			'AlertsObsolete',
+		],
+		// Migration steps for 2.1 -> 3.0
+		'v3_0' => [
+			'LanguageDirectory',
+		],
+	];
+
 	/*******************
 	 * Public properties
 	 *******************/

@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 
-class Migration0202 extends MigrationBase
+class PostgreSQLFindInSet extends MigrationBase
 {
 	/*******************
 	 * Public properties

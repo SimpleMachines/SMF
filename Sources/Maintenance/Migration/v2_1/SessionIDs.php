@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-class Migration1012 extends MigrationBase
+class SessionIDs extends MigrationBase
 {
 	/*******************
 	 * Public properties
