@@ -656,7 +656,7 @@ class Maintenance
 		$mins = (int) ($elapsed / 60);
 		$seconds = $elapsed - $mins * 60;
 
-		return Lang::getTxt('mainteannce_time_elasped_ms', ['m' => $mins, 's' => $seconds]);
+		return Lang::getTxt('maintenance_time_elasped_ms', ['m' => $mins, 's' => $seconds]);
 	}
 
 	/**
