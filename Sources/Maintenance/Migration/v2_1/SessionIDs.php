@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Maintenance\Migration\MigrationBase;
+
 class SessionIDs extends MigrationBase
 {
 	/*******************

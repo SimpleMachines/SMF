@@ -18,6 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\MemberLogins;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class CreateMemberLogins extends MigrationBase
 {

@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class AlertsWatchedTopics extends MigrationBase
 {

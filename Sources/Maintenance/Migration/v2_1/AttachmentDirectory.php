@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class AttachmentDirectory extends MigrationBase
 {

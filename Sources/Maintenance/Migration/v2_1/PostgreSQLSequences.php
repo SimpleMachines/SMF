@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Maintenance;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class PostgreSQLSequences extends MigrationBase
 {

@@ -18,6 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class LegacyAttachments extends MigrationBase
 {

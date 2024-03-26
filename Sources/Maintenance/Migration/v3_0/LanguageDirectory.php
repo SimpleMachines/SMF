@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class LanguageDirectory extends MigrationBase
 {
