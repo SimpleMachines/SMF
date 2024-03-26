@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Template;
-use SMF\Maintenance\TemplateInterface;
+use SMF\Maintenance\Template\Template;
+use SMF\Maintenance\Template\TemplateInterface;
 use SMF\Maintenance\ToolsInterface;
 
 /**
@@ -114,7 +114,7 @@ class Maintenance
 	/**
 	 * Object containing the tool we are working with.
 	 *
-	 * @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\ToolsBase
+	 * @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\Tools\ToolsBase
 	 */
 	public static ToolsInterface $tool;
 
@@ -223,7 +223,7 @@ class Maintenance
 			self::parseCliArguments();
 		}
 
-		/** @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\ToolsBase $tool_class */
+		/** @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\Tools\ToolsBase $tool_class */
 		$tool_class = '\\SMF\\Maintenance\\Tools\\' . self::$valid_tools[$type];
 
 		require_once Config::$sourcedir . '/Maintenance/Tools/' . self::$valid_tools[$type] . '.php';

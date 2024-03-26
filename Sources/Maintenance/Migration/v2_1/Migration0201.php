@@ -17,15 +17,25 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Maintenance;
-use SMF\Maintenance\Migration;
 
-class Migration0001 extends Migration
+class Migration0201 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Fixing sequences (PostgreSQL)';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	private array $sequences = [
 		'admin_info_files_seq' => [
 			'table' => 'admin_info_files',
@@ -172,6 +182,10 @@ class Migration0001 extends Migration
 			'field' => 'id_topic',
 		],
 	];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

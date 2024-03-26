@@ -17,13 +17,16 @@ namespace SMF\Maintenance\Database;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\DatabaseInterface;
 
 /**
  * Database Maintenance for MySQL and variants.
  */
 class MySQL implements DatabaseInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * {@inheritDoc}
 	 */

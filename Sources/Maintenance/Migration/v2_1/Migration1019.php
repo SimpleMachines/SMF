@@ -18,17 +18,30 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
-use SMF\Maintenance\Migration;
 
-class Migration1019 extends Migration
+class Migration1019 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding support for alerts';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	private bool $is_done = false;
 
+	/**
+	 *
+	 */
 	private array $default_alert_perms = [
 		[0, 'alert_timeout', 10],
 		[0, 'announcements', 0],
@@ -61,7 +74,14 @@ class Migration1019 extends Migration
 		[0, 'warn_any', 1],
 	];
 
+	/**
+	 *
+	 */
 	private int $limit = 10000;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

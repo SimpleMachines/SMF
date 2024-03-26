@@ -16,16 +16,30 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 
-class Migration1013 extends Migration
+class Migration1013 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding support for MOVED topics enhancements';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	protected array $newColumns = ['redirect_expires', 'id_redirect_topic'];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

@@ -17,8 +17,6 @@ namespace SMF\Maintenance\Template;
 
 use SMF\Lang;
 use SMF\Maintenance;
-use SMF\Maintenance\Template;
-use SMF\Maintenance\TemplateInterface;
 use SMF\Sapi;
 
 /**
@@ -26,6 +24,21 @@ use SMF\Sapi;
  */
 class Upgrade implements TemplateInterface
 {
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * Did we call the chmod template?
+	 *
+	 * @var bool True if we did, false otherwise.
+	 */
+	private static bool $chmod_called = false;
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Upper template for upgrader.
 	 */
@@ -495,12 +508,9 @@ class Upgrade implements TemplateInterface
 
 	}
 
-	/**
-	 * Did we call the chmod template?
-	 *
-	 * @var bool True if we did, false otherwise.
-	 */
-	private static bool $chmod_called = false;
+	/*************************
+	 * Internal static methods
+	 *************************/
 
 	/**
 	 * Template for CHMOD.

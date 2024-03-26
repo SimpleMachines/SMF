@@ -19,14 +19,16 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance;
-use SMF\Maintenance\Template;
-use SMF\Maintenance\TemplateInterface;
 
 /**
  * Template for Installer
  */
 class Install implements TemplateInterface
 {
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Upper template for installer.
 	 */

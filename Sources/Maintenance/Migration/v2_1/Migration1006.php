@@ -18,14 +18,21 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
-use SMF\Maintenance\Migration;
 
-class Migration0001 extends Migration
+class Migration1006 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Converting legacy attachments';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}
@@ -211,6 +218,13 @@ class Migration0001 extends Migration
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 *
+	 */
 	protected function checkCustomAvatarDirectory(): string
 	{
 		// Need to know a few things first.
@@ -254,6 +268,9 @@ class Migration0001 extends Migration
 		return $custom_av_dir;
 	}
 
+	/**
+	 *
+	 */
 	protected function getTotalAttachments(): int
 	{
 		$request = $this->query('', '

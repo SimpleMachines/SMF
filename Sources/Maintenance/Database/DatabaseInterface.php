@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Database;
 
 /**
  * Database Maintenance interface.  Additional database logic is performed and set here.

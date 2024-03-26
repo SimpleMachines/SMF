@@ -18,14 +18,21 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\MemberLogins;
-use SMF\Maintenance\Migration;
 
-class Migration0001 extends Migration
+class Migration1003 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Creating login history table';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

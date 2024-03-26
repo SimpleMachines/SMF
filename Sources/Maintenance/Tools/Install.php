@@ -24,9 +24,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Maintenance;
 use SMF\Maintenance\Step;
-use SMF\Maintenance\Template;
-use SMF\Maintenance\ToolsBase;
-use SMF\Maintenance\ToolsInterface;
+use SMF\Maintenance\Template\Template;
 use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
 use SMF\Security;
@@ -522,7 +520,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['databases'] = [];
 		$foundOne = false;
 
-		/** @var \SMF\Maintenance\DatabaseInterface $db */
+		/** @var \SMF\Maintenance\Database\DatabaseInterface $db */
 		foreach ($this->supportedDatabases() as $key => $db) {
 			// Not supported, skip.
 			if (!$db->isSupported()) {
@@ -574,7 +572,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Validate the prefix.
-		/** @var \SMF\Maintenance\DatabaseInterface $db */
+		/** @var \SMF\Maintenance\Database\DatabaseInterface $db */
 		$db = Maintenance::$context['databases'][$db_type];
 
 		// Use a try/catch here, so we can send specific details about the validation error.

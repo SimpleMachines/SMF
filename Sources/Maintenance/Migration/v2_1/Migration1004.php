@@ -17,14 +17,21 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 
-class Migration0001 extends Migration
+class Migration1004 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Converting collapsed categories';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

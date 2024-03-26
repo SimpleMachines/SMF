@@ -21,9 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance;
 use SMF\Maintenance\Step;
-use SMF\Maintenance\Template;
-use SMF\Maintenance\ToolsBase;
-use SMF\Maintenance\ToolsInterface;
+use SMF\Maintenance\Template\Template;
 use SMF\QueryString;
 use SMF\Sapi;
 use SMF\SecurityToken;
@@ -374,7 +372,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		/** @var \SMF\Maintenance\DatabaseInterface $db */
+		/** @var \SMF\Maintenance\Database\DatabaseInterface $db */
 		$db = $this->loadMaintenanceDatabase(Config::$db_type);
 
 		if (($db_version = $db->getServerVersion()) === false || version_compare($db->getMinimumVersion(), preg_replace('~^\D*|\-.+?$~', '', $db_version = $db->getServerVersion())) > 0) {

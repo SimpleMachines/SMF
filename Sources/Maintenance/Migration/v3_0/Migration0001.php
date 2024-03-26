@@ -19,15 +19,25 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance;
-use SMF\Maintenance\Migration;
 
-class Migration0001 extends Migration
+class Migration0001 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Language Upgrade';
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function execute(): bool
 	{
 		$limit = 10000;

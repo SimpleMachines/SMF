@@ -11,7 +11,7 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Template;
 
 use SMF\Lang;
 use SMF\Maintenance;
@@ -21,6 +21,10 @@ use SMF\Maintenance;
  */
 class Template
 {
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Header template.
 	 */

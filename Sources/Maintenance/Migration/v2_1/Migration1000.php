@@ -17,16 +17,26 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 use SMF\Security;
 
-class Migration0001 extends Migration
+class Migration1000 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding new settings';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	protected array $newSettings = [
 		'topic_move_any' => 1,
 		'enable_ajax_alerts' => 1,
@@ -45,6 +55,10 @@ class Migration0001 extends Migration
 		'mark_read_delete_beyond' => 365,
 		'mark_read_max_users' => 500,
 	];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

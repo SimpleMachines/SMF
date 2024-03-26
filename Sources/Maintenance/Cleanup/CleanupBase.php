@@ -13,19 +13,27 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Cleanup;
 
 /**
- * Step container for a maintenance task.
+ * Base class for cleanup tasks.
  */
-class Cleanup
+abstract class CleanupBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var string
 	 *
-	 * Name of the cleanup tasks.
+	 * Name of the cleanup task.
 	 */
 	public string $name;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Cleanup task we will execute.

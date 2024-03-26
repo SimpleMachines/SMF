@@ -19,15 +19,22 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
-use SMF\Maintenance\Migration;
 use SMF\Utils;
 
-class Migration0001 extends Migration
+class Migration1005 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Parsing board descriptions and names';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

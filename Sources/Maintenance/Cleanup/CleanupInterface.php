@@ -13,15 +13,19 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Cleanup;
 
 /**
- * Migration Interface, all tools have these methods.
+ * Cleanup Interface, all tools have these methods.
  */
-interface MigrationInterface
+interface CleanupInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * Cleanup migration we will execute.
+	 * Cleanup task we will execute.
 	 *
 	 * @return bool True if successful (or skipped), false otherwise.
 	 */

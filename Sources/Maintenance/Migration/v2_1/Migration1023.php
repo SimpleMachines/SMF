@@ -16,17 +16,35 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 
-class Migration1022 extends Migration
+class Migration1023 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Updating obsolete alerts from before RC3';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	private int $limit = 10000;
+
+	/**
+	 *
+	 */
 	private bool $is_done = false;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

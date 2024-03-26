@@ -16,14 +16,21 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 
-class Migration1018 extends Migration
+class Migration1018 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding support for category descriptions';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

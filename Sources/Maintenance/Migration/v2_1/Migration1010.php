@@ -16,16 +16,30 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 
-class Migration1010 extends Migration
+class Migration1010 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding new package manager columns';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	protected array $newColumns = ['credits', 'log_packages'];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

@@ -16,14 +16,21 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Cleanup;
 
 use SMF\Config;
-use SMF\Maintenance\Cleanup;
 
-class Cleanup0001 extends Cleanup
+class Cleanup0001 extends CleanupBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Cleanup old files';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -59,6 +66,10 @@ class Cleanup0001 extends Cleanup
 		'xml_topic.js',
 	];
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	public function execute(): bool
 	{
 		$success = true;
@@ -86,6 +97,10 @@ class Cleanup0001 extends Cleanup
 
 		return $success;
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Delete a file.  Check permissions first, just in case.

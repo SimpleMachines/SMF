@@ -18,14 +18,21 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\BackgroundTasks;
-use SMF\Maintenance\Migration;
 
-class Migration1015 extends Migration
+class Migration1015 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding background tasks support';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

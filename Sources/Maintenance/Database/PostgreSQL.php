@@ -17,13 +17,16 @@ namespace SMF\Maintenance\Database;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
-use SMF\Maintenance\DatabaseInterface;
 
 /**
  * Database Maintenance for PostgreSQL.
  */
 class PostgreSQL implements DatabaseInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -200,7 +203,6 @@ class PostgreSQL implements DatabaseInterface
 
 		return true;
 	}
-
 }
 
 ?>

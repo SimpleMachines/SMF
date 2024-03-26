@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Tools;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -86,7 +86,7 @@ abstract class ToolsBase
 				continue;
 			}
 
-			/** @var \SMF\Maintenance\DatabaseInterface $db_class */
+			/** @var \SMF\Maintenance\Database\DatabaseInterface $db_class */
 			$db_class = '\\SMF\\Maintenance\\Database\\' . substr($entry, 0, -4);
 
 			require_once Config::$sourcedir . '/Maintenance/Database/' . $entry;
@@ -121,7 +121,7 @@ abstract class ToolsBase
 	 */
 	public function loadMaintenanceDatabase(string $db_type): DatabaseInterface
 	{
-		/** @var \SMF\Maintenance\DatabaseInterface $db_class */
+		/** @var \SMF\Maintenance\Database\DatabaseInterface $db_class */
 		$db_class = '\\SMF\\Maintenance\\Database\\' . Db::getClass(Config::$db_type);
 
 		require_once Config::$sourcedir . '/Maintenance/Database/' . Db::getClass(Config::$db_type) . '.php';

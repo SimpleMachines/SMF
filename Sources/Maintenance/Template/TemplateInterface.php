@@ -13,19 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Template;
 
 /**
- * Cleanup Interface, all tools have these methods.
+ * Interface for Maintenance Template.
  */
-interface CleanupInterface
+interface TemplateInterface
 {
-	/**
-	 * Cleanup task we will execute.
-	 *
-	 * @return bool True if successful (or skipped), false otherwise.
-	 */
-	public function execute(): bool;
 }
 
 ?>

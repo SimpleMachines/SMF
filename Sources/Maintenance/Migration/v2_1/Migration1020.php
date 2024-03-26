@@ -17,17 +17,35 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
-use SMF\Maintenance\Migration;
 
-class Migration1020 extends Migration
+class Migration1020 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Upgrading auto notify setting';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	private int $limit = 10000;
+
+	/**
+	 *
+	 */
 	private bool $is_done = false;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

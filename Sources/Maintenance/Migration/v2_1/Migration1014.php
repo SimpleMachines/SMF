@@ -16,21 +16,35 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration;
 
-class Migration1014 extends Migration
+class Migration1014 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding new scheduled tasks';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	private array $newTasks = [
 		[0, 120, 1, 'd', 0, 'remove_temp_attachments', ''],
 		[0, 180, 1, 'd', 0, 'remove_topic_redirect', ''],
 		[0, 240, 1, 'd', 0, 'remove_old_drafts', ''],
 		[0, 0, 1, 'w', 1, 'prune_log_topics', ''],
 	];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * {@inheritDoc}

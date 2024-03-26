@@ -13,13 +13,17 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Tools;
 
 /**
  * Tools Interface, all tools have these methods.
  */
 interface ToolsInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Get the script name
 	 *

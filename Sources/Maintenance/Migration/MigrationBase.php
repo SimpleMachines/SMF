@@ -13,25 +13,45 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance;
+namespace SMF\Maintenance\Migration;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance;
+use SMF\Maintenance\Database\DatabaseInterface;
 use SMF\Sapi;
 
 /**
  * Migration container for a maintenance task.
  */
-class Migration
+class MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var string
 	 *
 	 * Name of the migration tasks.
 	 */
 	public string $name;
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var DatabaseInterface
+	 *
+	 * The database type we are working with.
+	 */
+	protected ?DatabaseInterface $db;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Check if the task should be performed or not.
@@ -53,6 +73,10 @@ class Migration
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Wrapper for the tool to handle timeout protection.
 	 *
@@ -66,12 +90,6 @@ class Migration
 
 		Maintenance::$tool->checkAndHandleTimeout();
 	}
-
-	/**
-	 *
-	 * @var DatabaseInterface The database type we are working with.
-	 */
-	protected ?DatabaseInterface $db;
 
 	/**
 	 * Wrapper for the database query.

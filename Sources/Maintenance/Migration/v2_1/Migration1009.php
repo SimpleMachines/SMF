@@ -17,16 +17,31 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\LogGroupRequests;
-use SMF\Maintenance\Migration;
 
-class Migration0001 extends Migration
+class Migration1009 extends MigrationBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding support for logging who fulfils a group request';
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
 	protected array $newColumns = ['status', 'id_member_acted', 'member_name_acted', 'time_acted', 'act_reason'];
+
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * {@inheritDoc}
 	 */
