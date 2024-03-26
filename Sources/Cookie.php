@@ -402,7 +402,10 @@ class Cookie
 			// Backup and remove the old session.
 			$oldSessionData = $_SESSION;
 			$_SESSION = [];
-			session_destroy();
+
+			if (session_status() === PHP_SESSION_ACTIVE) {
+				session_destroy();
+			}
 
 			// Recreate and restore the new session.
 			Session::load();

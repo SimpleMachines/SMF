@@ -161,6 +161,10 @@ class ErrorHandler
 		static $tried_hook = false;
 		static $error_call = 0;
 
+		if (defined('SMF_INSTALLING')) {
+			throw new \Exception($error_message);
+		}
+
 		$error_call++;
 
 		// Collect a backtrace
@@ -282,6 +286,10 @@ class ErrorHandler
 	 */
 	public static function fatal(string $error, string|bool $log = 'general', int $status = 500): void
 	{
+		if (defined('SMF_INSTALLING')) {
+			throw new \Exception($error);
+		}
+
 		// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
 		if (!empty($status)) {
 			Utils::sendHttpStatus($status);
@@ -336,7 +344,7 @@ class ErrorHandler
 		}
 
 		// Send a custom header if we have a custom message.
-		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
+		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax'])) {
 			header('X-SMF-errormsg: ' . $error_message);
 		}
 
