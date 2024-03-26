@@ -49,8 +49,8 @@ $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. Perhaps the file permissions on the file were not set correctly.';
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair all boards and topics';
-$txt['admin_main_welcome'] = 'This is your &quot;{admin_center}&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="{help}"></span> symbols for more information on the related functions.';
-$txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
+$txt['admin_main_welcome'] = 'This is your &quot;{admin_center}&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there does not help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="{help}"></span> symbols for more information on the related functions.';
+$txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item’s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators: {list}';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
 $txt['admin_match_whole'] = 'Match whole name only. If unchecked, search within names.';
@@ -59,7 +59,7 @@ $txt['admin_check_user'] = 'Check username.';
 $txt['admin_check_display'] = 'Check display name.';
 $txt['admin_fader_delay'] = 'Fading delay between items for the news fader, in milliseconds';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
-$txt['guest_post_no_email'] = 'Do not show the email field for guests\' posts';
+$txt['guest_post_no_email'] = 'Do not show the email field for guests’ posts';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(Set to 0 to disable.)';
 $txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if they are already embedded in it.';
@@ -106,10 +106,10 @@ $txt['live'] = 'Live from Simple Machines...';
 $txt['remove_all'] = 'Clear log';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
 
-$txt['version_check_desc'] = 'This shows you the versions of your installation\'s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>.';
+$txt['version_check_desc'] = 'This shows you the versions of your installation’s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>.';
 $txt['version_check_more'] = '(more detailed)';
 
-$txt['smf_news_cant_connect'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
+$txt['smf_news_cant_connect'] = 'You are unable to connect to simplemachines.org’s latest news file.';
 
 $txt['manage_calendar'] = 'Calendar';
 $txt['manage_search'] = 'Search';
@@ -138,7 +138,7 @@ IP: {ip}';
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
 $txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="{scripturl}?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
-$txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.<br><span class="alert">This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries\' privacy and anti-spam laws.</span>';
+$txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.<br><span class="alert">This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries’ privacy and anti-spam laws.</span>';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
 $txt['email_done'] = '{percentage_done, number, :: percent} complete.';
@@ -201,7 +201,7 @@ $txt['ban_trigger_browse'] = 'Browse Ban Triggers';
 $txt['ban_trigger_browse_description'] = 'This screen shows all banned entities grouped by IP address, hostname, email address, and username.';
 
 $txt['ban_log'] = 'Ban Log';
-$txt['ban_log_description'] = 'The ban log shows all attempts to enter the forum by banned users (\'full ban\' and \'cannot register\' ban only).';
+$txt['ban_log_description'] = 'The ban log shows all attempts to enter the forum by banned users ("full ban" and "cannot register" ban only).';
 $txt['ban_log_no_entries'] = 'There are currently no ban log entries.';
 $txt['ban_log_ip'] = 'IP';
 $txt['ban_log_email'] = 'Email address';
@@ -221,7 +221,7 @@ $txt['maintain_sub_database'] = 'Database';
 $txt['maintain_sub_routine'] = 'Routine';
 $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
-$txt['maintain_done'] = 'The maintenance task \'{task}\' was executed successfully.';
+$txt['maintain_done'] = 'The maintenance task "{task}" was executed successfully.';
 $txt['maintain_no_errors'] = 'Congratulations, no errors were found. Thanks for checking.';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
@@ -305,7 +305,7 @@ $txt['support_versions_imagemagick'] = 'ImageMagick version';
 $txt['support_versions'] = 'Version Information';
 $txt['support_resources'] = 'Support Resources';
 $txt['support_resources_p1'] = 'Our <a href="{manual_main_url}">Online Manual</a> provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain <a href="{manual_features_url}">Features</a>, <a href="{manual_settings_url}">Settings</a>, <a href="{manual_themes_url}">Themes</a>, <a href="{manual_packages_url}">Packages</a>, etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly.';
-$txt['support_resources_p2'] = 'If you can\'t find the answers to your questions in the Online Manual, you may want to search our <a href="{support_main_url}">Support Community</a> or ask for assistance in either our <a href="{support_english_url}">English</a> or one of our many <a href="{support_intl_url}">international support boards</a>. The SMF Support Community can be used for <a href="{support_smf_url}">support</a>, <a href="{support_customize_url}">customization</a>, and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators.';
+$txt['support_resources_p2'] = 'If you cannot find the answers to your questions in the Online Manual, you may want to search our <a href="{support_main_url}">Support Community</a> or ask for assistance in either our <a href="{support_english_url}">English</a> or one of our many <a href="{support_intl_url}">international support boards</a>. The SMF Support Community can be used for <a href="{support_smf_url}">support</a>, <a href="{support_customize_url}">customization</a>, and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators.';
 
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
@@ -344,7 +344,7 @@ $txt['attachmentEnable'] = 'Attachments mode';
 $txt['attachmentEnable_deactivate'] = 'Disable attachments';
 $txt['attachmentEnable_enable_all'] = 'Enable all attachments';
 $txt['attachmentEnable_disable_new'] = 'Disable new attachments';
-$txt['attachmentCheckExtensions'] = 'Check attachment\'s extension';
+$txt['attachmentCheckExtensions'] = 'Check attachment’s extension';
 $txt['attachmentExtensions'] = 'Allowed attachment extensions';
 $txt['attachmentShowImages'] = 'Display image attachments as pictures under post';
 $txt['attachmentUploadDir'] = 'Attachments directory';
@@ -419,7 +419,7 @@ $txt['attachments_auto_16x16'] = '(Auto) 16 random directories with 16 random su
 $txt['attachments_auto_space'] = '(Auto) When either directory space limit is reached';
 
 $txt['use_subdirectories_for_attachments'] = 'Create new directories within a base directory';
-$txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
+$txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum’s main directory.';
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
 // argument(s): scripturl
@@ -460,7 +460,7 @@ $txt['avatar_max_width_external'] = 'Maximum width of external avatar';
 $txt['avatar_max_height_external'] = 'Maximum height of external avatar';
 $txt['avatar_action_too_large'] = 'If the avatar is too large...';
 $txt['option_refuse'] = 'Refuse it';
-$txt['option_css_resize'] = 'Resize it in the users\' browser';
+$txt['option_css_resize'] = 'Resize it in the users’ browser';
 $txt['option_download_and_resize'] = 'Download and resize it on the server';
 $txt['avatar_max_width_upload'] = 'Maximum width of uploaded avatar';
 $txt['avatar_max_height_upload'] = 'Maximum height of uploaded avatar';
@@ -497,7 +497,7 @@ $txt['gravatar_maxX'] = 'X rated (Explicit)';
 $txt['gravatarDefault'] = 'Default image to show when an email address has no matching Gravatar';
 $txt['gravatar_mm'] = 'A simple, cartoon-style silhouetted outline of a person';
 $txt['gravatar_identicon'] = 'A geometric pattern based on an email hash';
-$txt['gravatar_monsterid'] = 'A generated \'monster\' with different colors, faces, etc';
+$txt['gravatar_monsterid'] = 'A generated "monster" with different colors, faces, etc';
 $txt['gravatar_wavatar'] = 'Generated faces with differing features and backgrounds';
 $txt['gravatar_retro'] = 'Awesome generated, 8-bit arcade-style pixelated faces';
 $txt['gravatar_blank'] = 'A transparent PNG image';
@@ -514,8 +514,8 @@ $txt['attach_repair_missing_thumbnail_parent'] = '{0, plural,
 	other {# thumbnails are missing a parent attachment}
 }';
 $txt['attach_repair_parent_missing_thumbnail'] = '{0, plural,
-	one {# parent is flagged as having thumbnails but doesn\'\'t}
-	other {# parents are flagged as having thumbnails but don\'\'t}
+	one {# parent is flagged as having thumbnails but doesn’t}
+	other {# parents are flagged as having thumbnails but don’t}
 }';
 $txt['attach_repair_file_missing_on_disk'] = '{0, plural,
 	one {# attachment/avatar has an entry but no longer exists on disk}
@@ -548,7 +548,7 @@ $txt['attach_repair_files_without_attachment'] = '{0, plural,
 
 $txt['news_title'] = 'News and Newsletters';
 $txt['news_settings_desc'] = 'Here you can change the settings and permissions related to news and newsletters.';
-$txt['news_mailing_desc'] = 'From this menu you can send messages to all members who\'ve registered and entered their email addresses. You may edit the distribution list, or send messages to all. Useful for important update/news information.';
+$txt['news_mailing_desc'] = 'From this menu you can send messages to all members who’ve registered and entered their email addresses. You may edit the distribution list, or send messages to all. Useful for important update/news information.';
 $txt['news_error_no_news'] = 'Nothing written';
 $txt['groups_edit_news'] = 'Groups allowed to edit news items';
 $txt['groups_send_mail'] = 'Groups allowed to send out forum newsletters';
@@ -567,7 +567,7 @@ $txt['logs'] = 'Logs';
 $txt['generate_reports'] = 'Reports';
 
 $txt['update_available'] = 'Update available';
-$txt['update_message'] = 'You\'re using an outdated version of SMF, which contains some bugs which have since been fixed.
+$txt['update_message'] = 'You’re using an outdated version of SMF, which contains some bugs which have since been fixed.
 	It is recommended that you <a href="#" id="update-link" class="bbc_link strong">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
 
 $txt['manageposts'] = 'Posts and Topics';
@@ -585,7 +585,7 @@ $txt['manageposts_settings'] = 'Post Settings';
 $txt['manageposts_settings_description'] = 'Here you can set everything related to posts and posting.';
 
 $txt['manageposts_bbc_settings'] = 'Bulletin Board Code';
-$txt['manageposts_bbc_settings_description'] = 'Bulletin board code can be used to add markup to forum messages. For example, to highlight the word \'house\' you can type [b]house[/b]. All Bulletin board code tags are surrounded by square brackets (\'[\' and \']\').';
+$txt['manageposts_bbc_settings_description'] = 'Bulletin board code can be used to add markup to forum messages. For example, to highlight the word "house" you can type [b]house[/b]. All Bulletin board code tags are surrounded by square brackets ("[" and "]").';
 $txt['manageposts_bbc_settings_title'] = 'Bulletin Board Code settings';
 
 $txt['manageposts_topic_settings'] = 'Topic Settings';
@@ -613,7 +613,7 @@ $txt['message_index_preview_first_desc'] = 'Leave unchecked to show the text of 
 $txt['show_user_images'] = 'Show user avatars in message view';
 $txt['show_blurb'] = 'Show personal text in message view';
 $txt['hide_post_group'] = 'Hide post group titles for grouped members';
-$txt['hide_post_group_desc'] = 'Enabling this will not display a member\'s post group title on the message view if they are assigned to a non-post based group.';
+$txt['hide_post_group_desc'] = 'Enabling this will not display a member’s post group title on the message view if they are assigned to a non-post based group.';
 $txt['subject_toggle'] = 'Show subjects in topics.';
 $txt['show_profile_buttons'] = 'Show view profile button under post';
 $txt['show_modify'] = 'Show last modification date on modified posts';
@@ -639,7 +639,7 @@ $txt['disableCustomPerPage'] = 'Disable user defined topic/message count per pag
 $txt['enablePreviousNext'] = 'Enable previous/next topic links';
 
 $txt['not_done_title'] = 'Not done yet';
-$txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused. It should automatically continue in a few seconds. If it doesn\'t, please click continue below.';
+$txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused. It should automatically continue in a few seconds. If it does not, please click continue below.';
 $txt['not_done_continue'] = 'Continue';
 
 $txt['general_settings'] = 'General';
@@ -783,7 +783,7 @@ $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
  // The GDPR page of the EU exists in several languages; change the language code at the end of the url
-$txt['notify_announcements_desc'] = 'Enabling this default option violates the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a> and many other countries\' privacy and anti-spam laws.';
+$txt['notify_announcements_desc'] = 'Enabling this default option violates the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a> and many other countries’ privacy and anti-spam laws.';
 
 $txt['enable_sm_stats'] = 'Allow Stat Collection';
 

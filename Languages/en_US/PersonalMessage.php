@@ -52,11 +52,11 @@ $txt['pm_currently_using'] = '{0, plural,
 }, {1, number, percent} full.';
 $txt['pm_sent'] = 'Your message has been sent successfully.';
 
-$txt['pm_error_user_not_found'] = 'Unable to find member \'{member}\'.';
-$txt['pm_error_ignored_by_user'] = 'User \'{member}\' has blocked your personal message.';
-$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'{member}\' as their inbox is full.';
-$txt['pm_error_user_cannot_read'] = 'User \'{member}\' can not receive personal messages.';
-$txt['pm_successfully_sent'] = 'PM successfully sent to \'{member}\'.';
+$txt['pm_error_user_not_found'] = 'Unable to find member "{member}".';
+$txt['pm_error_ignored_by_user'] = 'User "{member}" has blocked your personal message.';
+$txt['pm_error_data_limit_reached'] = 'PM could not be sent to "{member}" as their inbox is full.';
+$txt['pm_error_user_cannot_read'] = 'User "{member}" can not receive personal messages.';
+$txt['pm_successfully_sent'] = 'PM successfully sent to "{member}".';
 $txt['pm_send_report'] = 'Send report';
 $txt['pm_undisclosed_recipients'] = 'Undisclosed recipients';
 $txt['pm_too_many_recipients'] = '{0, plural,
@@ -187,7 +187,7 @@ $txt['pm_rule_criteria'] = 'Criteria';
 $txt['pm_rule_criteria_add'] = 'Add another criterion';
 $txt['pm_rule_criteria_pick'] = 'Choose criteria...';
 $txt['pm_rule_mid'] = 'Sender name';
-$txt['pm_rule_gid'] = 'Sender\'s group';
+$txt['pm_rule_gid'] = 'Sender’s group';
 $txt['pm_rule_sub'] = 'Message subject contains';
 $txt['pm_rule_msg'] = 'Message body contains';
 $txt['pm_rule_bud'] = 'Sender is buddy';

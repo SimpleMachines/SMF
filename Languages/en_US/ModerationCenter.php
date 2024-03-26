@@ -26,7 +26,7 @@ $txt['mc_warnings'] = 'Warnings';
 $txt['mc_notes'] = 'Moderator Notes';
 
 $txt['mc_notes_delete_own'] = 'You are only allowed to delete your own notes.';
-$txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
+$txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org’s latest news file.';
 
 $txt['mc_recent_reports_none'] = 'There are no outstanding reports.';
 $txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
@@ -70,7 +70,7 @@ $txt['mc_groupr_none_found'] = 'There are currently no outstanding membergroup r
 $txt['mc_groupr_approved'] = 'Request approved';
 $txt['mc_groupr_rejected'] = 'Request rejected';
 $txt['mc_groupr_submit'] = 'Submit';
-$txt['mc_groupr_reason_desc'] = 'Reason to reject {member_link}\'s request to join &quot;{group_link}&quot;';
+$txt['mc_groupr_reason_desc'] = 'Reason to reject {member_link}’s request to join &quot;{group_link}&quot;';
 $txt['mc_groups_reason_title'] = 'Reasons for rejection';
 $txt['with_selected'] = 'With selected';
 $txt['mc_groupr_approve'] = 'Approve request';
@@ -150,10 +150,10 @@ $txt['mc_warning_template_delete_confirm'] = 'Are you sure you want to delete th
 $txt['report_action_message_saved'] = 'You successfully created a new note.';
 $txt['report_action_message_edited'] = 'You successfully edited the note.';
 $txt['report_action_message_deleted'] = 'The note was successfully deleted.';
-$txt['report_action_message_edit_issue'] = 'The note you are trying to edit is not available any more. Please check if it wasn\'t deleted already.';
+$txt['report_action_message_edit_issue'] = 'The note you are trying to edit is not available any more. Please check whether it was already deleted.';
 $txt['report_action_message_edit_cannot'] = 'I am sorry, you are not allowed to edit this note.';
 $txt['report_action_message_delete_cannot'] = 'I am sorry, you are not allowed to delete this note.';
-$txt['report_action_message_delete_issue'] = 'The note you are trying to delete is not available any more. Please check if it wasn\'t deleted already.';
+$txt['report_action_message_delete_issue'] = 'The note you are trying to delete is not available any more. Please check whether it was already deleted.';
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
 $txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
@@ -181,7 +181,7 @@ $txt['mc_click_add_note'] = 'Add a new note';
 $txt['mc_add_note'] = 'Add';
 
 // Do not use numeric entries in the below string.
-$txt['mc_reportedm_ignore_confirm'] = 'If you choose &quot;OK&quot;, all future reports about this user\'s profile will be ignored; moderators will not see any future reports about this user\'s profile. Are you sure you wish to do this?';
+$txt['mc_reportedm_ignore_confirm'] = 'If you choose &quot;OK&quot;, all future reports about this user’s profile will be ignored; moderators will not see any future reports about this user’s profile. Are you sure you wish to do this?';
 $txt['mc_reported_members_title'] = 'Reported Members';
 $txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
 

@@ -50,17 +50,17 @@ $txt['mboards_groups_desc'] = 'Groups allowed to access this board.<br><em>Note:
 $txt['mboards_groups_regular_members'] = 'This group contains all members that have no primary group set.';
 $txt['mboards_groups_post_group'] = 'This group is a post count based group.';
 $txt['mboards_moderators'] = 'Moderators';
-$txt['mboards_moderators_desc'] = 'Additional members to have moderation privileges on this board. Note that administrators don\'t have to be listed here.';
+$txt['mboards_moderators_desc'] = 'Additional members to have moderation privileges on this board. Note that administrators do not have to be listed here.';
 $txt['mboards_moderator_groups'] = 'Moderator Groups';
 $txt['mboards_moderator_groups_desc'] = 'Groups whose members have moderation privileges on this board. Note that this is limited to groups which are not post-based and not "hidden".';
 $txt['mboards_count_posts'] = 'Count posts';
-$txt['mboards_count_posts_desc'] = 'Makes new replies and topics raise members\' post counts.';
+$txt['mboards_count_posts_desc'] = 'Makes new replies and topics raise members’ post counts.';
 $txt['mboards_unchanged'] = 'Unchanged';
 $txt['mboards_theme'] = 'Board Theme';
 $txt['mboards_theme_desc'] = 'This allows you to change the look of your forum only inside this board.';
 $txt['mboards_theme_default'] = '(overall forum default.)';
-$txt['mboards_override_theme'] = 'Override Member\'s Theme';
-$txt['mboards_override_theme_desc'] = 'Use this board\'s theme even if the member didn\'t choose to use the defaults.';
+$txt['mboards_override_theme'] = 'Override Member’s Theme';
+$txt['mboards_override_theme_desc'] = 'Use this board’s theme even if the member did not choose to use the defaults.';
 
 $txt['mboards_redirect'] = 'Redirect to a web address';
 $txt['mboards_redirect_desc'] = 'Enable this option to redirect anyone who clicks on this board to another web address.';
@@ -76,7 +76,7 @@ $txt['mboards_order_after'] = 'After "{0}"';
 $txt['mboards_order_child_of'] = 'Sub-board of "{0}"';
 $txt['mboards_order_in_category'] = 'In category';
 $txt['mboards_current_position'] = 'Current Position';
-$txt['no_valid_parent'] = 'Board {name} does not have a valid parent. Use the \'find and repair errors\' function to fix this.';
+$txt['no_valid_parent'] = 'Board {name} does not have a valid parent. Use the "find and repair errors" function to fix this.';
 
 $txt['mboards_recycle_disabled_delete'] = 'Note: You must select an alternative recycle bin board or disable recycling before you can delete this board.';
 
@@ -88,12 +88,12 @@ $txt['recycle_board'] = 'Board for recycled topics';
 $txt['redirect_board_desc'] = 'A board that redirects users if they visit it';
 $txt['recycle_board_unselected_notice'] = 'You have enabled the recycling of topics without specifying a board to place them in. This feature will not be enabled until you specify a board to place recycled topics into.';
 $txt['boardindex_max_depth'] = 'Maximum depth of sub-boards to check for new posts, etc.';
-$txt['countChildPosts'] = 'Count sub-board\'s posts in parent\'s totals';
+$txt['countChildPosts'] = 'Count sub-board’s posts in parent’s totals';
 $txt['allow_ignore_boards'] = 'Allow boards to be ignored';
 $txt['deny_boards_access'] = 'Enable the option to deny board access based on membergroup';
-$txt['boardsaccess_option_desc'] = 'For each permission you can choose \'Allow\' (A), \'Disallow\' (X), or <span class="alert">\'Deny\' (D)</span>.<br><br>If you deny access, any member - (including moderators) - in that group will be denied access.<br>For this reason, you should set deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
+$txt['boardsaccess_option_desc'] = 'For each permission you can choose "Allow" (A), "Disallow" (X), or <span class="alert">"Deny" (D)</span>.<br><br>If you deny access, any member - (including moderators) - in that group will be denied access.<br>For this reason, you should set deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
-$txt['mboards_select_destination'] = 'Select destination for board \'<strong>{name}</strong>\'';
+$txt['mboards_select_destination'] = 'Select destination for board "<strong>{name}</strong>"';
 $txt['mboards_cancel_moving'] = 'Cancel moving';
 $txt['mboards_move'] = 'move';
 

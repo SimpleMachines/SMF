@@ -416,9 +416,9 @@ $txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your 
 $txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">{SMF_VERSION}</em>.<br><br>It is recommended that you visit the <a href="{url}">Simple Machines Website</a> to ensure you are upgrading to the latest version.';
 
 $txt['upgrade_forumdir_settings'] = 'It looks as if your forum directory settings <em>might</em> be incorrect. Your forum directory is currently set to &quot;{boarddir}&quot;, but should probably be &quot;{upgrade_path}&quot;. Settings.php currently lists your paths as:';
-$txt['upgrade_forumdir'] = 'Forum Directory:';
-$txt['upgrade_sourcedir'] = 'Source Directory:';
-$txt['upgrade_cachedir'] = 'Cache Directory:';
+$txt['upgrade_forumdir'] = 'Forum Directory: {0}';
+$txt['upgrade_sourcedir'] = 'Source Directory: {0}';
+$txt['upgrade_cachedir'] = 'Cache Directory: {0}';
 $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
 
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';

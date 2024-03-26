@@ -55,7 +55,7 @@ Before you can log in and start using the forum, your request will be reviewed a
 $txt['mc_group_approve_subject'] = 'Group Membership Approval';
 $txt['mc_group_approve_body'] = '{USERNAME},
 
-We\'re pleased to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been accepted, and your account has been updated to include this new membergroup.
+We are pleased to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been accepted, and your account has been updated to include this new membergroup.
 
 {REGARDS}';
 
@@ -68,7 +68,7 @@ We\'re pleased to notify you that your application to join the "{GROUPNAME}" gro
 $txt['mc_group_reject_subject'] = 'Group Membership Rejection';
 $txt['mc_group_reject_body'] = '{USERNAME},
 
-We\'re sorry to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been rejected.
+We are sorry to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been rejected.
 
 {REGARDS}';
 
@@ -82,7 +82,7 @@ We\'re sorry to notify you that your application to join the "{GROUPNAME}" group
 $txt['mc_group_reject_reason_subject'] = 'Group Membership Rejection';
 $txt['mc_group_reject_reason_body'] = '{USERNAME},
 
-We\'re sorry to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been rejected.
+We are sorry to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been rejected.
 
 This is due to the following reason: {REASON}
 
@@ -219,12 +219,12 @@ For more control over the email notifications you receive, login to the forum an
 	@description:
 */
 $txt['notify_boards_once_body_subject'] = 'New Topic: {TOPICSUBJECT}';
-$txt['notify_boards_once_body_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on a board you are watching.
+$txt['notify_boards_once_body_body'] = 'A new topic, "{TOPICSUBJECT}", has been made on a board you are watching.
 
 You can see it at
 {TOPICLINK}
 
-More topics may be posted, but you won\'t receive more email notifications for this board until you return to the board and read some of them.
+More topics may be posted, but you will not receive more email notifications for this board until you return to the board and read some of them.
 
 The text of the topic is shown below:
 {MESSAGE}
@@ -242,12 +242,12 @@ Unsubscribe from new topics from this board by using this link:
 	@description:
 */
 $txt['notify_boards_once_subject'] = 'New Topic: {TOPICSUBJECT}';
-$txt['notify_boards_once_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on a board you are watching.
+$txt['notify_boards_once_body'] = 'A new topic, "{TOPICSUBJECT}", has been made on a board you are watching.
 
 You can see it at
 {TOPICLINK}
 
-More topics may be posted, but you won\'t receive more email notifications for this board until you return to the board and read some of them.
+More topics may be posted, but you will not receive more email notifications for this board until you return to the board and read some of them.
 
 Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
@@ -263,7 +263,7 @@ Unsubscribe from new topics from this board by using this link:
 	@description:
 */
 $txt['notify_boards_body_subject'] = 'New Topic: {TOPICSUBJECT}';
-$txt['notify_boards_body_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on a board you are watching.
+$txt['notify_boards_body_body'] = 'A new topic, "{TOPICSUBJECT}", has been made on a board you are watching.
 
 You can see it at
 {TOPICLINK}
@@ -284,7 +284,7 @@ Unsubscribe from new topics from this board by using this link:
 	@description:
 */
 $txt['notify_boards_subject'] = 'New Topic: {TOPICSUBJECT}';
-$txt['notify_boards_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on a board you are watching.
+$txt['notify_boards_body'] = 'A new topic, "{TOPICSUBJECT}", has been made on a board you are watching.
 
 You can see it at
 {TOPICLINK}
@@ -301,7 +301,7 @@ Unsubscribe from new topics from this board by using this link:
 	@description:
 */
 $txt['alert_unapproved_reply_subject'] = 'Topic reply: {SUBJECT}';
-$txt['alert_unapproved_reply_body'] = 'A reply has been posted in \'{SUBJECT}\' by {POSTERNAME}.
+$txt['alert_unapproved_reply_body'] = 'A reply has been posted in "{SUBJECT}" by {POSTERNAME}.
 
 You can see it at
 {LINK}
@@ -315,7 +315,7 @@ You can see it at
 	@description:
 */
 $txt['unapproved_attachment_subject'] = 'New Unapproved Attachment in: {SUBJECT}';
-$txt['unapproved_attachment_body'] = 'A new attachment has been made in \'{SUBJECT}\' which needs to be approved.
+$txt['unapproved_attachment_body'] = 'A new attachment has been made in "{SUBJECT}" which needs to be approved.
 
 You can approve or reject this attachment from the link below which will take you to the message that it is a part of.
 
@@ -330,7 +330,7 @@ You can approve or reject this attachment from the link below which will take yo
 	@description:
 */
 $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
-$txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: \'{SUBJECT}\'
+$txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: "{SUBJECT}"
 
 You can approve or reject this post by using the link below:
 {LINK}
@@ -344,7 +344,7 @@ You can approve or reject this post by using the link below:
 	@description:
 */
 $txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
-$txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: \'{SUBJECT}\'
+$txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: "{SUBJECT}"
 
 You can approve or reject this topic by using the link below:
 {LINK}
@@ -419,7 +419,7 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 */
 $txt['forgot_password_subject'] = 'New password for {FORUMNAME}';
 $txt['forgot_password_body'] = 'Dear {REALNAME},
-This mail was sent because the \'forgot password\' function has been applied to your account. To set a new password, click the following link:
+This mail was sent because the "forgot password" function has been applied to your account. To set a new password, click the following link:
 {REMINDLINK}
 
 IP: {IP}
@@ -655,7 +655,7 @@ View the reply at: {TOPICLINK}
 
 Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
-More replies may be posted, but you won\'t receive any more notifications for this topic until you visit it.
+More replies may be posted, but you will not receive any more notifications for this topic until you visit it.
 
 {REGARDS}';
 
@@ -678,7 +678,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 The text of the reply is shown below:
 {MESSAGE}
 
-More replies may be posted, but you won\'t receive any more notifications for this topic until you visit it.
+More replies may be posted, but you will not receive any more notifications for this topic until you visit it.
 
 {REGARDS}';
 
@@ -830,7 +830,7 @@ A member has received a refund on a paid subscription. Below are the details of 
 	User Name: {REFUNDNAME} ({REFUNDUSER})
 	Date: {DATE}
 
-You can view this member\'s profile by clicking the link below:
+You can view this member’s profile by clicking the link below:
 {PROFILELINK}
 
 {REGARDS}';
@@ -857,7 +857,7 @@ A member has taken out a new paid subscription. Below are the details of this su
 	Price: {PRICE}
 	Date: {DATE}
 
-You can view this member\'s profile by clicking the link below:
+You can view this member’s profile by clicking the link below:
 {PROFILELINK}
 
 {REGARDS}';
@@ -1007,11 +1007,11 @@ $txtBirthdayEmails['happy_birthday_author'] = '<a href="https://www.simplemachin
 $txtBirthdayEmails['karlbenson1_subject'] = 'On your Birthday...';
 $txtBirthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card. We could have sent you some flowers or a cake.
 
-But we didn\'t.
+But we didn’t.
 
-We could have even sent you one of those automatically generated messages to wish you happy birthday where we don\'t even have to replace INSERT NAME.
+We could have even sent you one of those automatically generated messages to wish you happy birthday where we don’t even have to replace INSERT NAME.
 
-But we didn\'t.
+But we didn’t.
 
 We wrote this birthday greeting just for you.
 
@@ -1040,13 +1040,13 @@ Another year in your life has passed. We at {FORUMNAME} hope it has been filled 
 $txtBirthdayEmails['zwaldowski_author'] = '<a href="https://www.simplemachines.org/community/?action=profile;u=72038">zwaldowski</a>';
 
 $txtBirthdayEmails['geezmo_subject'] = 'Happy birthday, {REALNAME}!';
-$txtBirthdayEmails['geezmo_body'] = 'Do you know who\'s having a birthday today, {REALNAME}?
+$txtBirthdayEmails['geezmo_body'] = 'Do you know who’s having a birthday today, {REALNAME}?
 
 We know... YOU!
 
 Happy birthday!
 
-You\'re now a year older but we hope you\'re a lot happier than last year.
+You’re now a year older but we hope you’re a lot happier than last year.
 
 Enjoy your day today, {REALNAME}!
 

@@ -12,7 +12,7 @@ $txt['popup_subscriptions'] = 'Subscriptions';
 
 $txt['profile_page_title'] = 'Profile - {current_area}';
 
-$txt['no_profile_edit'] = 'You are not allowed to change this person\'s profile.';
+$txt['no_profile_edit'] = 'You are not allowed to change this person’s profile.';
 $txt['website_title'] = 'Website title';
 $txt['website_url'] = 'Website URL';
 $txt['signature'] = 'Signature';
@@ -36,8 +36,8 @@ $txt['additional_info'] = 'Additional Information';
 $txt['avatar_by_url'] = 'Specify your own avatar by URL. (e.g.: <em>https://www.example.com/mypic.png</em>)';
 $txt['my_own_pic'] = 'Specify avatar by URL';
 $txt['use_gravatar'] = 'Use my Gravatar';
-$txt['gravatar_alternateEmail'] = 'Normally, the Gravatar used will be based on your regular email address but if you wish to use the Gravatar from a different email account to your regular forum account (say, the Gravatar from your blog\'s email account), you can enter that email address here.';
-$txt['gravatar_noAlternateEmail'] = 'The Gravatar displayed will be the one based on your account\'s email address.';
+$txt['gravatar_alternateEmail'] = 'Normally, the Gravatar used will be based on your regular email address but if you wish to use the Gravatar from a different email account to your regular forum account (say, the Gravatar from your blog’s email account), you can enter that email address here.';
+$txt['gravatar_noAlternateEmail'] = 'The Gravatar displayed will be the one based on your account’s email address.';
 $txt['date_format'] = 'The format here will be used to show dates throughout this forum.';
 $txt['time_format'] = 'Time Format';
 $txt['timezone'] = 'Time zone';
@@ -71,16 +71,16 @@ $txt['timeoffset_autodetect'] = 'auto detect';
 
 $txt['secret_question'] = 'Secret Question';
 $txt['secret_desc'] = 'To help retrieve your password, enter a question here with an answer that <strong>only</strong> you know.';
-$txt['secret_desc2'] = 'Choose carefully, you wouldn\'t want someone guessing your answer!';
+$txt['secret_desc2'] = 'Choose carefully. You would not want someone guessing your answer!';
 $txt['secret_answer'] = 'Answer';
 $txt['secret_ask'] = 'Ask me my question';
-$txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
+$txt['cant_retrieve'] = 'You cannot retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
 $txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
 $txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use. Your password will be changed to the one you select provided you answer the question correctly.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
-$txt['password_reminder_desc'] = 'If you\'ve forgotten your login details, don\'t worry, they can be retrieved. To start this process please enter your username or email address below.';
+$txt['password_reminder_desc'] = 'If you have forgotten your login details, don’t worry, they can be retrieved. To start this process please enter your username or email address below.';
 $txt['authentication_options'] = 'Please select one of the two options below';
 $txt['authentication_password_email'] = 'Email me a new password';
 $txt['authentication_password_secret'] = 'Let me set a new password by answering my &quot;secret question&quot;';
@@ -90,7 +90,7 @@ $txt['current_theme'] = 'Current Theme';
 $txt['change'] = 'change';
 $txt['theme_preferences'] = 'Theme preferences';
 $txt['theme_forum_default'] = 'Forum or Board Default';
-$txt['theme_forum_default_desc'] = 'This is the default theme, which means your theme will change along with the administrator\'s settings and the board you are viewing.';
+$txt['theme_forum_default_desc'] = 'This is the default theme, which means your theme will change along with the administrator’s settings and the board you are viewing.';
 
 $txt['profileConfirm'] = 'Do you really want to delete this member?';
 
@@ -112,12 +112,12 @@ $txt['notify_settings'] = 'Notification Settings:';
 $txt['notify_save'] = 'Save settings';
 $txt['notify_important_email'] = 'Receive forum newsletters, announcements and important notifications by email.';
 $txt['auto_notify'] = 'Turn notification on when you post or reply to a topic';
-$txt['notify_send_types'] = 'For topics and boards I\'ve requested notification on, notify me of';
+$txt['notify_send_types'] = 'For topics and boards I’ve requested notification on, notify me of';
 $txt['notify_send_type_everything'] = 'Replies and moderation';
 $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topic and am following it';
 $txt['notify_send_type_only_replies'] = 'Only replies';
 $txt['notify_send_type_nothing'] = 'Nothing at all';
-$txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don\'t reply to these emails.)';
+$txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don’t reply to these emails.)';
 $txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications (in seconds)';
 
 $txt['notify_what_how'] = 'Alert Preferences';
@@ -151,7 +151,7 @@ $txt['alert_group_moderation'] = 'Moderation';
 $txt['alert_unapproved_attachment'] = 'When an unapproved attachment is created';
 $txt['alert_unapproved_post'] = 'When an unapproved topic is created';
 $txt['alert_msg_report'] = 'When a post is reported';
-$txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to receives another reply';
+$txt['alert_msg_report_reply'] = 'When a post report I’ve replied to receives another reply';
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
 $txt['alert_warn_any'] = 'When other members receive a warning';
@@ -159,9 +159,9 @@ $txt['alert_buddy_request'] = 'When other members add me as their buddy';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
-$txt['alert_birthday'] = 'When it\'s my birthday';
-$txt['alert_member_report'] = 'When another member\'s profile is reported';
-$txt['alert_member_report_reply'] = 'When a member report I\'ve replied to receives another reply';
+$txt['alert_birthday'] = 'When it is my birthday';
+$txt['alert_member_report'] = 'When another member’s profile is reported';
+$txt['alert_member_report_reply'] = 'When a member report I’ve replied to receives another reply';
 $txt['alert_group_paidsubs'] = 'Paid Subscriptions';
 $txt['alert_paidsubs_expiring'] = 'When my Paid Subscriptions are about to expire';
 $txt['toggle_all'] = 'toggle all';
@@ -172,7 +172,7 @@ $txt['notifications_topics_none'] = 'You are not currently receiving any notific
 $txt['notifications_topics_howto'] = 'To receive notifications from a topic, click the &quot;notify&quot; button while viewing it.';
 $txt['notifications_boards'] = 'Current Board Notifications';
 $txt['notifications_boards_list'] = 'You are being notified of new topics posted in the following boards';
-$txt['notifications_boards_none'] = 'You aren\'t receiving notifications on any boards right now.';
+$txt['notifications_boards_none'] = 'You are not receiving notifications on any boards right now.';
 $txt['notifications_boards_howto'] = 'To request notifications from a specific board, click the &quot;notify&quot; button in the index of that board.';
 $txt['notifications_update'] = 'Unnotify';
 
@@ -191,14 +191,14 @@ $txt['statPanel_topBoards'] = 'Most popular boards by posts';
 $txt['statPanel_topBoards_posts'] = '{0, plural,
 	one {# post}
 	other {# posts}
-} of the board\'s {1, plural,
+} of the board’s {1, plural,
 	one {# post}
 	other {# posts}
 } ({2, number, percent})';
 $txt['statPanel_topBoards_memberposts'] = '{0, plural,
 	one {# post}
 	other {# posts}
-} of the member\'s {1, plural,
+} of the member’s {1, plural,
 	one {# post}
 	other {# posts}
 } ({2, number, percent})';
@@ -211,14 +211,14 @@ $txt['statPanel_activityTime_posts'] = '{0, plural,
 $txt['statPanel_timeOfDay'] = 'Time of Day';
 
 $txt['deleteAccount_warning'] = 'Warning - These actions are irreversible!';
-$txt['deleteAccount_desc'] = 'From this page you can delete this user\'s account and posts.';
-$txt['deleteAccount_member'] = 'Delete this member\'s account';
+$txt['deleteAccount_desc'] = 'From this page you can delete this user’s account and posts.';
+$txt['deleteAccount_member'] = 'Delete this member’s account';
 $txt['deleteAccount_posts'] = 'Remove posts made by this member';
 $txt['deleteAccount_all_posts'] = 'Replies to Topics';
 $txt['deleteAccount_topics'] = 'Topics and Posts';
 $txt['deleteAccount_votes'] = 'Remove poll votes made by this member';
 $txt['deleteAccount_confirm'] = 'Are you completely sure you want to delete this account?';
-$txt['deleteAccount_approval'] = 'Please note that the forum moderators will have to approve this account\'s deletion before it will be removed.';
+$txt['deleteAccount_approval'] = 'Please note that the forum moderators will have to approve this account’s deletion before it will be removed.';
 $txt['deleteAccount_permanent'] = 'Permanently delete topics/posts instead of recycling them?';
 
 $txt['profile_of_username'] = 'Profile of {name}';
@@ -245,7 +245,7 @@ $txt['trackLogins'] = 'Logins';
 
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
 // argument(s): forum name
-$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout {forum_name}. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
+$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout {forum_name}. If you are not comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
 $txt['notification'] = 'Notifications';
 $txt['notification_info'] = 'SMF allows you to be notified of replies to posts, newly posted topics, and forum announcements. You can change those settings here, or oversee the topics and boards you are currently receiving notifications for.';
@@ -333,7 +333,7 @@ $txt['ban_type_access'] = 'access forum';
 $txt['show_online'] = 'Show others my online status';
 
 $txt['return_to_post'] = 'Return to topics after posting by default';
-$txt['no_new_reply_warning'] = 'Don\'t warn on new replies made while posting.';
+$txt['no_new_reply_warning'] = 'Don’t warn on new replies made while posting.';
 $txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list';
 $txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view';
 $txt['recent_pms_at_top'] = 'Show most recent personal messages at top';
@@ -349,8 +349,8 @@ $txt['timeformat_easy5'] = 'DD-MM-YYYY, HH:MM:SS';
 $txt['poster'] = 'Poster';
 
 $txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first';
-$txt['show_no_avatars'] = 'Don\'t show users\' avatars';
-$txt['show_no_signatures'] = 'Don\'t show users\' signatures';
+$txt['show_no_avatars'] = 'Don’t show users’ avatars';
+$txt['show_no_signatures'] = 'Don’t show users’ signatures';
 $txt['show_no_censored'] = 'Leave words uncensored.';
 $txt['topics_per_page'] = 'Topics to display per page';
 $txt['messages_per_page'] = 'Messages to display per page';
@@ -363,7 +363,7 @@ $txt['calendar_viewmonth'] = 'Month view';
 $txt['calendar_viewweek'] = 'Week view';
 
 $txt['display_quick_mod'] = 'Show quick-moderation as';
-$txt['display_quick_mod_none'] = 'don\'t show';
+$txt['display_quick_mod_none'] = 'don’t show';
 $txt['display_quick_mod_check'] = 'checkboxes';
 $txt['display_quick_mod_image'] = 'icons';
 
@@ -373,16 +373,16 @@ $txt['whois_arin'] = 'ARIN (North America, a portion of the Caribbean and sub-Sa
 $txt['whois_lacnic'] = 'LACNIC (Latin American and Caribbean region)';
 $txt['whois_ripe'] = 'RIPE (Europe, the Middle East and parts of Africa and Asia)';
 
-$txt['moderator_why_missing'] = 'why isn\'t moderator here?';
+$txt['moderator_why_missing'] = 'why isn’t moderator here?';
 $txt['username_change'] = 'change';
-$txt['username_warning'] = 'To change this member\'s username, the forum must also reset their password, which will be emailed to the member with their new username.';
+$txt['username_warning'] = 'To change this member’s username, the forum must also reset their password, which will be emailed to the member with their new username.';
 
 $txt['show_member_posts'] = 'View member Posts';
 $txt['show_member_topics'] = 'View member Topics';
 $txt['show_member_attachments'] = 'View member Attachments';
 $txt['show_posts_none'] = 'No posts have been posted yet.';
 $txt['show_topics_none'] = 'No topics have been posted yet.';
-$txt['unwatched_topics_none'] = 'You don\'t have any topic in the unwatched list.';
+$txt['unwatched_topics_none'] = 'You do not have any topics in the unwatched list.';
 $txt['show_attachments_none'] = 'No attachments have been posted yet.';
 $txt['show_attach_filename'] = 'Filename';
 $txt['show_attach_downloads'] = 'Downloads';
@@ -484,7 +484,7 @@ $txt['profile_error_signature_disabled_bbc'] = '{num_disabled_tags, plural,
 $txt['profile_view_warnings'] = 'View Warnings';
 $txt['profile_issue_warning'] = 'Issue a Warning';
 $txt['profile_warning_level'] = 'Warning Level';
-$txt['profile_warning_desc'] = 'From this section you can adjust the user\'s warning level and issue them with a written warning if necessary. You can also track their warning history and view the effects of their current warning level as determined by the administrator.';
+$txt['profile_warning_desc'] = 'From this section you can adjust the user’s warning level and issue them with a written warning if necessary. You can also track their warning history and view the effects of their current warning level as determined by the administrator.';
 $txt['profile_warning_name'] = 'Member Name';
 $txt['profile_warning_impact'] = 'Result';
 $txt['profile_warning_reason'] = 'Reason for Warning';
@@ -535,7 +535,7 @@ $txt['profile_warning_notify_for_insulting'] = 'insulting other users and/or sta
 $txt['profile_warning_notify_title_insulting'] = 'Insulting Users/Staff';
 $txt['profile_warning_issue'] = 'Issue Warning';
 $txt['profile_warning_max'] = '(Max 100)';
-$txt['profile_warning_limit_attribute'] = 'Note you can not adjust this user\'s level by more than {0, number, percent} in a 24 hour period.';
+$txt['profile_warning_limit_attribute'] = 'Note you can not adjust this user’s level by more than {0, number, percent} in a 24 hour period.';
 $txt['profile_warning_errors_occured'] = 'Warning has not been sent due to following errors';
 $txt['profile_warning_success'] = 'Warning Successfully Issued';
 $txt['profile_warning_new_template'] = 'New Template';
@@ -576,7 +576,7 @@ $txt['pm_display_mode_one'] = 'One at a time';
 $txt['pm_display_mode_linked'] = 'As a conversation';
 
 $txt['tracking'] = 'Tracking';
-$txt['tracking_description'] = 'This section allows you to review certain profile actions performed on this member\'s profile as well as track their IP address and login history.';
+$txt['tracking_description'] = 'This section allows you to review certain profile actions performed on this member’s profile as well as track their IP address and login history.';
 
 $txt['trackEdits'] = 'Profile Edits';
 $txt['trackEdit_deleted_member'] = 'Deleted Member';
