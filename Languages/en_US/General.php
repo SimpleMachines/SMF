@@ -1136,12 +1136,12 @@ $txt['debug_queries_used_and_warnings'] = '{0, plural,
 }.';
 $txt['debug_query_in_line'] = 'in {file} on line {line}, ';
 $txt['debug_query_which_took'] = '{0, plural,
-	one {which took # second}
-	other {which took # seconds}
+	one {which took {0, number, ::precision-unlimited} second}
+	other {which took {0, number, ::precision-unlimited} seconds}
 }.';
 $txt['debug_query_which_took_at'] = '{0, plural,
-	one {which took # second}
-	other {which took # seconds}
+	one {which took {0, number, ::precision-unlimited} second}
+	other {which took {0, number, ::precision-unlimited} seconds}
 } at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
