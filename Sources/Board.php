@@ -485,7 +485,7 @@ class Board implements \ArrayAccess
 
 		// Special handling for the category.
 		if (($this->prop_aliases[$prop] ?? null) === 'cat[id]') {
-			$this->cat = Category::init($value);
+			$this->cat = Category::init((int) $value);
 
 			return;
 		}
