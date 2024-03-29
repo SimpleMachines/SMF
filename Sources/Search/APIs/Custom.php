@@ -114,10 +114,8 @@ class Custom extends SearchApi implements SearchApiInterface
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		global $excludedWords;
-
-		$x = strlen($a) - (in_array($a, $excludedWords) ? 1000 : 0);
-		$y = strlen($b) - (in_array($b, $excludedWords) ? 1000 : 0);
+		$x = strlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0);
+		$y = strlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0);
 
 		return $y < $x ? 1 : ($y > $x ? -1 : 0);
 	}

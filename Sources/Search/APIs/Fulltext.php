@@ -129,10 +129,8 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		global $excludedWords;
-
-		$x = Utils::entityStrlen($a) - (in_array($a, $excludedWords) ? 1000 : 0);
-		$y = Utils::entityStrlen($b) - (in_array($b, $excludedWords) ? 1000 : 0);
+		$x = Utils::entityStrlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0);
+		$y = Utils::entityStrlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0);
 
 		return $x < $y ? 1 : ($x > $y ? -1 : 0);
 	}
