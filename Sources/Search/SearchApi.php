@@ -306,6 +306,16 @@ abstract class SearchApi implements SearchApiInterface
 		],
 	];
 
+	/**
+	 * @var array
+	 *
+	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
+	 *
+	 * Classes that extend this class should add their sub-actions to their own
+	 * copies of this array.
+	 */
+	public static array $admin_subactions = [];
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -836,6 +846,7 @@ abstract class SearchApi implements SearchApiInterface
 
 			$loadedApis[$index_name] = [
 				'filename' => 'Search/APIs/' . $file_info->getBasename(),
+				'class' => $fully_qualified_class_name,
 				'setting_index' => $index_name,
 				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
 				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
@@ -893,6 +904,7 @@ abstract class SearchApi implements SearchApiInterface
 
 			$loadedApis[$index_name] = [
 				'filename' => $file_info->getFilename(),
+				'class' => $class_name,
 				'setting_index' => $index_name,
 				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
 				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',

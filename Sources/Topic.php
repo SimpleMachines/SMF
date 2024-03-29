@@ -1366,45 +1366,6 @@ class Topic implements \ArrayAccess
 		];
 		Attachment::remove($attachmentQuery, 'messages');
 
-		// Delete possible search index entries.
-		if (!empty(Config::$modSettings['search_custom_index_config'])) {
-			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
-
-			$words = [];
-			$messages = [];
-			$request = Db::$db->query(
-				'',
-				'SELECT id_msg, body
-				FROM {db_prefix}messages
-				WHERE id_topic IN ({array_int:topics})',
-				[
-					'topics' => $topics,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				Sapi::resetTimeout();
-
-				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
-				$messages[] = $row['id_msg'];
-			}
-			Db::$db->free_result($request);
-			$words = array_unique($words);
-
-			if (!empty($words) && !empty($messages)) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}log_search_words
-					WHERE id_word IN ({array_int:word_list})
-						AND id_msg IN ({array_int:message_list})',
-					[
-						'word_list' => $words,
-						'message_list' => $messages,
-					],
-				);
-			}
-		}
-
 		// Delete anything related to the topic.
 		Db::$db->query(
 			'',
