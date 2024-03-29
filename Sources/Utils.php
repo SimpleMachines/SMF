@@ -583,6 +583,35 @@ class Utils
 	}
 
 	/**
+	 * Like standard mb_str_split(), except that it counts HTML entities as
+	 * single characters.
+	 *
+	 * @param string $string The input string.
+	 * @param int $length Maximum character length of the substrings to return.
+	 * @return array The extracted substrings.
+	 */
+	public static function entityStrSplit(string $string, int $length = 1): array
+	{
+		if ($length < 1) {
+			throw new \ValueError();
+		}
+
+		$ent_arr = preg_split('~(' . Utils::ENT_LIST . '|\X)~u', Utils::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+		if ($length > 1) {
+			$temp = [];
+
+			while (!empty($ent_arr)) {
+				$temp[] = implode('', array_splice($ent_arr, 0, $length));
+			}
+
+			$ent_arr = $temp;
+		}
+
+		return $ent_arr;
+	}
+
+	/**
 	 * Truncates a string to fit within the specified byte length, while making
 	 * sure not to cut in the middle of an HTML entity or multi-byte character.
 	 *
