@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
@@ -37,6 +39,8 @@ use SMF\Utils;
  */
 class MessageIndex implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -125,17 +129,6 @@ class MessageIndex implements ActionInterface
 	 */
 	protected bool $ascending_is_default = false;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 */
-	protected static MessageIndex $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -156,32 +149,6 @@ class MessageIndex implements ActionInterface
 
 		$this->buildQuickMod();
 		$this->buildButtons();
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**

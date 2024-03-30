@@ -15,9 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -40,7 +41,7 @@ use SMF\Utils;
 /**
  * This class manages... the news. :P
  */
-class News extends ACP implements ActionInterface
+class News extends ACP
 {
 	use BackwardCompatibility;
 
@@ -222,18 +223,6 @@ class News extends ACP implements ActionInterface
 		'mailingsend' => ['send', 'send_mail'],
 		'settings' => ['settings', 'admin_forum'],
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static News|ACP $obj;
 
 	/****************
 	 * Public methods
@@ -1069,32 +1058,6 @@ class News extends ACP implements ActionInterface
 		SecurityToken::create('admin-mp');
 
 		self::prepareDBSettingContext($config_vars);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**

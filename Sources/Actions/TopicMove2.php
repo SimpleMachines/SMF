@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -35,17 +37,7 @@ use SMF\Utils;
  */
 class TopicMove2 implements ActionInterface
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static TopicMove2 $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -312,32 +304,6 @@ class TopicMove2 implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/**
 	 * Called after a topic is moved to update $board_link and $topic_link to point to new location
 	 */
@@ -375,17 +341,6 @@ class TopicMove2 implements ActionInterface
 		$topic_link = '<a href="' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0">' . $topic_subject . '</a>';
 
 		ErrorHandler::fatalLang('topic_already_moved', false, [$topic_link, $board_link]);
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 }
 

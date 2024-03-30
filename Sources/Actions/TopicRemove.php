@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,17 +32,7 @@ use SMF\Utils;
  */
 class TopicRemove implements ActionInterface
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static TopicRemove $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -110,32 +102,6 @@ class TopicRemove implements ActionInterface
 		}
 
 		Utils::redirectexit('board=' . Board::$info->id . '.0');
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**
@@ -251,17 +217,6 @@ class TopicRemove implements ActionInterface
 		Logging::logAction('pruned', ['days' => $_POST['maxdays']]);
 
 		Utils::redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 
 	/*************************

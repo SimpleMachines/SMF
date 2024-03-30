@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -43,6 +45,8 @@ use SMF\Verifier;
  */
 class Post implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*****************
@@ -179,18 +183,6 @@ class Post implements ActionInterface
 	 * Used by getTopicSummary() method to count previous posts.
 	 */
 	protected int $counter = 0;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Post $obj;
 
 	/****************
 	 * Public methods
@@ -381,32 +373,6 @@ class Post implements ActionInterface
 		}
 
 		IntegrationHook::call('integrate_post_end');
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**

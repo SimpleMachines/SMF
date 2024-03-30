@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -37,6 +38,8 @@ use SMF\Utils;
  */
 class Main implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -536,18 +539,6 @@ class Main implements ActionInterface
 	 */
 	public bool $check_password;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Main $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -696,32 +687,6 @@ class Main implements ActionInterface
 		if (!isset(Utils::$context['page_title'])) {
 			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area)]), " \n\r\t\v\x00-");
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**

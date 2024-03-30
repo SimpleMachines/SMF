@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
@@ -30,6 +32,8 @@ use SMF\Utils;
  */
 class Agreement implements ActionInterface
 {
+	use ActionTrait;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -40,7 +44,7 @@ class Agreement implements ActionInterface
 	 * An instance of the class.
 	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static Agreement $obj;
+
 
 	/****************
 	 * Public methods
@@ -78,32 +82,6 @@ class Agreement implements ActionInterface
 		if (isset($_SESSION['old_url'])) {
 			$_SESSION['redirect_url'] = $_SESSION['old_url'];
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**
@@ -150,17 +128,6 @@ class Agreement implements ActionInterface
 		Utils::$context['privacy_policy_accepted_date'] = empty(Theme::$current->options['policy_accepted']) ? 0 : Theme::$current->options['policy_accepted'];
 
 		return empty(Theme::$current->options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > Theme::$current->options['policy_accepted'];
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 
 	/**

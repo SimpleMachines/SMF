@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
 use SMF\Actions\Admin\News;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -35,6 +37,8 @@ use SMF\Utils;
  */
 class XmlHttp implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -63,18 +67,6 @@ class XmlHttp implements ActionInterface
 		'messageicons' => 'messageIcons',
 		'previews' => 'previews',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static XmlHttp $obj;
 
 	/****************
 	 * Public methods
@@ -371,32 +363,6 @@ class XmlHttp implements ActionInterface
 		}
 
 		Utils::$context['sub_template'] = 'warning';
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

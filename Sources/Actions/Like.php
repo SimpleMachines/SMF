@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -31,6 +33,8 @@ use SMF\Utils;
  */
 class Like implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -182,17 +186,6 @@ class Like implements ActionInterface
 	 */
 	protected mixed $data;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 */
-	protected static Like $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -251,32 +244,6 @@ class Like implements ActionInterface
 	public function get(string $property = ''): mixed
 	{
 		return property_exists($this, $property) ? $this->$property : false;
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Wrapper for constructor. Ensures only one instance is created.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

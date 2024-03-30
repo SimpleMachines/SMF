@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -35,6 +36,8 @@ use SMF\Utils;
  */
 class Export implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -107,7 +110,7 @@ class Export implements ActionInterface
 	 * An instance of this class.
 	 * This is used by the load() method to prevent multiple instantiations.
 	 */
-	protected static Export $obj;
+
 
 	/****************
 	 * Public methods
@@ -352,32 +355,6 @@ class Export implements ActionInterface
 		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>']);
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/**
