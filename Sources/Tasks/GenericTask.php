@@ -32,9 +32,12 @@ class GenericTask extends BackgroundTask
 	{
 		$callable_task = Utils::getCallable($this->_details['callable']);
 
+		$args = $this->_details();
+		unset($args['callable']);
+
 		// Perform the task.
 		if (!empty($callable_task)) {
-			call_user_func($callable_task);
+			call_user_func($callable_task, $args);
 		}
 
 		return true;
