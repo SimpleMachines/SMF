@@ -865,7 +865,7 @@ class MessageFormatter
 
 		// Ensure $number is a string.
 		if (is_float($number)) {
-			$precision = (int) strpos(strrev(strval($number)), '.') - strlen(strval(intval($number + 0))) - 1;
+			$precision = (int) strpos(strrev(strval($number)), '.');
 			$number = sprintf("%{$flags}.{$precision}F", $number);
 		} elseif (is_int($number)) {
 			$number = sprintf("%{$flags}d", $number);
