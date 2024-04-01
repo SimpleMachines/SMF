@@ -2300,10 +2300,6 @@ class Utils
 		return $callable;
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
-
 	/**
 	 * Converts four-byte Unicode characters to entities, but only if the
 	 * database can't handle four-byte characters natively.
@@ -2311,7 +2307,7 @@ class Utils
 	 * @param string $string A UTF-8 string.
 	 * @return string The string, with four-byte chars encoded as entities.
 	 */
-	final protected static function fixUtf8mb4(string $string): string
+	final public static function fixUtf8mb4(string $string): string
 	{
 		if (class_exists(Db::class, false) && isset(Db::$db) && Db::$db->mb4) {
 			return $string;
@@ -2319,6 +2315,10 @@ class Utils
 
 		return mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
 
 	/**
 	 * Helper method for Utils::call_helper.
