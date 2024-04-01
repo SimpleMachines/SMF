@@ -21,6 +21,8 @@ use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 
+use function SMF\Unicode\currencies;
+
 /**
  * Provides the ability to process ICU MessageFormat strings, regardless whether
  * the host has the intl extension installed.
