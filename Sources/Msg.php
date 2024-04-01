@@ -1515,7 +1515,7 @@ class Msg implements \ArrayAccess
 		// If there's a custom search index, it may need updating...
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'postCreated'])) {
+		if ($searchAPI->supportsMethod('postCreated')) {
 			$searchAPI->postCreated($msgOptions, $topicOptions, $posterOptions);
 		}
 
@@ -1595,6 +1595,8 @@ class Msg implements \ArrayAccess
 	 */
 	public static function modify(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
+		$searchAPI = SearchApi::load();
+
 		$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 		$topicOptions['lock_mode'] = $topicOptions['lock_mode'] ?? null;
 		$topicOptions['sticky_mode'] = $topicOptions['sticky_mode'] ?? null;
@@ -1622,7 +1624,7 @@ class Msg implements \ArrayAccess
 			$messages_columns['body'] = $msgOptions['body'];
 
 			// using a custom search index, then lets get the old message so we can update our index as needed
-			if (!empty(Config::$modSettings['search_custom_index_config'])) {
+			if ($searchAPI->supportsMethod('postModified')) {
 				$request = Db::$db->query(
 					'',
 					'SELECT body
@@ -1655,8 +1657,6 @@ class Msg implements \ArrayAccess
 		];
 
 		// Update search api
-		$searchAPI = SearchApi::load();
-
 		if ($searchAPI->supportsMethod('postRemoved')) {
 			$searchAPI->postRemoved($msgOptions['id']);
 		}
@@ -1763,9 +1763,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// If there's a custom search index, it needs to be modified...
-		$searchAPI = SearchApi::load();
-
-		if (is_callable([$searchAPI, 'postModified'])) {
+		if ($searchAPI->supportsMethod('postModified')) {
 			$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
 		}
 
@@ -2329,7 +2327,7 @@ class Msg implements \ArrayAccess
 		$request = Db::$db->query(
 			'',
 			'SELECT
-				m.id_member, m.icon, m.poster_time, m.subject,' . (empty(Config::$modSettings['search_custom_index_config']) ? '' : ' m.body,') . '
+				m.id_member, m.icon, m.poster_time, m.subject, m.body,
 				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
 				t.id_member_started AS id_member_poster,
 				b.count_posts
@@ -2717,25 +2715,6 @@ class Msg implements \ArrayAccess
 					'id_msg' => $message,
 				],
 			);
-
-			if (!empty(Config::$modSettings['search_custom_index_config'])) {
-				$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
-
-				$words = Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
-
-				if (!empty($words)) {
-					Db::$db->query(
-						'',
-						'DELETE FROM {db_prefix}log_search_words
-						WHERE id_word IN ({array_int:word_list})
-							AND id_msg = {int:id_msg}',
-						[
-							'word_list' => $words,
-							'id_msg' => $message,
-						],
-					);
-				}
-			}
 
 			// Delete attachment(s) if they exist.
 			$attachmentQuery = [

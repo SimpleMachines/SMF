@@ -120,6 +120,7 @@ class Search2 implements ActionInterface
 			SearchApi::$loadedApi->searchArray,
 		);
 
+		$this->initSearchContext();
 		$this->setupTemplate();
 	}
 
@@ -421,6 +422,44 @@ class Search2 implements ActionInterface
 			$this->posters[] = $row['id_member'];
 		}
 		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Initializes stuff we need to display the search results.
+	 */
+	protected function initSearchContext(): void
+	{
+		if (empty(SearchApi::$loadedApi->results)) {
+			return;
+		}
+
+		SearchResult::setBoardsCan();
+
+		// What messages are we using?
+		$this->messages = array_map('intval', array_keys(SearchApi::$loadedApi->results));
+
+		// Load the posters...
+		$this->getPosters();
+
+		IntegrationHook::call('integrate_search_message_list', [&$this->messages, &$this->posters]);
+
+		if (!empty($this->posters)) {
+			User::load(array_unique($this->posters));
+		}
+
+		SearchResult::$getter = SearchResult::get($this->messages);
+
+		// How many results will the user be able to see?
+		$this->num_results = !empty($_SESSION['search_cache']['num_results']) ? $_SESSION['search_cache']['num_results'] : SearchResult::getNumResults();
+
+		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
+		if ($this->num_results == 0) {
+			SearchApi::$loadedApi->results = [];
+
+			return;
+		}
+
+		SearchApi::$loadedApi->setParticipants();
 	}
 }
 
