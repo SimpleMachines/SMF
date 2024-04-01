@@ -810,7 +810,7 @@ class Utils
 
 		if (!$encrypt) {
 			foreach ($words as &$word) {
-				$word = self::truncate($word, $max_length);
+				$word = Utils::fixUtf8mb4(self::truncate($word, $max_length));
 			}
 
 			return array_unique($words);
