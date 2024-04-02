@@ -42,8 +42,14 @@ class Custom extends SearchApi implements SearchApiInterface
 	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
 	 */
 	public static array $admin_subactions = [
-		'createmsgindex' => __CLASS__ . '::build',
-		'removecustom' => __CLASS__ . '::remove',
+		'build' => [
+			'sa' => 'createmsgindex',
+			'func' => __CLASS__ . '::build',
+		],
+		'remove' => [
+			'sa' => 'removecustom',
+			'func' => __CLASS__ . '::remove',
+		],
 	];
 
 	/*********************
@@ -69,6 +75,13 @@ class Custom extends SearchApi implements SearchApiInterface
 	 * @var array Which databases support this method
 	 */
 	protected $supported_databases = ['mysql', 'postgresql'];
+
+	/**
+	 * @var int
+	 *
+	 * Size of the index, in bytes.
+	 */
+	private int $size;
 
 	/****************
 	 * Public methods
@@ -96,6 +109,22 @@ class Custom extends SearchApi implements SearchApiInterface
 		$this->min_word_length = $this->indexSettings['bytes_per_word'];
 
 		parent::__construct();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getStatus(): ?string
+	{
+		if (!empty(Config::$modSettings['search_custom_index_config'])) {
+			return 'exists';
+		}
+
+		if (!empty(Config::$modSettings['search_custom_index_resume'])) {
+			return 'partial';
+		}
+
+		return 'none';
 	}
 
 	/**
@@ -136,6 +165,65 @@ class Custom extends SearchApi implements SearchApiInterface
 	public function isValid(): bool
 	{
 		return !empty(Config::$modSettings['search_custom_index_config']);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSize(): int
+	{
+		if (isset($this->size)) {
+			return $this->size;
+		}
+
+		$this->size = 0;
+
+		if (Db::$db->title === POSTGRE_TITLE) {
+			$request = Db::$db->query(
+				'',
+				'SELECT
+					pg_total_relation_size({string:tablename}) AS total_size',
+				[
+					'tablename' => Db::$db->prefix . 'log_search_words',
+				],
+			);
+
+			if ($request !== false && Db::$db->num_rows($request) > 0) {
+				$row = Db::$db->fetch_assoc($request);
+				$this->size = (int) $row['total_size'];
+			}
+		} else {
+			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
+				$request = Db::$db->query(
+					'',
+					'SHOW TABLE STATUS
+					FROM {string:database_name}
+					LIKE {string:table_name}',
+					[
+						'database_name' => '`' . strtr($match[1], ['`' => '']) . '`',
+						'table_name' => str_replace('_', '\\_', $match[2]) . 'log_search_words',
+					],
+				);
+			} else {
+				$request = Db::$db->query(
+					'',
+					'SHOW TABLE STATUS
+					LIKE {string:table_name}',
+					[
+						'table_name' => str_replace('_', '\\_', Db::$db->prefix) . 'log_search_words',
+					],
+				);
+			}
+
+			if ($request !== false && Db::$db->num_rows($request) == 1) {
+				$row = Db::$db->fetch_assoc($request);
+				$this->size = (int) $row['Data_length'] + (int) $row['Index_length'];
+			}
+		}
+
+		Db::$db->free_result($request);
+
+		return $this->size;
 	}
 
 	/**
@@ -432,6 +520,40 @@ class Custom extends SearchApi implements SearchApiInterface
 				],
 			);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdminSubactions(): array
+	{
+		return [
+			'build' => [
+				'func' => __CLASS__ . '::build',
+				'sa' => 'createmsgindex',
+				'extra_params' => [
+					Utils::$context['session_var'] => Utils::$context['session_id'],
+					Utils::$context['admin-msm_token_var'] => Utils::$context['admin-msm_token'],
+				],
+			],
+			'resume' => [
+				'func' => __CLASS__ . '::build',
+				'sa' => 'createmsgindex',
+				'extra_params' => [
+					'resume',
+					Utils::$context['session_var'] => Utils::$context['session_id'],
+					Utils::$context['admin-msm_token_var'] => Utils::$context['admin-msm_token'],
+				],
+			],
+			'remove' => [
+				'func' => __CLASS__ . '::remove',
+				'sa' => 'removecustom',
+				'extra_params' => [
+					Utils::$context['session_var'] => Utils::$context['session_id'],
+					Utils::$context['admin-msm_token_var'] => Utils::$context['admin-msm_token'],
+				],
+			],
+		];
 	}
 
 	/***********************

@@ -146,77 +146,102 @@ function template_select_search_method()
 				<legend>', Lang::$txt['search_index'], '</legend>
 				<dl>
 					<dt>
-						<input type="radio" name="search_index" value=""', empty(Config::$modSettings['search_index']) ? ' checked' : '', '>
-						', Lang::$txt['search_index_none'], '
+						<label>
+							<input type="radio" name="search_index" value=""', empty(Config::$modSettings['search_index']) ? ' checked' : '', '>
+							', Lang::$txt['search_index_none'], '
+						</label>
 					</dt>';
-
-	if (Utils::$context['supports_fulltext'])
-	{
-		echo '
-					<hr>
-					<dt>
-						<input type="radio" name="search_index" value="fulltext"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == 'fulltext' ? ' checked' : '', empty(Utils::$context['fulltext_index']) ? ' onclick="alert(\'' . Lang::$txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"' : '', '>
-						', Lang::$txt['search_method_fulltext_index'], '
-					</dt>
-					<dd>
-						<span class="smalltext">';
-
-		if (empty(Utils::$context['fulltext_index']) && empty(Utils::$context['cannot_create_fulltext']))
-			echo '
-							', Lang::getTxt('search_method_no_index_exists', ['index' => Lang::$txt['search_method_fulltext_index']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createfulltext;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_create_index_start'], '</a>';
-
-		elseif (empty(Utils::$context['fulltext_index']) && !empty(Utils::$context['cannot_create_fulltext']))
-			echo '
-							<strong>', Lang::$txt['search_method_fulltext_cannot_create'], '</strong>';
-		else
-			echo '
-							', Lang::getTxt('search_method_index_already_exists', ['index' => Lang::$txt['search_method_fulltext_index']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removefulltext;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_remove'], '</a><br>
-							<strong>', Lang::$txt['search_index_size'], '</strong> ', Utils::$context['table_info']['fulltext_length'];
-		echo '
-						</span>
-					</dd>';
-	}
-
-	echo '
-					<hr>
-					<dt>
-						<input type="radio" name="search_index" value="custom"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == 'custom' ? ' checked' : '', Utils::$context['custom_index'] ? '' : ' onclick="alert(\'' . Lang::$txt['search_index_custom_warning'] . '\'); selectRadioByName(this.form.search_method, \'1\');"', '>
-						', Lang::$txt['search_index_custom'], '
-					</dt>
-					<dd>
-						<span class="smalltext">';
-
-	if (Utils::$context['custom_index'])
-		echo '
-							', Lang::getTxt('search_method_index_already_exists', ['index' => Lang::$txt['search_index_custom']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removecustom;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_remove'], '</a><br>
-							<strong>', Lang::$txt['search_index_size'], '</strong> ', Utils::$context['table_info']['custom_index_length'];
-
-	elseif (Utils::$context['partial_custom_index'])
-		echo '
-							', Lang::getTxt('search_method_index_partial', ['index' => Lang::$txt['search_index_custom']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_resume'], '</a> <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=removecustom;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-msm_token_var'], '=', Utils::$context['admin-msm_token'], '" class="button floatnone">', Lang::$txt['search_index_remove'], '</a><br>
-							<strong>', Lang::$txt['search_index_size'], '</strong> ', Utils::$context['table_info']['custom_index_length'];
-	else
-		echo '
-							', Lang::getTxt('search_method_no_index_exists', ['index' => Lang::$txt['search_index_custom']]), ' <a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex" class="button floatnone">', Lang::$txt['search_create_index_start'], '</a>';
-	echo '
-						</span>
-					</dd>';
 
 	foreach (Utils::$context['search_apis'] as $api)
 	{
-		if (empty($api['label']) || $api['has_template'])
+		if ($api['has_template'] || $api['instance']->getStatus() === 'hidden') {
 			continue;
+		}
 
 		echo '
+					<hr>
 					<dt>
-						<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', '>
-						', $api['label'], '
-					</dt>';
-
-		if ($api['desc'])
-			echo '
+						<label>
+							<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', !in_array($api['instance']->getStatus(), [null, 'exists']) ? ' onclick="alert(\'' . Lang::$txt['search_index_custom_warning'] . '\'); return false;"' : '', '>
+							', Lang::$txt[$api['instance']->getLabel()] ?? Lang::getTxt('search_index_generic', ['index' => substr(strrchr($api['class'], '\\'), 1)]), '
+						</label>
+					</dt>
 					<dd>
-						<span class="smalltext">', $api['desc'], '</span>
+						<span class="smalltext">';
+
+		if (!empty(Lang::$txt[$api['instance']->getDescription()])) {
+			echo Lang::$txt[$api['instance']->getDescription()];
+		}
+
+		if ($api['instance']->getStatus() !== null) {
+			if (!empty(Lang::$txt[$api['instance']->getDescription()])) {
+				echo '
+						<br>';
+			}
+
+			$admin_subactions = $api['instance']->getAdminSubactions();
+
+			switch ($api['instance']->getStatus()) {
+				case 'exists':
+					$index_status = 'search_method_index_already_exists';
+					$buttons = [];
+
+					$sa = $admin_subactions['remove']['sa'];
+
+					foreach ($admin_subactions['remove']['extra_params'] as $key => $value) {
+						$sa .= ';' . (is_int($key) ? '' : $key . '=') . $value;
+					}
+
+					$buttons[$sa] = 'search_index_remove';
+					break;
+
+				case 'partial':
+					$index_status = 'search_method_index_partial';
+					$buttons = [];
+
+					foreach (['resume', 'remove'] as $type) {
+						$sa = $admin_subactions[$type]['sa'];
+
+						foreach ($admin_subactions[$type]['extra_params'] as $key => $value) {
+							$sa .= ';' . (is_int($key) ? '' : $key . '=') . $value;
+						}
+
+						$buttons[$sa] = 'search_index_' . $type;
+					}
+					break;
+
+				default:
+					$index_status = 'search_method_no_index_exists';
+					$buttons = [];
+
+					$sa = $admin_subactions['build']['sa'];
+
+					foreach ($admin_subactions['build']['extra_params'] as $key => $value) {
+						$sa .= ';' . (is_int($key) ? '' : $key . '=') . $value;
+					}
+
+					$buttons[$sa] = 'search_create_index_start';
+					break;
+			}
+
+			echo Lang::getTxt($index_status, ['index' => Lang::$txt[$api['instance']->getLabel()] ?? Lang::getTxt('search_index_generic', ['index' => substr(strrchr(get_class($this), '\\'), 1)])]);
+
+			foreach ($buttons as $sa => $label) {
+				echo ' <a href="' . Config::$scripturl . '?action=admin;area=managesearch;sa=' . $sa . '" class="button">' . Lang::$txt[$label] . '</a>';
+			}
+		}
+
+		if (
+			in_array($api['instance']->getStatus(), ['exists', null])
+			&& !empty($api['instance']->getSize())
+		) {
+			echo '
+						<br>
+						<strong>' . Lang::$txt['search_index_size'] . '</strong> ' . Lang::getTxt('size_kilobyte', [$api['instance']->getSize() / 1024]);
+		}
+
+		echo '
+						</span>
 					</dd>';
 	}
 

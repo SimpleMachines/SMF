@@ -77,6 +77,15 @@ abstract class SearchApi implements SearchApiInterface
 	public bool $is_supported = true;
 
 	/**
+	 * @var string
+	 *
+	 * The status of this API's index.
+	 *
+	 * Either 'exists', 'partial', or 'none'.
+	 */
+	public string $status;
+
+	/**
 	 * @var float
 	 *
 	 * Used to calculate relevance.
@@ -306,16 +315,6 @@ abstract class SearchApi implements SearchApiInterface
 		],
 	];
 
-	/**
-	 * @var array
-	 *
-	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
-	 *
-	 * Classes that extend this class should add their sub-actions to their own
-	 * copies of this array.
-	 */
-	public static array $admin_subactions = [];
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -431,6 +430,22 @@ abstract class SearchApi implements SearchApiInterface
 	public function isValid(): bool
 	{
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSize(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getStatus(): ?string
+	{
+		return null;
 	}
 
 	/**
@@ -765,6 +780,30 @@ abstract class SearchApi implements SearchApiInterface
 		]);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdminSubactions(): array
+	{
+		return [];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getLabel(): string
+	{
+		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDescription(): string
+	{
+		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1)) . '_desc';
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -848,9 +887,10 @@ abstract class SearchApi implements SearchApiInterface
 				'filename' => 'Search/APIs/' . $file_info->getBasename(),
 				'class' => $fully_qualified_class_name,
 				'setting_index' => $index_name,
-				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
-				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
+				'has_template' => $index_name === 'standard',
+				'label' => $search_api->getLabel(),
+				'desc' => $search_api->getDescription(),
+				'instance' => $search_api,
 			];
 		}
 
@@ -906,13 +946,25 @@ abstract class SearchApi implements SearchApiInterface
 				'filename' => $file_info->getFilename(),
 				'class' => $class_name,
 				'setting_index' => $index_name,
-				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
-				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
+				'has_template' => $index_name === 'standard',
+				'label' => $search_api->getLabel(),
+				'desc' => $search_api->getDescription(),
+				'instance' => $search_api,
 			];
 		}
 
 		IntegrationHook::call('integrate_load_search_apis', [&$loadedApis]);
+
+		// Always list standard and fulltext first.
+		uksort(
+			$loadedApis,
+			function ($a, $b) {
+				$a = strtr($a, ['standard' => '0', 'fulltext' => 1]);
+				$b = strtr($b, ['standard' => '0', 'fulltext' => 1]);
+
+				return $a <=> $b;
+			},
+		);
 
 		return $loadedApis;
 	}
