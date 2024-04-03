@@ -23,6 +23,7 @@
 	--input-accent-color:                             var(--primary-color-600);
 	--input-bg:                                       hsl(var(--primary-color-hue), 18%, 12%);
 	--input-bg_disabled:                              hsl(var(--primary-color-hue), 12%, 9%);
+	/** @todo **/
 	/* --input-bg_invalid:                               hsl(0, 24%, 20%);
 	--input-bg_valid:                                 hsl(101, 8%, 39%); */
 	--input-border-color:                             var(--primary-color-700);
@@ -305,4 +306,8 @@
 	--popup-heading-bg:                               hsl(var(--primary-color-hue), 35%, 15%);
 	--popup-heading-border-color:                     var(--primary-color-500);
 	--popup-heading-color:                            var(--primary-color-50);
+
+	/** SCEditor Group **/
+	/* --sceditor-group-bg:                              #323232; */
+	--sceditor-group-border-color:                    var(--primary-color-300);
 }

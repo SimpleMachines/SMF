@@ -101,13 +101,13 @@ img {
 	min-height: 1em;
 }
 .floatleft {
-	float: left;
-	clear: left;
+	float: inline-start;
+	clear: inline-start;
 	margin: 0 1em 1em 0;
 }
 .floatright {
-	float: right;
-	clear: right;
+	float: inline-end;
+	clear: inline-end;
 	margin: 0 0 1em 1em;
 }
 @media (max-width: 480px) {

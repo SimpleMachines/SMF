@@ -9,22 +9,27 @@
  *	https://opensource.org/licenses/mit-license.php
  */
 .sceditor-grip {
-	border-top: 1px solid var(--input-border-color);
+	background: var(--roundframe-bg);
+	border-color: var(--roundframe-border-color);
+	border-radius: var(--input-border-radius);
+	border-style: solid;
+	border-width: 1px 0 0;
 	cursor: s-resize;
-	height: 16px;
-	padding: 3px calc(50% - 3ch);
+	padding-block: .5em;
 }
 .sceditor-grip::before {
 	background: linear-gradient(#0000 0, var(--input-border-color) 2px, #0000 3px, var(--input-border-color) 5px, #0000 6px, var(--input-border-color) 8px, #0000 9px);
 	content: "";
 	display: block;
 	height: 9px;
+	margin-inline: auto;
+	width: 3em;
 }
 .sceditor-button div {
 	background-image: url("../images/icons/editor_sprite.png");
 	background-repeat: no-repeat;
-	width: 16px;
 	height: 16px;
+	width: 16px;
 }
 .sceditor-button-youtube div {
 	background-position: 0px 0px;
@@ -147,19 +152,27 @@
 	background-position: 0px -624px;
 }
 .sceditor-container {
-	position: relative;
+	border-color: var(--input-border-color);
+	border-radius: var(--input-border-radius);
+	border-end-end-radius: 0;
+	border-end-start-radius: 0;
+	border-style: var(--input-border-style);
+	border-width: var(--input-border-width);
 	display: flex;
 	flex-direction: column;
-	border: var(--input-border-width) var(--input-border-style) var(--input-border-color);
+	position: relative;
+}
+.sceditor-container:has(~ #post_attachments_area) {
+	border-bottom-color: var(--roundframe-border-color)
 }
 .sceditor-container iframe,
 .sceditor-container textarea {
-	flex: 1 1 0%;
 	border: 0;
-	outline: none;
-	padding: 0;
+	flex: 1 1 0%;
 	margin: 0;
 	min-height: 0;
+	outline: none;
+	padding: 0;
 	resize: none;
 }
 div.sceditor-dnd-cover {
@@ -262,12 +275,14 @@ body.sceditor-maximize {
 	flex: 100%;
 }
 .sceditor-group {
+	background: var(--sceditor-group-bg);
+	border-color: var(--sceditor-group-border-color);
+	border-radius: var(--sceditor-group-border-radius);
+	border-style: var(--sceditor-group-border-style);
+	border-width: var(--sceditor-group-border-width);
 	display: inline-block;
-	background: #ddd;
-	padding: 1px 2px;
 	margin: 2px 4px;
-	border-bottom: 1px solid #aaa;
-	border-radius: 3px;
+	padding: 1px 2px;
 }
 .sceditor-button {
 	cursor: pointer;
