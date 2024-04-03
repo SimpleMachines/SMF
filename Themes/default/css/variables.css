@@ -1512,4 +1512,11 @@
 	--popup-content-font-size:                        0.95em;
 	--popup-content-height:                           30em;
 	--popup-content-line-height:                      1.6em;
+
+	/** SCEditor Group **/
+	--sceditor-group-bg:                              #ddd;
+	--sceditor-group-border-color:                    #aaa;
+	--sceditor-group-border-radius:                   3px;
+	--sceditor-group-border-style:                    solid;
+	--sceditor-group-border-width:                    0 0 1px;
 }

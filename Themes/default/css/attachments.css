@@ -45,8 +45,9 @@
 
 /* Stuff unique to Post.template.php */
 div#post_attachments_area.roundframe {
-	overflow: visible;
+	--roundframe-border-color: var(--input-border-color);
 	border-top: none;
+	overflow: visible;
 	padding: 0;
 }
 #post_attachments_area #postAttachment,
@@ -191,7 +192,7 @@ div#post_attachments_area.roundframe {
 	display: none;
 	min-width: 100%;
 	flex-flow: row wrap;
-	padding: 5px;
+	padding: .75em .5em;
 }
 #post_attachments_area #max_files_progress {
 	display: none;
