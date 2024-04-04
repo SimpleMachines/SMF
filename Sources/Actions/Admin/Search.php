@@ -35,12 +35,6 @@ class Search implements ActionInterface
 {
 	use BackwardCompatibility;
 
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -116,6 +110,18 @@ class Search implements ActionInterface
 
 			if (empty($_POST['search_results_per_page'])) {
 				$_POST['search_results_per_page'] = !empty(Config::$modSettings['search_results_per_page']) ? Config::$modSettings['search_results_per_page'] : Config::$modSettings['defaultMaxMessages'];
+			}
+
+			if (isset($_POST['search_stopwords_custom'])) {
+				$_POST['search_stopwords_custom'] = array_diff(
+					Utils::text2words($_POST['search_stopwords_custom'], PHP_INT_MAX),
+					Utils::text2words(Lang::$txt['search_stopwords'] ?? '', PHP_INT_MAX),
+					Utils::text2words(Config::$modSettings['search_stopwords'] ?? '', PHP_INT_MAX),
+				);
+
+				sort($_POST['search_stopwords_custom']);
+
+				$_POST['search_stopwords_custom'] = implode(',', array_map([Utils::class, 'htmlspecialchars'], $_POST['search_stopwords_custom']));
 			}
 
 			ACP::saveDBSettings($config_vars);
@@ -335,6 +341,13 @@ class Search implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
+		$permanent_stopwords = array_unique(array_merge(
+			Utils::text2words(Lang::$txt['search_stopwords'] ?? '', PHP_INT_MAX),
+			Utils::text2words(Config::$modSettings['search_stopwords'] ?? '', PHP_INT_MAX),
+		));
+
+		sort($permanent_stopwords);
+
 		// What are we editing anyway?
 		$config_vars = [
 			// Permission...
@@ -346,8 +359,13 @@ class Search implements ActionInterface
 
 			// Some limitations.
 			['int', 'search_floodcontrol_time', 'subtext' => Lang::$txt['search_floodcontrol_time_desc'], 6, 'postinput' => Lang::$txt['seconds']],
+			'',
+
+			// Allow the admin to set stopwords.
+			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => implode(', ', $permanent_stopwords)]) . '</span>'],
 		];
 
+		// Do any mods want access?
 		IntegrationHook::call('integrate_modify_search_settings', [&$config_vars]);
 
 		// Perhaps the search method wants to add some settings?
@@ -356,6 +374,9 @@ class Search implements ActionInterface
 		if (is_callable([$searchAPI, 'searchSettings'])) {
 			call_user_func_array([$searchAPI, 'searchSettings'], [&$config_vars]);
 		}
+
+		// Let the admin set custom stopwords.
+		Config::$modSettings['search_stopwords_custom'] = implode("\n", explode(',', Config::$modSettings['search_stopwords_custom'] ?? ''));
 
 		return $config_vars;
 	}

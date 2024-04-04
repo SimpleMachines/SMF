@@ -127,10 +127,8 @@ abstract class SearchApi implements SearchApiInterface
 	 * Populated with the contents of:
 	 *  - Lang::$txt['search_stopwords']
 	 *  - Config::$modSettings['search_stopwords']
+	 *  - Config::$modSettings['search_stopwords_custom']
 	 *  - All known BBCode tags
-	 *
-	 * @todo Setting to add custom values?
-	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
 	 */
 	public array $blacklisted_words = [];
 
