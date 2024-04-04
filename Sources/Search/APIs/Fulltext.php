@@ -54,11 +54,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 *********************/
 
 	/**
-	 * @var array Which words are banned
-	 */
-	protected $bannedWords = [];
-
-	/**
 	 * @var int The minimum word length
 	 */
 	protected $min_word_length = 4;
@@ -91,7 +86,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 			return;
 		}
 
-		$this->bannedWords = empty(Config::$modSettings['search_banned_words']) ? [] : explode(',', Config::$modSettings['search_banned_words']);
 		$this->min_word_length = $this->_getMinWordLength();
 
 		parent::__construct();

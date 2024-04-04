@@ -2,6 +2,9 @@
 
 // Version: 3.0 Alpha 1; Search
 
+// Comma-separated list of words that should be ignored when searching in this language. Translators should NOT just translate the words in this list. Instead, replace them with common words that should be ignored when searching in the target languge.
+$txt['search_stopwords'] = 'a,about,an,are,as,at,be,by,for,from,how,in,is,it,of,on,or,that,the,this,to,was,what,when,where,who,will,with';
+
 $txt['set_parameters'] = 'Set Search Parameters';
 $txt['choose_board'] = 'Choose boards to search in, or search all';
 $txt['all_words'] = 'Match all words';

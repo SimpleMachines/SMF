@@ -62,11 +62,6 @@ class Custom extends SearchApi implements SearchApiInterface
 	protected $indexSettings = [];
 
 	/**
-	 * @var array An array of banned words
-	 */
-	protected $bannedWords = [];
-
-	/**
 	 * @var int|null Minimum word length (null for no minimum)
 	 */
 	protected $min_word_length = null;
@@ -105,7 +100,6 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		$this->indexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
-		$this->bannedWords = empty(Config::$modSettings['search_stopwords']) ? [] : explode(',', Config::$modSettings['search_stopwords']);
 		$this->min_word_length = $this->indexSettings['bytes_per_word'];
 
 		parent::__construct();
@@ -254,7 +248,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		}
 
 		foreach ($subwords as $subword) {
-			if (Utils::entityStrlen((string) $subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords)) {
+			if (Utils::entityStrlen((string) $subword) >= $this->min_word_length && !in_array($subword, $this->blacklisted_words)) {
 				$wordsSearch['indexed_words'][] = $subword;
 
 				if ($isExcluded) {

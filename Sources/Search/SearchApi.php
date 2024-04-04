@@ -121,10 +121,12 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * @var array
 	 *
-	 * Unfortunately, searching for words like these would be slow, so we're
-	 * blacklisting them.
+	 * Words to ignore when searching.
 	 *
-	 * @todo Make this aware of languages.
+	 * Populated with the contents of:
+	 *  - Lang::$txt['search_stopwords']
+	 *  - Config::$modSettings['search_stopwords']
+	 *
 	 * @todo Should blacklist all BBC.
 	 * @todo Setting to add custom values?
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
@@ -135,11 +137,6 @@ abstract class SearchApi implements SearchApiInterface
 		'quote',
 		'www',
 		'http',
-		'the',
-		'is',
-		'it',
-		'are',
-		'if',
 	];
 
 	/**
@@ -766,9 +763,6 @@ abstract class SearchApi implements SearchApiInterface
 	 * This exists only for the sake of backward compatibility; mods extending
 	 * this class can already access the included data directly.
 	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
-	 *
 	 * @return array Data about this search query.
 	 */
 	public function getQueryParams(): array
@@ -975,9 +969,6 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Calculates the weight values to use when organizing results by relevance.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function calculateWeight(): void
 	{
@@ -996,20 +987,30 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Allows changing $this->blacklisted_words.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setBlacklistedWords(): void
 	{
+		// Blacklist any stopwords for the current language.
+		if (isset(Lang::$txt['search_stopwords'])) {
+			$this->blacklisted_words = array_unique(array_merge(
+				$this->blacklisted_words,
+				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
+			));
+		}
+
+		// Blacklist any stopwords that we found automatically.
+		if (isset(Config::$modSettings['search_stopwords'])) {
+			$this->blacklisted_words = array_unique(array_merge(
+				$this->blacklisted_words,
+				array_map('trim', explode(',', Config::$modSettings['search_stopwords'])),
+			));
+		}
+
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
 	}
 
 	/**
 	 * Figures out the values for $this->params and related properties.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setParams(): void
 	{
@@ -1115,9 +1116,6 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Populates $this->searchArray, $this->excludedWords, etc.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setSearchTerms(): void
 	{
