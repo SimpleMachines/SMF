@@ -17,6 +17,7 @@ namespace SMF\Search;
 
 use SMF\Actions\Search;
 use SMF\BackwardCompatibility;
+use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -126,18 +127,12 @@ abstract class SearchApi implements SearchApiInterface
 	 * Populated with the contents of:
 	 *  - Lang::$txt['search_stopwords']
 	 *  - Config::$modSettings['search_stopwords']
+	 *  - All known BBCode tags
 	 *
-	 * @todo Should blacklist all BBC.
 	 * @todo Setting to add custom values?
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
 	 */
-	public array $blacklisted_words = [
-		'img',
-		'url',
-		'quote',
-		'www',
-		'http',
-	];
+	public array $blacklisted_words = [];
 
 	/**
 	 * @var array
@@ -1005,6 +1000,12 @@ abstract class SearchApi implements SearchApiInterface
 				array_map('trim', explode(',', Config::$modSettings['search_stopwords'])),
 			));
 		}
+
+		// Blacklist the BBC tags.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			array_map(fn ($code) => $code['tag'], BBCodeParser::getCodes()),
+		));
 
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
 	}
