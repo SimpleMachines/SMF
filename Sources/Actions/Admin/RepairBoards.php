@@ -2087,7 +2087,7 @@ class RepairBoards implements ActionInterface
 	 *
 	 * @param array $result Search result id
 	 */
-	protected function fixMissingCachedSubject(array $result): void
+	protected function fixMissingCachedSubject(\mysqli_result $result): void
 	{
 		$inserts = [];
 
