@@ -3986,9 +3986,10 @@ class User implements \ArrayAccess
 	 * Retrieves a list of members that have a given permission,
 	 * either on a given board or in general.
 	 *
-	 * If $board_id is set, a board permission is assumed.
-	 * Takes different permission settings into account.
-	 * Takes possible moderators on the relevant board into account.
+	 * Will check for a board permission if $board_id is set, and any
+	 * moderators assigned to that board will be fetched in addition
+	 * to global moderators.  Pass in 0 as a special case to fetch
+	 * moderators on all boards.
 	 *
 	 * @param string $permission The permission to check.
 	 * @param int $board_id If set, checks permission for that specific board.
@@ -3996,37 +3997,47 @@ class User implements \ArrayAccess
 	 */
 	public static function membersAllowedTo(string $permission, ?int $board_id = null): array
 	{
-		$members = [];
-
 		$member_groups = self::groupsAllowedTo($permission, $board_id);
 
-		$all_groups = array_merge($member_groups['allowed'], $member_groups['denied']);
-
 		$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
-		$member_groups['allowed'] = array_diff($member_groups['allowed'], [3]);
+		$include_groups = array_diff($member_groups['allowed'], [3]);
 
 		$exclude_moderators = in_array(3, $member_groups['denied']) && $board_id !== null;
-		$member_groups['denied'] = array_diff($member_groups['denied'], [3]);
+		$exclude_groups = array_diff($member_groups['denied'], [3]);
 
 		$request = Db::$db->query(
 			'',
-			'SELECT mem.id_member
-			FROM {db_prefix}members AS mem' . ($include_moderators || $exclude_moderators ? '
-				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})' : '') . '
-			WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
-				AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
+			($include_moderators && !$exclude_moderators && $board_id !== null ? '
+			SELECT id_member
+			FROM {db_prefix}moderators' . ($board_id !== 0 ? '
+			WHERE id_board = {int:board_id}' : '') . '
+			UNION ALL
+			SELECT id_member
+			FROM {db_prefix}members AS mem
+				JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group = mem.id_group OR FIND_IN_SET(modgs.id_group, mem.additional_groups) != 0)' . ($board_id !== 0 ? '
+			WHERE id_board = {int:board_id}' : '') . '
+			UNION ALL' : '') . '
+			SELECT id_member
+			FROM {db_prefix}members
+			WHERE (id_group IN ({array_int:include_groups}) OR id_post_group IN ({array_int:include_groups}))' . ($exclude_groups == [] ? '' : '
+				AND NOT (id_group IN ({array_int:exclude_groups}) OR id_post_group IN ({array_int:exclude_groups}))') . '
+			UNION ALL
+			SELECT id_member
+			FROM {db_prefix}members
+			WHERE
+				additional_groups != \'\'
+				AND (FIND_IN_SET({raw:include_groups_implode}, additional_groups) != 0)' . ($exclude_groups == [] ? '' : '
+				AND NOT (FIND_IN_SET({raw:exclude_groups_implode}, additional_groups) != 0)'),
 			[
-				'member_groups_allowed' => $member_groups['allowed'],
-				'member_groups_denied' => $member_groups['denied'],
-				'all_member_groups' => $all_groups,
+				'include_groups' => $include_groups,
+				'exclude_groups' => $exclude_groups,
 				'board_id' => $board_id,
-				'member_group_allowed_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['allowed']),
-				'member_group_denied_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['denied']),
+				'include_groups_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $include_groups),
+				'exclude_groups_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $exclude_groups),
 			],
 		);
 
-		// We only want the member IDs, not id_member
-		$members = array_map(fn ($row) => $row['id_member'], Db::$db->fetch_all($request));
+		$members = array_unique(array_column(Db::$db->fetch_all($request), 'id_member'));
 		Db::$db->free_result($request);
 
 		return $members;
