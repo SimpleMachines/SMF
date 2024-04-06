@@ -55,6 +55,8 @@ class NewSettings extends MigrationBase
 		'mark_read_beyond' => 90,
 		'mark_read_delete_beyond' => 365,
 		'mark_read_max_users' => 500,
+		'enableThemes' => 1,
+		'theme_guests' => 1
 	];
 
 	/****************
