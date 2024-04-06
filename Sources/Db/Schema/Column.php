@@ -171,13 +171,14 @@ class Column
 	 * @see SMF\Db\DatabaseApi::change_column
 	 *
 	 * @param string $table_name Name of the table that contains this column.
+	 * @param ?string $old_name If passed, uses this as the old column name.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function alter(string $table_name): bool
+	public function alter(string $table_name, ?string $old_name = null): bool
 	{
 		return Db::$db->change_column(
 			$table_name,
-			$this->name,
+			$old_name ?? $this->name,
 			get_object_vars($this),
 		);
 	}
