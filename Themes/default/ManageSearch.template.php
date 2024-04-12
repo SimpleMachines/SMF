@@ -224,7 +224,7 @@ function template_select_search_method()
 					break;
 			}
 
-			echo Lang::getTxt($index_status, ['index' => Lang::$txt[$api['instance']->getLabel()] ?? Lang::getTxt('search_index_generic', ['index' => substr(strrchr(get_class($this), '\\'), 1)])]);
+			echo Lang::getTxt($index_status, ['index' => Lang::$txt[$api['instance']->getLabel()] ?? Lang::getTxt('search_index_generic', ['index' => substr(strrchr($api['instance']::class, '\\'), 1)])]);
 
 			foreach ($buttons as $sa => $label) {
 				echo ' <a href="' . Config::$scripturl . '?action=admin;area=managesearch;sa=' . $sa . '" class="button">' . Lang::$txt[$label] . '</a>';
