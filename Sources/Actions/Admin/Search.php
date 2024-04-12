@@ -107,6 +107,7 @@ class Search implements ActionInterface
 				$_POST['search_stopwords_custom'] = array_diff(
 					preg_split('/[\s,]+/u', $_POST['search_stopwords_custom']),
 					explode(',', Lang::$txt['search_stopwords'] ?? ''),
+					explode(',', Config::$modSettings['search_stopwords_parsed'] ?? ''),
 				);
 
 				sort($_POST['search_stopwords_custom']);
@@ -309,7 +310,10 @@ class Search implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$permanent_stopwords = array_unique(explode(',', Lang::$txt['search_stopwords'] ?? ''));
+		$permanent_stopwords = array_unique(array_merge(
+			explode(',', Lang::$txt['search_stopwords'] ?? ''),
+			explode(',', Config::$modSettings['search_stopwords_parsed'] ?? ''),
+		));
 
 		sort($permanent_stopwords);
 

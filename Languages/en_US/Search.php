@@ -5,6 +5,9 @@
 // Comma-separated list of words that should be ignored when searching in this language. Translators should NOT just translate the words in this list. Instead, replace them with common words that should be ignored when searching in the target language.
 $txt['search_stopwords'] = 'a,about,an,are,as,at,be,by,for,from,how,in,is,it,of,on,or,that,the,this,to,was,what,when,where,who,will,with';
 
+// Set to 0 if this language uses accented characters like "é", "ñ", "ç", etc.; set to 1 if it does not.
+$txt['search_ignore_accents_by_default'] = '1';
+
 $txt['search_stopwords_custom'] = 'Words to ignore when searching';
 $txt['search_stopwords_permanent'] = 'The following words are always ignored:<br>{list}';
 
@@ -17,6 +20,7 @@ $txt['by_user'] = 'By user';
 $txt['search_post_age'] = 'Message age';
 $txt['search_age_range'] = 'between {min} and {max} days';
 $txt['search_options'] = 'Options';
+$txt['search_ignore_accents'] = 'Ignore accents, etc.';
 $txt['search_show_complete_messages'] = 'Show results as messages';
 $txt['search_subject_only'] = 'Search in topic subjects only';
 $txt['search_relevance'] = 'Relevance';
@@ -67,7 +71,11 @@ $txt['search_index'] = 'Search index';
 $txt['search_index_none'] = 'No index';
 $txt['search_index_generic'] = '{index} index';
 $txt['search_index_fulltext'] = 'Fulltext index';
+$txt['search_index_fulltext_desc'] = 'A basic index provided by the database engine.';
 $txt['search_index_custom'] = 'Custom index';
+$txt['search_index_custom_desc'] = 'A custom index used in earlier versions of SMF.<br>Upgrading to a parsed index is recommended.';
+$txt['search_index_parsed'] = 'Parsed index';
+$txt['search_index_parsed_desc'] = 'An optimized index tailored specifically for SMF.';
 $txt['search_index_sphinx'] = 'Sphinx index';
 $txt['search_index_sphinx_desc'] = 'The admin panel only allows to switch between search indexes. To adjust further Sphinx settings, use the sphinx_config.php tool.';
 $txt['search_index_label'] = 'Index';

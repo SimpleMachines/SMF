@@ -28,7 +28,8 @@ use SMF\Utils;
 
 /**
  * Used for the "custom search index" option
- * Class Custom
+ *
+ * @deprecated 3.0
  */
 class Custom extends SearchApi implements SearchApiInterface
 {
@@ -118,7 +119,7 @@ class Custom extends SearchApi implements SearchApiInterface
 			return 'partial';
 		}
 
-		return 'none';
+		return !empty(Config::$db_show_debug) ? 'none' : 'hidden';
 	}
 
 	/**
