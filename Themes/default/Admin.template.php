@@ -926,6 +926,13 @@ function template_show_settings()
 										</select>';
 				}
 
+				// Show a color box
+				elseif ($config_var['type'] == 'color')
+				{
+					echo '
+										<input name="', $config_var['name'], '" id="', $config_var['name'], '" data-coloris value="', $config_var['value'], '">';
+				}
+
 				// List of boards? This requires getBoardList() having been run and the results in Utils::$context['board_list'].
 				elseif ($config_var['type'] == 'boards')
 				{
