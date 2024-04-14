@@ -524,10 +524,14 @@
 /* Entry level phones */
 @media (max-width: 480px) {
 	#header .inner_wrap {
+		flex-direction: column;
 		flex-wrap: wrap;
 	}
 	h1.forumtitle {
 		margin-inline: auto;
+	}
+	.user_panel {
+		justify-content: center;
 	}
 	.board_moderators {
 		display: none;
