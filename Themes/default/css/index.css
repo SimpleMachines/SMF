@@ -319,6 +319,7 @@ em, .em {
 h1, h2, h3, h4, h5, h6 {
 	color: var(--heading-color);
 	font-size: var(--heading-font-size);
+	margin: 0;
 }
 .moderationbuttons_mobile_check {
 	display: none;
@@ -966,16 +967,18 @@ img.sort, .sort {
 
 /* Styles for the top menu */
 .user_panel {
-	display: inline-flex;
+	align-content: space-between;
+	display: inline-grid;
 	flex: 1;
 	justify-content: flex-end;
-	gap: 0.25em;
+	gap: 0.5em;
 }
 #top_info {
 	align-items: center;
 	display: grid;
 	gap: 0.25em;
 	grid-auto-flow: column;
+	justify-content: flex-end;
 	position: relative;
 }
 #top_info > li > a span.text-label {
@@ -1903,8 +1906,11 @@ strong[id^='child_list_']::after {
 }
 /* The main title. */
 h1.forumtitle {
+	align-items: center;
 	color: var(--forumtitle-color);
-	display: inline-flex;
+	display: inline-grid;
+	flex: 1;
+	gap: .2em;
 	font-family: var(--forumtitle-font-family);
 	font-size: var(--forumtitle-font-size);
 	font-weight: var(--forumtitle-font-weight);
@@ -1918,6 +1924,9 @@ h1.forumtitle a:focus {
 	color: var(--forumtitle-color_focus);
 	text-decoration: var(--forumtitle-text-decoration_focus);
 	text-shadow: var(--forumtitle-text-shadow_focus);
+}
+h1.forumtitle span#siteslogan {
+	font-size: .4em;
 }
 
 /* Even guests need to be aligned */
@@ -1970,6 +1979,8 @@ ul li.greeting {
 	grid-template-columns: auto 1fr;
 	height: var(--newsfader-height);
 	margin-block: .5em 1em;
+	max-height: calc(var(--newsfader-height) * 1.25);
+	overflow: hidden;
 }
 .news_section .icon {
 	align-items: center;
@@ -1988,9 +1999,14 @@ ul li.greeting {
 	display: grid;
 	gap: 0.5em;
 	margin: 0;
+	overflow: hidden;
 	padding: .8em;
 }
+.news_section .sy-pager {
+	overflow: auto;
+}
 .news_section .sy-slides-wrap {
+	max-height: calc(var(--newsfader-height) * 1.25);
 	overflow: auto;
 }
 .news_section .sy-pager {
@@ -2025,6 +2041,20 @@ ul li.greeting {
 }
 #smf_slider li.sy-active {
 	z-index: 0;
+}
+.random_news {
+	display: grid;
+	gap: .25em;
+	padding-inline: .75em;
+	text-align: start;
+}
+.random_news h2 {
+	font-size: .9em;
+}
+.random_news p {
+	font-size: .75em;
+	margin: 0;
+	padding: 0;
 }
 
 /* The navigation list (i.e. linktree) */

@@ -350,7 +350,7 @@
 	--newsfader-box-shadow:                           0 2px 2px rgba(0, 0, 0, 0.1);
 	--newsfader-color:                                inherit;
 	--newsfader-font-size:                            0.9em;
-	--newsfader-height:                               5em;
+	--newsfader-height:                               6em;
 	/** News Fader Icon **/
 	--newsfader-icon-bg:                              hsl(var(--primary-color-hue), 100%, 91%);
 	--newsfader-icon-color:                           var(--primary-color-800);

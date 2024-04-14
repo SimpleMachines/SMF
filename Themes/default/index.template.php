@@ -243,6 +243,7 @@ function template_body_above()
 				<a id="top" href="', Config::$scripturl, '">
 					', empty(Utils::$context['header_logo_url_html_safe']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '
 				</a>
+				', empty(Theme::$current->settings['site_slogan']) ? '' : '<span id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</span>', '
 			</h1>';
 
     //User Panel
@@ -324,28 +325,30 @@ function template_body_above()
 		// Some people like to do things the old-fashioned way.
 		if (!empty(Theme::$current->settings['login_main_menu'])) {
 			echo '
-				<li class="welcome">', Lang::getTxt(
-					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
-					[
-						'forum_name' => Utils::$context['forum_name_html_safe'],
-						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
-						'register_url' => Config::$scripturl . '?action=signup',
-					],
-				), '</li>';
+					<li class="welcome">
+						', Lang::getTxt(
+							Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+							[
+								'forum_name' => Utils::$context['forum_name_html_safe'],
+								'login_url' => Config::$scripturl . '?action=login',
+								'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+								'register_url' => Config::$scripturl . '?action=signup',
+							],
+						), '
+					</li>';
 		}
 		else
 		{
 			echo '
-				<li class="welcome">
+					<li class="welcome">
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
-				</li>
-				<li class="button_login">
-					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
-						<span class="main_icons login"></span>
-						<span class="textmenu">', Lang::$txt['login'], '</span>
-					</a>
-				</li>';
+					</li>
+					<li class="button_login">
+						<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
+							<span class="main_icons login"></span>
+							<span class="textmenu">', Lang::$txt['login'], '</span>
+						</a>
+					</li>';
 
 			if (Utils::$context['can_register'])
 				echo '
@@ -360,17 +363,29 @@ function template_body_above()
 	else
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
-				<li>', Lang::getTxt(
-					'welcome_guest',
-					[
-						'forum_name' => Utils::$context['forum_name_html_safe'],
-						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return true;',
-					],
-				), '</li>';
+					<li>
+						', Lang::getTxt(
+							'welcome_guest',
+							[
+								'forum_name' => Utils::$context['forum_name_html_safe'],
+								'login_url' => Config::$scripturl . '?action=login',
+								'onclick' => 'return true;',
+							],
+						), '
+					</li>';
 
 	echo '
-				</ul>
+				</ul>';
+
+	// Show a random news item? (or you could pick one from news_lines...)
+	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
+		echo '
+				<div class="random_news">
+					<h2>', Lang::$txt['news'], ': </h2>
+					<p>', Utils::$context['random_news_line'], '</p>
+				</div>';
+
+		echo '
 			</div>
 		</div>
 	</header>';
