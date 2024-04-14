@@ -3544,16 +3544,18 @@ span.postby {
 	border-style: var(--infoblock-border-style);
 	border-width: var(--infoblock-border-width);
 	box-shadow: var(--infoblock-box-shadow);
-	display: flex;
+	display: grid;
+	grid-template-columns: auto 1fr;
 }
 .info_block_icon {
+	align-items: flex-start;
 	background: var(--infoblock-icon-bg);
 	color: var(--infoblock-icon-color);
 	display: flex;
 	flex: 0;
 	font-size: var(--infoblock-icon-font-size);
 	justify-content: center;
-	min-width: var(--infoblock-icon-width);
+	width: var(--infoblock-icon-width);
 	padding-block: .5em 1.25em;
 }
 .info_block_information {
