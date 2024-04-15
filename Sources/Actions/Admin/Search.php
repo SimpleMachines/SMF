@@ -35,12 +35,6 @@ class Search implements ActionInterface
 {
 	use BackwardCompatibility;
 
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -116,6 +110,18 @@ class Search implements ActionInterface
 
 			if (empty($_POST['search_results_per_page'])) {
 				$_POST['search_results_per_page'] = !empty(Config::$modSettings['search_results_per_page']) ? Config::$modSettings['search_results_per_page'] : Config::$modSettings['defaultMaxMessages'];
+			}
+
+			if (isset($_POST['search_stopwords_custom'])) {
+				$_POST['search_stopwords_custom'] = array_diff(
+					Utils::text2words($_POST['search_stopwords_custom'], PHP_INT_MAX),
+					Utils::text2words(Lang::$txt['search_stopwords'] ?? '', PHP_INT_MAX),
+					Utils::text2words(Config::$modSettings['search_stopwords'] ?? '', PHP_INT_MAX),
+				);
+
+				sort($_POST['search_stopwords_custom']);
+
+				$_POST['search_stopwords_custom'] = implode(',', array_map([Utils::class, 'htmlspecialchars'], $_POST['search_stopwords_custom']));
 			}
 
 			ACP::saveDBSettings($config_vars);
@@ -209,7 +215,7 @@ class Search implements ActionInterface
 			SecurityToken::validate('admin-msmpost');
 
 			Config::updateModSettings([
-				'search_index' => empty($_POST['search_index']) || (!in_array($_POST['search_index'], ['fulltext', 'custom']) && !isset(Utils::$context['search_apis'][$_POST['search_index']])) ? '' : $_POST['search_index'],
+				'search_index' => empty($_POST['search_index']) || (!isset(Utils::$context['search_apis'][$_POST['search_index']])) ? '' : $_POST['search_index'],
 				'search_force_index' => isset($_POST['search_force_index']) ? '1' : '0',
 				'search_match_words' => isset($_POST['search_match_words']) ? '1' : '0',
 			]);
@@ -220,12 +226,28 @@ class Search implements ActionInterface
 		Utils::$context['table_info'] = [
 			'data_length' => 0,
 			'index_length' => 0,
-			'fulltext_length' => 0,
-			'custom_index_length' => 0,
 		];
 
 		// Get some info about the messages table, to show its size and index size.
-		if (Config::$db_type == 'mysql') {
+		if (Db::$db->title === POSTGRE_TITLE) {
+			$request = Db::$db->query(
+				'',
+				'SELECT
+					pg_table_size({string:tablename}) AS table_size,
+					pg_indexes_size({string:tablename}) AS index_size',
+				[
+					'tablename' => Db::$db->prefix . 'messages',
+				],
+			);
+
+			if ($request !== false && Db::$db->num_rows($request) > 0) {
+				$row = Db::$db->fetch_assoc($request);
+				Utils::$context['table_info']['data_length'] = (int) $row['table_size'];
+				Utils::$context['table_info']['index_length'] = (int) $row['index_size'];
+			}
+
+			Db::$db->free_result($request);
+		} else {
 			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
 					'',
@@ -248,105 +270,24 @@ class Search implements ActionInterface
 				);
 			}
 
-			if ($request !== false && Db::$db->num_rows($request) == 1) {
-				// Only do this if the user has permission to execute this query.
+			if ($request !== false && Db::$db->num_rows($request) > 0) {
 				$row = Db::$db->fetch_assoc($request);
 				Utils::$context['table_info']['data_length'] = $row['Data_length'];
 				Utils::$context['table_info']['index_length'] = $row['Index_length'];
-				Utils::$context['table_info']['fulltext_length'] = $row['Index_length'];
-				Db::$db->free_result($request);
 			}
 
-			// Now check the custom index table, if it exists at all.
-			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
-				$request = Db::$db->query(
-					'',
-					'SHOW TABLE STATUS
-					FROM {string:database_name}
-					LIKE {string:table_name}',
-					[
-						'database_name' => '`' . strtr($match[1], ['`' => '']) . '`',
-						'table_name' => str_replace('_', '\\_', $match[2]) . 'log_search_words',
-					],
-				);
-			} else {
-				$request = Db::$db->query(
-					'',
-					'SHOW TABLE STATUS
-					LIKE {string:table_name}',
-					[
-						'table_name' => str_replace('_', '\\_', Db::$db->prefix) . 'log_search_words',
-					],
-				);
-			}
+			Db::$db->free_result($request);
+		}
 
-			if ($request !== false && Db::$db->num_rows($request) == 1) {
-				// Only do this if the user has permission to execute this query.
-				$row = Db::$db->fetch_assoc($request);
-				Utils::$context['table_info']['index_length'] += $row['Data_length'] + $row['Index_length'];
-				Utils::$context['table_info']['custom_index_length'] = $row['Data_length'] + $row['Index_length'];
-				Db::$db->free_result($request);
-			}
-		} elseif (Config::$db_type == 'postgresql') {
-			// In order to report the sizes correctly we need to perform vacuum (optimize) on the tables we will be using.
-			// $temp_tables = Db::$db->list_tables();
-			// foreach ($temp_tables as $table)
-			//	if ($table == Db::$db->prefix. 'messages' || $table == Db::$db->prefix. 'log_search_words')
-			//		Db::$db->optimize_table($table);
+		// Step through our APIs and get the size and status of each one's index.
+		$existing_indexes = 0;
 
-			// PostGreSql has some hidden sizes.
-			$request = Db::$db->query(
-				'',
-				'SELECT
-					indexname,
-					pg_relation_size(quote_ident(t.tablename)::text) AS table_size,
-					pg_relation_size(quote_ident(indexrelname)::text) AS index_size
-				FROM pg_tables t
-					LEFT OUTER JOIN pg_class c ON t.tablename=c.relname
-					LEFT OUTER JOIN
-						(SELECT c.relname AS ctablename, ipg.relname AS indexname, indexrelname FROM pg_index x
-							JOIN pg_class c ON c.oid = x.indrelid
-							JOIN pg_class ipg ON ipg.oid = x.indexrelid
-							JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid)
-						AS foo
-						ON t.tablename = foo.ctablename
-				WHERE t.schemaname= {string:schema} and (
-					indexname = {string:messages_ftx} OR indexname = {string:log_search_words} )',
-				[
-					'messages_ftx' => Db::$db->prefix . 'messages_ftx',
-					'log_search_words' => Db::$db->prefix . 'log_search_words',
-					'schema' => 'public',
-				],
-			);
+		foreach (Utils::$context['search_apis'] as $api) {
+			Utils::$context['table_info'][$api['setting_index'] . ($api['setting_index'] === 'custom' ? '_index' : '') . '_length'] = $api['instance']->getSize();
 
-			if ($request !== false && Db::$db->num_rows($request) > 0) {
-				while ($row = Db::$db->fetch_assoc($request)) {
-					if ($row['indexname'] == Db::$db->prefix . 'messages_ftx') {
-						Utils::$context['table_info']['data_length'] = (int) $row['table_size'];
-						Utils::$context['table_info']['index_length'] = (int) $row['index_size'];
-						Utils::$context['table_info']['fulltext_length'] = (int) $row['index_size'];
-					} elseif ($row['indexname'] == Db::$db->prefix . 'log_search_words') {
-						Utils::$context['table_info']['index_length'] = (int) $row['index_size'];
-						Utils::$context['table_info']['custom_index_length'] = (int) $row['index_size'];
-					}
-				}
-				Db::$db->free_result($request);
-			} else {
-				// Didn't work for some reason...
-				Utils::$context['table_info'] = [
-					'data_length' => Lang::$txt['not_applicable'],
-					'index_length' => Lang::$txt['not_applicable'],
-					'fulltext_length' => Lang::$txt['not_applicable'],
-					'custom_index_length' => Lang::$txt['not_applicable'],
-				];
+			if ($api['instance']->getStatus() === 'exists') {
+				++$existing_indexes;
 			}
-		} else {
-			Utils::$context['table_info'] = [
-				'data_length' => Lang::$txt['not_applicable'],
-				'index_length' => Lang::$txt['not_applicable'],
-				'fulltext_length' => Lang::$txt['not_applicable'],
-				'custom_index_length' => Lang::$txt['not_applicable'],
-			];
 		}
 
 		// Format the data and index length in kilobytes.
@@ -356,12 +297,12 @@ class Search implements ActionInterface
 				break;
 			}
 
-			Utils::$context['table_info'][$type] = Lang::numberFormat(Utils::$context['table_info'][$type] / 1024) . ' ' . Lang::$txt['search_method_kilobytes'];
+			Utils::$context['table_info'][$type] = Lang::getTxt('size_kilobyte', [Utils::$context['table_info'][$type] / 1024]);
 		}
 
 		Utils::$context['custom_index'] = !empty(Config::$modSettings['search_custom_index_config']);
 		Utils::$context['partial_custom_index'] = !empty(Config::$modSettings['search_custom_index_resume']) && empty(Config::$modSettings['search_custom_index_config']);
-		Utils::$context['double_index'] = !empty(Utils::$context['fulltext_index']) && Utils::$context['custom_index'];
+		Utils::$context['double_index'] = $existing_indexes > 1;
 
 		SecurityToken::create('admin-msmpost');
 		SecurityToken::create('admin-msm', 'get');
@@ -400,6 +341,13 @@ class Search implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
+		$permanent_stopwords = array_unique(array_merge(
+			Utils::text2words(Lang::$txt['search_stopwords'] ?? '', PHP_INT_MAX),
+			Utils::text2words(Config::$modSettings['search_stopwords'] ?? '', PHP_INT_MAX),
+		));
+
+		sort($permanent_stopwords);
+
 		// What are we editing anyway?
 		$config_vars = [
 			// Permission...
@@ -411,8 +359,13 @@ class Search implements ActionInterface
 
 			// Some limitations.
 			['int', 'search_floodcontrol_time', 'subtext' => Lang::$txt['search_floodcontrol_time_desc'], 6, 'postinput' => Lang::$txt['seconds']],
+			'',
+
+			// Allow the admin to set stopwords.
+			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => implode(', ', $permanent_stopwords)]) . '</span>'],
 		];
 
+		// Do any mods want access?
 		IntegrationHook::call('integrate_modify_search_settings', [&$config_vars]);
 
 		// Perhaps the search method wants to add some settings?
@@ -421,6 +374,9 @@ class Search implements ActionInterface
 		if (is_callable([$searchAPI, 'searchSettings'])) {
 			call_user_func_array([$searchAPI, 'searchSettings'], [&$config_vars]);
 		}
+
+		// Let the admin set custom stopwords.
+		Config::$modSettings['search_stopwords_custom'] = implode("\n", explode(',', Config::$modSettings['search_stopwords_custom'] ?? ''));
 
 		return $config_vars;
 	}
@@ -465,7 +421,9 @@ class Search implements ActionInterface
 				$class_vars = get_class_vars($api['class']);
 
 				if (isset($class_vars['admin_subactions'])) {
-					self::$subactions = array_merge(self::$subactions, $class_vars['admin_subactions']);
+					foreach ($class_vars['admin_subactions'] as $type => $subaction) {
+						self::$subactions[$subaction['sa']] = $subaction['func'];
+					}
 				}
 			}
 		}

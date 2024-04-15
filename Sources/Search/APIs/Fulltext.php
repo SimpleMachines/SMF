@@ -39,18 +39,19 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
 	 */
 	public static array $admin_subactions = [
-		'createfulltext' => __CLASS__ . '::build',
-		'removefulltext' => __CLASS__ . '::remove',
+		'build' => [
+			'sa' => 'createfulltext',
+			'func' => __CLASS__ . '::build',
+		],
+		'remove' => [
+			'sa' => 'removefulltext',
+			'func' => __CLASS__ . '::remove',
+		],
 	];
 
 	/*********************
 	 * Internal properties
 	 *********************/
-
-	/**
-	 * @var array Which words are banned
-	 */
-	protected $bannedWords = [];
 
 	/**
 	 * @var int The minimum word length
@@ -61,6 +62,13 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 * @var array Which databases support this method?
 	 */
 	protected $supported_databases = ['mysql', 'postgresql'];
+
+	/**
+	 * @var int
+	 *
+	 * Size of the index, in bytes.
+	 */
+	private int $size;
 
 	/****************
 	 * Public methods
@@ -78,7 +86,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 			return;
 		}
 
-		$this->bannedWords = empty(Config::$modSettings['search_banned_words']) ? [] : explode(',', Config::$modSettings['search_banned_words']);
 		$this->min_word_length = $this->_getMinWordLength();
 
 		parent::__construct();
@@ -110,6 +117,86 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		}
 
 		return $return;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSize(): int
+	{
+		if (
+			!isset($this->size)
+			&& isset(Utils::$context['table_info']['index_length'])
+			&& is_int(Utils::$context['table_info']['index_length'])
+		) {
+			$this->size = Utils::$context['table_info']['index_length'];
+		}
+
+		if (isset($this->size)) {
+			return $this->size;
+		}
+
+		// In theory, the rest of this will never be called, but just in case...
+		$this->size = 0;
+
+		if (Db::$db->title === POSTGRE_TITLE) {
+			$request = Db::$db->query(
+				'',
+				'SELECT
+					pg_indexes_size({string:tablename}) AS index_size',
+				[
+					'tablename' => Db::$db->prefix . 'messages',
+				],
+			);
+
+			if ($request !== false && Db::$db->num_rows($request) > 0) {
+				$row = Db::$db->fetch_assoc($request);
+				$this->size = (int) $row['index_size'];
+			}
+		} else {
+			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
+				$request = Db::$db->query(
+					'',
+					'SHOW TABLE STATUS
+					FROM {string:database_name}
+					LIKE {string:table_name}',
+					[
+						'database_name' => '`' . strtr($match[1], ['`' => '']) . '`',
+						'table_name' => str_replace('_', '\\_', $match[2]) . 'messages',
+					],
+				);
+			} else {
+				$request = Db::$db->query(
+					'',
+					'SHOW TABLE STATUS
+					LIKE {string:table_name}',
+					[
+						'table_name' => str_replace('_', '\\_', Db::$db->prefix) . 'messages',
+					],
+				);
+			}
+
+			if ($request !== false && Db::$db->num_rows($request) > 0) {
+				$row = Db::$db->fetch_assoc($request);
+				$this->size = (int) $row['Index_length'];
+			}
+		}
+
+		Db::$db->free_result($request);
+
+		return $this->size;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getStatus(): ?string
+	{
+		if (!isset(Utils::$context['fulltext_index'])) {
+			self::detectIndex();
+		}
+
+		return !empty(Utils::$context['fulltext_index']) ? 'exists' : 'none';
 	}
 
 	/**
@@ -299,6 +386,49 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		return $ignoreRequest;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdminSubactions(): array
+	{
+		$subactions = [
+			'build' => [
+				'func' => __CLASS__ . '::build',
+				'sa' => 'createfulltext',
+				'extra_params' => [
+					Utils::$context['session_var'] => Utils::$context['session_id'],
+					Utils::$context['admin-msm_token_var'] => Utils::$context['admin-msm_token'],
+				],
+			],
+			'remove' => [
+				'func' => __CLASS__ . '::remove',
+				'sa' => 'removefulltext',
+				'extra_params' => [
+					Utils::$context['session_var'] => Utils::$context['session_id'],
+					Utils::$context['admin-msm_token_var'] => Utils::$context['admin-msm_token'],
+				],
+			],
+		];
+
+		if ($this->getStatus() === 'none' && !empty(Utils::$context['cannot_create_fulltext'])) {
+			unset($subactions['build']);
+		}
+
+		return $subactions;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDescription(): string
+	{
+		if ($this->getStatus() === 'none' && !empty(Utils::$context['cannot_create_fulltext'])) {
+			return 'search_method_fulltext_cannot_create';
+		}
+
+		return parent::getDescription();
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -479,7 +609,11 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 			if ($request !== false) {
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare(Db::$db->get_version(), '5.6.4', '>='))) {
+					if (
+						isset($row['Engine'])
+						&& strtolower($row['Engine']) != 'myisam'
+						&& !(strtolower($row['Engine']) == 'innodb' && version_compare(Db::$db->get_version(), '5.6.4', '>='))
+					) {
 						Utils::$context['cannot_create_fulltext'] = true;
 					}
 				}

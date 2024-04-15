@@ -41,6 +41,21 @@ interface SearchApiInterface
 	public function isValid(): bool;
 
 	/**
+	 * Gets the size, in bytes, of this API's search index.
+	 *
+	 * @return int Size of the index.
+	 */
+	public function getSize(): int;
+
+	/**
+	 * Gets whether the index for this API exists.
+	 *
+	 * @return string Either 'exists', 'partial', 'none', or null for APIs that
+	 *    don't use an index.
+	 */
+	public function getStatus(): ?string;
+
+	/**
 	 * Callback function for usort used to sort the fulltext results.
 	 * the order of sorting is: large words, small words, large words that
 	 * are excluded from the search, small words that are excluded.
@@ -168,6 +183,36 @@ interface SearchApiInterface
 	 * @return string URL-safe variant of a Base64 string.
 	 */
 	public function compressParams(): string;
+
+	/**
+	 * Gets info about sub-actions to support in the admin panel for this API.
+	 *
+	 * Keys of the returned array are action types (e.g. build, resume, remove).
+	 *
+	 * Values are sub-arrays with 'func', 'sa', and 'extra_params' elements:
+	 *
+	 *  - The 'func' element is the callable to execute for the sub-action.
+	 *  - The 'sa' element is the value to use for the 'sa' URL parameter.
+	 *  - The 'extra_params' element contains extra URL parameters to add to the
+	 *    URL for the sub-action.
+	 *
+	 * @return array Info about sub-actions.
+	 */
+	public function getAdminSubactions(): array;
+
+	/**
+	 * Returns the expected Lang::$txt key for this API's localized label.
+	 *
+	 * @return string Localized label for this API.
+	 */
+	public function getLabel(): string;
+
+	/**
+	 * Returns the expected Lang::$txt key for this API's localized description.
+	 *
+	 * @return string Localized description for this API.
+	 */
+	public function getDescription(): string;
 }
 
 ?>

@@ -17,6 +17,7 @@ namespace SMF\Search;
 
 use SMF\Actions\Search;
 use SMF\BackwardCompatibility;
+use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -77,6 +78,15 @@ abstract class SearchApi implements SearchApiInterface
 	public bool $is_supported = true;
 
 	/**
+	 * @var string
+	 *
+	 * The status of this API's index.
+	 *
+	 * Either 'exists', 'partial', or 'none'.
+	 */
+	public string $status;
+
+	/**
 	 * @var float
 	 *
 	 * Used to calculate relevance.
@@ -112,26 +122,15 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * @var array
 	 *
-	 * Unfortunately, searching for words like these would be slow, so we're
-	 * blacklisting them.
+	 * Words to ignore when searching.
 	 *
-	 * @todo Make this aware of languages.
-	 * @todo Should blacklist all BBC.
-	 * @todo Setting to add custom values?
-	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
+	 * Populated with the contents of:
+	 *  - Lang::$txt['search_stopwords']
+	 *  - Config::$modSettings['search_stopwords']
+	 *  - Config::$modSettings['search_stopwords_custom']
+	 *  - All known BBCode tags
 	 */
-	public array $blacklisted_words = [
-		'img',
-		'url',
-		'quote',
-		'www',
-		'http',
-		'the',
-		'is',
-		'it',
-		'are',
-		'if',
-	];
+	public array $blacklisted_words = [];
 
 	/**
 	 * @var array
@@ -306,16 +305,6 @@ abstract class SearchApi implements SearchApiInterface
 		],
 	];
 
-	/**
-	 * @var array
-	 *
-	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
-	 *
-	 * Classes that extend this class should add their sub-actions to their own
-	 * copies of this array.
-	 */
-	public static array $admin_subactions = [];
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -431,6 +420,22 @@ abstract class SearchApi implements SearchApiInterface
 	public function isValid(): bool
 	{
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSize(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getStatus(): ?string
+	{
+		return null;
 	}
 
 	/**
@@ -751,9 +756,6 @@ abstract class SearchApi implements SearchApiInterface
 	 * This exists only for the sake of backward compatibility; mods extending
 	 * this class can already access the included data directly.
 	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
-	 *
 	 * @return array Data about this search query.
 	 */
 	public function getQueryParams(): array
@@ -763,6 +765,30 @@ abstract class SearchApi implements SearchApiInterface
 			'max_msg_id' => $this->maxMsgID,
 			'memberlist' => $this->memberlist,
 		]);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdminSubactions(): array
+	{
+		return [];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getLabel(): string
+	{
+		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDescription(): string
+	{
+		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1)) . '_desc';
 	}
 
 	/***********************
@@ -848,9 +874,10 @@ abstract class SearchApi implements SearchApiInterface
 				'filename' => 'Search/APIs/' . $file_info->getBasename(),
 				'class' => $fully_qualified_class_name,
 				'setting_index' => $index_name,
-				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
-				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
+				'has_template' => $index_name === 'standard',
+				'label' => $search_api->getLabel(),
+				'desc' => $search_api->getDescription(),
+				'instance' => $search_api,
 			];
 		}
 
@@ -906,13 +933,25 @@ abstract class SearchApi implements SearchApiInterface
 				'filename' => $file_info->getFilename(),
 				'class' => $class_name,
 				'setting_index' => $index_name,
-				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
-				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
+				'has_template' => $index_name === 'standard',
+				'label' => $search_api->getLabel(),
+				'desc' => $search_api->getDescription(),
+				'instance' => $search_api,
 			];
 		}
 
 		IntegrationHook::call('integrate_load_search_apis', [&$loadedApis]);
+
+		// Always list standard and fulltext first.
+		uksort(
+			$loadedApis,
+			function ($a, $b) {
+				$a = strtr($a, ['standard' => '0', 'fulltext' => 1]);
+				$b = strtr($b, ['standard' => '0', 'fulltext' => 1]);
+
+				return $a <=> $b;
+			},
+		);
 
 		return $loadedApis;
 	}
@@ -923,9 +962,6 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Calculates the weight values to use when organizing results by relevance.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function calculateWeight(): void
 	{
@@ -944,20 +980,36 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Allows changing $this->blacklisted_words.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setBlacklistedWords(): void
 	{
+		// Blacklist any stopwords for the current language.
+		if (isset(Lang::$txt['search_stopwords'])) {
+			$this->blacklisted_words = array_unique(array_merge(
+				$this->blacklisted_words,
+				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
+			));
+		}
+
+		// Blacklist any stopwords that we found automatically.
+		if (isset(Config::$modSettings['search_stopwords'])) {
+			$this->blacklisted_words = array_unique(array_merge(
+				$this->blacklisted_words,
+				array_map('trim', explode(',', Config::$modSettings['search_stopwords'])),
+			));
+		}
+
+		// Blacklist the BBC tags.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			array_map(fn ($code) => $code['tag'], BBCodeParser::getCodes()),
+		));
+
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
 	}
 
 	/**
 	 * Figures out the values for $this->params and related properties.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setParams(): void
 	{
@@ -1063,9 +1115,6 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Populates $this->searchArray, $this->excludedWords, etc.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setSearchTerms(): void
 	{
