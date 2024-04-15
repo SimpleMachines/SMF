@@ -118,7 +118,10 @@ function template_generic_menu(&$menu_context, $menu_label)
 
 					echo '
 									<li>
-										<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], !empty($sub['amt']) ? ' <span class="amt">' . $sub['amt'] . '</span>' : '', '</a>
+										<a', !empty($sub['selected']) ? ' class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">
+											', $sub['label'], '
+											', !empty($sub['amt']) ? ' <span class="amt">' . $sub['amt'] . '</span>' : '', '
+										</a>
 									</li>';
 				}
 
@@ -265,15 +268,9 @@ function template_generic_menu_tabs(&$menu_context)
 			if (!empty($tab['disabled']))
 				continue;
 
-			if (!empty($tab['is_selected']))
 				echo '
 									<li>
-										<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-									</li>';
-			else
-				echo '
-									<li>
-										<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+										<a', !empty($tab['is_selected']) ? ' class="active"' : '', ' href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
 									</li>';
 		}
 
