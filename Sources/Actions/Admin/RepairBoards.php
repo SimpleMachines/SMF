@@ -2085,9 +2085,9 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to fix missing log_search_subjects entries for a topic.
 	 *
-	 * @param array $result Search result id
+	 * @param mysqli_result $result Search result
 	 */
-	protected function fixMissingCachedSubject(array $result): void
+	protected function fixMissingCachedSubject(\mysqli_result $result): void
 	{
 		$inserts = [];
 
