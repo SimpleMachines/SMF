@@ -17,6 +17,7 @@ namespace SMF\Actions;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -76,7 +77,7 @@ class ViewQuery implements ActionInterface
 
 		IntegrationHook::call('integrate_egg_nog');
 
-		$query_id = isset($_REQUEST['qq']) ? (int) $_REQUEST['qq'] - 1 : -1;
+		$query_id = (int) ($_REQUEST['qq'] ?? 0);
 
 		echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -103,56 +104,42 @@ class ViewQuery implements ActionInterface
 
 		foreach ($_SESSION['debug'] as $q => $query_data) {
 			// Fix the indentation....
-			$query_data['q'] = ltrim(str_replace("\r", '', $query_data['q']), "\n");
-			$query = explode("\n", $query_data['q']);
-			$min_indent = 0;
-
-			foreach ($query as $line) {
-				preg_match('/^(\t*)/', $line, $temp);
-
-				if (strlen($temp[0]) < $min_indent || $min_indent == 0) {
-					$min_indent = strlen($temp[0]);
-				}
-			}
-
-			foreach ($query as $l => $dummy) {
-				$query[$l] = substr($dummy, $min_indent);
-			}
-
-			$query_data['q'] = implode("\n", $query);
+			$query_data['q'] = DebugUtils::trimIndent($query_data['q']);
 
 			// Make the filenames look a bit better.
 			if (isset($query_data['f'])) {
-				$query_data['f'] = preg_replace('~^' . preg_quote(Config::$boarddir, '~') . '~', '...', $query_data['f']);
+				$query_data['f'] = preg_replace('/^' . preg_quote(Config::$boarddir, '/') . '/', '...', strtr($query_data['f'], '\\', '/'));
 			}
 
-			$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT' || substr(trim($query_data['q']), 0, 4) == 'WITH';
+			$is_select_query = preg_match('/^\s*(?:SELECT|WITH)/i', $query_data['q']) != 0;
 
 			if ($is_select_query) {
 				$select = $query_data['q'];
-			} elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {
+			} elseif (preg_match('/^\s*(?:INSERT(?: IGNORE)? INTO \w+|CREATE TEMPORARY TABLE .+?)\KSELECT .+$/is', trim($query_data['q']), $matches) != 0) {
 				$is_select_query = true;
-				$select = $matches[1];
-			} elseif (preg_match('~^CREATE TEMPORARY TABLE .+?(SELECT .+)$~s', trim($query_data['q']), $matches) != 0) {
-				$is_select_query = true;
-				$select = $matches[1];
+				$select = $matches[0];
 			}
 
 			// Temporary tables created in earlier queries are not explainable.
-			if ($is_select_query) {
-				foreach (['log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages'] as $tmp) {
-					if (strpos($select, $tmp) !== false) {
-						$is_select_query = false;
-						break;
-					}
-				}
+			if ($is_select_query && preg_match('/log_topics_unread|topics_posted_in|tmp_log_search_(?:topics|messages)/i', $select) != 0) {
+				$is_select_query = false;
 			}
 
 			echo '
-		<div id="qq', $q, '" style="margin-bottom: 2ex;">
-			<a', $is_select_query ? ' href="' . Config::$scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '"' : '', ' style="font-weight: bold; text-decoration: none;">
-				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars($query_data['q']))), '
-			</a><br>';
+		<div id="qq', $q, '" style="margin-bottom: 2ex;">';
+
+			if ($is_select_query) {
+				echo '
+			<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" style="font-weight: bold; text-decoration: none;">';
+			}
+
+			echo '
+				<pre style="tab-size: 2;">', DebugUtils::highlightSql($query_data['q']), '</pre>';
+
+			if ($is_select_query) {
+				echo '
+			</a>';
+			}
 
 			if (!empty($query_data['f']) && !empty($query_data['l'])) {
 				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
@@ -169,12 +156,7 @@ class ViewQuery implements ActionInterface
 
 			// Explain the query.
 			if ($query_id == $q && $is_select_query) {
-				$result = Db::$db->query(
-					'',
-					'EXPLAIN ' . (Db::$db->title === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
-					[
-					],
-				);
+				$result = Db::$db->query('', 'EXPLAIN ' . $select);
 
 				if ($result === false) {
 					echo '
@@ -209,6 +191,20 @@ class ViewQuery implements ActionInterface
 
 				echo '
 		</table>';
+
+			$vendor = Db::$db->get_vendor();
+
+			if ($vendor == 'MariaDB') {
+				$result = Db::$db->query('', 'ANALYZE FORMAT=JSON ' . $select);
+			} else {
+				$result = Db::$db->query(
+					'',
+					'EXPLAIN ' . ($vendor == 'PostgreSQL' ? '(ANALYZE, FORMAT JSON) ' : 'ANALYZE FORMAT=JSON ') . $select,
+				);
+			}
+
+			echo '
+		<pre>' . DebugUtils::highlightJson(Db::$db->fetch_row($result)[0]) . '</pre>';
 			}
 		}
 
