@@ -494,7 +494,7 @@ class SearchResult extends \SMF\Msg
 	 */
 	public static function highlight(string $text, array $words): string
 	{
-		$words = Utils::buildRegex($words, '~');
+		$words = preg_replace('/\s+/u', '\W+', Utils::buildRegex($words, '~'));
 
 		$highlighted = '';
 
