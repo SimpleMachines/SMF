@@ -559,6 +559,20 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function formContext(): void
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function resultsContext(): void
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function initializeSearch(): void
 	{
 		$this->calculateWeight();
