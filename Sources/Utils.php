@@ -806,7 +806,7 @@ class Utils
 			$max_length = PHP_INT_MAX;
 		}
 
-		$words = Unicode\Utf8String::create($string)->extractWords(2);
+		$words = Unicode\Utf8String::create($string)->convertCase('fold')->extractWords(2);
 
 		if (!$encrypt) {
 			foreach ($words as &$word) {

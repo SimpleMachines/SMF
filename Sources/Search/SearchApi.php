@@ -1121,8 +1121,8 @@ abstract class SearchApi implements SearchApiInterface
 		// Change non-word characters into spaces.
 		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
-		// Make the query lower case. It's gonna be case insensitive anyway.
-		$stripped_query = Utils::htmlspecialcharsDecode(Utils::strtolower($stripped_query));
+		// Fold the case of the query. It's gonna be case insensitive anyway.
+		$stripped_query = Utils::htmlspecialcharsDecode(Utils::casefold($stripped_query));
 
 		// This (hidden) setting will do fulltext searching in the most basic way.
 		if (!empty(Config::$modSettings['search_simple_fulltext'])) {
