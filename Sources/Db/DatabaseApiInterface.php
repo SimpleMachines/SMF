@@ -95,6 +95,30 @@ interface DatabaseApiInterface
 	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int;
 
 	/**
+	 * Updates data in a table, using data from other tables.
+	 *
+	 * @todo Use this for updating topics, maintenance, repairing boards, etc.
+	 *
+	 * @param array $table Info about the table to be updated.
+	 *    Example: ['name' => '{db_prefix}foo', 'alias' => 'f']
+	 * @param array $from_tables Info about the tables to get data from.
+	 *    Example:
+	 *    [
+	 *        [
+	 *            'name' => '{db_prefix}bar',
+	 *            'alias' => 'b',
+	 *            'condition' => 'f.baz = b.qux',
+	 *        ]
+	 *    ]
+	 * @param string $set A string containing the SET instructions for the update query.
+	 * @param string $where A string containing any WHERE conditions for the update query.
+	 * @param array $db_values The values to be inserted into the compiled query string.
+	 * @param object $connection The connection to use (if null, $db_connection will be used).
+	 * @return bool True if the update was successful, otherwise false.
+	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool;
+
+	/**
 	 * Gets the number of rows in a result set.
 	 *
 	 * @param object $request A query result resource.
