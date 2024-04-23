@@ -792,51 +792,18 @@ class Utils
 	}
 
 	/**
-	 * Chops a string into words and prepares them to be inserted into (or
-	 * searched from) the database.
+	 * Extracts all the words in a string.
 	 *
-	 * @param string $string The text to split into words.
-	 * @param ?int $max_length The maximum byte length for each word.
-	 * @param bool $encrypt Whether to encrypt the results.
-	 * @return array An array of strings or integers, depending on $encrypt.
+	 * Emoji characters count as words. Punctuation and other symbols do not.
+	 *
+	 * @param string $string The strings to extract words from.
+	 * @param int $level See documentation for self:sanitizeChars().
+	 *      Default: 0.
+	 * @return array An array of strings.
 	 */
-	public static function text2words(string $string, ?int $max_length = 20, bool $encrypt = false): array
+	public static function extractWords(string $string, int $level = 0): array
 	{
-		if (empty($max_length)) {
-			$max_length = PHP_INT_MAX;
-		}
-
-		$words = Unicode\Utf8String::create($string)->convertCase('fold')->extractWords(2);
-
-		if (!$encrypt) {
-			foreach ($words as &$word) {
-				$word = self::truncate(Utils::fixUtf8mb4($word), $max_length);
-			}
-
-			return array_unique($words);
-		}
-
-		// We want to "encrypt" the words, which basically just means getting a
-		// unique number for each one...
-		$returned_ints = [];
-
-		$possible_chars = array_flip(array_merge(range(46, 57), range(65, 90), range(97, 122)));
-
-		foreach ($words as $word) {
-			if (($word = trim($word, '-_\'')) !== '') {
-				$encrypted = substr(crypt($word, 'uk'), 2, $max_length);
-
-				$total = 0;
-
-				for ($i = 0; $i < $max_length; $i++) {
-					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
-				}
-
-				$returned_ints[] = $max_length == 4 ? min($total, 16777215) : $total;
-			}
-		}
-
-		return array_unique($returned_ints);
+		return array_values(Unicode\Utf8String::create($string)->extractWords($level));
 	}
 
 	/**

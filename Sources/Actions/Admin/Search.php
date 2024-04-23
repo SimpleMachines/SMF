@@ -105,9 +105,8 @@ class Search implements ActionInterface
 
 			if (isset($_POST['search_stopwords_custom'])) {
 				$_POST['search_stopwords_custom'] = array_diff(
-					Utils::text2words($_POST['search_stopwords_custom'], PHP_INT_MAX),
-					Utils::text2words(Lang::$txt['search_stopwords'] ?? '', PHP_INT_MAX),
-					Utils::text2words(Config::$modSettings['search_stopwords'] ?? '', PHP_INT_MAX),
+					preg_split('/[\s,]+/u', $_POST['search_stopwords_custom']),
+					explode(',', Lang::$txt['search_stopwords'] ?? ''),
 				);
 
 				sort($_POST['search_stopwords_custom']);

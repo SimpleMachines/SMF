@@ -338,7 +338,10 @@ class Logging
 				// Insert the new subject.
 				if ($parameter2 !== null) {
 					$parameter1 = (int) $parameter1;
-					$parameter2 = Utils::text2words($parameter2);
+					$parameter2 = array_map(
+						fn ($word) => Utils::truncate($word, 20),
+						Utils::extractWords($parameter2, 2),
+					);
 
 					$inserts = [];
 

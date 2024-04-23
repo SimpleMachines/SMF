@@ -2057,7 +2057,7 @@ class RepairBoards implements ActionInterface
 		$inserts = [];
 
 		while ($row = Db::$db->fetch_assoc($result)) {
-			foreach (Utils::text2words($row['subject']) as $word) {
+			foreach (Utils::extractWords($row['subject'], 2) as $word) {
 				$inserts[] = [$word, $row['id_topic']];
 			}
 
@@ -2093,7 +2093,7 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function missingCachedSubjectMessage(array $row): bool
 	{
-		if (count(Utils::text2words($row['subject'])) != 0) {
+		if (count(Utils::extractWords($row['subject'], 2)) != 0) {
 			Utils::$context['repair_errors'][] = Lang::getTxt('repair_missing_cached_subject', [$row['id_topic']]);
 
 			return true;

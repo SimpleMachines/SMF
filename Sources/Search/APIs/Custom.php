@@ -236,7 +236,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
-		$subwords = Utils::text2words($word, $this->min_word_length, true);
+		$subwords = self::getWordNumbers($word, $this->min_word_length);
 
 		if (empty(Config::$modSettings['search_force_index'])) {
 			$wordsSearch['words'][] = $word;
@@ -383,7 +383,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		$inserts = [];
 
-		foreach (Utils::text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true) as $word) {
+		foreach (self::getWordNumbers($msgOptions['body'], $customIndexSettings['bytes_per_word']) as $word) {
 			$inserts[] = [$word, $msgOptions['id']];
 		}
 
@@ -409,8 +409,8 @@ class Custom extends SearchApi implements SearchApiInterface
 			$old_body = $msgOptions['old_body'] ?? '';
 
 			// create thew new and old index
-			$old_index = Utils::text2words($old_body, $customIndexSettings['bytes_per_word'], true);
-			$new_index = Utils::text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
+			$old_index = self::getWordNumbers($old_body, $customIndexSettings['bytes_per_word']);
+			$new_index = self::getWordNumbers($msgOptions['body'], $customIndexSettings['bytes_per_word']);
 
 			// Calculate the words to be added and removed from the index.
 			$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);
@@ -456,7 +456,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	{
 		$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
-		$words = Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
+		$words = self::getWordNumbers($row['body'], $customIndexSettings['bytes_per_word']);
 
 		if (!empty($words)) {
 			Db::$db->query(
@@ -496,7 +496,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			Sapi::resetTimeout();
 
-			$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
+			$words = array_merge($words, self::getWordNumbers($row['body'], $customIndexSettings['bytes_per_word']));
 			$messages[] = $row['id_msg'];
 		}
 		Db::$db->free_result($request);
@@ -707,7 +707,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 						$number_processed++;
 
-						foreach (Utils::text2words($row['body'], Utils::$context['index_settings']['bytes_per_word'], true) as $id_word) {
+						foreach (self::getWordNumbers($row['body'], Utils::$context['index_settings']['bytes_per_word']) as $id_word) {
 							$inserts[] = [$id_word, $row['id_msg']];
 						}
 					}
@@ -852,6 +852,56 @@ class Custom extends SearchApi implements SearchApiInterface
 		}
 
 		Utils::redirectexit('action=admin;area=managesearch;sa=method');
+	}
+
+	/**
+	 * Gets a series of integers to identify each unique word in a string.
+	 *
+	 * Repeated words in the string will only be represented once in the
+	 * returned integer array.
+	 *
+	 * @param string $string A string.
+	 * @param int $bytes_per_word Byte-length of the returned integers.
+	 *    Defaults to custom search index's 'bytes_per_word' value, or 4 if that
+	 *    is not set. Allowed values range between 1 and PHP_INT_SIZE.
+	 * @return array Unique integers for each word in $string.
+	 */
+	public static function getWordNumbers(string $string, ?int $bytes_per_word): array
+	{
+		if (!isset($bytes_per_word)) {
+			if (!empty(Config::$modSettings['search_custom_index_config'])) {
+				$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
+				$bytes_per_word = $customIndexSettings['bytes_per_word'];
+			} else {
+				$bytes_per_word = 4;
+			}
+		}
+
+		$bytes_per_word = min(max($bytes_per_word, 1), PHP_INT_SIZE);
+
+		$returned_ints = [];
+
+		$possible_chars = array_flip(array_merge(range(46, 57), range(65, 90), range(97, 122)));
+
+		foreach (Utils::extractWords($string, 2) as $word) {
+			$word = trim($word, '-_\'');
+
+			if ($word === '' || isset($returned_ints[$word])) {
+				continue;
+			}
+
+			$encrypted = substr(crypt($word, 'uk'), 2, $bytes_per_word);
+
+			$total = 0;
+
+			for ($i = 0; $i < $bytes_per_word; $i++) {
+				$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
+			}
+
+			$returned_ints[] = $bytes_per_word == 4 ? min($total, 16777215) : $total;
+		}
+
+		return array_unique(array_values($returned_ints));
 	}
 }
 
