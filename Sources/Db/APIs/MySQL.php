@@ -263,7 +263,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 			}
 
-			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n$db_string" : ''), 'database', $file, $line);
+			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
 			ErrorHandler::fatal($error_message, false);
 		}
 
@@ -540,6 +540,41 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
+	{
+		if (empty($table['name']) || empty($table['alias']) || empty($set)) {
+			return false;
+		}
+
+		$joins = [];
+
+		foreach ($from_tables as $ft) {
+			if (empty($ft['name']) || empty($ft['alias']) || empty($ft['condition'])) {
+				continue;
+			}
+
+			$joins[] = 'JOIN ' . $ft['name'] . ' AS ' . $ft['alias'] . ' ON (' . $ft['condition'] . ')';
+		}
+
+		if (empty($joins)) {
+			return false;
+		}
+
+		return $this->query(
+			'',
+			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
+				' . implode('
+				', $joins) . '
+			SET ' . $set . (!empty($where) ? '
+			WHERE ' . $where : ''),
+			$db_values,
+			$connection,
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function num_rows(object $result): int
 	{
 		return mysqli_num_rows($result);
@@ -610,7 +645,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function error(object $connection = null): string
+	public function error(?object $connection = null): string
 	{
 		if (!(($connection ?? $this->connection) instanceof \mysqli)) {
 			return '';

@@ -553,6 +553,48 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
+	{
+		if (empty($table['name']) || empty($table['alias']) || empty($set)) {
+			return false;
+		}
+
+		if (!empty($where)) {
+			$where = '(' . $where . ')';
+		}
+
+		$from = [];
+
+		foreach ($from_tables as $ft) {
+			if (empty($ft['name']) || empty($ft['alias']) || empty($ft['condition'])) {
+				continue;
+			}
+
+			$from[] = $ft['name'] . ' AS ' . $ft['alias'];
+			$where = (!empty($where) ? $where . ' AND ' : '') . '(' . $ft['condition'] . ')';
+		}
+
+		if (empty($from)) {
+			return false;
+		}
+
+		// PostgreSQL doesn't like prefixes on the columns to be set.
+		$set = preg_replace('~\b' . $table['alias'] . '\.\b~', '', $set);
+
+		return $this->query(
+			'',
+			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
+			SET ' . $set . '
+			FROM ' . implode(', ', $from) . (!empty($where) ? '
+			WHERE ' . $where : ''),
+			$db_values,
+			$connection,
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function num_rows(object $result): int
 	{
 		return pg_num_rows($result);
