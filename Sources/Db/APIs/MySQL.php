@@ -263,7 +263,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 			}
 
-			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n$db_string" : ''), 'database', $file, $line);
+			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
 			ErrorHandler::fatal($error_message, false);
 		}
 
@@ -610,7 +610,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function error(object $connection = null): string
+	public function error(?object $connection = null): string
 	{
 		if (!(($connection ?? $this->connection) instanceof \mysqli)) {
 			return '';
