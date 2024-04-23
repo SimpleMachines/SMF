@@ -121,6 +121,15 @@ class PM implements \ArrayAccess
 	public string $folder;
 
 	/**
+	 * @var string
+	 *
+	 * The SMF version in which this message was written.
+	 *
+	 * Consists of major and minor version only (e.g. "3.0", not "3.0.1")
+	 */
+	public string $version = '';
+
+	/**
 	 * @var array
 	 *
 	 * Formatted versions of this PM's properties, suitable for display.
@@ -1425,12 +1434,24 @@ class PM implements \ArrayAccess
 			'',
 			'{db_prefix}personal_messages',
 			[
-				'id_pm_head' => 'int', 'id_member_from' => 'int', 'deleted_by_sender' => 'int',
-				'from_name' => 'string-255', 'msgtime' => 'int', 'subject' => 'string-255', 'body' => 'string-65534',
+				'id_pm_head' => 'int',
+				'id_member_from' => 'int',
+				'deleted_by_sender' => 'int',
+				'from_name' => 'string-255',
+				'msgtime' => 'int',
+				'subject' => 'string-255',
+				'body' => 'string-65534',
+				'version' => 'string(5)',
 			],
 			[
-				$pm_head, $from['id'], ($store_outbox ? 0 : 1),
-				$from['username'], time(), $htmlsubject, $htmlmessage,
+				$pm_head,
+				$from['id'],
+				($store_outbox ? 0 : 1),
+				$from['username'],
+				time(),
+				$htmlsubject,
+				$htmlmessage,
+				preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
 			],
 			['id_pm'],
 			1,

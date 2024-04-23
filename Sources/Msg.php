@@ -172,6 +172,15 @@ class Msg implements \ArrayAccess
 	public bool $is_read;
 
 	/**
+	 * @var string
+	 *
+	 * The SMF version in which this message was written.
+	 *
+	 * Consists of major and minor version only (e.g. "3.0", not "3.0.1")
+	 */
+	public string $version = '';
+
+	/**
 	 * @var array
 	 *
 	 * Formatted versions of this message's properties, suitable for display.
@@ -1242,15 +1251,37 @@ class Msg implements \ArrayAccess
 		$new_topic = empty($topicOptions['id']);
 
 		$message_columns = [
-			'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
-			'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'inet',
-			'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
+			'id_board' => 'int',
+			'id_topic' => 'int',
+			'id_member' => 'int',
+			'subject' => 'string-255',
+			'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
+			'poster_name' => 'string-255',
+			'poster_email' => 'string-255',
+			'poster_time' => 'int',
+			'poster_ip' => 'inet',
+			'smileys_enabled' => 'int',
+			'modified_name' => 'string',
+			'icon' => 'string-16',
+			'approved' => 'int',
+			'version' => 'string-5',
 		];
 
 		$message_parameters = [
-			$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-			$posterOptions['name'], $posterOptions['email'], $msgOptions['poster_time'], $posterOptions['ip'],
-			$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
+			$topicOptions['board'],
+			$topicOptions['id'],
+			$posterOptions['id'],
+			$msgOptions['subject'],
+			$msgOptions['body'],
+			$posterOptions['name'],
+			$posterOptions['email'],
+			$msgOptions['poster_time'],
+			$posterOptions['ip'],
+			$msgOptions['smileys_enabled'] ? 1 : 0,
+			'',
+			$msgOptions['icon'],
+			$msgOptions['approved'],
+			preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
 		];
 
 		// What if we want to do anything with posts?
@@ -1711,6 +1742,9 @@ class Msg implements \ArrayAccess
 		if (empty($messages_columns)) {
 			return true;
 		}
+
+		$messages_columns['version'] = 'version = {string:version}';
+		$update_parameters['version'] = preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION);
 
 		// Change the post.
 		Db::$db->query(
