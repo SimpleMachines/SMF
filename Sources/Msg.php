@@ -1658,12 +1658,12 @@ class Msg implements \ArrayAccess
 
 		// Update search api
 		if ($searchAPI->supportsMethod('postRemoved')) {
-			$searchAPI->postRemoved($msgOptions['id']);
+			$searchAPI->postRemoved((int) $msgOptions['id']);
 		}
 
 		// Anyone quoted or mentioned?
-		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
-		$quoted_modifications = Mentions::modifyMentions('quote', $msgOptions['id'], $quoted_members, $posterOptions['id']);
+		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], (int) $posterOptions['id']);
+		$quoted_modifications = Mentions::modifyMentions('quote', (int) $msgOptions['id'], $quoted_members, (int) $posterOptions['id']);
 
 		if (!empty($quoted_modifications['added'])) {
 			$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip(array_keys($quoted_modifications['added'])));
@@ -1678,7 +1678,7 @@ class Msg implements \ArrayAccess
 			$mentions = Mentions::verifyMentionedMembers($msgOptions['body'], $mentions);
 
 			// Update our records in the database.
-			$mention_modifications = Mentions::modifyMentions('msg', $msgOptions['id'], $mentions, $posterOptions['id']);
+			$mention_modifications = Mentions::modifyMentions('msg', (int) $msgOptions['id'], $mentions, (int) $posterOptions['id']);
 
 			if (!empty($mention_modifications['added'])) {
 				// Queue this for notification.
