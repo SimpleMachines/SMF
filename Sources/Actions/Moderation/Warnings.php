@@ -486,7 +486,7 @@ class Warnings implements ActionInterface
 				$_POST['template_title'] = Utils::htmlspecialchars($_POST['template_title']);
 
 				// Clean up BBC.
-				Msg::preparsecode($_POST['template_body']);
+				Msg::preparsecode($_POST['template_body'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 				// But put line breaks back!
 				$_POST['template_body'] = strtr($_POST['template_body'], ['<br>' => "\n"]);

@@ -2076,7 +2076,7 @@ class Profile extends User implements \ArrayAccess
 			}
 		}
 
-		Msg::preparsecode($value);
+		Msg::preparsecode($value, false, !empty(Config::$modSettings['autoLinkUrls']));
 
 		// Too long?
 		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1]) {

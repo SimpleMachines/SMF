@@ -167,7 +167,7 @@ class XmlHttp implements ActionInterface
 		if (empty($news)) {
 			$errors[] = ['value' => 'no_news'];
 		} else {
-			Msg::preparsecode($news);
+			Msg::preparsecode($news, false, !empty(Config::$modSettings['autoLinkUrls']));
 		}
 
 		Utils::$context['xml_data'] = [
@@ -360,7 +360,7 @@ class XmlHttp implements ActionInterface
 			}
 
 			if (!empty($_POST['body'])) {
-				Msg::preparsecode($warning_body);
+				Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
 
 				$warning_body = BBCodeParser::load()->parse($warning_body);
 			}

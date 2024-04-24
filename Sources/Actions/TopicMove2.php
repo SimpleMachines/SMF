@@ -208,7 +208,7 @@ class TopicMove2 implements ActionInterface
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason']);
+			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Insert real links into the reason.
 			$_POST['reason'] = strtr($_POST['reason'], $reason_replacements);

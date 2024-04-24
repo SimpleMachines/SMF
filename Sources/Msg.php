@@ -587,10 +587,11 @@ class Msg implements \ArrayAccess
 	 * Cleans up links (javascript, etc.) and code/quote sections.
 	 * Won't convert \n's and a few other things if previewing is true.
 	 *
-	 * @param string &$message The message
-	 * @param bool $previewing Whether we're previewing
+	 * @param string &$message The message.
+	 * @param bool $previewing Whether we're previewing. Default: false.
+	 * @param bool $autolink Whether to autolink plain-text URLs. Default: false.
 	 */
-	public static function preparsecode(string &$message, bool $previewing = false): void
+	public static function preparsecode(string &$message, bool $previewing = false, bool $autolink = false): void
 	{
 		static $tags_regex, $disallowed_tags_regex;
 
@@ -704,7 +705,12 @@ class Msg implements \ArrayAccess
 		// The regular expression non breaking space has many versions.
 		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
-		// Now that we've fixed all the code tags, let's fix the img and url tags...
+		// Autolink any plain-text URLs.
+		if (!empty($autolink)) {
+			$message = Autolinker::load()->makeLinks($message);
+		}
+
+		// Now let's fix the img and url tags.
 		$message = Autolinker::load()->fixUrlsInBBC($message);
 		self::fixTags($message);
 
