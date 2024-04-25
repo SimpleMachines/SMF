@@ -3893,6 +3893,7 @@ ul.post_options li {
 	box-shadow: var(--signature-box-shadow);
 	font-size: var(--signature-font-size);
 	line-height: var(--signature-line-height);
+	word-break: break-all;
 }
 .attachments,
 .custom_fields_above_signature,
