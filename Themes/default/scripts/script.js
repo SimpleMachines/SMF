@@ -1686,7 +1686,7 @@ function smc_resize(selector) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-	const dropMenus = document.querySelectorAll('.buttonlist > .dropmenu');
+	const dropMenus = document.querySelectorAll('.buttonlist li > .top_menu');
 	for (const item of dropMenus) {
 		const prevElement = item.previousElementSibling;
 
@@ -1694,19 +1694,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			e.stopPropagation();
 			e.preventDefault();
 
-			if (window.getComputedStyle(item).display === 'block') {
-				item.style.display = 'none';
+			if (item.classList.contains('visible')) {
+				item.classList.remove('visible')
 				return true;
 			}
 
-			item.style.display = 'block';
-			item.style.top = (prevElement.offsetTop + prevElement.offsetHeight) + 'px';
-			item.style.left = Math.max(prevElement.offsetLeft - item.offsetWidth + prevElement.offsetWidth, 0) + 'px';
-			item.style.height = item.querySelector('div:first-child').offsetHeight + 'px';
+			item.classList.add('visible');
 		});
 
 		document.addEventListener('click', () => {
-			item.style.display = 'none';
+			item.classList.remove('visible');
 		});
 	}
 
