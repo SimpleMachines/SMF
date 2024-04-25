@@ -443,6 +443,12 @@ class Msg implements \ArrayAccess
 		Lang::censorText($this->formatted['body']);
 		Lang::censorText($this->formatted['subject']);
 
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->formatted['body'] = Autolinker::load(true)->makeLinks($this->formatted['body']);
+		}
+
 		// Run BBC interpreter on the message.
 		$this->formatted['body'] = BBCodeParser::load()->parse($this->formatted['body'], $this->smileys_enabled, $this->id);
 

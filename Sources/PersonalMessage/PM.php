@@ -335,7 +335,7 @@ class PM implements \ArrayAccess
 			'id' => $this->id,
 			'member' => $author,
 			'subject' => $this->subject,
-			'body' => BBCodeParser::load()->parse($this->body, true, 'pm' . $this->id),
+			'body' => $this->body ?? '',
 			'time' => Time::create('@' . $this->msgtime)->format(),
 			'timestamp' => $this->msgtime,
 			'counter' => $counter,
@@ -394,6 +394,15 @@ class PM implements \ArrayAccess
 				],
 			],
 		];
+
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->formatted['body'] = Autolinker::load(true)->makeLinks($this->formatted['body']);
+		}
+
+		// Run BBC interpreter on the message.
+		$this->formatted['body'] = BBCodeParser::load()->parse($this->formatted['body'], true, 'pm' . $this->id);
 
 		return $this->formatted;
 	}

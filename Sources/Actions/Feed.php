@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\Attachment;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -728,7 +729,7 @@ class Feed implements ActionInterface
 				'',
 				'SELECT
 					m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
-					m.icon, t.id_topic, t.id_board, t.num_replies,
+					m.icon, m.version, t.id_topic, t.id_board, t.num_replies,
 					b.name AS bname,
 					COALESCE(mem.id_member, 0) AS id_member,
 					COALESCE(mem.email_address, m.poster_email) AS poster_email,
@@ -772,6 +773,12 @@ class Feed implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
 
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
@@ -1184,7 +1191,8 @@ class Feed implements ActionInterface
 				b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
 				COALESCE(memf.real_name, mf.poster_name) AS first_poster_name,
-				COALESCE(mem.email_address, m.poster_email) AS poster_email, m.modified_time
+				COALESCE(mem.email_address, m.poster_email) AS poster_email,
+				m.modified_time, m.version
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
@@ -1205,6 +1213,12 @@ class Feed implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
 
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
@@ -1940,7 +1954,7 @@ class Feed implements ActionInterface
 			'SELECT
 				m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 				m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
-				m.likes, m.approved, m.smileys_enabled
+				m.likes, m.approved, m.smileys_enabled, m.version
 			FROM {db_prefix}messages AS m' . (Config::$modSettings['postmod_active'] && !$show_all ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 			WHERE m.id_member = {int:uid}
@@ -1967,6 +1981,12 @@ class Feed implements ActionInterface
 
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row[$this->format === 'smf' ? 'body_html' : 'body']);
+			}
 
 			// If using our own format, we want both the raw and the parsed content.
 			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
@@ -2379,7 +2399,7 @@ class Feed implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
+			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names, pm.version
 			FROM {db_prefix}personal_messages AS pm
 			INNER JOIN
 			(
@@ -2412,6 +2432,12 @@ class Feed implements ActionInterface
 
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row[$this->format === 'smf' ? 'body_html' : 'body']);
+			}
 
 			// If using our own format, we want both the raw and the parsed content.
 			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body']);
