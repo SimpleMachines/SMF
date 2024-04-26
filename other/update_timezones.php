@@ -18,7 +18,7 @@
  * database is released.
  *
  * Run this file from the command line in order to perform the update, then
- * review any changes manually before commiting.
+ * review any changes manually before committing.
  *
  * In particular, review the following:
  *
@@ -29,7 +29,7 @@
  *    will be added to TimeZone::$fallbacks, with an "ADD INFO HERE" comment
  *    above it.
  *
- *     - Replace "ADD INFO HERE" with something meaningful before commiting,
+ *     - Replace "ADD INFO HERE" with something meaningful before committing,
  *       such as a comment about when the new time zone was added to the TZDB
  *       and which existing time zone it diverged from. This info can be found
  *       at https://data.iana.org/time-zones/tzdb/NEWS.
@@ -43,7 +43,7 @@
  *     - If you prefer one of the other options, change the suggested tzid to
  *       that other option, and then delete the comment.
  *
- *     - All "OPTIONS" comments should be removed before commiting.
+ *     - All "OPTIONS" comments should be removed before committing.
  *
  * 4. Newly created time zones are also appended to their country's list in the
  *    TimeZone::$sorted_tzids array.
@@ -58,7 +58,7 @@
  *     - The new entry in TimeZone::$metazones will have an "OPTIONS" comment
  *       listing all the tzids in this new meta-zone. Feel free to use any of
  *       them as the representative tzid for the meta-zone. All "OPTIONS"
- *       comments should be removed before commiting.
+ *       comments should be removed before committing.
  *
  *     - Also feel free to edit the $tztxt key for the new meta-zone. Just make
  *       sure to use the same key in both files.
@@ -1063,7 +1063,7 @@ class TimezoneUpdater
 	/**
 	 * Builds an array of canonical and linked time zone identifiers.
 	 *
-	 * Canoncial tzids are a simple list, while linked tzids are given
+	 * Canonical tzids are a simple list, while linked tzids are given
 	 * as 'link' => 'target' key-value pairs, where 'target' is a
 	 * canonical tzid and 'link' is a compatibility tzid that uses the
 	 * same time zone rules as its canonical target.
@@ -1755,7 +1755,7 @@ class TimezoneUpdater
 	 * defined as 'current' via self::TZDB_CURR_TAG & $this->curr_commit.
 	 *
 	 * Also updates the entries for every tzid in $this->zones with
-	 * unambigous UTC timestamps for their start and end values.
+	 * unambiguous UTC timestamps for their start and end values.
 	 *
 	 * @param bool $rebuild If true, force a rebuild.
 	 */
@@ -2281,7 +2281,7 @@ class TimezoneUpdater
 				continue;
 			}
 
-			// Keep exactly one that preceeds the start of the entry,
+			// Keep exactly one that precedes the start of the entry,
 			// so that we can know the state at the start of the entry.
 			if ($date_string < $unadjusted_date_strings['entry_start']) {
 				array_shift($applicable_transitions);
@@ -2379,7 +2379,7 @@ class TimezoneUpdater
 	 * antimeridian as maximally distant from each other. But since the antimeridian
 	 * is approximately the track of the International Date Line, and locations on
 	 * opposite sides of the IDL can't be fallbacks for each other, it's sufficient.
-	 * In the unlikely edge case that that we ever need to find a fallback for, say,
+	 * In the unlikely edge case that we ever need to find a fallback for, say,
 	 * a newly created time zone for an island in Kiribati, the worst that could
 	 * happen is that we might overlook some better option and therefore end up
 	 * suggesting a generic Etc/* time zone as a fallback.

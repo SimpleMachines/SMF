@@ -988,7 +988,7 @@ class Event implements \ArrayAccess
 	}
 
 	/**
-	 * Creates a event and saves it to the database.
+	 * Creates an event and saves it to the database.
 	 *
 	 * Does not check permissions.
 	 *

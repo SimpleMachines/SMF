@@ -503,7 +503,7 @@ class Post2 extends Post
 			unset($_SESSION['already_attached']);
 		}
 
-		// If we had a draft for this, its time to remove it since it was just posted
+		// If we had a draft for this, it's time to remove it since it was just posted
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty($_POST['id_draft'])) {
 			Draft::delete((int) $_POST['id_draft']);
 		}

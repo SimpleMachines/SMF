@@ -255,7 +255,7 @@ function template_folder()
 			<br>';
 	}
 
-	// Individual messages = buttom list!
+	// Individual messages = button list!
 	if (Utils::$context['display_mode'] == 1)
 	{
 		template_subject_list();

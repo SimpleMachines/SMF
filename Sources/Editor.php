@@ -854,7 +854,7 @@ class Editor implements \ArrayAccess
 		}
 
 		// Allow mods to change $this->sce_options.
-		// Usful if, e.g., a mod wants to add an SCEditor plugin.
+		// Useful if, e.g., a mod wants to add an SCEditor plugin.
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
 }

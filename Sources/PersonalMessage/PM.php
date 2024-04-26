@@ -1095,7 +1095,7 @@ class PM implements \ArrayAccess
 			return false;
 		}
 
-		// If we had a PM draft for this one, then its time to remove it since it was just sent
+		// If we had a PM draft for this one, then it's time to remove it since it was just sent
 		if (Utils::$context['drafts_save'] && !empty($_POST['id_draft'])) {
 			DraftPM::delete($_POST['id_draft']);
 		}

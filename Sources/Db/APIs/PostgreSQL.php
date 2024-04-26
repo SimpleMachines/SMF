@@ -2225,7 +2225,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 		restore_error_handler();
 
-		// Something's wrong, show an error if its fatal (which we assume it is)
+		// Something's wrong, show an error if it's fatal (which we assume it is)
 		if (empty($this->connection) && empty($options['non_fatal'])) {
 			ErrorHandler::displayDbError();
 		}

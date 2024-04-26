@@ -24,7 +24,7 @@ namespace SMF;
  * the API call will do nothing.
  *
  * Some functions may not be defined or definable in the documentation as they are
- * bundled by 3rd party processes, such as apache_* functions.  To surpress IDE
+ * bundled by 3rd party processes, such as apache_* functions.  To suppress IDE
  * warnings, we use 'suppress PHP0417'.
  */
 class Sapi
@@ -126,7 +126,7 @@ class Sapi
 	}
 
 	/**
-	 * Checks If we are runnig a CGI instance.
+	 * Checks If we are running a CGI instance.
 	 *
 	 * @return bool True if we are running under CGI, false otherwise.
 	 */
@@ -136,7 +136,7 @@ class Sapi
 	}
 
 	/**
-	 * Checks If we are runnig a CLI (shell/cron) instance.
+	 * Checks If we are running a CLI (shell/cron) instance.
 	 *
 	 * @return bool True if we are running under CLI, false otherwise.
 	 */

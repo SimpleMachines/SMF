@@ -406,7 +406,7 @@ class Uuid implements \Stringable
 	}
 
 	/**
-	 * Creates a instance of this class from an existing UUID string.
+	 * Creates an instance of this class from an existing UUID string.
 	 *
 	 * If the input UUID string is invalid, behaviour depends on the $strict
 	 * parameter:

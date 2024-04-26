@@ -2110,7 +2110,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Something's wrong, show an error if its fatal (which we assume it is)
+		// Something's wrong, show an error if it's fatal (which we assume it is)
 		if ($success === false) {
 			if (!empty($options['non_fatal'])) {
 				$this->connection = null;

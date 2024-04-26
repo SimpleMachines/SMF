@@ -550,7 +550,7 @@ class Punycode
 	 *
 	 * @param string $label Individual part of a domain name.
 	 * @param bool $toPunycode True for encoding to Punycode, false for decoding.
-	 * @return int 0 if valid, otherwise a int matching a defined const.
+	 * @return int 0 if valid, otherwise an int matching a defined const.
 	 */
 	protected function validateLabel(string $label, bool $toPunycode = true): int
 	{

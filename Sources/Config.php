@@ -2818,7 +2818,7 @@ class Config
 	 * If it fails, Settings.php will assume 0.
 	 *
 	 * @param int $time The timestamp of the last DB error
-	 * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
+	 * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know an error was logged since the last check.
 	 * @return bool True If we could successfully put the file or not.
 	 */
 	public static function updateDbLastError(int $time, bool $update = true): bool
