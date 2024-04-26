@@ -198,8 +198,16 @@
 			 * Only resize the text areas instead.
 			 */
 			document.querySelector(".sceditor-container").removeAttribute("style");
-			document.querySelector(".sceditor-container textarea").style.height = options.height;
-			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
+
+			const textarea = document.querySelector('.sceditor-container textarea');
+		    textarea.style.height = options.height;
+		    textarea.style.flexBasis = options.height;
+
+		    // Add Tribute.js
+		    if (typeof tribute === 'object') {
+		        tribute.attach(textarea);
+		        tribute.attach(instance.getBody());
+		    }
 
 			isPatched = true;
 		}
