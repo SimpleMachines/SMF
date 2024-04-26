@@ -14,7 +14,6 @@ use SMF\Config;
 use SMF\Editor;
 use SMF\Lang;
 use SMF\Theme;
-use SMF\User;
 use SMF\Utils;
 use SMF\Verifier;
 
