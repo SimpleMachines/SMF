@@ -1074,12 +1074,15 @@ class Reports implements ActionInterface
 			// Basically, check every key exists!
 			foreach ($this->keys as $key => $dummy) {
 				$data[$key] = [
-					'v' => empty($inc_data[$key]) ? $this->tables[$table]['default_value'] : $inc_data[$key],
+					'v' => $inc_data[$key] ?? $this->tables[$table]['default_value'],
 				];
 
 				// Special "hack" the adding separators when doing data by column.
 				if (substr((string) $key, 0, 5) == '#sep#') {
 					$data[$key]['separator'] = true;
+				} elseif (substr((string) $data[$key]['v'], 0, 5) == '#sep#') {
+					$data[$key]['header'] = true;
+					$data[$key]['v'] = substr((string) $data[$key]['v'], 5);
 				}
 			}
 		} else {
@@ -1090,8 +1093,13 @@ class Reports implements ActionInterface
 					'v' => $value,
 				];
 
-				if (substr($key, 0, 5) == '#sep#') {
+				if (substr((string) $key, 0, 5) == '#sep#') {
 					$data[$key]['separator'] = true;
+				}
+				// Hack in a "seperator" to display a row differently.
+				elseif (substr((string) $value, 0, 5) == '#sep#') {
+					$data[$key]['header'] = true;
+					$data[$key]['v'] = substr((string) $value, 5);
 				}
 			}
 		}

@@ -85,15 +85,16 @@ function template_main()
 		$row_number = 0;
 		foreach ($table['data'] as $row)
 		{
-			if ($row_number == 0 && !empty($table['shading']['top']))
+			if ($row_number == 0 && !empty($table['shading']['top']) && empty(current($row)['header']))
 				echo '
 				<tr class="windowbg table_caption">';
 			else
 				echo '
-				<tr class="', !empty($row[0]['separator']) ? 'title_bar' : 'windowbg', '">';
+				<tr class="', !empty(current($row)['separator']) || !empty(current($row)['header']) ? 'title_bar' : 'windowbg', '">';
 
 			// Now do each column.
 			$column_number = 0;
+			$th = false;
 
 			foreach ($row as $data)
 			{
@@ -101,21 +102,30 @@ function template_main()
 				if (!empty($data['separator']) && $column_number == 0)
 				{
 					echo '
-					<td colspan="', $table['column_count'], '" class="smalltext">
+					<th colspan="', $table['column_count'], '" class="smalltext">
 						', $data['v'], ':
-					</td>';
+					</th>';
 					break;
 				}
+				// These table cells shall be a heading if the first row says so.
+				elseif ($th || !empty($data['header']))
+				{
+					echo '
+					<th>
+						', $data['v'], '
+					</th>';
 
+					$th = true;
+				}
 				// Shaded?
-				if ($column_number == 0 && !empty($table['shading']['left']))
+				elseif ($column_number == 0 && !empty($table['shading']['left']))
 					echo '
 					<td class="table_caption ', $table['align']['shaded'], 'text"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
 						', $data['v'] == $table['default_value'] ? '' : ($data['v'] . (empty($data['v']) ? '' : ':')), '
 					</td>';
 				else
 					echo '
-					<td class="smalltext centertext" ', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
+					<td class="smalltext ', $table['align']['normal'], 'text" ', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
 						', $data['v'], '
 					</td>';
 
