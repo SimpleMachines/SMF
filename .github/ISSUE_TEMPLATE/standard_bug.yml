@@ -59,7 +59,7 @@ body:
       label: Database Version
       description: |
         Your database version
-        You mabe be able to runt he following query: `SELECT version();` to get this.
+        You may be able to run the following query: `SELECT version();` to get this.
       placeholder: '8.0.1-MySQL'
   - type: input
     id: phpversion

@@ -619,7 +619,7 @@ class Logs implements ActionInterface
 
 		// Do some formatting of the action string.
 		foreach ($entries as $k => $entry) {
-			// Make any message info links so its easier to go find that message.
+			// Make any message info links so it's easier to go find that message.
 			if (isset($entry['extra']['message']) && (empty($entry['message']) || empty($entry['message']['id']))) {
 				$entries[$k]['extra']['message'] = '<a href="' . Config::$scripturl . '?msg=' . $entry['extra']['message'] . '">' . $entry['extra']['message'] . '</a>';
 			}

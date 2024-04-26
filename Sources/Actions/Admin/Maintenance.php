@@ -1815,7 +1815,7 @@ class Maintenance implements ActionInterface
 					Utils::$context['continue_percent'] = round(100 * (Utils::$context['start'] / $total_topics), 1);
 					Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=topics;activity=massmove;id_board_from=' . $id_board_from . ';id_board_to=' . $id_board_to . ';totaltopics=' . $total_topics . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
-					// Let the template system do it's thang.
+					// Let the template system do its thang.
 					return;
 				}
 			}

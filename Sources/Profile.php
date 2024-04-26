@@ -2713,7 +2713,7 @@ class Profile extends User implements \ArrayAccess
 			return $this->setAvatarAttachment($image->source);
 		}
 
-		// Is is safe?
+		// Is it safe?
 		if (!$image->check(!empty(Config::$modSettings['avatar_paranoid']))) {
 			return 'bad_avatar';
 		}

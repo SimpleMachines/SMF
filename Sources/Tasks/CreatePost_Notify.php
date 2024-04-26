@@ -569,7 +569,7 @@ class CreatePost_Notify extends BackgroundTask
 				$parsed_message[$localization]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr($bbcparser->parse($parsed_message[$localization]['body'], false), ['<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n"]))));
 			}
 
-			// Bitwise check: Receiving a alert?
+			// Bitwise check: Receiving an alert?
 			if ($pref & self::RECEIVE_NOTIFY_ALERT) {
 				$this->alert_rows[] = [
 					'alert_time' => time(),
@@ -590,7 +590,7 @@ class CreatePost_Notify extends BackgroundTask
 				];
 			}
 
-			// Bitwise check: Receiving a email notification?
+			// Bitwise check: Receiving an email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL) {
 				$itemID = $content_type == 'board' ? (int) $topicOptions['board'] : (int) $topicOptions['id'];
 
@@ -660,7 +660,7 @@ class CreatePost_Notify extends BackgroundTask
 				];
 			}
 
-			// Bitwise check: Receiving a email notification?
+			// Bitwise check: Receiving an email notification?
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['quoted_members'][$member_id]);
@@ -729,7 +729,7 @@ class CreatePost_Notify extends BackgroundTask
 				];
 			}
 
-			// Bitwise check: Receiving a email notification?
+			// Bitwise check: Receiving an email notification?
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['mentioned_members'][$member_id]);

@@ -251,7 +251,7 @@ class ItemList implements \ArrayAccess
 			$have_what_we_need &= empty($options['items_per_page']) || (isset($options['get_count']['function'], $options['base_href']) && is_numeric($options['items_per_page']));
 		}
 
-		// @TODO: The var becomes a int because of &= usage.
+		// @TODO: The var becomes an int because of &= usage.
 		return (bool) $have_what_we_need;
 	}
 

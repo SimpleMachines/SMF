@@ -221,7 +221,7 @@ class Reports implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		// Get every moderator gruop.
+		// Get every moderator group.
 		$moderator_groups = [];
 
 		$request = Db::$db->query(

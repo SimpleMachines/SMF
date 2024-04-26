@@ -29,7 +29,7 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * Show all the users buddies, as well as a add/delete interface.
+ * Show all the users buddies, as well as an add/delete interface.
  */
 class BuddyIgnoreLists implements ActionInterface
 {

@@ -134,7 +134,7 @@ class Register2 extends Register
 			Utils::redirectexit('action=signup');
 		}
 
-		// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
+		// If we require neither an agreement nor a privacy policy, we need an extra check for coppa.
 		if (empty(Config::$modSettings['requireAgreement']) && empty(Config::$modSettings['requirePolicyAgreement']) && !empty(Config::$modSettings['coppaAge'])) {
 			$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
 		}

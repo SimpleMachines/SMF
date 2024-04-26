@@ -383,7 +383,7 @@ class BrowserDetector
 		if (preg_match('~Trident/([0-9.])~i', $_SERVER['HTTP_USER_AGENT'], $trident_match) === 1) {
 			$this->_browsers['is_ie' . ((int) $trident_match[1] + 4)] = true;
 
-			// If trident is set, see the (if any) msie tag in the user agent matches ... if not its in some compatibility view
+			// If trident is set, see the (if any) msie tag in the user agent matches ... if not it's in some compatibility view
 			if (isset($msie_match[1]) && ($msie_match[1] < $trident_match[1] + 4)) {
 				$this->_browsers['is_ie_compat_view'] = true;
 			}

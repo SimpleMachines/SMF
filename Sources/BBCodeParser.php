@@ -2283,7 +2283,7 @@ class BBCodeParser
 	 * Backward compatibility wrapper for parse() and/or getCodes().
 	 *
 	 * @param string|bool $message The message.
-	 *		When a empty string, nothing is done.
+	 *		When an empty string, nothing is done.
 	 *		When false we provide a list of BBC codes available.
 	 *		When a string, the message is parsed and bbc handled.
 	 * @param bool $smileys Whether to parse smileys as well.

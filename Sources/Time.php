@@ -1280,7 +1280,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * Figures out whether the passed format is a strftime format.
 	 *
 	 * @param string $format The format string.
-	 * @return bool Whether is is a strftime format.
+	 * @return bool Whether it is a strftime format.
 	 */
 	protected static function isStrftimeFormat(string $format): bool
 	{

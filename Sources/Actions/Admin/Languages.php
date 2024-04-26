@@ -315,7 +315,7 @@ class Languages implements ActionInterface
 					$context_data['version'] = $match[1];
 				}
 
-				// Now does the old file exist - if so what is it's version?
+				// Now does the old file exist - if so what is its version?
 				if (file_exists(Config::$boarddir . '/' . $file['filename'])) {
 					// OK - what is the current version?
 					$fp = fopen(Config::$boarddir . '/' . $file['filename'], 'rb');
