@@ -80,12 +80,24 @@ function template_import()
 							', Lang::$txt['calendar_import_type_event'], '
 						</label>
 					</dd>
+					<dt>
+						<label>', Lang::$txt['calendar_import_subscribe'], '</label>
+						<br>
+						<span class="smalltext">', Lang::$txt['calendar_import_subscribe_desc'], '</span>
+					</dt>
+					<dd>
+						<input type="checkbox" name="subscribe" id="subscribe">
+					</dd>
 				</dl>
 				<input type="submit" name="import" value="', Lang::$txt['calendar_import_button'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="' . Utils::$context['admin-calendarimport_token_var'] . '" value="' . Utils::$context['admin-calendarimport_token'] . '">
 			</div><!-- .windowbg -->
 		</form>';
+
+	if (!empty(Utils::$context['calendar_subscriptions'])) {
+		template_show_list('calendar_subscriptions');
+	}
 }
 
 ?>

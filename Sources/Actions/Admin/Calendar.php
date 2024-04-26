@@ -20,6 +20,7 @@ namespace SMF\Actions\Admin;
 use SMF\Actions\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Board;
+use SMF\Calendar\Event;
 use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -28,6 +29,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
@@ -315,30 +317,198 @@ class Calendar implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['calendar_import'];
 
 		// Submitting?
-		if (isset($_POST[Utils::$context['session_var']], $_POST['ics_url'], $_POST['type'])) {
+		if (isset($_POST[Utils::$context['session_var']])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-calendarimport');
 
-			$ics_url = new Url($_POST['ics_url'], true);
+			if (isset($_POST['ics_url'], $_POST['type'])) {
+				$ics_url = new Url($_POST['ics_url'], true);
 
-			if ($ics_url->isValid()) {
-				$ics_data = WebFetchApi::fetch($ics_url);
+				if ($ics_url->isValid()) {
+					$ics_data = WebFetchApi::fetch($ics_url);
+				}
+
+				if (!empty($ics_data)) {
+					switch ($_POST['type']) {
+						case 'holiday':
+							Holiday::import($ics_data);
+							break;
+
+						case 'event':
+							Event::import($ics_data);
+							break;
+					}
+				}
+
+				// Subscribing to this calendar?
+				if (isset($_POST['subscribe'])) {
+					$subscribed = Utils::jsonDecode(Config::$modSettings['calendar_subscriptions'] ?? '[]', true);
+
+					$subscribed[(string) $ics_url] = $_POST['type'] === 'holiday' ? Event::TYPE_HOLIDAY : Event::TYPE_EVENT;
+
+					Config::updateModSettings(['calendar_subscriptions' => Utils::jsonEncode($subscribed)]);
+
+					$request = Db::$db->query(
+						'',
+						'SELECT id_task
+						FROM {db_prefix}scheduled_tasks
+						WHERE task = {string:task}',
+						[
+							'task' => 'fetch_calendar_subs',
+						],
+					);
+
+					$exists = Db::$db->num_rows($request) > 0;
+					Db::$db->free_result($request);
+
+					if (!$exists) {
+						$id_task = Db::$db->insert(
+							'',
+							'{db_prefix}scheduled_tasks',
+							[
+								'next_time' => 'int',
+								'time_offset' => 'int',
+								'time_regularity' => 'int',
+								'time_unit' => 'string-1',
+								'disabled' => 'int',
+								'task' => 'string-24',
+							],
+							[
+								'next_time' => 0,
+								'time_offset' => 0,
+								'time_regularity' => 1,
+								'time_unit' => 'd',
+								'disabled' => 0,
+								'task' => 'fetch_calendar_subs',
+							],
+							['id_task'],
+						);
+
+						TaskRunner::calculateNextTrigger((string) $id_task, true);
+					}
+				}
 			}
 
-			if (!empty($ics_data)) {
-				switch ($_POST['type']) {
-					case 'holiday':
-						Holiday::import($ics_data);
-						break;
+			// Unsubscribing from some calendars?
+			if (isset($_POST['unsubscribe'], $_POST['subscribed'])) {
+				$subscribed = Utils::jsonDecode(Config::$modSettings['calendar_subscriptions'] ?? '[]', true);
 
-					case 'event':
-						Event::import($ics_data);
-						break;
+				foreach ($subscribed as $url => $type) {
+					$hashes[md5($url)] = $url;
 				}
+
+				foreach ($_POST['subscribed'] as $hash => $value) {
+					unset($subscribed[$hashes[$hash]]);
+				}
+
+				Config::updateModSettings(['calendar_subscriptions' => Utils::jsonEncode($subscribed)]);
 			}
 		}
 
 		SecurityToken::create('admin-calendarimport');
+
+		// List the current calendar subscriptions.
+		$subscribed = Utils::jsonDecode(Config::$modSettings['calendar_subscriptions'] ?? '[]', true);
+
+		if (!empty($subscribed)) {
+			foreach ($subscribed as $url => $type) {
+				Utils::$context['calendar_subscriptions'][] = [
+					'hash' => md5($url),
+					'url' => $url,
+					'type' => $type === Event::TYPE_HOLIDAY ? Lang::$txt['calendar_import_type_holiday'] : Lang::$txt['calendar_import_type_event'],
+				];
+			}
+
+			$listOptions = [
+				'id' => 'calendar_subscriptions',
+				'title' => Lang::$txt['calendar_import_manage_subscriptions'],
+				'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+				'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=import',
+				// 'default_sort_col' => 'url',
+				'get_items' => [
+					'value' => Utils::$context['calendar_subscriptions'],
+				],
+				'get_count' => [
+					'value' => count(Utils::$context['calendar_subscriptions']),
+				],
+				'no_items_label' => Lang::$txt['none'],
+				'columns' => [
+					'url' => [
+						'header' => [
+							'value' => Lang::$txt['url'],
+						],
+						'data' => [
+							'sprintf' => [
+								'format' => '%1$s',
+								'params' => [
+									'url' => true,
+								],
+							],
+						],
+						'sort' => [
+							'default' => '',
+							'reverse' => '',
+						],
+					],
+					'type' => [
+						'header' => [
+							'value' => Lang::sentenceList(
+								[
+									Lang::$txt['calendar_import_type_event'],
+									Lang::$txt['calendar_import_type_holiday'],
+								],
+								'or',
+							),
+						],
+						'data' => [
+							'sprintf' => [
+								'format' => '%1$s',
+								'params' => [
+									'type' => false,
+								],
+							],
+						],
+						'sort' => [
+							'default' => 'cal.start_date',
+							'reverse' => 'cal.start_date DESC',
+						],
+					],
+					'check' => [
+						'header' => [
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
+							'class' => 'centercol',
+						],
+						'data' => [
+							'sprintf' => [
+								'format' => '<input type="checkbox" name="subscribed[%1$s]">',
+								'params' => [
+									'hash' => false,
+								],
+							],
+							'class' => 'centercol',
+						],
+					],
+				],
+				'form' => [
+					'href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=import',
+					'token' => 'admin-calendarimport',
+				],
+				'additional_rows' => [
+					// [
+					// 	'position' => 'above_column_headers',
+					// 	'value' => '<input type="submit" name="unsubscribe" value="' . Lang::$txt['calendar_import_unsubscribe'] . '" class="button">',
+					// ],
+					[
+						'position' => 'below_table_data',
+						'value' => '<input type="submit" name="unsubscribe" value="' . Lang::$txt['calendar_import_unsubscribe'] . '" class="button">',
+					],
+				],
+			];
+
+			new ItemList($listOptions);
+
+			Theme::loadTemplate('GenericList');
+		}
 	}
 
 	/**
