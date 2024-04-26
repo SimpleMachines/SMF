@@ -342,7 +342,7 @@ class Tasks implements ActionInterface
 			);
 
 			// Check the next event.
-			TaskRunner::calculateNextTrigger($_GET['tid'], true);
+			TaskRunner::calculateNextTrigger((string) $_GET['tid'], true);
 
 			// Return to the main list.
 			Utils::redirectexit('action=admin;area=scheduledtasks');
