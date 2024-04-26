@@ -154,6 +154,7 @@ function template_print_above()
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Utils::$context['page_title'], '</title>
 		<link rel="stylesheet" href="', Theme::$current->settings['default_theme_url'], '/css/report.css', Utils::$context['browser_cache'], '">
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/reports.js', Utils::$context['browser_cache'], '"></script>
 	</head>
 	<body>';
 }

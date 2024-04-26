@@ -648,6 +648,7 @@ class Reports implements ActionInterface
 		// Let's get our things running...
 		Theme::loadTemplate('Reports');
 		Lang::load('Reports');
+		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
 
 		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
 
