@@ -933,30 +933,40 @@ class Logging
 
 		if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache)) {
 			foreach (Db::$cache as $q => $query_data) {
-				$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($query_data['q'])) != 0 || strpos(trim($query_data['q']), 'WITH') === 0;
-
-				// Temporary tables created in earlier queries are not explainable.
-				if ($is_select) {
-					foreach (['log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages'] as $tmp) {
-						if (strpos(trim($query_data['q']), $tmp) !== false) {
-							$is_select = false;
-							break;
-						}
-					}
-				}
-				// But actual creation of the temporary tables are.
-				elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($query_data['q'])) != 0) {
-					$is_select = true;
-				}
+				// Fix the indentation....
+				$query_data['q'] = DebugUtils::trimIndent($query_data['q']);
 
 				// Make the filenames look a bit better.
 				if (isset($query_data['f'])) {
-					$query_data['f'] = preg_replace('~^' . preg_quote(Config::$boarddir, '~') . '~', '...', $query_data['f']);
+					$query_data['f'] = preg_replace('/^' . preg_quote(Config::$boarddir, '/') . '/', '...', strtr($query_data['f'], '\\', '/'));
 				}
 
-				echo '
-		<strong>', $is_select ? '<a href="' . Config::$scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars(ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
-		&nbsp;&nbsp;&nbsp;';
+				$is_select_query = preg_match('/^\s*(?:SELECT|WITH)/i', $query_data['q']) != 0;
+
+				if ($is_select_query) {
+					$select = $query_data['q'];
+				} elseif (preg_match('/^\s*(?:INSERT(?: IGNORE)? INTO \w+|CREATE TEMPORARY TABLE .+?)\KSELECT .+$/is', trim($query_data['q']), $matches) != 0) {
+					$is_select_query = true;
+					$select = $matches[0];
+				}
+
+				// Temporary tables created in earlier queries are not explainable.
+				if ($is_select_query && preg_match('/log_topics_unread|topics_posted_in|tmp_log_search_(?:topics|messages)/i', $select) != 0) {
+					$is_select_query = false;
+				}
+
+				if ($is_select_query) {
+					echo '
+		<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" target="_blank" rel="noopener"  target="_blank" rel="noopener" style="font-weight: bold; text-decoration: none;">';
+				}
+
+					echo '
+			<pre style="tab-size: 2;">', $query_data['q'], '</pre>';
+
+				if ($is_select_query) {
+					echo '
+		</a>';
+				}
 
 				if (!empty($query_data['f']) && !empty($query_data['l'])) {
 					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
