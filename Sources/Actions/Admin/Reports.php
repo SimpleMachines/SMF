@@ -1155,9 +1155,11 @@ class Reports implements ActionInterface
 			$this->tables[$id]['id'] = $id;
 			$this->tables[$id]['row_count'] = count($table['data']);
 
-			$curElement = current($table['data']);
-
-			$this->tables[$id]['column_count'] = count($curElement);
+			$this->tables[$id]['column_count'] = array_reduce(
+				$table['data'],
+				fn (int $accumulator, $data): int => max($accumulator, count($data)),
+				0
+			);
 
 			// Work out the rough width - for templates like the print template. Without this we might get funny tables.
 			if ($table['shading']['left'] && $table['width']['shaded'] != 'auto' && $table['width']['normal'] != 'auto') {
