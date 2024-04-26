@@ -94,6 +94,7 @@ class Reports implements ActionInterface
 	 */
 	public static array $subactions = [
 		'boards' => 'boards',
+		'board_access' => 'boardAccess',
 		'board_perms' => 'boardPerms',
 		'member_groups' => 'memberGroups',
 		'group_perms' => 'groupPerms',
@@ -309,6 +310,60 @@ class Reports implements ActionInterface
 
 			// Next add the main data.
 			$this->addData($boardData);
+		}
+	}
+
+	/**
+	 * Standard report about who can access which board.
+	 */
+	public function boardAccess(): void
+	{
+		$inc = [];
+
+		if (isset($_REQUEST['groups'])) {
+			if (!is_array($_REQUEST['groups'])) {
+				$inc = explode(',', $_REQUEST['groups']);
+			}
+
+			foreach ($inc as $k => $dummy) {
+				$inc[$k] = (int) $dummy;
+			}
+		}
+
+		$data = [];
+		$groups = ['col' => '#sep#'];
+		$group_data = Group::loadSimple(
+			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
+			[Group::ADMIN, Group::MOD]
+		);
+		Board::load([], ['selects' => ['b.id_board', 'b.name', 'member_groups', 'deny_member_groups']]);
+		$loaded_ids = array_keys(Board::$loaded);
+		Board::getModerators($loaded_ids);
+		Board::getModeratorGroups($loaded_ids);
+
+		foreach ($group_data as $group) {
+			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+				$groups[$group->id] = $group->name;
+
+				foreach (Board::$loaded as $board) {
+					if (!isset($data[$board->id])) {
+						$data[$board->id] = ['col' => $board->name];
+					} elseif (in_array($group->id, $board->member_groups)) {
+						$data[$board->id][$group->id] = '&#x2705;';
+					} elseif (in_array($group->id, $board->deny_groups)) {
+						$data[$board->id][$group->id] = '&#x1F6AB;';
+					}
+				}
+			}
+		}
+
+		$this->setKeys('rows', $groups);
+		$this->newTable(Lang::$txt['gr_type_group_perms'], '&mdash;', 'all', '100', 'center', '200', 'left');
+		$this->addData($groups);
+		uasort($data, fn ($a, $b) => $a['col'] <=> $b['col']);
+
+		foreach ($data as $d) {
+			$this->addData($d);
 		}
 	}
 
