@@ -991,11 +991,11 @@ abstract class SearchApi implements SearchApiInterface
 			));
 		}
 
-		// Blacklist any stopwords that we found automatically.
-		if (isset(Config::$modSettings['search_stopwords'])) {
+		// Blacklist any stopwords that the admin set manually.
+		if (isset(Config::$modSettings['search_stopwords_custom'])) {
 			$this->blacklisted_words = array_unique(array_merge(
 				$this->blacklisted_words,
-				array_map('trim', explode(',', Config::$modSettings['search_stopwords'])),
+				array_map('trim', explode(',', Config::$modSettings['search_stopwords_custom'])),
 			));
 		}
 

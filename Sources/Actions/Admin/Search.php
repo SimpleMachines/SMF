@@ -310,10 +310,7 @@ class Search implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$permanent_stopwords = array_unique(array_merge(
-			Utils::text2words(Lang::$txt['search_stopwords'] ?? '', PHP_INT_MAX),
-			Utils::text2words(Config::$modSettings['search_stopwords'] ?? '', PHP_INT_MAX),
-		));
+		$permanent_stopwords = array_unique(explode(',', Lang::$txt['search_stopwords'] ?? ''));
 
 		sort($permanent_stopwords);
 
