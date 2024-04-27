@@ -805,7 +805,7 @@ CREATE TABLE {$db_prefix}messages (
 	body TEXT NOT NULL,
 	icon VARCHAR(16) NOT NULL DEFAULT 'xx',
 	approved TINYINT NOT NULL DEFAULT '1',
-	likes SMALLINT UNSIGNED NOT NULL DEFAULT '0',
+	reacts SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_msg),
 	UNIQUE idx_id_board (id_board, id_msg, approved),
 	UNIQUE idx_id_member (id_member, id_msg),
@@ -815,7 +815,7 @@ CREATE TABLE {$db_prefix}messages (
 	INDEX idx_id_member_msg (id_member, approved, id_msg),
 	INDEX idx_current_topic (id_topic, id_msg, id_member, approved),
 	INDEX idx_related_ip (id_member, poster_ip, id_msg),
-	INDEX idx_likes (likes)
+	INDEX idx_reacts (reacts)
 ) ENGINE={$engine};
 
 #
@@ -1188,17 +1188,18 @@ CREATE TABLE {$db_prefix}user_drafts (
 ) ENGINE={$engine};
 
 #
-# Table structure for table `user_likes`
+# Table structure for table `user_reacts`
 #
 
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}user_reacts (
 	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	content_type CHAR(6) DEFAULT '',
 	content_id INT UNSIGNED DEFAULT '0',
-	like_time INT UNSIGNED NOT NULL DEFAULT '0',
+	react_time INT UNSIGNED NOT NULL DEFAULT '0',
+	react_id INT UNSIGNED DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member),
 	INDEX content (content_id, content_type),
-	INDEX liker (id_member)
+	INDEX reactor (id_member)
 ) ENGINE={$engine};
 
 #
@@ -2272,7 +2273,7 @@ VALUES (0, 'alert_timeout', 10),
 	(0, 'member_report', 3),
 	(0, 'member_report_reply', 3),
 	(0, 'msg_auto_notify', 0),
-	(0, 'msg_like', 1),
+	(0, 'msg_react', 1),
 	(0, 'msg_mention', 1),
 	(0, 'msg_notify_pref', 1),
 	(0, 'msg_notify_type', 1),

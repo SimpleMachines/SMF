@@ -845,24 +845,27 @@ $txt['notification_disable_topic'] = 'Are you sure you wish to disable notificat
 // Mentions
 $txt['mentions'] = 'Mentions';
 
-// Likes
-$txt['likes'] = 'Likes';
+// Reactions. Previously "likes".
+$txt['reactions'] = 'Reactions';
+// Leave these two for now - "like" will still be the default
 $txt['like'] = 'Like';
 $txt['unlike'] = 'Unlike';
-$txt['like_success'] = 'Your content was successfully liked.';
-$txt['like_delete'] = 'Your content was successfully deleted.';
-$txt['like_insert'] = 'Your content was successfully inserted.';
-$txt['like_error'] = 'There was an error with your request.';
-$txt['like_disable'] = 'Likes feature is disabled.';
-$txt['not_valid_like_type'] = 'The liked type is not a valid type.';
-$txt['likes_count'] = '{num, plural,
-	one {<a href="{url}"># person</a> likes this.}
-	other {<a href="{url}"># people</a> like this.}
+
+// Todo - i18n this? Maybe react_{type}_success?
+$txt['react_success'] = 'You succesfully reacted to the content ';
+$txt['react_delete'] = 'Your content was successfully deleted.';
+$txt['react_insert'] = 'Your content was successfully inserted.';
+$txt['react_error'] = 'There was an error with your request.';
+$txt['reactions_disable'] = 'Reactions feature is disabled.';
+$txt['not_valid_react_type'] = 'The reacted type is not a valid type.';
+$txt['reactions_count'] = '{num, plural,
+	one {<a href="{url}"># person</a> reacted to this.}
+	other {<a href="{url}"># people</a> reacted to this.}
 }';
-$txt['you_likes_count'] = '{num, plural,
-	=0 {You like this.}
-	one {You and <a href="{url}"># other person</a> like this.}
-	other {You and <a href="{url}"># other people</a> like this.}
+$txt['you_reactions_count'] = '{num, plural,
+	=0 {You reacted to this.}
+	one {You and <a href="{url}"># other person</a> reacted to this.}
+	other {You and <a href="{url}"># other people</a> reacted to this.}
 }';
 
 $txt['report_to_mod'] = 'Report to moderator';

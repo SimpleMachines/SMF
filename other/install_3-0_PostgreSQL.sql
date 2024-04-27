@@ -1210,7 +1210,7 @@ CREATE TABLE {$db_prefix}messages (
 	body text NOT NULL,
 	icon varchar(16) NOT NULL DEFAULT 'xx',
 	approved smallint NOT NULL DEFAULT '1',
-	likes smallint NOT NULL DEFAULT '0',
+	reacts smallint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_msg)
 );
 
@@ -1226,7 +1226,7 @@ CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member,
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
-CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes);
+CREATE INDEX {$db_prefix}messages_reacts ON {$db_prefix}messages (reacts);
 #
 # Table structure for table `moderators`
 #
@@ -1734,23 +1734,24 @@ CREATE TABLE {$db_prefix}user_drafts (
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 
 #
-# Table structure for table `user_likes`
+# Table structure for table `user_reacts`
 #
 
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}user_reacts (
 	id_member int NOT NULL DEFAULT '0',
 	content_type char(6) DEFAULT '',
 	content_id int NOT NULL DEFAULT '0',
-	like_time int NOT NULL DEFAULT '0',
+	react_time int NOT NULL DEFAULT '0',
+	react_id int NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member)
 );
 
 #
-# Indexes for table `user_likes`
+# Indexes for table `user_reacts`
 #
 
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+CREATE INDEX {$db_prefix}user_reacts_content ON {$db_prefix}user_reacts (content_id, content_type);
+CREATE INDEX {$db_prefix}user_reacts_reactorr ON {$db_prefix}user_reacts (id_member);
 
 #
 # Table structure for `mentions`
@@ -2827,7 +2828,7 @@ VALUES (0, 'alert_timeout', 10),
 	(0, 'member_report', 3),
 	(0, 'member_report_reply', 3),
 	(0, 'msg_auto_notify', 0),
-	(0, 'msg_like', 1),
+	(0, 'msg_react', 1),
 	(0, 'msg_mention', 1),
 	(0, 'msg_notify_pref', 1),
 	(0, 'msg_notify_type', 1),
