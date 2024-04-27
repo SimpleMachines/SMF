@@ -66,11 +66,39 @@ function template_main()
 	echo '
 		</div>';
 
-	// Go through each table!
-	foreach (Utils::$context['tables'] as $table)
+	if (count(Utils::$context['tables']) > 1)
 	{
 		echo '
-		<table class="table_grid report_results">';
+		<style>';
+
+		foreach (Utils::$context['tables'] as $i => $table)
+			echo '
+			body:has(#report_check_', $i + 1, ':not(:checked)) #report_', $i + 1, ' {
+				display: none;
+			}';
+
+	echo '
+		</style>
+		<form class="windowbg clear" id="report_filter">
+			<fieldset>';
+
+		foreach (Utils::$context['tables'] as $i => $table)
+			if (!empty($table['title']))
+				echo '
+			<label>
+				<input type="checkbox" id="report_check_', $i + 1, '" checked>
+				', $table['title'], '
+			</label>';
+
+		echo '
+			</fieldset>
+		</form>';
+	}
+
+	foreach (Utils::$context['tables'] as $i => $table)
+	{
+		echo '
+		<table class="table_grid report_result" id="report_', $i + 1, '">';
 
 		if (!empty($table['title']))
 			echo '

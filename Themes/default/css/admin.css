@@ -547,11 +547,14 @@ ul.moderation_notes li {
 	min-height: 2.4em;
 	padding: 3px 0;
 }
-.report_results th {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+#report_filter fieldset {
+	display: flex;
+	flex-flow: wrap;
+	gap: 0 1em;
 }
-
+.report_result {
+	margin: 1ex 0 !important;
+}
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
 }
