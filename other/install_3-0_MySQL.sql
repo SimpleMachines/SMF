@@ -989,6 +989,16 @@ CREATE TABLE {$db_prefix}qanda (
 ) ENGINE={$engine};
 
 #
+# Table structure for table `reactions`
+#
+
+CREATE TABLE {$db_prefix}reactions (
+	id_reaction SMALLINT UNSIGNED AUTO_INCREMENT,
+	name VARCHAR(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_reaction)
+) ENGINE={$engine};
+
+#
 # Table structure for table `scheduled_tasks`
 #
 
@@ -1193,10 +1203,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 
 CREATE TABLE {$db_prefix}user_reacts (
 	id_member MEDIUMINT UNSIGNED DEFAULT '0',
+	id_react SMALLINT UNSIGNED DEFAULT '0',
 	content_type CHAR(6) DEFAULT '',
 	content_id INT UNSIGNED DEFAULT '0',
 	react_time INT UNSIGNED NOT NULL DEFAULT '0',
-	react_id INT UNSIGNED DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member),
 	INDEX content (content_id, content_type),
 	INDEX reactor (id_member)
@@ -1926,6 +1936,15 @@ VALUES (-1, 'search_posts'),
 	(2, 'calendar_edit_any'),
 	(2, 'access_mod_center');
 # --------------------------------------------------------
+
+#
+# Dumping data for table `reactions`
+#
+
+INSERT INTO {$db_prefix}reactions
+	(id_reaction, name)
+VALUES
+	(1, 'like');
 
 #
 # Dumping data for table `scheduled_tasks`

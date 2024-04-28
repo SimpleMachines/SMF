@@ -1463,6 +1463,22 @@ CREATE TABLE {$db_prefix}qanda (
 CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
 
 #
+# Sequence for table `reactions`
+#
+
+CREATE SEQUENCE {$db_prefix}reactions_seq START WITH 0;
+
+#
+# Table structure for table `reactions`
+#
+
+CREATE TABLE {$db_prefix}reactions (
+	id_reaction smallint DEFAULT nextval('{$db_prefix}reactions_seq'),
+	name varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_reaction)
+);
+
+#
 # Sequence for table `scheduled_tasks`
 #
 
@@ -1739,10 +1755,10 @@ CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts
 
 CREATE TABLE {$db_prefix}user_reacts (
 	id_member int NOT NULL DEFAULT '0',
+	id_reaction smallint NOT NULL DEFAULT '0',
 	content_type char(6) DEFAULT '',
 	content_id int NOT NULL DEFAULT '0',
 	react_time int NOT NULL DEFAULT '0',
-	react_id int NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member)
 );
 
@@ -1751,7 +1767,7 @@ CREATE TABLE {$db_prefix}user_reacts (
 #
 
 CREATE INDEX {$db_prefix}user_reacts_content ON {$db_prefix}user_reacts (content_id, content_type);
-CREATE INDEX {$db_prefix}user_reacts_reactorr ON {$db_prefix}user_reacts (id_member);
+CREATE INDEX {$db_prefix}user_reacts_reactor ON {$db_prefix}user_reacts (id_member);
 
 #
 # Table structure for `mentions`
@@ -2482,6 +2498,14 @@ VALUES (-1, 'search_posts'),
 	(2, 'calendar_edit_any'),
 	(2, 'access_mod_center');
 # --------------------------------------------------------
+
+#
+# Dumping data for table `reactions`
+#
+
+INSERT INTO {$db_prefix}reactions
+	(id_reaction, name)
+VALUES (1, 'like');
 
 #
 # Dumping data for table `scheduled_tasks`
