@@ -276,6 +276,7 @@ function template_body_above()
 		if (!empty(Theme::$current->settings['login_main_menu']))
 		{
 			echo '
+			<ul id="top_info">
 				<li class="welcome">', Lang::getTxt(
 					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
 					[
@@ -285,7 +286,6 @@ function template_body_above()
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
 				), '</li>
-			<ul>
 			</ul>';
 		}
 		else

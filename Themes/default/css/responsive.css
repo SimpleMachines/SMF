@@ -625,21 +625,7 @@
 		max-width: 100%;
 		min-width: unset;
 	}
-	/* Register Page */
-	#registration .button {
-		font-size: 0.67em;
-	}
-	dl.register_form, dl.register_form dt, dl.register_form dd {
-		float: none;
-		width: 100%;
-	}
-	/* Login Page */
-	.login dt, .login dd {
-		float: none;
-		width: 100%;
-		text-align: left;
-	}
-	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, .login select {
+	.login input[type=text], .login select {
 		width: 100%;
 	}
 

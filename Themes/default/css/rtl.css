@@ -381,33 +381,6 @@ ul.post_options li {
 	text-align: right;
 }
 
-/* Styles for the login areas.
-------------------------------------------------------- */
-.login dt {
-	float: right;
-}
-.login dd {
-	float: right;
-	text-align: right;
-}
-.login h3 img {
-	margin: 0 0 0.5em;
-}
-
-/* Additional profile fields */
-dl.register_form {
-	clear: left;
-}
-
-dl.register_form dt {
-	float: right;
-}
-
-/* Styles for maintenance mode.
-------------------------------------------------------- */
-#maintenance_mode img.floatleft {
-	margin-left: 1em;
-}
 /* common for all admin sections */
 h3.titlebg img {
 	margin-left: 0.5em;

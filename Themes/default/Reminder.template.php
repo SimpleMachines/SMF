@@ -20,21 +20,17 @@ use SMF\Utils;
 function template_main()
 {
 	echo '
-	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '">
-		<div class="tborder login">
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '" class="login">
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+		</div>
+		<div class="windowbg form_grid">
+			<p class="descbox">', Lang::$txt['password_reminder_desc'], '</p>
+			<label>', Lang::$txt['user_email'], ':</label>
+			<div>
+				<input type="text" name="user" autofocus size="30">
 			</div>
-			<div class="roundframe">
-				<p class="smalltext centertext">', Lang::$txt['password_reminder_desc'], '</p>
-				<dl>
-					<dt>', Lang::$txt['user_email'], '</dt>
-					<dd><input type="text" name="user" size="30"></dd>
-				</dl>
-				<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
-				<br class="clear">
-			</div>
+			<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
 		</div>
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
@@ -47,30 +43,25 @@ function template_main()
 function template_reminder_pick()
 {
 	echo '
-	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '">
-		<div class="tborder login">
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
-			</div>
-			<div class="roundframe">
-				<p><strong>', Lang::$txt['authentication_options'], '</strong></p>
-				<p>
-					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked></dt>
-					<label for="reminder_type_email">', Lang::$txt['authentication_password_email'], '</label></dd>
-				</p>
-				<p>
-					<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret">
-					<label for="reminder_type_secret">', Lang::$txt['authentication_password_secret'], '</label>
-				</p>
-				<div class="flow_auto">
-					<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
-					<input type="hidden" name="uid" value="', Utils::$context['current_member']['id'], '">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
-				</div>
-			</div><!-- .roundframe -->
-		</div><!-- .login -->
+	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '" class="login">
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+		</div>
+		<div class="windowbg form_grid">
+			<p class="descbox">', Lang::$txt['authentication_options'], ':</p>
+			<p>
+				<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checkeiv></label>
+				<label for="reminder_type_email">', Lang::$txt['authentication_password_email'], '</label></div>
+			</p>
+			<p>
+				<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret">
+				<label for="reminder_type_secret">', Lang::$txt['authentication_password_secret'], '</label>
+			</p>
+			<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
+			<input type="hidden" name="uid" value="', Utils::$context['current_member']['id'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
+		</div>
 	</form>';
 }
 
@@ -80,8 +71,7 @@ function template_reminder_pick()
 function template_sent()
 {
 	echo '
-		<br>
-		<div class="tborder login" id="reminder_sent">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">' . Utils::$context['page_title'] . '</h3>
 			</div>
@@ -95,34 +85,21 @@ function template_sent()
 function template_set_password()
 {
 	echo '
-	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', Utils::$context['character_set'], '">
-		<div class="tborder login">
-			<div class="cat_bar">
-				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
+	<form action="', Config::$scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', Utils::$context['character_set'], '" class="login">
+		<div class="cat_bar">
+			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
+		</div>
+		<div class="windowbg form_grid">
+			<label>', Lang::$txt['choose_pass'], ': </label>
+			<div>
+				<input type="password" name="passwrd1" autofocus data-autov="pwmain" size="22">
 			</div>
-			<div class="roundframe">
-				<dl>
-					<dt>', Lang::$txt['choose_pass'], '</dt>
-					<dd>
-						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
-						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
-						</span>
-					</dd>
-					<dt>', Lang::$txt['verify_pass'], '</dt>
-					<dd>
-						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
-						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="main_icons invalid"></span>
-						</span>
-					</dd>
-				</dl>
-				<p class="align_center">
-					<input type="submit" value="', Lang::$txt['save'], '" class="button">
-				</p>
-			</div><!-- .roundframe -->
-		</div><!-- .login -->
+			<label>', Lang::$txt['verify_pass'], ': </label>
+			<div>
+				<input type="password" name="passwrd2" data-autov="pwverify" size="22">
+			</div>
+			<input type="submit" value="', Lang::$txt['save'], '" class="button">
+		</div>
 		<input type="hidden" name="code" value="', Utils::$context['code'], '">
 		<input type="hidden" name="u" value="', Utils::$context['memID'], '">
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -146,42 +123,29 @@ function template_set_password()
 function template_ask()
 {
 	echo '
-	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator">
-		<div class="tborder login">
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+	<form action="', Config::$scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" class="login">
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+		</div>
+		<div class="windowbg form_grid">
+			<p class="descbox">', Lang::$txt['enter_new_password'], '</p>
+			<label>', Lang::$txt['secret_question'], ':</label>
+			<div>', Utils::$context['secret_question'], '</div>
+			<label>', Lang::$txt['secret_answer'], ':</label>
+			<div><input type="text" name="secret_answer" autofocus size="22"></div>
+			<label>', Lang::$txt['choose_pass'], ': </label>
+			<div>
+				<input type="password" name="passwrd1" data-autov="pwmain" size="22">
 			</div>
-			<div class="roundframe">
-				<p class="smalltext">', Lang::$txt['enter_new_password'], '</p>
-				<dl>
-					<dt>', Lang::$txt['secret_question'], '</dt>
-					<dd>', Utils::$context['secret_question'], '</dd>
-					<dt>', Lang::$txt['secret_answer'], '</dt>
-					<dd><input type="text" name="secret_answer" size="22"></dd>
-					<dt>', Lang::$txt['choose_pass'], '</dt>
-					<dd>
-						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
-						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
-						</span>
-					</dd>
-					<dt>', Lang::$txt['verify_pass'], '</dt>
-					<dd>
-						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
-						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
-						</span>
-					</dd>
-				</dl>
-				<div class="auto_flow">
-					<input type="submit" value="', Lang::$txt['save'], '" class="button">
-					<input type="hidden" name="uid" value="', Utils::$context['remind_user'], '">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['remind-sai_token_var'], '" value="', Utils::$context['remind-sai_token'], '">
-				</div>
-			</div><!-- .roundframe -->
-		</div><!-- .login -->
+			<label>', Lang::$txt['verify_pass'], ': </label>
+			<div>
+				<input type="password" name="passwrd2" data-autov="pwverify" size="22">
+			</div>
+			<input type="submit" value="', Lang::$txt['save'], '" class="button">
+			<input type="hidden" name="uid" value="', Utils::$context['remind_user'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['remind-sai_token_var'], '" value="', Utils::$context['remind-sai_token'], '">
+		</div>
 	</form>
 	<script>
 		var regTextStrings = {
@@ -193,7 +157,6 @@ function template_ask()
 		};
 		var verificationHandle = new smfRegister("creator", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';
-
 }
 
 ?>
