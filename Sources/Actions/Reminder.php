@@ -265,6 +265,7 @@ class Reminder implements ActionInterface, Routable
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
 		Theme::loadTemplate('Login');
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context += [
 			'page_title' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 			'sub_template' => 'login',
@@ -388,6 +389,7 @@ class Reminder implements ActionInterface, Routable
 
 		// Tell them it went fine.
 		Theme::loadTemplate('Login');
+		Theme::loadJavaScriptFile('login.js', ['minimize' => true], 'smf_login');
 		Utils::$context += [
 			'page_title' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 			'sub_template' => 'login',

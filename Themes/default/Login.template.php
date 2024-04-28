@@ -27,129 +27,73 @@ function template_login()
 					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 				</h3>
 			</div>
-			<div class="roundframe">
-				<form class="login" action="', Utils::$context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="UTF-8">';
+			<form action="', Utils::$context['login_url'], '" name="frmLogin" method="post" accept-charset="UTF-8"> class="windowbg form_grid">';
 
 	// Did they make a mistake last time?
 	if (!empty(Utils::$context['login_errors']))
 		echo '
-					<div class="errorbox">', implode('<br>', Utils::$context['login_errors']), '</div>
-					<br>';
+				<p class="errorbox">', implode('<br>', Utils::$context['login_errors']), '</p>';
 
 	// Or perhaps there's some special description for this time?
 	if (isset(Utils::$context['description']))
 		echo '
-					<div class="information">', Utils::$context['description'], '</div>';
+				<p class="descbox">', Utils::$context['description'], '</p>';
 
 	// Now just get the basic information - username, password, etc.
 	echo '
-					<dl>
-						<dt>', Lang::getTxt('username', file: 'General'), '</dt>
-						<dd>
-							<input type="text" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', Utils::$context['default_username'], '" required>
-						</dd>
-						<dt>', Lang::getTxt('password', file: 'General'), '</dt>
-						<dd>
-							<input type="password" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
-						</dd>
-					</dl>
-					<dl>
-						<dt></dt>
-						<dd>
+				<label>', Lang::$txt['username'], ':</label>
+				<div>
+					<input type="text" name="user" size="20" value="', Utils::$context['default_username'], '" required>
+				</div>
+				<label>', Lang::$txt['password'], ':</label>
+				<div>
+					<input type="password" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
+				</div>
+				<label>', Lang::$txt['time_logged_in'], ':</label>
+				<div>
 							<label>
 								<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
 								', Lang::getTxt('remember_me', file: 'General'), '
 							</label>
-						</dd>';
+				</div>';
 
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete']))
 		echo '
-						<dt class="alert">', Lang::getTxt('undelete_account', file: 'Login'), '</dt>
-						<dd><input type="checkbox" name="undelete"></dd>';
+				<label class="alert">', Lang::$txt['undelete_account'], ':</label>
+				<div><input type="checkbox" name="undelete"></div>';
 
 	echo '
-					</dl>
-					<p>
-						<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
-					</p>
-					<p class="smalltext">
-						<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
-					</p>';
+				<input type="submit" value="', Lang::$txt['login'], '" class="button">
+				<p class="smalltext">
+					<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
+				</p>';
+
 	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
 		echo '
 					<p class="smalltext">
 						', Lang::getTxt('welcome_guest_activate', ['scripturl' => Config::$scripturl], file: 'General'), '
 					</p>';
-	echo '
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
-					<script>
-						setTimeout(function() {
-							document.getElementById("', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', isset(Utils::$context['default_username']) && Utils::$context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
-						}, 150);';
-
-	if (!empty(Utils::$context['from_ajax']) && ((empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], array('same', 'subsite')))))
-	{
-		echo '
-						form = $("#frmLogin");
-						form.submit(function(e) {
-							e.preventDefault();
-							e.stopPropagation();
-
-							$.ajax({
-								url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
-								method: "POST",
-								headers: {
-									"X-SMF-AJAX": 1
-								},
-								xhrFields: {
-									withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-								},
-								data: form.serialize(),
-								success: function(data) {';
-
-
-		// While a nice action is to replace the document body after a login, this may fail on CORS requests because the action may not be redirected back to the page they started the login process from.  So for these cases, we simply just reload the page.
-		if (empty(Utils::$context['valid_cors_found']) || Utils::$context['valid_cors_found'] == 'same')
-			echo '
-									if (data.indexOf("<bo" + "dy") > -1) {
-										document.open();
-										document.write(data);
-										document.close();
-									}
-									else
-										form.parent().html($(data).find(".roundframe").html());';
-		else
-			echo '
-									if ($(data).find(".roundframe").length > 0 && $(data).find("body").length == 0) {
-										form.parent().html($(data).find(".roundframe").html());
-									}
-									else {
-										window.location.reload();
-									';
-
-		echo '
-								},
-								error: function(xhr) {
-									var data = xhr.responseText;
-									if (data.indexOf("<bo" + "dy") > -1) {
-										document.open();
-										document.write(data);
-										document.close();
-									}
-									else
-										form.parent().html($(data).filter("#fatal_error").html());
-								}
-							});
-
-							return false;
-						});';
-	}
 
 	echo '
-					</script>
-				</form>';
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
+				<script>
+					var oLogin = new smf_Login({
+						oForm: document.forms.frmLogin,
+						bIsFromAjax: ', !empty(Utils::$context['from_ajax']) , ',
+						sCors: ', Utils::$context['valid_cors_found'] ?? '', '
+					});
+					setTimeout(function() {
+						document.forms.frmLogin.elements.', Utils::$context['default_username'] != '' ? 'passwrd' : 'user', '.focus();
+					}, 150);';
+
+	if (!empty(Utils::$context['from_ajax']) && (empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], array('same', 'subsite'))))
+		echo '
+					oLogin.login()';
+
+	echo '
+				</script>';
 
 	if (!empty(Utils::$context['can_register']))
 		echo '
@@ -158,14 +102,8 @@ function template_login()
 					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl], file: 'General'), '
 				</div>';
 
-	// It is a long story as to why we have this when we're clearly not going to use it.
-	if (!empty(Utils::$context['from_ajax']))
-		echo '
-				<br>
-				<a href="javascript:self.close();"></a>';
-
 	echo '
-			</div><!-- .roundframe -->
+			</form>
 		</div><!-- .login -->';
 }
 
@@ -181,7 +119,7 @@ function template_login_tfa()
 					', Lang::getTxt('tfa_profile_label', file: 'Profile'), '
 				</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="windowbg">';
 
 	if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error']))
 		echo '
@@ -190,11 +128,11 @@ function template_login_tfa()
 				</div>';
 
 	echo '
-				<form action="', Utils::$context['tfa_url'], '" method="post" id="frmTfa">
+				<form action="', Utils::$context['tfa_url'], '" method="post" name="frmTfa">
 					<div id="tfaCode">
 						<p style="margin-bottom: 0.5em">', Lang::getTxt('tfa_login_desc', file: 'Profile'), '</p>
 						<div class="centertext">
-							<strong>', Lang::getTxt('tfa_code', file: 'Profile'), '</strong>
+							<strong>', Lang::$txt['tfa_code'], ':</strong>
 							<input type="text" name="tfa_code" value="', !empty(Utils::$context['tfa_value']) ? Utils::$context['tfa_value'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::getTxt('login', file: 'General'), '">
 						</div>
@@ -206,76 +144,41 @@ function template_login_tfa()
 					<div id="tfaBackup" style="display: none;">
 						<p style="margin-bottom: 0.5em">', Lang::getTxt('tfa_backup_desc', file: 'Profile'), '</p>
 						<div class="centertext">
-							<strong>', Lang::getTxt('tfa_backup_code', file: 'Profile'), '</strong>
+							<strong>', Lang::$txt['tfa_backup_code'], ': </strong>
 							<input type="text" name="tfa_backup" value="', !empty(Utils::$context['tfa_backup']) ? Utils::$context['tfa_backup'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::getTxt('login', file: 'General'), '">
 						</div>
 					</div>
 				</form>
 				<script>
-					form = $("#frmTfa");';
+					var form = document.forms.frmTfa;';
 
-	if (!empty(Utils::$context['from_ajax'])) {
+	if (!empty(Utils::$context['from_ajax']))
 		echo '
-					form.submit(function(e) {
+					form.addEventListener("submit", e => {
 						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
-						if (form.find("input[name=tfa_backup]:first").val().length > 0)
+						if (form.elements.tfa_backup.value != "")
 							return true;
 
 						e.preventDefault();
 						e.stopPropagation();
 
-						$.ajax({
-							url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
-							method: "POST",
-							headers: {
-								"X-SMF-AJAX": 1
-							},
-							xhrFields: {
-								withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-							},
-							data: form.serialize(),
-							success: function(data) {
-								if (data.indexOf("<bo" + "dy") > -1) {';
-
-		if (empty(Utils::$context['valid_cors_found']) || Utils::$context['valid_cors_found'] == 'same') {
-			echo '
-									document.location = ', Utils::escapeJavaScript(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';';
-		}
-		else {
-			echo '
-									window.location.reload();';
-		}
-
-		echo '
-								}
-								else {
-									window.location.reload();
-								}
-							},
-							error: function(xhr) {
-								var data = xhr.responseText;
-								if (data.indexOf("<bo" + "dy") > -1) {
-									document.open();
-									document.write(data);
-									document.close();
-								}
-								else
-									form.parent().html($(data).filter("#fatal_error").html());
+						$.post(form.action, $(form).serialize(), function(data) {
+							if (data.indexOf("<bo" + "dy") > -1)
+								document.location = ', Utils::JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';
+							else {
+								$(form).parent().html($(data).find(".windowbg form_grid").html());
 							}
 						});
-
-						return false;
 					});';
-	}
 
 	echo '
-					form.find("input[name=backup]").click(function(e) {
-						$("#tfaBackup").show();
-						$("#tfaCode").hide();
+					form.elements.backup.addEventListener("click", () => {
+						form.getElementById("tfaBackup").style.display = "none";
+						form.getElementById("tfaCode").style.display = "";
 					});
 				</script>
-			</div><!-- .roundframe -->
+			</div><!-- .windowbg -->
 		</div><!-- .login -->';
 }
 
@@ -286,16 +189,17 @@ function template_kick_guest()
 {
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
-	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="UTF-8" name="frmLogin" id="frmLogin">
-		<div class="login">
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::getTxt('warning', file: 'Login'), '</h3>
-			</div>';
+	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="UTF-8" class="login">
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt['warning'], '</h3>
+		</div>';
 
 	// Show the message or default message.
 	echo '
-			<p class="information centertext">
-				', empty(Utils::$context['kick_message']) ? Lang::getTxt('only_members_can_access', file: 'Login') : Utils::$context['kick_message'], '<br>';
+		<p class="noticebox">
+			', Utils::$context['kick_message'], '
+			<br>
+			';
 
 	if (Utils::$context['can_register'])
 		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']], file: 'Login');
@@ -304,42 +208,36 @@ function template_kick_guest()
 
 	// And now the login information.
 	echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
-				</h3>
-			</div>
-			<div class="roundframe">
-				<dl>
-					<dt>', Lang::getTxt('username', file: 'General'), '</dt>
-					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', Lang::getTxt('password', file: 'General'), '</dt>
-					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt></dt>
-					<dd>
-						<label>
-							<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
-							', Lang::getTxt('never_expire', file: 'General'), '
-						</label>
-					</dd>
-				</dl>
-				<p class="centertext">
-					<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
-				</p>
-				<p class="centertext smalltext">
-					<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
-				</p>
-			</div>
-			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
-		</div><!-- .login -->
-	</form>';
+		</p>
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span class="main_icons login"></span> ', Lang::$txt['login'], '
+			</h3>
+		</div>
+		<div class="windowbg form_grid">
+			<label>', Lang::$txt['username'], ':</label>
+			<div><input type="text" name="user" autofocus size="20"></div>
+			<label>', Lang::$txt['password'], ':</label>
+			<div><input type="password" name="passwrd" size="20"></div>
+			<label>', Lang::$txt['time_logged_in'], ':</label>
+			<div>
+				<select name="cookielength" id="cookielength">';
 
-	// Do the focus thing...
+	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
+		echo '
+					<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
+
 	echo '
-	<script>
-		document.forms.frmLogin.user.focus();
-	</script>';
+				</select>
+			</div>
+			<input type="submit" value="', Lang::$txt['login'], '" class="button">
+			<p class="centertext smalltext">
+				<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
+			</p>
+		</div>
+		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+		<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
+	</form>';
 }
 
 /**
@@ -349,38 +247,37 @@ function template_maintenance()
 {
 	// Display the administrator's message at the top.
 	echo '
-	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="UTF-8">
-		<div class="login" id="maintenance_mode">
-			<div class="cat_bar">
-				<h3 class="catbg">', Utils::$context['title'], '</h3>
+	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="UTF-8" class="login" id="maintenance_mode">
+		<div class="cat_bar">
+			<h3 class="catbg">', Utils::$context['title'], '</h3>
+		</div>
+		<p class="descbox">
+			<img src="', Theme::$current->settings['images_url'], '/construction.png" wilabelh="40" height="40" alt="', Lang::$txt['in_maintain_mode'], '">
+			', Utils::$context['description'], '<br class="clear">
+		</p>
+		<div class="title_bar">
+			<h4 class="titlebg">', Lang::$txt['admin_login'], '</h4>
+		</div>
+		<div class="windowbg form_grid">
+			<label>', Lang::$txt['username'], ':</label>
+			<div><input type="text" name="user" autofocus size="20"></div>
+			<label>', Lang::$txt['password'], ':</label>
+			<div><input type="password" name="passwrd" size="20"></div>
+			<label>', Lang::$txt['time_logged_in'], ':</label>
+			<div>
+				<select name="cookielength" id="cookielength">';
+
+	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
+		echo '
+					<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
+
+	echo '
+				</select>
 			</div>
-			<div class="information">
-				<img class="floatleft" src="', Theme::$current->settings['images_url'], '/construction.png" width="40" height="40" alt="', Lang::getTxt('in_maintain_mode', file: 'Login'), '">
-				', Utils::$context['description'], '<br class="clear">
-			</div>
-			<div class="title_bar">
-				<h4 class="titlebg">', Lang::getTxt('admin_login', file: 'General'), '</h4>
-			</div>
-			<div class="roundframe">
-				<dl>
-					<dt>', Lang::getTxt('username', file: 'General'), '</dt>
-					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', Lang::getTxt('password', file: 'General'), '</dt>
-					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt></dt>
-					<dd>
-						<label>
-							<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
-							', Lang::getTxt('never_expire', file: 'General'), '
-						</label>
-					</dd>
-				</dl>
-				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
-				<br class="clear">
-			</div>
-			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
-		</div><!-- #maintenance_mode -->
+			<input type="submit" value="', Lang::$txt['login'], '" class="button">
+		</div>
+		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+		<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
 	</form>';
 }
 
@@ -391,39 +288,32 @@ function template_admin_login()
 {
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
-	<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, Utils::$context['get_data'], '" method="post" accept-charset="UTF-8" name="frmLogin" id="frmLogin">
+	<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, Utils::$context['get_data'], '" method="post" accept-charset="UTF-8">
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 				</h3>
 			</div>
-			<div class="roundframe centertext">';
+			<div class="windowbg centertext">';
 
 	if (!empty(Utils::$context['incorrect_password']))
 		echo '
 				<div class="error">', Lang::getTxt('admin_incorrect_password', file: 'Admin'), '</div>';
 
 	echo '
-				<strong>', Lang::getTxt('password', file: 'General'), '</strong>
-				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" size="24">
-				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a><br>
+				<strong>', Lang::$txt['password'], ':</strong>
+				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" autofocus size="24">
+				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><br>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-login_token_var'], '" value="', Utils::$context['admin-login_token'], '">
 				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo Utils::$context['post_data'], '
-			</div><!-- .roundframe -->
+			</div><!-- .windowbg -->
 		</div><!-- #admin_login -->
-		<input type="hidden" name="', Utils::$context['sessionCheckType'], '_hash_pass" value="">
 	</form>';
-
-	// Focus on the password box.
-	echo '
-	<script>
-		document.forms.frmLogin.', Utils::$context['sessionCheckType'], '_pass.focus();
-	</script>';
 }
 
 /**
@@ -433,25 +323,21 @@ function template_retry_activate()
 {
 	// Just ask them for their code so they can try it again...
 	echo '
-		<form action="', Config::$scripturl, '?action=activate;u=', Utils::$context['member_id'], '" method="post" accept-charset="UTF-8">
-			<div class="title_bar">
-				<h3 class="titlebg">', Utils::$context['page_title'], '</h3>
-			</div>
-			<div class="roundframe">
-				<dl>';
+		<div class="cat_bar">
+			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
+		</div>
+		<form action="', Config::$scripturl, '?action=activate;u=', Utils::$context['member_id'], '" method="post" accept-charset="UTF-8" class="windowbg form_grid">';
 
 	// You didn't even have an ID?
 	if (empty(Utils::$context['member_id']))
 		echo '
-					<dt>', Lang::getTxt('invalid_activation_username', file: 'Login'), '</dt>
-					<dd><input type="text" name="user" size="30"></dd>';
+			<label>', Lang::$txt['invalid_activation_username'], ':</label>
+			<div><input type="text" name="user" size="30"></div>';
 
 	echo '
-					<dt>', Lang::getTxt('invalid_activation_retry', file: 'Login'), '</dt>
-					<dd><input type="text" name="code" size="30"></dd>
-				</dl>
-				<p><input type="submit" value="', Lang::getTxt('invalid_activation_submit', file: 'Login'), '" class="button"></p>
-			</div>
+			<label>', Lang::$txt['invalid_activation_retry'], ':</label>
+			<div><input type="text" name="code" size="30"></div>
+			<input type="submit" value="', Lang::$txt['invalid_activation_submit'], '" class="button">
 		</form>';
 }
 
@@ -462,34 +348,26 @@ function template_resend()
 {
 	// Just ask them for their code so they can try it again...
 	echo '
-		<form action="', Config::$scripturl, '?action=activate;sa=resend" method="post" accept-charset="UTF-8">
-			<div class="title_bar">
-				<h3 class="titlebg">', Utils::$context['page_title'], '</h3>
-			</div>
-			<div class="roundframe">
-				<dl>
-					<dt>', Lang::getTxt('invalid_activation_username', file: 'Login'), '</dt>
-					<dd><input type="text" name="user" size="40" value="', Utils::$context['default_username'], '"></dd>
-				</dl>
-				<p>', Lang::getTxt('invalid_activation_new', file: 'Login'), '</p>
-				<dl>
-					<dt>', Lang::getTxt('invalid_activation_new_email', file: 'Login'), '</dt>
-					<dd><input type="text" name="new_email" size="40"></dd>
-					<dt>', Lang::getTxt('invalid_activation_password', file: 'Login'), '</dt>
-					<dd><input type="password" name="passwd" size="30"></dd>
-				</dl>';
+		<div class="cat_bar">
+			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
+		</div>
+		<form action="', Config::$scripturl, '?action=activate;sa=resend" method="post" accept-charset="UTF-8" class="windowbg form_grid">
+			<label>', Lang::$txt['invalid_activation_username'], ':</label>
+			<div><input type="text" name="user" autofocus size="40" value="', Utils::$context['default_username'], '"></div>
+			<p>', Lang::$txt['invalid_activation_new'], '</p>
+			<label>', Lang::$txt['invalid_activation_new_email'], ':</label>
+			<div><input type="text" name="new_email" size="40"></div>
+			<label>', Lang::$txt['invalid_activation_password'], ':</label>
+			<div><input type="password" name="passwd" size="30"></div>';
 
 	if (Utils::$context['can_activate'])
 		echo '
-				<p>', Lang::getTxt('invalid_activation_known', file: 'Login'), '</p>
-				<dl>
-					<dt>', Lang::getTxt('invalid_activation_retry', file: 'Login'), '</dt>
-					<dd><input type="text" name="code" size="30"></dd>
-				</dl>';
+			<p>', Lang::$txt['invalid_activation_known'], '</p>
+			<label>', Lang::$txt['invalid_activation_retry'], ':</label>
+			<div><input type="text" name="code" size="30"></div>';
 
 	echo '
-				<p><input type="submit" value="', Lang::getTxt('invalid_activation_resend', file: 'Login'), '" class="button"></p>
-			</div><!-- .roundframe -->
+			<input type="submit" value="', Lang::$txt['invalid_activation_resend'], '" class="button">
 		</form>';
 }
 
@@ -498,24 +376,21 @@ function template_resend()
  */
 function template_logout()
 {
-	// This isn't that much... just like normal login but with a message at the top.
 	echo '
-	<form action="', Config::$scripturl . '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8" name="frmLogout" id="frmLogout">
-		<div class="logout">
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::getTxt('logout_confirm', file: 'Login'), '</h3>
-			</div>
-			<div class="roundframe">
-				<p class="information centertext">
-					', Lang::getTxt('logout_notice', file: 'Login'), '
-				</p>
+	<form action="', Config::$scripturl . '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt['logout_confirm'], '</h3>
+		</div>
+		<div class="windowbg">
+			<p class="information centertext">
+				', Lang::$txt['logout_notice'], '
+			</p>
 
-				<p class="centertext">
-					<input type="submit" value="', Lang::getTxt('logout', file: 'General'), '" class="button">
-					<input type="submit" name="cancel" value="', Lang::getTxt('logout_return', file: 'Login'), '" class="button">
-				</p>
-			</div>
-		</div><!-- .logout -->
+			<p class="centertext">
+				<input type="submit" value="', Lang::$txt['logout'], '" class="button">
+				<input type="submit" name="cancel" value="', Lang::$txt['logout_return'], '" class="button">
+			</p>
+		</div>
 	</form>';
 }
 

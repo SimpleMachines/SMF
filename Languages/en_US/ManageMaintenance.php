@@ -42,7 +42,7 @@ $txt['repair_missing_cached_subject'] = 'The subject of topic #{0, number, integ
 $txt['repair_missing_topic_for_cache'] = 'Cached word "{0}" is linked to a non-existent topic.';
 $txt['repair_missing_log_poll_member'] = 'Poll #{0, number, integer} has been given a vote from member #{1, number, integer} , who is now missing.';
 $txt['repair_missing_log_poll_vote'] = 'A vote was cast by member #{0, number, integer} on a non-existent poll #{1, number, integer}.';
-$txt['repair_missing_thumbnail_parent'] = 'A thumbnail exists called {0}, but it does not have a parent.';
+$txt['repair_missing_thumbnail_parent'] = 'A thumbnail exists called {0}, but it doesn\'t have a parent.';
 $txt['repair_report_missing_comments'] = 'Report #{0, number, integer} of topic: "{1}" has no comments.';
 $txt['repair_comments_missing_report'] = 'Report comment #{0, number, integer} submitted by {1} has no related report.';
 $txt['repair_group_request_missing_member'] = 'A group request still exists for deleted member #{0, number, integer}.';
@@ -100,7 +100,7 @@ $txt['database_numb_tables'] = '{0, plural,
 $txt['database_optimize_attempt'] = 'Attempting to optimize your database...';
 $txt['database_optimizing'] = 'Optimizing {0}... {1} KB optimized.';
 $txt['database_already_optimized'] = 'All of the tables were already optimized.';
-$txt['database_opimize_unneeded'] = 'It was not necessary to optimize any tables.';
+$txt['database_opimize_unneeded'] = 'It wasn\'t necessary to optimize any tables.';
 $txt['database_optimized'] = ' table(s) optimized.';
 $txt['database_no_id'] = 'has a non-existent member ID';
 
@@ -162,16 +162,14 @@ $txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute 
 
 $txt['maintain_recount'] = 'Recount all forum totals and statistics';
 $txt['maintain_recount_info'] = 'Should the total replies of a topic or the number of PMs in your inbox be incorrect: this function will recount all saved counts and statistics for you.';
-$txt['maintain_errors'] = 'Find and repair any errors';
-$txt['maintain_errors_info'] = 'If, for example, posts or topics are missing after a server crash, this function may help in finding them again.';
-$txt['maintain_logs'] = 'Empty out unimportant logs';
-$txt['maintain_logs_info'] = 'This function will empty out all unimportant logs. This should be avoided unless something is wrong, but it does not hurt anything.';
-$txt['maintain_cache'] = 'Empty SMF’s cache';
-$txt['maintain_cache_info'] = 'This function will empty out the cache should you need it to be cleared.';
-$txt['maintain_optimize'] = 'Optimize all tables';
-$txt['maintain_optimize_info'] = 'This task allows you to optimize all tables. This will get rid of overhead, effectively making the tables smaller in size and your forum faster.';
+$txt['maintain_repair'] = 'Find and repair any errors';
+$txt['maintain_repair_info'] = 'Try to find and fix any errors that may prevent posts or topics from showinng up or being searchable. This should be run afer a forum conversion.';
+$txt['maintain_logs'] = 'Clear logs';
+$txt['maintain_logs_info'] = 'Clear out all information-related logs, xuch as the error log.  This should be avoided unless something is wrong, annd  won’t adversely affect forum operations';
+$txt['maintain_cleancache'] = 'Empty SMF’s cache';
+$txt['maintain_cleancache_info'] = 'Empty out the cache should you need it to be cleared.';
 $txt['maintain_version'] = 'Check all files against current versions';
-$txt['maintain_version_info'] = 'This maintenance task allows you to do a detailed version check of all forum files against the official list of latest versions.';
+$txt['maintain_version_info'] = 'Runs a detailed version check of all forum files against the official list of latest versions and displays the results.';
 $txt['maintain_rebuild_settings'] = 'Rebuild Settings.php';
 $txt['maintain_rebuild_settings_info'] = 'This task reconstructs your Settings.php file. It does not change the values stored in the file. Instead, it cleans up and reformats your Settings.php file to a pristine version.';
 $txt['maintain_run_now'] = 'Run task now';
@@ -190,7 +188,7 @@ $txt['maintain_old_since_days'] = 'Remove all topics not posted in for {input_nu
 $txt['maintain_old_nothing_else'] = 'Any sort of topic.';
 $txt['maintain_old_are_moved'] = 'Moved/merged topic notices.';
 $txt['maintain_old_are_locked'] = 'Locked.';
-$txt['maintain_old_are_not_stickied'] = 'But do not count stickied topics.';
+$txt['maintain_old_are_not_stickied'] = 'Exclude sticky topics.';
 $txt['maintain_old_all'] = 'All boards (click to select specific boards)';
 $txt['maintain_old_choose'] = 'Specific boards (click to select all)';
 $txt['maintain_old_remove'] = 'Remove now';
@@ -212,7 +210,7 @@ $txt['maintain_members_confirm'] = 'Are you sure you really want to delete these
 
 $txt['text_title'] = 'Convert to TEXT';
 $txt['mediumtext_title'] = 'Convert to MEDIUMTEXT';
-$txt['mediumtext_introduction'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". It is also possible to revert the column back to TEXT (that operation would reduce the space occupied), but <strong>only if</strong> none of the posts in your database exceed the size of 65535 characters. This condition will be verified before the conversion.';
+$txt['mediumtext_info'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". It is also possible to revert the column back to TEXT (that operation would reduce the space occupied), but <strong>only if</strong> none of the posts in your database exceed the size of 65535 characters. This condition will be verified before the conversion.';
 $txt['body_checking_introduction'] = 'This function will convert the column of your database that contains the text of the messages into a "TEXT" format (currently is "MEDIUMTEXT"). This operation will allow to slightly reduce the amount of space occupied by each message (1 byte per message). If any message stored into the database is longer than 65535 characters it will be truncated and part of the text will be lost.';
 $txt['exceeding_messages'] = 'The following messages are longer than 65535 characters and will be truncated by the process:';
 $txt['exceeding_messages_morethan'] = '{0, plural,
@@ -220,12 +218,12 @@ $txt['exceeding_messages_morethan'] = '{0, plural,
 	other {... and # more messages.}
 }';
 $txt['convert_to_text'] = 'No messages are longer than 65535 characters. You can safely proceed with the conversion without losing any part of the text.';
-$txt['convert_to_suggest_text'] = 'The messages body column in your database is currently set as MEDIUMTEXT, but the maximum allowed length set for the messages is lower than 65535 characters. You may free some space converting the column to TEXT.';
+$txt['convert_to_suggest_text'] = 'The messages body column in your database is currently set as MEDIUMTEXT, but the maximum allowed length set for the messages is less than 65535 characters. You may free some space converting the column to TEXT.';
 
-$txt['entity_convert_title'] = 'Convert HTML-entities to UTF-8 characters';
-$txt['entity_convert_only_utf8'] = 'The database needs to be in UTF-8 format before HTML-entities can be converted to UTF-8';
-$txt['entity_convert_introduction'] = 'This function will convert all characters that are stored in the database as HTML-entities to UTF-8 characters. This is especially useful when you have just converted your forum from a character set like ISO-8859-1 while non-latin characters were used on the forum. The browser then sends all characters as HTML-entities. For example, the HTML-entity &amp;#945; represents the greek letter &#945; (alpha). Converting entities to UTF-8 will improve searching and sorting of text and reduce storage size.';
-$txt['entity_convert_proceed'] = 'Proceed';
+$txt['maintain_convertentities'] = 'Convert HTML-entities to UTF-8 characters';
+$txt['maintain_convertentities_only_utf8'] = 'The database needs to be in UTF-8 format before HTML-entities can be converted to UTF-8';
+$txt['maintain_convertentities_info'] = 'This function will convert all characters that are stored in the database as HTML-entities to UTF-8 characters. This is especially useful when you have just converted your forum from a character set like ISO-8859-1 while non-latin characters were used on the forum. The browser then sends all characters as HTML-entities. For example, the HTML-entity &amp;#945; represents the greek letter &#945; (alpha). Converting entities to UTF-8 will improve searching and sorting of text and reduce storage size.';
+$txt['maintain_convertentities_proceed'] = 'Proceed';
 
 // Move topics out.
 $txt['move_topics_maintenance'] = 'Move Topics';
