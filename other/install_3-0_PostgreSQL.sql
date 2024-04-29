@@ -1210,7 +1210,7 @@ CREATE TABLE {$db_prefix}messages (
 	body text NOT NULL,
 	icon varchar(16) NOT NULL DEFAULT 'xx',
 	approved smallint NOT NULL DEFAULT '1',
-	reacts smallint NOT NULL DEFAULT '0',
+	reactions smallint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_msg)
 );
 
@@ -1226,7 +1226,7 @@ CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member,
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
-CREATE INDEX {$db_prefix}messages_reacts ON {$db_prefix}messages (reacts);
+CREATE INDEX {$db_prefix}messages_reactions ON {$db_prefix}messages (reactions);
 #
 # Table structure for table `moderators`
 #

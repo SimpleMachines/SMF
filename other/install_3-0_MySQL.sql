@@ -805,7 +805,7 @@ CREATE TABLE {$db_prefix}messages (
 	body TEXT NOT NULL,
 	icon VARCHAR(16) NOT NULL DEFAULT 'xx',
 	approved TINYINT NOT NULL DEFAULT '1',
-	reacts SMALLINT UNSIGNED NOT NULL DEFAULT '0',
+	reactions SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_msg),
 	UNIQUE idx_id_board (id_board, id_msg, approved),
 	UNIQUE idx_id_member (id_member, id_msg),
@@ -815,7 +815,7 @@ CREATE TABLE {$db_prefix}messages (
 	INDEX idx_id_member_msg (id_member, approved, id_msg),
 	INDEX idx_current_topic (id_topic, id_msg, id_member, approved),
 	INDEX idx_related_ip (id_member, poster_ip, id_msg),
-	INDEX idx_reacts (reacts)
+	INDEX idx_reactions (reactions)
 ) ENGINE={$engine};
 
 #

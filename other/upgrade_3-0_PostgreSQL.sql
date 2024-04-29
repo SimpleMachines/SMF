@@ -119,13 +119,16 @@ if(!in_array($cols, 'reactions'))
         upgrade_query("ALTER INDEX idx_liker RENAME TO idx_reactor");
 
         // Rename the likes column in the messages table
+        upgrade_query("DROP INDEX idx_messages_likes");
         Db::$db->change_column('{db_prefix}messages', 'likes', ['name' => 'reactions']);
+        upgrade_query("CREATE INDEX idx_messages_reactions ON {db_prefix}messages (reactions)");
 
         // Update user alert prefs
         upgrade_query("UPDATE {db_prefix}user_alerts_prefs SET alert_pref='msg_react' WHERE alert_pref='msg_like'");
     }
     else
     {
+        // Add the table
         upgrade_query("
             CREATE TABLE {db_prefix}user_reacts (
                 id_member mediumint default '0',
@@ -138,6 +141,10 @@ if(!in_array($cols, 'reactions'))
                 INDEX idx_reactor (id_member)
             )
         ");
+
+        // Add the reactions column and related index to the messages table
+        Db::$db->add_column('{db_prefix}messages', ['name' => 'reactions', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
+        Db::$db->add_index('{db_prefix}messages', ['name' => 'idx_messages_reactions', 'columns' => 'reactions']);
     }
 
     // Either way we want to add the new table
