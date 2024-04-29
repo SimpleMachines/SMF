@@ -568,6 +568,10 @@ class TopicSplit implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['split'];
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * General function to split off a topic.
 	 *

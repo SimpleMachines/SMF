@@ -104,14 +104,6 @@ class Export implements ActionInterface
 		// ),
 	];
 
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -356,6 +348,10 @@ class Export implements ActionInterface
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns the path to a secure directory for storing exported profile data.

@@ -34,6 +34,10 @@ class NotifyAnnouncements extends Notify
 	 */
 	public string $type = 'announcements';
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * This does nothing for announcements.
 	 */

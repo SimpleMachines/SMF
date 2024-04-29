@@ -201,6 +201,10 @@ class Main implements ActionInterface
 		],
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var bool
 	 *
@@ -291,6 +295,10 @@ class Main implements ActionInterface
 			];
 		}
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Figures out which parts of the moderation center can be accessed by the

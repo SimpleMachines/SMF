@@ -2073,6 +2073,10 @@ class Attachments implements ActionInterface
 		Utils::redirectexit('action=admin;area=manageattachments;sa=maintenance#transfer');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the configuration variables for the attachments sub-action.
 	 *

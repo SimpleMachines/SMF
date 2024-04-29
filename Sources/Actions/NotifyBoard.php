@@ -37,6 +37,10 @@ class NotifyBoard extends Notify
 	 */
 	public string $type = 'board';
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * For board and topic, make sure we have the necessary ID.
 	 */

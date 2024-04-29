@@ -660,6 +660,10 @@ class Memberlist implements ActionInterface
 		Utils::$context['memberlist_buttons']['mlist_search']['active'] = true;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Retrieves results of the request passed to it
 	 * Puts results of request into the context for the sub template.

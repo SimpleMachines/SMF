@@ -803,6 +803,10 @@ class Stats implements ActionInterface
 		$this->getDailyStats(implode(' OR ', $condition_text), $condition_params);
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Loads the statistics on a daily basis in Utils::$context.
 	 * called by DisplayStats().

@@ -320,6 +320,10 @@ class Register implements ActionInterface
 		Utils::$context['valid_username'] = empty($errors);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Backward compatibility wrapper for show sub-action.
 	 *

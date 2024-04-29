@@ -306,6 +306,10 @@ class IssueWarning implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Get the data about a user's warnings.
 	 *

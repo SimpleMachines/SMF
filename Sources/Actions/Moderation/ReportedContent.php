@@ -568,6 +568,10 @@ class ReportedContent implements ActionInterface
 		SecurityToken::create('mod-reportC-edit');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Recount all open reports. Sets a SESSION var with the updated info.
 	 *

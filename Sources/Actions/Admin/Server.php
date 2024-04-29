@@ -159,6 +159,9 @@ class Server implements ActionInterface
 	 */
 	public static bool $diskspace_disabled = false;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var bool
@@ -680,6 +683,10 @@ class Server implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
 		Utils::$context['sub_template'] = 'php_info';
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Gets configuration variables for the general sub-action.

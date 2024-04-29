@@ -375,6 +375,10 @@ class Post implements ActionInterface
 		IntegrationHook::call('integrate_post_end');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Backward compatibility wrapper.
 	 *

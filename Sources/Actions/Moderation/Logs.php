@@ -254,6 +254,10 @@ class Logs implements ActionInterface
 		$this->createList();
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Get the number of mod log entries.
 	 * Callback for SMF\ItemList().

@@ -1495,6 +1495,10 @@ class Features implements ActionInterface
 		Utils::$context['sub_template'] = 'alert_configuration';
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the configuration variables for the basic sub-action.
 	 *

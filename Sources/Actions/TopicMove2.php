@@ -304,6 +304,10 @@ class TopicMove2 implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Called after a topic is moved to update $board_link and $topic_link to point to new location
 	 */

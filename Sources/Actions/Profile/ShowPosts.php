@@ -374,6 +374,10 @@ class ShowPosts implements ActionInterface
 		new ItemList($list_options);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets information about unwatched (disregarded) topics. Callback for the list in show_unwatched
 	 *

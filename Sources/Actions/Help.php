@@ -109,6 +109,10 @@ class Help implements ActionInterface
 		Utils::$context['sub_template'] = 'manual';
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Backward compatibility wrapper for the index sub-action.
 	 */

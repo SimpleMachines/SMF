@@ -15,10 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
-use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -1059,6 +1057,10 @@ class News extends ACP
 
 		self::prepareDBSettingContext($config_vars);
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Gets the configuration variables for this admin area.

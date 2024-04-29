@@ -315,6 +315,10 @@ class Posts implements ActionInterface
 		ACP::prepareDBSettingContext($config_vars);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets configuration variables for the posts sub-action.
 	 *

@@ -346,6 +346,10 @@ class AntiSpam implements ActionInterface
 		ACP::prepareDBSettingContext($config_vars);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the configuration variables for the anti-spam area.
 	 *

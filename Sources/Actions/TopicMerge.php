@@ -1015,6 +1015,10 @@ class TopicMerge implements ActionInterface
 		Utils::$context['sub_template'] = 'merge_done';
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Initiates a merge of the specified topics.
 	 *

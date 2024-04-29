@@ -131,6 +131,10 @@ class Recent implements ActionInterface
 		IntegrationHook::call('integrate_recent_RecentPosts');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Get the latest post made on the forum.
 	 *

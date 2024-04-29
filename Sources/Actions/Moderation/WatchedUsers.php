@@ -227,6 +227,10 @@ class WatchedUsers implements ActionInterface
 		Utils::$context['default_list'] = 'watch_user_list';
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Callback for SMF\ItemList().
 	 *

@@ -689,6 +689,10 @@ class Main implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Backward compatibility wrapper.
 	 */

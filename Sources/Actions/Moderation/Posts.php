@@ -680,6 +680,10 @@ class Posts implements ActionInterface
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * This is a helper function - basically approve everything!
 	 */

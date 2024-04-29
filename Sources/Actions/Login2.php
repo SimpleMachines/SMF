@@ -311,6 +311,10 @@ class Login2 implements ActionInterface
 		$this->DoLogin();
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Checks whether this is an AJAX request.
 	 *

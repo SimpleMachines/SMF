@@ -71,11 +71,9 @@ class SearchEngines implements ActionInterface
 		'editspiders' => 'edit',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var string
@@ -759,6 +757,10 @@ class SearchEngines implements ActionInterface
 
 		SecurityToken::create('admin-ses');
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Gets the configuration variables for this admin area.

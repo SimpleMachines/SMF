@@ -236,6 +236,10 @@ class Delete implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Backward compatibility wrapper for the delete method.
 	 *

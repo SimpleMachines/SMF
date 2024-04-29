@@ -1445,6 +1445,10 @@ class Languages implements ActionInterface
 		SecurityToken::create('admin-mlang');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the configuration variables for the languages area.
 	 *

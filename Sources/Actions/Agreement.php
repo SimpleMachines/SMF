@@ -34,18 +34,6 @@ class Agreement implements ActionInterface
 {
 	use ActionTrait;
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of the class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -83,6 +71,10 @@ class Agreement implements ActionInterface
 			$_SESSION['redirect_url'] = $_SESSION['old_url'];
 		}
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Checks whether this user needs to accept the registration agreement.
@@ -129,6 +121,10 @@ class Agreement implements ActionInterface
 
 		return empty(Theme::$current->options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > Theme::$current->options['policy_accepted'];
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Loads the registration agreement and privacy policy into Utils::$context

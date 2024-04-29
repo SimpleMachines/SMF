@@ -558,6 +558,10 @@ class Warnings implements ActionInterface
 		SecurityToken::create('mod-wt');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Callback for SMF\ItemList().
 	 *

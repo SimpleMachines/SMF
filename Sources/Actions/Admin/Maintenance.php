@@ -2066,6 +2066,10 @@ class Maintenance implements ActionInterface
 		Utils::$context['default_list'] = 'list_integration_hooks';
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Callback function for the integration hooks list (list_integration_hooks)
 	 * Gets all of the hooks in the system and their status

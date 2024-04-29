@@ -267,6 +267,10 @@ class AutoSuggest implements ActionInterface
 		return $xml_data;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Checks whether the given suggestion type is supported.
 	 *

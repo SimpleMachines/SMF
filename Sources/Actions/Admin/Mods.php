@@ -122,6 +122,10 @@ class Mods implements ActionInterface
 		ACP::prepareDBSettingContext($config_vars);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the configuration variables for the general sub-action.
 	 *

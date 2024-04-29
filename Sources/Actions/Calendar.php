@@ -71,18 +71,6 @@ class Calendar implements ActionInterface
 		'clock' => 'clock',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of the class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -644,6 +632,10 @@ class Calendar implements ActionInterface
 			}
 		}
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Get all birthdays within the given time range.

@@ -691,6 +691,10 @@ class Groups implements ActionInterface
 		];
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Helper function to generate a list of membergroups for display
 	 *

@@ -428,6 +428,10 @@ class Register2 extends Register
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Registers a member to the forum.
 	 *

@@ -104,6 +104,10 @@ class TopicRemove implements ActionInterface
 		Utils::redirectexit('board=' . Board::$info->id . '.0');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Try to determine if the topic has already been deleted by another user.
 	 *

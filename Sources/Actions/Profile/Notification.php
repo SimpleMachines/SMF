@@ -829,6 +829,10 @@ class Notification implements ActionInterface
 		new ItemList($list_options);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Determines how many topics the user has requested notifications for.
 	 *

@@ -203,6 +203,10 @@ class QuickModeration implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the list of known quick moderation actions.
 	 *

@@ -338,6 +338,10 @@ class Who implements ActionInterface
 		Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [];
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * This method determines the actions of the members passed in URLs.
 	 *

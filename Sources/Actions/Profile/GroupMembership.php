@@ -251,6 +251,10 @@ class GroupMembership implements ActionInterface
 		Profile::$member->new_data['id_group'] = $new_primary;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Backward compatibility wrapper for the save method.
 	 *

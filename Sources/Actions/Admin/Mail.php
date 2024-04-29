@@ -364,6 +364,10 @@ class Mail implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets the configuration variables for this admin area.
 	 *

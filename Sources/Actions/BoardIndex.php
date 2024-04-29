@@ -230,6 +230,10 @@ class BoardIndex implements ActionInterface
 		];
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Fetches a list of boards and (optional) categories including
 	 * statistical information, child boards and moderators.

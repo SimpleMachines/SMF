@@ -1002,6 +1002,10 @@ class Bans implements ActionInterface
 		Utils::$context['default_list'] = 'ban_log';
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * As it says... this tries to review the list of banned members, to match new bans.
 	 *

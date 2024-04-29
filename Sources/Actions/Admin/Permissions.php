@@ -917,14 +917,6 @@ class Permissions implements ActionInterface
 	 */
 	protected static array $illegal = [];
 
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -1569,6 +1561,10 @@ class Permissions implements ActionInterface
 
 		SecurityToken::create('admin-mppm');
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Gets the configuration variables for this admin area.

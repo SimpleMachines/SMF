@@ -778,6 +778,10 @@ class ACP implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Helper function, it sets up the context for database settings.
 	 *

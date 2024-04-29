@@ -151,6 +151,10 @@ class MessageIndex implements ActionInterface
 		$this->buildButtons();
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Builds and returns the list of available boards for a user.
 	 *

@@ -338,6 +338,10 @@ class TrackIP implements ActionInterface
 		}
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Gets all the posts made from a particular IP
 	 *
