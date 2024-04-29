@@ -4005,7 +4005,7 @@ h3.profile_hd::before,
 #top_section, .quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
 .inline_mod_check, .popup_window, #inner_section, .post_options ul,
-.post_options ul a:hover, .post_options ul a:focus, .notify_dropdown a:hover, .notify_dropdown a:focus {
+.post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
 }
@@ -4021,20 +4021,21 @@ h3.profile_hd::before,
 }
 
 /* Topic/Board follow-alert menu */
-.notify_dropdown strong {
+.dropmenu .viewport .overview strong {
 	font-size: 1.1em;
 }
-.notify_dropdown a {
+.dropmenu .viewport .overview a {
 	display: block;
 	padding: 0.5em;
 	text-decoration: none;
 	border: 1px solid transparent;
 	border-radius: 3px;
 }
-.notify_dropdown a:hover, .notify_dropdown a:focus {
+.dropmenu .viewport .overview a:hover,
+.dropmenu .viewport .overview a:focus {
 	border-color: #ddd;
 }
-.notify_dropdown span {
+.dropmenu .viewport .overview span {
 	font-size: 0.9em;
 }
 
