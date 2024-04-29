@@ -15,8 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\AttachmentDownload;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Profile;
@@ -27,6 +28,8 @@ use SMF\Utils;
  */
 class ExportAttachment implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -51,18 +54,6 @@ class ExportAttachment implements ActionInterface
 	 * Unique download token for the member whose profile this is.
 	 */
 	public string $dltoken;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static ExportAttachment $obj;
 
 	/****************
 	 * Public methods
@@ -119,32 +110,6 @@ class ExportAttachment implements ActionInterface
 
 		// We should now have what we need to serve the file.
 		AttachmentDownload::call();
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

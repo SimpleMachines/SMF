@@ -15,8 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Admin\Permissions;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
@@ -30,19 +31,9 @@ use SMF\Utils;
  */
 class ShowPermissions implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static ShowPermissions $obj;
 
 	/****************
 	 * Public methods
@@ -246,32 +237,6 @@ class ShowPermissions implements ActionInterface
 			$board_perms[$row['permission']]['is_denied'] |= empty($row['add_deny']);
 		}
 		Db::$db->free_result($request);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

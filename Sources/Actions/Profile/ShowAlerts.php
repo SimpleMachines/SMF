@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
 use SMF\Lang;
@@ -30,19 +31,9 @@ use SMF\Utils;
  */
 class ShowAlerts implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static ShowAlerts $obj;
 
 	/****************
 	 * Public methods
@@ -196,32 +187,6 @@ class ShowAlerts implements ActionInterface
 			// Redirect.
 			Utils::redirectexit('action=profile;area=showalerts;u=' . User::$me->id . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''));
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

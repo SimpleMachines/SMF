@@ -15,9 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Moderation\Posts as PostMod;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -37,6 +38,8 @@ use SMF\Utils;
  */
 class Permissions implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*****************
@@ -914,14 +917,6 @@ class Permissions implements ActionInterface
 	 */
 	protected static array $illegal = [];
 
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Permissions $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -1570,28 +1565,6 @@ class Permissions implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for this admin area.

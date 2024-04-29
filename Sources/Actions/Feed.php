@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -60,6 +62,8 @@ use SMF\Utils;
  */
 class Feed implements ActionInterface
 {
+	use ActionTrait;
+
 	/*****************
 	 * Class constants
 	 *****************/
@@ -241,17 +245,6 @@ class Feed implements ActionInterface
 	 * Used to generate globally unique identifiers.
 	 */
 	protected string $host = '';
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 */
-	protected static Feed $obj;
 
 	/****************
 	 * Public methods
@@ -2636,28 +2629,6 @@ class Feed implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of the class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of the child class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Builds the XML from the data.

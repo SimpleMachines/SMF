@@ -21,7 +21,7 @@ use SMF\Utils;
 /**
  * Toggles email notification preferences for announcements.
  */
-class NotifyAnnouncements extends Notify implements ActionInterface
+class NotifyAnnouncements extends Notify
 {
 	/*******************
 	 * Public properties
@@ -34,54 +34,9 @@ class NotifyAnnouncements extends Notify implements ActionInterface
 	 */
 	public string $type = 'announcements';
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static NotifyAnnouncements|Notify $obj;
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
 
 	/**
 	 * This does nothing for announcements.

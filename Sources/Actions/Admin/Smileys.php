@@ -17,9 +17,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\MessageIndex;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -43,6 +44,8 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Smileys implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -153,18 +156,6 @@ class Smileys implements ActionInterface
 	 *********************/
 
 	// code...
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Smileys $obj;
 
 	/****************
 	 * Public methods
@@ -2045,28 +2036,6 @@ class Smileys implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for this admin area.

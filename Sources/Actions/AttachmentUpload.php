@@ -13,6 +13,8 @@
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -27,6 +29,8 @@ use SMF\Utils;
  */
 class AttachmentUpload implements ActionInterface
 {
+	use ActionTrait;
+
 	/**
 	 * @var int The ID of the message this attachment is associated with
 	 */
@@ -103,35 +107,6 @@ class AttachmentUpload implements ActionInterface
 	 * @var string|bool The current sub-action, or false if there isn't one
 	 */
 	protected $_sa = false;
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 */
-	protected static AttachmentUpload $obj;
-
-	/**
-	 * Wrapper for constructor. Ensures only one instance is created.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Attachments constructor.

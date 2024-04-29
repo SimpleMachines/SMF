@@ -26,18 +26,6 @@ use SMF\Utils;
  */
 class AgreementAccept extends Agreement
 {
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of the class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static AgreementAccept|Agreement $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -84,43 +72,6 @@ class AgreementAccept extends Agreement
 
 		// Redirect back to chasing those squirrels, er, viewing those memes.
 		Utils::redirectexit(!empty($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : '');
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 }
 
