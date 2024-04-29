@@ -1896,30 +1896,6 @@ INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1
 ---#
 
 /******************************************************************************/
---- Adding support for likes
-/******************************************************************************/
----# Creating likes table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-	id_member int NOT NULL DEFAULT '0',
-	content_type char(6) DEFAULT '',
-	content_id int NOT NULL DEFAULT '0',
-	like_time int NOT NULL DEFAULT '0',
-	PRIMARY KEY (content_id, content_type, id_member)
-);
-
-DROP INDEX IF EXISTS {$db_prefix}user_likes_content;
-DROP INDEX IF EXISTS {$db_prefix}user_likes_liker;
-
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
----#
-
----# Adding likes column to the messages table. (May take a while)
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN IF NOT EXISTS likes smallint NOT NULL default '0';
----#
-
-/******************************************************************************/
 --- Adding support for mentions
 /******************************************************************************/
 ---# Creating mentions table

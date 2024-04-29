@@ -1691,26 +1691,6 @@ VALUES
 ---#
 
 /******************************************************************************/
---- Adding support for likes
-/******************************************************************************/
----# Creating likes table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-	id_member MEDIUMINT UNSIGNED DEFAULT '0',
-	content_type CHAR(6) DEFAULT '',
-	content_id INT UNSIGNED DEFAULT '0',
-	like_time INT UNSIGNED NOT NULL DEFAULT '0',
-	PRIMARY KEY (content_id, content_type, id_member),
-	INDEX idx_content (content_id, content_type),
-	INDEX idx_liker (id_member)
-) ENGINE=MyISAM;
----#
-
----# Adding likes column to the messages table. (May take a while)
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes SMALLINT UNSIGNED NOT NULL DEFAULT '0';
----#
-
-/******************************************************************************/
 --- Adding support for mentions
 /******************************************************************************/
 ---# Creating mentions table
@@ -3069,14 +3049,6 @@ VALUES
 ---# Update the members' languages
 UPDATE {$db_prefix}members
 SET lngfile = REPLACE(lngfile, '-utf8', '');
----#
-
-/******************************************************************************/
---- Create index for messages likes
-/******************************************************************************/
----# Add Index for messages likes
-DROP INDEX idx_likes ON {$db_prefix}messages;
-CREATE INDEX idx_likes ON {$db_prefix}messages (likes);
 ---#
 
 /******************************************************************************/
