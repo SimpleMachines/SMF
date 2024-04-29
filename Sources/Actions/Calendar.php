@@ -320,7 +320,64 @@ class Calendar implements ActionInterface
 		Utils::$context['calendar_buttons'] = [];
 
 		if (Utils::$context['can_post']) {
-			Utils::$context['calendar_buttons']['post_event'] = ['text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['calendar_buttons']['post_event'] = [
+				'text' => 'calendar_post_event',
+				'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			];
+		}
+
+		if (!empty(Config::$modSettings['cal_export']) && !User::$me->possibly_robot) {
+			$webcal_url = Config::$scripturl . '?action=calendar;sa=ical' . (!User::$me->is_guest ? ';u=' . User::$me->id . ';token=' . $this->createToken(User::$me) : '');
+
+			if (BrowserDetector::isBrowser('safari') || BrowserDetector::isBrowser('iphone')) {
+				$webcal_url = preg_replace('/^https?/', 'webcal', $webcal_url);
+			} else {
+				$webcal_url = 'javascript:navigator.clipboard.writeText(' . Utils::escapeJavaScript($webcal_url) . ');alert(' . Utils::escapeJavaScript(Lang::$txt['calendar_subscribe_url_copied']) . ')';
+			}
+
+			$ics_url = Config::$scripturl . '?action=calendar;sa=ical';
+
+			switch (Utils::$context['calendar_view']) {
+				case 'viewmonth':
+					$ics_url .= ';start_date=' . $start_object->format('Y-m-01');
+					$ics_url .= ';duration=P1M';
+					break;
+
+				case 'viewweek':
+					$s = clone $start_object;
+
+					while (($s->format('N') % 7) > $calendarOptions['start_day']) {
+						$s->modify('-1 day');
+					}
+
+					$ics_url .= ';start_date=' . $s->format('Y-m-d');
+					$ics_url .= ';duration=P7D';
+					break;
+
+				default:
+					$ics_url .= ';start_date=' . $start_object->format('Y-m-d');
+					$ics_url .= ';duration=' . (string) TimeInterval::createFromDateInterval($start_object->diff($end_object));
+					break;
+			}
+
+			Lang::$txt[''] = '';
+
+			Utils::$context['calendar_buttons']['cal_export'] = [
+				'text' => '',
+				'class' => 'main_icons feed',
+				'custom' => 'title="' . Lang::getTxt('calendar_subscribe') . '"',
+				'url' => $ics_url,
+				'sub_buttons' => [
+					'subscribe' => [
+						'text' => 'calendar_subscribe',
+						'url' => $webcal_url,
+					],
+					'download' => [
+						'text' => 'calendar_download',
+						'url' => $ics_url,
+					],
+				],
+			];
 		}
 
 		// Allow mods to add additional buttons here
@@ -539,68 +596,107 @@ class Calendar implements ActionInterface
 			ErrorHandler::fatalLang('calendar_export_off', false);
 		}
 
-		// Goes without saying that this is required.
-		if (!isset($_REQUEST['eventid'])) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
+		$file = [
+			'mime_type' => 'text/calendar',
+			'expires' => time() + 3600,
+			// Will be changed below.
+			'mtime' => 0,
+			// Will be changed below.
+			'filename' => 'event.ics',
+			// More will be added below.
+			'content' => [
+				'BEGIN:VCALENDAR',
+				'METHOD:PUBLISH',
+				'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN',
+				'VERSION:2.0',
+			],
+		];
 
-		// Load up the event in question and check it is valid.
-		$event = current(Event::load((int) $_REQUEST['eventid']));
+		if (isset($_REQUEST['eventid'])) {
+			// Load up the event in question and check it is valid.
+			$event = current(Event::load((int) $_REQUEST['eventid']));
 
-		if (!($event instanceof Event)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
+			if (!($event instanceof Event)) {
+				ErrorHandler::fatalLang('no_access', false);
+			}
 
-		// This is what we will be sending later.
-		$filecontents = [];
-		$filecontents[] = 'BEGIN:VCALENDAR';
-		$filecontents[] = 'METHOD:PUBLISH';
-		$filecontents[] = 'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN';
-		$filecontents[] = 'VERSION:2.0';
+			// Was a specific occurrence requested, or the event in general?
+			if (
+				isset($_REQUEST['recurrenceid'])
+				&& ($occurrence = $event->getOccurrence($_REQUEST['recurrenceid'])) !== false
+			) {
+				$file['content'][] = $occurrence->export();
+			} else {
+				$file['content'][] = $event->export();
+			}
 
-		$filecontents[] = $event->export();
-
-		$filecontents[] = 'END:VCALENDAR';
-
-		// Send some standard headers.
-		ob_end_clean();
-
-		if (!empty(Config::$modSettings['enableCompressedOutput'])) {
-			@ob_start('ob_gzhandler');
+			$file['filename'] = $event->title . '.ics';
+			$file['mtime'] = $event->modified_time;
 		} else {
-			ob_start();
+			$this->authenticateForExport();
+
+			// Get all the visible events within a date range.
+			if (isset($_REQUEST['start_date'])) {
+				$low_date = @(new Time($_REQUEST['start_date']));
+			}
+
+			if (!isset($low_date)) {
+				$low_date = new Time('now');
+				$low_date->setDate((int) $low_date->format('Y'), (int) $low_date->format('m'), 1);
+			}
+
+			if (isset($_REQUEST['duration'])) {
+				$duration = @(new TimeInterval($_REQUEST['duration']));
+			}
+
+			if (!isset($duration)) {
+				$duration = new TimeInterval('P3M');
+			}
+
+			$high_date = (clone $low_date)->add($duration);
+
+			$full_event_uids = [];
+
+			foreach (Event::getOccurrencesInRange($low_date->format('Y-m-d'), $high_date->format('Y-m-d'), true) as $occurrence) {
+				$event = $occurrence->getParentEvent();
+
+				// Skip if we already exported the full event.
+				if (in_array($event->uid, $full_event_uids)) {
+					continue;
+				}
+
+				if (
+					// If there was no requested start date, export the full event.
+					!isset($_REQUEST['start_date'])
+					// Or if all occurrences are visible, export the full event.
+					|| (
+						$event->start >= $low_date
+						&& $event->getRecurrenceEnd() <= $high_date
+					)
+				) {
+					$file['content'][] = $event->export();
+					$full_event_ids[] = $event->uid;
+				}
+				// Otherwise, export just this occurrence.
+				else {
+					$file['content'][] = $occurrence->export();
+				}
+
+				$file['mtime'] = max($file['mtime'], $event->modified_time);
+			}
+
+			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::$txt['events'], $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
 		}
 
-		// Send the file headers
-		header('pragma: ');
-		header('cache-control: no-cache');
-
-		if (!BrowserDetector::isBrowser('gecko')) {
-			header('content-transfer-encoding: binary');
-		}
-
-		header('expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
-		header('last-modified: ' . gmdate('D, d M Y H:i:s', $event->modified_time) . ' GMT');
-		header('accept-ranges: bytes');
-		header('connection: close');
-		header('content-disposition: attachment; filename="' . $event->title . '.ics"');
+		$file['content'][] = 'END:VCALENDAR';
 
 		// RFC 5545 requires "\r\n", not just "\n".
-		$calevent = implode("\r\n", $filecontents);
+		$file['content'] = implode("\r\n", $file['content']);
 
-		if (empty(Config::$modSettings['enableCompressedOutput'])) {
-			// todo: correctly handle $filecontents before passing to string function
-			header('content-length: ' . Utils::entityStrlen($calevent));
-		}
+		$file['size'] = strlen($file['content']);
 
-		// This is a calendar item!
-		header('content-type: text/calendar');
-
-		// Chuck out the card.
-		echo $calevent;
-
-		// Off we pop - lovely!
-		Utils::obExit(false);
+		// Send it.
+		Utils::emitFile($file);
 	}
 
 	/**
@@ -1558,14 +1654,66 @@ class Calendar implements ActionInterface
 			return;
 		}
 
+		// Special case for handling calendar subscriptions.
+		if (
+			User::$me->is_guest
+			&& $this->subaction === 'ical'
+			&& isset($_REQUEST['u'], $_REQUEST['token'])
+		) {
+			$user = current(User::load((int) $_REQUEST['u']));
+
+			if (
+				!($user instanceof User)
+				|| !$user->allowedTo('calendar_view')
+				|| $_REQUEST['token'] !== $this->createToken($user)
+			) {
+				exit;
+			}
+		}
 		// Permissions, permissions, permissions.
-		User::$me->isAllowedTo('calendar_view');
+		else {
+			User::$me->isAllowedTo('calendar_view');
+		}
 
 		// Some global template resources.
 		Utils::$context['calendar_resources'] = [
 			'min_year' => Config::$modSettings['cal_minyear'],
 			'max_year' => Config::$modSettings['cal_maxyear'],
 		];
+	}
+
+	/**
+	 * Generates an calendar subscription authentication token.
+	 *
+	 * @param User $user The member that this token is for.
+	 * @return string The authentication token.
+	 */
+	protected function createToken(User $user): string
+	{
+		$token = hash_hmac('sha3-224', (string) $user->id, Config::getAuthSecret(), true);
+
+		return strtr(base64_encode($token), ['+' => '_', '/' => '-', '=' => '']);
+	}
+
+	/**
+	 * Validates the guest-supplided user ID and token combination, and loads
+	 * the requested user if the token is valid.
+	 *
+	 * Does nothing if the user is already logged in.
+	 */
+	protected function authenticateForExport(): void
+	{
+		if (!User::$me->is_guest) {
+			return;
+		}
+
+		if (!empty($_REQUEST['u']) && isset($_REQUEST['token'])) {
+			$user = current(User::load((int) $_REQUEST['u']));
+
+			if (($user instanceof User) && $_REQUEST['token'] === $this->createToken($user)) {
+				User::setMe($user->id);
+			}
+		}
 	}
 }
 

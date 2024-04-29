@@ -616,35 +616,7 @@ class Event implements \ArrayAccess
 	{
 		$is_edit = ($this->id ?? 0) > 0;
 
-		if (!empty($this->recurrence_iterator->getRRule()->until)) {
-			// When we have an until value, life is easy.
-			$recurrence_end = Time::createFromInterface($this->recurrence_iterator->getRRule()->until)->modify('-1 second');
-		} elseif (!empty($this->recurrence_iterator->getRRule()->count)) {
-			// Save current values.
-			$view_start = clone $this->view_start;
-			$view_end = clone $this->view_end;
-			$recurrence_iterator = clone $this->recurrence_iterator;
-
-			// Make new recurrence iterator that gets all occurrences.
-			$this->rrule = (string) $recurrence_iterator->getRRule();
-			$this->view_start = clone $this->start;
-			$this->view_end = new Time('9999-12-31');
-
-			unset($this->recurrence_iterator);
-			$this->createRecurrenceIterator();
-
-			// Get last occurrence.
-			$this->recurrence_iterator->end();
-			$recurrence_end = Time::createFromInterface($this->recurrence_iterator->current());
-
-			// Put everything back.
-			$this->view_start = $view_start;
-			$this->view_end = $view_end;
-			$this->recurrence_iterator = $recurrence_iterator;
-		} else {
-			// Forever.
-			$recurrence_end = new Time('9999-12-31');
-		}
+		$recurrence_end = $this->getRecurrenceEnd();
 
 		$rrule = !empty($this->special_rrule) ? implode('', $this->special_rrule) : (string) $this->recurrence_iterator->getRRule();
 
@@ -1060,6 +1032,58 @@ class Event implements \ArrayAccess
 		$this->rrule = (string) $rrule;
 
 		$this->createRecurrenceIterator();
+	}
+	/**
+	 * Gets the date after which no more occurrences happen.
+	 *
+	 * @return Time When the recurrence ends.
+	 */
+	public function getRecurrenceEnd(): Time
+	{
+		// If there's no recurrence, there's nothing to do.
+		if (!isset($this->recurrence_iterator)) {
+			return $this->start;
+		}
+
+		// When we have an until value, life is easy.
+		if (!empty($this->recurrence_iterator->getRRule()->until)) {
+			return Time::createFromInterface($this->recurrence_iterator->getRRule()->until)->modify('-1 second');
+		}
+
+		// A count value takes more work.
+		if (!empty($this->recurrence_iterator->getRRule()->count)) {
+			// If the count is 1, then the start is the end.
+			if ($this->recurrence_iterator->getRRule()->count == 1) {
+				return $this->start;
+			}
+
+			// Save current values.
+			$view_start = clone $this->view_start;
+			$view_end = clone $this->view_end;
+			$recurrence_iterator = clone $this->recurrence_iterator;
+
+			// Make new recurrence iterator that gets all occurrences.
+			$this->rrule = (string) $recurrence_iterator->getRRule();
+			$this->view_start = clone $this->start;
+			$this->view_end = new Time('9999-12-31');
+
+			unset($this->recurrence_iterator);
+			$this->createRecurrenceIterator();
+
+			// Get last occurrence.
+			$this->recurrence_iterator->end();
+			$value = Time::createFromInterface($this->recurrence_iterator->current());
+
+			// Put everything back.
+			$this->view_start = $view_start;
+			$this->view_end = $view_end;
+			$this->recurrence_iterator = $recurrence_iterator;
+
+			return $value;
+		}
+
+		// Forever.
+		return new Time('9999-12-31');
 	}
 
 	/**

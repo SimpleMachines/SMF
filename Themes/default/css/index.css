@@ -1789,6 +1789,12 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	background: url(../images/icons/bell.png);
 	background-size: 16px;
 }
+.main_icons.feed::before {
+	background: url(../images/icons/feed.svg);
+	background-size: 16px;}
+a.main_icons.feed::before {
+	margin: -0.2em -0.4em 0;
+}
 /* Load better icons for higher resolution screens */
 @media
 	screen and (-webkit-min-device-pixel-ratio: 1.66),
