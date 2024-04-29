@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -28,17 +29,7 @@ use SMF\Utils;
  */
 class IgnoreBoards implements ActionInterface
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static IgnoreBoards $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -127,32 +118,6 @@ class IgnoreBoards implements ActionInterface
 		}
 
 		Profile::$member->loadThemeOptions();
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

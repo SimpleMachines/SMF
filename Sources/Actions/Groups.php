@@ -13,7 +13,9 @@
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
 use SMF\Actions\Moderation\Main as ModCenter;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -35,6 +37,8 @@ use SMF\Utils;
  */
 class Groups implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -79,18 +83,6 @@ class Groups implements ActionInterface
 	 *  - '?action=moderate;area=viewgroups'
 	 */
 	protected string $action_url = '?action=groups';
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -702,28 +694,6 @@ class Groups implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Helper function to generate a list of membergroups for display

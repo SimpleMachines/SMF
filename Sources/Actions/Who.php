@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -39,6 +41,8 @@ use SMF\Utils;
  */
 class Who implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public static properties
 	 *******************/
@@ -92,18 +96,6 @@ class Who implements ActionInterface
 		'viewerrorlog' => ['admin_forum'],
 		'viewmembers' => ['moderate_forum'],
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Who $obj;
 
 	/****************
 	 * Public methods
@@ -349,28 +341,6 @@ class Who implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * This method determines the actions of the members passed in URLs.

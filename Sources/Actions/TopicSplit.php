@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -41,6 +43,8 @@ use SMF\Utils;
  */
 class TopicSplit implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -76,18 +80,6 @@ class TopicSplit implements ActionInterface
 	 *********************/
 
 	// code...
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static TopicSplit $obj;
 
 	/****************
 	 * Public methods
@@ -592,28 +584,6 @@ class TopicSplit implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * General function to split off a topic.

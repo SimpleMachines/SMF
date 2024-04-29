@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -38,17 +40,7 @@ use SMF\Utils;
  */
 class JavaScriptModify implements ActionInterface
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static JavaScriptModify $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -323,32 +315,6 @@ class JavaScriptModify implements ActionInterface
 		} else {
 			Utils::obExit(false);
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

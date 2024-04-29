@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Lang;
@@ -29,6 +31,8 @@ use SMF\Utils;
  */
 class VerificationCode implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -46,18 +50,6 @@ class VerificationCode implements ActionInterface
 	 * The verification code.
 	 */
 	public string $code;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static VerificationCode $obj;
 
 	/****************
 	 * Public methods
@@ -115,32 +107,6 @@ class VerificationCode implements ActionInterface
 
 		// We all die one day...
 		die();
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

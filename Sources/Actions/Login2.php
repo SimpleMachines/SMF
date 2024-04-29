@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -33,6 +35,8 @@ use SMF\Utils;
  */
 class Login2 implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -59,18 +63,6 @@ class Login2 implements ActionInterface
 		'salt' => 'updateSalt',
 		'check' => 'checkCookie',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Login2 $obj;
 
 	/****************
 	 * Public methods
@@ -322,28 +314,6 @@ class Login2 implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Checks whether this is an AJAX request.

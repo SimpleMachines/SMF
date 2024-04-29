@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -33,6 +34,8 @@ use SMF\Utils;
  */
 class Posts implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -60,18 +63,6 @@ class Posts implements ActionInterface
 		'topics' => 'topics',
 		'drafts' => 'drafts',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Posts $obj;
 
 	/****************
 	 * Public methods
@@ -327,28 +318,6 @@ class Posts implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets configuration variables for the posts sub-action.

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Category;
@@ -39,16 +41,7 @@ use SMF\Utils;
  */
 class BoardIndex implements ActionInterface
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 */
-	protected static BoardIndex $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -240,28 +233,6 @@ class BoardIndex implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Fetches a list of boards and (optional) categories including
