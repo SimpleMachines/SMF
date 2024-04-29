@@ -154,6 +154,17 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				unset($row['id_group'], $row['id_post_group'], $row['additional_groups']);
 			}
 
+			// If this user subscribes both to the topic and the board there will be two records returned.
+			// Copy board/topic data to the new record or it will be lost.
+			if (!empty($this->members['watching'][$row['id_member']])) {
+				if ($this->members['watching'][$row['id_member']]['id_board'] > 0) {
+					$row['id_board'] = $this->members['watching'][$row['id_member']]['id_board'];
+				}
+				if ($this->members['watching'][$row['id_member']]['id_topic'] > 0) {
+					$row['id_topic'] = $this->members['watching'][$row['id_member']]['id_topic'];
+				}
+			}
+
 			$this->members['watching'][$row['id_member']] = $row;
 		}
 		$smcFunc['db_free_result']($request);
