@@ -15,9 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Register2;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -38,6 +39,8 @@ use SMF\Utils;
  */
 class Registration implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 	/*******************
 	 * Public properties
@@ -69,18 +72,6 @@ class Registration implements ActionInterface
 		'reservednames' => ['reservedNames', 'admin_forum'],
 		'settings' => ['settings', 'admin_forum'],
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Registration $obj;
 
 	/****************
 	 * Public methods
@@ -470,28 +461,6 @@ class Registration implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for this admin area.

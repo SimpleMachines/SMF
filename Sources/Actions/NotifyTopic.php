@@ -25,7 +25,7 @@ use SMF\Utils;
 /**
  * Toggles email notification preferences for topics.
  */
-class NotifyTopic extends Notify implements ActionInterface
+class NotifyTopic extends Notify
 {
 	/*******************
 	 * Public properties
@@ -38,54 +38,9 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	public string $type = 'topic';
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static object $obj;
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
 
 	/**
 	 * For board and topic, make sure we have the necessary ID.

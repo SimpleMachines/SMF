@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Attachment;
 use SMF\Board;
@@ -51,6 +53,8 @@ use SMF\Verifier;
  */
 class Display implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -94,17 +98,6 @@ class Display implements ActionInterface
 	 * Might or might not be set.
 	 */
 	private int $virtual_msg;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 */
-	protected static Display $obj;
 
 	/****************
 	 * Public methods
@@ -278,32 +271,6 @@ class Display implements ActionInterface
 		IntegrationHook::call('integrate_prepare_display_context', [&$output, $message, $counter]);
 
 		return $output;
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
