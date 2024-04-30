@@ -44,11 +44,11 @@ class FetchCalendarSubscriptions extends ScheduledTask
 
 			if (!empty($ics_data)) {
 				switch ($type) {
-					case 'holiday':
+					case Event::TYPE_HOLIDAY:
 						Holiday::import($ics_data);
 						break;
 
-					case 'event':
+					case Event::TYPE_EVENT:
 						Event::import($ics_data);
 						break;
 				}
