@@ -177,7 +177,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	public function setCachedir(?string $dir = null): void
 	{
-		// If its invalid, use SMF's.
+		// If it's invalid, use SMF's.
 		if (!isset($dir) || !is_writable($dir)) {
 			if (!isset(Config::$cachedir_sqlite) || !is_writable(Config::$cachedir_sqlite)) {
 				Config::$cachedir_sqlite = Config::$cachedir;
