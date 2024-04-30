@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Search\APIs;
 
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -1110,6 +1111,66 @@ class Parsed extends SearchApi implements SearchApiInterface
 			},
 			$string,
 		);
+
+		// Strip out parts of URLs that are just noise in a search index.
+		foreach (Autolinker::load()->detectUrls($string) as $url) {
+			$substitute = (string) Url::create($url, true)->toUtf8();
+
+			$url_parts = Url::create($url, true)->toUtf8()->parse();
+
+			if (!isset($url_parts['scheme']) && !isset($url_parts['host'])) {
+				$url_parts = Url::create('//' . $url, true)->toUtf8()->parse();
+			}
+
+			// Get rid of 'http', 'https', etc.
+			if (isset($url_parts['scheme'])) {
+				$substitute = ltrim(substr($substitute, strlen($url_parts['scheme'])), ':/');
+			}
+
+			if (isset($url_parts['host'])) {
+				$trimmed_host = $url_parts['host'];
+
+				// Get rid of basic TLDs.
+				if (str_contains($trimmed_host, '.')) {
+					$tld = substr($trimmed_host, strrpos($trimmed_host, '.') + 1);
+
+					if (in_array($tld, Url::$basic_tlds)) {
+						$trimmed_host = substr($trimmed_host, 0, strrpos($trimmed_host, '.'));
+					}
+				}
+
+				// Get rid of 'www.'
+				if (str_starts_with($trimmed_host, 'www.')) {
+					$trimmed_host = substr($trimmed_host, 4);
+				}
+
+				$substitute = str_replace($url_parts['host'], $trimmed_host, $substitute);
+			}
+
+			// Decode URL encoding.
+			$substitute = rawurldecode($substitute);
+
+			$string = str_replace($url, $substitute, $string);
+		}
+
+		// Strip out parts of email addresses that are just noise in a search index.
+		foreach (Autolinker::load()->detectEmails($string) as $email) {
+			$substitute = Url::create('mailto:' . $email, true)->toUtf8()->path;
+
+			// Get rid of basic TLDs.
+			if (str_contains($substitute, '.')) {
+				$tld = substr($substitute, strrpos($substitute, '.') + 1);
+
+				if (in_array($tld, Url::$basic_tlds)) {
+					$substitute = substr($substitute, 0, strrpos($substitute, '.'));
+				}
+			}
+
+			// Decode URL encoding.
+			$substitute = rawurldecode($substitute);
+
+			$string = str_replace($email, $substitute, $string);
+		}
 
 		// Normalize and casefold.
 		$string = Utils::normalize($string, 'kc_casefold');
