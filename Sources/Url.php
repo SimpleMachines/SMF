@@ -437,7 +437,7 @@ class Url implements \Stringable
 
 			// Set the new value, if any.
 			if (isset($parsed[$prop])) {
-				$this->{$prop} = is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
+				$this->{$prop} = $parsed[$prop] = is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
 			}
 		}
 
