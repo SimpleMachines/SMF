@@ -280,7 +280,7 @@ class News extends ACP
 				} else {
 					$_POST['news'][$i] = Utils::htmlspecialchars($_POST['news'][$i], ENT_QUOTES);
 
-					Msg::preparsecode($_POST['news'][$i]);
+					Msg::preparsecode($_POST['news'][$i], false, !empty(Config::$modSettings['autoLinkUrls']));
 				}
 			}
 
@@ -1184,7 +1184,7 @@ class News extends ACP
 				continue;
 			}
 
-			Msg::preparsecode(Utils::$context[$key]);
+			Msg::preparsecode(Utils::$context[$key], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			if (!empty(Utils::$context['send_html'])) {
 				$enablePostHTML = Config::$modSettings['enablePostHTML'];
