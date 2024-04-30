@@ -509,6 +509,8 @@ class Url implements \Stringable
 		// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
 		IntegrationHook::call('integrate_proxy', [$this->url, &$proxied->url]);
 
+		$proxied->parse();
+
 		return $proxied;
 	}
 
