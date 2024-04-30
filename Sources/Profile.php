@@ -1194,7 +1194,7 @@ class Profile extends User implements \ArrayAccess
 	{
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
 
-		// If its not a Url, make it one.
+		// If it's not a Url, make it one.
 		if (!$this->avatar['url'] instanceof Url) {
 			$this->avatar['url'] = new Url($this->avatar['url']);
 		}
