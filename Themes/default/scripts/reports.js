@@ -2,10 +2,11 @@ function breakWideTable(table, pageWidth) {
 	const positions = [0];
 	let curPageWidth = pageWidth;
 	const els = table.rows[1].children;
-	const pos = els[0].getBoundingClientRect().width;
+	const pos = els[0].offsetWidth;
 
 	for (let i = 1; i < els.length; i++) {
-		if (els[i].getBoundingClientRect().right > curPageWidth) {
+		if (els[i].offsetLeft + els[i].offsetWidth > curPageWidth) {
+			// Split the table at this column.
 			positions.push(i - 1);
 			curPageWidth += pageWidth - pos;
 		}
