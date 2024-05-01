@@ -28,6 +28,8 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -36,23 +38,11 @@ use SMF\Utils;
 /**
  * Shows a list of members or a selection of members.
  */
-class Members implements ActionInterface
+class Members implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'all';
 
 	/**
 	 * @var bool
@@ -110,25 +100,6 @@ class Members implements ActionInterface
 	 */
 	public int $current_filter = -1;
 
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * Format: 'sa' => array('method', 'required_permission')
-	 */
-	public static array $subactions = [
-		'all' => ['view', 'moderate_forum'],
-		'approve' => ['approve', 'moderate_forum'],
-		'browse' => ['browse', 'moderate_forum'],
-		'search' => ['search', 'moderate_forum'],
-		'query' => ['view', 'moderate_forum'],
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -138,11 +109,22 @@ class Members implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		if (!empty($call)) {
-			call_user_func($call);
+		// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
+		IntegrationHook::call('integrate_manage_members', [&$this->sub_actions]);
+
+		// Find the active tab.
+		if (isset(Utils::$context['tabs'][$this->sub_action])) {
+			Utils::$context['tabs'][$this->sub_action]['is_selected'] = true;
+		} elseif (isset($this->sub_action)) {
+			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
+				if (!empty($tab_data['selected_actions']) && in_array($this->sub_action, $tab_data['selected_actions'])) {
+					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
+				}
+			}
 		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -173,7 +155,7 @@ class Members implements ActionInterface
 		}
 
 		// Check input after a member search has been submitted.
-		if ($this->subaction == 'query') {
+		if ($this->sub_action == 'query') {
 			// Retrieving the membergroups and postgroups.
 			$this->membergroups = [];
 			$this->postgroups = [];
@@ -255,7 +237,7 @@ class Members implements ActionInterface
 
 			$search_params = [];
 
-			if ($this->subaction == 'query' && !empty($_REQUEST['params']) && empty($_POST['types'])) {
+			if ($this->sub_action == 'query' && !empty($_REQUEST['params']) && empty($_POST['types'])) {
 				$search_params = Utils::jsonDecode(base64_decode($_REQUEST['params']), true);
 			} elseif (!empty($_POST)) {
 				$search_params['types'] = $_POST['types'];
@@ -430,7 +412,7 @@ class Members implements ActionInterface
 		}
 
 		// Construct the additional URL part with the query info in it.
-		$params_url = $this->subaction == 'query' ? ';sa=query;params=' . $search_url_params : '';
+		$params_url = $this->sub_action == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 		// Get the title and sub template ready..
 		Utils::$context['page_title'] = Lang::$txt['admin_members'];
@@ -1342,6 +1324,14 @@ class Members implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		User::$me->isAllowedTo('moderate_forum');
+
+		$this->addSubAction('all', [$this, 'view']);
+		$this->addSubAction('approve', [$this, 'approve']);
+		$this->addSubAction('browse', [$this, 'browse']);
+		$this->addSubAction('search', [$this, 'search']);
+		$this->addSubAction('query', [$this, 'view']);
+
 		// Load the essentials.
 		Lang::load('ManageMembers');
 		Theme::loadTemplate('ManageMembers');
@@ -1397,30 +1387,6 @@ class Members implements ActionInterface
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 			];
 			Utils::$context['last_tab'] = 'activate';
-		}
-
-		// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
-		IntegrationHook::call('integrate_manage_members', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		// We know the sub action, now we know what you're allowed to do.
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		// Set the last tab.
-		Utils::$context['tabs'][Utils::$context['last_tab']]['is_last'] = true;
-
-		// Find the active tab.
-		if (isset(Utils::$context['tabs'][$this->subaction])) {
-			Utils::$context['tabs'][$this->subaction]['is_selected'] = true;
-		} elseif (isset($this->subaction)) {
-			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
-				if (!empty($tab_data['selected_actions']) && in_array($this->subaction, $tab_data['selected_actions'])) {
-					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
-				}
-			}
 		}
 
 		Utils::$context['membergroups'] = &$this->membergroups;

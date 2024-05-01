@@ -28,6 +28,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -35,38 +37,11 @@ use SMF\Utils;
 /**
  * Handles XML-based interaction (mainly XMLhttp)
  */
-class XmlHttp implements ActionInterface
+class XmlHttp implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction;
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'jumpto' => 'jumpTo',
-		'messageicons' => 'messageIcons',
-		'previews' => 'previews',
-	];
 
 	/****************
 	 * Public methods
@@ -77,15 +52,14 @@ class XmlHttp implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($this->subaction)) {
+		// Easy adding of sub actions.
+		IntegrationHook::call('integrate_XMLhttpMain_subActions', [&$this->sub_actions]);
+
+		if (!isset($this->sub_action)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -374,14 +348,11 @@ class XmlHttp implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('jumpto', [$this, 'jumpTo']);
+		$this->addSubAction('messageicons', [$this, 'messageIcons']);
+		$this->addSubAction('previews', [$this, 'previews']);
+
 		Theme::loadTemplate('Xml');
-
-		// Easy adding of sub actions.
-		IntegrationHook::call('integrate_XMLhttpMain_subActions', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 }
 

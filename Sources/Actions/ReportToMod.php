@@ -22,6 +22,8 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -31,45 +33,13 @@ use SMF\Utils;
 /**
  * Deals with reporting posts or profiles to mods and admins.
  */
-class ReportToMod implements ActionInterface
+class ReportToMod implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'show';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'show' => 'show',
-		'submit' => 'submit',
-	];
-
-	/*********************
 	 * Internal properties
 	 *********************/
 
@@ -121,11 +91,11 @@ class ReportToMod implements ActionInterface
 			User::$me->isAllowedTo('report_user');
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
+		if (isset($_POST['comment'])) {
+			$this->comment = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::normalize($_POST['comment']), 0), true, true));
 		}
+
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -304,9 +274,9 @@ class ReportToMod implements ActionInterface
 		$_POST['msg'] = (int) $msg;
 		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
 
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('submit');
+		$obj->execute();
 	}
 
 	/**
@@ -318,9 +288,9 @@ class ReportToMod implements ActionInterface
 		$_POST['u'] = (int) $id_member;
 		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
 
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('submit');
+		$obj->execute();
 	}
 
 	/******************
@@ -332,19 +302,18 @@ class ReportToMod implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('show', [$this, 'show']);
+		$this->addSubAction('submit', [$this, 'submit']);
+
 		Utils::$context['robot_no_index'] = true;
 		Utils::$context['comment_body'] = '';
-
-		if (isset($_POST['comment'])) {
-			$this->comment = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::normalize($_POST['comment']), 0), true, true));
-		}
 
 		$this->previewing = isset($_POST['preview']) && $this->comment !== '';
 		$this->submitting = isset($_POST['save']);
 		$this->can_submit = isset($_POST[Utils::$context['session_var']]);
 
 		if ($this->submitting && $this->can_submit && !$this->previewing) {
-			$this->subaction = 'submit';
+			$this->setDefaultSubAction('submit');
 		}
 	}
 

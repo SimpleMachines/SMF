@@ -290,9 +290,9 @@ class AutoSuggest implements ActionInterface
 	 */
 	public static function backCompatProvider(?string $suggest_type = null): void
 	{
-		self::load();
-		self::$obj->suggest_type = $suggest_type;
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->suggest_type = $suggest_type;
+		$obj->execute();
 	}
 
 	/******************

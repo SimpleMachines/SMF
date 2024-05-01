@@ -27,6 +27,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -35,23 +37,11 @@ use SMF\Utils;
 /**
  * This class is concerned with anything in the Manage Membergroups admin screen.
  */
-class Membergroups implements ActionInterface
+class Membergroups implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
 
 	/**************************
 	 * Public static properties
@@ -83,14 +73,9 @@ class Membergroups implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Do the permission check, you might not be allowed here.
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
+		IntegrationHook::call('integrate_manage_membergroups', [&$this->sub_actions]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -959,6 +944,8 @@ class Membergroups implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		User::$me->isAllowedTo('manage_membergroups');
+
 		// Language and template stuff, the usual.
 		Lang::load('ManageMembers');
 		Theme::loadTemplate('ManageMembergroups');
@@ -969,13 +956,12 @@ class Membergroups implements ActionInterface
 			'help' => 'membergroups',
 			'description' => Lang::$txt['membergroups_description'],
 		];
-
 		IntegrationHook::call('integrate_manage_membergroups', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		} elseif (!User::$me->allowedTo('manage_membergroups')) {
-			$this->subaction = 'settings';
+		foreach (self::$subactions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
 		}
 	}
 }

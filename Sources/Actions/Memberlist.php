@@ -24,6 +24,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -33,23 +35,15 @@ use SMF\Utils;
  * This class contains the methods for displaying and searching in the
  * members list.
  */
-class Memberlist implements ActionInterface
+class Memberlist implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'all';
 
 	/**
 	 * @var array
@@ -78,20 +72,6 @@ class Memberlist implements ActionInterface
 	 */
 	public int $cache_step_size = 500;
 
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'all' => 'all',
-		'search' => 'search',
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -108,6 +88,11 @@ class Memberlist implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Allow mods to add sub-actions and sort_links.
+		IntegrationHook::call('integrate_memberlist_subactions', [&$this->sub_actions, $this->sort_links]);
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// Make sure they can view the memberlist.
 		User::$me->isAllowedTo('view_mlist');
 
@@ -116,10 +101,10 @@ class Memberlist implements ActionInterface
 		foreach ($this->sort_links as $sa => &$sort_link) {
 			$sort_link['label'] = Lang::$txt[$sort_link['label']] ?? ($sort_link['label'] ?? ($sort_link['action'] ?? $sa));
 
-			$sort_link['selected'] = $this->subaction === ($sort_link['action'] ?? $sa);
+			$sort_link['selected'] = $this->sub_action === ($sort_link['action'] ?? $sa);
 		}
 
-		Utils::$context['listing_by'] = &$this->subaction;
+		Utils::$context['listing_by'] = &$this->sub_action;
 		Utils::$context['sort_links'] = &$this->sort_links;
 
 		Utils::$context['num_members'] = Config::$modSettings['totalMembers'];
@@ -212,11 +197,7 @@ class Memberlist implements ActionInterface
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_memberlist_buttons');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -815,12 +796,8 @@ class Memberlist implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Allow mods to add sub-actions and sort_links.
-		IntegrationHook::call('integrate_memberlist_subactions', [&self::$subactions, $this->sort_links]);
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		$this->addSubAction('all', [$this, 'all']);
+		$this->addSubAction('search', [$this, 'search']);
 	}
 }
 

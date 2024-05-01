@@ -28,6 +28,8 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -37,23 +39,11 @@ use SMF\Utils;
 /**
  * Manages and maintains the boards and categories of the forum.
  */
-class Boards implements ActionInterface
+class Boards implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'main';
 
 	/**************************
 	 * Public static properties
@@ -77,13 +67,6 @@ class Boards implements ActionInterface
 		'newboard' => ['editBoard', 'manage_boards'],
 		'settings' => ['settings', 'admin_forum'],
 	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -93,14 +76,7 @@ class Boards implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Have you got the proper permissions?
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -948,18 +924,14 @@ class Boards implements ActionInterface
 				],
 			],
 		];
-
 		IntegrationHook::call('integrate_manage_boards', [&self::$subactions]);
 
-		// Default to sub action 'main' or 'settings' depending on permissions.
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
+		foreach (self::$subactions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
+		}
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
 }
 
 ?>

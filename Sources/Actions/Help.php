@@ -20,42 +20,19 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\Utils;
 
 /**
  * This class has the important job of taking care of help messages and the help center.
  */
-class Help implements ActionInterface
+class Help implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'index' => 'index',
-	];
 
 	/****************
 	 * Public methods
@@ -66,11 +43,9 @@ class Help implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		IntegrationHook::call('integrate_manage_help', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -118,9 +93,9 @@ class Help implements ActionInterface
 	 */
 	public static function HelpIndex(): void
 	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('index');
+		$obj->execute();
 	}
 
 	/******************
@@ -138,15 +113,10 @@ class Help implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('index', [$this, 'index']);
+
 		Theme::loadTemplate('Help');
 		Lang::load('Manual');
-
-		// CRUD $subactions as needed.
-		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
 	}
 }
 

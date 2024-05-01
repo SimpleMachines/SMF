@@ -23,6 +23,8 @@ use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,23 +32,11 @@ use SMF\Utils;
 /**
  * Dispatcher to show various kinds of logs.
  */
-class Logs implements ActionInterface
+class Logs implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'errorlog';
 
 	/**************************
 	 * Public static properties
@@ -125,46 +115,12 @@ class Logs implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Set up some tab stuff.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['logs'],
-			'help' => '',
-			'description' => Lang::$txt['maintain_info'],
-			'tabs' => [
-				'errorlog' => [
-					'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-					'description' => Lang::getTxt('errorlog_desc', Lang::$txt),
-				],
-				'adminlog' => [
-					'description' => Lang::$txt['admin_log_desc'],
-				],
-				'modlog' => [
-					'description' => Lang::$txt['moderation_log_desc'],
-				],
-				'banlog' => [
-					'description' => Lang::$txt['ban_log_description'],
-				],
-				'spiderlog' => [
-					'description' => Lang::$txt['spider_log_desc'],
-				],
-				'tasklog' => [
-					'description' => Lang::$txt['scheduled_log_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['log_settings_desc'],
-				],
-			],
-		];
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		if (!empty(self::$subactions[$this->subaction][0])) {
-			require_once Config::$sourcedir . '/' . self::$subactions[$this->subaction][0];
-		}
+		// @todo Is this context variable necessary?
+		Utils::$context['sub_action'] = $this->sub_action;
 
-		$call = method_exists($this, self::$subactions[$this->subaction][1]) ? [$this, self::$subactions[$this->subaction][1]] : Utils::getCallable(self::$subactions[$this->subaction][1]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -373,15 +329,49 @@ class Logs implements ActionInterface
 				$subaction['disabled'] = empty(Config::$modSettings[$subaction['disabled']]);
 			}
 		}
+		// Set up some tab stuff.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['logs'],
+			'help' => '',
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => [
+				'errorlog' => [
+					'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
+					'description' => Lang::getTxt('errorlog_desc', Lang::$txt),
+				],
+				'adminlog' => [
+					'description' => Lang::$txt['admin_log_desc'],
+				],
+				'modlog' => [
+					'description' => Lang::$txt['moderation_log_desc'],
+				],
+				'banlog' => [
+					'description' => Lang::$txt['ban_log_description'],
+				],
+				'spiderlog' => [
+					'description' => Lang::$txt['spider_log_desc'],
+				],
+				'tasklog' => [
+					'description' => Lang::$txt['scheduled_log_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['log_settings_desc'],
+				],
+			],
+		];
 
 		IntegrationHook::call('integrate_manage_logs', [&self::$subactions]);
+
+		foreach (self::$subactions as $sa => $arr) {
+			if (isset($arr['disabled']) && ($arr['disabled'] === false || !empty(Config::$modSettings[$arr['disabled']]))) {
+				$this->addSubAction($sa, [$this, $arr[0]]);
+			}
+		}
 
 		// By default, error log should be shown in descending order.
 		if (!isset($_REQUEST['sa'])) {
 			$_REQUEST['desc'] = true;
 		}
-
-		$this->subaction = isset($_REQUEST['sa'], self::$subactions[$_REQUEST['sa']])   && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	}
 }
 

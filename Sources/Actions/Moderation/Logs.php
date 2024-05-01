@@ -25,6 +25,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Time;
 use SMF\User;
@@ -34,9 +36,10 @@ use SMF\Utils;
  * The moderation and administration logs are this class's only job.
  * It views them, and that's about all it does.
  */
-class Logs implements ActionInterface
+class Logs implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
+	use ProvidesSubActionTrait;
 
 	/*******************
 	 * Public properties
@@ -50,13 +53,6 @@ class Logs implements ActionInterface
 	 */
 	public string $action = 'moderate';
 
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'modlog';
 
 	/**
 	 * @var int
@@ -77,16 +73,6 @@ class Logs implements ActionInterface
 	public static array $actions = [
 		'moderate',
 		'admin',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'modlog' => 'modlog',
-		'adminlog' => 'adminlog',
 	];
 
 	/**
@@ -221,11 +207,11 @@ class Logs implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->log_type = $this->sub_action == 'adminlog' ? 3 : 1;
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -633,15 +619,12 @@ class Logs implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('modlog', [$this, 'modlog']);
+		$this->addSubAction('adminlog', [$this, 'adminlog']);
+
 		if (!empty($_REQUEST['action']) && in_array($_REQUEST['action'], self::$actions)) {
 			$this->action = $_REQUEST['action'];
 		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		$this->log_type = $this->subaction == 'adminlog' ? 3 : 1;
 
 		// These change dependant on whether we are viewing the moderation or admin log.
 		if ($this->action == 'admin') {
@@ -743,7 +726,7 @@ class Logs implements ActionInterface
 			],
 		);
 
-		$log_type = isset($this->subaction) && $this->subaction == 'adminlog' ? 'admin' : 'moderate';
+		$log_type = isset($this->sub_action) && $this->sub_action == 'adminlog' ? 'admin' : 'moderate';
 		Logging::logAction('clearlog_' . $log_type, [], $log_type);
 	}
 

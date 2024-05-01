@@ -698,9 +698,9 @@ class Main implements ActionInterface
 	 */
 	public static function modifyProfile(array $post_errors = []): void
 	{
-		self::load();
+		$obj = self::load();
 		Profile::$member->save_errors = $post_errors;
-		self::$obj->execute();
+		$obj->execute();
 	}
 
 	/******************

@@ -27,6 +27,8 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
@@ -37,23 +39,15 @@ use SMF\Utils;
  * This class is exclusively for generating reports to help assist forum
  * administrators keep track of their forum configuration and state.
  */
-class Reports implements ActionInterface
+class Reports implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action (i.e. the report type).
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = '';
 
 	/**
 	 * @var string
@@ -81,24 +75,6 @@ class Reports implements ActionInterface
 		'print' => [
 			'layers' => ['print'],
 		],
-	];
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'boards' => 'boards',
-		'board_access' => 'boardAccess',
-		'board_perms' => 'boardPerms',
-		'member_groups' => 'memberGroups',
-		'group_perms' => 'groupPerms',
-		'staff' => 'staff',
 	];
 
 	/*********************
@@ -150,15 +126,15 @@ class Reports implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (empty($this->subaction)) {
-			$this->sub_template = 'report_type';
+		$this->callSubAction();
 
+		if ($this->sub_action === 'index') {
 			return;
 		}
 
 		// Specific template? Use that instead of main!
 		if (isset($_REQUEST['st'], $this->reportTemplates[$_REQUEST['st']])) {
-			$this->sub_template = $_REQUEST['st'];
+			Utils::$context['sub_template'] = $_REQUEST['st'];
 
 			// Are we disabling the other layers - print friendly for example?
 			if ($this->reportTemplates[$_REQUEST['st']]['layers'] !== null) {
@@ -167,26 +143,29 @@ class Reports implements ActionInterface
 		}
 
 		// Make the page title more descriptive.
-		Utils::$context['page_title'] .= ' - ' . (Lang::$txt['gr_type_' . $this->subaction] ?? $this->subaction);
+		Utils::$context['page_title'] .= ' - ' . (Lang::$txt['gr_type_' . $this->sub_action] ?? $this->sub_action);
 
 		// Build the reports button array.
 		Utils::$context['report_buttons'] = [
 			'generate_reports' => ['text' => 'generate_reports', 'image' => 'print.png', 'url' => Config::$scripturl . '?action=admin;area=reports', 'active' => true],
-			'print' => ['text' => 'print', 'image' => 'print.png', 'url' => Config::$scripturl . '?action=admin;area=reports;rt=' . $this->subaction . ';st=print', 'custom' => 'target="_blank"'],
+			'print' => ['text' => 'print', 'image' => 'print.png', 'url' => Config::$scripturl . '?action=admin;area=reports;rt=' . $this->sub_action . ';st=print', 'custom' => 'target="_blank"'],
 		];
 
 		// Allow mods to add additional buttons here.
 		IntegrationHook::call('integrate_report_buttons');
 
-		// Now generate the data.
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
-
 		// Finish the tables before exiting - this is to help the templates a little more.
 		$this->finishTables();
+		Utils::$context['tables'] = $this->tables;
+		Utils::$context['sub_template'] = $this->sub_template;
+	}
+
+	/**
+	 * Choose a report.
+	 */
+	public function index(): void
+	{
+		Utils::$context['sub_template'] = 'report_type';
 	}
 
 	/**
@@ -607,32 +586,6 @@ class Reports implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -642,6 +595,13 @@ class Reports implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('boards', [$this, 'boards']);
+		$this->addSubAction('board_perms', [$this, 'boardPerms']);
+		$this->addSubAction('member_groups', [$this, 'memberGroups']);
+		$this->addSubAction('group_perms', [$this, 'groupPerms']);
+		$this->addSubAction('staff', [$this, 'staff']);
+
 		// Only admins, only EVER admins!
 		User::$me->isAllowedTo('admin_forum');
 
@@ -653,9 +613,9 @@ class Reports implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
 
 		// For backward compatibility...
-		Utils::$context['report_types'] = &self::$subactions;
+		Utils::$context['report_types'] = &$this->sub_actions;
 
-		IntegrationHook::call('integrate_report_types', [&self::$subactions]);
+		IntegrationHook::call('integrate_report_types', [&$this->sub_actions]);
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
@@ -666,8 +626,8 @@ class Reports implements ActionInterface
 
 		$is_first = 0;
 
-		foreach (self::$subactions as $k => $func) {
-			if (!is_string($func)) {
+		foreach ($this->sub_actions as $k => $func) {
+			if ($k === 'index') {
 				continue;
 			}
 
@@ -675,18 +635,12 @@ class Reports implements ActionInterface
 				'id' => $k,
 				'title' => Lang::$txt['gr_type_' . $k] ?? $k,
 				'description' => Lang::$txt['gr_type_desc_' . $k] ?? null,
-				'function' => $func,
 				'is_first' => $is_first++ == 0,
 			];
 		}
 
+		$this->findRequestedSubAction($_REQUEST['rt'] ?? null);
 		Utils::$context['report_types'] = &$this->report_types;
-		Utils::$context['sub_template'] = &$this->sub_template;
-		Utils::$context['tables'] = &$this->tables;
-
-		if (!empty($_REQUEST['rt']) && isset(self::$subactions[$_REQUEST['rt']])) {
-			$this->subaction = $_REQUEST['rt'];
-		}
 	}
 
 	/**

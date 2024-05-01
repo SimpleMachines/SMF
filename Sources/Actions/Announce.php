@@ -27,6 +27,8 @@ use SMF\Group;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -35,37 +37,11 @@ use SMF\Utils;
 /**
  * This class handles sending announcements about topics.
  */
-class Announce implements ActionInterface
+class Announce implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'selectgroup';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'selectgroup' => 'select',
-		'send' => 'send',
-	];
 
 	/****************
 	 * Public methods
@@ -76,11 +52,7 @@ class Announce implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -281,6 +253,9 @@ class Announce implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('selectgroup', [$this, 'select']);
+		$this->addSubAction('send', [$this, 'send']);
+
 		User::$me->isAllowedTo('announce_topic');
 
 		User::$me->validateSession();
@@ -293,10 +268,6 @@ class Announce implements ActionInterface
 		Theme::loadTemplate('Post');
 
 		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 }
 

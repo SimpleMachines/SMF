@@ -24,6 +24,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Security;
 use SMF\Theme;
 use SMF\User;
@@ -32,34 +34,17 @@ use SMF\Utils;
 /**
  * Activates a user's account.
  */
-class Activate implements ActionInterface
+class Activate implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
+	use ProvidesSubActionTrait;
 
-	/*******************
-	 * Public properties
-	 *******************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
-	/**
-	 * @var string
-	 *
-	 * The sub-action to call.
-	 */
-	public string $subaction = '';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'activate' => 'activate',
-		'resend' => 'resend',
-	];
+	private bool $email_change;
+	private array $row;
 
 	/****************
 	 * Public methods
@@ -109,19 +94,19 @@ class Activate implements ActionInterface
 			return;
 		}
 
-		$row = Db::$db->fetch_assoc($request);
-		$row['id_member'] = (int) $row['id_member'];
-		$row['is_activated'] = (int) $row['is_activated'];
+		$this->row = Db::$db->fetch_assoc($request);
+		$this->row['id_member'] = (int) $this->row['id_member'];
+		$this->row['is_activated'] = (int) $this->row['is_activated'];
 		Db::$db->free_result($request);
 
 		// Change their email address? (they probably tried a fake one first :P.)
 		if (
 			!empty($_POST['new_email'])
 			&& !empty($_REQUEST['passwd'])
-			&& Security::hashVerifyPassword($row['member_name'], $_REQUEST['passwd'], $row['passwd'])
+			&& Security::hashVerifyPassword($this->row['member_name'], $_REQUEST['passwd'], $this->row['passwd'])
 			&& (
-				$row['is_activated'] == 0
-				|| $row['is_activated'] == 2
+				$this->row['is_activated'] == 0
+				|| $this->row['is_activated'] == 2
 			)
 		) {
 			if (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == 3) {
@@ -152,78 +137,84 @@ class Activate implements ActionInterface
 			}
 			Db::$db->free_result($request);
 
-			User::updateMemberData($row['id_member'], ['email_address' => $_POST['new_email']]);
-			$row['email_address'] = $_POST['new_email'];
+			User::updateMemberData($this->row['id_member'], ['email_address' => $_POST['new_email']]);
+			$this->row['email_address'] = $_POST['new_email'];
 
-			$email_change = true;
+			$this->email_change = true;
 		}
 
+		$this->callSubAction($_REQUEST['sa'] ?? null);
+	}
+
+	public function activate(): void
+	{
+		// Quit if this code is not right.
+		if (empty($_REQUEST['code']) || $this->row['validation_code'] != $_REQUEST['code']) {
+			if (!empty($this->row['is_activated'])) {
+				ErrorHandler::fatalLang('already_activated', false);
+			} elseif ($this->row['validation_code'] == '') {
+				Lang::load('Profile');
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->row['member_name']]), false);
+			}
+
+			Utils::$context['sub_template'] = 'retry_activate';
+			Utils::$context['page_title'] = Lang::$txt['invalid_activation_code'];
+			Utils::$context['member_id'] = $this->row['id_member'];
+
+			return;
+		}
+
+		// Let the integration know that they've been activated!
+		IntegrationHook::call('integrate_activate', [$this->row['member_name']]);
+
+		// Validation complete - update the database!
+		User::updateMemberData($this->row['id_member'], ['is_activated' => 1, 'validation_code' => '']);
+
+		// Also do a proper member stat re-evaluation.
+		Logging::updateStats('member', false);
+
+		// Notify the admin about new activations, but not re-activations.
+		if (empty($this->row['is_activated'])) {
+			Mail::adminNotify('activation', $this->row['id_member'], $this->row['member_name']);
+		}
+
+		Utils::$context += [
+			'page_title' => Lang::$txt['registration_successful'],
+			'sub_template' => 'login',
+			'default_username' => $this->row['member_name'],
+			'default_password' => '',
+			'never_expire' => false,
+			'description' => Lang::$txt['activate_success'],
+		];
+	}
+
+	public function resend(): void
+	{
 		// Resend the password, but only if the account wasn't activated yet.
 		if (
-			!empty($_REQUEST['sa'])
-			&& $_REQUEST['sa'] == 'resend'
-			&& ($row['is_activated'] == 0 || $row['is_activated'] == 2)
+			in_array($this->row['is_activated'], [0, 2])
 			&& (!isset($_REQUEST['code']) || $_REQUEST['code'] == '')
 		) {
 			$replacements = [
-				'REALNAME' => $row['real_name'],
-				'USERNAME' => $row['member_name'],
-				'ACTIVATIONLINK' => Config::$scripturl . '?action=activate;u=' . $row['id_member'] . ';code=' . $row['validation_code'],
-				'ACTIVATIONLINKWITHOUTCODE' => Config::$scripturl . '?action=activate;u=' . $row['id_member'],
-				'ACTIVATIONCODE' => $row['validation_code'],
+				'REALNAME' => $this->row['real_name'],
+				'USERNAME' => $this->row['member_name'],
+				'ACTIVATIONLINK' => Config::$scripturl . '?action=activate;u=' . $this->row['id_member'] . ';code=' . $this->row['validation_code'],
+				'ACTIVATIONLINKWITHOUTCODE' => Config::$scripturl . '?action=activate;u=' . $this->row['id_member'],
+				'ACTIVATIONCODE' => $this->row['validation_code'],
 				'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 			];
 
-			$emaildata = Mail::loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+			$emaildata = Mail::loadEmailTemplate('resend_activate_message', $replacements, empty($this->row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $this->row['lngfile']);
 
-			Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
+			Mail::send($this->row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
 			Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
 
 			// This will ensure we don't actually get an error message if it works!
 			Utils::$context['error_title'] = Lang::$txt['invalid_activation_resend'];
 
-			ErrorHandler::fatalLang(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, []);
+			ErrorHandler::fatalLang($this->email_change ? 'change_email_success' : 'resend_email_success', false, []);
 		}
-
-		// Quit if this code is not right.
-		if (empty($_REQUEST['code']) || $row['validation_code'] != $_REQUEST['code']) {
-			if (!empty($row['is_activated'])) {
-				ErrorHandler::fatalLang('already_activated', false);
-			} elseif ($row['validation_code'] == '') {
-				Lang::load('Profile');
-				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $row['member_name']]), false);
-			}
-
-			Utils::$context['sub_template'] = 'retry_activate';
-			Utils::$context['page_title'] = Lang::$txt['invalid_activation_code'];
-			Utils::$context['member_id'] = $row['id_member'];
-
-			return;
-		}
-
-		// Let the integration know that they've been activated!
-		IntegrationHook::call('integrate_activate', [$row['member_name']]);
-
-		// Validation complete - update the database!
-		User::updateMemberData($row['id_member'], ['is_activated' => 1, 'validation_code' => '']);
-
-		// Also do a proper member stat re-evaluation.
-		Logging::updateStats('member', false);
-
-		// Notify the admin about new activations, but not re-activations.
-		if (empty($row['is_activated'])) {
-			Mail::adminNotify('activation', $row['id_member'], $row['member_name']);
-		}
-
-		Utils::$context += [
-			'page_title' => Lang::$txt['registration_successful'],
-			'sub_template' => 'login',
-			'default_username' => $row['member_name'],
-			'default_password' => '',
-			'never_expire' => false,
-			'description' => Lang::$txt['activate_success'],
-		];
 	}
 
 	/******************
@@ -235,6 +226,9 @@ class Activate implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('activate', [$this, 'activate']);
+		$this->addSubAction('resend', [$this, 'resend']);
+
 		// Logged in users should not bother to activate their accounts
 		if (!empty(User::$me->id)) {
 			Utils::redirectexit();

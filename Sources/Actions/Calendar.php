@@ -29,6 +29,8 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
@@ -41,39 +43,11 @@ use SMF\Utils;
  * This class has only one real task, showing the calendar.
  * Original module by Aaron O'Neil - aaron@mud-master.com
  */
-class Calendar implements ActionInterface
+class Calendar implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'show';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions of this action.
-	 */
-	public static array $subactions = [
-		'show' => 'show',
-		'ical' => 'export',
-		'post' => 'post',
-		'clock' => 'clock',
-	];
 
 	/****************
 	 * Public methods
@@ -84,11 +58,7 @@ class Calendar implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -1644,20 +1614,23 @@ class Calendar implements ActionInterface
 	{
 		Lang::load('Calendar');
 
-		if ($_GET['action'] === 'clock') {
-			$this->subaction = 'clock';
-		} elseif (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		$this->addSubAction('show', [$this, 'show']);
+		$this->addSubAction('ical', [$this, 'export']);
+		$this->addSubAction('post', [$this, 'post']);
+		$this->addSubAction('clock', [$this, 'clock']);
 
-		if ($this->subaction === 'clock') {
+		if ($_GET['action'] === 'clock') {
+			$this->setDefaultSubAction('clock');
+
 			return;
 		}
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
 		// Special case for handling calendar subscriptions.
 		if (
 			User::$me->is_guest
-			&& $this->subaction === 'ical'
+			&& $this->sub_action === 'ical'
 			&& isset($_REQUEST['u'], $_REQUEST['token'])
 		) {
 			$user = current(User::load((int) $_REQUEST['u']));

@@ -30,6 +30,8 @@ use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PersonalMessage\PM;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -39,21 +41,10 @@ use SMF\Utils;
 /**
  * This class manages... the news. :P
  */
-class News extends ACP
+class News extends ACP implements ProvidesSubActionInterface
 {
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'editnews';
 
 	/**
 	 * @var array
@@ -231,10 +222,14 @@ class News extends ACP
 	 */
 	public function execute(): void
 	{
-		// Have you got the proper permissions?
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		call_user_func([$this, self::$subactions[$this->subaction][0]]);
+		// Force the right area...
+		if (str_starts_with($this->sub_action, 'mailing')) {
+			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
+		}
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -1217,6 +1212,14 @@ class News extends ACP
 	 */
 	protected function __construct()
 	{
+		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
+
+		foreach (self::$subactions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
+		}
+
 		Theme::loadTemplate('ManageNews');
 
 		// Create the tabs for the template.
@@ -1235,16 +1238,6 @@ class News extends ACP
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
-
-		// Default to sub action 'main' or 'settings' depending on permissions.
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
-
-		// Force the right area...
-		if (substr($this->subaction, 0, 7) == 'mailing') {
-			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
-		}
 
 		// Insert dynamic values into the list options.
 		$this->setListOptions();

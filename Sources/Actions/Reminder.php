@@ -22,6 +22,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -31,21 +33,10 @@ use SMF\Utils;
 /**
  * Handle sending out reminders, and checking the secret answer and question.
  */
-class Reminder implements ActionInterface
+class Reminder implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'main';
+	use ProvidesSubActionTrait;
 
 	/*********************
 	 * Internal properties
@@ -62,19 +53,6 @@ class Reminder implements ActionInterface
 	 * Public static properties
 	 **************************/
 
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'main' => 'main',
-		'picktype' => 'pickType',
-		'secret2' => 'secretAnswer2',
-		'setpassword' => 'setPassword',
-		'setpassword2' => 'setPassword2',
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -84,11 +62,7 @@ class Reminder implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -395,15 +369,17 @@ class Reminder implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('main', [$this, 'main']);
+		$this->addSubAction('picktype', [$this, 'pickType']);
+		$this->addSubAction('secret2', [$this, 'secretAnswer2']);
+		$this->addSubAction('setpassword', [$this, 'setPassword']);
+		$this->addSubAction('setpassword2', [$this, 'setPassword2']);
+
 		Lang::load('Profile');
 		Theme::loadTemplate('Reminder');
 
 		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
 		Utils::$context['robot_no_index'] = true;
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
 	}
 
 	/**

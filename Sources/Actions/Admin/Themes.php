@@ -26,6 +26,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\{SubsPackage, XmlArray};
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -52,44 +54,11 @@ use SMF\Utils;
  * - tar and gzip the directory - and you're done!
  * - please include any special license in a license.txt file.
  */
-class Themes implements ActionInterface
+class Themes implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'admin';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'admin' => 'admin',
-		'list' => 'list',
-		'reset' => 'setOptions',
-		'options' => 'setOptions',
-		'remove' => 'remove',
-		'enable' => 'enable',
-		'install' => 'install',
-		'edit' => 'edit',
-		'copy' => 'copy',
-	];
 
 	/****************
 	 * Public methods
@@ -103,15 +72,9 @@ class Themes implements ActionInterface
 		// Whatever they decide to do, clean the minify cache.
 		Theme::deleteAllMinified();
 
-		if (isset(self::$subactions[$this->subaction])) {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-		} else {
-			$call = Utils::getCallable($this->subaction);
-		}
+		IntegrationHook::call('integrate_manage_themes', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -1328,6 +1291,16 @@ class Themes implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('admin', [$this, 'admin']);
+		$this->addSubAction('list', [$this, 'list']);
+		$this->addSubAction('reset', [$this, 'setOptions']);
+		$this->addSubAction('options', [$this, 'setOptions']);
+		$this->addSubAction('remove', [$this, 'remove']);
+		$this->addSubAction('enable', [$this, 'enable']);
+		$this->addSubAction('install', [$this, 'install']);
+		$this->addSubAction('edit', [$this, 'edit']);
+		$this->addSubAction('copy', [$this, 'copy']);
+
 		// PickTheme() has been migrated to SMF\Theme::pickTheme()
 		if (isset($_GET['sa']) && $_GET['sa'] === 'pick') {
 			Utils::redirectexit('action=theme;sa=pick' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
@@ -1367,13 +1340,6 @@ class Themes implements ActionInterface
 					],
 				],
 			];
-		}
-
-		// CRUD self::$subactions as needed.
-		IntegrationHook::call('integrate_manage_themes', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 	}
 

@@ -29,6 +29,8 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -41,46 +43,11 @@ use const DIRECTORY_SEPARATOR;
 /**
  * Maintains and manages attachments and avatars.
  */
-class Attachments implements ActionInterface
+class Attachments implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'browse';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'attachments' => 'attachmentSettings',
-		'avatars' => 'avatarSettings',
-		'browse' => 'browse',
-		'maintenance' => 'maintain',
-		'remove' => 'remove',
-		'byage' => 'removeByAge',
-		'bysize' => 'removeBySize',
-		'removeall' => 'removeAll',
-		'repair' => 'repair',
-		'attachpaths' => 'paths',
-		'transfer' => 'transfer',
-	];
 
 	/****************
 	 * Public methods
@@ -91,11 +58,9 @@ class Attachments implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		IntegrationHook::call('integrate_manage_attachments', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -2575,9 +2540,9 @@ class Attachments implements ActionInterface
 			return self::attachConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'attachments';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('attachments');
+		$obj->execute();
 
 		return null;
 	}
@@ -2594,9 +2559,9 @@ class Attachments implements ActionInterface
 			return self::avatarConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'avatars';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('avatars');
+		$obj->execute();
 
 		return null;
 	}
@@ -2610,6 +2575,19 @@ class Attachments implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->setDefaultSubAction('browse');
+		$this->addSubAction('attachments', [$this, 'attachmentSettings']);
+		$this->addSubAction('avatars', [$this, 'avatarSettings']);
+		$this->addSubAction('browse', [$this, 'browse']);
+		$this->addSubAction('maintenance', [$this, 'maintain']);
+		$this->addSubAction('remove', [$this, 'remove']);
+		$this->addSubAction('byage', [$this, 'removeByAge']);
+		$this->addSubAction('bysize', [$this, 'removeBySize']);
+		$this->addSubAction('removeall', [$this, 'removeAll']);
+		$this->addSubAction('repair', [$this, 'repair']);
+		$this->addSubAction('attachpaths', [$this, 'paths']);
+		$this->addSubAction('transfer', [$this, 'transfer']);
+
 		// You have to be able to moderate the forum to do this.
 		User::$me->isAllowedTo('manage_attachments');
 
@@ -2622,14 +2600,6 @@ class Attachments implements ActionInterface
 			'help' => 'manage_files',
 			'description' => Lang::$txt['attachments_desc'],
 		];
-
-		IntegrationHook::call('integrate_manage_attachments', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[strtolower($_REQUEST['sa'])])) {
-			$this->subaction = strtolower($_REQUEST['sa']);
-		}
-
-		Utils::$context['sub_action'] = &$this->subaction;
 
 		// Default page title is good.
 		Utils::$context['page_title'] = Lang::$txt['attachments_avatars'];

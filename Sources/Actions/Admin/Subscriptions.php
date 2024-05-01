@@ -25,6 +25,8 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -36,42 +38,11 @@ use SMF\Utils;
  * Contains all the administration functions for paid subscriptions.
  * (and some more than that :P)
  */
-class Subscriptions implements ActionInterface
+class Subscriptions implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'view';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * Format: 'sa' => array('method', 'required_permission')
-	 */
-	public static array $subactions = [
-		'view' => ['view', 'admin_forum'],
-		'viewsub' => ['viewUsers', 'admin_forum'],
-		'modify' => ['modify', 'admin_forum'],
-		'modifyuser' => ['modifyUser', 'admin_forum'],
-		'settings' => ['settings', 'admin_forum'],
-	];
 
 	/**
 	 * @var array
@@ -79,12 +50,6 @@ class Subscriptions implements ActionInterface
 	 * Data about all the subscriptions the admin has created.
 	 */
 	public static array $all = [];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods
@@ -95,14 +60,9 @@ class Subscriptions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Make sure you can do this.
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
+		IntegrationHook::call('integrate_manage_subscriptions', [&$this->sub_actions]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -2195,6 +2155,17 @@ class Subscriptions implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		if (!empty(Config::$modSettings['paid_enabled']) && !empty(Config::$modSettings['paid_currency_symbol'])) {
+			$this->addSubAction('view', [$this, 'view']);
+			$this->addSubAction('viewsub', [$this, 'viewUsers']);
+			$this->addSubAction('modify', [$this, 'modify']);
+			$this->addSubAction('modifyuser', [$this, 'modifyUser']);
+		}
+
+		$this->addSubAction('settings', [$this, 'settings']);
+
+		User::$me->isAllowedTo('admin_forum');
+
 		// Load the required language and template.
 		Lang::load('ManagePaid');
 		Theme::loadTemplate('ManagePaid');
@@ -2206,28 +2177,15 @@ class Subscriptions implements ActionInterface
 			'title' => Lang::$txt['paid_subscriptions'],
 			'help' => '',
 			'description' => Lang::$txt['paid_subscriptions_desc'],
-		];
-
-		// If not enabled or not fully configured yet, only show the settings.
-		if (empty(Config::$modSettings['paid_enabled']) || empty(Config::$modSettings['paid_currency_symbol'])) {
-			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
-			$this->subaction = 'settings';
-		} else {
-			Menu::$loaded['admin']->tab_data['tabs'] = [
+			'tabs' => [
 				'view' => [
 					'description' => Lang::$txt['paid_subs_view_desc'],
 				],
 				'settings' => [
 					'description' => Lang::$txt['paid_subs_settings_desc'],
 				],
-			];
-		}
-
-		IntegrationHook::call('integrate_manage_subscriptions', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
+			],
+		];
 	}
 }
 

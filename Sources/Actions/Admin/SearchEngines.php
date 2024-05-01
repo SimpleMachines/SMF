@@ -27,6 +27,8 @@ use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -36,40 +38,11 @@ use SMF\Utils;
 /**
  * Manages the settings related to search engines.
  */
-class SearchEngines implements ActionInterface
+class SearchEngines implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'stats';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'stats' => 'stats',
-		'logs' => 'logs',
-		'spiders' => 'view',
-		'settings' => 'settings',
-		'editspiders' => 'edit',
-	];
 
 	/****************************
 	 * Internal static properties
@@ -91,11 +64,33 @@ class SearchEngines implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
+		if (!empty(Config::$modSettings['spider_mode'])) {
+			$this->addSubAction('stats', [$this, 'stats']);
+			$this->addSubAction('logs', [$this, 'logs']);
+			$this->addSubAction('spiders', [$this, 'view']);
+			$this->addSubAction('editspiders', [$this, 'edit']);
 		}
+
+		$this->addSubAction('settings', [$this, 'settings']);
+
+		Utils::$context['page_title'] = Lang::$txt['search_engines'];
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Some more tab data.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['search_engines'],
+				'description' => Lang::$txt['search_engines_description'],
+			];
+		}
+
+		IntegrationHook::call('integrate_manage_search_engines', [&$this->sub_actions]);
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
+		Utils::$context['sub_action'] = &$this->sub_action;
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -1075,30 +1070,6 @@ class SearchEngines implements ActionInterface
 
 		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
-
-		if (empty(Config::$modSettings['spider_mode'])) {
-			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
-			$this->subaction = 'settings';
-		}
-
-		Utils::$context['page_title'] = Lang::$txt['search_engines'];
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Some more tab data.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['search_engines'],
-				'description' => Lang::$txt['search_engines_description'],
-			];
-		}
-
-		IntegrationHook::call('integrate_manage_search_engines', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		Utils::$context['sub_action'] = &$this->subaction;
 	}
 }
 

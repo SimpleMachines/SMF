@@ -29,6 +29,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -39,44 +41,11 @@ use SMF\Utils;
 /**
  * Class to manage various core features.
  */
-class Features implements ActionInterface
+class Features implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'basic';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'basic' => 'basic',
-		'bbc' => 'bbc',
-		'layout' => 'layout',
-		'sig' => 'signature',
-		'profile' => 'profile',
-		'profileedit' => 'profileEdit',
-		'likes' => 'likes',
-		'mentions' => 'mentions',
-		'alerts' => 'alerts',
-	];
 
 	/****************
 	 * Public methods
@@ -87,17 +56,17 @@ class Features implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		IntegrationHook::call('integrate_modify_features', [&$this->sub_actions]);
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_action'] = $this->getSubAction();
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -1819,9 +1788,9 @@ class Features implements ActionInterface
 			return self::basicConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'basic';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('basic');
+		$obj->execute();
 
 		return null;
 	}
@@ -1838,9 +1807,9 @@ class Features implements ActionInterface
 			return self::bbcConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'bbc';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('bbc');
+		$obj->execute();
 
 		return null;
 	}
@@ -1857,9 +1826,9 @@ class Features implements ActionInterface
 			return self::layoutConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'layout';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('layout');
+		$obj->execute();
 
 		return null;
 	}
@@ -1876,9 +1845,9 @@ class Features implements ActionInterface
 			return self::sigConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'sig';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('sig');
+		$obj->execute();
 
 		return null;
 	}
@@ -1895,9 +1864,9 @@ class Features implements ActionInterface
 			return self::likesConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'likes';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('likes');
+		$obj->execute();
 
 		return null;
 	}
@@ -1914,9 +1883,9 @@ class Features implements ActionInterface
 			return self::mentionsConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'mentions';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('mentions');
+		$obj->execute();
 
 		return null;
 	}
@@ -1930,6 +1899,16 @@ class Features implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('basic', [$this, 'basic']);
+		$this->addSubAction('bbc', [$this, 'bbc']);
+		$this->addSubAction('layout', [$this, 'layout']);
+		$this->addSubAction('sig', [$this, 'signature']);
+		$this->addSubAction('profile', [$this, 'profile']);
+		$this->addSubAction('profileedit', [$this, 'profileEdit']);
+		$this->addSubAction('likes', [$this, 'likes']);
+		$this->addSubAction('mentions', [$this, 'mentions']);
+		$this->addSubAction('alerts', [$this, 'alerts']);
+
 		Lang::load('Help');
 		Lang::load('ManageSettings');
 
@@ -1964,12 +1943,6 @@ class Features implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_modify_features', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 
 	/**

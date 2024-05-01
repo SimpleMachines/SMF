@@ -31,6 +31,8 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -41,41 +43,13 @@ use SMF\Utils;
 /**
  * Handles splitting of topics.
  */
-class TopicSplit implements ActionInterface
+class TopicSplit implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'index' => 'index',
-		'split' => 'split',
-		'selectTopics' => 'select',
-		'splitSelection' => 'splitSelection',
-	];
-
-	/*********************
 	 * Internal properties
 	 *********************/
 
@@ -108,11 +82,7 @@ class TopicSplit implements ActionInterface
 			Theme::loadTemplate('SplitTopics');
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -969,14 +939,15 @@ class TopicSplit implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('split', [$this, 'split']);
+		$this->addSubAction('selectTopics', [$this, 'select']);
+		$this->addSubAction('splitSelection', [$this, 'splitSelection']);
+
 		// The 'split' sub-action used to be called 'execute'.
 		if (!empty($_GET['sa']) && $_GET['sa'] === 'execute') {
 			$_GET['sa'] = 'split';
 			$_REQUEST['sa'] = 'split';
-		}
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
 		}
 	}
 }

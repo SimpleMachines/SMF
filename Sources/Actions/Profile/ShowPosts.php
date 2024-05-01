@@ -31,6 +31,8 @@ use SMF\Menu;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -39,39 +41,11 @@ use SMF\Utils;
 /**
  * Rename here and in the exportStatic call at the end of the file.
  */
-class ShowPosts implements ActionInterface
+class ShowPosts implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'messages';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'messages' => 'messages',
-		'topics' => 'topics',
-		'unwatchedtopics' => 'unwatched',
-		'attach' => 'attachments',
-	];
 
 	/****************
 	 * Public methods
@@ -114,11 +88,7 @@ class ShowPosts implements ActionInterface
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -579,12 +549,13 @@ class ShowPosts implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('messages', [$this, 'messages']);
+		$this->addSubAction('topics', [$this, 'topics']);
+		$this->addSubAction('unwatchedtopics', [$this, 'unwatched']);
+		$this->addSubAction('attach', [$this, 'attachments']);
+
 		if (!isset(Profile::$member)) {
 			Profile::load();
-		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 	}
 
