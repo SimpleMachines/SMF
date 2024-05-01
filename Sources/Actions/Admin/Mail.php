@@ -24,6 +24,8 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
@@ -32,39 +34,11 @@ use SMF\Utils;
 /**
  * Handles mail configuration, as well as reviewing the mail queue.
  */
-class Mail implements ActionInterface
+class Mail implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'browse';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'browse' => 'browse',
-		'clear' => 'clear',
-		'settings' => 'settings',
-		'test' => 'test',
-	];
 
 	/*********************
 	 * Internal properties
@@ -87,11 +61,11 @@ class Mail implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		IntegrationHook::call('integrate_manage_mail', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -520,6 +494,11 @@ class Mail implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('browse', [$this, 'browse']);
+		$this->addSubAction('clear', [$this, 'clear']);
+		$this->addSubAction('settings', [$this, 'settings']);
+		$this->addSubAction('test', [$this, 'test']);
+
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
@@ -529,13 +508,7 @@ class Mail implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
 		Utils::$context['sub_template'] = 'show_settings';
 
-		IntegrationHook::call('integrate_manage_mail', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_action'] = $this->sub_action;
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [

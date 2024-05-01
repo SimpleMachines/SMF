@@ -27,6 +27,8 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -37,41 +39,11 @@ use SMF\Utils;
  * This class helps the administrator setting registration settings and policy
  * as well as allow the administrator to register new members themselves.
  */
-class Registration implements ActionInterface
+class Registration implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'register';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * Format: 'sa' => array('method', 'required_permission')
-	 */
-	public static array $subactions = [
-		'register' => ['register', 'moderate_forum'],
-		'agreement' => ['agreement', 'admin_forum'],
-		'policy' => ['privacyPolicy', 'admin_forum'],
-		'reservednames' => ['reservedNames', 'admin_forum'],
-		'settings' => ['settings', 'admin_forum'],
-	];
 
 	/****************
 	 * Public methods
@@ -82,14 +54,12 @@ class Registration implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Must have sufficient permissions.
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		// @todo Is this context variable necessary?
+		Utils::$context['sub_action'] = $this->sub_action;
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -509,6 +479,26 @@ class Registration implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		User::$me->isAllowedTo('moderate_forum');
+
+		$this->addSubAction('register', [$this, 'register']);
+
+		if (User::$me->allowedTo('admin_forum')) {
+			$this->addSubAction('agreement', [$this, 'agreement']);
+			$this->addSubAction('policy', [$this, 'privacyPolicy']);
+			$this->addSubAction('reservednames', [$this, 'reservedNames']);
+			$this->addSubAction('settings', [$this, 'settings']);
+		}
+
+		$sub_actions = [];
+		IntegrationHook::call('integrate_manage_registrations', [&$sub_actions]);
+
+		foreach ($sub_actions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
+		}
+
 		// Loading, always loading.
 		Lang::load('Login');
 		Theme::loadTemplate('Register');
@@ -536,17 +526,6 @@ class Registration implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_manage_registrations', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		} elseif (!User::$me->allowedTo('moderate_forum')) {
-			$this->subaction = 'settings';
-		}
-
-		// @todo Is this context variable necessary?
-		Utils::$context['sub_action'] = $this->subaction;
 	}
 }
 

@@ -21,6 +21,8 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
@@ -29,38 +31,11 @@ use SMF\Utils;
 /**
  * Mark boards and topics as read (or unread in some cases).
  */
-class MarkRead implements ActionInterface, Routable
+class MarkRead implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'board';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'all' => 'all',
-		'unreadreplies' => 'replies',
-		'topic' => 'topic',
-		'board' => 'board',
-	];
+	use ProvidesSubActionTrait;
 
 	/****************
 	 * Public methods
@@ -71,11 +46,7 @@ class MarkRead implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -484,14 +455,15 @@ class MarkRead implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('board', [$this, 'board']);
+		$this->addSubAction('unreadreplies', [$this, 'replies']);
+		$this->addSubAction('topic', [$this, 'topic']);
+		$this->addSubAction('all', [$this, 'all']);
+
 		// No Guests allowed!
 		User::$me->kickIfGuest();
 
 		User::$me->checkSession('get');
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 }
 

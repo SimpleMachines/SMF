@@ -31,6 +31,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -40,41 +42,11 @@ use SMF\Utils;
 /**
  * This class contains all the methods used for the ban center.
  */
-class Bans implements ActionInterface
+class Bans implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'list';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'list' => 'list',
-		'edit' => 'edit',
-		'add' => 'edit',
-		'browse' => 'browseTriggers',
-		'edittrigger' => 'editTrigger',
-		'log' => 'log',
-	];
 
 	/****************
 	 * Public methods
@@ -87,11 +59,19 @@ class Bans implements ActionInterface
 	{
 		User::$me->isAllowedTo('manage_bans');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		IntegrationHook::call('integrate_manage_bans', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
+		// Mark the appropriate menu entry as selected
+		if (array_key_exists($this->sub_action, Menu::$loaded['admin']->tab_data['tabs'])) {
+			Menu::$loaded['admin']->tab_data['tabs'][$this->sub_action]['is_selected'] = true;
 		}
+
+		Utils::$context['page_title'] = Lang::$txt['ban_title'];
+		Utils::$context['sub_action'] = $this->sub_action;
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -1472,6 +1452,13 @@ class Bans implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('list', [$this, 'list']);
+		$this->addSubAction('edit', [$this, 'edit']);
+		$this->addSubAction('add', [$this, 'edit']);
+		$this->addSubAction('browse', [$this, 'browseTriggers']);
+		$this->addSubAction('edittrigger', [$this, 'editTrigger']);
+		$this->addSubAction('log', [$this, 'log']);
+
 		Theme::loadTemplate('ManageBans');
 
 		// Tab data might already be set if this was called from Logs::execute().
@@ -1502,20 +1489,6 @@ class Bans implements ActionInterface
 				],
 			];
 		}
-
-		IntegrationHook::call('integrate_manage_bans', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		// Mark the appropriate menu entry as selected
-		if (array_key_exists($this->subaction, Menu::$loaded['admin']->tab_data['tabs'])) {
-			Menu::$loaded['admin']->tab_data['tabs'][$this->subaction]['is_selected'] = true;
-		}
-
-		Utils::$context['page_title'] = Lang::$txt['ban_title'];
-		Utils::$context['sub_action'] = $this->subaction;
 	}
 
 	/**

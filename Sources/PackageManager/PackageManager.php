@@ -13,6 +13,8 @@
 
 namespace SMF\PackageManager;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,6 +26,8 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Parser;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
@@ -35,40 +39,10 @@ use SMF\WebFetch\WebFetchApi;
 /**
  * This is the main package manager.
  */
-class PackageManager
+class PackageManager implements ActionInterface, ProvidesSubActionInterface
 {
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var array
-	 *
-	 * Delegation makes the world... that is, the package manager go 'round.
-	 */
-	public $subactions = [
-		// Sub-actions for working with package files.
-		'browse' => 'browse',
-		'remove' => 'remove',
-		'list' => 'list',
-		'ftptest' => 'ftpTest',
-		'install' => 'installTest',
-		'install2' => 'install',
-		'uninstall' => 'installTest',
-		'uninstall2' => 'install',
-		'options' => 'options',
-		'perms' => 'permissions',
-		'examine' => 'examineFile',
-		'showoperations' => 'showOperations',
-
-		// Sub-actions for working with package servers.
-		'upload' => 'upload',
-		'download' => 'download',
-		'servers' => 'servers',
-		'serveradd' => 'serverAdd',
-		'serverremove' => 'serverRemove',
-		'serverbrowse' => 'serverBrowse',
-	];
+	use ActionTrait;
+	use ProvidesSubActionTrait;
 
 	/**********************
 	 * Protected properties
@@ -89,39 +63,6 @@ class PackageManager
 		'browse' => 'serverbrowse',
 	];
 
-	/**
-	 * An instance of this class.
-	 */
-	protected static $obj;
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Instantiates this class, but never more than once.
-	 *
-	 * @todo Add a reference to Utils::$context['instances'] as well?
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -135,14 +76,10 @@ class PackageManager
 		Lang::load('Packages');
 		Theme::loadTemplate('Packages', 'admin');
 
-		Utils::$context['page_title'] = Lang::$txt['package'];
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		// Work out exactly who it is we are calling.
-		if (isset($_REQUEST['sa'], $this->subactions[$_REQUEST['sa']])) {
-			Utils::$context['sub_action'] = $_REQUEST['sa'];
-		} else {
-			Utils::$context['sub_action'] = 'browse';
-		}
+		Utils::$context['page_title'] = Lang::$txt['package'];
+		Utils::$context['sub_action'] = $this->sub_action;
 
 		// Set up some tabs...
 		Menu::$loaded['admin']->tab_data = [
@@ -164,25 +101,16 @@ class PackageManager
 			],
 		];
 
-		if (Utils::$context['sub_action'] == 'browse') {
+		if ($this->sub_action == 'browse') {
 			Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 		}
 
 		// We need to force the "Download" tab as selected.
-		if (in_array(Utils::$context['sub_action'], $this->packageget_subactions)) {
+		if (in_array($this->sub_action, $this->packageget_subactions)) {
 			Utils::$context['menu_data_' . Utils::$context['admin_menu_id']]['current_subsection'] = 'packageget';
 		}
 
-		// Call the function we're handing control to.
-		if (method_exists($this, $this->subactions[Utils::$context['sub_action']])) {
-			call_user_func([$this, $this->subactions[Utils::$context['sub_action']]]);
-		} else {
-			$call = Utils::getCallable($this->subactions[Utils::$context['sub_action']]);
-
-			if (!empty($call)) {
-				call_user_func($call);
-			}
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -3406,6 +3334,28 @@ class PackageManager
 	 */
 	protected function __construct()
 	{
+		// Sub-actions for working with package files.
+		$this->addSubAction('browse', [$this, 'browse']);
+		$this->addSubAction('remove', [$this, 'remove']);
+		$this->addSubAction('list', [$this, 'list']);
+		$this->addSubAction('ftptest', [$this, 'ftpTest']);
+		$this->addSubAction('install', [$this, 'installTest']);
+		$this->addSubAction('install2', [$this, 'install']);
+		$this->addSubAction('uninstall', [$this, 'installTest']);
+		$this->addSubAction('uninstall2', [$this, 'install']);
+		$this->addSubAction('options', [$this, 'options']);
+		$this->addSubAction('perms', [$this, 'permissions']);
+		$this->addSubAction('examine', [$this, 'examineFile']);
+		$this->addSubAction('showoperations', [$this, 'showOperations']);
+
+		// Sub-actions for working with package servers.
+		$this->addSubAction('upload', [$this, 'upload']);
+		$this->addSubAction('download', [$this, 'download']);
+		$this->addSubAction('servers', [$this, 'servers']);
+		$this->addSubAction('serveradd', [$this, 'serverAdd']);
+		$this->addSubAction('serverremove', [$this, 'serverRemove']);
+		$this->addSubAction('serverbrowse', [$this, 'serverBrowse']);
+
 		User::$me->isAllowedTo('admin_forum');
 
 		// Backward compatibility with old URLs.
@@ -3418,23 +3368,23 @@ class PackageManager
 				$_REQUEST['sa'] = 'server' . $_REQUEST['sa'];
 			}
 
-			if (!isset($this->subactions[$_REQUEST['sa']])) {
+			if (!isset($this->sub_actions[$_REQUEST['sa']])) {
 				$_REQUEST['sa'] = 'servers';
 			}
 
 			// Backward compatibility for deprecated integrate_package_get hook.
-			$temp = array_map(function ($sa) {return $this->subactions[$sa];}, $this->packageget_subactions);
+			$temp = array_map(fn ($sa) => $this->sub_actions[$sa], $this->packageget_subactions);
 			IntegrationHook::call('integrate_package_get', [&$temp]);
 
 			foreach ($temp as $sa => $func) {
-				$this->subactions[$this->packageget_subactions[$sa] ?? $sa] = $func;
+				$this->addSubAction($this->packageget_subactions[$sa] ?? $sa, [$this, $func]);
 			}
 		} elseif (isset($_REQUEST['pgdownload'])) {
 			$_REQUEST['sa'] = 'download';
 		}
 
 		// Give mods access to the sub-actions.
-		IntegrationHook::call('integrate_manage_packages', [&$this->subactions]);
+		IntegrationHook::call('integrate_manage_packages', [&$this->sub_actions]);
 	}
 
 	/**

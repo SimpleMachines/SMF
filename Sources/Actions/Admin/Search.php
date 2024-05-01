@@ -50,21 +50,6 @@ class Search implements ActionInterface
 	 */
 	public string $subaction = 'weights';
 
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'settings' => 'settings',
-		'weights' => 'weights',
-		'method' => 'method',
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -74,11 +59,12 @@ class Search implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		// @todo Is this context variable necessary?
+		Utils::$context['sub_action'] = $this->sub_action;
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -361,6 +347,10 @@ class Search implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
+		$this->addSubAction('settings', [$this, 'settings']);
+		$this->addSubAction('weights', [$this, 'weights']);
+		$this->addSubAction('method', [$this, 'method']);
+
 		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
@@ -391,19 +381,14 @@ class Search implements ActionInterface
 
 				if (isset($class_vars['admin_subactions'])) {
 					foreach ($class_vars['admin_subactions'] as $type => $subaction) {
-						self::$subactions[$subaction['sa']] = $subaction['func'];
+						$this->addSubAction($subaction['sa'], $subaction['func']);
 					}
 				}
 			}
 		}
 
-		IntegrationHook::call('integrate_manage_search', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		Utils::$context['sub_action'] = $this->subaction;
+		$sub_actions = [];
+		IntegrationHook::call('integrate_manage_search', [&$sub_actions]);
 	}
 }
 

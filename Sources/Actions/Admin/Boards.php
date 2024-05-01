@@ -28,6 +28,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Parser;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -37,52 +39,11 @@ use SMF\Utils;
 /**
  * Manages and maintains the boards and categories of the forum.
  */
-class Boards implements ActionInterface
+class Boards implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'main';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * Format: 'sub-action' => array('function', 'permission')
-	 */
-	public static array $subactions = [
-		'main' => ['main', 'manage_boards'],
-		'board' => ['editBoard', 'manage_boards'],
-		'board2' => ['editBoard2', 'manage_boards'],
-		'cat' => ['editCategory', 'manage_boards'],
-		'cat2' => ['editCategory2', 'manage_boards'],
-		'move' => ['main', 'manage_boards'],
-		'newcat' => ['editCategory', 'manage_boards'],
-		'newboard' => ['editBoard', 'manage_boards'],
-		'settings' => ['settings', 'admin_forum'],
-	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods
@@ -93,14 +54,7 @@ class Boards implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Have you got the proper permissions?
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -930,7 +884,24 @@ class Boards implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		if (User::$me->allowedTo('manage_boards')) {
+			$this->addSubAction('main', [$this, 'main']);
+			$this->addSubAction('board', [$this, 'editBoard']);
+			$this->addSubAction('board2', [$this, 'editBoard2']);
+			$this->addSubAction('cat', [$this, 'editCategory']);
+			$this->addSubAction('cat2', [$this, 'editCategory2']);
+			$this->addSubAction('move', [$this, 'main']);
+			$this->addSubAction('newcat', [$this, 'editCategory']);
+			$this->addSubAction('newboard', [$this, 'editBoard']);
+		}
+
+		if (User::$me->allowedTo('admin_forum')) {
+			$this->addSubAction('settings', [$this, 'settings']);
+		}
+
 		// Special handling for modifycat.
+		$this->addSubAction('modifycat', [self::class, 'modifyCat']);
+
 		if (($_REQUEST['action'] ?? '') === 'modifycat') {
 			self::modifyCat();
 		}
@@ -954,10 +925,14 @@ class Boards implements ActionInterface
 			],
 		];
 
-		IntegrationHook::call('integrate_manage_boards', [&self::$subactions]);
+		$sub_actions = [];
+		IntegrationHook::call('integrate_manage_boards', [&$sub_actions]);
 
-		// Default to sub action 'main' or 'settings' depending on permissions.
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
+		foreach ($sub_actions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, method_exists($this, $func) ? [$this, $func] : $func);
+			}
+		}
 	}
 }
 

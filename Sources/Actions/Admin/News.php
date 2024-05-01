@@ -32,6 +32,8 @@ use SMF\Menu;
 use SMF\Msg;
 use SMF\Parser;
 use SMF\PersonalMessage\PM;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -41,23 +43,11 @@ use SMF\Utils;
 /**
  * This class manages... the news. :P
  */
-class News implements ActionInterface
+class News implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'editnews';
 
 	/**
 	 * @var array
@@ -207,25 +197,6 @@ class News implements ActionInterface
 			}',
 	];
 
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * Format: 'sub-action' => array('function', 'permission')
-	 */
-	public static array $subactions = [
-		'editnews' => ['edit', 'edit_news'],
-		'mailingmembers' => ['selectMembers', 'send_mail'],
-		'mailingcompose' => ['compose', 'send_mail'],
-		'mailingsend' => ['send', 'send_mail'],
-		'settings' => ['settings', 'admin_forum'],
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -235,10 +206,14 @@ class News implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Have you got the proper permissions?
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		call_user_func([$this, self::$subactions[$this->subaction][0]]);
+		// Force the right area...
+		if (str_starts_with($this->sub_action, 'mailing')) {
+			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
+		}
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -1221,6 +1196,29 @@ class News implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		if (User::$me->allowedTo('edit_news')) {
+			$this->addSubAction('editnews', [$this, 'edit']);
+		}
+
+		if (User::$me->allowedTo('send_mail')) {
+			$this->addSubAction('mailingmembers', [$this, 'selectMembers']);
+			$this->addSubAction('mailingcompose', [$this, 'compose']);
+			$this->addSubAction('mailingsend', [$this, 'send']);
+		}
+
+		if (User::$me->allowedTo('admin_forum')) {
+			$this->addSubAction('settings', [$this, 'settings']);
+		}
+
+		$sub_actions = [];
+		IntegrationHook::call('integrate_manage_news', [&$sub_actions]);
+
+		foreach ($sub_actions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
+		}
+
 		Theme::loadTemplate('ManageNews');
 
 		// Create the tabs for the template.
@@ -1239,16 +1237,6 @@ class News implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
-
-		// Default to sub action 'main' or 'settings' depending on permissions.
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
-
-		// Force the right area...
-		if (str_starts_with($this->subaction, 'mailing')) {
-			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
-		}
 
 		// Insert dynamic values into the list options.
 		$this->setListOptions();

@@ -47,8 +47,6 @@ class DisplayAdminFile implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Sapi::setMemoryLimit('32M');
-
 		if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}

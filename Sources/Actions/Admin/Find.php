@@ -23,6 +23,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\XmlArray;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
@@ -31,21 +33,14 @@ use SMF\WebFetch\WebFetchApi;
 /**
  * Provides the search functionality inside the admin control panel.
  */
-class Find implements ActionInterface
+class Find implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
+	use ProvidesSubActionTrait;
 
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'internal';
 
 	/**
 	 * @var array
@@ -129,21 +124,6 @@ class Find implements ActionInterface
 	 */
 	public array $include_files = [];
 
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'internal' => 'internal',
-		'online' => 'online',
-		'member' => 'member',
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -153,17 +133,19 @@ class Find implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->findRequestedSubAction($_REQUEST['search_type'] ?? null);
+
 		User::$me->isAllowedTo('admin_forum');
 
-		Utils::$context['search_type'] = $this->subaction;
+		Utils::$context['search_type'] = $this->sub_action;
 		Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 		Utils::$context['sub_template'] = 'admin_search_results';
 		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
 
 		// Keep track of what the admin wants.
-		if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != $this->subaction) {
-			Utils::$context['admin_preferences']['sb'] = $this->subaction;
+		if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != $this->sub_action) {
+			Utils::$context['admin_preferences']['sb'] = $this->sub_action;
 
 			// Update the preferences.
 			ACP::updateAdminPreferences();
@@ -172,11 +154,7 @@ class Find implements ActionInterface
 		if (trim(Utils::$context['search_term']) == '') {
 			Utils::$context['search_results'] = [];
 		} else {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-			if (!empty($call)) {
-				call_user_func($call);
-			}
+			$this->callSubAction();
 		}
 	}
 
@@ -365,7 +343,9 @@ class Find implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		$this->subaction = !isset($_REQUEST['search_type']) || !isset(self::$subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
+		$this->addSubAction('internal', [$this, 'internal']);
+		$this->addSubAction('online', [$this, 'online']);
+		$this->addSubAction('member', [$this, 'member']);
 	}
 }
 

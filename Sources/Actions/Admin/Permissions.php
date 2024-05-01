@@ -28,6 +28,8 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -36,10 +38,10 @@ use SMF\Utils;
 /**
  * Permissions handles all possible permission stuff.
  */
-class Permissions implements ActionInterface
+class Permissions implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*****************
@@ -68,14 +70,6 @@ class Permissions implements ActionInterface
 	 *******************/
 
 	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**
 	 * @var array
 	 *
 	 * Maps the permission groups used in the post moderation permissions UI
@@ -93,24 +87,6 @@ class Permissions implements ActionInterface
 	/**************************
 	 * Public static properties
 	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * Format: 'sub-action' => array('method_to_call', 'permission_needed')
-	 */
-	public static array $subactions = [
-		'index' => ['index', 'manage_permissions'],
-		'board' => ['board', 'manage_permissions'],
-		'modify' => ['modify', 'manage_permissions'],
-		'modify2' => ['modify2', 'manage_permissions'],
-		'quick' => ['quick', 'manage_permissions'],
-		'postmod' => ['postmod', 'manage_permissions'],
-		'profiles' => ['profiles', 'manage_permissions'],
-		'settings' => ['settings', 'admin_forum'],
-	];
 
 	/**
 	 * @var array
@@ -937,13 +913,8 @@ class Permissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		User::$me->isAllowedTo('manage_permissions');
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -2365,7 +2336,6 @@ class Permissions implements ActionInterface
 		Utils::$context['hidden_permissions'] = self::$hidden;
 	}
 
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2375,6 +2345,29 @@ class Permissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		User::$me->isAllowedTo('manage_permissions');
+
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('board', [$this, 'board']);
+		$this->addSubAction('modify', [$this, 'modify']);
+		$this->addSubAction('modify2', [$this, 'modify2']);
+		$this->addSubAction('quick', [$this, 'quick']);
+		$this->addSubAction('postmod', [$this, 'postmod']);
+		$this->addSubAction('profiles', [$this, 'profiles']);
+
+		if (User::$me->allowedTo('admin_forum')) {
+			$this->addSubAction('settings', [$this, 'settings']);
+		}
+
+		$sub_actions = [];
+		IntegrationHook::call('integrate_manage_permissions', [&$sub_actions]);
+
+		foreach ($sub_actions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
+		}
+
 		Lang::load('ManagePermissions+ManageMembers');
 		Theme::loadTemplate('ManagePermissions');
 
@@ -2401,12 +2394,6 @@ class Permissions implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_manage_permissions', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 
 	/**

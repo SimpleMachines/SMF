@@ -26,6 +26,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
@@ -35,44 +37,11 @@ use SMF\Utils;
 /**
  * Handles liking posts and displaying the list of who liked a post.
  */
-class Like implements ActionInterface, Routable
+class Like implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'like';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 *
-	 * @todo Do delete, insert, and count really need to be sub-actions? They
-	 * are never used as sub-actions in practice. Instead, they are only ever
-	 * called internally by the like() method. Moreover, the control flow
-	 * regarding hooks, etc., assumes that they are only called by like().
-	 */
-	public static array $subactions = [
-		'like' => 'like',
-		'view' => 'view',
-		'delete' => 'delete',
-		'insert' => 'insert',
-		'count' => 'count',
-	];
+	use ProvidesSubActionTrait;
 
 	/*********************
 	 * Internal properties
@@ -232,20 +201,18 @@ class Like implements ActionInterface, Routable
 		// So at this point, whatever type of like the user supplied and the
 		// item of content in question, we know it exists.
 		// Now we need to figure out what we're doing with that.
-		if (isset(self::$subactions[$this->subaction])) {
+		if (isset($_REQUEST['sa'], $this->sub_actions[$_REQUEST['sa']])) {
+			$this->findRequestedSubAction($_REQUEST['sa']);
+
 			// Guest can only view likes.
-			if ($this->subaction != 'view') {
+			if ($this->sub_action != 'view') {
 				User::$me->kickIfGuest();
 			}
 
 			User::$me->checkSession('get');
 
 			// Call the appropriate method.
-			if (method_exists($this, self::$subactions[$this->subaction])) {
-				call_user_func([$this, self::$subactions[$this->subaction]]);
-			} else {
-				call_user_func(self::$subactions[$this->subaction]);
-			}
+			$this->callSubAction($_REQUEST['sa']);
 		}
 
 		// Send the response.
@@ -276,12 +243,20 @@ class Like implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
+		/*
+		 * @todo Do delete, insert, and count really need to be sub-actions? They
+		 * are never used as sub-actions in practice. Instead, they are only ever
+		 * called internally by the like() method. Moreover, the control flow
+		 * regarding hooks, etc., assumes that they are only called by like().
+		 */
+		$this->addSubAction('like', [$this, 'like']);
+		$this->addSubAction('view', [$this, 'view']);
+		$this->addSubAction('delete', [$this, 'delete']);
+		$this->addSubAction('insert', [$this, 'insert']);
+		$this->addSubAction('count', [$this, 'count']);
+
 		if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] === '_count') {
 			$_REQUEST['sa'] = 'count';
-		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 
 		$this->type = $_GET['ltype'] ?? '';
@@ -379,7 +354,7 @@ class Like implements ActionInterface, Routable
 			 *
 			 * See also issueLike() for further notes.
 			 */
-			$can_like = IntegrationHook::call('integrate_valid_likes', [$this->type, $this->content, $this->subaction, $this->js, $this->extra]);
+			$can_like = IntegrationHook::call('integrate_valid_likes', [$this->type, $this->content, $this->sub_action, $this->js, $this->extra]);
 
 			$found = false;
 
@@ -414,7 +389,7 @@ class Like implements ActionInterface, Routable
 
 		// Is the user able to like this?
 		// Viewing a list of likes doesn't require this permission.
-		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && is_string($this->valid_likes['can_like'])) {
+		if ($this->sub_action != 'view' && isset($this->valid_likes['can_like']) && is_string($this->valid_likes['can_like'])) {
 			$this->error = $this->valid_likes['can_like'];
 
 			return;
@@ -440,7 +415,7 @@ class Like implements ActionInterface, Routable
 		);
 
 		// Are we calling this directly? If so, set the data for the response.
-		if ($this->subaction == __FUNCTION__) {
+		if ($this->sub_action == __FUNCTION__) {
 			$this->data = __FUNCTION__;
 		}
 
@@ -535,7 +510,7 @@ class Like implements ActionInterface, Routable
 		}
 
 		// Are we calling this directly? If so, set the data for the response.
-		if ($this->subaction == __FUNCTION__) {
+		if ($this->sub_action == __FUNCTION__) {
 			$this->data = __FUNCTION__;
 		}
 	}
@@ -561,7 +536,7 @@ class Like implements ActionInterface, Routable
 
 		$this->num_likes = (int) $likes;
 
-		if ($this->subaction == __FUNCTION__) {
+		if ($this->sub_action == __FUNCTION__) {
 			$this->data = $this->num_likes;
 		}
 	}
@@ -745,7 +720,7 @@ class Like implements ActionInterface, Routable
 		if ($this->error) {
 			// If this is a generic error, set it up good.
 			if ($this->error == 'cannot_') {
-				$this->error = $this->subaction == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+				$this->error = $this->sub_action == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
 			}
 
 			// Is this request coming from an AJAX call?
@@ -772,14 +747,14 @@ class Like implements ActionInterface, Routable
 		// These fine gentlemen all share the same template.
 		$generic = ['delete', 'insert', 'count'];
 
-		if (in_array($this->subaction, $generic)) {
+		if (in_array($this->sub_action, $generic)) {
 			Utils::$context['sub_template'] = 'generic';
 			Utils::$context['data'] = Lang::$txt['like_' . $this->data] ?? $this->data;
 		}
 		// Directly pass the current called sub-action and the data
 		// generated by its associated Method.
 		else {
-			Utils::$context['sub_template'] = $this->subaction;
+			Utils::$context['sub_template'] = $this->sub_action;
 			Utils::$context['data'] = $this->data;
 		}
 	}
@@ -796,7 +771,7 @@ class Like implements ActionInterface, Routable
 		// If there is an error, send it.
 		if ($this->error) {
 			if ($this->error == 'cannot_') {
-				$this->error = $this->subaction == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+				$this->error = $this->sub_action == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
 			}
 
 			$print['error'] = $this->error;

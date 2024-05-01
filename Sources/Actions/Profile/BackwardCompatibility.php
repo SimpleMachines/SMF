@@ -23,6 +23,8 @@ trait BackwardCompatibility
 	use BackCompat;
 
 	/**
+	 * Helps provide backwards compatbility for profile
+	 * actions.  Any new code should not depend on it.
 	 *
 	 * Backwards compatibility function for handling profile-related subactions
 	 *
@@ -48,7 +50,7 @@ trait BackwardCompatibility
 		}
 
 		if ($loadSelfFirst) {
-			self::load();
+			$obj = self::load();
 
 			if ($loadProfile) {
 				Profile::load($memID);
@@ -57,7 +59,7 @@ trait BackwardCompatibility
 			if ($loadProfile) {
 				Profile::load($memID);
 			}
-			self::load();
+			$obj = self::load();
 		}
 
 		if ($updateRequest) {
@@ -65,10 +67,10 @@ trait BackwardCompatibility
 		}
 
 		if (isset($sa)) {
-			self::$obj->subaction = $sa;
+			$obj->setDefaultAction($sa);
 		}
 
-		self::$obj->execute();
+		$obj->execute();
 	}
 }
 
