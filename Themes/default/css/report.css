@@ -1,7 +1,22 @@
+table {
+	border-collapse: collapse;
+	margin: 1ex;
+}
+th, td {
+	border: 1px solid #CCC;
+	font-size: 0.9em;
+}
+
+@media print {
+	tr {
+		page-break-inside: avoid; /* Prevents rows from breaking */
+		display: block; /* Needed in order for page-break to work */
+	}
+}
+
 body {
 	color: #000;
 	background-color: #fff;
-	zoom: 1;
 }
 body, td, .normaltext {
 	font-family: Verdana, arial, helvetica, serif;

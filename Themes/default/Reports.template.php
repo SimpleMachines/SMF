@@ -66,11 +66,39 @@ function template_main()
 	echo '
 		</div>';
 
-	// Go through each table!
-	foreach (Utils::$context['tables'] as $table)
+	if (count(Utils::$context['tables']) > 1)
 	{
 		echo '
-		<table class="table_grid report_results">';
+		<style>';
+
+		foreach (Utils::$context['tables'] as $i => $table)
+			echo '
+			body:has(#report_check_', $i + 1, ':not(:checked)) [data-id=report_', $i + 1, '] {
+				display: none;
+			}';
+
+	echo '
+		</style>
+		<form class="windowbg clear" id="report_filter">
+			<fieldset>';
+
+		foreach (Utils::$context['tables'] as $i => $table)
+			if (!empty($table['title']))
+				echo '
+			<label>
+				<input type="checkbox" id="report_check_', $i + 1, '" checked>
+				', $table['title'], '
+			</label>';
+
+		echo '
+			</fieldset>
+		</form>';
+	}
+
+	foreach (Utils::$context['tables'] as $i => $table)
+	{
+		echo '
+		<table class="table_grid report_result" data-id="report_', $i + 1, '">';
 
 		if (!empty($table['title']))
 			echo '
@@ -85,15 +113,16 @@ function template_main()
 		$row_number = 0;
 		foreach ($table['data'] as $row)
 		{
-			if ($row_number == 0 && !empty($table['shading']['top']))
+			if ($row_number == 0 && !empty($table['shading']['top']) && empty(current($row)['header']))
 				echo '
 				<tr class="windowbg table_caption">';
 			else
 				echo '
-				<tr class="', !empty($row[0]['separator']) ? 'title_bar' : 'windowbg', '">';
+				<tr class="', !empty(current($row)['separator']) || !empty(current($row)['header']) ? 'title_bar' : 'windowbg', '">';
 
 			// Now do each column.
 			$column_number = 0;
+			$th = false;
 
 			foreach ($row as $data)
 			{
@@ -101,21 +130,30 @@ function template_main()
 				if (!empty($data['separator']) && $column_number == 0)
 				{
 					echo '
-					<td colspan="', $table['column_count'], '" class="smalltext">
+					<th colspan="', $table['column_count'], '" class="smalltext">
 						', $data['v'], ':
-					</td>';
+					</th>';
 					break;
 				}
+				// These table cells shall be a heading if the first row says so.
+				elseif ($th || !empty($data['header']))
+				{
+					echo '
+					<th>
+						', $data['v'], '
+					</th>';
 
+					$th = true;
+				}
 				// Shaded?
-				if ($column_number == 0 && !empty($table['shading']['left']))
+				elseif ($column_number == 0 && !empty($table['shading']['left']))
 					echo '
 					<td class="table_caption ', $table['align']['shaded'], 'text"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
 						', $data['v'] == $table['default_value'] ? '' : ($data['v'] . (empty($data['v']) ? '' : ':')), '
 					</td>';
 				else
 					echo '
-					<td class="smalltext centertext" ', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
+					<td class="smalltext ', $table['align']['normal'], 'text" ', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
 						', $data['v'], '
 					</td>';
 
@@ -144,6 +182,7 @@ function template_print_above()
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Utils::$context['page_title'], '</title>
 		<link rel="stylesheet" href="', Theme::$current->settings['default_theme_url'], '/css/report.css', Utils::$context['browser_cache'], '">
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/reports.js', Utils::$context['browser_cache'], '"></script>
 	</head>
 	<body>';
 }
