@@ -21,12 +21,12 @@ use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\Editor;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -226,7 +226,7 @@ class Post implements ActionInterface
 	 */
 	public function show(): void
 	{
-		Lang::load('Post');
+		Lang::load('Post+Calendar');
 
 		if (!empty(Config::$modSettings['drafts_post_enabled'])) {
 			Lang::load('Drafts');
@@ -702,15 +702,39 @@ class Post implements ActionInterface
 
 		// Start loading up the event info.
 		if (isset($_REQUEST['eventid'])) {
-			list(Utils::$context['event']) = Event::load((int) $_REQUEST['eventid']);
+			Utils::$context['event'] = current(Event::load((int) $_REQUEST['eventid']));
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
 			Utils::$context['event'] = new Event(-1);
+			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+		} else {
+			if (isset($_REQUEST['recurrenceid'])) {
+				$selected_occurrence = Utils::$context['event']->getOccurrence($_REQUEST['recurrenceid']);
+			}
+
+			if (empty($selected_occurrence)) {
+				$selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+			}
+
+			Utils::$context['event']->selected_occurrence = $selected_occurrence;
 		}
 
 		// Permissions check!
 		User::$me->isAllowedTo('calendar_post');
+
+		// Are there any other linked events besides this one?
+		foreach (Event::load(Topic::$topic_id, true) as $event) {
+			if ($event->id === Utils::$context['event']->id) {
+				continue;
+			}
+
+			if (($occurrence = $event->getUpcomingOccurrence()) === false) {
+				$occurrence = $event->getLastOccurrence();
+			}
+
+			Utils::$context['linked_calendar_events'][] = $occurrence;
+		}
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		$time_string = Time::getShortTimeFormat();
@@ -740,29 +764,23 @@ class Post implements ActionInterface
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday == true) {
-			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
-			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_date);
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->timestamp);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		Utils::$context['event']->fixTimezone();
+		Utils::$context['event']->selected_occurrence->fixTimezone();
 
-		Calendar::loadDatePicker('#event_time_input .date_input');
-		Calendar::loadTimePicker('#event_time_input .time_input', $time_string);
-		Calendar::loadDatePair('#event_time_input', 'date_input', 'time_input');
-		Theme::addInlineJavaScript('
-		$("#allday").click(function(){
-			$("#start_time").attr("disabled", this.checked);
-			$("#end_time").attr("disabled", this.checked);
-			$("#tz").attr("disabled", this.checked);
-		});	', true);
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 
-		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : (int) Config::$modSettings['cal_defaultboard'];
-		Utils::$context['event']->topic = !empty(Topic::$info->id) ? Topic::$info->id : 0;
+		Utils::$context['event']->board = !empty(Utils::$context['event']->board) ? Utils::$context['event']->board : (Board::$info->id ?? (int) Config::$modSettings['cal_defaultboard']);
+		Utils::$context['event']->topic = !empty(Utils::$context['event']->topic) ? Utils::$context['event']->topic : -1;
 	}
 
 	/**

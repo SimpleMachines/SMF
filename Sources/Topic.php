@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -312,6 +313,13 @@ class Topic implements \ArrayAccess
 		'topic_started_time' => 'started_time',
 	];
 
+	/**
+	 * @var array
+	 *
+	 * IDs of any events that are linked to this topic.
+	 */
+	protected array $events;
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -527,6 +535,20 @@ class Topic implements \ArrayAccess
 		}
 
 		return $liked_messages;
+	}
+
+	/**
+	 * Returns any calendar events that are linked to this topic.
+	 */
+	public function getLinkedEvents(): array
+	{
+		if (!isset($this->events)) {
+			foreach(Event::load($this->id, true) as $event) {
+				$this->events[] = $event->id;
+			}
+		}
+
+		return array_intersect_key(Event::$loaded, array_flip($this->events ?? []));
 	}
 
 	/***********************

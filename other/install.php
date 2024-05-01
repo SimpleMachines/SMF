@@ -23,6 +23,7 @@ use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 
 define('SMF_VERSION', '3.0 Alpha 1');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
@@ -1484,6 +1485,32 @@ function DatabasePopulation()
 		$smiley_inserts,
 		['id_smiley', 'smiley_set'],
 	);
+
+	// Set the UID column for calendar events.
+	$calendar_updates = [];
+	$request = Db::$db->query(
+		'',
+		'SELECT id_event, uid
+		FROM {db_prefix}calendar',
+		[],
+	);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		if ($row['uid'] === '') {
+			$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
+		}
+	}
+	Db::$db->free_result($request);
+
+	foreach ($calendar_updates as $calendar_update) {
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}calendar
+			SET uid = {string:uid}
+			WHERE id_event = {int:id_event}',
+			$calendar_update,
+		);
+	}
 
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb) {

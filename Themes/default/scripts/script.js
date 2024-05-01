@@ -1591,11 +1591,6 @@ function generateDays(offset)
 		dayElement.selectedIndex = selected;
 }
 
-function toggleLinked(form)
-{
-	form.board.disabled = !form.link_to_board.checked;
-}
-
 function initSearch()
 {
 	if (document.forms.searchform.search.value.indexOf("%u") != -1)
@@ -1732,6 +1727,10 @@ $(function() {
 
 	// Generic confirmation message.
 	$(document).on('click', '.you_sure', function() {
+		if (!this.checked) {
+			return true;
+		}
+
 		var custom_message = $(this).attr('data-confirm');
 		var timeBefore = new Date();
 		var result = confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);

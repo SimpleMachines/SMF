@@ -143,6 +143,9 @@ fieldset legend {
 	box-shadow: none;
 	border: none;
 }
+fieldset legend a {
+	font-weight: normal;
+}
 summary {
 	margin: 5px 0;
 }
@@ -557,8 +560,17 @@ strong[id^='child_list_']::after {
 	color: #078907;
 }
 
-.holiday > span {
+.holiday > span.label {
 	color: #025dff;
+}
+.holiday_wrapper > span:first-of-type::before {
+	content: '(';
+}
+.holiday_wrapper > span:first-of-type::after {
+	content: ',';
+}
+.holiday_wrapper > span:last-of-type::after {
+	content: ')';
 }
 /* Events that are currently selected on the calendar. Won't see it much, probably. */
 .sel_event {
@@ -1455,13 +1467,22 @@ ul li.greeting {
 
 /* Styles for edit event section
 ---------------------------------------------------- */
+#post_header + #post_event {
+	margin: 1em 0 2em;
+}
 #post_event .roundframe {
 	padding: 12px 12%;
 	overflow: auto;
 }
 #post_event fieldset {
-	padding: 6px;
+	padding: 6px 12px;
 	clear: both;
+	margin-bottom: 12px;
+}
+#post_event fieldset:not(:last-child) {
+	margin-bottom: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 #post_event span.label {
 	margin: 0 0.5em 0 2px;
@@ -1515,18 +1536,44 @@ ul li.greeting {
 }
 #post_event input[type="checkbox"] {
 	height: auto;
+	vertical-align: initial;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
 }
-#post_event select, #event_options input[type="text"], #tz {
-	max-width: calc(100% - 75px);
+#tz {
+	max-width: 100%;
 }
-#post_event select, #evtitle, #event_location {
-	width: calc(100% - 75px);
+#rrule_end {
+	white-space: nowrap;
 }
-#post_event input[type="checkbox"] + select {
-	max-width: calc(100% - 95px);
+.rrule_input.inline_block {
+	vertical-align: top;
+}
+.byday_label,
+.bymonth_label,
+.bymonthday_label {
+	white-space: nowrap;
+}
+.byday_label span,
+.bymonth_label span,
+.bymonthday_label span {
+	display: inline-block;
+}
+.bymonth_label span {
+	width: 4ch;
+}
+.bymonthday_label span {
+	width: 2ch;
+	text-align: center;
+}
+.bymonthday_label input:disabled + span {
+	opacity: 0.5;
+}
+#event_link_to label,
+#topic_link_to label {
+	margin-right: 2ch;
+	display: inline-block;
 }
 
 /* Styles for the recent messages section.
@@ -1741,6 +1788,12 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 .main_icons.alerts::before {
 	background: url(../images/icons/bell.png);
 	background-size: 16px;
+}
+.main_icons.feed::before {
+	background: url(../images/icons/feed.svg);
+	background-size: 16px;}
+a.main_icons.feed::before {
+	margin: -0.2em -0.4em 0;
 }
 /* Load better icons for higher resolution screens */
 @media
@@ -3502,18 +3555,24 @@ form#postmodify .roundframe {
 	padding: 6px;
 	overflow: hidden;
 }
-#post_header dt {
+#post_header dt,
+#event_options dt {
 	float: left;
 	padding: 0;
 	width: 15%;
 	margin: 6px 0 0 0;
 	font-weight: bold;
 }
-#post_header dd {
+#post_header dd,
+#event_options dd {
 	float: left;
 	padding: 0;
 	width: 83%;
 	margin: 4px 0;
+}
+#post_header input[type="text"],
+#event_basic_info input[type="text"] {
+	width: 100%;
 }
 #post_header img {
 	vertical-align: middle;
@@ -3790,11 +3849,22 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .generic_list_wrapper .information div {
 	background: none;
 }
-.information a:not(.button) {
+.information a:not(.button):not(.bbc_link) {
 	font-weight: bold;
 }
 p.information img {
 	vertical-align: middle;
+}
+.information.events {
+	padding: 0;
+}
+.information.events ul {
+	display: flex;
+	flex-flow: row wrap;
+}
+.information.events li {
+	margin: 12px;
+	flex: 1 0 auto;
 }
 #messageindex .information {
 	border-radius: 0;
@@ -3935,7 +4005,7 @@ h3.profile_hd::before,
 #top_section, .quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
 .inline_mod_check, .popup_window, #inner_section, .post_options ul,
-.post_options ul a:hover, .post_options ul a:focus, .notify_dropdown a:hover, .notify_dropdown a:focus {
+.post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
 }
@@ -3951,20 +4021,21 @@ h3.profile_hd::before,
 }
 
 /* Topic/Board follow-alert menu */
-.notify_dropdown strong {
+.dropmenu .viewport .overview strong {
 	font-size: 1.1em;
 }
-.notify_dropdown a {
+.dropmenu .viewport .overview a {
 	display: block;
 	padding: 0.5em;
 	text-decoration: none;
 	border: 1px solid transparent;
 	border-radius: 3px;
 }
-.notify_dropdown a:hover, .notify_dropdown a:focus {
+.dropmenu .viewport .overview a:hover,
+.dropmenu .viewport .overview a:focus {
 	border-color: #ddd;
 }
-.notify_dropdown span {
+.dropmenu .viewport .overview span {
 	font-size: 0.9em;
 }
 

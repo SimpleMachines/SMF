@@ -308,6 +308,10 @@ class ACP implements ActionInterface
 							'label' => 'manage_holidays',
 							'permission' => 'admin_forum',
 						],
+						'import' => [
+							'label' => 'calendar_import',
+							'permission' => 'admin_forum',
+						],
 						'settings' => [
 							'label' => 'calendar_settings',
 							'permission' => 'admin_forum',

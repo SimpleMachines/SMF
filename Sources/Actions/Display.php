@@ -21,11 +21,11 @@ use SMF\Alert;
 use SMF\Attachment;
 use SMF\Board;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -1026,10 +1026,24 @@ class Display implements ActionInterface
 	protected function loadEvents(): void
 	{
 		// If we want to show event information in the topic, prepare the data.
-		if (User::$me->allowedTo('calendar_view') && !empty(Config::$modSettings['cal_showInTopic']) && !empty(Config::$modSettings['cal_enabled'])) {
-			Utils::$context['linked_calendar_events'] = Event::load(Topic::$info->id, true);
+		if (
+			User::$me->allowedTo('calendar_view')
+			&& !empty(Config::$modSettings['cal_showInTopic'])
+			&& !empty(Config::$modSettings['cal_enabled'])
+		) {
+			Lang::load('Calendar');
+
+			foreach (Topic::$info->getLinkedEvents() as $event) {
+				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
+					$occurrence = $event->getLastOccurrence();
+				}
+
+				Utils::$context['linked_calendar_events'][] = $occurrence;
+			}
 
 			if (!empty(Utils::$context['linked_calendar_events'])) {
+				Theme::loadTemplate('EventEditor');
+
 				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
 			}
 		}
@@ -1248,6 +1262,11 @@ class Display implements ActionInterface
 			Utils::$context['normal_buttons']['add_poll'] = ['text' => 'add_poll', 'url' => Config::$scripturl . '?action=editpoll;add;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start']];
 		}
 
+		if (Calendar::canLinkEvent(false)) {
+			Lang::load('Calendar');
+			Utils::$context['normal_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
+		}
+
 		if (Topic::$info->permissions['can_mark_unread']) {
 			Utils::$context['normal_buttons']['mark_unread'] = ['text' => 'mark_unread', 'url' => Config::$scripturl . '?action=markasread;sa=topic;t=' . Utils::$context['mark_unread_time'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
@@ -1302,10 +1321,6 @@ class Display implements ActionInterface
 
 		if (Topic::$info->permissions['can_merge']) {
 			Utils::$context['mod_buttons']['merge'] = ['text' => 'merge', 'url' => Config::$scripturl . '?action=mergetopics;board=' . Utils::$context['current_board'] . '.0;from=' . Utils::$context['current_topic']];
-		}
-
-		if (Topic::$info->permissions['calendar_post']) {
-			Utils::$context['mod_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
 		}
 
 		// Restore topic. eh?  No monkey business.

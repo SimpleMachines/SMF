@@ -19,9 +19,10 @@ namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\Calendar as Cal;
 use SMF\ActionTrait;
 use SMF\Board;
+use SMF\Calendar\Event;
+use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -29,10 +30,15 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Time;
+use SMF\TimeInterval;
+use SMF\TimeZone;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * This class allows you to manage the calendar.
@@ -67,6 +73,7 @@ class Calendar implements ActionInterface
 	public static array $subactions = [
 		'holidays' => 'holidays',
 		'editholiday' => 'edit',
+		'import' => 'import',
 		'settings' => 'settings',
 	];
 
@@ -99,10 +106,8 @@ class Calendar implements ActionInterface
 			SecurityToken::validate('admin-mc');
 
 			foreach ($_REQUEST['holiday'] as $id => $value) {
-				$_REQUEST['holiday'][$id] = (int) $id;
+				Holiday::remove((int) $id);
 			}
-
-			Cal::removeHolidays($_REQUEST['holiday']);
 		}
 
 		SecurityToken::create('admin-mc');
@@ -113,12 +118,10 @@ class Calendar implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'file' => Config::$sourcedir . '/Actions/Calendar.php',
-				'function' => 'SMF\\Actions\\Calendar::list_getHolidays',
+				'function' => 'SMF\\Calendar\\Holiday::list',
 			],
 			'get_count' => [
-				'file' => Config::$sourcedir . '/Actions/Calendar.php',
-				'function' => 'SMF\\Actions\\Calendar::list_getNumHolidays',
+				'function' => 'SMF\\Calendar\\Holiday::count',
 			],
 			'no_items_label' => Lang::$txt['holidays_no_entries'],
 			'columns' => [
@@ -130,14 +133,14 @@ class Calendar implements ActionInterface
 						'sprintf' => [
 							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday=%1$d">%2$s</a>',
 							'params' => [
-								'id_holiday' => false,
+								'id' => false,
 								'title' => false,
 							],
 						],
 					],
 					'sort' => [
-						'default' => 'title ASC, event_date ASC',
-						'reverse' => 'title DESC, event_date ASC',
+						'default' => 'cal.title ASC, cal.start_date ASC',
+						'reverse' => 'cal.title DESC, cal.start_date ASC',
 					],
 				],
 				'date' => [
@@ -145,17 +148,35 @@ class Calendar implements ActionInterface
 						'value' => Lang::$txt['date'],
 					],
 					'data' => [
-						'function' => function ($rowData) {
-							// Recurring every year or just a single year?
-							$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', Lang::$txt['every_year']) : $rowData['year'];
+						'function' => function ($event) {
+							$rrule = $event->recurrence_iterator->getRRule();
 
-							// Construct the date.
-							return sprintf('%1$d %2$s %3$s', $rowData['day'], Lang::$txt['months'][(int) $rowData['month']], $year);
+							if (
+								!empty($event->special_rrule)
+								|| !empty($rrule->bymonth)
+								|| !empty($rrule->byweekno)
+								|| !empty($rrule->byyearday)
+								|| !empty($rrule->bymonthday)
+								|| !empty($rrule->byday)
+								|| !empty($rrule->byhour)
+								|| !empty($rrule->byminute)
+								|| !empty($rrule->bysecond)
+								|| !empty($rrule->bysetpos)
+								|| $event->recurrence_iterator->getRDates() !== []
+							) {
+								return Lang::$txt['holidays_date_varies'];
+							}
+
+							if (isset($rrule->count) && $rrule->count === 1) {
+								return $event->start->format(Time::getDateFormat());
+							}
+
+							return $event->start->format(Time::getShortDateFormat());
 						},
 					],
 					'sort' => [
-						'default' => 'event_date',
-						'reverse' => 'event_date DESC',
+						'default' => 'cal.start_date',
+						'reverse' => 'cal.start_date DESC',
 					],
 				],
 				'check' => [
@@ -167,7 +188,7 @@ class Calendar implements ActionInterface
 						'sprintf' => [
 							'format' => '<input type="checkbox" name="holiday[%1$d]">',
 							'params' => [
-								'id_holiday' => false,
+								'id' => false,
 							],
 						],
 						'class' => 'centercol',
@@ -219,51 +240,26 @@ class Calendar implements ActionInterface
 		}
 
 		// Submitting?
-		if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != '')) {
+		if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || ($_REQUEST['evtitle'] ?? '') != '')) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-eh');
 
-			// Not too long good sir?
-			$_REQUEST['title'] = Utils::entitySubstr(Utils::normalize($_REQUEST['title']), 0, 60);
-			$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : 0;
+			$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : -1;
 
-			if (isset($_REQUEST['delete'])) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}calendar_holidays
-					WHERE id_holiday = {int:selected_holiday}',
-					[
-						'selected_holiday' => $_REQUEST['holiday'],
-					],
-				);
+			if ($_REQUEST['holiday'] === -1) {
+				$eventOptions = [
+					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
+					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
+				];
+				Holiday::create($eventOptions);
+			} elseif (isset($_REQUEST['delete'])) {
+				Holiday::remove($_REQUEST['holiday']);
 			} else {
-				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']));
-
-				if (isset($_REQUEST['edit'])) {
-					Db::$db->query(
-						'',
-						'UPDATE {db_prefix}calendar_holidays
-						SET event_date = {date:holiday_date}, title = {string:holiday_title}
-						WHERE id_holiday = {int:selected_holiday}',
-						[
-							'holiday_date' => $date,
-							'selected_holiday' => $_REQUEST['holiday'],
-							'holiday_title' => $_REQUEST['title'],
-						],
-					);
-				} else {
-					Db::$db->insert(
-						'',
-						'{db_prefix}calendar_holidays',
-						[
-							'event_date' => 'date', 'title' => 'string-60',
-						],
-						[
-							$date, $_REQUEST['title'],
-						],
-						['id_holiday'],
-					);
-				}
+				$eventOptions = [
+					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
+					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
+				];
+				Holiday::modify($_REQUEST['holiday'], $eventOptions);
 			}
 
 			Config::updateModSettings([
@@ -276,43 +272,234 @@ class Calendar implements ActionInterface
 
 		SecurityToken::create('admin-eh');
 
-		// Default states...
 		if (Utils::$context['is_new']) {
-			Utils::$context['holiday'] = [
-				'id' => 0,
-				'day' => date('d'),
-				'month' => date('m'),
-				'year' => '0000',
-				'title' => '',
-			];
+			Utils::$context['event'] = new Holiday(-1, ['rrule' => 'FREQ=YEARLY']);
+		} else {
+			Utils::$context['event'] = current(Holiday::load($_REQUEST['holiday']));
 		}
-		// If it's not new load the data.
-		else {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
-				FROM {db_prefix}calendar_holidays
-				WHERE id_holiday = {int:selected_holiday}
-				LIMIT 1',
-				[
-					'selected_holiday' => $_REQUEST['holiday'],
-				],
-			);
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				Utils::$context['holiday'] = [
-					'id' => $row['id_holiday'],
-					'day' => $row['day'],
-					'month' => $row['month'],
-					'year' => $row['year'] <= 4 ? 0 : $row['year'],
-					'title' => $row['title'],
+		Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+
+		// An all day event? Set up some nice defaults in case the user wants to change that
+		if (Utils::$context['event']->allday == true) {
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->duration = new TimeInterval('PT1H');
+		}
+
+		// Need this so the user can select a timezone for the event.
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_datetime);
+
+		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
+		Utils::$context['event']->selected_occurrence->fixTimezone();
+
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', count(Utils::$context['event']->byday_items) - 1);
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
+	}
+
+	/**
+	 * Handles importing events and holidays from iCalendar files.
+	 */
+	public function import(): void
+	{
+		Theme::loadTemplate('ManageCalendar');
+		Utils::$context['sub_template'] = 'import';
+		Utils::$context['page_title'] = Lang::$txt['calendar_import'];
+
+		// Submitting?
+		if (isset($_POST[Utils::$context['session_var']])) {
+			User::$me->checkSession();
+			SecurityToken::validate('admin-calendarimport');
+
+			if (isset($_POST['ics_url'], $_POST['type'])) {
+				$ics_url = new Url($_POST['ics_url'], true);
+
+				if ($ics_url->isValid()) {
+					$ics_data = WebFetchApi::fetch($ics_url);
+				}
+
+				if (!empty($ics_data)) {
+					switch ($_POST['type']) {
+						case 'holiday':
+							Holiday::import($ics_data);
+							break;
+
+						case 'event':
+							Event::import($ics_data);
+							break;
+					}
+				}
+
+				// Subscribing to this calendar?
+				if (isset($_POST['subscribe'])) {
+					$subscribed = Utils::jsonDecode(Config::$modSettings['calendar_subscriptions'] ?? '[]', true);
+
+					$subscribed[(string) $ics_url] = $_POST['type'] === 'holiday' ? Event::TYPE_HOLIDAY : Event::TYPE_EVENT;
+
+					Config::updateModSettings(['calendar_subscriptions' => Utils::jsonEncode($subscribed)]);
+
+					$request = Db::$db->query(
+						'',
+						'SELECT id_task
+						FROM {db_prefix}scheduled_tasks
+						WHERE task = {string:task}',
+						[
+							'task' => 'fetch_calendar_subs',
+						],
+					);
+
+					$exists = Db::$db->num_rows($request) > 0;
+					Db::$db->free_result($request);
+
+					if (!$exists) {
+						$id_task = Db::$db->insert(
+							'',
+							'{db_prefix}scheduled_tasks',
+							[
+								'next_time' => 'int',
+								'time_offset' => 'int',
+								'time_regularity' => 'int',
+								'time_unit' => 'string-1',
+								'disabled' => 'int',
+								'task' => 'string-24',
+							],
+							[
+								'next_time' => 0,
+								'time_offset' => 0,
+								'time_regularity' => 1,
+								'time_unit' => 'd',
+								'disabled' => 0,
+								'task' => 'fetch_calendar_subs',
+							],
+							['id_task'],
+						);
+
+						TaskRunner::calculateNextTrigger((string) $id_task, true);
+					}
+				}
+			}
+
+			// Unsubscribing from some calendars?
+			if (isset($_POST['unsubscribe'], $_POST['subscribed'])) {
+				$subscribed = Utils::jsonDecode(Config::$modSettings['calendar_subscriptions'] ?? '[]', true);
+
+				foreach ($subscribed as $url => $type) {
+					$hashes[md5($url)] = $url;
+				}
+
+				foreach ($_POST['subscribed'] as $hash => $value) {
+					unset($subscribed[$hashes[$hash]]);
+				}
+
+				Config::updateModSettings(['calendar_subscriptions' => Utils::jsonEncode($subscribed)]);
+			}
+		}
+
+		SecurityToken::create('admin-calendarimport');
+
+		// List the current calendar subscriptions.
+		$subscribed = Utils::jsonDecode(Config::$modSettings['calendar_subscriptions'] ?? '[]', true);
+
+		if (!empty($subscribed)) {
+			foreach ($subscribed as $url => $type) {
+				Utils::$context['calendar_subscriptions'][] = [
+					'hash' => md5($url),
+					'url' => $url,
+					'type' => $type === Event::TYPE_HOLIDAY ? Lang::$txt['calendar_import_type_holiday'] : Lang::$txt['calendar_import_type_event'],
 				];
 			}
-			Db::$db->free_result($request);
-		}
 
-		// Last day for the drop down?
-		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : (int) Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? (int) Utils::$context['holiday']['year'] + 1 : (int) Utils::$context['holiday']['year']));
+			$listOptions = [
+				'id' => 'calendar_subscriptions',
+				'title' => Lang::$txt['calendar_import_manage_subscriptions'],
+				'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+				'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=import',
+				// 'default_sort_col' => 'url',
+				'get_items' => [
+					'value' => Utils::$context['calendar_subscriptions'],
+				],
+				'get_count' => [
+					'value' => count(Utils::$context['calendar_subscriptions']),
+				],
+				'no_items_label' => Lang::$txt['none'],
+				'columns' => [
+					'url' => [
+						'header' => [
+							'value' => Lang::$txt['url'],
+						],
+						'data' => [
+							'sprintf' => [
+								'format' => '%1$s',
+								'params' => [
+									'url' => true,
+								],
+							],
+						],
+						'sort' => [
+							'default' => '',
+							'reverse' => '',
+						],
+					],
+					'type' => [
+						'header' => [
+							'value' => Lang::sentenceList(
+								[
+									Lang::$txt['calendar_import_type_event'],
+									Lang::$txt['calendar_import_type_holiday'],
+								],
+								'or',
+							),
+						],
+						'data' => [
+							'sprintf' => [
+								'format' => '%1$s',
+								'params' => [
+									'type' => false,
+								],
+							],
+						],
+						'sort' => [
+							'default' => 'cal.start_date',
+							'reverse' => 'cal.start_date DESC',
+						],
+					],
+					'check' => [
+						'header' => [
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
+							'class' => 'centercol',
+						],
+						'data' => [
+							'sprintf' => [
+								'format' => '<input type="checkbox" name="subscribed[%1$s]">',
+								'params' => [
+									'hash' => false,
+								],
+							],
+							'class' => 'centercol',
+						],
+					],
+				],
+				'form' => [
+					'href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=import',
+					'token' => 'admin-calendarimport',
+				],
+				'additional_rows' => [
+					// [
+					// 	'position' => 'above_column_headers',
+					// 	'value' => '<input type="submit" name="unsubscribe" value="' . Lang::$txt['calendar_import_unsubscribe'] . '" class="button">',
+					// ],
+					[
+						'position' => 'below_table_data',
+						'value' => '<input type="submit" name="unsubscribe" value="' . Lang::$txt['calendar_import_unsubscribe'] . '" class="button">',
+					],
+				],
+			];
+
+			new ItemList($listOptions);
+
+			Theme::loadTemplate('GenericList');
+		}
 	}
 
 	/**
@@ -446,7 +633,7 @@ class Calendar implements ActionInterface
 	protected function __construct()
 	{
 		// Everything's gonna need this.
-		Lang::load('ManageCalendar');
+		Lang::load('Calendar+ManageCalendar');
 
 		if (empty(Config::$modSettings['cal_enabled'])) {
 			unset(self::$subactions['holidays'], self::$subactions['editholiday']);
@@ -464,6 +651,9 @@ class Calendar implements ActionInterface
 			Menu::$loaded['admin']->tab_data['tabs'] = [
 				'holidays' => [
 					'description' => Lang::$txt['manage_holidays_desc'],
+				],
+				'import' => [
+					'description' => Lang::$txt['calendar_import_desc'],
 				],
 				'settings' => [
 					'description' => Lang::$txt['calendar_settings_desc'],

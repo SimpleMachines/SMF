@@ -413,11 +413,18 @@ function template_ic_block_calendar()
 			</div>';
 
 	// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P
-	if (!empty(Utils::$context['calendar_holidays']))
+	if (!empty(Utils::$context['calendar_holidays'])) {
+		$holidays = array();
+
+		foreach (Utils::$context['calendar_holidays'] as $holiday) {
+			$holidays[] = $holiday->title . (!empty($holiday->location) ? ' (' . $holiday->location . ')' : '');
+		}
+
 		echo '
 			<p class="inline holiday">
-				<span>', Lang::$txt['calendar_prompt'], '</span> ', implode(', ', Utils::$context['calendar_holidays']), '
+				<span class="label">', Lang::$txt['calendar_prompt'], '</span> ', implode(', ', $holidays), '
 			</p>';
+	}
 
 	// People's birthdays. Like mine. And yours, I guess. Kidding.
 	if (!empty(Utils::$context['calendar_birthdays']))

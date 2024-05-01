@@ -194,6 +194,7 @@ $helptxt['cal_prev_next_links'] = 'If this setting is checked, previous month an
 $helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> {short} 1<br><strong>Disabled:</strong> {long} 1';
 // argument(s): $txt['days_short'][1], $txt['days'][1]
 $helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> {short}<br><strong>Disabled:</strong> {long}';
+$helptxt['special_rrule_modifier'] = 'Use this to specify an offset from the value calculated by a special recurrence rule.<br><br>The value must be a postive or negative sign followed by an <a href="https://en.wikipedia.org/wiki/ISO_8601#Durations" class="bbc_link" target="_blank">ISO 8601 duration</a> specification. For example, "+P1D" means one day after the date calculated by the special recurrence rule, while "-P2D" means two days before.';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
 	Here you can perform some core configuration for your forum. This page includes the database and URL settings, as well as other
