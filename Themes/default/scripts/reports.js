@@ -37,14 +37,13 @@ window.addEventListener('load', () => {
 	const el = document.body.children[0].children[0];
 
 	if (el.tagName == 'TABLE') {
-		// This is the printer-friendly version.
+		// This is the printer-friendly version.  600px seems
+		// like a good cutoff point for 8½" x 11" (US Lettter).
 		breakWideTable(el, 600);
 	} else {
 		// Create a copy of the node list that's not "live".
 		for (const table of [...document.getElementsByClassName('report_result')]) {
-			if (!table.dataset.id) {
-				breakWideTable(table, table.parentNode.clientWidth);
-			}
+			breakWideTable(table, table.parentNode.clientWidth);
 		}
 	}
 });

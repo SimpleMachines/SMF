@@ -73,7 +73,7 @@ function template_main()
 
 		foreach (Utils::$context['tables'] as $i => $table)
 			echo '
-			body:has(#report_check_', $i + 1, ':not(:checked)) #report_', $i + 1, ' {
+			body:has(#report_check_', $i + 1, ':not(:checked)) [data-id=report_', $i + 1, '] {
 				display: none;
 			}';
 
@@ -98,7 +98,7 @@ function template_main()
 	foreach (Utils::$context['tables'] as $i => $table)
 	{
 		echo '
-		<table class="table_grid report_result" id="report_', $i + 1, '">';
+		<table class="table_grid report_result" data-id="report_', $i + 1, '">';
 
 		if (!empty($table['title']))
 			echo '
