@@ -358,7 +358,7 @@ class Reports implements ActionInterface
 		}
 
 		$this->setKeys('rows', $groups);
-		$this->newTable(Lang::$txt['gr_type_group_perms'], '&mdash;', 'all', '100', 'center', '200', 'left');
+		$this->newTable(Lang::$txt['gr_type_board_access'], '&mdash;', 'all', '100', 'center', '200', 'left');
 		$this->addData($groups);
 		uasort($data, fn ($a, $b) => $a['col'] <=> $b['col']);
 
