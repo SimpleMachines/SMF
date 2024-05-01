@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\Attachment;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -254,6 +255,14 @@ class Post2 extends Post
 			// Preparse code. (Zef)
 			if (User::$me->is_guest) {
 				User::$me->name = $_POST['guestname'];
+			}
+
+			// Check for links with broken URLs.
+			if (
+				!isset($_POST['save_draft'])
+				&& $_POST['message'] !== Autolinker::load()->fixUrlsInBBC($_POST['message'])
+			) {
+				$this->errors[] = 'links_malformed_review';
 			}
 
 			Msg::preparsecode($_POST['message']);

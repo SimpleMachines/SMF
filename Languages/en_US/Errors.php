@@ -266,6 +266,8 @@ $txt['error_no_event'] = 'No event name has been given.';
 $txt['error_no_subject'] = 'No subject was filled in.';
 $txt['error_no_question'] = 'No question was filled in for this poll.';
 $txt['error_no_message'] = 'The message body was left empty.';
+$txt['error_links_malformed'] = 'One or more links in your message are malformed.';
+$txt['error_links_malformed_review'] = 'One or more malformed links have been fixed automatically. Please review the changes to ensure they are correct.';
 $txt['error_long_message'] = 'The message exceeds the maximum allowed length ({0, plural,
 	one {# character}
 	other {# characters}

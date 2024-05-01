@@ -91,6 +91,20 @@ foreach (Config::$modSettings as $variable => $value) {
 ---#
 
 /******************************************************************************/
+--- Adding version information to posts, polls, and personal messages
+/******************************************************************************/
+
+---# Adding a new column "version" to messages table
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN IF NOT EXISTS version VARCHAR(5) NOT NULL DEFAULT '';
+---#
+
+---# Adding a new column "version" to personal_messages table
+ALTER TABLE {$db_prefix}personal_messages
+ADD COLUMN IF NOT EXISTS version VARCHAR(5) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
 --- Adding support for recurring events...
 /******************************************************************************/
 

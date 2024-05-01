@@ -607,7 +607,7 @@ class TopicMerge implements ActionInterface
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason']);
+			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Add a URL onto the message.
 			$reason = strtr($_POST['reason'], $reason_replacements);

@@ -17,6 +17,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -765,7 +766,7 @@ class ShowPosts implements ActionInterface
 					'',
 					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, t.id_member_started, t.id_first_msg, t.id_last_msg,
-						t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg
+						t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg, m.version
 					FROM {db_prefix}topics AS t
 						INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 						LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -791,7 +792,7 @@ class ShowPosts implements ActionInterface
 					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, m.id_topic, m.id_msg,
 						t.id_member_started, t.id_first_msg, t.id_last_msg, m.body, m.smileys_enabled,
-						m.subject, m.poster_time, m.approved
+						m.subject, m.poster_time, m.approved, m.version
 					FROM {db_prefix}messages AS m
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 						INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -827,6 +828,12 @@ class ShowPosts implements ActionInterface
 			// Censor....
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
 
 			// Do the code.
 			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);

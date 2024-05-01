@@ -535,7 +535,7 @@ class IssueWarning implements ActionInterface
 		}
 
 		if (!empty($_POST['warn_body'])) {
-			Msg::preparsecode($warning_body);
+			Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
 			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 

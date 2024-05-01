@@ -516,6 +516,12 @@ class ServerSideIncludes
 				'id_first_msg' => $row['id_msg'],
 			]);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']);
 
 			// Censor it!
@@ -2204,6 +2210,12 @@ class ServerSideIncludes
 				'id_first_msg' => $row['id_msg'],
 				'id_last_msg' => $row['id_last_msg'],
 			]);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
 
 			// If we want to limit the length of the post.
 			if (!empty($length) && Utils::entityStrlen($row['body']) > $length) {

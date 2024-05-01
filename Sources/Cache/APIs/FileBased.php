@@ -201,7 +201,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function setCachedir(?string $dir = null): void
 	{
-		// If its invalid, use SMF's.
+		// If it's invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir)) {
 			$this->cachedir = Config::$cachedir;
 		} else {

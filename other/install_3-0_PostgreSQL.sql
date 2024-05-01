@@ -1197,6 +1197,7 @@ CREATE TABLE {$db_prefix}messages (
 	icon varchar(16) NOT NULL DEFAULT 'xx',
 	approved smallint NOT NULL DEFAULT '1',
 	likes smallint NOT NULL DEFAULT '0',
+	version varchar(5) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_msg)
 );
 
@@ -1299,6 +1300,7 @@ CREATE TABLE {$db_prefix}personal_messages (
 	msgtime bigint NOT NULL DEFAULT '0',
 	subject varchar(255) NOT NULL DEFAULT '',
 	body text NOT NULL,
+	version varchar(5) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_pm)
 );
 
