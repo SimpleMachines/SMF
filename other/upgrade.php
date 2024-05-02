@@ -2291,6 +2291,7 @@ function parse_sql($filename)
 		- {$boarddir}
 		- {$boardurl}
 		- {$db_prefix}
+		- {$db_name}
 		- {$db_collation}
 */
 
@@ -2484,7 +2485,7 @@ function parse_sql($filename)
 				}
 
 				// {$sboarddir} is deprecated, but blah blah backward compatibility blah...
-				$current_data = strtr(substr(rtrim($current_data), 0, -1), ['{$db_prefix}' => Config::$db_prefix, '{$boarddir}' => Db::$db->escape_string(Config::$boarddir), '{$sboarddir}' => Db::$db->escape_string(Config::$boarddir), '{$boardurl}' => Config::$boardurl, '{$db_collation}' => $db_collation]);
+				$current_data = strtr(substr(rtrim($current_data), 0, -1), ['{$db_name}' => Config::$db_name, '{$db_prefix}' => Config::$db_prefix, '{$boarddir}' => Db::$db->escape_string(Config::$boarddir), '{$sboarddir}' => Db::$db->escape_string(Config::$boarddir), '{$boardurl}' => Config::$boardurl, '{$db_collation}' => $db_collation]);
 
 				upgrade_query($current_data);
 
