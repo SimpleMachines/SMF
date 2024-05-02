@@ -15,6 +15,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\QueryString;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
@@ -295,7 +296,7 @@ if (!isset(Config::$modSettings['rand_seed'])) {
 }
 
 // This is needed in case someone invokes the upgrader using https when upgrading an http forum
-if (Config::httpsOn()) {
+if (Sapi::httpsOn()) {
 	$settings['default_theme_url'] = strtr($settings['default_theme_url'], ['http://' => 'https://']);
 }
 
