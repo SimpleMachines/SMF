@@ -598,34 +598,44 @@ class Lang
 
 		IntegrationHook::call('integrate_word_censor', [&$text]);
 
+		// Let SpoofDetector help us detect attempts to bypass the word censor.
+		Unicode\SpoofDetector::enhanceWordCensor($text);
+
 		// If they haven't yet been loaded, load them.
 		if ($censor_vulgar == null) {
 			$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 			$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
+			$charset = empty(Config::$modSettings['global_character_set']) ? self::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+
 			// Quote them for use in regular expressions.
-			if (!empty(Config::$modSettings['censorWholeWord'])) {
-				$charset = empty(Config::$modSettings['global_character_set']) ? self::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
+				// If a word is replaced with itself, just leave it as it is.
+				// Why would the admin replace a word with itself, you ask?
+				// If the spoof detector incorrectly censors an allowed word
+				// because it happens to be visually confusable with a banned
+				// word, the admin can create an entry to replace the allowed
+				// word with itself in order to override the spoof detector.
+				if ($censor_vulgar[$i] === $censor_proper[$i]) {
+					$censor_proper[$i] = '$0';
+				}
 
-				for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
-					$censor_vulgar[$i] = str_replace(['\\\\\\*', '\\*', '&', '\''], ['[*]', '[^\\s]*?', '&amp;', '&#039;'], preg_quote($censor_vulgar[$i], '/'));
+				$censor_vulgar[$i] = str_replace(['\\\\\\*', '\\*', '&', '\''], ['[*]', '[^\\s]*?', '&amp;', '&#039;'], preg_quote($censor_vulgar[$i], '/'));
 
+				if (!empty(Config::$modSettings['censorWholeWord'])) {
 					// Use the faster \b if we can, or something more complex if we can't
 					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
 					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
-
-					$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
+				} else {
+					$boundary_before = $boundary_after = '';
 				}
+
+				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
 			}
 		}
 
 		// Censoring isn't so very complicated :P.
-		if (empty(Config::$modSettings['censorWholeWord'])) {
-			$func = !empty(Config::$modSettings['censorIgnoreCase']) ? 'str_ireplace' : 'str_replace';
-			$text = $func($censor_vulgar, $censor_proper, $text);
-		} else {
-			$text = preg_replace($censor_vulgar, $censor_proper, $text);
-		}
+		$text = preg_replace($censor_vulgar, $censor_proper, $text);
 
 		return $text;
 	}

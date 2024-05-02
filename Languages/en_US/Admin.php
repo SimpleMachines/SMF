@@ -276,6 +276,8 @@ $txt['censor_test'] = 'Test censored words';
 $txt['censor_test_save'] = 'Test';
 $txt['censor_case'] = 'Ignore case when censoring';
 $txt['censor_whole_words'] = 'Check only whole words';
+$txt['spoofdetector_censor'] = 'Detect character spoofing when censoring';
+$txt['spoofdetector_censor_desc'] = 'Prevents attempts to bypass the word censor by using visually similar Unicode characters.<br>If enabling this causes some words to be censored incorrectly, click the help icon for solutions.';
 
 $txt['admin_confirm_password'] = '(confirm)';
 $txt['admin_incorrect_password'] = 'Incorrect Password';

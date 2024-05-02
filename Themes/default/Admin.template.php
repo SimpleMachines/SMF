@@ -655,6 +655,16 @@ function template_edit_censored()
 									<dd>
 										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty(Config::$modSettings['censorIgnoreCase']) ? '' : ' checked', '>
 									</dd>
+									<dt>
+										<a id="spoofdetector_censor_help" href="', Config::$scripturl, '?action=helpadmin;help=spoofdetector_censor" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+										<strong><label for="spoofdetector_censor_check">', Lang::$txt['spoofdetector_censor'], '</label></strong>
+										<br>
+										<span class="smalltext">', Lang::$txt['spoofdetector_censor_desc'], '</span>
+
+									</dt>
+									<dd>
+										<input type="checkbox" name="spoofdetector_censor" value="1" id="spoofdetector_censor_check"', empty(Config::$modSettings['spoofdetector_censor']) ? '' : ' checked', '>
+									</dd>
 								</dl>
 								<input type="submit" name="save_censor" value="', Lang::$txt['save'], '" class="button">
 							</div><!-- .windowbg -->';
