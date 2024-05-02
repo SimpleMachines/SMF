@@ -212,7 +212,7 @@ class Holiday extends Event
 					break;
 
 				default:
-					$where[] = 'MONTH(cal.start_date) IN ({array_int:months}) OR REGEXP_LIKE(cal.rrule, {string:bymonth_regex})' . (array_intersect([3, 4], $months) !== [] ? ' OR cal.rrule IN ({array_string:easter})' : '');
+					$where[] = 'MONTH(cal.start_date) IN ({array_int:months}) OR cal.rrule REGEXP {string:bymonth_regex}' . (array_intersect([3, 4], $months) !== [] ? ' OR cal.rrule IN ({array_string:easter})' : '');
 					break;
 			}
 
