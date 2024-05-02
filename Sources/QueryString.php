@@ -133,6 +133,9 @@ class QueryString
 		// Let's not depend on the ini settings... why even have COOKIE in there, anyway?
 		$_REQUEST = $_POST + $_GET;
 
+		// Have they by chance specified a message ID but nothing else?
+		self::redirectFromMsg();
+
 		// Make sure Board::$board_id and Topic::$topic_id are numbers.
 		if (isset($_REQUEST['board'])) {
 			// Make sure it's a string and not something else like an array
@@ -508,6 +511,60 @@ class QueryString
 		}
 
 		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
+	}
+
+	/**
+	 * Handles redirecting 'index.php?msg=123' links to the canonical URL.
+	 */
+	protected static function redirectFromMsg(): void
+	{
+		if (
+			empty($_REQUEST['msg'])
+			|| !empty($_REQUEST['action'])
+			|| !empty($_REQUEST['topic'])
+			|| !empty($_REQUEST['board'])
+		) {
+			return;
+		}
+
+		// Make sure the message id is really an int.
+		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
+
+		// Looking through the message table can be slow, so try using the cache first.
+		if (($topic = Cache\CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_topic
+				FROM {db_prefix}messages
+				WHERE id_msg = {int:id_msg}
+				LIMIT 1',
+				[
+					'id_msg' => $_REQUEST['msg'],
+				],
+			);
+
+			// So did it find anything?
+			if (Db::$db->num_rows($request)) {
+				list($topic) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
+
+				// Save save save.
+				Cache\CacheApi::put('msg_topic-' . $_REQUEST['msg'], $topic, 120);
+			}
+		}
+
+		// Remember redirection is the key to avoiding fallout from your bosses.
+		if (!empty($topic)) {
+			$redirect_url = 'topic=' . $topic . '.msg' . $_REQUEST['msg'];
+
+			if (($other_get_params = array_diff(array_keys($_GET), ['msg'])) !== []) {
+				$redirect_url .= ';' . implode(';', $other_get_params);
+			}
+
+			$redirect_url .= '#msg' . $_REQUEST['msg'];
+
+			Utils::redirectexit($redirect_url);
+		}
 	}
 }
 
