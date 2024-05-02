@@ -516,6 +516,12 @@ class ServerSideIncludes
 				'id_first_msg' => $row['id_msg'],
 			]);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']);
 
 			// Censor it!
@@ -1883,7 +1889,6 @@ class ServerSideIncludes
 	 */
 	public static function todaysBirthdays(string $output_method = 'echo'): ?array
 	{
-
 		if (!self::$setup_done) {
 			new self();
 		}
@@ -1936,6 +1941,8 @@ class ServerSideIncludes
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+
+		$return['calendar_holidays'] = array_map(fn ($h) => $h->title, $return['calendar_holidays']);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
@@ -2023,12 +2030,16 @@ class ServerSideIncludes
 		];
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
+		$return['calendar_holidays'] = array_map(fn ($h) => $h->title, $return['calendar_holidays']);
+
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
 
 		if ($output_method != 'echo') {
 			return $return;
 		}
+
+		Lang::load('Calendar');
 
 		if (!empty($return['calendar_holidays'])) {
 			echo '
@@ -2199,6 +2210,12 @@ class ServerSideIncludes
 				'id_first_msg' => $row['id_msg'],
 				'id_last_msg' => $row['id_last_msg'],
 			]);
+
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
 
 			// If we want to limit the length of the post.
 			if (!empty($length) && Utils::entityStrlen($row['body']) > $length) {
@@ -2430,6 +2447,8 @@ class ServerSideIncludes
 		if ($output_method != 'echo' || empty($return)) {
 			return $return;
 		}
+
+		Lang::load('Calendar');
 
 		// Well the output method is echo.
 		echo '

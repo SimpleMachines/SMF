@@ -15,8 +15,11 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
+use SMF\Board;
+use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -36,6 +39,8 @@ use SMF\Utils;
  */
 class Reports implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -89,6 +94,7 @@ class Reports implements ActionInterface
 	 */
 	public static array $subactions = [
 		'boards' => 'boards',
+		'board_access' => 'boardAccess',
 		'board_perms' => 'boardPerms',
 		'member_groups' => 'memberGroups',
 		'group_perms' => 'groupPerms',
@@ -134,18 +140,6 @@ class Reports implements ActionInterface
 	 * Can be either 'rows' or 'cols'.
 	 */
 	protected string $key_method;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Reports $obj;
 
 	/****************
 	 * Public methods
@@ -200,57 +194,30 @@ class Reports implements ActionInterface
 	 */
 	public function boards(): void
 	{
-		// Load the permission profiles.
+		Group::loadSimple(
+			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
+			[Group::ADMIN, Group::MOD]
+		);
 		Lang::load('ManagePermissions');
 		Permissions::loadPermissionProfiles();
 
-		// Get every moderator.
-		$moderators = [];
+		// Get all the themes...
+		Utils::$context['themes'] = [];
 
 		$request = Db::$db->query(
 			'',
-			'SELECT mods.id_board, mods.id_member, mem.real_name
-			FROM {db_prefix}moderators AS mods
-				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)',
+			'
+			SELECT id_theme, value
+			FROM {db_prefix}themes
+			WHERE variable = {literal:name}
+				AND id_theme IN ({array_int:enable_themes})',
 			[
+				'enable_themes' => explode(',', Config::$modSettings['enableThemes']),
 			],
 		);
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$moderators[$row['id_board']][] = $row['real_name'];
-		}
-		Db::$db->free_result($request);
-
-		// Get every moderator group.
-		$moderator_groups = [];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT modgs.id_board, modgs.id_group, memg.group_name
-			FROM {db_prefix}moderator_groups AS modgs
-				INNER JOIN {db_prefix}membergroups AS memg ON (memg.id_group = modgs.id_group)',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$moderator_groups[$row['id_board']][] = $row['group_name'];
-		}
-		Db::$db->free_result($request);
-
-		// Get all the possible membergroups!
-		$groups = [-1 => Lang::$txt['guest_title'], 0 => Lang::$txt['membergroups_members']];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group, group_name, online_color
-			FROM {db_prefix}membergroups',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
+		while ([$id, $name] = Db::$db->fetch_row($request)) {
+			Utils::$context['themes'][$id] = $name;
 		}
 		Db::$db->free_result($request);
 
@@ -277,29 +244,18 @@ class Reports implements ActionInterface
 		// Do it in columns, it's just easier.
 		$this->setKeys('cols');
 
-		// Go through each board!
-		$request = Db::$db->query(
-			'order_by_board_order',
-			'SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
-				b.redirect, c.name AS cat_name, COALESCE(par.name, {string:text_none}) AS parent_name, COALESCE(th.value, {string:text_none}) AS theme_name
-			FROM {db_prefix}boards AS b
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-				LEFT JOIN {db_prefix}boards AS par ON (par.id_board = b.id_parent)
-				LEFT JOIN {db_prefix}themes AS th ON (th.id_theme = b.id_theme AND th.variable = {string:name})
-			ORDER BY b.board_order',
-			[
-				'name' => 'name',
-				'text_none' => Lang::$txt['none'],
-			],
-		);
+		Category::getTree();
+		$loaded_ids = array_keys(Board::$loaded);
+		Board::getModerators($loaded_ids);
+		Board::getModeratorGroups($loaded_ids);
 
-		while ($row = Db::$db->fetch_assoc($request)) {
+		foreach (Board::$loaded as $board) {
 			// Each board has its own table.
-			$this->newTable($row['name'], '', 'left', 'auto', 'left', '200', 'left');
+			$this->newTable($board->name, '', 'left', 'auto', 'left', '200', 'left');
 
 			$this_boardSettings = $boardSettings;
 
-			if (empty($row['redirect'])) {
+			if (empty($board->redirect)) {
 				unset($this_boardSettings['redirect']);
 			}
 
@@ -308,25 +264,25 @@ class Reports implements ActionInterface
 
 			// Create the main data array.
 			$boardData = [
-				'category' => $row['cat_name'],
-				'parent' => $row['parent_name'],
-				'redirect' => $row['redirect'],
-				'num_posts' => $row['num_posts'],
-				'num_topics' => $row['num_topics'],
-				'count_posts' => empty($row['count_posts']) ? Lang::$txt['yes'] : Lang::$txt['no'],
-				'theme' => $row['theme_name'],
-				'profile' => Utils::$context['profiles'][$row['id_profile']]['name'],
-				'override_theme' => $row['override_theme'] ? Lang::$txt['yes'] : Lang::$txt['no'],
-				'moderators' => empty($moderators[$row['id_board']]) ? Lang::$txt['none'] : implode(', ', $moderators[$row['id_board']]),
-				'moderator_groups' => empty($moderator_groups[$row['id_board']]) ? Lang::$txt['none'] : implode(', ', $moderator_groups[$row['id_board']]),
+				'category' => $board->cat->name,
+				'parent' => $board->parent == 0 ? Lang::$txt['none'] : Board::$loaded[$board->parent]->name,
+				'redirect' => $board->redirect,
+				'num_posts' => $board->posts,
+				'num_topics' => $board->topics,
+				'count_posts' => empty($board->count_posts) ? Lang::$txt['yes'] : Lang::$txt['no'],
+				'theme' => Utils::$context['themes'][$board->theme] ?? Lang::$txt['none'],
+				'profile' => Utils::$context['profiles'][$board->profile]['name'],
+				'override_theme' => $board->override_theme ? Lang::$txt['yes'] : Lang::$txt['no'],
+				'moderators' => implode(', ', array_column($board->moderators, 'name')) ?: Lang::$txt['none'],
+				'moderator_groups' => implode(', ', array_column($board->moderator_groups, 'name')) ?: Lang::$txt['none'],
 			];
 
 			// Work out the membergroups who can and cannot access it (but only if enabled).
-			$allowedGroups = explode(',', $row['member_groups']);
+			$allowedGroups = $board->member_groups;
 
 			foreach ($allowedGroups as $key => $group) {
-				if (isset($groups[$group])) {
-					$allowedGroups[$key] = $groups[$group];
+				if (isset(Group::$loaded[$group])) {
+					$allowedGroups[$key] = Group::$loaded[$group]->name;
 				} else {
 					unset($allowedGroups[$key]);
 				}
@@ -335,11 +291,11 @@ class Reports implements ActionInterface
 			$boardData['groups'] = implode(', ', $allowedGroups);
 
 			if (!empty(Config::$modSettings['deny_boards_access'])) {
-				$disallowedGroups = explode(',', $row['deny_member_groups']);
+				$disallowedGroups = $board->deny_member_groups;
 
 				foreach ($disallowedGroups as $key => $group) {
-					if (isset($groups[$group])) {
-						$disallowedGroups[$key] = $groups[$group];
+					if (isset(Group::$loaded[$group])) {
+						$disallowedGroups[$key] = Group::$loaded[$group]->name;
 					} else {
 						unset($disallowedGroups[$key]);
 					}
@@ -348,14 +304,67 @@ class Reports implements ActionInterface
 				$boardData['disallowed_groups'] = implode(', ', $disallowedGroups);
 			}
 
-			if (empty($row['redirect'])) {
+			if (empty($board->redirect)) {
 				unset($boardData['redirect']);
 			}
 
 			// Next add the main data.
 			$this->addData($boardData);
 		}
-		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Standard report about who can access which board.
+	 */
+	public function boardAccess(): void
+	{
+		$inc = [];
+
+		if (isset($_REQUEST['groups'])) {
+			if (!is_array($_REQUEST['groups'])) {
+				$inc = explode(',', $_REQUEST['groups']);
+			}
+
+			foreach ($inc as $k => $dummy) {
+				$inc[$k] = (int) $dummy;
+			}
+		}
+
+		$data = [];
+		$groups = ['col' => '#sep#'];
+		$group_data = Group::loadSimple(
+			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
+			[Group::ADMIN, Group::MOD]
+		);
+		Board::load([], ['selects' => ['b.id_board', 'b.name', 'member_groups', 'deny_member_groups']]);
+		$loaded_ids = array_keys(Board::$loaded);
+		Board::getModerators($loaded_ids);
+		Board::getModeratorGroups($loaded_ids);
+
+		foreach ($group_data as $group) {
+			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+				$groups[$group->id] = $group->name;
+
+				foreach (Board::$loaded as $board) {
+					if (!isset($data[$board->id])) {
+						$data[$board->id] = ['col' => $board->name];
+					} elseif (in_array($group->id, $board->member_groups)) {
+						$data[$board->id][$group->id] = '&#x2705;';
+					} elseif (in_array($group->id, $board->deny_groups)) {
+						$data[$board->id][$group->id] = '&#x1F6AB;';
+					}
+				}
+			}
+		}
+
+		$this->setKeys('rows', $groups);
+		$this->newTable(Lang::$txt['gr_type_board_access'], '&mdash;', 'all', '100', 'center', '200', 'left');
+		$this->addData($groups);
+		uasort($data, fn ($a, $b) => $a['col'] <=> $b['col']);
+
+		foreach ($data as $d) {
+			$this->addData($d);
+		}
 	}
 
 	/**
@@ -363,109 +372,27 @@ class Reports implements ActionInterface
 	 */
 	public function boardPerms(): void
 	{
-		// Get as much memory as possible as this can be big.
-		Sapi::setMemoryLimit('256M');
+		Lang::load('ManagePermissions');
+		Permissions::loadPermissionProfiles();
 
-		if (isset($_REQUEST['boards'])) {
-			if (!is_array($_REQUEST['boards'])) {
-				$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
-			}
-
-			foreach ($_REQUEST['boards'] as $k => $dummy) {
-				$_REQUEST['boards'][$k] = (int) $dummy;
-			}
-
-			$board_clause = 'id_board IN ({array_int:boards})';
-		} else {
-			$board_clause = '1=1';
-		}
+		$inc = [];
 
 		if (isset($_REQUEST['groups'])) {
 			if (!is_array($_REQUEST['groups'])) {
-				$_REQUEST['groups'] = explode(',', $_REQUEST['groups']);
+				$inc = explode(',', $_REQUEST['groups']);
 			}
 
-			foreach ($_REQUEST['groups'] as $k => $dummy) {
-				$_REQUEST['groups'][$k] = (int) $dummy;
+			foreach ($inc as $k => $dummy) {
+				$inc[$k] = (int) $dummy;
 			}
-
-			$group_clause = 'id_group IN ({array_int:groups})';
-		} else {
-			$group_clause = '1=1';
 		}
 
-		// Fetch all the board names and profiles.
-		$boards = [];
-		$profiles = [];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_board, name, id_profile
-			FROM {db_prefix}boards
-			WHERE ' . $board_clause . '
-			ORDER BY id_board',
-			[
-				'boards' => $_REQUEST['boards'] ?? [],
-			],
+		$groups = ['col' => '#sep#'];
+		$group_data = Group::loadSimple(
+			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
+			[Group::ADMIN]
 		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$boards[$row['id_board']] = [
-				'name' => $row['name'],
-				'profile' => $row['id_profile'],
-				'mod_groups' => [],
-			];
-
-			$profiles[] = $row['id_profile'];
-		}
-		Db::$db->free_result($request);
-
-		// Get the ids of any groups allowed to moderate this board
-		// Limit it to any boards and/or groups we're looking at
-		$request = Db::$db->query(
-			'',
-			'SELECT id_board, id_group
-			FROM {db_prefix}moderator_groups
-			WHERE ' . $board_clause . ' AND ' . $group_clause,
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$boards[$row['id_board']]['mod_groups'][] = $row['id_group'];
-		}
-		Db::$db->free_result($request);
-
-		// Get all the possible membergroups, except admin!
-		if (!isset($_REQUEST['groups']) || in_array(-1, $_REQUEST['groups']) || in_array(0, $_REQUEST['groups'])) {
-			$member_groups = ['col' => '', -1 => Lang::$txt['membergroups_guests'], 0 => Lang::$txt['membergroups_members']];
-		} else {
-			$member_groups = ['col' => ''];
-		}
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group, group_name
-			FROM {db_prefix}membergroups
-			WHERE ' . $group_clause . '
-				AND id_group != {int:admin_group}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND min_posts = {int:min_posts}' : '') . '
-			ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
-			[
-				'admin_group' => 1,
-				'min_posts' => -1,
-				'newbie_group' => 4,
-				'groups' => $_REQUEST['groups'] ?? [],
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$member_groups[$row['id_group']] = $row['group_name'];
-		}
-		Db::$db->free_result($request);
-
-		// Make sure that every group is represented - plus in rows!
-		$this->setKeys('rows', $member_groups);
+		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $group_data), null, true);
 
 		// Certain permissions should not really be shown.
 		$disabled_permissions = [];
@@ -480,102 +407,38 @@ class Reports implements ActionInterface
 
 		IntegrationHook::call('integrate_reports_boardperm', [&$disabled_permissions]);
 
-		// Cache every permission setting, to make sure we don't miss any allows.
-		$permissions = [];
-		$board_permissions = [];
+		$data = [];
 
-		$request = Db::$db->query(
-			'',
-			'SELECT id_profile, id_group, add_deny, permission
-			FROM {db_prefix}board_permissions
-			WHERE id_profile IN ({array_int:profile_list})
-				AND ' . $group_clause . (empty(Config::$modSettings['permission_enable_deny']) ? '
-				AND add_deny = {int:not_deny}' : '') . '
-			ORDER BY id_profile, permission',
-			[
-				'profile_list' => $profiles,
-				'not_deny' => 1,
-				'groups' => $_REQUEST['groups'] ?? [],
-			],
-		);
+		foreach ($group_data as $group) {
+			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+				$groups[$group->id] = $group->name;
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (in_array($row['permission'], $disabled_permissions)) {
-				continue;
-			}
+				foreach ($group->permissions['board_profiles'] as $id_profile => $board_profile) {
+					foreach ($board_profile as $permission => $add_deny) {
+						if (in_array($permission, $disabled_permissions)) {
+							continue;
+						}
 
-			foreach ($boards as $id => $board) {
-				if ($board['profile'] == $row['id_profile']) {
-					$board_permissions[$id][$row['id_group']][$row['permission']] = $row['add_deny'];
+						if (!isset($data[$id_profile][$permission])) {
+							$data[$id_profile][$permission] = ['col' => Lang::$txt['board_perms_name_' . $permission] ?? $permission];
+						}
+
+						$data[$id_profile][$permission][$group->id] = $add_deny ? '&#x2705;' : '&#x1F6AB;';
+					}
 				}
-			}
-
-			// Make sure we get every permission.
-			if (!isset($permissions[$row['permission']])) {
-				// This will be reused on other boards.
-				$permissions[$row['permission']] = [
-					'title' => Lang::$txt['board_perms_name_' . $row['permission']] ?? $row['permission'],
-				];
 			}
 		}
-		Db::$db->free_result($request);
 
-		// Now cycle through the board permissions array... lots to do ;)
-		foreach ($board_permissions as $board => $groups) {
-			// Create the table for this board first.
-			$this->newTable($boards[$board]['name'], 'x', 'all', '100', 'center', '200', 'left');
+		$this->setKeys('rows', $groups);
 
-			// Add the header row - shows all the membergroups.
-			$this->addData($member_groups);
+		foreach ($data as $id_profile => $board_profile_data) {
+			$this->newTable(Utils::$context['profiles'][$id_profile]['name'], '&mdash;', 'all', '100', 'center', '200', 'left');
 
-			// Add the separator.
-			$this->addSeparator(Lang::$txt['board_perms_permission']);
+			$this->addData($groups);
+			uasort($board_profile_data, fn ($a, $b) => $a['col'] <=> $b['col']);
 
-			// Here cycle through all the detected permissions.
-			foreach ($permissions as $ID_PERM => $perm_info) {
-				// Default data for this row.
-				$curData = ['col' => $perm_info['title']];
-
-				// Now cycle each membergroup in this set of permissions.
-				foreach ($member_groups as $id_group => $name) {
-					// Don't overwrite the key column!
-					if ($id_group === 'col') {
-						continue;
-					}
-
-					$group_permissions = $groups[$id_group] ?? [];
-
-					// Do we have any data for this group?
-					if (isset($group_permissions[$ID_PERM])) {
-						// Set the data for this group to be the local permission.
-						$curData[$id_group] = $group_permissions[$ID_PERM];
-					}
-					// Is it inherited from Moderator?
-					elseif (in_array($id_group, $boards[$board]['mod_groups']) && !empty($groups[3]) && isset($groups[3][$ID_PERM])) {
-						$curData[$id_group] = $groups[3][$ID_PERM];
-					}
-					// Otherwise means it's set to disallow..
-					else {
-						$curData[$id_group] = 'x';
-					}
-
-					// Now actually make the data for the group look right.
-					if (empty($curData[$id_group])) {
-						$curData[$id_group] = '<span class="red">' . Lang::$txt['board_perms_deny'] . '</span>';
-					} elseif ($curData[$id_group] == 1) {
-						$curData[$id_group] = '<span style="color: darkgreen;">' . Lang::$txt['board_perms_allow'] . '</span>';
-					} else {
-						$curData[$id_group] = 'x';
-					}
-
-					// Embolden those permissions different from global (makes it a lot easier!)
-					if (@$board_permissions[0][$id_group][$ID_PERM] != @$group_permissions[$ID_PERM]) {
-						$curData[$id_group] = '<strong>' . $curData[$id_group] . '</strong>';
-					}
-				}
-
-				// Now add the data for this permission.
-				$this->addData($curData);
+			foreach ($board_profile_data as $d) {
+				$this->addData($d);
 			}
 		}
 	}
@@ -585,78 +448,25 @@ class Reports implements ActionInterface
 	 */
 	public function memberGroups(): void
 	{
-		// Fetch all the board names.
-		$request = Db::$db->query(
-			'',
-			'SELECT id_board, name, member_groups, id_profile, deny_member_groups
-			FROM {db_prefix}boards',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (trim($row['member_groups']) == '') {
-				$groups = [1];
-			} else {
-				$groups = array_merge([1], explode(',', $row['member_groups']));
-			}
-
-			if (trim($row['deny_member_groups']) == '') {
-				$denyGroups = [];
-			} else {
-				$denyGroups = explode(',', $row['deny_member_groups']);
-			}
-
-			$boards[$row['id_board']] = [
-				'id' => $row['id_board'],
-				'name' => $row['name'],
-				'profile' => $row['id_profile'],
-				'groups' => $groups,
-				'deny_groups' => $denyGroups,
-			];
-		}
-		Db::$db->free_result($request);
-
-		// Standard settings.
 		$mgSettings = [
-			'name' => '',
-			'#sep#1' => Lang::$txt['member_group_settings'],
+			'name' => '#sep#',
 			'color' => Lang::$txt['member_group_color'],
 			'min_posts' => Lang::$txt['member_group_min_posts'],
 			'max_messages' => Lang::$txt['member_group_max_messages'],
 			'icons' => Lang::$txt['member_group_icons'],
-			'#sep#2' => Lang::$txt['member_group_access'],
 		];
 
-		// Add on the boards!
-		foreach ($boards as $board) {
-			$mgSettings['board_' . $board['id']] = $board['name'];
-		}
-
-		// Add all the membergroup settings, plus we'll be adding in columns!
-		$this->setKeys('cols', $mgSettings);
-
-		// Only one table this time!
-		$this->newTable(Lang::$txt['gr_type_member_groups'], '-', 'all', '100', 'center', '200', 'left');
-
-		// Get the shaded column in.
+		$this->newTable(Lang::$txt['gr_type_member_groups'], '&mdash;', 'all', 'auto', 'left', 'auto', 'left');
 		$this->addData($mgSettings);
 
-		// Now start cycling through the membergroups!
 		foreach (Group::loadSimple(Group::LOAD_BOTH, []) as $group) {
 			$group_info = [
-				'id' => $group->id,
 				'name' => $group->name,
-				'color' => empty($group->online_color) ? '-' : '<span style="color: ' . $group->online_color . ';">' . $group->online_color . '</span>',
-				'min_posts' => $group->min_posts == -1 ? Lang::$txt['not_applicable'] : $group->min_posts,
-				'max_messages' => $group->max_messages,
+				'color' => empty($group->online_color) ? '&mdash;' : '<span style="color: ' . $group->online_color . ';">' . $group->online_color . '</span>',
+				'min_posts' => $group->min_posts == -1 ? Lang::$txt['not_applicable'] : (string) $group->min_posts,
+				'max_messages' => (string) $group->max_messages,
 				'icons' => $group->icons,
 			];
-
-			// Board permissions.
-			foreach ($boards as $board) {
-				$group_info['board_' . $board['id']] = in_array($group->id, $board['groups']) ? '<span class="success">' . Lang::$txt['board_perms_allow'] . '</span>' : (!empty(Config::$modSettings['deny_boards_access']) && in_array($group->id, $board['deny_groups']) ? '<span class="alert">' . Lang::$txt['board_perms_deny'] . '</span>' : 'x');
-			}
 
 			$this->addData($group_info);
 		}
@@ -667,62 +477,25 @@ class Reports implements ActionInterface
 	 */
 	public function groupPerms(): void
 	{
+		$inc = [];
+
 		if (isset($_REQUEST['groups'])) {
 			if (!is_array($_REQUEST['groups'])) {
-				$_REQUEST['groups'] = explode(',', $_REQUEST['groups']);
+				$inc = explode(',', $_REQUEST['groups']);
 			}
 
-			foreach ($_REQUEST['groups'] as $k => $dummy) {
-				$_REQUEST['groups'][$k] = (int) $dummy;
+			foreach ($inc as $k => $dummy) {
+				$inc[$k] = (int) $dummy;
 			}
-
-			$_REQUEST['groups'] = array_diff($_REQUEST['groups'], [3]);
-
-			$clause = 'id_group IN ({array_int:groups})';
-		} else {
-			$clause = 'id_group != {int:moderator_group}';
 		}
 
-		// Get all the possible membergroups, except admin!
-		if (!isset($_REQUEST['groups']) || in_array(-1, $_REQUEST['groups']) || in_array(0, $_REQUEST['groups'])) {
-			$groups = ['col' => '', -1 => Lang::$txt['membergroups_guests'], 0 => Lang::$txt['membergroups_members']];
-		} else {
-			$groups = ['col' => ''];
-		}
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group, group_name
-			FROM {db_prefix}membergroups
-			WHERE ' . $clause . '
-				AND id_group != {int:admin_group}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND min_posts = {int:min_posts}' : '') . '
-			ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
-			[
-				'admin_group' => 1,
-				'min_posts' => -1,
-				'newbie_group' => 4,
-				'moderator_group' => 3,
-				'groups' => $_REQUEST['groups'] ?? [],
-			],
+		$data = [];
+		$groups = ['col' => '#sep#'];
+		$group_data = Group::loadSimple(
+			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
+			[Group::ADMIN, Group::MOD]
 		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$groups[$row['id_group']] = $row['group_name'];
-		}
-		Db::$db->free_result($request);
-
-		// Make sure that every group is represented!
-		$this->setKeys('rows', $groups);
-
-		// Create the table first.
-		$this->newTable(Lang::$txt['gr_type_group_perms'], '-', 'all', '100', 'center', '200', 'left');
-
-		// Show all the groups
-		$this->addData($groups);
-
-		// Add a separator
-		$this->addSeparator(Lang::$txt['board_perms_permission']);
+		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $group_data), 0);
 
 		// Certain permissions should not really be shown.
 		$disabled_permissions = [];
@@ -740,57 +513,36 @@ class Reports implements ActionInterface
 
 		IntegrationHook::call('integrate_reports_groupperm', [&$disabled_permissions]);
 
-		// Now the big permission fetch!
-		$lastPermission = null;
-		$curData = [];
+		foreach ($group_data as $group) {
+			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+				$groups[$group->id] = $group->name;
 
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group, add_deny, permission
-			FROM {db_prefix}permissions
-			WHERE ' . $clause . (empty(Config::$modSettings['permission_enable_deny']) ? '
-				AND add_deny = {int:not_denied}' : '') . '
-			ORDER BY permission',
-			[
-				'not_denied' => 1,
-				'moderator_group' => 3,
-				'groups' => $_REQUEST['groups'] ?? [],
-			],
-		);
+				foreach ($group->permissions['general'] as $permission => $add_deny) {
+					if (in_array($permission, $disabled_permissions)) {
+						continue;
+					}
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (in_array($row['permission'], $disabled_permissions)) {
-				continue;
-			}
+					if (!isset($data[$permission])) {
+						if (str_starts_with($permission, 'bbc_')) {
+							$data[$permission] = ['col' => Lang::getTxt('group_perms_name_bbc', ['bbc' => substr($permission, 4)])];
+						} else {
+							$data[$permission] = ['col' => Lang::$txt['group_perms_name_' . $permission] ?? $permission];
+						}
+					}
 
-			if (strpos($row['permission'], 'bbc_') === 0) {
-				Lang::$txt['group_perms_name_' . $row['permission']] = Lang::getTxt('group_perms_name_bbc', ['bbc' => substr($row['permission'], 4)]);
-			}
-
-			// If this is a new permission flush the last row.
-			if ($row['permission'] != $lastPermission) {
-				// Send the data!
-				if ($lastPermission !== null) {
-					$this->addData($curData);
+					$data[$permission][$group->id] = $add_deny ? '&#x2705;' : '&#x1F6AB;';
 				}
-
-				// Add the permission name in the left column.
-				$curData = ['col' => Lang::$txt['group_perms_name_' . $row['permission']] ?? $row['permission']];
-
-				$lastPermission = $row['permission'];
-			}
-
-			// Good stuff - add the permission to the list!
-			if ($row['add_deny']) {
-				$curData[$row['id_group']] = '<span style="color: darkgreen;">' . Lang::$txt['board_perms_allow'] . '</span>';
-			} else {
-				$curData[$row['id_group']] = '<span class="red">' . Lang::$txt['board_perms_deny'] . '</span>';
 			}
 		}
-		Db::$db->free_result($request);
 
-		// Flush the last data!
-		$this->addData($curData);
+		$this->setKeys('rows', $groups);
+		$this->newTable(Lang::$txt['gr_type_group_perms'], '&mdash;', 'all', '100', 'center', '200', 'left');
+		$this->addData($groups);
+		uasort($data, fn ($a, $b) => $a['col'] <=> $b['col']);
+
+		foreach ($data as $d) {
+			$this->addData($d);
+		}
 	}
 
 	/**
@@ -798,68 +550,11 @@ class Reports implements ActionInterface
 	 */
 	public function staff(): void
 	{
-		// Fetch all the board names.
-		$boards = [];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_board, name
-			FROM {db_prefix}boards',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$boards[$row['id_board']] = $row['name'];
-		}
-		Db::$db->free_result($request);
-
-		// Get every moderator.
-		$moderators = [];
-		$local_mods = [];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT mods.id_board, mods.id_member
-			FROM {db_prefix}moderators AS mods',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$moderators[$row['id_member']][] = $row['id_board'];
-			$local_mods[$row['id_member']] = $row['id_member'];
-		}
-		Db::$db->free_result($request);
-
-		// Get any additional boards they can moderate through group-based board moderation
-		$request = Db::$db->query(
-			'',
-			'SELECT mem.id_member, modgs.id_board
-			FROM {db_prefix}members AS mem
-				INNER JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group = mem.id_group OR FIND_IN_SET(modgs.id_group, mem.additional_groups) != 0)',
-			[
-			],
-		);
-
-		// Add each board/member to the arrays, but only if they aren't already there
-		while ($row = Db::$db->fetch_assoc($request)) {
-			// Either we don't have them as a moderator at all or at least not as a moderator of this board
-			if (!array_key_exists($row['id_member'], $moderators) || !in_array($row['id_board'], $moderators[$row['id_member']])) {
-				$moderators[$row['id_member']][] = $row['id_board'];
-			}
-
-			// We don't have them listed as a moderator yet
-			if (!array_key_exists($row['id_member'], $local_mods)) {
-				$local_mods[$row['id_member']] = $row['id_member'];
-			}
-		}
-
 		// Get a list of global moderators (i.e. members with moderation powers).
 		$global_mods = array_intersect(User::membersAllowedTo('moderate_board', 0), User::membersAllowedTo('approve_posts', 0), User::membersAllowedTo('remove_any', 0), User::membersAllowedTo('modify_any', 0));
 
 		// How about anyone else who is special?
-		$allStaff = array_merge(User::membersAllowedTo('admin_forum'), User::membersAllowedTo('manage_membergroups'), User::membersAllowedTo('manage_permissions'), $local_mods, $global_mods);
+		$allStaff = array_merge(User::membersAllowedTo('admin_forum'), User::membersAllowedTo('manage_membergroups'), User::membersAllowedTo('manage_permissions'), $global_mods);
 
 		// Make sure everyone is there once - no admin less important than any other!
 		$allStaff = array_unique($allStaff);
@@ -869,80 +564,47 @@ class Reports implements ActionInterface
 			ErrorHandler::fatalLang('report_error_too_many_staff');
 		}
 
-		// Get all the possible membergroups!
-		$groups = [0 => Lang::$txt['membergroups_members']];
+		Group::loadSimple(Group::LOAD_NORMAL, [Group::MOD]);
+		Board::load([], ['selects' => ['b.id_board', 'b.name']]);
+		$loaded_ids = array_keys(Board::$loaded);
+		Board::getModerators($loaded_ids);
+		Board::getModeratorGroups($loaded_ids);
 
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group, group_name, online_color
-			FROM {db_prefix}membergroups',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
-		}
-		Db::$db->free_result($request);
-
-		// All the fields we'll show.
 		$staffSettings = [
+			'name' => '#sep#',
 			'position' => Lang::$txt['report_staff_position'],
-			'moderates' => Lang::$txt['report_staff_moderates'],
 			'posts' => Lang::$txt['report_staff_posts'],
 			'last_login' => Lang::$txt['report_staff_last_login'],
+			'moderates' => Lang::$txt['report_staff_moderates'],
 		];
 
-		// Do it in columns, it's just easier.
-		$this->setKeys('cols');
+		$this->newTable(Lang::$txt['gr_type_staff'], '', 'left', 'auto', 'left', '200', 'left');
+		$this->addData($staffSettings);
+		User::load($allStaff);
 
-		// Get each member!
-		$request = Db::$db->query(
-			'',
-			'SELECT id_member, real_name, id_group, posts, last_login
-			FROM {db_prefix}members
-			WHERE id_member IN ({array_int:staff_list})
-			ORDER BY real_name',
-			[
-				'staff_list' => $allStaff,
-			],
-		);
+		foreach (User::$loaded as $member) {
+			$board_names = [];
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			// Each member gets their own table!.
-			$this->newTable($row['real_name'], '', 'left', 'auto', 'left', '200', 'center');
-
-			// First off, add in the side key.
-			$this->addData($staffSettings);
-
-			// Create the main data array.
-			$staffData = [
-				'position' => $groups[$row['id_group']] ?? $groups[0],
-				'posts' => $row['posts'],
-				'last_login' => Time::create('@' . $row['last_login'])->format(),
-				'moderates' => [],
-			];
-
-			// What do they moderate?
-			if (in_array($row['id_member'], $global_mods)) {
-				$staffData['moderates'] = '<em>' . Lang::$txt['report_staff_all_boards'] . '</em>';
-			} elseif (isset($moderators[$row['id_member']])) {
-				// Get the names
-				foreach ($moderators[$row['id_member']] as $board) {
-					if (isset($boards[$board])) {
-						$staffData['moderates'][] = $boards[$board];
-					}
+			foreach (Board::$loaded as $board) {
+				if (isset($board->moderators[$member->id]) && !isset($board_names[$board->id])) {
+					$board_names[$board->id] = $board->name;
 				}
 
-				$staffData['moderates'] = implode(', ', $staffData['moderates']);
-			} else {
-				$staffData['moderates'] = '<em>' . Lang::$txt['report_staff_no_boards'] . '</em>';
+				if (isset($board->moderator_groups[$member->group_id]) && !isset($board_names[$board->id])) {
+					$board_names[$board->id] = $board->name;
+				}
 			}
 
-			// Next add the main data.
+			$staffData = [
+				'name' => $member->real_name,
+				'position' => Group::$loaded[$member->group_id]->name,
+				'posts' => $member->posts,
+				'last_login' => Time::create('@' . $member->last_login)->format(),
+				'moderates' => implode(', ',  $board_names) ?: '<i>' . Lang::$txt['report_staff_all_boards'] . '</i>',
+			];
+
 			$this->addData($staffData);
 		}
-		Db::$db->free_result($request);
 	}
 
 	/***********************
@@ -986,6 +648,7 @@ class Reports implements ActionInterface
 		// Let's get our things running...
 		Theme::loadTemplate('Reports');
 		Lang::load('Reports');
+		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
 
 		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
 
@@ -1109,12 +772,15 @@ class Reports implements ActionInterface
 			// Basically, check every key exists!
 			foreach ($this->keys as $key => $dummy) {
 				$data[$key] = [
-					'v' => empty($inc_data[$key]) ? $this->tables[$table]['default_value'] : $inc_data[$key],
+					'v' => $inc_data[$key] ?? $this->tables[$table]['default_value'],
 				];
 
 				// Special "hack" the adding separators when doing data by column.
 				if (substr((string) $key, 0, 5) == '#sep#') {
 					$data[$key]['separator'] = true;
+				} elseif (substr((string) $data[$key]['v'], 0, 5) == '#sep#') {
+					$data[$key]['header'] = true;
+					$data[$key]['v'] = substr((string) $data[$key]['v'], 5);
 				}
 			}
 		} else {
@@ -1125,8 +791,13 @@ class Reports implements ActionInterface
 					'v' => $value,
 				];
 
-				if (substr($key, 0, 5) == '#sep#') {
+				if (substr((string) $key, 0, 5) == '#sep#') {
 					$data[$key]['separator'] = true;
+				}
+				// Hack in a "seperator" to display a row differently.
+				elseif (substr((string) $value, 0, 5) == '#sep#') {
+					$data[$key]['header'] = true;
+					$data[$key]['v'] = substr((string) $value, 5);
 				}
 			}
 		}
@@ -1190,9 +861,11 @@ class Reports implements ActionInterface
 			$this->tables[$id]['id'] = $id;
 			$this->tables[$id]['row_count'] = count($table['data']);
 
-			$curElement = current($table['data']);
-
-			$this->tables[$id]['column_count'] = count($curElement);
+			$this->tables[$id]['column_count'] = array_reduce(
+				$table['data'],
+				fn (int $accumulator, $data): int => max($accumulator, count($data)),
+				0
+			);
 
 			// Work out the rough width - for templates like the print template. Without this we might get funny tables.
 			if ($table['shading']['left'] && $table['width']['shaded'] != 'auto' && $table['width']['normal'] != 'auto') {

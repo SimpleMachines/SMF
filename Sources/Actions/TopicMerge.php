@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -40,6 +42,8 @@ use SMF\Utils;
  */
 class TopicMerge implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -164,18 +168,6 @@ class TopicMerge implements ActionInterface
 	 *
 	 */
 	protected array $merge_boards = [];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static TopicMerge $obj;
 
 	/****************
 	 * Public methods
@@ -615,7 +607,7 @@ class TopicMerge implements ActionInterface
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason']);
+			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Add a URL onto the message.
 			$reason = strtr($_POST['reason'], $reason_replacements);
@@ -1026,28 +1018,6 @@ class TopicMerge implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Initiates a merge of the specified topics.

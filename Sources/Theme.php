@@ -931,6 +931,8 @@ class Theme
 
 		$cacheTime = (int) Config::$modSettings['lastActive'] * 60;
 
+		Lang::load('Calendar');
+
 		// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
 		if (!isset(Utils::$context['allow_calendar_event'])) {
 			Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && User::$me->allowedTo('calendar_post');

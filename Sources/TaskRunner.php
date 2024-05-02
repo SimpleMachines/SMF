@@ -86,6 +86,9 @@ class TaskRunner
 		'fetchSMfiles' => [
 			'class' => 'SMF\\Tasks\\FetchSMFiles',
 		],
+		'fetch_calendar_subs' => [
+			'class' => 'SMF\\Tasks\\FetchCalendarSubscriptions',
+		],
 		'birthdayemails' => [
 			'class' => 'SMF\\Tasks\\Birthday_Notify',
 		],

@@ -15,8 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -29,6 +30,8 @@ use SMF\Utils;
  */
 class Warnings implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/**************************
@@ -41,18 +44,6 @@ class Warnings implements ActionInterface
 	 * Currently enabled moderation settings.
 	 */
 	public static bool $currently_enabled;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Warnings $obj;
 
 	/****************
 	 * Public methods
@@ -145,28 +136,6 @@ class Warnings implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for the warnings area.
 	 *
 	 * @return array $config_vars for the warnings area.
@@ -222,17 +191,6 @@ class Warnings implements ActionInterface
 		IntegrationHook::call('integrate_warning_settings', [&$config_vars]);
 
 		return $config_vars;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 }
 

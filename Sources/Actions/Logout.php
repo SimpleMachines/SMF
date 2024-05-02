@@ -30,18 +30,6 @@ use SMF\Utils;
  */
 class Logout extends Login2
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Logout|Login2 $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -153,20 +141,6 @@ class Logout extends Login2
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
 	 * Convenience method to load() and execute() an instance of this class.
 	 *
 	 * @param bool $internal If true, it doesn't check the session
@@ -175,17 +149,6 @@ class Logout extends Login2
 	public static function call(bool $internal = false, bool $redirect = true): void
 	{
 		self::load()->execute($internal, $redirect);
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 }
 

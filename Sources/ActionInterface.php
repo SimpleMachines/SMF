@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF;
 
 /**
  * Interface for all action classes.

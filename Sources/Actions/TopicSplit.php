@@ -17,6 +17,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -40,6 +43,8 @@ use SMF\Utils;
  */
 class TopicSplit implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -75,18 +80,6 @@ class TopicSplit implements ActionInterface
 	 *********************/
 
 	// code...
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static TopicSplit $obj;
 
 	/****************
 	 * Public methods
@@ -438,7 +431,7 @@ class TopicSplit implements ActionInterface
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query(
 			'',
-			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
+			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
@@ -459,6 +452,12 @@ class TopicSplit implements ActionInterface
 			Lang::censorText($row['subject']);
 			Lang::censorText($row['body']);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
 			Utils::$context['not_selected']['messages'][$row['id_msg']] = [
@@ -477,7 +476,7 @@ class TopicSplit implements ActionInterface
 			// Get the messages and stick them into an array.
 			$request = Db::$db->query(
 				'',
-				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled
+				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				WHERE m.id_topic = {int:current_topic}
@@ -497,6 +496,12 @@ class TopicSplit implements ActionInterface
 			for ($counter = 0; $row = Db::$db->fetch_assoc($request); $counter++) {
 				Lang::censorText($row['subject']);
 				Lang::censorText($row['body']);
+
+				// Old SMF versions autolinked during output rather than input,
+				// so maintain expected behaviour for those old messages.
+				if (version_compare($row['version'], '3.0', '<')) {
+					$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+				}
 
 				$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
 
@@ -579,28 +584,6 @@ class TopicSplit implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * General function to split off a topic.

@@ -15,8 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Notify;
+use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -37,6 +38,8 @@ use SMF\Utils;
  */
 class Notification implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -297,18 +300,6 @@ class Notification implements ActionInterface
 		'topics' => 'alert_notifications_topics',
 		'boards' => 'alert_notifications_boards',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Notification $obj;
 
 	/****************
 	 * Public methods
@@ -841,28 +832,6 @@ class Notification implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Determines how many topics the user has requested notifications for.

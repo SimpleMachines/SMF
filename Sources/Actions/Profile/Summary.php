@@ -15,8 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Who;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IP;
@@ -33,19 +34,9 @@ use SMF\Utils;
  */
 class Summary implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Summary $obj;
 
 	/****************
 	 * Public methods
@@ -235,32 +226,6 @@ class Summary implements ActionInterface
 				Utils::$context['print_custom_fields'][Utils::$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 			}
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
