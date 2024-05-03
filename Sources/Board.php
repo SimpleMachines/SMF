@@ -2320,11 +2320,6 @@ class Board implements \ArrayAccess
 				// Start the linktree off empty..
 				Utils::$context['linktree'] = [];
 
-				// Have they by chance specified a message id but nothing else?
-				if (empty($_REQUEST['action']) && empty(Topic::$topic_id) && empty(self::$board_id) && !empty($_REQUEST['msg'])) {
-					$this->redirectFromMsg();
-				}
-
 				// Load this board only if it is specified.
 				if (empty(self::$board_id) && empty(Topic::$topic_id)) {
 					return;
@@ -2392,57 +2387,6 @@ class Board implements \ArrayAccess
 		// Plug this board into its category.
 		if (!empty($this->cat) && $this->child_level == 0) {
 			$this->cat->children[$this->id] = $this;
-		}
-	}
-
-	/**
-	 * Handles redirecting 'index.php?msg=123' links to the canonical URL.
-	 *
-	 * @todo Should this be moved somewhere else? It's not really board-related.
-	 */
-	protected function redirectFromMsg(): void
-	{
-		// Make sure the message id is really an int.
-		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
-
-		// Looking through the message table can be slow, so try using the cache first.
-		if ((Topic::$topic_id = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_topic
-				FROM {db_prefix}messages
-				WHERE id_msg = {int:id_msg}
-				LIMIT 1',
-				[
-					'id_msg' => $_REQUEST['msg'],
-				],
-			);
-
-			// So did it find anything?
-			if (Db::$db->num_rows($request)) {
-				list(Topic::$topic_id) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-
-				// Save save save.
-				CacheApi::put('msg_topic-' . $_REQUEST['msg'], Topic::$topic_id, 120);
-			}
-		}
-
-		// Remember redirection is the key to avoiding fallout from your bosses.
-		if (!empty(Topic::$topic_id)) {
-			$redirect_url = 'topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'];
-
-			if (($other_get_params = array_diff(array_keys($_GET), ['msg'])) !== []) {
-				$redirect_url .= ';' . implode(';', $other_get_params);
-			}
-
-			$redirect_url .= '#msg' . $_REQUEST['msg'];
-
-			Utils::redirectexit($redirect_url);
-		} else {
-			User::$me->loadPermissions();
-			Theme::load();
-			ErrorHandler::fatalLang('topic_gone', false);
 		}
 	}
 
