@@ -559,6 +559,20 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function formContext(): void
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function resultsContext(): void
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function initializeSearch(): void
 	{
 		$this->calculateWeight();
@@ -991,11 +1005,11 @@ abstract class SearchApi implements SearchApiInterface
 			));
 		}
 
-		// Blacklist any stopwords that we found automatically.
-		if (isset(Config::$modSettings['search_stopwords'])) {
+		// Blacklist any stopwords that the admin set manually.
+		if (isset(Config::$modSettings['search_stopwords_custom'])) {
 			$this->blacklisted_words = array_unique(array_merge(
 				$this->blacklisted_words,
-				array_map('trim', explode(',', Config::$modSettings['search_stopwords'])),
+				array_map('trim', explode(',', Config::$modSettings['search_stopwords_custom'])),
 			));
 		}
 
@@ -1121,8 +1135,8 @@ abstract class SearchApi implements SearchApiInterface
 		// Change non-word characters into spaces.
 		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
-		// Make the query lower case. It's gonna be case insensitive anyway.
-		$stripped_query = Utils::htmlspecialcharsDecode(Utils::strtolower($stripped_query));
+		// Fold the case of the query. It's gonna be case insensitive anyway.
+		$stripped_query = Utils::htmlspecialcharsDecode(Utils::casefold($stripped_query));
 
 		// This (hidden) setting will do fulltext searching in the most basic way.
 		if (!empty(Config::$modSettings['search_simple_fulltext'])) {
@@ -1242,7 +1256,7 @@ abstract class SearchApi implements SearchApiInterface
 
 				$this->searchWords[$orIndex]['all_words'][] = $word;
 
-				$subjectWords = Utils::text2words($word);
+				$subjectWords = Utils::extractWords($word, 2);
 
 				if (!$is_excluded || count($subjectWords) === 1) {
 					$this->searchWords[$orIndex]['subject_words'] = array_merge($this->searchWords[$orIndex]['subject_words'], $subjectWords);

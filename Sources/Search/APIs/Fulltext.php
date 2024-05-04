@@ -215,7 +215,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
-		$subwords = Utils::text2words($word, PHP_INT_MAX, false);
+		$subwords = Utils::extractWords($word, 2);
 
 		if (empty(Config::$modSettings['search_force_index'])) {
 			// A boolean capable search engine and not forced to only use an index, we may use a non indexed search
