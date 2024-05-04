@@ -4,6 +4,7 @@
 --- Language Upgrade...
 /******************************************************************************/
 
+---# Upgrading language settings
 ---{
 $limit = 10000;
 $statements = [];
@@ -95,63 +96,143 @@ foreach (Config::$modSettings as $variable => $value) {
 /******************************************************************************/
 
 ---# Adding a new column "version" to messages table
-IF NOT EXISTS(
-	SELECT NULL
-	FROM INFORMATION_SCHEMA.COLUMNS
-	WHERE table_name = '{$db_prefix}messages'
-	AND table_schema = '{$db_name}'
-	AND column_name = 'version'
-)
-THEN
-	ALTER TABLE {$db_prefix}messages
-	ADD COLUMN version VARCHAR(5) NOT NULL DEFAULT '';
-END IF;
+---{
+$cols = Db::$db->list_columns('{db_prefix}messages');
+
+if (!in_array('version', $cols)) {
+	Db::$db->add_column(
+		'{db_prefix}messages',
+		[
+			'name' => 'version',
+			'type' => 'varchar',
+			'size' => 5,
+			'null' => false,
+			'default' => '',
+		],
+	);
+}
+---}
 ---#
 
 ---# Adding a new column "version" to personal_messages table
-IF NOT EXISTS(
-	SELECT NULL
-	FROM INFORMATION_SCHEMA.COLUMNS
-	WHERE table_name = '{$db_prefix}personal_messages'
-	AND table_schema = '{$db_name}'
-	AND column_name = 'version'
-)
-THEN
-	ALTER TABLE {$db_prefix}personal_messages
-	ADD COLUMN version VARCHAR(5) NOT NULL DEFAULT '';
-END IF;
+---{
+$cols = Db::$db->list_columns('{db_prefix}personal_messages');
+
+if (!in_array('version', $cols)) {
+	Db::$db->add_column(
+		'{db_prefix}personal_messages',
+		[
+			'name' => 'version',
+			'type' => 'varchar',
+			'size' => 5,
+			'null' => false,
+			'default' => '',
+		],
+	);
+}
+---}
 ---#
 
 /******************************************************************************/
 --- Adding support for recurring events...
 /******************************************************************************/
 
----# Add duration, rrule, rdates, and exdates columns to calendar table
-IF NOT EXISTS(
-	SELECT NULL
-	FROM INFORMATION_SCHEMA.COLUMNS
-	WHERE table_name = '{$db_prefix}calendar'
-	AND table_schema = '{$db_name}'
-	AND column_name = 'rrule'
-)
-THEN
-	ALTER TABLE {$db_prefix}calendar
-	MODIFY COLUMN start_date DATE AFTER id_member,
-	ADD COLUMN duration VARCHAR(32) NOT NULL DEFAULT '',
-	ADD COLUMN rrule VARCHAR(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1',
-	ADD COLUMN rdates TEXT NOT NULL,
-	ADD COLUMN exdates TEXT NOT NULL,
-	ADD COLUMN adjustments JSON DEFAULT NULL,
-	ADD COLUMN sequence SMALLINT UNSIGNED NOT NULL DEFAULT '0',
-	ADD COLUMN uid VARCHAR(255) NOT NULL DEFAULT '',
-	ADD COLUMN type TINYINT UNSIGNED NOT NULL DEFAULT '0',
-	ADD COLUMN enabled TINYINT UNSIGNED NOT NULL DEFAULT '1';
-END IF;
----#
-
----# Set duration and rrule values and change end_date
+---# Adding support for recurring events...
 ---{
-if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings['smfVersion']))), '3.0.foo', '<'))
+$cols = Db::$db->list_columns('{db_prefix}calendar');
+
+if (!in_array('rrule', $cols)) {
+	Db::$db->query(
+		'',
+		'ALTER TABLE {db_prefix}calendar
+		MODIFY COLUMN start_date DATE AFTER id_member',
+		[],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'duration',
+			'type' => 'varchar',
+			'size' => 32,
+			'null' => false,
+			'default' => '',
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'rrule',
+			'type' => 'varchar',
+			'size' => 1024,
+			'null' => false,
+			'default' => 'FREQ=YEARLY;COUNT=1',
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'rdates',
+			'type' => 'text',
+			'null' => false,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'exdates',
+			'type' => 'text',
+			'null' => false,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'adjustments',
+			'type' => 'json',
+			'null' => true,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'sequence',
+			'type' => 'smallint',
+			'unsigned' => true,
+			'null' => false,
+			'default' => 0,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'uid',
+			'type' => 'varchar',
+			'size' => 255,
+			'null' => false,
+			'default' => '',
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'type',
+			'type' => 'tinyint',
+			'unsigned' => true,
+			'null' => false,
+			'default' => 0,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'enabled',
+			'type' => 'tinyint',
+			'unsigned' => true,
+			'null' => false,
+			'default' => 1,
+		],
+	);
+
 	$updates = [];
 
 	$request = Db::$db->query(
@@ -205,30 +286,15 @@ if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings[
 			$changes
 		);
 	}
+
+	Db::$db->remove_column('{db_prefix}calendar', 'end_time');
 }
 ---}
 ---#
 
----# Drop end_time column from calendar table
-ALTER TABLE {$db_prefix}calendar
-DROP COLUMN end_time;
----#
-
 ---# Migrate holidays to events
 ---{
-$request = Db::$db->query(
-	'',
-	'SELECT 1
-	FROM information_schema.tables
-	WHERE table_schema = {string:db_name}
-	AND table_name = {string:table_name}',
-	[
-		'db_name' => Config::$db_name,
-		'table_name' => Config::$db_prefix . 'calendar_holidays',
-	]
-);
-$exists = Db::$db->num_rows($request) > 0;
-Db::$db->free_result($request);
+$exists = count(Db::$db->list_tables(false, '%calendar_holidays')) > 0;
 
 if ($exists) {
 	$known_holidays = [
@@ -847,9 +913,7 @@ if ($exists) {
 	}
 
 	Db::$db->free_result($request);
----}
----#
 
----# Dropping "calendar_holidays"
-DROP TABLE IF EXISTS {$db_prefix}calendar_holidays;
+	Db::$db->drop_table('{db_prefix}calendar_holidays');
+---}
 ---#
