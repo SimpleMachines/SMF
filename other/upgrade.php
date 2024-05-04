@@ -539,15 +539,24 @@ function load_lang_file()
 
 	static $lang_dir = '', $detected_languages = [], $loaded_langfile = '';
 
-	$lang_dir = Config::$languagesdir;
+	if (isset(Config::$language)) {
+		$current_language = Lang::getLocaleFromLanguageName(Config::$language);
+	}
+
+	if (isset($upcontext['language'])) {
+		$locale = Lang::getLocaleFromLanguageName($upcontext['language']);
+		$upcontext['language'] = $locale ?? $upcontext['language'];
+	}
+
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
 
 	// Override the language file?
 	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
 		$_SESSION['upgrader_lang'] = $upcontext['language'];
 	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.php')) {
 		$_SESSION['upgrader_lang'] = $upcontext['lang'];
-	} elseif (isset(Config::$language) && file_exists($lang_dir . '/' . Config::$language . '/Install.php')) {
-		$_SESSION['upgrader_lang'] = Config::$language;
+	} elseif (isset($current_language) && file_exists($lang_dir . '/' . $current_language . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = $current_language;
 	} else {
 		$_SESSION['upgrader_lang'] = 'en_US';
 	}
@@ -570,12 +579,12 @@ function load_lang_file()
 					continue;
 				}
 
-				if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
+				if (!is_dir($lang_dir . '/' . $entry) || !file_exists($lang_dir . '/' . $entry . '/' . 'Install.php') || !file_exists($lang_dir . '/' . $entry . '/' . 'General.php')) {
 					continue;
 				}
 
 				// Get the line we need.
-				$fp = @fopen(Config::$languagesdir . '/' . $entry . '/' . 'General.php', 'r');
+				$fp = @fopen($lang_dir . '/' . $entry . '/' . 'General.php', 'r');
 
 				// Yay!
 				if ($fp) {
@@ -605,7 +614,7 @@ function load_lang_file()
 			}
 			$dir->close();
 		}
-		// Our guess was wrong, but that's fine. We'll try again after Config::$Languagesdir is defined.
+		// Our guess was wrong, but that's fine. We'll try again after Config::$languagesdir is defined.
 		elseif (!isset(Config::$languagesdir)) {
 			// Define a few essential strings for now.
 			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
@@ -1037,12 +1046,14 @@ function WelcomeLogin()
 
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
-	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
+	if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
 		return throw_error(Lang::getTxt('error_lang_general_missing', ['lang' => $upcontext['language'], 'url' => $upgradeurl]));
 	}
 
 	if (!isset($_GET['skiplang'])) {
-		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+		$temp = substr(@implode('', @file($lang_dir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
 
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
@@ -1059,16 +1070,12 @@ function WelcomeLogin()
 		Config::updateSettingsFile(['language' => $new_locale]);
 	}
 
-	if (empty(Config::$languagesdir)) {
-		Config::updateSettingsFile(['languagesdir' => Config::$boarddir . '/Languages']);
-	}
-
 	if (!makeFilesWritable($writable_files)) {
 		return false;
 	}
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/en_US/agreement.txt')) && !is_writable(Config::$languagesdir . '/en_US/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable($lang_dir) || file_exists($lang_dir . '/en_US/agreement.txt')) && !is_writable($lang_dir . '/en_US/agreement.txt')) {
 		return throw_error(Lang::$txt['error_agreement_not_writable']);
 	}
 
@@ -1388,15 +1395,17 @@ function checkLogin()
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
+			$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
 			// Set the language to that of the user?
-			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
+			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
 				$user_language = basename($user_language, '.lng');
-				$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+				$temp = substr(@implode('', @file($lang_dir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
 				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_old', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
-				} elseif (!file_exists(Config::$languagesdir . '/' . $user_language . '/Install.php')) {
+				} elseif (!file_exists($lang_dir . '/' . $user_language . '/Install.php')) {
 					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_missing', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
 				} else {
 					// Set this as the new language.
@@ -1547,8 +1556,10 @@ function UpgradeOptions()
 		Config::updateModSettings(['force_ssl' => '1']);
 	}
 
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
 	// If we're overriding the language follow it through.
-	if (isset($upcontext['lang']) && file_exists(Config::$languagesdir . '/' . $upcontext['lang'] . '/General.php')) {
+	if (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/General.php')) {
 		$changes['language'] = $upcontext['lang'];
 	}
 
@@ -3028,10 +3039,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "' . basename(SMF_SETTINGS_BACKUP_FILE) . '".');
 	}
 
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/en_US/agreement.txt')) && !is_writable(Config::$languagesdir . '/en_US/agreement.txt')) {
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
+	if (isset(Config::$modSettings['agreement']) && (!is_writable($lang_dir) || file_exists($lang_dir . '/en_US/agreement.txt')) && !is_writable($lang_dir . '/en_US/agreement.txt')) {
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
 	} elseif (isset(Config::$modSettings['agreement'])) {
-		$fp = fopen(Config::$languagesdir . '/en_US/agreement.txt', 'w');
+		$fp = fopen($lang_dir . '/en_US/agreement.txt', 'w');
 		fwrite($fp, Config::$modSettings['agreement']);
 		fclose($fp);
 	}
@@ -3064,22 +3077,22 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 	}
 
-	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')) {
+	if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
 		print_error('Error: Unable to find language files!', true);
 	} else {
-		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+		$temp = substr(@implode('', @file($lang_dir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			print_error('Error: Language files out of date.', true);
 		}
 
-		if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/Install.php')) {
+		if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
 			print_error('Error: Install language is missing for selected language.', true);
 		}
 
 		// Otherwise include it!
-		require_once Config::$languagesdir . '/' . $upcontext['language'] . '/Install.php';
+		require_once $lang_dir . '/' . $upcontext['language'] . '/Install.php';
 	}
 
 	// Do we need to add this setting?
