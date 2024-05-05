@@ -846,7 +846,7 @@ if(!in_array($cols, 'reactions'))
         upgrade_query("UPDATE {db_prefix}user_alerts_prefs SET alert_pref='msg_react' WHERE alert_pref='msg_like'");
 
 		// Update permissions
-		upgrade_query("UPDATE {db_prefix}permissions SET permission='reacts_react' WHERE permission='likes_like'");
+		upgrade_query("UPDATE {db_prefix}permissions SET permission='reactions_react' WHERE permission='likes_like'");
 
 		// And last but not least, the setting
 		upgrade_query("UPDATE {db_prefix}settings SET variable='enable_reacts' WHERE variable='enable_likes'");

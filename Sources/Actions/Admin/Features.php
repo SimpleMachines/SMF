@@ -73,7 +73,7 @@ class Features implements ActionInterface
 		'sig' => 'signature',
 		'profile' => 'profile',
 		'profileedit' => 'profileEdit',
-		'likes' => 'likes',
+		'reactions' => 'reactions',
 		'mentions' => 'mentions',
 		'alerts' => 'alerts',
 	];
@@ -1416,27 +1416,28 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Handles modifying the likes settings.
+	 * Handles modifying the reactions settings.
 	 *
-	 * Accessed from ?action=admin;area=featuresettings;sa=likes
+	 * Accessed from ?action=admin;area=featuresettings;sa=reactions
+	 * @todo Add interface/code to manage available reactions
 	 */
-	public function likes(): void
+	public function reactions(): void
 	{
-		$config_vars = self::likesConfigVars();
+		$config_vars = self::reactionsConfigVars();
 
 		// Saving?
 		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
-			IntegrationHook::call('integrate_save_likes_settings');
+			IntegrationHook::call('integrate_save_reactions_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			Utils::redirectexit('action=admin;area=featuresettings;sa=likes');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=reactions');
 		}
 
-		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
-		Utils::$context['settings_title'] = Lang::$txt['likes'];
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=reactions';
+		Utils::$context['settings_title'] = Lang::$txt['reactions'];
 
 		ACP::prepareDBSettingContext($config_vars);
 	}

@@ -179,8 +179,8 @@ class ACP implements ActionInterface
 						'profile' => [
 							'label' => 'custom_profile_shorttitle',
 						],
-						'likes' => [
-							'label' => 'likes',
+						'reactions' => [
+							'label' => 'reactions',
 						],
 						'mentions' => [
 							'label' => 'mentions',
