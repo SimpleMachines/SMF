@@ -131,6 +131,20 @@ class Search implements ActionInterface
 
 		Utils::$context['search_params']['subject_only'] = !empty(Utils::$context['search_params']['subject_only']);
 
+		// Define the inputs in the "options" section of the search form.
+		Utils::$context['search_options'] = [
+			'show_complete' => [
+				'label' => 'search_show_complete_messages',
+				'html' => '<input type="checkbox" name="show_complete" id="show_complete" value="1"' . (!empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '') . '>',
+			],
+			'subject_only' => [
+				'label' => 'search_subject_only',
+				'html' => '<input type="checkbox" name="subject_only" id="subject_only" value="1"' . (!empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '') . '>',
+			],
+		];
+
+		SearchApi::load()->formContext();
+
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
 			Lang::load('Errors');

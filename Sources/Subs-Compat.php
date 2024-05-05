@@ -5612,7 +5612,18 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function text2words(string $string, ?int $max_length = 20, bool $encrypt = false): array
 	{
-		return Utils::text2words($string, $max_length, $encrypt);
+		if ($encrypt) {
+			return Search\APIs\Custom::getWordNumbers($string, $max_length);
+		}
+
+		if (empty($max_length)) {
+			return Utils::extractWords($string, 2);
+		}
+
+		return array_map(
+			fn ($word) => Utils::truncate($word, $max_length),
+			Utils::extractWords($string, 2),
+		);
 	}
 
 	function build_regex(array $strings, ?string $delim = null, bool $return_array = false): string|array

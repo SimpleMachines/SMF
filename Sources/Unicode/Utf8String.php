@@ -540,6 +540,8 @@ class Utf8String implements \Stringable
 					'\x{200D}',
 					// All variation selectors.
 					$prop_classes['Variation_Selector'],
+					// All emoji modifiers.
+					$prop_classes['Emoji_Modifier'],
 					// Tag characters.
 					'\x{E0000}-\x{E007F}',
 				]) . ']';

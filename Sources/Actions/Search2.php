@@ -342,6 +342,54 @@ class Search2 implements ActionInterface
 			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
 			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
 		];
+
+		// Define the sort order options.
+		Utils::$context['sort_options'] = [
+			'relevance|desc' => [
+				'label' => 'search_orderby_relevant_first',
+				'value' => 'relevance|desc',
+				'selected' => Utils::$context['current_sorting'] == 'relevance|desc',
+			],
+			'num_replies|desc' => [
+				'label' => 'search_orderby_large_first',
+				'value' => 'num_replies|desc',
+				'selected' => Utils::$context['current_sorting'] == 'num_replies|desc',
+			],
+			'num_replies|asc' => [
+				'label' => 'search_orderby_small_first',
+				'value' => 'num_replies|asc',
+				'selected' => Utils::$context['current_sorting'] == 'num_replies|asc',
+			],
+			'id_msg|desc' => [
+				'label' => 'search_orderby_recent_first',
+				'value' => 'id_msg|desc',
+				'selected' => Utils::$context['current_sorting'] == 'id_msg|desc',
+			],
+			'id_msg|asc' => [
+				'label' => 'search_orderby_old_first',
+				'value' => 'id_msg|asc',
+				'selected' => Utils::$context['current_sorting'] == 'id_msg|asc',
+			],
+		];
+
+		// Define the hidden inputs that let the user adjust the search.
+		Utils::$context['hidden_inputs'] = [
+			'searchtype' => '<input type="hidden" name="searchtype" value="' . (!empty(Utils::$context['search_params']['searchtype']) ? Utils::$context['search_params']['searchtype'] : 0) . '">',
+			'userspec' => '<input type="hidden" name="userspec" value="' . (!empty(Utils::$context['search_params']['userspec']) ? Utils::$context['search_params']['userspec'] : '') . '">',
+			'show_complete' => '<input type="hidden" name="show_complete" value="' . (!empty(Utils::$context['search_params']['show_complete']) ? 1 : 0) . '">',
+			'subject_only' => '<input type="hidden" name="subject_only" value="' . (!empty(Utils::$context['search_params']['subject_only']) ? 1 : 0) . '">',
+			'minage' => '<input type="hidden" name="minage" value="' . (!empty(Utils::$context['search_params']['minage']) ? Utils::$context['search_params']['minage'] : '0') . '">',
+			'maxage' => '<input type="hidden" name="maxage" value="' . (!empty(Utils::$context['search_params']['maxage']) ? Utils::$context['search_params']['maxage'] : '9999') . '">',
+			'sort' => '<input type="hidden" name="sort" value="' . (!empty(Utils::$context['search_params']['sort']) ? Utils::$context['search_params']['sort'] : 'relevance') . '">',
+		];
+
+		if (!empty(Utils::$context['search_params']['brd'])) {
+			foreach (Utils::$context['search_params']['brd'] as $board_id) {
+				Utils::$context['hidden_inputs']['brd_' . $board_id] = '<input type="hidden" name="brd[' . $board_id . ']" value="' . $board_id . '">';
+			}
+		}
+
+		SearchApi::$loadedApi->resultsContext();
 	}
 
 	/**

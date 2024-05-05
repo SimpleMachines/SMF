@@ -148,6 +148,16 @@ interface SearchApiInterface
 	public function topicsMoved(array $topics, int $board_to): void;
 
 	/**
+	 * Lets APIs interact with Utils::$context when setting up the search form.
+	 */
+	public function formContext(): void;
+
+	/**
+	 * Lets APIs interact with Utils::$context when setting up the results page.
+	 */
+	public function resultsContext(): void;
+
+	/**
 	 * Sets whatever properties are necessary in order to perform the search.
 	 *
 	 * This is separate from the constructor because there are a number of other
