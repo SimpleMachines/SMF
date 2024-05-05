@@ -1702,18 +1702,18 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Gets the configuration variables for the likes sub-action.
+	 * Gets the configuration variables for the reactions sub-action.
 	 *
-	 * @return array $config_vars for the likes sub-action.
+	 * @return array $config_vars for the reactions sub-action.
 	 */
-	public static function likesConfigVars(): array
+	public static function reactionsConfigVars(): array
 	{
 		$config_vars = [
-			['check', 'enable_likes'],
-			['permissions', 'likes_like'],
+			['check', 'enable_reactions'],
+			['permissions', 'reactions_react'],
 		];
 
-		IntegrationHook::call('integrate_likes_settings', [&$config_vars]);
+		IntegrationHook::call('integrate_reactions_settings', [&$config_vars]);
 
 		return $config_vars;
 	}
