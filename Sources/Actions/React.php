@@ -31,7 +31,7 @@ use SMF\Utils;
 /**
  * Handles liking posts and displaying the list of who liked a post.
  */
-class Like implements ActionInterface
+class React implements ActionInterface
 {
 	use ActionTrait;
 

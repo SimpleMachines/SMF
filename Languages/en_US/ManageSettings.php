@@ -113,8 +113,8 @@ $txt['force_ssl_off'] = 'Disable SSL';
 $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 $txt['search_language'] = 'Fulltext Search Language';
 
-// Like settings.
-$txt['enable_likes'] = 'Enable Likes';
+// Reaction settings.
+$txt['enable_reacts'] = 'Enable Reactions';
 
 // Mention settings.
 $txt['enable_mentions'] = 'Enable Mentions';
