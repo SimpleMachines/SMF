@@ -110,19 +110,20 @@ ADD COLUMN IF NOT EXISTS version VARCHAR(5) NOT NULL DEFAULT '';
 
 ---# Add duration, rrule, rdates, and exdates columns to calendar table
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN IF NOT EXISTS duration varchar(32) NOT NULL DEFAULT '';
-ADD COLUMN IF NOT EXISTS rrule varchar(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1';
-ADD COLUMN IF NOT EXISTS rdates text NOT NULL;
-ADD COLUMN IF NOT EXISTS exdates text NOT NULL;
-ADD COLUMN IF NOT EXISTS adjustments jsonb DEFAULT NULL;
-ADD COLUMN IF NOT EXISTS sequence smallint NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS duration varchar(32) NOT NULL DEFAULT '',
+ADD COLUMN IF NOT EXISTS rrule varchar(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1',
+ADD COLUMN IF NOT EXISTS rdates text NOT NULL,
+ADD COLUMN IF NOT EXISTS exdates text NOT NULL,
+ADD COLUMN IF NOT EXISTS adjustments jsonb DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS sequence smallint NOT NULL DEFAULT '0',
 ADD COLUMN IF NOT EXISTS uid varchar(255) NOT NULL DEFAULT '',
-ADD COLUMN IF NOT EXISTS type smallint NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS type smallint NOT NULL DEFAULT '0',
 ADD COLUMN IF NOT EXISTS enabled smallint NOT NULL DEFAULT '1';
 ---#
 
 ---# Set duration and rrule values and change end_date
 ---{
+if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings['smfVersion']))), '3.0.foo', '<'))
 	$updates = [];
 
 	$request = Db::$db->query(
@@ -186,6 +187,21 @@ DROP COLUMN end_time;
 
 ---# Migrate holidays to events
 ---{
+$request = Db::$db->query(
+	'',
+	'SELECT 1
+	FROM information_schema.tables
+	WHERE table_schema = {string:db_name}
+	AND table_name = {string:table_name}',
+	[
+		'db_name' => Config::$db_name,
+		'table_name' => Config::$db_prefix . 'calendar_holidays',
+	]
+);
+$exists = Db::$db->num_rows($request) > 0;
+Db::$db->free_result($request);
+
+if ($exists) {
 	$known_holidays = [
 		'April Fools' => [
 			'title' => "April Fools' Day",
@@ -802,6 +818,7 @@ DROP COLUMN end_time;
 	}
 
 	Db::$db->free_result($request);
+}
 ---}
 ---#
 

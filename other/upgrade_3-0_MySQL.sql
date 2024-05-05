@@ -4,6 +4,7 @@
 --- Language Upgrade...
 /******************************************************************************/
 
+---# Upgrading language settings
 ---{
 $limit = 10000;
 $statements = [];
@@ -95,35 +96,143 @@ foreach (Config::$modSettings as $variable => $value) {
 /******************************************************************************/
 
 ---# Adding a new column "version" to messages table
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN version VARCHAR(5) NOT NULL DEFAULT '';
+---{
+$cols = Db::$db->list_columns('{db_prefix}messages');
+
+if (!in_array('version', $cols)) {
+	Db::$db->add_column(
+		'{db_prefix}messages',
+		[
+			'name' => 'version',
+			'type' => 'varchar',
+			'size' => 5,
+			'null' => false,
+			'default' => '',
+		],
+	);
+}
+---}
 ---#
 
 ---# Adding a new column "version" to personal_messages table
-ALTER TABLE {$db_prefix}personal_messages
-ADD COLUMN version VARCHAR(5) NOT NULL DEFAULT '';
+---{
+$cols = Db::$db->list_columns('{db_prefix}personal_messages');
+
+if (!in_array('version', $cols)) {
+	Db::$db->add_column(
+		'{db_prefix}personal_messages',
+		[
+			'name' => 'version',
+			'type' => 'varchar',
+			'size' => 5,
+			'null' => false,
+			'default' => '',
+		],
+	);
+}
+---}
 ---#
 
 /******************************************************************************/
 --- Adding support for recurring events...
 /******************************************************************************/
 
----# Add duration, rrule, rdates, and exdates columns to calendar table
-ALTER TABLE {$db_prefix}calendar
-MODIFY COLUMN start_date DATE AFTER id_member;
-ADD COLUMN duration VARCHAR(32) NOT NULL DEFAULT '';
-ADD COLUMN rrule VARCHAR(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1';
-ADD COLUMN rdates TEXT NOT NULL;
-ADD COLUMN exdates TEXT NOT NULL;
-ADD COLUMN adjustments JSON DEFAULT NULL;
-ADD COLUMN sequence SMALLINT UNSIGNED NOT NULL DEFAULT '0';
-ADD COLUMN uid VARCHAR(255) NOT NULL DEFAULT '',
-ADD COLUMN type TINYINT UNSIGNED NOT NULL DEFAULT '0';
-ADD COLUMN enabled TINYINT UNSIGNED NOT NULL DEFAULT '1';
----#
-
----# Set duration and rrule values and change end_date
+---# Adding support for recurring events...
 ---{
+$cols = Db::$db->list_columns('{db_prefix}calendar');
+
+if (!in_array('rrule', $cols)) {
+	Db::$db->query(
+		'',
+		'ALTER TABLE {db_prefix}calendar
+		MODIFY COLUMN start_date DATE AFTER id_member',
+		[],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'duration',
+			'type' => 'varchar',
+			'size' => 32,
+			'null' => false,
+			'default' => '',
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'rrule',
+			'type' => 'varchar',
+			'size' => 1024,
+			'null' => false,
+			'default' => 'FREQ=YEARLY;COUNT=1',
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'rdates',
+			'type' => 'text',
+			'null' => false,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'exdates',
+			'type' => 'text',
+			'null' => false,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'adjustments',
+			'type' => 'json',
+			'null' => true,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'sequence',
+			'type' => 'smallint',
+			'unsigned' => true,
+			'null' => false,
+			'default' => 0,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'uid',
+			'type' => 'varchar',
+			'size' => 255,
+			'null' => false,
+			'default' => '',
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'type',
+			'type' => 'tinyint',
+			'unsigned' => true,
+			'null' => false,
+			'default' => 0,
+		],
+	);
+	Db::$db->add_column(
+		'{db_prefix}calendar',
+		[
+			'name' => 'enabled',
+			'type' => 'tinyint',
+			'unsigned' => true,
+			'null' => false,
+			'default' => 1,
+		],
+	);
+
 	$updates = [];
 
 	$request = Db::$db->query(
@@ -177,16 +286,17 @@ ADD COLUMN enabled TINYINT UNSIGNED NOT NULL DEFAULT '1';
 			$changes
 		);
 	}
----}
----#
 
----# Drop end_time column from calendar table
-ALTER TABLE {$db_prefix}calendar
-DROP COLUMN end_time;
+	Db::$db->remove_column('{db_prefix}calendar', 'end_time');
+}
+---}
 ---#
 
 ---# Migrate holidays to events
 ---{
+$exists = count(Db::$db->list_tables(false, '%calendar_holidays')) > 0;
+
+if ($exists) {
 	$known_holidays = [
 		'April Fools' => [
 			'title' => "April Fools' Day",
@@ -803,9 +913,7 @@ DROP COLUMN end_time;
 	}
 
 	Db::$db->free_result($request);
----}
----#
 
----# Dropping "calendar_holidays"
-DROP TABLE IF EXISTS {$db_prefix}calendar_holidays;
+	Db::$db->drop_table('{db_prefix}calendar_holidays');
+---}
 ---#
