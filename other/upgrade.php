@@ -905,7 +905,7 @@ function initialize_inputs()
 		deleteFile($upgrade_path . '/Sources/DumpDatabase.php');
 		deleteFile($upgrade_path . '/Sources/LockTopic.php');
 
-		header('location: http' . (Config::httpsOn() ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		header('location: http' . (Sapi::httpsOn() ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 
 		exit;
 	}
@@ -2060,7 +2060,7 @@ function DeleteUpgrade()
 		(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
 		// This is needed in case someone invokes the upgrader using https when upgrading an http forum
-		if (Config::httpsOn()) {
+		if (Sapi::httpsOn()) {
 			$settings['default_theme_url'] = strtr($settings['default_theme_url'], ['http://' => 'https://']);
 		}
 	}
