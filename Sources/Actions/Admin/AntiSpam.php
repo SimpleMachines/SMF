@@ -15,8 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -32,19 +33,9 @@ use SMF\Utils;
  */
 class AntiSpam implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static AntiSpam $obj;
 
 	/****************
 	 * Public methods
@@ -360,28 +351,6 @@ class AntiSpam implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for the anti-spam area.
 	 *
 	 * @return array $config_vars for the anti-spam area.
@@ -450,17 +419,6 @@ class AntiSpam implements ActionInterface
 		IntegrationHook::call('integrate_spam_settings', [&$config_vars]);
 
 		return $config_vars;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 }
 

@@ -283,7 +283,7 @@ class DraftPM extends Draft
 			$recipient_ids = (!empty($row['to_list'])) ? Utils::jsonDecode($row['to_list'], true) : [];
 
 			// @todo ... this is a bit ugly since it runs an extra query for every message, do we want this?
-			// at least its only for draft PM's and only the user can see them ... so not heavily used .. still
+			// at least it's only for draft PM's and only the user can see them ... so not heavily used .. still
 			if (!empty($recipient_ids['to']) || !empty($recipient_ids['bcc'])) {
 				$recipient_ids['to'] = array_map('intval', $recipient_ids['to']);
 				$recipient_ids['bcc'] = array_map('intval', $recipient_ids['bcc']);

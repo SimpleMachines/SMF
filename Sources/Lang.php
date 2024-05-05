@@ -800,7 +800,7 @@ class Lang
 	}
 
 	/**
-	 * A backward compability method for loading language files with old names.
+	 * A backward compatibility method for loading language files with old names.
 	 * This is used to support backward compatibility with mods from SMF 2.1.
 	 * Do not rely on this method to exist in future versions!
 	 *

@@ -299,9 +299,9 @@ class Utils
 	 * @param string|null $substitute Replacement string for the invalid characters.
 	 *      If not set, the Unicode replacement character (U+FFFD) will be used
 	 *      (or a fallback like "?" if necessary).
-	 * @return string|bool The sanitized string.  False if we failed.
+	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|bool
+	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|false
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
@@ -371,9 +371,9 @@ class Utils
 	 *      - no_breaks: Vertical spaces are replaced by " " instead of "\n".
 	 *      - replace_tabs: If true, tabs are replaced by " " chars.
 	 *      - collapse_hspace: If true, removes extra horizontal spaces.
-	 * @return string The sanitized string.
+	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function normalizeSpaces(string $string, bool $vspace = true, bool $hspace = false, array $options = []): string
+	public static function normalizeSpaces(string $string, bool $vspace = true, bool $hspace = false, array $options = []): string|false
 	{
 		$string = (string) $string;
 		$vspace = !empty($vspace);
@@ -465,9 +465,9 @@ class Utils
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
 	 *    Default is ENT_QUOTES.
 	 * @param string $encoding Character encoding. Default is UTF-8.
-	 * @return string The string without entities.
+	 * @return string|false The string without entities, or false on failure.
 	 */
-	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string
+	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string|false
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
 	}
@@ -477,9 +477,9 @@ class Utils
 	 * characters, and Unicode whitespace characters beyond the ASCII range.
 	 *
 	 * @param string $string The string.
-	 * @return string The trimmed string.
+	 * @return string|false The trimmed string, or false on failure.
 	 */
-	public static function htmlTrim(string $string): string
+	public static function htmlTrim(string $string): string|false
 	{
 		return preg_replace('~^(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+|(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
 	}
@@ -490,9 +490,9 @@ class Utils
 	 * Only affects values.
 	 *
 	 * @param array|string $var The string or array of strings to trim.
-	 * @return array|string The trimmed string or array of trimmed strings.
+	 * @return array|string|false The trimmed string or array of trimmed strings.
 	 */
-	public static function htmlTrimRecursive(array|string $var): array|string
+	public static function htmlTrimRecursive(array|string $var): array|string|false
 	{
 		static $level = 0;
 
@@ -525,7 +525,7 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return strlen(preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
+		return strlen((string) preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
 	}
 
 	/**
@@ -539,7 +539,7 @@ class Utils
 	 */
 	public static function entityStrpos(string $haystack, string $needle, int $offset = 0): int|false
 	{
-		$haystack_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$haystack_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		if (strlen($needle) === 1) {
 			$result = array_search($needle, array_slice($haystack_arr, $offset));
@@ -547,7 +547,7 @@ class Utils
 			return is_int($result) ? $result + $offset : false;
 		}
 
-		$needle_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$needle_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		$needle_size = count($needle_arr);
 
@@ -577,9 +577,38 @@ class Utils
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
 	{
-		$ent_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$ent_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		return $length === null ? implode('', array_slice($ent_arr, $offset)) : implode('', array_slice($ent_arr, $offset, $length));
+	}
+
+	/**
+	 * Like standard mb_str_split(), except that it counts HTML entities as
+	 * single characters.
+	 *
+	 * @param string $string The input string.
+	 * @param int $length Maximum character length of the substrings to return.
+	 * @return array The extracted substrings.
+	 */
+	public static function entityStrSplit(string $string, int $length = 1): array
+	{
+		if ($length < 1) {
+			throw new \ValueError();
+		}
+
+		$ent_arr = (array) preg_split('~(' . Utils::ENT_LIST . '|\X)~u', Utils::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+		if ($length > 1) {
+			$temp = [];
+
+			while (!empty($ent_arr)) {
+				$temp[] = implode('', array_splice($ent_arr, 0, $length));
+			}
+
+			$ent_arr = $temp;
+		}
+
+		return $ent_arr;
 	}
 
 	/**
@@ -593,13 +622,13 @@ class Utils
 	 *
 	 * @param string $string The input string.
 	 * @param int $length The maximum length, in bytes, of the returned string.
-	 * @return string The truncated string.
+	 * @return string|false The truncated string, or false on error.
 	 */
-	public static function truncate(string $string, int $length): string
+	public static function truncate(string $string, int $length): string|false
 	{
 		$string = self::sanitizeEntities($string);
 
-		while (strlen($string) > $length) {
+		while (is_string($string) && strlen($string) > $length) {
 			$string = preg_replace('~(?:' . self::ENT_LIST . '|\X)$~u', '', $string);
 		}
 
@@ -763,51 +792,18 @@ class Utils
 	}
 
 	/**
-	 * Chops a string into words and prepares them to be inserted into (or
-	 * searched from) the database.
+	 * Extracts all the words in a string.
 	 *
-	 * @param string $string The text to split into words.
-	 * @param ?int $max_length The maximum byte length for each word.
-	 * @param bool $encrypt Whether to encrypt the results.
-	 * @return array An array of strings or integers, depending on $encrypt.
+	 * Emoji characters count as words. Punctuation and other symbols do not.
+	 *
+	 * @param string $string The strings to extract words from.
+	 * @param int $level See documentation for self:sanitizeChars().
+	 *      Default: 0.
+	 * @return array An array of strings.
 	 */
-	public static function text2words(string $string, ?int $max_length = 20, bool $encrypt = false): array
+	public static function extractWords(string $string, int $level = 0): array
 	{
-		if (empty($max_length)) {
-			$max_length = PHP_INT_MAX;
-		}
-
-		$words = Unicode\Utf8String::create($string)->extractWords(2);
-
-		if (!$encrypt) {
-			foreach ($words as &$word) {
-				$word = self::truncate($word, $max_length);
-			}
-
-			return array_unique($words);
-		}
-
-		// We want to "encrypt" the words, which basically just means getting a
-		// unique number for each one...
-		$returned_ints = [];
-
-		$possible_chars = array_flip(array_merge(range(46, 57), range(65, 90), range(97, 122)));
-
-		foreach ($words as $word) {
-			if (($word = trim($word, '-_\'')) !== '') {
-				$encrypted = substr(crypt($word, 'uk'), 2, $max_length);
-
-				$total = 0;
-
-				for ($i = 0; $i < $max_length; $i++) {
-					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
-				}
-
-				$returned_ints[] = $max_length == 4 ? min($total, 16777215) : $total;
-			}
-		}
-
-		return array_unique($returned_ints);
+		return array_values(Unicode\Utf8String::create($string)->extractWords($level));
 	}
 
 	/**
@@ -1301,10 +1297,9 @@ class Utils
 	 * @param mixed $value The value to encode.
 	 * @param int $flags Bitmask of flags for json_encode(). Default: 0.
 	 * @param int $depth Maximum depth. Default: 512.
-	 * @return string|bool The decoded data.
-	 * @todo PHP 8.2 The return should be string|false
+	 * @return string|false The decoded data.
 	 */
-	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): string|bool
+	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): string|false
 	{
 		return json_encode($value, $flags, $depth);
 	}
@@ -1587,9 +1582,9 @@ class Utils
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
 	 * @param string $is_path If true, $data is a path or URL to a file.
-	 * @return string|bool A MIME type, or false if we cannot determine it.
+	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
-	public static function getMimeType(string $data, bool $is_path = false): string|bool
+	public static function getMimeType(string $data, bool $is_path = false): string|false
 	{
 		$finfo_loaded = extension_loaded('fileinfo');
 		$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
@@ -2183,7 +2178,7 @@ class Utils
 	 * ADD MORE HERE.
 	 *
 	 * @param mixed $input Input to parse to find a callable.
-	 * @return string|array|bool Either a callable, or false on failure.
+	 * @return mixed Either a callable, or false on failure.
 	 */
 	public static function getCallable(mixed $input, ?bool $ignore_errors = null): mixed
 	{
@@ -2272,10 +2267,6 @@ class Utils
 		return $callable;
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
-
 	/**
 	 * Converts four-byte Unicode characters to entities, but only if the
 	 * database can't handle four-byte characters natively.
@@ -2283,7 +2274,7 @@ class Utils
 	 * @param string $string A UTF-8 string.
 	 * @return string The string, with four-byte chars encoded as entities.
 	 */
-	final protected static function fixUtf8mb4(string $string): string
+	final public static function fixUtf8mb4(string $string): string
 	{
 		if (class_exists(Db::class, false) && isset(Db::$db) && Db::$db->mb4) {
 			return $string;
@@ -2291,6 +2282,10 @@ class Utils
 
 		return mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
 
 	/**
 	 * Helper method for Utils::call_helper.
@@ -2308,10 +2303,10 @@ class Utils
 	 *  - $themedir (only works if SMF\Theme has already been initialized)
 	 *
 	 * @param string $string The string containing a valid format.
-	 * @return string|bool The given string with the pipe and file info removed
+	 * @return string|false The given string with the pipe and file info removed
 	 *    or false if the file couldn't be loaded.
 	 */
-	final protected static function loadFile(string $string): string|bool
+	final protected static function loadFile(string $string): string|false
 	{
 		if (empty($string)) {
 			return false;

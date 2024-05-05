@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -32,17 +34,7 @@ use SMF\Verifier;
  */
 class Search implements ActionInterface
 {
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Search $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -138,6 +130,20 @@ class Search implements ActionInterface
 		Utils::$context['search_params']['show_complete'] = !empty(Utils::$context['search_params']['show_complete']);
 
 		Utils::$context['search_params']['subject_only'] = !empty(Utils::$context['search_params']['subject_only']);
+
+		// Define the inputs in the "options" section of the search form.
+		Utils::$context['search_options'] = [
+			'show_complete' => [
+				'label' => 'search_show_complete_messages',
+				'html' => '<input type="checkbox" name="show_complete" id="show_complete" value="1"' . (!empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '') . '>',
+			],
+			'subject_only' => [
+				'label' => 'search_subject_only',
+				'html' => '<input type="checkbox" name="subject_only" id="subject_only" value="1"' . (!empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '') . '>',
+			],
+		];
+
+		SearchApi::load()->formContext();
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
@@ -284,43 +290,6 @@ class Search implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['set_parameters'];
 
 		IntegrationHook::call('integrate_search');
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
 	}
 }
 

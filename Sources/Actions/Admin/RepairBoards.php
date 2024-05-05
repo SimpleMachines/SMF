@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -34,6 +35,8 @@ use SMF\Utils;
  */
 class RepairBoards implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -769,18 +772,6 @@ class RepairBoards implements ActionInterface
 	 */
 	public int $salvage_category;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static RepairBoards $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -854,32 +845,6 @@ class RepairBoards implements ActionInterface
 			// We are done at this point, dump the token,
 			SecurityToken::validate('admin-repairboards', 'request', false);
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -2085,14 +2050,14 @@ class RepairBoards implements ActionInterface
 	/**
 	 * Callback to fix missing log_search_subjects entries for a topic.
 	 *
-	 * @param array $result Search result id
+	 * @param mixed $result Search result
 	 */
-	protected function fixMissingCachedSubject(array $result): void
+	protected function fixMissingCachedSubject(mixed $result): void
 	{
 		$inserts = [];
 
 		while ($row = Db::$db->fetch_assoc($result)) {
-			foreach (Utils::text2words($row['subject']) as $word) {
+			foreach (Utils::extractWords($row['subject'], 2) as $word) {
 				$inserts[] = [$word, $row['id_topic']];
 			}
 
@@ -2128,7 +2093,7 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function missingCachedSubjectMessage(array $row): bool
 	{
-		if (count(Utils::text2words($row['subject'])) != 0) {
+		if (count(Utils::extractWords($row['subject'], 2)) != 0) {
 			Utils::$context['repair_errors'][] = Lang::getTxt('repair_missing_cached_subject', [$row['id_topic']]);
 
 			return true;

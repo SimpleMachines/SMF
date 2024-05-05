@@ -1,4 +1,4 @@
-// This file contains javascript associated with a autosuggest control
+// This file contains javascript associated with an autosuggest control
 function smc_AutoSuggest(oOptions)
 {
 	this.opt = oOptions;

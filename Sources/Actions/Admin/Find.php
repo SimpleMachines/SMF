@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -32,6 +33,8 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Find implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -140,18 +143,6 @@ class Find implements ActionInterface
 		'online' => 'online',
 		'member' => 'member',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Find $obj;
 
 	/****************
 	 * Public methods
@@ -363,32 +354,6 @@ class Find implements ActionInterface
 				];
 			}
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

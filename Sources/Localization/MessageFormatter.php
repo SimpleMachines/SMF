@@ -21,6 +21,8 @@ use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 
+use function SMF\Unicode\currencies;
+
 /**
  * Provides the ability to process ICU MessageFormat strings, regardless whether
  * the host has the intl extension installed.
@@ -626,7 +628,7 @@ class MessageFormatter
 			// Float precision format.
 			if (str_starts_with($stem, '.')) {
 				$significant_integers = strlen(strval(intval($number + 0)));
-				$significant_decimals = is_int($number + 0) ? 0 : max(0, strlen(rtrim(sprintf('%.53F', abs($number + 0)), '0')) - $significant_integers - 1);
+				$significant_decimals = (int) strpos(strrev(strval($number)), '.');
 
 				preg_match('/\.(0*)(#*)(\*?)/', $stem, $matches);
 
@@ -677,7 +679,7 @@ class MessageFormatter
 			// Significant digits format.
 			elseif (str_starts_with($stem, '@')) {
 				$significant_integers = strlen(strval(intval($number + 0)));
-				$significant_decimals = is_int($number + 0) ? 0 : max(0, strlen(rtrim(sprintf('%.53F', abs($number + 0)), '0')) - $significant_integers - 1);
+				$significant_decimals = (int) strpos(strrev(strval($number)), '.');
 
 				preg_match('/(@+)(#*)(\*?)/', $stem, $matches);
 
@@ -865,7 +867,7 @@ class MessageFormatter
 
 		// Ensure $number is a string.
 		if (is_float($number)) {
-			$precision = max(0, strlen(rtrim(sprintf('%.53F', abs($number + 0)), '0')) - strlen(strval(intval($number + 0))) - 1);
+			$precision = (int) strpos(strrev(strval($number)), '.');
 			$number = sprintf("%{$flags}.{$precision}F", $number);
 		} elseif (is_int($number)) {
 			$number = sprintf("%{$flags}d", $number);

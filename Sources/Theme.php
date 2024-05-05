@@ -433,7 +433,7 @@ class Theme
 	 * @param string $fileName The name of the file to load.
 	 * @param array $params An array of parameters. Keys are the following:
 	 *
-	 * 	- ['external'] (true/false): Whether the file is a externally located
+	 * 	- ['external'] (true/false): Whether the file is an externally located
 	 *       file. Needs to be set to true if you are loading an external file.
 	 *
 	 * 	- ['default_theme'] (true/false): Force use of default theme URL.
@@ -487,7 +487,7 @@ class Theme
 
 		// Is this a local file?
 		if (empty($params['external'])) {
-			// Are we validating the the file exists?
+			// Are we validating that the file exists?
 			if (!empty($params['validate']) && ($mtime = @filemtime(self::$current->settings[$themeRef . '_dir'] . '/css/' . $fileName)) === false) {
 				// Maybe the default theme has it?
 				if ($themeRef === 'theme' && !$params['force_current'] && ($mtime = @filemtime(self::$current->settings['default_theme_dir'] . '/css/' . $fileName) !== false)) {
@@ -567,7 +567,7 @@ class Theme
 	 * @param string $fileName The name of the file to load
 	 * @param array $params An array of parameters. Keys are the following:
 	 *
-	 * 	- ['external'] (true/false): Whether the file is a externally located
+	 * 	- ['external'] (true/false): Whether the file is an externally located
 	 *       file. Needs to be set to true if you are loading an external file.
 	 *
 	 * 	- ['default_theme'] (true/false): Force use of default theme URL.
@@ -930,6 +930,8 @@ class Theme
 		Utils::$context['allow_pm'] = User::$me->allowedTo('pm_read');
 
 		$cacheTime = (int) Config::$modSettings['lastActive'] * 60;
+
+		Lang::load('Calendar');
 
 		// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
 		if (!isset(Utils::$context['allow_calendar_event'])) {

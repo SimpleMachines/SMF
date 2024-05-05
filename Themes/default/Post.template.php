@@ -88,9 +88,10 @@ function template_main()
 			</div>
 			<br>';
 
-	if (Utils::$context['make_event'] && (!Utils::$context['event']['new'] || !empty(Utils::$context['current_board'])))
+	if (Utils::$context['make_event'] && (!Utils::$context['event']->new || !empty(Utils::$context['current_board'])))
 		echo '
-			<input type="hidden" name="eventid" value="', Utils::$context['event']['id'], '">';
+			<input type="hidden" name="eventid" value="', Utils::$context['event']->id, '">
+			<input type="hidden" name="recurrenceid" value="', Utils::$context['event']->selected_occurrence->id, '">';
 
 	// Start the main table.
 	echo '
@@ -142,57 +143,16 @@ function template_main()
 	// Are you posting a calendar event?
 	if (Utils::$context['make_event'])
 	{
-		// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 		echo '
-					<hr class="clear">
-					<div id="post_event">
-						<fieldset id="event_options">
-							<legend', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>', Lang::$txt['calendar_event_options'], '</legend>
-							<input type="hidden" name="calendar" value="1">
-							<div class="event_options" id="event_title">
-								<div>
-									<span class="label">', Lang::$txt['calendar_event_title'], '</span>
-									<input type="text" id="evtitle" name="evtitle" maxlength="255" value="', Utils::$context['event']['title'], '" tabindex="', Utils::$context['tabindex']++, '">
-								</div>
-							</div>
-							<div class="event_options">
-								<div class="event_options_left" id="event_time_input">
-									<div>
-										<span class="label">', Lang::$txt['start'], '</span>
-										<input type="text" name="start_date" id="start_date" value="', trim(Utils::$context['event']['start_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">
-										<input type="text" name="start_time" id="start_time" maxlength="11" value="', Utils::$context['event']['start_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input start" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
-									</div>
-									<div>
-										<span class="label">', Lang::$txt['end'], '</span>
-										<input type="text" name="end_date" id="end_date" value="', trim(Utils::$context['event']['end_date_orig']), '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date"', Config::$modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-										<input type="text" name="end_time" id="end_time" maxlength="11" value="', Utils::$context['event']['end_time_orig'], '" tabindex="', Utils::$context['tabindex']++, '" class="time_input end" data-type="time"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>
-									</div>
-								</div>
-								<div class="event_options_right" id="event_time_options">
-									<div id="event_allday">
-										<label for="allday"><span class="label">', Lang::$txt['calendar_allday'], '</span></label>
-										<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']['allday']) ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
-									</div>
-									<div id="event_timezone">
-										<span class="label">', Lang::$txt['calendar_timezone'], '</span>
-										<select name="tz" id="tz"', !empty(Utils::$context['event']['allday']) ? ' disabled' : '', '>';
+					<div id="post_event">';
 
-			foreach (Utils::$context['all_timezones'] as $tz => $tzname)
-				echo '
-											<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === Utils::$context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
+		template_event_options();
 
-			echo '
-										</select>
-									</div>
-								</div>
-							</div>
-							<div class="event_options">
-								<div>
-									<span class="label">', Lang::$txt['location'], '</span>
-									<input type="text" name="event_location" id="event_location" maxlength="255" value="', Utils::$context['event']['location'], '" tabindex="', Utils::$context['tabindex']++, '">
-								</div>
-							</div>
-						</fieldset>
+		if (!empty(Utils::$context['linked_calendar_events'])) {
+			template_linked_events();
+		}
+
+		echo '
 					</div><!-- #post_event -->';
 	}
 
@@ -480,11 +440,6 @@ function template_main()
 	echo '
 					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons(Utils::$context['post_box_name']);
-
-	// Option to delete an event if user is editing one.
-	if (Utils::$context['make_event'] && !Utils::$context['event']['new'])
-		echo '
-						<input type="submit" name="deleteevent" value="', Lang::$txt['event_delete'], '" data-confirm="', Lang::$txt['event_delete_confirm'], '" class="button you_sure">';
 
 	echo '
 					</span>

@@ -109,10 +109,12 @@ $txt['number_of_seconds'] = '{0, plural,
 $txt['days_title'] = 'Days';
 $txt['days'] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 $txt['days_short'] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-// Months must start with 1 => 'January'. (or translated, of course.)
 $txt['months_title'] = 'Months';
+// Months must start with 1 => 'January' (or translated, of course).
 $txt['months'] = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'];
+// Months must start with 1 => 'January' (or translated, of course).
 $txt['months_titles'] = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'];
+// Months must start with 1 => 'Jan' (or translated, of course).
 $txt['months_short'] = [1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'];
 $txt['prev_month'] = 'Previous month';
 $txt['next_month'] = 'Next month';
@@ -700,41 +702,6 @@ $txt['go_down'] = 'Go Down';
 // argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl
 $forum_copyright = '<a href="{scripturl}?action=credits" title="License" target="_blank" rel="noopener">{version} &copy; {year}</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
-$txt['birthdays'] = 'Birthdays:';
-$txt['events'] = 'Events:';
-$txt['birthdays_upcoming'] = 'Upcoming Birthdays:';
-$txt['events_upcoming'] = 'Upcoming Events:';
-// Prompt for holidays in the calendar, leave blank to just display the holiday's name.
-$txt['calendar_prompt'] = 'Holidays:';
-$txt['calendar_month'] = 'Month';
-$txt['calendar_year'] = 'Year';
-$txt['calendar_day'] = 'Day';
-$txt['calendar_event_title'] = 'Event Title';
-$txt['calendar_event_options'] = 'Event Options';
-$txt['calendar_post_in'] = 'Post in';
-$txt['calendar_edit'] = 'Edit Event';
-$txt['calendar_export'] = 'Export Event';
-$txt['calendar_view_week'] = 'View Week';
-$txt['event_delete_confirm'] = 'Delete this event?';
-$txt['event_delete'] = 'Delete Event';
-$txt['calendar_post_event'] = 'Post Event';
-$txt['calendar'] = 'Calendar';
-$txt['calendar_link'] = 'Link to Calendar';
-$txt['calendar_upcoming'] = 'Upcoming Calendar';
-$txt['calendar_today'] = 'Today’s Calendar';
-$txt['calendar_week'] = 'Week';
-$txt['calendar_week_beginning'] = 'Week beginning {date}';
-$txt['calendar_numb_days'] = 'Number of Days';
-$txt['calendar_how_edit'] = 'how do you edit these events?';
-$txt['calendar_link_event'] = 'Link Event To Post';
-$txt['calendar_confirm_delete'] = 'Are you sure you want to delete this event?';
-$txt['calendar_linked_events'] = 'Linked Events';
-$txt['calendar_click_all'] = 'Show all';
-$txt['calendar_allday'] = 'All day';
-$txt['calendar_timezone'] = 'Time zone';
-$txt['calendar_list'] = 'List';
-$txt['calendar_empty'] = 'There are no events to display.';
-
 $txt['movetopic_change_subject'] = 'Change the topic’s subject';
 $txt['movetopic_new_subject'] = 'New subject';
 $txt['movetopic_change_all_subjects'] = 'Change every message’s subject';
@@ -1136,12 +1103,12 @@ $txt['debug_queries_used_and_warnings'] = '{0, plural,
 }.';
 $txt['debug_query_in_line'] = 'in {file} on line {line}, ';
 $txt['debug_query_which_took'] = '{0, plural,
-	one {which took # second}
-	other {which took # seconds}
+	one {which took {0, number, ::precision-unlimited} second}
+	other {which took {0, number, ::precision-unlimited} seconds}
 }.';
 $txt['debug_query_which_took_at'] = '{0, plural,
-	one {which took # second}
-	other {which took # seconds}
+	one {which took {0, number, ::precision-unlimited} second}
+	other {which took {0, number, ::precision-unlimited} seconds}
 } at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';

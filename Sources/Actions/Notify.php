@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -33,6 +34,8 @@ use SMF\Utils;
  */
 abstract class Notify
 {
+	use ActionTrait;
+
 	/*****************
 	 * Class constants
 	 *****************/

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -31,6 +33,8 @@ use SMF\Utils;
  */
 class Reminder implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -70,18 +74,6 @@ class Reminder implements ActionInterface
 		'setpassword' => 'setPassword',
 		'setpassword2' => 'setPassword2',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Reminder $obj;
 
 	/****************
 	 * Public methods
@@ -392,32 +384,6 @@ class Reminder implements ActionInterface
 		];
 
 		SecurityToken::create('login');
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

@@ -532,7 +532,7 @@ function template_showPosts()
 	else
 		template_show_list('attachments');
 
-	// No posts? Just end with a informative message.
+	// No posts? Just end with an informative message.
 	if ((isset(Utils::$context['attachments']) && empty(Utils::$context['attachments'])) || (!isset(Utils::$context['attachments']) && empty(Utils::$context['posts'])))
 		echo '
 		<div class="windowbg">

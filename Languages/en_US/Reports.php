@@ -7,6 +7,8 @@ $txt['generate_reports_continue'] = 'Continue';
 $txt['generate_reports_type'] = 'Select type of Report';
 $txt['gr_type_boards'] = 'Boards';
 $txt['gr_type_desc_boards'] = 'Reports showing the current settings and access levels for each of boards on your forum.';
+$txt['gr_type_board_access'] = 'Board Accesss';
+$txt['gr_type_desc_board_access'] = 'Report on which membergroup has access to which boards on your forum.';
 $txt['gr_type_board_perms'] = 'Board Permissions';
 $txt['gr_type_desc_board_perms'] = 'Generate reports showing permissions each membergroup has across the different boards in your forum.';
 $txt['gr_type_member_groups'] = 'Membergroups';
@@ -21,8 +23,6 @@ $txt['results'] = 'Results';
 
 // Board permissions
 $txt['board_perms_permission'] = 'Permission';
-$txt['board_perms_allow'] = 'Allow';
-$txt['board_perms_deny'] = 'Deny';
 $txt['board_perms_name_announce_topic'] = 'Announce topic';
 $txt['board_perms_name_approve_posts'] = 'Approve posts';
 $txt['board_perms_name_delete_any'] = 'Delete any posts';

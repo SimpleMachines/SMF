@@ -559,7 +559,7 @@ class Mail
 				['variable'],
 			);
 
-			// If we have failed to many times, tell mail to wait a bit and try again.
+			// If we have failed too many times, tell mail to wait a bit and try again.
 			if (Config::$modSettings['mail_failed_attempts'] > 5) {
 				Db::$db->query(
 					'',

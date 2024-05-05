@@ -123,7 +123,7 @@ function template_control_richedit_buttons($editor_id)
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : Lang::$txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 		</span>';
 
-	// Start an instance of the auto saver if its enabled
+	// Start an instance of the auto saver if it's enabled
 	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">

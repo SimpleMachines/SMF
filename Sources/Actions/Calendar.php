@@ -15,17 +15,23 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Birthday;
+use SMF\Calendar\Event;
+use SMF\Calendar\EventOccurrence;
+use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
+use SMF\TimeInterval;
 use SMF\TimeZone;
 use SMF\Topic;
 use SMF\User;
@@ -37,6 +43,8 @@ use SMF\Utils;
  */
 class Calendar implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -66,18 +74,6 @@ class Calendar implements ActionInterface
 		'post' => 'post',
 		'clock' => 'clock',
 	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of the class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Calendar $obj;
 
 	/****************
 	 * Public methods
@@ -117,9 +113,10 @@ class Calendar implements ActionInterface
 		// This is gonna be needed...
 		Theme::loadTemplate('Calendar');
 		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'], 'smf_calendar');
+		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
-		// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
-		if (isset($_GET['event'])) {
+		// Did they specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
+		if (isset($_GET['event']) && !isset($_REQUEST['start_date'])) {
 			$evid = (int) $_GET['event'];
 
 			if ($evid > 0) {
@@ -323,7 +320,64 @@ class Calendar implements ActionInterface
 		Utils::$context['calendar_buttons'] = [];
 
 		if (Utils::$context['can_post']) {
-			Utils::$context['calendar_buttons']['post_event'] = ['text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['calendar_buttons']['post_event'] = [
+				'text' => 'calendar_post_event',
+				'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			];
+		}
+
+		if (!empty(Config::$modSettings['cal_export']) && !User::$me->possibly_robot) {
+			$webcal_url = Config::$scripturl . '?action=calendar;sa=ical' . (!User::$me->is_guest ? ';u=' . User::$me->id . ';token=' . $this->createToken(User::$me) : '');
+
+			if (BrowserDetector::isBrowser('safari') || BrowserDetector::isBrowser('iphone')) {
+				$webcal_url = preg_replace('/^https?/', 'webcal', $webcal_url);
+			} else {
+				$webcal_url = 'javascript:navigator.clipboard.writeText(' . Utils::escapeJavaScript($webcal_url) . ');alert(' . Utils::escapeJavaScript(Lang::$txt['calendar_subscribe_url_copied']) . ')';
+			}
+
+			$ics_url = Config::$scripturl . '?action=calendar;sa=ical';
+
+			switch (Utils::$context['calendar_view']) {
+				case 'viewmonth':
+					$ics_url .= ';start_date=' . $start_object->format('Y-m-01');
+					$ics_url .= ';duration=P1M';
+					break;
+
+				case 'viewweek':
+					$s = clone $start_object;
+
+					while (($s->format('N') % 7) > $calendarOptions['start_day']) {
+						$s->modify('-1 day');
+					}
+
+					$ics_url .= ';start_date=' . $s->format('Y-m-d');
+					$ics_url .= ';duration=P7D';
+					break;
+
+				default:
+					$ics_url .= ';start_date=' . $start_object->format('Y-m-d');
+					$ics_url .= ';duration=' . (string) TimeInterval::createFromDateInterval($start_object->diff($end_object));
+					break;
+			}
+
+			Lang::$txt[''] = '';
+
+			Utils::$context['calendar_buttons']['cal_export'] = [
+				'text' => '',
+				'class' => 'main_icons feed',
+				'custom' => 'title="' . Lang::getTxt('calendar_subscribe') . '"',
+				'url' => $ics_url,
+				'sub_buttons' => [
+					'subscribe' => [
+						'text' => 'calendar_subscribe',
+						'url' => $webcal_url,
+					],
+					'download' => [
+						'text' => 'calendar_download',
+						'url' => $ics_url,
+					],
+				],
+			];
 		}
 
 		// Allow mods to add additional buttons here
@@ -354,7 +408,7 @@ class Calendar implements ActionInterface
 			User::$me->checkSession();
 
 			// Validate the post...
-			if (!isset($_POST['link_to_board'])) {
+			if (!in_array($_POST['link_to'] ?? '', ['board', 'topic'])) {
 				self::validateEventPost();
 			}
 
@@ -364,8 +418,15 @@ class Calendar implements ActionInterface
 			}
 
 			// New - and directing?
-			if (isset($_POST['link_to_board']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
+			if (in_array($_POST['link_to'] ?? '', ['board', 'topic']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
 				$_REQUEST['calendar'] = 1;
+
+				if (empty($_POST['topic'])) {
+					unset($_POST['topic']);
+				} elseif (isset($_POST['link_to']) && $_POST['link_to'] === 'topic') {
+					$_REQUEST['msg'] = Topic::load((int) $_POST['topic'])->id_first_msg;
+				}
+
 				Post::call();
 
 				return;
@@ -378,13 +439,16 @@ class Calendar implements ActionInterface
 					'topic' => 0,
 					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
 					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
-					'member' => User::$me->id,
 				];
 				Event::create($eventOptions);
 			}
 			// Deleting...
 			elseif (isset($_REQUEST['deleteevent'])) {
-				Event::remove($_REQUEST['eventid']);
+				if (isset($_REQUEST['recurrenceid'])) {
+					EventOccurrence::remove($_REQUEST['eventid'], $_REQUEST['recurrenceid'], !empty($_REQUEST['affects_future']));
+				} else {
+					Event::remove($_REQUEST['eventid']);
+				}
 			}
 			// ... or just update it?
 			else {
@@ -392,6 +456,15 @@ class Calendar implements ActionInterface
 					'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
 					'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
 				];
+
+				if (!empty($_REQUEST['recurrenceid'])) {
+					$eventOptions['recurrenceid'] = $_REQUEST['recurrenceid'];
+				}
+
+				if (!empty($_REQUEST['affects_future'])) {
+					$eventOptions['affects_future'] = $_REQUEST['affects_future'];
+				}
+
 				Event::modify($_REQUEST['eventid'], $eventOptions);
 			}
 
@@ -431,6 +504,7 @@ class Calendar implements ActionInterface
 		// New?
 		if (!isset($_REQUEST['eventid'])) {
 			Utils::$context['event'] = new Event(-1);
+			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
 		} else {
 			list(Utils::$context['event']) = Event::load($_REQUEST['eventid']);
 
@@ -451,20 +525,31 @@ class Calendar implements ActionInterface
 			} elseif (!User::$me->allowedTo('calendar_edit_any')) {
 				User::$me->isAllowedTo('calendar_edit_own');
 			}
+
+			if (isset($_REQUEST['recurrenceid'])) {
+				$selected_occurrence = Utils::$context['event']->getOccurrence($_REQUEST['recurrenceid']);
+			}
+
+			if (empty($selected_occurrence)) {
+				$selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+			}
+
+			Utils::$context['event']->selected_occurrence = $selected_occurrence;
 		}
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
-		if (Utils::$context['event']->allday == true) {
-			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
-			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
+		if (Utils::$context['event']->allday) {
+			$now = Time::create('now');
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify($now->format('H:i:s'));
+			Utils::$context['event']->selected_occurrence->duration = new TimeInterval('PT' . ($now->format('H') < 23 ? '1H' : (59 - $now->format('i')) . 'M'));
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_date);
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_datetime);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		Utils::$context['event']->fixTimezone();
+		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		// Get list of boards that can be posted in.
 		$boards = User::$me->boardsAllowedTo('post_new');
@@ -492,15 +577,9 @@ class Calendar implements ActionInterface
 			'name' => Utils::$context['page_title'],
 		];
 
-		self::loadDatePicker('#event_time_input .date_input');
-		self::loadTimePicker('#event_time_input .time_input', Time::getShortTimeFormat());
-		self::loadDatePair('#event_time_input', 'date_input', 'time_input');
-		Theme::addInlineJavaScript('
-		$("#allday").click(function(){
-			$("#start_time").attr("disabled", this.checked);
-			$("#end_time").attr("disabled", this.checked);
-			$("#tz").attr("disabled", this.checked);
-		});', true);
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
 	/**
@@ -517,67 +596,107 @@ class Calendar implements ActionInterface
 			ErrorHandler::fatalLang('calendar_export_off', false);
 		}
 
-		// Goes without saying that this is required.
-		if (!isset($_REQUEST['eventid'])) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
+		$file = [
+			'mime_type' => 'text/calendar',
+			'expires' => time() + 3600,
+			// Will be changed below.
+			'mtime' => 0,
+			// Will be changed below.
+			'filename' => 'event.ics',
+			// More will be added below.
+			'content' => [
+				'BEGIN:VCALENDAR',
+				'METHOD:PUBLISH',
+				'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN',
+				'VERSION:2.0',
+			],
+		];
 
-		// Load up the event in question and check it is valid.
-		list($event) = Event::load($_REQUEST['eventid']);
+		if (isset($_REQUEST['eventid'])) {
+			// Load up the event in question and check it is valid.
+			$event = current(Event::load((int) $_REQUEST['eventid']));
 
-		if (!($event instanceof Event)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
+			if (!($event instanceof Event)) {
+				ErrorHandler::fatalLang('no_access', false);
+			}
 
-		// This is what we will be sending later.
-		$filecontents = [];
-		$filecontents[] = 'BEGIN:VCALENDAR';
-		$filecontents[] = 'METHOD:PUBLISH';
-		$filecontents[] = 'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN';
-		$filecontents[] = 'VERSION:2.0';
+			// Was a specific occurrence requested, or the event in general?
+			if (
+				isset($_REQUEST['recurrenceid'])
+				&& ($occurrence = $event->getOccurrence($_REQUEST['recurrenceid'])) !== false
+			) {
+				$file['content'][] = $occurrence->export();
+			} else {
+				$file['content'][] = $event->export();
+			}
 
-		$filecontents[] = $event->getVEvent();
-
-		$filecontents[] = 'END:VCALENDAR';
-
-		// Send some standard headers.
-		ob_end_clean();
-
-		if (!empty(Config::$modSettings['enableCompressedOutput'])) {
-			@ob_start('ob_gzhandler');
+			$file['filename'] = $event->title . '.ics';
+			$file['mtime'] = $event->modified_time;
 		} else {
-			ob_start();
+			$this->authenticateForExport();
+
+			// Get all the visible events within a date range.
+			if (isset($_REQUEST['start_date'])) {
+				$low_date = @(new Time($_REQUEST['start_date']));
+			}
+
+			if (!isset($low_date)) {
+				$low_date = new Time('now');
+				$low_date->setDate((int) $low_date->format('Y'), (int) $low_date->format('m'), 1);
+			}
+
+			if (isset($_REQUEST['duration'])) {
+				$duration = @(new TimeInterval($_REQUEST['duration']));
+			}
+
+			if (!isset($duration)) {
+				$duration = new TimeInterval('P3M');
+			}
+
+			$high_date = (clone $low_date)->add($duration);
+
+			$full_event_uids = [];
+
+			foreach (Event::getOccurrencesInRange($low_date->format('Y-m-d'), $high_date->format('Y-m-d'), true) as $occurrence) {
+				$event = $occurrence->getParentEvent();
+
+				// Skip if we already exported the full event.
+				if (in_array($event->uid, $full_event_uids)) {
+					continue;
+				}
+
+				if (
+					// If there was no requested start date, export the full event.
+					!isset($_REQUEST['start_date'])
+					// Or if all occurrences are visible, export the full event.
+					|| (
+						$event->start >= $low_date
+						&& $event->getRecurrenceEnd() <= $high_date
+					)
+				) {
+					$file['content'][] = $event->export();
+					$full_event_ids[] = $event->uid;
+				}
+				// Otherwise, export just this occurrence.
+				else {
+					$file['content'][] = $occurrence->export();
+				}
+
+				$file['mtime'] = max($file['mtime'], $event->modified_time);
+			}
+
+			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::$txt['events'], $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
 		}
 
-		// Send the file headers
-		header('pragma: ');
-		header('cache-control: no-cache');
+		$file['content'][] = 'END:VCALENDAR';
 
-		if (!BrowserDetector::isBrowser('gecko')) {
-			header('content-transfer-encoding: binary');
-		}
+		// RFC 5545 requires "\r\n", not just "\n".
+		$file['content'] = implode("\r\n", $file['content']);
 
-		header('expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
-		header('last-modified: ' . gmdate('D, d M Y H:i:s', $event->modified_time) . ' GMT');
-		header('accept-ranges: bytes');
-		header('connection: close');
-		header('content-disposition: attachment; filename="' . $event->title . '.ics"');
+		$file['size'] = strlen($file['content']);
 
-		$calevent = implode("\n", $filecontents);
-
-		if (empty(Config::$modSettings['enableCompressedOutput'])) {
-			// todo: correctly handle $filecontents before passing to string function
-			header('content-length: ' . Utils::entityStrlen($calevent));
-		}
-
-		// This is a calendar item!
-		header('content-type: text/calendar');
-
-		// Chuck out the card.
-		echo $calevent;
-
-		// Off we pop - lovely!
-		Utils::obExit(false);
+		// Send it.
+		Utils::emitFile($file);
 	}
 
 	/**
@@ -646,28 +765,6 @@ class Calendar implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Get all birthdays within the given time range.
 	 * finds all the birthdays in the specified range of days.
 	 * works with birthdays set for no year, or any other year, and respects month and year boundaries.
@@ -678,78 +775,22 @@ class Calendar implements ActionInterface
 	 */
 	public static function getBirthdayRange(string $low_date, string $high_date): array
 	{
-		// We need to search for any birthday in this range, and whatever year that birthday is on.
-		$year_low = (int) substr($low_date, 0, 4);
-		$year_high = (int) substr($high_date, 0, 4);
+		$birthdays = [];
+		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		if (Db::$db->title !== POSTGRE_TITLE) {
-			// Collect all of the birthdays for this month.  I know, it's a painful query.
-			$result = Db::$db->query(
-				'',
-				'SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
-				FROM {db_prefix}members
-				WHERE birthdate != {date:no_birthdate}
-					AND (
-						DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
-						OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
-					)
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => 1,
-					'no_birthdate' => '1004-01-01',
-					'year_low' => $year_low . '-%m-%d',
-					'year_high' => $year_high . '-%m-%d',
-					'low_date' => $low_date,
-					'high_date' => $high_date,
-				],
-			);
-		} else {
-			$result = Db::$db->query(
-				'',
-				'SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
-				FROM {db_prefix}members
-				WHERE birthdate != {date:no_birthdate}
-					AND (
-						indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_low_low_date}) AND indexable_month_day({date:year_low_high_date})' . ($year_low == $year_high ? '' : '
-						OR indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_high_low_date}) AND indexable_month_day({date:year_high_high_date})') . '
-					)
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => 1,
-					'no_birthdate' => '1004-01-01',
-					'year_low_low_date' => $low_date,
-					'year_low_high_date' => $year_low == $year_high ? $high_date : $year_low . '-12-31',
-					'year_high_low_date' => $year_low == $year_high ? $low_date : $year_high . '-01-01',
-					'year_high_high_date' => $high_date,
-				],
-			);
+		foreach(Birthday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
+			$birthdays[$occurrence->start->format('Y-m-d')][$occurrence->member] = $occurrence;
 		}
-		$bday = [];
 
-		while ($row = Db::$db->fetch_assoc($result)) {
-			if ($year_low != $year_high) {
-				$age_year = substr($row['birthdate'], 5) <= substr($high_date, 5) ? $year_high : $year_low;
-			} else {
-				$age_year = $year_low;
-			}
-
-			$bday[$age_year . substr($row['birthdate'], 4)][] = [
-				'id' => $row['id_member'],
-				'name' => $row['real_name'],
-				'age' => $row['birth_year'] > 1004 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
-				'is_last' => false,
-			];
-		}
-		Db::$db->free_result($result);
-
-		ksort($bday);
+		ksort($birthdays);
 
 		// Set is_last, so the themes know when to stop placing separators.
-		foreach ($bday as $mday => $array) {
-			$bday[$mday][count($array) - 1]['is_last'] = true;
+		foreach ($birthdays as $date => $bdays) {
+			ksort($birthdays[$date]);
+			$birthdays[$date][array_key_last($birthdays[$date])]['is_last'] = true;
 		}
 
-		return $bday;
+		return $birthdays;
 	}
 
 	/**
@@ -767,27 +808,31 @@ class Calendar implements ActionInterface
 	 */
 	public static function getEventRange(string $low_date, string $high_date, bool $use_permissions = true): array
 	{
-		$events = [];
+		$occurrences = [];
 
-		$one_day = date_interval_create_from_date_string('1 day');
-		$tz = timezone_open(User::getTimezone());
+		$one_day = new \DateInterval('P1D');
+		$tz = new \DateTimeZone(User::getTimezone());
+		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		foreach (Event::loadRange($low_date, $high_date, $use_permissions) as $event) {
-			$cal_date = new Time($event->start_date_local, $tz);
+		foreach (Event::getOccurrencesInRange($low_date, $high_date, $use_permissions) as $occurrence) {
+			$cal_date = new Time($occurrence->start_date_local, $tz);
 
-			while ($cal_date->getTimestamp() <= $event->end->getTimestamp() && $cal_date->format('Y-m-d') <= $high_date) {
-				$events[$cal_date->format('Y-m-d')][] = $event;
-				date_add($cal_date, $one_day);
+			while (
+				$cal_date->getTimestamp() < $occurrence->end->getTimestamp()
+				&& $cal_date->format('Y-m-d') < $high_date
+			) {
+				$occurrences[$cal_date->format('Y-m-d')][] = $occurrence;
+				$cal_date->add($one_day);
 			}
 		}
 
-		foreach ($events as $mday => $array) {
-			$events[$mday][count($array) - 1]['is_last'] = true;
+		foreach ($occurrences as $mday => $array) {
+			$occurrences[$mday][count($array) - 1]['is_last'] = true;
 		}
 
-		ksort($events);
+		ksort($occurrences);
 
-		return $events;
+		return $occurrences;
 	}
 
 	/**
@@ -799,42 +844,12 @@ class Calendar implements ActionInterface
 	 */
 	public static function getHolidayRange(string $low_date, string $high_date): array
 	{
-		// Get the lowest and highest dates for "all years".
-		if (substr($low_date, 0, 4) != substr($high_date, 0, 4)) {
-			$allyear_part = 'event_date BETWEEN {date:all_year_low} AND {date:all_year_dec}
-				OR event_date BETWEEN {date:all_year_jan} AND {date:all_year_high}';
-		} else {
-			$allyear_part = 'event_date BETWEEN {date:all_year_low} AND {date:all_year_high}';
-		}
-
-		// Find some holidays... ;).
-		$result = Db::$db->query(
-			'',
-			'SELECT event_date, YEAR(event_date) AS year, title
-			FROM {db_prefix}calendar_holidays
-			WHERE event_date BETWEEN {date:low_date} AND {date:high_date}
-				OR ' . $allyear_part,
-			[
-				'low_date' => $low_date,
-				'high_date' => $high_date,
-				'all_year_low' => '1004' . substr($low_date, 4),
-				'all_year_high' => '1004' . substr($high_date, 4),
-				'all_year_jan' => '1004-01-01',
-				'all_year_dec' => '1004-12-31',
-			],
-		);
 		$holidays = [];
+		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		while ($row = Db::$db->fetch_assoc($result)) {
-			if (substr($low_date, 0, 4) != substr($high_date, 0, 4)) {
-				$event_year = substr($row['event_date'], 5) < substr($high_date, 5) ? substr($high_date, 0, 4) : substr($low_date, 0, 4);
-			} else {
-				$event_year = substr($low_date, 0, 4);
-			}
-
-			$holidays[$event_year . substr($row['event_date'], 4)][] = $row['title'];
+		foreach(Holiday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
+			$holidays[$occurrence->start->format('Y-m-d')][] = $occurrence;
 		}
-		Db::$db->free_result($result);
 
 		ksort($holidays);
 
@@ -842,53 +857,82 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Does permission checks to see if an event can be linked to a board/topic.
+	 * Does permission checks to see if the current user can link the current
+	 * topic to a calendar event.
 	 *
-	 * Checks if the current user can link the current topic to the calendar, permissions et al.
-	 * This requires the calendar_post permission, a forum moderator, or a topic starter.
-	 * Expects the Topic::$topic_id and Board::$info->id variables to be set.
-	 * If the user doesn't have proper permissions, an error will be shown.
+	 * To succeed, the following conditions must be met:
+	 *
+	 * 1. The calendar must be enabled.
+	 *
+	 * 2. If an event is passed to the $event parameter, the current user must
+	 *    be able to edit that event. Otherwise, the current user must be able
+	 *    to create new events.
+	 *
+	 * 3. There must be a current topic (i.e. Topic::$topic_id must be set).
+	 *
+	 * 4. The current user must be able to edit the first post in the current
+	 *    topic.
+	 *
+	 * @param bool $trigger_error Whether to trigger an error if the user cannot
+	 *    link an event to this topic. Default: true.
+	 * @param ?Event $event The event that the user wants to link to the current
+	 *    topic, or null if the user wants to create a new event.
+	 * @return bool Whether the user can link an event to the current topic.
 	 */
-	public static function canLinkEvent(): void
+	public static function canLinkEvent(bool $trigger_error = true, ?Event $event = null): bool
 	{
-		// If you can't post, you can't link.
-		User::$me->isAllowedTo('calendar_post');
+		// Is the calendar enabled?
+		if (empty(Config::$modSettings['cal_enabled'])) {
+			if ($trigger_error) {
+				ErrorHandler::fatalLang('calendar_off', false);
+			}
 
-		// No board?  No topic?!?
-		if (empty(Board::$info->id)) {
-			ErrorHandler::fatalLang('missing_board_id', false);
+			return false;
 		}
 
+		// Can the user create or edit the event?
+		$perm = !isset($event) ? 'calendar_post' : ($event->member === User::$me->id ? 'calendar_edit_own' : 'calendar_edit_any');
+
+		if (!User::$me->allowedTo($perm)) {
+			if ($trigger_error) {
+				User::$me->isAllowedTo($perm);
+			}
+
+			return false;
+		}
+
+		// Are we in a topic?
 		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('missing_topic_id', false);
+			if ($trigger_error) {
+				ErrorHandler::fatalLang('missing_topic_id', false);
+			}
+
+			return false;
 		}
 
-		// Administrator, Moderator, or owner.  Period.
-		if (!User::$me->allowedTo('admin_forum') && !User::$me->allowedTo('moderate_board')) {
-			// Not admin or a moderator of this board. You better be the owner - or else.
-			$result = Db::$db->query(
-				'',
-				'SELECT id_member_started
-				FROM {db_prefix}topics
-				WHERE id_topic = {int:current_topic}
-				LIMIT 1',
-				[
-					'current_topic' => Topic::$topic_id,
-				],
-			);
+		// Don't let guests edit the posts of other guests.
+		if (User::$me->is_guest) {
+			if ($trigger_error) {
+				ErrorHandler::fatalLang('not_your_topic', false);
+			}
 
-			if ($row = Db::$db->fetch_assoc($result)) {
-				// Not the owner of the topic.
-				if ($row['id_member_started'] != User::$me->id) {
-					ErrorHandler::fatalLang('not_your_topic', 'user');
-				}
-			}
-			// Topic/Board doesn't exist.....
-			else {
-				ErrorHandler::fatalLang('calendar_no_topic', 'general');
-			}
-			Db::$db->free_result($result);
+			return false;
 		}
+
+		// Linking an event counts as modifying the first post.
+		Topic::load();
+
+		$perm = User::$me->started ? ['modify_own', 'modify_any'] : 'modify_any';
+
+		if (!User::$me->allowedTo($perm, Topic::$info->id_board, true)) {
+			if ($trigger_error) {
+				User::$me->isAllowedTo($perm, Topic::$info->id_board, true);
+			}
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -914,10 +958,9 @@ class Calendar implements ActionInterface
 	 * @param string $selected_date A date in YYYY-MM-DD format
 	 * @param array $calendarOptions An array of calendar options
 	 * @param bool $is_previous Whether this is the previous month
-	 * @param bool $has_picker Whether to add javascript to handle a date picker
 	 * @return array A large array containing all the information needed to show a calendar grid for the given month
 	 */
-	public static function getCalendarGrid(string $selected_date, array $calendarOptions, bool $is_previous = false, bool $has_picker = true): array
+	public static function getCalendarGrid(string $selected_date, array $calendarOptions, bool $is_previous = false): array
 	{
 		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
 
@@ -953,6 +996,7 @@ class Calendar implements ActionInterface
 				'disabled' => Config::$modSettings['cal_maxyear'] < $next_object->format('Y'),
 			],
 			'start_date' => $selected_object->format(Time::getDateFormat()),
+			'iso_start_date' => $selected_object->format('Y-m-d'),
 		];
 
 		// Get today's date.
@@ -1059,11 +1103,6 @@ class Calendar implements ActionInterface
 
 		$calendarGrid['next_calendar']['href'] = Config::$scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 
-		if ($has_picker) {
-			self::loadDatePicker('#calendar_navigation .date_input');
-			self::loadDatePair('#calendar_navigation', 'date_input');
-		}
-
 		return $calendarGrid;
 	}
 
@@ -1129,6 +1168,7 @@ class Calendar implements ActionInterface
 				'disabled' => Config::$modSettings['cal_maxyear'] < $next_object->format('Y'),
 			],
 			'start_date' => $selected_object->format(Time::getDateFormat()),
+			'iso_start_date' => $selected_object->format('Y-m-d'),
 			'show_events' => $calendarOptions['show_events'],
 			'show_holidays' => $calendarOptions['show_holidays'],
 			'show_birthdays' => $calendarOptions['show_birthdays'],
@@ -1177,9 +1217,6 @@ class Calendar implements ActionInterface
 
 		$calendarGrid['next_week']['href'] = Config::$scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
 
-		self::loadDatePicker('#calendar_navigation .date_input');
-		self::loadDatePair('#calendar_navigation', 'date_input', '');
-
 		return $calendarGrid;
 	}
 
@@ -1202,29 +1239,34 @@ class Calendar implements ActionInterface
 			'start_year' => $start_object->format('Y'),
 			'start_month' => $start_object->format('m'),
 			'start_day' => $start_object->format('d'),
+			'iso_start_date' => $start_object->format('Y-m-d'),
 			'end_date' => $end_object->format(Time::getDateFormat()),
 			'end_year' => $end_object->format('Y'),
 			'end_month' => $end_object->format('m'),
 			'end_day' => $end_object->format('d'),
+			'iso_end_date' => $end_object->format('Y-m-d'),
 		];
 
 		$calendarGrid['birthdays'] = $calendarOptions['show_birthdays'] ? self::getBirthdayRange($start_date, $end_date) : [];
 		$calendarGrid['holidays'] = $calendarOptions['show_holidays'] ? self::getHolidayRange($start_date, $end_date) : [];
 		$calendarGrid['events'] = $calendarOptions['show_events'] ? self::getEventRange($start_date, $end_date) : [];
 
-		// Get rid of duplicate events
+		// Get rid of duplicate events.
+		// This does not get rid of SEPARATE occurrences of a recurring event.
+		// Instead, it gets rid of duplicates of the SAME occurrence, which can
+		// happen when the event duration extends beyond midnight.
 		$temp = [];
 
 		foreach ($calendarGrid['events'] as $date => $date_events) {
 			foreach ($date_events as $event_key => $event_val) {
-				if (in_array($event_val['id'], $temp)) {
+				if (in_array($event_val['id'] . ' ' . $event_val['start']->format('c'), $temp)) {
 					unset($calendarGrid['events'][$date][$event_key]);
 
 					if (empty($calendarGrid['events'][$date])) {
 						unset($calendarGrid['events'][$date]);
 					}
 				} else {
-					$temp[] = $event_val['id'];
+					$temp[] = $event_val['id'] . ' ' . $event_val['start']->format('c');
 				}
 			}
 		}
@@ -1235,180 +1277,13 @@ class Calendar implements ActionInterface
 		foreach (['birthdays', 'holidays'] as $type) {
 			foreach ($calendarGrid[$type] as $date => $date_content) {
 				// Make sure to apply no offsets
-				$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(Time::create($date)->format($date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+				$date_local = Time::create($date)->format($date_format);
 
 				$calendarGrid[$type][$date]['date_local'] = $date_local;
 			}
 		}
 
-		self::loadDatePicker('#calendar_range .date_input');
-		self::loadDatePair('#calendar_range', 'date_input', '');
-
 		return $calendarGrid;
-	}
-
-	/**
-	 * Loads the necessary JavaScript and CSS to create a datepicker.
-	 *
-	 * @param string $selector A CSS selector for the input field(s) that the datepicker should be attached to.
-	 * @param string $date_format The date format to use, in strftime() format.
-	 */
-	public static function loadDatePicker(string $selector = 'input.date_input', string $date_format = ''): void
-	{
-		if (empty($date_format)) {
-			$date_format = Time::getDateFormat();
-		}
-
-		// Convert to format used by datepicker
-		$date_format = strtr($date_format, [
-			// Day
-			'%a' => 'D', '%A' => 'DD', '%e' => 'd', '%d' => 'dd', '%j' => 'oo', '%u' => '', '%w' => '',
-			// Week
-			'%U' => '', '%V' => '', '%W' => '',
-			// Month
-			'%b' => 'M', '%B' => 'MM', '%h' => 'M', '%m' => 'mm',
-			// Year
-			'%C' => '', '%g' => 'y', '%G' => 'yy', '%y' => 'y', '%Y' => 'yy',
-			// Time (we remove all of these)
-			'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
-			'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
-			// Time and Date Stamps
-			'%c' => 'D, d M yy', '%D' => 'mm/dd/y', '%F' => 'yy-mm-dd', '%s' => '@', '%x' => 'D, d M yy',
-			// Miscellaneous
-			'%n' => ' ', '%t' => ' ', '%%' => '%',
-		]);
-
-		Theme::loadCSSFile('jquery-ui.datepicker.css', [], 'smf_datepicker');
-		Theme::loadJavaScriptFile('jquery-ui.datepicker.min.js', ['defer' => true], 'smf_datepicker');
-		Theme::addInlineJavaScript('
-		$("' . $selector . '").datepicker({
-			dateFormat: "' . $date_format . '",
-			autoSize: true,
-			isRTL: ' . (Utils::$context['right_to_left'] ? 'true' : 'false') . ',
-			constrainInput: true,
-			showAnim: "",
-			showButtonPanel: false,
-			yearRange: "' . Config::$modSettings['cal_minyear'] . ':' . Config::$modSettings['cal_maxyear'] . '",
-			hideIfNoPrevNext: true,
-			monthNames: ["' . implode('", "', Lang::$txt['months_titles']) . '"],
-			monthNamesShort: ["' . implode('", "', Lang::$txt['months_short']) . '"],
-			dayNames: ["' . implode('", "', Lang::$txt['days']) . '"],
-			dayNamesShort: ["' . implode('", "', Lang::$txt['days_short']) . '"],
-			dayNamesMin: ["' . implode('", "', Lang::$txt['days_short']) . '"],
-			prevText: "' . Lang::$txt['prev_month'] . '",
-			nextText: "' . Lang::$txt['next_month'] . '",
-			firstDay: ' . (!empty(Theme::$current->options['calendar_start_day']) ? Theme::$current->options['calendar_start_day'] : 0) . ',
-		});', true);
-	}
-
-	/**
-	 * Loads the necessary JavaScript and CSS to create a timepicker.
-	 *
-	 * @param string $selector A CSS selector for the input field(s) that the timepicker should be attached to.
-	 * @param string $time_format A time format in strftime format
-	 */
-	public static function loadTimePicker(string $selector = 'input.time_input', string $time_format = ''): void
-	{
-		if (empty($time_format)) {
-			$time_format = Time::getTimeFormat();
-		}
-
-		// Format used for timepicker
-		$time_format = strtr($time_format, [
-			'%H' => 'H',
-			'%k' => 'G',
-			'%I' => 'h',
-			'%l' => 'g',
-			'%M' => 'i',
-			'%p' => 'A',
-			'%P' => 'a',
-			'%r' => 'h:i:s A',
-			'%R' => 'H:i',
-			'%S' => 's',
-			'%T' => 'H:i:s',
-			'%X' => 'H:i:s',
-		]);
-
-		Theme::loadCSSFile('jquery.timepicker.css', [], 'smf_timepicker');
-		Theme::loadJavaScriptFile('jquery.timepicker.min.js', ['defer' => true], 'smf_timepicker');
-		Theme::addInlineJavaScript('
-		$("' . $selector . '").timepicker({
-			timeFormat: "' . $time_format . '",
-			showDuration: true,
-			maxTime: "23:59:59",
-			lang: {
-				am: "' . strtolower(Lang::$txt['time_am']) . '",
-				pm: "' . strtolower(Lang::$txt['time_pm']) . '",
-				AM: "' . strtoupper(Lang::$txt['time_am']) . '",
-				PM: "' . strtoupper(Lang::$txt['time_pm']) . '",
-				decimal: "' . Lang::$txt['decimal_separator'] . '",
-				mins: "' . Lang::$txt['minutes_short'] . '",
-				hr: "' . Lang::$txt['hour_short'] . '",
-				hrs: "' . Lang::$txt['hours_short'] . '",
-			}
-		});', true);
-	}
-
-	/**
-	 * Loads the necessary JavaScript for Datepair.js.
-	 *
-	 * Datepair.js helps to keep date ranges sane in the UI.
-	 *
-	 * @param string $container CSS selector for the containing element of the date/time inputs to be paired.
-	 * @param string $date_class The CSS class of the date inputs to be paired.
-	 * @param string $time_class The CSS class of the time inputs to be paired.
-	 */
-	public static function loadDatePair(string $container, string $date_class = '', string $time_class = ''): void
-	{
-		$container = (string) $container;
-		$date_class = (string) $date_class;
-		$time_class = (string) $time_class;
-
-		if ($container == '') {
-			return;
-		}
-
-		Theme::loadJavaScriptFile('jquery.datepair.min.js', ['defer' => true], 'smf_datepair');
-
-		$datepair_options = '';
-
-		// If we're not using a date input, we might as well disable these.
-		if ($date_class == '') {
-			$datepair_options .= '
-			parseDate: function (el) {},
-			updateDate: function (el, v) {},';
-		} else {
-			$datepair_options .= '
-			dateClass: "' . $date_class . '",';
-
-			// Customize Datepair to work with jQuery UI's datepicker.
-			$datepair_options .= '
-			parseDate: function (el) {
-				var val = $(el).datepicker("getDate");
-				if (!val) {
-					return null;
-				}
-				var utc = new Date(val);
-				return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-			},
-			updateDate: function (el, v) {
-				$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-			},';
-		}
-
-		// If not using a time input, disable time functions.
-		if ($time_class == '') {
-			$datepair_options .= '
-			parseTime: function(input){},
-			updateTime: function(input, dateObj){},
-			setMinTime: function(input, dateObj){},';
-		} else {
-			$datepair_options .= '
-			timeClass: "' . $time_class . '",';
-		}
-
-		Theme::addInlineJavaScript('
-		$("' . $container . '").datepair({' . $datepair_options . "\n\t});", true);
 	}
 
 	/**
@@ -1703,76 +1578,15 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Gets all of the holidays for the listing
+	 * Backward compatibility wrapper for Holiday::remove().
 	 *
-	 * @param int $start The item to start with (for pagination purposes)
-	 * @param int $items_per_page How many items to show on each page
-	 * @param string $sort A string indicating how to sort the results
-	 * @return array An array of holidays, each of which is an array containing the id, year, month, day and title of the holiday
-	 */
-	public static function list_getHolidays(int $start, int $items_per_page, string $sort): array
-	{
-		$request = Db::$db->query(
-			'',
-			'SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
-			FROM {db_prefix}calendar_holidays
-			ORDER BY {raw:sort}
-			LIMIT {int:start}, {int:max}',
-			[
-				'sort' => $sort,
-				'start' => $start,
-				'max' => $items_per_page,
-			],
-		);
-		$holidays = [];
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$holidays[] = $row;
-		}
-		Db::$db->free_result($request);
-
-		return $holidays;
-	}
-
-	/**
-	 * Helper function to get the total number of holidays
-	 *
-	 * @return int The total number of holidays
-	 */
-	public static function list_getNumHolidays(): int
-	{
-		$request = Db::$db->query(
-			'',
-			'SELECT COUNT(*)
-			FROM {db_prefix}calendar_holidays',
-			[
-			],
-		);
-		list($num_items) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		return (int) $num_items;
-	}
-
-	/**
-	 * Remove a holiday from the calendar
-	 *
-	 * @param array $holiday_ids An array of IDs of holidays to delete
+	 * @param array $holiday_ids An array of IDs of holidays to delete.
 	 */
 	public static function removeHolidays(array $holiday_ids): void
 	{
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}calendar_holidays
-			WHERE id_holiday IN ({array_int:id_holiday})',
-			[
-				'id_holiday' => $holiday_ids,
-			],
-		);
-
-		Config::updateModSettings([
-			'calendar_updated' => time(),
-		]);
+		foreach ($holiday_ids as $holiday_id) {
+			Holiday::remove($holiday_id);
+		}
 	}
 
 	/**
@@ -1828,6 +1642,8 @@ class Calendar implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		Lang::load('Calendar');
+
 		if ($_GET['action'] === 'clock') {
 			$this->subaction = 'clock';
 		} elseif (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
@@ -1838,14 +1654,66 @@ class Calendar implements ActionInterface
 			return;
 		}
 
+		// Special case for handling calendar subscriptions.
+		if (
+			User::$me->is_guest
+			&& $this->subaction === 'ical'
+			&& isset($_REQUEST['u'], $_REQUEST['token'])
+		) {
+			$user = current(User::load((int) $_REQUEST['u']));
+
+			if (
+				!($user instanceof User)
+				|| !$user->allowedTo('calendar_view')
+				|| $_REQUEST['token'] !== $this->createToken($user)
+			) {
+				exit;
+			}
+		}
 		// Permissions, permissions, permissions.
-		User::$me->isAllowedTo('calendar_view');
+		else {
+			User::$me->isAllowedTo('calendar_view');
+		}
 
 		// Some global template resources.
 		Utils::$context['calendar_resources'] = [
 			'min_year' => Config::$modSettings['cal_minyear'],
 			'max_year' => Config::$modSettings['cal_maxyear'],
 		];
+	}
+
+	/**
+	 * Generates an calendar subscription authentication token.
+	 *
+	 * @param User $user The member that this token is for.
+	 * @return string The authentication token.
+	 */
+	protected function createToken(User $user): string
+	{
+		$token = hash_hmac('sha3-224', (string) $user->id, Config::getAuthSecret(), true);
+
+		return strtr(base64_encode($token), ['+' => '_', '/' => '-', '=' => '']);
+	}
+
+	/**
+	 * Validates the guest-supplided user ID and token combination, and loads
+	 * the requested user if the token is valid.
+	 *
+	 * Does nothing if the user is already logged in.
+	 */
+	protected function authenticateForExport(): void
+	{
+		if (!User::$me->is_guest) {
+			return;
+		}
+
+		if (!empty($_REQUEST['u']) && isset($_REQUEST['token'])) {
+			$user = current(User::load((int) $_REQUEST['u']));
+
+			if (($user instanceof User) && $_REQUEST['token'] === $this->createToken($user)) {
+				User::setMe($user->id);
+			}
+		}
 	}
 }
 

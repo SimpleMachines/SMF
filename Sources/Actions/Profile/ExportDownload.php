@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -25,6 +26,8 @@ use SMF\Utils;
  */
 class ExportDownload implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -77,18 +80,6 @@ class ExportDownload implements ActionInterface
 	 * Path to the JSON file that tracks our progress exporting this profile.
 	 */
 	public string $progressfile;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static ExportDownload $obj;
 
 	/****************
 	 * Public methods
@@ -167,32 +158,6 @@ class ExportDownload implements ActionInterface
 
 		// Send the file.
 		Utils::emitFile($file);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

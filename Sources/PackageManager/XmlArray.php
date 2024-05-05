@@ -140,7 +140,7 @@ class XmlArray
 	 *
 	 * @param string $path The path to the element to get
 	 * @param bool $return_full Whether to return the full result set
-	 * @return XmlArray|string|bool a new XmlArray. False if we can not find a attribute
+	 * @return XmlArray|string|bool a new XmlArray. False if we can not find an attribute
 	 */
 	public function path(string $path, bool $return_full = false): XmlArray|string|false
 	{

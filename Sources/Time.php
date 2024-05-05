@@ -988,6 +988,17 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
+	 * Figures out whether the passed format is a strftime format.
+	 *
+	 * @param string $format The format string.
+	 * @return bool Whether it is a strftime format.
+	 */
+	public static function isStrftimeFormat(string $format): bool
+	{
+		return (bool) preg_match('/' . self::REGEX_STRFTIME . '/', $format);
+	}
+
+	/**
 	 * Backward compatibility wrapper for the format method.
 	 *
 	 * @param int|string $log_time A timestamp.
@@ -1274,17 +1285,6 @@ class Time extends \DateTime implements \ArrayAccess
 		self::$formats[$orig_format][$type] = trim($format);
 
 		return self::$formats[$orig_format][$type];
-	}
-
-	/**
-	 * Figures out whether the passed format is a strftime format.
-	 *
-	 * @param string $format The format string.
-	 * @return bool Whether is is a strftime format.
-	 */
-	protected static function isStrftimeFormat(string $format): bool
-	{
-		return (bool) preg_match('/' . self::REGEX_STRFTIME . '/', $format);
 	}
 }
 

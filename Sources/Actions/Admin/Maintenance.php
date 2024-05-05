@@ -15,9 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\TopicRemove;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;
@@ -43,6 +44,8 @@ use SMF\Utils;
  */
 class Maintenance implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -122,18 +125,6 @@ class Maintenance implements ActionInterface
 			'activities' => [],
 		],
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Maintenance $obj;
 
 	/****************
 	 * Public methods
@@ -1815,7 +1806,7 @@ class Maintenance implements ActionInterface
 					Utils::$context['continue_percent'] = round(100 * (Utils::$context['start'] / $total_topics), 1);
 					Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=topics;activity=massmove;id_board_from=' . $id_board_from . ';id_board_to=' . $id_board_to . ';totaltopics=' . $total_topics . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
-					// Let the template system do it's thang.
+					// Let the template system do its thang.
 					return;
 				}
 			}
@@ -2078,28 +2069,6 @@ class Maintenance implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Callback function for the integration hooks list (list_integration_hooks)

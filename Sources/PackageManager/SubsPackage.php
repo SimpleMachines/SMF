@@ -527,7 +527,7 @@ class SubsPackage
 	/**
 	 * Loads a package's information and returns a representative array.
 	 * - expects the file to be a package in Packages/.
-	 * - returns a error string if the package-info is invalid.
+	 * - returns an error string if the package-info is invalid.
 	 * - otherwise returns a basic array of id, version, filename, and similar information.
 	 * - an XmlArray is available in 'xml'.
 	 *

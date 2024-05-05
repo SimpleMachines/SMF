@@ -16,15 +16,17 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\Attachment;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
+use SMF\Calendar\EventOccurrence;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
@@ -96,18 +98,6 @@ class Post2 extends Post
 	 * Whether this edit is a moderation action.
 	 */
 	protected bool $moderation_action;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Post2|Post $obj;
 
 	/****************
 	 * Public methods
@@ -267,6 +257,14 @@ class Post2 extends Post
 				User::$me->name = $_POST['guestname'];
 			}
 
+			// Check for links with broken URLs.
+			if (
+				!isset($_POST['save_draft'])
+				&& $_POST['message'] !== Autolinker::load()->fixUrlsInBBC($_POST['message'])
+			) {
+				$this->errors[] = 'links_malformed_review';
+			}
+
 			Msg::preparsecode($_POST['message']);
 
 			// Let's see if there's still some content left without the tags.
@@ -275,7 +273,7 @@ class Post2 extends Post
 			}
 		}
 
-		if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && Utils::htmlTrim($_POST['evtitle']) === '') {
+		if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && !isset($_REQUEST['event_id_to_link']) && Utils::htmlTrim($_POST['evtitle']) === '') {
 			$this->errors[] = 'no_event';
 		}
 
@@ -503,58 +501,97 @@ class Post2 extends Post
 			unset($_SESSION['already_attached']);
 		}
 
-		// If we had a draft for this, its time to remove it since it was just posted
+		// If we had a draft for this, it's time to remove it since it was just posted
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty($_POST['id_draft'])) {
 			Draft::delete((int) $_POST['id_draft']);
 		}
 
 		// Editing or posting an event?
-		if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1)) {
-			// Make sure they can link an event to this post.
-			Calendar::canLinkEvent();
+		if (isset($_POST['calendar'])) {
+			if (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1) {
+				// Linking an existing event.
+				if (
+					isset($_REQUEST['event_id_to_link'], $_REQUEST['event_link_to'])
+					&& $_REQUEST['event_link_to'] === 'existing'
+					&& Event::load((int) $_REQUEST['event_id_to_link']) !== []
+				) {
+					$event = Event::$loaded[(int) $_REQUEST['event_id_to_link']];
 
-			// Insert the event.
-			$eventOptions = [
-				'board' => Board::$info->id,
-				'topic' => Topic::$topic_id,
-				'title' => $_POST['evtitle'],
-				'location' => $_POST['event_location'],
-				'member' => User::$me->id,
-			];
-			Event::create($eventOptions);
-		} elseif (isset($_POST['calendar'])) {
-			$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
+					Calendar::canLinkEvent(true, $event);
 
-			// Validate the post...
-			Calendar::validateEventPost();
+					if (!empty($event->topic)) {
+						ErrorHandler::fatalLang('event_already_linked', 'user');
+					}
 
-			// If you're not allowed to edit any and all events, you have to be the poster.
-			if (!User::$me->allowedTo('calendar_edit_any')) {
-				User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && Calendar::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
-			}
+					$event->board = Board::$info->id;
+					$event->topic = Topic::$topic_id;
+					$event->save();
+				}
+				// Creating a new event.
+				else {
+					// Make sure they can link an event to this post.
+					Calendar::canLinkEvent(true);
 
-			// Delete it?
-			if (isset($_REQUEST['deleteevent'])) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}calendar
-					WHERE id_event = {int:id_event}',
-					[
-						'id_event' => $_REQUEST['eventid'],
-					],
-				);
-			}
-			// ... or just update it?
-			else {
-				// Set up our options
-				$eventOptions = [
-					'board' => Board::$info->id,
-					'topic' => Topic::$topic_id,
-					'title' => $_POST['evtitle'],
-					'location' => $_POST['event_location'],
-					'member' => User::$me->id,
-				];
-				Event::modify($_REQUEST['eventid'], $eventOptions);
+					$eventOptions = [
+						'board' => Board::$info->id,
+						'topic' => Topic::$topic_id,
+						'title' => $_POST['evtitle'],
+						'location' => $_POST['event_location'],
+						'member' => User::$me->id,
+					];
+					Event::create($eventOptions);
+				}
+			} else {
+				$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
+
+				// Validate the post...
+				Calendar::validateEventPost();
+
+				// If you're not allowed to edit any and all events, you have to be the poster.
+				if (!User::$me->allowedTo('calendar_edit_any')) {
+					User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && Calendar::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
+				}
+
+				// Delete it?
+				if (isset($_REQUEST['deleteevent'])) {
+					if (isset($_REQUEST['recurrenceid'])) {
+						EventOccurrence::remove($_REQUEST['eventid'], $_REQUEST['recurrenceid'], !empty($_REQUEST['affects_future']));
+					} else {
+						Event::remove($_REQUEST['eventid']);
+					}
+				}
+				// Unlink it from the topic?
+				elseif (isset($_REQUEST['unlink'])) {
+					$eventOptions = [
+						'board' => 0,
+						'topic' => 0,
+						'title' => $_POST['evtitle'],
+						'location' => $_POST['event_location'],
+					];
+
+					Event::modify($_REQUEST['eventid'], $eventOptions);
+				}
+				// ... or just update it?
+				else {
+					// Set up our options
+					$eventOptions = [
+						'board' => Board::$info->id,
+						'topic' => Topic::$topic_id,
+						'title' => $_POST['evtitle'],
+						'location' => $_POST['event_location'],
+						'member' => User::$me->id,
+					];
+
+					if (!empty($_REQUEST['recurrenceid'])) {
+						$eventOptions['recurrenceid'] = $_REQUEST['recurrenceid'];
+					}
+
+					if (!empty($_REQUEST['affects_future'])) {
+						$eventOptions['affects_future'] = $_REQUEST['affects_future'];
+					}
+
+					Event::modify($_REQUEST['eventid'], $eventOptions);
+				}
 			}
 		}
 
@@ -651,32 +688,6 @@ class Post2 extends Post
 		else {
 			Utils::redirectexit('board=' . Board::$info->id . '.0');
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

@@ -568,12 +568,16 @@ class Editor implements \ArrayAccess
 				'description' => Lang::$editortxt['insert_image'],
 			],
 			[
+				'code' => 'email',
+				'description' => Lang::$editortxt['insert_email'],
+			],
+			[
 				'code' => 'link',
 				'description' => Lang::$editortxt['insert_link'],
 			],
 			[
-				'code' => 'email',
-				'description' => Lang::$editortxt['insert_email'],
+				'code' => 'unlink',
+				'description' => Lang::$editortxt['unlink'],
 			],
 			[],
 			[
@@ -776,9 +780,30 @@ class Editor implements \ArrayAccess
 			'emoticonsCompat' => true,
 			'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 			'format' => 'bbcode',
-			'plugins' => '',
+			'plugins' => !empty(Config::$modSettings['autoLinkUrls']) ? 'autolinker' : '',
 			'bbcodeTrim' => false,
 		];
+
+		if (!empty(Config::$modSettings['autoLinkUrls'])) {
+			$js = "\n\t\t" . 'const autolinker_regexes = new Map();';
+
+			$regexes = Autolinker::load()->getJavaScriptUrlRegexes();
+			$regexes['email'] = Autolinker::load()->getJavaScriptEmailRegex();
+
+			foreach ($regexes as $key => $value) {
+				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
+				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . Autolinker::$excluded_trailing_chars . '])') . ', "giu"));';
+				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . Autolinker::$excluded_trailing_chars . preg_quote(implode(array_merge(array_keys(Autolinker::$balanced_pairs), Autolinker::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
+			}
+
+			$js .= "\n\t\t" . 'const autolinker_balanced_pairs = new Map();';
+
+			foreach (Autolinker::$balanced_pairs as $opener => $closer) {
+				$js .= "\n\t\t" . 'autolinker_balanced_pairs.set(' . Utils::escapeJavaScript($opener) . ', ' . Utils::escapeJavaScript($closer) . ');';
+			}
+
+			Theme::addInlineJavaScript($js);
+		}
 
 		if (!empty($this->locale)) {
 			$this->sce_options['locale'] = $this->locale;
@@ -854,7 +879,7 @@ class Editor implements \ArrayAccess
 		}
 
 		// Allow mods to change $this->sce_options.
-		// Usful if, e.g., a mod wants to add an SCEditor plugin.
+		// Useful if, e.g., a mod wants to add an SCEditor plugin.
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
 }

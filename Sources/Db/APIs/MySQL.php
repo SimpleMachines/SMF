@@ -242,6 +242,31 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
 
+		if ($ret === false && empty($db_values['db_error_skip'])) {
+			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
+			$query_error = $this->error();
+
+			// Nothing's defined yet... just die with it.
+			if (empty(Utils::$context) || empty(Lang::$txt)) {
+				die($query_error);
+			}
+
+			// Show an error message, if possible.
+			Utils::$context['error_title'] = Lang::$txt['database_error'];
+			$error_message = Lang::$txt['try_again'];
+
+			if (User::$me->allowedTo('admin_forum')) {
+				$error_message = nl2br($query_error) . '<br>' . Lang::$txt['file'] . ': ' . $file . '<br>' . Lang::$txt['line'] . ': ' . $line;
+
+				if ($this->show_debug) {
+					$error_message .= '<br><br>' . nl2br($db_string);
+				}
+			}
+
+			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
+			ErrorHandler::fatal($error_message, false);
+		}
+
 		// Debugging.
 		if ($this->show_debug) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
@@ -515,6 +540,41 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
+	{
+		if (empty($table['name']) || empty($table['alias']) || empty($set)) {
+			return false;
+		}
+
+		$joins = [];
+
+		foreach ($from_tables as $ft) {
+			if (empty($ft['name']) || empty($ft['alias']) || empty($ft['condition'])) {
+				continue;
+			}
+
+			$joins[] = 'JOIN ' . $ft['name'] . ' AS ' . $ft['alias'] . ' ON (' . $ft['condition'] . ')';
+		}
+
+		if (empty($joins)) {
+			return false;
+		}
+
+		return $this->query(
+			'',
+			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
+				' . implode('
+				', $joins) . '
+			SET ' . $set . (!empty($where) ? '
+			WHERE ' . $where : ''),
+			$db_values,
+			$connection,
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function num_rows(object $result): int
 	{
 		return mysqli_num_rows($result);
@@ -585,12 +645,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function error(object $connection): string
+	public function error(?object $connection = null): string
 	{
-		if ($connection === null && $this->connection === null) {
-			return '';
-		}
-
 		if (!(($connection ?? $this->connection) instanceof \mysqli)) {
 			return '';
 		}
@@ -2054,7 +2110,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Something's wrong, show an error if its fatal (which we assume it is)
+		// Something's wrong, show an error if it's fatal (which we assume it is)
 		if ($success === false) {
 			if (!empty($options['non_fatal'])) {
 				$this->connection = null;

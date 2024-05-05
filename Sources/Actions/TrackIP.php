@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
 use SMF\Actions\Profile\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -35,6 +37,8 @@ use SMF\Utils;
  */
 class TrackIP implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -55,18 +59,6 @@ class TrackIP implements ActionInterface
 	 * False if this was called via ?action=profile;area=tracking;sa=ip.
 	 */
 	public bool $standalone;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static TrackIP $obj;
 
 	/****************
 	 * Public methods
@@ -349,28 +341,6 @@ class TrackIP implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets all the posts made from a particular IP

@@ -172,6 +172,15 @@ class Msg implements \ArrayAccess
 	public bool $is_read;
 
 	/**
+	 * @var string
+	 *
+	 * The SMF version in which this message was written.
+	 *
+	 * Consists of major and minor version only (e.g. "3.0", not "3.0.1")
+	 */
+	public string $version = '';
+
+	/**
 	 * @var array
 	 *
 	 * Formatted versions of this message's properties, suitable for display.
@@ -434,6 +443,12 @@ class Msg implements \ArrayAccess
 		Lang::censorText($this->formatted['body']);
 		Lang::censorText($this->formatted['subject']);
 
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->formatted['body'] = Autolinker::load(true)->makeLinks($this->formatted['body']);
+		}
+
 		// Run BBC interpreter on the message.
 		$this->formatted['body'] = BBCodeParser::load()->parse($this->formatted['body'], $this->smileys_enabled, $this->id);
 
@@ -587,10 +602,11 @@ class Msg implements \ArrayAccess
 	 * Cleans up links (javascript, etc.) and code/quote sections.
 	 * Won't convert \n's and a few other things if previewing is true.
 	 *
-	 * @param string &$message The message
-	 * @param bool $previewing Whether we're previewing
+	 * @param string &$message The message.
+	 * @param bool $previewing Whether we're previewing. Default: false.
+	 * @param bool $autolink Whether to autolink plain-text URLs. Default: false.
 	 */
-	public static function preparsecode(string &$message, bool $previewing = false): void
+	public static function preparsecode(string &$message, bool $previewing = false, bool $autolink = false): void
 	{
 		static $tags_regex, $disallowed_tags_regex;
 
@@ -704,7 +720,13 @@ class Msg implements \ArrayAccess
 		// The regular expression non breaking space has many versions.
 		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
-		// Now that we've fixed all the code tags, let's fix the img and url tags...
+		// Autolink any plain-text URLs.
+		if (!empty($autolink)) {
+			$message = Autolinker::load()->makeLinks($message);
+		}
+
+		// Now let's fix the img and url tags.
+		$message = Autolinker::load()->fixUrlsInBBC($message);
 		self::fixTags($message);
 
 		// Replace /me.+?\n with [me=name]dsf[/me]\n.
@@ -1235,15 +1257,37 @@ class Msg implements \ArrayAccess
 		$new_topic = empty($topicOptions['id']);
 
 		$message_columns = [
-			'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
-			'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'inet',
-			'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
+			'id_board' => 'int',
+			'id_topic' => 'int',
+			'id_member' => 'int',
+			'subject' => 'string-255',
+			'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
+			'poster_name' => 'string-255',
+			'poster_email' => 'string-255',
+			'poster_time' => 'int',
+			'poster_ip' => 'inet',
+			'smileys_enabled' => 'int',
+			'modified_name' => 'string',
+			'icon' => 'string-16',
+			'approved' => 'int',
+			'version' => 'string-5',
 		];
 
 		$message_parameters = [
-			$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-			$posterOptions['name'], $posterOptions['email'], $msgOptions['poster_time'], $posterOptions['ip'],
-			$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
+			$topicOptions['board'],
+			$topicOptions['id'],
+			$posterOptions['id'],
+			$msgOptions['subject'],
+			$msgOptions['body'],
+			$posterOptions['name'],
+			$posterOptions['email'],
+			$msgOptions['poster_time'],
+			$posterOptions['ip'],
+			$msgOptions['smileys_enabled'] ? 1 : 0,
+			'',
+			$msgOptions['icon'],
+			$msgOptions['approved'],
+			preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
 		];
 
 		// What if we want to do anything with posts?
@@ -1515,7 +1559,7 @@ class Msg implements \ArrayAccess
 		// If there's a custom search index, it may need updating...
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'postCreated'])) {
+		if ($searchAPI->supportsMethod('postCreated')) {
 			$searchAPI->postCreated($msgOptions, $topicOptions, $posterOptions);
 		}
 
@@ -1595,6 +1639,8 @@ class Msg implements \ArrayAccess
 	 */
 	public static function modify(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
+		$searchAPI = SearchApi::load();
+
 		$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 		$topicOptions['lock_mode'] = $topicOptions['lock_mode'] ?? null;
 		$topicOptions['sticky_mode'] = $topicOptions['sticky_mode'] ?? null;
@@ -1622,7 +1668,7 @@ class Msg implements \ArrayAccess
 			$messages_columns['body'] = $msgOptions['body'];
 
 			// using a custom search index, then lets get the old message so we can update our index as needed
-			if (!empty(Config::$modSettings['search_custom_index_config'])) {
+			if ($searchAPI->supportsMethod('postModified')) {
 				$request = Db::$db->query(
 					'',
 					'SELECT body
@@ -1655,15 +1701,13 @@ class Msg implements \ArrayAccess
 		];
 
 		// Update search api
-		$searchAPI = SearchApi::load();
-
 		if ($searchAPI->supportsMethod('postRemoved')) {
-			$searchAPI->postRemoved($msgOptions['id']);
+			$searchAPI->postRemoved((int) $msgOptions['id']);
 		}
 
 		// Anyone quoted or mentioned?
-		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
-		$quoted_modifications = Mentions::modifyMentions('quote', $msgOptions['id'], $quoted_members, $posterOptions['id']);
+		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], (int) $posterOptions['id']);
+		$quoted_modifications = Mentions::modifyMentions('quote', (int) $msgOptions['id'], $quoted_members, (int) $posterOptions['id']);
 
 		if (!empty($quoted_modifications['added'])) {
 			$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip(array_keys($quoted_modifications['added'])));
@@ -1678,7 +1722,7 @@ class Msg implements \ArrayAccess
 			$mentions = Mentions::verifyMentionedMembers($msgOptions['body'], $mentions);
 
 			// Update our records in the database.
-			$mention_modifications = Mentions::modifyMentions('msg', $msgOptions['id'], $mentions, $posterOptions['id']);
+			$mention_modifications = Mentions::modifyMentions('msg', (int) $msgOptions['id'], $mentions, (int) $posterOptions['id']);
 
 			if (!empty($mention_modifications['added'])) {
 				// Queue this for notification.
@@ -1704,6 +1748,9 @@ class Msg implements \ArrayAccess
 		if (empty($messages_columns)) {
 			return true;
 		}
+
+		$messages_columns['version'] = 'version = {string:version}';
+		$update_parameters['version'] = preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION);
 
 		// Change the post.
 		Db::$db->query(
@@ -1763,9 +1810,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// If there's a custom search index, it needs to be modified...
-		$searchAPI = SearchApi::load();
-
-		if (is_callable([$searchAPI, 'postModified'])) {
+		if ($searchAPI->supportsMethod('postModified')) {
 			$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
 		}
 
@@ -2329,7 +2374,7 @@ class Msg implements \ArrayAccess
 		$request = Db::$db->query(
 			'',
 			'SELECT
-				m.id_member, m.icon, m.poster_time, m.subject,' . (empty(Config::$modSettings['search_custom_index_config']) ? '' : ' m.body,') . '
+				m.id_member, m.icon, m.poster_time, m.subject, m.body,
 				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
 				t.id_member_started AS id_member_poster,
 				b.count_posts
@@ -2717,25 +2762,6 @@ class Msg implements \ArrayAccess
 					'id_msg' => $message,
 				],
 			);
-
-			if (!empty(Config::$modSettings['search_custom_index_config'])) {
-				$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
-
-				$words = Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
-
-				if (!empty($words)) {
-					Db::$db->query(
-						'',
-						'DELETE FROM {db_prefix}log_search_words
-						WHERE id_word IN ({array_int:word_list})
-							AND id_msg = {int:id_msg}',
-						[
-							'word_list' => $words,
-							'id_msg' => $message,
-						],
-					);
-				}
-			}
 
 			// Delete attachment(s) if they exist.
 			$attachmentQuery = [

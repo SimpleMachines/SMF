@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -35,6 +36,8 @@ use SMF\Utils;
  */
 class Logs implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -209,18 +212,6 @@ class Logs implements ActionInterface
 	 */
 	protected array $search_info;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Logs $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -266,28 +257,6 @@ class Logs implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Get the number of mod log entries.
@@ -619,7 +588,7 @@ class Logs implements ActionInterface
 
 		// Do some formatting of the action string.
 		foreach ($entries as $k => $entry) {
-			// Make any message info links so its easier to go find that message.
+			// Make any message info links so it's easier to go find that message.
 			if (isset($entry['extra']['message']) && (empty($entry['message']) || empty($entry['message']['id']))) {
 				$entries[$k]['extra']['message'] = '<a href="' . Config::$scripturl . '?msg=' . $entry['extra']['message'] . '">' . $entry['extra']['message'] . '</a>';
 			}

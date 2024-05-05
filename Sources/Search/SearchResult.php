@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Search;
 
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -196,6 +197,12 @@ class SearchResult extends \SMF\Msg
 
 		Lang::censorText($this->first_subject);
 		Lang::censorText($this->last_subject);
+
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->body = Autolinker::load(true)->makeLinks($this->body);
+		}
 
 		// Shorten this message if necessary.
 		if (!SearchApi::$loadedApi->params['show_complete']) {
@@ -487,7 +494,7 @@ class SearchResult extends \SMF\Msg
 	 */
 	public static function highlight(string $text, array $words): string
 	{
-		$words = Utils::buildRegex($words, '~');
+		$words = preg_replace('/\s+/u', '\W+', Utils::buildRegex($words, '~'));
 
 		$highlighted = '';
 

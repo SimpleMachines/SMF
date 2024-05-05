@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -312,6 +313,13 @@ class Topic implements \ArrayAccess
 		'topic_started_time' => 'started_time',
 	];
 
+	/**
+	 * @var array
+	 *
+	 * IDs of any events that are linked to this topic.
+	 */
+	protected array $events;
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -527,6 +535,20 @@ class Topic implements \ArrayAccess
 		}
 
 		return $liked_messages;
+	}
+
+	/**
+	 * Returns any calendar events that are linked to this topic.
+	 */
+	public function getLinkedEvents(): array
+	{
+		if (!isset($this->events)) {
+			foreach(Event::load($this->id, true) as $event) {
+				$this->events[] = $event->id;
+			}
+		}
+
+		return array_intersect_key(Event::$loaded, array_flip($this->events ?? []));
 	}
 
 	/***********************
@@ -1365,45 +1387,6 @@ class Topic implements \ArrayAccess
 			'id_topic' => $topics,
 		];
 		Attachment::remove($attachmentQuery, 'messages');
-
-		// Delete possible search index entries.
-		if (!empty(Config::$modSettings['search_custom_index_config'])) {
-			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
-
-			$words = [];
-			$messages = [];
-			$request = Db::$db->query(
-				'',
-				'SELECT id_msg, body
-				FROM {db_prefix}messages
-				WHERE id_topic IN ({array_int:topics})',
-				[
-					'topics' => $topics,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				Sapi::resetTimeout();
-
-				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
-				$messages[] = $row['id_msg'];
-			}
-			Db::$db->free_result($request);
-			$words = array_unique($words);
-
-			if (!empty($words) && !empty($messages)) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}log_search_words
-					WHERE id_word IN ({array_int:word_list})
-						AND id_msg IN ({array_int:message_list})',
-					[
-						'word_list' => $words,
-						'message_list' => $messages,
-					],
-				);
-			}
-		}
 
 		// Delete anything related to the topic.
 		Db::$db->query(

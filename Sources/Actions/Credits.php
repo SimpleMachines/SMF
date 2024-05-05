@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -31,6 +33,8 @@ use SMF\Utils;
  */
 class Credits implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -41,18 +45,6 @@ class Credits implements ActionInterface
 	 * If true, will not load the sub-template nor the template file.
 	 */
 	public bool $in_admin = false;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Credits $obj;
 
 	/****************
 	 * Public methods
@@ -391,7 +383,7 @@ class Credits implements ActionInterface
 		Utils::$context['copyrights'] = [
 			'smf' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 			/* Modification Authors:  You may add a copyright statement to this array for your mods.
-				Copyright statements should be in the form of a value only without a array key.  I.E.:
+				Copyright statements should be in the form of a value only without an array key.  I.E.:
 					'Some Mod by Thantos © 2010',
 					Lang::$txt['some_mod_copyright'],
 			*/
@@ -413,20 +405,6 @@ class Credits implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
 
 	/**
 	 * Convenience method to load() and execute() an instance of this class.

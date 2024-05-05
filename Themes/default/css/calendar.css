@@ -173,6 +173,13 @@ td.days:hover {
 #main_grid tr:not(.days_wrapper) td {
 	min-height: 30px;
 }
+p.inline.holidays {
+	display: flex;
+	flex-flow: row wrap;
+}
+p.inline.holidays > span {
+	width: 300px;
+}
 #calendar_range,
 #calendar_navigation {
 	padding: 5px 0;

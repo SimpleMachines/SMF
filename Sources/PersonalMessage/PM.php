@@ -18,6 +18,7 @@ namespace SMF\PersonalMessage;
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\ArrayAccessHelper;
+use SMF\Autolinker;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -118,6 +119,15 @@ class PM implements \ArrayAccess
 	 * Either 'inbox' or 'sent'.
 	 */
 	public string $folder;
+
+	/**
+	 * @var string
+	 *
+	 * The SMF version in which this message was written.
+	 *
+	 * Consists of major and minor version only (e.g. "3.0", not "3.0.1")
+	 */
+	public string $version = '';
 
 	/**
 	 * @var array
@@ -325,7 +335,7 @@ class PM implements \ArrayAccess
 			'id' => $this->id,
 			'member' => $author,
 			'subject' => $this->subject,
-			'body' => BBCodeParser::load()->parse($this->body, true, 'pm' . $this->id),
+			'body' => $this->body ?? '',
 			'time' => Time::create('@' . $this->msgtime)->format(),
 			'timestamp' => $this->msgtime,
 			'counter' => $counter,
@@ -384,6 +394,15 @@ class PM implements \ArrayAccess
 				],
 			],
 		];
+
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->formatted['body'] = Autolinker::load(true)->makeLinks($this->formatted['body']);
+		}
+
+		// Run BBC interpreter on the message.
+		$this->formatted['body'] = BBCodeParser::load()->parse($this->formatted['body'], true, 'pm' . $this->id);
 
 		return $this->formatted;
 	}
@@ -968,8 +987,17 @@ class PM implements \ArrayAccess
 		} elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_REQUEST['message']) > Config::$modSettings['max_messageLength']) {
 			$post_errors[] = 'long_message';
 		} else {
-			// Preparse the message.
 			$message = $_REQUEST['message'];
+
+			// Check for links with broken URLs.
+			if (
+				!isset($_POST['save_draft'])
+				&& $message !== Autolinker::load()->fixUrlsInBBC($message)
+			) {
+				$post_errors[] = 'links_malformed_review';
+			}
+
+			// Preparse the message.
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
@@ -1095,7 +1123,7 @@ class PM implements \ArrayAccess
 			return false;
 		}
 
-		// If we had a PM draft for this one, then its time to remove it since it was just sent
+		// If we had a PM draft for this one, then it's time to remove it since it was just sent
 		if (Utils::$context['drafts_save'] && !empty($_POST['id_draft'])) {
 			DraftPM::delete($_POST['id_draft']);
 		}
@@ -1415,12 +1443,24 @@ class PM implements \ArrayAccess
 			'',
 			'{db_prefix}personal_messages',
 			[
-				'id_pm_head' => 'int', 'id_member_from' => 'int', 'deleted_by_sender' => 'int',
-				'from_name' => 'string-255', 'msgtime' => 'int', 'subject' => 'string-255', 'body' => 'string-65534',
+				'id_pm_head' => 'int',
+				'id_member_from' => 'int',
+				'deleted_by_sender' => 'int',
+				'from_name' => 'string-255',
+				'msgtime' => 'int',
+				'subject' => 'string-255',
+				'body' => 'string-65534',
+				'version' => 'string(5)',
 			],
 			[
-				$pm_head, $from['id'], ($store_outbox ? 0 : 1),
-				$from['username'], time(), $htmlsubject, $htmlmessage,
+				$pm_head,
+				$from['id'],
+				($store_outbox ? 0 : 1),
+				$from['username'],
+				time(),
+				$htmlsubject,
+				$htmlmessage,
+				preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
 			],
 			['id_pm'],
 			1,

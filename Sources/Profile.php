@@ -1194,7 +1194,7 @@ class Profile extends User implements \ArrayAccess
 	{
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
 
-		// If its not a Url, make it one.
+		// If it's not a Url, make it one.
 		if (!$this->avatar['url'] instanceof Url) {
 			$this->avatar['url'] = new Url($this->avatar['url']);
 		}
@@ -2076,7 +2076,7 @@ class Profile extends User implements \ArrayAccess
 			}
 		}
 
-		Msg::preparsecode($value);
+		Msg::preparsecode($value, false, !empty(Config::$modSettings['autoLinkUrls']));
 
 		// Too long?
 		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1]) {
@@ -2713,7 +2713,7 @@ class Profile extends User implements \ArrayAccess
 			return $this->setAvatarAttachment($image->source);
 		}
 
-		// Is is safe?
+		// Is it safe?
 		if (!$image->check(!empty(Config::$modSettings['avatar_paranoid']))) {
 			return 'bad_avatar';
 		}

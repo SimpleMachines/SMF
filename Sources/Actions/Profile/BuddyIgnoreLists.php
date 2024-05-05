@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -29,10 +30,12 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * Show all the users buddies, as well as a add/delete interface.
+ * Show all the users buddies, as well as an add/delete interface.
  */
 class BuddyIgnoreLists implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -70,18 +73,6 @@ class BuddyIgnoreLists implements ActionInterface
 		'buddies' => 'editBuddies',
 		'ignore' => 'editIgnoreList',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static BuddyIgnoreLists $obj;
 
 	/****************
 	 * Public methods
@@ -472,32 +463,6 @@ class BuddyIgnoreLists implements ActionInterface
 
 			unset($_SESSION['prf-save']);
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -34,6 +36,8 @@ use SMF\Verifier;
  */
 class Search2 implements ActionInterface
 {
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -58,18 +62,6 @@ class Search2 implements ActionInterface
 	 * ID numbers of the authors of the $messages.
 	 */
 	public array $posters = [];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var self
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent multiple instantiations.
-	 */
-	protected static Search2 $obj;
 
 	/****************
 	 * Public methods
@@ -120,6 +112,7 @@ class Search2 implements ActionInterface
 			SearchApi::$loadedApi->searchArray,
 		);
 
+		$this->initSearchContext();
 		$this->setupTemplate();
 	}
 
@@ -194,32 +187,6 @@ class Search2 implements ActionInterface
 		IntegrationHook::call('integrate_search_message_context', [&$output, &$message, $counter]);
 
 		return $output;
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return self An instance of this class.
-	 */
-	public static function load(): self
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -375,6 +342,54 @@ class Search2 implements ActionInterface
 			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
 			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
 		];
+
+		// Define the sort order options.
+		Utils::$context['sort_options'] = [
+			'relevance|desc' => [
+				'label' => 'search_orderby_relevant_first',
+				'value' => 'relevance|desc',
+				'selected' => Utils::$context['current_sorting'] == 'relevance|desc',
+			],
+			'num_replies|desc' => [
+				'label' => 'search_orderby_large_first',
+				'value' => 'num_replies|desc',
+				'selected' => Utils::$context['current_sorting'] == 'num_replies|desc',
+			],
+			'num_replies|asc' => [
+				'label' => 'search_orderby_small_first',
+				'value' => 'num_replies|asc',
+				'selected' => Utils::$context['current_sorting'] == 'num_replies|asc',
+			],
+			'id_msg|desc' => [
+				'label' => 'search_orderby_recent_first',
+				'value' => 'id_msg|desc',
+				'selected' => Utils::$context['current_sorting'] == 'id_msg|desc',
+			],
+			'id_msg|asc' => [
+				'label' => 'search_orderby_old_first',
+				'value' => 'id_msg|asc',
+				'selected' => Utils::$context['current_sorting'] == 'id_msg|asc',
+			],
+		];
+
+		// Define the hidden inputs that let the user adjust the search.
+		Utils::$context['hidden_inputs'] = [
+			'searchtype' => '<input type="hidden" name="searchtype" value="' . (!empty(Utils::$context['search_params']['searchtype']) ? Utils::$context['search_params']['searchtype'] : 0) . '">',
+			'userspec' => '<input type="hidden" name="userspec" value="' . (!empty(Utils::$context['search_params']['userspec']) ? Utils::$context['search_params']['userspec'] : '') . '">',
+			'show_complete' => '<input type="hidden" name="show_complete" value="' . (!empty(Utils::$context['search_params']['show_complete']) ? 1 : 0) . '">',
+			'subject_only' => '<input type="hidden" name="subject_only" value="' . (!empty(Utils::$context['search_params']['subject_only']) ? 1 : 0) . '">',
+			'minage' => '<input type="hidden" name="minage" value="' . (!empty(Utils::$context['search_params']['minage']) ? Utils::$context['search_params']['minage'] : '0') . '">',
+			'maxage' => '<input type="hidden" name="maxage" value="' . (!empty(Utils::$context['search_params']['maxage']) ? Utils::$context['search_params']['maxage'] : '9999') . '">',
+			'sort' => '<input type="hidden" name="sort" value="' . (!empty(Utils::$context['search_params']['sort']) ? Utils::$context['search_params']['sort'] : 'relevance') . '">',
+		];
+
+		if (!empty(Utils::$context['search_params']['brd'])) {
+			foreach (Utils::$context['search_params']['brd'] as $board_id) {
+				Utils::$context['hidden_inputs']['brd_' . $board_id] = '<input type="hidden" name="brd[' . $board_id . ']" value="' . $board_id . '">';
+			}
+		}
+
+		SearchApi::$loadedApi->resultsContext();
 	}
 
 	/**
@@ -421,6 +436,44 @@ class Search2 implements ActionInterface
 			$this->posters[] = $row['id_member'];
 		}
 		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Initializes stuff we need to display the search results.
+	 */
+	protected function initSearchContext(): void
+	{
+		if (empty(SearchApi::$loadedApi->results)) {
+			return;
+		}
+
+		SearchResult::setBoardsCan();
+
+		// What messages are we using?
+		$this->messages = array_map('intval', array_keys(SearchApi::$loadedApi->results));
+
+		// Load the posters...
+		$this->getPosters();
+
+		IntegrationHook::call('integrate_search_message_list', [&$this->messages, &$this->posters]);
+
+		if (!empty($this->posters)) {
+			User::load(array_unique($this->posters));
+		}
+
+		SearchResult::$getter = SearchResult::get($this->messages);
+
+		// How many results will the user be able to see?
+		$this->num_results = !empty($_SESSION['search_cache']['num_results']) ? $_SESSION['search_cache']['num_results'] : SearchResult::getNumResults();
+
+		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
+		if ($this->num_results == 0) {
+			SearchApi::$loadedApi->results = [];
+
+			return;
+		}
+
+		SearchApi::$loadedApi->setParticipants();
 	}
 }
 

@@ -2,6 +2,15 @@
 
 // Version: 3.0 Alpha 1; Search
 
+// Comma-separated list of words that should be ignored when searching in this language. Translators should NOT just translate the words in this list. Instead, replace them with common words that should be ignored when searching in the target language.
+$txt['search_stopwords'] = 'a,about,an,are,as,at,be,by,for,from,how,in,is,it,of,on,or,that,the,this,to,was,what,when,where,who,will,with';
+
+// Set to 0 if this language uses accented characters like "é", "ñ", "ç", etc.; set to 1 if it does not.
+$txt['search_ignore_accents_by_default'] = '1';
+
+$txt['search_stopwords_custom'] = 'Words to ignore when searching';
+$txt['search_stopwords_permanent'] = 'The following words are always ignored:<br>{list}';
+
 $txt['set_parameters'] = 'Set Search Parameters';
 $txt['choose_board'] = 'Choose boards to search in, or search all';
 $txt['all_words'] = 'Match all words';
@@ -11,6 +20,7 @@ $txt['by_user'] = 'By user';
 $txt['search_post_age'] = 'Message age';
 $txt['search_age_range'] = 'between {min} and {max} days';
 $txt['search_options'] = 'Options';
+$txt['search_ignore_accents'] = 'Ignore accents, etc.';
 $txt['search_show_complete_messages'] = 'Show results as messages';
 $txt['search_subject_only'] = 'Search in topic subjects only';
 $txt['search_relevance'] = 'Relevance';
@@ -50,7 +60,6 @@ $txt['search_method_save'] = 'Save';
 $txt['search_method_messages_table_space'] = 'Space used by forum messages in the database';
 $txt['search_method_messages_index_space'] = 'Space used to index messages in the database';
 $txt['search_method_kilobytes'] = 'KB';
-$txt['search_method_fulltext_index'] = 'Fulltext index';
 $txt['search_method_no_index_exists'] = '{index} does not currently exist';
 $txt['search_method_fulltext_cannot_create'] = 'A fulltext index cannot be created because fulltext search is not supported for your database engine and version';
 $txt['search_method_index_already_exists'] = '{index} already created';
@@ -60,8 +69,14 @@ $txt['search_method_fulltext_warning'] = 'In order to be able to use fulltext se
 
 $txt['search_index'] = 'Search index';
 $txt['search_index_none'] = 'No index';
+$txt['search_index_generic'] = '{index} index';
+$txt['search_index_fulltext'] = 'Fulltext index';
+$txt['search_index_fulltext_desc'] = 'A basic index provided by the database engine.';
 $txt['search_index_custom'] = 'Custom index';
-$txt['search_index_sphinx'] = 'Sphinx';
+$txt['search_index_custom_desc'] = 'A custom index used in earlier versions of SMF.<br>Upgrading to a parsed index is recommended.';
+$txt['search_index_parsed'] = 'Parsed index';
+$txt['search_index_parsed_desc'] = 'An optimized index tailored specifically for SMF.';
+$txt['search_index_sphinx'] = 'Sphinx index';
 $txt['search_index_sphinx_desc'] = 'The admin panel only allows to switch between search indexes. To adjust further Sphinx settings, use the sphinx_config.php tool.';
 $txt['search_index_label'] = 'Index';
 $txt['search_index_size'] = 'Size:';
@@ -89,7 +104,7 @@ $txt['search_create_index_not_ready'] = 'SMF is currently creating a search inde
 $txt['search_create_index_progress'] = 'Progress';
 $txt['search_create_index_done'] = 'Custom search index successfully created.';
 $txt['search_create_index_done_link'] = 'Continue';
-$txt['search_double_index'] = 'You have currently created two indexes on the messages table. For best performance it is advisable to remove one of the two indexes.';
+$txt['search_double_index'] = 'You have currently created multiple indexes on the messages table. For best performance it is advisable to use only one.';
 
 $txt['search_error_indexed_chars'] = 'Invalid number of indexed characters. At least 3 characters are needed for a useful index.';
 $txt['search_error_max_percentage'] = 'Invalid percentage of words to be skipped. Use a value of at least 5%.';

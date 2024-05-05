@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF;
 
 /**
  * Interface for all action classes.
@@ -42,9 +42,9 @@ interface ActionInterface
 	/**
 	 * Static wrapper for constructor.
 	 *
-	 * @return self An instance of the class.
+	 * @return static An instance of the class.
 	 */
-	public static function load(): self;
+	public static function load(): static;
 
 	/**
 	 * Convenience method to load() and execute() an instance of the class.

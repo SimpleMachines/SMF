@@ -42,43 +42,7 @@
 	#member_list .ip, #member_list .last_active, #member_list .user_name {
 		display: none !important;
 	}
-}
 
-@media (min-width: 720px) and (max-width: 799px) {
-	#top_info .welcome {
-		display: none;
-	}
-	/* Calendar */
-	#event_time_options {
-		width: 44%;
-	}
-	#event_title {
-		padding: 0;
-	}
-	#evtitle {
-		width: 98%;
-	}
-	.event_options_left, .event_options_right {
-		display: block;
-		max-width: unset;
-		width: unset;
-	}
-	#event_title input[type="text"] {
-		width: 100%;
-	}
-	#post_event #event_board select {
-		width: calc(100% - 90px);
-		max-width: unset;
-	}
-}
-
-/* We have shared things... */
-@media screen and (max-width: 720px) {
-	/* Remove some content from the hooks table */
-	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
-	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
-		display: none;
-	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
@@ -127,6 +91,21 @@
 	}
 	.mobile_buttons {
 		display: block;
+	}
+}
+
+@media (min-width: 720px) and (max-width: 799px) {
+	#top_info .welcome {
+		display: none;
+	}
+}
+
+/* We have shared things... */
+@media screen and (max-width: 720px) {
+	/* Remove some content from the hooks table */
+	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
+	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
+		display: none;
 	}
 
 	/* Stuff */
@@ -369,8 +348,13 @@
 	form#postmodify .roundframe, #post_event .roundframe {
 		padding: 5px;
 	}
-	#post_header input {
-		width: 100%;
+	#post_header input,
+	#event_options input[type="text"],
+	#event_options input[type="date"],
+	#event_options input[type="time"],
+	#event_options select {
+/* 		width: 100% !important; */
+/* 		max-width: initial; */
 	}
 	#post_confirm_buttons .smalltext {
 		display: none;
@@ -580,13 +564,13 @@
 @media (min-width: 481px) and (max-width: 560px) {
 	/* Calendar */
 	#event_time_options {
-		width: 40%;
+/* 		width: 40%; */
 	}
 	#event_title, #event_board {
-		width: 100%;
+/* 		width: 100%; */
 	}
 	#evtitle {
-		width: 98%;
+/* 		width: 98%; */
 	}
 }
 
@@ -666,11 +650,25 @@
 	}
 
 	/* Post Section */
-	#post_header dd {
+	#post_header dd,
+	#event_options dd {
 		width: 55%;
 	}
-	#post_header dt {
+	#post_header dt,
+	#event_options dt {
 		width: 35%;
+	}
+	#rrule_options dd,
+	#rrule_end {
+		display: inline-flex;
+		flex-flow: column;
+	}
+	.byday_label span {
+		width: 3ch;
+	}
+	.bymonth_label,
+	.bymonthday_label {
+		float: left;
 	}
 	img#icons {
 		margin: 0 0 0 5px;
@@ -801,17 +799,6 @@
 		width: 100% !important;
 		padding: 0 !important;
 		float: none;
-	}
-
-	/* Calendar */
-	.event_options_left, .event_options_right {
-		width: 100%;
-	}
-	#event_title, #event_board {
-		width: 100%;
-	}
-	#evtitle {
-		width: 98%;
 	}
 
 	/* Menu tests */
