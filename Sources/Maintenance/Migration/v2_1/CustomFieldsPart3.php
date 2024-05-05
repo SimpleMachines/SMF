@@ -97,8 +97,7 @@ class CustomFieldsPart3 extends MigrationBase
 			Db::$db->free_result($request);
 
 			Config::updateModSettings([
-				'displayFields',
-				json_encode($fields)
+				'displayFields' => json_encode($fields)
 			]);
 
 			$this->handleTimeout(++$start);

@@ -42,6 +42,25 @@ class ThemeSettings extends MigrationBase
 		'newsfader_time' => '3000',
 	];
 
+	protected array $removedThemeSettings = [
+		'show_board_desc',
+		'display_quick_reply',
+		'show_mark_read',
+		'show_member_bar',
+		'linktree_link',
+		'show_bbc',
+		'additional_options_collapsable',
+		'subject_toggle',
+		'show_modify',
+		'show_profile_buttons',
+		'show_user_images',
+		'show_blurb',
+		'show_gender',
+		'hide_post_group',
+		'drafts_autosave_enabled',
+		'forum_width'
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -62,7 +81,6 @@ class ThemeSettings extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		if ($start === 0) {
-			$this->handleTimeout($start);
 
 			$this->query('', '
 				UPDATE {db_prefix}themes
@@ -74,13 +92,10 @@ class ThemeSettings extends MigrationBase
 				]	
 			);
 
-			Maintenance::setCurrentStart($start);
+			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			$start = 1;
-			$this->handleTimeout($start);
-
 			foreach ($this->updatedThemeSettings as $key => $value) {
 				$this->query('', '
 					UPDATE {db_prefix}themes
@@ -93,34 +108,27 @@ class ThemeSettings extends MigrationBase
 				);
 			}
 
-			Maintenance::setCurrentStart($start);
+			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 2) {
-			$start = 2;
-			$this->handleTimeout($start);
-
 			$this->query('', '
 				UPDATE {db_prefix}boards
 				SET id_theme = 0');
 
-			Maintenance::setCurrentStart($start);
-		}
+				$this->handleTimeout(++$start);
+			}
 
 		if ($start <= 3) {
-			$start = 3;
-			$this->handleTimeout($start);
 
 			$this->query('', '
 				UPDATE {db_prefix}members
 				SET id_theme = 0');
 
-			Maintenance::setCurrentStart($start);
-		}
+				$this->handleTimeout(++$start);
+			}
 
 		if ($start <= 4) {
-			$start = 3;
-			$this->handleTimeout($start);
 
 			// Fetch list of theme directories
 			$request = $this->query('', '
@@ -165,7 +173,20 @@ class ThemeSettings extends MigrationBase
 				)
 			);
 
-			Maintenance::setCurrentStart($start);
+			$this->handleTimeout(++$start);
+		}
+
+		if ($start <= 5) {
+			$this->query('', '
+				DELETE FROM {db_prefix}themes
+				WHERE variable NOT IN ({array_int:removed_settings});',
+				array(
+					'removed_settings' => $this->removedThemeSettings,
+				)
+			);
+
+			$this->handleTimeout(++$start);
+
 		}
 
 		return true;

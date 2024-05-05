@@ -59,6 +59,26 @@ class NewSettings extends MigrationBase
 		'theme_guests' => 1
 	];
 
+	protected array $removedSettings = [
+		'enableStickyTopics',
+		'guest_hideContacts',
+		'notify_new_registration',
+		'attachmentEncryptFilenames',
+		'hotTopicPosts',
+		'hotTopicVeryPosts',
+		'fixLongWords',
+		'admin_feature',
+		'log_ban_hits',
+		'topbottomEnable',
+		'simpleSearch',
+		'enableVBStyleLogin',
+		'admin_bbc',
+		'enable_unwatch',
+		'cache_memcached',
+		'cache_enable',
+		'cookie_no_auth_secret'
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -110,7 +130,7 @@ class NewSettings extends MigrationBase
 		}
 
 		// Add all any settings to the settings table.
-		foreach ($newSettings as $key => $default) {
+		foreach ($this->newSettings as $key => $default) {
 			if (!isset(Config::$modSettings[$key])) {
 				$newSettings[$key] = $default;
 			}
@@ -151,6 +171,55 @@ class NewSettings extends MigrationBase
 			$newSettings['export_dir'] = Config::$boarddir . '/exports';
 		}
 
+		// Deleting integration hooks.
+		foreach (Config::$modSettings as $key => $val) {
+			if (substr($key, 0, strlen('integrate_'))  == 'integrate_') {
+				$newSettings[$key] = null;
+			}
+		}
+
+		// Fixing a deprecated option.
+		if (isset(Config::$modSettings['avatar_action_too_large']) && (Config::$modSettings['avatar_action_too_large'] == 'option_html_resize' || Config::$modSettings['avatar_action_too_large'] == 'option_js_resize')) {
+			$newSettings['avatar_action_too_large'] = 'option_css_resize';
+		}
+
+		// Cleaning up the old Core Features page.
+		if (isset(Config::$modSettings['admin_features'])) {
+			$admin_features = explode(',', Config::$modSettings['admin_features']);
+
+			// cd = calendar, should also have set cal_enabled already
+			// cp = custom profile fields, which already has several fields that cover tracking
+			// ps = paid subs, should also have set paid_enabled already
+			// rg = reports generation, which is now permanently on
+			// sp = spider tracking, should also have set spider_mode already
+			// w = warning system, which will be covered with warning_settings
+
+			// The rest we have to deal with manually.
+			// Moderation log - modlog_enabled itself should be set but we have others now
+			if (in_array('ml', $admin_features))
+			{
+				$newSettings[] = array('adminlog_enabled', '1');
+				$newSettings[] = array('userlog_enabled', '1');
+			}
+
+			// Post moderation
+			if (in_array('pm', $admin_features))
+			{
+				$newSettings[] = array('postmod_active', '1');
+			}
+		}
+
+		foreach ($this->removedSettings as $key) {
+			$newSettings[$key] = null;
+		}
+
+		// Renamed setting.
+		if (isset(Config::$modSettings['allow_sm_stats'])) {
+			$newSettings['sm_stats_key'] = Config::$modSettings['allow_sm_stats'];
+			$newSettings['allow_sm_stats'] = null;
+			$newSettings['enable_sm_stats'] = 1;
+		}
+	
 		Config::updateModSettings($newSettings);
 
 		return true;
