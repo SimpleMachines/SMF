@@ -72,7 +72,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\TopicUnwatch::class,
 			Maintenance\Migration\v2_1\MailQueue::class,
 			Maintenance\Migration\v2_1\MembergroupIcon::class,
-			Maintenance\Migration\v2_1\ThemeSettings::class
+			Maintenance\Migration\v2_1\ThemeSettings::class,
+			Maintenance\Migration\v2_1\CustomFieldsPart1::class,
+			Maintenance\Migration\v2_1\CustomFieldsPart2::class,
+			Maintenance\Migration\v2_1\CustomFieldsPart3::class
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
