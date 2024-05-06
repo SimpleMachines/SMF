@@ -113,23 +113,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 ****************/
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct()
-	{
-		if (!empty(Config::$modSettings['search_stopwords_parsed'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				explode(',', Config::$modSettings['search_stopwords_parsed']),
-			));
-		}
-
-		$this->blacklisted_words = array_map(fn ($w) => $this->prepareString($w), $this->blacklisted_words);
-
-		parent::__construct();
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function getStatus(): ?string
@@ -835,6 +818,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 		}
 
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
+
+		$this->blacklisted_words = array_map(fn ($w) => $this->prepareString($w), $this->blacklisted_words);
 	}
 
 	/**
