@@ -113,23 +113,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 ****************/
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct()
-	{
-		if (!empty(Config::$modSettings['search_stopwords_parsed'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				explode(',', Config::$modSettings['search_stopwords_parsed']),
-			));
-		}
-
-		$this->blacklisted_words = array_map(fn ($w) => $this->prepareString($w), $this->blacklisted_words);
-
-		parent::__construct();
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function getStatus(): ?string
@@ -738,7 +721,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * Deletes the log_search_parsed table and resets to standard search method.
+	 * Deletes the log_search_dictionary and log_search_parsed tables
+	 * and resets to standard search method.
 	 */
 	public static function remove(): void
 	{
@@ -834,6 +818,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 		}
 
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
+
+		$this->blacklisted_words = array_map(fn ($w) => $this->prepareString($w), $this->blacklisted_words);
 	}
 
 	/**
@@ -931,7 +917,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * Saves word data to the log_search_parsed table.
+	 * Saves word data to log_search_dictionary and log_search_parsed tables.
 	 *
 	 * @param array $word_data Data about the words.
 	 */
@@ -1221,10 +1207,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * Removes accents in the string.
+	 * Escapes accents in the string as HTML entities, but only if the database
+	 * collation ignores accents.
 	 *
 	 * @param string $string The string.
-	 * @return string A version of $string without accents.
+	 * @return string A version of $string with (possibly) escaped accents.
 	 */
 	protected function escapeAccents(string $string): string
 	{
@@ -1292,14 +1279,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 			Db::$db->free_result($request);
 
-			// If "_as" or "_ai" is explicitly stated, use that.
-			if (str_contains($collation, '_as')) {
-				$accent_sensitive = true;
-			}
-
-			if (str_contains($collation, '_ai')) {
-				$accent_sensitive = false;
-			}
+			// Start by assuming false.
+			$accent_sensitive = false;
 
 			// If "_as" or "_ai" are not explicitly stated, assume the same as "_ci" or "_cs".
 			if (str_contains($collation, '_cs')) {
@@ -1310,13 +1291,19 @@ class Parsed extends SearchApi implements SearchApiInterface
 				$accent_sensitive = false;
 			}
 
+			// If "_as" or "_ai" are explicitly stated, use that.
+			if (str_contains($collation, '_as')) {
+				$accent_sensitive = true;
+			}
+
+			if (str_contains($collation, '_ai')) {
+				$accent_sensitive = false;
+			}
+
 			// Binary collation always respects accents.
 			if (str_contains($collation, '_bin')) {
 				$accent_sensitive = true;
 			}
-
-			// It is safest to assume false when we don't know.
-			$accent_sensitive = false;
 		}
 
 		return $accent_sensitive;
@@ -1327,40 +1314,76 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 *************************/
 
 	/**
-	 * Creates the log_search_parsed table if necessary.
+	 * Creates the log_search_parsed and log_search_dictionary tables.
 	 */
 	protected static function createTables(): void
 	{
-		$table = current(Db::$db->list_tables(false, Db::$db->prefix . 'log_search_dictionary'));
+		Db::$db->create_table(
+			'{db_prefix}log_search_dictionary',
+			[
+				[
+					'name' => 'id_word',
+					'type' => 'int',
+					'unsigned' => true,
+					'auto' => true,
+				],
+				[
+					'name' => 'word',
+					'type' => 'varchar',
+					'size' => 255,
+					'not_null' => true,
+					'default' => '',
+				],
+				[
+					'name' => 'stripped_word',
+					'type' => 'varchar',
+					'size' => 255,
+					'not_null' => true,
+					'default' => '',
+				],
+			],
+			[
+				[
+					'type' => 'primary',
+					'columns' => ['id_word'],
+				],
+				[
+					'type' => 'unique',
+					'columns' => ['word'],
+				],
+			],
+		);
 
-		if (empty($table)) {
-			Db::$db->query(
-				'',
-				'CREATE TABLE {db_prefix}log_search_dictionary (
-					id_word int UNSIGNED AUTO_INCREMENT,
-					word varchar(255) NOT NULL DEFAULT "",
-					stripped_word varchar(255) NOT NULL DEFAULT "",
-					PRIMARY KEY (id_word),
-					UNIQUE KEY (word)
-				) ENGINE=InnoDB',
-				[],
-			);
-		}
-
-		$table = current(Db::$db->list_tables(false, Db::$db->prefix . 'log_search_parsed'));
-
-		if (empty($table)) {
-			Db::$db->query(
-				'',
-				'CREATE TABLE {db_prefix}log_search_parsed (
-					id_word int UNSIGNED NOT NULL DEFAULT 0,
-					id_msg int UNSIGNED NOT NULL DEFAULT 0,
-					wordnums text NOT NULL,
-					PRIMARY KEY (id_word, id_msg)
-				) ENGINE=InnoDB',
-				[],
-			);
-		}
+		Db::$db->create_table(
+			'{db_prefix}log_search_parsed',
+			[
+				[
+					'name' => 'id_word',
+					'type' => 'int',
+					'unsigned' => true,
+					'not_null' => true,
+					'default' => 0,
+				],
+				[
+					'name' => 'id_msg',
+					'type' => 'int',
+					'unsigned' => true,
+					'not_null' => true,
+					'default' => 0,
+				],
+				[
+					'name' => 'wordnums',
+					'type' => 'text',
+					'not_null' => true,
+				],
+			],
+			[
+				[
+					'type' => 'primary',
+					'columns' => ['id_word', 'id_msg'],
+				],
+			],
+		);
 	}
 }
 
