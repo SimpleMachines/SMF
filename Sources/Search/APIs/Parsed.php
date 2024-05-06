@@ -772,8 +772,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT d.word
-			FROM dev_log_search_parsed AS p
-				INNER JOIN dev_log_search_dictionary AS d ON (p.id_word = d.id_word)
+			FROM {db_prefix}log_search_parsed AS p
+				INNER JOIN {db_prefix}log_search_dictionary AS d ON (p.id_word = d.id_word)
 			GROUP BY d.word
 			HAVING COUNT(*) > {int:minimum_messages}
 			ORDER BY d.word',
