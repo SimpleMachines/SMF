@@ -1222,10 +1222,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * Removes accents in the string.
+	 * Escapes accents in the string as HTML entities, but only if the database
+	 * collation ignores accents.
 	 *
 	 * @param string $string The string.
-	 * @return string A version of $string without accents.
+	 * @return string A version of $string with (possibly) escaped accents.
 	 */
 	protected function escapeAccents(string $string): string
 	{
@@ -1293,14 +1294,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 			Db::$db->free_result($request);
 
-			// If "_as" or "_ai" is explicitly stated, use that.
-			if (str_contains($collation, '_as')) {
-				$accent_sensitive = true;
-			}
-
-			if (str_contains($collation, '_ai')) {
-				$accent_sensitive = false;
-			}
+			// Start by assuming false.
+			$accent_sensitive = false;
 
 			// If "_as" or "_ai" are not explicitly stated, assume the same as "_ci" or "_cs".
 			if (str_contains($collation, '_cs')) {
@@ -1311,13 +1306,19 @@ class Parsed extends SearchApi implements SearchApiInterface
 				$accent_sensitive = false;
 			}
 
+			// If "_as" or "_ai" are explicitly stated, use that.
+			if (str_contains($collation, '_as')) {
+				$accent_sensitive = true;
+			}
+
+			if (str_contains($collation, '_ai')) {
+				$accent_sensitive = false;
+			}
+
 			// Binary collation always respects accents.
 			if (str_contains($collation, '_bin')) {
 				$accent_sensitive = true;
 			}
-
-			// It is safest to assume false when we don't know.
-			$accent_sensitive = false;
 		}
 
 		return $accent_sensitive;
