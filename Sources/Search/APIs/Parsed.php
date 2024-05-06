@@ -738,7 +738,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * Deletes the log_search_parsed table and resets to standard search method.
+	 * Deletes the log_search_dictionary and log_search_parsed tables
+	 * and resets to standard search method.
 	 */
 	public static function remove(): void
 	{
@@ -931,7 +932,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * Saves word data to the log_search_parsed table.
+	 * Saves word data to log_search_dictionary and log_search_parsed tables.
 	 *
 	 * @param array $word_data Data about the words.
 	 */
@@ -1327,40 +1328,76 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 *************************/
 
 	/**
-	 * Creates the log_search_parsed table if necessary.
+	 * Creates the log_search_parsed and log_search_dictionary tables.
 	 */
 	protected static function createTables(): void
 	{
-		$table = current(Db::$db->list_tables(false, Db::$db->prefix . 'log_search_dictionary'));
+		Db::$db->create_table(
+			'{db_prefix}log_search_dictionary',
+			[
+				[
+					'name' => 'id_word',
+					'type' => 'int',
+					'unsigned' => true,
+					'auto' => true,
+				],
+				[
+					'name' => 'word',
+					'type' => 'varchar',
+					'size' => 255,
+					'not_null' => true,
+					'default' => '',
+				],
+				[
+					'name' => 'stripped_word',
+					'type' => 'varchar',
+					'size' => 255,
+					'not_null' => true,
+					'default' => '',
+				],
+			],
+			[
+				[
+					'type' => 'primary',
+					'columns' => ['id_word'],
+				],
+				[
+					'type' => 'unique',
+					'columns' => ['word'],
+				],
+			],
+		);
 
-		if (empty($table)) {
-			Db::$db->query(
-				'',
-				'CREATE TABLE {db_prefix}log_search_dictionary (
-					id_word int UNSIGNED AUTO_INCREMENT,
-					word varchar(255) NOT NULL DEFAULT "",
-					stripped_word varchar(255) NOT NULL DEFAULT "",
-					PRIMARY KEY (id_word),
-					UNIQUE KEY (word)
-				) ENGINE=InnoDB',
-				[],
-			);
-		}
-
-		$table = current(Db::$db->list_tables(false, Db::$db->prefix . 'log_search_parsed'));
-
-		if (empty($table)) {
-			Db::$db->query(
-				'',
-				'CREATE TABLE {db_prefix}log_search_parsed (
-					id_word int UNSIGNED NOT NULL DEFAULT 0,
-					id_msg int UNSIGNED NOT NULL DEFAULT 0,
-					wordnums text NOT NULL,
-					PRIMARY KEY (id_word, id_msg)
-				) ENGINE=InnoDB',
-				[],
-			);
-		}
+		Db::$db->create_table(
+			'{db_prefix}log_search_parsed',
+			[
+				[
+					'name' => 'id_word',
+					'type' => 'int',
+					'unsigned' => true,
+					'not_null' => true,
+					'default' => 0,
+				],
+				[
+					'name' => 'id_msg',
+					'type' => 'int',
+					'unsigned' => true,
+					'not_null' => true,
+					'default' => 0,
+				],
+				[
+					'name' => 'wordnums',
+					'type' => 'text',
+					'not_null' => true,
+				],
+			],
+			[
+				[
+					'type' => 'primary',
+					'columns' => ['id_word', 'id_msg'],
+				],
+			],
+		);
 	}
 }
 
