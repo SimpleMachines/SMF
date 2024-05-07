@@ -722,6 +722,8 @@ class Calendar implements ActionInterface
 		$bcd = !isset($_REQUEST['rb']) && !isset($_REQUEST['omfg']) && !isset($_REQUEST['time']);
 
 		Theme::loadTemplate('Calendar');
+		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true], 'smf_calendar');
+		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
 		if ($bcd) {
 			Utils::$context['sub_template'] = 'bcd';

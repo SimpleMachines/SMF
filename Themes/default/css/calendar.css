@@ -365,3 +365,35 @@ span.hidelink {
 		padding: 10px 0 0;
 	}
 }
+@media (max-width: 479px) {
+	#calendar_navigation {
+		clear: both;
+		padding: 10px 0 0;
+	}
+}
+#geek-clock.bcd {
+	display: flex;
+	align-items: baseline;
+}
+#geek-clock.bcd > :nth-of-type(even) {
+	margin-inline: 0 20px;
+}
+#geek-clock.omfg li,
+#geek-clock.hms li,
+#geek-time li {
+	display: inline-block;;
+}
+#geek-clock li,
+#geek-time li {
+	width: 30px;
+	height: 30px;
+	border: solid 1px currentColor;
+	border-radius: 100%;
+	opacity: 0.6;
+	-webkit-transform: scale(0.6);
+	-moz-transform: scale(0.6);
+	transform: scale(0.6);
+	-webkit-transition: all 0.3s ease-in-out 0s;
+	-moz-transition: all 0.3s ease-in-out 0s;
+	transition: all 0.3s ease-in-out 0s;
+}
