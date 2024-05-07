@@ -56,25 +56,11 @@ namespace SMF;
  *    algorithm for UUIDv5 always produces the same output given the same input,
  *    so these UUIDs can be regenerated any number of times without varying.
  *
- * At the time of writing, the specifications for the different UUID versions
- * are defined in the following documents:
+ * The specification for UUIDv2 is DCE 1.1 Authentication and Security Services
+ * https://pubs.opengroup.org/onlinepubs/9696989899/chap5.htm#tagcjh_08_02_01_01
  *
- *  - UUIDv1: RFC 4122
- *  - UUIDv2: DCE 1.1 Authentication and Security Services
- *  - UUIDv3: RFC 4122
- *  - UUIDv4: RFC 4122
- *  - UUIDv5: RFC 4122
- *  - UUIDv6: draft-ietf-uuidrev-rfc4122bis
- *  - UUIDv7: draft-ietf-uuidrev-rfc4122bis
- *  - UUIDv8: draft-ietf-uuidrev-rfc4122bis
- *  - "Nil" UUID: RFC 4122
- *  - "Max" UUID: draft-ietf-uuidrev-rfc4122bis
- *
- * These documents are available at the following URLs:
- *
- * - https://datatracker.ietf.org/doc/rfc4122/
- * - https://pubs.opengroup.org/onlinepubs/9696989899/chap5.htm#tagcjh_08_02_01_01
- * - https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/
+ * The specifications for all other UUID versions are defined in RFC 9562
+ * https://www.rfc-editor.org/info/rfc9562
  */
 class Uuid implements \Stringable
 {
@@ -534,7 +520,7 @@ class Uuid implements \Stringable
 	 *
 	 * The default namespace UUID is the UUIDv5 for Config::$scripturl.
 	 *
-	 * See RFC 4122, section 4.3.
+	 * See RFC 9562, section 6.5.
 	 *
 	 * @param \Stringable|string|bool $ns Either a valid UUID, true to forcibly
 	 *    reset to the automatically generated default value, or false to use
@@ -569,7 +555,7 @@ class Uuid implements \Stringable
 		}
 
 		// Temporarily set self::$namespace to the binary form of the predefined
-		// namespace UUID for URLs. (See RFC 4122, appendix C.)
+		// namespace UUID for URLs. (See RFC 9562, section 6.6.)
 		self::$namespace = hex2bin(str_replace('-', '', self::NAMESPACE_URL));
 
 		// Set self::$namespace to the binary UUIDv5 for Config::$scripturl.
@@ -585,10 +571,7 @@ class Uuid implements \Stringable
 	 *
 	 * The 60-bit timestamp counts 100-nanosecond intervals since Oct 15, 1582,
 	 * at 0:00:00 UTC (the date when the Gregorian calendar went into effect).
-	 * The maximum date is Jun 18, 5623, at 21:21:00.6846975 UTC. (Note: In the
-	 * introduction section of RFC 4122, the maximum date is stated to be
-	 * "around A.D. 3400" but this appears to be errata. It would be true if the
-	 * timestamp were a signed integer, but in fact the timestamp is unsigned.)
+	 * The maximum date is Jun 18, 5623, at 21:21:00.6846975 UTC.
 	 *
 	 * Uniqueness is ensured by appending a "clock sequence" and a "node ID" to
 	 * the timestamp. The clock sequence is a randomly initialized value that
@@ -617,7 +600,7 @@ class Uuid implements \Stringable
 	 * UUIDv2: DCE security version. Suitable only for specific purposes and is
 	 * rarely used.
 	 *
-	 * RFC 4122 does not describe this version. It just reserves UUIDv2 for
+	 * RFC 9562 does not describe this version. It just reserves UUIDv2 for
 	 * "DCE Security version." Instead the specification for UUIDv2 can be found
 	 * in the DCE 1.1 Authentication and Security Services specification.
 	 *
@@ -850,7 +833,7 @@ class Uuid implements \Stringable
 		$timestamp = $this->adjustTimestamp();
 
 		// We can't track the clock sequence between executions, so initialize
-		// it to a random value each time. See RFC 4122, section 4.1.5.
+		// it to a random value each time. See RFC 9562, section 6.10.
 		if (!isset(self::$clock_seq[$this->version])) {
 			self::$clock_seq[$this->version] = bin2hex(random_bytes(2));
 		}
@@ -859,7 +842,7 @@ class Uuid implements \Stringable
 
 		// We don't have direct access to the MAC address in PHP, but the spec
 		// allows using random data instead, provided that we set the least
-		// significant bit of its first octet to 1. See RFC 4122, section 4.5.
+		// significant bit of its first octet to 1. See RFC 9562, section 6.10.
 		if (!isset(self::$node)) {
 			self::$node = sprintf('%012x', hexdec(bin2hex(random_bytes(6))) | 0x10000000000);
 		}
@@ -872,7 +855,7 @@ class Uuid implements \Stringable
 			// First try incrementing the timestamp.
 			// Because the spec uses 100-nanosecond intervals, but PHP offers
 			// only microseconds, the spec says we can do this to simulate
-			// greater precision. See RFC 4122, section 4.2.1.2.
+			// greater precision. See RFC 9562, section 6.1.
 			$temp = $timestamp;
 
 			for ($i = 0; $i < 9; $i++) {
