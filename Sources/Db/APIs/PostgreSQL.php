@@ -637,7 +637,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function server_info(?object $connection = null): string
 	{
-		$version = pg_version();
+		$version = pg_version($connection ?? $this->connection);
 
 		return $version['client'];
 	}
@@ -1110,7 +1110,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function get_version(): string
 	{
-		$version = pg_version();
+		$version = pg_version($this->connection);
 
 		return $version['server'];
 	}
