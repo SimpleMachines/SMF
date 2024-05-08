@@ -915,5 +915,6 @@ if ($exists) {
 	Db::$db->free_result($request);
 
 	Db::$db->drop_table('{db_prefix}calendar_holidays');
+}
 ---}
 ---#
