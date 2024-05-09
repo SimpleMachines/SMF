@@ -57,11 +57,11 @@ $databases = [
 		'name' => 'MySQL',
 		'version' => '8.0.35',
 		'version_check' => function () {
-			if (!function_exists('mysqli_fetch_row')) {
-				return false;
+			if (Db::$db->title !== MYSQL_TITLE) {
+				return '';
 			}
 
-			return mysqli_fetch_row(mysqli_query(Db::$db_connection, 'SELECT VERSION();'))[0];
+			return Db::$db->get_version();
 		},
 		'alter_support' => true,
 	],
@@ -69,12 +69,11 @@ $databases = [
 		'name' => 'PostgreSQL',
 		'version' => '12.17',
 		'version_check' => function () {
-			if (!function_exists('pg_version')) {
-				return false;
+			if (Db::$db->title !== POSTGRE_TITLE) {
+				return '';
 			}
-			$version = pg_version();
 
-			return $version['client'];
+			return Db::$db->get_version();
 		},
 		'always_has_db' => true,
 	],
