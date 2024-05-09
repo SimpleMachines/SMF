@@ -323,7 +323,7 @@ else {
 	$upcontext['rid'] = mt_rand(0, 5000);
 	$upcontext['upgrade_status'] = [
 		'curstep' => 0,
-		'lang' => $upcontext['lang'] ?? basename(Config::$language, '.lng'),
+		'lang' => $upcontext['lang'] ?? Lang::getLocaleFromLanguageName(Config::$language),
 		'rid' => $upcontext['rid'],
 		'pass' => 0,
 		'debug' => 0,
