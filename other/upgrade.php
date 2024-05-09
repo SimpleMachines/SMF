@@ -4026,7 +4026,7 @@ function Cleanup()
 	$upcontext['steps_count'] = count($cleanupSteps);
 	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
 	$upcontext['cur_substep'] = $cleanupSteps[$upcontext['cur_substep_num']] ?? $cleanupSteps[0];
-	$upcontext['cur_substep_name'] = $txt['cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
+	$upcontext['cur_substep_name'] = $txt['upgrade_step_cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
 
 	foreach ($cleanupSteps as $id => $substep) {
@@ -4039,53 +4039,47 @@ function Cleanup()
 		echo 'Cleaning up.';
 	}
 
-	if (!$support_js || isset($_GET['xml'])) {
-		// Dubstep.
-		for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
-			$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
-			$upcontext['cur_substep_name'] = $txt['cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
-			$upcontext['cur_substep_num'] = $substep + 1;
-
-			if ($command_line) {
-				echo "\n" . ' +++ Clean up \"' . $upcontext['cur_substep_name'] . '"...';
-			}
-
-			// Timeouts
-			nextSubstep($substep);
-
-			if ($command_line) {
-				echo ' done.';
-			}
-
-			// Just to make sure it doesn't time out.
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
-
-			// Do the cleanup stuff.
-			$cleanupSteps[$substep]();
-
-			// If this is XML to keep it nice for the user do one cleanup at a time anyway!
-			if (isset($_GET['xml'])) {
-				return upgradeExit();
-			}
-		}
+	// Dubstep.
+	for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
+		$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
+		$upcontext['cur_substep_name'] = $txt['upgrade_step_cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
+		$upcontext['cur_substep_num'] = $substep + 1;
 
 		if ($command_line) {
-			echo "\n" . 'Successful.' . "\n";
-			flush();
+			echo "\n" . ' +++ Clean up "' . $upcontext['cur_substep_name'] . '"...';
 		}
 
-		$upcontext['step_progress'] = 100;
-		$_GET['substep'] = 0;
+		// Timeouts
+		nextSubstep($substep);
 
-		return true;
+		if ($command_line) {
+			echo ' done.';
+		}
+
+		// Just to make sure it doesn't time out.
+		if (function_exists('apache_reset_timeout')) {
+			@apache_reset_timeout();
+		}
+
+		// Do the cleanup stuff.
+		$cleanupSteps[$substep]();
+
+		// If this is XML to keep it nice for the user do one cleanup at a time anyway!
+		if (isset($_GET['xml'])) {
+			return upgradeExit();
+		}
 	}
 
-	// If this fails we just move on to deleting the upgrade anyway...
-	$_GET['substep'] = 0;
+	if ($command_line) {
+		echo "\n" . 'Successful.' . "\n";
+		flush();
+	}
 
-	return false;
+	$upcontext['step_progress'] = 100;
+	$_GET['substep'] = 0;
+	$_POST['cleanup_done'] = true;
+
+	return true;
 }
 
 function CleanupLanguages()
