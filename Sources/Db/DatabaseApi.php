@@ -240,7 +240,6 @@ abstract class DatabaseApi
 		'board_permissions_view',
 		'boards',
 		'calendar',
-		'calendar_holidays',
 		'categories',
 		'custom_fields',
 		'group_moderators',
