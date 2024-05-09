@@ -5545,7 +5545,7 @@ function template_upgrade_complete()
 	global $upcontext, $upgradeurl, $settings, $is_debug;
 
 	echo '
-				<h3>', Lang::getTxt('upgrade_done', ['url' => Config::$boardurl]), '</h3>
+				<h3>', Lang::getTxt('upgrade_done', ['boardurl' => Config::$boardurl]), '</h3>
 				<form action="', Config::$boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script'])) {
