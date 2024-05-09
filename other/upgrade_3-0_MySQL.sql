@@ -297,6 +297,14 @@ if (!in_array('rrule', $cols)) {
 $exists = count(Db::$db->list_tables(false, '%calendar_holidays')) > 0;
 
 if ($exists) {
+	if (!isset(\SMF\User::$me)) {
+		\SMF\User::load();
+	}
+
+	if (empty(\SMF\User::$me->id) && !empty($upcontext['user']['id'])) {
+		\SMF\User::setMe($upcontext['user']['id']);
+	}
+
 	$known_holidays = [
 		'April Fools' => [
 			'title' => "April Fools' Day",

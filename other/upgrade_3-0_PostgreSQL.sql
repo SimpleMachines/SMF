@@ -202,6 +202,14 @@ $exists = Db::$db->num_rows($request) > 0;
 Db::$db->free_result($request);
 
 if ($exists) {
+	if (!isset(\SMF\User::$me)) {
+		\SMF\User::load();
+	}
+
+	if (empty(\SMF\User::$me->id) && !empty($upcontext['user']['id'])) {
+		\SMF\User::setMe($upcontext['user']['id']);
+	}
+
 	$known_holidays = [
 		'April Fools' => [
 			'title' => "April Fools' Day",
