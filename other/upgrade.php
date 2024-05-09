@@ -2518,7 +2518,7 @@ function parse_sql($filename)
 			$current_data = '';
 		}
 		// If this is xml based and we're just getting the item name then that's grand.
-		elseif ($support_js && !isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current) {
+		elseif ($support_js && isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current) {
 			restore_error_handler();
 
 			return false;
