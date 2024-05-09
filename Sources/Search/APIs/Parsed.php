@@ -188,6 +188,13 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$this->size = 0;
 
 		if (Db::$db->title === POSTGRE_TITLE) {
+
+			// Postgres will throw an error if the tables don't exist, so check first
+			$search_tables = Db::$db->list_tables(Db::$db->name, 'log_search%');
+			if (array_intersect(['log_search_dictionary', 'log_search_parsed'], $search_tables) == []) {
+				return $this->size;
+			}
+
 			$request = Db::$db->query(
 				'',
 				'SELECT (
