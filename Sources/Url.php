@@ -498,6 +498,7 @@ class Url implements \Stringable
 		// We don't need to proxy our own resources.
 		if ($proxied->host === Url::create(Config::$boardurl)->host) {
 			$proxied->url = strtr($this->url, ['http://' => 'https://']);
+			$proxied->parse();
 
 			return $proxied;
 		}
