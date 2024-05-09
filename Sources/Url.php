@@ -687,7 +687,7 @@ class Url implements \Stringable
 			}
 
 			// Make sure nothing went horribly wrong along the way.
-			if (md5($tlds) != substr($tlds_md5, 0, 32)) {
+			if (md5((string) $tlds) != substr((string) $tlds_md5, 0, 32)) {
 				$tlds = [];
 			}
 		}
