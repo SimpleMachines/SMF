@@ -3799,218 +3799,211 @@ function serialize_to_json()
 		echo 'Converting data from serialize() to json_encode().';
 	}
 
-	if (!$support_js || isset($_GET['xml'])) {
-		// Fix the data in each table
-		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++) {
-			$upcontext['cur_table_name'] = $keys[$substep + 1] ?? $keys[$substep];
-			$upcontext['cur_table_num'] = $substep + 1;
+	// Fix the data in each table
+	for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++) {
+		$upcontext['cur_table_name'] = $keys[$substep + 1] ?? $keys[$substep];
+		$upcontext['cur_table_num'] = $substep + 1;
 
-			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
-			// Do we need to pause?
-			nextSubstep($substep);
+		// Do we need to pause?
+		nextSubstep($substep);
 
-			// Initialize a few things...
-			$where = '';
-			$vars = [];
-			$table = $keys[$substep];
-			$info = $tables[$table];
+		// Initialize a few things...
+		$where = '';
+		$vars = [];
+		$table = $keys[$substep];
+		$info = $tables[$table];
 
-			// Now the fun - build our queries and all that fun stuff
-			if ($table == 'settings') {
-				// Now a few settings...
-				$serialized_settings = [
-					'attachment_basedirectories',
-					'attachmentUploadDir',
-					'cal_today_birthday',
-					'cal_today_event',
-					'cal_today_holiday',
-					'displayFields',
-					'last_attachments_directory',
-					'memberlist_cache',
-					'search_custom_index_config',
-					'spider_name_cache',
-				];
+		// Now the fun - build our queries and all that fun stuff
+		if ($table == 'settings') {
+			// Now a few settings...
+			$serialized_settings = [
+				'attachment_basedirectories',
+				'attachmentUploadDir',
+				'cal_today_birthday',
+				'cal_today_event',
+				'cal_today_holiday',
+				'displayFields',
+				'last_attachments_directory',
+				'memberlist_cache',
+				'search_custom_index_config',
+				'spider_name_cache',
+			];
 
-				// Loop through and fix these...
-				$new_settings = [];
+			// Loop through and fix these...
+			$new_settings = [];
 
-				if ($command_line) {
-					echo "\n" . 'Fixing some settings...';
+			if ($command_line) {
+				echo "\n" . 'Fixing some settings...';
+			}
+
+			foreach ($serialized_settings as $var) {
+				if (isset(Config::$modSettings[$var])) {
+					// Attempt to unserialize the setting
+					$temp = upgrade_unserialize(Config::$modSettings[$var]);
+
+					if (!$temp && $command_line) {
+						echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
+					} elseif ($temp !== false) {
+						$new_settings[$var] = json_encode($temp);
+					}
 				}
+			}
 
-				foreach ($serialized_settings as $var) {
-					if (isset(Config::$modSettings[$var])) {
-						// Attempt to unserialize the setting
-						$temp = upgrade_unserialize(Config::$modSettings[$var]);
+			// Update everything at once
+			Config::updateModSettings($new_settings, true);
 
-						if (!$temp && $command_line) {
-							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
-						} elseif ($temp !== false) {
-							$new_settings[$var] = json_encode($temp);
+			if ($command_line) {
+				echo ' done.';
+			}
+		} elseif ($table == 'themes') {
+			// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+			$query = Db::$db->query(
+				'',
+				'SELECT id_member, id_theme, value FROM {db_prefix}themes
+				WHERE variable = {string:admin_prefs}',
+				[
+					'admin_prefs' => 'admin_preferences',
+				],
+			);
+
+			if (Db::$db->num_rows($query) != 0) {
+				while ($row = Db::$db->fetch_assoc($query)) {
+					$temp = upgrade_unserialize($row['value']);
+
+					if ($command_line) {
+						if ($temp === false) {
+							echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
+						} else {
+							echo "\n" . 'Fixing admin preferences...';
+						}
+					}
+
+					if ($temp !== false) {
+						$row['value'] = json_encode($temp);
+
+						// Even though we have all values from the table, UPDATE is still faster than REPLACE
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}themes
+							SET value = {string:prefs}
+							WHERE id_theme = {int:theme}
+								AND id_member = {int:member}
+								AND variable = {string:admin_prefs}',
+							[
+								'prefs' => $row['value'],
+								'theme' => $row['id_theme'],
+								'member' => $row['id_member'],
+								'admin_prefs' => 'admin_preferences',
+							],
+						);
+
+						if ($command_line) {
+							echo ' done.';
 						}
 					}
 				}
 
-				// Update everything at once
-				Config::updateModSettings($new_settings, true);
+				Db::$db->free_result($query);
+			}
+		} else {
+			// First item is always the key...
+			$key = $info[0];
+			unset($info[0]);
+
+			// Now we know what columns we have and such...
+			if (count($info) == 2 && $info[2] === true) {
+				$col_select = $info[1];
+				$where = ' WHERE ' . $info[1] . ' != {empty}';
+			} else {
+				$col_select = implode(', ', $info);
+			}
+
+			$query = Db::$db->query(
+				'',
+				'SELECT ' . $key . ', ' . $col_select . '
+				FROM {db_prefix}' . $table . $where,
+				[],
+			);
+
+			if (Db::$db->num_rows($query) != 0) {
+				if ($command_line) {
+					echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+					flush();
+				}
+
+				while ($row = Db::$db->fetch_assoc($query)) {
+					$update = '';
+
+					// We already know what our key is...
+					foreach ($info as $col) {
+						if ($col !== true && $row[$col] != '') {
+							$temp = upgrade_unserialize($row[$col]);
+
+							// Oh well...
+							if ($temp === false) {
+								$temp = [];
+
+								if ($command_line) {
+									echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
+								}
+							}
+
+							$row[$col] = json_encode($temp);
+
+							// Build our SET string and variables array
+							$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+							$vars[$col] = $row[$col];
+						}
+					}
+
+					$vars[$key] = $row[$key];
+
+					// In a few cases, we might have empty data, so don't try to update in those situations...
+					if (!empty($update)) {
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}' . $table . '
+							SET ' . $update . '
+							WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+							$vars,
+						);
+					}
+				}
 
 				if ($command_line) {
 					echo ' done.';
 				}
-			} elseif ($table == 'themes') {
-				// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
-				$query = Db::$db->query(
-					'',
-					'SELECT id_member, id_theme, value FROM {db_prefix}themes
-					WHERE variable = {string:admin_prefs}',
-					[
-						'admin_prefs' => 'admin_preferences',
-					],
-				);
 
-				if (Db::$db->num_rows($query) != 0) {
-					while ($row = Db::$db->fetch_assoc($query)) {
-						$temp = upgrade_unserialize($row['value']);
-
-						if ($command_line) {
-							if ($temp === false) {
-								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
-							} else {
-								echo "\n" . 'Fixing admin preferences...';
-							}
-						}
-
-						if ($temp !== false) {
-							$row['value'] = json_encode($temp);
-
-							// Even though we have all values from the table, UPDATE is still faster than REPLACE
-							Db::$db->query(
-								'',
-								'UPDATE {db_prefix}themes
-								SET value = {string:prefs}
-								WHERE id_theme = {int:theme}
-									AND id_member = {int:member}
-									AND variable = {string:admin_prefs}',
-								[
-									'prefs' => $row['value'],
-									'theme' => $row['id_theme'],
-									'member' => $row['id_member'],
-									'admin_prefs' => 'admin_preferences',
-								],
-							);
-
-							if ($command_line) {
-								echo ' done.';
-							}
-						}
-					}
-
-					Db::$db->free_result($query);
-				}
-			} else {
-				// First item is always the key...
-				$key = $info[0];
-				unset($info[0]);
-
-				// Now we know what columns we have and such...
-				if (count($info) == 2 && $info[2] === true) {
-					$col_select = $info[1];
-					$where = ' WHERE ' . $info[1] . ' != {empty}';
-				} else {
-					$col_select = implode(', ', $info);
-				}
-
-				$query = Db::$db->query(
-					'',
-					'SELECT ' . $key . ', ' . $col_select . '
-					FROM {db_prefix}' . $table . $where,
-					[],
-				);
-
-				if (Db::$db->num_rows($query) != 0) {
-					if ($command_line) {
-						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
-						flush();
-					}
-
-					while ($row = Db::$db->fetch_assoc($query)) {
-						$update = '';
-
-						// We already know what our key is...
-						foreach ($info as $col) {
-							if ($col !== true && $row[$col] != '') {
-								$temp = upgrade_unserialize($row[$col]);
-
-								// Oh well...
-								if ($temp === false) {
-									$temp = [];
-
-									if ($command_line) {
-										echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
-									}
-								}
-
-								$row[$col] = json_encode($temp);
-
-								// Build our SET string and variables array
-								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-								$vars[$col] = $row[$col];
-							}
-						}
-
-						$vars[$key] = $row[$key];
-
-						// In a few cases, we might have empty data, so don't try to update in those situations...
-						if (!empty($update)) {
-							Db::$db->query(
-								'',
-								'UPDATE {db_prefix}' . $table . '
-								SET ' . $update . '
-								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
-								$vars,
-							);
-						}
-					}
-
-					if ($command_line) {
-						echo ' done.';
-					}
-
-					// Free up some memory...
-					Db::$db->free_result($query);
-				}
-			}
-
-			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml'])) {
-				return upgradeExit();
+				// Free up some memory...
+				Db::$db->free_result($query);
 			}
 		}
 
-		if ($command_line) {
-			echo "\n" . 'Successful.' . "\n";
-			flush();
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml'])) {
+			return upgradeExit();
 		}
-		$upcontext['step_progress'] = 100;
-
-		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
-		Config::updateModSettings(['json_done' => true]);
-
-		$_GET['substep'] = 0;
-
-		// Make sure we move on!
-		if ($command_line) {
-			return ConvertUtf8();
-		}
-
-		return true;
 	}
 
-	// If this fails we just move on to deleting the upgrade anyway...
+	if ($command_line) {
+		echo "\n" . 'Successful.' . "\n";
+		flush();
+	}
+	$upcontext['step_progress'] = 100;
+
+	// Last but not least, insert a dummy setting so we don't have to do this again in the future...
+	Config::updateModSettings(['json_done' => true]);
+
 	$_GET['substep'] = 0;
 
-	return false;
+	// Make sure we move on!
+	if ($command_line) {
+		return ConvertUtf8();
+	}
+
+	return true;
 }
 
 function Cleanup()
