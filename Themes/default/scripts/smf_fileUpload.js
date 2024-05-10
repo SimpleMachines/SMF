@@ -92,7 +92,7 @@ function smf_fileUpload(oOptions) {
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
 
 			// This file has reached the max total size per post.
-			if (totalKB > 0 && currentlyUsedKB > totalKB) {
+			if (totalKB > 0 && (currentlyUsedKB + uploadedFileKB) > totalKB) {
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', totalKB).replace('{currentRemain}', currentlyUsedKB));
 
 				// Remove the file size from the total
