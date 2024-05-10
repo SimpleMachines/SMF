@@ -254,6 +254,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			$row = array_change_key_case($row, CASE_LOWER);
 			$same_col[] = $row['column_name'];
 		}
 
