@@ -2361,22 +2361,40 @@ class Profile extends User implements \ArrayAccess
 				// Any masks?
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none') {
 					$value = Utils::htmlTrim($value);
-					$valueReference = Utils::htmlspecialcharsDecode($value);
+					$valueReference = html_entity_decode($value);
 
 					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
 						$value = '';
 					}
 
-					if ($cf_def['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != Utils::htmlspecialchars($value, ENT_NOQUOTES) || preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference))) {
+					if (
+						$cf_def['mask'] == 'nohtml'
+						&& (
+							$valueReference != strip_tags($valueReference)
+							|| $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES)
+							|| preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference)
+						)
+					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
-					} elseif ($cf_def['mask'] == 'email' && !empty($value) && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255)) {
+					} elseif (
+						$cf_def['mask'] == 'email'
+						&& !empty($value)
+						&& (
+							!filter_var($value, FILTER_VALIDATE_EMAIL)
+							|| strlen($value) > 255
+						)
+					) {
 						$mask_error = 'custom_field_mail_fail';
 						$value = '';
 					} elseif ($cf_def['mask'] == 'number') {
 						$value = (int) $value;
-					} elseif (str_starts_with($cf_def['mask'], 'regex') && trim($value) != '' && preg_match(substr($cf_def['mask'], 5), $value) === 0) {
+					} elseif (
+						str_starts_with($cf_def['mask'], 'regex')
+						&& trim($value) != ''
+						&& preg_match(substr($cf_def['mask'], 5), $value) === 0
+					) {
 						$mask_error = 'custom_field_regex_fail';
 						$value = '';
 					}
