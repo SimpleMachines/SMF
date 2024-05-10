@@ -751,7 +751,7 @@ class News extends ACP
 		if (!Utils::$context['send_pm']) {
 			$include_unsubscribe = true;
 
-			if (strpos($_POST['message'], '{$member.unsubscribe}') === false) {
+			if (!str_contains($_POST['message'], '{$member.unsubscribe}')) {
 				$_POST['message'] .= "\n\n" . '{$member.unsubscribe}';
 			}
 		}
@@ -1242,7 +1242,7 @@ class News extends ACP
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
 
 		// Force the right area...
-		if (substr($this->subaction, 0, 7) == 'mailing') {
+		if (str_starts_with($this->subaction, 'mailing')) {
 			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
 		}
 

@@ -1229,14 +1229,14 @@ class Attachments implements ActionInterface
 
 						if ($files_checked <= $current_check) {
 							// Temporary file, get rid of it!
-							if (strpos($file, 'post_tmp_') !== false) {
+							if (str_contains($file, 'post_tmp_')) {
 								// Temp file is more than 5 hours old!
 								if (filemtime($attach_dir . '/' . $file) < time() - 18000) {
 									@unlink($attach_dir . '/' . $file);
 								}
 							}
 							// That should be an attachment, let's check if we have it in the database
-							elseif (strpos($file, '_') !== false) {
+							elseif (str_contains($file, '_')) {
 								$attachID = (int) substr($file, 0, strpos($file, '_'));
 
 								if (!empty($attachID)) {
@@ -1414,7 +1414,7 @@ class Attachments implements ActionInterface
 						if (!empty(Config::$modSettings['attachment_basedirectories'])) {
 							// Count any sub-folders.
 							foreach (Config::$modSettings['attachmentUploadDir'] as $sub) {
-								if (strpos($sub, $path . DIRECTORY_SEPARATOR) !== false) {
+								if (str_contains($sub, $path . DIRECTORY_SEPARATOR)) {
 									$num_attach++;
 								}
 							}
@@ -1497,14 +1497,14 @@ class Attachments implements ActionInterface
 
 					if (!empty(Config::$modSettings['attachment_basedirectories'])) {
 						foreach (Config::$modSettings['attachment_basedirectories'] as $bid => $base) {
-							if (strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !== false) {
+							if (str_contains(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR)) {
 								$use_subdirectories_for_attachments = 1;
 								break;
 							}
 						}
 					}
 
-					if ($use_subdirectories_for_attachments == 0 && strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], Config::$boarddir . DIRECTORY_SEPARATOR) !== false) {
+					if ($use_subdirectories_for_attachments == 0 && str_contains(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], Config::$boarddir . DIRECTORY_SEPARATOR)) {
 						$bid = 0;
 					}
 
@@ -2428,7 +2428,7 @@ class Attachments implements ActionInterface
 
 				// Count any sub-folders.
 				foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub) {
-					if (strpos($sub, $dir . DIRECTORY_SEPARATOR) !== false) {
+					if (str_contains($sub, $dir . DIRECTORY_SEPARATOR)) {
 						$expected_files[$id]++;
 						$sub_dirs++;
 					}
@@ -2481,7 +2481,7 @@ class Attachments implements ActionInterface
 			$expected_dirs = 0;
 
 			foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub) {
-				if (strpos($sub, $dir . DIRECTORY_SEPARATOR) !== false) {
+				if (str_contains($sub, $dir . DIRECTORY_SEPARATOR)) {
 					$expected_dirs++;
 				}
 			}

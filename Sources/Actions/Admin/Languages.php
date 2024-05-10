@@ -193,7 +193,7 @@ class Languages implements ActionInterface
 			// Check writable status.
 			foreach ($_POST['copy_file'] as $file) {
 				// Check it's not very bad.
-				if (strpos($file, '..') !== false || (strpos($file, 'Themes') !== 0 && !preg_match('~agreement\.[A-Za-z-_0-9]+\.txt$~', $file))) {
+				if (str_contains($file, '..') || (!str_starts_with($file, 'Themes') && !preg_match('~agreement\.[A-Za-z-_0-9]+\.txt$~', $file))) {
 					ErrorHandler::fatal(Lang::$txt['languages_download_illegal_paths']);
 				}
 
@@ -663,7 +663,7 @@ class Languages implements ActionInterface
 		Utils::$context['sub_template'] = 'modify_language_entries';
 
 		$lang_id = $_GET['lid'];
-		list($theme_id, $file_id) = empty($_REQUEST['tfid']) || strpos($_REQUEST['tfid'], '+') === false ? [1, ''] : explode('+', $_REQUEST['tfid']);
+		list($theme_id, $file_id) = empty($_REQUEST['tfid']) || !str_contains($_REQUEST['tfid'], '+') ? [1, ''] : explode('+', $_REQUEST['tfid']);
 
 		// Clean the ID - just in case.
 		preg_match('~([A-Za-z0-9_-]+)~', $lang_id, $matches);
@@ -1123,9 +1123,9 @@ class Languages implements ActionInterface
 						}
 
 						// Clean up some bits.
-						if (strpos($subValue, '\'') === 0) {
+						if (str_starts_with($subValue, '\'')) {
 							$subValue = trim($subValue, '\'');
-						} elseif (strpos($subValue, '"') === 0) {
+						} elseif (str_starts_with($subValue, '"')) {
 							$subValue = trim($subValue, '"');
 						}
 
@@ -1493,7 +1493,7 @@ class Languages implements ActionInterface
 
 			foreach ($lang_files as $file) {
 				// Were we searching?
-				if (!empty(Utils::$context['smf_search_term']) && strpos($file->fetch('name'), Utils::strtolower(Utils::$context['smf_search_term'])) === false) {
+				if (!empty(Utils::$context['smf_search_term']) && !str_contains($file->fetch('name'), Utils::strtolower(Utils::$context['smf_search_term']))) {
 					continue;
 				}
 

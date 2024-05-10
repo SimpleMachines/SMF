@@ -1019,14 +1019,14 @@ class Themes implements ActionInterface
 
 		if (!isset($_REQUEST['filename'])) {
 			if (isset($_GET['directory'])) {
-				if (substr($_GET['directory'], 0, 1) == '.') {
+				if (str_starts_with($_GET['directory'], '.')) {
 					$_GET['directory'] = '';
 				} else {
 					$_GET['directory'] = preg_replace(['~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'], ['', '/', '/'], $_GET['directory']);
 
 					$temp = realpath($currentTheme['theme_dir'] . '/' . $_GET['directory']);
 
-					if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir'])) {
+					if (empty($temp) || !str_starts_with($temp, realpath($currentTheme['theme_dir']))) {
 						$_GET['directory'] = '';
 					}
 				}
@@ -1053,7 +1053,7 @@ class Themes implements ActionInterface
 
 			// Do not list minified_ files
 			foreach (Utils::$context['theme_files'] as $key => $file) {
-				if (strpos($file['filename'], 'minified_') !== false) {
+				if (str_contains($file['filename'], 'minified_')) {
 					unset(Utils::$context['theme_files'][$key]);
 				}
 			}
@@ -1063,14 +1063,14 @@ class Themes implements ActionInterface
 			return null;
 		}
 
-		if (substr($_REQUEST['filename'], 0, 1) == '.') {
+		if (str_starts_with($_REQUEST['filename'], '.')) {
 			$_REQUEST['filename'] = '';
 		} else {
 			$_REQUEST['filename'] = preg_replace(['~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'], ['', '/', '/'], $_REQUEST['filename']);
 
 			$temp = realpath($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 
-			if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir'])) {
+			if (empty($temp) || !str_starts_with($temp, realpath($currentTheme['theme_dir']))) {
 				$_REQUEST['filename'] = '';
 			}
 		}
@@ -1088,7 +1088,7 @@ class Themes implements ActionInterface
 				$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], ["\r" => '', '   ' => "\t"]));
 
 				// Check for a parse error!
-				if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($currentTheme['theme_dir']) && ini_get('display_errors')) {
+				if (str_ends_with($_REQUEST['filename'], '.template.php') && is_writable($currentTheme['theme_dir']) && ini_get('display_errors')) {
 					Config::safeFileWrite($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 					$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
@@ -1141,11 +1141,11 @@ class Themes implements ActionInterface
 
 		Utils::$context['edit_filename'] = Utils::htmlspecialchars($_REQUEST['filename']);
 
-		if (substr($_REQUEST['filename'], -4) == '.css') {
+		if (str_ends_with($_REQUEST['filename'], '.css')) {
 			Utils::$context['sub_template'] = 'edit_style';
 
 			Utils::$context['entire_file'] = Utils::htmlspecialchars(strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), ["\t" => '   ']));
-		} elseif (substr($_REQUEST['filename'], -13) == '.template.php') {
+		} elseif (str_ends_with($_REQUEST['filename'], '.template.php')) {
 			Utils::$context['sub_template'] = 'edit_template';
 
 			if (!isset($error_file)) {
@@ -1163,7 +1163,7 @@ class Themes implements ActionInterface
 			Utils::$context['file_parts'] = [['lines' => 0, 'line' => 1, 'data' => '']];
 
 			for ($i = 0, $n = count($file_data); $i < $n; $i++) {
-				if (isset($file_data[$i + 1]) && substr($file_data[$i + 1], 0, 9) == 'function ') {
+				if (isset($file_data[$i + 1]) && str_starts_with($file_data[$i + 1], 'function ')) {
 					// Try to format the functions a little nicer...
 					Utils::$context['file_parts'][$j]['data'] = trim(Utils::$context['file_parts'][$j]['data']) . "\n";
 
@@ -1242,7 +1242,7 @@ class Themes implements ActionInterface
 		$lang_files = [];
 
 		foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir']) as $fileInfo) {
-			if (substr($fileInfo->getFilename(), -13) == '.template.php') {
+			if (str_ends_with($fileInfo->getFilename(), '.template.php')) {
 				$templates[] = substr($fileInfo->getFilename(), 0, -13);
 			}
 		}
@@ -1293,7 +1293,7 @@ class Themes implements ActionInterface
 		foreach (new \DirectoryIterator($theme['theme_dir']) as $fileInfo) {
 			$theme_basename = substr($fileInfo->getFilename(), 0, -13);
 
-			if (substr($fileInfo->getFilename(), -13) == '.template.php' && isset(Utils::$context['available_templates'][$theme_basename])) {
+			if (str_ends_with($fileInfo->getFilename(), '.template.php') && isset(Utils::$context['available_templates'][$theme_basename])) {
 				Utils::$context['available_templates'][$theme_basename]['already_exists'] = true;
 				Utils::$context['available_templates'][$theme_basename]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $theme_basename);
 			}
@@ -2190,7 +2190,7 @@ class Themes implements ActionInterface
 
 		foreach ($entries as $entry) {
 			// Skip all dot files, including .htaccess.
-			if (substr($entry, 0, 1) == '.' || $entry == 'CVS') {
+			if (str_starts_with($entry, '.') || $entry == 'CVS') {
 				continue;
 			}
 

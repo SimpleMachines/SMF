@@ -1045,7 +1045,7 @@ class Bans implements ActionInterface
 
 			if ($row['email_address']) {
 				// Does it have a wildcard - if so we can't do a IN on it.
-				if (strpos($row['email_address'], '%') !== false) {
+				if (str_contains($row['email_address'], '%')) {
 					$memberEmailWild[$row['email_address']] = $row['email_address'];
 				} else {
 					$memberEmails[$row['email_address']] = $row['email_address'];
@@ -2419,7 +2419,7 @@ class Bans implements ActionInterface
 					$ban_items[$row['id_ban']]['type'] = 'ip';
 					$ban_items[$row['id_ban']]['ip'] = IP::range2ip($row['ip_low'], $row['ip_high']);
 
-					$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false);
+					$is_range = (str_contains($ban_items[$row['id_ban']]['ip'], '-') || str_contains($ban_items[$row['id_ban']]['ip'], '*'));
 
 					$log_info[] = [
 						'bantype' => ($is_range ? 'ip_range' : 'main_ip'),
