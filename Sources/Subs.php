@@ -4185,7 +4185,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 
 	// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-	if ($should_log)
+	if ($should_log && !isset($_REQUEST['xml']))
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
