@@ -1714,6 +1714,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 
 			while ($row = $this->fetch_assoc($request)) {
+				$row = array_change_key_case($row, CASE_LOWER);
 				$same_col[] = $row['column_name'];
 			}
 
