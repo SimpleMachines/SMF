@@ -153,12 +153,12 @@ class XmlArray
 		// For each element in the path.
 		foreach ($path as $el) {
 			// Deal with sets....
-			if (strpos($el, '[') !== false) {
+			if (str_contains($el, '[')) {
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@') {
+			elseif (str_starts_with($el, '@')) {
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el])) {
 					return $array[$el];
@@ -218,12 +218,12 @@ class XmlArray
 		// For each element in the path.
 		foreach ($path as $el) {
 			// Deal with sets....
-			if (strpos($el, '[') !== false) {
+			if (str_contains($el, '[')) {
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@') {
+			elseif (str_starts_with($el, '@')) {
 				return isset($array[$el]);
 			} else {
 				$lvl = null;
@@ -381,7 +381,7 @@ class XmlArray
 			// Didn't find a tag?  Keep looping....
 			if (!isset($match[1]) || $match[1] == '') {
 				// If there's no <, the rest is data.
-				if (strpos($data, '<') === false) {
+				if (!str_contains($data, '<')) {
 					$text_value = $this->_from_cdata($data);
 					$data = '';
 
@@ -405,7 +405,7 @@ class XmlArray
 					}
 				}
 				// If we're looking at a </something> with no start, kill it.
-				elseif (strpos($data, '<') !== false && strpos($data, '<') == 0) {
+				elseif (str_contains($data, '<') && strpos($data, '<') == 0) {
 					if (strpos($data, '<', 1) !== false) {
 						$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<', 1)));
 						$data = substr($data, strpos($data, '<', 1));
@@ -475,7 +475,7 @@ class XmlArray
 
 				if (!empty($inner_match)) {
 					// Parse the inner data.
-					if (strpos($inner_match, '<') !== false) {
+					if (str_contains($inner_match, '<')) {
 						$el += $this->_parse($inner_match);
 					} elseif (trim($inner_match) != '') {
 						$text_value = $this->_from_cdata($inner_match);
@@ -534,7 +534,7 @@ class XmlArray
 			return $indentation . '<![CDATA[' . $array['value'] . ']]>';
 		}
 
-		if (substr($array['name'], -2) == '[]') {
+		if (str_ends_with($array['name'], '[]')) {
 			$array['name'] = substr($array['name'], 0, -2);
 		}
 
@@ -546,7 +546,7 @@ class XmlArray
 
 		// Run through and recursively output all the elements or attributes inside this.
 		foreach ($array as $k => $v) {
-			if (substr($k, 0, 1) == '@') {
+			if (str_starts_with($k, '@')) {
 				$output .= ' ' . substr($k, 1) . '="' . $v . '"';
 			} elseif (is_array($v)) {
 				$output_el .= $this->_xml($v, $indent === null ? null : $indent + 1);

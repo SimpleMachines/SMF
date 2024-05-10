@@ -478,7 +478,7 @@ class PackageManager
 
 					foreach ($mod_actions as $key => $mod_action) {
 						// Lets get the last section of the file name.
-						if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php') {
+						if (isset($mod_action['filename']) && !str_ends_with($mod_action['filename'], '.template.php')) {
 							$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
 						} elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches)) {
 							$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
@@ -551,7 +551,7 @@ class PackageManager
 					// We need to loop again just to get the operations down correctly.
 					foreach ($mod_actions as $operation_key => $mod_action) {
 						// Lets get the last section of the file name.
-						if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php') {
+						if (isset($mod_action['filename']) && !str_ends_with($mod_action['filename'], '.template.php')) {
 							$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
 						} elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches)) {
 							$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
@@ -1481,7 +1481,7 @@ class PackageManager
 		$_GET['package'] = preg_replace('~\.+~', '.', strtr($_GET['package'], ['/' => '_', '\\' => '_']));
 
 		// Can't delete what's not there.
-		if (file_exists(Config::$packagesdir . '/' . $_GET['package']) && (substr($_GET['package'], -4) == '.zip' || substr($_GET['package'], -4) == '.tgz' || substr($_GET['package'], -7) == '.tar.gz' || is_dir(Config::$packagesdir . '/' . $_GET['package'])) && $_GET['package'] != 'backups' && substr($_GET['package'], 0, 1) != '.') {
+		if (file_exists(Config::$packagesdir . '/' . $_GET['package']) && (str_ends_with($_GET['package'], '.zip') || str_ends_with($_GET['package'], '.tgz') || str_ends_with($_GET['package'], '.tar.gz') || is_dir(Config::$packagesdir . '/' . $_GET['package'])) && $_GET['package'] != 'backups' && !str_starts_with($_GET['package'], '.')) {
 			SubsPackage::create_chmod_control([Config::$packagesdir . '/' . $_GET['package']], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=remove;package=' . $_GET['package'], 'crash_on_error' => true]);
 
 			if (is_dir(Config::$packagesdir . '/' . $_GET['package'])) {
@@ -1935,7 +1935,7 @@ class PackageManager
 		];
 
 		// Directories that can move.
-		if (substr(Config::$sourcedir, 0, strlen(Config::$boarddir)) != Config::$boarddir) {
+		if (!str_starts_with(Config::$sourcedir, Config::$boarddir)) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['Sources']);
 			Utils::$context['file_tree'][strtr(Config::$sourcedir, ['\\' => '/'])] = [
 				'type' => 'dir',
@@ -1945,7 +1945,7 @@ class PackageManager
 		}
 
 		// Moved the cache?
-		if (substr(Config::$cachedir, 0, strlen(Config::$boarddir)) != Config::$boarddir) {
+		if (!str_starts_with(Config::$cachedir, Config::$boarddir)) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['cache']);
 			Utils::$context['file_tree'][strtr(Config::$cachedir, ['\\' => '/'])] = [
 				'type' => 'dir',
@@ -1969,7 +1969,7 @@ class PackageManager
 					'writable_on' => 'restrictive',
 				];
 			}
-		} elseif (substr(Config::$modSettings['attachmentUploadDir'], 0, strlen(Config::$boarddir)) != Config::$boarddir) {
+		} elseif (!str_starts_with(Config::$modSettings['attachmentUploadDir'], Config::$boarddir)) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['attachments']);
 			Utils::$context['file_tree'][strtr(Config::$modSettings['attachmentUploadDir'], ['\\' => '/'])] = [
 				'type' => 'dir',
@@ -1977,7 +1977,7 @@ class PackageManager
 			];
 		}
 
-		if (substr(Config::$modSettings['smileys_dir'], 0, strlen(Config::$boarddir)) != Config::$boarddir) {
+		if (!str_starts_with(Config::$modSettings['smileys_dir'], Config::$boarddir)) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['Smileys']);
 			Utils::$context['file_tree'][strtr(Config::$modSettings['smileys_dir'], ['\\' => '/'])] = [
 				'type' => 'dir_recursive',
@@ -1985,7 +1985,7 @@ class PackageManager
 			];
 		}
 
-		if (substr(Config::$modSettings['avatar_directory'], 0, strlen(Config::$boarddir)) != Config::$boarddir) {
+		if (!str_starts_with(Config::$modSettings['avatar_directory'], Config::$boarddir)) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['avatars']);
 			Utils::$context['file_tree'][strtr(Config::$modSettings['avatar_directory'], ['\\' => '/'])] = [
 				'type' => 'dir',
@@ -1993,7 +1993,7 @@ class PackageManager
 			];
 		}
 
-		if (isset(Config::$modSettings['custom_avatar_dir']) && substr(Config::$modSettings['custom_avatar_dir'], 0, strlen(Config::$boarddir)) != Config::$boarddir) {
+		if (isset(Config::$modSettings['custom_avatar_dir']) && !str_starts_with(Config::$modSettings['custom_avatar_dir'], Config::$boarddir)) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['custom_avatar_dir']);
 			Utils::$context['file_tree'][strtr(Config::$modSettings['custom_avatar_dir'], ['\\' => '/'])] = [
 				'type' => 'dir',
@@ -2106,7 +2106,7 @@ class PackageManager
 
 		foreach (Utils::$context['file_tree'] as $path => $data) {
 			// Run this directory.
-			if (file_exists($path) && (empty(Utils::$context['only_find']) || substr(Utils::$context['only_find'], 0, strlen($path)) == $path)) {
+			if (file_exists($path) && (empty(Utils::$context['only_find']) || str_starts_with(Utils::$context['only_find'], $path))) {
 				// Get the first level down only.
 				$this->fetchPerms__recursive($path, Utils::$context['file_tree'][$path], 1);
 				Utils::$context['file_tree'][$path]['perms'] = [
@@ -2168,7 +2168,7 @@ class PackageManager
 					$legal = false;
 
 					foreach ($legal_roots as $root) {
-						if (substr($path, 0, strlen($root)) == $root) {
+						if (str_starts_with($path, $root)) {
 							$legal = true;
 						}
 					}
@@ -2509,7 +2509,7 @@ class PackageManager
 
 			// If there is a relative link, append to the stored server url.
 			if (isset($_GET['relative'])) {
-				$url = $url . (substr($url, -1) == '/' ? '' : '/') . $_GET['relative'];
+				$url = $url . (str_ends_with($url, '/') ? '' : '/') . $_GET['relative'];
 			}
 
 			$the_version = SMF_VERSION;
@@ -2655,7 +2655,7 @@ class PackageManager
 				elseif ($package['type'] == 'remote') {
 					$remote_type = $thisPackage->exists('@type') ? $thisPackage->fetch('@type') : 'relative';
 
-					if ($remote_type == 'relative' && substr($thisPackage->fetch('@href'), 0, 7) != 'http://' && substr($thisPackage->fetch('@href'), 0, 8) != 'https://') {
+					if ($remote_type == 'relative' && !str_starts_with($thisPackage->fetch('@href'), 'http://') && !str_starts_with($thisPackage->fetch('@href'), 'https://')) {
 						if (isset($_GET['absolute'])) {
 							$current_url = $_GET['absolute'] . '/';
 						} elseif (isset($_GET['relative'])) {
@@ -2917,7 +2917,7 @@ class PackageManager
 
 		// Done!  Did we get this package automatically?
 		// @ TODO: These are usually update packages.  Allowing both for now until more testing has been done.
-		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto'])) {
+		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && !str_contains($_REQUEST['package'], 'dlattach') && isset($_REQUEST['auto'])) {
 			Utils::redirectexit('action=admin;area=packages;sa=install;package=' . $package_name);
 		}
 
@@ -3002,7 +3002,7 @@ class PackageManager
 		// Is it already uploaded, maybe?
 		elseif ($dir = @opendir(Config::$packagesdir)) {
 			while ($package = readdir($dir)) {
-				if ($package == '.' || $package == '..' || $package == 'temp' || $package == $packageFileName || (!(is_dir(Config::$packagesdir . '/' . $package) && file_exists(Config::$packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip')) {
+				if ($package == '.' || $package == '..' || $package == 'temp' || $package == $packageFileName || (!(is_dir(Config::$packagesdir . '/' . $package) && file_exists(Config::$packagesdir . '/' . $package . '/package-info.xml')) && !str_ends_with(strtolower($package), '.tar.gz') && !str_ends_with(strtolower($package), '.tgz') && !str_ends_with(strtolower($package), '.zip'))) {
 					continue;
 				}
 
@@ -3046,7 +3046,7 @@ class PackageManager
 		User::$me->checkSession();
 
 		// If they put a slash on the end, get rid of it.
-		if (substr($_POST['serverurl'], -1) == '/') {
+		if (str_ends_with($_POST['serverurl'], '/')) {
 			$_POST['serverurl'] = substr($_POST['serverurl'], 0, -1);
 		}
 
@@ -3055,7 +3055,7 @@ class PackageManager
 		$serverurl = trim(Utils::htmlspecialchars($_POST['serverurl']));
 
 		// Make sure the URL has the correct prefix.
-		if (strpos($serverurl, 'http://') !== 0 && strpos($serverurl, 'https://') !== 0) {
+		if (!str_starts_with($serverurl, 'http://') && !str_starts_with($serverurl, 'https://')) {
 			$serverurl = 'http://' . $serverurl;
 		}
 
@@ -3172,7 +3172,7 @@ class PackageManager
 			IntegrationHook::call('integrate_packages_sort_id', [&$sort_id, &$packages]);
 
 			while ($package = readdir($dir)) {
-				if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir(Config::$packagesdir . '/' . $package) && file_exists(Config::$packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip')) {
+				if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir(Config::$packagesdir . '/' . $package) && file_exists(Config::$packagesdir . '/' . $package . '/package-info.xml')) && !str_ends_with(strtolower($package), '.tar.gz') && !str_ends_with(strtolower($package), '.tgz') && !str_ends_with(strtolower($package), '.zip'))) {
 					continue;
 				}
 
@@ -3182,12 +3182,12 @@ class PackageManager
 						continue;
 					}
 					$dirs[] = $package;
-				} elseif (substr(strtolower($package), -7) == '.tar.gz') {
+				} elseif (str_ends_with(strtolower($package), '.tar.gz')) {
 					if (in_array(substr($package, 0, -7), $dirs)) {
 						continue;
 					}
 					$dirs[] = substr($package, 0, -7);
-				} elseif (substr(strtolower($package), -4) == '.zip' || substr(strtolower($package), -4) == '.tgz') {
+				} elseif (str_ends_with(strtolower($package), '.zip') || str_ends_with(strtolower($package), '.tgz')) {
 					if (in_array(substr($package, 0, -4), $dirs)) {
 						continue;
 					}
@@ -3368,7 +3368,7 @@ class PackageManager
 		$isLikelyPath = false;
 
 		foreach (Utils::$context['look_for'] as $possiblePath) {
-			if (substr($possiblePath, 0, strlen($path)) == $path) {
+			if (str_starts_with($possiblePath, $path)) {
 				$isLikelyPath = true;
 			}
 		}
@@ -3407,7 +3407,7 @@ class PackageManager
 			// Some kind of file?
 			if (is_file($path . '/' . $entry)) {
 				// Are we listing PHP files in this directory?
-				if ($save_data && !empty($data['list_contents']) && substr($entry, -4) == '.php') {
+				if ($save_data && !empty($data['list_contents']) && str_ends_with($entry, '.php')) {
 					$foundData['files'][$entry] = true;
 				}
 				// A file we were looking for.
