@@ -124,7 +124,7 @@ class Logout extends Login2
 		if ($redirect) {
 			if (empty($_SESSION['logout_url'])) {
 				Utils::redirectexit('', Sapi::needsLoginFix());
-			} elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false)) {
+			} elseif (!empty($_SESSION['logout_url']) && (!str_contains($_SESSION['logout_url'], 'http://') && !str_contains($_SESSION['logout_url'], 'https://'))) {
 				unset($_SESSION['logout_url']);
 				Utils::redirectexit();
 			} else {

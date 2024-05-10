@@ -57,7 +57,7 @@ class HelpAdmin implements ActionInterface
 		Lang::load('Help');
 
 		// Permission specific help?
-		if (isset($_GET['help']) && substr($_GET['help'], 0, 14) == 'permissionhelp') {
+		if (isset($_GET['help']) && str_starts_with($_GET['help'], 'permissionhelp')) {
 			Lang::load('ManagePermissions');
 		}
 
@@ -110,7 +110,7 @@ class HelpAdmin implements ActionInterface
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						(isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? 'supported' : 'unsupported'),
+						(isset($_SERVER['SERVER_SOFTWARE']) && (str_contains($_SERVER['SERVER_SOFTWARE'], 'Apache') || str_contains($_SERVER['SERVER_SOFTWARE'], 'lighttpd')) ? 'supported' : 'unsupported'),
 					],
 				);
 				break;

@@ -147,7 +147,7 @@ class ExportDownload implements ActionInterface
 		}
 
 		// Check whether the ETag was sent back, and cache based on that...
-		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false) {
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && str_contains($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag'])) {
 			ob_end_clean();
 			header_remove('content-encoding');
 

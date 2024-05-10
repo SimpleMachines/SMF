@@ -414,12 +414,12 @@ class PersonalMessage implements ActionInterface
 				$to_delete[] = (int) $pm;
 			}
 			// Adding a label.
-			elseif (substr($action, 0, 4) == 'add_') {
+			elseif (str_starts_with($action, 'add_')) {
 				$type = 'add';
 				$action = substr($action, 4);
 			}
 			// Removing a label.
-			elseif (substr($action, 0, 4) == 'rem_') {
+			elseif (str_starts_with($action, 'rem_')) {
 				$type = 'rem';
 				$action = substr($action, 4);
 			}

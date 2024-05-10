@@ -1213,7 +1213,7 @@ class Post implements ActionInterface
 			Lang::censorText($this->form_subject);
 
 			// But if it's in HTML world, turn them into htmlspecialchar's so they can be edited!
-			if (strpos($this->form_message, '[html]') !== false) {
+			if (str_contains($this->form_message, '[html]')) {
 				$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $this->form_message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 				for ($i = 0, $n = count($parts); $i < $n; $i++) {
@@ -1301,7 +1301,7 @@ class Post implements ActionInterface
 				// Is this a request to delete them?
 				if (isset($_GET['delete_temp'])) {
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-						if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
+						if (str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 							if (file_exists($attachment['tmp_name'])) {
 								unlink($attachment['tmp_name']);
 							}
@@ -1317,7 +1317,7 @@ class Post implements ActionInterface
 					if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty(Board::$info->id) ? Board::$info->id : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg'])) {
 						// See if any files still exist before showing the warning message and the files attached.
 						foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-							if (strpos($attachID, 'post_tmp_' . User::$me->id) === false) {
+							if (!str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 								continue;
 							}
 
@@ -1340,7 +1340,7 @@ class Post implements ActionInterface
 						$file_list = [];
 
 						foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-							if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
+							if (str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 								$file_list[] = $attachment['name'];
 							}
 						}
@@ -1372,7 +1372,7 @@ class Post implements ActionInterface
 						break;
 					}
 
-					if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . User::$me->id) === false) {
+					if ($attachID != 'initial_error' && !str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 						continue;
 					}
 

@@ -155,7 +155,7 @@ class Login2 implements ActionInterface
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url'])) {
 			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
-		} elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false)) {
+		} elseif (!empty($_SESSION['login_url']) && (!str_contains($_SESSION['login_url'], 'http://') && !str_contains($_SESSION['login_url'], 'https://'))) {
 			unset($_SESSION['login_url']);
 			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
 		} elseif (!empty(User::$me->tfa_secret)) {

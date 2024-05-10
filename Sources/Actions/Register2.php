@@ -341,7 +341,7 @@ class Register2 extends Register
 						$custom_field_errors[] = ['custom_field_invalid_email', [$row['field_name']]];
 					} elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value)) {
 						$custom_field_errors[] = ['custom_field_not_number', [$row['field_name']]];
-					} elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0) {
+					} elseif (str_starts_with($row['mask'], 'regex') && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0) {
 						$custom_field_errors[] = ['custom_field_inproper_format', [$row['field_name']]];
 					}
 				}
