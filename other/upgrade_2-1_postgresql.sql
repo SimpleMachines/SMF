@@ -1466,6 +1466,10 @@ FROM {$db_prefix}attachments AS f
 WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
 ---#
 
+---# Adding index on id_board to log_notify table
+CREATE INDEX {$db_prefix}log_notify_id_board ON {$db_prefix}log_notify (id_board);
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
