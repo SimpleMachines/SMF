@@ -141,7 +141,7 @@ if (!in_array('version', $cols)) {
 ---{
 $cols = Db::$db->list_columns('{db_prefix}calendar');
 
-if (!in_array('rrule', $cols)) {
+if (in_array('end_time', $cols)) {
 	Db::$db->query(
 		'',
 		'ALTER TABLE {db_prefix}calendar

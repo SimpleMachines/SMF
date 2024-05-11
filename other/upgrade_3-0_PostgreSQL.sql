@@ -123,7 +123,9 @@ ADD COLUMN IF NOT EXISTS enabled smallint NOT NULL DEFAULT '1';
 
 ---# Set duration and rrule values and change end_date
 ---{
-if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings['smfVersion']))), '3.0.foo', '<'))
+$cols = Db::$db->list_columns('{db_prefix}calendar');
+
+if (in_array('end_time', $cols)) {
 	$updates = [];
 
 	$request = Db::$db->query(
@@ -177,6 +179,7 @@ if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings[
 			$changes
 		);
 	}
+}
 ---}
 ---#
 
