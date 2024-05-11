@@ -2197,7 +2197,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, (string) $replacement));
+				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4((string) $replacement)));
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2227,7 +2227,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $value));
+						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4($value)));
 					}
 
 					return implode(', ', $replacement);
