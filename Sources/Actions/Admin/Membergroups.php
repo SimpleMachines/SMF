@@ -346,7 +346,7 @@ class Membergroups implements ActionInterface
 			IntegrationHook::call('integrate_add_membergroup', [$id_group, $postCountBasedGroup]);
 
 			// Update the post groups now, if this is a post group!
-			if (isset($_POST['min_posts'])) {
+			if (($_POST['min_posts'] ?? -1) != -1) {
 				Logging::updateStats('postgroups');
 			}
 
