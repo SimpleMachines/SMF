@@ -267,7 +267,7 @@ class Autolinker
 		} else {
 			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : $this->encoding);
 
-			if (in_array($this->encoding, mb_encoding_aliases('UTF-8'))) {
+			if (\in_array($this->encoding, mb_encoding_aliases('UTF-8'))) {
 				$this->encoding = 'UTF-8';
 			}
 		}
@@ -408,14 +408,14 @@ class Autolinker
 					// 4 = Closing BBC markup element.
 					'(\[/\2\])' .
 				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn ($matches) => $matches[1] . str_repeat('x', strlen($matches[3])) . $matches[4],
+				fn ($matches) => $matches[1] . str_repeat('x', \strlen($matches[3])) . $matches[4],
 				$string,
 			);
 
 			// Overwrite all BBC markup elements.
 			$string = preg_replace_callback(
 				'/\[[^\]]*\]/i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn ($matches) => str_repeat(' ', strlen($matches[0])),
+				fn ($matches) => str_repeat(' ', \strlen($matches[0])),
 				$string,
 			);
 
@@ -429,14 +429,14 @@ class Autolinker
 					// 3 = Closing 'a' markup element.
 					'(</a>)' .
 				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn ($matches) => $matches[1] . str_repeat('x', strlen($matches[2])) . $matches[3],
+				fn ($matches) => $matches[1] . str_repeat('x', \strlen($matches[2])) . $matches[3],
 				$string,
 			);
 
 			// Overwrite all HTML elements.
 			$string = preg_replace_callback(
 				'~</?(\w+)\b([^>]*)>~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn ($matches) => str_repeat(' ', strlen($matches[0])),
+				fn ($matches) => str_repeat(' ', \strlen($matches[0])),
 				$string,
 			);
 		}
@@ -513,7 +513,7 @@ class Autolinker
 		foreach (self::$no_autolink_tags as $tag) {
 			$parts = preg_split('~(\[/' . $tag . '\]|\[' . $tag . '\b(?:[^\]]*)\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			for ($i = 0, $n = count($parts); $i < $n; $i++) {
+			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 				if ($i % 4 == 2) {
 					$placeholder = md5($parts[$i]);
 					$placeholders[$placeholder] = $parts[$i];
@@ -537,7 +537,7 @@ class Autolinker
 				foreach ($detected_urls as $pos => $url) {
 					$new_string .= substr($string, $prev_pos + $prev_len, $pos - ($prev_pos + $prev_len));
 					$prev_pos = $pos;
-					$prev_len = strlen($url);
+					$prev_len = \strlen($url);
 
 					// If this isn't a clean URL, leave it alone.
 					if ($url !== (string) Url::create($url)->sanitize()) {
@@ -559,9 +559,9 @@ class Autolinker
 						}
 
 						// Is this version of PHP capable of validating this email address?
-						$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
+						$can_validate = \defined('FILTER_FLAG_EMAIL_UNICODE') || \strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
 
-						$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
+						$flags = \defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
 
 						if (!$can_validate || filter_var($url->path, FILTER_VALIDATE_EMAIL, $flags) !== false) {
 							$placeholders[md5($url->path)] = $url->path;
@@ -586,9 +586,9 @@ class Autolinker
 
 					// Make sure that $full_url really is valid
 					if (
-						in_array($url->scheme, self::$schemes['forbidden'])
+						\in_array($url->scheme, self::$schemes['forbidden'])
 						|| (
-							!in_array($url->scheme, self::$schemes['no_authority'])
+							!\in_array($url->scheme, self::$schemes['no_authority'])
 							&& !$full_url->isValid()
 						)
 					) {
@@ -619,7 +619,7 @@ class Autolinker
 				foreach ($detected_emails as $pos => $email) {
 					$new_string .= substr($string, $prev_pos + $prev_len, $pos - ($prev_pos + $prev_len));
 					$prev_pos = $pos;
-					$prev_len = strlen($email);
+					$prev_len = \strlen($email);
 
 					$new_string .= '[email]' . $email . '[/email]';
 				}
@@ -658,7 +658,7 @@ class Autolinker
 
 		$parts = preg_split('~(\[/?' . $tags_to_fix_regex . '\b[^\]]*\])~u', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 4 == 1) {
 				unset($href, $bbc);
 
@@ -700,7 +700,7 @@ class Autolinker
 				$first_url = reset($detected_urls);
 
 				// Valid URL.
-				if (count($detected_urls) === 1 && $parts[$i] === $first_url) {
+				if (\count($detected_urls) === 1 && $parts[$i] === $first_url) {
 					// BBC param is unnecessary if it is identical to the content.
 					if (!empty($href) && $href === $first_url) {
 						$parts[$i - 1] = '[' . $bbc . ']';
@@ -711,7 +711,7 @@ class Autolinker
 				}
 
 				// One URL, plus some unexpected cruft...
-				if (count($detected_urls) === 1) {
+				if (\count($detected_urls) === 1) {
 					foreach ($detected_urls as $url) {
 						if (!str_starts_with($parts[$i], $url)) {
 							$parts[$i - 1] = substr($parts[$i], 0, strpos($parts[$i], $url)) . $parts[$i - 1];
@@ -719,14 +719,14 @@ class Autolinker
 						}
 
 						if (!str_ends_with($parts[$i], $url)) {
-							$parts[$i + 1] .= substr($parts[$i], strlen($url));
-							$parts[$i] = substr($parts[$i], 0, strlen($url));
+							$parts[$i + 1] .= substr($parts[$i], \strlen($url));
+							$parts[$i] = substr($parts[$i], 0, \strlen($url));
 						}
 					}
 				}
 
 				// Multiple URLs inside one BBCode? Weird. Fix them.
-				if (count($detected_urls) > 1) {
+				if (\count($detected_urls) > 1) {
 					$parts[$i - 1] = '';
 					$parts[$i + 1] = '';
 

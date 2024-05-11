@@ -55,7 +55,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 			// Filter out the stuff we don't need.
 			array_filter(
 				$matches,
-				fn ($v, $k) => !is_int($k) && $v !== '',
+				fn ($v, $k) => !\is_int($k) && $v !== '',
 				ARRAY_FILTER_USE_BOTH,
 			),
 		);
@@ -113,7 +113,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 				continue;
 			}
 
-			if (is_float($matches[$prop])) {
+			if (\is_float($matches[$prop])) {
 				if (!$can_be_fractional) {
 					throw new \ValueError();
 				}

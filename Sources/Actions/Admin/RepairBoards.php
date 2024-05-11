@@ -901,7 +901,7 @@ class RepairBoards implements ActionInterface
 		Utils::$context['db_cache'] = Db::$cache;
 		Db::$cache = [];
 
-		Utils::$context['total_steps'] = count($this->errorTests);
+		Utils::$context['total_steps'] = \count($this->errorTests);
 
 		// For all the defined error types do the necessary tests.
 		$current_step = -1;
@@ -916,7 +916,7 @@ class RepairBoards implements ActionInterface
 			}
 
 			// If we're fixing it but it ain't broke why try?
-			if ($do_fix && !in_array($error_type, $to_fix)) {
+			if ($do_fix && !\in_array($error_type, $to_fix)) {
 				$_GET['step']++;
 
 				continue;
@@ -1001,7 +1001,7 @@ class RepairBoards implements ActionInterface
 							$func = method_exists($this, $test['message_function']) ? [$this, $test['message_function']] : Utils::getCallable($test['message_function']);
 
 							while ($row = Db::$db->fetch_assoc($request)) {
-								$found_errors |= call_user_func($func, $row);
+								$found_errors |= \call_user_func($func, $row);
 							}
 						}
 
@@ -1024,7 +1024,7 @@ class RepairBoards implements ActionInterface
 								$func = method_exists($this, $test['fix_collect']['process']) ? [$this, $test['fix_collect']['process']] : Utils::getCallable($test['fix_collect']['process']);
 
 								// Fix it!
-								call_user_func($func, $ids);
+								\call_user_func($func, $ids);
 							}
 						}
 						// Simply executing a fix it query?
@@ -1041,20 +1041,20 @@ class RepairBoards implements ActionInterface
 							$func = method_exists($this, $test['fix_processing']) ? [$this, $test['fix_processing']] : Utils::getCallable($test['fix_processing']);
 
 							while ($row = Db::$db->fetch_assoc($request)) {
-								call_user_func($func, $row);
+								\call_user_func($func, $row);
 							}
 						}
 						// What about the full set of processing?
 						elseif (isset($test['fix_full_processing'])) {
 							$func = method_exists($this, $test['fix_full_processing']) ? [$this, $test['fix_full_processing']] : Utils::getCallable($test['fix_full_processing']);
 
-							call_user_func($func, $request);
+							\call_user_func($func, $request);
 						}
 
 						// Do we have other things we need to fix as a result?
 						if (!empty($test['force_fix'])) {
 							foreach ($test['force_fix'] as $item) {
-								if (!in_array($item, $to_fix)) {
+								if (!\in_array($item, $to_fix)) {
 									$to_fix[] = $item;
 								}
 							}
@@ -1139,7 +1139,7 @@ class RepairBoards implements ActionInterface
 			$return = false;
 		}
 		// Try to stay under our memory limit.
-		elseif ((memory_get_usage() + 65536) > Sapi::memoryReturnBytes(ini_get('memory_limit'))) {
+		elseif ((memory_get_usage() + 65536) > Sapi::memoryReturnBytes(\ini_get('memory_limit'))) {
 			$return = false;
 		}
 		// Errr, wait.  How much time has this taken already?
@@ -1147,7 +1147,7 @@ class RepairBoards implements ActionInterface
 			$return = false;
 		}
 		// If we have a lot of errors, lets do smaller batches, to save on memory needs.
-		elseif (count(Utils::$context['repair_errors']) > 100000 && $this->loops > 50) {
+		elseif (\count(Utils::$context['repair_errors']) > 100000 && $this->loops > 50) {
 			$return = false;
 		}
 
@@ -2061,7 +2061,7 @@ class RepairBoards implements ActionInterface
 				$inserts[] = [$word, $row['id_topic']];
 			}
 
-			if (count($inserts) > 500) {
+			if (\count($inserts) > 500) {
 				Db::$db->insert(
 					'ignore',
 					'{db_prefix}log_search_subjects',
@@ -2093,7 +2093,7 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function missingCachedSubjectMessage(array $row): bool
 	{
-		if (count(Utils::extractWords($row['subject'], 2)) != 0) {
+		if (\count(Utils::extractWords($row['subject'], 2)) != 0) {
 			Utils::$context['repair_errors'][] = Lang::getTxt('repair_missing_cached_subject', [$row['id_topic']]);
 
 			return true;

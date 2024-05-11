@@ -189,7 +189,7 @@ class TopicMerge implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -216,7 +216,7 @@ class TopicMerge implements ActionInterface
 		// Prepare a handy query bit for approval...
 		if (Config::$modSettings['postmod_active']) {
 			$can_approve_boards = User::$me->boardsAllowedTo('approve_posts');
-			$onlyApproved = $can_approve_boards !== [0] && !in_array($_REQUEST['targetboard'], $can_approve_boards);
+			$onlyApproved = $can_approve_boards !== [0] && !\in_array($_REQUEST['targetboard'], $can_approve_boards);
 		} else {
 			$onlyApproved = false;
 		}
@@ -276,7 +276,7 @@ class TopicMerge implements ActionInterface
 		}
 
 		// No sense in loading this if you can only merge on this board
-		if (count($this->merge_boards) > 1 || in_array(0, $this->merge_boards)) {
+		if (\count($this->merge_boards) > 1 || \in_array(0, $this->merge_boards)) {
 			// Set up a couple of options for our board list
 			$options = [
 				'not_redirection' => true,
@@ -284,7 +284,7 @@ class TopicMerge implements ActionInterface
 			];
 
 			// Only include these boards in the list (0 means you're an admin')
-			if (!in_array(0, $this->merge_boards)) {
+			if (!\in_array(0, $this->merge_boards)) {
 				$options['included_boards'] = $this->merge_boards;
 			}
 
@@ -334,7 +334,7 @@ class TopicMerge implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		if (empty(Utils::$context['topics']) && count($this->merge_boards) <= 1 && !in_array(0, $this->merge_boards)) {
+		if (empty(Utils::$context['topics']) && \count($this->merge_boards) <= 1 && !\in_array(0, $this->merge_boards)) {
 			ErrorHandler::fatalLang('merge_need_more_topics');
 		}
 
@@ -353,7 +353,7 @@ class TopicMerge implements ActionInterface
 	{
 		$this->initOptionsAndMerge();
 
-		if (count($this->polls) > 1) {
+		if (\count($this->polls) > 1) {
 			$request = Db::$db->query(
 				'',
 				'SELECT t.id_topic, t.id_poll, m.subject, p.question
@@ -364,7 +364,7 @@ class TopicMerge implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'polls' => $this->polls,
-					'limit' => count($this->polls),
+					'limit' => \count($this->polls),
 				],
 			);
 
@@ -382,7 +382,7 @@ class TopicMerge implements ActionInterface
 			Db::$db->free_result($request);
 		}
 
-		if (count($this->boards) > 1) {
+		if (\count($this->boards) > 1) {
 			$request = Db::$db->query(
 				'',
 				'SELECT id_board, name
@@ -392,7 +392,7 @@ class TopicMerge implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'boards' => $this->boards,
-					'limit' => count($this->boards),
+					'limit' => \count($this->boards),
 				],
 			);
 
@@ -430,16 +430,16 @@ class TopicMerge implements ActionInterface
 		$this->initOptionsAndMerge();
 
 		// Determine target board.
-		$target_board = count($this->boards) > 1 ? (int) $_REQUEST['board'] : $this->boards[0];
+		$target_board = \count($this->boards) > 1 ? (int) $_REQUEST['board'] : $this->boards[0];
 
-		if (!in_array($target_board, $this->boards)) {
+		if (!\in_array($target_board, $this->boards)) {
 			ErrorHandler::fatalLang('no_board');
 		}
 
 		// Determine which poll will survive and which polls won't.
-		$target_poll = count($this->polls) > 1 ? (int) $_POST['poll'] : (count($this->polls) == 1 ? $this->polls[0] : 0);
+		$target_poll = \count($this->polls) > 1 ? (int) $_POST['poll'] : (\count($this->polls) == 1 ? $this->polls[0] : 0);
 
-		if ($target_poll > 0 && !in_array($target_poll, $this->polls)) {
+		if ($target_poll > 0 && !\in_array($target_poll, $this->polls)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -769,7 +769,7 @@ class TopicMerge implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Merge topic notifications.
-		$notifications = isset($_POST['notifications']) && is_array($_POST['notifications']) ? array_intersect($this->topics, $_POST['notifications']) : [];
+		$notifications = isset($_POST['notifications']) && \is_array($_POST['notifications']) ? array_intersect($this->topics, $_POST['notifications']) : [];
 
 		if (!empty($notifications)) {
 			$request = Db::$db->query(
@@ -971,7 +971,7 @@ class TopicMerge implements ActionInterface
 		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'topicMerge'])) {
+		if (\is_callable([$searchAPI, 'topicMerge'])) {
 			// todo: undefined method
 			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : [Utils::$context['response_prefix'], $target_subject]);
 		}
@@ -1079,7 +1079,7 @@ class TopicMerge implements ActionInterface
 		$this->getTopics();
 
 		// There's nothing to merge with just one topic...
-		if (empty($this->topics) || !is_array($this->topics) || count($this->topics) == 1) {
+		if (empty($this->topics) || !\is_array($this->topics) || \count($this->topics) == 1) {
 			ErrorHandler::fatalLang('merge_need_more_topics');
 		}
 
@@ -1123,7 +1123,7 @@ class TopicMerge implements ActionInterface
 	protected function getTopics(): void
 	{
 		// Already set.
-		if (count($this->topics) > 1) {
+		if (\count($this->topics) > 1) {
 			return;
 		}
 
@@ -1133,7 +1133,7 @@ class TopicMerge implements ActionInterface
 		}
 
 		// If we came from a form, the topic IDs came by post.
-		if (!empty($_REQUEST['topics']) && is_array($_REQUEST['topics'])) {
+		if (!empty($_REQUEST['topics']) && \is_array($_REQUEST['topics'])) {
 			$this->topics = (array) $_REQUEST['topics'];
 		}
 	}
@@ -1159,7 +1159,7 @@ class TopicMerge implements ActionInterface
 			LIMIT {int:limit}',
 			[
 				'topic_list' => $this->topics,
-				'limit' => count($this->topics),
+				'limit' => \count($this->topics),
 			],
 		);
 
@@ -1184,7 +1184,7 @@ class TopicMerge implements ActionInterface
 			}
 
 			// We can't see unapproved topics here?
-			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $this->can_approve_boards != [0] && in_array($row['id_board'], $this->can_approve_boards)) {
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $this->can_approve_boards != [0] && \in_array($row['id_board'], $this->can_approve_boards)) {
 				// If we can't see it, we should not merge it and not adjust counts! Instead skip it.
 				unset($this->topics[$row['id_topic']]);
 
@@ -1267,18 +1267,18 @@ class TopicMerge implements ActionInterface
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:boards})
-				AND {query_see_board}' . (!in_array(0, $this->merge_boards) ? '
+				AND {query_see_board}' . (!\in_array(0, $this->merge_boards) ? '
 				AND b.id_board IN ({array_int:merge_boards})' : '') . '
 			LIMIT {int:limit}',
 			[
 				'boards' => $this->boards,
 				'merge_boards' => $this->merge_boards,
-				'limit' => count($this->boards),
+				'limit' => \count($this->boards),
 			],
 		);
 
 		// If the number of boards that's in the output isn't exactly the same as we've put in there, you're in trouble.
-		if (Db::$db->num_rows($request) != count($this->boards)) {
+		if (Db::$db->num_rows($request) != \count($this->boards)) {
 			ErrorHandler::fatalLang('no_board');
 		}
 

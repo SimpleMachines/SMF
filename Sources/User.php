@@ -953,7 +953,7 @@ class User implements \ArrayAccess
 	 */
 	public function __set(string $prop, mixed $value): void
 	{
-		if (in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && is_string($value)) {
+		if (\in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && \is_string($value)) {
 			$prop = (string) ($this->prop_aliases[$prop] ?? $prop);
 			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 		}
@@ -1095,12 +1095,12 @@ class User implements \ArrayAccess
 			// And now some backwards compatibility stuff for mods and whatnot that aren't expecting the new permissions.
 			$this->permissions[] = 'profile_view_own';
 
-			if (in_array('profile_view', $this->permissions)) {
+			if (\in_array('profile_view', $this->permissions)) {
 				$this->permissions[] = 'profile_view_any';
 			}
 
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
-			$this->can_mod = in_array('access_mod_center', $this->permissions) || ($this->mod_cache['gq'] ?? '0=1') != '0=1' || ($this->mod_cache['bq'] ?? '0=1') != '0=1' || (Config::$modSettings['postmod_active'] && !empty($this->mod_cache['ap']));
+			$this->can_mod = \in_array('access_mod_center', $this->permissions) || ($this->mod_cache['gq'] ?? '0=1') != '0=1' || ($this->mod_cache['bq'] ?? '0=1') != '0=1' || (Config::$modSettings['postmod_active'] && !empty($this->mod_cache['ap']));
 		}
 	}
 
@@ -1140,12 +1140,12 @@ class User implements \ArrayAccess
 		];
 
 		// Basic, normal, and profile want the avatar.
-		if (in_array($this->dataset, ['basic', 'normal', 'profile'])) {
+		if (\in_array($this->dataset, ['basic', 'normal', 'profile'])) {
 			$this->formatted['avatar'] = $this->avatar;
 		}
 
 		// Normal and profile want lots more data.
-		if (in_array($this->dataset, ['normal', 'profile'])) {
+		if (\in_array($this->dataset, ['normal', 'profile'])) {
 			// Go the extra mile and load the user's native language name.
 			if (empty($loadedLanguages)) {
 				$loadedLanguages = Lang::get(true);
@@ -1171,8 +1171,8 @@ class User implements \ArrayAccess
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
 				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name]) . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
-				'is_buddy' => in_array($this->id, self::$me->buddies),
-				'is_reverse_buddy' => in_array(self::$me->id, $this->buddies),
+				'is_buddy' => \in_array($this->id, self::$me->buddies),
+				'is_reverse_buddy' => \in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
 				'title' => !empty(Config::$modSettings['titlesEnable']) ? $this->title : '',
 				'blurb' => $this->personal_text,
@@ -1333,7 +1333,7 @@ class User implements \ArrayAccess
 
 			// Sometimes folks mess with USER_AGENT and $_GET, so we do this to
 			// prevent 'data too long' errors.
-			$num_elements = count($_GET, COUNT_RECURSIVE) + 1;
+			$num_elements = \count($_GET, COUNT_RECURSIVE) + 1;
 			$max_length = 2048;
 
 			do {
@@ -1346,7 +1346,7 @@ class User implements \ArrayAccess
 
 				// If too long, reduce $max_length by one byte per element and try again.
 				$max_length -= $num_elements;
-			} while (strlen($encoded_get) > 2048);
+			} while (\strlen($encoded_get) > 2048);
 		} else {
 			$encoded_get = '';
 		}
@@ -1434,7 +1434,7 @@ class User implements \ArrayAccess
 			&& $this->last_login < time() - 60
 			&& (
 				!isset($_REQUEST['action'])
-				|| !in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
+				|| !\in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
 			)
 		) {
 			// Don't count longer than 15 minutes.
@@ -1702,7 +1702,7 @@ class User implements \ArrayAccess
 					$ip = new IP($this->{$ip_number});
 					$hostname = $ip->getHost();
 
-					if (strlen($hostname) > 0) {
+					if (\strlen($hostname) > 0) {
 						$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
 						$ban_query_vars['hostname' . $ip_number] = $hostname;
 					}
@@ -1710,7 +1710,7 @@ class User implements \ArrayAccess
 			}
 
 			// Is their email address banned?
-			if (strlen($this->email) != 0) {
+			if (\strlen($this->email) != 0) {
 				$ban_query[] = '({string:email} LIKE bi.email_address)';
 				$ban_query_vars['email'] = $this->email;
 			}
@@ -1825,7 +1825,7 @@ class User implements \ArrayAccess
 					'cannot_access' => 1,
 					'ban_list' => $bans,
 					'current_time' => time(),
-					'limit' => count($bans),
+					'limit' => \count($bans),
 				],
 			);
 
@@ -1998,7 +1998,7 @@ class User implements \ArrayAccess
 			IntegrationHook::call('integrate_warn_permissions', [&self::$warn_permissions]);
 
 			foreach (self::$warn_permissions as $old => $new) {
-				if (!in_array($old, $this->permissions)) {
+				if (!\in_array($old, $this->permissions)) {
 					unset(self::$warn_permissions[$old]);
 				} else {
 					$this->permissions[] = $new;
@@ -2058,7 +2058,7 @@ class User implements \ArrayAccess
 		// Validate what type of session check this is.
 		$types = [];
 		IntegrationHook::call('integrate_validateSession', [&$types]);
-		$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+		$type = \in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
 
 		// If we're using XML give an additional ten minutes grace as an admin
 		// can't log on in XML mode.
@@ -2094,7 +2094,7 @@ class User implements \ArrayAccess
 
 			$this->checkSession();
 
-			$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [$this->username, $_POST[$type . '_pass'], false]), true);
+			$good_password = \in_array(true, IntegrationHook::call('integrate_verify_password', [$this->username, $_POST[$type . '_pass'], false]), true);
 
 			// Password correct?
 			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd)) {
@@ -2189,7 +2189,7 @@ class User implements \ArrayAccess
 			&& (
 				empty(Config::$modSettings['allow_cors'])
 				|| empty(Utils::$context['valid_cors_found'])
-				|| !in_array(Utils::$context['valid_cors_found'], ['same', 'subdomain'])
+				|| !\in_array(Utils::$context['valid_cors_found'], ['same', 'subdomain'])
 			)
 		) {
 			if (str_contains($_SERVER['HTTP_HOST'], ':')) {
@@ -2357,7 +2357,7 @@ class User implements \ArrayAccess
 			$return = $result;
 		}
 		// Make sure they can do it on all of the boards.
-		elseif (Db::$db->num_rows($request) != count($boards)) {
+		elseif (Db::$db->num_rows($request) != \count($boards)) {
 			Db::$db->free_result($request);
 
 			$return = false;
@@ -2668,7 +2668,7 @@ class User implements \ArrayAccess
 			$user = self::$loaded[$id];
 
 			// Global moderators.
-			$profile['is_mod'] = in_array(2, $user->groups);
+			$profile['is_mod'] = \in_array(2, $user->groups);
 
 			// Can't do much else without a board.
 			if (!isset(Board::$info)) {
@@ -2760,7 +2760,7 @@ class User implements \ArrayAccess
 			// Because history has proven that it is possible for groups to go bad - clean up in case.
 			$groups = array_map('intval', $groups);
 
-			$can_see_all_boards = in_array(1, $groups) || (!empty(Config::$modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
+			$can_see_all_boards = \in_array(1, $groups) || (!empty(Config::$modSettings['board_manager_groups']) && \count(array_intersect($groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
 			$ignoreboards = !empty($row['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : [];
 		}
@@ -2950,11 +2950,11 @@ class User implements \ArrayAccess
 			foreach ($data as $var => $val) {
 				if ($var === 'alerts' && ($val === '+' || $val === '-')) {
 					$val = Alert::count($member, true);
-				} elseif (in_array($var, self::$knownInts) && ($val === '+' || $val === '-')) {
+				} elseif (\in_array($var, self::$knownInts) && ($val === '+' || $val === '-')) {
 					$val = User::$loaded[$member]->{$var} + ($val === '+' ? 1 : -1);
 				}
 
-				if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
+				if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
 					$val = max(0, $val);
 				}
 
@@ -2964,7 +2964,7 @@ class User implements \ArrayAccess
 
 		$parameters = [];
 
-		if (is_array($members)) {
+		if (\is_array($members)) {
 			$condition = 'id_member IN ({array_int:members})';
 			$parameters['members'] = $members;
 		} elseif ($members === null) {
@@ -2978,9 +2978,9 @@ class User implements \ArrayAccess
 			$vars_to_integrate = array_intersect(self::$integration_vars, array_keys($data));
 
 			// Only proceed if there are any variables left to call the integration function.
-			if (count($vars_to_integrate) != 0) {
+			if (\count($vars_to_integrate) != 0) {
 				// Fetch a list of member_names if necessary
-				if ((!is_array($members) && $members === self::$me->id) || (is_array($members) && count($members) == 1 && in_array(self::$me->id, $members))) {
+				if ((!\is_array($members) && $members === self::$me->id) || (\is_array($members) && \count($members) == 1 && \in_array(self::$me->id, $members))) {
 					$member_names = [self::$me->username];
 				} else {
 					$member_names = [];
@@ -3025,15 +3025,15 @@ class User implements \ArrayAccess
 					break;
 			}
 
-			if (in_array($var, self::$knownInts)) {
+			if (\in_array($var, self::$knownInts)) {
 				$type = 'int';
-			} elseif (in_array($var, self::$knownFloats)) {
+			} elseif (\in_array($var, self::$knownFloats)) {
 				$type = 'float';
 			}
 
 			// Doing an increment?
 			if ($var == 'alerts' && ($val === '+' || $val === '-')) {
-				if (is_array($members)) {
+				if (\is_array($members)) {
 					$val = 'CASE ';
 
 					foreach ($members as $k => $v) {
@@ -3052,7 +3052,7 @@ class User implements \ArrayAccess
 			}
 
 			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
-			if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
+			if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
 				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $match)) {
 					if ($match[1] != '+ ') {
 						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
@@ -3078,7 +3078,7 @@ class User implements \ArrayAccess
 
 		// Clear any caching?
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && !empty($members)) {
-			if (!is_array($members)) {
+			if (!\is_array($members)) {
 				$members = [$members];
 			}
 
@@ -3105,7 +3105,7 @@ class User implements \ArrayAccess
 	{
 		static $member_cache = [];
 
-		if (is_null($id_member)) {
+		if (\is_null($id_member)) {
 			$id_member = empty(self::$me->id) ? 0 : self::$me->id;
 		} else {
 			$id_member = (int) $id_member;
@@ -3137,7 +3137,7 @@ class User implements \ArrayAccess
 		}
 
 		// If it is invalid, fall back to the default.
-		if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
+		if (empty($timezone) || !\in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 			$timezone = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 		}
 
@@ -3183,7 +3183,7 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		if (count($users) == 1) {
+		if (\count($users) == 1) {
 			list($user) = $users;
 
 			if ($user == self::$me->id) {
@@ -3213,7 +3213,7 @@ class User implements \ArrayAccess
 			[
 				'user_list' => $users,
 				'admin_group' => 1,
-				'limit' => count($users),
+				'limit' => \count($users),
 			],
 		);
 
@@ -3231,7 +3231,7 @@ class User implements \ArrayAccess
 		}
 
 		// Make sure they aren't trying to delete administrators if they aren't one.  But don't bother checking if it's just themself.
-		if (!empty($admins) && ($check_not_admin || (!self::$me->allowedTo('admin_forum') && (count($users) != 1 || $users[0] != self::$me->id)))) {
+		if (!empty($admins) && ($check_not_admin || (!self::$me->allowedTo('admin_forum') && (\count($users) != 1 || $users[0] != self::$me->id)))) {
 			$users = array_diff($users, $admins);
 
 			foreach ($admins as $id) {
@@ -3683,7 +3683,7 @@ class User implements \ArrayAccess
 
 		// Only these characters are permitted.
 		if (
-			in_array($username, ['_', '|'])
+			\in_array($username, ['_', '|'])
 			|| strpos($username, '[code') !== false
 			|| strpos($username, '[/code') !== false
 			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
@@ -3868,7 +3868,7 @@ class User implements \ArrayAccess
 	public static function find(string|array $names, bool $use_wildcards = false, bool $buddies_only = false, int $max = 500): array
 	{
 		// If it's not already an array, make it one.
-		if (!is_array($names)) {
+		if (!\is_array($names)) {
 			$names = explode(',', $names);
 		}
 
@@ -3965,10 +3965,10 @@ class User implements \ArrayAccess
 	{
 		$member_groups = self::groupsAllowedTo($permission, $board_id);
 
-		$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
+		$include_moderators = \in_array(3, $member_groups['allowed']) && $board_id !== null;
 		$include_groups = array_diff($member_groups['allowed'], [3]);
 
-		$exclude_moderators = in_array(3, $member_groups['denied']) && $board_id !== null;
+		$exclude_moderators = \in_array(3, $member_groups['denied']) && $board_id !== null;
 		$exclude_groups = array_diff($member_groups['denied'], [3]);
 
 		$request = Db::$db->query(
@@ -4146,12 +4146,12 @@ class User implements \ArrayAccess
 				foreach ($board_permissions as $permission) {
 					// If they're not specifically allowed, but the moderator group is,
 					// then allow it.
-					if (in_array(3, $member_groups[$permission]['allowed']) && !in_array($mod_group, $member_groups[$permission]['allowed'])) {
+					if (\in_array(3, $member_groups[$permission]['allowed']) && !\in_array($mod_group, $member_groups[$permission]['allowed'])) {
 						$member_groups[$permission]['allowed'][] = $mod_group;
 					}
 
 					// They're not denied, but the moderator group is, so deny it.
-					if (in_array(3, $member_groups[$permission]['denied']) && !in_array($mod_group, $member_groups[$permission]['denied'])) {
+					if (\in_array(3, $member_groups[$permission]['denied']) && !\in_array($mod_group, $member_groups[$permission]['denied'])) {
 						$member_groups[$permission]['denied'][] = $mod_group;
 					}
 				}
@@ -4171,7 +4171,7 @@ class User implements \ArrayAccess
 			$member_groups[$permission]['allowed'] = array_diff($member_groups[$permission]['allowed'], $member_groups[$permission]['denied']);
 		}
 
-		if ($simple && count($member_groups) === 1) {
+		if ($simple && \count($member_groups) === 1) {
 			return reset($member_groups);
 		}
 
@@ -4631,8 +4631,8 @@ class User implements \ArrayAccess
 		$this->setGroups();
 		$this->setPossiblyRobot();
 		$this->is_guest = empty($this->id);
-		$this->is_admin = in_array(1, $this->groups);
-		$this->is_mod = in_array(3, $this->groups) || !empty($profile['is_mod']);
+		$this->is_admin = \in_array(1, $this->groups);
+		$this->is_mod = \in_array(3, $this->groups) || !empty($profile['is_mod']);
 		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
 		$this->is_banned = $this->is_activated >= self::BANNED;
 		$this->is_online = (bool) ($profile['is_online'] ?? $is_me);
@@ -4710,7 +4710,7 @@ class User implements \ArrayAccess
 		// Info about stuff related to permissions.
 		// Note that we set $this->permissions elsewhere.
 		$this->warning = (int) ($profile['warning'] ?? 0);
-		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
+		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && \count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
 		foreach (self::buildQueryBoard($this->id) as $key => $value) {
 			$this->{$key} = $value;
@@ -4729,12 +4729,12 @@ class User implements \ArrayAccess
 	 */
 	protected function integrateVerifyUser(): void
 	{
-		if (count($integration_ids = IntegrationHook::call('integrate_verify_user')) === 0) {
+		if (\count($integration_ids = IntegrationHook::call('integrate_verify_user')) === 0) {
 			return;
 		}
 
 		foreach ($integration_ids as $integration_id) {
-			if (intval($integration_id) > 0) {
+			if (\intval($integration_id) > 0) {
 				self::$my_id = (int) $integration_id;
 				$this->already_verified = true;
 				break;
@@ -4768,7 +4768,7 @@ class User implements \ArrayAccess
 
 			list(self::$my_id, $this->passwd, $login_span, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
 
-			self::$my_id = !empty(self::$my_id) && strlen($this->passwd) > 0 ? (int) self::$my_id : 0;
+			self::$my_id = !empty(self::$my_id) && \strlen($this->passwd) > 0 ? (int) self::$my_id : 0;
 
 			// Make sure the cookie is set to the correct domain and path
 			if ([$cookie_domain, $cookie_path] !== Cookie::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']))) {
@@ -4784,7 +4784,7 @@ class User implements \ArrayAccess
 
 			list(self::$my_id, $this->passwd, $login_span) = array_pad((array) $cookie_data, 3, '');
 
-			self::$my_id = !empty(self::$my_id) && strlen($this->passwd) == 40 && (int) $login_span > time() ? (int) self::$my_id : 0;
+			self::$my_id = !empty(self::$my_id) && \strlen($this->passwd) == 40 && (int) $login_span > time() ? (int) self::$my_id : 0;
 		}
 	}
 
@@ -4804,11 +4804,11 @@ class User implements \ArrayAccess
 			$dataset = 'basic';
 		}
 		// Profile and personal messages (except the popups)
-		elseif (in_array($_REQUEST['action'], ['profile', 'pm'])) {
+		elseif (\in_array($_REQUEST['action'], ['profile', 'pm'])) {
 			$dataset = 'profile';
 		}
 		// Who's Online
-		elseif (in_array($_REQUEST['action'], ['who'])) {
+		elseif (\in_array($_REQUEST['action'], ['who'])) {
 			$dataset = 'normal';
 		}
 		// Everything else.
@@ -4838,7 +4838,7 @@ class User implements \ArrayAccess
 				$check = true;
 			}
 			// SHA-512 hash should be 128 characters long.
-			elseif (strlen($this->passwd) == 128) {
+			elseif (\strlen($this->passwd) == 128) {
 				$check = hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['passwd'], self::$profiles[self::$my_id]['password_salt']), $this->passwd);
 			} else {
 				$check = false;
@@ -4875,7 +4875,7 @@ class User implements \ArrayAccess
 
 		// Don't force TFA on popups
 		if ($force_tfasetup) {
-			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && in_array($_REQUEST['area'], ['popup', 'alerts_popup'])) {
+			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && \in_array($_REQUEST['area'], ['popup', 'alerts_popup'])) {
 				$force_tfasetup = false;
 			} elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'popup')) {
 				$force_tfasetup = false;
@@ -4885,13 +4885,13 @@ class User implements \ArrayAccess
 		}
 
 		// Validate for Two Factor Authentication
-		if (!empty(self::$profiles[self::$my_id]['tfa_secret']) && (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], ['login2', 'logintfa']))) {
+		if (!empty(self::$profiles[self::$my_id]['tfa_secret']) && (empty($_REQUEST['action']) || !\in_array($_REQUEST['action'], ['login2', 'logintfa']))) {
 			$tfacookie = Config::$cookiename . '_tfa';
 			$tfasecret = null;
 
 			$verified = IntegrationHook::call('integrate_verify_tfa', [self::$my_id, self::$profiles[self::$my_id]]);
 
-			if (empty($verified) || !in_array(true, $verified)) {
+			if (empty($verified) || !\in_array(true, $verified)) {
 				if (!empty($_COOKIE[$tfacookie])) {
 					$tfa_data = Utils::jsonDecode($_COOKIE[$tfacookie], true);
 
@@ -4949,7 +4949,7 @@ class User implements \ArrayAccess
 			if (
 				$row['total'] > 0
 				&& (
-					!in_array($action, ['profile', 'logout'])
+					!\in_array($action, ['profile', 'logout'])
 					|| (
 						$action == 'profile'
 						&& $area != 'tfasetup'
@@ -4978,7 +4978,7 @@ class User implements \ArrayAccess
 			&& !isset($_REQUEST['xml'])
 			&& (
 				!isset($_REQUEST['action'])
-				|| !in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
+				|| !\in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
 			)
 			&& empty($_SESSION['id_msg_last_visit'])
 			&& (
@@ -5259,7 +5259,7 @@ class User implements \ArrayAccess
 				// The strtr fallback is a sad, weak substitute, but we might as well try.
 				$lang = class_exists('\Locale') ? \Locale::canonicalize($lang) : strtr($lang, '-', '_');
 
-				if (is_null($lang)) {
+				if (\is_null($lang)) {
 					continue;
 				}
 
@@ -5303,7 +5303,7 @@ class User implements \ArrayAccess
 		$users = array_unique($users);
 
 		// For guests, there is no data to load, so just fake it.
-		if (in_array(0, $users)) {
+		if (\in_array(0, $users)) {
 			self::$profiles[0] = ['dataset' => $dataset];
 			$loaded_ids[] = 0;
 			$users = array_filter($users);
@@ -5354,7 +5354,7 @@ class User implements \ArrayAccess
 				}
 
 				// Does the cached data have everything we need?
-				if (is_array($data) && self::$dataset_levels[$data['dataset'] ?? 'minimal'] >= self::$dataset_levels[$dataset]) {
+				if (\is_array($data) && self::$dataset_levels[$data['dataset'] ?? 'minimal'] >= self::$dataset_levels[$dataset]) {
 					self::$profiles[$id] = $data;
 					$loaded_ids[] = $id;
 					unset($users[$key]);
@@ -5402,7 +5402,7 @@ class User implements \ArrayAccess
 
 			switch ($type) {
 				case self::LOAD_BY_EMAIL:
-					$where = 'mem.email_address' . (count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}');
+					$where = 'mem.email_address' . (\count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}');
 					break;
 
 				case self::LOAD_BY_NAME:
@@ -5413,12 +5413,12 @@ class User implements \ArrayAccess
 						$where = 'mem.member_name';
 					}
 
-					$where .= count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}';
+					$where .= \count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}';
 
 					break;
 
 				default:
-					$where = 'mem.id_member' . (count($users) > 1 ? ' IN ({array_int:users})' : ' = {int:users}');
+					$where = 'mem.id_member' . (\count($users) > 1 ? ' IN ({array_int:users})' : ' = {int:users}');
 					break;
 			}
 
@@ -5430,11 +5430,11 @@ class User implements \ArrayAccess
 				'',
 				'SELECT ' . implode(",\n\t\t\t\t\t", $select_columns) . '
 				FROM ' . implode("\n\t\t\t\t\t", $select_tables) . '
-				WHERE ' . $where . (count($users) > 1 ? '' : '
+				WHERE ' . $where . (\count($users) > 1 ? '' : '
 				LIMIT 1'),
 				[
 					'blank_string' => '',
-					'users' => count($users) > 1 ? $users : reset($users),
+					'users' => \count($users) > 1 ? $users : reset($users),
 				],
 			);
 
@@ -5565,11 +5565,11 @@ class User implements \ArrayAccess
 
 			$url_params = [];
 
-			if (!empty(Config::$modSettings['gravatarMaxRating']) && in_array(Config::$modSettings['gravatarMaxRating'], $ratings)) {
+			if (!empty(Config::$modSettings['gravatarMaxRating']) && \in_array(Config::$modSettings['gravatarMaxRating'], $ratings)) {
 				$url_params[] = 'rating=' . Config::$modSettings['gravatarMaxRating'];
 			}
 
-			if (!empty(Config::$modSettings['gravatarDefault']) && in_array(Config::$modSettings['gravatarDefault'], $defaults)) {
+			if (!empty(Config::$modSettings['gravatarDefault']) && \in_array(Config::$modSettings['gravatarDefault'], $defaults)) {
 				$url_params[] = 'default=' . Config::$modSettings['gravatarDefault'];
 			}
 
@@ -5595,7 +5595,7 @@ class User implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([User::class, 'exportStatic'])) {
+if (\is_callable([User::class, 'exportStatic'])) {
 	User::exportStatic();
 }
 

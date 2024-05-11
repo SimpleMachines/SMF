@@ -816,7 +816,7 @@ class MessageIndex implements ActionInterface
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';
@@ -842,7 +842,7 @@ class MessageIndex implements ActionInterface
 					Utils::$context['view_num_hidden']++;
 				}
 			}
-			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - \count(Utils::$context['view_members']);
 			Db::$db->free_result($request);
 
 			// Put them in "last clicked" order.
@@ -876,7 +876,7 @@ class MessageIndex implements ActionInterface
 
 		// Now we tack the info onto the end of the linktree
 		if (!empty(Utils::$context['link_moderators'])) {
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (\count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -950,11 +950,11 @@ class MessageIndex implements ActionInterface
 	protected function setRobotNoIndex(): void
 	{
 		// Right, let's only index normal stuff!
-		if (count($_GET) > 1) {
+		if (\count($_GET) > 1) {
 			$session_name = session_name();
 
 			foreach ($_GET as $k => $v) {
-				if (!in_array($k, ['board', 'start', $session_name])) {
+				if (!\in_array($k, ['board', 'start', $session_name])) {
 					Utils::$context['robot_no_index'] = true;
 				}
 			}
@@ -990,7 +990,7 @@ class MessageIndex implements ActionInterface
 				$boards_allowed = User::$me->boardsAllowedTo('post_new');
 
 				// How many boards can you do this on besides this one?
-				Utils::$context['can_move_any'] = count($boards_allowed) > 1;
+				Utils::$context['can_move_any'] = \count($boards_allowed) > 1;
 			}
 
 			// Set permissions for all the topics.

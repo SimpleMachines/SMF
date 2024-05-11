@@ -86,7 +86,7 @@ class Posts implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -198,7 +198,7 @@ class Posts implements ActionInterface
 				$can_add = false;
 
 				// If we're approving this is simple.
-				if ($curAction == 'approve' && ($any_array == [0] || in_array($row['id_board'], $any_array))) {
+				if ($curAction == 'approve' && ($any_array == [0] || \in_array($row['id_board'], $any_array))) {
 					$can_add = true;
 				}
 				// Delete requires more permission checks...
@@ -208,7 +208,7 @@ class Posts implements ActionInterface
 						$row['id_member'] == User::$me->id
 						&& (
 							$delete_own_boards == [0]
-							|| in_array($row['id_board'], $delete_own_boards)
+							|| \in_array($row['id_board'], $delete_own_boards)
 						)
 					) {
 						$can_add = true;
@@ -219,7 +219,7 @@ class Posts implements ActionInterface
 						&& $row['id_msg'] != $row['id_first_msg']
 						&& (
 							$delete_own_replies == [0]
-							|| in_array($row['id_board'], $delete_own_replies)
+							|| \in_array($row['id_board'], $delete_own_replies)
 						)
 					) {
 						$can_add = true;
@@ -229,7 +229,7 @@ class Posts implements ActionInterface
 						$row['id_member'] != User::$me->id
 						&& (
 							$delete_any_boards == [0]
-							|| in_array($row['id_board'], $delete_any_boards)
+							|| \in_array($row['id_board'], $delete_any_boards)
 						)
 					) {
 						$can_add = true;
@@ -350,7 +350,7 @@ class Posts implements ActionInterface
 				$row['id_member'] == User::$me->id
 				&& (
 					$delete_own_boards == [0]
-					|| in_array($row['id_board'], $delete_own_boards)
+					|| \in_array($row['id_board'], $delete_own_boards)
 				)
 			) {
 				$can_delete = true;
@@ -361,7 +361,7 @@ class Posts implements ActionInterface
 				&& $row['id_msg'] != $row['id_first_msg']
 				&& (
 					$delete_own_replies == [0]
-					|| in_array($row['id_board'], $delete_own_replies)
+					|| \in_array($row['id_board'], $delete_own_replies)
 				)
 			) {
 				$can_delete = true;
@@ -371,7 +371,7 @@ class Posts implements ActionInterface
 				$row['id_member'] != User::$me->id
 				&& (
 					$delete_any_boards == [0]
-					|| in_array($row['id_board'], $delete_any_boards)
+					|| \in_array($row['id_board'], $delete_any_boards)
 				)
 			) {
 				$can_delete = true;

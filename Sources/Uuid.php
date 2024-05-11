@@ -239,14 +239,14 @@ class Uuid implements \Stringable
 		// Determine the version to use.
 		$this->version = $version ?? self::DEFAULT_VERSION;
 
-		if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
+		if (!\in_array($this->version, self::SUPPORTED_VERSIONS)) {
 			Lang::load('Errors', Lang::$default);
 			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version]), E_USER_WARNING);
 			$this->version = self::DEFAULT_VERSION;
 		}
 
 		// Check the input.
-		switch (gettype($input)) {
+		switch (\gettype($input)) {
 			// Convert supported object types to strings.
 			case 'object':
 				if ($input instanceof \DateTimeInterface) {
@@ -275,7 +275,7 @@ class Uuid implements \Stringable
 				break;
 		}
 
-		if (in_array($this->version, [3, 5]) && !isset($input)) {
+		if (\in_array($this->version, [3, 5]) && !isset($input)) {
 			Lang::load('Errors', Lang::$default);
 			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version]), E_USER_WARNING);
 			$this->version = 0;
@@ -439,9 +439,9 @@ class Uuid implements \Stringable
 		// Base64 format is 22 bytes long.
 		// Base32 format is 26 bytes long.
 		// Full format is 32 bytes long, once extraneous characters are removed.
-		if (strlen($input) === 16) {
+		if (\strlen($input) === 16) {
 			$hex = bin2hex($input);
-		} elseif (strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
+		} elseif (\strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
 			$hex = bin2hex(base64_decode(strtr($input, self::BASE64_SORTABLE, self::BASE64_STANDARD), true));
 		} elseif (strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
 			$hex = self::decodeBase32Hex(strtr($input, self::BASE32_ALT, self::BASE32_HEX));
@@ -459,7 +459,7 @@ class Uuid implements \Stringable
 
 		if (
 			// Unknown version.
-			!in_array($version, self::KNOWN_VERSIONS)
+			!\in_array($version, self::KNOWN_VERSIONS)
 			// Version can be 0 only in Nil UUID.
 			|| ($version === 0 && $hex !== '00000000000000000000000000000000')
 			// Version can be 15 only in Max UUID.
@@ -566,7 +566,7 @@ class Uuid implements \Stringable
 	public static function setNamespace(\Stringable|string|bool $ns = false): void
 	{
 		// Manually supplied namespace.
-		if (is_string($ns) || $ns instanceof \Stringable) {
+		if (\is_string($ns) || $ns instanceof \Stringable) {
 			self::$namespace = self::createFromString($ns, true)->getBinary();
 
 			return;
@@ -709,12 +709,12 @@ class Uuid implements \Stringable
 				case 0:
 					// On POSIX systems, use ID of the user executing the script.
 					// On non-POSIX systems, use ID of the user that owns the script.
-					$id = function_exists('posix_getuid') ? posix_getuid() : getmyuid();
+					$id = \function_exists('posix_getuid') ? posix_getuid() : getmyuid();
 					break;
 
 				// Told to use the primary group ID.
 				case 1:
-					if (function_exists('posix_getgid')) {
+					if (\function_exists('posix_getgid')) {
 						// POSIX systems can actually do this.
 						$id = posix_getgid();
 					} else {
@@ -886,7 +886,7 @@ class Uuid implements \Stringable
 		// Is this a duplicate timestamp?
 		while (
 			isset(self::$prev_timestamps[$this->version][$clock_seq])
-			&& in_array($timestamp, self::$prev_timestamps[$this->version][$clock_seq])
+			&& \in_array($timestamp, self::$prev_timestamps[$this->version][$clock_seq])
 		) {
 			// First try incrementing the timestamp.
 			// Because the spec uses 100-nanosecond intervals, but PHP offers
@@ -895,7 +895,7 @@ class Uuid implements \Stringable
 			$temp = $timestamp;
 
 			for ($i = 0; $i < 9; $i++) {
-				if (!in_array(++$temp, self::$prev_timestamps[$this->version][$clock_seq])) {
+				if (!\in_array(++$temp, self::$prev_timestamps[$this->version][$clock_seq])) {
 					$timestamp = $temp;
 					break 2;
 				}

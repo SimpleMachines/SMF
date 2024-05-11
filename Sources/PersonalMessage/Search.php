@@ -213,12 +213,12 @@ class Search
 			Utils::$context['search_labels'][] = [
 				'id' => $label['id'],
 				'name' => $label['name'],
-				'checked' => !empty($searchedLabels) ? in_array($label['id'], $searchedLabels) : true,
+				'checked' => !empty($searchedLabels) ? \in_array($label['id'], $searchedLabels) : true,
 			];
 		}
 
 		// Are all the labels checked?
-		Utils::$context['check_all'] = empty($searchedLabels) || count(Utils::$context['search_labels']) == count($searchedLabels);
+		Utils::$context['check_all'] = empty($searchedLabels) || \count(Utils::$context['search_labels']) == \count($searchedLabels);
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
@@ -313,9 +313,9 @@ class Search
 		}
 		Db::$db->free_result($request);
 
-		Utils::$context['num_results'] = count($pms);
-		Utils::$context['messages'] = array_slice($pms, $this->start, $this->per_page);
-		Utils::$context['posters'] = array_slice($posters, $this->start, $this->per_page);
+		Utils::$context['num_results'] = \count($pms);
+		Utils::$context['messages'] = \array_slice($pms, $this->start, $this->per_page);
+		Utils::$context['posters'] = \array_slice($posters, $this->start, $this->per_page);
 
 		// Load the users...
 		User::load(Utils::$context['posters']);
@@ -397,7 +397,7 @@ class Search
 			list($this->params['sort'], $this->params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 		}
 
-		$this->params['sort'] = !empty($this->params['sort']) && in_array($this->params['sort'], $this->sort_columns) ? $this->params['sort'] : 'pm.id_pm';
+		$this->params['sort'] = !empty($this->params['sort']) && \in_array($this->params['sort'], $this->sort_columns) ? $this->params['sort'] : 'pm.id_pm';
 
 		$this->params['sort_dir'] = !empty($this->params['sort_dir']) && $this->params['sort_dir'] == 'asc' ? 'asc' : 'desc';
 	}
@@ -455,10 +455,10 @@ class Search
 
 		$possible_users = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $userString)));
 
-		for ($k = 0, $n = count($possible_users); $k < $n; $k++) {
+		for ($k = 0, $n = \count($possible_users); $k < $n; $k++) {
 			$possible_users[$k] = trim($possible_users[$k]);
 
-			if (strlen($possible_users[$k]) == 0) {
+			if (\strlen($possible_users[$k]) == 0) {
 				unset($possible_users[$k]);
 			}
 		}
@@ -534,7 +534,7 @@ class Search
 			}
 
 			// Assuming we have some labels - make them all integers.
-			if (!empty($_REQUEST['searchlabel']) && is_array($_REQUEST['searchlabel'])) {
+			if (!empty($_REQUEST['searchlabel']) && \is_array($_REQUEST['searchlabel'])) {
 				$_REQUEST['searchlabel'] = array_map('intval', $_REQUEST['searchlabel']);
 			} else {
 				$_REQUEST['searchlabel'] = [];
@@ -548,9 +548,9 @@ class Search
 				Utils::$context['search_errors']['no_labels_selected'] = true;
 			}
 			// Otherwise prepare the query!
-			elseif (count($_REQUEST['searchlabel']) != count(Label::$loaded)) {
+			elseif (\count($_REQUEST['searchlabel']) != \count(Label::$loaded)) {
 				// Special case here... "inbox" isn't a real label...
-				if (in_array(-1, $_REQUEST['searchlabel'])) {
+				if (\in_array(-1, $_REQUEST['searchlabel'])) {
 					Utils::$context['search_in'][] = Label::$loaded[-1]['name'];
 
 					$this->label_query = '	AND pmr.in_inbox = {int:in_inbox}';
@@ -625,7 +625,7 @@ class Search
 			if ($word == '-') {
 				$word = Utils::strtolower(trim($searchArray[$index]));
 
-				if (strlen($word) > 0) {
+				if (\strlen($word) > 0) {
 					$excludedWords[] = $word;
 				}
 
@@ -638,7 +638,7 @@ class Search
 			if (str_starts_with(trim($word), '-')) {
 				$word = substr(Utils::strtolower($word), 1);
 
-				if (strlen($word) > 0) {
+				if (\strlen($word) > 0) {
 					$excludedWords[] = $word;
 				}
 
@@ -682,9 +682,9 @@ class Search
 			}
 
 			if ($this->params['subject_only']) {
-				$andQueryParts[] = 'pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '}';
+				$andQueryParts[] = 'pm.subject' . (\in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '}';
 			} else {
-				$andQueryParts[] = '(pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '} ' . (in_array($word, $excludedWords) ? 'AND pm.body NOT' : 'OR pm.body') . ' LIKE {string:search_' . $index . '})';
+				$andQueryParts[] = '(pm.subject' . (\in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '} ' . (\in_array($word, $excludedWords) ? 'AND pm.body NOT' : 'OR pm.body') . ' LIKE {string:search_' . $index . '})';
 			}
 
 			$this->searchq_parameters['search_' . $index] = '%' . strtr($word, ['_' => '\\_', '%' => '\\%']) . '%';

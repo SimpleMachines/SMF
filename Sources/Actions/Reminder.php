@@ -87,7 +87,7 @@ class Reminder implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -110,7 +110,7 @@ class Reminder implements ActionInterface
 
 		// Make sure we are not being slammed
 		// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
-		if (!in_array($_POST['reminder_type'] ?? null, ['email', 'secret'])) {
+		if (!\in_array($_POST['reminder_type'] ?? null, ['email', 'secret'])) {
 			Security::spamProtection('remind');
 		}
 
@@ -346,7 +346,7 @@ class Reminder implements ActionInterface
 		}
 
 		// You can't use a blank one!
-		if (strlen(trim($_POST['passwrd1'])) === 0) {
+		if (\strlen(trim($_POST['passwrd1'])) === 0) {
 			ErrorHandler::fatalLang('no_password', false);
 		}
 
@@ -415,7 +415,7 @@ class Reminder implements ActionInterface
 		$err_msg = 'username_no_exist';
 
 		// Coming with a known ID?
-		$uid = intval(!empty($_REQUEST['uid']) ? $_REQUEST['uid'] : (!empty($_POST['u']) ? $_POST['u'] : 0));
+		$uid = \intval(!empty($_REQUEST['uid']) ? $_REQUEST['uid'] : (!empty($_POST['u']) ? $_POST['u'] : 0));
 
 		// If given a name or email, clean it up like we do during registration.
 		if (isset($_POST['user'])) {

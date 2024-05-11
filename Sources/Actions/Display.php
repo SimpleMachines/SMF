@@ -322,7 +322,7 @@ class Display implements ActionInterface
 	protected function checkPrevNextRedirect(): void
 	{
 		// Find the previous or next topic. But don't bother if there's only one.
-		if (isset($_REQUEST['prev_next']) && in_array($_REQUEST['prev_next'], ['prev', 'next']) && Board::$info->num_topics > 1) {
+		if (isset($_REQUEST['prev_next']) && \in_array($_REQUEST['prev_next'], ['prev', 'next']) && Board::$info->num_topics > 1) {
 			$prev = $_REQUEST['prev_next'] === 'prev';
 
 			// Just prepare some variables that are used in the query.
@@ -425,9 +425,9 @@ class Display implements ActionInterface
 	protected function setRobotNoIndex(): void
 	{
 		// Let's do some work on what to search index.
-		if (count($_GET) > 2) {
+		if (\count($_GET) > 2) {
 			foreach ($_GET as $k => $v) {
-				if (!in_array($k, ['topic', 'board', 'start', session_name()])) {
+				if (!\in_array($k, ['topic', 'board', 'start', session_name()])) {
 					Utils::$context['robot_no_index'] = true;
 				}
 			}
@@ -763,7 +763,7 @@ class Display implements ActionInterface
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';
@@ -791,7 +791,7 @@ class Display implements ActionInterface
 			}
 
 			// The number of guests is equal to the rows minus the ones we actually used ;).
-			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - \count(Utils::$context['view_members']);
 
 			Db::$db->free_result($request);
 
@@ -891,7 +891,7 @@ class Display implements ActionInterface
 
 		if (!empty(Utils::$context['link_moderators'])) {
 			// And show it after the board's name.
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (\count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -1044,7 +1044,7 @@ class Display implements ActionInterface
 			if (!empty(Utils::$context['linked_calendar_events'])) {
 				Theme::loadTemplate('EventEditor');
 
-				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
+				Utils::$context['linked_calendar_events'][\count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
 			}
 		}
 	}
@@ -1242,7 +1242,7 @@ class Display implements ActionInterface
 		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 
 		if (!empty(Utils::$context['icons'])) {
-			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
+			Utils::$context['icons'][\count(Utils::$context['icons']) - 1]['is_last'] = true;
 		}
 	}
 

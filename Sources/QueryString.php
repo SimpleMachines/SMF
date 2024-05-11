@@ -90,7 +90,7 @@ class QueryString
 					$temp = explode(';', $v);
 					$_GET[$k] = $temp[0];
 
-					for ($i = 1, $n = count($temp); $i < $n; $i++) {
+					for ($i = 1, $n = \count($temp); $i < $n; $i++) {
 						@list($key, $val) = @explode('=', $temp[$i], 2);
 
 						if (!isset($_GET[$key])) {
@@ -385,9 +385,9 @@ class QueryString
 		$matched = false;
 
 		if (isset($_REQUEST[$var], $value_list[$_REQUEST[$var]])) {
-			if (is_array($value_list[$_REQUEST[$var]])) {
+			if (\is_array($value_list[$_REQUEST[$var]])) {
 				foreach ($value_list[$_REQUEST[$var]] as $subvar => $subvalues) {
-					$matched |= isset($_REQUEST[$subvar]) && in_array($_REQUEST[$subvar], $subvalues);
+					$matched |= isset($_REQUEST[$subvar]) && \in_array($_REQUEST[$subvar], $subvalues);
 				}
 			} else {
 				$matched = true;
@@ -415,7 +415,7 @@ class QueryString
 	public static function ob_sessrewrite(string $buffer): string
 	{
 		// If Config::$scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-		if (Config::$scripturl == '' || !defined('SID')) {
+		if (Config::$scripturl == '' || !\defined('SID')) {
 			return $buffer;
 		}
 
@@ -433,7 +433,7 @@ class QueryString
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
 				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
+				|| \ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
@@ -441,7 +441,7 @@ class QueryString
 			)
 		) {
 			// Let's do something special for session ids!
-			if (defined('SID') && SID != '') {
+			if (\defined('SID') && SID != '') {
 				$buffer = preg_replace_callback(
 					'~"' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 					function ($m) {

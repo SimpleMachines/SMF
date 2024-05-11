@@ -114,7 +114,7 @@ class ProxyServer
 
 		// Try to create the image cache directory if it doesn't exist
 		if (!file_exists($this->cache)) {
-			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
+			if (!mkdir($this->cache) || !copy(\dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
 				return false;
 			}
 		}
@@ -132,7 +132,7 @@ class ProxyServer
 		}
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly
-		$request = strval($request->toAscii());
+		$request = \strval($request->toAscii());
 
 		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash']) {
 			return false;
@@ -274,7 +274,7 @@ class ProxyServer
 		}
 
 		// Validate the filesize
-		$size = strlen($image);
+		$size = \strlen($image);
 
 		if ($size > ($this->maxSize * 1024)) {
 			$this->redirectexit($request);
@@ -316,7 +316,7 @@ class ProxyServer
 
 		if ($handle = opendir($path)) {
 			while (false !== ($file = readdir($handle))) {
-				if (is_file($path . $file) && !in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
+				if (is_file($path . $file) && !\in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
 					unlink($path . $file);
 				}
 			}

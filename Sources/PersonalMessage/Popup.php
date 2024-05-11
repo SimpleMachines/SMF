@@ -59,11 +59,11 @@ class Popup
 
 		if (!empty($pms)) {
 			// Just quickly, it's possible that the number of PMs can get out of sync.
-			$count_unread = count($pms);
+			$count_unread = \count($pms);
 
 			if ($count_unread != User::$me->unread_messages) {
 				User::updateMemberData(User::$me->id, ['unread_messages' => $count_unread]);
-				User::$me->unread_messages = count($pms);
+				User::$me->unread_messages = \count($pms);
 			}
 
 			// Now, actually fetch me some PMs.

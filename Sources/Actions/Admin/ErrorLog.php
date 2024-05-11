@@ -137,7 +137,7 @@ class ErrorLog implements ActionInterface
 			$this->filter = [
 				'variable' => $_GET['filter'],
 				'value' => [
-					'sql' => in_array($_GET['filter'], ['message', 'url', 'file']) ? base64_decode(strtr($_GET['value'], [' ' => '+'])) : Db::$db->escape_wildcard_string($_GET['value']),
+					'sql' => \in_array($_GET['filter'], ['message', 'url', 'file']) ? base64_decode(strtr($_GET['value'], [' ' => '+'])) : Db::$db->escape_wildcard_string($_GET['value']),
 				],
 				'href' => ';filter=' . $_GET['filter'] . ';value=' . urlencode($_GET['value']),
 				'entity' => $this->filters[$_GET['filter']]['txt'],
@@ -277,7 +277,7 @@ class ErrorLog implements ActionInterface
 				LIMIT {int:members}',
 				[
 					'member_list' => $members,
-					'members' => count($members),
+					'members' => \count($members),
 				],
 			);
 
@@ -435,7 +435,7 @@ class ErrorLog implements ActionInterface
 		// We don't want to slice off too many so lets make sure we stop at the last one
 		$max = min($max, max(array_keys($file_data)));
 
-		$file_data = array_slice($file_data, $min - 1, (int) ($max - $min));
+		$file_data = \array_slice($file_data, $min - 1, (int) ($max - $min));
 
 		Utils::$context['file_data'] = [
 			'contents' => $file_data,

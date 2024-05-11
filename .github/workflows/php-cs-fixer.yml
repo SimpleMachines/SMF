@@ -31,4 +31,4 @@ jobs:
       - name: PHP-CS-Fixer
         uses: docker://oskarstark/php-cs-fixer-ga
         with:
-          args: --config=.php-cs-fixer.dist.php -v --dry-run --stop-on-violation --using-cache=no ${{ env.PHPCS_EXTRA_ARGS }}
+          args: --config=.php-cs-fixer.dist.php -v --dry-run --stop-on-violation --using-cache=no --allow-risky=yes ${{ env.PHPCS_EXTRA_ARGS }}

@@ -359,12 +359,12 @@ class BoardIndex implements ActionInterface
 
 		// Find all boards and categories, as well as related information.
 		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row_board) {
-			$row_board = array_filter($row_board, fn ($prop) => !is_null($prop));
+			$row_board = array_filter($row_board, fn ($prop) => !\is_null($prop));
 
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
 
 			// Perhaps we are ignoring this board?
-			$ignoreThisBoard = in_array($row_board['id_board'], User::$me->ignoreboards);
+			$ignoreThisBoard = \in_array($row_board['id_board'], User::$me->ignoreboards);
 			$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
 
 			if ($board_index_options['include_categories']) {
@@ -421,7 +421,7 @@ class BoardIndex implements ActionInterface
 					'is_redirect' => (bool) $row_board['is_redirect'],
 					'unapproved_topics' => $row_board['unapproved_topics'],
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
-					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
+					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || \in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
 					'href' => Config::$scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . Config::$scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',

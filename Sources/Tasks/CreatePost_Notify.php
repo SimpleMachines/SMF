@@ -462,7 +462,7 @@ class CreatePost_Notify extends BackgroundTask
 
 		$user_ids = array_keys($this->members['watching']);
 
-		if (!in_array($posterOptions['id'], $user_ids)) {
+		if (!\in_array($posterOptions['id'], $user_ids)) {
 			$user_ids[] = $posterOptions['id'];
 		}
 		User::load($user_ids, User::LOAD_BY_ID, 'minimal');
@@ -470,7 +470,7 @@ class CreatePost_Notify extends BackgroundTask
 		$parsed_message = [];
 
 		foreach ($this->members['watching'] as $member_id => $member_data) {
-			if (in_array($member_id, $this->members['done'])) {
+			if (\in_array($member_id, $this->members['done'])) {
 				continue;
 			}
 
@@ -479,17 +479,17 @@ class CreatePost_Notify extends BackgroundTask
 
 			// Don't send a notification if:
 			// 1. The watching member ignored the member who did the action.
-			if (!empty($member_data['pm_ignore_list']) && in_array($member_data['id_member_updated'], explode(',', $member_data['pm_ignore_list']))) {
+			if (!empty($member_data['pm_ignore_list']) && \in_array($member_data['id_member_updated'], explode(',', $member_data['pm_ignore_list']))) {
 				continue;
 			}
 
 			// 2. The watching member is not interested in moderation on this topic.
-			if (!in_array($type, ['reply', 'topic']) && ($notify_types == self::NOTIFY_TYPE_ONLY_REPLIES || ($notify_types == self::NOTIFY_TYPE_REPLIES_AND_OWN_TOPIC_MODERATION && $member_id != $member_data['id_member_started']))) {
+			if (!\in_array($type, ['reply', 'topic']) && ($notify_types == self::NOTIFY_TYPE_ONLY_REPLIES || ($notify_types == self::NOTIFY_TYPE_REPLIES_AND_OWN_TOPIC_MODERATION && $member_id != $member_data['id_member_started']))) {
 				continue;
 			}
 
 			// 3. This is the watching member's own post.
-			if (in_array($type, ['reply', 'topic']) && $member_id == $posterOptions['id']) {
+			if (\in_array($type, ['reply', 'topic']) && $member_id == $posterOptions['id']) {
 				continue;
 			}
 
@@ -499,7 +499,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// 5. The watching member doesn't want notifications until later.
-			if (in_array($frequency, [
+			if (\in_array($frequency, [
 				self::FREQUENCY_NOTHING,
 				self::FREQUENCY_DAILY_DIGEST,
 				self::FREQUENCY_WEEKLY_DIGEST])) {
@@ -512,7 +512,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// 7. The watching member isn't on club security's VIP list.
-			if (!empty($this->_details['members_only']) && !in_array($member_id, $this->_details['members_only'])) {
+			if (!empty($this->_details['members_only']) && !\in_array($member_id, $this->_details['members_only'])) {
 				continue;
 			}
 
@@ -578,8 +578,8 @@ class CreatePost_Notify extends BackgroundTask
 					'alert_time' => time(),
 					'id_member' => (int) $member_id,
 					// Only tell sender's information for new topics and replies
-					'id_member_started' => in_array($type, ['topic', 'reply']) ? (int) $posterOptions['id'] : 0,
-					'member_name' => in_array($type, ['topic', 'reply']) ? $posterOptions['name'] : '',
+					'id_member_started' => \in_array($type, ['topic', 'reply']) ? (int) $posterOptions['id'] : 0,
+					'member_name' => \in_array($type, ['topic', 'reply']) ? $posterOptions['name'] : '',
 					'content_type' => $content_type,
 					'content_id' => (int) $topicOptions['id'],
 					'content_action' => $type,
@@ -588,7 +588,7 @@ class CreatePost_Notify extends BackgroundTask
 						'topic' => (int) $topicOptions['id'],
 						'board' => (int) $topicOptions['board'],
 						'content_subject' => $parsed_message[$localization]['subject'],
-						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, ['reply', 'topic']) ? '.new;topicseen#new' : '.0'),
+						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . (\in_array($type, ['reply', 'topic']) ? '.new;topicseen#new' : '.0'),
 					]),
 				];
 			}
@@ -630,7 +630,7 @@ class CreatePost_Notify extends BackgroundTask
 		User::load($posterOptions['id'], User::LOAD_BY_ID, 'minimal');
 
 		foreach ($this->members['quoted'] as $member_id => $member_data) {
-			if (in_array($member_id, $this->members['done'])) {
+			if (\in_array($member_id, $this->members['done'])) {
 				continue;
 			}
 
@@ -667,7 +667,7 @@ class CreatePost_Notify extends BackgroundTask
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['quoted_members'][$member_id]);
-			} elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watching'])) {
+			} elseif (TIME_START >= $this->mention_mail_time || \in_array($member_id, $this->members['watching'])) {
 				$replacements = [
 					'CONTENTSUBJECT' => $msgOptions['subject'],
 					'QUOTENAME' => Utils::htmlspecialcharsDecode(User::$loaded[$posterOptions['id']]->name ?? $posterOptions['name']),
@@ -699,7 +699,7 @@ class CreatePost_Notify extends BackgroundTask
 		$msgOptions = &$this->_details['msgOptions'];
 
 		foreach ($this->members['mentioned'] as $member_id => $member_data) {
-			if (in_array($member_id, $this->members['done'])) {
+			if (\in_array($member_id, $this->members['done'])) {
 				continue;
 			}
 
@@ -736,7 +736,7 @@ class CreatePost_Notify extends BackgroundTask
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['mentioned_members'][$member_id]);
-			} elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watching'])) {
+			} elseif (TIME_START >= $this->mention_mail_time || \in_array($member_id, $this->members['watching'])) {
 				$replacements = [
 					'CONTENTSUBJECT' => $msgOptions['subject'],
 					'MENTIONNAME' => $member_data['mentioned_by']['name'],

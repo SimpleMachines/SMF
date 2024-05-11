@@ -105,7 +105,7 @@ class CoppaForm implements ActionInterface
 				header('connection: close');
 				header('content-disposition: attachment; filename="approval.txt"');
 				header('content-type: ' . (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
-				header('content-length: ' . strlen($data));
+				header('content-length: ' . \strlen($data));
 
 				echo $data;
 				Utils::obExit(false);

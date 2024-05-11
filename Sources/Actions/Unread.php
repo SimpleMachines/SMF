@@ -366,7 +366,7 @@ class Unread implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (in_array($row['id_parent'], $this->boards)) {
+				if (\in_array($row['id_parent'], $this->boards)) {
 					$this->boards[] = $row['id_board'];
 				}
 			}
@@ -477,7 +477,7 @@ class Unread implements ActionInterface
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
 				'',
 				'SELECT name
@@ -499,7 +499,7 @@ class Unread implements ActionInterface
 	protected function setSortMethod(): void
 	{
 		// We only know these.
-		if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
+		if (isset($_REQUEST['sort']) && !\in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
 			$_REQUEST['sort'] = 'last_post';
 		}
 
@@ -942,7 +942,7 @@ class Unread implements ActionInterface
 				[
 					'current_member' => User::$me->id,
 					'topic_list' => $topic_ids,
-					'limit' => count($topic_ids),
+					'limit' => \count($topic_ids),
 				],
 			);
 

@@ -326,7 +326,7 @@ class Notification implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -459,7 +459,7 @@ class Notification implements ActionInterface
 			foreach ($this->alert_types as $group => $items) {
 				foreach ($items as $alert_key => $alert_value) {
 					if (isset($alert_value['permission'])) {
-						$allowed = count(array_intersect(Profile::$member->groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
+						$allowed = \count(array_intersect(Profile::$member->groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
 
 						if (!$allowed) {
 							unset($this->alert_types[$group][$alert_key]);

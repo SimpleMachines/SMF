@@ -114,8 +114,8 @@ class IntegrationHook
 		// Loop through each callable.
 		foreach ($this->callables as $func_string => $callable) {
 			// Is it valid?
-			if (is_callable($callable)) {
-				$this->results[$func_string] = call_user_func_array($callable, $parameters);
+			if (\is_callable($callable)) {
+				$this->results[$func_string] = \call_user_func_array($callable, $parameters);
 			}
 			// This failed, but we want to do so silently.
 			elseif ($this->ignore_errors) {
@@ -195,7 +195,7 @@ class IntegrationHook
 		}
 
 		// Any files  to load?
-		if (!empty($file) && is_string($file)) {
+		if (!empty($file) && \is_string($file)) {
 			$function = $file . (!empty($function) ? '|' . $function : '');
 		}
 
@@ -279,7 +279,7 @@ class IntegrationHook
 		}
 
 		// Any files  to load?
-		if (!empty($file) && is_string($file)) {
+		if (!empty($file) && \is_string($file)) {
 			$function = $file . '|' . $function;
 		}
 

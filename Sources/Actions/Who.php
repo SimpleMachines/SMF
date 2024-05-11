@@ -371,7 +371,7 @@ class Who implements ActionInterface
 
 		IntegrationHook::call('who_allowed', [&self::$allowedActions]);
 
-		if (!is_array($urls)) {
+		if (!\is_array($urls)) {
 			$url_list = [[$urls, User::$me->id]];
 		} else {
 			$url_list = $urls;
@@ -485,9 +485,9 @@ class Who implements ActionInterface
 				elseif (isset(self::$allowedActions[$actions['action']])) {
 					if (User::$me->allowedTo(self::$allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']])) {
 						$data[$k] = Lang::getTxt('whoallow_' . $actions['action'], ['scripturl' => Config::$scripturl]);
-					} elseif (in_array('moderate_forum', self::$allowedActions[$actions['action']])) {
+					} elseif (\in_array('moderate_forum', self::$allowedActions[$actions['action']])) {
 						$data[$k] = Lang::$txt['who_moderate'];
-					} elseif (in_array('admin_forum', self::$allowedActions[$actions['action']])) {
+					} elseif (\in_array('admin_forum', self::$allowedActions[$actions['action']])) {
 						$data[$k] = Lang::$txt['who_admin'];
 					} else {
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
@@ -513,7 +513,7 @@ class Who implements ActionInterface
 				if (!empty($error_message)) {
 					$error_message = ' <span class="main_icons error" title="' . $error_message . '"></span>';
 
-					if (is_array($data[$k])) {
+					if (\is_array($data[$k])) {
 						$data[$k]['error_message'] = $error_message;
 					} else {
 						$data[$k] .= $error_message;
@@ -522,7 +522,7 @@ class Who implements ActionInterface
 			}
 
 			// Maybe the action is integrated into another system?
-			if (count($integrate_actions = IntegrationHook::call('integrate_whos_online', [$actions])) > 0) {
+			if (\count($integrate_actions = IntegrationHook::call('integrate_whos_online', [$actions])) > 0) {
 				foreach ($integrate_actions as $integrate_action) {
 					if (!empty($integrate_action)) {
 						$data[$k] = $integrate_action;
@@ -558,7 +558,7 @@ class Who implements ActionInterface
 				[
 					'topic_list' => array_keys($topic_ids),
 					'is_approved' => 1,
-					'limit' => count($topic_ids),
+					'limit' => \count($topic_ids),
 				],
 			);
 
@@ -582,7 +582,7 @@ class Who implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'board_list' => array_keys($board_ids),
-					'limit' => count($board_ids),
+					'limit' => \count($board_ids),
 				],
 			);
 
@@ -605,7 +605,7 @@ class Who implements ActionInterface
 				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
-				LIMIT ' . count($profile_ids),
+				LIMIT ' . \count($profile_ids),
 				[
 					'member_list' => array_keys($profile_ids),
 				],
@@ -627,7 +627,7 @@ class Who implements ActionInterface
 
 		IntegrationHook::call('whos_online_after', [&$urls, &$data]);
 
-		if (!is_array($urls)) {
+		if (!\is_array($urls)) {
 			return $data[0] ?? false;
 		}
 

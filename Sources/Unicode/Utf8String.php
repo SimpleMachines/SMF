@@ -81,7 +81,7 @@ class Utf8String implements \Stringable
 		if (!isset(self::$use_intl_normalizer)) {
 			require_once __DIR__ . '/Metadata.php';
 
-			self::$use_intl_normalizer = extension_loaded('intl') && version_compare(implode('.', \IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>=');
+			self::$use_intl_normalizer = \extension_loaded('intl') && version_compare(implode('.', \IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>=');
 		}
 	}
 
@@ -134,7 +134,7 @@ class Utf8String implements \Stringable
 	public function convertCase(string $case, bool $simple = false): object
 	{
 		// The main case conversion logic
-		if (in_array($case, ['upper', 'lower', 'fold'])) {
+		if (\in_array($case, ['upper', 'lower', 'fold'])) {
 			$chars = preg_split('/(.)/su', $this->string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			if ($chars === false) {
@@ -149,7 +149,7 @@ class Utf8String implements \Stringable
 					$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
-					if (in_array($this->language, ['tr', 'az'])) {
+					if (\in_array($this->language, ['tr', 'az'])) {
 						$substitutions['i'] = 'İ';
 					}
 
@@ -160,7 +160,7 @@ class Utf8String implements \Stringable
 					$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
-					if (in_array($this->language, ['tr', 'az'])) {
+					if (\in_array($this->language, ['tr', 'az'])) {
 						$substitutions['İ'] = 'i';
 						$substitutions['I' . "\xCC\x87"] = 'i';
 						$substitutions['I'] = 'ı';
@@ -179,7 +179,7 @@ class Utf8String implements \Stringable
 			}
 
 			$this->string = implode('', $chars);
-		} elseif (in_array($case, ['title', 'ucfirst', 'ucwords'])) {
+		} elseif (\in_array($case, ['title', 'ucfirst', 'ucwords'])) {
 			require_once __DIR__ . '/RegularExpressions.php';
 
 			require_once __DIR__ . '/CaseUpper.php';
@@ -191,7 +191,7 @@ class Utf8String implements \Stringable
 			$upper = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 			// Turkish & Azeri conditional casing, part 1.
-			if (in_array($this->language, ['tr', 'az'])) {
+			if (\in_array($this->language, ['tr', 'az'])) {
 				$upper['i'] = 'İ';
 			}
 
@@ -297,7 +297,7 @@ class Utf8String implements \Stringable
 		}
 
 		// Turkish & Azeri conditional casing, part 2.
-		if ($case !== 'upper' && in_array($this->language, ['tr', 'az'])) {
+		if ($case !== 'upper' && \in_array($this->language, ['tr', 'az'])) {
 			// Remove unnecessary "COMBINING DOT ABOVE" after i
 			$substitutions['i' . "\xCC\x87"] = 'i';
 		}
@@ -466,7 +466,7 @@ class Utf8String implements \Stringable
 				}
 
 				$last_pos = $pos;
-				$last_len = strlen($char);
+				$last_len = \strlen($char);
 				$last_ccc = $ccc;
 			}
 		}
@@ -783,11 +783,11 @@ class Utf8String implements \Stringable
 		$combining_classes = utf8_combining_classes();
 
 		// Replace characters with decomposed forms.
-		for ($i = 0; $i < count($chars); $i++) {
+		for ($i = 0; $i < \count($chars); $i++) {
 			// Hangul characters.
 			// See "Hangul Syllable Decomposition" in the Unicode standard, ch. 3.12.
 			if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3") {
-				if (!function_exists('mb_ord')) {
+				if (!\function_exists('mb_ord')) {
 					require_once Config::$sourcedir . '/Subs-Compat.php';
 				}
 
@@ -809,7 +809,7 @@ class Utf8String implements \Stringable
 		$chars = preg_split('/(.)/su', implode('', $chars), 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		// Sort characters into canonical order.
-		for ($i = 1; $i < count($chars); $i++) {
+		for ($i = 1; $i < \count($chars); $i++) {
 			if (empty($combining_classes[$chars[$i]]) || empty($combining_classes[$chars[$i - 1]])) {
 				continue;
 			}
@@ -844,7 +844,7 @@ class Utf8String implements \Stringable
 		$substitutions = utf8_compose_maps();
 		$combining_classes = utf8_combining_classes();
 
-		for ($c = 0; $c < count($chars); $c++) {
+		for ($c = 0; $c < \count($chars); $c++) {
 			// Singleton replacements.
 			if (isset($substitutions[$chars[$c]])) {
 				$chars[$c] = $substitutions[$chars[$c]];
@@ -853,7 +853,7 @@ class Utf8String implements \Stringable
 			// Hangul characters.
 			// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
 			if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5") {
-				if (!function_exists('mb_ord')) {
+				if (!\function_exists('mb_ord')) {
 					require_once Config::$sourcedir . '/Subs-Compat.php';
 				}
 
@@ -1138,7 +1138,7 @@ class Utf8String implements \Stringable
 				// emoji sequence. This can happen because the digits 0-9 and
 				// the '*' and '#' characters are the base characters for the
 				// "Emoji_Keycap_Sequence" emojis.
-				if (strlen($matches[0]) === 1) {
+				if (\strlen($matches[0]) === 1) {
 					return $matches[0];
 				}
 

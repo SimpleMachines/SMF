@@ -543,7 +543,7 @@ class Editor implements \ArrayAccess
 		];
 
 		if (empty(Config::$modSettings['disable_wysiwyg'])) {
-			self::$bbc_tags[count(self::$bbc_tags) - 1][] = [
+			self::$bbc_tags[\count(self::$bbc_tags) - 1][] = [
 				'code' => 'removeformat',
 				'description' => Lang::$editortxt['remove_formatting'],
 			];
@@ -613,7 +613,7 @@ class Editor implements \ArrayAccess
 		];
 
 		if (empty(Config::$modSettings['disable_wysiwyg'])) {
-			self::$bbc_tags[count(self::$bbc_tags) - 1][] = [
+			self::$bbc_tags[\count(self::$bbc_tags) - 1][] = [
 				'code' => 'source',
 				'description' => Lang::$editortxt['view_source'],
 			];
@@ -752,11 +752,11 @@ class Editor implements \ArrayAccess
 
 				foreach (self::$smileys_toolbar as $section => $smiley_rows) {
 					foreach ($smiley_rows as $rowIndex => $smileys) {
-						self::$smileys_toolbar[$section][$rowIndex]['smileys'][count($smileys['smileys']) - 1]['isLast'] = true;
+						self::$smileys_toolbar[$section][$rowIndex]['smileys'][\count($smileys['smileys']) - 1]['isLast'] = true;
 					}
 
 					if (!empty($smiley_rows)) {
-						self::$smileys_toolbar[$section][count($smiley_rows) - 1]['isLast'] = true;
+						self::$smileys_toolbar[$section][\count($smiley_rows) - 1]['isLast'] = true;
 					}
 				}
 
@@ -811,7 +811,7 @@ class Editor implements \ArrayAccess
 			$this->sce_options['emoticons']['dropdown'] = [];
 			$this->sce_options['emoticons']['popup'] = [];
 
-			$count_locations = count(self::$smileys_toolbar);
+			$count_locations = \count(self::$smileys_toolbar);
 
 			foreach (self::$smileys_toolbar as $location => $smiley_rows) {
 				$count_locations--;
@@ -824,7 +824,7 @@ class Editor implements \ArrayAccess
 					$smiley_location = &$this->sce_options['emoticons']['popup'];
 				}
 
-				$num_rows = count($smiley_rows);
+				$num_rows = \count($smiley_rows);
 
 				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
 				$empty_placeholder = 0;
@@ -850,7 +850,7 @@ class Editor implements \ArrayAccess
 		$this->sce_options['toolbar'] = '';
 
 		if (!empty(Config::$modSettings['enableBBC'])) {
-			$count_tags = count(self::$bbc_tags);
+			$count_tags = \count(self::$bbc_tags);
 
 			foreach (self::$bbc_toolbar as $i => $buttonRow) {
 				$this->sce_options['toolbar'] .= implode('|', $buttonRow);

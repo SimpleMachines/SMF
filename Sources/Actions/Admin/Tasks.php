@@ -81,7 +81,7 @@ class Tasks implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -306,7 +306,7 @@ class Tasks implements ActionInterface
 
 			// The other time bits are simple!
 			$interval = max((int) $_POST['regularity'], 1);
-			$unit = in_array(substr($_POST['unit'], 0, 1), ['m', 'h', 'd', 'w']) ? substr($_POST['unit'], 0, 1) : 'd';
+			$unit = \in_array(substr($_POST['unit'], 0, 1), ['m', 'h', 'd', 'w']) ? substr($_POST['unit'], 0, 1) : 'd';
 
 			// Don't allow one minute intervals.
 			if ($interval == 1 && $unit == 'm') {

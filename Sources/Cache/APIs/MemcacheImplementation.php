@@ -22,7 +22,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -97,7 +97,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		$level = 0;
 
 		// We should keep trying if a server times out, but only for the amount of servers we have.
-		while (!$connected && $level < count($this->servers)) {
+		while (!$connected && $level < \count($this->servers)) {
 			++$level;
 
 			$server = $this->servers[array_rand($this->servers)];
@@ -171,7 +171,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
-		if (!in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
+		if (!\in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
 			$config_vars[] = Lang::$txt[self::CLASS_KEY . '_settings'];
 			$config_vars[] = [
 				self::CLASS_KEY,
@@ -200,7 +200,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion(): string|bool
 	{
-		if (!is_object($this->memcache)) {
+		if (!\is_object($this->memcache)) {
 			return false;
 		}
 

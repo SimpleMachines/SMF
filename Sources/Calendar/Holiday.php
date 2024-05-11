@@ -387,7 +387,7 @@ class Holiday extends Event
 			if (isset(self::$special_rrules[$_POST['RRULE']])) {
 				$event->special_rrule = $_POST['RRULE'];
 
-				if (in_array($event->special_rrule, ['EASTER_W', 'EASTER_E'])) {
+				if (\in_array($event->special_rrule, ['EASTER_W', 'EASTER_E'])) {
 					$eventOptions['start_date'] = implode('-', self::easter((int) $event->start->format('Y'), $event->special_rrule === 'EASTER_E' ? 'Eastern' : 'Western'));
 				}
 			}

@@ -22,7 +22,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -178,7 +178,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
-		if (!in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
+		if (!\in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
 			$config_vars[] = Lang::$txt[self::CLASS_KEY . '_settings'];
 			$config_vars[] = [
 				self::CLASS_KEY,
@@ -207,7 +207,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion(): string|bool
 	{
-		if (!is_object($this->memcached)) {
+		if (!\is_object($this->memcached)) {
 			return false;
 		}
 

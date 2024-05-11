@@ -77,7 +77,7 @@ class Search implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -340,8 +340,8 @@ class Search implements ActionInterface
 		// Perhaps the search method wants to add some settings?
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'searchSettings'])) {
-			call_user_func_array([$searchAPI, 'searchSettings'], [&$config_vars]);
+		if (\is_callable([$searchAPI, 'searchSettings'])) {
+			\call_user_func_array([$searchAPI, 'searchSettings'], [&$config_vars]);
 		}
 
 		// Let the admin set custom stopwords.

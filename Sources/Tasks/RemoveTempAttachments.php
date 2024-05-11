@@ -36,7 +36,7 @@ class RemoveTempAttachments extends ScheduledTask
 	{
 		// We need to know where this thing is going.
 		if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
-			if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
+			if (!\is_array(Config::$modSettings['attachmentUploadDir'])) {
 				Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 			}
 
