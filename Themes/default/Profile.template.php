@@ -2342,7 +2342,7 @@ function template_issueWarning()
 	foreach (Utils::$context['notification_templates'] as $k => $type)
 		echo '
 			if (index == ', $k, ')
-				document.getElementById(\'warn_body\').value = "', strtr($type['body'], array('"' => "'", "\n" => '\\n', "\r" => '')), '";';
+				document.getElementById(\'warn_body\').value = ', Utils::escapeJavaScript($type['body']), ';';
 
 	echo '
 		}
