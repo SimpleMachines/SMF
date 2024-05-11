@@ -1981,9 +1981,7 @@ class Utils
 			Mail::addToQueue(true);
 		}
 
-		$add = preg_match('~^(ftp|http)s?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
-
-		if ($add) {
+		if (!Url::create($setLocation)->isValid()) {
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 		}
 
