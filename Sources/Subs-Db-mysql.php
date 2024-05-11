@@ -212,7 +212,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'string':
 		case 'text':
-			return sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $replacement));
+			return sprintf('\'%1$s\'', mysqli_real_escape_string($connection, isset($smcFunc['fix_utf8mb4']) ? $smcFunc['fix_utf8mb4']($replacement) : $replacement));
 			break;
 
 		case 'array_int':
@@ -243,7 +243,7 @@ function smf_db_replacement__callback($matches)
 					smf_db_error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 				foreach ($replacement as $key => $value)
-					$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $value));
+					$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($connection, isset($smcFunc['fix_utf8mb4']) ? $smcFunc['fix_utf8mb4']($value) : $value));
 
 				return implode(', ', $replacement);
 			}
