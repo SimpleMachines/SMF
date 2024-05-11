@@ -25,13 +25,6 @@ class Config
 	 * Public static properties
 	 **************************/
 
-	/**
-	 * @var bool
-	 *
-	 * Master switch to enable backward compatibility behaviours.
-	 */
-	public static bool $backward_compatibility = true;
-
 	########## Maintenance ##########
 	/**
 	 * @var int 0, 1, 2
@@ -253,6 +246,14 @@ class Config
 	 * Path to the tasks directory.
 	 */
 	public static string $tasksdir;
+
+	######### Modification Support #########
+	/**
+	 * @var bool
+	 *
+	 * Master switch to enable backward compatibility behaviours.
+	 */
+	public static bool $backward_compatibility = true;
 
 	######### Legacy settings #########
 	/**
@@ -776,6 +777,19 @@ class Config
 			'default' => '__DIR__ . \'/Languages\'',
 			'raw_default' => true,
 			'type' => 'string',
+		],
+		'backward_compatibility' => [
+			'text' => <<<'END'
+
+				######### Modification Support #########
+				/**
+				 * @var bool
+				 *
+				 * Master switch to enable backward compatibility behaviours.
+				 */
+				END,
+			'default' => true,
+			'type' => 'boolean',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'

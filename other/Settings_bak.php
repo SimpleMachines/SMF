@@ -222,6 +222,14 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  */
 $languagesdir = dirname(__FILE__) . '/Languages';
 
+######### Modification Support #########
+/**
+ * @var bool
+ *
+ * Master switch to enable backward compatibility behaviours.
+ */
+$backward_compatibility = true;
+
 ######### Legacy Settings #########
 /**
  * @var string
