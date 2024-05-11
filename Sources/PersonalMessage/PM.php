@@ -1001,7 +1001,7 @@ class PM implements \ArrayAccess
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || strpos($message, '[html]') === false)) {
+			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($message, '[html]'))) {
 				$post_errors[] = 'no_message';
 			}
 		}
@@ -1272,11 +1272,11 @@ class PM implements \ArrayAccess
 					)
 					|| (
 						$criterium['t'] == 'sub'
-						&& strpos($subject, $criterium['v']) !== false
+						&& str_contains($subject, $criterium['v'])
 					)
 					|| (
 						$criterium['t'] == 'msg'
-						&& strpos($message, $criterium['v']) !== false
+						&& str_contains($message, $criterium['v'])
 					)
 				) {
 					$delete = true;

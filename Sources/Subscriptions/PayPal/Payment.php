@@ -158,11 +158,11 @@ class Payment
 
 		// Is this a subscription - and if so is it a secondary payment that we need to process?
 		// If so, make sure we get it in the expected format. Seems PayPal sometimes sends it without urlencoding.
-		if (!empty($_POST['item_number']) && strpos($_POST['item_number'], ' ') !== false) {
+		if (!empty($_POST['item_number']) && str_contains($_POST['item_number'], ' ')) {
 			$_POST['item_number'] = str_replace(' ', '+', $_POST['item_number']);
 		}
 
-		if ($this->isSubscription() && (empty($_POST['item_number']) || strpos($_POST['item_number'], '+') === false)) {
+		if ($this->isSubscription() && (empty($_POST['item_number']) || !str_contains($_POST['item_number'], '+'))) {
 			// Calculate the subscription it relates to!
 			$this->_findSubscription();
 		}
@@ -198,7 +198,7 @@ class Payment
 	 */
 	public function isSubscription(): bool
 	{
-		return (bool) (substr($_POST['txn_type'], 0, 14) === 'subscr_payment' && $_POST['payment_status'] === 'Completed');
+		return (bool) (str_starts_with($_POST['txn_type'], 'subscr_payment') && $_POST['payment_status'] === 'Completed');
 	}
 
 	/**
@@ -221,7 +221,7 @@ class Payment
 		// subscr_cancel is sent when the user cancels, subscr_eot is sent when the subscription reaches final payment
 		// Neither require us to *do* anything as per performCancel().
 		// subscr_eot, if sent, indicates an end of payments term.
-		return (bool) (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel' || substr($_POST['txn_type'], 0, 10) === 'subscr_eot');
+		return (bool) (str_starts_with($_POST['txn_type'], 'subscr_cancel') || str_starts_with($_POST['txn_type'], 'subscr_eot'));
 	}
 
 	/**

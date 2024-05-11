@@ -635,7 +635,7 @@ class Search
 
 		// Now we look for -test, etc.... normaller.
 		foreach ($tempSearch as $index => $word) {
-			if (strpos(trim($word), '-') === 0) {
+			if (str_starts_with(trim($word), '-')) {
 				$word = substr(Utils::strtolower($word), 1);
 
 				if (strlen($word) > 0) {
