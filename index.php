@@ -248,6 +248,7 @@ function smf_main()
 		'requestmembers' => true,
 		'smstats' => true,
 		'suggest' => true,
+		'uploadAttach' => true,
 		'verificationcode' => true,
 		'viewquery' => true,
 		'viewsmfile' => true,
