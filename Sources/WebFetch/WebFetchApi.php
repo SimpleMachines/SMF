@@ -110,7 +110,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	public static function fetch(Url|string $url, string|array $post_data = [], bool $keep_alive = false): string|false
 	{
-		if (!$url instanceof Url) {
+		if (!($url instanceof Url)) {
 			$url = Url::create($url, true)->validate()->toAscii();
 		}
 

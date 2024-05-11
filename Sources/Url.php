@@ -498,6 +498,7 @@ class Url implements \Stringable
 		// We don't need to proxy our own resources.
 		if ($proxied->host === Url::create(Config::$boardurl)->host) {
 			$proxied->url = strtr($this->url, ['http://' => 'https://']);
+			$proxied->parse();
 
 			return $proxied;
 		}
@@ -687,7 +688,7 @@ class Url implements \Stringable
 			}
 
 			// Make sure nothing went horribly wrong along the way.
-			if (md5($tlds) != substr($tlds_md5, 0, 32)) {
+			if (md5((string) $tlds) != substr((string) $tlds_md5, 0, 32)) {
 				$tlds = [];
 			}
 		}
