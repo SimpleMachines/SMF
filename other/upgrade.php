@@ -147,7 +147,7 @@ if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMO
 		}
 
 		if (preg_match('~^--path=(.+)$~', $_SERVER['argv'][$i], $match) != 0) {
-			$upgrade_path = realpath(substr($match[1], -1) == '/' ? substr($match[1], 0, -1) : $match[1]);
+			$upgrade_path = realpath(str_ends_with($match[1], '/') ? substr($match[1], 0, -1) : $match[1]);
 		}
 
 		// Cases where we do php other/upgrade.php --path=./
@@ -433,7 +433,7 @@ function upgradeExit($fallThrough = false)
 			$upcontext['get_data'] = [];
 
 			foreach ($_GET as $k => $v) {
-				if (substr($k, 0, 3) != 'amp' && !in_array($k, ['xml', 'substep', 'lang', 'data', 'step', 'filecount'])) {
+				if (!str_starts_with($k, 'amp') && !in_array($k, ['xml', 'substep', 'lang', 'data', 'step', 'filecount'])) {
 					$upcontext['get_data'][$k] = $v;
 				}
 			}
@@ -504,7 +504,7 @@ function findSettingsFile()
 		$index_contents = file_get_contents($upgrade_path . '/index.php');
 
 		// The standard path.
-		if (strpos($index_contents, "define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');") !== false) {
+		if (str_contains($index_contents, "define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');")) {
 			$settingsFile = $upgrade_path . '/Settings.php';
 		}
 		// A custom path defined in a simple string.
@@ -575,7 +575,7 @@ function load_lang_file()
 
 			while ($entry = $dir->read()) {
 				// We can't have periods.
-				if (strpos($entry, '.') !== false) {
+				if (str_contains($entry, '.')) {
 					continue;
 				}
 
@@ -589,7 +589,7 @@ function load_lang_file()
 				// Yay!
 				if ($fp) {
 					while (($line = fgets($fp)) !== false) {
-						if (strpos($line, '$txt[\'native_name\']') === false) {
+						if (!str_contains($line, '$txt[\'native_name\']')) {
 							continue;
 						}
 
@@ -1458,7 +1458,7 @@ function UpgradeOptions()
 	setSqlMode(false);
 
 	// Firstly, if they're enabling SM stat collection just do it.
-	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
+	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
 		$upcontext['allow_sm_stats'] = true;
 
 		// Don't register if we still have a key.
@@ -1582,15 +1582,15 @@ function UpgradeOptions()
 	}
 
 	// Fix some old paths.
-	if (substr(Config::$boarddir, 0, 1) == '.') {
+	if (str_starts_with(Config::$boarddir, '.')) {
 		$changes['boarddir'] = fixRelativePath(Config::$boarddir);
 	}
 
-	if (substr(Config::$sourcedir, 0, 1) == '.') {
+	if (str_starts_with(Config::$sourcedir, '.')) {
 		$changes['sourcedir'] = fixRelativePath(Config::$sourcedir);
 	}
 
-	if (empty(Config::$cachedir) || substr(Config::$cachedir, 0, 1) == '.') {
+	if (empty(Config::$cachedir) || str_starts_with(Config::$cachedir, '.')) {
 		$changes['cachedir'] = fixRelativePath(Config::$boarddir) . '/cache';
 	}
 
@@ -1606,7 +1606,7 @@ function UpgradeOptions()
 
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
-	if (strpos(Config::$db_server, ':') !== false && Config::$db_type == 'mysql') {
+	if (str_contains(Config::$db_server, ':') && Config::$db_type == 'mysql') {
 		list(Config::$db_server, Config::$db_port) = explode(':', Config::$db_server);
 
 		$changes['db_server'] = Config::$db_server;
@@ -1696,7 +1696,7 @@ function BackupDatabase()
 	$table_names = [];
 
 	foreach ($tables as $table) {
-		if (substr($table, 0, 7) !== 'backup_') {
+		if (!str_starts_with($table, 'backup_')) {
 			$table_names[] = $table;
 		}
 	}
@@ -1992,7 +1992,7 @@ function DeleteUpgrade()
 	$endl = $command_line ? "\n" : '<br>' . "\n";
 
 	$changes = [
-		'language' => (substr(Config::$language, -4) == '.lng' ? substr(Config::$language, 0, -4) : Config::$language),
+		'language' => (str_ends_with(Config::$language, '.lng') ? substr(Config::$language, 0, -4) : Config::$language),
 		'db_error_send' => true,
 		'upgradeData' => null,
 	];
@@ -2141,7 +2141,7 @@ function cli_scheduled_fetchSMfiles()
 
 	foreach ($js_files as $ID_FILE => $file) {
 		// Create the url
-		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'https://www.simplemachines.org' : '';
+		$server = empty($file['path']) || !str_starts_with($file['path'], 'http://') ? 'https://www.simplemachines.org' : '';
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file
@@ -2347,7 +2347,7 @@ function parse_sql($filename)
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
 	$upcontext['total_items'] = substr_count(implode('', $lines), '--- ');
-	$upcontext['debug_items'] = $file_steps;
+	$upcontext['debug_items'] = $file_substrsteps;
 	$upcontext['current_item_num'] = 0;
 	$upcontext['current_item_name'] = '';
 	$upcontext['current_debug_item_num'] = 0;
@@ -2361,7 +2361,7 @@ function parse_sql($filename)
 		$do_current = $substep >= $_GET['substep'];
 
 		// Get rid of any comments in the beginning of the line...
-		if (substr(trim($line), 0, 2) === '/*') {
+		if (str_starts_with(trim($line), '/*')) {
 			$line = preg_replace('~/\*.+?\*/~', '', $line);
 		}
 
@@ -2483,7 +2483,7 @@ function parse_sql($filename)
 
 		$current_data .= $line;
 
-		if (substr(rtrim($current_data), -1) === ';' && $current_type === 'sql') {
+		if (str_ends_with(rtrim($current_data), ';') && $current_type === 'sql') {
 			if ((!$support_js || isset($_GET['xml']))) {
 				if (!$do_current || !empty($upcontext['skip_db_substeps'])) {
 					$current_data = '';
@@ -2611,7 +2611,7 @@ function upgrade_query($string, $unbuffered = false)
 		// Creating an index on a non-existent column.
 		elseif ($mysqli_errno == 1072) {
 			return false;
-		} elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE') {
+		} elseif ($mysqli_errno == 1050 && str_starts_with(trim($string), 'RENAME TABLE')) {
 			return false;
 		}
 		// Testing for legacy tables or columns? Needed for 1.0 & 1.1 scripts.
@@ -2622,11 +2622,11 @@ function upgrade_query($string, $unbuffered = false)
 	// If a table already exists don't go potty.
 	else {
 		if (in_array(substr(trim($string), 0, 8), ['CREATE T', 'CREATE S', 'DROP TABL', 'ALTER TA', 'CREATE I', 'CREATE U'])) {
-			if (strpos($db_error_message, 'exist') !== false) {
+			if (str_contains($db_error_message, 'exist')) {
 				return true;
 			}
-		} elseif (strpos(trim($string), 'INSERT ') !== false) {
-			if (strpos($db_error_message, 'duplicate') !== false || $ignore_insert_error) {
+		} elseif (str_contains(trim($string), 'INSERT ')) {
+			if (str_contains($db_error_message, 'duplicate') || $ignore_insert_error) {
 				return true;
 			}
 		}
@@ -2750,7 +2750,7 @@ function protected_alter($change, $substep, $is_test = false)
 			SHOW FULL PROCESSLIST');
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (strpos($row['Info'], 'ALTER TABLE ' . Config::$db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false) {
+			if (str_contains($row['Info'], 'ALTER TABLE ' . Config::$db_prefix . $change['table']) && str_contains($row['Info'], $change['text'])) {
 				$found = true;
 			}
 		}
@@ -3527,7 +3527,7 @@ function ConvertUtf8()
 
 			while ($column_info = Db::$db->fetch_assoc($queryColumns)) {
 				// Only text'ish columns have a character set and need converting.
-				if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false) {
+				if (str_contains($column_info['Type'], 'text') || str_contains($column_info['Type'], 'char')) {
 					$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
 
 					if (!empty($collation) && $collation !== 'NULL') {
@@ -3555,9 +3555,9 @@ function ConvertUtf8()
 					if ($charset !== $charsets[$upcontext['charset_detected']]) {
 						foreach ($columns as $column) {
 							$updates_blob .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (!str_contains($column['Type'], 'char') ? '' : ' default \'' . $column['Default'] . '\'') . ',';
 							$updates_text .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (!str_contains($column['Type'], 'char') ? '' : ' default \'' . $column['Default'] . '\'') . ',';
 						}
 					}
 				}
@@ -3701,7 +3701,7 @@ function upgrade_unserialize($string)
 		$data = false;
 	}
 	// Might be JSON already.
-	elseif (strpos($string, '{') === 0) {
+	elseif (str_starts_with($string, '{')) {
 		$data = @json_decode($string, true);
 
 		if (is_null($data)) {
@@ -4117,12 +4117,12 @@ function CleanupLanguages()
 		}
 
 		// Skip ThemeStrings
-		if (substr($entry, 0, 13) == 'ThemeStrings.') {
+		if (str_starts_with($entry, 'ThemeStrings.')) {
 			continue;
 		}
 
 		// Rename Settings to ThemeStrings.
-		if (substr($entry, 0, 9) == 'Settings.' && substr($entry, -4) == '.php' && strpos($entry, '-utf8') === false) {
+		if (str_starts_with($entry, 'Settings.') && str_ends_with($entry, '.php') && !str_contains($entry, '-utf8')) {
 			quickFileWritable($old_languages_dir . '/' . $entry);
 			rename($old_languages_dir . '/' . $entry, $old_languages_dir . '/' . str_replace('Settings.', 'ThemeStrings.', $entry));
 		} else {
@@ -4149,7 +4149,7 @@ function CleanupAgreements()
 		}
 
 		// Skip anything not agreements.
-		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt') {
+		if (str_starts_with($entry, 'agreements.') || !str_ends_with($entry, '.txt')) {
 			continue;
 		}
 

@@ -478,14 +478,14 @@ class TimezoneUpdater
 								$final_entry = $existing_entry;
 
 								// Do we need to change the tzid?
-								if (strpos($new_alt_tzid_comment, $existing_alt_tzid) === false) {
+								if (!str_contains($new_alt_tzid_comment, $existing_alt_tzid)) {
 									$final_entry = str_replace("'tzid' => '{$existing_alt_tzid}',", "'tzid' => '{$new_alt_tzid}',", $final_entry);
 								}
 
 								// Add or update the options comment.
-								if (strpos($existing_alt_tzid_comment, '// OPTIONS: ') === false) {
+								if (!str_contains($existing_alt_tzid_comment, '// OPTIONS: ')) {
 									// Only insert options comment if we changed the tzid.
-									if (strpos($new_alt_tzid_comment, $existing_alt_tzid) === false) {
+									if (!str_contains($new_alt_tzid_comment, $existing_alt_tzid)) {
 										$final_entry = preg_replace("/'tzid' => '([^']*)',/", $new_alt_tzid_comment . "'tzid' => '$1',", $final_entry);
 									}
 								} else {
@@ -653,7 +653,7 @@ class TimezoneUpdater
 					}
 
 					if (empty($close_enough) && in_array($tzid, $canonical_non_metazones)) {
-						if (($tzid === 'UTC' || strpos($tzid, '/') !== false) && strpos($tzid, 'Etc/') !== 0 && !in_array($tzid, $timezones_when)) {
+						if (($tzid === 'UTC' || str_contains($tzid, '/')) && !str_starts_with($tzid, 'Etc/') && !in_array($tzid, $timezones_when)) {
 							$not_in_a_metazone[$year][$tzkey][] = $tzid;
 						}
 					} else {
@@ -797,7 +797,7 @@ class TimezoneUpdater
 				}
 
 				// Metazones distinguish between North and South America.
-				if (strpos($metazone['tztxt_key'], 'America_') === 0) {
+				if (str_starts_with($metazone['tztxt_key'], 'America_')) {
 					// Check the TZDB source file first.
 					if ($this->zones[$tzid]['file'] === 'northamerica') {
 						$metazone['tztxt_key'] = 'North_' . $metazone['tztxt_key'];
@@ -887,10 +887,10 @@ class TimezoneUpdater
 		$file_contents = file_get_contents(Config::$languagesdir . '/en_US/Timezones.php');
 
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
-			if (strpos($file_contents, "\$txt['{$new_tzid}']") === false) {
+			if (!str_contains($file_contents, "\$txt['{$new_tzid}']")) {
 				$file_contents = str_replace("\$txt['{$old_tzid}']", "\$txt['{$new_tzid}']", $file_contents);
 
-				if (strpos($file_contents, "\$txt['{$new_tzid}']") !== false) {
+				if (str_contains($file_contents, "\$txt['{$new_tzid}']")) {
 					echo "Renamed \$txt['{$old_tzid}'] to \$txt['{$new_tzid}'] in Languages/en_US/Timezones.php.\n\n";
 
 					$this->files_updated = true;
@@ -1094,7 +1094,7 @@ class TimezoneUpdater
 			foreach (explode("\n", $file_contents) as $line) {
 				$line = trim(substr($line, 0, strcspn($line, '#')));
 
-				if (strpos($line, 'Zone') !== 0 && strpos($line, 'Link') !== 0) {
+				if (!str_starts_with($line, 'Zone') && !str_starts_with($line, 'Link')) {
 					continue;
 				}
 
@@ -1129,7 +1129,7 @@ class TimezoneUpdater
 		foreach (explode("\n", $file_contents) as $line) {
 			$line = trim(substr($line, 0, strcspn($line, '#')));
 
-			if (strpos($line, 'Link') !== 0) {
+			if (!str_starts_with($line, 'Link')) {
 				continue;
 			}
 
@@ -1165,10 +1165,10 @@ class TimezoneUpdater
 
 			$line = trim(substr($line, 0, strcspn($line, '#')));
 
-			if (strpos($line, 'Zone') === 0) {
+			if (str_starts_with($line, 'Zone')) {
 				$parts = array_values(array_filter(preg_split("~\h+~", $line)));
 				$backzones[] = $parts[1];
-			} elseif (strpos($line, 'Link') === 0) {
+			} elseif (str_starts_with($line, 'Link')) {
 				$parts = array_values(array_filter(preg_split("~\h+~", $line)));
 				$backzone_links[$parts[2]] = $parts[1];
 			}
@@ -1591,7 +1591,7 @@ class TimezoneUpdater
 					$tzid = $matches[1];
 				}
 				// Line provides a link.
-				elseif (strpos($line, 'Link') === 0) {
+				elseif (str_starts_with($line, 'Link')) {
 					// No longer in a zone record.
 					$tzid = '';
 
@@ -1599,7 +1599,7 @@ class TimezoneUpdater
 					$links[$parts[2]] = $parts[1];
 				}
 				// Line provides a rule.
-				elseif (strpos($line, 'Rule') === 0) {
+				elseif (str_starts_with($line, 'Rule')) {
 					// No longer in a zone record.
 					$tzid = '';
 				}
@@ -1617,7 +1617,7 @@ class TimezoneUpdater
 						array_pad(preg_split("~\h+~", $data, 4), 4, ''),
 					);
 
-					if (strpos($parts['stdoff'], ':') === false) {
+					if (!str_contains($parts['stdoff'], ':')) {
 						$parts['stdoff'] .= ':00';
 					}
 
@@ -1862,7 +1862,7 @@ class TimezoneUpdater
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
 					// Some abbr values use '+00/+01' instead of sprintf formats.
-					if (strpos($abbr, '/') !== false) {
+					if (str_contains($abbr, '/')) {
 						$abbr = substr($abbr, 0, strpos($abbr, '/'));
 					}
 
@@ -1900,7 +1900,7 @@ class TimezoneUpdater
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
 					// Some abbr values use '+00/+01' instead of sprintf formats.
-					if (strpos($abbr, '/') !== false) {
+					if (str_contains($abbr, '/')) {
 						$abbr = substr($abbr, strpos($abbr, '/'));
 					}
 
@@ -1942,7 +1942,7 @@ class TimezoneUpdater
 								$prev_save_parts = array_pad($prev_save_parts, 3, 0);
 								$prev_save_offset = abs($prev_save_parts[0]) * 3600 + $prev_save_parts[1] * 60 + $prev_save_parts[2];
 
-								if (substr($prev_save, 0, 1) === '-') {
+								if (str_starts_with($prev_save, '-')) {
 									$prev_save_offset *= -1;
 								}
 							} else {
@@ -1999,7 +1999,7 @@ class TimezoneUpdater
 						$save_parts = array_pad($save_parts, 3, 0);
 						$save_offset = abs($save_parts[0]) * 3600 + $save_parts[1] * 60 + $save_parts[2];
 
-						if (substr($info['save'], 0, 1) === '-') {
+						if (str_starts_with($info['save'], '-')) {
 							$save_offset *= -1;
 						}
 
@@ -2013,7 +2013,7 @@ class TimezoneUpdater
 						$unadjusted_date_string = $info['unadjusted_date_string'];
 
 						// Some abbr values use '+00/+01' instead of sprintf formats.
-						if (strpos($abbr, '/') !== false) {
+						if (str_contains($abbr, '/')) {
 							$abbrs = explode('/', $abbr);
 							$abbr = $isdst ? $abbrs[1] : $abbrs[0];
 						}
@@ -2154,11 +2154,11 @@ class TimezoneUpdater
 					return 1;
 				}
 
-				if (strpos($a['tzid'], '/') === false && strpos($b['tzid'], '/') !== false) {
+				if (!str_contains($a['tzid'], '/') && str_contains($b['tzid'], '/')) {
 					return -1;
 				}
 
-				if (strpos($a['tzid'], '/') !== false && strpos($b['tzid'], '/') === false) {
+				if (str_contains($a['tzid'], '/') && !str_contains($b['tzid'], '/')) {
 					return 1;
 				}
 
@@ -2231,7 +2231,7 @@ class TimezoneUpdater
 							$year,
 							$rule['in'],
 							$rule['on'],
-							$rule['at'] . (strpos($rule['at'], ':') === false ? ':00' : ''),
+							$rule['at'] . (!str_contains($rule['at'], ':') ? ':00' : ''),
 						]),
 					);
 
@@ -2261,7 +2261,7 @@ class TimezoneUpdater
 				$save_parts = array_pad($save_parts, 3, 0);
 				$save_offset = abs($save_parts[0]) * 3600 + $save_parts[1] * 60 + $save_parts[2];
 
-				if (substr($prev_save, 0, 1) === '-') {
+				if (str_starts_with($prev_save, '-')) {
 					$save_offset *= -1;
 				}
 
@@ -2330,8 +2330,8 @@ class TimezoneUpdater
 					continue;
 				}
 
-				if (strpos($line, 'Rule') === 0) {
-					if (strpos($line, '"') !== false) {
+				if (str_starts_with($line, 'Rule')) {
+					if (str_contains($line, '"')) {
 						preg_match_all('/"[^"]*"/', $line, $matches);
 
 						$patterns = [];
@@ -2427,7 +2427,7 @@ class TimezoneUpdater
 			"/(\d{4})\h+({$month})\h+(\d+)/" => '$2 $3 $1,',
 		];
 
-		if (strpos($date_string, '<=') !== false) {
+		if (str_contains($date_string, '<=')) {
 			$date_string = preg_replace_callback(
 				"/(\d{4})\h+({$month})\h+({$weekday})<=(\d+)/",
 				function ($matches) {

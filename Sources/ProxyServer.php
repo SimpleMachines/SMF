@@ -190,7 +190,7 @@ class ProxyServer
 
 		$eTag = '"' . substr(sha1($request) . $this->cachedtime, 0, 64) . '"';
 
-		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false) {
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && str_contains($_SERVER['HTTP_IF_NONE_MATCH'], $eTag)) {
 			Utils::sendHttpStatus(304);
 
 			exit;
@@ -264,12 +264,12 @@ class ProxyServer
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if ($ext == 'svg' && in_array($mime_type, ['text/plain', 'text/xml']) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false) {
+		if ($ext == 'svg' && in_array($mime_type, ['text/plain', 'text/xml']) && str_contains($image, '<svg') && str_contains($image, '</svg>')) {
 			$mime_type = 'image/svg+xml';
 		}
 
 		// Make sure the url is returning an image
-		if (strpos($mime_type, 'image/') !== 0) {
+		if (!str_starts_with($mime_type, 'image/')) {
 			$this->redirectexit($request);
 		}
 

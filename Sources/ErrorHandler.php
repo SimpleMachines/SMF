@@ -56,7 +56,7 @@ class ErrorHandler
 			return;
 		}
 
-		if (strpos($file, 'eval()') !== false && !empty(Theme::$current->settings['current_include_filename'])) {
+		if (str_contains($file, 'eval()') && !empty(Theme::$current->settings['current_include_filename'])) {
 			$array = debug_backtrace();
 			$count = count($array);
 
@@ -85,7 +85,7 @@ class ErrorHandler
 			if ($error_level % 255 != E_ERROR) {
 				$temporary = ob_get_contents();
 
-				if (substr($temporary, -2) == '="') {
+				if (str_ends_with($temporary, '="')) {
 					echo '"';
 				}
 			}

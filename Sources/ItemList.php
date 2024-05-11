@@ -308,7 +308,7 @@ class ItemList implements \ArrayAccess
 		} else {
 			$this->sort = [
 				'id' => $this->options['default_sort_col'],
-				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && substr($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], -4, 4) == 'desc') ? true : false,
+				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && str_ends_with($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], 'desc')) ? true : false,
 			];
 		}
 

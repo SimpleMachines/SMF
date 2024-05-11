@@ -1412,7 +1412,7 @@ class Config
 		// Should we try to unescape the strings?
 		if (empty($keep_quotes)) {
 			foreach ($config_vars as $var => $val) {
-				if (is_string($val) && ($keep_quotes === false || strpos($val, '\'') === 0 && strrpos($val, '\'') === strlen($val) - 1)) {
+				if (is_string($val) && ($keep_quotes === false || str_starts_with($val, '\'') && strrpos($val, '\'') === strlen($val) - 1)) {
 					$config_vars[$var] = trim(stripcslashes($val), '\'');
 				}
 			}
@@ -1599,13 +1599,13 @@ class Config
 
 			if (!empty($setting_def['text'])) {
 				// Special handling for the license block: always at the beginning.
-				if (strpos($setting_def['text'], "* @package SMF\n") !== false) {
+				if (str_contains($setting_def['text'], "* @package SMF\n")) {
 					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					$substitutions[$var]['placeholder'] = '';
 					$substitutions[-1]['replacement'] .= $setting_def['text'] . "\n";
 				}
 				// Special handling for the Error-Catching block: always at the end.
-				elseif (strpos($setting_def['text'], 'Error-Catching') !== false) {
+				elseif (str_contains($setting_def['text'], 'Error-Catching')) {
 					$errcatch_var = $var;
 					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					$substitutions[$var]['placeholder'] = '';
@@ -1614,7 +1614,7 @@ class Config
 				// The text is the whole thing (code blocks, etc.)
 				elseif (is_int($var)) {
 					// Remember the path correcting code for later.
-					if (strpos($setting_def['text'], '# Make sure the paths are correct') !== false) {
+					if (str_contains($setting_def['text'], '# Make sure the paths are correct')) {
 						$pathcode_var = $var;
 					}
 
@@ -1702,7 +1702,7 @@ class Config
 					if (in_array($var, array_keys($config_vars))) {
 						$var_pattern[] = @$type_regex[gettype($config_vars[$var])];
 
-						if (is_string($config_vars[$var]) && strpos($config_vars[$var], dirname($settingsFile)) === 0) {
+						if (is_string($config_vars[$var]) && str_starts_with($config_vars[$var], dirname($settingsFile))) {
 							$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $config_vars[$var]), '~')) . '\'';
 						}
 					}
@@ -1710,7 +1710,7 @@ class Config
 					if (in_array($var, array_keys($settings_vars))) {
 						$var_pattern[] = @$type_regex[gettype($settings_vars[$var])];
 
-						if (is_string($settings_vars[$var]) && strpos($settings_vars[$var], dirname($settingsFile)) === 0) {
+						if (is_string($settings_vars[$var]) && str_starts_with($settings_vars[$var], dirname($settingsFile))) {
 							$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $settings_vars[$var]), '~')) . '\'';
 						}
 					}
@@ -1718,11 +1718,11 @@ class Config
 					if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '') {
 						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
 
-						if (strpos($setting_def['default'], 'dirname(__FILE__)') !== false) {
+						if (str_contains($setting_def['default'], 'dirname(__FILE__)')) {
 							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
 						}
 
-						if (strpos($setting_def['default'], '__DIR__') !== false) {
+						if (str_contains($setting_def['default'], '__DIR__')) {
 							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
 						}
 					}
@@ -1851,7 +1851,7 @@ class Config
 				$settingsText = '<' . "?php\n";
 
 				foreach ($settings_defs as $var => $setting_def) {
-					if (is_string($var) && !empty($setting_def['text']) && strpos($substitutions[$var]['replacement'], $setting_def['text']) === false) {
+					if (is_string($var) && !empty($setting_def['text']) && !str_contains($substitutions[$var]['replacement'], $setting_def['text'])) {
 						$substitutions[$var]['replacement'] = $setting_def['text'] . "\n" . $substitutions[$var]['replacement'];
 					}
 
@@ -1892,7 +1892,7 @@ class Config
 				$replace_strings[$var] = $substitution['replacement'];
 			}
 
-			if (strpos($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ') !== false) {
+			if (str_contains($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ')) {
 				$force_before_pathcode[] = $var;
 			}
 
@@ -1906,17 +1906,17 @@ class Config
 						// Maybe we can try something more interesting?
 						$sp = substr($substitution['search_pattern'], 1);
 
-						if (strpos($sp, '(?<=^|\s)') === 0) {
+						if (str_starts_with($sp, '(?<=^|\s)')) {
 							$sp = substr($sp, 9);
 						}
 
-						if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0) {
+						if (str_starts_with($sp, '^') || str_starts_with($sp, '(?<')) {
 							return false;
 						}
 
 						// See if we can exclude `if` blocks, etc., to narrow down the matches.
 						// @todo Multiple layers of nested brackets might confuse this.
-						$sp = '~(?:^|//[^\n]+c\n|\*/|[;}]|' . implode('|', array_filter($placeholders)) . ')\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp;
+						$sp = '~(?:^|//[^\n]+c\n|\*/|[;}]|' . implode('|', array_filter($placeholders)) . ')\s*' . (!str_contains($sp, '\K') ? '\K' : '') . $sp;
 
 						preg_match_all($sp, $settingsText, $matches);
 					} else {
@@ -1972,7 +1972,7 @@ class Config
 						}
 						// Maybe it's an object? (Probably not, but we should check.)
 						elseif ($type == 'object') {
-							if (strpos($settingsText, '__set_state') === false) {
+							if (!str_contains($settingsText, '__set_state')) {
 								continue;
 							}
 
@@ -2050,7 +2050,7 @@ class Config
 			$all_custom_content = '';
 
 			foreach ($substitutions as $var => $substitution) {
-				if (is_int($var) && ($var === -2 || $var > 0) && isset($trimmed_placeholders[$var]) && strpos($bare_settingsText, $trimmed_placeholders[$var]) !== false) {
+				if (is_int($var) && ($var === -2 || $var > 0) && isset($trimmed_placeholders[$var]) && str_contains($bare_settingsText, $trimmed_placeholders[$var])) {
 					$newsection_placeholders[$var] = $trimmed_placeholders[$var];
 				}
 			}
@@ -2129,7 +2129,7 @@ class Config
 						}
 
 						// Does this need to be inserted before the path correction code?
-						if (strpos($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) !== false && in_array($var, $force_before_pathcode)) {
+						if (str_contains($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) && in_array($var, $force_before_pathcode)) {
 							$new_settingsText = strtr($new_settingsText, [$substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']]);
 
 							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
@@ -2143,13 +2143,13 @@ class Config
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 						}
 						// Perhaps it is safe to reposition it anyway.
-						elseif (is_string($var) && strpos($new_settingsText, $p) === false && strpos($all_custom_content, '$' . $var) === false) {
+						elseif (is_string($var) && !str_contains($new_settingsText, $p) && !str_contains($all_custom_content, '$' . $var)) {
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 						}
 						// If this setting is missing entirely, fix it.
-						elseif (strpos($bare_settingsText, $p) === false) {
+						elseif (!str_contains($bare_settingsText, $p)) {
 							// Special case if the path code is missing. Put it near the end,
 							// and also anything else that is missing that normally follows it.
 							if (!isset($newsection_placeholders[$pathcode_var]) && $pathcode_reached === true && $sectionkey < (count($sections) - 1)) {
@@ -2168,7 +2168,7 @@ class Config
 
 			// Restore the leading and trailing placeholders as necessary.
 			foreach ([-1, -2] as $var) {
-				if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) === false);
+				if (!empty($substitutions[$var]['placeholder']) && !str_contains($settingsText, $substitutions[$var]['placeholder']));
 				{
 					$settingsText = ($var == -1 ? $substitutions[$var]['placeholder'] : '') . $settingsText . ($var == -2 ? $substitutions[$var]['placeholder'] : '');
 				}
@@ -2201,7 +2201,7 @@ class Config
 		}
 
 		// Make absolutely sure that the path correction code is included.
-		if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false) {
+		if (!str_contains($settingsText, $substitutions[$pathcode_var]['replacement'])) {
 			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
 		}
 
@@ -2272,7 +2272,7 @@ class Config
 		// If we have any brand new settings to add, do so.
 		foreach ($new_settings_vars as $var => $val) {
 			if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText)) {
-				if (!isset($settings_defs[$var]) && strpos($settingsText, '# Custom Settings #') === false) {
+				if (!isset($settings_defs[$var]) && !str_contains($settingsText, '# Custom Settings #')) {
 					$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
 				}
 
@@ -2684,8 +2684,8 @@ class Config
 
 							// For 'C' style comments, also trim one preceding
 							// line break, if present.
-							if (strpos($text, '/*') === 0) {
-								if (substr($parts[$prev_part], -2) === "\r\n") {
+							if (str_starts_with($text, '/*')) {
+								if (str_ends_with($parts[$prev_part], "\r\n")) {
 									$parts[$prev_part] = substr($parts[$prev_part], 0, -2);
 								} elseif (in_array(substr($parts[$prev_part], -1), ["\r", "\n"])) {
 									$parts[$prev_part] = substr($parts[$prev_part], 0, -1);
@@ -2914,7 +2914,7 @@ class Config
 			// Check if we have a restriction preventing this from working.
 			if ($restriction) {
 				foreach ($restriction as $dir) {
-					if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp)) {
+					if (str_contains($possible_temp, $dir) && is_writable($possible_temp)) {
 						self::$temp_dir = $possible_temp;
 						break;
 					}

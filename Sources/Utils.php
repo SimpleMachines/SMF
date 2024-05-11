@@ -1406,7 +1406,7 @@ class Utils
 		}
 		// The substrings 'O:' and 'C:' are used to serialize objects.
 		// If they are not present, then there are none in the serialized data.
-		elseif (strpos($str, 'O:') === false && strpos($str, 'C:') === false) {
+		elseif (!str_contains($str, 'O:') && !str_contains($str, 'C:')) {
 			$out = unserialize($str);
 		}
 		// It looks like there might be an object in the serialized data,
@@ -1981,7 +1981,7 @@ class Utils
 			Mail::addToQueue(true);
 		}
 
-		$add = preg_match('~^(ftp|http)s?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
+		$add = preg_match('~^(ftp|http)s?://~', $setLocation) == 0 && !str_starts_with($setLocation, 'about:');
 
 		if ($add) {
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');

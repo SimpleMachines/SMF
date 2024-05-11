@@ -299,7 +299,7 @@ class Lang
 
 					// setlocale is required for basename() & pathinfo() to work properly on the selected language
 					if (!empty(self::$txt['lang_locale'])) {
-						if (strpos(self::$txt['lang_locale'], '.') !== false) {
+						if (str_contains(self::$txt['lang_locale'], '.')) {
 							$locale_variants = self::$txt['lang_locale'];
 						} else {
 							$locale_variants = array_unique(array_merge(
@@ -320,7 +320,7 @@ class Lang
 			 * Under normal conditions, we stop once we find it through the locale lookup.
 			 * Modifications is a special case in which we allow it to be checked everywhere.
 			 */
-			if ((!$found || strpos($template_name, 'Modifications') !== false || strpos($template_name, 'ThemeStrings') !== false) && Config::$backward_compatibility) {
+			if ((!$found || str_contains($template_name, 'Modifications') || str_contains($template_name, 'ThemeStrings')) && Config::$backward_compatibility) {
 				$found = self::loadOld($attempts) || $found;
 			}
 
@@ -462,7 +462,7 @@ class Lang
 					// Yay!
 					if ($fp) {
 						while (($line = fgets($fp)) !== false) {
-							if (strpos($line, '$txt[\'native_name\']') === false) {
+							if (!str_contains($line, '$txt[\'native_name\']')) {
 								continue;
 							}
 
@@ -667,7 +667,7 @@ class Lang
 
 		// Do we want the normal separator or the alternate?
 		foreach ($list as $item) {
-			if (strpos($item, $separator) !== false) {
+			if (str_contains($item, $separator)) {
 				$type .= '_alt';
 				break;
 			}

@@ -2063,7 +2063,7 @@ class TimeZone extends \DateTimeZone
 				}
 
 				// Replacement is already in use.
-				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && strpos($alt['tzid'], 'Etc/') === false)) {
+				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && !str_contains($alt['tzid'], 'Etc/'))) {
 					$replacements[$tzid] = '';
 				}
 

@@ -161,7 +161,7 @@ class BrowserDetector
 	public function isOpera(): bool
 	{
 		if (!isset($this->_browsers['is_opera'])) {
-			$this->_browsers['is_opera'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false;
+			$this->_browsers['is_opera'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'Opera');
 		}
 
 		return $this->_browsers['is_opera'];
@@ -192,7 +192,7 @@ class BrowserDetector
 		// IE11 is a bit different than earlier versions
 		// The isGecko() part is to ensure we get this right...
 		if (!isset($this->_browsers['is_ie11'])) {
-			$this->_browsers['is_ie11'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') !== false && $this->isGecko();
+			$this->_browsers['is_ie11'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'Trident') && $this->isGecko();
 		}
 
 		return $this->_browsers['is_ie11'];
@@ -206,7 +206,7 @@ class BrowserDetector
 	public function isEdge(): bool
 	{
 		if (!isset($this->_browsers['is_edge'])) {
-			$this->_browsers['is_edge'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') !== false;
+			$this->_browsers['is_edge'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'Edge');
 		}
 
 		return $this->_browsers['is_edge'];
@@ -220,7 +220,7 @@ class BrowserDetector
 	public function isWebkit(): bool
 	{
 		if (!isset($this->_browsers['is_webkit'])) {
-			$this->_browsers['is_webkit'] = strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false;
+			$this->_browsers['is_webkit'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit');
 		}
 
 		return $this->_browsers['is_webkit'];
@@ -248,7 +248,7 @@ class BrowserDetector
 	public function isWebTv(): bool
 	{
 		if (!isset($this->_browsers['is_web_tv'])) {
-			$this->_browsers['is_web_tv'] = strpos($_SERVER['HTTP_USER_AGENT'], 'WebTV') !== false;
+			$this->_browsers['is_web_tv'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'WebTV');
 		}
 
 		return $this->_browsers['is_web_tv'];
@@ -262,7 +262,7 @@ class BrowserDetector
 	public function isKonqueror(): bool
 	{
 		if (!isset($this->_browsers['is_konqueror'])) {
-			$this->_browsers['is_konqueror'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror') !== false;
+			$this->_browsers['is_konqueror'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'Konqueror');
 		}
 
 		return $this->_browsers['is_konqueror'];
@@ -276,7 +276,7 @@ class BrowserDetector
 	public function isGecko(): bool
 	{
 		if (!isset($this->_browsers['is_gecko'])) {
-			$this->_browsers['is_gecko'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Gecko') !== false && !$this->isWebkit() && !$this->isKonqueror();
+			$this->_browsers['is_gecko'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'Gecko') && !$this->isWebkit() && !$this->isKonqueror();
 		}
 
 		return $this->_browsers['is_gecko'];
@@ -330,11 +330,11 @@ class BrowserDetector
 	private function setupWebkit(): void
 	{
 		$this->_browsers += [
-			'is_chrome' => strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') !== false,
-			'is_iphone' => (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'iPod') !== false) && strpos($_SERVER['HTTP_USER_AGENT'], 'iPad') === false,
-			'is_blackberry' => stripos($_SERVER['HTTP_USER_AGENT'], 'BlackBerry') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'PlayBook') !== false,
-			'is_android' => strpos($_SERVER['HTTP_USER_AGENT'], 'Android') !== false,
-			'is_nokia' => strpos($_SERVER['HTTP_USER_AGENT'], 'SymbianOS') !== false,
+			'is_chrome' => str_contains($_SERVER['HTTP_USER_AGENT'], 'Chrome'),
+			'is_iphone' => (str_contains($_SERVER['HTTP_USER_AGENT'], 'iPhone') || str_contains($_SERVER['HTTP_USER_AGENT'], 'iPod')) && !str_contains($_SERVER['HTTP_USER_AGENT'], 'iPad'),
+			'is_blackberry' => str_contains(strtolower($_SERVER['HTTP_USER_AGENT']), 'blackberry') || str_contains($_SERVER['HTTP_USER_AGENT'], 'PlayBook'),
+			'is_android' => str_contains($_SERVER['HTTP_USER_AGENT'], 'Android'),
+			'is_nokia' => str_contains($_SERVER['HTTP_USER_AGENT'], 'SymbianOS'),
 		];
 
 		// blackberry, playbook, iphone, nokia, android and ipods set a mobile flag
@@ -343,8 +343,8 @@ class BrowserDetector
 		}
 
 		// @todo what to do with the blaPad? ... for now leave it detected as Safari ...
-		$this->_browsers['is_safari'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Safari') !== false && !$this->_browsers['is_chrome'] && !$this->_browsers['is_iphone'];
-		$this->_browsers['is_ipad'] = strpos($_SERVER['HTTP_USER_AGENT'], 'iPad') !== false;
+		$this->_browsers['is_safari'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'Safari') && !$this->_browsers['is_chrome'] && !$this->_browsers['is_iphone'];
+		$this->_browsers['is_ipad'] = str_contains($_SERVER['HTTP_USER_AGENT'], 'iPad');
 
 		// if Chrome, get the major version
 		if ($this->_browsers['is_chrome']) {
@@ -394,7 +394,7 @@ class BrowserDetector
 		$this->_browsers['is_ie6'] = !empty($this->_browsers['is_ie6']) && ($this->_browsers['is_ie_compat_view'] === false);
 
 		// IE mobile 7 or 9, ... shucks why not
-		if ((!empty($this->_browsers['is_ie7']) && strpos($_SERVER['HTTP_USER_AGENT'], 'IEMobile/7') !== false) || (!empty($this->_browsers['is_ie9']) && strpos($_SERVER['HTTP_USER_AGENT'], 'IEMobile/9') !== false)) {
+		if ((!empty($this->_browsers['is_ie7']) && str_contains($_SERVER['HTTP_USER_AGENT'], 'IEMobile/7')) || (!empty($this->_browsers['is_ie9']) && str_contains($_SERVER['HTTP_USER_AGENT'], 'IEMobile/9'))) {
 			$this->_browsers['is_ie_mobi'] = true;
 			$this->_is_mobile = true;
 		}
@@ -402,7 +402,7 @@ class BrowserDetector
 		// And some throwbacks to a bygone era, deposited here like cholesterol in your arteries
 		$this->_browsers += [
 			'is_ie4' => !empty($this->_browsers['is_ie4']) && !$this->_browsers['is_web_tv'],
-			'is_mac_ie' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false,
+			'is_mac_ie' => str_contains($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.') && str_contains($_SERVER['HTTP_USER_AGENT'], 'Mac'),
 		];
 
 		// Before IE8 we need to fix IE... lots!

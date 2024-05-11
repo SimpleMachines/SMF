@@ -2173,7 +2173,7 @@ class User implements \ArrayAccess
 				|| !in_array(Utils::$context['valid_cors_found'], ['same', 'subdomain'])
 			)
 		) {
-			if (strpos($_SERVER['HTTP_HOST'], ':') !== false) {
+			if (str_contains($_SERVER['HTTP_HOST'], ':')) {
 				$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
 			} else {
 				$real_host = $_SERVER['HTTP_HOST'];

@@ -747,7 +747,7 @@ class Mail
 		if (Config::$modSettings['mail_type'] == 3 && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
 			$socket = fsockopen(Config::$modSettings['smtp_host'], 110, $errno, $errstr, 2);
 
-			if (!$socket && (substr(Config::$modSettings['smtp_host'], 0, 5) == 'smtp.' || substr(Config::$modSettings['smtp_host'], 0, 11) == 'ssl://smtp.')) {
+			if (!$socket && (str_starts_with(Config::$modSettings['smtp_host'], 'smtp.') || str_starts_with(Config::$modSettings['smtp_host'], 'ssl://smtp.'))) {
 				$socket = fsockopen(strtr(Config::$modSettings['smtp_host'], ['smtp.' => 'pop.']), 110, $errno, $errstr, 2);
 			}
 
@@ -766,9 +766,9 @@ class Mail
 		// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
 		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : (int) Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
 			// Maybe we can still save this?  The port might be wrong.
-			if (substr(Config::$modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
+			if (str_starts_with(Config::$modSettings['smtp_host'], 'ssl:') && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
 				// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
-				if (substr(Config::$modSettings['smtp_host'], 0, 6) != 'ssl://') {
+				if (!str_starts_with(Config::$modSettings['smtp_host'], 'ssl://')) {
 					Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
 				}
 
@@ -803,7 +803,7 @@ class Mail
 			// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
 			if (
 				empty($helo)
-				|| strpos($helo, '.') === false
+				|| !str_contains($helo, '.')
 				|| substr_compare($helo, '.local', -6) === 0
 				|| (
 					!empty(Config::$modSettings['tld_regex'])
@@ -815,7 +815,7 @@ class Mail
 			}
 
 			// This is one of those situations where 'www.' is undesirable
-			if (strpos($helo, 'www.') === 0) {
+			if (str_starts_with($helo, 'www.')) {
 				$helo = substr($helo, 4);
 			}
 
