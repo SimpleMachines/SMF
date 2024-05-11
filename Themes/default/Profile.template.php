@@ -2382,7 +2382,7 @@ function template_issueWarning()
 	foreach ($context['notification_templates'] as $k => $type)
 		echo '
 			if (index == ', $k, ')
-				document.getElementById(\'warn_body\').value = "', strtr($type['body'], array('"' => "'", "\n" => '\\n', "\r" => '')), '";';
+				document.getElementById(\'warn_body\').value = ', JavaScriptEscape($type['body']), ';';
 
 	echo '
 		}
