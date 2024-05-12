@@ -30,6 +30,8 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -39,23 +41,11 @@ use SMF\Utils;
 /**
  * Handles reported members and posts, as well as moderation comments.
  */
-class ReportedContent implements ActionInterface
+class ReportedContent implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'show';
 
 	/**
 	 * @var string
@@ -67,20 +57,6 @@ class ReportedContent implements ActionInterface
 	/**************************
 	 * Public static properties
 	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'show' => 'show',
-		'closed' => 'showClosed',
-		'details' => 'details',
-		'handle' => 'setState',
-		'handlecomment' => 'comment',
-		'editcomment' => 'modifyComment',
-	];
 
 	/**
 	 * @var array
@@ -119,11 +95,7 @@ class ReportedContent implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -621,6 +593,13 @@ class ReportedContent implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('show', [$this, 'show']);
+		$this->addSubAction('closed', [$this, 'showClosed']);
+		$this->addSubAction('details', [$this, 'details']);
+		$this->addSubAction('handle', [$this, 'setState']);
+		$this->addSubAction('handlecomment', [$this, 'comment']);
+		$this->addSubAction('editcomment', [$this, 'modifyComment']);
+
 		// First order of business - what are these reports about?
 		// area=reported{type}
 		$this->type = substr($_GET['area'], 8);
@@ -654,11 +633,7 @@ class ReportedContent implements ActionInterface
 		}
 
 		// Go ahead and add your own sub-actions.
-		IntegrationHook::call('integrate_reported_' . $this->type, [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
+		IntegrationHook::call('integrate_reported_' . $this->type, [&$this->sub_actions]);
 	}
 
 	/**

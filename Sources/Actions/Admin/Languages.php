@@ -28,6 +28,8 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\SubsPackage;
 use SMF\PackageManager\XmlArray;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -37,40 +39,11 @@ use SMF\WebFetch\WebFetchApi;
 /**
  * This class handles the administration of languages tasks.
  */
-class Languages implements ActionInterface
+class Languages implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'edit';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'edit' => 'editLanguages',
-		'add' => 'add',
-		'settings' => 'settings',
-		'downloadlang' => 'download',
-		'editlang' => 'editEntries',
-	];
 
 	/****************
 	 * Public methods
@@ -81,11 +54,13 @@ class Languages implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		IntegrationHook::call('integrate_manage_languages', [&$this->sub_actions]);
+
+		Utils::$context['sub_action'] = $this->sub_action;
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -1614,6 +1589,12 @@ class Languages implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('edit', [$this, 'editLanguages']);
+		$this->addSubAction('add', [$this, 'add']);
+		$this->addSubAction('settings', [$this, 'settings']);
+		$this->addSubAction('downloadlang', [$this, 'download']);
+		$this->addSubAction('editlang', [$this, 'editEntries']);
+
 		Theme::loadTemplate('ManageLanguages');
 		Lang::load('ManageSettings');
 
@@ -1625,15 +1606,6 @@ class Languages implements ActionInterface
 			'title' => Lang::$txt['language_configuration'],
 			'description' => Lang::$txt['language_description'],
 		];
-
-		IntegrationHook::call('integrate_manage_languages', [&self::$subactions]);
-
-		// By default we're managing languages.
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		Utils::$context['sub_action'] = $this->subaction;
 	}
 
 	/**

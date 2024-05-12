@@ -25,6 +25,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -32,37 +34,11 @@ use SMF\Utils;
 /**
  * Show all the users buddies, as well as an add/delete interface.
  */
-class BuddyIgnoreLists implements ActionInterface
+class BuddyIgnoreLists implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'buddies';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'buddies' => 'buddies',
-		'ignore' => 'ignore',
-	];
 
 	/**
 	 * @var array
@@ -83,6 +59,8 @@ class BuddyIgnoreLists implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// Do a quick check to ensure people aren't getting here illegally!
 		if (!User::$me->is_owner || empty(Config::$modSettings['enable_buddylist'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -91,8 +69,8 @@ class BuddyIgnoreLists implements ActionInterface
 		// Can we email the user directly?
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 
-		Utils::$context['list_area'] = $this->subaction;
-		Utils::$context['sub_template'] = self::$subtemplates[$this->subaction];
+		Utils::$context['list_area'] = $this->sub_action;
+		Utils::$context['sub_template'] = self::$subtemplates[$this->sub_action];
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
@@ -107,11 +85,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -474,12 +448,11 @@ class BuddyIgnoreLists implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('buddies', [$this, 'buddies']);
+		$this->addSubAction('ignore', [$this, 'ignore']);
+
 		if (!isset(Profile::$member)) {
 			Profile::load();
-		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 	}
 }

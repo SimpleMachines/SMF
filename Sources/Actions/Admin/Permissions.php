@@ -28,6 +28,8 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -36,10 +38,10 @@ use SMF\Utils;
 /**
  * Permissions handles all possible permission stuff.
  */
-class Permissions implements ActionInterface
+class Permissions implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*****************
@@ -66,14 +68,6 @@ class Permissions implements ActionInterface
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
 
 	/**
 	 * @var array
@@ -931,13 +925,8 @@ class Permissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		User::$me->isAllowedTo('manage_permissions');
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -2364,6 +2353,14 @@ class Permissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		IntegrationHook::call('integrate_manage_permissions', [&self::$subactions]);
+
+		foreach (self::$subactions as $sa => [$func, $perm]) {
+			if (User::$me->allowedTo($perm)) {
+				$this->addSubAction($sa, [$this, $func]);
+			}
+		}
+
 		Lang::load('ManagePermissions+ManageMembers');
 		Theme::loadTemplate('ManagePermissions');
 
@@ -2390,12 +2387,6 @@ class Permissions implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_manage_permissions', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 
 	/**

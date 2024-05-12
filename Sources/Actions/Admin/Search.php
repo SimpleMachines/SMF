@@ -74,7 +74,7 @@ class Search implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->sub_action]) ? [$this, self::$subactions[$this->sub_action]] : Utils::getCallable(self::$subactions[$this->sub_action]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -400,10 +400,10 @@ class Search implements ActionInterface
 		IntegrationHook::call('integrate_manage_search', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
+			$this->sub_action = $_REQUEST['sa'];
 		}
 
-		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_action'] = $this->sub_action;
 	}
 }
 

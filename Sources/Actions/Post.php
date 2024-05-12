@@ -31,6 +31,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Poll;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -43,10 +45,10 @@ use SMF\Verifier;
 /**
  * This class handles posting and modifying replies and new topics.
  */
-class Post implements ActionInterface
+class Post implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*****************
@@ -69,8 +71,6 @@ class Post implements ActionInterface
 	 *
 	 * The sub-action to call.
 	 */
-	public string $subaction = 'show';
-
 	/**
 	 * @var array
 	 *
@@ -138,15 +138,6 @@ class Post implements ActionInterface
 	 * Public static properties
 	 **************************/
 
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'show' => 'show',
-	];
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -203,13 +194,9 @@ class Post implements ActionInterface
 		}
 
 		// Allow mods to add new sub-actions.
-		IntegrationHook::call('integrate_post_subactions', [&self::$subactions]);
+		IntegrationHook::call('integrate_post_subactions', [&$this->sub_actions]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -386,9 +373,9 @@ class Post implements ActionInterface
 	 */
 	public static function post(array $post_errors = []): void
 	{
-		self::load();
-		self::$obj->errors = (array) $post_errors;
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->errors = (array) $post_errors;
+		$obj->execute();
 	}
 
 	/******************
@@ -400,6 +387,8 @@ class Post implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('show', [$this, 'show']);
+
 		// Add references to some properties to Utils::$context.
 		Utils::$context['becomes_approved'] = &$this->becomes_approved;
 
@@ -744,7 +733,7 @@ class Post implements ActionInterface
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
 			if ((empty(Topic::$info->id_member_started) || Topic::$info->id_member_started != User::$me->id || !User::$me->allowedTo('modify_own')) && !User::$me->allowedTo('modify_any')) {
 				$calendar_action = Calendar::load();
-				$calendar_action->subaction = 'post';
+				$calendar_action->setDefaultAction('post');
 				$calendar_action->execute();
 
 				return;
@@ -1312,7 +1301,7 @@ class Post implements ActionInterface
 					$_SESSION['temp_attachments'] = [];
 				}
 				// Hmm, coming in fresh and there are files in session.
-				elseif ($this->subaction != 'submit' || !empty($_POST['from_qr'])) {
+				elseif ($this->sub_action != 'submit' || !empty($_POST['from_qr'])) {
 					// Let's be nice and see if they belong here first.
 					if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty(Board::$info->id) ? Board::$info->id : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg'])) {
 						// See if any files still exist before showing the warning message and the files attached.

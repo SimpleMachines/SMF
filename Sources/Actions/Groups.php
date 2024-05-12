@@ -26,6 +26,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -35,38 +37,12 @@ use SMF\Utils;
 /**
  * Shows group info and allows certain privileged members to add/remove members.
  */
-class Groups implements ActionInterface
+class Groups implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'index' => 'index',
-		'members' => 'members',
-		'requests' => 'requests',
-	];
 
 	/*********************
 	 * Internal properties
@@ -96,6 +72,10 @@ class Groups implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		IntegrationHook::call('integrate_manage_groups', [&$this->sub_actions]);
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// Get the template stuff up and running.
 		Lang::load('ManageMembers');
 		Lang::load('ModerationCenter');
@@ -103,7 +83,7 @@ class Groups implements ActionInterface
 
 		// If needed, set the mod center menu.
 		if (User::$me->allowedTo('access_mod_center') && (User::$me->mod_cache['gq'] != '0=1' || User::$me->allowedTo('manage_membergroups')) && !isset(Menu::$loaded['admin']) && !isset(Menu::$loaded['moderate'])) {
-			$_GET['area'] = $this->subaction == 'requests' ? 'groups' : 'viewgroups';
+			$_GET['area'] = $this->sub_action == 'requests' ? 'groups' : 'viewgroups';
 
 			$this->action_url = '?action=moderate;area=' . $_GET['area'];
 
@@ -121,11 +101,7 @@ class Groups implements ActionInterface
 			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -916,11 +892,9 @@ class Groups implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		IntegrationHook::call('integrate_manage_groups', [&self::$subactions]);
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('members', [$this, 'members']);
+		$this->addSubAction('requests', [$this, 'requests']);
 	}
 }
 

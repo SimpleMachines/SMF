@@ -24,6 +24,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\User;
@@ -32,37 +34,10 @@ use SMF\Utils;
 /**
  * This class contains all the administration settings for topics and posts.
  */
-class Posts implements ActionInterface
+class Posts implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'posts';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'posts' => 'posts',
-		'censor' => 'censor',
-		'topics' => 'topics',
-		'drafts' => 'drafts',
-	];
+	use ProvidesSubActionTrait;
 
 	/****************
 	 * Public methods
@@ -73,11 +48,8 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		IntegrationHook::call('integrate_manage_posts', [&$this->sub_actions]);
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -444,9 +416,9 @@ class Posts implements ActionInterface
 			return self::postConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'posts';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('posts');
+		$obj->execute();
 
 		return null;
 	}
@@ -463,9 +435,9 @@ class Posts implements ActionInterface
 			return self::topicConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('topics');
+		$obj->execute();
 
 		return null;
 	}
@@ -482,9 +454,9 @@ class Posts implements ActionInterface
 			return self::draftConfigVars();
 		}
 
-		self::load();
-		self::$obj->subaction = 'drafts';
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultSubAction('drafts');
+		$obj->execute();
 
 		return null;
 	}
@@ -498,6 +470,11 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('posts', [$this, 'posts']);
+		$this->addSubAction('censor', [$this, 'censor']);
+		$this->addSubAction('topics', [$this, 'topics']);
+		$this->addSubAction('drafts', [$this, 'drafts']);
+
 		// Make sure you can be here.
 		User::$me->isAllowedTo('admin_forum');
 		Lang::load('Drafts');
@@ -524,12 +501,6 @@ class Posts implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_manage_posts', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 }
 

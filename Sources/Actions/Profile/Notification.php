@@ -27,6 +27,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -36,23 +38,15 @@ use SMF\Utils;
 /**
  * Handles preferences related to notifications.
  */
-class Notification implements ActionInterface
+class Notification implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'alerts';
 
 	/**
 	 * @var array
@@ -282,18 +276,6 @@ class Notification implements ActionInterface
 	 *
 	 * Available sub-actions.
 	 */
-	public static array $subactions = [
-		'alerts' => 'configuration',
-		'markread' => 'markRead',
-		'topics' => 'topics',
-		'boards' => 'boards',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
 	public static array $subtemplates = [
 		'alerts' => 'alert_configuration',
 		'markread' => 'alert_markread',
@@ -310,10 +292,12 @@ class Notification implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// Going to want this for consistency.
 		Theme::loadCSSFile('admin.css', [], 'smf_admin');
 
-		Utils::$context['sub_template'] = self::$subtemplates[$this->subaction];
+		Utils::$context['sub_template'] = self::$subtemplates[$this->sub_action];
 
 		if (isset(Menu::$loaded['profile'])) {
 			Menu::$loaded['profile']->tab_data = [
@@ -323,11 +307,7 @@ class Notification implements ActionInterface
 			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -997,12 +977,13 @@ class Notification implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('alerts', [$this, 'configuration']);
+		$this->addSubAction('markread', [$this, 'markRead']);
+		$this->addSubAction('topics', [$this, 'topics']);
+		$this->addSubAction('boards', [$this, 'boards']);
+
 		if (!isset(Profile::$member)) {
 			Profile::load();
-		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 	}
 

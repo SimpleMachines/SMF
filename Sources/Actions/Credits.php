@@ -413,9 +413,9 @@ class Credits implements ActionInterface
 	 */
 	public static function call(bool $in_admin = false): void
 	{
-		self::load();
-		self::$obj->in_admin = $in_admin;
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->in_admin = $in_admin;
+		$obj->execute();
 	}
 
 	/******************

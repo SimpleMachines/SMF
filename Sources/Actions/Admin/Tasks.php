@@ -25,6 +25,8 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -35,39 +37,11 @@ use SMF\Utils;
 /**
  * This class concerns itself with scheduled tasks management.
  */
-class Tasks implements ActionInterface
+class Tasks implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'tasks';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'tasks' => 'tasks',
-		'taskedit' => 'edit',
-		'tasklog' => 'log',
-		'settings' => 'settings',
-	];
 
 	/****************
 	 * Public methods
@@ -78,11 +52,9 @@ class Tasks implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		IntegrationHook::call('integrate_manage_scheduled_tasks', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -646,6 +618,11 @@ class Tasks implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('tasks', [$this, 'tasks']);
+		$this->addSubAction('taskedit', [$this, 'edit']);
+		$this->addSubAction('tasklog', [$this, 'log']);
+		$this->addSubAction('settings', [$this, 'settings']);
+
 		User::$me->isAllowedTo('admin_forum');
 
 		Lang::load('ManageScheduledTasks');
@@ -670,12 +647,6 @@ class Tasks implements ActionInterface
 					],
 				],
 			];
-		}
-
-		IntegrationHook::call('integrate_manage_scheduled_tasks', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 	}
 }

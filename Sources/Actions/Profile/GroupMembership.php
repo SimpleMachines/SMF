@@ -266,18 +266,18 @@ class GroupMembership implements ActionInterface
 		$u = $_REQUEST['u'] ?? null;
 		$_REQUEST['u'] = $memID;
 
-		self::load();
+		$obj = self::load();
 
 		$saving = Utils::$context['completed_save'];
 		Utils::$context['completed_save'] = true;
 
 		$_REQUEST['u'] = $u;
 
-		self::$obj->execute();
+		$obj->execute();
 
 		Utils::$context['completed_save'] = $saving;
 
-		return self::$obj->change_type;
+		return $obj->change_type;
 	}
 
 	/******************

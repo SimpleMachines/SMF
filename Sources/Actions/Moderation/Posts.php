@@ -30,6 +30,8 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -40,39 +42,11 @@ use SMF\Utils;
 /**
  * Handles things related to post moderation.
  */
-class Posts implements ActionInterface
+class Posts implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'replies';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'replies' => 'posts',
-		'topics' => 'posts',
-		'attachments' => 'attachments',
-		'approve' => 'approve',
-	];
 
 	/****************
 	 * Public methods
@@ -83,11 +57,7 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -852,14 +822,15 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('replies', [$this, 'posts']);
+		$this->addSubAction('topics', [$this, 'posts']);
+		$this->addSubAction('attachments', [$this, 'attachments']);
+		$this->addSubAction('approve', [$this, 'approve']);
+
 		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ModerationCenter');
 
-		IntegrationHook::call('integrate_post_moderation', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
+		IntegrationHook::call('integrate_post_moderation', [&$this->sub_actions]);
 	}
 
 	/**

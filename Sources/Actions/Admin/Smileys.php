@@ -33,6 +33,8 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PackageManager\SubsPackage;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -42,46 +44,11 @@ use SMF\WebFetch\WebFetchApi;
 /**
  * This class takes care of all administration of smileys.
  */
-class Smileys implements ActionInterface
+class Smileys implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'editsets';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'editsets' => 'editSets',
-		'import' => 'editSets',
-		'modifyset' => 'editSets',
-		'addsmiley' => 'add',
-		'editsmileys' => 'edit',
-		'modifysmiley' => 'edit',
-		'setorder' => 'setOrder',
-		'install' => 'install',
-		'editicon' => 'editIcon',
-		'editicons' => 'editIcon',
-		'settings' => 'settings',
-	];
 
 	/**
 	 * @var array
@@ -151,12 +118,6 @@ class Smileys implements ActionInterface
 	 */
 	public static bool $smileys_dir_found;
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -166,11 +127,16 @@ class Smileys implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		IntegrationHook::call('integrate_manage_smileys', [&$this->sub_actions]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
+		Utils::$context['sub_action'] = &$this->sub_action;
+
+		Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
+		Utils::$context['sub_template'] = $this->sub_action;
+
+		$this->callSubAction();
 	}
 
 	/**
@@ -217,7 +183,7 @@ class Smileys implements ActionInterface
 			}
 			// Add a new smiley set.
 			elseif (!empty($_POST['add'])) {
-				$this->subaction = 'modifyset';
+				$this->sub_action = 'modifyset';
 			}
 			// Create or modify a smiley set.
 			elseif (isset($_POST['set'])) {
@@ -299,7 +265,7 @@ class Smileys implements ActionInterface
 		}
 
 		// Importing any smileys from an existing set?
-		if ($this->subaction == 'import') {
+		if ($this->sub_action == 'import') {
 			User::$me->checkSession('get');
 			SecurityToken::validate('admin-mss', 'request');
 
@@ -309,12 +275,12 @@ class Smileys implements ActionInterface
 			}
 
 			// Force the process to continue.
-			$this->subaction = 'modifyset';
+			$this->sub_action = 'modifyset';
 			Utils::$context['sub_template'] = 'modifyset';
 		}
 
 		// If we're modifying or adding a smiley set, some context info needs to be set.
-		if ($this->subaction == 'modifyset') {
+		if ($this->sub_action == 'modifyset') {
 			$_GET['set'] = !isset($_GET['set']) ? -1 : $_GET['set'];
 
 			if ($_GET['set'] == -1 || !isset(self::$smiley_sets[$_GET['set']])) {
@@ -996,7 +962,7 @@ class Smileys implements ActionInterface
 		}
 
 		// Prepare overview of all (custom) smileys.
-		if ($this->subaction == 'editsmileys') {
+		if ($this->sub_action == 'editsmileys') {
 			// Determine the language specific sort order of smiley locations.
 			$smiley_locations = [
 				Lang::$txt['smileys_location_form'],
@@ -1235,7 +1201,7 @@ class Smileys implements ActionInterface
 			addInlineJavaScript("\n\t" . 'changeSet("' . Config::$modSettings['smiley_sets_default'] . '");', true);
 		}
 		// Modifying smileys.
-		elseif ($this->subaction == 'modifysmiley') {
+		elseif ($this->sub_action == 'modifysmiley') {
 			Utils::$context['selected_set'] = Config::$modSettings['smiley_sets_default'];
 
 			$request = Db::$db->query(
@@ -1783,7 +1749,7 @@ class Smileys implements ActionInterface
 				);
 			}
 			// Editing/Adding an icon?
-			elseif ($this->subaction == 'editicon' && isset($_GET['icon'])) {
+			elseif ($this->sub_action == 'editicon' && isset($_GET['icon'])) {
 				$_GET['icon'] = (int) $_GET['icon'];
 
 				foreach (['icon_filename', 'icon_description'] as $key) {
@@ -1976,7 +1942,7 @@ class Smileys implements ActionInterface
 		new ItemList($listOptions);
 
 		// If we're adding/editing an icon we'll need a list of boards
-		if ($this->subaction == 'editicon' || isset($_POST['add'])) {
+		if ($this->sub_action == 'editicon' || isset($_POST['add'])) {
 			// Force the sub_template just in case.
 			Utils::$context['sub_template'] = 'editicon';
 
@@ -2245,19 +2211,30 @@ class Smileys implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('editsets', [$this, 'editSets']);
+		$this->addSubAction('import', [$this, 'editSets']);
+		$this->addSubAction('modifyset', [$this, 'editSets']);
+
+		if (!empty(Config::$modSettings['smiley_enable'])) {
+			$this->addSubAction('addsmiley', [$this, 'add']);
+			$this->addSubAction('editsmileys', [$this, 'edit']);
+			$this->addSubAction('modifysmiley', [$this, 'edit']);
+			$this->addSubAction('setorder', [$this, 'setOrder']);
+		}
+
+		$this->addSubAction('install', [$this, 'install']);
+
+		if (!empty(Config::$modSettings['messageIcons_enable'])) {
+			$this->addSubAction('editicon', [$this, 'editIcon']);
+			$this->addSubAction('editicons', [$this, 'editIcon']);
+		}
+
+		$this->addSubAction('settings', [$this, 'settings']);
+
 		User::$me->isAllowedTo('manage_smileys');
 
 		Lang::load('ManageSmileys');
-		loadTemplate('ManageSmileys');
-
-		// If customized smileys is disabled don't show the setting page
-		if (empty(Config::$modSettings['smiley_enable'])) {
-			unset(self::$subactions['addsmiley'], self::$subactions['editsmileys'], self::$subactions['setorder'], self::$subactions['modifysmiley']);
-		}
-
-		if (empty(Config::$modSettings['messageIcons_enable'])) {
-			unset(self::$subactions['editicon'], self::$subactions['editicons']);
-		}
+		Theme::loadTemplate('ManageSmileys');
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
@@ -2296,17 +2273,6 @@ class Smileys implements ActionInterface
 			Menu::$loaded['admin']->tab_data['tabs']['editsmileys']['disabled'] = true;
 			Menu::$loaded['admin']->tab_data['tabs']['setorder']['disabled'] = true;
 		}
-
-		IntegrationHook::call('integrate_manage_smileys', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
-
-		Utils::$context['sub_action'] = &$this->subaction;
-
-		Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
-		Utils::$context['sub_template'] = $this->subaction;
 
 		self::findSmileysDir();
 		self::getKnownSmileySets();

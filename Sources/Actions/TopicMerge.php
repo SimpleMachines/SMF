@@ -30,6 +30,8 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -40,10 +42,10 @@ use SMF\Utils;
 /**
  * Handles merging of topics.
  */
-class TopicMerge implements ActionInterface
+class TopicMerge implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*******************
@@ -51,35 +53,11 @@ class TopicMerge implements ActionInterface
 	 *******************/
 
 	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**
 	 * @var array
 	 *
 	 * IDs of the topics to merge.
 	 */
 	public array $topics = [];
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'index' => 'index',
-		'done' => 'done',
-		'merge' => 'merge',
-		'options' => 'options',
-	];
 
 	/*********************
 	 * Internal properties
@@ -186,11 +164,7 @@ class TopicMerge implements ActionInterface
 		// Load the template....
 		Theme::loadTemplate('MoveTopic');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -1028,10 +1002,10 @@ class TopicMerge implements ActionInterface
 	 */
 	public static function initiate(array $topics = []): void
 	{
-		self::load();
-		self::$obj->subaction = 'options';
-		self::$obj->topics = array_map('intval', $topics);
-		self::$obj->execute();
+		$obj = self::load();
+//		$obj->setDefaultSubAction('options');
+		$obj->topics = array_map('intval', $topics);
+		$obj->execute();
 	}
 
 	/**
@@ -1042,10 +1016,10 @@ class TopicMerge implements ActionInterface
 	 */
 	public static function mergeExecute(array $topics = []): void
 	{
-		self::load();
-		self::$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';
-		self::$obj->topics = array_map('intval', $topics);
-		self::$obj->execute();
+		$obj = self::load();
+		$obj->setDefaultAction(!empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options');
+		$obj->topics = array_map('intval', $topics);
+		$obj->execute();
 	}
 
 	/******************
@@ -1057,14 +1031,15 @@ class TopicMerge implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('done', [$this, 'done']);
+		$this->addSubAction('merge', [$this, 'merge']);
+		$this->addSubAction('options', [$this, 'options']);
+
 		// The 'merge' sub-action used to be called 'execute'.
 		if (!empty($_GET['sa']) && $_GET['sa'] === 'execute') {
 			$_GET['sa'] = 'merge';
 			$_REQUEST['sa'] = 'merge';
-		}
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
 		}
 	}
 

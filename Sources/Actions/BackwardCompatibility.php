@@ -23,7 +23,7 @@ trait BackwardCompatibility
 
 	/**
 	 * Called by Subs-Compat.php BackwardCompatibility wrapper functions to provide subaction
-	 * execution for existing mods
+	 * execution for existing mods.  Any new code should not depend on it.
 	 *
 	 * @param null|string $sa
 	 * @param bool $return_config
@@ -35,20 +35,17 @@ trait BackwardCompatibility
 			return self::getConfigVars();
 		}
 
-		self::load();
+		$obj = self::load();
 
 		if (is_string($sa)) {
-			// make sure it's a supported subaction
-			if (array_key_exists($sa, self::$subactions)) {
-				self::$obj->subaction = $sa;
-			}
+			$obj->setDefaultAction($sa);
 		}
 
 		if (is_string($activity)) {
-			self::$obj->activity = $activity;
+			$obj->activity = $activity;
 		}
 
-		self::$obj->execute();
+		$obj->execute();
 	}
 }
 
