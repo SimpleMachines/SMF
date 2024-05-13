@@ -141,7 +141,7 @@ if (!in_array('version', $cols)) {
 ---{
 $cols = Db::$db->list_columns('{db_prefix}calendar');
 
-if (!in_array('rrule', $cols)) {
+if (in_array('end_time', $cols)) {
 	Db::$db->query(
 		'',
 		'ALTER TABLE {db_prefix}calendar
@@ -297,6 +297,14 @@ if (!in_array('rrule', $cols)) {
 $exists = count(Db::$db->list_tables(false, '%calendar_holidays')) > 0;
 
 if ($exists) {
+	if (!isset(\SMF\User::$me)) {
+		\SMF\User::load();
+	}
+
+	if (empty(\SMF\User::$me->id) && !empty($upcontext['user']['id'])) {
+		\SMF\User::setMe($upcontext['user']['id']);
+	}
+
 	$known_holidays = [
 		'April Fools' => [
 			'title' => "April Fools' Day",
@@ -915,5 +923,6 @@ if ($exists) {
 	Db::$db->free_result($request);
 
 	Db::$db->drop_table('{db_prefix}calendar_holidays');
+}
 ---}
 ---#
