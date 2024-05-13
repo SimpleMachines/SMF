@@ -200,11 +200,11 @@ class Theme
 			}
 			// The theme is the forum's default.
 			else {
-				$id = Config::$modSettings['theme_guests'];
+				$id = Config::$modSettings['theme_guests'] ?? 1;
 			}
 
 			// Sometimes the user can choose their own theme.
-			if (!empty(Config::$modSettings['theme_allow']) || User::$me->allowedTo('admin_forum')) {
+			if (!empty(Config::$modSettings['theme_allow']) || (isset(User::$me) && User::$me->allowedTo('admin_forum'))) {
 				// The theme was specified by REQUEST.
 				if (!empty($_REQUEST['theme']) && (User::$me->allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', Config::$modSettings['knownThemes'])))) {
 					$id = (int) $_REQUEST['theme'];
@@ -422,7 +422,7 @@ class Theme
 		}
 
 		// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
-		if (User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, ['init', 'main_below']) && ob_get_length() > 0 && !isset($_REQUEST['xml'])) {
+		if (isset(User::$me) && User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, ['init', 'main_below']) && ob_get_length() > 0 && !isset($_REQUEST['xml'])) {
 			echo "\n" . '<div class="noticebox">---- ', $sub_template_name, ' ends ----</div>';
 		}
 	}
@@ -2604,7 +2604,7 @@ class Theme
 	 */
 	protected function fixSmileySet(): void
 	{
-		$smiley_sets_known = explode(',', Config::$modSettings['smiley_sets_known']);
+		$smiley_sets_known = explode(',', Config::$modSettings['smiley_sets_known'] ?? '');
 
 		if (empty(Config::$modSettings['smiley_sets_enable']) || (User::$me->smiley_set != 'none' && !in_array(User::$me->smiley_set, $smiley_sets_known))) {
 			User::$me->smiley_set = !empty($this->settings['smiley_sets_default']) ? $this->settings['smiley_sets_default'] : Config::$modSettings['smiley_sets_default'];

@@ -2875,8 +2875,12 @@ class User implements \ArrayAccess
 				$image = Config::$modSettings['custom_avatar_url'] . '/' . $data['filename'];
 			}
 			// Right... no avatar... use our default image.
-			else {
+			elseif (isset(Config::$modSettings['avatar_url'])) {
 				$image = Config::$modSettings['avatar_url'] . '/default.png';
+			}
+			// Last ditch fallback is a transparent 1x1 GIF.
+			else {
+				$image = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 			}
 		}
 
@@ -4698,8 +4702,8 @@ class User implements \ArrayAccess
 		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
 		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
 		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
-		$this->ip = (string) ($is_me ? $_SERVER['REMOTE_ADDR'] : $profile['member_ip'] ?? '');
-		$this->ip2 = (string) ($is_me ? $_SERVER['BAN_CHECK_IP'] : $profile['member_ip2'] ?? '');
+		$this->ip = (string) ($is_me ? ($_SERVER['REMOTE_ADDR'] ?? '') : $profile['member_ip'] ?? '');
+		$this->ip2 = (string) ($is_me ? ($_SERVER['BAN_CHECK_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '') : $profile['member_ip2'] ?? '');
 
 		// Additional profile info.
 		$this->posts = (int) ($profile['posts'] ?? 0);
@@ -4717,8 +4721,8 @@ class User implements \ArrayAccess
 
 		// Localization.
 		$this->setLanguage();
-		$this->time_format = empty($profile['time_format']) ? Config::$modSettings['time_format'] : $profile['time_format'];
-		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'];
+		$this->time_format = empty($profile['time_format']) ? (Config::$modSettings['time_format'] ?? '%F %k:%M') : $profile['time_format'];
+		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
 
 		// Buddies and personal messages.
@@ -5136,14 +5140,14 @@ class User implements \ArrayAccess
 				}
 
 				if (empty(self::$profiles[$this->id]['timezone'])) {
-					self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'];
+					self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 					self::$profiles[$this->id]['time_offset'] = 0;
 				}
 			}
 		}
 		// Guests use the forum default.
 		else {
-			self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'];
+			self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 			self::$profiles[$this->id]['time_offset'] = 0;
 		}
 	}
