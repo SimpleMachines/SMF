@@ -38,6 +38,23 @@ function template_maintain_database()
 			</form>
 		</div>';
 
+	// Show an option to convert to UTF8MB4 if we're not on UTF8MB4 yet.
+	if ($context['convert_utf8mb4'])
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['utf8_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8mb4" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['utf8_introduction'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+	}
+
 	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
 	if (isset($context['convert_to']))
 		echo '
@@ -576,7 +593,7 @@ function template_convert_entities()
 }
 
 /**
- * Template for converting posts to UTF-8.
+ * Template for changing message body from TEXT to MEDIUMTEXT.
  */
 function template_convert_msgbody()
 {

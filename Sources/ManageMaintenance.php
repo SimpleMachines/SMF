@@ -63,6 +63,7 @@ function ManageMaintenance()
 			'activities' => array(
 				'optimize' => 'OptimizeTables',
 				'convertentities' => 'ConvertEntities',
+				'convertutf8mb4' => 'ConvertUtf8mb4',
 				'convertmsgbody' => 'ConvertMsgBody',
 			),
 		),
@@ -126,9 +127,10 @@ function ManageMaintenance()
  */
 function MaintainDatabase()
 {
-	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
+	global $context, $db_type, $db_character_set, $db_mb4, $modSettings, $smcFunc, $txt;
 
 	// Show some conversion options?
+	$context['convert_utf8mb4'] = $db_type == 'mysql' && $db_mb4 == false;
 	$context['convert_entities'] = isset($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8';
 
 	if ($db_type == 'mysql')
@@ -146,6 +148,8 @@ function MaintainDatabase()
 
 	if (isset($_GET['done']) && $_GET['done'] == 'convertentities')
 		$context['maintenance_finished'] = $txt['entity_convert_title'];
+	elseif (isset($_GET['done']) && $_GET['done'] == 'convertutf8mb4')
+		$context['maintenance_finished'] = $txt['utf8_title'];
 }
 
 /**
@@ -470,6 +474,244 @@ function ConvertMsgBody()
 }
 
 /**
+ * Converts all text columns from utf8_general_ci to utf8mb4_unicode_ci.
+ * Assumption: This forum has undergone a UTF8 conversion.
+ *
+ * This action is linked from the maintenance screen (if applicable).
+ * It is accessed by ?action=admin;area=maintain;sa=database;activity=convertutf8mb4.
+ *
+ * @uses template_convert_utf8mb4()
+ */
+function ConvertUtf8mb4()
+{
+	global $scripturl, $context, $txt, $language, $db_character_set, $db_name;
+	global $modSettings, $user_info, $sourcedir, $smcFunc, $db_prefix;
+
+	// Show me your badge!
+	isAllowedTo('admin_forum');
+
+	// Confirm utf8mb4 is supported
+	$request = $smcFunc['db_query']('', '
+		SHOW CHARACTER SET',
+		array(
+		)
+	);
+
+	$db_charsets = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$db_charsets[] = $row['Charset'];
+	$smcFunc['db_free_result']($request);
+
+	if (!in_array('utf8mb4', $db_charsets))
+		fatal_lang_error('utf8_charset_not_supported');
+
+	// Identify all tables
+	// Note we do all tables in order to set default collation at table level
+	$request = $smcFunc['db_query']('', '
+		SELECT DISTINCT TABLE_NAME
+		FROM information_schema.COLUMNS
+		WHERE TABLE_SCHEMA = {string:cur_schema}
+			AND TABLE_NAME LIKE {string:table_pattern}',
+		array(
+			'cur_schema' => $db_name,
+			'table_pattern' => $db_prefix . '%',
+		)
+	);
+
+	$db_tables = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$db_tables[] = $row['TABLE_NAME'];
+	$smcFunc['db_free_result']($request);
+
+	// Check each of the four indexes that may need updating - #1
+	$request = $smcFunc['db_query']('', '
+		SELECT SUB_PART
+		FROM information_schema.STATISTICS
+		WHERE TABLE_NAME = {string:cur_table}
+			AND TABLE_SCHEMA = {string:cur_schema}
+			AND INDEX_NAME IN (\'idx_real_name\', \'real_name\')
+			AND COLUMN_NAME = \'real_name\'',
+		array(
+			'cur_schema' => $db_name,
+			'cur_table' => $db_prefix . 'members',
+		)
+	);
+
+	list($fix_real_name) = $smcFunc['db_fetch_row']($request);
+	if ($fix_real_name == null)
+		$fix_real_name = true;
+	else
+		$fix_real_name = false;
+
+	$smcFunc['db_free_result']($request);
+
+	// Check each of the four indexes that may need updating - #2
+	$request = $smcFunc['db_query']('', '
+		SELECT SUB_PART
+		FROM information_schema.STATISTICS
+		WHERE TABLE_NAME = {string:cur_table}
+			AND TABLE_SCHEMA = {string:cur_schema}
+			AND INDEX_NAME = \'idx_active_real_name\'
+			AND COLUMN_NAME = \'real_name\'',
+		array(
+			'cur_schema' => $db_name,
+			'cur_table' => $db_prefix . 'members',
+		)
+	);
+
+	list($fix_active_real_name) = $smcFunc['db_fetch_row']($request);
+	if ($fix_active_real_name == null)
+		$fix_active_real_name = true;
+	else
+		$fix_active_real_name = false;
+
+	$smcFunc['db_free_result']($request);
+
+	// Check each of the four indexes that may need updating - #3
+	$request = $smcFunc['db_query']('', '
+		SELECT SUB_PART
+		FROM information_schema.STATISTICS
+		WHERE TABLE_NAME = {string:cur_table}
+			AND TABLE_SCHEMA = {string:cur_schema}
+			AND INDEX_NAME IN (\'idx_email_address\', \'email_address\')
+			AND COLUMN_NAME = \'email_address\'',
+		array(
+			'cur_schema' => $db_name,
+			'cur_table' => $db_prefix . 'members',
+		)
+	);
+
+	list($fix_email_address) = $smcFunc['db_fetch_row']($request);
+	if ($fix_email_address == null)
+		$fix_email_address = true;
+	else
+		$fix_email_address = false;
+
+	$smcFunc['db_free_result']($request);
+
+	// Check each of the four indexes that may need updating - #4
+	$request = $smcFunc['db_query']('', '
+		SELECT SUB_PART
+		FROM information_schema.STATISTICS
+		WHERE TABLE_NAME = {string:cur_table}
+			AND TABLE_SCHEMA = {string:cur_schema}
+			AND INDEX_NAME = \'idx_lngfile\'
+			AND COLUMN_NAME = \'lngfile\'',
+		array(
+			'cur_schema' => $db_name,
+			'cur_table' => $db_prefix . 'qanda',
+		)
+	);
+
+	list($fix_lngfile) = $smcFunc['db_fetch_row']($request);
+	if ($fix_lngfile == null)
+		$fix_lngfile = true;
+	else
+		$fix_lngfile = false;
+
+	$smcFunc['db_free_result']($request);
+
+	// After this point we are starting the conversion. But first: session check.
+	checkSession();
+
+	// First, drop the four indexes (using new & old names) if they need fixing...
+	if ($fix_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX idx_real_name',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX real_name',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_active_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX idx_active_real_name',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_email_address)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX idx_email_address',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_email_address)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX email_address',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_lngfile)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}qanda
+				DROP INDEX idx_lngfile',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+
+	// Next, loop thru & fix each table
+	foreach ($db_tables AS $cur_table)
+	{
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE ' . $cur_table . ' CONVERT TO CHARACTER SET \'utf8mb4\' COLLATE \'utf8mb4_unicode_ci\'',
+			array(
+			)
+		);
+	}
+
+	// Next, fix the four indexes...
+	if ($fix_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				ADD INDEX idx_real_name (real_name(191))',
+			array(
+			)
+		);
+	if ($fix_active_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				ADD INDEX idx_active_real_name (is_activated, real_name(191))',
+			array(
+			)
+		);
+	if ($fix_email_address)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				ADD INDEX idx_email_address (email_address(191))',
+			array(
+			)
+		);
+	if ($fix_lngfile)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}qanda
+				ADD INDEX idx_lngfile (lngfile(191))',
+			array(
+			)
+		);
+
+	// Finally, note we are now mb4 in Settings.php
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(array('db_character_set' => 'utf8mb4', 'db_mb4' => true));
+
+	redirectexit('action=admin;area=maintain;sa=database;done=convertutf8mb4');
+}
+
+/**
  * Converts HTML-entities to their UTF-8 character equivalents.
  * This requires the admin_forum permission.
  * Pre-condition: UTF-8 has been set as database and global character set.
@@ -657,7 +899,7 @@ function ConvertEntities()
 					if ($column_name !== $primary_key && strpos($column_value, '&#') !== false)
 					{
 						$changes[] = $column_name . ' = {string:changes_' . $column_name . '}';
-						$insertion_variables['changes_' . $column_name] = preg_replace_callback('~&#(\d{1,5}|x[0-9a-fA-F]{1,4});~', 'fixchardb__callback', $column_value);
+						$insertion_variables['changes_' . $column_name] = preg_replace_callback('~&#(\d{1,7}|x[0-9a-fA-F]{1,6});~', 'fixchardb__callback', $column_value);
 					}
 
 				$where = array();

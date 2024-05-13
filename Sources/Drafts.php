@@ -495,7 +495,7 @@ function XmlDraft($id_draft)
 {
 	global $txt, $context;
 
-	header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('content-type: text/xml; charset=UTF-8');
 
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?>
 	<drafts>
