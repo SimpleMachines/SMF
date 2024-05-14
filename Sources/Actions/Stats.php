@@ -217,7 +217,7 @@ class Stats implements ActionInterface
 					[
 						'gender_var' => 'cust_gender',
 						'default_theme' => 1,
-						'is_activated' => 1,
+						'is_activated' => User::ACTIVATED,
 						'default_gender' => $default_gender,
 					],
 				);
@@ -554,7 +554,7 @@ class Stats implements ActionInterface
 			LIMIT 20',
 			[
 				'member_list_cached' => $temp,
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 			],
 		);
 		Utils::$context['stats_blocks']['time_online'] = [];

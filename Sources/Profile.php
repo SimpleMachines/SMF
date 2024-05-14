@@ -462,7 +462,7 @@ class Profile extends User implements \ArrayAccess
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
 						$this->new_data['validation_code'] = User::generateValidationCode();
 
-						$this->new_data['is_activated'] = 2;
+						$this->new_data['is_activated'] = User::UNVALIDATED;
 
 						Utils::$context['profile_execute_on_save'][] = [[$this, 'sendActivation']];
 

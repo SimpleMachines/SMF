@@ -22,6 +22,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -49,7 +50,7 @@ class Birthday_Notify extends ScheduledTask
 			'',
 			'SELECT id_member, real_name, lngfile, email_address
 			FROM {db_prefix}members
-			WHERE is_activated < 10
+			WHERE is_activated < {int:banned}
 				AND MONTH(birthdate) = {int:month}
 				AND DAYOFMONTH(birthdate) = {int:day}
 				AND YEAR(birthdate) > {int:year}
@@ -59,6 +60,7 @@ class Birthday_Notify extends ScheduledTask
 				'month' => $month,
 				'day' => $day,
 				'bdate' => '1004-' . $month . '-' . $day, // a random leap year is here needed
+				'banned' => User::BANNED,
 			],
 		);
 

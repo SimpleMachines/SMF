@@ -117,7 +117,7 @@ class Reminder implements ActionInterface
 		$this->loadMember();
 
 		// If the user isn't activated/approved, give them some feedback on what to do next.
-		if ($this->member->is_activated != 1) {
+		if ($this->member->is_activated % User::BANNED != User::ACTIVATED) {
 			// Awaiting approval...
 			if (trim($this->member->validation_code) == '') {
 				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);

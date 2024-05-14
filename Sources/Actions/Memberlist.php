@@ -248,7 +248,7 @@ class Memberlist implements ActionInterface
 					WHERE is_activated = {int:is_activated}
 					ORDER BY real_name',
 					[
-						'is_activated' => 1,
+						'is_activated' => User::ACTIVATED,
 					],
 				);
 
@@ -280,7 +280,7 @@ class Memberlist implements ActionInterface
 				FROM {db_prefix}members
 				WHERE is_activated = {int:is_activated}',
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 				],
 			);
 			list(Utils::$context['num_members']) = Db::$db->fetch_row($request);
@@ -306,7 +306,7 @@ class Memberlist implements ActionInterface
 				WHERE LOWER(SUBSTRING(real_name, 1, 1)) < {string:first_letter}
 					AND is_activated = {int:is_activated}',
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 					'first_letter' => $_REQUEST['start'],
 				],
 			);
@@ -363,7 +363,7 @@ class Memberlist implements ActionInterface
 		$limit = $start;
 		$query_parameters = [
 			'regular_id_group' => 0,
-			'is_activated' => 1,
+			'is_activated' => User::ACTIVATED,
 			'sort' => Utils::$context['columns'][$_REQUEST['sort']]['sort'][Utils::$context['sort_direction']],
 			'blank_string' => '',
 		];
@@ -519,7 +519,7 @@ class Memberlist implements ActionInterface
 
 			$query_parameters = [
 				'regular_id_group' => 0,
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 				'blank_string' => '',
 				'search' => '%' . strtr($_POST['search'], ['_' => '\\_', '%' => '\\%', '*' => '%']) . '%',
 				'sort' => Utils::$context['columns'][$_REQUEST['sort']]['sort'][Utils::$context['sort_direction']],

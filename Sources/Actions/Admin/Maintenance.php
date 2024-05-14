@@ -1456,7 +1456,7 @@ class Maintenance implements ActionInterface
 
 			if ($_POST['del_type'] == 'activated') {
 				$where = 'mem.date_registered < {int:time_limit} AND mem.is_activated = {int:is_activated}';
-				$where_vars['is_activated'] = 0;
+				$where_vars['is_activated'] = User::NOT_ACTIVATED;
 			} else {
 				$where = 'mem.last_login < {int:time_limit} AND (mem.last_login != 0 OR mem.date_registered < {int:time_limit})';
 			}
