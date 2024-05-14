@@ -2250,6 +2250,10 @@ class Profile extends User implements \ArrayAccess
 				}
 			}
 		}
+
+		if (!empty($this->new_data['real_name'])) {
+			$this->new_data['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($this->new_data['real_name'], ENT_QUOTES)));
+		}
 	}
 
 	/**

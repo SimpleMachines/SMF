@@ -59,7 +59,7 @@ SMF\Config::$boarddir = $boarddir;
 SMF\Config::$sourcedir = $sourcedir;
 
 // 5. Do the job.
-$unicode_updater = new SMF\Tasks\UpdateUnicode([]);
+$unicode_updater = new SMF\Tasks\UpdateUnicode(['files_only' => true]);
 $unicode_updater->execute();
 
 ?>

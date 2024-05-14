@@ -3735,33 +3735,8 @@ class User implements \ArrayAccess
 
 		// Administrators are never restricted ;).
 		if (!self::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name)) {
-			$reservedNames = explode("\n", Config::$modSettings['reserveNames']);
-
-			// Case sensitive check?
-			$checkMe = empty(Config::$modSettings['reserveCase']) ? $checkName : $name;
-
-			// Check each name in the list...
-			foreach ($reservedNames as $reserved) {
-				if ($reserved == '') {
-					continue;
-				}
-
-				// The admin might've used entities too, level the playing field.
-				$reservedCheck = Utils::entityDecode($reserved, true);
-
-				// Case sensitive name?
-				if (empty(Config::$modSettings['reserveCase'])) {
-					$reservedCheck = Utils::strtolower($reservedCheck);
-				}
-
-				// If it's not just entire word, check for it in there somewhere...
-				if ($checkMe == $reservedCheck || (Utils::entityStrpos($checkMe, $reservedCheck) !== false && empty(Config::$modSettings['reserveWord']))) {
-					if ($fatal) {
-						ErrorHandler::fatalLang('username_reserved', 'password', [$reserved]);
-					}
-
-					return true;
-				}
+			if (Unicode\SpoofDetector::checkReservedName($name, $fatal)) {
+				return true;
 			}
 
 			$censor_name = $name;
@@ -3786,48 +3761,15 @@ class User implements \ArrayAccess
 			}
 		}
 
-		$request = Db::$db->query(
-			'',
-			'SELECT id_member
-			FROM {db_prefix}members
-			WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
-				AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
-			LIMIT 1',
-			[
-				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
-				'member_name' => Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name',
-				'current_member' => $current_id_member,
-				'check_name' => $checkName,
-				'operator' => strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=',
-			],
-		);
-
-		if (Db::$db->num_rows($request) > 0) {
-			Db::$db->free_result($request);
-
+		// Check for similar existing member names.
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $id_member ?? 0, $fatal)) {
 			return true;
 		}
-		Db::$db->free_result($request);
 
-		// Does name case insensitive match a member group name?
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group
-			FROM {db_prefix}membergroups
-			WHERE {raw:group_name} LIKE {string:check_name}
-			LIMIT 1',
-			[
-				'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
-				'check_name' => $checkName,
-			],
-		);
-
-		if (Db::$db->num_rows($request) > 0) {
-			Db::$db->free_result($request);
-
+		// Does the name resemble a member group name?
+		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
 			return true;
 		}
-		Db::$db->free_result($request);
 
 		// Okay, they passed.
 		$is_reserved = false;

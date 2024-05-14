@@ -2064,6 +2064,9 @@ function DeleteUpgrade()
 		}
 	}
 
+	// Queue any post-upgrade background tasks that we should run.
+	addBackgroundTasks();
+
 	// Log what we've done.
 	if (!isset(User::$me)) {
 		User::load();
@@ -2109,6 +2112,26 @@ function DeleteUpgrade()
 	$_GET['substep'] = 0;
 
 	return false;
+}
+
+// Queues background tasks that we want to run soon after upgrading.
+function addBackgroundTasks()
+{
+	Db::$db->insert(
+		'insert',
+		'{db_prefix}background_tasks',
+		[
+			'task_class' => 'string',
+			'task_data' => 'string',
+			'claimed_time' => 'int',
+		],
+		[
+			'SMF\\Tasks\\UpdateSpoofDetectorNames',
+			json_encode(['last_member_id' => 0]),
+			0,
+		],
+		['id_task'],
+	);
 }
 
 // Just like the built in one, but setup for CLI to not use themes.
