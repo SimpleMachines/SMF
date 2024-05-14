@@ -233,7 +233,7 @@ class Uuid implements \Stringable
 			// Convert supported object types to strings.
 			case 'object':
 				if ($input instanceof \DateTimeInterface) {
-					$input = $input->format('Y-m-d H:i:s.u e');
+					$input = $input->format('U.u');
 				} elseif ($input instanceof \Stringable) {
 					$input = (string) $input;
 				} else {
