@@ -2179,9 +2179,6 @@ class Profile extends User implements \ArrayAccess
 				// Set the save variable.
 				$this->new_data[$db_key] = $_POST[$key];
 
-				// And update the user profile.
-				$this->data[$key] = $this->new_data[$key];
-
 				// Are we logging it?
 				if (!empty($field['log_change']) && isset($this->data[$key])) {
 					$this->log_changes[] = [
@@ -2195,6 +2192,9 @@ class Profile extends User implements \ArrayAccess
 						],
 					];
 				}
+
+				// And update the user profile.
+				$this->data[$key] = $this->new_data[$db_key];
 			}
 
 			// Logging group changes are a bit different...
