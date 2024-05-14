@@ -36,9 +36,11 @@ namespace SMF;
  *    representation of a UUID. This form maintains the same sort order as the
  *    full form and is the most space-efficient form possible.
  *
- *  - The Uuid::getShortForm() method returns a customized base 64 encoding of
- *    the binary form of the UUID. This form is 22 bytes long, maintains the
- *    same sort order as the full form, and is URL safe.
+ *  - The Uuid::getShortForm() method returns a customized base 64 or base 32
+ *    encoding of the binary form of the UUID. Both short forms maintain the
+ *    same sort order as the full form and are URL safe. The base 64 form is 22
+ *    characters long. The base 32 form is 26 characters long, but contains only
+ *    digits and lowercase letters, which may be useful in some situations.
  *
  * For convenience, two static methods, Uuid::compress() and Uuid::expand(), are
  * available in order to simplify the process of converting an existing UUID
@@ -120,6 +122,21 @@ class Uuid implements \Stringable
 	 */
 	public const BASE64_STANDARD = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 	public const BASE64_SORTABLE = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~ ';
+
+	/**
+	 * Constants used to implement an alternative version of base32hex encoding
+	 * for compressed UUID strings. Specifically, this uses "Crockford Base32"
+	 * in order to avoid visually confusing characters.
+	 */
+	public const BASE32_HEX = '0123456789abcdefghijklmnopqrstuv';
+	public const BASE32_ALT = '0123456789abcdefghjkmnpqrstvwxyz';
+
+	/**
+	 * Constants used to select a short form type for the compress() method.
+	 */
+	public const COMPRESS_BINARY = 0;
+	public const COMPRESS_BASE64 = 1;
+	public const COMPRESS_BASE32 = 2;
 
 	/*********************
 	 * Internal properties
@@ -233,7 +250,7 @@ class Uuid implements \Stringable
 			// Convert supported object types to strings.
 			case 'object':
 				if ($input instanceof \DateTimeInterface) {
-					$input = $input->format('Y-m-d H:i:s.u e');
+					$input = $input->format('U.u');
 				} elseif ($input instanceof \Stringable) {
 					$input = (string) $input;
 				} else {
@@ -350,15 +367,22 @@ class Uuid implements \Stringable
 	}
 
 	/**
-	 * Compresses $this->uuid to a 22-character string.
+	 * Compresses $this->uuid to a 22- or 26-character string.
 	 *
-	 * This short form is URL-safe and maintains the same ASCII sort order as
-	 * the original UUID string.
+	 * These short forms are URL-safe and maintain the same ASCII sort order
+	 * as the original UUID string.
 	 *
+	 * @param bool $lowercase_only If true, only use lowercase letters.
+	 *    This results in a 26-character string, but it is easier for humans to
+	 *    work with than the shorter 22-character string.
 	 * @return string The short form of the UUID.
 	 */
-	public function getShortForm(): string
+	public function getShortForm(bool $lowercase_only = false): string
 	{
+		if ($lowercase_only) {
+			return strtr(self::encodeBase32Hex(str_replace('-', '', $this->uuid)), self::BASE32_HEX, self::BASE32_ALT);
+		}
+
 		return rtrim(strtr(base64_encode($this->getBinary()), self::BASE64_STANDARD, self::BASE64_SORTABLE));
 	}
 
@@ -412,12 +436,15 @@ class Uuid implements \Stringable
 		}
 
 		// Binary format is 16 bytes long.
-		// Short format is 22 bytes long.
+		// Base64 format is 22 bytes long.
+		// Base32 format is 26 bytes long.
 		// Full format is 32 bytes long, once extraneous characters are removed.
 		if (strlen($input) === 16) {
 			$hex = bin2hex($input);
 		} elseif (strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
 			$hex = bin2hex(base64_decode(strtr($input, self::BASE64_SORTABLE, self::BASE64_STANDARD), true));
+		} elseif (strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
+			$hex = self::decodeBase32Hex(strtr($input), self::BASE32_ALT, self::BASE32_HEX);
 		} elseif (strspn(str_replace(['{', '-', '}'], '', $input), '0123456789ABCDEFabcdef') === 32) {
 			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
 		} else {
@@ -463,14 +490,23 @@ class Uuid implements \Stringable
 	 *
 	 * @param \Stringable|string $input A UUID string. May be compressed or
 	 *    uncompressed.
-	 * @param bool $to_base64 If true, compress to short form. Default: false.
+	 * @param int $form One of this class's COMPRESS_* constants.
 	 * @return string The short form of the UUID string.
 	 */
-	public static function compress(\Stringable|string $input, bool $to_base64 = false): string
+	public static function compress(\Stringable|string $input, int $form = self::COMPRESS_BINARY): string
 	{
 		$uuid = self::createFromString($input);
 
-		return $to_base64 ? $uuid->getShortForm() : $uuid->getBinary();
+		switch ($form) {
+			case self::COMPRESS_BASE32:
+				return $uuid->getShortForm(true);
+
+			case self::COMPRESS_BASE64:
+				return $uuid->getShortForm();
+
+			default:
+				return $uuid->getBinary();
+		}
 	}
 
 	/**
@@ -969,6 +1005,70 @@ class Uuid implements \Stringable
 		}
 
 		return $timestamp;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Converts a hexadecimal string to base32hex.
+	 *
+	 * Note: base32hex, specified in RFC 4648, section 7, is the form of base32
+	 * that PHP's base_convert() produces. This is different from basic base32,
+	 * which is specified in RFC 4648, section 6.
+	 *
+	 * @param string $hex A hexadecimal string.
+	 * @return string A base32hex string.
+	 */
+	protected static function encodeBase32Hex(string $hex): string
+	{
+		$bin = '';
+
+		foreach (str_split($hex) as $nibble) {
+			$bin .= str_pad(base_convert($nibble, 16, 2), 4, '0', STR_PAD_LEFT);
+		}
+
+		$b32 = '';
+
+		// Base 32 encodes five bits per character.
+		foreach (str_split($bin, 5) as $chunk) {
+			// If the last chunk is too short, pad with zeros.
+			$chunk = str_pad($chunk, 5, '0');
+			$b32 .= base_convert($chunk, 2, 32);
+		}
+
+		return $b32;
+	}
+
+	/**
+	 * Converts a base32hex string to hexadecimal.
+	 *
+	 * Note: base32hex, specified in RFC 4648, section 7, is the form of base32
+	 * that PHP's base_convert() produces. This is different from basic base32,
+	 * which is specified in RFC 4648, section 6.
+	 *
+	 * @param string $b32 A base32hex string.
+	 * @return string A hexadecimal string.
+	 */
+	protected static function decodeBase32Hex(string $b32): string
+	{
+		$bin = '';
+
+		foreach (str_split($b32) as $char) {
+			$int = is_numeric($char) ? $char : (string) (ord(strtolower($char)) - 87);
+			$bin .= str_pad(base_convert($int, 10, 2), 5, '0', STR_PAD_LEFT);
+		}
+
+		$bin = substr($bin, 0, strlen($bin) - strlen($bin) % 8);
+
+		$hex = '';
+
+		foreach (str_split($bin, 4) as $nibble) {
+			$hex .= str_pad(base_convert($nibble, 2, 16), 1, '0', STR_PAD_LEFT);
+		}
+
+		return $hex;
 	}
 }
 
