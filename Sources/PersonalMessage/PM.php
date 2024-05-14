@@ -1392,8 +1392,14 @@ class PM implements \ArrayAccess
 				continue;
 			}
 
-			// If the receiving account is banned (>=10) or pending deletion (4), refuse to send the PM.
-			if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !User::$me->is_admin)) {
+			// If the receiving account is banned or pending deletion, refuse to send the PM.
+			if (
+				$row['is_activated'] >= User::BANNED
+				|| (
+					$row['is_activated'] == User::REQUESTED_DELETE
+					&& !User::$me->allowedTo('moderate_forum')
+				)
+			) {
 				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
@@ -1404,7 +1410,7 @@ class PM implements \ArrayAccess
 			// Send a notification, if enabled - taking the buddy list into account.
 			if (
 				!empty($row['email_address'])
-				&& $row['is_activated'] == 1
+				&& $row['is_activated'] == User::ACTIVATED
 				&& (
 					(
 						empty($pm_head)

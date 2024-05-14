@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -47,10 +48,10 @@ class CoppaForm implements ActionInterface
 			'SELECT member_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}
-				AND is_activated = {int:is_coppa}',
+				AND is_activated IN ({array_int:need_coppa})',
 			[
 				'id_member' => (int) $_GET['member'],
-				'is_coppa' => 5,
+				'need_coppa' => [User::NEED_COPPA, User::NEED_COPPA_BANNED],
 			],
 		);
 

@@ -259,7 +259,7 @@ class Logging
 						FROM {db_prefix}members
 						WHERE is_activated = {int:is_activated}',
 						[
-							'is_activated' => 1,
+							'is_activated' => User::ACTIVATED,
 						],
 					);
 					list($changes['totalMembers'], $changes['latestMember']) = Db::$db->fetch_row($result);
@@ -286,7 +286,7 @@ class Logging
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
 						[
-							'activation_status' => [3, 4, 5],
+							'activation_status' => [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA],
 						],
 					);
 
