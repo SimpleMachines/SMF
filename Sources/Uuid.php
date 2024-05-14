@@ -444,7 +444,7 @@ class Uuid implements \Stringable
 		} elseif (strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
 			$hex = bin2hex(base64_decode(strtr($input, self::BASE64_SORTABLE, self::BASE64_STANDARD), true));
 		} elseif (strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
-			$hex = self::decodeBase32Hex(strtr($input), self::BASE32_ALT, self::BASE32_HEX);
+			$hex = self::decodeBase32Hex(strtr($input, self::BASE32_ALT, self::BASE32_HEX));
 		} elseif (strspn(str_replace(['{', '-', '}'], '', $input), '0123456789ABCDEFabcdef') === 32) {
 			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
 		} else {
