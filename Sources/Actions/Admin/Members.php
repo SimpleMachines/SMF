@@ -569,7 +569,7 @@ class Members implements ActionInterface
 							}
 
 							// Show it in italics if they're not activated...
-							if ($rowData['is_activated'] % User::BANNED != 1) {
+							if ($rowData['is_activated'] % User::BANNED != User::ACTIVATED) {
 								$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::$txt['not_activated'], $difference);
 							}
 
