@@ -654,6 +654,8 @@ class Category implements \ArrayAccess
 	 */
 	public static function getTree(): void
 	{
+		self::$loaded = [];
+
 		$selects = [
 			'COALESCE(b.id_board, 0) AS id_board', 'b.name', 'b.description',
 			'b.id_parent', 'b.child_level', 'b.board_order', 'b.redirect',
@@ -708,6 +710,7 @@ class Category implements \ArrayAccess
 				$row['deny_member_groups'] = explode(',', $row['deny_member_groups']);
 				$row['prev_board'] = $prevBoard;
 
+				unset(Board::$loaded[(int) $row['id_board']]);
 				Board::init((int) $row['id_board'], $row);
 
 				$prevBoard = $row['id_board'];

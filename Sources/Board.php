@@ -1600,15 +1600,15 @@ class Board implements \ArrayAccess
 		$board->member_groups = $boardOptions['access_groups'] ?? $board->member_groups;
 		$board->deny_groups = $boardOptions['deny_groups'] ?? $board->deny_groups;
 
-		// We're ready to save the changes now.
-		$board->save($boardOptions);
-
-		// If we moved any boards, save their changes too.
+		// If we moved any boards, save their changes first.
 		if (!empty($moved_boards)) {
 			foreach (array_diff($moved_boards, [$board->id]) as $moved) {
 				self::$loaded[$moved]->save();
 			}
 		}
+
+		// We're ready to save the changes now.
+		$board->save($boardOptions);
 
 		// Log the changes unless told otherwise.
 		if (empty($boardOptions['dont_log'])) {
