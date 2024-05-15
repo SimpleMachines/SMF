@@ -380,7 +380,7 @@ class Uuid implements \Stringable
 	public function getShortForm(bool $lowercase_only = false): string
 	{
 		if ($lowercase_only) {
-			return strtr(self::encodeBase32Hex(str_replace('-', '', $this->uuid)), self::BASE32_HEX, self::BASE32_ALT);
+			return strtr(str_pad(self::encodeBase32Hex(str_replace('-', '', $this->uuid)), 26, '0', STR_PAD_LEFT), self::BASE32_HEX, self::BASE32_ALT);
 		}
 
 		return rtrim(strtr(base64_encode($this->getBinary()), self::BASE64_STANDARD, self::BASE64_SORTABLE));
@@ -1023,22 +1023,13 @@ class Uuid implements \Stringable
 	 */
 	protected static function encodeBase32Hex(string $hex): string
 	{
-		$bin = '';
-
-		foreach (str_split($hex) as $nibble) {
-			$bin .= str_pad(base_convert($nibble, 16, 2), 4, '0', STR_PAD_LEFT);
-		}
-
 		$b32 = '';
 
-		// Base 32 encodes five bits per character.
-		foreach (str_split($bin, 5) as $chunk) {
-			// If the last chunk is too short, pad with zeros.
-			$chunk = str_pad($chunk, 5, '0');
-			$b32 .= base_convert($chunk, 2, 32);
+		foreach (str_split(strrev($hex), 10) as $chunk) {
+			$b32 = str_pad(base_convert(strrev($chunk), 16, 32), 5, '0', STR_PAD_LEFT) . $b32;
 		}
 
-		return $b32;
+		return ltrim($b32, '0');
 	}
 
 	/**
@@ -1053,22 +1044,13 @@ class Uuid implements \Stringable
 	 */
 	protected static function decodeBase32Hex(string $b32): string
 	{
-		$bin = '';
-
-		foreach (str_split($b32) as $char) {
-			$int = is_numeric($char) ? $char : (string) (ord(strtolower($char)) - 87);
-			$bin .= str_pad(base_convert($int, 10, 2), 5, '0', STR_PAD_LEFT);
-		}
-
-		$bin = substr($bin, 0, strlen($bin) - strlen($bin) % 8);
-
 		$hex = '';
 
-		foreach (str_split($bin, 4) as $nibble) {
-			$hex .= str_pad(base_convert($nibble, 2, 16), 1, '0', STR_PAD_LEFT);
+		foreach (str_split(strrev($b32), 8) as $chunk) {
+			$hex = str_pad(base_convert(strrev($chunk), 32, 16), 4, '0', STR_PAD_LEFT) . $hex;
 		}
 
-		return $hex;
+		return ltrim($hex, '0');
 	}
 }
 
