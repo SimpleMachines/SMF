@@ -1026,7 +1026,7 @@ class Uuid implements \Stringable
 		$b32 = '';
 
 		foreach (str_split(strrev($hex), 10) as $chunk) {
-			$b32 = str_pad(base_convert(strrev($chunk), 16, 32), 5, '0', STR_PAD_LEFT) . $b32;
+			$b32 = str_pad(base_convert(strrev($chunk), 16, 32), 8, '0', STR_PAD_LEFT) . $b32;
 		}
 
 		return ltrim($b32, '0');
@@ -1047,7 +1047,7 @@ class Uuid implements \Stringable
 		$hex = '';
 
 		foreach (str_split(strrev($b32), 8) as $chunk) {
-			$hex = str_pad(base_convert(strrev($chunk), 32, 16), 4, '0', STR_PAD_LEFT) . $hex;
+			$hex = str_pad(base_convert(strrev($chunk), 32, 16), 10, '0', STR_PAD_LEFT) . $hex;
 		}
 
 		return ltrim($hex, '0');
