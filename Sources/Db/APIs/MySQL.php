@@ -247,7 +247,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$query_error = $this->error();
 
 			// Nothing's defined yet... just die with it.
-			if (empty(Utils::$context) || empty(Lang::$txt)) {
+			if (empty(Utils::$context) || empty(Lang::$txt) || defined('SMF_INSTALLING')) {
 				die($query_error);
 			}
 

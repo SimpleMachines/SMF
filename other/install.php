@@ -437,7 +437,7 @@ function load_lang_file()
 	Lang::addDirs(Config::$languagesdir);
 
 	// And now load the language file.
-	Lang::load('Install');
+	Lang::load('General+Install');
 }
 
 // This handy function loads some settings and the like.
