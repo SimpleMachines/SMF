@@ -232,6 +232,8 @@ $txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
 $txt['upgrade_step_convertjson'] = 'Convert serialized strings to JSON';
 $txt['upgrade_step_delete'] = 'Delete Upgrade.php';
 $txt['upgrade_step_cleanup'] = 'Cleanup';
+$txt['upgrade_step_cleanup_CleanupLanguages'] = 'Cleanup languages';
+$txt['upgrade_step_cleanup_CleanupAgreements'] = 'Cleanup agreements';
 
 $txt['upgrade_upgrade_utility'] = 'SMF Upgrade Utility';
 $txt['upgrade_warning'] = 'Warning!';

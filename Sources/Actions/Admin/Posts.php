@@ -129,6 +129,7 @@ class Posts implements ActionInterface
 				'allow_no_censored' => empty($_POST['allow_no_censored']) ? '0' : '1',
 				'censorWholeWord' => empty($_POST['censorWholeWord']) ? '0' : '1',
 				'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
+				'spoofdetector_censor' => empty($_POST['spoofdetector_censor']) ? '0' : '1',
 			];
 
 			IntegrationHook::call('integrate_save_censors', [&$updates]);

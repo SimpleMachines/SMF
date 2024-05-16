@@ -118,21 +118,24 @@ class Summary implements ActionInterface
 		}
 
 		// If the user is awaiting activation, and the viewer has permission, set up some activation context messages.
-		if (Profile::$member->formatted['is_activated'] % 10 != 1 && User::$me->allowedTo('moderate_forum')) {
-			Utils::$context['activate_type'] = Profile::$member->formatted['is_activated'];
+		if (
+			Profile::$member->is_activated % User::BANNED != User::ACTIVATED
+			&& User::$me->allowedTo('moderate_forum')
+		) {
+			Utils::$context['activate_type'] = Profile::$member->is_activated;
 
 			// What should the link text be?
-			Utils::$context['activate_link_text'] = in_array(Profile::$member->formatted['is_activated'], [3, 4, 5, 13, 14, 15]) ? Lang::$txt['account_approve'] : Lang::$txt['account_activate'];
+			Utils::$context['activate_link_text'] = in_array(Profile::$member->is_activated, [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA, User::UNAPPROVED_BANNED, User::REQUESTED_DELETE_BANNED, User::NEED_COPPA_BANNED]) ? Lang::$txt['account_approve'] : Lang::$txt['account_activate'];
 
 			// Should we show a custom message?
-			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->formatted['is_activated'] % 10] ?? Lang::$txt['account_not_activated'];
+			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->is_activated % User::BANNED] ?? Lang::$txt['account_not_activated'];
 
 			// If they can be approved, we need to set up a token for them.
 			Utils::$context['token_check'] = 'profile-aa' . Profile::$member->id;
 			SecurityToken::create(Utils::$context['token_check'], 'get');
 
 			// Puerile comment
-			$type = in_array(Profile::$member->formatted['is_activated'], [3, 4, 5, 13, 14, 15]) ? 'approve' : 'activate';
+			$type = in_array(Profile::$member->is_activated, [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA, User::UNAPPROVED_BANNED, User::REQUESTED_DELETE_BANNED, User::NEED_COPPA_BANNED]) ? 'approve' : 'activate';
 
 			Utils::$context['activate_link'] = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $type . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context[Utils::$context['token_check'] . '_token_var'] . '=' . Utils::$context[Utils::$context['token_check'] . '_token'];
 		}

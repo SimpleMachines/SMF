@@ -547,7 +547,7 @@ class News extends ACP
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
 				WHERE mem.is_activated = {int:is_activated}',
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 				],
 			);
 
@@ -909,8 +909,8 @@ class News extends ACP
 				array_merge($sendParams, [
 					'start' => Utils::$context['start'],
 					'atonce' => $num_at_once,
-					'regular_group' => 0,
-					'is_activated' => 1,
+					'regular_group' => Group::REGULAR,
+					'is_activated' => User::ACTIVATED,
 				]),
 			);
 

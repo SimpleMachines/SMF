@@ -90,9 +90,28 @@ class User implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants to define loading methods.
+	 */
 	public const LOAD_BY_ID = 0;
 	public const LOAD_BY_NAME = 1;
 	public const LOAD_BY_EMAIL = 2;
+
+	/**
+	 * Constants to define activation states.
+	 */
+	public const NOT_ACTIVATED = 0;
+	public const ACTIVATED = 1;
+	public const UNVALIDATED = 2;
+	public const UNAPPROVED = 3;
+	public const REQUESTED_DELETE = 4;
+	public const NEED_COPPA = 5;
+	public const BANNED = 10;
+	public const ACTIVATED_BANNED = 11;
+	public const UNVALIDATED_BANNED = 12;
+	public const UNAPPROVED_BANNED = 13;
+	public const REQUESTED_DELETE_BANNED = 14;
+	public const NEED_COPPA_BANNED = 15;
 
 	/*******************
 	 * Public properties
@@ -1175,7 +1194,7 @@ class User implements \ArrayAccess
 					'label' => Lang::$txt[$is_visibly_online ? 'online' : 'offline'],
 				],
 				'language' => !empty($loadedLanguages[$this->language]) && !empty($loadedLanguages[$this->language]['name']) ? $loadedLanguages[$this->language]['name'] : Utils::ucwords(strtr($this->language, ['_' => ' ', '-utf8' => ''])),
-				'is_activated' => $this->is_activated % 10 == 1,
+				'is_activated' => $this->is_activated % self::BANNED == self::ACTIVATED,
 				'is_banned' => $this->is_banned,
 				'options' => $this->options,
 				'is_guest' => $this->is_guest,
@@ -1772,11 +1791,11 @@ class User implements \ArrayAccess
 				$this->id
 				&& (
 					(
-						$this->is_activated >= 10
+						$this->is_activated >= self::BANNED
 						&& !$flag_is_activated
 					)
 					|| (
-						$this->is_activated < 10
+						$this->is_activated < self::BANNED
 						&& $flag_is_activated
 					)
 				)
@@ -3716,33 +3735,8 @@ class User implements \ArrayAccess
 
 		// Administrators are never restricted ;).
 		if (!self::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name)) {
-			$reservedNames = explode("\n", Config::$modSettings['reserveNames']);
-
-			// Case sensitive check?
-			$checkMe = empty(Config::$modSettings['reserveCase']) ? $checkName : $name;
-
-			// Check each name in the list...
-			foreach ($reservedNames as $reserved) {
-				if ($reserved == '') {
-					continue;
-				}
-
-				// The admin might've used entities too, level the playing field.
-				$reservedCheck = Utils::entityDecode($reserved, true);
-
-				// Case sensitive name?
-				if (empty(Config::$modSettings['reserveCase'])) {
-					$reservedCheck = Utils::strtolower($reservedCheck);
-				}
-
-				// If it's not just entire word, check for it in there somewhere...
-				if ($checkMe == $reservedCheck || (Utils::entityStrpos($checkMe, $reservedCheck) !== false && empty(Config::$modSettings['reserveWord']))) {
-					if ($fatal) {
-						ErrorHandler::fatalLang('username_reserved', 'password', [$reserved]);
-					}
-
-					return true;
-				}
+			if (Unicode\SpoofDetector::checkReservedName($name, $fatal)) {
+				return true;
 			}
 
 			$censor_name = $name;
@@ -3767,48 +3761,15 @@ class User implements \ArrayAccess
 			}
 		}
 
-		$request = Db::$db->query(
-			'',
-			'SELECT id_member
-			FROM {db_prefix}members
-			WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
-				AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
-			LIMIT 1',
-			[
-				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
-				'member_name' => Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name',
-				'current_member' => $current_id_member,
-				'check_name' => $checkName,
-				'operator' => strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=',
-			],
-		);
-
-		if (Db::$db->num_rows($request) > 0) {
-			Db::$db->free_result($request);
-
+		// Check for similar existing member names.
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $id_member ?? 0, $fatal)) {
 			return true;
 		}
-		Db::$db->free_result($request);
 
-		// Does name case insensitive match a member group name?
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group
-			FROM {db_prefix}membergroups
-			WHERE {raw:group_name} LIKE {string:check_name}
-			LIMIT 1',
-			[
-				'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
-				'check_name' => $checkName,
-			],
-		);
-
-		if (Db::$db->num_rows($request) > 0) {
-			Db::$db->free_result($request);
-
+		// Does the name resemble a member group name?
+		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
 			return true;
 		}
-		Db::$db->free_result($request);
 
 		// Okay, they passed.
 		$is_reserved = false;
@@ -3958,11 +3919,12 @@ class User implements \ArrayAccess
 			WHERE (' . $member_name_search . '
 				OR ' . $real_name_search . ' ' . $email_condition . ')
 				' . ($buddies_only ? 'AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN (1, 11)
+				AND is_activated IN ({array_int:activated})
 			LIMIT {int:limit}',
 			array_merge($where_params, [
 				'buddy_list' => self::$me->buddies,
 				'limit' => $max,
+				'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
 			]),
 		);
 
@@ -4668,7 +4630,7 @@ class User implements \ArrayAccess
 		$this->is_admin = in_array(1, $this->groups);
 		$this->is_mod = in_array(3, $this->groups) || !empty($profile['is_mod']);
 		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
-		$this->is_banned = $this->is_activated >= 10;
+		$this->is_banned = $this->is_activated >= self::BANNED;
 		$this->is_online = (bool) ($profile['is_online'] ?? $is_me);
 
 		// User activity and history.
@@ -4879,7 +4841,7 @@ class User implements \ArrayAccess
 			}
 
 			// Wrong password or not activated - either way, you're going nowhere.
-			self::$my_id = $check && (self::$profiles[self::$my_id]['is_activated'] == 1 || self::$profiles[self::$my_id]['is_activated'] == 11) ? (int) self::$profiles[self::$my_id]['id_member'] : 0;
+			self::$my_id = $check && (self::$profiles[self::$my_id]['is_activated'] % self::BANNED == self::ACTIVATED) ? (int) self::$profiles[self::$my_id]['id_member'] : 0;
 		} else {
 			self::$my_id = 0;
 		}

@@ -62,9 +62,7 @@ class QueryString
 		}
 
 		// Get the correct query string.  It may be in an environment variable...
-		if (!isset($_SERVER['QUERY_STRING'])) {
-			$_SERVER['QUERY_STRING'] = getenv('QUERY_STRING');
-		}
+		$_SERVER['QUERY_STRING'] = (string) ($_SERVER['QUERY_STRING'] ?? getenv('QUERY_STRING'));
 
 		// It seems that sticking a URL after the query string is mighty common, well, it's evil - don't.
 		if (str_starts_with($_SERVER['QUERY_STRING'], 'http')) {

@@ -123,12 +123,13 @@ class AutoSuggest implements ActionInterface
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN (1, 11)
+				AND is_activated IN ({array_int:activated})
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
 			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
+				'activated' => [User::ACTIVATED, User::ACTIVATED_BANNED],
 			],
 		);
 

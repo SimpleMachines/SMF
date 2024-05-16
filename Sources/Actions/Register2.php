@@ -642,22 +642,22 @@ class Register2 extends Register
 
 		// Setup the activation status on this new account so it is correct - firstly is it an under age account?
 		if ($reg_options['require'] == 'coppa') {
-			$reg_options['register_vars']['is_activated'] = 5;
+			$reg_options['register_vars']['is_activated'] = User::NEED_COPPA;
 
 			// @todo This should be changed.  To what should be it be changed??
 			$reg_options['register_vars']['validation_code'] = '';
 		}
 		// Maybe it can be activated right away?
 		elseif ($reg_options['require'] == 'nothing') {
-			$reg_options['register_vars']['is_activated'] = 1;
+			$reg_options['register_vars']['is_activated'] = User::ACTIVATED;
 		}
 		// Maybe it must be activated by email?
 		elseif ($reg_options['require'] == 'activation') {
-			$reg_options['register_vars']['is_activated'] = 0;
+			$reg_options['register_vars']['is_activated'] = User::NOT_ACTIVATED;
 		}
 		// Otherwise it must be awaiting approval!
 		else {
-			$reg_options['register_vars']['is_activated'] = 3;
+			$reg_options['register_vars']['is_activated'] = User::UNAPPROVED;
 		}
 
 		// Check if this group is assignable.
@@ -706,6 +706,8 @@ class Register2 extends Register
 		// Call an optional function to validate the users' input.
 		IntegrationHook::call('integrate_register', [&$reg_options, &$theme_vars, &$known_ints, &$known_floats]);
 
+		$reg_options['register_vars']['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($reg_options['register_vars']['real_name'] ?? $reg_options['register_vars']['member_name'], ENT_QUOTES)));
+
 		$column_names = [];
 		$values = [];
 
@@ -740,7 +742,7 @@ class Register2 extends Register
 		IntegrationHook::call('integrate_post_register', [&$reg_options, &$theme_vars, &$member_id]);
 
 		// Update the number of members and latest member's info - and pass the name, but remove the 's.
-		if ($reg_options['register_vars']['is_activated'] == 1) {
+		if ($reg_options['register_vars']['is_activated'] == User::ACTIVATED) {
 			Logging::updateStats('member', $member_id, $reg_options['register_vars']['real_name']);
 		} else {
 			Logging::updateStats('member');

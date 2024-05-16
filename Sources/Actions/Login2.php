@@ -690,23 +690,23 @@ class Login2 implements ActionInterface
 		}
 
 		// What is the true activation status of this account?
-		$activation_status = User::$profiles[User::$my_id]['is_activated'] > 10 ? User::$profiles[User::$my_id]['is_activated'] - 10 : User::$profiles[User::$my_id]['is_activated'];
+		$activation_status = User::$profiles[User::$my_id]['is_activated'] % User::BANNED;
 
 		// Check if the account is activated - COPPA first...
-		if ($activation_status == 5) {
+		if ($activation_status == User::NEED_COPPA) {
 			Utils::$context['login_errors'][] = Lang::$txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['coppa_need_more_details'] . '</a>';
 
 			return false;
 		}
 
 		// Awaiting approval still?
-		if ($activation_status == 3) {
+		if ($activation_status == User::UNAPPROVED) {
 			ErrorHandler::fatalLang('still_awaiting_approval', 'user');
 		}
 		// Awaiting deletion, changed their mind?
-		elseif ($activation_status == 4) {
+		elseif ($activation_status == User::REQUESTED_DELETE) {
 			if (isset($_REQUEST['undelete'])) {
-				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => 1]);
+				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => User::$profiles[User::$my_id]['is_activated'] >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED]);
 
 				Config::updateModSettings(['unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 0 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)]);
 			} else {
@@ -718,7 +718,7 @@ class Login2 implements ActionInterface
 			}
 		}
 		// Standard activation?
-		elseif ($activation_status != 1) {
+		elseif ($activation_status != User::ACTIVATED) {
 			ErrorHandler::log(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
 			Utils::$context['login_errors'][] = Lang::$txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['activate_not_completed2'] . '</a>';

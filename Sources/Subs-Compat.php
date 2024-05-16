@@ -5568,9 +5568,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\User::mustHavePermission($permission, $boards, $any);
 	}
 
-	function boardsAllowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): array
+	function boardsAllowedTo(string|array $permission, bool $check_access = true, bool $simple = true): array
 	{
-		return SMF\User::hasPermissionInBoards($permission, $boards, $any);
+		return SMF\User::hasPermissionInBoards($permission, $check_access, $simple);
 	}
 
 	/**

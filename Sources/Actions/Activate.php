@@ -120,8 +120,8 @@ class Activate implements ActionInterface
 			&& !empty($_REQUEST['passwd'])
 			&& Security::hashVerifyPassword($row['member_name'], $_REQUEST['passwd'], $row['passwd'])
 			&& (
-				$row['is_activated'] == 0
-				|| $row['is_activated'] == 2
+				$row['is_activated'] == User::NOT_ACTIVATED
+				|| $row['is_activated'] == User::UNVALIDATED
 			)
 		) {
 			if (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == 3) {
@@ -162,8 +162,8 @@ class Activate implements ActionInterface
 		if (
 			!empty($_REQUEST['sa'])
 			&& $_REQUEST['sa'] == 'resend'
-			&& ($row['is_activated'] == 0 || $row['is_activated'] == 2)
-			&& (!isset($_REQUEST['code']) || $_REQUEST['code'] == '')
+			&& in_array((int) $row['is_activated'], [User::NOT_ACTIVATED, User::UNVALIDATED])
+			&& (($_REQUEST['code'] ?? '') == '')
 		) {
 			$replacements = [
 				'REALNAME' => $row['real_name'],
@@ -206,7 +206,7 @@ class Activate implements ActionInterface
 		IntegrationHook::call('integrate_activate', [$row['member_name']]);
 
 		// Validation complete - update the database!
-		User::updateMemberData($row['id_member'], ['is_activated' => 1, 'validation_code' => '']);
+		User::updateMemberData($row['id_member'], ['is_activated' => User::ACTIVATED, 'validation_code' => '']);
 
 		// Also do a proper member stat re-evaluation.
 		Logging::updateStats('member', false);
