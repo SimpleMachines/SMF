@@ -245,7 +245,7 @@ class AttachmentDownload implements ActionInterface
 		}
 
 		// Check whether the ETag was sent back, and cache based on that...
-		if (!empty($file->etag) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file->etag) !== false) {
+		if (!empty($file->etag) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && str_contains($_SERVER['HTTP_IF_NONE_MATCH'], $file->etag)) {
 			ob_end_clean();
 			header_remove('content-encoding');
 
@@ -288,12 +288,12 @@ class AttachmentDownload implements ActionInterface
 			$file->mime_type = strtr($file->mime_type, ['application/octet-stream' => 'application/octetstream']);
 		}
 
-		if (strpos($file->mime_type, 'image/') !== 0) {
+		if (!str_starts_with($file->mime_type, 'image/')) {
 			unset($_REQUEST['image']);
 		}
 
 		// On mobile devices, audio and video should be served inline so the browser can play them.
-		if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (strpos($file->mime_type, 'audio/') === 0 || strpos($file->mime_type, 'video/') === 0))) {
+		if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (str_starts_with($file->mime_type, 'audio/') || str_starts_with($file->mime_type, 'video/')))) {
 			$file->disposition = 'inline';
 		} else {
 			$file->disposition = 'attachment';

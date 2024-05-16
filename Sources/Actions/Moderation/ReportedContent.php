@@ -788,7 +788,7 @@ class ReportedContent implements ActionInterface
 	{
 		// Setup the query, depending on if it's a member report or a msg report.
 		// In theory, these should be unique (reports for the same things get combined), but since $extra is an array, treat as an array.
-		if (strpos($log_report, '_user') !== false) {
+		if (str_contains($log_report, '_user')) {
 			$content_ids = array_unique(array_column($extra, 'member'));
 			$content_type = 'member';
 		} else {

@@ -67,7 +67,7 @@ class DisplayAdminFile implements ActionInterface
 
 		// @todo Temp
 		// Figure out if sesc is still being used.
-		if (strpos($file_data, ';sesc=') !== false && $filetype == 'text/javascript') {
+		if (str_contains($file_data, ';sesc=') && $filetype == 'text/javascript') {
 			$file_data = "\n" . 'if (!(\'smfForum_sessionvar\' in window))' . "\n\t" . 'window.smfForum_sessionvar = \'sesc\';' . "\n" . strtr($file_data, [';sesc=' => ';\' + window.smfForum_sessionvar + \'=']);
 		}
 

@@ -1211,7 +1211,7 @@ class BBCodeParser
 		$string = preg_replace('~<br\s?/?' . '>$~i', '', $string);
 
 		// Remove any formatting within code tags.
-		if (strpos($string, '[code') !== false) {
+		if (str_contains($string, '[code')) {
 			$string = preg_replace('~<br\s?/?' . '>~i', '#smf_br_spec_grudge_cool!#', $string);
 			$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -1294,7 +1294,7 @@ class BBCodeParser
 					$clean_type_value_pair = strtolower(strtr(trim($type_value_pair), '=', ':'));
 
 					// Something like 'font-weight: bold' is expected here.
-					if (strpos($clean_type_value_pair, ':') === false) {
+					if (!str_contains($clean_type_value_pair, ':')) {
 						continue;
 					}
 
@@ -1358,7 +1358,7 @@ class BBCodeParser
 
 						case 'font-family':
 							// Only get the first freaking font if there's a list!
-							if (strpos($style_value, ',') !== false) {
+							if (str_contains($style_value, ',')) {
 								$style_value = substr($style_value, 0, strpos($style_value, ','));
 							}
 
@@ -1750,7 +1750,7 @@ class BBCodeParser
 				if (in_array($src->scheme, ['http', 'https']) && isset($src->host)) {
 					$base_url = ($src->scheme ?? 'http') . '://' . $src->host . (empty($src->port) ? '' : ':' . $src->port);
 
-					if (substr((string) $src, 0, 1) === '/') {
+					if (str_starts_with((string)$src, '/')) {
 						$src = $base_url . $src;
 					} else {
 						$src = $base_url . (empty($src->path) ? '/' : preg_replace('~/(?:index\.php)?$~', '', $src->path)) . '/' . $src;
@@ -1934,7 +1934,7 @@ class BBCodeParser
 					elseif (!in_array($href->scheme, ['http', 'https']) && isset($our_url->host)) {
 						$base_url = ($our_url->scheme ?? 'http') . '://' . $our_url->host . (empty($our_url->port) ? '' : ':' . $our_url->port);
 
-						if (substr((string) $href, 0, 1) === '/') {
+						if (str_starts_with((string)$href, '/')) {
 							$href = $base_url . $href;
 						} else {
 							$href = $base_url . '/' . trim($our_url->path, '/') . '/' . $href;
@@ -2266,7 +2266,7 @@ class BBCodeParser
 		// We need a display mode.
 		if (empty($params['{display}'])) {
 			// Images, video, and audio are embedded by default.
-			if (!empty($current_attachment['is_image']) || strpos($current_attachment['mime_type'], 'video/') === 0 || strpos($current_attachment['mime_type'], 'audio/') === 0) {
+			if (!empty($current_attachment['is_image']) || str_starts_with($current_attachment['mime_type'], 'video/') || str_starts_with($current_attachment['mime_type'], 'audio/')) {
 				$params['{display}'] = 'embed';
 			}
 			// Anything else shows a link by default.
@@ -2294,14 +2294,14 @@ class BBCodeParser
 				}
 			}
 			// Video.
-			elseif (strpos($current_attachment['mime_type'], 'video/') === 0) {
+			elseif (str_starts_with($current_attachment['mime_type'], 'video/')) {
 				$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 				$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
 
 				$return_context .= '<div class="videocontainer"><video controls preload="metadata" src="' . $current_attachment['href'] . '" playsinline' . $width . $height . '><a href="' . $current_attachment['href'] . '" class="bbc_link">' . Utils::htmlspecialchars(!empty($data) ? $data : $current_attachment['name']) . '</a></video></div>' . (!empty($data) && $data != $current_attachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
 			}
 			// Audio.
-			elseif (strpos($current_attachment['mime_type'], 'audio/') === 0) {
+			elseif (str_starts_with($current_attachment['mime_type'], 'audio/')) {
 				$width = 'max-width:100%; width: ' . (!empty($params['{width}']) ? $params['{width}'] : '400') . 'px;';
 				$height = !empty($params['{height}']) ? 'height: ' . $params['{height}'] . 'px;' : '';
 
@@ -2421,7 +2421,7 @@ class BBCodeParser
 	 */
 	public static function floatValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
-		$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
+		$class = 'class="bbc_float float' . (str_starts_with($data, 'left') ? 'left' : 'right') . '"';
 
 		if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)~', $data, $matches)) {
 			$css = ' style="max-width:' . $matches[1] . (is_numeric($matches[1]) ? 'px' : '') . '"';
@@ -2507,7 +2507,7 @@ class BBCodeParser
 				$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 			}
 		} else {
-			if (substr($data, 0, 1) == '#') {
+			if (str_starts_with($data, '#')) {
 				$data = '#post_' . substr($data, 1);
 			} else {
 				$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
@@ -2531,7 +2531,7 @@ class BBCodeParser
 	public static function phpValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['php'])) {
-			$add_begin = substr(trim($data), 0, 5) != '&lt;?';
+			$add_begin = !str_starts_with(trim($data), '&lt;?');
 
 			$data = self::highlightPhpCode($add_begin ? '&lt;?php ' . $data . '?&gt;' : $data);
 
@@ -2970,7 +2970,7 @@ class BBCodeParser
 					return $this->hosturl;
 				}
 
-				if (strpos($matches[1], 'txt_') === 0 && isset(Lang::$txt[substr($matches[1], 4)])) {
+				if (str_starts_with($matches[1], 'txt_') && isset(Lang::$txt[substr($matches[1], 4)])) {
 					return Lang::$txt[substr($matches[1], 4)];
 				}
 
@@ -2988,7 +2988,7 @@ class BBCodeParser
 	 */
 	protected function fixHtml(string $data): string
 	{
-		if (empty($this->enable_post_html) || strpos($data, '&lt;') === false) {
+		if (empty($this->enable_post_html) || !str_contains($data, '&lt;')) {
 			return $data;
 		}
 
@@ -3407,7 +3407,7 @@ class BBCodeParser
 		if ($pos2 !== false && ($pos2 <= $pos3 || $pos3 === false)) {
 			preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($this->message, $pos2 + 4), $matches);
 
-			$this->message = substr($this->message, 0, $pos2) . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . substr($this->message, $pos2);
+			$this->message = substr($this->message, 0, $pos2) . (!empty($matches[0]) && str_ends_with($matches[0], '[') ? '[/li]' : '[/li][/list]') . substr($this->message, $pos2);
 
 			$this->open_tags[count($this->open_tags) - 2]['after'] = '</ul>';
 		}
@@ -3533,7 +3533,7 @@ class BBCodeParser
 
 			$data = substr($this->message, $this->pos1, $pos2 - $this->pos1);
 
-			if (!empty($tag['block_level']) && substr($data, 0, 4) == '<br>') {
+			if (!empty($tag['block_level']) && str_starts_with($data, '<br>')) {
 				$data = substr($data, 4);
 			}
 
@@ -3582,7 +3582,7 @@ class BBCodeParser
 				substr($this->message, $this->pos1, $pos2 - $this->pos1),
 			];
 
-			if (!empty($tag['block_level']) && substr($data[0], 0, 4) == '<br>') {
+			if (!empty($tag['block_level']) && str_starts_with($data[0], '<br>')) {
 				$data[0] = substr($data[0], 4);
 			}
 

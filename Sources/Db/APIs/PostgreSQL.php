@@ -193,12 +193,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->replace_result = 0;
 
-		if (!$this->disableQueryCheck && strpos($db_string, '\'') !== false && empty($db_values['security_override'])) {
+		if (!$this->disableQueryCheck && str_contains($db_string, '\'') && empty($db_values['security_override'])) {
 			$this->error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string)) {
+		if (str_contains($db_string, 'GROUP BY') && !str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
@@ -208,7 +208,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if (empty($db_values['security_override']) && (!empty($db_values) || strpos($db_string, '{db_prefix}') !== false)) {
+		if (empty($db_values['security_override']) && (!empty($db_values) || str_contains($db_string, '{db_prefix}'))) {
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection;
 
@@ -257,13 +257,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
-			if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false) {
+			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
 				$fail = true;
 			}
 			// Trying to change passwords, slow us down, or something?
-			elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
+			elseif (str_contains($clean, 'sleep') && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
 				$fail = true;
-			} elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
+			} elseif (str_contains($clean, 'benchmark') && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
 				$fail = true;
 			}
 
@@ -322,7 +322,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
-		if (strpos($db_string, '{') !== false) {
+		if (str_contains($db_string, '{')) {
 			// This is needed by the callback function.
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection ?? $this->connection;
@@ -463,7 +463,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			foreach ($columns as $columnName => $type) {
 				// Are we restricting the length?
-				if (strpos($type, 'string-') !== false) {
+				if (str_contains($type, 'string-')) {
 					$insertData .= sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $columnName);
 				} else {
 					$insertData .= sprintf('{%1$s:%2$s}, ', $type, $columnName);
@@ -1452,7 +1452,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Only char fields got size
-		if (strpos($type_name, 'char') === false) {
+		if (!str_contains($type_name, 'char')) {
 			$type_size = null;
 		}
 
@@ -1770,7 +1770,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// No trailing commas!
-		if (substr($table_query, -1) == ',') {
+		if (str_ends_with($table_query, ',')) {
 			$table_query = substr($table_query, 0, -1);
 		}
 
@@ -1944,7 +1944,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				if ($row['column_default'] !== null) {
 					if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0) {
 						$auto = true;
-					} elseif (substr($row['column_default'], 0, 4) != 'NULL' && trim($row['column_default']) != '') {
+					} elseif (!str_starts_with($row['column_default'], 'NULL') && trim($row['column_default']) != '') {
 						$pos = strpos($row['column_default'], '::');
 						$default = trim($pos === false ? $row['column_default'] : substr($row['column_default'], 0, $pos), '\'');
 					}
@@ -2011,7 +2011,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Fix up the name to be consistent cross databases
-			if (substr($row['name'], -5) == '_pkey' && $row['is_primary'] == 1) {
+			if (str_ends_with($row['name'], '_pkey') && $row['is_primary'] == 1) {
 				$row['name'] = 'PRIMARY';
 			} else {
 				$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
@@ -2084,7 +2084,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$indexes = $this->list_indexes($table_name, true);
 
 		// Do not add the table name to the index if it is already there.
-		if ($index_name != 'primary' && strpos($index_name, $real_table_name) !== false) {
+		if ($index_name != 'primary' && str_contains($index_name, $real_table_name)) {
 			$index_name = str_replace($real_table_name . '_', '', $index_name);
 		}
 
@@ -2253,7 +2253,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->prefix;
 		}
 
-		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false) {
+		if (isset(User::$me->{$matches[1]}) && str_contains($matches[1], 'query_')) {
 			return User::$me->{$matches[1]};
 		}
 
@@ -2448,7 +2448,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach (debug_backtrace() as $step) {
 			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class)) {
+			if (!str_contains($step['function'], 'query') && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && !str_starts_with($step['function'], '__') && (empty($step['class']) || $step['class'] != $this::class)) {
 				$log_message .= '<br>Function: ' . $step['function'];
 				break;
 			}

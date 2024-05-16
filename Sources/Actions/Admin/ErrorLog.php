@@ -232,7 +232,7 @@ class ErrorLog implements ActionInterface
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'url' => [
-					'html' => Utils::htmlspecialchars(strpos($row['url'], 'cron.php') === false ? (substr($row['url'], 0, 1) == '?' ? Config::$scripturl : '') . $row['url'] : $row['url']),
+					'html' => Utils::htmlspecialchars(!str_contains($row['url'], 'cron.php') ? (str_starts_with($row['url'], '?') ? Config::$scripturl : '') . $row['url'] : $row['url']),
 					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url'])),
 				],
 				'message' => [
@@ -250,7 +250,7 @@ class ErrorLog implements ActionInterface
 			if (!empty($row['file']) && !empty($row['line'])) {
 				// Eval'd files rarely point to the right location and cause
 				// havoc for linking, so don't link them.
-				$linkfile = strpos($row['file'], 'eval') !== false && strpos($row['file'], '?') !== false;
+				$linkfile = str_contains($row['file'], 'eval') && str_contains($row['file'], '?');
 
 				Utils::$context['errors'][$row['id_error']]['file'] = [
 					'file' => $row['file'],
@@ -316,7 +316,7 @@ class ErrorLog implements ActionInterface
 
 				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
 			} elseif ($this->filter['variable'] == 'url') {
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((substr($this->filter['value']['sql'], 0, 1) == '?' ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((str_starts_with($this->filter['value']['sql'], '?') ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
 			} elseif ($this->filter['variable'] == 'message') {
 				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
 
@@ -410,12 +410,12 @@ class ErrorLog implements ActionInterface
 		if (
 			$ext != 'php'
 			|| (
-				strpos($file, $real_board) === false
-				&& strpos($file, $real_source) === false
+				!str_contains($file, $real_board)
+				&& !str_contains($file, $real_source)
 			)
 			|| $basename == strtolower(basename(SMF_SETTINGS_FILE))
 			|| $basename == strtolower(basename(SMF_SETTINGS_BACKUP_FILE))
-			|| strpos($file, $real_cache) !== false
+			|| str_contains($file, $real_cache)
 			|| !is_readable($file)
 		) {
 			ErrorHandler::fatalLang('error_bad_file', true, [Utils::htmlspecialchars($file)]);

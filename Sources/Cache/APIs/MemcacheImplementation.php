@@ -57,7 +57,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		$this->servers = array_map(
 			function ($server) {
 				// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
-				if (strpos($server, '/') !== false) {
+				if (str_contains($server, '/')) {
 					return [$server, 0];
 				}
 

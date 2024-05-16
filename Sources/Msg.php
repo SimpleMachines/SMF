@@ -651,15 +651,15 @@ class Msg implements \ArrayAccess
 		$message = preg_replace('~\.{100,}~', '...', $message);
 
 		// Trim off trailing quotes - these often happen by accident.
-		while (substr($message, -7) == '[quote]') {
+		while (str_ends_with($message, '[quote]')) {
 			$message = substr($message, 0, -7);
 		}
 
-		while (substr($message, 0, 8) == '[/quote]') {
+		while (str_starts_with($message, '[/quote]')) {
 			$message = substr($message, 8);
 		}
 
-		if (strpos($message, '[cowsay') !== false && !User::$me->allowedTo('bbc_cowsay')) {
+		if (str_contains($message, '[cowsay') && !User::$me->allowedTo('bbc_cowsay')) {
 			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 		}
 
@@ -730,13 +730,13 @@ class Msg implements \ArrayAccess
 		self::fixTags($message);
 
 		// Replace /me.+?\n with [me=name]dsf[/me]\n.
-		if (strpos(User::$me->name, '[') !== false || strpos(User::$me->name, ']') !== false || strpos(User::$me->name, '\'') !== false || strpos(User::$me->name, '"') !== false) {
+		if (str_contains(User::$me->name, '[') || str_contains(User::$me->name, ']') || str_contains(User::$me->name, '\'') || str_contains(User::$me->name, '"')) {
 			$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=&quot;' . User::$me->name . '&quot;]$2[/me]', $message);
 		} else {
 			$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=' . User::$me->name . ']$2[/me]', $message);
 		}
 
-		if (!$previewing && strpos($message, '[html]') !== false) {
+		if (!$previewing && str_contains($message, '[html]')) {
 			if (User::$me->allowedTo('bbc_html')) {
 				$message = preg_replace_callback(
 					'~\[html\](.+?)\[/html\]~is',
@@ -748,7 +748,7 @@ class Msg implements \ArrayAccess
 			}
 			// We should edit them out, or else if an admin edits the message they will get shown...
 			else {
-				while (strpos($message, '[html]') !== false) {
+				while (str_contains($message, '[html]')) {
 					$message = preg_replace('~\[[/]?html\]~i', '', $message);
 				}
 			}
@@ -938,7 +938,7 @@ class Msg implements \ArrayAccess
 			$message,
 		);
 
-		if (strpos($message, '[cowsay') !== false && !User::$me->allowedTo('bbc_cowsay')) {
+		if (str_contains($message, '[cowsay') && !User::$me->allowedTo('bbc_cowsay')) {
 			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 		}
 
@@ -1107,19 +1107,19 @@ class Msg implements \ArrayAccess
 				$replace = 'about:invalid';
 			} elseif (!$found && $protocols[0] == 'http') {
 				// A path
-				if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//') {
+				if (str_starts_with($replace, '/') && !str_starts_with($replace, '//')) {
 					$replace = $domain_url . $replace;
 				}
 				// A query
-				elseif (substr($replace, 0, 1) == '?') {
+				elseif (str_starts_with($replace, '?')) {
 					$replace = Config::$scripturl . $replace;
 				}
 				// A fragment
-				elseif (substr($replace, 0, 1) == '#' && $embeddedUrl) {
+				elseif (str_starts_with($replace, '#') && $embeddedUrl) {
 					$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 					$this_tag = 'iurl';
 					$this_close = 'iurl';
-				} elseif (substr($replace, 0, 2) != '//' && empty($current_protocol)) {
+				} elseif (!str_starts_with($replace, '//') && empty($current_protocol)) {
 					$replace = $protocols[0] . '://' . $replace;
 				}
 			} elseif (!$found && $protocols[0] == 'ftp') {

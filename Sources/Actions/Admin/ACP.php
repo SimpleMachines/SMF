@@ -937,7 +937,7 @@ class ACP implements ActionInterface
 				// Finally allow overrides - and some final cleanups.
 				foreach ($config_var as $k => $v) {
 					if (!is_numeric($k)) {
-						if (substr($k, 0, 2) == 'on') {
+						if (str_starts_with($k, 'on')) {
 							Utils::$context['config_vars'][$config_var[1]]['javascript'] .= ' ' . $k . '="' . $v . '"';
 						} else {
 							Utils::$context['config_vars'][$config_var[1]][$k] = $v;
@@ -1052,13 +1052,13 @@ class ACP implements ActionInterface
 
 		// Fix the forum's URL if necessary.
 		if (isset($_POST['boardurl'])) {
-			if (substr($_POST['boardurl'], -10) == '/index.php') {
+			if (str_ends_with($_POST['boardurl'], '/index.php')) {
 				$_POST['boardurl'] = substr($_POST['boardurl'], 0, -10);
-			} elseif (substr($_POST['boardurl'], -1) == '/') {
+			} elseif (str_ends_with($_POST['boardurl'], '/')) {
 				$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 			}
 
-			if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://') {
+			if (!str_starts_with($_POST['boardurl'], 'http://') && !str_starts_with($_POST['boardurl'], 'file://') && !str_starts_with($_POST['boardurl'], 'https://')) {
 				$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
 			}
 
@@ -1562,7 +1562,7 @@ class ACP implements ActionInterface
 			$tasks_dir = dir(Config::$tasksdir);
 
 			while ($entry = $tasks_dir->read()) {
-				if (substr($entry, -4) === '.php' && !is_dir(Config::$tasksdir . '/' . $entry) && $entry !== 'index.php') {
+				if (str_ends_with($entry, '.php') && !is_dir(Config::$tasksdir . '/' . $entry) && $entry !== 'index.php') {
 					// Read the first 4k from the file.... enough for the header.
 					$fp = fopen(Config::$tasksdir . '/' . $entry, 'rb');
 					$header = fread($fp, 4096);
@@ -1592,7 +1592,7 @@ class ACP implements ActionInterface
 			$this_dir = dir($dirname);
 
 			while ($entry = $this_dir->read()) {
-				if (substr($entry, -12) == 'template.php' && !is_dir($dirname . '/' . $entry)) {
+				if (str_ends_with($entry, 'template.php') && !is_dir($dirname . '/' . $entry)) {
 					// Read the first 768 bytes from the file.... enough for the header.
 					$fp = fopen($dirname . '/' . $entry, 'rb');
 					$header = fread($fp, 768);
@@ -1615,7 +1615,7 @@ class ACP implements ActionInterface
 		$this_dir = dir($lang_dir);
 
 		while ($entry = $this_dir->read()) {
-			if (substr($entry, -4) == '.php' && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry)) {
+			if (str_ends_with($entry, '.php') && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry)) {
 				// Read the first 768 bytes from the file.... enough for the header.
 				$fp = fopen($lang_dir . '/' . $entry, 'rb');
 				$header = fread($fp, 768);

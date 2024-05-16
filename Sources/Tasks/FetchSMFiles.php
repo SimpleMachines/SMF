@@ -62,7 +62,7 @@ class FetchSMFiles extends ScheduledTask
 
 		foreach ($js_files as $id_file => $file) {
 			// Create the url
-			$server = empty($file['path']) || (substr($file['path'], 0, 7) != 'http://' && substr($file['path'], 0, 8) != 'https://') ? 'https://www.simplemachines.org' : '';
+			$server = empty($file['path']) || (!str_starts_with($file['path'], 'http://') && !str_starts_with($file['path'], 'https://')) ? 'https://www.simplemachines.org' : '';
 
 			$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 

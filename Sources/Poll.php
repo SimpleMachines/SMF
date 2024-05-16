@@ -748,12 +748,12 @@ class Poll implements \ArrayAccess
 				}
 			}
 
-			if (strpos($real_prop, '!') === 0) {
+			if (str_starts_with($real_prop, '!')) {
 				$real_prop = ltrim($real_prop, '!');
 				$value = !$value;
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
@@ -1630,7 +1630,7 @@ class Poll implements \ArrayAccess
 		}
 		// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
 		elseif ($this->guest_vote && User::$me->allowedTo('poll_vote')) {
-			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && strpos($_COOKIE['guest_poll_vote'], ';' . Topic::$info->id_poll . ',') !== false) {
+			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && str_contains($_COOKIE['guest_poll_vote'], ';' . Topic::$info->id_poll . ',')) {
 				// ;id,timestamp,[vote,vote...]; etc
 				$guestinfo = explode(';', $_COOKIE['guest_poll_vote']);
 

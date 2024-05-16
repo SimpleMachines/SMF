@@ -285,7 +285,7 @@ class IP implements \Stringable
 		$range = [[], []];
 
 		// No range.
-		if (strpos($addr, '-') === false) {
+		if (!str_contains($addr, '-')) {
 			$range[0] = $range[1] = explode($mode, $addr);
 
 			foreach ($range[0] as &$octet) {
@@ -319,7 +319,7 @@ class IP implements \Stringable
 				$octets = explode($mode, $addr);
 
 				foreach ($octets as $key => $octet) {
-					if (strpos($octet, '-') === false) {
+					if (!str_contains($octet, '-')) {
 						if (!$valid_low) {
 							$range[0][] = $octet;
 						}
@@ -467,7 +467,7 @@ class IP implements \Stringable
 			}
 
 			// Did host say it didn't find anything?
-			if (strpos($test, 'not found') !== false) {
+			if (str_contains($test, 'not found')) {
 				$host = '';
 			}
 			// Invalid server option?
@@ -484,7 +484,7 @@ class IP implements \Stringable
 		if (!isset($host) && (Sapi::isOS(Sapi::OS_WINDOWS) || Sapi::IsOS(Sapi::OS_MAC))) {
 			$test = (string) @shell_exec('nslookup -timeout=' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
 
-			if (strpos($test, 'Non-existent domain') !== false) {
+			if (str_contains($test, 'Non-existent domain')) {
 				$host = '';
 			} elseif (preg_match('~Name\s*(?:=|:)\s+([^\s]+)~i', $test, $match)) {
 				$host = $match[1];

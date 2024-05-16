@@ -60,7 +60,7 @@ class ViewQuery implements ActionInterface
 		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'hide') {
 			$_SESSION['view_queries'] = $_SESSION['view_queries'] == 1 ? 0 : 1;
 
-			if (strpos($_SESSION['old_url'], 'action=viewquery') !== false) {
+			if (str_contains($_SESSION['old_url'], 'action=viewquery')) {
 				Utils::redirectexit();
 			} else {
 				Utils::redirectexit($_SESSION['old_url']);

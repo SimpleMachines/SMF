@@ -563,7 +563,7 @@ class Memberlist implements ActionInterface
 
 			// Any custom fields to search for - these being tricky?
 			foreach ($_POST['fields'] as $field) {
-				if (substr($field, 0, 5) == 'cust_' && isset(Utils::$context['custom_search_fields'][$field])) {
+				if (str_starts_with($field, 'cust_') && isset(Utils::$context['custom_search_fields'][$field])) {
 					$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $field . ' ON (t' . $field . '.variable = {string:t' . $field . '} AND t' . $field . '.id_theme = 1 AND t' . $field . '.id_member = mem.id_member)';
 					$query_parameters['t' . $field] = $field;
 					$fields += [$customCount++ => 'COALESCE(t' . $field . '.value, {string:blank_string})'];

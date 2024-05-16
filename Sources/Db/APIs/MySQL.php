@@ -143,12 +143,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// One more query....
 		self::$count++;
 
-		if (!$this->disableQueryCheck && strpos($db_string, '\'') !== false && empty($db_values['security_override'])) {
+		if (!$this->disableQueryCheck && str_contains($db_string, '\'') && empty($db_values['security_override'])) {
 			$this->error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string)) {
+		if (str_contains($db_string, 'GROUP BY') && str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
@@ -158,7 +158,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if (empty($db_values['security_override']) && (!empty($db_values) || strpos($db_string, '{db_prefix}') !== false)) {
+		if (empty($db_values['security_override']) && (!empty($db_values) || str_contains($db_string, '{db_prefix}'))) {
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection;
 
@@ -207,13 +207,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
-			if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false) {
+			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
 				$fail = true;
 			}
 			// Trying to change passwords, slow us down, or something?
-			elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
+			elseif (str_contains($clean, 'sleep') && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
 				$fail = true;
-			} elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
+			} elseif (str_contains($clean, 'benchmark') && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
 				$fail = true;
 			}
 
@@ -247,7 +247,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$query_error = $this->error();
 
 			// Nothing's defined yet... just die with it.
-			if (empty(Utils::$context) || empty(Lang::$txt)) {
+			if (empty(Utils::$context) || empty(Lang::$txt) || defined('SMF_INSTALLING')) {
 				die($query_error);
 			}
 
@@ -281,7 +281,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
-		if (strpos($db_string, '{') !== false) {
+		if (str_contains($db_string, '{')) {
 			// This is needed by the callback function.
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection ?? $this->connection;
@@ -371,7 +371,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($columns as $columnName => $type) {
 			// Are we restricting the length?
-			if (strpos($type, 'string-') !== false) {
+			if (str_contains($type, 'string-')) {
 				$insertData .= sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $columnName);
 			} else {
 				$insertData .= sprintf('{%1$s:%2$s}, ', $type, $columnName);
@@ -783,7 +783,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->get_version();
 
-		$min_version = strpos(strtolower($this->version), 'mariadb') !== false ? '10.2.2' : '8.0.1';
+		$min_version = str_contains(strtolower($this->version), 'mariadb') ? '10.2.2' : '8.0.1';
 
 		$this->supports_cte = version_compare($this->version, $min_version, '>=');
 
@@ -881,7 +881,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// For the engine type, see if we can work out what it is.
-			if (strpos($l, 'ENGINE') !== false || strpos($l, 'TYPE') !== false) {
+			if (str_contains($l, 'ENGINE') || str_contains($l, 'TYPE')) {
 				// Extract the engine type.
 				preg_match('~(ENGINE|TYPE)=(\w+)(\sDEFAULT)?(\sCHARSET=(\w+))?(\sCOLLATE=(\w+))?~', $l, $match);
 
@@ -903,7 +903,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Skip everything but keys...
-			if (strpos($l, 'KEY') === false) {
+			if (!str_contains($l, 'KEY')) {
 				unset($create[$k]);
 			}
 		}
@@ -933,7 +933,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		);
 
 		if ($auto_inc != '') {
-			if (preg_match('~\`(.+?)\`\s~', $auto_inc, $match) != 0 && substr($auto_inc, -1, 1) == ',') {
+			if (preg_match('~\`(.+?)\`\s~', $auto_inc, $match) != 0 && str_ends_with($auto_inc, ',')) {
 				$auto_inc = substr($auto_inc, 0, -1);
 			}
 
@@ -1039,7 +1039,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				elseif ($row['Default'] !== null) {
 					// If this field is numeric the default needs no escaping.
 					$type = strtolower($row['Type']);
-					$isNumericColumn = strpos($type, 'int') !== false || strpos($type, 'bool') !== false || strpos($type, 'bit') !== false || strpos($type, 'float') !== false || strpos($type, 'double') !== false || strpos($type, 'decimal') !== false;
+					$isNumericColumn = str_contains($type, 'int') || str_contains($type, 'bool') || str_contains($type, 'bit') || str_contains($type, 'float') || str_contains($type, 'double') || str_contains($type, 'decimal');
 
 					$schema_create .= ' default ' . ($isNumericColumn ? $row['Default'] : '\'' . $this->escape_string($row['Default']) . '\'');
 				}
@@ -1656,7 +1656,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// No trailing commas!
-		if (substr($table_query, -1) == ',') {
+		if (str_ends_with($table_query, ',')) {
 			$table_query = substr($table_query, 0, -1);
 		}
 
@@ -1834,7 +1834,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$columns[] = $row['Field'];
 			} else {
 				// Is there an auto_increment?
-				$auto = strpos($row['Extra'], 'auto_increment') !== false ? true : false;
+				$auto = str_contains($row['Extra'], 'auto_increment') ? true : false;
 
 				// Can we split out the size?
 				if (preg_match('~(.+?)\s*\((\d+)\)(?:(?:\s*)?(unsigned))?~i', $row['Type'], $matches) === 1) {
@@ -2062,7 +2062,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$this->get_version();
-		$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
+		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
 
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
@@ -2164,7 +2164,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->prefix;
 		}
 
-		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false) {
+		if (isset(User::$me->{$matches[1]}) && str_contains($matches[1], 'query_')) {
 			return User::$me->{$matches[1]};
 		}
 
@@ -2361,7 +2361,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach (debug_backtrace() as $step) {
 			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class)) {
+			if (!str_contains($step['function'], 'query') && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && !str_starts_with($step['function'], '__') && (empty($step['class']) || $step['class'] != $this::class)) {
 				$log_message .= '<br>Function: ' . $step['function'];
 				break;
 			}

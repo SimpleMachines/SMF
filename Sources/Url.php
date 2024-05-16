@@ -269,7 +269,7 @@ class Url implements \Stringable
 	public function toUtf8(): self
 	{
 		// Bail out if we can be sure that it contains no international characters, encoded or otherwise.
-		if ($this->is_ascii && strpos($this->host ?? '', 'xn--') === false && strpos($this->url, '%') === false) {
+		if ($this->is_ascii && !str_contains($this->host ?? '', 'xn--') && !str_contains($this->url, '%')) {
 			return $this;
 		}
 
@@ -389,7 +389,7 @@ class Url implements \Stringable
 	{
 		$ascii_url = $this->is_ascii ? $this->url : (string) (clone $this)->toAscii();
 
-		if (strpos($ascii_url, '//') === 0) {
+		if (str_starts_with($ascii_url, '//')) {
 			$ascii_url = 'http:' . $ascii_url;
 		}
 

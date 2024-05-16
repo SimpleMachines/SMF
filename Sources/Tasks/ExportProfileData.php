@@ -1982,7 +1982,7 @@ class ExportProfileData extends BackgroundTask
 				],
 				$returnContext,
 			) . $hidden_orig_link . '</span>';
-		} elseif (strpos($currentAttachment['mime_type'], 'video/') === 0) {
+		} elseif (str_starts_with($currentAttachment['mime_type'], 'video/')) {
 			$returnContext = preg_replace(
 				[
 					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . '"~',
@@ -1996,7 +1996,7 @@ class ExportProfileData extends BackgroundTask
 				],
 				$returnContext,
 			);
-		} elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0) {
+		} elseif (str_starts_with($currentAttachment['mime_type'], 'audio/')) {
 			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
 				[
 					'opening_tag' => '~^<audio\b~',

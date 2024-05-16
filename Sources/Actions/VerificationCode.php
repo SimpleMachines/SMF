@@ -224,7 +224,7 @@ class VerificationCode implements ActionInterface
 
 		while ($entry = $font_dir->read()) {
 			if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1) {
-				if ($endian ^ (strpos($entry, '_end.gdf') === false)) {
+				if ($endian ^ (!str_contains($entry, '_end.gdf'))) {
 					$font_list[] = $entry;
 				}
 			} elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1) {
@@ -726,7 +726,7 @@ class VerificationCode implements ActionInterface
 		for ($i = 0; $i < count($chars); $i++) {
 			$sound_letter = implode('', file(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/' . $chars[$i] . '.' . $sound_language . '.wav'));
 
-			if (strpos($sound_letter, 'data') === false) {
+			if (!str_contains($sound_letter, 'data')) {
 				return false;
 			}
 

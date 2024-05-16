@@ -972,7 +972,7 @@ class Attachment implements \ArrayAccess
 			// Need to make space for the new files. So, bye bye.
 			if (!$ignore_temp) {
 				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-					if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
+					if (str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 						unlink($attachment['tmp_name']);
 					}
 				}

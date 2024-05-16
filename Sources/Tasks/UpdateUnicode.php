@@ -592,7 +592,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$file_contents['temp'] = file_get_contents($file_paths['temp']);
 
-			if (empty($file_contents['temp']) || strpos($file_contents['temp'], 'namespace SMF\\Unicode;') === false) {
+			if (empty($file_contents['temp']) || !str_contains($file_contents['temp'], 'namespace SMF\\Unicode;')) {
 				file_put_contents($file_paths['temp'], $this->smf_file_header());
 			} elseif (substr($file_contents['temp'], -2) === '?' . '>') {
 				file_put_contents($file_paths['temp'], substr($file_contents['temp'], 0, -2));
@@ -832,7 +832,7 @@ class UpdateUnicode extends BackgroundTask
 	private function deltree(string $dir_path): void
 	{
 		// For safety.
-		if (strpos($dir_path, $this->temp_dir) !== 0) {
+		if (!str_starts_with($dir_path, $this->temp_dir)) {
 			return;
 		}
 
@@ -879,7 +879,7 @@ class UpdateUnicode extends BackgroundTask
 		$keep_line = true;
 
 		foreach (explode("\n", $settings_defs[0]['text']) as $line) {
-			if (strpos($line, 'SMF') !== false || strpos($line, 'Simple Machines') !== false) {
+			if (str_contains($line, 'SMF') || str_contains($line, 'Simple Machines')) {
 				$keep_line = true;
 			}
 
@@ -1139,7 +1139,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1153,7 +1153,7 @@ class UpdateUnicode extends BackgroundTask
 				$this->derived_normalization_props[$fields[1]] = [];
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$entities = ['&#x' . $fields[0] . ';'];
 			} else {
 				$entities = [];
@@ -1238,7 +1238,7 @@ class UpdateUnicode extends BackgroundTask
 			$this->full_decomposition_maps['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim(strip_tags($fields[5]))) . ';';
 
 			// Just the canonical decompositions.
-			if (strpos($fields[5], '<') === false) {
+			if (!str_contains($fields[5], '<')) {
 				$this->funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', $fields[5]) . ';';
 			}
 		}
@@ -1267,7 +1267,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1305,7 +1305,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1345,7 +1345,7 @@ class UpdateUnicode extends BackgroundTask
 			$temp = [];
 
 			foreach ($this->full_decomposition_maps as $composed => $decomposed) {
-				$parts = strpos($decomposed, ' ') !== false ? explode(' ', $decomposed) : (array) $decomposed;
+				$parts = str_contains($decomposed, ' ') ? explode(' ', $decomposed) : (array) $decomposed;
 
 				foreach ($parts as $partnum => $hex) {
 					if (isset($this->full_decomposition_maps[$hex])) {
@@ -1376,7 +1376,7 @@ class UpdateUnicode extends BackgroundTask
 					$this->funcs['utf8_compose_maps']['data'][$decomposed] = $composed;
 				}
 
-				$parts = strpos($decomposed, ' ') !== false ? explode(' ', $decomposed) : (array) $decomposed;
+				$parts = str_contains($decomposed, ' ') ? explode(' ', $decomposed) : (array) $decomposed;
 
 				foreach ($parts as $partnum => $hex) {
 					if (isset($this->funcs['utf8_normalize_d_maps']['data'][$hex])) {
@@ -1463,7 +1463,7 @@ class UpdateUnicode extends BackgroundTask
 			foreach (file($local_file) as $line) {
 				$line = substr($line, 0, strcspn($line, '#'));
 
-				if (strpos($line, ';') === false) {
+				if (!str_contains($line, ';')) {
 					continue;
 				}
 
@@ -1486,7 +1486,7 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-				if (strpos($fields[0], '..') === false) {
+				if (!str_contains($fields[0], '..')) {
 					$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
 				} else {
 					list($start, $end) = explode('..', $fields[0]);
@@ -1525,7 +1525,7 @@ class UpdateUnicode extends BackgroundTask
 			foreach (file($local_file) as $line) {
 				$line = substr($line, 0, strcspn($line, '#'));
 
-				if (strpos($line, ';') === false) {
+				if (!str_contains($line, ';')) {
 					continue;
 				}
 
@@ -1613,7 +1613,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1639,7 +1639,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1653,7 +1653,7 @@ class UpdateUnicode extends BackgroundTask
 				continue;
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$this->char_data['&#x' . $fields[0] . ';']['scripts'][] = $fields[1];
 			} else {
 				list($start, $end) = explode('..', $fields[0]);
@@ -1678,7 +1678,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1696,7 +1696,7 @@ class UpdateUnicode extends BackgroundTask
 				}
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				foreach ($char_scripts as $char_script) {
 					$this->char_data['&#x' . $fields[0] . ';']['scripts'][] = $char_script;
 				}
@@ -1725,7 +1725,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1737,7 +1737,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$fields[1] = (float) $fields[1];
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$entity = '&#x' . $fields[0] . ';';
 
 				if (empty($this->char_data[$entity]['scripts'])) {
@@ -1799,7 +1799,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1899,7 +1899,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1978,7 +1978,7 @@ class UpdateUnicode extends BackgroundTask
 					if (!empty($this->funcs['utf8_combining_classes']['data'][$entity])) {
 						$this->funcs['utf8_regex_indic']['data'][$char_script]['Nonspacing_Combining_Mark'][] = $ord;
 					}
-				} elseif (substr($info['General_Category'], 0, 1) == 'L') {
+				} elseif (str_starts_with($info['General_Category'], 'L')) {
 					$this->funcs['utf8_regex_indic']['data'][$char_script]['Letter'][] = $ord;
 				}
 			}
@@ -2047,7 +2047,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -2057,7 +2057,7 @@ class UpdateUnicode extends BackgroundTask
 				$fields[$key] = preg_replace('/\b(0(?!\b))+/', '', trim($value));
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$entities = ['&#x' . $fields[0] . ';'];
 			} else {
 				$entities = [];
