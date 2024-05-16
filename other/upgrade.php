@@ -5757,4 +5757,4 @@ function upgradeGetColumnInfo($targetTable, $column): array
 	return [];
 }
 
-https://youtu.be/u9Dg-g7t2l4?>
+?>
