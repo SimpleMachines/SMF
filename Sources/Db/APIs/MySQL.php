@@ -255,7 +255,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			Utils::$context['error_title'] = Lang::$txt['database_error'];
 			$error_message = Lang::$txt['try_again'];
 
-			if (User::$me->allowedTo('admin_forum')) {
+			if (isset(User::$me) && User::$me->allowedTo('admin_forum')) {
 				$error_message = nl2br($query_error) . '<br>' . Lang::$txt['file'] . ': ' . $file . '<br>' . Lang::$txt['line'] . ': ' . $line;
 
 				if ($this->show_debug) {

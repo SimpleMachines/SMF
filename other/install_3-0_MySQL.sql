@@ -734,6 +734,7 @@ CREATE TABLE {$db_prefix}members (
 	timezone VARCHAR(80) NOT NULL DEFAULT '',
 	tfa_secret VARCHAR(24) NOT NULL DEFAULT '',
 	tfa_backup VARCHAR(64) NOT NULL DEFAULT '',
+	spoofdetector_name VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member),
 	INDEX idx_member_name (member_name),
 	INDEX idx_real_name (real_name),
@@ -748,7 +749,9 @@ CREATE TABLE {$db_prefix}members (
 	INDEX idx_warning (warning),
 	INDEX idx_total_time_logged_in (total_time_logged_in),
 	INDEX idx_id_theme (id_theme),
-	INDEX idx_active_real_name (is_activated, real_name)
+	INDEX idx_active_real_name (is_activated, real_name),
+	INDEX idx_spoofdetector_name (spoofdetector_name),
+	INDEX idx_spoofdetector_name_id (spoofdetector_name, id_member)
 ) ENGINE={$engine};
 
 #
@@ -1818,6 +1821,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('use_subdirectories_for_attachments', '1'),
 	('currentAttachmentUploadDir', 1),
 	('censorIgnoreCase', '1'),
+	('spoofdetector_censor', '1'),
 	('mostOnline', '1'),
 	('mostOnlineToday', '1'),
 	('mostDate', UNIX_TIMESTAMP()),

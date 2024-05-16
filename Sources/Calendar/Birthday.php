@@ -195,7 +195,7 @@ class Birthday extends Event
 					)',
 				];
 				$params = $query_customizations['params'] ?? [
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 					'no_birthdate' => '1004-01-01',
 					'year_low_low_date' => $low_date,
 					'year_low_high_date' => $year_low == $year_high ? $high_date : $year_low . '-12-31',
@@ -214,7 +214,7 @@ class Birthday extends Event
 					)',
 				];
 				$params = $query_customizations['params'] ?? [
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 					'no_birthdate' => '1004-01-01',
 					'year_low' => $year_low . '-%m-%d',
 					'year_high' => $year_high . '-%m-%d',

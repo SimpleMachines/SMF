@@ -13,11 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF;/**
+namespace SMF;
+
+/**
  * Contains functions that aid in debugging and are generally
  * useful to developers.
  */
-
 class DebugUtils
 {
 	/***********************
@@ -27,10 +28,9 @@ class DebugUtils
 	/**
 	 * Trims excess indentation off a string.
 	 *
-	 * Example: If both the first and the third lines are indeented
-	 * thrice but the second one has four indents, the returned string
-	 * will have three less indents, where only the second line has any
-	 * indentation left.
+	 * Example: If both the first and the third lines are indented thrice but
+	 * the second one has four indents, the returned string will have three
+	 * less indents, where only the second line has any indentation left.
 	 *
 	 * Ignores lines with no leading whitrespace.
 	 *
@@ -54,7 +54,7 @@ class DebugUtils
 	}
 
 	/**
-	 * Highlights a well-formecd JSON string as HTML.
+	 * Highlights a well-formed JSON string as HTML.
 	 *
 	 * @param string $string Well-formed JSON.
 	 * @return string Highlighted JSON.

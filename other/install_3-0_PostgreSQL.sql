@@ -1092,6 +1092,7 @@ CREATE TABLE {$db_prefix}members (
 	timezone varchar(80) NOT NULL DEFAULT '',
 	tfa_secret varchar(24) NOT NULL DEFAULT '',
 	tfa_backup varchar(64) NOT NULL DEFAULT '',
+	spoofdetector_name VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member)
 );
 
@@ -1116,6 +1117,8 @@ CREATE INDEX {$db_prefix}members_id_theme ON {$db_prefix}members (id_theme);
 CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_activated, real_name);
+CREATE INDEX {$db_prefix}idx_spoofdetector_name ON {$db_prefix}members (spoofdetector_name);
+CREATE INDEX {$db_prefix}idx_spoofdetector_name_id ON {$db_prefix}members (spoofdetector_name, id_member);
 
 #
 # Sequence for table `member_logins`
@@ -2368,6 +2371,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('use_subdirectories_for_attachments', '1'),
 	('currentAttachmentUploadDir', 1),
 	('censorIgnoreCase', '1'),
+	('spoofdetector_censor', '1'),
 	('mostOnline', '1'),
 	('mostOnlineToday', '1'),
 	('mostDate', {$current_time}),

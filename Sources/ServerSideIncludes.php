@@ -1121,7 +1121,7 @@ class ServerSideIncludes
 
 		$query_where_params = [
 			'selected_member' => $member_id,
-			'is_activated' => 1,
+			'is_activated' => User::ACTIVATED,
 		];
 
 		$result = self::queryMembers($where_query, $query_where_params, 1, 'id_member ASC', $output_method);
@@ -1134,7 +1134,7 @@ class ServerSideIncludes
 
 			$query_where_params = [
 				'selected_member' => $member_id,
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 			];
 
 			$result = self::queryMembers($where_query, $query_where_params, 1, 'id_member DESC', $output_method);
@@ -2507,7 +2507,7 @@ class ServerSideIncludes
 		list($pass, $user, $active) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return Security::hashVerifyPassword($user, $password, $pass) && $active == 1;
+		return Security::hashVerifyPassword($user, $password, $pass) && $active == User::ACTIVATED;
 	}
 
 	/**

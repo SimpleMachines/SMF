@@ -123,7 +123,9 @@ ADD COLUMN IF NOT EXISTS enabled smallint NOT NULL DEFAULT '1';
 
 ---# Set duration and rrule values and change end_date
 ---{
-if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings['smfVersion']))), '3.0.foo', '<'))
+$cols = Db::$db->list_columns('{db_prefix}calendar');
+
+if (in_array('end_time', $cols)) {
 	$updates = [];
 
 	$request = Db::$db->query(
@@ -177,6 +179,7 @@ if (version_compare(str_replace(' ', '.', trim(strtolower(@Config::$modSettings[
 			$changes
 		);
 	}
+}
 ---}
 ---#
 
@@ -202,6 +205,14 @@ $exists = Db::$db->num_rows($request) > 0;
 Db::$db->free_result($request);
 
 if ($exists) {
+	if (!isset(\SMF\User::$me)) {
+		\SMF\User::load();
+	}
+
+	if (empty(\SMF\User::$me->id) && !empty($upcontext['user']['id'])) {
+		\SMF\User::setMe($upcontext['user']['id']);
+	}
+
 	$known_holidays = [
 		'April Fools' => [
 			'title' => "April Fools' Day",
@@ -824,6 +835,21 @@ if ($exists) {
 
 ---# Dropping "calendar_holidays"
 DROP TABLE IF EXISTS {$db_prefix}calendar_holidays;
+---#
+
+/******************************************************************************/
+--- Adding SpoofDetector support
+/******************************************************************************/
+
+---# Adding a new column "spoofdetector_name" to members table
+ALTER TABLE {$db_prefix}members
+ADD COLUMN IF NOT EXISTS spoofdetector_name VARCHAR(255) NOT NULL DEFAULT '';
+CREATE INDEX {$db_prefix}idx_spoofdetector_name ON {$db_prefix}members (spoofdetector_name);
+CREATE INDEX {$db_prefix}idx_spoofdetector_name_id ON {$db_prefix}members (spoofdetector_name, id_member);
+---#
+
+---# Adding new "spoofdetector_censor" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector_censor', '1') ON CONFLICT DO NOTHING;
 ---#
 /******************************************************************************/
 --- Adding support for reactions
