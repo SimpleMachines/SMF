@@ -759,8 +759,8 @@ class Groups implements ActionInterface
 		}
 
 		// Apply manual sorting if the 'number of members' column is selected.
-		if (substr($sort, 0, 1) == '1' || strpos($sort, ', 1') !== false) {
-			$sort_ascending = strpos($sort, 'DESC') === false;
+		if (str_starts_with($sort, '1') || str_contains($sort, ', 1')) {
+			$sort_ascending = !str_contains($sort, 'DESC');
 
 			foreach ($groups as $group) {
 				$sort_array[] = $group->id_group != Group::MOD ? (int) $group->num_members : Group::GUEST;

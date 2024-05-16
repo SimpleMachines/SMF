@@ -272,7 +272,7 @@ class IssueWarning implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If we're not warning for a message skip any that are.
-			if (!Utils::$context['warning_for_message'] && strpos($row['body'], '{MESSAGE}') !== false) {
+			if (!Utils::$context['warning_for_message'] && str_contains($row['body'], '{MESSAGE}')) {
 				continue;
 			}
 

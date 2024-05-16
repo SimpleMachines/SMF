@@ -158,7 +158,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
 			foreach ($post_data as $name => $value) {
-				if (strpos($value, '@') === 0) {
+				if (str_starts_with($value, '@')) {
 					$post_data[$name] = null;
 				}
 			}

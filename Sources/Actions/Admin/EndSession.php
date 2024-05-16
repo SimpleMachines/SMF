@@ -40,7 +40,7 @@ class EndSession implements ActionInterface
 
 		// Clean any admin tokens as well.
 		foreach ($_SESSION['token'] as $key => $token) {
-			if (strpos($key, '-admin') !== false) {
+			if (str_contains($key, '-admin')) {
 				unset($_SESSION['token'][$key]);
 			}
 		}

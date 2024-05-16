@@ -193,7 +193,7 @@ class Utils
 		// In theory this is always UTF-8, but...
 		if (empty(self::$context['character_set'])) {
 			$charset = is_callable('mb_detect_encoding') ? mb_detect_encoding($string) : 'UTF-8';
-		} elseif (strpos(self::$context['character_set'], 'ISO-8859-') !== false && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
+		} elseif (str_contains(self::$context['character_set'], 'ISO-8859-') && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
 			$charset = 'ISO-8859-1';
 		} else {
 			$charset = self::$context['character_set'];
@@ -247,7 +247,7 @@ class Utils
 	 */
 	public static function sanitizeEntities(string $string, string $substitute = '&#65533;'): string
 	{
-		if (strpos($string, '&#') === false) {
+		if (!str_contains($string, '&#')) {
 			return $string;
 		}
 
@@ -700,7 +700,7 @@ class Utils
 	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
 	{
 		// Convert numeric entities to characters, except special ones.
-		if (strpos($string, '&#') !== false) {
+		if (str_contains($string, '&#')) {
 			$string = strtr(self::sanitizeEntities($string), [
 				'&#34;' => '&quot;',
 				'&#38;' => '&amp;',
@@ -1006,7 +1006,7 @@ class Utils
 
 		// The Unicode surrogate pair code points should never be present in our
 		// strings to begin with, but if any snuck in, they need to be removed.
-		if (!empty(Utils::$context['utf8']) && strpos($string, "\xED") !== false) {
+		if (!empty(Utils::$context['utf8']) && str_contains($string, "\xED")) {
 			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
 		}
 
@@ -1025,17 +1025,17 @@ class Utils
 		$q = !empty($as_json) ? '"' : '\'';
 
 		return $q . strtr($string, [
-			"\r" => '',
-			"\n" => '\\n',
-			"\t" => '\\t',
-			'\\' => '\\\\',
-			$q => addslashes($q),
-			'</' => '<' . $q . ' + ' . $q . '/',
-			'<script' => '<scri' . $q . '+' . $q . 'pt',
-			'<body>' => '<bo' . $q . '+' . $q . 'dy>',
-			'<a href' => '<a hr' . $q . '+' . $q . 'ef',
-			Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
-		]) . $q;
+				"\r" => '',
+				"\n" => '\\n',
+				"\t" => '\\t',
+				'\\' => '\\\\',
+				$q => addslashes($q),
+				'</' => '<' . $q . ' + ' . $q . '/',
+				'<script' => '<scri' . $q . '+' . $q . 'pt',
+				'<body>' => '<bo' . $q . '+' . $q . 'dy>',
+				'<a href' => '<a hr' . $q . '+' . $q . 'ef',
+				Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
+			]) . $q;
 	}
 
 	/**
@@ -1406,7 +1406,7 @@ class Utils
 		}
 		// The substrings 'O:' and 'C:' are used to serialize objects.
 		// If they are not present, then there are none in the serialized data.
-		elseif (strpos($str, 'O:') === false && strpos($str, 'C:') === false) {
+		elseif (!str_contains($str, 'O:') && !str_contains($str, 'C:')) {
 			$out = unserialize($str);
 		}
 		// It looks like there might be an object in the serialized data,
@@ -1807,7 +1807,7 @@ class Utils
 		}
 
 		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-		if (isset($file['mime_type'], $file['fileext']) && strpos($file['mime_type'], 'image/') !== 0 && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff'])) {
+		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff'])) {
 			header('Cache-Control: no-cache');
 		} else {
 			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
@@ -2002,7 +2002,7 @@ class Utils
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
-				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
+			Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
 			if (defined('SID') && SID != '') {
@@ -2210,11 +2210,11 @@ class Utils
 		}
 
 		// Found a method.
-		if (strpos($input, '::') !== false) {
+		if (str_contains($input, '::')) {
 			list($class, $method) = explode('::', $input);
 
 			// Check if a new object will be created.
-			if (strpos($method, '#') !== false) {
+			if (str_contains($method, '#')) {
 				if (!isset(Utils::$context['instances'])) {
 					Utils::$context['instances'] = [];
 				}
@@ -2310,7 +2310,7 @@ class Utils
 			return false;
 		}
 
-		if (strpos($string, '|') !== false) {
+		if (str_contains($string, '|')) {
 			list($file, $string) = explode('|', $string);
 
 			$path = strtr($file, [
@@ -2318,7 +2318,7 @@ class Utils
 				'$sourcedir' => Config::$sourcedir,
 			]);
 
-			if (strpos($path, '$themedir') !== false && class_exists(Theme::class, false) && !empty(Theme::$current->settings['theme_dir'])) {
+			if (str_contains($path, '$themedir') && class_exists(Theme::class, false) && !empty(Theme::$current->settings['theme_dir'])) {
 				$path = strtr($path, [
 					'$themedir' => Theme::$current->settings['theme_dir'],
 				]);

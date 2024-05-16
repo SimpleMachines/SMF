@@ -247,9 +247,9 @@ class RRule implements \Stringable
 					break;
 
 				case 'until':
-					if (strpos($value, 'TZID') !== false) {
+					if (str_contains($value, 'TZID')) {
 						foreach (explode(':', $value) as $value_part) {
-							if (strpos($value_part, 'TZID') !== false) {
+							if (str_contains($value_part, 'TZID')) {
 								$tzid = str_replace('TZID=', '', $value_part);
 
 								if (in_array($tzid, self::UTC_SYNONYMS)) {
@@ -269,12 +269,12 @@ class RRule implements \Stringable
 						$value = (new \DateTimeImmutable(substr($value, 0, -1), $tz))->setTimezone(new \DateTimeZone('UTC'));
 
 						$this->until_type = RecurrenceIterator::TYPE_ABSOLUTE;
-					} elseif (substr($value, -1) === 'Z') {
+					} elseif (str_ends_with($value, 'Z')) {
 						$value = new \DateTimeImmutable(substr($value, 0, -1), new \DateTimeZone('UTC'));
 
 						$this->until_type = RecurrenceIterator::TYPE_ABSOLUTE;
 					} else {
-						$this->until_type = strpos($value, 'T') !== false ? RecurrenceIterator::TYPE_FLOATING : RecurrenceIterator::TYPE_ALLDAY;
+						$this->until_type = str_contains($value, 'T') ? RecurrenceIterator::TYPE_FLOATING : RecurrenceIterator::TYPE_ALLDAY;
 
 						$value = new \DateTime($value);
 					}

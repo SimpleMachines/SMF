@@ -65,7 +65,7 @@ class RemoveTempAttachments extends ScheduledTask
 					continue;
 				}
 
-				if (strpos($file, 'post_tmp_') !== false) {
+				if (str_contains($file, 'post_tmp_')) {
 					// Temp file is more than 5 hours old!
 					if (filemtime($attach_dir . '/' . $file) < time() - 18000) {
 						@unlink($attach_dir . '/' . $file);

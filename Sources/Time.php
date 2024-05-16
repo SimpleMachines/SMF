@@ -1124,7 +1124,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), ['%' => ''])) . ']~u', $format);
 
 		foreach ($format_parts as $p => $f) {
-			if (strpos($f, '%') === false) {
+			if (!str_contains($f, '%')) {
 				unset($format_parts[$p]);
 			}
 		}

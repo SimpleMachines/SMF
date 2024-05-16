@@ -177,12 +177,12 @@ trait DynamicPropertyHelper
 				return;
 			}
 
-			if (strpos($real_prop, '!') === 0) {
+			if (str_starts_with($real_prop, '!')) {
 				$real_prop = ltrim($real_prop, '!');
 				$value = !$value;
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				if (is_object($this->{$real_prop[0]})) {
@@ -215,11 +215,11 @@ trait DynamicPropertyHelper
 				return call_user_func($real_prop, $this);
 			}
 
-			if (($not = strpos($real_prop, '!') === 0)) {
+			if (($not = str_starts_with($real_prop, '!'))) {
 				$real_prop = ltrim($real_prop, '!');
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				if (is_object($this->{$real_prop[0]})) {
@@ -256,7 +256,7 @@ trait DynamicPropertyHelper
 				return call_user_func($real_prop, $this) !== null;
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				if (is_object($this->{$real_prop[0]})) {

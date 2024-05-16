@@ -79,7 +79,7 @@ else {
 	if (!is_numeric($new_version[1])) {
 		$new_version[1] = str_replace(['-', 'ALPHA', 'BETA'], [' ', 'Alpha', 'Beta'], strtoupper($new_version[1]));
 
-		$new_version[1] .= (strpos($new_version[1], 'RC') !== false ? '' : ' ') . $new_version[2];
+		$new_version[1] .= (str_contains($new_version[1], 'RC') ? '' : ' ') . $new_version[2];
 
 		unset($new_version[2]);
 	}
@@ -126,7 +126,7 @@ $lang_pattern = '~// Version: \K' . $version_regex . '~';
 $files = array_unique(array_merge($always_update, array_filter(
 	explode("\n", shell_exec('git diff --name-only v' . $prev_version . '...HEAD')),
 	function ($filename) {
-		return file_exists($filename) && strpos(mime_content_type($filename), 'text/') === 0;
+		return file_exists($filename) && str_starts_with(mime_content_type($filename), 'text/');
 	},
 )));
 

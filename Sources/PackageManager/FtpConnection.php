@@ -83,15 +83,15 @@ class FtpConnection
 		#[\SensitiveParameter]
 		string $ftp_pass = 'ftpclient@simplemachines.org',
 	): void {
-		if (strpos($ftp_server, 'ftp://') === 0) {
+		if (str_starts_with($ftp_server, 'ftp://')) {
 			$ftp_server = substr($ftp_server, 6);
-		} elseif (strpos($ftp_server, 'ftps://') === 0) {
+		} elseif (str_starts_with($ftp_server, 'ftps://')) {
 			$ftp_server = 'ssl://' . substr($ftp_server, 7);
 		}
 
-		if (strpos($ftp_server, 'http://') === 0) {
+		if (str_starts_with($ftp_server, 'http://')) {
 			$ftp_server = substr($ftp_server, 7);
-		} elseif (strpos($ftp_server, 'https://') === 0) {
+		} elseif (str_starts_with($ftp_server, 'https://')) {
 			$ftp_server = substr($ftp_server, 8);
 		}
 		$ftp_server = strtr($ftp_server, ['/' => '', ':' => '', '@' => '']);
@@ -149,7 +149,7 @@ class FtpConnection
 		}
 
 		// No slash on the end, please...
-		if ($ftp_path !== '/' && substr($ftp_path, -1) === '/') {
+		if ($ftp_path !== '/' && str_ends_with($ftp_path, '/')) {
 			$ftp_path = substr($ftp_path, 0, -1);
 		}
 
@@ -250,7 +250,7 @@ class FtpConnection
 
 		do {
 			$this->last_message = fgets($this->connection, 1024);
-		} while ((strlen($this->last_message) < 4 || strpos($this->last_message, ' ') === 0 || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < 5);
+		} while ((strlen($this->last_message) < 4 || str_starts_with($this->last_message, ' ') || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < 5);
 
 		// Was the desired response returned?
 		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
@@ -279,7 +279,7 @@ class FtpConnection
 		} while (strpos($response, ' ', 3) !== 3 && time() - $time < 5);
 
 		// If it's not 227, we weren't given an IP and port, which means it failed.
-		if (strpos($response, '227 ') !== 0) {
+		if (!str_starts_with($response, '227 ')) {
 			$this->error = 'bad_response';
 
 			return false;
@@ -432,7 +432,7 @@ class FtpConnection
 				return $listing[$i];
 			}
 
-			if (substr($file, -1) == '*' && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1)) {
+			if (str_ends_with($file, '*') && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1)) {
 				return $listing[$i];
 			}
 
@@ -486,14 +486,14 @@ class FtpConnection
 
 				$path = strtr($_SERVER['DOCUMENT_ROOT'], ['/home/' . $match[1] . '/' => '', '/home2/' . $match[1] . '/' => '']);
 
-				if (substr($path, -1) == '/') {
+				if (str_ends_with($path, '/')) {
 					$path = substr($path, 0, -1);
 				}
 
 				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1) {
 					$path .= dirname($_SERVER['PHP_SELF']);
 				}
-			} elseif (strpos($filesystem_path, '/var/www/') === 0) {
+			} elseif (str_starts_with($filesystem_path, '/var/www/')) {
 				$path = substr($filesystem_path, 8);
 			} else {
 				$path = strtr(strtr($filesystem_path, ['\\' => '/']), [$_SERVER['DOCUMENT_ROOT'] => '']);

@@ -300,8 +300,8 @@ class UnreadReplies extends Unread
 			'',
 			'SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (strpos($_REQUEST['sort'], 'ms.') === false ? '' : '
-				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (strpos($_REQUEST['sort'], 'mems.') === false ? '' : '
+				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (!str_contains($_REQUEST['sort'], 'ms.') ? '' : '
+				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (!str_contains($_REQUEST['sort'], 'mems.') ? '' : '
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)') . '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})

@@ -1854,7 +1854,7 @@ class Feed implements ActionInterface
 				],
 			];
 
-			if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004') {
+			if (!empty($profile['birth_date']) && !str_starts_with($profile['birth_date'], '0000') && !str_starts_with($profile['birth_date'], '1004')) {
 				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 
 				$datearray = getdate(time());
@@ -3084,7 +3084,7 @@ class Feed implements ActionInterface
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 				}
 				// A string with returns in it.... show this as a multiline element.
-				elseif (strpos($val, "\n") !== false) {
+				elseif (str_contains($val, "\n")) {
 					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val)) . "\n" . str_repeat("\t", $i);
 				}
 				// A simple string.
@@ -3107,7 +3107,7 @@ class Feed implements ActionInterface
 	 */
 	protected static function fixPossibleUrl(string $val): string
 	{
-		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl) {
+		if (!str_starts_with($val, Config::$scripturl)) {
 			return $val;
 		}
 

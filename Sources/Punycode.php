@@ -303,7 +303,7 @@ class Punycode
 		$parts = explode('.', $preprocessed);
 
 		foreach ($parts as $p => &$part) {
-			if (strpos($part, static::PREFIX) === 0) {
+			if (str_starts_with($part, static::PREFIX)) {
 				$part = substr($part, strlen(static::PREFIX));
 				$part = $this->decodePart($part);
 
@@ -570,7 +570,7 @@ class Punycode
 			}
 		}
 
-		if (strpos($label, '-') === 0) {
+		if (str_starts_with($label, '-')) {
 			return self::IDNA_ERROR_LEADING_HYPHEN;
 		}
 

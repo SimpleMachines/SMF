@@ -378,7 +378,7 @@ class Autolinker
 		static $no_autolink_regex;
 
 		// An &nbsp; right after a URL can break the autolinker
-		if (strpos($string, '&nbsp;') !== false) {
+		if (str_contains($string, '&nbsp;')) {
 			$string = strtr($string, ['&nbsp;' => str_repeat(html_entity_decode('&nbsp;', 0, $this->encoding), 3)]);
 		}
 
@@ -468,7 +468,7 @@ class Autolinker
 	public function detectEmails(string $string, bool $plaintext_only = false): array
 	{
 		// An &nbsp; right after a email address can break the autolinker
-		if (strpos($string, '&nbsp;') !== false) {
+		if (str_contains($string, '&nbsp;')) {
 			$string = strtr($string, ['&nbsp;' => str_repeat(html_entity_decode('&nbsp;', 0, $this->encoding), 3)]);
 		}
 
@@ -907,7 +907,7 @@ class Autolinker
 			}
 
 			foreach ([$pair_opener, $pair_closer] as $bracket_quote) {
-				if (strpos($bracket_quote, '&') === false) {
+				if (!str_contains($bracket_quote, '&')) {
 					$bracket_quote_chars .= $bracket_quote;
 				} else {
 					$bracket_quote_entities[] = substr($bracket_quote, 1);

@@ -81,7 +81,7 @@ class WeeklyMaintenance extends ScheduledTask
 		);
 
 		// Ok should we prune the logs?
-		if (!empty(Config::$modSettings['pruningOptions']) && strpos(Config::$modSettings['pruningOptions'], ',') !== false) {
+		if (!empty(Config::$modSettings['pruningOptions']) && str_contains(Config::$modSettings['pruningOptions'], ',')) {
 			list(Config::$modSettings['pruneErrorLog'], Config::$modSettings['pruneModLog'], Config::$modSettings['pruneBanLog'], Config::$modSettings['pruneReportLog'], Config::$modSettings['pruneScheduledTaskLog'], Config::$modSettings['pruneSpiderHitLog']) = explode(',', Config::$modSettings['pruningOptions']);
 
 			if (!empty(Config::$modSettings['pruneErrorLog'])) {

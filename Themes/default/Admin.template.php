@@ -1306,7 +1306,7 @@ function template_edit_profile_field()
 												<option value="nohtml"', Utils::$context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_nohtml'], '</option>
 												<option value="email"', Utils::$context['field']['mask'] == 'email' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_email'], '</option>
 												<option value="number"', Utils::$context['field']['mask'] == 'number' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_number'], '</option>
-												<option value="regex"', strpos(Utils::$context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_regex'], '</option>
+												<option value="regex"', str_starts_with(Utils::$context['field']['mask'], 'regex') ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_regex'], '</option>
 											</select>
 											<br>
 											<span id="regex_div">

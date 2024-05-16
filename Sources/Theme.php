@@ -1789,7 +1789,7 @@ class Theme
 			foreach (['css', 'js'] as $type) {
 				foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/*.' . $type) as $filename) {
 					// We want to find the most recent mtime of non-minified files
-					if (strpos(pathinfo($filename, PATHINFO_BASENAME), 'minified') === false) {
+					if (!str_contains(pathinfo($filename, PATHINFO_BASENAME), 'minified')) {
 						$most_recent = max($most_recent, (int) @filemtime($filename));
 					}
 					// Try to delete minified files. Add them to our error list if that fails.
@@ -2310,7 +2310,7 @@ class Theme
 
 				// If this isn't set yet, is a theme option, or is not the default theme..
 				if (!isset($themeData[$row['id_member']][$row['variable']]) || $row['id_theme'] != '1') {
-					$themeData[$row['id_member']][$row['variable']] = substr($row['variable'], 0, 5) == 'show_' ? $row['value'] == '1' : $row['value'];
+					$themeData[$row['id_member']][$row['variable']] = str_starts_with($row['variable'], 'show_') ? $row['value'] == '1' : $row['value'];
 				}
 			}
 			Db::$db->free_result($result);
@@ -3039,7 +3039,7 @@ class Theme
 					$last_line = '';
 
 					for ($line2 = $line - 1; $line2 > 1; $line2--) {
-						if (strpos($data2[$line2], '<') !== false) {
+						if (str_contains($data2[$line2], '<')) {
 							if (preg_match('~(<[^/>]+>)[^<]*$~', $data2[$line2], $color_match) != 0) {
 								$last_line = $color_match[1];
 							}
@@ -3056,13 +3056,13 @@ class Theme
 						echo '<span style="color: black;">', sprintf('%' . strlen($n) . 's', $line), ':</span> ';
 
 						if (isset($data2[$line]) && $data2[$line] != '') {
-							echo substr($data2[$line], 0, 2) == '</' ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
+							echo str_starts_with($data2[$line], '</') ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
 						}
 
 						if (isset($data2[$line]) && preg_match('~(<[^/>]+>)[^<]*$~', $data2[$line], $color_match) != 0) {
 							$last_line = $color_match[1];
 							echo '</', substr($last_line, 1, 4), '>';
-						} elseif ($last_line != '' && strpos($data2[$line], '<') !== false) {
+						} elseif ($last_line != '' && str_contains($data2[$line], '<')) {
 							$last_line = '';
 						} elseif ($last_line != '' && $data2[$line] != '') {
 							echo '</', substr($last_line, 1, 4), '>';

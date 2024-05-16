@@ -73,7 +73,7 @@ class SubsPackage
 	 */
 	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
-		$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
+		$data = str_starts_with($gzfilename, 'http://') || str_starts_with($gzfilename, 'https://')
 			? WebFetchApi::fetch($gzfilename)
 			: file_get_contents($gzfilename);
 
@@ -195,7 +195,7 @@ class SubsPackage
 				}
 			}
 
-			if ($current['type'] == '5' && substr($current['filename'], -1) != '/') {
+			if ($current['type'] == '5' && !str_ends_with($current['filename'], '/')) {
 				$current['filename'] .= '/';
 			}
 
@@ -218,15 +218,15 @@ class SubsPackage
 			$offset += $size;
 
 			// If hunting for a file in subdirectories, pass to subsequent write test...
-			if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/')) {
+			if ($single_file && $destination !== null && (str_starts_with($destination, '*/'))) {
 				$write_this = true;
 			}
 			// Not a directory and doesn't exist already...
-			elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
+			elseif (!str_ends_with($current['filename'], '/') && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
 				$write_this = true;
 			}
 			// File exists... check if it is newer.
-			elseif (substr($current['filename'], -1, 1) != '/') {
+			elseif (!str_ends_with($current['filename'], '/')) {
 				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
 			}
 			// Folder... create.
@@ -243,7 +243,7 @@ class SubsPackage
 			}
 
 			if ($write_this && $destination !== null) {
-				if (strpos($current['filename'], '/') !== false && !$single_file) {
+				if (str_contains($current['filename'], '/') && !$single_file) {
 					self::mktree($destination . '/' . dirname($current['filename']), 0777);
 				}
 
@@ -265,7 +265,7 @@ class SubsPackage
 				self::package_put_contents($destination . '/' . $current['filename'], $current['data']);
 			}
 
-			if (substr($current['filename'], -1, 1) != '/') {
+			if (!str_ends_with($current['filename'], '/')) {
 				$return[] = [
 					'filename' => $current['filename'],
 					'md5' => md5($current['data']),
@@ -304,7 +304,7 @@ class SubsPackage
 	{
 		umask(0);
 
-		if ($destination !== null && (substr($destination, 0, 2) != '*/') && !file_exists($destination) && !$single_file) {
+		if ($destination !== null && (!str_starts_with($destination, '*/')) && !file_exists($destination) && !$single_file) {
 			self::mktree($destination, 0777);
 		}
 
@@ -344,7 +344,7 @@ class SubsPackage
 			);
 
 			$file_info['filename'] = substr($data, $header['offset'] + 30, $file_info['filename_len']);
-			$is_file = substr($file_info['filename'], -1) != '/';
+			$is_file = !str_ends_with($file_info['filename'], '/');
 
 			/*
 			 * If the bit at offset 3 (0x08) of the general-purpose flags field
@@ -420,7 +420,7 @@ class SubsPackage
 					continue;
 				}
 
-				if (!$single_file && strpos($file_info['filename'], '/') !== false) {
+				if (!$single_file && str_contains($file_info['filename'], '/')) {
 					self::mktree($destination . '/' . dirname($file_info['filename']), 0777);
 				}
 
@@ -537,7 +537,7 @@ class SubsPackage
 	public static function getPackageInfo(string $gzfilename): array|string
 	{
 		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
-		if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false) {
+		if (str_contains($gzfilename, 'http://') || str_contains($gzfilename, 'https://')) {
 			$packageInfo = self::read_tgz_data($gzfilename, 'package-info.xml', true);
 		} else {
 			if (!file_exists(Config::$packagesdir . '/' . $gzfilename)) {
@@ -746,7 +746,7 @@ class SubsPackage
 				if (!in_array($_POST['ftp_path'], ['', '/'])) {
 					$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
 
-					if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || substr($_POST['ftp_path'], 0, 1) == '/')) {
+					if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || str_starts_with($_POST['ftp_path'], '/'))) {
 						$ftp_root = substr($ftp_root, 0, -1);
 					}
 				} else {
@@ -1046,7 +1046,7 @@ class SubsPackage
 			if (!in_array($_POST['ftp_path'], ['', '/'])) {
 				$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
 
-				if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/')) {
+				if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/')) {
 					$ftp_root = substr($ftp_root, 0, -1);
 				}
 			} else {
@@ -1234,10 +1234,10 @@ class SubsPackage
 				// quick check of any supplied url
 				$url = $action->exists('@url') ? $action->fetch('@url') : '';
 
-				if (strlen(trim($url)) > 0 && substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://') {
+				if (strlen(trim($url)) > 0 && !str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
 					$url = 'http://' . $url;
 
-					if (strlen($url) < 8 || (substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://')) {
+					if (strlen($url) < 8 || (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://'))) {
 						$url = '';
 					}
 				}
@@ -1278,7 +1278,7 @@ class SubsPackage
 				];
 
 				// If there is a destination, make sure it makes sense.
-				if (substr($actionType, 0, 6) != 'remove') {
+				if (!str_starts_with($actionType, 'remove')) {
 					$this_action['unparsed_destination'] = $action->fetch('@destination');
 					$this_action['destination'] = self::parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
 				} else {
@@ -1287,7 +1287,7 @@ class SubsPackage
 				}
 
 				// If we're moving or requiring (copying) a file.
-				if (substr($actionType, 0, 4) == 'move' || substr($actionType, 0, 7) == 'require') {
+				if (str_starts_with($actionType, 'move') || str_starts_with($actionType, 'require')) {
 					if ($action->exists('@from')) {
 						$this_action['source'] = self::parse_path($action->fetch('@from'));
 					} else {
@@ -1544,12 +1544,12 @@ class SubsPackage
 		// Loop through each version, save the highest we can find
 		foreach ($versions as $for) {
 			// Adjust for those wild cards
-			if (strpos($for, '*') !== false) {
+			if (str_contains($for, '*')) {
 				$for = str_replace('*', '0dev0', $for) . '-' . str_replace('*', '999', $for);
 			}
 
 			// If we have a range, grab the lower value, done this way so it looks normal-er to the user e.g. 2.0 vs 2.0.99
-			if (strpos($for, '-') !== false) {
+			if (str_contains($for, '-')) {
 				list($for, $higher) = explode('-', $for);
 			}
 
@@ -1586,12 +1586,12 @@ class SubsPackage
 		// Loop through each version.
 		foreach ($versions as $for) {
 			// Wild card spotted?
-			if (strpos($for, '*') !== false) {
+			if (str_contains($for, '*')) {
 				$for = str_replace('*', '0dev0', $for) . '-' . str_replace('*', '999', $for);
 			}
 
 			// Do we have a range?
-			if (strpos($for, '-') !== false) {
+			if (str_contains($for, '-')) {
 				list($lower, $upper) = explode('-', $for);
 
 				// Compare the version against lower and upper bounds.
@@ -1985,11 +1985,11 @@ class SubsPackage
 				// If this filename is relative, if so take a guess at what it should be.
 				$real_filename = $filename;
 
-				if (strpos($filename, 'Themes') === 0) {
+				if (str_starts_with($filename, 'Themes')) {
 					$real_filename = Config::$boarddir . '/' . $filename;
 				}
 
-				if (strpos($real_filename, $theme['theme_dir']) === 0) {
+				if (str_starts_with($real_filename, $theme['theme_dir'])) {
 					$template_changes[$id][] = substr($real_filename, strlen($theme['theme_dir']) + 1);
 					$long_changes[$id][] = $filename;
 				}
@@ -2371,11 +2371,11 @@ class SubsPackage
 			// Now, is this a template file, and if so, which?
 			foreach ($theme_paths as $id => $theme) {
 				// If this filename is relative, if so take a guess at what it should be.
-				if (strpos($filename, 'Themes') === 0) {
+				if (str_starts_with($filename, 'Themes')) {
 					$filename = Config::$boarddir . '/' . $filename;
 				}
 
-				if (strpos($filename, $theme['theme_dir']) === 0) {
+				if (str_starts_with($filename, $theme['theme_dir'])) {
 					$template_changes[$id][$counter] = substr($filename, strlen($theme['theme_dir']) + 1);
 				}
 			}
@@ -2534,7 +2534,7 @@ class SubsPackage
 					$working_search = $temp;
 				}
 
-				if (strpos($working_data, $working_search) !== false) {
+				if (str_contains($working_data, $working_search)) {
 					$working_data = str_replace($working_search, $replace_with, $working_data);
 
 					$actions[] = [
@@ -2631,7 +2631,7 @@ class SubsPackage
 			}
 		}
 
-		if (strpos($filename, 'Packages/') !== false || self::$package_cache === false || !isset(self::$package_cache[$filename])) {
+		if (str_contains($filename, 'Packages/') || self::$package_cache === false || !isset(self::$package_cache[$filename])) {
 			return file_get_contents($filename);
 		}
 
@@ -2676,7 +2676,7 @@ class SubsPackage
 
 		self::package_chmod($filename);
 
-		if (!$testing && (strpos($filename, 'Packages/') !== false || self::$package_cache === false)) {
+		if (!$testing && (str_contains($filename, 'Packages/') || self::$package_cache === false)) {
 			$fp = @fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
 
 			// We should show an error message or attempt a rollback, no?
@@ -2686,7 +2686,7 @@ class SubsPackage
 
 			fwrite($fp, $data);
 			fclose($fp);
-		} elseif (strpos($filename, 'Packages/') !== false || self::$package_cache === false) {
+		} elseif (str_contains($filename, 'Packages/') || self::$package_cache === false) {
 			return strlen($data);
 		} else {
 			self::$package_cache[$filename] = $data;
@@ -3025,7 +3025,7 @@ class SubsPackage
 						return false;
 					}
 
-					if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false) {
+					if (!str_contains($errstr, 'PharData::__construct(): open_basedir') && !str_contains($errstr, 'PharData::compress(): open_basedir')) {
 						ErrorHandler::log($errstr, 'general', $errfile, $errline);
 					}
 
@@ -3191,7 +3191,7 @@ class SubsPackage
 		$isLikelyPath = false;
 
 		foreach (Utils::$context['look_for'] as $possiblePath) {
-			if (substr($possiblePath, 0, strlen($path)) == $path) {
+			if (str_starts_with($possiblePath, $path)) {
 				$isLikelyPath = true;
 			}
 		}
@@ -3225,7 +3225,7 @@ class SubsPackage
 			// Some kind of file?
 			if (is_file($path . '/' . $entry)) {
 				// Are we listing PHP files in this directory?
-				if ($save_data && !empty($data['list_contents']) && substr($entry, -4) == '.php') {
+				if ($save_data && !empty($data['list_contents']) && str_ends_with($entry, '.php')) {
 					$foundData['files'][$entry] = true;
 				}
 				// A file we were looking for.

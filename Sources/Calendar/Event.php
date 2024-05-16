@@ -1940,7 +1940,7 @@ class Event implements \ArrayAccess
 				continue;
 			}
 
-			if (strpos($line, 'DTSTART') === 0) {
+			if (str_starts_with($line, 'DTSTART')) {
 				if (preg_match('/;TZID=([^:;]+)[^:]*:(\d+T\d+)/', $line, $matches)) {
 					$props['start'] = new Time($matches[2] . ' ' . $matches[1]);
 					$props['allday'] = false;
@@ -1953,7 +1953,7 @@ class Event implements \ArrayAccess
 				}
 			}
 
-			if (strpos($line, 'DTEND') === 0) {
+			if (str_starts_with($line, 'DTEND')) {
 				if (preg_match('/;TZID=([^:;]+)[^:]*:(\d+T\d+)/', $line, $matches)) {
 					$end = new Time($matches[2] . ' ' . $matches[1]);
 				} elseif (preg_match('/:(\d+T\d+)(Z?)/', $line, $matches)) {
@@ -1965,31 +1965,31 @@ class Event implements \ArrayAccess
 				$props['duration'] = TimeInterval::createFromDateInterval($props['start']->diff($end));
 			}
 
-			if (strpos($line, 'DURATION') === 0) {
+			if (str_starts_with($line, 'DURATION')) {
 				$props['duration'] = new TimeInterval(substr($line, strpos($line, ':') + 1));
 			}
 
-			if (!isset($type) && strpos($line, 'CATEGORIES') === 0) {
+			if (!isset($type) && str_starts_with($line, 'CATEGORIES')) {
 				$props['type'] = str_contains(strtolower($line), 'holiday') ? self::TYPE_HOLIDAY : self::TYPE_EVENT;
 			}
 
-			if (strpos($line, 'SUMMARY') === 0) {
+			if (str_starts_with($line, 'SUMMARY')) {
 				$props['title'] = substr($line, strpos($line, ':') + 1);
 			}
 
-			if (strpos($line, 'LOCATION') === 0) {
+			if (str_starts_with($line, 'LOCATION')) {
 				$props['location'] = substr($line, strpos($line, ':') + 1);
 			}
 
-			if (strpos($line, 'RRULE') === 0) {
+			if (str_starts_with($line, 'RRULE')) {
 				$props['rrule'] = substr($line, strpos($line, ':') + 1);
 			}
 
-			if (strpos($line, 'RDATE') === 0) {
+			if (str_starts_with($line, 'RDATE')) {
 				$props['rdates'] = explode(',', substr($line, strpos($line, ':') + 1));
 			}
 
-			if (strpos($line, 'EXDATE') === 0) {
+			if (str_starts_with($line, 'EXDATE')) {
 				$props['exdates'] = explode(',', substr($line, strpos($line, ':') + 1));
 			}
 		}

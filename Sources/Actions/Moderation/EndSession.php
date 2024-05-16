@@ -41,7 +41,7 @@ class EndSession implements ActionInterface
 
 		// Clean any moderator tokens as well.
 		foreach ($_SESSION['token'] as $key => $token) {
-			if (strpos($key, '-mod') !== false) {
+			if (str_contains($key, '-mod')) {
 				unset($_SESSION['token'][$key]);
 			}
 		}
