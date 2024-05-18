@@ -997,6 +997,7 @@ CREATE TABLE {$db_prefix}qanda (
 CREATE TABLE {$db_prefix}reactions (
 	id_reaction SMALLINT UNSIGNED AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL DEFAULT '',
+	order SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_reaction)
 ) ENGINE={$engine};
 

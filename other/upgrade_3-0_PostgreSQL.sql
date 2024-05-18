@@ -919,7 +919,8 @@ if(!in_array($cols, 'reactions'))
     upgrade_query("
         CREATE TABLE {db_prefix}reactions (
             id_reaction smallint default nextval('{db_prefix}reactions_seq'),
-            name varchar(255) not null default ''
+            name varchar(255) not null default '',
+            order smallint default '0',
         )
     ");
     // Default reaction is "like"

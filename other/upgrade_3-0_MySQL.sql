@@ -1037,7 +1037,8 @@ if(!in_array($cols, 'reactions'))
     upgrade_query("
         CREATE TABLE {db_prefix}reactions (
             id_reaction SMALLINT UNSIGNED DEFAULT '0' AUTO_INCREMENT,
-            name varchar(255) NOT NULL DEFAULT ''
+            name varchar(255) NOT NULL DEFAULT '',
+    		order SMALLINT UNSIGNED NOT NULL DEFAULT '0',
         )
     ");
     // Default reaction is "like"
