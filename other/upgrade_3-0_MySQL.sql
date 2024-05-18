@@ -934,7 +934,7 @@ if ($exists) {
 ---# Adding a new column "spoofdetector_name" to members table
 ---{
 Db::$db->add_column(
-	'{db_prefix}messages',
+	'{db_prefix}members',
 	[
 		'name' => 'spoofdetector_name',
 		'type' => 'varchar',
@@ -946,7 +946,7 @@ Db::$db->add_column(
 	'ignore',
 );
 Db::$db->add_index(
-	'{db_prefix}messages',
+	'{db_prefix}members',
 	[
 		'name' => 'idx_spoofdetector_name',
 		'columns' => ['spoofdetector_name'],
