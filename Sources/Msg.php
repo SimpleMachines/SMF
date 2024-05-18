@@ -160,9 +160,9 @@ class Msg implements \ArrayAccess
 	/**
 	 * @var int
 	 *
-	 * The number of likes this message has received.
+	 * The number of reactions this message has received.
 	 */
-	public int $likes = 0;
+	public int $reactions = 0;
 
 	/**
 	 * @var bool
@@ -468,15 +468,15 @@ class Msg implements \ArrayAccess
 			$this->formatted['short_subject'] = Utils::shorten($this->formatted['subject'], $format_options['shorten_subject']);
 		}
 
-		// Are likes enabled?
-		if (!empty(Config::$modSettings['enable_likes'])) {
-			$this->formatted['likes'] = [
-				'count' => $this->likes,
-				'you' => in_array($this->id, Utils::$context['my_likes'] ?? []),
+		// Are reactions enabled?
+		if (!empty(Config::$modSettings['enable_reacts'])) {
+			$this->formatted['reacts'] = [
+				'count' => $this->reactions,
+				'you' => in_array($this->id, Utils::$context['my_reactions'] ?? []),
 			];
 
 			if ($format_options['do_permissions']) {
-				$this->formatted['likes']['can_like'] = !User::$me->is_guest && $this->id_member != User::$me->id && !empty($topic->permissions['can_like']);
+				$this->formatted['reactions']['can_react'] = !User::$me->is_guest && $this->id_member != User::$me->id && !empty($topic->permissions['can_react']);
 			}
 		}
 
