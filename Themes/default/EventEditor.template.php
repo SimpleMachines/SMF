@@ -299,13 +299,6 @@ function template_occurrence_options()
 		echo '
 						<dl id="occurrence_options">
 							<dt class="clear">
-								<label for="deleteevent">', Lang::$txt['calendar_repeat_delete_label'], '</label>
-							</dt>
-							<dd>
-									<input type="checkbox" name="deleteevent" id="deleteevent" class="you_sure" data-confirm="' . Lang::$txt['calendar_confirm_occurrence_delete'] . '">
-							</dd>
-
-							<dt class="clear">
 								', Lang::$txt['calendar_repeat_adjustment_label'], '
 							</dt>
 							<dd>
@@ -321,14 +314,6 @@ function template_occurrence_options()
 							</dd>
 						</dl>';
 	}
-
-	echo '
-						<dl>
-							<dt class="clear"></dt>
-							<dd>
-								<a href="', Utils::$context['event']->modify_href, '" class="smalltext bbc_link">', Lang::$txt['calendar_repeat_adjustment_edit_first'], '</a>
-							</dd>
-						</dl>';
 }
 
 /**

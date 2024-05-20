@@ -77,9 +77,9 @@ $txt['calendar_repeat_offset_examples'] = 'e.g.: +P1D, -PT2H';
 $txt['calendar_repeat_adjustment_label'] = 'Apply changes to';
 $txt['calendar_repeat_adjustment_this_only'] = 'Only this occurrence';
 $txt['calendar_repeat_adjustment_this_and_future'] = 'This and future occurrences';
-$txt['calendar_repeat_adjustment_confirm'] = 'Are you sure you want to apply these changes to all future occurrences?-n--n-WARNING: if you select both &quot;Delete&quot; and &quot;This and future occurrences&quot;, you will delete this and all future occurrences.';
+$txt['calendar_repeat_adjustment_confirm'] = 'Are you sure you want to apply these changes to all future occurrences?-n--n-WARNING: if you select &quot;This and future occurrences&quot; and the click the &quot;Delete&quot; button, you will delete this and all future occurrences.';
 $txt['calendar_repeat_delete_label'] = 'Delete';
-$txt['calendar_confirm_occurrence_delete'] = 'Are you sure you want to delete this occurrence of the event?-n--n-WARNING: if you select both &quot;Delete&quot; and &quot;This and future occurrences&quot;, you will delete this and all future occurrences.';
+$txt['calendar_confirm_occurrence_delete'] = 'Are you sure you want to delete this occurrence of the event?-n--n-WARNING: if you selected &quot;This and future occurrences&quot; above, you will delete this and all future occurrences.';
 $txt['calendar_repeat_adjustment_edit_first'] = 'Edit original event';
 
 // Used to show a human-readable explanation of the recurrence rule for a repeating event.
