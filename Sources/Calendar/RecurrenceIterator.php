@@ -517,7 +517,7 @@ class RecurrenceIterator implements \Iterator
 	{
 		$this->rewind();
 
-		if ($date < $this->view_start || $date >= $this->view_end) {
+		if ($date < $this->view_start || $date > $this->view_end) {
 			return;
 		}
 
