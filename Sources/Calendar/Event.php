@@ -1761,7 +1761,7 @@ class Event implements \ArrayAccess
 		self::setRequestedStartAndDuration($eventOptions);
 
 		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
-		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+		$eventOptions['view_end'] = $eventOptions['view_start']->modify('+1 month');
 
 		self::setRequestedRRule($eventOptions);
 
@@ -1833,7 +1833,7 @@ class Event implements \ArrayAccess
 		self::setRequestedStartAndDuration($eventOptions);
 
 		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
-		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+		$eventOptions['view_end'] = $eventOptions['view_start']->modify('+1 month');
 
 		self::setRequestedRRule($eventOptions);
 
