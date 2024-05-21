@@ -93,7 +93,7 @@ function db_packages_init()
  *  	- 'ignore' will do nothing if the table exists. (And will return true)
  *  	- 'overwrite' will drop any existing table of the same name.
  *  	- 'error' will return false if the table already exists.
- *  	- 'update' will update the table if the table already exists (no change of ai field and only columns with the same name keep the data)
+ *  	- 'update' will update the table if the table already exists (no change of ai field and only colums with the same name keep the data)
  *
  * @param string $table_name The name of the table to create
  * @param array $columns An array of column info in the specified format
@@ -160,7 +160,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	// Loop through the indexes next...
 	foreach ($indexes as $index)
 	{
-		// MySQL If it's a text column, we need to add a size.
+		// MySQL If its a text column, we need to add a size.
 		foreach ($index['columns'] as &$c)
 		{
 			$c = trim($c);
@@ -464,7 +464,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	// Allow for unsigned integers (mysql only)
 	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
-	// If you need to drop the default, that needs its own thing...
+	// If you need to drop the default, that needs it's own thing...
 	// Must be done first, in case the default type is inconsistent with the other changes.
 	if ($column_info['drop_default'])
 	{
@@ -524,7 +524,7 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 	if (empty($index_info['columns']))
 		return false;
 
-	// MySQL If it's a text column, we need to add a size.
+	// MySQL If its a text column, we need to add a size.
 	$cols = $smcFunc['db_list_columns']($table_name, true);
 	foreach ($index_info['columns'] as &$c)
 	{

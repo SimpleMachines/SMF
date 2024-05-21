@@ -55,7 +55,7 @@ interface search_api_interface
 	 * @param string $word A word to index
 	 * @param array $wordsSearch Search words
 	 * @param array $wordsExclude Words to exclude
-	 * @param bool $isExcluded Whether the specified word should be excluded
+	 * @param bool $isExcluded Whether the specfied word should be excluded
 	 */
 	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded);
 

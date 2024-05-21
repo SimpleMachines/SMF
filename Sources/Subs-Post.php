@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * Cleans up links (javascript, etc.) and code/quote sections.
  * Won't convert \n's and a few other things if previewing is true.
  *
- * @param string $message The message
+ * @param string $message The mesasge
  * @param bool $previewing Whether we're previewing
  */
 function preparsecode(&$message, $previewing = false)
@@ -1146,7 +1146,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Add the recipients.
 	if (!empty($id_pm))
 	{
-		// If this is new we need to set it part of its own conversation.
+		// If this is new we need to set it part of it's own conversation.
 		if (empty($pm_head))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}personal_messages

@@ -44,7 +44,7 @@ interface CacheApiInterface
 	 * @param int    $ttl Overrides the default TTL. Not really used anymore,
 	 *                    but is kept for backwards compatibility.
 	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
-	 * @todo Separate existence checking into its own method
+	 * @todo Seperate existence checking into its own method
 	 */
 	public function getData($key, $ttl = null);
 
@@ -58,7 +58,7 @@ interface CacheApiInterface
 	 * @param int    $ttl   How long (in seconds) the data should be cached for.
 	 *                      The default TTL will be used if this is null.
 	 * @return bool Whether or not we could save this to the cache.
-	 * @todo Separate deletion into its own method
+	 * @todo Seperate deletion into its own method
 	 */
 	public function putData($key, $value, $ttl = null);
 

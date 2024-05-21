@@ -1269,7 +1269,7 @@ function un_htmlspecialchars($string)
  * @param int $level Controls filtering of invisible formatting characters.
  *      0: Allow valid formatting characters. Use for sanitizing text in posts.
  *      1: Allow necessary formatting characters. Use for sanitizing usernames.
- *      2: Disallow all formatting characters. Use for internal comparisons
+ *      2: Disallow all formatting characters. Use for internal comparisions
  *         only, such as in the word censor, search contexts, etc.
  *      Default: 0.
  * @param string|null $substitute Replacement string for the invalid characters.
@@ -3072,7 +3072,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										')' .
 										// Initial "/"
 										'/' .
-										// Then a run of allowed path segment characters
+										// Then a run of allowed path segement characters
 										'(?P>path_segment)*+' .
 									')*+' .
 								')' .
@@ -4710,7 +4710,7 @@ function template_javascript($do_deferred = false)
 		'async' => array(),
 	);
 
-	// Output the declared Javascript variables.
+	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
@@ -5932,7 +5932,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 }
 
 /**
- * Receives a string and tries to figure it out if it's a method or a function.
+ * Receives a string and tries to figure it out if its a method or a function.
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
  * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
@@ -6430,7 +6430,7 @@ function sanitizeMSCutPaste($string)
 	if (empty($string))
 		return $string;
 
-	// UTF-8 occurrences of MS special characters
+	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(
 		"\xe2\x80\x9a",	// single low-9 quotation mark
 		"\xe2\x80\x9e",	// double low-9 quotation mark
@@ -8193,7 +8193,7 @@ function send_http_status($code, $status = '')
 /**
  * Concatenates an array of strings into a grammatically correct sentence list
  *
- * Uses formats defined in the language files to build the list appropriately
+ * Uses formats defined in the language files to build the list appropropriately
  * for the currently loaded language.
  *
  * @param array $list An array of strings to concatenate.

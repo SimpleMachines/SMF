@@ -323,7 +323,7 @@ class curl_fetch_web_data
 		else
 			$this->options = $this->default_options;
 
-		// POST data options, here we don't allow any override
+		// POST data options, here we don't allow any overide
 		if (isset($this->post_data))
 		{
 			$this->options[CURLOPT_POST] = 1;

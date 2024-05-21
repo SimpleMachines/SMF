@@ -899,7 +899,7 @@ function MessageFolder()
 			foreach (array_reverse($pms) as $pm)
 				$orderBy[] = 'pm.id_pm = ' . $pm;
 
-			// Separate query for these bits!
+			// Seperate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
 				SELECT pm.id_pm, pm.subject, COALESCE(pm.id_member_from, 0) AS id_member_from, pm.msgtime, COALESCE(mem.real_name, pm.from_name) AS from_name,
 					mem.id_member

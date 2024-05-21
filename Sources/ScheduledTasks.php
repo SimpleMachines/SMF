@@ -27,7 +27,7 @@ function AutoTask()
 	frameOptionsHeader();
 	corsPolicyHeader();
 
-	// Requests from a CORS response may send a options to find if the request is valid.  Simply bail out here, the cors header have been sent already.
+	// Requests from a CORS response may send a options to find if the requst is valid.  Simply bail out here, the cors header have been sent already.
 	if (isset($_SERVER['HTTP_X_SMF_AJAX']) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
 	{
 		send_http_status(204);
@@ -1072,7 +1072,7 @@ function loadEssentialThemeData()
 }
 
 /**
- * This retrieves data (e.g. last version of SMF) from sm.org
+ * This retieves data (e.g. last version of SMF) from sm.org
  */
 function scheduled_fetchSMfiles()
 {

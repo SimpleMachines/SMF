@@ -56,13 +56,13 @@ function loadProfileFields($force_reload = false)
 								Return types:
 					- true:			Element can be stored.
 					- false:		Skip this element.
-					- a text string:	An error occurred - this is the error message.
+					- a text string:	An error occured - this is the error message.
 
 				function $preload:		A function that is used to load data required for this element to be displayed. Must return
 								true to be displayed at all.
 
 				string $cast_type:		If set casts the element to a certain type. Valid types (bool, int, float).
-				string $save_key:		If the index of this element isn't the database column name it can be overridden
+				string $save_key:		If the index of this element isn't the database column name it can be overriden
 								with this string.
 				bool $is_dummy:			If set then nothing is acted upon for this element.
 				bool $enabled:			A test to determine whether this is even available - if not is unset.
@@ -2831,7 +2831,7 @@ function alert_notifications_boards($memID)
 }
 
 /**
- * Determines how many topics a user has requested notifications for
+ * Determins how many topics a user has requested notifications for
  *
  * @param int $memID The ID of the member
  * @return int The number of topic notifications for this user
@@ -4125,7 +4125,7 @@ function groupMembership($memID)
 		if (($row['id_group'] == $context['primary_group'] && $row['group_type'] > 1) || ($row['hidden'] != 2 && $context['primary_group'] == 0 && in_array($row['id_group'], $groups)))
 			$context['can_edit_primary'] = true;
 
-		// If they can't manage (protected) groups, and it's not publicly joinable or already assigned, they can't see it.
+		// If they can't manage (protected) groups, and it's not publically joinable or already assigned, they can't see it.
 		if (((!$context['can_manage_protected'] && $row['group_type'] == 1) || (!$context['can_manage_membergroups'] && $row['group_type'] == 0)) && $row['id_group'] != $context['primary_group'])
 			continue;
 

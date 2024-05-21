@@ -551,7 +551,7 @@ function SetThemeOptions()
 	loadTheme($_GET['th'], false);
 
 	loadLanguage('Profile');
-	// @todo Should we just move these options so they are no longer theme dependent?
+	// @todo Should we just move these options so they are no longer theme dependant?
 	loadLanguage('PersonalMessage');
 
 	// Let the theme take care of the settings.

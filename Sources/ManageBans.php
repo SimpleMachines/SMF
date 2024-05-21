@@ -20,7 +20,7 @@ if (!defined('SMF'))
 
 /**
  * Ban center. The main entrance point for all ban center functions.
- * It is accessed by ?action=admin;area=ban.
+ * It is accesssed by ?action=admin;area=ban.
  * It choses a function based on the 'sa' parameter, like many others.
  * The default sub-action is BanList().
  * It requires the ban_members permission.
@@ -1474,7 +1474,7 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 		'ip_range' => 'ip_range',
 	);
 
-	// Log the addition of the ban entries into the moderation log.
+	// Log the addion of the ban entries into the moderation log.
 	foreach ($logs as $log)
 		logAction('ban' . ($removal == true ? 'remove' : ''), array(
 			$log_name_map[$log['bantype']] => $log['value'],

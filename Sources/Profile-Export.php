@@ -666,7 +666,7 @@ function export_attachment($uid)
 	// This doesn't count as a normal download.
 	$context['skip_downloads_increment'] = true;
 
-	// Try to avoid collisions when attachment names are not unique.
+	// Try to avoid collisons when attachment names are not unique.
 	$context['prepend_attachment_id'] = true;
 
 	// Allow access to their attachments even if they can't see the board.

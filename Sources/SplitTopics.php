@@ -543,7 +543,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// Get the right first and last message dependent on approved state...
+		// Get the right first and last message dependant on approved state...
 		if (empty($split1_first_msg) || $row['myid_first_msg'] < $split1_first_msg)
 			$split1_first_msg = $row['myid_first_msg'];
 		if (empty($split1_last_msg) || $row['approved'])
@@ -586,7 +586,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// As before get the right first and last message dependent on approved state...
+		// As before get the right first and last message dependant on approved state...
 		if (empty($split2_first_msg) || $row['myid_first_msg'] < $split2_first_msg)
 			$split2_first_msg = $row['myid_first_msg'];
 		if (empty($split2_last_msg) || $row['approved'])
@@ -1715,7 +1715,7 @@ function MergeExecute($topics = array())
 		removeTopics($deleted_topics, false, true, false);
 	}
 
-	// Assign the properties of the newly merged topic.
+	// Asssign the properties of the newly merged topic.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}topics
 		SET

@@ -241,7 +241,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Get the data, always in ascending order.
 		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
 
-		// No data retrieved? Just move on then.
+		// No data retrived? Just move on then.
 		if (empty($xml_data))
 			$datatype_done = true;
 

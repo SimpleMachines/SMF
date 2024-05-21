@@ -1035,7 +1035,7 @@ function SendMailing($clean_only = false)
 			else
 				$unsubscribe_link = '';
 
-			// Replace the member-dependent variables
+			// Replace the member-dependant variables
 			$message = str_replace($from_member,
 				array(
 					$row['email_address'],

@@ -1841,7 +1841,7 @@ function template_profile_theme_settings()
 			echo ' name="default_options[', $setting['id'], ']" id="', $setting['id'], '" value="', isset($context['member']['options'][$setting['id']]) ? $context['member']['options'][$setting['id']] : $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', '>';
 		}
 
-		// end of this definition
+		// end of this defintion
 		echo '
 					</dd>';
 	}

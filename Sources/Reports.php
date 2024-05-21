@@ -218,7 +218,7 @@ function BoardReport()
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// Each board has its own table.
+		// Each board has it's own table.
 		newTable($row['name'], '', 'left', 'auto', 'left', 200, 'left');
 
 		$this_boardSettings = $boardSettings;

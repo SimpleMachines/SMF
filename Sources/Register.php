@@ -74,7 +74,7 @@ function Register($reg_errors = array())
 	elseif ($agree_txt_key != '')
 		$context['agree'] = $txt[$agree_txt_key . 'agree'];
 
-	// Does this user agree to the registration agreement?
+	// Does this user agree to the registation agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
 	{
 		$context['registration_passed_agreement'] = $_SESSION['registration_agreed'] = true;

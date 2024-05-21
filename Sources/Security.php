@@ -1374,7 +1374,7 @@ function corsPolicyHeader($set_header = true)
 
 	foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => $boardurl) as $var => $url)
 	{
-		// Convert any Punycode to Unicode for the sake of comparison, then parse.
+		// Convert any Punycode to Unicode for the sake of comparision, then parse.
 		$$var = parse_iri(url_to_iri((string) validate_iri(normalize_iri(trim($url)))));
 	}
 

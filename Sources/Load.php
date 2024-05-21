@@ -284,7 +284,7 @@ function reloadSettings()
 					$string = mb_decode_numericentity($string, array(0, 0x10FFFF, 0, 0xFFFFFF), 'UTF-8');
 				}
 
-				// Use optimized function for compatibility casefolding.
+				// Use optmized function for compatibility casefolding.
 				if ($form === 'kc_casefold' || ($case === 'fold' && $form === 'kc'))
 				{
 					$string = $smcFunc['normalize']($string, 'kc_casefold');

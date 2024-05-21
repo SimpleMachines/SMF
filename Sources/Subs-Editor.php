@@ -448,7 +448,7 @@ function html_to_bbc($text)
 
 	if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $text, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1)
 	{
-		// A toggle that determines whether we're directly under a <ol> or <ul>.
+		// A toggle that dermines whether we're directly under a <ol> or <ul>.
 		$inList = false;
 
 		// Keep track of the number of nested list levels.
@@ -1199,7 +1199,7 @@ function legalise_bbc($text)
 			// We're dealing with an opening tag.
 			if ($isOpeningTag)
 			{
-				// Everything inside the square brackets of the opening tag.
+				// Everyting inside the square brackets of the opening tag.
 				$elementContent = $parts[$i + 3] . substr($parts[$i + 4], 0, -1);
 
 				// A block level opening tag.

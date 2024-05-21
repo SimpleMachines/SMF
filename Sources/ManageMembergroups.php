@@ -367,7 +367,7 @@ function AddMembergroup()
 					fatal_lang_error('membergroup_does_not_exist');
 			}
 
-			// Don't allow copying of a real privileged person!
+			// Don't allow copying of a real priviledged person!
 			require_once($sourcedir . '/ManagePermissions.php');
 			loadIllegalPermissions();
 

@@ -224,7 +224,7 @@ function summary($memID)
  * @param array $limit Maximum number of alerts to fetch (0 for no limit).
  * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
  * @param bool $with_avatar Whether to load the avatar of the alert sender.
- * @param bool $show_links Whether to show links in the constituent parts of the alert message.
+ * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
  */
 function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)

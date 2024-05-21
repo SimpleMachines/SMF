@@ -135,7 +135,7 @@ function AddLanguage()
 
 /**
  * Gets a list of available languages from the mother ship
- * Will return a subset if searching, otherwise all available
+ * Will return a subset if searching, otherwise all avaialble
  *
  * @return array An array containing information about each available language
  */

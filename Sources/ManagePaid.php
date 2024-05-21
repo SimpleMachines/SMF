@@ -1555,7 +1555,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 		}
 	}
 
-	// Firstly, see whether it exists, and is active. If so then this is merely an extension.
+	// Firstly, see whether it exists, and is active. If so then this is meerly an extension.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_sublog, end_time, start_time
 		FROM {db_prefix}log_subscribed
@@ -1656,7 +1656,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 		)
 	);
 
-	// Now log the subscription - maybe we have a dormant subscription we can restore?
+	// Now log the subscription - maybe we have a dorment subscription we can restore?
 	$request = $smcFunc['db_query']('', '
 		SELECT id_sublog, end_time, start_time
 		FROM {db_prefix}log_subscribed

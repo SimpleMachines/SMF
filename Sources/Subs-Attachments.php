@@ -337,7 +337,7 @@ function processAttachments()
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
-	// Is the attachments folder actually there?
+	// Is the attachments folder actualy there?
 	if (!empty($context['dir_creation_error']))
 		$initial_error = $context['dir_creation_error'];
 	elseif (!is_dir($context['attach_dir']))
@@ -976,7 +976,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  *
  * @param int $attachID the attachment ID to load info from.
  *
- * @return mixed If successful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
+ * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
  */
 function parseAttachBBC($attachID = 0)
 {

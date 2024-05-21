@@ -344,7 +344,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	// Remember this, just in case...
 	$orig_feed_meta = $feed_meta;
 
-	// If mods want to do something with this feed, let them do that now.
+	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
 	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype));
 

@@ -557,7 +557,7 @@ function PackageInstallTest()
 				$context['has_failure'] = true;
 			else
 			{
-				// See if this dependency is installed
+				// See if this dependancy is installed
 				$request = $smcFunc['db_query']('', '
 					SELECT version
 					FROM {db_prefix}log_packages
@@ -1949,7 +1949,7 @@ function ViewOperations()
 		]
 	);
 
-	// Since the alerts code is loaded very late in the process, it must be disabled separately.
+	// Since the alerts code is loaded very late in the process, it must be disabled seperately.
 	$settings['disable_files'] = ['smf_alerts'];
 }
 
@@ -2268,9 +2268,9 @@ function PackagePermissions()
 }
 
 /**
- * Checks the permissions of all the areas that will be affected by the package
+ * Checkes the permissions of all the areas that will be affected by the package
  *
- * @param string $path The path to the directory to check permissions for
+ * @param string $path The path to the directiory to check permissions for
  * @param array $data An array of data about the directory
  * @param int $level How far deep to go
  */
@@ -2330,7 +2330,7 @@ function fetchPerms__recursive($path, &$data, $level)
 				else
 					$foundData['folders'][$entry] = true;
 
-				// If this wasn't expected inherit the recursiveness...
+				// If this wasn't expected inherit the recusiveness...
 				if (!isset($data['contents'][$entry]))
 					// We need to do this as we will be going all recursive.
 					$data['contents'][$entry] = array(

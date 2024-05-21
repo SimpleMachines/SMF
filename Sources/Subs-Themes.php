@@ -62,7 +62,7 @@ function get_single_theme($id, array $variables = array())
 	{
 		$single[$row['variable']] = $row['value'];
 
-		// Fix the path and tell if it's a valid one.
+		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
 			$single['theme_dir'] = realpath($row['value']);
@@ -139,7 +139,7 @@ function get_all_themes($enable_only = false)
 				'enable' => in_array($row['id_theme'], $enableThemes)
 			);
 
-		// Fix the path and tell if it's a valid one.
+		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
 			$row['value'] = realpath($row['value']);
@@ -205,7 +205,7 @@ function get_installed_themes()
 				'enable' => in_array($row['id_theme'], $enableThemes)
 			);
 
-		// Fix the path and tell if it's a valid one.
+		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
 			$row['value'] = realpath($row['value']);

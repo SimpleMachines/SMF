@@ -1441,7 +1441,7 @@ function loadAllPermissions()
 {
 	global $context, $txt, $modSettings;
 
-	// List of all the groups dependent on the currently selected view - for the order so it looks pretty, yea?
+	// List of all the groups dependant on the currently selected view - for the order so it looks pretty, yea?
 	// Note to Mod authors - you don't need to stick your permission group here if you don't mind SMF sticking it the last group of the page.
 	$permissionGroups = array(
 		'membergroup' => array(

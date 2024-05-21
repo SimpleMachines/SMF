@@ -157,7 +157,7 @@ function cleanRequest()
 	// Make sure $board and $topic are numbers.
 	if (isset($_REQUEST['board']))
 	{
-		// Make sure it's a string and not something else like an array
+		// Make sure its a string and not something else like an array
 		$_REQUEST['board'] = (string) $_REQUEST['board'];
 
 		// If there's a slash in it, we've got a start value! (old, compatible links.)
@@ -184,7 +184,7 @@ function cleanRequest()
 	// We've got topic!
 	if (isset($_REQUEST['topic']))
 	{
-		// Make sure it's a string and not something else like an array
+		// Make sure its a string and not something else like an array
 		$_REQUEST['topic'] = (string) $_REQUEST['topic'];
 
 		// Slash means old, beta style, formatting.  That's okay though, the link should still work.
@@ -507,7 +507,7 @@ function escapestring__recursive($var)
  * - importantly, does not effect keys, only values.
  * - calls itself recursively if necessary.
  *
- * @param array|string $var The string or array of strings to add entities to
+ * @param array|string $var The string or array of strings to add entites to
  * @param int $level Which level we're at within the array (if called recursively)
  * @return array|string The string or array of strings with entities added
  */

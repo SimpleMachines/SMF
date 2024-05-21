@@ -579,7 +579,7 @@ function CreateMessageIndex()
 			if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'custom')
 				updateSettings(array('search_index' => ''));
 
-			// Don't let simultaneous processes be updating the search index.
+			// Don't let simultanious processes be updating the search index.
 			if (!empty($modSettings['search_custom_index_config']))
 				updateSettings(array('search_custom_index_config' => ''));
 		}

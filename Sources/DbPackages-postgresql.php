@@ -93,7 +93,7 @@ function db_packages_init()
  *  	- 'ignore' will do nothing if the table exists. (And will return true)
  *  	- 'overwrite' will drop any existing table of the same name.
  *  	- 'error' will return false if the table already exists.
- *  	- 'update' will update the table if the table already exists (no change of ai field and only columns with the same name keep the data)
+ *  	- 'update' will update the table if the table already exists (no change of ai field and only colums with the same name keep the data)
  *
  * @param string $table_name The name of the table to create
  * @param array $columns An array of column info in the specified format
@@ -314,7 +314,7 @@ function smf_db_drop_table($table_name, $parameters = array(), $error = 'fatal')
 		// the table
 		$table_query = 'DROP TABLE ' . $short_table_name;
 
-		// and the associated sequence, if any
+		// and the assosciated sequence, if any
 		$sequence_query = 'DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq';
 
 		// drop them
@@ -499,7 +499,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default']))
 		unset($column_info['default']);
 
-	// If you need to drop the default, that needs its own thing...
+	// If you need to drop the default, that needs it's own thing...
 	// Must be done first, in case the default type is inconsistent with the other changes.
 	if ($column_info['drop_default'])
 	{
