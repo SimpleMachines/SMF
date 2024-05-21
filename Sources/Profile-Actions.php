@@ -415,7 +415,8 @@ function issueWarning($memID)
 
 		$context['notification_templates'][] = array(
 			'title' => $row['template_title'],
-			'body' => $row['body'],
+			// un_htmlspecialchars because this will be passed through JavaScriptEscape()
+			'body' => un_htmlspecialchars($row['body']),
 		);
 	}
 	$smcFunc['db_free_result']($request);

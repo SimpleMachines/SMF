@@ -1708,7 +1708,8 @@ function ModifyWarningTemplate()
 		{
 			$context['template_data'] = array(
 				'title' => $row['template_title'],
-				'body' => $smcFunc['htmlspecialchars']($row['body']),
+				// Redo htmlspecialchars for the sake of old data that might have incorrectly encoded entities.
+				'body' => $smcFunc['htmlspecialchars'](un_htmlspecialchars($row['body'])),
 				'personal' => $row['id_recipient'],
 				'can_edit_personal' => $row['id_member'] == $user_info['id'],
 			);
@@ -1734,6 +1735,7 @@ function ModifyWarningTemplate()
 		{
 			// Safety first.
 			$_POST['template_title'] = $smcFunc['htmlspecialchars']($_POST['template_title']);
+			$_POST['template_body'] = $smcFunc['htmlspecialchars']($_POST['template_body']);
 
 			// Clean up BBC.
 			preparsecode($_POST['template_body']);
