@@ -5329,7 +5329,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 		$returned_words = array();
 		foreach ($words as $word)
 			if (($word = trim($word, '-_\'')) !== '')
-				$returned_words[] = $max_chars === null ? $word : substr($word, 0, $max_chars);
+				$returned_words[] = $max_chars === null ? $word : $smcFunc['truncate']($word, $max_chars);
 
 		// Filter out all words that occur more than once.
 		return array_unique($returned_words);
