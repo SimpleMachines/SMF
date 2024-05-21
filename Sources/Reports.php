@@ -317,7 +317,14 @@ function BoardPermissionsReport()
 	else
 		$group_clause = '1=1';
 
-	// Fetch all the board names.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_profile, profile_name
+		FROM {db_prefix}permission_profiles');
+	$board_perms_names = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$board_perms_names[$row['id_profile']] = $row['profile_name'];
+	$smcFunc['db_free_result']($request);
+
 	$request = $smcFunc['db_query']('', '
 		SELECT id_board, name, id_profile
 		FROM {db_prefix}boards
@@ -333,28 +340,11 @@ function BoardPermissionsReport()
 		$boards[$row['id_board']] = array(
 			'name' => $row['name'],
 			'profile' => $row['id_profile'],
-			'mod_groups' => array(),
 		);
 		$profiles[] = $row['id_profile'];
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Get the ids of any groups allowed to moderate this board
-	// Limit it to any boards and/or groups we're looking at
-	$request = $smcFunc['db_query']('', '
-		SELECT id_board, id_group
-		FROM {db_prefix}moderator_groups
-		WHERE ' . $board_clause . ' AND ' . $group_clause,
-		array(
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$boards[$row['id_board']]['mod_groups'][] = $row['id_group'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Get all the possible membergroups, except admin!
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
@@ -414,9 +404,7 @@ function BoardPermissionsReport()
 		if (in_array($row['permission'], $disabled_permissions))
 			continue;
 
-		foreach ($boards as $id => $board)
-			if ($board['profile'] == $row['id_profile'])
-				$board_permissions[$id][$row['id_group']][$row['permission']] = $row['add_deny'];
+		$board_permissions[$row['id_profile']][$row['id_group']][$row['permission']] = $row['add_deny'];
 
 		// Make sure we get every permission.
 		if (!isset($permissions[$row['permission']]))
@@ -429,11 +417,22 @@ function BoardPermissionsReport()
 	}
 	$smcFunc['db_free_result']($request);
 
+	$board_names = array_reduce(
+		$boards,
+		function (array $accumulator, array $board)
+		{
+			$accumulator[$board['profile']][] = $board['name'];
+
+			return $accumulator;
+		},
+		[]
+	);
+
 	// Now cycle through the board permissions array... lots to do ;)
-	foreach ($board_permissions as $board => $groups)
+	foreach ($board_permissions as $id_profile => $groups)
 	{
 		// Create the table for this board first.
-		newTable($boards[$board]['name'], 'x', 'all', 100, 'center', 200, 'left');
+		newTable($board_perms_names[$id_profile] . ' (' . implode(', ', $board_names[$id_profile]) . ')', 'x', 'all', 100, 'center', 200, 'left');
 
 		// Add the header row - shows all the membergroups.
 		addData($member_groups);
@@ -461,11 +460,6 @@ function BoardPermissionsReport()
 				{
 					// Set the data for this group to be the local permission.
 					$curData[$id_group] = $group_permissions[$ID_PERM];
-				}
-				// Is it inherited from Moderator?
-				elseif (in_array($id_group, $boards[$board]['mod_groups']) && !empty($groups[3]) && isset($groups[3][$ID_PERM]))
-				{
-					$curData[$id_group] = $groups[3][$ID_PERM];
 				}
 				// Otherwise means it's set to disallow..
 				else
