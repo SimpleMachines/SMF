@@ -199,7 +199,7 @@ function EditSmileySets()
 	// Set the right tab to be selected.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsets';
 
-	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 
 	// They must've been submitted a form.
 	if (isset($_POST['smiley_save']))
@@ -605,7 +605,7 @@ function AddSmiley()
 		);
 
 	// Some useful arrays... types we allow - and ports we don't!
-	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 	$disabledFiles = array('con', 'com1', 'com2', 'com3', 'com4', 'prn', 'aux', 'lpt1', '.htaccess', 'index.php');
 
 	// This will hold the names of the added files for each set
@@ -934,7 +934,7 @@ function EditSmileys()
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
 	$context['smileys_dir'] = empty($modSettings['smileys_dir']) ? $boarddir . '/Smileys' : $modSettings['smileys_dir'];
 
-	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 	$disabledFiles = array('con', 'com1', 'com2', 'com3', 'com4', 'prn', 'aux', 'lpt1', '.htaccess', 'index.php');
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
 
@@ -1937,7 +1937,7 @@ function ImportSmileys($smileyPath, $create = false)
 	if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir'] . '/' . $smileyPath))
 		fatal_lang_error('smiley_set_unable_to_import', false);
 
-	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
 	sort($known_sets);
 

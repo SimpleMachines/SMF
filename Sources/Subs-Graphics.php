@@ -393,7 +393,8 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 		'2' => 'jpeg',
 		'3' => 'png',
 		'6' => 'bmp',
-		'15' => 'wbmp'
+		'15' => 'wbmp',
+		'18' => 'webp'
 	);
 
 	// Get the image file, we have to work with something after all
@@ -492,7 +493,8 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 			'2' => 'jpeg',
 			'3' => 'png',
 			'6' => 'bmp',
-			'15' => 'wbmp'
+			'15' => 'wbmp',
+			'18' => 'webp'
 		);
 		$preferred_format = empty($preferred_format) || !isset($default_formats[$preferred_format]) ? 2 : $preferred_format;
 
@@ -627,6 +629,8 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 			$success = imagebmp($dst_img, $destName);
 		elseif (!empty($preferred_format) && ($preferred_format == 15) && function_exists('imagewbmp'))
 			$success = imagewbmp($dst_img, $destName);
+		elseif (!empty($preferred_format) && ($preferred_format == 18) && function_exists('imagewebp'))
+			$success = imagewebp($dst_img, $destName);	
 		elseif (function_exists('imagejpeg'))
 			$success = imagejpeg($dst_img, $destName, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
 

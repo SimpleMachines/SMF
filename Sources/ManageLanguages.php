@@ -269,7 +269,7 @@ function DownloadLanguage()
 		$extension = $pathinfo['extension'];
 
 		// Don't do anything with files we don't understand.
-		if (!in_array($extension, array('php', 'jpg', 'gif', 'jpeg', 'png', 'txt')))
+		if (!in_array($extension, array('php', 'jpg', 'gif', 'jpeg', 'png', 'txt', 'webp')))
 			continue;
 
 		// Basic data.
