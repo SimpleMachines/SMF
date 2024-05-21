@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.3; Timezones
+// Version: 2.1.5; Timezones
 
 global $tztxt;
 
