@@ -63,7 +63,7 @@ class Holiday extends Event
 		parent::__construct($id, $props);
 
 		// For new events, provide all known special RRule options.
-		if ($this->id <= 0) {
+		if ($id <= 0) {
 			foreach (self::$special_rrules as $special_rrule => $info) {
 				$this->rrule_presets[Lang::$txt['calendar_repeat_special']][$special_rrule] = Lang::$txt['calendar_repeat_rrule_presets'][$info['txt_key']] ?? Lang::$txt[$info['txt_key']] ?? Lang::$txt['calendar_repeat_rrule_presets'][$special_rrule] ?? Lang::$txt[$special_rrule] ?? $special_rrule;
 			}
