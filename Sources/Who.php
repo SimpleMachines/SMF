@@ -611,7 +611,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						'Shawn Bulen',
+						'Jon "Sesquipedalian" Stovell',
 						// Developers
 						'John "live627" Rayes',
 						'Oscar "Ozp" Rydhé',
@@ -635,6 +635,7 @@ function Credits($in_admin = false)
 						'Norv',
 						'Peter "Arantor" Spicer',
 						'Selman "[SiNaN]" Eser',
+						'Shawn Bulen',
 						'Shitiz "Dragooon" Garg',
 						// 'Spuds', // Doesn't want to be listed here
 						// 'Steven "Fustrate" Hoffman',
