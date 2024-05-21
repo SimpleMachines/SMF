@@ -1265,6 +1265,11 @@ SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.conten
 WHERE content_type = 'unapproved' AND content_action = 'attachment';
 ---#
 
+---# Adding index on id_board to log_notify table
+ALTER TABLE {$db_prefix}log_notify
+ADD INDEX id_board (id_board);
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/

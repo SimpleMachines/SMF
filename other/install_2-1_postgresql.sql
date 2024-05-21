@@ -685,6 +685,7 @@ CREATE TABLE {$db_prefix}log_notify (
 #
 
 CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic, id_member);
+CREATE INDEX {$db_prefix}log_notify_id_board ON {$db_prefix}log_notify (id_board);
 
 #
 # Table structure for table `log_online`
