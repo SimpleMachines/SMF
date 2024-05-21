@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -1106,7 +1106,8 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 		WHERE bp.id_group IN ({array_int:group_list}, {int:moderator_group})
 			AND bp.permission IN ({array_string:permissions})
 			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})' .
-			($check_access ? ' AND {query_see_board}' : ''),
+			($check_access ? ' AND {query_see_board}' : '') . '
+		ORDER BY b.board_order',
 		array(
 			'current_member' => $user_info['id'],
 			'group_list' => $groups,
