@@ -1047,7 +1047,9 @@ function EditMembergroup()
 		}
 
 		// There might have been some post group changes.
-		updateStats('postgroups');
+		if ($_POST['min_posts'] != -1)
+			updateStats('postgroups');
+
 		// We've definitely changed some group stuff.
 		updateSettings(array(
 			'settings_updated' => time(),
