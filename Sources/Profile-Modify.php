@@ -1279,13 +1279,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
 				$value = $smcFunc['htmltrim']($value);
-				$valueReference = un_htmlspecialchars($value);
+				$valueReference = html_entity_decode($value);
 
 				// Try and avoid some checks. '0' could be a valid non-empty value.
 				if (empty($value) && !is_numeric($value))
 					$value = '';
 
-				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != $smcFunc['htmlspecialchars']($value, ENT_NOQUOTES) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
+				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_nohtml_fail';
