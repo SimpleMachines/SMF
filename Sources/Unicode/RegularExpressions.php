@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -798,13 +798,12 @@ function utf8_regex_properties()
 			'\x{2E9A}' .
 			'\x{2EF4}-\x{2EFF}' .
 			'\x{2FD6}-\x{2FEF}' .
-			'\x{2FFC}-\x{2FFF}' .
 			'\x{3040}' .
 			'\x{3097}-\x{3098}' .
 			'\x{3100}-\x{3104}' .
 			'\x{3130}' .
 			'\x{318F}' .
-			'\x{31E4}-\x{31EF}' .
+			'\x{31E4}-\x{31EE}' .
 			'\x{321F}' .
 			'\x{A48D}-\x{A48F}' .
 			'\x{A4C7}-\x{A4CF}' .
@@ -1227,7 +1226,8 @@ function utf8_regex_properties()
 			'\x{2B73A}-\x{2B73F}' .
 			'\x{2B81E}-\x{2B81F}' .
 			'\x{2CEA2}-\x{2CEAF}' .
-			'\x{2EBE1}-\x{2F7FF}' .
+			'\x{2EBE1}-\x{2EBEF}' .
+			'\x{2EE5E}-\x{2F7FF}' .
 			'\x{2FA1E}-\x{2FFFF}' .
 			'\x{3134B}-\x{3134F}' .
 			'\x{323B0}-\x{E0000}' .
@@ -1690,6 +1690,7 @@ function utf8_regex_properties()
 			'\x{2B740}-\x{2B81D}' .
 			'\x{2B820}-\x{2CEA1}' .
 			'\x{2CEB0}-\x{2EBE0}' .
+			'\x{2EBF0}-\x{2EE5D}' .
 			'\x{2F800}-\x{2FA1D}' .
 			'\x{30000}-\x{3134A}' .
 			'\x{31350}-\x{323AF}',
@@ -1735,9 +1736,7 @@ function utf8_regex_variation_selectors()
 			'\x{231A}-\x{231B}' .
 			'\x{2328}' .
 			'\x{23CF}' .
-			'\x{23E9}-\x{23EA}' .
-			'\x{23ED}-\x{23EF}' .
-			'\x{23F1}-\x{23F3}' .
+			'\x{23E9}-\x{23F3}' .
 			'\x{23F8}-\x{23FA}' .
 			'\x{24C2}' .
 			'\x{25AA}-\x{25AB}' .
@@ -1775,7 +1774,7 @@ function utf8_regex_variation_selectors()
 			'\x{26BD}-\x{26BE}' .
 			'\x{26C4}-\x{26C5}' .
 			'\x{26C8}' .
-			'\x{26CF}' .
+			'\x{26CE}-\x{26CF}' .
 			'\x{26D1}' .
 			'\x{26D3}-\x{26D4}' .
 			'\x{26E9}-\x{26EA}' .
@@ -1783,21 +1782,27 @@ function utf8_regex_variation_selectors()
 			'\x{26F7}-\x{26FA}' .
 			'\x{26FD}' .
 			'\x{2702}' .
-			'\x{2708}-\x{2709}' .
-			'\x{270C}-\x{270D}' .
+			'\x{2705}' .
+			'\x{2708}-\x{270D}' .
 			'\x{270F}' .
 			'\x{2712}' .
 			'\x{2714}' .
 			'\x{2716}' .
 			'\x{271D}' .
 			'\x{2721}' .
+			'\x{2728}' .
 			'\x{2733}-\x{2734}' .
 			'\x{2744}' .
 			'\x{2747}' .
-			'\x{2753}' .
+			'\x{274C}' .
+			'\x{274E}' .
+			'\x{2753}-\x{2755}' .
 			'\x{2757}' .
 			'\x{2763}-\x{2764}' .
+			'\x{2795}-\x{2797}' .
 			'\x{27A1}' .
+			'\x{27B0}' .
+			'\x{27BF}' .
 			'\x{2934}-\x{2935}' .
 			'\x{2B05}-\x{2B07}' .
 			'\x{2B1B}-\x{2B1C}' .
@@ -3181,6 +3186,17 @@ function utf8_regex_joining_type()
 				'\x{0711}' .
 				'\x{0730}-\x{074A}',
 		),
+		'Tirhuta' => array(
+			'Dual_Joining' =>
+				'\x{A840}-\x{A871}' .
+				'\x{A840}-\x{A871}',
+			'Transparent' =>
+				'\x{0951}-\x{0957}' .
+				'\x{114B3}-\x{114B8}' .
+				'\x{114BA}' .
+				'\x{114BF}-\x{114C0}' .
+				'\x{114C2}-\x{114C3}',
+		),
 		'Adlam' => array(
 			'Join_Causing' =>
 				'\x{0640}',
@@ -3189,16 +3205,6 @@ function utf8_regex_joining_type()
 			'Transparent' =>
 				'\x{1E944}-\x{1E94A}' .
 				'\x{1E94B}',
-		),
-		'Tirhuta' => array(
-			'Dual_Joining' =>
-				'\x{A840}-\x{A871}',
-			'Transparent' =>
-				'\x{0951}-\x{0957}' .
-				'\x{114B3}-\x{114B8}' .
-				'\x{114BA}' .
-				'\x{114BF}-\x{114C0}' .
-				'\x{114C2}-\x{114C3}',
 		),
 		'Nko' => array(
 			'Join_Causing' =>
@@ -3534,6 +3540,7 @@ function utf8_regex_indic()
 				'\x{0D54}-\x{0D63}' .
 				'\x{0D66}-\x{0D7F}' .
 				'\x{1CDA}' .
+				'\x{1CF2}' .
 				'\x{A838}',
 			'Letter' =>
 				'\x{0D04}-\x{0D0C}' .
@@ -3543,7 +3550,8 @@ function utf8_regex_indic()
 				'\x{0D4E}' .
 				'\x{0D54}-\x{0D56}' .
 				'\x{0D5F}-\x{0D61}' .
-				'\x{0D7A}-\x{0D7F}',
+				'\x{0D7A}-\x{0D7F}' .
+				'\x{1CF2}',
 			'Nonspacing_Combining_Mark' =>
 				'\x{0951}-\x{0952}' .
 				'\x{0D3B}-\x{0D3C}' .
@@ -3667,13 +3675,15 @@ function utf8_regex_indic()
 				'\x{0DD8}-\x{0DDF}' .
 				'\x{0DE6}-\x{0DEF}' .
 				'\x{0DF2}-\x{0DF4}' .
+				'\x{1CF2}' .
 				'\x{111E1}-\x{111F4}',
 			'Letter' =>
 				'\x{0D85}-\x{0D96}' .
 				'\x{0D9A}-\x{0DB1}' .
 				'\x{0DB3}-\x{0DBB}' .
 				'\x{0DBD}' .
-				'\x{0DC0}-\x{0DC6}',
+				'\x{0DC0}-\x{0DC6}' .
+				'\x{1CF2}',
 			'Nonspacing_Combining_Mark' =>
 				'\x{0DCA}',
 			'Nonspacing_Mark' =>
@@ -3968,6 +3978,9 @@ function utf8_regex_indic()
 				'\x{1CD9}' .
 				'\x{1CDD}' .
 				'\x{1CE0}' .
+				'\x{A838}' .
+				'\x{A83B}' .
+				'\x{A83D}' .
 				'\x{11180}-\x{111DF}',
 			'Letter' =>
 				'\x{11183}-\x{111B2}' .
@@ -4128,12 +4141,14 @@ function utf8_regex_indic()
 				'\x{0964}-\x{0965}' .
 				'\x{1CF2}' .
 				'\x{A838}-\x{A839}' .
-				'\x{A83D}' .
-				'\x{A83F}-\x{A840}' .
+				'\x{A83E}' .
+				'\x{A840}' .
+				'\x{A840}' .
 				'\x{11480}-\x{114C7}' .
 				'\x{114D0}-\x{114D9}',
 			'Letter' =>
 				'\x{1CF2}' .
+				'\x{A840}' .
 				'\x{A840}' .
 				'\x{11480}-\x{114AF}' .
 				'\x{114C4}-\x{114C5}' .
@@ -4258,8 +4273,9 @@ function utf8_regex_indic()
 			'All' =>
 				'\x{0964}-\x{0965}' .
 				'\x{A838}-\x{A839}' .
-				'\x{A83C}' .
-				'\x{A83E}-\x{A83F}' .
+				'\x{A83D}' .
+				'\x{A83F}' .
+				'\x{A83F}' .
 				'\x{11680}-\x{116B9}' .
 				'\x{116C0}-\x{116C9}',
 			'Letter' =>
