@@ -35,6 +35,7 @@ use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Verifier;
+use SMF\Unicode\SpoofDetector;
 
 /**
  * Actually registers the new member.
@@ -706,7 +707,7 @@ class Register2 extends Register
 		// Call an optional function to validate the users' input.
 		IntegrationHook::call('integrate_register', [&$reg_options, &$theme_vars, &$known_ints, &$known_floats]);
 
-		$reg_options['register_vars']['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($reg_options['register_vars']['real_name'] ?? $reg_options['register_vars']['member_name'], ENT_QUOTES)));
+		$reg_options['register_vars']['spoofdetector_name'] = Utils::htmlspecialchars(SpoofDetector::getSkeletonString(html_entity_decode($reg_options['register_vars']['real_name'] ?? $reg_options['register_vars']['member_name'], ENT_QUOTES)));
 
 		$column_names = [];
 		$values = [];
