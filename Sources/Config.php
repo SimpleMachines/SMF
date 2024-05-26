@@ -2633,13 +2633,16 @@ class Config
 		// These changes aren't necessary to conform to SMF's coding standard,
 		// but they simplify some things elsewhere.
 		if (is_string($var)) {
-			return strtr(
+			return preg_replace(
+				[
+					"/(?<!\\\\)'' \. /",
+					"/ \. ''/"],
+				'',
 				preg_replace_callback(
 					'/[\r\n\t]+/',
 					fn ($m) => '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n', "\t" => '\t']) . '" . \'',
 					var_export($var, true),
 				),
-				["'' . " => '', " . ''" => ''],
 			);
 		}
 
