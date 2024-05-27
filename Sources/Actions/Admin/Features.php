@@ -1709,7 +1709,7 @@ class Features implements ActionInterface
 	public static function reactionsConfigVars(): array
 	{
 		$config_vars = [
-			['check', 'enable_reactions'],
+			['check', 'enable_reacts'],
 			['permissions', 'reactions_react'],
 		];
 
