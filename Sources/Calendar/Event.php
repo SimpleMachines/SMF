@@ -862,6 +862,12 @@ class Event implements \ArrayAccess
 	 */
 	public function addOccurrence(\DateTimeInterface $date, ?\DateInterval $duration = null): void
 	{
+		// The recurrence iterator ignores dates beyond $this->view_end.
+		if ($date > $this->view_end) {
+			$this->view_end = \DateTimeImmutable::createFromInterface($date)->modify('+1 second');
+			$this->createRecurrenceIterator();
+		}
+
 		$this->recurrence_iterator->add($date, $duration);
 	}
 
@@ -1761,7 +1767,7 @@ class Event implements \ArrayAccess
 		self::setRequestedStartAndDuration($eventOptions);
 
 		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
-		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+		$eventOptions['view_end'] = $eventOptions['view_start']->modify('+1 month');
 
 		self::setRequestedRRule($eventOptions);
 
@@ -1833,7 +1839,7 @@ class Event implements \ArrayAccess
 		self::setRequestedStartAndDuration($eventOptions);
 
 		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
-		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+		$eventOptions['view_end'] = $eventOptions['view_start']->modify('+1 month');
 
 		self::setRequestedRRule($eventOptions);
 
@@ -2470,11 +2476,17 @@ class Event implements \ArrayAccess
 	protected static function setRequestedRDatesAndExDates(Event $event): void
 	{
 		// Clear out all existing RDates and ExDates.
-		foreach ($event->recurrence_iterator->getRDates() as $rdate) {
+		$rdates = $event->recurrence_iterator->getRDates();
+		$exdates = $event->recurrence_iterator->getExDates();
+
+		rsort($rdates);
+		rsort($exdates);
+
+		foreach ($rdates as $rdate) {
 			$event->removeOccurrence(new \DateTimeImmutable($rdate));
 		}
 
-		foreach ($event->recurrence_iterator->getExDates() as $exdate) {
+		foreach ($exdates as $exdate) {
 			$event->addOccurrence(new \DateTimeImmutable($exdate));
 		}
 

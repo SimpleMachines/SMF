@@ -321,7 +321,10 @@ class React implements ActionInterface
 			);
 
 			if (Db::$db->num_rows($request) == 1) {
-				list($this->id_topic, $topicOwner) = Db::$db->fetch_row($request);
+				// fetch_row always results in an array of strings...
+				$row = Db::$db->fetch_row($request);
+				$this->id_topic = (int) $row[0];
+				$topicOwner = (int) $row[1];
 			}
 			Db::$db->free_result($request);
 

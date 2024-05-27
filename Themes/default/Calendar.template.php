@@ -880,7 +880,19 @@ function template_event_post()
 
 	echo '
 					<div class="buttonlist">
-						<input type="submit" value="', empty(Utils::$context['event']->new) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button floatright">
+						<input type="submit" value="', empty(Utils::$context['event']->new) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button floatright">';
+
+	if (!Utils::$context['event']->new) {
+		echo '
+						<input type="submit" name="deleteevent" value="', Lang::$txt['calendar_repeat_delete_label'], '" class="button floatright you_sure" data-confirm="', Utils::$context['event']->selected_occurrence->is_first ? Lang::$txt['calendar_confirm_delete'] : Lang::$txt['calendar_confirm_occurrence_delete'], '">';
+
+		if (!Utils::$context['event']->selected_occurrence->is_first) {
+			echo '
+						<a href="', Utils::$context['event']->modify_href, '" class="button floatright">', Lang::$txt['calendar_repeat_adjustment_edit_first'], '</a>';
+		}
+	}
+
+	echo '
 					</div>
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</div><!-- .roundframe -->
