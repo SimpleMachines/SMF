@@ -51,6 +51,10 @@ function currencies(): array
 			'cashDigits' => 0,
 			'cashRounding' => 0,
 		],
+		'ANG' => [
+			'digits' => 2,
+			'rounding' => 0,
+		],
 		'AOA' => [
 			'digits' => 2,
 			'rounding' => 0,
@@ -658,10 +662,6 @@ function currencies(): array
 			'digits' => 2,
 			'rounding' => 0,
 		],
-		'XCG' => [
-			'digits' => 2,
-			'rounding' => 0,
-		],
 		'XOF' => [
 			'digits' => 0,
 			'rounding' => 0,
@@ -800,8 +800,8 @@ function country_currencies(): array
 			'BSD',
 		],
 		'BT' => [
-			'BTN',
 			'INR',
+			'BTN',
 		],
 		'BV' => [
 			'NOK',
@@ -861,7 +861,7 @@ function country_currencies(): array
 			'CVE',
 		],
 		'CW' => [
-			'XCG',
+			'ANG',
 		],
 		'CX' => [
 			'AUD',
@@ -1196,8 +1196,8 @@ function country_currencies(): array
 			'MZN',
 		],
 		'NA' => [
-			'NAD',
 			'ZAR',
+			'NAD',
 		],
 		'NC' => [
 			'XPF',
@@ -1352,7 +1352,7 @@ function country_currencies(): array
 			'USD',
 		],
 		'SX' => [
-			'XCG',
+			'ANG',
 		],
 		'SY' => [
 			'SYP',
