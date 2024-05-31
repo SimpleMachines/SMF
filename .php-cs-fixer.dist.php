@@ -16,13 +16,11 @@ $finder = (new PhpCsFixer\Finder())
 	->in(__DIR__ . '/Sources/Unicode')
 	// Don't touch libraries.
 	->exclude([
+		'vendor',
 		'cache',
 		'other',
 		'Packages',
 		'Smileys',
-		'Sources/minify',
-		'Sources/ReCaptcha',
-		'Sources/ZxcvbnPhp',
 		'Themes',
 	])
 	// Skip ssi_example.php.
