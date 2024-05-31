@@ -23,13 +23,8 @@ namespace SMF;
 spl_autoload_register(function ($class) {
 	static $hook_value = '';
 
+	// In general, the SMF namespace maps to $sourcedir.
 	static $class_map = [
-		// Some special cases.
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-
-		// In general, the SMF namespace maps to $sourcedir.
 		'SMF\\' => '',
 	];
 

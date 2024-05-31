@@ -1523,8 +1523,7 @@ class ACP implements ActionInterface
 		);
 
 		$ignore_sources = [
-			Config::$sourcedir . '/minify/*',
-			Config::$sourcedir . '/ReCaptcha/*',
+			Config::$vendordir . '/*',
 			Config::$sourcedir . '/Tasks/*',
 		];
 

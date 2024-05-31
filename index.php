@@ -135,6 +135,8 @@ if (SMF === 1) {
  * 3. Load some other essential includes.
  */
 
+require_once SMF\Config::$vendordir . '/autoload.php';
+
 require_once SMF\Config::$sourcedir . '/Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions

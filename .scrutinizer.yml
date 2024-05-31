@@ -1,13 +1,8 @@
 filter:
     excluded_paths:
         - '*.min.js'
-        - 'Sources/minify/'
-        - 'Sources/random_compat/'
-        - 'Sources/ReCaptcha/'
+        - 'vendor/' # Just to be sure
     dependency_paths:
-        - 'Sources/minify/'
-        - 'Sources/random_compat/'
-        - 'Sources/ReCaptcha/'
 checks:
     php:
         variable_existence: true
