@@ -57,12 +57,12 @@ function template_popup()
 /**
  * Display a like button and info about how many people liked something
  */
-function template_like()
+function template_react()
 {
 	echo '
 	<ul class="floatleft">';
 
-	if (!empty(Utils::$context['data']['can_like']))
+	if (!empty(Utils::$context['data']['can_react']))
 		echo '
 		<li class="smflikebutton" id="', Utils::$context['data']['type'], '_', Utils::$context['data']['id_content'], '_likes"', '>
 			<a href="', Config::$scripturl, '?action=likes;ltype=', Utils::$context['data']['type'], ';sa=like;like=', Utils::$context['data']['id_content'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="', Utils::$context['data']['type'], '_like"><span class="main_icons ', Utils::$context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', Utils::$context['data']['already_liked'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a>

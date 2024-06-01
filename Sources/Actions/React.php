@@ -45,7 +45,7 @@ class React implements ActionInterface
 	 * The requested sub-action.
 	 * This should be set by the constructor.
 	 */
-	public string $subaction = 'like';
+	public string $subaction = 'react';
 
 	/**************************
 	 * Public static properties
@@ -62,7 +62,7 @@ class React implements ActionInterface
 	 * regarding hooks, etc., assumes that they are only called by like().
 	 */
 	public static array $subactions = [
-		'like' => 'like',
+		'react' => 'react',
 		'view' => 'view',
 		'delete' => 'delete',
 		'insert' => 'insert',
@@ -117,14 +117,14 @@ class React implements ActionInterface
 	 *
 	 * The number of times the content has been liked.
 	 */
-	protected int $num_likes = 0;
+	protected int $num_reacts = 0;
 
 	/**
 	 * @var bool
 	 *
 	 * If the current user has already liked this content.
 	 */
-	protected bool $already_liked = false;
+	protected bool $already_reacted = false;
 
 	/**
 	 * @var array
@@ -132,15 +132,15 @@ class React implements ActionInterface
 	 * Mostly used for external integration. Needs to be filled as an array
 	 * with the following keys:
 	 *
-	 * 'can_like'   bool|string  True if the current user can actually like
+	 * 'can_react'   bool|string  True if the current user can actually react to
 	 *                           this content, or a Lang::$txt key for an
 	 *                           error message if not.
 	 *
-	 * 'redirect'    string      URL to redirect to after the like is submitted.
+	 * 'redirect'    string      URL to redirect to after the react is submitted.
 	 *                           If not set, will redirect to the forum index.
 	 *
 	 * 'type'        string      6 character unique identifier for the content.
-	 *                           Must match what was sent in $_GET['ltype']
+	 *                           Must match what was sent in $_GET['rtype']
 	 *
 	 * 'flush_cache' bool        If true, reset the like content's cache entry
 	 *                           after a new entry has been inserted. Optional.
@@ -153,8 +153,8 @@ class React implements ActionInterface
 	 * 'json'        bool        If true, the class will return a JSON object as
 	 *                           a response instead of HTML. Default: false.
 	 */
-	protected array $valid_likes = [
-		'can_like' => false,
+	protected array $valid_reacts = [
+		'can_react' => false,
 		'redirect' => '',
 		'type' => '',
 		'flush_cache' => '',
@@ -264,8 +264,8 @@ class React implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 
-		$this->type = $_GET['ltype'] ?? '';
-		$this->content = (int) ($_GET['like'] ?? 0);
+		$this->type = $_GET['rtype'] ?? '';
+		$this->content = (int) ($_GET['react'] ?? 0);
 		$this->js = isset($_GET['js']);
 		$this->extra = $_GET['extra'] ?? false;
 
@@ -278,14 +278,14 @@ class React implements ActionInterface
 	/**
 	 * Performs basic checks on the data provided, checks for a valid msg like.
 	 *
-	 * Calls integrate_valid_likes hook for retrieving all the data needed and
+	 * Calls integrate_valid_reacts hook for retrieving all the data needed and
 	 * apply checks based on the data provided.
 	 */
 	protected function check(): void
 	{
 		// This feature is currently disable.
-		if (empty(Config::$modSettings['enable_likes'])) {
-			$this->error = 'like_disable';
+		if (empty(Config::$modSettings['enable_reacts'])) {
+			$this->error = 'react_disable';
 
 			return;
 		}
@@ -336,48 +336,48 @@ class React implements ActionInterface
 
 			// So we know what topic it's in and more importantly we know the
 			// user can see it. If we're not viewing, we need some info set up.
-			$this->valid_likes['type'] = 'msg';
-			$this->valid_likes['flush_cache'] = 'likes_topic_' . $this->id_topic . '_' . User::$me->id;
-			$this->valid_likes['redirect'] = 'topic=' . $this->id_topic . '.msg' . $this->content . '#msg' . $this->content;
+			$this->valid_reacts['type'] = 'msg';
+			$this->valid_reacts['flush_cache'] = 'reacts_topic_' . $this->id_topic . '_' . User::$me->id;
+			$this->valid_reacts['redirect'] = 'topic=' . $this->id_topic . '.msg' . $this->content . '#msg' . $this->content;
 
-			$this->valid_likes['can_like'] = (User::$me->id == $topicOwner ? 'cannot_like_content' : (User::$me->allowedTo('likes_like') ? true : 'cannot_like_content'));
+			$this->valid_reacts['can_react'] = (User::$me->id == $topicOwner ? 'cannot_react_content' : (User::$me->allowedTo('reacts_react') ? true : 'cannot_react_content'));
 		} else {
 			/*
 			 * MOD AUTHORS: This will give you whatever the user offers up in
-			 * terms of liking, e.g. $this->type=msg, $this->content=1.
+			 * terms of reacting, e.g. $this->type=msg, $this->content=1.
 			 *
 			 * When you hook this, check $this->type first. If it is not
 			 * something your mod worries about, return false.
 			 *
 			 * Otherwise, return an array according to the documentation for
-			 * $this->valid_likes. Determine (however you need to) that the user
+			 * $this->valid_reacts. Determine (however you need to) that the user
 			 * can see and can_like the relevant liked content (and it exists).
 			 * Remember that users can't like their own content.
 			 *
 			 * If the user can like it, you MUST return your type in the 'type'
 			 * key of the returned array.
 			 *
-			 * See also issueLike() for further notes.
+			 * See also issueReact() for further notes.
 			 */
-			$can_like = IntegrationHook::call('integrate_valid_likes', [$this->type, $this->content, $this->subaction, $this->js, $this->extra]);
+			$can_like = IntegrationHook::call('integrate_valid_reacts', [$this->type, $this->content, $this->subaction, $this->js, $this->extra]);
 
 			$found = false;
 
-			if (!empty($can_like)) {
-				$can_like = (array) $can_like;
+			if (!empty($can_react)) {
+				$can_react = (array) $can_react;
 
-				foreach ($can_like as $result) {
+				foreach ($can_react as $result) {
 					if ($result !== false) {
 						// Match the type with what we already have.
 						if (!isset($result['type']) || $result['type'] != $this->type) {
-							$this->error = 'not_valid_like_type';
+							$this->error = 'not_valid_react_type';
 
 							return;
 						}
 
 						// Fill out the rest.
 						$this->type = $result['type'];
-						$this->valid_likes = array_merge($this->valid_likes, $result);
+						$this->valid_reacts = array_merge($this->valid_reacts, $result);
 
 						$found = true;
 						break;
@@ -394,8 +394,8 @@ class React implements ActionInterface
 
 		// Is the user able to like this?
 		// Viewing a list of likes doesn't require this permission.
-		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && is_string($this->valid_likes['can_like'])) {
-			$this->error = $this->valid_likes['can_like'];
+		if ($this->subaction != 'view' && isset($this->valid_reacts['can_react']) && is_string($this->valid_reacts['can_react'])) {
+			$this->error = $this->valid_reacts['can_react'];
 
 			return;
 		}
@@ -408,13 +408,13 @@ class React implements ActionInterface
 	{
 		Db::$db->query(
 			'',
-			'DELETE FROM {db_prefix}user_likes
-			WHERE content_id = {int:like_content}
-				AND content_type = {string:like_type}
+			'DELETE FROM {db_prefix}user_reacts
+			WHERE content_id = {int:react_content}
+				AND content_type = {string:react_type}
 				AND id_member = {int:id_member}',
 			[
-				'like_content' => $this->content,
-				'like_type' => $this->type,
+				'react_content' => $this->content,
+				'react_type' => $this->type,
 				'id_member' => User::$me->id,
 			],
 		);
@@ -427,15 +427,15 @@ class React implements ActionInterface
 		// Check to see if there is an unread alert to delete as well...
 		Alert::deleteWhere(
 			[
-				'content_id = {int:like_content}',
-				'content_type = {string:like_type}',
+				'content_id = {int:react_content}',
+				'content_type = {string:react_type}',
 				'id_member_started = {int:id_member_started}',
 				'content_action = {string:content_action}',
 				'is_read = {int:unread}',
 			],
 			[
-				'like_content' => $this->content,
-				'like_type' => $this->type,
+				'react_content' => $this->content,
+				'react_type' => $this->type,
 				'id_member_started' => User::$me->id,
 				'content_action' => 'like',
 				'unread' => 0,
@@ -444,7 +444,7 @@ class React implements ActionInterface
 	}
 
 	/**
-	 * Inserts a new entry on user_likes table.
+	 * Inserts a new entry on user_reacts table.
 	 * Creates a background task for the inserted entry.
 	 */
 	protected function insert(): void
@@ -456,24 +456,27 @@ class React implements ActionInterface
 		$content = $this->content;
 		$user = (array) User::$me;
 		$time = time();
+		$id = $this->id_react;
 
-		IntegrationHook::call('integrate_issue_like_before', [&$type, &$content, &$user, &$time]);
+		IntegrationHook::call('integrate_issue_react_before', [&$type, &$content, &$user, &$time, &$id]);
 
 		// Insert the like.
 		Db::$db->insert(
 			'insert',
-			'{db_prefix}user_likes',
+			'{db_prefix}user_reacts',
 			[
 				'content_id' => 'int',
 				'content_type' => 'string-6',
 				'id_member' => 'int',
-				'like_time' => 'int',
+				'react_time' => 'int',
+				'id_react' => 'int',
 			],
 			[
 				$content,
 				$type,
 				$user['id'],
 				$time,
+				$id,
 			],
 			[
 				'content_id',
@@ -484,7 +487,7 @@ class React implements ActionInterface
 
 		// Add a background task to process sending alerts.
 		// MOD AUTHORS: you can add your own background task for your own custom
-		// like event using the "integrate_issue_like" hook or your callback,
+		// react event using the "integrate_issue_react" hook or your callback,
 		// both are immediately called after this.
 		if ($this->type == 'msg') {
 			Db::$db->insert(
@@ -496,7 +499,7 @@ class React implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\Likes_Notify',
+					'SMF\\Tasks\\Reacts_Notify',
 					Utils::jsonEncode([
 						'content_id' => $content,
 						'content_type' => $type,
@@ -517,37 +520,37 @@ class React implements ActionInterface
 	}
 
 	/**
-	 * Sets $this->num_likes to the actual number of likes that the content has.
+	 * Sets $this->num_reacts to the actual number of reactions that the content has.
 	 */
 	protected function count(): void
 	{
 		$request = Db::$db->query(
 			'',
 			'SELECT COUNT(*)
-			FROM {db_prefix}user_likes
-			WHERE content_id = {int:like_content}
-				AND content_type = {string:like_type}',
+			FROM {db_prefix}user_reacts
+			WHERE content_id = {int:react_content}
+				AND content_type = {string:react_type}',
 			[
-				'like_content' => $this->content,
-				'like_type' => $this->type,
+				'react_content' => $this->content,
+				'react_type' => $this->type,
 			],
 		);
-		list($likes) = Db::$db->fetch_row($request);
+		list($reacts) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$this->num_likes = (int) $likes;
+		$this->num_reacts = (int) $reacts;
 
 		if ($this->subaction == __FUNCTION__) {
-			$this->data = $this->num_likes;
+			$this->data = $this->num_reacts;
 		}
 	}
 
 	/**
-	 * Performs a like action, either like or unlike.
+	 * Performs a reaction action, either react or "unreact"
 	 *
-	 * Counts the total of likes and calls a hook after the event.
+	 * Counts the total of reactions and calls a hook after the event.
 	 */
-	protected function like(): void
+	protected function react(): void
 	{
 		// Safety first!
 		if (empty($this->type) || empty($this->content)) {
@@ -556,24 +559,24 @@ class React implements ActionInterface
 			return;
 		}
 
-		// Do we already like this?
+		// Did we already react to this?
 		$request = Db::$db->query(
 			'',
 			'SELECT content_id, content_type, id_member
-			FROM {db_prefix}user_likes
-			WHERE content_id = {int:like_content}
-				AND content_type = {string:like_type}
+			FROM {db_prefix}user_reacts
+			WHERE content_id = {int:react_content}
+				AND content_type = {string:react_type}
 				AND id_member = {int:id_member}',
 			[
-				'like_content' => $this->content,
-				'like_type' => $this->type,
+				'react_content' => $this->content,
+				'react_type' => $this->type,
 				'id_member' => User::$me->id,
 			],
 		);
-		$this->already_liked = Db::$db->num_rows($request) != 0;
+		$this->already_reacted = Db::$db->num_rows($request) != 0;
 		Db::$db->free_result($request);
 
-		if ($this->already_liked) {
+		if ($this->already_reacted) {
 			$this->delete();
 		} else {
 			$this->insert();
@@ -588,104 +591,105 @@ class React implements ActionInterface
 			Db::$db->query(
 				'',
 				'UPDATE {db_prefix}messages
-				SET likes = {int:num_likes}
+				SET reacts = {int:num_reacts}
 				WHERE id_msg = {int:id_msg}',
 				[
 					'id_msg' => $this->content,
-					'num_likes' => $this->num_likes,
+					'num_reacts' => $this->num_likes,
 				],
 			);
 		}
 		// Any callbacks?
-		elseif (!empty($this->valid_likes['callback'])) {
-			$call = Utils::getCallable($this->valid_likes['callback']);
+		elseif (!empty($this->valid_reacts['callback'])) {
+			$call = Utils::getCallable($this->valid_reacts['callback']);
 
 			if (!empty($call)) {
 				call_user_func_array($call, [$this]);
 			}
 		}
 
-		// Sometimes there might be other things that need updating after we do this like.
-		IntegrationHook::call('integrate_issue_like', [$this]);
+		// Sometimes there might be other things that need updating after we do this reaction.
+		IntegrationHook::call('integrate_issue_react', [$this]);
 
 		// Now some clean up. This is provided here for any like handlers that
 		// want to do any cache flushing.
-		// This way a like handler doesn't need to explicitly declare anything
-		// in integrate_issue_like, but do so in integrate_valid_likes where it
+		// This way a reaction handler doesn't need to explicitly declare anything
+		// in integrate_issue_react, but do so in integrate_valid_reacts where it
 		// absolutely has to exist.
-		if (!empty($this->valid_likes['flush_cache'])) {
-			CacheApi::put($this->valid_likes['flush_cache'], null);
+		if (!empty($this->valid_reacts['flush_cache'])) {
+			CacheApi::put($this->valid_reacts['flush_cache'], null);
 		}
 
 		// All done, start building the data to pass as response.
 		$this->data = [
 			'id_topic' => !empty($this->id_topic) ? $this->id_topic : 0,
 			'id_content' => $this->content,
-			'count' => $this->num_likes,
-			'can_like' => $this->valid_likes['can_like'],
-			'already_liked' => empty($this->already_liked),
+			'count' => $this->num_reacts,
+			'can_react' => $this->valid_reacts['can_react'],
+			'already_reacted' => empty($this->already_reacted),
 			'type' => $this->type,
 		];
 	}
 
 	/**
-	 * This is for viewing the people who liked a thing.
+	 * This is for viewing the people who reacted to a thing.
 	 *
 	 * Accessed from index.php?action=likes;view and should generally load in a
 	 * popup.
 	 *
 	 * We use a template for this in case themers want to style it.
+	 * @TODO: Handle filtering by reaction
 	 */
 	protected function view(): void
 	{
 		// Firstly, load what we need. We already know we can see this, so that's something.
-		Utils::$context['likers'] = [];
+		Utils::$context['reactors'] = [];
 
 		$request = Db::$db->query(
 			'',
-			'SELECT id_member, like_time
-			FROM {db_prefix}user_likes
-			WHERE content_id = {int:like_content}
-				AND content_type = {string:like_type}
-			ORDER BY like_time DESC',
+			'SELECT id_member, react_time, id_react
+			FROM {db_prefix}user_reacts
+			WHERE content_id = {int:react_content}
+				AND content_type = {string:react_type}
+			ORDER BY react_time DESC',
 			[
-				'like_content' => $this->content,
-				'like_type' => $this->type,
+				'react_content' => $this->content,
+				'react_type' => $this->type,
 			],
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			Utils::$context['likers'][$row['id_member']] = ['timestamp' => $row['like_time']];
+			Utils::$context['reactors'][$row['id_member']] = ['timestamp' => $row['react_time'], 'id_react' => $row['id_react']];
 		}
 		Db::$db->free_result($request);
 
 		// Now to get member data, including avatars and so on.
-		$members = array_keys(Utils::$context['likers']);
+		$members = array_keys(Utils::$context['reactors']);
 		$loaded = User::load($members);
 
 		if (count($loaded) != count($members)) {
 			$members = array_diff($members, array_map(fn ($member) => $member->id, $loaded));
 
 			foreach ($members as $not_loaded) {
-				unset(Utils::$context['likers'][$not_loaded]);
+				unset(Utils::$context['reactors'][$not_loaded]);
 			}
 		}
 
-		foreach (Utils::$context['likers'] as $liker => $dummy) {
-			if (!isset(User::$loaded[$liker])) {
-				unset(Utils::$context['likers'][$liker]);
+		foreach (Utils::$context['reactors'] as $reactor => $dummy) {
+			if (!isset(User::$loaded[$reactor])) {
+				unset(Utils::$context['reactors'][$reactor]);
 
 				continue;
 			}
 
-			Utils::$context['likers'][$liker]['profile'] = User::$loaded[$liker]->format();
-			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
+			Utils::$context['reactors'][$reactor]['profile'] = User::$loaded[$reactor]->format();
+			Utils::$context['reactors'][$reactor]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
-		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => count(Utils::$context['likers'])]));
+		Utils::$context['page_title'] = strip_tags(Lang::getTxt('reacts_count', ['num' => count(Utils::$context['reactors'])]));
 
 		// Lastly, setting up for display.
-		Theme::loadTemplate('Likes');
+		Theme::loadTemplate('Reacts');
 		Lang::load('Help'); // For the close window button.
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'popup';
@@ -707,42 +711,42 @@ class React implements ActionInterface
 		}
 
 		// Want a JSON response, do they?
-		if ($this->valid_likes['json']) {
+		if ($this->valid_reacts['json']) {
 			$this->sendJsonReponse();
 
 			return;
 		}
 
 		// Set everything up for display.
-		Theme::loadTemplate('Likes');
+		Theme::loadTemplate('Reacts');
 		Utils::$context['template_layers'] = [];
 
 		// If there are any errors, process them first.
 		if ($this->error) {
 			// If this is a generic error, set it up good.
 			if ($this->error == 'cannot_') {
-				$this->error = $this->subaction == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+				$this->error = $this->subaction == 'view' ? 'cannot_view_reacts' : 'cannot_react_content';
 			}
 
 			// Is this request coming from an AJAX call?
 			if ($this->js) {
 				Utils::$context['sub_template'] = 'generic';
-				Utils::$context['data'] = Lang::$txt[$this->error] ?? Lang::$txt['like_error'];
+				Utils::$context['data'] = Lang::$txt[$this->error] ?? Lang::$txt['react_error'];
 			}
 			// Nope? Then just do a redirect to whatever URL was provided.
 			else {
-				Utils::redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] . ';error=' . $this->error : '');
+				Utils::redirectexit(!empty($this->valid_reacts['redirect']) ? $this->valid_reacts['redirect'] . ';error=' . $this->error : '');
 			}
 
 			return;
 		}
 
-		// A like operation.
+		// A react operation.
 
 		// Not an AJAX request so send the user back to the previous
 		// location or the main page.
 		if (!$this->js) {
-			Utils::redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] : '');
+			Utils::redirectexit(!empty($this->valid_reacts['redirect']) ? $this->valid_reacts['redirect'] : '');
 		}
 
 		// These fine gentlemen all share the same template.
@@ -750,7 +754,7 @@ class React implements ActionInterface
 
 		if (in_array($this->subaction, $generic)) {
 			Utils::$context['sub_template'] = 'generic';
-			Utils::$context['data'] = Lang::$txt['like_' . $this->data] ?? $this->data;
+			Utils::$context['data'] = Lang::$txt['react_' . $this->data] ?? $this->data;
 		}
 		// Directly pass the current called sub-action and the data
 		// generated by its associated Method.
@@ -772,14 +776,14 @@ class React implements ActionInterface
 		// If there is an error, send it.
 		if ($this->error) {
 			if ($this->error == 'cannot_') {
-				$this->error = $this->subaction == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+				$this->error = $this->subaction == 'view' ? 'cannot_view_reacts' : 'cannot_react_content';
 			}
 
 			$print['error'] = $this->error;
 		}
 
 		// Do you want to add something at the very last minute?
-		IntegrationHook::call('integrate_likes_json_response', [&$print]);
+		IntegrationHook::call('integrate_reacts_json_response', [&$print]);
 
 		// Print the data.
 		Utils::serverResponse(Utils::jsonEncode($print));
