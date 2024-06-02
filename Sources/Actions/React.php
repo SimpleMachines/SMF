@@ -187,13 +187,6 @@ class React implements ActionInterface
 	 */
 	protected mixed $data;
 
-	/**
-	 * @var array
-	 *
-	 * Array of valid reactions - name and ID
-	 */
-	protected array $racts = [];
-
 	/****************
 	 * Public methods
 	 ****************/
