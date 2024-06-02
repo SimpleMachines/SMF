@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\ReactionTrait;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -185,6 +186,13 @@ class React implements ActionInterface
 	 * Data for the response.
 	 */
 	protected mixed $data;
+
+	/**
+	 * @var array
+	 *
+	 * Array of valid reactions - name and ID
+	 */
+	protected array $racts = [];
 
 	/****************
 	 * Public methods
