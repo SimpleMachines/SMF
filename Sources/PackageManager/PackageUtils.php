@@ -642,7 +642,7 @@ class PackageUtils
 							'function' => function ($rowData) {
 								$formatTxt = Lang::getTxt($rowData['result'] == '' || $rowData['result'] == 'skipped' ? 'package_restore_permissions_pre_change' : 'package_restore_permissions_post_change', file: 'Packages');
 
-								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+								return Lang::formatText($formatTxt, explode(',', $rowData['cur_perms']), $rowData['new_perms'], $rowData['writable_message']);
 							},
 							'class' => 'smalltext',
 						],

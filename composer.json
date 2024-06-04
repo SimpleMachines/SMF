@@ -6,6 +6,11 @@
             "type": "vcs"
         }
     ],
+	"autoload": {
+		"psr-4": {
+			"SMF\\": "Sources/"
+		}
+	},
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {

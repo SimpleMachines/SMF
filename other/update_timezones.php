@@ -83,7 +83,7 @@ define('SMF_VERSION', $matches[1]);
 preg_match('/define\(\'SMF_SOFTWARE_YEAR\', \'([^\']+)\'\);/', $index, $matches);
 define('SMF_SOFTWARE_YEAR', $matches[1]);
 
-require_once '../Sources/Autoloader.php';
+require_once '../vendor/autoload.php';
 
 $updater = new TimezoneUpdater();
 $updater->execute();
