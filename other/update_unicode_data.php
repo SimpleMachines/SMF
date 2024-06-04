@@ -54,7 +54,7 @@ foreach (['SMF_VERSION', 'SMF_SOFTWARE_YEAR'] as $const) {
 }
 
 // 4. Get some more stuff we need.
-require_once $sourcedir . '/Autoloader.php';
+require_once '/vendor/autoload.php';
 SMF\Config::$boarddir = $boarddir;
 SMF\Config::$sourcedir = $sourcedir;
 

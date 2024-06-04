@@ -644,7 +644,7 @@ class SubsPackage
 							'function' => function ($rowData) {
 								$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? Lang::$txt['package_restore_permissions_pre_change'] : Lang::$txt['package_restore_permissions_post_change'];
 
-								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+								return Lang::formatText($formatTxt, explode(',', $rowData['cur_perms']), $rowData['new_perms'], $rowData['writable_message']);
 							},
 							'class' => 'smalltext',
 						],
