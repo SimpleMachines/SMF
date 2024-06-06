@@ -187,6 +187,13 @@ class React implements ActionInterface
 	 */
 	protected mixed $data;
 
+	/**
+	 * @var int
+	 * 
+	 * The ID of the selected reaction. Should match an entry in the reactions table.
+	 */
+	protected int $id_react = 0;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -596,7 +603,7 @@ class React implements ActionInterface
 				WHERE id_msg = {int:id_msg}',
 				[
 					'id_msg' => $this->content,
-					'num_reacts' => $this->num_likes,
+					'num_reacts' => $this->num_reacts,
 				],
 			);
 		}
