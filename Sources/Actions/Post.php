@@ -577,7 +577,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up various Utils::$context variables for the template when replying to a topic
 	 */
 	protected function initiateReply(): void
 	{
@@ -638,7 +638,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the form for posting a new topic
 	 */
 	protected function initiateNewTopic(): void
 	{
@@ -665,7 +665,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the form for creating a new topic with a poll
 	 */
 	protected function initiatePoll(): void
 	{
@@ -687,7 +687,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the form for creating a new event
 	 */
 	protected function initiateEvent(): void
 	{
@@ -784,7 +784,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Checks whether any new replies have been posted while the user was typing and warns them if so
 	 */
 	protected function checkForNewReplies(): void
 	{
@@ -831,7 +831,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles setting the response prefix
 	 */
 	protected function setResponsePrefix(): void
 	{
@@ -848,7 +848,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles previewing a post
 	 */
 	protected function showPreview(): void
 	{
@@ -1066,7 +1066,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Shows the form for editing a post
 	 */
 	protected function showEdit(): void
 	{
@@ -1161,7 +1161,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Shows the form for creating a new post
 	 */
 	protected function showNew(): void
 	{
@@ -1556,7 +1556,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Shows the verification control if necessary
 	 */
 	protected function showVerification(): void
 	{
@@ -1573,7 +1573,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Checks for any errors
 	 */
 	protected function checkForErrors(): void
 	{
@@ -1608,7 +1608,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets the page title based on what the user is doing
 	 */
 	protected function setPageTitle(): void
 	{
@@ -1628,7 +1628,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the linktree info for the template
 	 */
 	protected function setLinktree(): void
 	{
@@ -1647,7 +1647,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles loading drafts
 	 */
 	protected function loadDrafts(): void
 	{
@@ -1690,7 +1690,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Gets information about available message icons for the template
 	 */
 	protected function setMessageIcons(): void
 	{
@@ -1736,7 +1736,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up information about each of the form fields
 	 */
 	protected function setupPostingFields(): void
 	{

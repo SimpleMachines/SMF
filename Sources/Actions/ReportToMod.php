@@ -245,7 +245,7 @@ class ReportToMod implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Checks the input, session, etc. and submits the form
 	 */
 	public function submit(): void
 	{

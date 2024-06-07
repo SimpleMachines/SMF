@@ -84,7 +84,7 @@ class Announce implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles selecting which groups to send the announcement to
 	 */
 	public function select(): void
 	{
@@ -127,7 +127,7 @@ class Announce implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sends the announcement email
 	 */
 	public function send(): void
 	{

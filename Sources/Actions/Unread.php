@@ -960,7 +960,7 @@ class Unread implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up information about buttons for the template
 	 */
 	protected function buildButtons(): void
 	{

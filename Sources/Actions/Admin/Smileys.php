@@ -2561,7 +2561,8 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * @param string $dir The directory to create
+	 * @param string $name The name of the set
 	 */
 	protected function createDir(string $dir, string $name): void
 	{
@@ -2593,7 +2594,9 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * @param string $name The desired name for the file
+	 * @param string $tmp_name The temporary name for the file
+	 * @return bool Whether this is a valid image file
 	 */
 	protected function validateImage(string $name, string $tmp_name): bool
 	{
@@ -2601,7 +2604,10 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * @param string $name The desired name of the file
+	 * @param string $tmp_name The temporary name of the file
+	 * @param array $destination_dirs An array of one or more directories to move this image to
+	 * @return array An array of information about the files that were moved
 	 */
 	protected function moveImageIntoPlace(string $name, string $tmp_name, array $destination_dirs): array
 	{
@@ -2695,7 +2701,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Saves the list of known smiley sets
 	 */
 	protected static function saveSets(): void
 	{
@@ -2723,7 +2729,9 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Trims unnecessary whitespace from the given string
+	 * @var string $string The string to sanitize
+	 * @return string The sanitized string
 	 */
 	protected static function sanitizeString(string $string): string
 	{
