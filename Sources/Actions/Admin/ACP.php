@@ -179,9 +179,6 @@ class ACP implements ActionInterface
 						'profile' => [
 							'label' => 'custom_profile_shorttitle',
 						],
-						'reactions' => [
-							'label' => 'reactions',
-						],
 						'mentions' => [
 							'label' => 'mentions',
 						],
@@ -364,6 +361,13 @@ class ACP implements ActionInterface
 							'label' => 'settings',
 						],
 					],
+				],
+				'managereactions' => [
+					'label' => 'reactions_manage',
+					'function' => __NAMESPACE__ . '\\Reactions::call',
+					'icon' => 'like',
+					'permission' => ['manage_reactions'],
+					'subsections' => [],
 				],
 				'manageattachments' => [
 					'label' => 'attachments_avatars',
