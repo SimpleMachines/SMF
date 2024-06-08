@@ -1263,7 +1263,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles showing attachments and setting up information for the attachments interface
 	 */
 	protected function showAttachments(): void
 	{

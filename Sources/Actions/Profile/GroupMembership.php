@@ -26,7 +26,7 @@ use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
 
-/**
+/**buildquic
  * Allows a user to choose, or at least request, group memberships.
  */
 class GroupMembership implements ActionInterface
@@ -295,7 +295,7 @@ class GroupMembership implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Loads an array of information about groups the user is in and any they can join
 	 */
 	protected function loadCurrentAndAssignableGroups(): void
 	{
@@ -364,7 +364,7 @@ class GroupMembership implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles submitting a user's request to join a group
 	 */
 	protected function sendJoinRequest(int $new_group_id): void
 	{
