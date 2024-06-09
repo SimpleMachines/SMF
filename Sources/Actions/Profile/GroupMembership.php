@@ -26,7 +26,7 @@ use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
 
-/**buildquic
+/**
  * Allows a user to choose, or at least request, group memberships.
  */
 class GroupMembership implements ActionInterface

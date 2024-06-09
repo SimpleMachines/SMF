@@ -2729,7 +2729,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 * Trims unnecessary whitespace from the given string
+	 * Sanitizes the string and trims unnecessary whitespace.
 	 * @var string $string The string to sanitize
 	 * @return string The sanitized string
 	 */
