@@ -703,7 +703,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Displays a visual verification control if necessary
 	 */
 	protected function checkVerification(): void
 	{
@@ -725,7 +725,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles adding/updating/deleting attachments
 	 */
 	protected function submitAttachments(): void
 	{
@@ -791,7 +791,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when submitting a new reply - permissions, possible errors, etc.
 	 */
 	protected function prepareNewReply(): void
 	{
@@ -881,7 +881,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when submitting a new topic
 	 */
 	protected function prepareNewTopic(): void
 	{
@@ -931,7 +931,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when editing an existing post
 	 */
 	protected function prepareEdit(): void
 	{
