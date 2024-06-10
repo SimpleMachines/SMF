@@ -18,16 +18,11 @@ namespace SMF;
 Use SMF\Cache\CacheApi;
 Use SMF\Db\DatabaseApi as Db;
 
+/**
+ * This trait only has one purpose - define a method to load reactions so we don't have to duplicate code
+ */
 trait ReactionTrait
 {
-
-	/**
-	 * @var array
-	 *
-	 * An array of information about available reactions
-	 */
-	protected array $reactions = [];
-
 	/**
 	 * @return array
 	 *
@@ -48,8 +43,8 @@ trait ReactionTrait
 			Db::$db->free($request);
 
 			// Cache the results
-			CacheApi::putData('reactions', $reactions);
+			CacheApi::put('reactions', $reactions);
 		}
-		return $this->reactions;
+		return $reactions;
 	}
 }
