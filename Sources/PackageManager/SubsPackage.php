@@ -2909,9 +2909,11 @@ class SubsPackage
 	}
 
 	/**
-	 * @param string $dir
+	 * Generates a unique filename for the specified file in the specified directory
+	 * 
+	 * @param string $dir The directory
 	 * @param string $filename The filename without an extension
-	 * @param string $ext
+	 * @param string $ext The extension
 	 * @return string The filename with a number appended but no extension
 	 * @since 2.1
 	 */

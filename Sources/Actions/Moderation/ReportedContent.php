@@ -1308,7 +1308,7 @@ class ReportedContent implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up information for the quick buttons for each report
 	 */
 	protected function buildQuickButtons(): void
 	{

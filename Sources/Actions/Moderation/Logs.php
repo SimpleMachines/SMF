@@ -180,28 +180,28 @@ class Logs implements ActionInterface
 	/**
 	 * @var array
 	 *
-	 *
+	 * An array of search parameters
 	 */
 	protected array $search_params;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * The search parameters string
 	 */
 	protected string $search_params_string;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * The column being searched
 	 */
 	protected string $search_params_column;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * URL-encoded search params
 	 */
 	protected string $encoded_search_params;
 
@@ -229,7 +229,8 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles the admin log.
+	 * @uses createList()
 	 */
 	public function adminlog(): void
 	{
@@ -243,7 +244,8 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles the moderation log
+	 * @uses createList()
 	 */
 	public function modlog(): void
 	{
@@ -664,7 +666,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the search
 	 */
 	protected function setupSearch(): void
 	{
@@ -713,7 +715,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles deleting log entries
 	 */
 	protected function deleteEntries(): void
 	{
@@ -725,7 +727,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles deleting all entries in either the mod or admin logs
 	 */
 	protected function deleteAll(): void
 	{
@@ -748,7 +750,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Deletes a single log entry
 	 */
 	protected function deleteEntry(): void
 	{
@@ -773,7 +775,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up all the information for the admin or mod log
 	 */
 	protected function createList(): void
 	{

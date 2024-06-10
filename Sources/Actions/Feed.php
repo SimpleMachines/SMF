@@ -2950,6 +2950,11 @@ class Feed implements ActionInterface
 	 * Internal methods
 	 ******************/
 
+	/**
+	 * Sets the subaction property
+	 * 
+	 * @param ?string $subaction The subaction. If not set, checks $_GET['sa'] first, then picks the first value in self::$subactions
+	 */
 	protected function setSubaction(?string $subaction): void
 	{
 		if (isset($subaction, self::$subactions[$subaction])) {
@@ -2961,6 +2966,11 @@ class Feed implements ActionInterface
 		}
 	}
 
+	/**
+	 * Sets the member property. This is the ID of the person viewing it or the person whose profile feed we're viewing
+	 *
+	 * @param ?int The member ID
+	 */
 	protected function setMember(?int $member = 0): void
 	{
 		// Member ID was passed to the constructor.
@@ -2984,6 +2994,9 @@ class Feed implements ActionInterface
 		Utils::$context['xmlnews_uid'] = $this->member;
 	}
 
+	/**
+	 * Sets the format based on $_GET['type']
+	 */
 	protected function setFormat(): void
 	{
 		if (isset($_GET['type'], self::XML_NAMESPACES[$_GET['type']])) {
@@ -2991,6 +3004,9 @@ class Feed implements ActionInterface
 		}
 	}
 
+	/**
+	 * Sets the limit for determining how many items to show
+	 */
 	protected function setlimit(): void
 	{
 		// Limit was set via Utils::$context.
@@ -3009,6 +3025,9 @@ class Feed implements ActionInterface
 		Utils::$context['xmlnews_limit'] = $this->limit;
 	}
 
+	/**
+	 * Checks whether feeds are enabled
+	 */
 	protected function checkEnabled(): void
 	{
 		// Users can always export their own profile data.
