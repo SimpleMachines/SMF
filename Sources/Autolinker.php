@@ -217,6 +217,13 @@ class Autolinker
 	 */
 	protected string $js_email_regex;
 
+	/**
+	 * @var string
+	 *
+	 * Regular expression to match the named entities in HTML5.
+	 */
+	protected string $entities_regex;
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -377,10 +384,9 @@ class Autolinker
 	{
 		static $no_autolink_regex;
 
-		// An &nbsp; right after a URL can break the autolinker
-		if (str_contains($string, '&nbsp;')) {
-			$string = strtr($string, ['&nbsp;' => str_repeat(html_entity_decode('&nbsp;', 0, $this->encoding), 3)]);
-		}
+		// An entity right after the URL can break the autolinker.
+		$this->setEntitiesRegex();
+		$string = preg_replace('~(' . $this->entities_regex . ')*(?=\s|$)~u', ' ', $string);
 
 		$this->setUrlRegex();
 
@@ -467,10 +473,9 @@ class Autolinker
 	 */
 	public function detectEmails(string $string, bool $plaintext_only = false): array
 	{
-		// An &nbsp; right after a email address can break the autolinker
-		if (str_contains($string, '&nbsp;')) {
-			$string = strtr($string, ['&nbsp;' => str_repeat(html_entity_decode('&nbsp;', 0, $this->encoding), 3)]);
-		}
+		// An entity right after the email address can break the autolinker.
+		$this->setEntitiesRegex();
+		$string = preg_replace('~(' . $this->entities_regex . ')*(?=\s|$)~u', ' ', $string);
 
 		$this->setEmailRegex();
 
@@ -802,6 +807,18 @@ class Autolinker
 	/*******************
 	 * Internal methods.
 	 *******************/
+
+	/**
+	 * Sets $this->entities_regex.
+	 */
+	protected function setEntitiesRegex(): void
+	{
+		if (isset($this->entities_regex)) {
+			return;
+		}
+
+		$this->entities_regex = '(?' . '>&(?' . '>' . Utils::buildRegex(array_map(fn ($ent) => ltrim($ent, '&'), get_html_translation_table(HTML_ENTITIES, ENT_HTML5 | ENT_QUOTES)), '~') . '|(?' . '>#(?' . '>x[0-9a-fA-F]{1,6}|\d{1,7});)))';
+	}
 
 	/**
 	 * Sets $this->tld_regex.
