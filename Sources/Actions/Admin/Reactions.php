@@ -17,6 +17,7 @@ declare(strict_types = 1);
 
 namespace SMF\Actions\Admin;
 
+use Overtrue\PHPLint\Cache;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\ReactionTrait;
@@ -125,7 +126,7 @@ class Reactions implements ActionInterface
 		// Make sure we select the right menu item
 		Menu::$loaded['admin']['currentsubsection'] = 'editreactions';
 
-		// Get the reactions. We'll use this even if we're not updating anything
+		// Get the reactions. If we're updating things then we'll overwrite this later
 		$reactions = $this->getReactions();
 
 		// They must have submitted a form.
@@ -194,7 +195,9 @@ class Reactions implements ActionInterface
 
 					if (!empty($add)) {
 						$do_update = true;
-						Db::$db->insert('{db_pref}reactions', $add);
+
+						// Insert the new reactions
+						Db::$db->insert('insert', '{db_pref}reactions', ['name'], $add, []);
 					}
 				}
 
@@ -216,6 +219,9 @@ class Reactions implements ActionInterface
 
 				// If we updated anything, re-cache everything
 				if ($do_update) {
+					// Re-cache the reactions and update the reactions variable
+					Cache::put('reactions', null);
+					$reactions = $this->getReactions();
 				}
 			}
 		}

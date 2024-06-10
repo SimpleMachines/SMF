@@ -42,13 +42,13 @@ trait ReactionTrait
 			[]);
 
 			while ($result = Db::$db->fetchAssoc($request)) {
-				$this->reactions[$result['id_react']] = $result;
+				$this->reactions[$result['id_react']] = $result['name'];
 			}
 
 			Db::$db->free($request);
 
 			// Cache the results
-			CacheApi::put('reactions', $reactions);
+			CacheApi::putData('reactions', $reactions);
 		}
 		return $this->reactions;
 	}
