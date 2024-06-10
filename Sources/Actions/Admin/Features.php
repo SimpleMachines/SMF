@@ -1702,23 +1702,6 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Gets the configuration variables for the reactions sub-action.
-	 *
-	 * @return array $config_vars for the reactions sub-action.
-	 */
-	public static function reactionsConfigVars(): array
-	{
-		$config_vars = [
-			['check', 'enable_reacts'],
-			['permissions', 'reactions_react'],
-		];
-
-		IntegrationHook::call('integrate_reactions_settings', [&$config_vars]);
-
-		return $config_vars;
-	}
-
-	/**
 	 * Gets the configuration variables for the mentions sub-action.
 	 *
 	 * @return array $config_vars for the mentions sub-action.
