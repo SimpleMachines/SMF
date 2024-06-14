@@ -226,22 +226,52 @@ class Reactions implements ActionInterface
 			}
 		}
 
-		// Load up the info for the form...
-	}
+		// Set up the form now...
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function load(): static
-	{
-		// TODO: Implement load() method.
-	}
+		// Create our token
+		SecurityToken::create('admin-mr', 'request');
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function call(): void
-	{
-		// TODO: Implement call() method.
+		// Set up our list. Use a special function for the get_items so we can output things in input fields...
+		$listOptions = [
+			'id' => 'reactions_list',
+			'title' => Lang::$txt['reactions'],
+			'no_items_label' => Lang::$txt['no_reactions'],
+			'base_href' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
+			'get_items' => [
+				'function' => function() use ($reactions) : array {
+					$items = [];
+					foreach ($reactions as $id => $name) {
+						// Make a nice text field...
+						$items[] = '<input type="text" name="reacts[' . $id . ']" value="' . $name . '" />';
+					}
+					return $items;
+				},
+			],
+			'get_count' => [
+				'value' => count($reactions),
+			],
+			'columns' =>
+			[
+				'name' =>
+				[
+					'header' => [
+						'value' => Lang::$txt['reactions_name'],
+					]
+				]
+
+			]
+		];
+
+		// Now that we have our list options set up, have some fun...
+		$listOptions['form'] = [
+			'href' => Config::$scripturl . '?action=admin;area=react;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			'name' => 'list_reactions',
+		];
+
+		new ItemList($listOptions);
+
+		Utils::$context['page_title'] = Lang::$txt['reactions_manage'];
+		Utils::$context['sub_template'] = 'show_list';
+		Utils::$context['default_list'] = 'list_reactions';
 	}
 }
