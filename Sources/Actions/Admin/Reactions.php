@@ -242,7 +242,7 @@ class Reactions implements ActionInterface
 					$items = [];
 					foreach ($reactions as $id => $name) {
 						// Make a nice text field...
-						$items[] = '<input type="text" name="reacts[' . $id . ']" value="' . $name . '" />';
+						$items[] = '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">';
 					}
 					return $items;
 				},
