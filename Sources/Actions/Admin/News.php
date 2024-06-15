@@ -15,8 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -39,8 +41,10 @@ use SMF\Utils;
 /**
  * This class manages... the news. :P
  */
-class News extends ACP
+class News implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -1047,7 +1051,7 @@ class News extends ACP
 
 			IntegrationHook::call('integrate_save_news_settings');
 
-			self::saveDBSettings($config_vars);
+			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
 			Utils::redirectexit('action=admin;area=news;sa=settings');
 		}
@@ -1055,7 +1059,7 @@ class News extends ACP
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mp');
 
-		self::prepareDBSettingContext($config_vars);
+		ACP::prepareDBSettingContext($config_vars);
 	}
 
 	/***********************
