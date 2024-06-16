@@ -793,7 +793,7 @@ class Reports implements ActionInterface
 				if (str_starts_with((string) $key, '#sep#')) {
 					$data[$key]['separator'] = true;
 				}
-				// Hack in a "seperator" to display a row differently.
+				// Hack in a "separator" to display a row differently.
 				elseif (str_starts_with((string) $value, '#sep#')) {
 					$data[$key]['header'] = true;
 					$data[$key]['v'] = substr((string) $value, 5);

@@ -2422,7 +2422,7 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	private function build_regex_identifier_status(): bool
 	{
-		// We also need to distinguish characaters' Identifier_Status value.
+		// We also need to distinguish characters' Identifier_Status value.
 		$local_file = $this->fetch_unicode_file('IdentifierStatus.txt', self::DATA_URL_SECURITY);
 
 		if (empty($local_file)) {
