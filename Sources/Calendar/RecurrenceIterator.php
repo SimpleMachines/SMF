@@ -517,7 +517,7 @@ class RecurrenceIterator implements \Iterator
 	{
 		$this->rewind();
 
-		if ($date < $this->view_start || $date >= $this->view_end) {
+		if ($date < $this->view_start || $date > $this->view_end) {
 			return;
 		}
 
@@ -913,7 +913,7 @@ class RecurrenceIterator implements \Iterator
 	private function jumpToVisible(\DateTime &$current): void
 	{
 		if (
-			// Don't jump ahead if $current is aleady in the visible range.
+			// Don't jump ahead if $current is already in the visible range.
 			$current >= $this->view_start
 			// Can't jump ahead if recurrence rule requires counting the occurrences.
 			|| isset($this->rrule->count)
@@ -1053,7 +1053,7 @@ class RecurrenceIterator implements \Iterator
 			$allowed_values = $this->rrule->{$prop};
 
 			// BYDAY values could have numerical modifiers prepended to them.
-			// We only want the plain weekday abbrevations here.
+			// We only want the plain weekday abbreviations here.
 			if ($prop === 'byday') {
 				foreach ($allowed_values as &$allowed_value) {
 					$allowed_value = substr($allowed_value, -2);
@@ -1419,7 +1419,7 @@ class RecurrenceIterator implements \Iterator
 		$expansion_values = $this->sortWeekdays($expansion_values);
 
 		foreach ($expansion_values as $k => $v) {
-			// Separate out the numerical modifer (if any) from the day name.
+			// Separate out the numerical modifier (if any) from the day name.
 			preg_match('/^([+-]?\d*)(MO|TU|WE|TH|FR|SA|SU)?/', $v, $matches);
 
 			$expansion_values[$k] = [
@@ -1434,7 +1434,7 @@ class RecurrenceIterator implements \Iterator
 		$i = 0;
 
 		while ($temp <= $upperlimit) {
-			// Positive modifer means nth weekday of the month.
+			// Positive modifier means nth weekday of the month.
 			// E.g.: '2TH' means the second Thursday.
 			if ($expansion_values[$key]['modifier'] > 0) {
 				// To work nicely with PHP's parsing of 'next <dayname>',
@@ -1464,7 +1464,7 @@ class RecurrenceIterator implements \Iterator
 					break;
 				}
 			}
-			// Negative modifer means nth last weekday of the month.
+			// Negative modifier means nth last weekday of the month.
 			// E.g.: '-2TH' means the second last Thursday.
 			elseif ($expansion_values[$key]['modifier'] < 0) {
 				// To work nicely with PHP's parsing of 'previous <dayname>',
@@ -1493,7 +1493,7 @@ class RecurrenceIterator implements \Iterator
 					break;
 				}
 			}
-			// No modifer means every matching weekday.
+			// No modifier means every matching weekday.
 			// E.g.: 'TH' means every Thursday.
 			else {
 				// On the first iteration of this loop only, go to the last day
@@ -1539,7 +1539,7 @@ class RecurrenceIterator implements \Iterator
 		$expansion_values = $this->sortWeekdays($expansion_values);
 
 		foreach ($expansion_values as $k => $v) {
-			// Separate out the numerical modifer (if any) from the day name.
+			// Separate out the numerical modifier (if any) from the day name.
 			preg_match('/^([+-]?\d*)(MO|TU|WE|TH|FR|SA|SU)?/', $v, $matches);
 
 			$expansion_values[$k] = [
@@ -1553,7 +1553,7 @@ class RecurrenceIterator implements \Iterator
 		$key = 0;
 
 		while ($temp <= $upperlimit) {
-			// Positive modifer means nth weekday of the year.
+			// Positive modifier means nth weekday of the year.
 			// E.g.: '2TH' means the second Thursday.
 			if ($expansion_values[$key]['modifier'] > 0) {
 				// To work nicely with PHP's parsing of 'next <dayname>',
@@ -1579,7 +1579,7 @@ class RecurrenceIterator implements \Iterator
 					}
 				}
 			}
-			// Negative modifer means nth last weekday of the year.
+			// Negative modifier means nth last weekday of the year.
 			// E.g.: '-2TH' means the second last Thursday.
 			elseif ($expansion_values[$key]['modifier'] < 0) {
 				// To work nicely with PHP's parsing of 'previous <dayname>',
@@ -1605,7 +1605,7 @@ class RecurrenceIterator implements \Iterator
 					}
 				}
 			}
-			// No modifer means every matching weekday.
+			// No modifier means every matching weekday.
 			// E.g.: 'TH' means every Thursday.
 			else {
 				$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
@@ -1642,7 +1642,7 @@ class RecurrenceIterator implements \Iterator
 			$weekday_abbrevs[] = $temp;
 		}
 
-		// Handle strings with numerical modifers correctly.
+		// Handle strings with numerical modifiers correctly.
 		$temp = [];
 
 		foreach ($weekdays as $weekday) {

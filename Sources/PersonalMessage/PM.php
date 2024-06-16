@@ -1001,7 +1001,7 @@ class PM implements \ArrayAccess
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || strpos($message, '[html]') === false)) {
+			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($message, '[html]'))) {
 				$post_errors[] = 'no_message';
 			}
 		}
@@ -1272,11 +1272,11 @@ class PM implements \ArrayAccess
 					)
 					|| (
 						$criterium['t'] == 'sub'
-						&& strpos($subject, $criterium['v']) !== false
+						&& str_contains($subject, $criterium['v'])
 					)
 					|| (
 						$criterium['t'] == 'msg'
-						&& strpos($message, $criterium['v']) !== false
+						&& str_contains($message, $criterium['v'])
 					)
 				) {
 					$delete = true;
@@ -1392,8 +1392,14 @@ class PM implements \ArrayAccess
 				continue;
 			}
 
-			// If the receiving account is banned (>=10) or pending deletion (4), refuse to send the PM.
-			if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !User::$me->is_admin)) {
+			// If the receiving account is banned or pending deletion, refuse to send the PM.
+			if (
+				$row['is_activated'] >= User::BANNED
+				|| (
+					$row['is_activated'] == User::REQUESTED_DELETE
+					&& !User::$me->allowedTo('moderate_forum')
+				)
+			) {
 				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
@@ -1404,7 +1410,7 @@ class PM implements \ArrayAccess
 			// Send a notification, if enabled - taking the buddy list into account.
 			if (
 				!empty($row['email_address'])
-				&& $row['is_activated'] == 1
+				&& $row['is_activated'] == User::ACTIVATED
 				&& (
 					(
 						empty($pm_head)
@@ -1450,7 +1456,7 @@ class PM implements \ArrayAccess
 				'msgtime' => 'int',
 				'subject' => 'string-255',
 				'body' => 'string-65534',
-				'version' => 'string(5)',
+				'version' => 'string-5',
 			],
 			[
 				$pm_head,

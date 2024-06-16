@@ -421,7 +421,7 @@ class Profile extends User implements \ArrayAccess
 					if (($value = strtotime($value)) === false) {
 						$value = $this->date_registered;
 
-						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
+						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (str_contains(User::$me->time_format, '%H') ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
 					}
 
 					// As long as it doesn't equal "N/A"...
@@ -462,7 +462,7 @@ class Profile extends User implements \ArrayAccess
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
 						$this->new_data['validation_code'] = User::generateValidationCode();
 
-						$this->new_data['is_activated'] = 2;
+						$this->new_data['is_activated'] = User::UNVALIDATED;
 
 						Utils::$context['profile_execute_on_save'][] = [[$this, 'sendActivation']];
 
@@ -963,12 +963,12 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_website',
 				// Fix the URL...
 				'input_validate' => function (&$value) {
-					if (strlen(trim($value)) > 0 && strpos($value, '://') === false) {
+					if (strlen(trim($value)) > 0 && !str_contains($value, '://')) {
 						$value = 'http://' . $value;
 						$value = Url::create($value, true)->validate()->toUtf8();
 					}
 
-					if (strlen($value) < 8 || (substr($value, 0, 7) !== 'http://' && substr($value, 0, 8) !== 'https://')) {
+					if (strlen($value) < 8 || (!str_starts_with($value, 'http://') && !str_starts_with($value, 'https://'))) {
 						$value = '';
 					}
 
@@ -1222,7 +1222,7 @@ class Profile extends User implements \ArrayAccess
 				'server_pic' => 'blank.png',
 				'external' =>
 					empty(Config::$modSettings['gravatarAllowExtraEmail'])
-					|| (!empty(Config::$modSettings['gravatarOverride']) && substr((string) $this->avatar['url'], 0, 11) !== 'gravatar://') ? $this->email : substr($this->avatar['original_url'], 11),
+					|| (!empty(Config::$modSettings['gravatarOverride']) && !str_starts_with((string)$this->avatar['url'], 'gravatar://')) ? $this->email : substr($this->avatar['original_url'], 11),
 			];
 			$this->formatted['avatar']['href'] = self::getGravatarUrl($this->formatted['avatar']['external']);
 		}
@@ -2179,9 +2179,6 @@ class Profile extends User implements \ArrayAccess
 				// Set the save variable.
 				$this->new_data[$db_key] = $_POST[$key];
 
-				// And update the user profile.
-				$this->data[$key] = $this->new_data[$key];
-
 				// Are we logging it?
 				if (!empty($field['log_change']) && isset($this->data[$key])) {
 					$this->log_changes[] = [
@@ -2195,6 +2192,9 @@ class Profile extends User implements \ArrayAccess
 						],
 					];
 				}
+
+				// And update the user profile.
+				$this->data[$key] = $this->new_data[$db_key];
 			}
 
 			// Logging group changes are a bit different...
@@ -2249,6 +2249,10 @@ class Profile extends User implements \ArrayAccess
 					];
 				}
 			}
+		}
+
+		if (!empty($this->new_data['real_name'])) {
+			$this->new_data['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($this->new_data['real_name'], ENT_QUOTES)));
 		}
 	}
 
@@ -2372,7 +2376,7 @@ class Profile extends User implements \ArrayAccess
 						$value = '';
 					} elseif ($cf_def['mask'] == 'number') {
 						$value = (int) $value;
-					} elseif (substr($cf_def['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($cf_def['mask'], 5), $value) === 0) {
+					} elseif (str_starts_with($cf_def['mask'], 'regex') && trim($value) != '' && preg_match(substr($cf_def['mask'], 5), $value) === 0) {
 						$mask_error = 'custom_field_regex_fail';
 						$value = '';
 					}
@@ -2581,7 +2585,7 @@ class Profile extends User implements \ArrayAccess
 			if (!empty($tmp)) {
 				$result[] = [
 					'filename' => Utils::htmlspecialchars($line),
-					'checked' => strpos(Utils::$context['member']['avatar']['server_pic'], $line . '/') !== false,
+					'checked' => str_contains(Utils::$context['member']['avatar']['server_pic'], $line . '/'),
 					'name' => '[' . Utils::htmlspecialchars(str_replace('_', ' ', $line)) . ']',
 					'is_dir' => true,
 					'files' => $tmp,
@@ -2661,7 +2665,7 @@ class Profile extends User implements \ArrayAccess
 			// Named 'blank.png'
 			$this->new_data['avatar'] == 'blank.png'
 			// Not inside the expected directory.
-			|| strpos($avatar_path, Config::$modSettings['avatar_directory'] . '/') !== 0
+			|| !str_starts_with($avatar_path, Config::$modSettings['avatar_directory'] . '/')
 			// Not a file.
 			|| !is_file($avatar_path)
 			// Not a valid image file.

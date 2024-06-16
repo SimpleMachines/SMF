@@ -923,7 +923,7 @@ abstract class SearchApi implements SearchApiInterface
 			$header = fread($fp, 4096);
 			fclose($fp);
 
-			if (strpos($header, '* SearchAPI-' . $matches[1] . '.php') === false) {
+			if (!str_contains($header, '* SearchAPI-' . $matches[1] . '.php')) {
 				continue;
 			}
 
@@ -1169,7 +1169,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		// Now we look for -test, etc.... normaller.
 		foreach ($wordArray as $index => $word) {
-			if (strpos(trim($word), '-') === 0) {
+			if (str_starts_with(trim($word), '-')) {
 				if (($word = trim($word, '-_\' ')) !== '' && !in_array($word, $this->blacklisted_words)) {
 					$this->excludedWords[] = $word;
 				}
@@ -1293,7 +1293,10 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Wraps the given string in regex to set a word boundary
+	 * 
+	 * @param string $str The string
+	 * @return string
 	 */
 	protected function wordBoundaryWrapper(string $str): string
 	{
@@ -1301,7 +1304,10 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Uses regex to escape SQL in the given string
+	 * 
+	 * @param string $str The string to escape
+	 * @return string The escaped string
 	 */
 	protected function escapeSqlRegex(string $str): string
 	{
@@ -1309,7 +1315,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Finds the lowest and highest message ID based on the given min and/or max age
 	 */
 	protected function setMsgBounds(): void
 	{
@@ -1338,7 +1344,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Sets $this->userQuery based on given params
 	 */
 	protected function setUserQuery(): void
 	{
@@ -1418,7 +1424,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Sets $this->boardQuery based on the given params
 	 */
 	protected function setBoardQuery(): void
 	{
@@ -1430,7 +1436,7 @@ abstract class SearchApi implements SearchApiInterface
 		// Ensure that brd is an array.
 		if ((!empty($_REQUEST['brd']) && !is_array($_REQUEST['brd'])) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'board')) {
 			if (!empty($_REQUEST['brd'])) {
-				$_REQUEST['brd'] = strpos($_REQUEST['brd'], ',') !== false ? explode(',', $_REQUEST['brd']) : [$_REQUEST['brd']];
+				$_REQUEST['brd'] = str_contains($_REQUEST['brd'], ',') ? explode(',', $_REQUEST['brd']) : [$_REQUEST['brd']];
 			} else {
 				$_REQUEST['brd'] = isset($_REQUEST['sd_brd']) ? [$_REQUEST['sd_brd']] : [];
 			}
@@ -1557,7 +1563,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Handles searching for posts in the subject only
 	 */
 	protected function searchSubjectOnly(): void
 	{
@@ -1732,7 +1738,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Handles searching both in the subject and message text
 	 */
 	protected function searchSubjectAndMessage()
 	{

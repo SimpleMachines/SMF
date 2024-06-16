@@ -623,7 +623,7 @@ class Smileys implements ActionInterface
 					ErrorHandler::fatalLang('smileys_upload_error_types', false, [implode(', ', self::$allowed_extenions)]);
 				}
 
-				if (strpos($pathinfo['filename'], '.') !== false) {
+				if (str_contains($pathinfo['filename'], '.')) {
 					ErrorHandler::fatalLang('smileys_upload_error_illegal', false);
 				}
 
@@ -1505,7 +1505,7 @@ class Smileys implements ActionInterface
 			// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
 			if (
 				!preg_match('~^https://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz'])
-				|| strpos($_REQUEST['set_gz'], 'dlattach') !== false
+				|| str_contains($_REQUEST['set_gz'], 'dlattach')
 			) {
 				ErrorHandler::fatalLang('not_on_simplemachines', false);
 			}
@@ -1791,7 +1791,7 @@ class Smileys implements ActionInterface
 				}
 
 				// Do some preparation with the data... like check the icon exists *somewhere*
-				if (strpos($_POST['icon_filename'], '.png') !== false) {
+				if (str_contains($_POST['icon_filename'], '.png')) {
 					$_POST['icon_filename'] = substr($_POST['icon_filename'], 0, -4);
 				}
 
@@ -2106,11 +2106,11 @@ class Smileys implements ActionInterface
 			$cols['name'][] = $smiley_set['raw_name'];
 		}
 
-		$sort_flag = strpos($sort, 'DESC') === false ? SORT_ASC : SORT_DESC;
+		$sort_flag = !str_contains($sort, 'DESC') ? SORT_ASC : SORT_DESC;
 
-		if (substr($sort, 0, 4) === 'name') {
+		if (str_starts_with($sort, 'name')) {
 			array_multisort($cols['name'], $sort_flag, SORT_REGULAR, $cols['path'], $cols['is_default'], $cols['id']);
-		} elseif (substr($sort, 0, 4) === 'path') {
+		} elseif (str_starts_with($sort, 'path')) {
 			array_multisort($cols['path'], $sort_flag, SORT_REGULAR, $cols['name'], $cols['is_default'], $cols['id']);
 		} else {
 			array_multisort($cols['is_default'], $sort_flag, SORT_REGULAR, $cols['path'], $cols['name'], $cols['id']);
@@ -2561,7 +2561,8 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * @param string $dir The directory to create
+	 * @param string $name The name of the set
 	 */
 	protected function createDir(string $dir, string $name): void
 	{
@@ -2593,7 +2594,9 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * @param string $name The desired name for the file
+	 * @param string $tmp_name The temporary name for the file
+	 * @return bool Whether this is a valid image file
 	 */
 	protected function validateImage(string $name, string $tmp_name): bool
 	{
@@ -2601,7 +2604,10 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * @param string $name The desired name of the file
+	 * @param string $tmp_name The temporary name of the file
+	 * @param array $destination_dirs An array of one or more directories to move this image to
+	 * @return array An array of information about the files that were moved
 	 */
 	protected function moveImageIntoPlace(string $name, string $tmp_name, array $destination_dirs): array
 	{
@@ -2695,7 +2701,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Saves the list of known smiley sets
 	 */
 	protected static function saveSets(): void
 	{
@@ -2723,7 +2729,9 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sanitizes the string and trims unnecessary whitespace.
+	 * @var string $string The string to sanitize
+	 * @return string The sanitized string
 	 */
 	protected static function sanitizeString(string $string): string
 	{

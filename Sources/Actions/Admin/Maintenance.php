@@ -1117,7 +1117,7 @@ class Maintenance implements ActionInterface
 			}
 
 			while ($column_info = Db::$db->fetch_assoc($request)) {
-				if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false) {
+				if (str_contains($column_info['Type'], 'text') || str_contains($column_info['Type'], 'char')) {
 					$columns[] = strtolower($column_info['Field']);
 				}
 			}
@@ -1205,7 +1205,7 @@ class Maintenance implements ActionInterface
 					$changes = [];
 
 					foreach ($row as $column_name => $column_value) {
-						if ($column_name !== $primary_key && strpos($column_value, '&#') !== false) {
+						if ($column_name !== $primary_key && str_contains($column_value, '&#')) {
 							$changes[] = $column_name . ' = {string:changes_' . $column_name . '}';
 							$insertion_variables['changes_' . $column_name] = Utils::entityDecode($column_value);
 						}
@@ -1456,7 +1456,7 @@ class Maintenance implements ActionInterface
 
 			if ($_POST['del_type'] == 'activated') {
 				$where = 'mem.date_registered < {int:time_limit} AND mem.is_activated = {int:is_activated}';
-				$where_vars['is_activated'] = 0;
+				$where_vars['is_activated'] = User::NOT_ACTIVATED;
 			} else {
 				$where = 'mem.last_login < {int:time_limit} AND (mem.last_login != 0 OR mem.date_registered < {int:time_limit})';
 			}
@@ -2113,7 +2113,7 @@ class Maintenance implements ActionInterface
 					$function_list += self::getDefinedFunctionsInFile($absPath_clean);
 				}
 
-				$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$absPath_clean]));
+				$hook_exists = isset($function_list[$hookParsedData['call']]) || (str_ends_with($hook, '_include') && isset($files[$absPath_clean]));
 				$hook_temp = !empty(Utils::$context['integration_hooks_temporary'][$hook][$hookParsedData['rawData']]);
 				$temp = [
 					'hook_name' => $hook,
@@ -2403,30 +2403,30 @@ class Maintenance implements ActionInterface
 		$modFunc = $rawData;
 
 		// Any files?
-		if (substr($hook, -8) === '_include') {
+		if (str_ends_with($hook, '_include')) {
 			$modFunc = $modFunc . '|';
 		}
 
-		if (strpos($modFunc, '|') !== false) {
+		if (str_contains($modFunc, '|')) {
 			list($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
 			$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir'] ?? '']), '\\', '/');
 		}
 
 		// Hook is an instance.
-		if (strpos($modFunc, '#') !== false) {
+		if (str_contains($modFunc, '#')) {
 			$modFunc = str_replace('#', '', $modFunc);
 			$hookData['object'] = true;
 		}
 
 		// Hook is "disabled"
 		// May need to inspect $rawData here for includes...
-		if ((strpos($modFunc, '!') !== false) || (empty($modFunc) && (strpos($rawData, '!') !== false))) {
+		if ((str_contains($modFunc, '!')) || (empty($modFunc) && (str_contains($rawData, '!')))) {
 			$modFunc = str_replace('!', '', $modFunc);
 			$hookData['enabled'] = false;
 		}
 
 		// Handling methods?
-		if (strpos($modFunc, '::') !== false) {
+		if (str_contains($modFunc, '::')) {
 			list($hookData['class'], $hookData['method']) = explode('::', $modFunc);
 			$hookData['pureFunc'] = $hookData['method'];
 			$hookData['call'] = $modFunc;

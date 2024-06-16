@@ -479,7 +479,7 @@ class Cookie
 
 		// Manually specified the global domain.
 		// @todo Why doesn't this check whether $global is true?
-		if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false) {
+		if (!empty(Config::$modSettings['globalCookiesDomain']) && str_contains(Config::$boardurl, Config::$modSettings['globalCookiesDomain'])) {
 			$host = Config::$modSettings['globalCookiesDomain'];
 		}
 		// Globalize cookies across domains? (filter out IP-addresses)
@@ -491,7 +491,7 @@ class Cookie
 			$host = '';
 		}
 		// The host also shouldn't be set if there aren't any dots in it.
-		elseif (!isset($host) || strpos($host, '.') === false) {
+		elseif (!isset($host) || !str_contains($host, '.')) {
 			$host = '';
 		}
 

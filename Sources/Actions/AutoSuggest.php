@@ -123,12 +123,13 @@ class AutoSuggest implements ActionInterface
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN (1, 11)
+				AND is_activated IN ({array_int:activated})
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
 			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
+				'activated' => [User::ACTIVATED, User::ACTIVATED_BANNED],
 			],
 		);
 
@@ -240,7 +241,7 @@ class AutoSuggest implements ActionInterface
 			foreach ($possible_versions as $ver) {
 				$ver = trim($ver);
 
-				if (strpos($ver, 'SMF') === 0) {
+				if (str_starts_with($ver, 'SMF')) {
 					$versions[] = $ver;
 				}
 			}
@@ -254,7 +255,7 @@ class AutoSuggest implements ActionInterface
 		}
 
 		foreach ($versions as $id => $version) {
-			if (strpos(strtoupper($version), strtoupper($this->search)) !== false) {
+			if (str_contains(strtoupper($version), strtoupper($this->search))) {
 				$xml_data['items']['children'][] = [
 					'attributes' => [
 						'id' => $id,

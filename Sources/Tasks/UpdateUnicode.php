@@ -35,6 +35,7 @@ class UpdateUnicode extends BackgroundTask
 	public const DATA_URL_UCD = 'https://www.unicode.org/Public/UCD/latest/ucd';
 	public const DATA_URL_IDNA = 'https://www.unicode.org/Public/idna/latest';
 	public const DATA_URL_CLDR = 'https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json';
+	public const DATA_URL_SECURITY = 'https://www.unicode.org/Public/security/latest';
 
 	/**
 	 * @var string The latest official release of the Unicode Character Database.
@@ -432,6 +433,67 @@ class UpdateUnicode extends BackgroundTask
 			],
 			'data' => [],
 		],
+		'utf8_confusables' => [
+			'file' => 'Confusables.php',
+			'key_type' => 'hexchar',
+			'val_type' => 'hexchar',
+			'desc' => [
+				'Helper function for SMF\Unicode\SpoofDetector::getSkeletonString.',
+				'',
+				'Returns an array of "confusables" maps that can be used for confusable string',
+				'detection.',
+				'',
+				'Data compiled from:',
+				self::DATA_URL_SECURITY . '/confusables.txt',
+			],
+			'return' => [
+				'type' => 'array',
+				'desc' => '"Confusables" maps.',
+			],
+			'data' => [],
+		],
+		'utf8_character_scripts' => [
+			'file' => 'Confusables.php',
+			'key_type' => 'hexchar',
+			'val_type' => 'array',
+			'desc' => [
+				'Helper function for SpoofDetector::resolveScriptSet.',
+				'',
+				'Each key in the returned array defines the END of a range of characters that',
+				'all have the same script set. For example, the first key, "\x40", means the',
+				'range of characters from "\x0" to "\x40". Then the second key, "\x5A",',
+				'means the range from "\x41" to "\x5A".',
+				'',
+				'The first entry in each value array indicates the primary script (i.e. the',
+				'value of the Script property) for that set of characters. If those characters',
+				'can also occur in a limited number of other scripts (i.e. the Script_Extensions',
+				'property for those characters is not empty), those additional scripts are',
+				'listed after the first.',
+				'',
+				'See https://www.unicode.org/reports/tr24/ for more info.',
+			],
+			'return' => [
+				'type' => 'array',
+				'desc' => 'Script data for ranges of Unicode characters.',
+			],
+			'data' => [],
+		],
+		'utf8_regex_identifier_status' => [
+			'file' => 'Confusables.php',
+			'key_type' => 'string',
+			'val_type' => 'string',
+			'desc' => [
+				'Helper function for SpoofDetector::checkHomographNames.',
+				'',
+				'Returns an array of regexes that can be used to check the "identifier status"',
+				'of characters in a string.',
+			],
+			'return' => [
+				'type' => 'array',
+				'desc' => 'Character classes for identifier statuses.',
+			],
+			'data' => [],
+		],
 	];
 
 	/**
@@ -463,6 +525,10 @@ class UpdateUnicode extends BackgroundTask
 			'cldr-core/supplemental/plurals.json',
 			'cldr-core/supplemental/ordinals.json',
 			'cldr-core/supplemental/currencyData.json',
+		],
+		self::DATA_URL_SECURITY => [
+			'confusables.txt',
+			'IdentifierStatus.txt',
 		],
 	];
 
@@ -526,7 +592,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$file_contents['temp'] = file_get_contents($file_paths['temp']);
 
-			if (empty($file_contents['temp']) || strpos($file_contents['temp'], 'namespace SMF\\Unicode;') === false) {
+			if (empty($file_contents['temp']) || !str_contains($file_contents['temp'], 'namespace SMF\\Unicode;')) {
 				file_put_contents($file_paths['temp'], $this->smf_file_header());
 			} elseif (substr($file_contents['temp'], -2) === '?' . '>') {
 				file_put_contents($file_paths['temp'], substr($file_contents['temp'], 0, -2));
@@ -614,6 +680,15 @@ class UpdateUnicode extends BackgroundTask
 
 		$this->export_funcs_to_file();
 
+		/********************
+		 * Confusables data *
+		 ********************/
+		$success = $this->build_confusables() & $success;
+		$success = $this->build_compressed_character_script_data() & $success;
+		$success = $this->build_regex_identifier_status() & $success;
+
+		$this->export_funcs_to_file();
+
 		/**********
 		 * Wrapup *
 		 **********/
@@ -645,6 +720,25 @@ class UpdateUnicode extends BackgroundTask
 				if ($file_contents['temp'] !== $file_contents['real']) {
 					rename($file_paths['temp'], $file_paths['real']);
 				}
+			}
+
+			// Updating Unicode data means we need to update the spoof detector names.
+			if (empty($this->_details['files_only'])) {
+				Db::$db->insert(
+					'insert',
+					'{db_prefix}background_tasks',
+					[
+						'task_class' => 'string',
+						'task_data' => 'string',
+						'claimed_time' => 'int',
+					],
+					[
+						'SMF\\Tasks\\UpdateSpoofDetectorNames',
+						json_encode(['last_member_id' => 0]),
+						0,
+					],
+					['id_task'],
+				);
 			}
 		}
 
@@ -738,7 +832,7 @@ class UpdateUnicode extends BackgroundTask
 	private function deltree(string $dir_path): void
 	{
 		// For safety.
-		if (strpos($dir_path, $this->temp_dir) !== 0) {
+		if (!str_starts_with($dir_path, $this->temp_dir)) {
 			return;
 		}
 
@@ -785,7 +879,7 @@ class UpdateUnicode extends BackgroundTask
 		$keep_line = true;
 
 		foreach (explode("\n", $settings_defs[0]['text']) as $line) {
-			if (strpos($line, 'SMF') !== false || strpos($line, 'Simple Machines') !== false) {
+			if (str_contains($line, 'SMF') || str_contains($line, 'Simple Machines')) {
 				$keep_line = true;
 			}
 
@@ -917,7 +1011,9 @@ class UpdateUnicode extends BackgroundTask
 		foreach ($data as $key => $value) {
 			$func_code .= str_repeat("\t", $indent);
 
-			if ($key_type == 'hexchar') {
+			if (is_int($key)) {
+				// do nothing.
+			} elseif ($key_type == 'hexchar') {
 				$func_code .= '"';
 
 				$key = mb_decode_numericentity(str_replace(' ', '', $key), [0, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
@@ -927,7 +1023,7 @@ class UpdateUnicode extends BackgroundTask
 				}
 
 				$func_code .= '" => ';
-			} elseif ($key_type == 'string' && !is_int($key)) {
+			} elseif ($key_type == 'string') {
 				$func_code .= var_export($key, true) . ' => ';
 			}
 
@@ -1043,7 +1139,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1057,7 +1153,7 @@ class UpdateUnicode extends BackgroundTask
 				$this->derived_normalization_props[$fields[1]] = [];
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$entities = ['&#x' . $fields[0] . ';'];
 			} else {
 				$entities = [];
@@ -1142,7 +1238,7 @@ class UpdateUnicode extends BackgroundTask
 			$this->full_decomposition_maps['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim(strip_tags($fields[5]))) . ';';
 
 			// Just the canonical decompositions.
-			if (strpos($fields[5], '<') === false) {
+			if (!str_contains($fields[5], '<')) {
 				$this->funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', $fields[5]) . ';';
 			}
 		}
@@ -1171,7 +1267,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1209,7 +1305,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1249,7 +1345,7 @@ class UpdateUnicode extends BackgroundTask
 			$temp = [];
 
 			foreach ($this->full_decomposition_maps as $composed => $decomposed) {
-				$parts = strpos($decomposed, ' ') !== false ? explode(' ', $decomposed) : (array) $decomposed;
+				$parts = str_contains($decomposed, ' ') ? explode(' ', $decomposed) : (array) $decomposed;
 
 				foreach ($parts as $partnum => $hex) {
 					if (isset($this->full_decomposition_maps[$hex])) {
@@ -1280,7 +1376,7 @@ class UpdateUnicode extends BackgroundTask
 					$this->funcs['utf8_compose_maps']['data'][$decomposed] = $composed;
 				}
 
-				$parts = strpos($decomposed, ' ') !== false ? explode(' ', $decomposed) : (array) $decomposed;
+				$parts = str_contains($decomposed, ' ') ? explode(' ', $decomposed) : (array) $decomposed;
 
 				foreach ($parts as $partnum => $hex) {
 					if (isset($this->funcs['utf8_normalize_d_maps']['data'][$hex])) {
@@ -1367,7 +1463,7 @@ class UpdateUnicode extends BackgroundTask
 			foreach (file($local_file) as $line) {
 				$line = substr($line, 0, strcspn($line, '#'));
 
-				if (strpos($line, ';') === false) {
+				if (!str_contains($line, ';')) {
 					continue;
 				}
 
@@ -1390,7 +1486,7 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-				if (strpos($fields[0], '..') === false) {
+				if (!str_contains($fields[0], '..')) {
 					$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
 				} else {
 					list($start, $end) = explode('..', $fields[0]);
@@ -1429,7 +1525,7 @@ class UpdateUnicode extends BackgroundTask
 			foreach (file($local_file) as $line) {
 				$line = substr($line, 0, strcspn($line, '#'));
 
-				if (strpos($line, ';') === false) {
+				if (!str_contains($line, ';')) {
 					continue;
 				}
 
@@ -1517,7 +1613,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1543,7 +1639,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1557,7 +1653,7 @@ class UpdateUnicode extends BackgroundTask
 				continue;
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$this->char_data['&#x' . $fields[0] . ';']['scripts'][] = $fields[1];
 			} else {
 				list($start, $end) = explode('..', $fields[0]);
@@ -1582,7 +1678,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1600,7 +1696,7 @@ class UpdateUnicode extends BackgroundTask
 				}
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				foreach ($char_scripts as $char_script) {
 					$this->char_data['&#x' . $fields[0] . ';']['scripts'][] = $char_script;
 				}
@@ -1629,7 +1725,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1641,7 +1737,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$fields[1] = (float) $fields[1];
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$entity = '&#x' . $fields[0] . ';';
 
 				if (empty($this->char_data[$entity]['scripts'])) {
@@ -1703,7 +1799,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1803,7 +1899,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1882,7 +1978,7 @@ class UpdateUnicode extends BackgroundTask
 					if (!empty($this->funcs['utf8_combining_classes']['data'][$entity])) {
 						$this->funcs['utf8_regex_indic']['data'][$char_script]['Nonspacing_Combining_Mark'][] = $ord;
 					}
-				} elseif (substr($info['General_Category'], 0, 1) == 'L') {
+				} elseif (str_starts_with($info['General_Category'], 'L')) {
 					$this->funcs['utf8_regex_indic']['data'][$char_script]['Letter'][] = $ord;
 				}
 			}
@@ -1951,7 +2047,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach (file($local_file) as $line) {
 			$line = substr($line, 0, strcspn($line, '#'));
 
-			if (strpos($line, ';') === false) {
+			if (!str_contains($line, ';')) {
 				continue;
 			}
 
@@ -1961,7 +2057,7 @@ class UpdateUnicode extends BackgroundTask
 				$fields[$key] = preg_replace('/\b(0(?!\b))+/', '', trim($value));
 			}
 
-			if (strpos($fields[0], '..') === false) {
+			if (!str_contains($fields[0], '..')) {
 				$entities = ['&#x' . $fields[0] . ';'];
 			} else {
 				$entities = [];
@@ -2130,6 +2226,224 @@ class UpdateUnicode extends BackgroundTask
 
 		ksort($this->funcs['currencies']['data']);
 		ksort($this->funcs['country_currencies']['data']);
+
+		return true;
+	}
+
+	/**
+	 * Builds confusables data for the spoof detector.
+	 */
+	private function build_confusables(): bool
+	{
+		$local_file = $this->fetch_unicode_file('confusables.txt', self::DATA_URL_SECURITY);
+
+		if (empty($local_file)) {
+			return false;
+		}
+
+		// Compile the character => skeleton maps.
+		foreach (file($local_file) as $line) {
+			$line = substr($line, 0, strcspn($line, '#'));
+
+			if (strpos($line, ';') === false) {
+				continue;
+			}
+
+			$fields = explode(';', $line);
+
+			foreach ($fields as $key => $value) {
+				$fields[$key] = trim($value);
+			}
+
+			$fields[1] = explode(' ', $fields[1]);
+
+			foreach ($fields[1] as &$hexcode) {
+				$hexcode = str_pad($hexcode, 6, '0', STR_PAD_LEFT);
+			}
+
+			$fields[1] = implode(' ', $fields[1]);
+
+			$this->funcs['utf8_confusables']['data']['&#x' . str_pad($fields[0], 6, '0', STR_PAD_LEFT) . ';'] = '&#x' . str_replace(' ', '; &#x', $fields[1]) . ';';
+		}
+
+		ksort($this->funcs['utf8_confusables']['data']);
+
+		return true;
+	}
+
+	/**
+	 * Builds confusables data for the spoof detector.
+	 */
+	private function build_compressed_character_script_data(): bool
+	{
+		// Once we have identified a pair of potentially confusable strings, we need
+		// analyze their script sets in order to figure out what to do with them.
+		// For that, we need more data...
+		$local_file = $this->fetch_unicode_file('PropertyValueAliases.txt', self::DATA_URL_UCD);
+
+		if (empty($local_file)) {
+			return false;
+		}
+
+		$script_aliases = [];
+		$scripts_data = [];
+
+		foreach (file($local_file) as $line) {
+			$line = substr($line, 0, strcspn($line, '#'));
+
+			if (strpos($line, ';') === false) {
+				continue;
+			}
+
+			$fields = explode(';', $line);
+
+			foreach ($fields as $key => $value) {
+				$fields[$key] = trim($value);
+			}
+
+			if ($fields[0] !== 'sc') {
+				continue;
+			}
+
+			$script_aliases[$fields[1]] = $fields[2];
+		}
+
+		$local_file = $this->fetch_unicode_file('Scripts.txt', self::DATA_URL_UCD);
+
+		if (empty($local_file)) {
+			return false;
+		}
+
+		foreach (file($local_file) as $line) {
+			$line = substr($line, 0, strcspn($line, '#'));
+
+			if (strpos($line, ';') === false) {
+				continue;
+			}
+
+			$fields = explode(';', $line);
+
+			foreach ($fields as $key => $value) {
+				$fields[$key] = trim($value);
+			}
+
+			if (strpos($fields[0], '..') === false) {
+				$scripts_data['&#x' . str_pad($fields[0], 6, '0', STR_PAD_LEFT) . ';'][] = $fields[1];
+			} else {
+				list($start, $end) = explode('..', $fields[0]);
+
+				$ord_s = hexdec($start);
+				$ord_e = hexdec($end);
+
+				$ord = $ord_s;
+
+				while ($ord <= $ord_e) {
+					$scripts_data['&#x' . strtoupper(sprintf('%06s', dechex($ord++))) . ';'][] = $fields[1];
+				}
+			}
+		}
+
+		$local_file = $this->fetch_unicode_file('ScriptExtensions.txt', self::DATA_URL_UCD);
+
+		if (empty($local_file)) {
+			return false;
+		}
+
+		foreach (file($local_file) as $line) {
+			$line = substr($line, 0, strcspn($line, '#'));
+
+			if (strpos($line, ';') === false) {
+				continue;
+			}
+
+			$fields = explode(';', $line);
+
+			foreach ($fields as $key => $value) {
+				$fields[$key] = trim($value);
+			}
+
+			$char_scripts = [];
+
+			foreach (explode(' ', $fields[1]) as $alias) {
+				$char_scripts[] = $script_aliases[$alias];
+			}
+
+			if (strpos($fields[0], '..') === false) {
+				foreach ($char_scripts as $char_script) {
+					$scripts_data['&#x' . str_pad($fields[0], 6, '0', STR_PAD_LEFT) . ';'][] = $char_script;
+				}
+			} else {
+				list($start, $end) = explode('..', $fields[0]);
+
+				$ord_s = hexdec($start);
+				$ord_e = hexdec($end);
+
+				$ord = $ord_s;
+
+				while ($ord <= $ord_e) {
+					foreach ($char_scripts as $char_script) {
+						$scripts_data['&#x' . strtoupper(sprintf('%06s', dechex($ord++))) . ';'][] = $char_script;
+					}
+				}
+			}
+		}
+
+		foreach ($scripts_data as &$char_scripts) {
+			$char_scripts = array_unique($char_scripts);
+		}
+
+		ksort($scripts_data);
+
+		$prev = [];
+
+		foreach ($scripts_data as $char => $scripts) {
+			if (isset($prev['scripts']) && $prev['scripts'] !== $scripts) {
+				$this->funcs['utf8_character_scripts']['data'][$prev['char']] = preg_replace(
+					[
+						'/\d+ => /',
+						'/\n/',
+					],
+					[
+						'',
+						"\n\t\t",
+					],
+					Config::varExport($prev['scripts']),
+				);
+			}
+
+			$prev = ['char' => $char, 'scripts' => $scripts];
+		}
+
+		return true;
+	}
+
+	/**
+	 * Builds regex to distinguish characters' Identifier_Status value.
+	 */
+	private function build_regex_identifier_status(): bool
+	{
+		// We also need to distinguish characters' Identifier_Status value.
+		$local_file = $this->fetch_unicode_file('IdentifierStatus.txt', self::DATA_URL_SECURITY);
+
+		if (empty($local_file)) {
+			return false;
+		}
+
+		foreach (file($local_file) as $line) {
+			$line = substr($line, 0, strcspn($line, '#'));
+
+			if (strpos($line, ';') === false) {
+				continue;
+			}
+
+			$fields = explode(';', $line);
+
+			foreach ($fields as $key => $value) {
+				$fields[$key] = trim($value);
+			}
+
+			$this->funcs['utf8_regex_identifier_status']['data'][$fields[1]][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+		}
 
 		return true;
 	}

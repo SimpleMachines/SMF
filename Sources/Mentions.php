@@ -371,7 +371,7 @@ class Mentions
 		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		foreach ($members as $member) {
-			if (strpos($body, '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]') === false) {
+			if (!str_contains($body, '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]')) {
 				unset($members[$member['id']]);
 			}
 		}

@@ -268,7 +268,7 @@ class Post2 extends Post
 			Msg::preparsecode($_POST['message']);
 
 			// Let's see if there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!User::$me->allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false)) {
+			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($_POST['message'], '[html]'))) {
 				$this->errors[] = 'no_message';
 			}
 		}
@@ -362,7 +362,7 @@ class Post2 extends Post
 			}
 
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-				if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . User::$me->id) === false) {
+				if ($attachID != 'initial_error' && !str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 					continue;
 				}
 
@@ -703,7 +703,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Displays a visual verification control if necessary
 	 */
 	protected function checkVerification(): void
 	{
@@ -725,7 +725,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles adding/updating/deleting attachments
 	 */
 	protected function submitAttachments(): void
 	{
@@ -735,7 +735,7 @@ class Post2 extends Post
 			$keep_ids = [];
 
 			foreach ($_POST['attach_del'] as $dummy) {
-				if (strpos($dummy, 'post_tmp_' . User::$me->id) !== false) {
+				if (str_contains($dummy, 'post_tmp_' . User::$me->id)) {
 					$keep_temp[] = $dummy;
 				} else {
 					$keep_ids[] = (int) $dummy;
@@ -750,7 +750,7 @@ class Post2 extends Post
 							&& in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])
 						)
 						|| in_array($attachID, $keep_temp)
-						|| strpos($attachID, 'post_tmp_' . User::$me->id) === false
+						|| !str_contains($attachID, 'post_tmp_' . User::$me->id)
 					) {
 						continue;
 					}
@@ -791,7 +791,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when submitting a new reply - permissions, possible errors, etc.
 	 */
 	protected function prepareNewReply(): void
 	{
@@ -881,7 +881,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when submitting a new topic
 	 */
 	protected function prepareNewTopic(): void
 	{
@@ -931,7 +931,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when editing an existing post
 	 */
 	protected function prepareEdit(): void
 	{

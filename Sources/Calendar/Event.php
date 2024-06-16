@@ -862,6 +862,12 @@ class Event implements \ArrayAccess
 	 */
 	public function addOccurrence(\DateTimeInterface $date, ?\DateInterval $duration = null): void
 	{
+		// The recurrence iterator ignores dates beyond $this->view_end.
+		if ($date > $this->view_end) {
+			$this->view_end = \DateTimeImmutable::createFromInterface($date)->modify('+1 second');
+			$this->createRecurrenceIterator();
+		}
+
 		$this->recurrence_iterator->add($date, $duration);
 	}
 
@@ -1761,7 +1767,7 @@ class Event implements \ArrayAccess
 		self::setRequestedStartAndDuration($eventOptions);
 
 		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
-		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+		$eventOptions['view_end'] = $eventOptions['view_start']->modify('+1 month');
 
 		self::setRequestedRRule($eventOptions);
 
@@ -1833,7 +1839,7 @@ class Event implements \ArrayAccess
 		self::setRequestedStartAndDuration($eventOptions);
 
 		$eventOptions['view_start'] = \DateTimeImmutable::createFromInterface($eventOptions['start']);
-		$eventOptions['view_end'] = new \DateTimeImmutable('9999-12-31T23:59:59 UTC');
+		$eventOptions['view_end'] = $eventOptions['view_start']->modify('+1 month');
 
 		self::setRequestedRRule($eventOptions);
 
@@ -1940,7 +1946,7 @@ class Event implements \ArrayAccess
 				continue;
 			}
 
-			if (strpos($line, 'DTSTART') === 0) {
+			if (str_starts_with($line, 'DTSTART')) {
 				if (preg_match('/;TZID=([^:;]+)[^:]*:(\d+T\d+)/', $line, $matches)) {
 					$props['start'] = new Time($matches[2] . ' ' . $matches[1]);
 					$props['allday'] = false;
@@ -1953,7 +1959,7 @@ class Event implements \ArrayAccess
 				}
 			}
 
-			if (strpos($line, 'DTEND') === 0) {
+			if (str_starts_with($line, 'DTEND')) {
 				if (preg_match('/;TZID=([^:;]+)[^:]*:(\d+T\d+)/', $line, $matches)) {
 					$end = new Time($matches[2] . ' ' . $matches[1]);
 				} elseif (preg_match('/:(\d+T\d+)(Z?)/', $line, $matches)) {
@@ -1965,31 +1971,31 @@ class Event implements \ArrayAccess
 				$props['duration'] = TimeInterval::createFromDateInterval($props['start']->diff($end));
 			}
 
-			if (strpos($line, 'DURATION') === 0) {
+			if (str_starts_with($line, 'DURATION')) {
 				$props['duration'] = new TimeInterval(substr($line, strpos($line, ':') + 1));
 			}
 
-			if (!isset($type) && strpos($line, 'CATEGORIES') === 0) {
+			if (!isset($type) && str_starts_with($line, 'CATEGORIES')) {
 				$props['type'] = str_contains(strtolower($line), 'holiday') ? self::TYPE_HOLIDAY : self::TYPE_EVENT;
 			}
 
-			if (strpos($line, 'SUMMARY') === 0) {
+			if (str_starts_with($line, 'SUMMARY')) {
 				$props['title'] = substr($line, strpos($line, ':') + 1);
 			}
 
-			if (strpos($line, 'LOCATION') === 0) {
+			if (str_starts_with($line, 'LOCATION')) {
 				$props['location'] = substr($line, strpos($line, ':') + 1);
 			}
 
-			if (strpos($line, 'RRULE') === 0) {
+			if (str_starts_with($line, 'RRULE')) {
 				$props['rrule'] = substr($line, strpos($line, ':') + 1);
 			}
 
-			if (strpos($line, 'RDATE') === 0) {
+			if (str_starts_with($line, 'RDATE')) {
 				$props['rdates'] = explode(',', substr($line, strpos($line, ':') + 1));
 			}
 
-			if (strpos($line, 'EXDATE') === 0) {
+			if (str_starts_with($line, 'EXDATE')) {
 				$props['exdates'] = explode(',', substr($line, strpos($line, ':') + 1));
 			}
 		}
@@ -2470,11 +2476,17 @@ class Event implements \ArrayAccess
 	protected static function setRequestedRDatesAndExDates(Event $event): void
 	{
 		// Clear out all existing RDates and ExDates.
-		foreach ($event->recurrence_iterator->getRDates() as $rdate) {
+		$rdates = $event->recurrence_iterator->getRDates();
+		$exdates = $event->recurrence_iterator->getExDates();
+
+		rsort($rdates);
+		rsort($exdates);
+
+		foreach ($rdates as $rdate) {
 			$event->removeOccurrence(new \DateTimeImmutable($rdate));
 		}
 
-		foreach ($event->recurrence_iterator->getExDates() as $exdate) {
+		foreach ($exdates as $exdate) {
 			$event->addOccurrence(new \DateTimeImmutable($exdate));
 		}
 

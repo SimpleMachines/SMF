@@ -653,7 +653,9 @@ class ShowPosts implements ActionInterface
 	}
 
 	/**
+	 * Loads a user's posts or topics
 	 *
+	 * @param bool $is_topics Whether to load topics instead of posts
 	 */
 	protected function loadPosts(bool $is_topics = false): void
 	{

@@ -90,7 +90,7 @@ class IntegrationHook
 		// Loop through each one to get the callable for it.
 		foreach ($func_strings as $func_string) {
 			// Hook has been marked as disabled. Skip it!
-			if (strpos($func_string, '!') !== false) {
+			if (str_contains($func_string, '!')) {
 				continue;
 			}
 
@@ -127,7 +127,7 @@ class IntegrationHook
 				Lang::load('Errors');
 
 				// Get a full path to show on error.
-				if (strpos($func_string, '|') !== false) {
+				if (str_contains($func_string, '|')) {
 					list($file, $func) = explode('|', $func_string);
 
 					$path = strtr($file, [
@@ -135,7 +135,7 @@ class IntegrationHook
 						'$sourcedir' => Config::$sourcedir,
 					]);
 
-					if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+					if (str_contains($path, '$themedir') && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
 						$path = strtr($path, [
 							'$themedir' => Theme::$current->settings['theme_dir'],
 						]);

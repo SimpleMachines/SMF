@@ -1009,7 +1009,7 @@ class Bans implements ActionInterface
 	/**
 	 * As it says... this tries to review the list of banned members, to match new bans.
 	 *
-	 * Note: if is_activated >= 10, then the member is banned.
+	 * Note: if is_activated >= User::BANNED, then the member is banned.
 	 */
 	public static function updateBanMembers(): void
 	{
@@ -1045,7 +1045,7 @@ class Bans implements ActionInterface
 
 			if ($row['email_address']) {
 				// Does it have a wildcard - if so we can't do a IN on it.
-				if (strpos($row['email_address'], '%') !== false) {
+				if (str_contains($row['email_address'], '%')) {
 					$memberEmailWild[$row['email_address']] = $row['email_address'];
 				} else {
 					$memberEmails[$row['email_address']] = $row['email_address'];
@@ -1090,8 +1090,8 @@ class Bans implements ActionInterface
 					$allMembers[] = $row['id_member'];
 
 					// Do they need an update?
-					if ($row['is_activated'] < 10) {
-						$updates[($row['is_activated'] + 10)][] = $row['id_member'];
+					if ($row['is_activated'] < User::BANNED) {
+						$updates[($row['is_activated'] + User::BANNED)][] = $row['id_member'];
 						$newMembers[] = $row['id_member'];
 					}
 				}
@@ -1114,7 +1114,7 @@ class Bans implements ActionInterface
 		// Find members that are wrongfully marked as banned.
 		$request = Db::$db->query(
 			'',
-			'SELECT mem.id_member, mem.is_activated - 10 AS new_value
+			'SELECT mem.id_member, mem.is_activated - {int:ban_flag} AS new_value
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_member = mem.id_member OR mem.email_address LIKE bi.email_address)
 				LEFT JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND bg.cannot_access = {int:cannot_access_activated} AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
@@ -1123,7 +1123,7 @@ class Bans implements ActionInterface
 			[
 				'cannot_access_activated' => 1,
 				'current_time' => time(),
-				'ban_flag' => 10,
+				'ban_flag' => User::BANNED,
 			],
 		);
 
@@ -2419,7 +2419,7 @@ class Bans implements ActionInterface
 					$ban_items[$row['id_ban']]['type'] = 'ip';
 					$ban_items[$row['id_ban']]['ip'] = IP::range2ip($row['ip_low'], $row['ip_high']);
 
-					$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false);
+					$is_range = (str_contains($ban_items[$row['id_ban']]['ip'], '-') || str_contains($ban_items[$row['id_ban']]['ip'], '*'));
 
 					$log_info[] = [
 						'bantype' => ($is_range ? 'ip_range' : 'main_ip'),

@@ -346,7 +346,7 @@ function load_lang_file()
 			{
 				while (($line = fgets($fp)) !== false)
 				{
-					if (strpos($line, '$txt[\'native_name\']') === false)
+					if (!str_contains($line, '$txt[\'native_name\']'))
 						continue;
 
 					preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
@@ -437,7 +437,7 @@ function load_lang_file()
 	Lang::addDirs(Config::$languagesdir);
 
 	// And now load the language file.
-	Lang::load('Install');
+	Lang::load('General+Install');
 }
 
 // This handy function loads some settings and the like.
@@ -1064,13 +1064,13 @@ function ForumSettings()
 
 	// Submitting?
 	if (isset($_POST['boardurl'])) {
-		if (substr($_POST['boardurl'], -10) == '/index.php') {
+		if (str_ends_with($_POST['boardurl'], '/index.php')) {
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -10);
-		} elseif (substr($_POST['boardurl'], -1) == '/') {
+		} elseif (str_ends_with($_POST['boardurl'], '/')) {
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 		}
 
-		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://') {
+		if (!str_starts_with($_POST['boardurl'], 'http://') && !str_starts_with($_POST['boardurl'], 'file://') && !str_starts_with($_POST['boardurl'], 'https://')) {
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
 		}
 
@@ -1193,7 +1193,7 @@ function DatabasePopulation()
 	);
 
 	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
-	if (substr(__DIR__, -1) == '\\') {
+	if (str_ends_with(__DIR__, '\\')) {
 		$attachdir = __DIR__ . 'attachments';
 	} else {
 		$attachdir = __DIR__ . '/attachments';
@@ -1213,14 +1213,14 @@ function DatabasePopulation()
 	];
 
 	foreach (Lang::$txt as $key => $value) {
-		if (substr($key, 0, 8) == 'default_') {
+		if (str_starts_with($key, 'default_')) {
 			$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
 		}
 	}
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], ['\\\\n' => '\\n']);
 
 	// MySQL-specific stuff - storage engine and UTF8 handling
-	if (substr(Config::$db_type, 0, 5) == 'mysql') {
+	if (str_starts_with(Config::$db_type, 'mysql')) {
 		// Just in case the query fails for some reason...
 		$engines = [];
 
@@ -1271,7 +1271,7 @@ function DatabasePopulation()
 
 	foreach ($sql_lines as $count => $line) {
 		// No comments allowed!
-		if (substr(trim($line), 0, 1) != '#') {
+		if (!str_starts_with(trim($line), '#')) {
 			$current_statement .= "\n" . rtrim($line);
 		}
 
@@ -1340,7 +1340,7 @@ function DatabasePopulation()
 	$newSettings[] = ['global_character_set', 'UTF-8'];
 
 	// Are we allowing stat collection?
-	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
+	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
 		$incontext['allow_sm_stats'] = true;
 
 		// Attempt to register the site etc.
@@ -1527,7 +1527,7 @@ function DatabasePopulation()
 	}
 
 	// MySQL specific stuff
-	if (substr(Config::$db_type, 0, 5) != 'mysql') {
+	if (!str_starts_with(Config::$db_type, 'mysql')) {
 		return false;
 	}
 
@@ -1677,7 +1677,7 @@ function AdminAccount()
 			$incontext['error'] = $_POST['username'] == '' ? Lang::$txt['error_username_left_empty'] : Lang::$txt['error_username_too_long'];
 
 			return false;
-		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false) {
+		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || str_contains($_POST['username'], '[code') || str_contains($_POST['username'], '[/code')) {
 			// Try the previous step again.
 			$incontext['error'] = Lang::$txt['error_invalid_characters_username'];
 
@@ -1951,7 +1951,7 @@ function fixModSecurity()
 		$current_htaccess = implode('', file(Config::$boarddir . '/.htaccess'));
 
 		// Only change something if mod_security hasn't been addressed yet.
-		if (strpos($current_htaccess, '<IfModule mod_security.c>') === false) {
+		if (!str_contains($current_htaccess, '<IfModule mod_security.c>')) {
 			if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'a')) {
 				fwrite($ht_handle, $htaccess_addition);
 				fclose($ht_handle);
@@ -1966,7 +1966,7 @@ function fixModSecurity()
 	}
 
 	if (file_exists(Config::$boarddir . '/.htaccess')) {
-		return strpos(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>') !== false;
+		return str_contains(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>');
 	}
 
 	if (is_writable(Config::$boarddir)) {

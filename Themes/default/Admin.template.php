@@ -655,6 +655,16 @@ function template_edit_censored()
 									<dd>
 										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty(Config::$modSettings['censorIgnoreCase']) ? '' : ' checked', '>
 									</dd>
+									<dt>
+										<a id="spoofdetector_censor_help" href="', Config::$scripturl, '?action=helpadmin;help=spoofdetector_censor" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+										<strong><label for="spoofdetector_censor_check">', Lang::$txt['spoofdetector_censor'], '</label></strong>
+										<br>
+										<span class="smalltext">', Lang::$txt['spoofdetector_censor_desc'], '</span>
+
+									</dt>
+									<dd>
+										<input type="checkbox" name="spoofdetector_censor" value="1" id="spoofdetector_censor_check"', empty(Config::$modSettings['spoofdetector_censor']) ? '' : ' checked', '>
+									</dd>
 								</dl>
 								<input type="submit" name="save_censor" value="', Lang::$txt['save'], '" class="button">
 							</div><!-- .windowbg -->';
@@ -1296,7 +1306,7 @@ function template_edit_profile_field()
 												<option value="nohtml"', Utils::$context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_nohtml'], '</option>
 												<option value="email"', Utils::$context['field']['mask'] == 'email' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_email'], '</option>
 												<option value="number"', Utils::$context['field']['mask'] == 'number' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_number'], '</option>
-												<option value="regex"', strpos(Utils::$context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_regex'], '</option>
+												<option value="regex"', str_starts_with(Utils::$context['field']['mask'], 'regex') ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_regex'], '</option>
 											</select>
 											<br>
 											<span id="regex_div">

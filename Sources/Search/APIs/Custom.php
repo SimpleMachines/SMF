@@ -213,10 +213,9 @@ class Custom extends SearchApi implements SearchApiInterface
 			if ($request !== false && Db::$db->num_rows($request) == 1) {
 				$row = Db::$db->fetch_assoc($request);
 				$this->size = (int) $row['Data_length'] + (int) $row['Index_length'];
+				Db::$db->free_result($request);
 			}
 		}
-
-		Db::$db->free_result($request);
 
 		return $this->size;
 	}

@@ -375,7 +375,7 @@ abstract class Notify
 	}
 
 	/**
-	 *
+	 * Handles loading the notification settings page
 	 */
 	protected function ask(): void
 	{

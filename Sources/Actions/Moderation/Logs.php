@@ -180,28 +180,28 @@ class Logs implements ActionInterface
 	/**
 	 * @var array
 	 *
-	 *
+	 * An array of search parameters
 	 */
 	protected array $search_params;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * The search parameters string
 	 */
 	protected string $search_params_string;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * The column being searched
 	 */
 	protected string $search_params_column;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * URL-encoded search params
 	 */
 	protected string $encoded_search_params;
 
@@ -229,7 +229,8 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles the admin log.
+	 * @uses createList()
 	 */
 	public function adminlog(): void
 	{
@@ -243,7 +244,8 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles the moderation log
+	 * @uses createList()
 	 */
 	public function modlog(): void
 	{
@@ -450,7 +452,7 @@ class Logs implements ActionInterface
 				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
-				'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], self::$uneditable_actions),
+				'editable' => !str_starts_with($row['action'], 'clearlog') && !in_array($row['action'], self::$uneditable_actions),
 				'extra' => $row['extra'],
 				'action' => $row['action'],
 				'action_text' => $row['action_text'] ?? '',
@@ -664,7 +666,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the search
 	 */
 	protected function setupSearch(): void
 	{
@@ -704,7 +706,7 @@ class Logs implements ActionInterface
 		if ($this->search_params['type'] == 'action' && !empty($this->search_params['string'])) {
 			// For the moment they can only search for ONE action!
 			foreach (Lang::$txt as $key => $text) {
-				if (substr($key, 0, 10) == 'modlog_ac_' && strpos($text, $this->search_params['string']) !== false) {
+				if (str_starts_with($key, 'modlog_ac_') && str_contains($text, $this->search_params['string'])) {
 					$this->search_params['string'] = substr($key, 10);
 					break;
 				}
@@ -713,7 +715,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles deleting log entries
 	 */
 	protected function deleteEntries(): void
 	{
@@ -725,7 +727,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles deleting all entries in either the mod or admin logs
 	 */
 	protected function deleteAll(): void
 	{
@@ -748,7 +750,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Deletes a single log entry
 	 */
 	protected function deleteEntry(): void
 	{
@@ -773,7 +775,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up all the information for the admin or mod log
 	 */
 	protected function createList(): void
 	{

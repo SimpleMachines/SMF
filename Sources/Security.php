@@ -407,7 +407,7 @@ class Security
 			if (!empty(Config::$modSettings['forum_alias_urls'])) {
 				foreach (explode(',', Config::$modSettings['forum_alias_urls']) as $alias) {
 					$allowed_origins[++$i] = array_merge(
-						Url::create((strpos($alias, '//') === false ? '//' : '') . trim($alias))->parse(),
+						Url::create((!str_contains($alias, '//') ? '//' : '') . trim($alias))->parse(),
 						['type' => 'alias'],
 					);
 				}
@@ -417,11 +417,11 @@ class Security
 			if (!empty(Config::$modSettings['cors_domains'])) {
 				foreach (explode(',', Config::$modSettings['cors_domains']) as $cors_domain) {
 					$allowed_origins[++$i] = array_merge(
-						Url::create((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain))->parse(),
+						Url::create((!str_contains($cors_domain, '//') ? '//' : '') . trim($cors_domain))->parse(),
 						['type' => 'additional'],
 					);
 
-					if (strpos($allowed_origins[$i]['host'], '*') === 0) {
+					if (str_starts_with($allowed_origins[$i]['host'], '*')) {
 						$allowed_origins[$i]['type'] .= '_wildcard';
 					}
 				}
@@ -472,7 +472,7 @@ class Security
 				}
 
 				// Wildcard means allow the domain or any subdomains.
-				if (strpos($allowed_origin['host'], '*') === 0) {
+				if (str_starts_with($allowed_origin['host'], '*')) {
 					$host_regex = '(?:^|\\.)' . preg_quote(ltrim($allowed_origin['host'], '*.'), '~') . '$';
 				}
 				// No wildcard means allow the domain only.

@@ -84,7 +84,7 @@ class Announce implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles selecting which groups to send the announcement to
 	 */
 	public function select(): void
 	{
@@ -127,7 +127,7 @@ class Announce implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sends the announcement email
 	 */
 	public function send(): void
 	{
@@ -184,7 +184,7 @@ class Announce implements ActionInterface
 			LIMIT {int:chunk_size}',
 			[
 				'group_list' => $_POST['who'],
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 				'start' => Utils::$context['start'],
 				'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
 				// @todo Might need an interface?

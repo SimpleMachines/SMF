@@ -214,7 +214,7 @@ class Members implements ActionInterface
 					'range' => true,
 				],
 				'activated' => [
-					'db_fields' => ['CASE WHEN is_activated IN (1, 11) THEN 1 ELSE 0 END'],
+					'db_fields' => ['CASE WHEN is_activated IN (' . User::ACTIVATED . ', ' . User::ACTIVATED_BANNED . ') THEN 1 ELSE 0 END'],
 					'type' => 'checkbox',
 					'values' => ['0', '1'],
 				],
@@ -569,7 +569,7 @@ class Members implements ActionInterface
 							}
 
 							// Show it in italics if they're not activated...
-							if ($rowData['is_activated'] % 10 != 1) {
+							if ($rowData['is_activated'] % User::BANNED != User::ACTIVATED) {
 								$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::$txt['not_activated'], $difference);
 							}
 
@@ -676,7 +676,7 @@ class Members implements ActionInterface
 		}
 
 		// Allowed filters are those we can have, in theory.
-		$allowed_filters = $browse_type == 'approve' ? [3, 4, 5] : [0, 2];
+		$allowed_filters = $browse_type == 'approve' ? [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA] : [User::NOT_ACTIVATED, User::UNVALIDATED];
 
 		$this->current_filter = isset($_REQUEST['filter']) && in_array($_REQUEST['filter'], $allowed_filters) && !empty($this->activation_numbers[$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
 
@@ -701,7 +701,7 @@ class Members implements ActionInterface
 		}
 
 		// This little variable is used to determine if we should flag where we are looking.
-		$show_filter = ($this->current_filter != 0 && $this->current_filter != 3) || count($available_filters) > 1;
+		$show_filter = ($this->current_filter != User::NOT_ACTIVATED && $this->current_filter != User::UNAPPROVED) || count($available_filters) > 1;
 
 		// The columns that can be sorted.
 		Utils::$context['columns'] = [
@@ -766,7 +766,7 @@ class Members implements ActionInterface
 				var message = "";';
 
 		// We have special messages for approving deletion of accounts - it's surprisingly logical - honest.
-		if ($this->current_filter == 4) {
+		if ($this->current_filter == User::REQUESTED_DELETE) {
 			$javascript .= '
 				if (document.forms.postForm.todo.value.indexOf("reject") != -1)
 					message = "' . Lang::$txt['admin_browse_w_delete'] . '";
@@ -891,16 +891,16 @@ class Members implements ActionInterface
 				],
 				'date_registered' => [
 					'header' => [
-						'value' => $this->current_filter == 4 ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
+						'value' => $this->current_filter == User::REQUESTED_DELETE ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Time::create('@' . $rowData[$this->current_filter == 4 ? 'last_login' : 'date_registered'])->format();
+							return Time::create('@' . $rowData[$this->current_filter == User::REQUESTED_DELETE ? 'last_login' : 'date_registered'])->format();
 						},
 					],
 					'sort' => [
-						'default' => $this->current_filter == 4 ? 'mem.last_login DESC' : 'date_registered DESC',
-						'reverse' => $this->current_filter == 4 ? 'mem.last_login' : 'date_registered',
+						'default' => $this->current_filter == User::REQUESTED_DELETE ? 'mem.last_login DESC' : 'date_registered DESC',
+						'reverse' => $this->current_filter == User::REQUESTED_DELETE ? 'mem.last_login' : 'date_registered',
 					],
 				],
 				'duplicates' => [
@@ -1109,7 +1109,7 @@ class Members implements ActionInterface
 				SET validation_code = {string:blank_string}, is_activated = {int:is_activated}
 				WHERE is_activated = {int:activated_status}' . $condition,
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 					'time_before' => empty($timeBefore) ? 0 : $timeBefore,
 					'members' => empty($members) ? [] : $members,
 					'activated_status' => $current_filter,
@@ -1156,7 +1156,7 @@ class Members implements ActionInterface
 						' . $condition . '
 						AND id_member = {int:selected_member}',
 					[
-						'not_activated' => 0,
+						'not_activated' => User::NOT_ACTIVATED,
 						'activated_status' => $current_filter,
 						'selected_member' => $member['id'],
 						'validation_code' => $validation_code,
@@ -1441,7 +1441,7 @@ class Members implements ActionInterface
 			WHERE is_activated != {int:is_activated}
 			GROUP BY is_activated',
 			[
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 			],
 		);
 
@@ -1451,9 +1451,9 @@ class Members implements ActionInterface
 		Db::$db->free_result($request);
 
 		foreach ($this->activation_numbers as $activation_type => $total_members) {
-			if (in_array($activation_type, [0, 2])) {
+			if (in_array($activation_type, [User::NOT_ACTIVATED, User::UNVALIDATED])) {
 				$this->awaiting_activation += $total_members;
-			} elseif (in_array($activation_type, [3, 4, 5])) {
+			} elseif (in_array($activation_type, [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA])) {
 				$this->awaiting_approval += $total_members;
 			}
 		}
@@ -1518,7 +1518,7 @@ class Members implements ActionInterface
 				'id' => $row['id_member'],
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
-				'is_banned' => $row['is_activated'] > 10,
+				'is_banned' => $row['is_activated'] >= User::BANNED,
 				'ip' => $row['member_ip'],
 				'ip2' => $row['member_ip2'],
 			];
@@ -1565,7 +1565,7 @@ class Members implements ActionInterface
 				'id' => $row['id_member'],
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
-				'is_banned' => $row['is_activated'] > 10,
+				'is_banned' => $row['is_activated'] >= User::BANNED,
 				'ip' => $row['poster_ip'],
 				'ip2' => $row['poster_ip'],
 			];

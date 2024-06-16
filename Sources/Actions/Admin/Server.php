@@ -370,7 +370,7 @@ class Server implements ActionInterface
 			}
 
 			if (!empty($_POST['globalCookiesDomain'])) {
-				$_POST['globalCookiesDomain'] = Url::create((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.'), true)->host;
+				$_POST['globalCookiesDomain'] = Url::create((!str_contains($_POST['globalCookiesDomain'], '//') ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.'), true)->host;
 
 				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', Url::create(Config::$boardurl)->parse(PHP_URL_HOST))) {
 					ErrorHandler::fatalLang('invalid_cookie_domain', false);
@@ -441,13 +441,13 @@ class Server implements ActionInterface
 				$cors_domains = explode(',', $_POST['cors_domains']);
 
 				foreach ($cors_domains as &$cors_domain) {
-					if (strpos($cors_domain, '//') === false) {
+					if (!str_contains($cors_domain, '//')) {
 						$cors_domain = '//' . $cors_domain;
 					}
 
 					$temp = new Url($cors_domain, true);
 
-					if (strpos($temp->host, '*') !== false) {
+					if (str_contains($temp->host, '*')) {
 						$temp->host = substr($temp->host, strrpos($temp->host, '*'));
 					}
 
@@ -666,7 +666,7 @@ class Server implements ActionInterface
 			}
 
 			// New category?
-			if (strpos($line, '<h2>') !== false) {
+			if (str_contains($line, '<h2>')) {
 				$category = preg_match('~<h2>(.*)</h2>~', $line, $title) ? $category = $title[1] : $category;
 			}
 

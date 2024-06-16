@@ -1727,7 +1727,7 @@ $(function() {
 
 	// Generic confirmation message.
 	$(document).on('click', '.you_sure', function() {
-		if (!this.checked) {
+		if (this.getAttribute('type') === 'checkbox' && !this.checked) {
 			return true;
 		}
 

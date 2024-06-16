@@ -318,7 +318,7 @@ class Alert implements \ArrayAccess
 				if (isset($data['id_' . $item])) {
 					$separator = $item == 'msg' ? '=?' : '=';
 
-					if (isset($this->extra['content_link']) && strpos($this->extra['content_link'], $item . $separator) !== false && strpos($this->extra['content_link'], $item . $separator . $data['id_' . $item]) === false) {
+					if (isset($this->extra['content_link']) && str_contains($this->extra['content_link'], $item . $separator) && !str_contains($this->extra['content_link'], $item . $separator . $data['id_' . $item])) {
 						$patterns[] = '/\b' . $item . $separator . '\d+/';
 						$replacements[] = $item . $separator . $data['id_' . $item];
 					}
@@ -1061,7 +1061,7 @@ class Alert implements \ArrayAccess
 		foreach ($where as &$condition) {
 			$condition = trim($condition);
 
-			if (strpos($condition, 'is_read ') === 0) {
+			if (str_starts_with($condition, 'is_read ')) {
 				$has_read_condition = true;
 			}
 		}

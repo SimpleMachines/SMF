@@ -57,11 +57,11 @@ $databases = [
 		'name' => 'MySQL',
 		'version' => '8.0.35',
 		'version_check' => function () {
-			if (!function_exists('mysqli_fetch_row')) {
-				return false;
+			if (Db::$db->title !== MYSQL_TITLE) {
+				return '';
 			}
 
-			return mysqli_fetch_row(mysqli_query(Db::$db_connection, 'SELECT VERSION();'))[0];
+			return Db::$db->get_version();
 		},
 		'alter_support' => true,
 	],
@@ -69,12 +69,11 @@ $databases = [
 		'name' => 'PostgreSQL',
 		'version' => '12.17',
 		'version_check' => function () {
-			if (!function_exists('pg_version')) {
-				return false;
+			if (Db::$db->title !== POSTGRE_TITLE) {
+				return '';
 			}
-			$version = pg_version();
 
-			return $version['client'];
+			return Db::$db->get_version();
 		},
 		'always_has_db' => true,
 	],
@@ -147,7 +146,7 @@ if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMO
 		}
 
 		if (preg_match('~^--path=(.+)$~', $_SERVER['argv'][$i], $match) != 0) {
-			$upgrade_path = realpath(substr($match[1], -1) == '/' ? substr($match[1], 0, -1) : $match[1]);
+			$upgrade_path = realpath(str_ends_with($match[1], '/') ? substr($match[1], 0, -1) : $match[1]);
 		}
 
 		// Cases where we do php other/upgrade.php --path=./
@@ -323,7 +322,7 @@ else {
 	$upcontext['rid'] = mt_rand(0, 5000);
 	$upcontext['upgrade_status'] = [
 		'curstep' => 0,
-		'lang' => $upcontext['lang'] ?? basename(Config::$language, '.lng'),
+		'lang' => $upcontext['lang'] ?? Lang::getLocaleFromLanguageName(Config::$language),
 		'rid' => $upcontext['rid'],
 		'pass' => 0,
 		'debug' => 0,
@@ -433,7 +432,7 @@ function upgradeExit($fallThrough = false)
 			$upcontext['get_data'] = [];
 
 			foreach ($_GET as $k => $v) {
-				if (substr($k, 0, 3) != 'amp' && !in_array($k, ['xml', 'substep', 'lang', 'data', 'step', 'filecount'])) {
+				if (!str_starts_with($k, 'amp') && !in_array($k, ['xml', 'substep', 'lang', 'data', 'step', 'filecount'])) {
 					$upcontext['get_data'][$k] = $v;
 				}
 			}
@@ -504,7 +503,7 @@ function findSettingsFile()
 		$index_contents = file_get_contents($upgrade_path . '/index.php');
 
 		// The standard path.
-		if (strpos($index_contents, "define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');") !== false) {
+		if (str_contains($index_contents, "define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');")) {
 			$settingsFile = $upgrade_path . '/Settings.php';
 		}
 		// A custom path defined in a simple string.
@@ -575,7 +574,7 @@ function load_lang_file()
 
 			while ($entry = $dir->read()) {
 				// We can't have periods.
-				if (strpos($entry, '.') !== false) {
+				if (str_contains($entry, '.')) {
 					continue;
 				}
 
@@ -589,7 +588,7 @@ function load_lang_file()
 				// Yay!
 				if ($fp) {
 					while (($line = fgets($fp)) !== false) {
-						if (strpos($line, '$txt[\'native_name\']') === false) {
+						if (!str_contains($line, '$txt[\'native_name\']')) {
 							continue;
 						}
 
@@ -1091,9 +1090,9 @@ function WelcomeLogin()
 		$upcontext['warning'] = '
 			' . Lang::getTxt('upgrade_forumdir_settings', ['boarddir' => Config::$boarddir, 'upgrade_path' => $upgrade_path]) . '<br>
 			<ul>
-				<li>' .  Lang::getTxt('upgrade_forumdir', [Config::$boarddir]) . '</li>
-				<li>' .  Lang::getTxt('upgrade_sourcedir', [Config::$sourcedir]) . '</li>
-				<li>' .  Lang::getTxt('upgrade_cachedir', [$cachedir_temp]) . '</li>
+				<li>' . Lang::getTxt('upgrade_forumdir', [Config::$boarddir]) . '</li>
+				<li>' . Lang::getTxt('upgrade_sourcedir', [Config::$sourcedir]) . '</li>
+				<li>' . Lang::getTxt('upgrade_cachedir', [$cachedir_temp]) . '</li>
 			</ul>
 			' . Lang::$txt['upgrade_incorrect_settings'] . '';
 	}
@@ -1458,7 +1457,7 @@ function UpgradeOptions()
 	setSqlMode(false);
 
 	// Firstly, if they're enabling SM stat collection just do it.
-	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
+	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
 		$upcontext['allow_sm_stats'] = true;
 
 		// Don't register if we still have a key.
@@ -1582,15 +1581,15 @@ function UpgradeOptions()
 	}
 
 	// Fix some old paths.
-	if (substr(Config::$boarddir, 0, 1) == '.') {
+	if (str_starts_with(Config::$boarddir, '.')) {
 		$changes['boarddir'] = fixRelativePath(Config::$boarddir);
 	}
 
-	if (substr(Config::$sourcedir, 0, 1) == '.') {
+	if (str_starts_with(Config::$sourcedir, '.')) {
 		$changes['sourcedir'] = fixRelativePath(Config::$sourcedir);
 	}
 
-	if (empty(Config::$cachedir) || substr(Config::$cachedir, 0, 1) == '.') {
+	if (empty(Config::$cachedir) || str_starts_with(Config::$cachedir, '.')) {
 		$changes['cachedir'] = fixRelativePath(Config::$boarddir) . '/cache';
 	}
 
@@ -1606,7 +1605,7 @@ function UpgradeOptions()
 
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
-	if (strpos(Config::$db_server, ':') !== false && Config::$db_type == 'mysql') {
+	if (str_contains(Config::$db_server, ':') && Config::$db_type == 'mysql') {
 		list(Config::$db_server, Config::$db_port) = explode(':', Config::$db_server);
 
 		$changes['db_server'] = Config::$db_server;
@@ -1696,7 +1695,7 @@ function BackupDatabase()
 	$table_names = [];
 
 	foreach ($tables as $table) {
-		if (substr($table, 0, 7) !== 'backup_') {
+		if (!str_starts_with($table, 'backup_')) {
 			$table_names[] = $table;
 		}
 	}
@@ -1992,7 +1991,7 @@ function DeleteUpgrade()
 	$endl = $command_line ? "\n" : '<br>' . "\n";
 
 	$changes = [
-		'language' => (substr(Config::$language, -4) == '.lng' ? substr(Config::$language, 0, -4) : Config::$language),
+		'language' => (str_ends_with(Config::$language, '.lng') ? substr(Config::$language, 0, -4) : Config::$language),
 		'db_error_send' => true,
 		'upgradeData' => null,
 	];
@@ -2065,6 +2064,9 @@ function DeleteUpgrade()
 		}
 	}
 
+	// Queue any post-upgrade background tasks that we should run.
+	addBackgroundTasks();
+
 	// Log what we've done.
 	if (!isset(User::$me)) {
 		User::load();
@@ -2112,6 +2114,26 @@ function DeleteUpgrade()
 	return false;
 }
 
+// Queues background tasks that we want to run soon after upgrading.
+function addBackgroundTasks()
+{
+	Db::$db->insert(
+		'insert',
+		'{db_prefix}background_tasks',
+		[
+			'task_class' => 'string',
+			'task_data' => 'string',
+			'claimed_time' => 'int',
+		],
+		[
+			'SMF\\Tasks\\UpdateSpoofDetectorNames',
+			json_encode(['last_member_id' => 0]),
+			0,
+		],
+		['id_task'],
+	);
+}
+
 // Just like the built in one, but setup for CLI to not use themes.
 function cli_scheduled_fetchSMfiles()
 {
@@ -2141,7 +2163,7 @@ function cli_scheduled_fetchSMfiles()
 
 	foreach ($js_files as $ID_FILE => $file) {
 		// Create the url
-		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'https://www.simplemachines.org' : '';
+		$server = empty($file['path']) || !str_starts_with($file['path'], 'http://') ? 'https://www.simplemachines.org' : '';
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file
@@ -2347,7 +2369,7 @@ function parse_sql($filename)
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
 	$upcontext['total_items'] = substr_count(implode('', $lines), '--- ');
-	$upcontext['debug_items'] = $file_steps;
+	$upcontext['debug_items'] = $file_substrsteps;
 	$upcontext['current_item_num'] = 0;
 	$upcontext['current_item_name'] = '';
 	$upcontext['current_debug_item_num'] = 0;
@@ -2361,7 +2383,7 @@ function parse_sql($filename)
 		$do_current = $substep >= $_GET['substep'];
 
 		// Get rid of any comments in the beginning of the line...
-		if (substr(trim($line), 0, 2) === '/*') {
+		if (str_starts_with(trim($line), '/*')) {
 			$line = preg_replace('~/\*.+?\*/~', '', $line);
 		}
 
@@ -2483,7 +2505,7 @@ function parse_sql($filename)
 
 		$current_data .= $line;
 
-		if (substr(rtrim($current_data), -1) === ';' && $current_type === 'sql') {
+		if (str_ends_with(rtrim($current_data), ';') && $current_type === 'sql') {
 			if ((!$support_js || isset($_GET['xml']))) {
 				if (!$do_current || !empty($upcontext['skip_db_substeps'])) {
 					$current_data = '';
@@ -2518,7 +2540,7 @@ function parse_sql($filename)
 			$current_data = '';
 		}
 		// If this is xml based and we're just getting the item name then that's grand.
-		elseif ($support_js && !isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current) {
+		elseif ($support_js && isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current) {
 			restore_error_handler();
 
 			return false;
@@ -2611,7 +2633,7 @@ function upgrade_query($string, $unbuffered = false)
 		// Creating an index on a non-existent column.
 		elseif ($mysqli_errno == 1072) {
 			return false;
-		} elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE') {
+		} elseif ($mysqli_errno == 1050 && str_starts_with(trim($string), 'RENAME TABLE')) {
 			return false;
 		}
 		// Testing for legacy tables or columns? Needed for 1.0 & 1.1 scripts.
@@ -2622,11 +2644,11 @@ function upgrade_query($string, $unbuffered = false)
 	// If a table already exists don't go potty.
 	else {
 		if (in_array(substr(trim($string), 0, 8), ['CREATE T', 'CREATE S', 'DROP TABL', 'ALTER TA', 'CREATE I', 'CREATE U'])) {
-			if (strpos($db_error_message, 'exist') !== false) {
+			if (str_contains($db_error_message, 'exist')) {
 				return true;
 			}
-		} elseif (strpos(trim($string), 'INSERT ') !== false) {
-			if (strpos($db_error_message, 'duplicate') !== false || $ignore_insert_error) {
+		} elseif (str_contains(trim($string), 'INSERT ')) {
+			if (str_contains($db_error_message, 'duplicate') || $ignore_insert_error) {
 				return true;
 			}
 		}
@@ -2750,7 +2772,7 @@ function protected_alter($change, $substep, $is_test = false)
 			SHOW FULL PROCESSLIST');
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (strpos($row['Info'], 'ALTER TABLE ' . Config::$db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false) {
+			if (str_contains($row['Info'], 'ALTER TABLE ' . Config::$db_prefix . $change['table']) && str_contains($row['Info'], $change['text'])) {
 				$found = true;
 			}
 		}
@@ -3080,8 +3102,8 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
 		print_error('Error: Unable to find language files!', true);
 	} else {
-		$temp = substr(@implode('', @file($lang_dir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
-		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+		$temp = file_get_contents($lang_dir . '/' . $upcontext['language'] . '/General.php', false, null, 0, 4096);
+		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			print_error('Error: Language files out of date.', true);
@@ -3138,8 +3160,7 @@ function ConvertUtf8()
 			return Cleanup();
 		}
 
-			return true;
-
+		return true;
 	}
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
@@ -3156,528 +3177,526 @@ function ConvertUtf8()
 			return Cleanup();
 		}
 
-			return true;
-
+		return true;
 	}
 
-		$upcontext['page_title'] = Lang::$txt['converting_utf8'];
-		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
+	$upcontext['page_title'] = Lang::$txt['converting_utf8'];
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 
-		// The character sets used in SMF's language files with their db equivalent.
-		$charsets = [
-			// Armenian
-			'armscii8' => 'armscii8',
-			// Chinese-traditional.
-			'big5' => 'big5',
-			// Chinese-simplified.
-			'gbk' => 'gbk',
-			// West European.
-			'ISO-8859-1' => 'latin1',
-			// Romanian.
-			'ISO-8859-2' => 'latin2',
-			// Turkish.
-			'ISO-8859-9' => 'latin5',
-			// Latvian
-			'ISO-8859-13' => 'latin7',
-			// West European with Euro sign.
-			'ISO-8859-15' => 'latin9',
-			// Thai.
-			'tis-620' => 'tis620',
-			// Persian, Chinese, etc.
-			'UTF-8' => 'utf8',
-			// Russian.
-			'windows-1251' => 'cp1251',
-			// Greek.
-			'windows-1253' => 'utf8',
-			// Hebrew.
-			'windows-1255' => 'utf8',
-			// Arabic.
-			'windows-1256' => 'cp1256',
-		];
+	// The character sets used in SMF's language files with their db equivalent.
+	$charsets = [
+		// Armenian
+		'armscii8' => 'armscii8',
+		// Chinese-traditional.
+		'big5' => 'big5',
+		// Chinese-simplified.
+		'gbk' => 'gbk',
+		// West European.
+		'ISO-8859-1' => 'latin1',
+		// Romanian.
+		'ISO-8859-2' => 'latin2',
+		// Turkish.
+		'ISO-8859-9' => 'latin5',
+		// Latvian
+		'ISO-8859-13' => 'latin7',
+		// West European with Euro sign.
+		'ISO-8859-15' => 'latin9',
+		// Thai.
+		'tis-620' => 'tis620',
+		// Persian, Chinese, etc.
+		'UTF-8' => 'utf8',
+		// Russian.
+		'windows-1251' => 'cp1251',
+		// Greek.
+		'windows-1253' => 'utf8',
+		// Hebrew.
+		'windows-1255' => 'utf8',
+		// Arabic.
+		'windows-1256' => 'cp1256',
+	];
 
-		// Get a list of character sets supported by your MySQL server.
-		$request = Db::$db->query(
-			'',
-			'SHOW CHARACTER SET',
-			[
-			],
-		);
-		$db_charsets = [];
+	// Get a list of character sets supported by your MySQL server.
+	$request = Db::$db->query(
+		'',
+		'SHOW CHARACTER SET',
+		[
+		],
+	);
+	$db_charsets = [];
 
+	while ($row = Db::$db->fetch_assoc($request)) {
+		$db_charsets[] = $row['Charset'];
+	}
+
+	Db::$db->free_result($request);
+
+	// Character sets supported by both MySQL and SMF's language files.
+	$charsets = array_intersect($charsets, $db_charsets);
+
+	// Use the messages.body column as indicator for the database charset.
+	$request = Db::$db->query(
+		'',
+		'SHOW FULL COLUMNS
+		FROM {db_prefix}messages
+		LIKE {string:body_like}',
+		[
+			'body_like' => 'body',
+		],
+	);
+	$column_info = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
+
+	// A collation looks like latin1_swedish. We only need the character set.
+	list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
+	$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
+
+	// Detect whether a fulltext index is set.
+	$request = Db::$db->query(
+		'',
+		'SHOW INDEX
+		FROM {db_prefix}messages',
+		[
+		],
+	);
+
+	$upcontext['dropping_index'] = false;
+
+	// If there's a fulltext index, we need to drop it first...
+	if ($request !== false || Db::$db->num_rows($request) != 0) {
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$db_charsets[] = $row['Charset'];
+			if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT')) {
+				$upcontext['fulltext_index'][] = $row['Key_name'];
+			}
 		}
-
 		Db::$db->free_result($request);
 
-		// Character sets supported by both MySQL and SMF's language files.
-		$charsets = array_intersect($charsets, $db_charsets);
+		if (isset($upcontext['fulltext_index'])) {
+			$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
+		}
+	}
 
-		// Use the messages.body column as indicator for the database charset.
-		$request = Db::$db->query(
+	// Drop it and make a note...
+	if (!empty($upcontext['fulltext_index'])) {
+		$upcontext['dropping_index'] = true;
+
+		Db::$db->query(
 			'',
-			'SHOW FULL COLUMNS
-			FROM {db_prefix}messages
-			LIKE {string:body_like}',
+			'ALTER TABLE {db_prefix}messages
+			DROP INDEX ' . implode(',
+			DROP INDEX ', $upcontext['fulltext_index']),
 			[
-				'body_like' => 'body',
-			],
-		);
-		$column_info = Db::$db->fetch_assoc($request);
-		Db::$db->free_result($request);
-
-		// A collation looks like latin1_swedish. We only need the character set.
-		list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
-		$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
-
-		// Detect whether a fulltext index is set.
-		$request = Db::$db->query(
-			'',
-			'SHOW INDEX
-			FROM {db_prefix}messages',
-			[
+				'db_error_skip' => true,
 			],
 		);
 
-		$upcontext['dropping_index'] = false;
-
-		// If there's a fulltext index, we need to drop it first...
-		if ($request !== false || Db::$db->num_rows($request) != 0) {
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT')) {
-					$upcontext['fulltext_index'][] = $row['Key_name'];
-				}
-			}
-			Db::$db->free_result($request);
-
-			if (isset($upcontext['fulltext_index'])) {
-				$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
-			}
-		}
-
-		// Drop it and make a note...
-		if (!empty($upcontext['fulltext_index'])) {
-			$upcontext['dropping_index'] = true;
-
-			Db::$db->query(
-				'',
-				'ALTER TABLE {db_prefix}messages
-				DROP INDEX ' . implode(',
-				DROP INDEX ', $upcontext['fulltext_index']),
-				[
-					'db_error_skip' => true,
-				],
-			);
-
-			// Update the settings table
-			Db::$db->insert(
-				'replace',
-				'{db_prefix}settings',
-				['variable' => 'string', 'value' => 'string'],
-				['db_search_index', ''],
-				['variable'],
-			);
-		}
-
-		// Figure out what charset we should be converting from...
-		$lang_charsets = [
-			'arabic' => 'windows-1256',
-			'armenian_east' => 'armscii-8',
-			'armenian_west' => 'armscii-8',
-			'azerbaijani_latin' => 'ISO-8859-9',
-			'bangla' => 'UTF-8',
-			'belarusian' => 'ISO-8859-5',
-			'bulgarian' => 'windows-1251',
-			'cambodian' => 'UTF-8',
-			'chinese_simplified' => 'gbk',
-			'chinese_traditional' => 'big5',
-			'croation' => 'ISO-8859-2',
-			'czech' => 'ISO-8859-2',
-			'czech_informal' => 'ISO-8859-2',
-			'english_pirate' => 'UTF-8',
-			'esperanto' => 'ISO-8859-3',
-			'estonian' => 'ISO-8859-15',
-			'filipino_tagalog' => 'UTF-8',
-			'filipino_vasayan' => 'UTF-8',
-			'georgian' => 'UTF-8',
-			'greek' => 'ISO-8859-3',
-			'hebrew' => 'windows-1255',
-			'hungarian' => 'ISO-8859-2',
-			'irish' => 'UTF-8',
-			'japanese' => 'UTF-8',
-			'khmer' => 'UTF-8',
-			'korean' => 'UTF-8',
-			'kurdish_kurmanji' => 'ISO-8859-9',
-			'kurdish_sorani' => 'windows-1256',
-			'lao' => 'tis-620',
-			'latvian' => 'ISO-8859-13',
-			'lithuanian' => 'ISO-8859-4',
-			'macedonian' => 'UTF-8',
-			'malayalam' => 'UTF-8',
-			'mongolian' => 'UTF-8',
-			'nepali' => 'UTF-8',
-			'persian' => 'UTF-8',
-			'polish' => 'ISO-8859-2',
-			'romanian' => 'ISO-8859-2',
-			'russian' => 'windows-1252',
-			'sakha' => 'UTF-8',
-			'serbian_cyrillic' => 'ISO-8859-5',
-			'serbian_latin' => 'ISO-8859-2',
-			'sinhala' => 'UTF-8',
-			'slovak' => 'ISO-8859-2',
-			'slovenian' => 'ISO-8859-2',
-			'telugu' => 'UTF-8',
-			'thai' => 'tis-620',
-			'turkish' => 'ISO-8859-9',
-			'turkmen' => 'ISO-8859-9',
-			'ukranian' => 'windows-1251',
-			'urdu' => 'UTF-8',
-			'uzbek_cyrillic' => 'ISO-8859-5',
-			'uzbek_latin' => 'ISO-8859-5',
-			'vietnamese' => 'UTF-8',
-			'yoruba' => 'UTF-8',
-		];
-
-		// Map in the new locales. We do it like this, because we want to try our best to capture
-		// the correct charset no mater what the status of the language upgrade is.
-		foreach ($lang_charsets as $key => $value) {
-			// This could be more efficient, but its upgrade logic.
-			$locale = Lang::getLocaleFromLanguageName($key);
-
-			if ($locale !== null) {
-				$lang_charsets[$locale] = $value;
-			}
-		}
-
-		// Default to ISO-8859-1 unless we detected another supported charset
-		$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
-
-		$upcontext['charset_list'] = array_keys($charsets);
-
-		// Translation table for the character sets not native for MySQL.
-		$translation_tables = [
-			'windows-1255' => [
-				'0x81' => '\'\'',		'0x8A' => '\'\'',		'0x8C' => '\'\'',
-				'0x8D' => '\'\'',		'0x8E' => '\'\'',		'0x8F' => '\'\'',
-				'0x90' => '\'\'',		'0x9A' => '\'\'',		'0x9C' => '\'\'',
-				'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
-				'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
-				'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
-				'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '0xD792',
-				'0xFC' => '0xE282AC',		'0xFF' => '0xD6B2',		'0xC2' => '0xFF',
-				'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
-				'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
-				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
-				'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
-				'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
-				'0xAF' => '0xC2AF',		'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',
-				'0xB2' => '0xC2B2',		'0xB3' => '0xC2B3',		'0xB4' => '0xC2B4',
-				'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
-				'0xB8' => '0xC2B8',		'0xB9' => '0xC2B9',		'0xBB' => '0xC2BB',
-				'0xBC' => '0xC2BC',		'0xBD' => '0xC2BD',		'0xBE' => '0xC2BE',
-				'0xBF' => '0xC2BF',		'0xD7' => '0xD7B3',		'0xD1' => '0xD781',
-				'0xD4' => '0xD7B0',		'0xD5' => '0xD7B1',		'0xD6' => '0xD7B2',
-				'0xE0' => '0xD790',		'0xEA' => '0xD79A',		'0xEC' => '0xD79C',
-				'0xED' => '0xD79D',		'0xEE' => '0xD79E',		'0xEF' => '0xD79F',
-				'0xF0' => '0xD7A0',		'0xF1' => '0xD7A1',		'0xF2' => '0xD7A2',
-				'0xF3' => '0xD7A3',		'0xF5' => '0xD7A5',		'0xF6' => '0xD7A6',
-				'0xF7' => '0xD7A7',		'0xF8' => '0xD7A8',		'0xF9' => '0xD7A9',
-				'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
-				'0x86' => '0xE280A0',	'0x87' => '0xE280A1',	'0x89' => '0xE280B0',
-				'0x8B' => '0xE280B9',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
-				'0x95' => '0xE280A2',	'0x97' => '0xE28094',	'0x99' => '0xE284A2',
-				'0xC0' => '0xD6B0',		'0xC1' => '0xD6B1',		'0xC3' => '0xD6B3',
-				'0xC4' => '0xD6B4',		'0xC5' => '0xD6B5',		'0xC6' => '0xD6B6',
-				'0xC7' => '0xD6B7',		'0xC8' => '0xD6B8',		'0xC9' => '0xD6B9',
-				'0xCB' => '0xD6BB',		'0xCC' => '0xD6BC',		'0xCD' => '0xD6BD',
-				'0xCE' => '0xD6BE',		'0xCF' => '0xD6BF',		'0xD0' => '0xD780',
-				'0xD2' => '0xD782',		'0xE3' => '0xD793',		'0xE4' => '0xD794',
-				'0xE5' => '0xD795',		'0xE7' => '0xD797',		'0xE9' => '0xD799',
-				'0xFD' => '0xE2808E',	'0xFE' => '0xE2808F',	'0x92' => '0xE28099',
-				'0x83' => '0xC692',		'0xD3' => '0xD783',		'0x88' => '0xCB86',
-				'0x98' => '0xCB9C',		'0x91' => '0xE28098',	'0x96' => '0xE28093',
-				'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
-				'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
-				'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
-				'0xFA' => '0xD7AA',
-			],
-			'windows-1253' => [
-				'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
-				'0x8C' => '\'\'',			'0x8D' => '\'\'',			'0x8E' => '\'\'',
-				'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
-				'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
-				'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
-				'0xD2' => '0xE282AC',			'0xFF' => '0xCE92',			'0xCE' => '0xCE9E',
-				'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
-				'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
-				'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
-				'0xCD' => '0xCE9D',		'0xCF' => '0xCE9F',		'0xDA' => '0xCEAA',
-				'0xE8' => '0xCEB8',		'0xEA' => '0xCEBA',		'0xEC' => '0xCEBC',
-				'0xEE' => '0xCEBE',		'0xEF' => '0xCEBF',		'0xC2' => '0xFF',
-				'0xBD' => '0xC2BD',		'0xED' => '0xCEBD',		'0xB2' => '0xC2B2',
-				'0xA0' => '0xC2A0',		'0xA3' => '0xC2A3',		'0xA4' => '0xC2A4',
-				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
-				'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
-				'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
-				'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',		'0xB3' => '0xC2B3',
-				'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
-				'0xBB' => '0xC2BB',		'0xE2' => '0xCEB2',		'0x80' => '0xD2',
-				'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
-				'0x86' => '0xE280A0',	'0xA1' => '0xCE85',		'0xA2' => '0xCE86',
-				'0x87' => '0xE280A1',	'0x89' => '0xE280B0',	'0xB9' => '0xCE89',
-				'0x8B' => '0xE280B9',	'0x91' => '0xE28098',	'0x99' => '0xE284A2',
-				'0x92' => '0xE28099',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
-				'0x95' => '0xE280A2',	'0x96' => '0xE28093',	'0x97' => '0xE28094',
-				'0x9B' => '0xE280BA',	'0xAF' => '0xE28095',	'0xB4' => '0xCE84',
-				'0xC1' => '0xCE91',		'0xC3' => '0xCE93',		'0xC4' => '0xCE94',
-				'0xC5' => '0xCE95',		'0xC6' => '0xCE96',		'0x83' => '0xC692',
-				'0xC7' => '0xCE97',		'0xC9' => '0xCE99',		'0xCB' => '0xCE9B',
-				'0xD0' => '0xCEA0',		'0xD1' => '0xCEA1',		'0xD3' => '0xCEA3',
-				'0xD4' => '0xCEA4',		'0xD5' => '0xCEA5',		'0xD6' => '0xCEA6',
-				'0xD7' => '0xCEA7',		'0xD8' => '0xCEA8',		'0xD9' => '0xCEA9',
-				'0xDB' => '0xCEAB',		'0xDC' => '0xCEAC',		'0xDD' => '0xCEAD',
-				'0xDE' => '0xCEAE',		'0xDF' => '0xCEAF',		'0xE0' => '0xCEB0',
-				'0xE1' => '0xCEB1',		'0xE3' => '0xCEB3',		'0xE4' => '0xCEB4',
-				'0xE5' => '0xCEB5',		'0xE6' => '0xCEB6',		'0xE7' => '0xCEB7',
-				'0xE9' => '0xCEB9',		'0xEB' => '0xCEBB',		'0xF0' => '0xCF80',
-				'0xF1' => '0xCF81',		'0xF2' => '0xCF82',		'0xF3' => '0xCF83',
-				'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
-				'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
-				'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
-				'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',
-			],
-		];
-
-		// Make some preparations.
-		if (isset($translation_tables[$upcontext['charset_detected']])) {
-			$replace = '%field%';
-
-			// Build a huge REPLACE statement...
-			foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to) {
-				$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
-			}
-		}
-
-		// Get a list of table names ahead of time... This makes it easier to set our substep and such
-		$queryTables = Db::$db->list_tables(false, Config::$db_prefix . '%');
-
-		$queryTables = array_values(array_filter($queryTables, function ($v) {
-			return stripos($v, 'backup_') !== 0;
-		}));
-
-		$upcontext['table_count'] = count($queryTables);
-
-		// What ones have we already done?
-		foreach ($queryTables as $id => $table) {
-			if ($id < $_GET['substep']) {
-				$upcontext['previous_tables'][] = $table;
-			}
-		}
-
-		$upcontext['cur_table_num'] = $_GET['substep'];
-		$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', $queryTables[$_GET['substep']]);
-		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-
-		// Make sure we're ready & have painted the template before proceeding
-		if ($support_js && !isset($_GET['xml'])) {
-			$_GET['substep'] = 0;
-
-			return false;
-		}
-
-		// We want to start at the first table.
-		for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++) {
-			$table = $queryTables[$substep];
-
-			$getTableStatus = Db::$db->query(
-				'',
-				'SHOW TABLE STATUS
-				LIKE {string:table_name}',
-				[
-					'table_name' => str_replace('_', '\_', $table),
-				],
-			);
-
-			// Only one row so we can just fetch_assoc and free the result...
-			$table_info = Db::$db->fetch_assoc($getTableStatus);
-			Db::$db->free_result($getTableStatus);
-
-			$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', ($queryTables[$substep + 1] ?? $queryTables[$substep]));
-			$upcontext['cur_table_num'] = $substep + 1;
-			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-
-			// Do we need to pause?
-			nextSubstep($substep);
-
-			// Just to make sure it doesn't time out.
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
-
-			$table_charsets = [];
-
-			// Loop through each column.
-			$queryColumns = Db::$db->query(
-				'',
-				'SHOW FULL COLUMNS
-				FROM ' . $table_info['Name'],
-				[
-				],
-			);
-
-			while ($column_info = Db::$db->fetch_assoc($queryColumns)) {
-				// Only text'ish columns have a character set and need converting.
-				if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false) {
-					$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
-
-					if (!empty($collation) && $collation !== 'NULL') {
-						list($charset) = explode('_', $collation);
-
-						// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
-						if ($charset != 'utf8') {
-							if (!isset($table_charsets[$charset])) {
-								$table_charsets[$charset] = [];
-							}
-
-							$table_charsets[$charset][] = $column_info;
-						}
-					}
-				}
-			}
-			Db::$db->free_result($queryColumns);
-
-			// Only change the non-utf8 columns identified above
-			if (count($table_charsets) > 0) {
-				$updates_blob = '';
-				$updates_text = '';
-
-				foreach ($table_charsets as $charset => $columns) {
-					if ($charset !== $charsets[$upcontext['charset_detected']]) {
-						foreach ($columns as $column) {
-							$updates_blob .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
-							$updates_text .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
-						}
-					}
-				}
-
-				// Change the columns to binary form.
-				Db::$db->query(
-					'',
-					'ALTER TABLE {raw:table_name}{raw:updates_blob}',
-					[
-						'table_name' => $table_info['Name'],
-						'updates_blob' => substr($updates_blob, 0, -1),
-					],
-				);
-
-				// Convert the character set if MySQL has no native support for it.
-				if (isset($translation_tables[$upcontext['charset_detected']])) {
-					$update = '';
-
-					foreach ($table_charsets as $charset => $columns) {
-						foreach ($columns as $column) {
-							$update .= '
-								' . $column['Field'] . ' = ' . strtr($replace, ['%field%' => $column['Field']]) . ',';
-						}
-					}
-
-					Db::$db->query(
-						'',
-						'UPDATE {raw:table_name}
-						SET {raw:updates}',
-						[
-							'table_name' => $table_info['Name'],
-							'updates' => substr($update, 0, -1),
-						],
-					);
-				}
-
-				// Change the columns back, but with the proper character set.
-				Db::$db->query(
-					'',
-					'ALTER TABLE {raw:table_name}{raw:updates_text}',
-					[
-						'table_name' => $table_info['Name'],
-						'updates_text' => substr($updates_text, 0, -1),
-					],
-				);
-			}
-
-			// Now do the actual conversion (if still needed).
-			if ($charsets[$upcontext['charset_detected']] !== 'utf8') {
-				if ($command_line) {
-					echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
-				}
-
-				Db::$db->query(
-					'',
-					'ALTER TABLE {raw:table_name}
-					CONVERT TO CHARACTER SET utf8',
-					[
-						'table_name' => $table_info['Name'],
-					],
-				);
-
-				if ($command_line) {
-					echo " done.\n";
-				}
-			}
-
-			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count']) {
-				return upgradeExit();
-			}
-		}
-
-		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
-
+		// Update the settings table
 		Db::$db->insert(
 			'replace',
 			'{db_prefix}settings',
 			['variable' => 'string', 'value' => 'string'],
-			[['global_character_set', 'UTF-8'], ['previousCharacterSet', $prev_charset]],
+			['db_search_index', ''],
 			['variable'],
 		);
+	}
 
-		// Store it in Settings.php too because it's needed before db connection.
-		// Hopefully this works...
-		Config::updateSettingsFile(['db_character_set' => 'utf8']);
+	// Figure out what charset we should be converting from...
+	$lang_charsets = [
+		'arabic' => 'windows-1256',
+		'armenian_east' => 'armscii-8',
+		'armenian_west' => 'armscii-8',
+		'azerbaijani_latin' => 'ISO-8859-9',
+		'bangla' => 'UTF-8',
+		'belarusian' => 'ISO-8859-5',
+		'bulgarian' => 'windows-1251',
+		'cambodian' => 'UTF-8',
+		'chinese_simplified' => 'gbk',
+		'chinese_traditional' => 'big5',
+		'croation' => 'ISO-8859-2',
+		'czech' => 'ISO-8859-2',
+		'czech_informal' => 'ISO-8859-2',
+		'english_pirate' => 'UTF-8',
+		'esperanto' => 'ISO-8859-3',
+		'estonian' => 'ISO-8859-15',
+		'filipino_tagalog' => 'UTF-8',
+		'filipino_vasayan' => 'UTF-8',
+		'georgian' => 'UTF-8',
+		'greek' => 'ISO-8859-3',
+		'hebrew' => 'windows-1255',
+		'hungarian' => 'ISO-8859-2',
+		'irish' => 'UTF-8',
+		'japanese' => 'UTF-8',
+		'khmer' => 'UTF-8',
+		'korean' => 'UTF-8',
+		'kurdish_kurmanji' => 'ISO-8859-9',
+		'kurdish_sorani' => 'windows-1256',
+		'lao' => 'tis-620',
+		'latvian' => 'ISO-8859-13',
+		'lithuanian' => 'ISO-8859-4',
+		'macedonian' => 'UTF-8',
+		'malayalam' => 'UTF-8',
+		'mongolian' => 'UTF-8',
+		'nepali' => 'UTF-8',
+		'persian' => 'UTF-8',
+		'polish' => 'ISO-8859-2',
+		'romanian' => 'ISO-8859-2',
+		'russian' => 'windows-1252',
+		'sakha' => 'UTF-8',
+		'serbian_cyrillic' => 'ISO-8859-5',
+		'serbian_latin' => 'ISO-8859-2',
+		'sinhala' => 'UTF-8',
+		'slovak' => 'ISO-8859-2',
+		'slovenian' => 'ISO-8859-2',
+		'telugu' => 'UTF-8',
+		'thai' => 'tis-620',
+		'turkish' => 'ISO-8859-9',
+		'turkmen' => 'ISO-8859-9',
+		'ukranian' => 'windows-1251',
+		'urdu' => 'UTF-8',
+		'uzbek_cyrillic' => 'ISO-8859-5',
+		'uzbek_latin' => 'ISO-8859-5',
+		'vietnamese' => 'UTF-8',
+		'yoruba' => 'UTF-8',
+	];
 
-		// The conversion might have messed up some serialized strings. Fix them!
-		$request = Db::$db->query(
+	// Map in the new locales. We do it like this, because we want to try our best to capture
+	// the correct charset no mater what the status of the language upgrade is.
+	foreach ($lang_charsets as $key => $value) {
+		// This could be more efficient, but its upgrade logic.
+		$locale = Lang::getLocaleFromLanguageName($key);
+
+		if ($locale !== null) {
+			$lang_charsets[$locale] = $value;
+		}
+	}
+
+	// Default to ISO-8859-1 unless we detected another supported charset
+	$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
+
+	$upcontext['charset_list'] = array_keys($charsets);
+
+	// Translation table for the character sets not native for MySQL.
+	$translation_tables = [
+		'windows-1255' => [
+			'0x81' => '\'\'',		'0x8A' => '\'\'',		'0x8C' => '\'\'',
+			'0x8D' => '\'\'',		'0x8E' => '\'\'',		'0x8F' => '\'\'',
+			'0x90' => '\'\'',		'0x9A' => '\'\'',		'0x9C' => '\'\'',
+			'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
+			'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
+			'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
+			'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '0xD792',
+			'0xFC' => '0xE282AC',		'0xFF' => '0xD6B2',		'0xC2' => '0xFF',
+			'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
+			'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
+			'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
+			'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
+			'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
+			'0xAF' => '0xC2AF',		'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',
+			'0xB2' => '0xC2B2',		'0xB3' => '0xC2B3',		'0xB4' => '0xC2B4',
+			'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
+			'0xB8' => '0xC2B8',		'0xB9' => '0xC2B9',		'0xBB' => '0xC2BB',
+			'0xBC' => '0xC2BC',		'0xBD' => '0xC2BD',		'0xBE' => '0xC2BE',
+			'0xBF' => '0xC2BF',		'0xD7' => '0xD7B3',		'0xD1' => '0xD781',
+			'0xD4' => '0xD7B0',		'0xD5' => '0xD7B1',		'0xD6' => '0xD7B2',
+			'0xE0' => '0xD790',		'0xEA' => '0xD79A',		'0xEC' => '0xD79C',
+			'0xED' => '0xD79D',		'0xEE' => '0xD79E',		'0xEF' => '0xD79F',
+			'0xF0' => '0xD7A0',		'0xF1' => '0xD7A1',		'0xF2' => '0xD7A2',
+			'0xF3' => '0xD7A3',		'0xF5' => '0xD7A5',		'0xF6' => '0xD7A6',
+			'0xF7' => '0xD7A7',		'0xF8' => '0xD7A8',		'0xF9' => '0xD7A9',
+			'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
+			'0x86' => '0xE280A0',	'0x87' => '0xE280A1',	'0x89' => '0xE280B0',
+			'0x8B' => '0xE280B9',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
+			'0x95' => '0xE280A2',	'0x97' => '0xE28094',	'0x99' => '0xE284A2',
+			'0xC0' => '0xD6B0',		'0xC1' => '0xD6B1',		'0xC3' => '0xD6B3',
+			'0xC4' => '0xD6B4',		'0xC5' => '0xD6B5',		'0xC6' => '0xD6B6',
+			'0xC7' => '0xD6B7',		'0xC8' => '0xD6B8',		'0xC9' => '0xD6B9',
+			'0xCB' => '0xD6BB',		'0xCC' => '0xD6BC',		'0xCD' => '0xD6BD',
+			'0xCE' => '0xD6BE',		'0xCF' => '0xD6BF',		'0xD0' => '0xD780',
+			'0xD2' => '0xD782',		'0xE3' => '0xD793',		'0xE4' => '0xD794',
+			'0xE5' => '0xD795',		'0xE7' => '0xD797',		'0xE9' => '0xD799',
+			'0xFD' => '0xE2808E',	'0xFE' => '0xE2808F',	'0x92' => '0xE28099',
+			'0x83' => '0xC692',		'0xD3' => '0xD783',		'0x88' => '0xCB86',
+			'0x98' => '0xCB9C',		'0x91' => '0xE28098',	'0x96' => '0xE28093',
+			'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
+			'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
+			'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
+			'0xFA' => '0xD7AA',
+		],
+		'windows-1253' => [
+			'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
+			'0x8C' => '\'\'',			'0x8D' => '\'\'',			'0x8E' => '\'\'',
+			'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
+			'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
+			'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
+			'0xD2' => '0xE282AC',			'0xFF' => '0xCE92',			'0xCE' => '0xCE9E',
+			'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
+			'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
+			'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
+			'0xCD' => '0xCE9D',		'0xCF' => '0xCE9F',		'0xDA' => '0xCEAA',
+			'0xE8' => '0xCEB8',		'0xEA' => '0xCEBA',		'0xEC' => '0xCEBC',
+			'0xEE' => '0xCEBE',		'0xEF' => '0xCEBF',		'0xC2' => '0xFF',
+			'0xBD' => '0xC2BD',		'0xED' => '0xCEBD',		'0xB2' => '0xC2B2',
+			'0xA0' => '0xC2A0',		'0xA3' => '0xC2A3',		'0xA4' => '0xC2A4',
+			'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
+			'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
+			'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
+			'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',		'0xB3' => '0xC2B3',
+			'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
+			'0xBB' => '0xC2BB',		'0xE2' => '0xCEB2',		'0x80' => '0xD2',
+			'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
+			'0x86' => '0xE280A0',	'0xA1' => '0xCE85',		'0xA2' => '0xCE86',
+			'0x87' => '0xE280A1',	'0x89' => '0xE280B0',	'0xB9' => '0xCE89',
+			'0x8B' => '0xE280B9',	'0x91' => '0xE28098',	'0x99' => '0xE284A2',
+			'0x92' => '0xE28099',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
+			'0x95' => '0xE280A2',	'0x96' => '0xE28093',	'0x97' => '0xE28094',
+			'0x9B' => '0xE280BA',	'0xAF' => '0xE28095',	'0xB4' => '0xCE84',
+			'0xC1' => '0xCE91',		'0xC3' => '0xCE93',		'0xC4' => '0xCE94',
+			'0xC5' => '0xCE95',		'0xC6' => '0xCE96',		'0x83' => '0xC692',
+			'0xC7' => '0xCE97',		'0xC9' => '0xCE99',		'0xCB' => '0xCE9B',
+			'0xD0' => '0xCEA0',		'0xD1' => '0xCEA1',		'0xD3' => '0xCEA3',
+			'0xD4' => '0xCEA4',		'0xD5' => '0xCEA5',		'0xD6' => '0xCEA6',
+			'0xD7' => '0xCEA7',		'0xD8' => '0xCEA8',		'0xD9' => '0xCEA9',
+			'0xDB' => '0xCEAB',		'0xDC' => '0xCEAC',		'0xDD' => '0xCEAD',
+			'0xDE' => '0xCEAE',		'0xDF' => '0xCEAF',		'0xE0' => '0xCEB0',
+			'0xE1' => '0xCEB1',		'0xE3' => '0xCEB3',		'0xE4' => '0xCEB4',
+			'0xE5' => '0xCEB5',		'0xE6' => '0xCEB6',		'0xE7' => '0xCEB7',
+			'0xE9' => '0xCEB9',		'0xEB' => '0xCEBB',		'0xF0' => '0xCF80',
+			'0xF1' => '0xCF81',		'0xF2' => '0xCF82',		'0xF3' => '0xCF83',
+			'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
+			'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
+			'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
+			'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',
+		],
+	];
+
+	// Make some preparations.
+	if (isset($translation_tables[$upcontext['charset_detected']])) {
+		$replace = '%field%';
+
+		// Build a huge REPLACE statement...
+		foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to) {
+			$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
+		}
+	}
+
+	// Get a list of table names ahead of time... This makes it easier to set our substep and such
+	$queryTables = Db::$db->list_tables(false, Config::$db_prefix . '%');
+
+	$queryTables = array_values(array_filter($queryTables, function ($v) {
+		return stripos($v, 'backup_') !== 0;
+	}));
+
+	$upcontext['table_count'] = count($queryTables);
+
+	// What ones have we already done?
+	foreach ($queryTables as $id => $table) {
+		if ($id < $_GET['substep']) {
+			$upcontext['previous_tables'][] = $table;
+		}
+	}
+
+	$upcontext['cur_table_num'] = $_GET['substep'];
+	$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', $queryTables[$_GET['substep']]);
+	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+	// Make sure we're ready & have painted the template before proceeding
+	if ($support_js && !isset($_GET['xml'])) {
+		$_GET['substep'] = 0;
+
+		return false;
+	}
+
+	// We want to start at the first table.
+	for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++) {
+		$table = $queryTables[$substep];
+
+		$getTableStatus = Db::$db->query(
 			'',
-			'SELECT id_action, extra
-			FROM {db_prefix}log_actions
-			WHERE action IN ({string:remove}, {string:delete})',
+			'SHOW TABLE STATUS
+			LIKE {string:table_name}',
 			[
-				'remove' => 'remove',
-				'delete' => 'delete',
+				'table_name' => str_replace('_', '\_', $table),
 			],
 		);
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (@Utils::safeUnserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1) {
+		// Only one row so we can just fetch_assoc and free the result...
+		$table_info = Db::$db->fetch_assoc($getTableStatus);
+		Db::$db->free_result($getTableStatus);
+
+		$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', ($queryTables[$substep + 1] ?? $queryTables[$substep]));
+		$upcontext['cur_table_num'] = $substep + 1;
+		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+		// Do we need to pause?
+		nextSubstep($substep);
+
+		// Just to make sure it doesn't time out.
+		if (function_exists('apache_reset_timeout')) {
+			@apache_reset_timeout();
+		}
+
+		$table_charsets = [];
+
+		// Loop through each column.
+		$queryColumns = Db::$db->query(
+			'',
+			'SHOW FULL COLUMNS
+			FROM ' . $table_info['Name'],
+			[
+			],
+		);
+
+		while ($column_info = Db::$db->fetch_assoc($queryColumns)) {
+			// Only text'ish columns have a character set and need converting.
+			if (str_contains($column_info['Type'], 'text') || str_contains($column_info['Type'], 'char')) {
+				$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
+
+				if (!empty($collation) && $collation !== 'NULL') {
+					list($charset) = explode('_', $collation);
+
+					// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
+					if ($charset != 'utf8') {
+						if (!isset($table_charsets[$charset])) {
+							$table_charsets[$charset] = [];
+						}
+
+						$table_charsets[$charset][] = $column_info;
+					}
+				}
+			}
+		}
+		Db::$db->free_result($queryColumns);
+
+		// Only change the non-utf8 columns identified above
+		if (count($table_charsets) > 0) {
+			$updates_blob = '';
+			$updates_text = '';
+
+			foreach ($table_charsets as $charset => $columns) {
+				if ($charset !== $charsets[$upcontext['charset_detected']]) {
+					foreach ($columns as $column) {
+						$updates_blob .= '
+							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+						$updates_text .= '
+							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+					}
+				}
+			}
+
+			// Change the columns to binary form.
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table_name}{raw:updates_blob}',
+				[
+					'table_name' => $table_info['Name'],
+					'updates_blob' => substr($updates_blob, 0, -1),
+				],
+			);
+
+			// Convert the character set if MySQL has no native support for it.
+			if (isset($translation_tables[$upcontext['charset_detected']])) {
+				$update = '';
+
+				foreach ($table_charsets as $charset => $columns) {
+					foreach ($columns as $column) {
+						$update .= '
+							' . $column['Field'] . ' = ' . strtr($replace, ['%field%' => $column['Field']]) . ',';
+					}
+				}
+
 				Db::$db->query(
 					'',
-					'UPDATE {db_prefix}log_actions
-					SET extra = {string:extra}
-					WHERE id_action = {int:current_action}',
+					'UPDATE {raw:table_name}
+					SET {raw:updates}',
 					[
-						'current_action' => $row['id_action'],
-						'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
+						'table_name' => $table_info['Name'],
+						'updates' => substr($update, 0, -1),
 					],
 				);
 			}
-		}
-		Db::$db->free_result($request);
 
-		if ($upcontext['dropping_index'] && $command_line) {
-			echo "\n" . '', Lang::$txt['upgrade_fulltext_error'], '';
-			flush();
+			// Change the columns back, but with the proper character set.
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table_name}{raw:updates_text}',
+				[
+					'table_name' => $table_info['Name'],
+					'updates_text' => substr($updates_text, 0, -1),
+				],
+			);
 		}
 
+		// Now do the actual conversion (if still needed).
+		if ($charsets[$upcontext['charset_detected']] !== 'utf8') {
+			if ($command_line) {
+				echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+			}
+
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table_name}
+				CONVERT TO CHARACTER SET utf8',
+				[
+					'table_name' => $table_info['Name'],
+				],
+			);
+
+			if ($command_line) {
+				echo " done.\n";
+			}
+		}
+
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count']) {
+			return upgradeExit();
+		}
+	}
+
+	$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
+
+	Db::$db->insert(
+		'replace',
+		'{db_prefix}settings',
+		['variable' => 'string', 'value' => 'string'],
+		[['global_character_set', 'UTF-8'], ['previousCharacterSet', $prev_charset]],
+		['variable'],
+	);
+
+	// Store it in Settings.php too because it's needed before db connection.
+	// Hopefully this works...
+	Config::updateSettingsFile(['db_character_set' => 'utf8']);
+
+	// The conversion might have messed up some serialized strings. Fix them!
+	$request = Db::$db->query(
+		'',
+		'SELECT id_action, extra
+		FROM {db_prefix}log_actions
+		WHERE action IN ({string:remove}, {string:delete})',
+		[
+			'remove' => 'remove',
+			'delete' => 'delete',
+		],
+	);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		if (@Utils::safeUnserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}log_actions
+				SET extra = {string:extra}
+				WHERE id_action = {int:current_action}',
+				[
+					'current_action' => $row['id_action'],
+					'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
+				],
+			);
+		}
+	}
+	Db::$db->free_result($request);
+
+	if ($upcontext['dropping_index'] && $command_line) {
+		echo "\n" . '', Lang::$txt['upgrade_fulltext_error'], '';
+		flush();
+	}
 
 	// Make sure we move on!
 	if ($command_line) {
@@ -3701,7 +3720,7 @@ function upgrade_unserialize($string)
 		$data = false;
 	}
 	// Might be JSON already.
-	elseif (strpos($string, '{') === 0) {
+	elseif (str_starts_with($string, '{')) {
 		$data = @json_decode($string, true);
 
 		if (is_null($data)) {
@@ -3802,218 +3821,211 @@ function serialize_to_json()
 		echo 'Converting data from serialize() to json_encode().';
 	}
 
-	if (!$support_js || isset($_GET['xml'])) {
-		// Fix the data in each table
-		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++) {
-			$upcontext['cur_table_name'] = $keys[$substep + 1] ?? $keys[$substep];
-			$upcontext['cur_table_num'] = $substep + 1;
+	// Fix the data in each table
+	for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++) {
+		$upcontext['cur_table_name'] = $keys[$substep + 1] ?? $keys[$substep];
+		$upcontext['cur_table_num'] = $substep + 1;
 
-			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
-			// Do we need to pause?
-			nextSubstep($substep);
+		// Do we need to pause?
+		nextSubstep($substep);
 
-			// Initialize a few things...
-			$where = '';
-			$vars = [];
-			$table = $keys[$substep];
-			$info = $tables[$table];
+		// Initialize a few things...
+		$where = '';
+		$vars = [];
+		$table = $keys[$substep];
+		$info = $tables[$table];
 
-			// Now the fun - build our queries and all that fun stuff
-			if ($table == 'settings') {
-				// Now a few settings...
-				$serialized_settings = [
-					'attachment_basedirectories',
-					'attachmentUploadDir',
-					'cal_today_birthday',
-					'cal_today_event',
-					'cal_today_holiday',
-					'displayFields',
-					'last_attachments_directory',
-					'memberlist_cache',
-					'search_custom_index_config',
-					'spider_name_cache',
-				];
+		// Now the fun - build our queries and all that fun stuff
+		if ($table == 'settings') {
+			// Now a few settings...
+			$serialized_settings = [
+				'attachment_basedirectories',
+				'attachmentUploadDir',
+				'cal_today_birthday',
+				'cal_today_event',
+				'cal_today_holiday',
+				'displayFields',
+				'last_attachments_directory',
+				'memberlist_cache',
+				'search_custom_index_config',
+				'spider_name_cache',
+			];
 
-				// Loop through and fix these...
-				$new_settings = [];
+			// Loop through and fix these...
+			$new_settings = [];
 
-				if ($command_line) {
-					echo "\n" . 'Fixing some settings...';
+			if ($command_line) {
+				echo "\n" . 'Fixing some settings...';
+			}
+
+			foreach ($serialized_settings as $var) {
+				if (isset(Config::$modSettings[$var])) {
+					// Attempt to unserialize the setting
+					$temp = upgrade_unserialize(Config::$modSettings[$var]);
+
+					if (!$temp && $command_line) {
+						echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
+					} elseif ($temp !== false) {
+						$new_settings[$var] = json_encode($temp);
+					}
 				}
+			}
 
-				foreach ($serialized_settings as $var) {
-					if (isset(Config::$modSettings[$var])) {
-						// Attempt to unserialize the setting
-						$temp = upgrade_unserialize(Config::$modSettings[$var]);
+			// Update everything at once
+			Config::updateModSettings($new_settings, true);
 
-						if (!$temp && $command_line) {
-							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
-						} elseif ($temp !== false) {
-							$new_settings[$var] = json_encode($temp);
+			if ($command_line) {
+				echo ' done.';
+			}
+		} elseif ($table == 'themes') {
+			// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+			$query = Db::$db->query(
+				'',
+				'SELECT id_member, id_theme, value FROM {db_prefix}themes
+				WHERE variable = {string:admin_prefs}',
+				[
+					'admin_prefs' => 'admin_preferences',
+				],
+			);
+
+			if (Db::$db->num_rows($query) != 0) {
+				while ($row = Db::$db->fetch_assoc($query)) {
+					$temp = upgrade_unserialize($row['value']);
+
+					if ($command_line) {
+						if ($temp === false) {
+							echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
+						} else {
+							echo "\n" . 'Fixing admin preferences...';
+						}
+					}
+
+					if ($temp !== false) {
+						$row['value'] = json_encode($temp);
+
+						// Even though we have all values from the table, UPDATE is still faster than REPLACE
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}themes
+							SET value = {string:prefs}
+							WHERE id_theme = {int:theme}
+								AND id_member = {int:member}
+								AND variable = {string:admin_prefs}',
+							[
+								'prefs' => $row['value'],
+								'theme' => $row['id_theme'],
+								'member' => $row['id_member'],
+								'admin_prefs' => 'admin_preferences',
+							],
+						);
+
+						if ($command_line) {
+							echo ' done.';
 						}
 					}
 				}
 
-				// Update everything at once
-				Config::updateModSettings($new_settings, true);
+				Db::$db->free_result($query);
+			}
+		} else {
+			// First item is always the key...
+			$key = $info[0];
+			unset($info[0]);
+
+			// Now we know what columns we have and such...
+			if (count($info) == 2 && $info[2] === true) {
+				$col_select = $info[1];
+				$where = ' WHERE ' . $info[1] . ' != {empty}';
+			} else {
+				$col_select = implode(', ', $info);
+			}
+
+			$query = Db::$db->query(
+				'',
+				'SELECT ' . $key . ', ' . $col_select . '
+				FROM {db_prefix}' . $table . $where,
+				[],
+			);
+
+			if (Db::$db->num_rows($query) != 0) {
+				if ($command_line) {
+					echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+					flush();
+				}
+
+				while ($row = Db::$db->fetch_assoc($query)) {
+					$update = '';
+
+					// We already know what our key is...
+					foreach ($info as $col) {
+						if ($col !== true && $row[$col] != '') {
+							$temp = upgrade_unserialize($row[$col]);
+
+							// Oh well...
+							if ($temp === false) {
+								$temp = [];
+
+								if ($command_line) {
+									echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
+								}
+							}
+
+							$row[$col] = json_encode($temp);
+
+							// Build our SET string and variables array
+							$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+							$vars[$col] = $row[$col];
+						}
+					}
+
+					$vars[$key] = $row[$key];
+
+					// In a few cases, we might have empty data, so don't try to update in those situations...
+					if (!empty($update)) {
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}' . $table . '
+							SET ' . $update . '
+							WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+							$vars,
+						);
+					}
+				}
 
 				if ($command_line) {
 					echo ' done.';
 				}
-			} elseif ($table == 'themes') {
-				// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
-				$query = Db::$db->query(
-					'',
-					'SELECT id_member, id_theme, value FROM {db_prefix}themes
-					WHERE variable = {string:admin_prefs}',
-					[
-						'admin_prefs' => 'admin_preferences',
-					],
-				);
 
-				if (Db::$db->num_rows($query) != 0) {
-					while ($row = Db::$db->fetch_assoc($query)) {
-						$temp = upgrade_unserialize($row['value']);
-
-						if ($command_line) {
-							if ($temp === false) {
-								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
-							} else {
-								echo "\n" . 'Fixing admin preferences...';
-							}
-						}
-
-						if ($temp !== false) {
-							$row['value'] = json_encode($temp);
-
-							// Even though we have all values from the table, UPDATE is still faster than REPLACE
-							Db::$db->query(
-								'',
-								'UPDATE {db_prefix}themes
-								SET value = {string:prefs}
-								WHERE id_theme = {int:theme}
-									AND id_member = {int:member}
-									AND variable = {string:admin_prefs}',
-								[
-									'prefs' => $row['value'],
-									'theme' => $row['id_theme'],
-									'member' => $row['id_member'],
-									'admin_prefs' => 'admin_preferences',
-								],
-							);
-
-							if ($command_line) {
-								echo ' done.';
-							}
-						}
-					}
-
-					Db::$db->free_result($query);
-				}
-			} else {
-				// First item is always the key...
-				$key = $info[0];
-				unset($info[0]);
-
-				// Now we know what columns we have and such...
-				if (count($info) == 2 && $info[2] === true) {
-					$col_select = $info[1];
-					$where = ' WHERE ' . $info[1] . ' != {empty}';
-				} else {
-					$col_select = implode(', ', $info);
-				}
-
-				$query = Db::$db->query(
-					'',
-					'SELECT ' . $key . ', ' . $col_select . '
-					FROM {db_prefix}' . $table . $where,
-					[],
-				);
-
-				if (Db::$db->num_rows($query) != 0) {
-					if ($command_line) {
-						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
-						flush();
-					}
-
-					while ($row = Db::$db->fetch_assoc($query)) {
-						$update = '';
-
-						// We already know what our key is...
-						foreach ($info as $col) {
-							if ($col !== true && $row[$col] != '') {
-								$temp = upgrade_unserialize($row[$col]);
-
-								// Oh well...
-								if ($temp === false) {
-									$temp = [];
-
-									if ($command_line) {
-										echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
-									}
-								}
-
-								$row[$col] = json_encode($temp);
-
-								// Build our SET string and variables array
-								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-								$vars[$col] = $row[$col];
-							}
-						}
-
-						$vars[$key] = $row[$key];
-
-						// In a few cases, we might have empty data, so don't try to update in those situations...
-						if (!empty($update)) {
-							Db::$db->query(
-								'',
-								'UPDATE {db_prefix}' . $table . '
-								SET ' . $update . '
-								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
-								$vars,
-							);
-						}
-					}
-
-					if ($command_line) {
-						echo ' done.';
-					}
-
-					// Free up some memory...
-					Db::$db->free_result($query);
-				}
-			}
-
-			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml'])) {
-				return upgradeExit();
+				// Free up some memory...
+				Db::$db->free_result($query);
 			}
 		}
 
-		if ($command_line) {
-			echo "\n" . 'Successful.' . "\n";
-			flush();
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml'])) {
+			return upgradeExit();
 		}
-		$upcontext['step_progress'] = 100;
-
-		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
-		Config::updateModSettings(['json_done' => true]);
-
-		$_GET['substep'] = 0;
-
-		// Make sure we move on!
-		if ($command_line) {
-			return ConvertUtf8();
-		}
-
-		return true;
 	}
 
-	// If this fails we just move on to deleting the upgrade anyway...
+	if ($command_line) {
+		echo "\n" . 'Successful.' . "\n";
+		flush();
+	}
+	$upcontext['step_progress'] = 100;
+
+	// Last but not least, insert a dummy setting so we don't have to do this again in the future...
+	Config::updateModSettings(['json_done' => true]);
+
 	$_GET['substep'] = 0;
 
-	return false;
+	// Make sure we move on!
+	if ($command_line) {
+		return ConvertUtf8();
+	}
+
+	return true;
 }
 
 function Cleanup()
@@ -4036,7 +4048,7 @@ function Cleanup()
 	$upcontext['steps_count'] = count($cleanupSteps);
 	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
 	$upcontext['cur_substep'] = $cleanupSteps[$upcontext['cur_substep_num']] ?? $cleanupSteps[0];
-	$upcontext['cur_substep_name'] = $txt['cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
+	$upcontext['cur_substep_name'] = $txt['upgrade_step_cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
 
 	foreach ($cleanupSteps as $id => $substep) {
@@ -4049,53 +4061,47 @@ function Cleanup()
 		echo 'Cleaning up.';
 	}
 
-	if (!$support_js || isset($_GET['xml'])) {
-		// Dubstep.
-		for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
-			$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
-			$upcontext['cur_substep_name'] = $txt['cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
-			$upcontext['cur_substep_num'] = $substep + 1;
-
-			if ($command_line) {
-				echo "\n" . ' +++ Clean up \"' . $upcontext['cur_substep_name'] . '"...';
-			}
-
-			// Timeouts
-			nextSubstep($substep);
-
-			if ($command_line) {
-				echo ' done.';
-			}
-
-			// Just to make sure it doesn't time out.
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
-
-			// Do the cleanup stuff.
-			$cleanupSteps[$substep]();
-
-			// If this is XML to keep it nice for the user do one cleanup at a time anyway!
-			if (isset($_GET['xml'])) {
-				return upgradeExit();
-			}
-		}
+	// Dubstep.
+	for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
+		$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
+		$upcontext['cur_substep_name'] = $txt['upgrade_step_cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
+		$upcontext['cur_substep_num'] = $substep + 1;
 
 		if ($command_line) {
-			echo "\n" . 'Successful.' . "\n";
-			flush();
+			echo "\n" . ' +++ Clean up "' . $upcontext['cur_substep_name'] . '"...';
 		}
 
-		$upcontext['step_progress'] = 100;
-		$_GET['substep'] = 0;
+		// Timeouts
+		nextSubstep($substep);
 
-		return true;
+		if ($command_line) {
+			echo ' done.';
+		}
+
+		// Just to make sure it doesn't time out.
+		if (function_exists('apache_reset_timeout')) {
+			@apache_reset_timeout();
+		}
+
+		// Do the cleanup stuff.
+		$cleanupSteps[$substep]();
+
+		// If this is XML to keep it nice for the user do one cleanup at a time anyway!
+		if (isset($_GET['xml'])) {
+			return upgradeExit();
+		}
 	}
 
-	// If this fails we just move on to deleting the upgrade anyway...
-	$_GET['substep'] = 0;
+	if ($command_line) {
+		echo "\n" . 'Successful.' . "\n";
+		flush();
+	}
 
-	return false;
+	$upcontext['step_progress'] = 100;
+	$_GET['substep'] = 0;
+	$_POST['cleanup_done'] = true;
+
+	return true;
 }
 
 function CleanupLanguages()
@@ -4105,7 +4111,7 @@ function CleanupLanguages()
 	$old_languages_dir = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
 
 	// Can't do this if the old Themes/default/languages directory is not writable.
-	if(!quickFileWritable($old_languages_dir)) {
+	if (!quickFileWritable($old_languages_dir)) {
 		return;
 	}
 
@@ -4117,12 +4123,12 @@ function CleanupLanguages()
 		}
 
 		// Skip ThemeStrings
-		if (substr($entry, 0, 13) == 'ThemeStrings.') {
+		if (str_starts_with($entry, 'ThemeStrings.')) {
 			continue;
 		}
 
 		// Rename Settings to ThemeStrings.
-		if (substr($entry, 0, 9) == 'Settings.' && substr($entry, -4) == '.php' && strpos($entry, '-utf8') === false) {
+		if (str_starts_with($entry, 'Settings.') && str_ends_with($entry, '.php') && !str_contains($entry, '-utf8')) {
 			quickFileWritable($old_languages_dir . '/' . $entry);
 			rename($old_languages_dir . '/' . $entry, $old_languages_dir . '/' . str_replace('Settings.', 'ThemeStrings.', $entry));
 		} else {
@@ -4149,7 +4155,7 @@ function CleanupAgreements()
 		}
 
 		// Skip anything not agreements.
-		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt') {
+		if (str_starts_with($entry, 'agreements.') || !str_ends_with($entry, '.txt')) {
 			continue;
 		}
 
@@ -5545,7 +5551,7 @@ function template_upgrade_complete()
 	global $upcontext, $upgradeurl, $settings, $is_debug;
 
 	echo '
-				<h3>', Lang::getTxt('upgrade_done', ['url' => Config::$boardurl]), '</h3>
+				<h3>', Lang::getTxt('upgrade_done', ['boardurl' => Config::$boardurl]), '</h3>
 				<form action="', Config::$boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script'])) {
@@ -5730,7 +5736,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	$step_progress = [];
 	unset($_GET['a'], $_GET['total_fixes']);
-
 }
 
 /**

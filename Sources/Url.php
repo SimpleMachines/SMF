@@ -269,7 +269,7 @@ class Url implements \Stringable
 	public function toUtf8(): self
 	{
 		// Bail out if we can be sure that it contains no international characters, encoded or otherwise.
-		if ($this->is_ascii && strpos($this->host ?? '', 'xn--') === false && strpos($this->url, '%') === false) {
+		if ($this->is_ascii && !str_contains($this->host ?? '', 'xn--') && !str_contains($this->url, '%')) {
 			return $this;
 		}
 
@@ -389,7 +389,7 @@ class Url implements \Stringable
 	{
 		$ascii_url = $this->is_ascii ? $this->url : (string) (clone $this)->toAscii();
 
-		if (strpos($ascii_url, '//') === 0) {
+		if (str_starts_with($ascii_url, '//')) {
 			$ascii_url = 'http:' . $ascii_url;
 		}
 
@@ -498,6 +498,7 @@ class Url implements \Stringable
 		// We don't need to proxy our own resources.
 		if ($proxied->host === Url::create(Config::$boardurl)->host) {
 			$proxied->url = strtr($this->url, ['http://' => 'https://']);
+			$proxied->parse();
 
 			return $proxied;
 		}
@@ -687,7 +688,7 @@ class Url implements \Stringable
 			}
 
 			// Make sure nothing went horribly wrong along the way.
-			if (md5($tlds) != substr($tlds_md5, 0, 32)) {
+			if (md5((string) $tlds) != substr((string) $tlds_md5, 0, 32)) {
 				$tlds = [];
 			}
 		}

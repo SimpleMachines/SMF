@@ -22,6 +22,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -56,7 +57,7 @@ class SendDigests extends ScheduledTask
 			WHERE mem.is_activated = {int:is_activated}',
 			[
 				'empty_topic' => 0,
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 			],
 		);
 

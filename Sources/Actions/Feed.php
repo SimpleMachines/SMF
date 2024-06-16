@@ -1854,7 +1854,7 @@ class Feed implements ActionInterface
 				],
 			];
 
-			if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004') {
+			if (!empty($profile['birth_date']) && !str_starts_with($profile['birth_date'], '0000') && !str_starts_with($profile['birth_date'], '1004')) {
 				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 
 				$datearray = getdate(time());
@@ -2950,6 +2950,11 @@ class Feed implements ActionInterface
 	 * Internal methods
 	 ******************/
 
+	/**
+	 * Sets the subaction property
+	 * 
+	 * @param ?string $subaction The subaction. If not set, checks $_GET['sa'] first, then picks the first value in self::$subactions
+	 */
 	protected function setSubaction(?string $subaction): void
 	{
 		if (isset($subaction, self::$subactions[$subaction])) {
@@ -2961,6 +2966,11 @@ class Feed implements ActionInterface
 		}
 	}
 
+	/**
+	 * Sets the member property. This is the ID of the person viewing it or the person whose profile feed we're viewing
+	 *
+	 * @param ?int The member ID
+	 */
 	protected function setMember(?int $member = 0): void
 	{
 		// Member ID was passed to the constructor.
@@ -2984,6 +2994,9 @@ class Feed implements ActionInterface
 		Utils::$context['xmlnews_uid'] = $this->member;
 	}
 
+	/**
+	 * Sets the format based on $_GET['type']
+	 */
 	protected function setFormat(): void
 	{
 		if (isset($_GET['type'], self::XML_NAMESPACES[$_GET['type']])) {
@@ -2991,6 +3004,9 @@ class Feed implements ActionInterface
 		}
 	}
 
+	/**
+	 * Sets the limit for determining how many items to show
+	 */
 	protected function setlimit(): void
 	{
 		// Limit was set via Utils::$context.
@@ -3009,6 +3025,9 @@ class Feed implements ActionInterface
 		Utils::$context['xmlnews_limit'] = $this->limit;
 	}
 
+	/**
+	 * Checks whether feeds are enabled
+	 */
 	protected function checkEnabled(): void
 	{
 		// Users can always export their own profile data.
@@ -3084,7 +3103,7 @@ class Feed implements ActionInterface
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 				}
 				// A string with returns in it.... show this as a multiline element.
-				elseif (strpos($val, "\n") !== false) {
+				elseif (str_contains($val, "\n")) {
 					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val)) . "\n" . str_repeat("\t", $i);
 				}
 				// A simple string.
@@ -3107,7 +3126,7 @@ class Feed implements ActionInterface
 	 */
 	protected static function fixPossibleUrl(string $val): string
 	{
-		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl) {
+		if (!str_starts_with($val, Config::$scripturl)) {
 			return $val;
 		}
 

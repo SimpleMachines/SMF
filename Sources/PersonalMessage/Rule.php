@@ -318,11 +318,11 @@ class Rule implements \ArrayAccess
 						)
 						|| (
 							$criterion['t'] == 'sub'
-							&& strpos($row['subject'], $criterion['v']) !== false
+							&& str_contains($row['subject'], $criterion['v'])
 						)
 						|| (
 							$criterion['t'] == 'msg'
-							&& strpos($row['body'], $criterion['v']) !== false
+							&& str_contains($row['body'], $criterion['v'])
 						)
 					) {
 						$match = true;

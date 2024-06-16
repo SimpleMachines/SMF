@@ -110,7 +110,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	public static function fetch(Url|string $url, string|array $post_data = [], bool $keep_alive = false): string|false
 	{
-		if (!$url instanceof Url) {
+		if (!($url instanceof Url)) {
 			$url = Url::create($url, true)->validate()->toAscii();
 		}
 
@@ -158,7 +158,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
 			foreach ($post_data as $name => $value) {
-				if (strpos($value, '@') === 0) {
+				if (str_starts_with($value, '@')) {
 					$post_data[$name] = null;
 				}
 			}

@@ -330,6 +330,45 @@ $txt['error_username_too_long'] = 'Username may only be up to 25 characters long
 $txt['error_username_left_empty'] = 'Username field was left empty.';
 $txt['error_utf8_support'] = 'The database you are trying to use is not using UTF-8 charset';
 
+$txt['ftp_login'] = 'Your FTP connection information';
+$txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you. Please note that none of this information is saved in your installation, it is just used to setup SMF.';
+$txt['ftp_server'] = 'Server';
+$txt['ftp_server_info'] = 'The address (often localhost) and port for your FTP server.';
+$txt['ftp_port'] = 'Port';
+$txt['ftp_username'] = 'Username';
+$txt['ftp_username_info'] = 'The username to login with. <em>This will not be saved anywhere.</em>';
+$txt['ftp_password'] = 'Password';
+$txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
+$txt['ftp_path'] = 'Install Path';
+$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client.';
+$txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
+$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot;, but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it is correct.';
+$txt['ftp_path_help_close'] = 'Close';
+$txt['ftp_connect'] = 'Connect';
+
+$txt['force_ssl'] = 'Enable SSL';
+$txt['force_ssl_label'] = 'Force SSL throughout the forum';
+$txt['force_ssl_info'] = 'Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible';
+
+$txt['chmod_linux_info'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
+
+// The upgrader needs text strings too!
+$txt['upgrade_step_login'] = 'Login';
+$txt['upgrade_step_options'] = 'Upgrade Options';
+$txt['upgrade_step_backup'] = 'Backup';
+$txt['upgrade_step_database'] = 'Database Changes';
+$txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
+$txt['upgrade_step_convertjson'] = 'Convert serialized strings to JSON';
+$txt['upgrade_step_delete'] = 'Delete Upgrade.php';
+$txt['upgrade_step_cleanup'] = 'Cleanup';
+$txt['upgrade_step_cleanup_CleanupLanguages'] = 'Cleanup languages';
+$txt['upgrade_step_cleanup_CleanupAgreements'] = 'Cleanup agreements';
+
+$txt['upgrade_upgrade_utility'] = 'SMF Upgrade Utility';
+$txt['upgrade_warning'] = 'Warning!';
+$txt['upgrade_critical_error'] = 'Critical Error!';
+$txt['upgrade_continue'] = 'Continue';
+$txt['upgrade_skip'] = 'Skip';
 $txt['upgrade_note'] = 'Note!';
 
 $txt['upgrade_step_progress'] = 'Step Progress';

@@ -24,12 +24,14 @@ trait BackwardCompatibility
 
 	/**
 	 *
-	 * @param int $memID
-	 * @param null|string $sa
-	 * @param bool $updateRequest
-	 * @param bool $loadSelfFirst
-	 * @param bool $loadProfile
-	 * @param bool $defaultSettings
+	 * Backwards compatibility function for handling profile-related subactions
+	 *
+	 * @param int $memID The member ID
+	 * @param null|string $sa The subaction
+	 * @param bool $updateRequest Whether to update $_REQUEST['u']
+	 * @param bool $loadSelfFirst Whether to load the current user's profile first
+	 * @param bool $loadProfile Whether to load the profile of the specified member
+	 * @param bool $defaultSettings Not used?
 	 */
 	public static function subActionProvider(
 		int $memID,

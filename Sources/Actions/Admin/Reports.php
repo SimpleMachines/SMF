@@ -27,7 +27,6 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -196,7 +195,7 @@ class Reports implements ActionInterface
 	{
 		Group::loadSimple(
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
-			[Group::ADMIN, Group::MOD]
+			[Group::ADMIN, Group::MOD],
 		);
 		Lang::load('ManagePermissions');
 		Permissions::loadPermissionProfiles();
@@ -334,7 +333,7 @@ class Reports implements ActionInterface
 		$groups = ['col' => '#sep#'];
 		$group_data = Group::loadSimple(
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
-			[Group::ADMIN, Group::MOD]
+			[Group::ADMIN, Group::MOD],
 		);
 		Board::load([], ['selects' => ['b.id_board', 'b.name', 'member_groups', 'deny_member_groups']]);
 		$loaded_ids = array_keys(Board::$loaded);
@@ -390,7 +389,7 @@ class Reports implements ActionInterface
 		$groups = ['col' => '#sep#'];
 		$group_data = Group::loadSimple(
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
-			[Group::ADMIN]
+			[Group::ADMIN],
 		);
 		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $group_data), null, true);
 
@@ -493,7 +492,7 @@ class Reports implements ActionInterface
 		$groups = ['col' => '#sep#'];
 		$group_data = Group::loadSimple(
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
-			[Group::ADMIN, Group::MOD]
+			[Group::ADMIN, Group::MOD],
 		);
 		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $group_data), 0);
 
@@ -600,7 +599,7 @@ class Reports implements ActionInterface
 				'position' => Group::$loaded[$member->group_id]->name,
 				'posts' => $member->posts,
 				'last_login' => Time::create('@' . $member->last_login)->format(),
-				'moderates' => implode(', ',  $board_names) ?: '<i>' . Lang::$txt['report_staff_all_boards'] . '</i>',
+				'moderates' => implode(', ', $board_names) ?: '<i>' . Lang::$txt['report_staff_all_boards'] . '</i>',
 			];
 
 			$this->addData($staffData);
@@ -776,7 +775,7 @@ class Reports implements ActionInterface
 				];
 
 				// Special "hack" the adding separators when doing data by column.
-				if (substr((string) $key, 0, 5) == '#sep#') {
+				if (str_starts_with((string) $key, '#sep#')) {
 					$data[$key]['separator'] = true;
 				} elseif (substr((string) $data[$key]['v'], 0, 5) == '#sep#') {
 					$data[$key]['header'] = true;
@@ -791,11 +790,11 @@ class Reports implements ActionInterface
 					'v' => $value,
 				];
 
-				if (substr((string) $key, 0, 5) == '#sep#') {
+				if (str_starts_with((string) $key, '#sep#')) {
 					$data[$key]['separator'] = true;
 				}
-				// Hack in a "seperator" to display a row differently.
-				elseif (substr((string) $value, 0, 5) == '#sep#') {
+				// Hack in a "separator" to display a row differently.
+				elseif (str_starts_with((string) $value, '#sep#')) {
 					$data[$key]['header'] = true;
 					$data[$key]['v'] = substr((string) $value, 5);
 				}
@@ -864,7 +863,7 @@ class Reports implements ActionInterface
 			$this->tables[$id]['column_count'] = array_reduce(
 				$table['data'],
 				fn (int $accumulator, $data): int => max($accumulator, count($data)),
-				0
+				0,
 			);
 
 			// Work out the rough width - for templates like the print template. Without this we might get funny tables.

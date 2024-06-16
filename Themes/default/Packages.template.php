@@ -1720,7 +1720,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 		// Hide anything too far down the tree.
 		$isFound = false;
 		foreach (Utils::$context['look_for'] as $tree)
-			if (substr($tree, 0, strlen($ident)) == $ident)
+			if (str_starts_with($tree, $ident))
 				$isFound = true;
 
 		if ($level > 1 && !$isFound)

@@ -62,33 +62,31 @@ class QueryString
 		}
 
 		// Get the correct query string.  It may be in an environment variable...
-		if (!isset($_SERVER['QUERY_STRING'])) {
-			$_SERVER['QUERY_STRING'] = getenv('QUERY_STRING');
-		}
+		$_SERVER['QUERY_STRING'] = (string) ($_SERVER['QUERY_STRING'] ?? getenv('QUERY_STRING'));
 
 		// It seems that sticking a URL after the query string is mighty common, well, it's evil - don't.
-		if (strpos($_SERVER['QUERY_STRING'], 'http') === 0) {
+		if (str_starts_with($_SERVER['QUERY_STRING'], 'http')) {
 			Utils::sendHttpStatus(400);
 
 			die;
 		}
 
 		// Are we going to need to parse the ; out?
-		if (strpos(ini_get('arg_separator.input'), ';') === false && !empty($_SERVER['QUERY_STRING'])) {
+		if (!str_contains(ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
 			// Get rid of the old one! You don't know where it's been!
 			$_GET = [];
 
 			// Was this redirected? If so, get the REDIRECT_QUERY_STRING.
 			// Do not urldecode() the querystring.
-			$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], 0, 5) === 'url=/' ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
+			$_SERVER['QUERY_STRING'] = str_starts_with($_SERVER['QUERY_STRING'], 'url=/') ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
 
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 			// @todo smflib
 			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
-		} elseif (strpos(ini_get('arg_separator.input'), ';') !== false) {
+		} elseif (str_contains(ini_get('arg_separator.input'), ';')) {
 			// Search engines will send action=profile%3Bu=1, which confuses PHP.
 			foreach ($_GET as $k => $v) {
-				if ((string) $v === $v && strpos($k, ';') !== false) {
+				if ((string) $v === $v && str_contains($k, ';')) {
 					$temp = explode(';', $v);
 					$_GET[$k] = $temp[0];
 
@@ -102,7 +100,7 @@ class QueryString
 				}
 
 				// This helps a lot with integration!
-				if (strpos($k, '?') === 0) {
+				if (str_starts_with($k, '?')) {
 					$_GET[substr($k, 1)] = $v;
 					unset($_GET[$k]);
 				}
@@ -120,7 +118,7 @@ class QueryString
 
 			// @todo smflib.
 			// Replace 'index.php/a,b,c/d/e,f' with 'a=b,c&d=&e=f' and parse it into $_GET.
-			if (strpos($request, basename(Config::$scripturl) . '/') !== false) {
+			if (str_contains($request, basename(Config::$scripturl) . '/')) {
 				parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename(Config::$scripturl)) + strlen(basename(Config::$scripturl)))), '/', '&')), 1), $temp);
 
 				$_GET += $temp;
@@ -142,11 +140,11 @@ class QueryString
 			$_REQUEST['board'] = (string) $_REQUEST['board'];
 
 			// If there's a slash in it, we've got a start value! (old, compatible links.)
-			if (strpos($_REQUEST['board'], '/') !== false) {
+			if (str_contains($_REQUEST['board'], '/')) {
 				list($_REQUEST['board'], $_REQUEST['start']) = explode('/', $_REQUEST['board']);
 			}
 			// Same idea, but dots.  This is the currently used format - ?board=1.0...
-			elseif (strpos($_REQUEST['board'], '.') !== false) {
+			elseif (str_contains($_REQUEST['board'], '.')) {
 				list($_REQUEST['board'], $_REQUEST['start']) = explode('.', $_REQUEST['board']);
 			}
 
@@ -173,11 +171,11 @@ class QueryString
 			$_REQUEST['topic'] = (string) $_REQUEST['topic'];
 
 			// Slash means old, beta style, formatting.  That's okay though, the link should still work.
-			if (strpos($_REQUEST['topic'], '/') !== false) {
+			if (str_contains($_REQUEST['topic'], '/')) {
 				list($_REQUEST['topic'], $_REQUEST['start']) = explode('/', $_REQUEST['topic']);
 			}
 			// Dots are useful and fun ;).  This is ?topic=1.15.
-			elseif (strpos($_REQUEST['topic'], '.') !== false) {
+			elseif (str_contains($_REQUEST['topic'], '.')) {
 				list($_REQUEST['topic'], $_REQUEST['start']) = explode('.', $_REQUEST['topic']);
 			}
 
@@ -194,16 +192,16 @@ class QueryString
 				$_REQUEST['start'] = (int) $_REQUEST['start'];
 			}
 			// ... or a specific message ...
-			elseif (strpos($_REQUEST['start'], 'msg') === 0) {
+			elseif (str_starts_with($_REQUEST['start'], 'msg')) {
 				$virtual_msg = (int) substr($_REQUEST['start'], 3);
 				$_REQUEST['start'] = $virtual_msg === 0 ? 0 : 'msg' . $virtual_msg;
 			}
 			// ... or whatever is new ...
-			elseif (strpos($_REQUEST['start'], 'new') === 0) {
+			elseif (str_starts_with($_REQUEST['start'], 'new')) {
 				$_REQUEST['start'] = 'new';
 			}
 			// ... or since a certain time ...
-			elseif (strpos($_REQUEST['start'], 'from') === 0) {
+			elseif (str_starts_with($_REQUEST['start'], 'from')) {
 				$timestamp = (int) substr($_REQUEST['start'], 4);
 				$_REQUEST['start'] = $timestamp === 0 ? 0 : 'from' . $timestamp;
 			}
@@ -231,7 +229,7 @@ class QueryString
 		}
 
 		// Some mail providers like to encode semicolons in activation URLs...
-		if (!empty($_REQUEST['action']) && substr(strtolower($_SERVER['QUERY_STRING']), 0, 18) == 'action=activate%3b') {
+		if (!empty($_REQUEST['action']) && str_starts_with(strtolower($_SERVER['QUERY_STRING']), 'action=activate%3b')) {
 			header('location: ' . Config::$scripturl . '?' . str_ireplace('%3b', ';', $_SERVER['QUERY_STRING']));
 
 			exit;
@@ -289,7 +287,7 @@ class QueryString
 			}
 
 			// If there are commas, get the last one.. probably.
-			if (strpos($_SERVER[$proxyIPheader], ',') !== false) {
+			if (str_contains($_SERVER[$proxyIPheader], ',')) {
 				$ips = array_reverse(explode(', ', $_SERVER[$proxyIPheader]));
 
 				// Go through each IP...
@@ -479,7 +477,7 @@ class QueryString
 		list($cidr_network, $cidr_subnetmask) = preg_split('~/~', $cidr_address);
 
 		// v6?
-		if ((strpos($cidr_network, ':') !== false)) {
+		if ((str_contains($cidr_network, ':'))) {
 			if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) || !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
 				return false;
 			}

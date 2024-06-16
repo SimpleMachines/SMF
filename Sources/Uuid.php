@@ -36,9 +36,11 @@ namespace SMF;
  *    representation of a UUID. This form maintains the same sort order as the
  *    full form and is the most space-efficient form possible.
  *
- *  - The Uuid::getShortForm() method returns a customized base 64 encoding of
- *    the binary form of the UUID. This form is 22 bytes long, maintains the
- *    same sort order as the full form, and is URL safe.
+ *  - The Uuid::getShortForm() method returns a customized base 64 or base 32
+ *    encoding of the binary form of the UUID. Both short forms maintain the
+ *    same sort order as the full form and are URL safe. The base 64 form is 22
+ *    characters long. The base 32 form is 26 characters long, but contains only
+ *    digits and lowercase letters, which may be useful in some situations.
  *
  * For convenience, two static methods, Uuid::compress() and Uuid::expand(), are
  * available in order to simplify the process of converting an existing UUID
@@ -56,25 +58,11 @@ namespace SMF;
  *    algorithm for UUIDv5 always produces the same output given the same input,
  *    so these UUIDs can be regenerated any number of times without varying.
  *
- * At the time of writing, the specifications for the different UUID versions
- * are defined in the following documents:
+ * The specification for UUIDv2 is DCE 1.1 Authentication and Security Services
+ * https://pubs.opengroup.org/onlinepubs/9696989899/chap5.htm#tagcjh_08_02_01_01
  *
- *  - UUIDv1: RFC 4122
- *  - UUIDv2: DCE 1.1 Authentication and Security Services
- *  - UUIDv3: RFC 4122
- *  - UUIDv4: RFC 4122
- *  - UUIDv5: RFC 4122
- *  - UUIDv6: draft-ietf-uuidrev-rfc4122bis
- *  - UUIDv7: draft-ietf-uuidrev-rfc4122bis
- *  - UUIDv8: draft-ietf-uuidrev-rfc4122bis
- *  - "Nil" UUID: RFC 4122
- *  - "Max" UUID: draft-ietf-uuidrev-rfc4122bis
- *
- * These documents are available at the following URLs:
- *
- * - https://datatracker.ietf.org/doc/rfc4122/
- * - https://pubs.opengroup.org/onlinepubs/9696989899/chap5.htm#tagcjh_08_02_01_01
- * - https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/
+ * The specifications for all other UUID versions are defined in RFC 9562
+ * https://www.rfc-editor.org/info/rfc9562
  */
 class Uuid implements \Stringable
 {
@@ -134,6 +122,21 @@ class Uuid implements \Stringable
 	 */
 	public const BASE64_STANDARD = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 	public const BASE64_SORTABLE = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~ ';
+
+	/**
+	 * Constants used to implement an alternative version of base32hex encoding
+	 * for compressed UUID strings. Specifically, this uses "Crockford Base32"
+	 * in order to avoid visually confusing characters.
+	 */
+	public const BASE32_HEX = '0123456789abcdefghijklmnopqrstuv';
+	public const BASE32_ALT = '0123456789abcdefghjkmnpqrstvwxyz';
+
+	/**
+	 * Constants used to select a short form type for the compress() method.
+	 */
+	public const COMPRESS_BINARY = 0;
+	public const COMPRESS_BASE64 = 1;
+	public const COMPRESS_BASE32 = 2;
 
 	/*********************
 	 * Internal properties
@@ -247,7 +250,7 @@ class Uuid implements \Stringable
 			// Convert supported object types to strings.
 			case 'object':
 				if ($input instanceof \DateTimeInterface) {
-					$input = $input->format('Y-m-d H:i:s.u e');
+					$input = $input->format('U.u');
 				} elseif ($input instanceof \Stringable) {
 					$input = (string) $input;
 				} else {
@@ -364,15 +367,22 @@ class Uuid implements \Stringable
 	}
 
 	/**
-	 * Compresses $this->uuid to a 22-character string.
+	 * Compresses $this->uuid to a 22- or 26-character string.
 	 *
-	 * This short form is URL-safe and maintains the same ASCII sort order as
-	 * the original UUID string.
+	 * These short forms are URL-safe and maintain the same ASCII sort order
+	 * as the original UUID string.
 	 *
+	 * @param bool $lowercase_only If true, only use lowercase letters.
+	 *    This results in a 26-character string, but it is easier for humans to
+	 *    work with than the shorter 22-character string.
 	 * @return string The short form of the UUID.
 	 */
-	public function getShortForm(): string
+	public function getShortForm(bool $lowercase_only = false): string
 	{
+		if ($lowercase_only) {
+			return strtr(str_pad(self::encodeBase32Hex(str_replace('-', '', $this->uuid)), 26, '0', STR_PAD_LEFT), self::BASE32_HEX, self::BASE32_ALT);
+		}
+
 		return rtrim(strtr(base64_encode($this->getBinary()), self::BASE64_STANDARD, self::BASE64_SORTABLE));
 	}
 
@@ -426,12 +436,15 @@ class Uuid implements \Stringable
 		}
 
 		// Binary format is 16 bytes long.
-		// Short format is 22 bytes long.
+		// Base64 format is 22 bytes long.
+		// Base32 format is 26 bytes long.
 		// Full format is 32 bytes long, once extraneous characters are removed.
 		if (strlen($input) === 16) {
 			$hex = bin2hex($input);
 		} elseif (strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
 			$hex = bin2hex(base64_decode(strtr($input, self::BASE64_SORTABLE, self::BASE64_STANDARD), true));
+		} elseif (strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
+			$hex = self::decodeBase32Hex(strtr($input, self::BASE32_ALT, self::BASE32_HEX));
 		} elseif (strspn(str_replace(['{', '-', '}'], '', $input), '0123456789ABCDEFabcdef') === 32) {
 			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
 		} else {
@@ -477,14 +490,23 @@ class Uuid implements \Stringable
 	 *
 	 * @param \Stringable|string $input A UUID string. May be compressed or
 	 *    uncompressed.
-	 * @param bool $to_base64 If true, compress to short form. Default: false.
+	 * @param int $form One of this class's COMPRESS_* constants.
 	 * @return string The short form of the UUID string.
 	 */
-	public static function compress(\Stringable|string $input, bool $to_base64 = false): string
+	public static function compress(\Stringable|string $input, int $form = self::COMPRESS_BINARY): string
 	{
 		$uuid = self::createFromString($input);
 
-		return $to_base64 ? $uuid->getShortForm() : $uuid->getBinary();
+		switch ($form) {
+			case self::COMPRESS_BASE32:
+				return $uuid->getShortForm(true);
+
+			case self::COMPRESS_BASE64:
+				return $uuid->getShortForm();
+
+			default:
+				return $uuid->getBinary();
+		}
 	}
 
 	/**
@@ -534,7 +556,7 @@ class Uuid implements \Stringable
 	 *
 	 * The default namespace UUID is the UUIDv5 for Config::$scripturl.
 	 *
-	 * See RFC 4122, section 4.3.
+	 * See RFC 9562, section 6.5.
 	 *
 	 * @param \Stringable|string|bool $ns Either a valid UUID, true to forcibly
 	 *    reset to the automatically generated default value, or false to use
@@ -569,7 +591,7 @@ class Uuid implements \Stringable
 		}
 
 		// Temporarily set self::$namespace to the binary form of the predefined
-		// namespace UUID for URLs. (See RFC 4122, appendix C.)
+		// namespace UUID for URLs. (See RFC 9562, section 6.6.)
 		self::$namespace = hex2bin(str_replace('-', '', self::NAMESPACE_URL));
 
 		// Set self::$namespace to the binary UUIDv5 for Config::$scripturl.
@@ -585,10 +607,7 @@ class Uuid implements \Stringable
 	 *
 	 * The 60-bit timestamp counts 100-nanosecond intervals since Oct 15, 1582,
 	 * at 0:00:00 UTC (the date when the Gregorian calendar went into effect).
-	 * The maximum date is Jun 18, 5623, at 21:21:00.6846975 UTC. (Note: In the
-	 * introduction section of RFC 4122, the maximum date is stated to be
-	 * "around A.D. 3400" but this appears to be errata. It would be true if the
-	 * timestamp were a signed integer, but in fact the timestamp is unsigned.)
+	 * The maximum date is Jun 18, 5623, at 21:21:00.6846975 UTC.
 	 *
 	 * Uniqueness is ensured by appending a "clock sequence" and a "node ID" to
 	 * the timestamp. The clock sequence is a randomly initialized value that
@@ -617,7 +636,7 @@ class Uuid implements \Stringable
 	 * UUIDv2: DCE security version. Suitable only for specific purposes and is
 	 * rarely used.
 	 *
-	 * RFC 4122 does not describe this version. It just reserves UUIDv2 for
+	 * RFC 9562 does not describe this version. It just reserves UUIDv2 for
 	 * "DCE Security version." Instead the specification for UUIDv2 can be found
 	 * in the DCE 1.1 Authentication and Security Services specification.
 	 *
@@ -850,7 +869,7 @@ class Uuid implements \Stringable
 		$timestamp = $this->adjustTimestamp();
 
 		// We can't track the clock sequence between executions, so initialize
-		// it to a random value each time. See RFC 4122, section 4.1.5.
+		// it to a random value each time. See RFC 9562, section 6.10.
 		if (!isset(self::$clock_seq[$this->version])) {
 			self::$clock_seq[$this->version] = bin2hex(random_bytes(2));
 		}
@@ -859,7 +878,7 @@ class Uuid implements \Stringable
 
 		// We don't have direct access to the MAC address in PHP, but the spec
 		// allows using random data instead, provided that we set the least
-		// significant bit of its first octet to 1. See RFC 4122, section 4.5.
+		// significant bit of its first octet to 1. See RFC 9562, section 6.10.
 		if (!isset(self::$node)) {
 			self::$node = sprintf('%012x', hexdec(bin2hex(random_bytes(6))) | 0x10000000000);
 		}
@@ -872,7 +891,7 @@ class Uuid implements \Stringable
 			// First try incrementing the timestamp.
 			// Because the spec uses 100-nanosecond intervals, but PHP offers
 			// only microseconds, the spec says we can do this to simulate
-			// greater precision. See RFC 4122, section 4.2.1.2.
+			// greater precision. See RFC 9562, section 6.1.
 			$temp = $timestamp;
 
 			for ($i = 0; $i < 9; $i++) {
@@ -986,6 +1005,52 @@ class Uuid implements \Stringable
 		}
 
 		return $timestamp;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Converts a hexadecimal string to base32hex.
+	 *
+	 * Note: base32hex, specified in RFC 4648, section 7, is the form of base32
+	 * that PHP's base_convert() produces. This is different from basic base32,
+	 * which is specified in RFC 4648, section 6.
+	 *
+	 * @param string $hex A hexadecimal string.
+	 * @return string A base32hex string.
+	 */
+	protected static function encodeBase32Hex(string $hex): string
+	{
+		$b32 = '';
+
+		foreach (str_split(strrev($hex), 10) as $chunk) {
+			$b32 = str_pad(base_convert(strrev($chunk), 16, 32), 8, '0', STR_PAD_LEFT) . $b32;
+		}
+
+		return ltrim($b32, '0');
+	}
+
+	/**
+	 * Converts a base32hex string to hexadecimal.
+	 *
+	 * Note: base32hex, specified in RFC 4648, section 7, is the form of base32
+	 * that PHP's base_convert() produces. This is different from basic base32,
+	 * which is specified in RFC 4648, section 6.
+	 *
+	 * @param string $b32 A base32hex string.
+	 * @return string A hexadecimal string.
+	 */
+	protected static function decodeBase32Hex(string $b32): string
+	{
+		$hex = '';
+
+		foreach (str_split(strrev($b32), 8) as $chunk) {
+			$hex = str_pad(base_convert(strrev($chunk), 32, 16), 10, '0', STR_PAD_LEFT) . $hex;
+		}
+
+		return ltrim($hex, '0');
 	}
 }
 

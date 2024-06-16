@@ -15,8 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
+use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
+use SMF\ActionTrait;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -39,8 +41,10 @@ use SMF\Utils;
 /**
  * This class manages... the news. :P
  */
-class News extends ACP
+class News implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
 
 	/*******************
@@ -547,7 +551,7 @@ class News extends ACP
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
 				WHERE mem.is_activated = {int:is_activated}',
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 				],
 			);
 
@@ -751,7 +755,7 @@ class News extends ACP
 		if (!Utils::$context['send_pm']) {
 			$include_unsubscribe = true;
 
-			if (strpos($_POST['message'], '{$member.unsubscribe}') === false) {
+			if (!str_contains($_POST['message'], '{$member.unsubscribe}')) {
 				$_POST['message'] .= "\n\n" . '{$member.unsubscribe}';
 			}
 		}
@@ -909,8 +913,8 @@ class News extends ACP
 				array_merge($sendParams, [
 					'start' => Utils::$context['start'],
 					'atonce' => $num_at_once,
-					'regular_group' => 0,
-					'is_activated' => 1,
+					'regular_group' => Group::REGULAR,
+					'is_activated' => User::ACTIVATED,
 				]),
 			);
 
@@ -1047,7 +1051,7 @@ class News extends ACP
 
 			IntegrationHook::call('integrate_save_news_settings');
 
-			self::saveDBSettings($config_vars);
+			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
 			Utils::redirectexit('action=admin;area=news;sa=settings');
 		}
@@ -1055,7 +1059,7 @@ class News extends ACP
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mp');
 
-		self::prepareDBSettingContext($config_vars);
+		ACP::prepareDBSettingContext($config_vars);
 	}
 
 	/***********************
@@ -1242,7 +1246,7 @@ class News extends ACP
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
 
 		// Force the right area...
-		if (substr($this->subaction, 0, 7) == 'mailing') {
+		if (str_starts_with($this->subaction, 'mailing')) {
 			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
 		}
 

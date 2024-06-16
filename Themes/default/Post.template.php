@@ -282,7 +282,7 @@ function template_main()
 
 				if (!empty(Config::$modSettings['attachmentShowImages']))
 				{
-					if (strpos($attachment['mime_type'], 'image') === 0)
+					if (str_begins_with($attachment['mime_type'], 'image'))
 						$src = Config::$scripturl . '?action=dlattach;attach=' . (!empty($attachment['thumb']) ? $attachment['thumb'] : $attachment['attachID']) . ';preview;image';
 					else
 						$src = Theme::$current->settings['images_url'] . '/generic_attach.png';
