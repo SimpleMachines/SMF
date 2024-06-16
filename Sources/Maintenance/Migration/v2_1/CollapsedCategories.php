@@ -49,7 +49,7 @@ class CollapsedCategories extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$request = Db::$db->query('', '
+		$request = $this->query('', '
 			SELECT id_member, id_cat
 			FROM {db_prefix}collapsed_categories');
 

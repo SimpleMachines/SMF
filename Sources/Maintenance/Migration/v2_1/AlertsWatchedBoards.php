@@ -61,7 +61,7 @@ class AlertsWatchedBoards extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
+		$request = $this->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
 		list($maxBoards) = Db::$db->fetch_row($request);
 		Maintenance::$total_items = (int) $maxBoards;
 		Db::$db->free_result($request);
@@ -74,7 +74,7 @@ class AlertsWatchedBoards extends MigrationBase
 			$inserts = [];
 
 			// This setting is stored over in the themes table in 2.0...
-			$request = Db::$db->query(
+			$request = $this->query(
 				'',
 				'
 				SELECT SELECT id_member, ({literal:board_notify_} || id_topic) as alert_pref, 1 as alert_value

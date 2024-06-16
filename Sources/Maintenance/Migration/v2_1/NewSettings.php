@@ -139,7 +139,7 @@ class NewSettings extends MigrationBase
 		// Enable some settings we ripped from Theme settings.
 		$ripped_settings = ['show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group'];
 
-		$request = Db::$db->query(
+		$request = $this->query(
 			'',
 			'
 			SELECT variable, value

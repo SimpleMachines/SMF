@@ -68,7 +68,7 @@ class ValidationServers extends MigrationBase
 			$column->add('{db_prefix}' . $PackageServersTable->name);
 		}
 
-		$request = Db::$db->query(
+		$request = $this->query(
 			'',
 			'
 			SELECT id_server
@@ -96,7 +96,7 @@ class ValidationServers extends MigrationBase
 		}
 
 		// Ensure The Simple Machines Customize Site is https
-		Db::$db->query(
+		$this->query(
 			'',
 			'
 			UPDATE {$db_prefix}{raw:table_name}
@@ -110,7 +110,7 @@ class ValidationServers extends MigrationBase
 		);
 
 		// Add validation to Simple Machines Customize Site
-		Db::$db->query(
+		$this->query(
 			'',
 			'
 			UPDATE {$db_prefix}{raw:table_name}

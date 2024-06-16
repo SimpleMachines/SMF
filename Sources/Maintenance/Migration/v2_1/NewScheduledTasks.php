@@ -73,7 +73,7 @@ class NewScheduledTasks extends MigrationBase
 		}
 
 		foreach ($this->newTasks as $task) {
-			$request = Db::$db->query(
+			$request = $this->query(
 				'',
 				'
 				SELECT id_task

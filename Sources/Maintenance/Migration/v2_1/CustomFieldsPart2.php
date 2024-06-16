@@ -56,7 +56,7 @@ class CustomFieldsPart2 extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+		$request = $this->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
 		list($maxMembers) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 		Maintenance::$total_items = (int) $maxMembers;
@@ -71,7 +71,7 @@ class CustomFieldsPart2 extends MigrationBase
 			$this->handleTimeout($start);
 			$inserts = array();
 	
-			$request = Db::$db->query('', '
+			$request = $this->query('', '
 				SELECT id_member, '. implode(',', $select_columns) .'
 				FROM {db_prefix}members
 				ORDER BY id_member

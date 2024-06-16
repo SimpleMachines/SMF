@@ -60,7 +60,7 @@ class AttachmentSizes extends MigrationBase
 		// If id_member = 0, then it's not an avatar
 		// If attachment_type = 0, then it's also not a thumbnail
 		// Theory says there shouldn't be *that* many of these
-		$request = Db::$db->query(
+		$request = $this->query(
 			'',
 			'
 			SELECT id_attach, mime_type, width, height
@@ -77,7 +77,7 @@ class AttachmentSizes extends MigrationBase
 		Db::$db->free_result($request);
 
 		if (!empty($attachs)) {
-			Db::$db->query(
+			$this->query(
 				'',
 				'
 				UPDATE {db_prefix}attachments

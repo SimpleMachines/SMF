@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Cleanup;
 
 use SMF\Config;
 
-class Cleanup0001 extends CleanupBase
+class CleanupOldFiles extends CleanupBase
 {
 	/*******************
 	 * Public properties

@@ -51,7 +51,7 @@ class BoardDescriptions extends MigrationBase
 	public function execute(): bool
 	{
 
-		$request = Db::$db->query(
+		$request = $this->query(
 			'',
 			'
 			SELECT name, description, id_board
@@ -63,7 +63,7 @@ class BoardDescriptions extends MigrationBase
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			Db::$db->query(
+			$this->query(
 				'',
 				'
 				UPDATE {db_prefix}boards

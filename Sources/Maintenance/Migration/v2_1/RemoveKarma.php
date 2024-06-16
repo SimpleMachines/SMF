@@ -47,7 +47,7 @@ class RemoveKarma extends MigrationBase
 	public function execute(): bool
 	{
 		// Delete old settings vars.
-		Db::$db->query(
+		$this->query(
 			'',
 			'
             DELETE FROM {db_prefix}settings
@@ -70,7 +70,7 @@ class RemoveKarma extends MigrationBase
 		}
 
 		// Cleaning up old karma permissions.
-		Db::$db->query(
+		$this->query(
 			'',
 			'
             DELETE FROM {db_prefix}permissions

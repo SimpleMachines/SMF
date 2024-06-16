@@ -61,7 +61,7 @@ class AutoNotify extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}themes WHERE variable = {string:auto_notify}', ['auto_notify' => 'auto_notify']);
+		$request = $this->query('', 'SELECT COUNT(*) FROM {db_prefix}themes WHERE variable = {string:auto_notify}', ['auto_notify' => 'auto_notify']);
 		list($maxMembers) = Db::$db->fetch_row($request);
 		Maintenance::$total_items = (int) $maxMembers;
 		Db::$db->free_result($request);
@@ -74,7 +74,7 @@ class AutoNotify extends MigrationBase
 			$inserts = [];
 
 			// This setting is stored over in the themes table in 2.0...
-			$request = Db::$db->query(
+			$request = $this->query(
 				'',
 				'
 				SELECT id_member, value
@@ -109,7 +109,7 @@ class AutoNotify extends MigrationBase
 			Maintenance::setCurrentStart($start + $this->limit);
 		}
 
-		Db::$db->query('', '
+		$this->query('', '
 			DELETE FROM {db_prefix}themes
 			WHERE variable = {literal:auto_notify}');
 

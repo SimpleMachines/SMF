@@ -57,7 +57,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\AttachmentSizes::class,
 			Maintenance\Migration\v2_1\AttachmentDirectory::class,
 			Maintenance\Migration\v2_1\CreateLogGroupRequests::class,
-			Maintenance\Migration\v2_1\PackageManagerColumns::class,
+			Maintenance\Migration\v2_1\PackageManager::class,
 			Maintenance\Migration\v2_1\ValidationServers::class,
 			Maintenance\Migration\v2_1\SessionIDs::class,
 			Maintenance\Migration\v2_1\MovedTopics::class,
@@ -79,11 +79,25 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\UserDrafts::class,
 			Maintenance\Migration\v2_1\Likes::class,
 			Maintenance\Migration\v2_1\Mentions::class,
-			Maintenance\Migration\v2_1\ModeratorGroups::class
+			Maintenance\Migration\v2_1\ModeratorGroups::class,
+			Maintenance\Migration\v2_1\AdminInfoFiles::class,
+			Maintenance\Migration\v2_1\VerificationQuestions::class,
+			Maintenance\Migration\v2_1\Permissions::class,
+			Maintenance\Migration\v2_1\PersonalMessageLabels::class
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
 			Maintenance\Migration\v3_0\LanguageDirectory::class,
+		],
+	];
+
+	/**
+	 * Cleanups that do not require database maintenance tasks.
+	 */
+	public const CLEANUPS = [
+		// Cleanup steps for 2.1 -> 3.0
+		'v3_0' => [
+			Maintenance\Cleanup\CleanupOldFiles::class
 		],
 	];
 

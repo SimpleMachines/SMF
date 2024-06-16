@@ -194,7 +194,7 @@ class LegacyAttachments extends MigrationBase
 					$size = @getimagesize($newFile);
 
 					if (!empty($size['mime'])) {
-						Db::$db->query(
+						$this->query(
 							'',
 							'
 							UPDATE {db_prefix}attachments
