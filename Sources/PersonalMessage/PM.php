@@ -1456,7 +1456,7 @@ class PM implements \ArrayAccess
 				'msgtime' => 'int',
 				'subject' => 'string-255',
 				'body' => 'string-65534',
-				'version' => 'string(5)',
+				'version' => 'string-5',
 			],
 			[
 				$pm_head,
