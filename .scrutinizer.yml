@@ -2,7 +2,6 @@ filter:
     excluded_paths:
         - '*.min.js'
         - 'vendor/' # Just to be sure
-    dependency_paths:
 checks:
     php:
         variable_existence: true
