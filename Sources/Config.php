@@ -245,6 +245,9 @@ class Config
 	 */
 	public static string $sourcedir;
 
+	/**
+	 * Path to where our dependencies are located.
+	 */
 	public static string $vendordir;
 
 	/**
