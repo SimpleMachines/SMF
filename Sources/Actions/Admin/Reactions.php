@@ -17,7 +17,6 @@ declare(strict_types = 1);
 
 namespace SMF\Actions\Admin;
 
-use Overtrue\PHPLint\Cache;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\ReactionTrait;
@@ -62,7 +61,7 @@ class Reactions implements ActionInterface
 	/** @var array
 	 * Available subactions
 	 */
-	public static $subactions = [
+	public static array $subactions = [
 		'edit' => 'editreactions',
 		'settings' => 'settings',
 	];
@@ -140,6 +139,7 @@ class Reactions implements ActionInterface
 			// Anything to delete?
 			if (isset($_POST['delete_reacts'])) {
 				$do_update = true;
+				$deleted = [];
 
 				foreach($_POST['delete_reacts'] as $to_delete) {
 					$deleted[] = (int) $to_delete;
@@ -188,6 +188,8 @@ class Reactions implements ActionInterface
 				if (isset($_POST['react_add'])) {
 					foreach($_POST['react_add'] as $new_react)
 					{
+						// No funny stuff now..
+						$new_react = trim($new_react);
 						if (!empty($new_react)) {
 							$add[] = $new_react;
 						}
@@ -204,8 +206,11 @@ class Reactions implements ActionInterface
 				// Updating things...
 				$updates = [];
 				foreach($_POST['reacts'] as $id => $name) {
-					// Did they update this one?
-					if ($reactions[$id] != $name) {
+					// Again, no funny stuff...
+					$name = trim($name);
+
+					// Did they update this one? Ignore empty ones for now
+					if ($reactions[$id] != $name && !empty($name)) {
 						$updates[$id] = $name;
 					}
 				}
@@ -220,7 +225,7 @@ class Reactions implements ActionInterface
 				// If we updated anything, re-cache everything
 				if ($do_update) {
 					// Re-cache the reactions and update the reactions variable
-					Cache::put('reactions', null);
+					CacheApi::put('reactions', null);
 					$reactions = $this->getReactions();
 				}
 			}
@@ -260,6 +265,24 @@ class Reactions implements ActionInterface
 				]
 
 			]
+		];
+
+		// The column for deleting things
+		$listOptions['columns']['remove'] = [
+			'header' => [
+				'value' => Lang::$txt['reacts_delete'],
+				'style' => 'width:3%',
+			],
+			'data' => [
+				'function' => function () use ($reactions) {
+					$checks = [];
+					foreach(array_keys($reactions) as $id) {
+						$checks[] = '<input type="check" name="delete_reacts[]" value="' . $id . '">';
+					}
+					return $checks;
+				},
+			],
+			'class' => 'centertext',
 		];
 
 		// Now that we have our list options set up, have some fun...
