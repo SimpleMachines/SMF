@@ -228,6 +228,9 @@ class Config
 	 * Path to the Sources directory.
 	 */
 	public static string $sourcedir;
+	/**
+	 * Path to where our dependencies are located.
+	 */
 	public static string $vendordir;
 	/**
 	 * Path to the Packages directory.
