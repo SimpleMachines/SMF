@@ -473,6 +473,30 @@ class Utils
 	}
 
 	/**
+	 * Like standard ltrim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
+	 *
+	 * @param string $string The string.
+	 * @return string|false The trimmed string, or false on failure.
+	 */
+	public static function htmlTrimLeft(string $string): string|false
+	{
+		return preg_replace('~^(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+~u', '', self::sanitizeEntities($string));
+	}
+
+	/**
+	 * Like standard rtrim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
+	 *
+	 * @param string $string The string.
+	 * @return string|false The trimmed string, or false on failure.
+	 */
+	public static function htmlTrimRight(string $string): string|false
+	{
+		return preg_replace('~(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
+	}
+
+	/**
 	 * Like standard trim(), except that it also trims &nbsp; entities, control
 	 * characters, and Unicode whitespace characters beyond the ASCII range.
 	 *
