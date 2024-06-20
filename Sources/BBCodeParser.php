@@ -2082,9 +2082,12 @@ class BBCodeParser
 		error_reporting($oldlevel);
 
 		// Yes, I know this is kludging it, but this is the best way to preserve tabs from PHP :P.
-		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
+		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<span style="white-space: pre-wrap;">' . "\t" . '</span>', $buffer);
 
-		return strtr($buffer, ['\'' => '&#039;', '<code>' => '', '</code>' => '']);
+		// PHP 8.3 changed the returned HTML.
+		$buffer = preg_replace('/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/', '', $buffer);
+
+		return strtr($buffer, ['\'' => '&#039;']);
 	}
 
 	/**
@@ -2343,6 +2346,18 @@ class BBCodeParser
 		if (!isset($disabled['code'])) {
 			$code = is_array($data) ? $data[0] : $data;
 
+			$add_begin = (
+				is_array($data)
+				&& isset($data[1])
+				&& strtoupper($data[1]) === 'PHP'
+				&& !str_contains($code, '&lt;?php')
+			);
+
+			if ($add_begin) {
+				$code = '&lt;?php ' . $code . '?&gt;';
+				$data[1] = 'PHP';
+			}
+
 			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++) {
@@ -2359,12 +2374,20 @@ class BBCodeParser
 				}
 
 				$php_parts[$php_i] = self::highlightPhpCode($php_string . $php_parts[$php_i]);
+
+				if (is_array($data) && empty($data[1])) {
+					$data[1] = 'PHP';
+				}
 			}
 
 			// Fix the PHP code stuff...
 			$code = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
 
-			$code = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $code);
+			$code = str_replace("\t", "<span style=\"white-space: pre-wrap;\">\t</span>", $code);
+
+			if ($add_begin) {
+				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
+			}
 
 			if (is_array($data)) {
 				$data[0] = $code;
@@ -2536,7 +2559,7 @@ class BBCodeParser
 			$data = self::highlightPhpCode($add_begin ? '&lt;?php ' . $data . '?&gt;' : $data);
 
 			if ($add_begin) {
-				$data = preg_replace(['~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~', '~\?&gt;((?:</(font|span)>)*)$~'], '$1', $data, 2);
+				$data = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $data, 2);
 			}
 		}
 	}
