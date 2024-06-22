@@ -30,7 +30,7 @@ trait ReactionTrait
 	 */
 	public function getReactions(): array
 	{
-		if (is_null($reactions = CacheApi::get('reactions'))) {
+		if (is_null($reactions = CacheApi::get('reactions', 480))) {
 			$request = Db::$db->query(
 				'',
 				'SELECT * FROM {db_prefix}reactions',
@@ -43,7 +43,7 @@ trait ReactionTrait
 			Db::$db->free($request);
 
 			// Cache the results
-			CacheApi::put('reactions', $reactions);
+			CacheApi::put('reactions', $reactions, 480);
 		}
 		return $reactions;
 	}

@@ -220,13 +220,14 @@ class Reactions implements ActionInterface
 					// Do the update
 					Db::$db->insert('replace', ['id_react, name'], $updates, 'id_react');
 				}
+			}
 
-				// If we updated anything, re-cache everything
-				if ($do_update) {
-					// Re-cache the reactions and update the reactions variable
-					CacheApi::put('reactions', null);
-					$reactions = $this->getReactions();
-				}
+			// If we updated anything, re-cache everything
+			if ($do_update) {
+				// Re-cache the reactions and update the reactions variable so the form will show the changes
+				CacheApi::put('reactions', null);
+				$reactions = $this->getReactions();
+				CacheApi::put('reactions', $reactions, 480);
 			}
 		}
 
@@ -242,11 +243,13 @@ class Reactions implements ActionInterface
 			'no_items_label' => Lang::$txt['no_reactions'],
 			'base_href' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
 			'get_items' => [
-				'function' => function() use ($reactions) : array {
+				'function' => function(int $start, int $items_per_page, string $sort_by, array $params) use ($reactions) : array {
 					$items = [];
 					foreach ($reactions as $id => $name) {
-						// Make a nice text field...
-						$items[] = '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">';
+						$items[] = [
+							'name' => '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">',
+							'check' => '<input type="check" name="delete_reacts[]" value="' . $id . '">',
+						];
 					}
 					return $items;
 				},
@@ -286,12 +289,35 @@ class Reactions implements ActionInterface
 
 		// Add a row for a blank field to add a reaction, and a link to add another blank field.
 		$listOptions['additional_rows'][] = [
-
+			[
+				'position' => 'bottom_of_list',
+				'data' => [
+					'value' => '<input type="text" name="reacts_add[]">'
+				]
+			],
+			[
+				// Clicking this magic link adds a new row...
+				'position' => 'bottom_of_list',
+				'data' => [
+					'value' => '<a href="javascript:void(0);" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</a>'
+				]
+			],
+			[
+				// And last but not least our buttons
+				'position' => 'below_table_data',
+				'data' => [
+					'value' => '<input type="submit" name="reacts_save" value="' . Lang::$txt['reacts_save'] . '" class="button">
+								<input type="submit" name="reacts_delete" value="' . Lang::$txt['reacts_delete'] . '" data-confirm="' . Lang::$txt['reacts_delete_confirm'] . '" class="button you_sure>'
+				]
+			]
 		];
 
 		// And some inline JS to handle adding another row
-		$listOptions['inline_javascript'] = [
-
+		$listOptions['javascript'] = [
+			'
+			function addrow() {
+				document.getElementByName(blah);
+			}',
 		];
 
 		// Now that we have our list options set up, have some fun...
