@@ -264,8 +264,13 @@ class Reactions implements ActionInterface
 					'header' => [
 						'value' => Lang::$txt['reactions_name'],
 					]
+				],
+				'check' => [
+					'header' => [
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
+						'class' => 'centercol',
+					],
 				]
-
 			]
 		];
 
@@ -299,7 +304,7 @@ class Reactions implements ActionInterface
 				// Clicking this magic link adds a new row...
 				'position' => 'bottom_of_list',
 				'data' => [
-					'value' => '<a href="javascript:void(0);" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</a>'
+					'value' => '<button type="button" onclick="addrow()" value="' . Lang::$txt['reacts_add'] . '">'
 				]
 			],
 			[
@@ -316,7 +321,10 @@ class Reactions implements ActionInterface
 		$listOptions['javascript'] = [
 			'
 			function addrow() {
-				document.getElementByName(blah);
+				reacts_table = document.getElementById(\'reactions_list\');
+				new_row = document.getElementById(\'reactions_list\').insertRow(reacts_table.rows.length - 1);
+				new_row.insertCell(0).innerHTML = \'<input type="text" name="reacts_add[]">\';
+				new_row.insertCell(1).innerHTML = \'\';
 			}',
 		];
 
