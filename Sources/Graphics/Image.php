@@ -1139,11 +1139,11 @@ class Image
 
 		// Determine whether to resize to max width or to max height (depending on the limits.)
 		if (!empty($max_width) && (empty($max_height) || round($this->height * $max_width / $this->width) <= $max_height)) {
-			$dst_width = $max_width;
-			$dst_height = round($this->height * $max_width / $this->width);
+			$dst_width = (int) $max_width;
+			$dst_height = (int) round($this->height * $max_width / $this->width);
 		} elseif (!empty($max_height)) {
-			$dst_width = round($this->width * $max_height / $this->height);
-			$dst_height = $max_height;
+			$dst_width = (int) round($this->width * $max_height / $this->height);
+			$dst_height = (int) $max_height;
 		}
 
 		// Don't bother resizing if it's already smaller...
