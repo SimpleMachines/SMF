@@ -129,7 +129,7 @@ class Reactions implements ActionInterface
 		$reactions = $this->getReactions();
 
 		// They must have submitted a form.
-		if (isset($_POST['react_save'])) {
+		if (isset($_POST['react_save']) || isset($_POST['react_delete'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-mss', 'request');
 
@@ -137,7 +137,7 @@ class Reactions implements ActionInterface
 			$do_update = false;
 
 			// Anything to delete?
-			if (isset($_POST['delete_reacts'])) {
+			if (isset($_POST['react_delete']) && isset($_POST['delete_reacts'])) {
 				$do_update = true;
 				$deleted = [];
 
@@ -181,9 +181,8 @@ class Reactions implements ActionInterface
 					}
 				}
 			}
-
 			// Updating things?
-			if (isset($_POST['reacts'])) {
+			elseif (isset($_POST['reacts'])) {
 				// Adding things?
 				if (isset($_POST['react_add'])) {
 					foreach($_POST['react_add'] as $new_react)
@@ -285,6 +284,16 @@ class Reactions implements ActionInterface
 			'class' => 'centertext',
 		];
 
+		// Add a row for a blank field to add a reaction, and a link to add another blank field.
+		$listOptions['additional_rows'][] = [
+
+		];
+
+		// And some inline JS to handle adding another row
+		$listOptions['inline_javascript'] = [
+
+		];
+
 		// Now that we have our list options set up, have some fun...
 		$listOptions['form'] = [
 			'href' => Config::$scripturl . '?action=admin;area=react;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
@@ -298,3 +307,4 @@ class Reactions implements ActionInterface
 		Utils::$context['default_list'] = 'list_reactions';
 	}
 }
+?>
