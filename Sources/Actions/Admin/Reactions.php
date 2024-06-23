@@ -359,23 +359,27 @@ class Reactions implements ActionInterface
 
 		// Setup the admin tabs.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_reactions'],
+			'title' => Lang::$txt['reactions'],
 			'help' => 'manage_reactions',
 			'description' => Lang::$txt['admin_manage_reactions'],
-			'tabs' => [],
+			'tabs' => [
+				'settings' => [
+					'description' => Lang::$txt['reaction_settings_explain'],
+				],
+				'edit' => [
+					'description' => Lang::$txt['manage_reactions_desc'],
+					'disabled' => !Config::$modSettings['enable_reacts'],
+				],
+			],
 		];
 
-		// If reactions are enabled, set that up as well
-		if (Utils::$context['enable_reacts']) {
-			Utils::$context['tabs'] = [
-				'managereactions' => [
-					'label' => Lang::$txt['manage_reactions'],
-					'description' => Lang::$txt['manage_reactions_desc'],
-					'url' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
-					'selected_actions' => ['edit'],
-				],
-			];
+		Utils::$context['last_tab'] = Config::$modSettings['enable_reacts'] ? 'edit' : 'settings';
+
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
+			$this->subaction = $_REQUEST['sa'];
 		}
+
+		Utils::$context['sub_action'] = &$this->subaction;
 	}
 }
 ?>
