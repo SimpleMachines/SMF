@@ -125,7 +125,7 @@ function updateEventUI()
 				// no break
 
 			case "MONTHLY":
-				// Enable both radio buttons to allow choosing the type of montly recurrence.
+				// Enable both radio buttons to allow choosing the type of monthly recurrence.
 				for (const elem of document.querySelectorAll("#monthly_options input[name=\'monthly_option_type\']")) {
 					elem.disabled = false;
 				}
