@@ -141,8 +141,8 @@ class Reactions implements ActionInterface
 				$do_update = true;
 				$deleted = [];
 
-				foreach($_POST['delete_reacts'] as $to_delete) {
-					$deleted[] = (int) $to_delete;
+				foreach ($_POST['delete_reacts'] as $to_delete) {
+					$deleted[] = (int)$to_delete;
 				}
 
 				// Now to do the actual deleting
@@ -180,13 +180,11 @@ class Reactions implements ActionInterface
 						);
 					}
 				}
-			}
-			// Updating things?
+			} // Updating things?
 			elseif (isset($_POST['reacts'])) {
 				// Adding things?
 				if (isset($_POST['react_add'])) {
-					foreach($_POST['react_add'] as $new_react)
-					{
+					foreach ($_POST['react_add'] as $new_react) {
 						// No funny stuff now..
 						$new_react = trim($new_react);
 						if (!empty($new_react)) {
@@ -204,7 +202,7 @@ class Reactions implements ActionInterface
 
 				// Updating things...
 				$updates = [];
-				foreach($_POST['reacts'] as $id => $name) {
+				foreach ($_POST['reacts'] as $id => $name) {
 					// Again, no funny stuff...
 					$name = trim($name);
 
@@ -243,7 +241,7 @@ class Reactions implements ActionInterface
 			'no_items_label' => Lang::$txt['no_reactions'],
 			'base_href' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
 			'get_items' => [
-				'function' => function(int $start, int $items_per_page, string $sort_by, array $params) use ($reactions) : array {
+				'function' => function (int $start, int $items_per_page, string $sort_by, array $params) use ($reactions): array {
 					$items = [];
 					foreach ($reactions as $id => $name) {
 						$items[] = [
@@ -258,24 +256,26 @@ class Reactions implements ActionInterface
 				'value' => count($reactions),
 			],
 			'columns' =>
-			[
-				'name' =>
 				[
-					'header' => [
-						'value' => Lang::$txt['reactions_name'],
-					]
-				],
-				'check' => [
-					'header' => [
-						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
-						'class' => 'centercol',
-					],
-					'data' => [
-						'function' => function($rowData) { return '<input type="check" name="delete_reacts[]" value="' . $rowData['id'] . '">'; },
-						'class' => 'centercol',
+					'name' =>
+						[
+							'header' => [
+								'value' => Lang::$txt['reactions_name'],
+							]
+						],
+					'check' => [
+						'header' => [
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
+							'class' => 'centercol',
+						],
+						'data' => [
+							'function' => function ($rowData) {
+								return '<input type="check" name="delete_reacts[]" value="' . $rowData['id'] . '">';
+							},
+							'class' => 'centercol',
+						]
 					]
 				]
-			]
 		];
 
 		// The column for deleting things
@@ -287,7 +287,7 @@ class Reactions implements ActionInterface
 			'data' => [
 				'function' => function () use ($reactions) {
 					$checks = [];
-					foreach(array_keys($reactions) as $id) {
+					foreach (array_keys($reactions) as $id) {
 						$checks[] = '<input type="check" name="delete_reacts[]" value="' . $id . '">';
 					}
 					return $checks;
@@ -343,6 +343,39 @@ class Reactions implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['reactions_manage'];
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'list_reactions';
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Constructor. Protected to force instantiation via self::load().
+	 */
+	protected function __construct()
+	{
+		// Load up our language and set up the menu.
+		Lang::load('ManageReactions');
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['admin_reactions'],
+			'help' => 'manage_reactions',
+			'description' => Lang::$txt['admin_manage_reactions'],
+			'tabs' => [],
+		];
+
+		// If reactions are enabled, set that up as well
+		if (Utils::$context['enable_reacts']) {
+			Utils::$context['tabs'] = [
+				'managereactions' => [
+					'label' => Lang::$txt['manage_reactions'],
+					'description' => Lang::$txt['manage_reactions_desc'],
+					'url' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
+					'selected_actions' => ['edit'],
+				],
+			];
+		}
 	}
 }
 ?>
