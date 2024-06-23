@@ -247,8 +247,8 @@ class Reactions implements ActionInterface
 					$items = [];
 					foreach ($reactions as $id => $name) {
 						$items[] = [
+							'id' => $id,
 							'name' => '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">',
-							'check' => '<input type="check" name="delete_reacts[]" value="' . $id . '">',
 						];
 					}
 					return $items;
@@ -270,6 +270,10 @@ class Reactions implements ActionInterface
 						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'class' => 'centercol',
 					],
+					'data' => [
+						'function' => function($rowData) { return '<input type="check" name="delete_reacts[]" value="' . $rowData['id'] . '">'; },
+						'class' => 'centercol',
+					]
 				]
 			]
 		];
@@ -301,14 +305,14 @@ class Reactions implements ActionInterface
 				]
 			],
 			[
-				// Clicking this magic link adds a new row...
+				// Clicking this magic button adds a new row...
 				'position' => 'bottom_of_list',
 				'data' => [
 					'value' => '<button type="button" onclick="addrow()" value="' . Lang::$txt['reacts_add'] . '">'
 				]
 			],
 			[
-				// And last but not least our buttons
+				// And last but not least our input buttons
 				'position' => 'below_table_data',
 				'data' => [
 					'value' => '<input type="submit" name="reacts_save" value="' . Lang::$txt['reacts_save'] . '" class="button">
