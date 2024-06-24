@@ -758,6 +758,47 @@ class Autolinker
 		return self::$instance;
 	}
 
+	/**
+	 * Creates the JavaScript file used for autolinking in the editor.
+	 *
+	 * @param bool $force Whether to overwrite an existing file. Default: false.
+	 */
+	public static function createJavaScriptFile(bool $force = false): void
+	{
+		if (empty(Config::$modSettings['autoLinkUrls'])) {
+			return;
+		}
+
+		if (!isset(Theme::$current)) {
+			Theme::loadEssential();
+		}
+
+		if (!$force && file_exists(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js')) {
+			return;
+		}
+
+		$js[] = 'const autolinker_regexes = new Map();';
+
+		$regexes = self::load()->getJavaScriptUrlRegexes();
+		$regexes['email'] = self::load()->getJavaScriptEmailRegex();
+
+		foreach ($regexes as $key => $value) {
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
+
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . self::$excluded_trailing_chars . '])') . ', "giu"));';
+
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . self::$excluded_trailing_chars . preg_quote(implode(array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
+		}
+
+		$js[] = 'const autolinker_balanced_pairs = new Map();';
+
+		foreach (self::$balanced_pairs as $opener => $closer) {
+			$js[] = 'autolinker_balanced_pairs.set(' . Utils::escapeJavaScript($opener) . ', ' . Utils::escapeJavaScript($closer) . ');';
+		}
+
+		file_put_contents(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js', implode("\n", $js));
+	}
+
 	/*******************
 	 * Internal methods.
 	 *******************/

@@ -780,29 +780,14 @@ class Editor implements \ArrayAccess
 			'emoticonsCompat' => true,
 			'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 			'format' => 'bbcode',
-			'plugins' => !empty(Config::$modSettings['autoLinkUrls']) ? 'autolinker' : '',
+			'plugins' => '',
 			'bbcodeTrim' => false,
 		];
 
 		if (!empty(Config::$modSettings['autoLinkUrls'])) {
-			$js = "\n\t\t" . 'const autolinker_regexes = new Map();';
-
-			$regexes = Autolinker::load()->getJavaScriptUrlRegexes();
-			$regexes['email'] = Autolinker::load()->getJavaScriptEmailRegex();
-
-			foreach ($regexes as $key => $value) {
-				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
-				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . Autolinker::$excluded_trailing_chars . '])') . ', "giu"));';
-				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . Autolinker::$excluded_trailing_chars . preg_quote(implode(array_merge(array_keys(Autolinker::$balanced_pairs), Autolinker::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
-			}
-
-			$js .= "\n\t\t" . 'const autolinker_balanced_pairs = new Map();';
-
-			foreach (Autolinker::$balanced_pairs as $opener => $closer) {
-				$js .= "\n\t\t" . 'autolinker_balanced_pairs.set(' . Utils::escapeJavaScript($opener) . ', ' . Utils::escapeJavaScript($closer) . ');';
-			}
-
-			Theme::addInlineJavaScript($js);
+			$this->sce_options['plugins'] = 'autolinker';
+			Autolinker::createJavaScriptFile();
+			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');
 		}
 
 		if (!empty($this->locale)) {
