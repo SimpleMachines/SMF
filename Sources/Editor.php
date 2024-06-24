@@ -227,7 +227,7 @@ class Editor implements \ArrayAccess
 		$this->columns = (int) ($options['columns'] ?? 60);
 		$this->rows = (int) ($options['rows'] ?? 18);
 		$this->width = (string) ($options['width'] ?? '70%');
-		$this->height = (string) ($options['height'] ?? '175px');
+		$this->height = (string) ($options['height'] ?? '250px');
 		$this->form = (string) ($options['form'] ?? 'postmodify');
 		$this->preview_type = (int) ($options['preview_type'] ?? self::PREVIEW_HTML);
 		$this->labels = (array) ($options['labels'] ?? []);
@@ -775,7 +775,7 @@ class Editor implements \ArrayAccess
 		// Set up the SCEditor options
 		$this->sce_options = [
 			'width' => $this->width ?? '100%',
-			'height' => $this->height ?? '175px',
+			'height' => $this->height ?? '250px',
 			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
 			'emoticonsCompat' => true,
 			'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
