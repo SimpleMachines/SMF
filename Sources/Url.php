@@ -753,6 +753,11 @@ class Url implements \Stringable
 		// Remember the new regex in Config::$modSettings
 		Config::updateModSettings(['tld_regex' => $tld_regex]);
 
+		// Update the editor's autolinker JavaScript.
+		if ($update) {
+			Autolinker::createJavaScriptFile(true);
+		}
+
 		// Redundant repetition is redundant
 		$done = true;
 	}

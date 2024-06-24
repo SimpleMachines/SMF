@@ -217,6 +217,13 @@ class Autolinker
 	 */
 	protected string $js_email_regex;
 
+	/**
+	 * @var string
+	 *
+	 * Regular expression to match the named entities in HTML5.
+	 */
+	protected string $entities_regex;
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -377,10 +384,9 @@ class Autolinker
 	{
 		static $no_autolink_regex;
 
-		// An &nbsp; right after a URL can break the autolinker
-		if (str_contains($string, '&nbsp;')) {
-			$string = strtr($string, ['&nbsp;' => str_repeat(html_entity_decode('&nbsp;', 0, $this->encoding), 3)]);
-		}
+		// An entity right after the URL can break the autolinker.
+		$this->setEntitiesRegex();
+		$string = preg_replace('~(' . $this->entities_regex . ')*(?=\s|$)~u', ' ', $string);
 
 		$this->setUrlRegex();
 
@@ -467,10 +473,9 @@ class Autolinker
 	 */
 	public function detectEmails(string $string, bool $plaintext_only = false): array
 	{
-		// An &nbsp; right after a email address can break the autolinker
-		if (str_contains($string, '&nbsp;')) {
-			$string = strtr($string, ['&nbsp;' => str_repeat(html_entity_decode('&nbsp;', 0, $this->encoding), 3)]);
-		}
+		// An entity right after the email address can break the autolinker.
+		$this->setEntitiesRegex();
+		$string = preg_replace('~(' . $this->entities_regex . ')*(?=\s|$)~u', ' ', $string);
 
 		$this->setEmailRegex();
 
@@ -758,9 +763,62 @@ class Autolinker
 		return self::$instance;
 	}
 
+	/**
+	 * Creates the JavaScript file used for autolinking in the editor.
+	 *
+	 * @param bool $force Whether to overwrite an existing file. Default: false.
+	 */
+	public static function createJavaScriptFile(bool $force = false): void
+	{
+		if (empty(Config::$modSettings['autoLinkUrls'])) {
+			return;
+		}
+
+		if (!isset(Theme::$current)) {
+			Theme::loadEssential();
+		}
+
+		if (!$force && file_exists(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js')) {
+			return;
+		}
+
+		$js[] = 'const autolinker_regexes = new Map();';
+
+		$regexes = self::load()->getJavaScriptUrlRegexes();
+		$regexes['email'] = self::load()->getJavaScriptEmailRegex();
+
+		foreach ($regexes as $key => $value) {
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
+
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . self::$excluded_trailing_chars . '])') . ', "giu"));';
+
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . self::$excluded_trailing_chars . preg_quote(implode(array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
+		}
+
+		$js[] = 'const autolinker_balanced_pairs = new Map();';
+
+		foreach (self::$balanced_pairs as $opener => $closer) {
+			$js[] = 'autolinker_balanced_pairs.set(' . Utils::escapeJavaScript($opener) . ', ' . Utils::escapeJavaScript($closer) . ');';
+		}
+
+		file_put_contents(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js', implode("\n", $js));
+	}
+
 	/*******************
 	 * Internal methods.
 	 *******************/
+
+	/**
+	 * Sets $this->entities_regex.
+	 */
+	protected function setEntitiesRegex(): void
+	{
+		if (isset($this->entities_regex)) {
+			return;
+		}
+
+		$this->entities_regex = '(?' . '>&(?' . '>' . Utils::buildRegex(array_map(fn ($ent) => ltrim($ent, '&'), get_html_translation_table(HTML_ENTITIES, ENT_HTML5 | ENT_QUOTES)), '~') . '|(?' . '>#(?' . '>x[0-9a-fA-F]{1,6}|\d{1,7});)))';
+	}
 
 	/**
 	 * Sets $this->tld_regex.

@@ -227,7 +227,7 @@ class Editor implements \ArrayAccess
 		$this->columns = (int) ($options['columns'] ?? 60);
 		$this->rows = (int) ($options['rows'] ?? 18);
 		$this->width = (string) ($options['width'] ?? '70%');
-		$this->height = (string) ($options['height'] ?? '175px');
+		$this->height = (string) ($options['height'] ?? '250px');
 		$this->form = (string) ($options['form'] ?? 'postmodify');
 		$this->preview_type = (int) ($options['preview_type'] ?? self::PREVIEW_HTML);
 		$this->labels = (array) ($options['labels'] ?? []);
@@ -775,34 +775,19 @@ class Editor implements \ArrayAccess
 		// Set up the SCEditor options
 		$this->sce_options = [
 			'width' => $this->width ?? '100%',
-			'height' => $this->height ?? '175px',
+			'height' => $this->height ?? '250px',
 			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
 			'emoticonsCompat' => true,
 			'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 			'format' => 'bbcode',
-			'plugins' => !empty(Config::$modSettings['autoLinkUrls']) ? 'autolinker' : '',
+			'plugins' => '',
 			'bbcodeTrim' => false,
 		];
 
 		if (!empty(Config::$modSettings['autoLinkUrls'])) {
-			$js = "\n\t\t" . 'const autolinker_regexes = new Map();';
-
-			$regexes = Autolinker::load()->getJavaScriptUrlRegexes();
-			$regexes['email'] = Autolinker::load()->getJavaScriptEmailRegex();
-
-			foreach ($regexes as $key => $value) {
-				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
-				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . Autolinker::$excluded_trailing_chars . '])') . ', "giu"));';
-				$js .= "\n\t\t" . 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . Autolinker::$excluded_trailing_chars . preg_quote(implode(array_merge(array_keys(Autolinker::$balanced_pairs), Autolinker::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
-			}
-
-			$js .= "\n\t\t" . 'const autolinker_balanced_pairs = new Map();';
-
-			foreach (Autolinker::$balanced_pairs as $opener => $closer) {
-				$js .= "\n\t\t" . 'autolinker_balanced_pairs.set(' . Utils::escapeJavaScript($opener) . ', ' . Utils::escapeJavaScript($closer) . ');';
-			}
-
-			Theme::addInlineJavaScript($js);
+			$this->sce_options['plugins'] = 'autolinker';
+			Autolinker::createJavaScriptFile();
+			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');
 		}
 
 		if (!empty($this->locale)) {
