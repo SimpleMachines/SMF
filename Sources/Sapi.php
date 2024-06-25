@@ -101,6 +101,8 @@ class Sapi
 		 * but to ensure backwards compatibility, we won't yet.
 		 */
 		foreach ($oses as $os) {
+			$is_os = false;
+
 			switch ($os) {
 				case self::OS_WINDOWS:
 					$is_os = PHP_OS_FAMILY === self::OS_WINDOWS || DIRECTORY_SEPARATOR === '\\';
