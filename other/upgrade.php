@@ -2594,7 +2594,7 @@ function protected_alter($change, $substep, $is_test = false)
 			SHOW FULL PROCESSLIST');
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (strpos($row['Info'], 'ALTER TABLE ' . $db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false)
+			if ($row['Info'] !== null && (strpos($row['Info'], 'ALTER TABLE ' . $db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false))
 				$found = true;
 		}
 
