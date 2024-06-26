@@ -1797,6 +1797,7 @@ class ExportProfileData extends BackgroundTask
 			'jpeg' => 'image/jpeg',
 			'tiff' => 'image/tiff',
 			'svg' => 'image/svg+xml',
+			'webp' => 'image/webp',
 		];
 
 		foreach (glob(implode(DIRECTORY_SEPARATOR, [Config::$modSettings['smileys_dir'], User::$me->smiley_set, '*.*'])) as $smiley_file) {

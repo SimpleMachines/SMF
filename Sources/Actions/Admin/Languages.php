@@ -246,7 +246,7 @@ class Languages implements ActionInterface
 			$extension = $pathinfo['extension'];
 
 			// Don't do anything with files we don't understand.
-			if (!in_array($extension, ['php', 'jpg', 'gif', 'jpeg', 'png', 'txt'])) {
+			if (!in_array($extension, ['php', 'jpg', 'gif', 'jpeg', 'png', 'txt', 'webp'])) {
 				continue;
 			}
 

@@ -779,7 +779,7 @@ class Profile extends User implements \ArrayAccess
 					$no_smiley_sets = array_diff(explode(',', Config::$modSettings['smiley_sets_known']), array_keys($filenames));
 
 					foreach ($no_smiley_sets as $set) {
-						$allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg'];
+						$allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp'];
 						$images = glob(implode('/', [Config::$modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}')]), GLOB_BRACE);
 
 						// Just use some image or other
@@ -2607,6 +2607,7 @@ class Profile extends User implements \ArrayAccess
 				&& strcasecmp($extension, 'jpeg') != 0
 				&& strcasecmp($extension, 'png') != 0
 				&& strcasecmp($extension, 'bmp') != 0
+				&& strcasecmp($extension, 'webp') != 0
 			) {
 				continue;
 			}

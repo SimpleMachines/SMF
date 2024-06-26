@@ -655,7 +655,7 @@ class Membergroups implements ActionInterface
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
 
 		// Get a list of all the image formats we can select for icons.
-		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg'];
+		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg', 'webp'];
 
 		// Scan the icons directory.
 		Utils::$context['possible_icons'] = [];

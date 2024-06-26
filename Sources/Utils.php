@@ -1831,7 +1831,7 @@ class Utils
 		}
 
 		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff'])) {
+		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp'])) {
 			header('Cache-Control: no-cache');
 		} else {
 			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
