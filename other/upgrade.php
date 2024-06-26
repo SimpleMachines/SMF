@@ -715,6 +715,12 @@ function loadEssentialData()
 		return random_bytes($bytes);
 	};
 
+	// This is used in text2words() for old 1.0.x conversions; restoring old logic
+	$smcFunc['truncate'] = function($word, $max_chars)
+	{
+		return substr($word, 0, $max_chars);
+	};
+
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 	require_once($sourcedir . '/Class-Package.php');
