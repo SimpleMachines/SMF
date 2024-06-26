@@ -38,7 +38,7 @@ body:
     attributes:
       label: Version/Git revision
       description: What SMF Version are you using? If using a git version, please indicate which revision you used.
-      placeholder: 3.0 Alpha 1
+      placeholder: 3.0 Alpha 2
     validations:
       required: true
   - type: dropdown

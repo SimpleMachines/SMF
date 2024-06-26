@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Who
+// Version: 3.0 Alpha 2; Who
 
 $txt['who_hidden'] = 'Nothing, or nothing you can see...';
 $txt['who_admin'] = 'Viewing the Administration Center';

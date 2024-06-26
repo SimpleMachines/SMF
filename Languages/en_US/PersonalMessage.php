@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; PersonalMessage
+// Version: 3.0 Alpha 2; PersonalMessage
 
 // Things for the popup
 $txt['pm_unread'] = 'Unread';

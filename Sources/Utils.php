@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -1049,17 +1049,17 @@ class Utils
 		$q = !empty($as_json) ? '"' : '\'';
 
 		return $q . strtr($string, [
-				"\r" => '',
-				"\n" => '\\n',
-				"\t" => '\\t',
-				'\\' => '\\\\',
-				$q => addslashes($q),
-				'</' => '<' . $q . ' + ' . $q . '/',
-				'<script' => '<scri' . $q . '+' . $q . 'pt',
-				'<body>' => '<bo' . $q . '+' . $q . 'dy>',
-				'<a href' => '<a hr' . $q . '+' . $q . 'ef',
-				Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
-			]) . $q;
+			"\r" => '',
+			"\n" => '\\n',
+			"\t" => '\\t',
+			'\\' => '\\\\',
+			$q => addslashes($q),
+			'</' => '<' . $q . ' + ' . $q . '/',
+			'<script' => '<scri' . $q . '+' . $q . 'pt',
+			'<body>' => '<bo' . $q . '+' . $q . 'dy>',
+			'<a href' => '<a hr' . $q . '+' . $q . 'ef',
+			Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
+		]) . $q;
 	}
 
 	/**
@@ -2026,7 +2026,7 @@ class Utils
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
-			Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
+				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
 			if (defined('SID') && SID != '') {

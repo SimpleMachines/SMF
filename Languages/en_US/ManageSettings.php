@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; ManageSettings
+// Version: 3.0 Alpha 2; ManageSettings
 
 // argument(s): theme_id, session_id, session_var, Config::$scripturl
 $txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="{scripturl}?action=admin;area=theme;sa=list;th={theme_id};{session_var}={session_id}">theme settings</a> for more options. Click the help icons for more information about a setting.';

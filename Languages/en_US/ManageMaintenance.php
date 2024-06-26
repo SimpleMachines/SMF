@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; ManageMaintenance
+// Version: 3.0 Alpha 2; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #{0, number, integer} is in non-existent topic #{1, number, integer}.';

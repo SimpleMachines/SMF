@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Manual
+// Version: 3.0 Alpha 2; Manual
 
 /* Everything in this file is for the Simple Machines help manual
    If you are looking at translating the manual into another language

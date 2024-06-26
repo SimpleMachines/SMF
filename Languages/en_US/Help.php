@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Help
+// Version: 3.0 Alpha 2; Help
 
 $txt['close_window'] = 'Close window';
 
