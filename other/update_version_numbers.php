@@ -124,7 +124,7 @@ $license_pattern = '~(' . preg_quote('* @package SMF
 $lang_pattern = '~// Version: \K' . $version_regex . '~';
 
 $files = array_unique(array_merge($always_update, array_filter(
-	explode("\n", shell_exec('git diff --name-only v' . $prev_version . '...HEAD')),
+	preg_match('/alpha|beta|rc/', $prev_version) ? getFiles($basedir) : explode("\n", (string) shell_exec('git diff --name-only v' . $prev_version . '...HEAD')),
 	function ($filename) {
 		return file_exists($filename) && str_starts_with(mime_content_type($filename), 'text/');
 	},
@@ -165,6 +165,27 @@ $content = preg_replace("~http://www.simplemachines.org\b~", 'https://www.simple
 
 if ($content !== $original_content) {
 	file_put_contents("{$basedir}/LICENSE", $content);
+}
+
+function getFiles(string $dir): array
+{
+	$files = [];
+
+	foreach (scandir($dir) as $item) {
+		if (str_starts_with($item, '.')) {
+			continue;
+		}
+
+		$item = $dir . DIRECTORY_SEPARATOR . $item;
+
+		if (is_file($item)) {
+			$files[] = str_replace([getcwd() . DIRECTORY_SEPARATOR], '', $item);
+		} elseif (is_dir($item)) {
+			$files = array_merge($files, getFiles($item));
+		}
+	}
+
+	return $files;
 }
 
 ?>
