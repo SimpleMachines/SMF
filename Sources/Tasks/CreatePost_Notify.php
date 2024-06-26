@@ -536,7 +536,7 @@ class CreatePost_Notify extends BackgroundTask
 
 				$content_type = 'board';
 
-				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+				$message_type = !empty($frequency) && $frequency == 2 ? 'notify_boards_once' : 'notify_boards';
 
 				if (empty(Config::$modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body'])) {
 					$message_type .= '_body';
