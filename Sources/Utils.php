@@ -1831,7 +1831,7 @@ class Utils
 		}
 
 		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff'])) {
+		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp'])) {
 			header('Cache-Control: no-cache');
 		} else {
 			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
@@ -2175,7 +2175,10 @@ class Utils
 		}
 
 		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-		if (!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')) {
+		if (
+			!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
+			&& !isset($_REQUEST['xml'])
+		) {
 			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 		}
 

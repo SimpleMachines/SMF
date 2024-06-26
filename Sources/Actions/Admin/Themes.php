@@ -2219,7 +2219,7 @@ class Themes implements ActionInterface
 					'is_writable' => is_writable($path . '/' . $entry),
 					'is_directory' => false,
 					'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
-					'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
+					'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png|svg|webp)$~', $entry) != 0,
 					'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
 					'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 					'size' => $size,

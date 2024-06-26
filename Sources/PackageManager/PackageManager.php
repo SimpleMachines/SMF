@@ -1451,7 +1451,7 @@ class PackageManager
 		Utils::$context['filename'] = $_REQUEST['file'];
 
 		// Let the unpacker do the work.... but make sure we handle images properly.
-		if (in_array(strtolower(strrchr($_REQUEST['file'], '.')), ['.bmp', '.gif', '.jpeg', '.jpg', '.png'])) {
+		if (in_array(strtolower(strrchr($_REQUEST['file'], '.')), ['.bmp', '.gif', '.jpeg', '.jpg', '.png', '.webp'])) {
 			Utils::$context['filedata'] = '<img src="' . Config::$scripturl . '?action=admin;area=packages;sa=examine;package=' . $_REQUEST['package'] . ';file=' . $_REQUEST['file'] . ';raw" alt="' . $_REQUEST['file'] . '">';
 		} else {
 			if (is_file(Config::$packagesdir . '/' . $_REQUEST['package'])) {

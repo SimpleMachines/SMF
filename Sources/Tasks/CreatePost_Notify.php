@@ -132,6 +132,28 @@ class CreatePost_Notify extends BackgroundTask
 			$this->members['mentioned'] = Mentions::getMentionsByContent('msg', $msgOptions['id'], array_keys($msgOptions['mentioned_members']));
 		}
 
+		// Notifications shouldn't come through for denied boards.
+		$group_permissions = [
+			'allowed' => [],
+			'denied' => [],
+		];
+
+		$request = Db::$db->query(
+			'',
+			'SELECT id_group, deny
+			FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:current_board}',
+			[
+				'current_board' => $topicOptions['board'],
+			],
+		);
+
+		while (list($id_group, $deny) = Db::$db->fetch_row($request)) {
+			$group_permissions[$deny === '0' ? 'allowed' : 'denied'][] = $id_group;
+		}
+
+		Db::$db->free_result($request);
+
 		// Find the people interested in receiving notifications for this topic
 		$request = Db::$db->query(
 			'',
@@ -144,9 +166,8 @@ class CreatePost_Notify extends BackgroundTask
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board OR b.id_board = t.id_board)
-			WHERE ln.id_member != {int:member}
-				AND (ln.id_topic = {int:topic} OR ln.id_board = {int:board})',
+			WHERE ' . ($type == 'topic' ? 'ln.id_board = {int:board}' : 'ln.id_topic = {int:topic}') . '
+				AND ln.id_member != {int:member}',
 			[
 				'member' => $posterOptions['id'],
 				'topic' => $topicOptions['id'],
@@ -158,9 +179,9 @@ class CreatePost_Notify extends BackgroundTask
 			// Skip members who aren't allowed to see this board
 			$groups = array_merge([$row['id_group'], $row['id_post_group']], (empty($row['additional_groups']) ? [] : explode(',', $row['additional_groups'])));
 
-			$allowed_groups = explode(',', $row['member_groups']);
+			$is_denied = array_intersect($group_permissions['denied'], $groups) != [];
 
-			if (!in_array(1, $groups) && count(array_intersect($groups, $allowed_groups)) == 0) {
+			if (!in_array(1, $groups) && ($is_denied || array_intersect($groups, $group_permissions['allowed']) == [])) {
 				continue;
 			}
 
@@ -169,29 +190,16 @@ class CreatePost_Notify extends BackgroundTask
 
 			$this->members['watching'][$row['id_member']] = $row;
 		}
+
 		Db::$db->free_result($request);
 
 		// Filter out mentioned and quoted members who can't see this board.
 		if (!empty($this->members['mentioned']) || !empty($this->members['quoted'])) {
-			// This won't be set yet if no one is watching this board or topic.
-			if (!isset($allowed_groups)) {
-				$request = Db::$db->query(
-					'',
-					'SELECT member_groups
-					FROM {db_prefix}boards
-					WHERE id_board = {int:board}',
-					[
-						'board' => $topicOptions['board'],
-					],
-				);
-				list($allowed_groups) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-				$allowed_groups = explode(',', $allowed_groups);
-			}
-
 			foreach (['mentioned', 'quoted'] as $member_type) {
 				foreach ($this->members[$member_type] as $member_id => $member_data) {
-					if (!in_array(1, $member_data['groups']) && count(array_intersect($member_data['groups'], $allowed_groups)) == 0) {
+					$is_denied = array_intersect($group_permissions['denied'], $member_data['groups']) != [];
+
+					if (!in_array(1, $member_data['groups']) && ($is_denied || array_intersect($member_data['groups'], $group_permissions['allowed']) == [])) {
 						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
 					}
 				}
@@ -536,16 +544,11 @@ class CreatePost_Notify extends BackgroundTask
 
 				$content_type = 'board';
 
-				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+				$message_type = !empty($frequency) && $frequency == 2 ? 'notify_boards_once' : 'notify_boards';
 
 				if (empty(Config::$modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body'])) {
 					$message_type .= '_body';
 				}
-			}
-
-			// If neither of the above, this might be a redundant row due to the OR clause in our SQL query, skip
-			else {
-				continue;
 			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.

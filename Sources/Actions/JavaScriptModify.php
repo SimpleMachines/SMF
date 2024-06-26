@@ -181,7 +181,6 @@ class JavaScriptModify implements ActionInterface
 				'subject' => $_POST['subject'] ?? null,
 				'body' => $_POST['message'] ?? null,
 				'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
-				'modify_reason' => ($_POST['modify_reason'] ?? ''),
 				'approved' => ($row['approved'] ?? null),
 			];
 
@@ -200,12 +199,33 @@ class JavaScriptModify implements ActionInterface
 				'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && Board::$info->posts_count,
 			];
 
-			// Only consider marking as editing if they have edited the subject, message or icon.
-			if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon'])) {
+			// Only consider marking as editing if they have edited the subject, modify reason, message or icon.
+			if (
+				(
+					isset($_POST['subject'])
+					&& $_POST['subject'] != $row['subject']
+				)
+				|| (
+					isset($_POST['message'])
+					&& $_POST['message'] != $row['body']
+				)
+				|| (
+					isset($_REQUEST['icon'])
+					&& $_REQUEST['icon'] != $row['icon']
+				)
+				|| (
+					isset($_POST['modify_reason'])
+					&& $_POST['modify_reason'] != $row['modified_reason']
+				)
+			) {
 				// And even then only if the time has passed...
-				if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || User::$me->id != $row['id_member']) {
+				if (
+					time() - $row['poster_time'] > Config::$modSettings['edit_wait_time']
+					|| User::$me->id != $row['id_member']
+				) {
 					$msgOptions['modify_time'] = time();
 					$msgOptions['modify_name'] = User::$me->name;
+					$msgOptions['modify_reason'] = $_POST['modify_reason'] ?? '';
 				}
 			}
 			// If nothing was changed there's no need to add an entry to the moderation log.
@@ -265,7 +285,7 @@ class JavaScriptModify implements ActionInterface
 						'time' => isset($msgOptions['modify_time']) ? Time::create('@' . $msgOptions['modify_time'])->format() : '',
 						'timestamp' => $msgOptions['modify_time'] ?? 0,
 						'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
-						'reason' => $msgOptions['modify_reason'],
+						'reason' => $msgOptions['modify_reason'] ?? '',
 					],
 					'subject' => $msgOptions['subject'],
 					'first_in_topic' => $row['id_msg'] == $row['id_first_msg'],

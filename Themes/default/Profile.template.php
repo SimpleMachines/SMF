@@ -2342,7 +2342,7 @@ function template_issueWarning()
 	foreach (Utils::$context['notification_templates'] as $k => $type)
 		echo '
 			if (index == ', $k, ')
-				document.getElementById(\'warn_body\').value = "', strtr($type['body'], array('"' => "'", "\n" => '\\n', "\r" => '')), '";';
+				document.getElementById(\'warn_body\').value = ', Utils::escapeJavaScript($type['body']), ';';
 
 	echo '
 		}
@@ -2940,7 +2940,7 @@ function template_profile_avatar_select()
 		echo '
 								<div id="avatar_upload">
 									', Utils::$context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt=""></div>' : '', '
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp">', template_max_size('upload'), '
 									', (!empty(Utils::$context['member']['avatar']['id_attach']) ? '<br><input type="hidden" name="id_attach" value="' . Utils::$context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 

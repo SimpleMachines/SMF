@@ -278,7 +278,8 @@ class IssueWarning implements ActionInterface
 
 			Utils::$context['notification_templates'][] = [
 				'title' => $row['template_title'],
-				'body' => $row['body'],
+				// Decode special chars because this will be passed through Utils::escapeJavaScript()
+				'body' => Utils::htmlspecialcharsDecode($row['body']),
 			];
 		}
 		Db::$db->free_result($request);

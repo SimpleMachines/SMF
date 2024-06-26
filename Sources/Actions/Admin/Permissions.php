@@ -689,6 +689,12 @@ class Permissions implements ActionInterface
 			'scope' => 'global',
 			'never_guests' => true,
 		],
+		'profile_gravatar' => [
+			'view_group' => 'profile',
+			'scope' => 'global',
+			'group_level' => self::GROUP_LEVEL_STANDARD,
+			'never_guests' => true,
+		],
 		'profile_identity_own' => [
 			'generic_name' => 'profile_identity',
 			'own_any' => 'own',
@@ -1677,6 +1683,11 @@ class Permissions implements ActionInterface
 		// If mentions are disabled, disable the related permission.
 		if (empty(Config::$modSettings['enable_mentions'])) {
 			self::$permissions['mention']['hidden'] = true;
+		}
+
+		// If Gravatars are disabled, disable the related permission.
+		if (empty(Config::$modSettings['gravatarEnabled'])) {
+			self::$permissions['profile_gravatar']['hidden'] = true;
 		}
 
 		// Finalize various values.
