@@ -987,7 +987,7 @@ if(!in_array($cols, 'reactions'))
         upgrade_query("ALTER TABLE {db_prefix}user_likes RENAME TO {db_prefix}user_reacts");
 
         // Add the new column
-        Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_react', 'type' => 'smallint', 'not_null' => true, default => '0']);
+        Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_react', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
 
         // Default react type is "like" for now...
         upgrade_query("UPDATE {db_prefix}user_reacts SET id_reaction=1");
