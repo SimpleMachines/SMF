@@ -50,8 +50,7 @@ class SessionIDs extends MigrationBase
 		$SessionsTable = new \SMF\Db\Schema\v3_0\Sessions();
 
 		foreach ($LogOnlineTable->columns as $column) {
-			// Column exists, don't need to do this.
-			if ($column->name == 'session') {
+			if ($column->name !== 'session') {
 				continue;
 			}
 
@@ -59,8 +58,7 @@ class SessionIDs extends MigrationBase
 		}
 
 		foreach ($LogErrorsTable->columns as $column) {
-			// Column exists, don't need to do this.
-			if ($column->name == 'session') {
+			if ($column->name !== 'session') {
 				continue;
 			}
 
@@ -68,8 +66,7 @@ class SessionIDs extends MigrationBase
 		}
 
 		foreach ($SessionsTable->columns as $column) {
-			// Column exists, don't need to do this.
-			if ($column->name == 'session_id') {
+			if ($column->name !== 'session_id') {
 				continue;
 			}
 
