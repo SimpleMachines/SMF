@@ -955,7 +955,7 @@ Db::$db->add_index(
 	'ignore',
 );
 Db::$db->add_index(
-	'{db_prefix}messages',
+	'{db_prefix}members',
 	[
 		'name' => 'idx_spoofdetector_name_id',
 		'columns' => ['spoofdetector_name', 'id_member'],
