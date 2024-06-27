@@ -984,39 +984,39 @@ if(!in_array('reactions', $cols))
     if (!empty($table_exists))
     {
         // It already exists. Rename it.
-        upgrade_query("ALTER TABLE {db_prefix}user_likes RENAME TO {db_prefix}user_reacts");
+        upgrade_query("ALTER TABLE " . Db::$db->prefix . "user_likes RENAME TO " . Db::$db->prefix . "user_reacts");
 
         // Add the new column
-        Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_react', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
+        Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_reaction', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
 
         // Default react type is "like" for now...
-        upgrade_query("UPDATE {db_prefix}user_reacts SET id_reaction=1");
+        upgrade_query("UPDATE " . Db::$db->prefix . "user_reacts SET id_reaction=1");
 
         // Rename the like_time column
         Db::$db->change_column('{db_prefix}user_reacts', 'like_time', ['name' => 'react_time']);
 
         // Rename the index
-        upgrade_query("ALTER TABLE {db_prefix}user_reacts RENAME idx_liker TO idx_reactor");
+        upgrade_query("ALTER TABLE " . Db::$db->prefix . "user_reacts RENAME idx_liker TO idx_reactor");
 
         // Rename the likes column in the messages table
-        upgrade_query("DROP INDEX idx_likes ON {db_prefix}messages");
+        upgrade_query("DROP INDEX idx_likes ON " . Db::$db-> prefix . "messages");
         Db::$db->change_column('{db_prefix}messages', 'likes', ['name' => 'reactions']);
-        upgrade_query("ADD INDEX idx_reactions ON {db_prefix}messages (reactions)");
+        upgrade_query("ADD INDEX idx_reactions ON " . Db::$db->prefix . "messages (reactions)");
 
         // Update user alert prefs
-        upgrade_query("UPDATE {db_prefix}user_alerts_prefs SET alert_pref='msg_react' WHERE alert_pref='msg_like'");
+        upgrade_query("UPDATE ". Db::$db->prefix . "user_alerts_prefs SET alert_pref='msg_react' WHERE alert_pref='msg_like'");
 
 		// Update permissions
-		upgrade_query("UPDATE {db_prefix}permissions SET permission='reactions_react' WHERE permission='likes_like'");
+		upgrade_query("UPDATE ". Db::$db->prefix . "permissions SET permission='reactions_react' WHERE permission='likes_like'");
 
 		// And last but not least, the setting
-		upgrade_query("UPDATE {db_prefix}settings SET variable='enable_reacts' WHERE variable='enable_likes'");
+		upgrade_query("UPDATE " . Db::$db->prefix . "settings SET variable='enable_reacts' WHERE variable='enable_likes'");
     }
     else
     {
         // Add the table
         upgrade_query("
-            CREATE TABLE {db_prefix}user_reacts (
+            CREATE TABLE " . Db::$db->prefix . "user_reacts (
                 id_member MEDIUMINT UNSIGNED DEFAULT '0',
                 id_reaction SMALLINT UNSIGNED DEFAULT '0',
                 content_type CHAR(6) DEFAULT '',
@@ -1035,13 +1035,13 @@ if(!in_array('reactions', $cols))
 
     // Either way we want to add the new table
     upgrade_query("
-        CREATE TABLE {db_prefix}reactions (
+        CREATE TABLE " . Db::$db->prefix . "reactions (
             id_reaction SMALLINT UNSIGNED DEFAULT '0' AUTO_INCREMENT,
             name varchar(255) NOT NULL DEFAULT '',
     		order SMALLINT UNSIGNED NOT NULL DEFAULT '0',
         )
     ");
     // Default reaction is "like"
-    upgrade_query("INSERT INTO {db_prefix}reactions (id_reaction, name) VALUES (1, 'like')");
+    upgrade_query("INSERT INTO " . Db::$db->prefix . "reactions (id_reaction, name) VALUES (1, 'like')");
 }
 ---}
