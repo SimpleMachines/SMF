@@ -91,6 +91,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v3_0\MessageVersion::class,
 			Maintenance\Migration\v3_0\RecurringEvents::class,
 			Maintenance\Migration\v3_0\HolidaysToEvents::class,
+			Maintenance\Migration\v3_0\SpoofDetector::class,
 		],
 	];
 
