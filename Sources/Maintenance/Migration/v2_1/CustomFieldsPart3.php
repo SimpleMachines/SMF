@@ -32,7 +32,7 @@ class CustomFieldsPart3 extends MigrationBase
 	 */
 	public string $name = 'Upgrade Custom Fields (Cleanup)';
 
-	private array $possible_columns = ['msn', 'location', 'gender'];
+	private array $possible_columns = ['icq', 'msn', 'location', 'gender'];
 
 	/****************
 	 * Public methods

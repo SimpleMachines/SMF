@@ -30,7 +30,7 @@ class CustomFieldsPart2 extends MigrationBase
 	 */
 	public string $name = 'Upgrade Custom Fields';
 
-	private array $possible_columns = ['msn', 'location', 'gender'];
+	private array $possible_columns = ['icq', 'msn', 'location', 'gender'];
 
 	private int $limit = 10000;
 
@@ -83,6 +83,10 @@ class CustomFieldsPart2 extends MigrationBase
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
+				if (!empty($row['icq'])) {
+					$inserts[] = [$row['id_member'], 1, 'cust_icq', $row['icq']];
+				}
+
 				if (!empty($row['msn'])) {
 					$inserts[] = [$row['id_member'], 1, 'cust_skype', $row['msn']];
 				}
