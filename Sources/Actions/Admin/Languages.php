@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -246,7 +246,7 @@ class Languages implements ActionInterface
 			$extension = $pathinfo['extension'];
 
 			// Don't do anything with files we don't understand.
-			if (!in_array($extension, ['php', 'jpg', 'gif', 'jpeg', 'png', 'txt'])) {
+			if (!in_array($extension, ['php', 'jpg', 'gif', 'jpeg', 'png', 'txt', 'webp'])) {
 				continue;
 			}
 

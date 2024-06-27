@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; General
+// Version: 3.0 Alpha 2; General
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';

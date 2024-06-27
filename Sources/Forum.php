@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -158,6 +158,7 @@ class Forum
 		'requestmembers' => true,
 		'smstats' => true,
 		'suggest' => true,
+		'uploadAttach' => true,
 		'verificationcode' => true,
 		'viewquery' => true,
 		'viewsmfile' => true,

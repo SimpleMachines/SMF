@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -1125,7 +1125,9 @@ class Post implements ActionInterface
 		if (!empty($row['modified_time'])) {
 			Utils::$context['last_modified'] = Time::create('@' . $row['modified_time'])->format();
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
-			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
+			Utils::$context['last_modified_reason_raw'] = $row['modified_reason'];
+			Utils::$context['last_modified_name'] = $row['modified_name'];
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
 		}
 
 		// Get the stuff ready for the form.
@@ -1976,7 +1978,7 @@ class Post implements ActionInterface
 						'size' => 80,
 						'maxlength' => 80,
 						// If same user is editing again, keep the previous edit reason by default.
-						'value' => isset($modified_reason) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === User::$me->name ? $modified_reason : '',
+						'value' => isset(Utils::$context['last_modified_reason_raw']) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === User::$me->name ? Utils::$context['last_modified_reason_raw'] : '',
 					],
 					// If message has been edited before, show info about that.
 					'after' => empty(Utils::$context['last_modified_text']) ? '' : '<div class="smalltext em">' . Utils::$context['last_modified_text'] . '</div>',

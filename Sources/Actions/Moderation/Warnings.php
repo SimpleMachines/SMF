@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -454,7 +454,8 @@ class Warnings implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				Utils::$context['template_data'] = [
 					'title' => $row['template_title'],
-					'body' => Utils::htmlspecialchars($row['body']),
+					// Redo htmlspecialchars for the sake of old data that might have incorrectly encoded entities.
+					'body' => Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($row['body'])),
 					'personal' => $row['id_recipient'],
 					'can_edit_personal' => $row['id_member'] == User::$me->id,
 				];
@@ -475,6 +476,7 @@ class Warnings implements ActionInterface
 			if (!empty($_POST['template_body']) && !empty($_POST['template_title'])) {
 				// Safety first.
 				$_POST['template_title'] = Utils::htmlspecialchars($_POST['template_title']);
+				$_POST['template_body'] = Utils::htmlspecialchars($_POST['template_body']);
 
 				// Clean up BBC.
 				Msg::preparsecode($_POST['template_body'], false, !empty(Config::$modSettings['autoLinkUrls']));

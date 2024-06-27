@@ -7,7 +7,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Board;
@@ -209,7 +209,7 @@ function template_unread()
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '', '
 				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button">', Lang::$txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 					', Utils::$context['page_index'], '
 				</div>';
 
@@ -382,7 +382,7 @@ function template_replies()
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '', '
 				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button">', Lang::$txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 					', Utils::$context['page_index'], '
 				</div>';
 

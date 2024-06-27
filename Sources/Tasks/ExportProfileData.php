@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -1797,6 +1797,7 @@ class ExportProfileData extends BackgroundTask
 			'jpeg' => 'image/jpeg',
 			'tiff' => 'image/tiff',
 			'svg' => 'image/svg+xml',
+			'webp' => 'image/webp',
 		];
 
 		foreach (glob(implode(DIRECTORY_SEPARATOR, [Config::$modSettings['smileys_dir'], User::$me->smiley_set, '*.*'])) as $smiley_file) {

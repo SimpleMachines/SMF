@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -687,6 +687,12 @@ class Permissions implements ActionInterface
 			'own_any' => 'any',
 			'view_group' => 'profile',
 			'scope' => 'global',
+			'never_guests' => true,
+		],
+		'profile_gravatar' => [
+			'view_group' => 'profile',
+			'scope' => 'global',
+			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'never_guests' => true,
 		],
 		'profile_identity_own' => [
@@ -1677,6 +1683,11 @@ class Permissions implements ActionInterface
 		// If mentions are disabled, disable the related permission.
 		if (empty(Config::$modSettings['enable_mentions'])) {
 			self::$permissions['mention']['hidden'] = true;
+		}
+
+		// If Gravatars are disabled, disable the related permission.
+		if (empty(Config::$modSettings['gravatarEnabled'])) {
+			self::$permissions['profile_gravatar']['hidden'] = true;
 		}
 
 		// Finalize various values.

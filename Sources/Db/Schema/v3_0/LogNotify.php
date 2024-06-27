@@ -90,6 +90,12 @@ class LogNotify extends Table
 					'id_member',
 				],
 			),
+			new Indices(
+				name: 'id_board',
+				columns: [
+					'id_board',
+				],
+			),
 		];
 	}
 }

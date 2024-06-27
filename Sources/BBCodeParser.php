@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -1750,7 +1750,7 @@ class BBCodeParser
 				if (in_array($src->scheme, ['http', 'https']) && isset($src->host)) {
 					$base_url = ($src->scheme ?? 'http') . '://' . $src->host . (empty($src->port) ? '' : ':' . $src->port);
 
-					if (str_starts_with((string)$src, '/')) {
+					if (str_starts_with((string) $src, '/')) {
 						$src = $base_url . $src;
 					} else {
 						$src = $base_url . (empty($src->path) ? '/' : preg_replace('~/(?:index\.php)?$~', '', $src->path)) . '/' . $src;
@@ -1934,7 +1934,7 @@ class BBCodeParser
 					elseif (!in_array($href->scheme, ['http', 'https']) && isset($our_url->host)) {
 						$base_url = ($our_url->scheme ?? 'http') . '://' . $our_url->host . (empty($our_url->port) ? '' : ':' . $our_url->port);
 
-						if (str_starts_with((string)$href, '/')) {
+						if (str_starts_with((string) $href, '/')) {
 							$href = $base_url . $href;
 						} else {
 							$href = $base_url . '/' . trim($our_url->path, '/') . '/' . $href;
