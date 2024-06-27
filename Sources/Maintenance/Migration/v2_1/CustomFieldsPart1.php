@@ -137,19 +137,20 @@ class CustomFieldsPart1 extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		if ($start <= 0) {
-			$CustomFieldsTable = new \SMF\Db\Schema\v3_0\CustomFields();
-			$existing_columns = Db::$db->list_columns('{db_prefix}' . $CustomFieldsTable->name);
+			$table = new \SMF\Db\Schema\v3_0\CustomFields();
+			// $existing_columns = Db::$db->list_columns('{db_prefix}' . $table->name);
+			$existing_structure = $table->getStructure();
 
-			foreach ($CustomFieldsTable->columns as $column) {
+			foreach ($table->columns as $column) {
 				// Add the columns.
 				if (
 					(
 						$column->name === 'field_order'
 						|| $column->name === 'show_mlist'
 					)
-					&& !in_array($column->name, $existing_columns)
+					&& !isset($existing_structure['columns'][$column->name])
 				) {
-					$CustomFieldsTable->addColumn($column);
+					$table->addColumn($column);
 					continue;
 				}
 			}
@@ -160,7 +161,7 @@ class CustomFieldsPart1 extends MigrationBase
 		if ($start <= 1) {
 			Db::$db->insert(
 				'ignore',
-				'{db_prefix}' . $CustomFieldsTable->name,
+				'{db_prefix}' . $table->name,
 				[
 					'col_name' => 'string',
 					'field_name' => 'string',

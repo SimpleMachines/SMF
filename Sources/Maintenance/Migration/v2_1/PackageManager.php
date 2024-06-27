@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class PackageManager extends MigrationBase
@@ -55,17 +54,16 @@ class PackageManager extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$logPackagesTable = new \SMF\Db\Schema\v3_0\LogPackages();
+		$table = new \SMF\Db\Schema\v3_0\LogPackages();
+		$existing_structure = $table->getStructure();
 
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $logPackagesTable->name);
-
-		foreach ($logPackagesTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
-			if (in_array($column->name, $this->newColumns) && in_array($column->name, $existing_columns)) {
+			if (!in_array($column->name, $this->newColumns) || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 
-			$logPackagesTable->addColumn($column);
+			$table->addColumn($column);
 		}
 
 		$this->query('', '

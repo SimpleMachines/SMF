@@ -60,16 +60,16 @@ class NewScheduledTasks extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$ScheduledTasksTable = new \SMF\Db\Schema\v3_0\ScheduledTasks();
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $ScheduledTasksTable->name);
+		$table = new \SMF\Db\Schema\v3_0\ScheduledTasks();
+		$existing_structure = $table->getStructure();
 
-		foreach ($ScheduledTasksTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
-			if ($column->name === 'callable' && in_array($column->name, $existing_columns)) {
+			if ($column->name !== 'callable' || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 
-			$ScheduledTasksTable->addColumn($column);
+			$table->addColumn($column);
 		}
 
 		foreach ($this->newTasks as $task) {

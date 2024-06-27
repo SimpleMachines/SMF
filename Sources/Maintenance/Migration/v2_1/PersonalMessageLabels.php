@@ -43,11 +43,11 @@ class PersonalMessageLabels extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$MembersTable = new \SMF\Db\Schema\v3_0\Members();
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $MembersTable->name);
+		$table = new \SMF\Db\Schema\v3_0\Members();
+		$existing_structure = $table->getStructure();
 
-		foreach ($MembersTable->columns as $column) {
-			if ($column->name === 'message_labels') {
+		foreach ($existing_structure['columns'] as $column) {
+			if ($column['name'] === 'message_labels') {
 				return true;
 			}
 		}
@@ -79,11 +79,11 @@ class PersonalMessageLabels extends MigrationBase
 			}
 
 			$PmRecipientsTable = new \SMF\Db\Schema\v3_0\PmRecipients();
-			$existing_columns = Db::$db->list_columns('{db_prefix}' . $PmRecipientsTable->name);
+			$existing_structure = $PmRecipientsTable->getStructure();
 
 			foreach ($PmRecipientsTable->columns as $column) {
 				// Column exists, don't need to do this.
-				if ($column->name === 'in_inbox' && in_array($column->name, $existing_columns)) {
+				if (isset($existing_structure['columns'][$column->name])) {
 					continue;
 				}
 
@@ -290,30 +290,30 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$PmRecipientsTable = new \SMF\Db\Schema\v3_0\PmRecipients();
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $PmRecipientsTable->name);
+		$existing_structure = $PmRecipientsTable->getStructure();
 
-		foreach ($existing_columns as $column) {
-			if ($column == 'labels') {
+		foreach ($existing_structure['columns'] as $column) {
+			if ($column['name'] == 'labels') {
 				$col = new Column(
-					name: $column,
+					name: $column['name'],
 					type: 'varchar',
 				);
 
-				$PmRecipientsTable->dropColumn($column);
+				$PmRecipientsTable->dropColumn($col);
 			}
 		}
 
 		$MembersTable = new \SMF\Db\Schema\v3_0\Members();
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $MembersTable->name);
+		$existing_structure = $MembersTable->getStructure();
 
-		foreach ($existing_columns as $column) {
-			if ($column == 'message_labels') {
+		foreach ($existing_structure['columns'] as $column) {
+			if ($column['name'] == 'message_labels') {
 				$col = new Column(
-					name: $column,
+					name: $column['name'],
 					type: 'varchar',
 				);
 
-				$MembersTable->dropColumn($column);
+				$MembersTable->dropColumn($col);
 			}
 		}
 

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class TopicUnwatch extends MigrationBase
@@ -46,20 +45,20 @@ class TopicUnwatch extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$LogTopicsTable = new \SMF\Db\Schema\v3_0\LogTopics();
+		$table = new \SMF\Db\Schema\v3_0\LogTopics();
 
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $LogTopicsTable->name);
+		$existing_structure = $table->getStructure();
 
-		foreach ($LogTopicsTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			// Add the unwatched column.
-			if ($column->name === 'unwatched' && !in_array($column->name, $existing_columns)) {
-				$LogTopicsTable->addColumn($column);
+			if ($column->name === 'unwatched' && !isset($existing_structure['columns'][$column->name])) {
+				$table->addColumn($column);
 				continue;
 			}
 
 			// Remove the disregarded column
-			if ($column->name === 'disregarded' && in_array($column->name, $existing_columns)) {
-				$LogTopicsTable->dropColumn($column);
+			if ($column->name === 'disregarded' && isset($existing_structure['columns'][$column->name])) {
+				$table->dropColumn($column);
 				continue;
 			}
 		}

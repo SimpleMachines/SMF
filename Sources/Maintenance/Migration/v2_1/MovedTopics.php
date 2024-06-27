@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MovedTopics extends MigrationBase
@@ -55,16 +54,16 @@ class MovedTopics extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$TopicsTable = new \SMF\Db\Schema\v3_0\Topics();
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $TopicsTable->name);
+		$table = new \SMF\Db\Schema\v3_0\Topics();
+		$existing_structure = $table->getStructure();
 
-		foreach ($TopicsTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
-			if (in_array($column->name, $this->newColumns) && in_array($column->name, $existing_columns)) {
+			if (!in_array($column->name, $this->newColumns) || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 
-			$TopicsTable->addColumn($column);
+			$table->addColumn($column);
 		}
 
 		return true;

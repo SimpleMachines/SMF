@@ -55,17 +55,17 @@ class ValidationServers extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$PackageServersTable = new \SMF\Db\Schema\v3_0\PackageServers();
+		$table = new \SMF\Db\Schema\v3_0\PackageServers();
 
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $PackageServersTable->name);
+		$existing_structure = $table->getStructure();
 
-		foreach ($PackageServersTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
-			if (in_array($column->name, $this->newColumns) && in_array($column->name, $existing_columns)) {
+			if (!in_array($column->name, $this->newColumns) || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 
-			$PackageServersTable->addColumn($column);
+			$table->addColumn($column);
 		}
 
 		$request = $this->query(
@@ -75,7 +75,7 @@ class ValidationServers extends MigrationBase
 			FROM {db_prefix}{raw:table_name}
 			WHERE url LIKE {string:downloads_site}',
 			[
-				'table_name' => $PackageServersTable->name,
+				'table_name' => $table->name,
 				'downloads_site' => 'https://download.simplemachines.org%',
 			],
 		);
@@ -88,7 +88,7 @@ class ValidationServers extends MigrationBase
 		if (empty($downloads_server)) {
 			Db::$db->insert(
 				'',
-				'{db_prefix}' . $PackageServersTable->name,
+				'{db_prefix}' . $table->name,
 				['name' => 'string', 'url' => 'string', 'validation_url' => 'string'],
 				['Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'],
 				['id_server'],
@@ -103,7 +103,7 @@ class ValidationServers extends MigrationBase
 			SET url = {string:current_url}
 			WHERE url = {string:old_url}',
 			[
-				'table_name' => $PackageServersTable->name,
+				'table_name' => $table->name,
 				'old_url' => 'http://custom.simplemachines.org/packages/mods',
 				'current_url' => 'https://custom.simplemachines.org/packages/mods',
 			],
@@ -117,7 +117,7 @@ class ValidationServers extends MigrationBase
 			SET url = {string:validation_url}
 			WHERE url = {string:custom_site}',
 			[
-				'table_name' => $PackageServersTable->name,
+				'table_name' => $table->name,
 				'validation_url' => 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}',
 				'custom_site' => 'https://custom.simplemachines.org/packages/mods',
 			],

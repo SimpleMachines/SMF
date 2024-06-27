@@ -56,29 +56,27 @@ class CreateLogGroupRequests extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$existing_columns = Db::$db->list_columns('{db_prefix}log_group_requests');
-		$existing_indexes = Db::$db->list_indexes('{db_prefix}log_group_requests');
+		$table = new LogGroupRequests();
+		$existing_structure = $table->getStructure();
 
-		$logGroupRequestsTable = new LogGroupRequests();
-
-		foreach ($logGroupRequestsTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
-			if (in_array($column->name, $this->newColumns) && in_array($column->name, $existing_columns)) {
+			if (!in_array($column->name, $this->newColumns) || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 
-			$logGroupRequestsTable->addColumn($column);
+			$table->addColumn($column);
 		}
 
 		Db::$db->remove_index('{db_prefix}log_group_requests', 'id_member');
 
-		foreach ($logGroupRequestsTable->indexes as $idx) {
+		foreach ($table->indexes as $idx) {
 			// Column exists, don't need to do this.
-			if ($idx->name == 'idx_id_member' && in_array($idx->name, $existing_indexes)) {
+			if ($idx->name !== 'idx_id_member' || isset($existing_structure['indexes'][$idx->name])) {
 				continue;
 			}
 
-			$logGroupRequestsTable->addIndex($idx);
+			$table->addIndex($idx);
 		}
 
 		return true;

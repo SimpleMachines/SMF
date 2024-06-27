@@ -54,17 +54,17 @@ class CustomFieldsPart3 extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		if ($start <= 0) {
-			$CustomFieldsTable = new \SMF\Db\Schema\v3_0\CustomFields();
-			$existing_columns = Db::$db->list_columns('{db_prefix}' . $CustomFieldsTable->name);
+			$table = new \SMF\Db\Schema\v3_0\CustomFields();
+			$existing_structure = $table->getStructure();
 
-			foreach ($existing_columns as $column) {
-				if (in_array($column, $this->possible_columns)) {
+			foreach ($existing_structure['columns'] as $column['name']) {
+				if (in_array($column['name'], $this->possible_columns)) {
 					$col = new Column(
-						name: $column,
+						name: $column['name'],
 						type: 'varchar',
 					);
 
-					$CustomFieldsTable->dropColumn($col);
+					$table->dropColumn($col);
 				}
 			}
 

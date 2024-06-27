@@ -49,15 +49,15 @@ class MembergroupIcon extends MigrationBase
 	public function execute(): bool
 	{
 		if (Maintenance::getCurrentStart() === 0) {
-			$MembergroupsTable = new \SMF\Db\Schema\v3_0\Membergroups();
+			$table = new \SMF\Db\Schema\v3_0\Membergroups();
+			$existing_structure = $table->getStructure();
 
-			$existing_columns = Db::$db->list_columns('{db_prefix}' . $MembergroupsTable->name);
-
-			foreach ($MembergroupsTable->columns as $column) {
-				// Look for the new column, but the old one exists.
-				if ($column->name === 'icons' && in_array('stars', $existing_columns)) {
-					$MembergroupsTable->alterColumn($column, 'stars');
-					continue;
+			if (isset($existing_structure['columns']['stars'])) {
+				foreach ($table->columns as $column) {
+					if ($column->name === 'icons') {
+						$table->alterColumn($column, 'stars');
+						break;
+					}
 				}
 			}
 		}

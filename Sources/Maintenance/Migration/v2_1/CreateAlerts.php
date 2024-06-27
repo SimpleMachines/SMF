@@ -106,11 +106,11 @@ class CreateAlerts extends MigrationBase
 			$members_table->create();
 		}
 
-		$existing_columns = Db::$db->list_columns('{db_prefix}' . $members_table->name);
+		$existing_structure = $members_table->getStructure();
 
 		foreach ($members_table->columns as $column) {
 			// Column exists, don't need to do this.
-			if ($column->name === 'alerts' && in_array($column->name, $existing_columns)) {
+			if ($column->name !== 'alerts' || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 
