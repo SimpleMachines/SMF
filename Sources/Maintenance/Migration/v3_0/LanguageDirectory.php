@@ -64,8 +64,7 @@ class LanguageDirectory extends MigrationBase
 			// Skip errors here so we don't croak if the columns don't exist...
 			$request = Db::$db->query(
 				'',
-				'
-                SELECT id_member
+				'SELECT id_member
                 FROM {db_prefix}members
                 WHERE lngfile IN ({array_string:possible_languages})
                 ORDER BY id_member
@@ -81,10 +80,11 @@ class LanguageDirectory extends MigrationBase
 				break;
 			}
 
-				while ($row = Db::$db->fetch_assoc($request)) {
-					$members[] = $row['id_member'];
-				}
-				Db::$db->free_result($request);
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$members[] = $row['id_member'];
+			}
+
+			Db::$db->free_result($request);
 
 
 			// Nobody to convert, woohoo!
@@ -92,13 +92,13 @@ class LanguageDirectory extends MigrationBase
 				$is_done = true;
 				break;
 			}
-				$args['search_members'] = $members;
+
+			$args['search_members'] = $members;
 
 
 			Db::$db->query(
 				'',
-				'
-                UPDATE {db_prefix}members
+				'UPDATE {db_prefix}members
                 SET lngfile = CASE
                     ' . implode(' ', $statements) . '
                     ELSE {string:defaultLang} END
