@@ -41,7 +41,7 @@ class HolidaysToEvents extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$exists = count(Db::$db->list_tables(false, '%calendar_holidays')) > 0;
+		$exists = count(Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays')) > 0;
 
 		if ($exists) {
 			if (!isset(User::$me)) {
