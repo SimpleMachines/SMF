@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class SpoofDetector extends MigrationBase
@@ -43,26 +42,20 @@ class SpoofDetector extends MigrationBase
 
 		// Add the spoofdetector_name column.
 		foreach ($table->columns as $column) {
-			if (!in_array($column->name, $existing_structure['columns'])) {
+			if (!isset($existing_structure['columns'][$column->name])) {
 				$table->addColumn($column);
 			}
 		}
 
 		// Add indexes for the spoofdetector_name column.
 		foreach ($table->indexes as $index) {
-			if (!in_array($index->name, $existing_structure['indexes'])) {
+			if (!isset($existing_structure['indexes'][$index->name])) {
 				$table->addIndex($index);
 			}
 		}
 
 		// Add the new "spoofdetector_censor" setting
-		Db::$db->insert(
-			'ignore',
-			'{db_prefix}settings',
-			['variable' => 'string-255', 'value' => 'string-65534'],
-			['spoofdetector_censor', 1],
-			['variable'],
-		);
+		Config::updateModSettings(['spoofdetector_censor' => 1]);
 
 		return true;
 	}

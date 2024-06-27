@@ -42,7 +42,7 @@ class RecurringEvents extends MigrationBase
 		$existing_structure = $table->getStructure();
 
 		foreach ($table->columns as $column) {
-			if (!in_array($column->name, $existing_structure['columns'])) {
+			if (!isset($existing_structure['columns'][$column->name])) {
 				$table->addColumn($column);
 			}
 		}
