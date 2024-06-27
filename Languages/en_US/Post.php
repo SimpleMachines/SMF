@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Post
+// Version: 3.0 Alpha 2; Post
 
 $txt['post_reply'] = 'Post reply';
 $txt['message_icon'] = 'Message icon';

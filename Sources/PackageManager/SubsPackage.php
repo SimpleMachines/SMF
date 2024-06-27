@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 namespace SMF\PackageManager;
@@ -1393,6 +1393,8 @@ class SubsPackage
 							'filename' => $this_action['filename'],
 						];
 					}
+
+					self::fixLangFilePathForRemoval($return, $this_action);
 				} elseif ($actionType == 'remove-file') {
 					if (!is_writable($this_action['filename']) && file_exists($this_action['filename'])) {
 						$return[] = [
@@ -1400,6 +1402,8 @@ class SubsPackage
 							'filename' => $this_action['filename'],
 						];
 					}
+
+					self::fixLangFilePathForRemoval($return, $this_action);
 				}
 			} else {
 				$return[] = [
@@ -2910,7 +2914,7 @@ class SubsPackage
 
 	/**
 	 * Generates a unique filename for the specified file in the specified directory
-	 * 
+	 *
 	 * @param string $dir The directory
 	 * @param string $filename The filename without an extension
 	 * @param string $ext The extension
@@ -3407,6 +3411,52 @@ class SubsPackage
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * When removing a language file or directory, figures out whether that file
+	 * or directory is in the main languages directory or in the default theme's
+	 * language directory, and then adjusts the package action info accordingly.
+	 *
+	 * @param array &$return The complete set of package action info.
+	 * @param array &$this_action Info about the current package action.
+	 */
+	private static function fixLangFilePathForRemoval(array &$return, array &$this_action): void
+	{
+		// This only applies when removing language files.
+		if (
+			!str_starts_with($this_action['filename'], Config::$languagesdir)
+			|| !in_array($this_action['type'], ['remove-dir', 'remove-file'])
+		) {
+			return;
+		}
+
+		$backcompat_filename = str_replace(
+			Config::$languagesdir,
+			Theme::$current->settings['default_theme_dir'] . '/languages',
+			$this_action['filename'],
+		);
+
+		if (file_exists($backcompat_filename)) {
+			if (!file_exists($this_action['filename'])) {
+				// If the file is in the theme's language directory and not in
+				// the forum's main language directory, just change the path.
+				$this_action['filename'] = $backcompat_filename;
+			} else {
+				// Copies of the file are in both the theme's language directory
+				// and the forum's main language directory? Remove both.
+				$additional_action = $this_action;
+				$additional_action['filename'] = $backcompat_filename;
+				$return[] = $additional_action;
+
+				if (!is_writable($additional_action['filename'])) {
+					$return[] = [
+						'type' => 'chmod',
+						'filename' => $additional_action['filename'],
+					];
+				}
+			}
+		}
+	}
 
 	/**
 	 * crc32 doesn't work as expected on 64-bit functions - make our own.

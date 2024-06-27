@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -346,7 +346,7 @@ class Membergroups implements ActionInterface
 			IntegrationHook::call('integrate_add_membergroup', [$id_group, $postCountBasedGroup]);
 
 			// Update the post groups now, if this is a post group!
-			if (isset($_POST['min_posts'])) {
+			if (($_POST['min_posts'] ?? -1) != -1) {
 				Logging::updateStats('postgroups');
 			}
 
@@ -655,7 +655,7 @@ class Membergroups implements ActionInterface
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
 
 		// Get a list of all the image formats we can select for icons.
-		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg'];
+		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg', 'webp'];
 
 		// Scan the icons directory.
 		Utils::$context['possible_icons'] = [];

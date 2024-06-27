@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -752,6 +752,11 @@ class Url implements \Stringable
 
 		// Remember the new regex in Config::$modSettings
 		Config::updateModSettings(['tld_regex' => $tld_regex]);
+
+		// Update the editor's autolinker JavaScript.
+		if ($update) {
+			Autolinker::createJavaScriptFile(true);
+		}
 
 		// Redundant repetition is redundant
 		$done = true;

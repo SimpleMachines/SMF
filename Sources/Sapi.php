@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -101,6 +101,8 @@ class Sapi
 		 * but to ensure backwards compatibility, we won't yet.
 		 */
 		foreach ($oses as $os) {
+			$is_os = false;
+
 			switch ($os) {
 				case self::OS_WINDOWS:
 					$is_os = PHP_OS_FAMILY === self::OS_WINDOWS || DIRECTORY_SEPARATOR === '\\';

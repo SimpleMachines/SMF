@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Alerts
+// Version: 3.0 Alpha 2; Alerts
 
 // Load Alerts strings
 $txt['topic_na'] = '(private topic)';

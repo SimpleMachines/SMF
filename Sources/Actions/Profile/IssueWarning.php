@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -278,7 +278,8 @@ class IssueWarning implements ActionInterface
 
 			Utils::$context['notification_templates'][] = [
 				'title' => $row['template_title'],
-				'body' => $row['body'],
+				// Decode special chars because this will be passed through Utils::escapeJavaScript()
+				'body' => Utils::htmlspecialcharsDecode($row['body']),
 			];
 		}
 		Db::$db->free_result($request);

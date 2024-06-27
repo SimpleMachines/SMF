@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Profile
+// Version: 3.0 Alpha 2; Profile
 
 // Some of the things from the popup need their own descriptions
 $txt['popup_forumprofile'] = 'Profile Details';

@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; General
+// Version: 3.0 Alpha 2; General
 
 // Native name, please use full HTML entities to write your language's name.
 $txt['native_name'] = 'English (US)';

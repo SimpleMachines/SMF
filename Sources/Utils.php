@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -470,6 +470,30 @@ class Utils
 	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string|false
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
+	}
+
+	/**
+	 * Like standard ltrim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
+	 *
+	 * @param string $string The string.
+	 * @return string|false The trimmed string, or false on failure.
+	 */
+	public static function htmlTrimLeft(string $string): string|false
+	{
+		return preg_replace('~^(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+~u', '', self::sanitizeEntities($string));
+	}
+
+	/**
+	 * Like standard rtrim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
+	 *
+	 * @param string $string The string.
+	 * @return string|false The trimmed string, or false on failure.
+	 */
+	public static function htmlTrimRight(string $string): string|false
+	{
+		return preg_replace('~(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
 	}
 
 	/**
@@ -1025,17 +1049,17 @@ class Utils
 		$q = !empty($as_json) ? '"' : '\'';
 
 		return $q . strtr($string, [
-				"\r" => '',
-				"\n" => '\\n',
-				"\t" => '\\t',
-				'\\' => '\\\\',
-				$q => addslashes($q),
-				'</' => '<' . $q . ' + ' . $q . '/',
-				'<script' => '<scri' . $q . '+' . $q . 'pt',
-				'<body>' => '<bo' . $q . '+' . $q . 'dy>',
-				'<a href' => '<a hr' . $q . '+' . $q . 'ef',
-				Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
-			]) . $q;
+			"\r" => '',
+			"\n" => '\\n',
+			"\t" => '\\t',
+			'\\' => '\\\\',
+			$q => addslashes($q),
+			'</' => '<' . $q . ' + ' . $q . '/',
+			'<script' => '<scri' . $q . '+' . $q . 'pt',
+			'<body>' => '<bo' . $q . '+' . $q . 'dy>',
+			'<a href' => '<a hr' . $q . '+' . $q . 'ef',
+			Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
+		]) . $q;
 	}
 
 	/**
@@ -1807,7 +1831,7 @@ class Utils
 		}
 
 		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff'])) {
+		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp'])) {
 			header('Cache-Control: no-cache');
 		} else {
 			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
@@ -2002,7 +2026,7 @@ class Utils
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
-			Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
+				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
 			if (defined('SID') && SID != '') {
@@ -2151,7 +2175,10 @@ class Utils
 		}
 
 		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-		if (!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')) {
+		if (
+			!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
+			&& !isset($_REQUEST['xml'])
+		) {
 			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 		}
 

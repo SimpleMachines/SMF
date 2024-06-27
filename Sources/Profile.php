@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -779,7 +779,7 @@ class Profile extends User implements \ArrayAccess
 					$no_smiley_sets = array_diff(explode(',', Config::$modSettings['smiley_sets_known']), array_keys($filenames));
 
 					foreach ($no_smiley_sets as $set) {
-						$allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg'];
+						$allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp'];
 						$images = glob(implode('/', [Config::$modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}')]), GLOB_BRACE);
 
 						// Just use some image or other
@@ -1206,7 +1206,7 @@ class Profile extends User implements \ArrayAccess
 			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_server_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_upload_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_remote_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
-			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']),
+			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']) && User::$me->allowedTo('profile_gravatar'),
 		];
 
 		// Gravatar?
@@ -1222,7 +1222,7 @@ class Profile extends User implements \ArrayAccess
 				'server_pic' => 'blank.png',
 				'external' =>
 					empty(Config::$modSettings['gravatarAllowExtraEmail'])
-					|| (!empty(Config::$modSettings['gravatarOverride']) && !str_starts_with((string)$this->avatar['url'], 'gravatar://')) ? $this->email : substr($this->avatar['original_url'], 11),
+					|| (!empty(Config::$modSettings['gravatarOverride']) && !str_starts_with((string) $this->avatar['url'], 'gravatar://')) ? $this->email : substr($this->avatar['original_url'], 11),
 			];
 			$this->formatted['avatar']['href'] = self::getGravatarUrl($this->formatted['avatar']['external']);
 		}
@@ -2361,22 +2361,40 @@ class Profile extends User implements \ArrayAccess
 				// Any masks?
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none') {
 					$value = Utils::htmlTrim($value);
-					$valueReference = Utils::htmlspecialcharsDecode($value);
+					$valueReference = html_entity_decode($value);
 
 					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
 						$value = '';
 					}
 
-					if ($cf_def['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != Utils::htmlspecialchars($value, ENT_NOQUOTES) || preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference))) {
+					if (
+						$cf_def['mask'] == 'nohtml'
+						&& (
+							$valueReference != strip_tags($valueReference)
+							|| $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES)
+							|| preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference)
+						)
+					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
-					} elseif ($cf_def['mask'] == 'email' && !empty($value) && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255)) {
+					} elseif (
+						$cf_def['mask'] == 'email'
+						&& !empty($value)
+						&& (
+							!filter_var($value, FILTER_VALIDATE_EMAIL)
+							|| strlen($value) > 255
+						)
+					) {
 						$mask_error = 'custom_field_mail_fail';
 						$value = '';
 					} elseif ($cf_def['mask'] == 'number') {
 						$value = (int) $value;
-					} elseif (str_starts_with($cf_def['mask'], 'regex') && trim($value) != '' && preg_match(substr($cf_def['mask'], 5), $value) === 0) {
+					} elseif (
+						str_starts_with($cf_def['mask'], 'regex')
+						&& trim($value) != ''
+						&& preg_match(substr($cf_def['mask'], 5), $value) === 0
+					) {
 						$mask_error = 'custom_field_regex_fail';
 						$value = '';
 					}
@@ -2607,6 +2625,7 @@ class Profile extends User implements \ArrayAccess
 				&& strcasecmp($extension, 'jpeg') != 0
 				&& strcasecmp($extension, 'png') != 0
 				&& strcasecmp($extension, 'bmp') != 0
+				&& strcasecmp($extension, 'webp') != 0
 			) {
 				continue;
 			}

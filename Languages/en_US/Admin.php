@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 1; Admin
+// Version: 3.0 Alpha 2; Admin
 
 $txt['settings_saved'] = 'The settings were successfully saved';
 $txt['settings_not_saved'] = 'Your changes were not saved because: {reason}';

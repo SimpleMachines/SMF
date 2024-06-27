@@ -420,7 +420,8 @@ CREATE TABLE {$db_prefix}log_notify (
 	id_board SMALLINT UNSIGNED DEFAULT '0',
 	sent TINYINT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_member, id_topic, id_board),
-	INDEX idx_id_topic (id_topic, id_member)
+	INDEX idx_id_topic (id_topic, id_member),
+	INDEX id_board (id_board)
 ) ENGINE={$engine};
 
 #
