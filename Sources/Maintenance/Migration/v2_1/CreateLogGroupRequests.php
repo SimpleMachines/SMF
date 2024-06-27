@@ -57,7 +57,7 @@ class CreateLogGroupRequests extends MigrationBase
 	public function execute(): bool
 	{
 		$table = new LogGroupRequests();
-		$existing_structure = $table->getStructure();
+		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.

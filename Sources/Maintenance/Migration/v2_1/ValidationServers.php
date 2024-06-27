@@ -57,7 +57,7 @@ class ValidationServers extends MigrationBase
 	{
 		$table = new \SMF\Db\Schema\v3_0\PackageServers();
 
-		$existing_structure = $table->getStructure();
+		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
