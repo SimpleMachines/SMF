@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Cache\APIs;
+namespace SMF\Sources\Cache\APIs;
 
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Cache\CacheApiInterface;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 if (!defined('SMF')) {
 	die('No direct access...');

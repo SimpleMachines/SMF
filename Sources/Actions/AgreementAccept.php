@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Logging;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Logging;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Records when the user accepted the registration agreement and privacy policy.

@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * The root Forum class. Used when browsing the forum normally.
@@ -47,83 +47,83 @@ class Forum
 	 * Mod authors can add new actions to this via the integrate_actions hook.
 	 */
 	public static $actions = [
-		'agreement' => ['', 'SMF\\Actions\\Agreement::call'],
-		'acceptagreement' => ['', 'SMF\\Actions\\AgreementAccept::call'],
-		'activate' => ['', 'SMF\\Actions\\Activate::call'],
-		'admin' => ['', 'SMF\\Actions\\Admin\\ACP::call'],
-		'announce' => ['', 'SMF\\Actions\\Announce::call'],
-		'attachapprove' => ['', 'SMF\\Actions\\AttachmentApprove::call'],
-		'buddy' => ['', 'SMF\\Actions\\BuddyListToggle::call'],
-		'calendar' => ['', 'SMF\\Actions\\Calendar::call'],
-		'clock' => ['', 'SMF\\Actions\\Calendar::call'], // Deprecated; is now a sub-action
-		'coppa' => ['', 'SMF\\Actions\\CoppaForm::call'],
-		'credits' => ['', 'SMF\\Actions\\Credits::call'],
-		'deletemsg' => ['', 'SMF\\Actions\\MsgDelete::call'],
-		'dlattach' => ['', 'SMF\\Actions\\AttachmentDownload::call'],
-		'editpoll' => ['', 'SMF\\Poll::edit'],
-		'editpoll2' => ['', 'SMF\\Poll::edit2'],
-		'findmember' => ['', 'SMF\\Actions\\FindMember::call'],
-		'groups' => ['', 'SMF\\Actions\\Groups::call'],
-		'help' => ['', 'SMF\\Actions\\Help::call'],
-		'helpadmin' => ['', 'SMF\\Actions\\HelpAdmin::call'],
-		'jsmodify' => ['', 'SMF\\Actions\\JavaScriptModify::call'],
-		'jsoption' => ['', 'SMF\\Theme::setJavaScript'],
-		'likes' => ['', 'SMF\\Actions\\Like::call'],
-		'lock' => ['', 'SMF\\Topic::lock'],
-		'lockvoting' => ['', 'SMF\\Poll::lock'],
-		'login' => ['', 'SMF\\Actions\\Login::call'],
-		'login2' => ['', 'SMF\\Actions\\Login2::call'],
-		'logintfa' => ['', 'SMF\\Actions\\LoginTFA::call'],
-		'logout' => ['', 'SMF\\Actions\\Logout::call'],
-		'markasread' => ['', 'SMF\\Board::MarkRead'],
-		'mergetopics' => ['', 'SMF\\Actions\\TopicMerge::call'],
-		'mlist' => ['', 'SMF\\Actions\\Memberlist::call'],
-		'moderate' => ['', 'SMF\\Actions\\Moderation\\Main::call'],
-		'modifycat' => ['', 'SMF\\Actions\\Admin\\Boards::modifyCat'],
-		'movetopic' => ['', 'SMF\\Actions\\TopicMove::call'],
-		'movetopic2' => ['', 'SMF\\Actions\\TopicMove2::call'],
-		'notifyannouncements' => ['', 'SMF\\Actions\\NotifyAnnouncements::call'],
-		'notifyboard' => ['', 'SMF\\Actions\\NotifyBoard::call'],
-		'notifytopic' => ['', 'SMF\\Actions\\NotifyTopic::call'],
-		'pm' => ['', 'SMF\\Actions\\PersonalMessage::call'],
-		'post' => ['', 'SMF\\Actions\\Post::call'],
-		'post2' => ['', 'SMF\\Actions\\Post2::call'],
-		'printpage' => ['', 'SMF\\Actions\\TopicPrint::call'],
-		'profile' => ['', 'SMF\\Actions\\Profile\\Main::call'],
-		'quotefast' => ['', 'SMF\\Actions\\QuoteFast::call'],
-		'quickmod' => ['', 'SMF\\Actions\\QuickModeration::call'],
-		'quickmod2' => ['', 'SMF\\Actions\\QuickModerationInTopic::call'],
-		'recent' => ['', 'SMF\\Actions\\Recent::call'],
-		'reminder' => ['', 'SMF\\Actions\\Reminder::call'],
-		'removepoll' => ['', 'SMF\\Poll::remove'],
-		'removetopic2' => ['', 'SMF\\Actions\\TopicRemove::call'],
-		'reporttm' => ['', 'SMF\\Actions\\ReportToMod::call'],
-		'requestmembers' => ['', 'SMF\\Actions\\RequestMembers::call'],
-		'restoretopic' => ['', 'SMF\\Actions\\TopicRestore::call'],
-		'search' => ['', 'SMF\\Actions\\Search::call'],
-		'search2' => ['', 'SMF\\Actions\\Search2::call'],
-		'sendactivation' => ['', 'SMF\\Actions\\SendActivation::call'],
-		'signup' => ['', 'SMF\\Actions\\Register::call'],
-		'signup2' => ['', 'SMF\\Actions\\Register2::call'],
-		'smstats' => ['', 'SMF\\Actions\\SmStats::call'],
-		'suggest' => ['', 'SMF\\Actions\\AutoSuggest::call'],
-		'splittopics' => ['', 'SMF\\Actions\\TopicSplit::call'],
-		'stats' => ['', 'SMF\\Actions\\Stats::call'],
-		'sticky' => ['', 'SMF\\Topic::sticky'],
-		'theme' => ['', 'SMF\\Theme::dispatch'],
-		'trackip' => ['', 'SMF\\Actions\\TrackIP::call'],
-		'about:unknown' => ['', 'SMF\\Actions\\Like::BookOfUnknown'],
-		'unread' => ['', 'SMF\\Actions\\Unread::call'],
-		'unreadreplies' => ['', 'SMF\\Actions\\UnreadReplies::call'],
-		'uploadAttach' => ['', 'SMF\\Actions\\AttachmentUpload::call'],
-		'verificationcode' => ['', 'SMF\\Actions\\VerificationCode::call'],
-		'viewprofile' => ['', 'SMF\\Actions\\Profile\\Main::call'],
-		'vote' => ['', 'SMF\\Poll::vote'],
-		'viewquery' => ['', 'SMF\\Actions\\ViewQuery::call'],
-		'viewsmfile' => ['', 'SMF\\Actions\\DisplayAdminFile::call'],
-		'who' => ['', 'SMF\\Actions\\Who::call'],
-		'.xml' => ['', 'SMF\\Actions\\Feed::call'],
-		'xmlhttp' => ['', 'SMF\\Actions\\XmlHttp::call'],
+		'agreement' => ['', 'SMF\\Sources\\Actions\\Agreement::call'],
+		'acceptagreement' => ['', 'SMF\\Sources\\Actions\\AgreementAccept::call'],
+		'activate' => ['', 'SMF\\Sources\\Actions\\Activate::call'],
+		'admin' => ['', 'SMF\\Sources\\Actions\\Admin\\ACP::call'],
+		'announce' => ['', 'SMF\\Sources\\Actions\\Announce::call'],
+		'attachapprove' => ['', 'SMF\\Sources\\Actions\\AttachmentApprove::call'],
+		'buddy' => ['', 'SMF\\Sources\\Actions\\BuddyListToggle::call'],
+		'calendar' => ['', 'SMF\\Sources\\Actions\\Calendar::call'],
+		'clock' => ['', 'SMF\\Sources\\Actions\\Calendar::call'], // Deprecated; is now a sub-action
+		'coppa' => ['', 'SMF\\Sources\\Actions\\CoppaForm::call'],
+		'credits' => ['', 'SMF\\Sources\\Actions\\Credits::call'],
+		'deletemsg' => ['', 'SMF\\Sources\\Actions\\MsgDelete::call'],
+		'dlattach' => ['', 'SMF\\Sources\\Actions\\AttachmentDownload::call'],
+		'editpoll' => ['', 'SMF\\Sources\\Poll::edit'],
+		'editpoll2' => ['', 'SMF\\Sources\\Poll::edit2'],
+		'findmember' => ['', 'SMF\\Sources\\Actions\\FindMember::call'],
+		'groups' => ['', 'SMF\\Sources\\Actions\\Groups::call'],
+		'help' => ['', 'SMF\\Sources\\Actions\\Help::call'],
+		'helpadmin' => ['', 'SMF\\Sources\\Actions\\HelpAdmin::call'],
+		'jsmodify' => ['', 'SMF\\Sources\\Actions\\JavaScriptModify::call'],
+		'jsoption' => ['', 'SMF\\Sources\\Theme::setJavaScript'],
+		'likes' => ['', 'SMF\\Sources\\Actions\\Like::call'],
+		'lock' => ['', 'SMF\\Sources\\Topic::lock'],
+		'lockvoting' => ['', 'SMF\\Sources\\Poll::lock'],
+		'login' => ['', 'SMF\\Sources\\Actions\\Login::call'],
+		'login2' => ['', 'SMF\\Sources\\Actions\\Login2::call'],
+		'logintfa' => ['', 'SMF\\Sources\\Actions\\LoginTFA::call'],
+		'logout' => ['', 'SMF\\Sources\\Actions\\Logout::call'],
+		'markasread' => ['', 'SMF\\Sources\\Board::MarkRead'],
+		'mergetopics' => ['', 'SMF\\Sources\\Actions\\TopicMerge::call'],
+		'mlist' => ['', 'SMF\\Sources\\Actions\\Memberlist::call'],
+		'moderate' => ['', 'SMF\\Sources\\Actions\\Moderation\\Main::call'],
+		'modifycat' => ['', 'SMF\\Sources\\Actions\\Admin\\Boards::modifyCat'],
+		'movetopic' => ['', 'SMF\\Sources\\Actions\\TopicMove::call'],
+		'movetopic2' => ['', 'SMF\\Sources\\Actions\\TopicMove2::call'],
+		'notifyannouncements' => ['', 'SMF\\Sources\\Actions\\NotifyAnnouncements::call'],
+		'notifyboard' => ['', 'SMF\\Sources\\Actions\\NotifyBoard::call'],
+		'notifytopic' => ['', 'SMF\\Sources\\Actions\\NotifyTopic::call'],
+		'pm' => ['', 'SMF\\Sources\\Actions\\PersonalMessage::call'],
+		'post' => ['', 'SMF\\Sources\\Actions\\Post::call'],
+		'post2' => ['', 'SMF\\Sources\\Actions\\Post2::call'],
+		'printpage' => ['', 'SMF\\Sources\\Actions\\TopicPrint::call'],
+		'profile' => ['', 'SMF\\Sources\\Actions\\Profile\\Main::call'],
+		'quotefast' => ['', 'SMF\\Sources\\Actions\\QuoteFast::call'],
+		'quickmod' => ['', 'SMF\\Sources\\Actions\\QuickModeration::call'],
+		'quickmod2' => ['', 'SMF\\Sources\\Actions\\QuickModerationInTopic::call'],
+		'recent' => ['', 'SMF\\Sources\\Actions\\Recent::call'],
+		'reminder' => ['', 'SMF\\Sources\\Actions\\Reminder::call'],
+		'removepoll' => ['', 'SMF\\Sources\\Poll::remove'],
+		'removetopic2' => ['', 'SMF\\Sources\\Actions\\TopicRemove::call'],
+		'reporttm' => ['', 'SMF\\Sources\\Actions\\ReportToMod::call'],
+		'requestmembers' => ['', 'SMF\\Sources\\Actions\\RequestMembers::call'],
+		'restoretopic' => ['', 'SMF\\Sources\\Actions\\TopicRestore::call'],
+		'search' => ['', 'SMF\\Sources\\Actions\\Search::call'],
+		'search2' => ['', 'SMF\\Sources\\Actions\\Search2::call'],
+		'sendactivation' => ['', 'SMF\\Sources\\Actions\\SendActivation::call'],
+		'signup' => ['', 'SMF\\Sources\\Actions\\Register::call'],
+		'signup2' => ['', 'SMF\\Sources\\Actions\\Register2::call'],
+		'smstats' => ['', 'SMF\\Sources\\Actions\\SmStats::call'],
+		'suggest' => ['', 'SMF\\Sources\\Actions\\AutoSuggest::call'],
+		'splittopics' => ['', 'SMF\\Sources\\Actions\\TopicSplit::call'],
+		'stats' => ['', 'SMF\\Sources\\Actions\\Stats::call'],
+		'sticky' => ['', 'SMF\\Sources\\Topic::sticky'],
+		'theme' => ['', 'SMF\\Sources\\Theme::dispatch'],
+		'trackip' => ['', 'SMF\\Sources\\Actions\\TrackIP::call'],
+		'about:unknown' => ['', 'SMF\\Sources\\Actions\\Like::BookOfUnknown'],
+		'unread' => ['', 'SMF\\Sources\\Actions\\Unread::call'],
+		'unreadreplies' => ['', 'SMF\\Sources\\Actions\\UnreadReplies::call'],
+		'uploadAttach' => ['', 'SMF\\Sources\\Actions\\AttachmentUpload::call'],
+		'verificationcode' => ['', 'SMF\\Sources\\Actions\\VerificationCode::call'],
+		'viewprofile' => ['', 'SMF\\Sources\\Actions\\Profile\\Main::call'],
+		'vote' => ['', 'SMF\\Sources\\Poll::vote'],
+		'viewquery' => ['', 'SMF\\Sources\\Actions\\ViewQuery::call'],
+		'viewsmfile' => ['', 'SMF\\Sources\\Actions\\DisplayAdminFile::call'],
+		'who' => ['', 'SMF\\Sources\\Actions\\Who::call'],
+		'.xml' => ['', 'SMF\\Sources\\Actions\\Feed::call'],
+		'xmlhttp' => ['', 'SMF\\Sources\\Actions\\XmlHttp::call'],
 	];
 
 	/**
@@ -389,18 +389,18 @@ class Forum
 
 				// No default action huh? then go to our good old BoardIndex.
 				else {
-					return 'SMF\\Actions\\BoardIndex::call';
+					return 'SMF\\Sources\\Actions\\BoardIndex::call';
 				}
 			}
 
 			// Topic is empty, and action is empty.... MessageIndex!
 			elseif (empty(Topic::$topic_id)) {
-				return 'SMF\\Actions\\MessageIndex::call';
+				return 'SMF\\Sources\\Actions\\MessageIndex::call';
 			}
 
 			// Board is not empty... topic is not empty... action is empty.. Display!
 			else {
-				return 'SMF\\Actions\\Display::call';
+				return 'SMF\\Sources\\Actions\\Display::call';
 			}
 		}
 
@@ -408,7 +408,7 @@ class Forum
 		if (!isset($_REQUEST['action']) || !isset(self::$actions[$_REQUEST['action']])) {
 			// Catch the action with the theme?
 			if (!empty(Theme::$current->settings['catch_action'])) {
-				return 'SMF\\Theme::wrapAction';
+				return 'SMF\\Sources\\Theme::wrapAction';
 			}
 
 			if (!empty(Config::$modSettings['integrate_fallback_action'])) {

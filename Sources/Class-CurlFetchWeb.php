@@ -17,6 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\WebFetch\\APIs\\CurlFetcher', '\\curl_fetch_web_data');
+class_alias('SMF\\Sources\\WebFetch\\APIs\\CurlFetcher', '\\curl_fetch_web_data');
 
 ?>

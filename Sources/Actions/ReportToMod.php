@@ -13,20 +13,20 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Msg;
-use SMF\Security;
-use SMF\Theme;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Msg;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Deals with reporting posts or profiles to mods and admins.
@@ -477,7 +477,7 @@ class ReportToMod implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\MsgReport_Notify',
+					'SMF\\Sources\\Tasks\\MsgReport_Notify',
 					Utils::jsonEncode([
 						'report_id' => $id_report,
 						'msg_id' => $msg,
@@ -614,7 +614,7 @@ class ReportToMod implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\MemberReport_Notify',
+					'SMF\\Sources\\Tasks\\MemberReport_Notify',
 					Utils::jsonEncode([
 						'report_id' => $id_report,
 						'user_id' => $user['id_member'],

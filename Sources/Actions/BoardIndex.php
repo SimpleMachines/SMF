@@ -13,22 +13,22 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\Cache\CacheApi;
-use SMF\Category;
-use SMF\Config;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Msg;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Category;
+use SMF\Sources\Config;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Msg;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class shows the board index.
@@ -89,7 +89,7 @@ class BoardIndex implements ActionInterface
 				'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 			];
 
-			Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+			Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Sources\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
 			// Whether one or multiple days are shown on the board index.
 			Utils::$context['calendar_only_today'] = Config::$modSettings['cal_days_for_index'] == 1;
@@ -132,7 +132,7 @@ class BoardIndex implements ActionInterface
 
 		// Are we showing all membergroups on the board index?
 		if (!empty(Theme::$current->settings['show_group_key'])) {
-			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Group::getCachedList', []);
+			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Sources\\Group::getCachedList', []);
 		}
 
 		// Mark read button
@@ -190,7 +190,7 @@ class BoardIndex implements ActionInterface
 			$msg_load_options['params']['is_approved'] = 1;
 		}
 
-		/** @var \SMF\Msg $msg */
+		/** @var \SMF\Sources\Msg $msg */
 		foreach (Msg::get(0, $msg_load_options) as $msg) {
 			$posts[$msg->id] = $msg->format(0, [
 				'do_permissions' => false,
@@ -224,7 +224,7 @@ class BoardIndex implements ActionInterface
 			'post_retri_eval' => '
 				foreach ($cache_block[\'data\'] as $k => $post)
 				{
-					$cache_block[\'data\'][$k][\'time\'] = \\SMF\\Time::create(\'@\' . $post[\'raw_timestamp\'])->format();
+					$cache_block[\'data\'][$k][\'time\'] = \\SMF\\Sources\\Time::create(\'@\' . $post[\'raw_timestamp\'])->format();
 					$cache_block[\'data\'][$k][\'timestamp\'] = $post[\'raw_timestamp\'];
 				}',
 		];
@@ -390,7 +390,7 @@ class BoardIndex implements ActionInterface
 				}
 
 				// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
-				/* @var \SMF\Category $category */
+				/* @var \SMF\Sources\Category $category */
 				if (empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $row_board['id_board']) {
 					$category->new = $category->new || empty($row_board['is_read']);
 				}
@@ -613,7 +613,7 @@ class BoardIndex implements ActionInterface
 	/**
 	 * Propagates statistics (e.g. post and topic counts) to parent boards.
 	 *
-	 * @param \SMF\Board $board An instance of SMF\Board.
+	 * @param \SMF\Sources\Board $board An instance of SMF\Sources\Board.
 	 * @param array $board_index_options The options passed to BoardIndex:get().
 	 */
 	protected static function propagateStatsToParents(Board $board, array $board_index_options): void

@@ -11,19 +11,19 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Cookie;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\PackageManager\FtpConnection;
-use SMF\Security;
-use SMF\TaskRunner;
-use SMF\Time;
-use SMF\Url;
-use SMF\User;
-use SMF\Utils;
-use SMF\Uuid;
+use SMF\Sources\Config;
+use SMF\Sources\Cookie;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\PackageManager\FtpConnection;
+use SMF\Sources\Security;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\Time;
+use SMF\Sources\Url;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Uuid;
 
 define('SMF_VERSION', '3.0 Alpha 2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
@@ -433,7 +433,7 @@ function load_lang_file()
 	// Which language are we loading? Assume that the admin likes that language.
 	Config::$language = preg_replace('~^[A-Za-z0-9]+$~', '', $_SESSION['installer_temp_lang']);
 
-	// Ensure SMF\Lang knows the path to the language directory.
+	// Ensure SMF\Sources\Lang knows the path to the language directory.
 	Lang::addDirs(Config::$languagesdir);
 
 	// And now load the language file.
@@ -893,7 +893,7 @@ function DatabaseSettings()
 			return false;
 		}
 
-		// Update SMF\Config with the changes we just saved.
+		// Update SMF\Sources\Config with the changes we just saved.
 		Config::load();
 
 		// Better find the database file!
@@ -1111,7 +1111,7 @@ function ForumSettings()
 			return false;
 		}
 
-		// Update SMF\Config with the changes we just saved.
+		// Update SMF\Sources\Config with the changes we just saved.
 		Config::load();
 
 		// UTF-8 requires a setting to override the language charset.

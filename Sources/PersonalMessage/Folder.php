@@ -13,17 +13,17 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\Actions\PersonalMessage as PMAction;
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\PageIndex;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Actions\PersonalMessage as PMAction;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\PageIndex;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Represents a personal message folder (i.e. "inbox" or "sent items")
@@ -82,7 +82,7 @@ class Folder
 	/**
 	 * @var object
 	 *
-	 * Instance of SMF\PersonalMessage\PM for a personal message that was
+	 * Instance of SMF\Sources\PersonalMessage\PM for a personal message that was
 	 * requested via $_GET['pmid'] or $_GET['pmsg'].
 	 */
 	public object $requested_pm;
@@ -254,7 +254,7 @@ class Folder
 			return PM::$getter->valid();
 		}
 
-		/** @var \SMF\PersonalMessage\PM $message */
+		/** @var \SMF\Sources\PersonalMessage\PM $message */
 		$message = PM::$getter->current();
 		PM::$getter->next();
 

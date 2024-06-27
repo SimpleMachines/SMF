@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Extends \DateInterval with some extra features for SMF.

@@ -23,12 +23,12 @@ if (SMF == 'PROXY') {
 	// Initialize.
 	require_once __DIR__ . '/index.php';
 
-	$proxy = new SMF\ProxyServer();
+	$proxy = new SMF\Sources\ProxyServer();
 	$proxy->serve();
 }
 // In case an old mod included this file in order to load the ProxyServer class.
 else {
-	class_exists('SMF\\ProxyServer');
+	class_exists('SMF\\Sources\\ProxyServer');
 }
 
 ?>

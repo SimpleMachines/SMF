@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Alert;
-use SMF\Config;
-use SMF\Lang;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Alert;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Shows the popup for the current user's alerts.

@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\SecurityToken;
-use SMF\TaskRunner;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class contains all the administration settings for topics and posts.

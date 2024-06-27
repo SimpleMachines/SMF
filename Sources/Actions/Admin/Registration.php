@@ -13,25 +13,25 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\Register2;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\Profile;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\Actions\Register2;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\Profile;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class helps the administrator setting registration settings and policy

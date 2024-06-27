@@ -10,10 +10,10 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Utils;
-use SMF\User;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Utils;
+use SMF\Sources\User;
 
 /**
  * The main page listing all the groups.

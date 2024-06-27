@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\IntegrationHook;
-use SMF\Logging;
-use SMF\Profile;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Logging;
+use SMF\Sources\Profile;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Activates an account.

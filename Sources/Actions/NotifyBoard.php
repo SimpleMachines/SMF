@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\Board;
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Utils;
+use SMF\Sources\Board;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Utils;
 
 /**
  * Toggles email notification preferences for boards.

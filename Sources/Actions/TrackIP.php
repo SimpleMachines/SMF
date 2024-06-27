@@ -13,24 +13,24 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\Actions\Profile\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\IP;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Profile;
-use SMF\Profile\Tracking;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Profile\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\IP;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Profile;
+use SMF\Sources\Profile\Tracking;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.
@@ -232,14 +232,14 @@ class TrackIP implements ActionInterface
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
 			'get_items' => [
-				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrors',
+				'function' => '\\SMF\\Sources\\Actions\\Profile\\Tracking::list_getUserErrors',
 				'params' => [
 					'le.ip >= ' . $ip_string[0] . ' and le.ip <= ' . $ip_string[1],
 					$fields,
 				],
 			],
 			'get_count' => [
-				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrorCount',
+				'function' => '\\SMF\\Sources\\Actions\\Profile\\Tracking::list_getUserErrorCount',
 				'params' => [
 					'ip >= ' . $ip_string[0] . ' and ip <= ' . $ip_string[1],
 					$fields,

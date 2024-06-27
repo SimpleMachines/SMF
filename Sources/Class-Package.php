@@ -17,7 +17,7 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\PackageManager\\XmlArray', '\\xmlArray');
-class_alias('SMF\\PackageManager\\FtpConnection', '\\ftp_connection');
+class_alias('SMF\\Sources\\PackageManager\\XmlArray', '\\xmlArray');
+class_alias('SMF\\Sources\\PackageManager\\FtpConnection', '\\ftp_connection');
 
 ?>

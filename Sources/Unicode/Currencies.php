@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Unicode;
+namespace SMF\Sources\Unicode;
 
 if (!defined('SMF')) {
 	die('No direct access...');
 }
 
 /**
- * Helper function for SMF\Localization\MessageFormatter::formatMessage.
+ * Helper function for SMF\Sources\Localization\MessageFormatter::formatMessage.
  *
  * Rules compiled from:
  * https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/currencyData.json
@@ -686,7 +686,7 @@ function currencies(): array
 }
 
 /**
- * Helper function for SMF\Localization\MessageFormatter::formatMessage.
+ * Helper function for SMF\Sources\Localization\MessageFormatter::formatMessage.
  *
  * Rules compiled from:
  * https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/currencyData.json

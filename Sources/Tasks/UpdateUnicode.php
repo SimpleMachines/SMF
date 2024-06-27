@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Sapi;
-use SMF\TaskRunner;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Sapi;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * This class contains code used to update SMF's Unicode data files.
@@ -389,7 +389,7 @@ class UpdateUnicode extends BackgroundTask
 			'key_type' => 'string',
 			'val_type' => 'array',
 			'desc' => [
-				'Helper function for SMF\Localization\MessageFormatter::formatMessage.',
+				'Helper function for SMF\Sources\Localization\MessageFormatter::formatMessage.',
 				'',
 				'Rules compiled from:',
 				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/plurals.json',
@@ -406,7 +406,7 @@ class UpdateUnicode extends BackgroundTask
 			'key_type' => 'string',
 			'val_type' => 'array',
 			'desc' => [
-				'Helper function for SMF\Localization\MessageFormatter::formatMessage.',
+				'Helper function for SMF\Sources\Localization\MessageFormatter::formatMessage.',
 				'',
 				'Rules compiled from:',
 				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/currencyData.json',
@@ -422,7 +422,7 @@ class UpdateUnicode extends BackgroundTask
 			'key_type' => 'string',
 			'val_type' => 'array',
 			'desc' => [
-				'Helper function for SMF\Localization\MessageFormatter::formatMessage.',
+				'Helper function for SMF\Sources\Localization\MessageFormatter::formatMessage.',
 				'',
 				'Rules compiled from:',
 				'https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/currencyData.json',
@@ -438,7 +438,7 @@ class UpdateUnicode extends BackgroundTask
 			'key_type' => 'hexchar',
 			'val_type' => 'hexchar',
 			'desc' => [
-				'Helper function for SMF\Unicode\SpoofDetector::getSkeletonString.',
+				'Helper function for SMF\Sources\Unicode\SpoofDetector::getSkeletonString.',
 				'',
 				'Returns an array of "confusables" maps that can be used for confusable string',
 				'detection.',
@@ -592,7 +592,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$file_contents['temp'] = file_get_contents($file_paths['temp']);
 
-			if (empty($file_contents['temp']) || !str_contains($file_contents['temp'], 'namespace SMF\\Unicode;')) {
+			if (empty($file_contents['temp']) || !str_contains($file_contents['temp'], 'namespace SMF\\Sources\\Unicode;')) {
 				file_put_contents($file_paths['temp'], $this->smf_file_header());
 			} elseif (substr($file_contents['temp'], -2) === '?' . '>') {
 				file_put_contents($file_paths['temp'], substr($file_contents['temp'], 0, -2));
@@ -621,7 +621,7 @@ class UpdateUnicode extends BackgroundTask
 							'claimed_time' => 'int',
 						],
 						[
-							'SMF\\Tasks\\Update_Unicode',
+							'SMF\\Sources\\Tasks\\Update_Unicode',
 							'',
 							time() - MAX_CLAIM_THRESHOLD,
 						],
@@ -733,7 +733,7 @@ class UpdateUnicode extends BackgroundTask
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\UpdateSpoofDetectorNames',
+						'SMF\\Sources\\Tasks\\UpdateSpoofDetectorNames',
 						json_encode(['last_member_id' => 0]),
 						0,
 					],
@@ -896,7 +896,7 @@ class UpdateUnicode extends BackgroundTask
 			'<' . '?php',
 			trim($license_block),
 			'declare(strict_types=1);',
-			'namespace SMF\\Unicode;',
+			'namespace SMF\\Sources\\Unicode;',
 			"if (!defined('SMF')) {\n\tdie('No direct access...');\n}",
 			'',
 		]);

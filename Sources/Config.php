@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Handles loading and saving SMF's settings, both in Settings.php and database.
@@ -977,7 +977,7 @@ class Config
 		self::$scripturl = self::$boardurl . '/index.php';
 
 		// For backward compatibility, make settings available as global variables.
-		// Must do this manually because SMF\BackwardCompatibility is not loaded yet.
+		// Must do this manually because SMF\Sources\BackwardCompatibility is not loaded yet.
 		if (self::$backward_compatibility && !self::$exported) {
 			foreach ($settings as $var => $val) {
 				if (property_exists(__CLASS__, $var)) {
@@ -1327,7 +1327,7 @@ class Config
 			// It is important to store this in Settings.php, not the database.
 			// If saving fails, we should alert, log, and set a static value.
 			if (!self::updateSettingsFile(['auth_secret' => self::$auth_secret])) {
-				if (class_exists('SMF\\Utils', false)) {
+				if (class_exists('SMF\\Sources\\Utils', false)) {
 					Utils::$context['auth_secret_missing'] = true;
 				}
 
@@ -1359,7 +1359,7 @@ class Config
 
 		// Allow mods the option to define comments, defaults, etc., for their settings.
 		// Check if IntegrationHook exists, in case we are calling from installer or upgrader.
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists('SMF\\Sources\\IntegrationHook', false)) {
 			IntegrationHook::call('integrate_update_settings_file', [&self::$settings_defs]);
 		}
 
@@ -1486,7 +1486,7 @@ class Config
 		$new_settings_vars = array_merge($settings_vars, $config_vars);
 
 		// Are we using UTF-8?
-		$utf8 = class_exists('SMF\\Utils', false) && isset(Utils::$context['utf8']) ? Utils::$context['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : (isset(self::$db_character_set) ? self::$db_character_set === 'utf8' : true));
+		$utf8 = class_exists('SMF\\Sources\\Utils', false) && isset(Utils::$context['utf8']) ? Utils::$context['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : (isset(self::$db_character_set) ? self::$db_character_set === 'utf8' : true));
 
 		// Get our definitions for all known Settings.php variables and other content.
 		$settings_defs = self::getSettingsDefs();

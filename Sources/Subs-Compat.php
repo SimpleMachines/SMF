@@ -14,30 +14,29 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Actions;
-use SMF\Cache;
-use SMF\Db;
-use SMF\Graphics\Image;
-use SMF\PackageManager;
-use SMF\PersonalMessage;
-use SMF\Profile;
-use SMF\Punycode;
-use SMF\Sapi;
-use SMF\Search;
-use SMF\Unicode\Utf8String;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Actions;
+use SMF\Sources\Cache;
+use SMF\Sources\Db;
+use SMF\Sources\Graphics\Image;
+use SMF\Sources\PackageManager;
+use SMF\Sources\PersonalMessage;
+use SMF\Sources\Profile;
+use SMF\Sources\Punycode;
+use SMF\Sources\Sapi;
+use SMF\Sources\Search;
+use SMF\Sources\Unicode\Utf8String;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-/*********************************************
- * SMF\Config::$backward_compatibility support
- *********************************************/
+/*****************************************************
+ * SMF\Sources\Config::$backward_compatibility support
+ *****************************************************/
 
-
-if (!empty(SMF\Config::$backward_compatibility)) {
+if (!empty(SMF\Sources\Config::$backward_compatibility)) {
 	/*
 	 * In SMF 2.x, there was a file named Subs.php that was always loaded early in
 	 * the startup process and that contained many utility functions. Everything
@@ -3559,7 +3558,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * Begin
 	 * Unicode\Utf8String
-	 * @see SMF\BackwardCompatibility
+	 * @see SMF\Sources\BackwardCompatibility
 	 */
 	function utf8_decompose(array $chars, bool $compatibility = false): array
 	{
@@ -3643,7 +3642,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * WebFetch\WebFetchApi
 	 *
 	 * Begin
-	 * SMF\Alert
+	 * SMF\Sources\Alert
 	 */
 	function fetch_alerts(
 		int $memID,
@@ -3657,74 +3656,74 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$to_fetch = (array) $to_fetch;
 		}
 
-		return SMF\Alert::fetch($memID, $to_fetch, $limit, $offset, $with_avatar, $show_links);
+		return SMF\Sources\Alert::fetch($memID, $to_fetch, $limit, $offset, $with_avatar, $show_links);
 	}
 
 	function alert_count(int $memID, bool $unread = false): int
 	{
-		return SMF\Alert::count($memID, $unread);
+		return SMF\Sources\Alert::count($memID, $unread);
 	}
 
 	function alert_mark(array|int $members, array|int $to_mark, bool $read): void
 	{
-		SMF\Alert::mark($members, $to_mark, $read);
+		SMF\Sources\Alert::mark($members, $to_mark, $read);
 	}
 
 	function alert_delete(int|array $ids, int|array $members = []): void
 	{
-		SMF\Alert::delete($ids, $members);
+		SMF\Sources\Alert::delete($ids, $members);
 	}
 
 	function alert_purge(int $memID = 0, int $before = 0): void
 	{
-		SMF\Alert::purge($memID, $before);
+		SMF\Sources\Alert::purge($memID, $before);
 	}
 
 	/**
 	 * End
-	 * SMF\Alert
+	 * SMF\Sources\Alert
 	 *
 	 * Begin
-	 * SMF\Attachment
+	 * SMF\Sources\Attachment
 	 */
 	function automanage_attachments_check_directory(): ?bool
 	{
-		return SMF\Attachment::automanageCheckDirectory();
+		return SMF\Sources\Attachment::automanageCheckDirectory();
 	}
 
 	function automanage_attachments_create_directory(string $updir): bool
 	{
-		return SMF\Attachment::automanageCreateDirectory($updir);
+		return SMF\Sources\Attachment::automanageCreateDirectory($updir);
 	}
 
 	function automanage_attachments_by_space(): ?bool
 	{
-		return SMF\Attachment::automanageBySpace();
+		return SMF\Sources\Attachment::automanageBySpace();
 	}
 
 	function processAttachments(): void
 	{
-		SMF\Attachment::process();
+		SMF\Sources\Attachment::process();
 	}
 
 	function attachmentChecks(int $attachID): bool
 	{
-		return SMF\Attachment::check($attachID);
+		return SMF\Sources\Attachment::check($attachID);
 	}
 
 	function createAttachment(&$attachmentOptions): bool
 	{
-		return SMF\Attachment::create($attachmentOptions);
+		return SMF\Sources\Attachment::create($attachmentOptions);
 	}
 
 	function assignAttachments(array $attachIDs = [], int $msgID = 0): bool
 	{
-		return SMF\Attachment::assign($attachIDs, $msgID);
+		return SMF\Sources\Attachment::assign($attachIDs, $msgID);
 	}
 
 	function ApproveAttachments(array $attachments): bool
 	{
-		return SMF\Attachment::approve($attachments);
+		return SMF\Sources\Attachment::approve($attachments);
 	}
 
 	function removeAttachments(
@@ -3733,7 +3732,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$return_affected_messages = false,
 		$autoThumbRemoval = true,
 	): ?array {
-		return SMF\Attachment::remove(
+		return SMF\Sources\Attachment::remove(
 			$condition,
 			$query_type,
 			$return_affected_messages,
@@ -3743,32 +3742,32 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function parseAttachBBC(int $attachID = 0): array|string
 	{
-		return SMF\Attachment::parseAttachBBC($attachID);
+		return SMF\Sources\Attachment::parseAttachBBC($attachID);
 	}
 
-	function getAttachMsgInfo(int $attachID): SMF\Attachment|array
+	function getAttachMsgInfo(int $attachID): SMF\Sources\Attachment|array
 	{
-		return SMF\Attachment::getAttachMsgInfo($attachID);
+		return SMF\Sources\Attachment::getAttachMsgInfo($attachID);
 	}
 
 	function loadAttachmentContext(int $id_msg, array $attachments): array
 	{
-		return SMF\Attachment::loadAttachmentContext($id_msg, $attachments);
+		return SMF\Sources\Attachment::loadAttachmentContext($id_msg, $attachments);
 	}
 
 	function prepareAttachsByMsg(array $msgIDs): void
 	{
-		SMF\Attachment::prepareByMsg($msgIDs);
+		SMF\Sources\Attachment::prepareByMsg($msgIDs);
 	}
 
 	function createHash(string $input = ''): string
 	{
-		return SMF\Attachment::createHash($input);
+		return SMF\Sources\Attachment::createHash($input);
 	}
 
 	function getFilePath(int $id): string
 	{
-		return SMF\Attachment::getFilePath($id);
+		return SMF\Sources\Attachment::getFilePath($id);
 	}
 
 	function getAttachmentFilename(
@@ -3778,7 +3777,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $new = false,
 		string $file_hash = '',
 	): string {
-		return SMF\Attachment::getAttachmentFilename(
+		return SMF\Sources\Attachment::getAttachmentFilename(
 			$filename,
 			$attachment_id,
 			$dir,
@@ -3789,24 +3788,24 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\Attachment
+	 * SMF\Sources\Attachment
 	 *
 	 * Begin
-	 * SMF\BBCodeParser
+	 * SMF\Sources\BBCodeParser
 	 */
 	function get_signature_allowed_bbc_tags(): array
 	{
-		return SMF\BBCodeParser::getSigTags();
+		return SMF\Sources\BBCodeParser::getSigTags();
 	}
 
 	function highlight_php_code(string $code): string
 	{
-		return SMF\BBCodeParser::highlightPhpCode($code);
+		return SMF\Sources\BBCodeParser::highlightPhpCode($code);
 	}
 
 	function sanitizeMSCutPaste(string $string): string
 	{
-		return SMF\BBCodeParser::sanitizeMSCutPaste($string);
+		return SMF\Sources\BBCodeParser::sanitizeMSCutPaste($string);
 	}
 
 	function parse_bbc(
@@ -3815,7 +3814,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $cache_id = '',
 		array $parse_tags = [],
 	): string|array {
-		return SMF\BBCodeParser::backcompatParseBbc(
+		return SMF\Sources\BBCodeParser::backcompatParseBbc(
 			$message,
 			$smileys,
 			$cache_id,
@@ -3825,170 +3824,170 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function parseSmileys(string &$message): void
 	{
-		SMF\BBCodeParser::backcompatParseSmileys($message);
+		SMF\Sources\BBCodeParser::backcompatParseSmileys($message);
 	}
 
 	/**
 	 * End
-	 * SMF\BBCodeParser
+	 * SMF\Sources\BBCodeParser
 	 *
 	 * Begin
-	 * SMF\Board
+	 * SMF\Sources\Board
 	 */
 	function loadBoard(array|int $ids = [], array $query_customizations = []): array
 	{
-		return SMF\Board::load($ids, $query_customizations);
+		return SMF\Sources\Board::load($ids, $query_customizations);
 	}
 
 	function MarkRead(): void
 	{
-		SMF\Board::markRead();
+		SMF\Sources\Board::markRead();
 	}
 
 	function markBoardsRead(int|array $boards, bool $unread = false): void
 	{
-		SMF\Board::markBoardsRead($boards, $unread);
+		SMF\Sources\Board::markBoardsRead($boards, $unread);
 	}
 
 	function getMsgMemberID(int $messageID): int
 	{
-		return SMF\Board::getMsgMemberID($messageID);
+		return SMF\Sources\Board::getMsgMemberID($messageID);
 	}
 
 	function modifyBoard(int $board_id, array &$boardOptions): void
 	{
-		SMF\Board::modify($board_id, $boardOptions);
+		SMF\Sources\Board::modify($board_id, $boardOptions);
 	}
 
 	function createBoard(array $boardOptions): int
 	{
-		return SMF\Board::create($boardOptions);
+		return SMF\Sources\Board::create($boardOptions);
 	}
 
 	function deleteBoards(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
-		SMF\Board::delete($boards_to_remove, $moveChildrenTo);
+		SMF\Sources\Board::delete($boards_to_remove, $moveChildrenTo);
 	}
 
 	function reorderBoards(): void
 	{
-		SMF\Board::reorder();
+		SMF\Sources\Board::reorder();
 	}
 
 	function fixChildren(int $parent, int $newLevel, int $newParent): void
 	{
-		SMF\Board::fixChildren($parent, $newLevel, $newParent);
+		SMF\Sources\Board::fixChildren($parent, $newLevel, $newParent);
 	}
 
 	function sortBoards(array &$boards): void
 	{
-		SMF\Board::sort($boards);
+		SMF\Sources\Board::sort($boards);
 	}
 
 	function getBoardModerators(array $boards): array
 	{
-		return SMF\Board::getModerators($boards);
+		return SMF\Sources\Board::getModerators($boards);
 	}
 
 	function getBoardModeratorGroups(array $boards): array
 	{
-		return SMF\Board::getModeratorGroups($boards);
+		return SMF\Sources\Board::getModeratorGroups($boards);
 	}
 
 	function isChildOf(int $child, int $parent): bool
 	{
-		return SMF\Board::isChildOf($child, $parent);
+		return SMF\Sources\Board::isChildOf($child, $parent);
 	}
 
 	function getBoardParents(int $id_parent): array
 	{
-		return SMF\Board::getParents($id_parent);
+		return SMF\Sources\Board::getParents($id_parent);
 	}
 
 	/**
 	 * End
-	 * SMF\Board
+	 * SMF\Sources\Board
 	 *
 	 * Begin
-	 * SMF\BrowserDetector
+	 * SMF\Sources\BrowserDetector
 	 */
 	function detectBrowser(): void
 	{
-		SMF\BrowserDetector::call();
+		SMF\Sources\BrowserDetector::call();
 	}
 
 	function isBrowser(string $browser): bool
 	{
-		return SMF\BrowserDetector::isBrowser($browser);
+		return SMF\Sources\BrowserDetector::isBrowser($browser);
 	}
 
 	/**
 	 * End
-	 * SMF\BrowserDetector
+	 * SMF\Sources\BrowserDetector
 	 *
 	 * Begin
-	 * SMF\Category
+	 * SMF\Sources\Category
 	 */
 	function modifyCategory(int $category_id, array $catOptions): void
 	{
-		SMF\Category::modify($category_id, $catOptions);
+		SMF\Sources\Category::modify($category_id, $catOptions);
 	}
 
 	function createCategory(array $catOptions): int
 	{
-		return SMF\Category::create($catOptions);
+		return SMF\Sources\Category::create($catOptions);
 	}
 
 	function deleteCategories(array $categories, ?int $moveBoardsTo = null): void
 	{
-		SMF\Category::delete($categories, $moveBoardsTo);
+		SMF\Sources\Category::delete($categories, $moveBoardsTo);
 	}
 
 	function sortCategories(array &$categories): void
 	{
-		SMF\Category::sort($categories);
+		SMF\Sources\Category::sort($categories);
 	}
 
 	function getTreeOrder(): array
 	{
-		return SMF\Category::getTreeOrder();
+		return SMF\Sources\Category::getTreeOrder();
 	}
 
 	function getBoardTree(): void
 	{
-		SMF\Category::getTree();
+		SMF\Sources\Category::getTree();
 	}
 
 	function recursiveBoards(&$list, &$tree): void
 	{
-		SMF\Category::recursiveBoards($list, $tree);
+		SMF\Sources\Category::recursiveBoards($list, $tree);
 	}
 
 	/**
 	 * End
-	 * SMF\Category
+	 * SMF\Sources\Category
 	 *
 	 * Begin
-	 * SMF\Cookie
+	 * SMF\Sources\Cookie
 	 */
 	function setLoginCookie(int $cookie_length, int $id, string $password = ''): void
 	{
-		SMF\Cookie::setLoginCookie($cookie_length, $id, $password);
+		SMF\Sources\Cookie::setLoginCookie($cookie_length, $id, $password);
 	}
 
 	function setTFACookie(int $cookie_length, int $id, string $secret): void
 	{
-		SMF\Cookie::setTFACookie($cookie_length, $id, $secret);
+		SMF\Sources\Cookie::setTFACookie($cookie_length, $id, $secret);
 	}
 
 	function url_parts(bool $local, bool $global): array
 	{
-		return SMF\Cookie::urlParts($local, $global);
+		return SMF\Sources\Cookie::urlParts($local, $global);
 	}
 
 	function hash_salt(string $password, string $salt): string
 	{
-		return SMF\Cookie::encrypt($password, $salt);
+		return SMF\Sources\Cookie::encrypt($password, $salt);
 	}
 
 	function smf_setcookie(
@@ -4001,7 +4000,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $httponly = true,
 		?string $samesite = null,
 	): void {
-		SMF\Cookie::setcookie(
+		SMF\Sources\Cookie::setcookie(
 			$name,
 			$value,
 			$expires,
@@ -4015,53 +4014,53 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\Cookie
+	 * SMF\Sources\Cookie
 	 *
 	 * Begin
-	 * SMF\Draft
+	 * SMF\Sources\Draft
 	 */
 	function DeleteDraft(int|array $drafts, bool $check = true): bool
 	{
-		return SMF\Draft::delete($drafts, $check);
+		return SMF\Sources\Draft::delete($drafts, $check);
 	}
 
 	function ShowDrafts(int $member_id, int $topic = 0): bool
 	{
-		return SMF\Draft::showInEditor($member_id, $topic);
+		return SMF\Sources\Draft::showInEditor($member_id, $topic);
 	}
 
 	function showProfileDrafts(int $memID): void
 	{
-		SMF\Draft::showInProfile($memID);
+		SMF\Sources\Draft::showInProfile($memID);
 	}
 
 	/**
 	 * End
-	 * SMF\Draft
+	 * SMF\Sources\Draft
 	 *
 	 * Begin
-	 * SMF\Editor
+	 * SMF\Sources\Editor
 	 */
-	function create_control_richedit(array $options): SMF\Editor
+	function create_control_richedit(array $options): SMF\Sources\Editor
 	{
-		return SMF\Editor::load($options);
+		return SMF\Sources\Editor::load($options);
 	}
 
 	function getMessageIcons(int $board_id): array
 	{
-		return SMF\Editor::getMessageIcons($board_id);
+		return SMF\Sources\Editor::getMessageIcons($board_id);
 	}
 
 	/**
 	 * End
-	 * SMF\Editor
+	 * SMF\Sources\Editor
 	 *
 	 * Begin
-	 * SMF\ErrorHandler
+	 * SMF\Sources\ErrorHandler
 	 */
 	function smf_error_handler(int $error_level, string $error_string, string $file, int $line): void
 	{
-		SMF\ErrorHandler::call($error_level, $error_string, $file, $line);
+		SMF\Sources\ErrorHandler::call($error_level, $error_string, $file, $line);
 	}
 
 	function log_error(
@@ -4070,7 +4069,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $file = '',
 		int $line = 0,
 	): string {
-		return SMF\ErrorHandler::log(
+		return SMF\Sources\ErrorHandler::log(
 			$error_message,
 			$error_type,
 			$file,
@@ -4080,105 +4079,105 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function fatal_error(string $error, string|bool $log = 'general', int $status = 500): void
 	{
-		SMF\ErrorHandler::fatal($error, $log, $status);
+		SMF\Sources\ErrorHandler::fatal($error, $log, $status);
 	}
 
 	function fatal_lang_error(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403)
 	{
-		SMF\ErrorHandler::fatalLang($error, $log, $sprintf, $status);
+		SMF\Sources\ErrorHandler::fatalLang($error, $log, $sprintf, $status);
 	}
 
 	function display_maintenance_message(): void
 	{
-		SMF\ErrorHandler::displayMaintenanceMessage();
+		SMF\Sources\ErrorHandler::displayMaintenanceMessage();
 	}
 
 	function display_db_error(): void
 	{
-		SMF\ErrorHandler::displayDbError();
+		SMF\Sources\ErrorHandler::displayDbError();
 	}
 
 	function display_loadavg_error(): void
 	{
-		SMF\ErrorHandler::displayLoadAvgError();
+		SMF\Sources\ErrorHandler::displayLoadAvgError();
 	}
 
 	/**
 	 * End
-	 * SMF\ErrorHandler
+	 * SMF\Sources\ErrorHandler
 	 *
 	 * Begin
-	 * SMF\Event
+	 * SMF\Sources\Event
 	 */
 	function insertEvent(array $eventOptions): void
 	{
-		SMF\Event::create($eventOptions);
+		SMF\Sources\Event::create($eventOptions);
 	}
 
 	function modifyEvent(int $id, array &$eventOptions): void
 	{
-		SMF\Event::modify($id, $eventOptions);
+		SMF\Sources\Event::modify($id, $eventOptions);
 	}
 
 	function removeEvent(int $id): void
 	{
-		SMF\Event::remove($id);
+		SMF\Sources\Event::remove($id);
 	}
 
 	/**
 	 * End
-	 * SMF\Event
+	 * SMF\Sources\Event
 	 *
 	 * Begin
-	 * SMF\Group
+	 * SMF\Sources\Group
 	 */
 	function loadSimple(
-		int $include = SMF\Group::LOAD_NORMAL,
-		array $exclude = [SMF\Group::GUEST, SMF\Group::REGULAR, SMF\Group::MOD],
+		int $include = SMF\Sources\Group::LOAD_NORMAL,
+		array $exclude = [SMF\Sources\Group::GUEST, SMF\Sources\Group::REGULAR, SMF\Sources\Group::MOD],
 	): array {
-		return SMF\Group::loadSimple($include, $exclude);
+		return SMF\Sources\Group::loadSimple($include, $exclude);
 	}
 
 	function loadAssignable(): array
 	{
-		return SMF\Group::loadAssignable();
+		return SMF\Sources\Group::loadAssignable();
 	}
 
 	function loadPermissionsBatch(array $group_ids, ?int $profile = null, bool $reload = false): array
 	{
-		return SMF\Group::loadPermissionsBatch($group_ids, $profile, $reload);
+		return SMF\Sources\Group::loadPermissionsBatch($group_ids, $profile, $reload);
 	}
 
 	function countPermissionsBatch(array $group_ids, ?int $profile = null): array
 	{
-		return SMF\Group::countPermissionsBatch($group_ids, $profile);
+		return SMF\Sources\Group::countPermissionsBatch($group_ids, $profile);
 	}
 
 	function getPostGroups(): array
 	{
-		return SMF\Group::getPostGroups();
+		return SMF\Sources\Group::getPostGroups();
 	}
 
 	function getUnassignable(): array
 	{
-		return SMF\Group::getUnassignable();
+		return SMF\Sources\Group::getUnassignable();
 	}
 
 	function cache_getMembergroupList(): array
 	{
-		return SMF\Group::getCachedList();
+		return SMF\Sources\Group::getCachedList();
 	}
 
 	/**
 	 * End
-	 * SMF\Group
+	 * SMF\Sources\Group
 	 *
 	 * Begin
-	 * SMF\IntegrationHook
+	 * SMF\Sources\IntegrationHook
 	 */
 	function call_integration_hook(string $name, array $parameters = []): array
 	{
-		return SMF\IntegrationHook::call($name, $parameters);
+		return SMF\Sources\IntegrationHook::call($name, $parameters);
 	}
 
 	function add_integration_function(
@@ -4188,7 +4187,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $file = '',
 		bool $object = false,
 	): void {
-		SMF\IntegrationHook::add(
+		SMF\Sources\IntegrationHook::add(
 			$name,
 			$function,
 			$permanent,
@@ -4204,7 +4203,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $file = '',
 		bool $object = false,
 	): void {
-		SMF\IntegrationHook::remove(
+		SMF\Sources\IntegrationHook::remove(
 			$name,
 			$function,
 			$permanent,
@@ -4215,49 +4214,49 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\IntegrationHook
+	 * SMF\Sources\IntegrationHook
 	 *
 	 * Begin
-	 * SMF\IP
+	 * SMF\Sources\IP
 	 */
 	function ip2range(string $addr): array
 	{
-		return SMF\IP::ip2range($addr);
+		return SMF\Sources\IP::ip2range($addr);
 	}
 
 	function range2ip(string $low, string $high): string
 	{
-		return SMF\IP::range2ip($low, $high);
+		return SMF\Sources\IP::range2ip($low, $high);
 	}
 
 	function isValidIP(string $ip): bool
 	{
-		return (new SMF\IP($ip))->isValid();
+		return (new SMF\Sources\IP($ip))->isValid();
 	}
 
 	function isValidIPv6(string $ip): bool
 	{
-		return (new SMF\IP($ip))->isValid(FILTER_FLAG_IPV6);
+		return (new SMF\Sources\IP($ip))->isValid(FILTER_FLAG_IPV6);
 	}
 
 	function host_from_ip(string $ip): string
 	{
-		return (new SMF\IP($ip))->getHost(0);
+		return (new SMF\Sources\IP($ip))->getHost(0);
 	}
 
 	function inet_ptod(string $ip): string|bool
 	{
-		return (new SMF\IP($ip))->toBinary();
+		return (new SMF\Sources\IP($ip))->toBinary();
 	}
 
 	function inet_dtop(string $ip): string
 	{
-		return (string) (new SMF\IP($ip));
+		return (string) (new SMF\Sources\IP($ip));
 	}
 
 	function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|bool
 	{
-		$ip = new SMF\IP($ip);
+		$ip = new SMF\Sources\IP($ip);
 
 		if ($return_bool_if_invalid && !$ip->isValid(FILTER_FLAG_IPV6)) {
 			return false;
@@ -4268,22 +4267,22 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\IP
+	 * SMF\Sources\IP
 	 *
 	 * Begin
-	 * SMF\ItemList
+	 * SMF\Sources\ItemList
 	 */
-	function createList(array $options): SMF\ItemList
+	function createList(array $options): SMF\Sources\ItemList
 	{
-		return SMF\ItemList::load($options);
+		return SMF\Sources\ItemList::load($options);
 	}
 
 	/**
 	 * End
-	 * SMF\ItemList
+	 * SMF\Sources\ItemList
 	 *
 	 * Begin
-	 * SMF\Lang
+	 * SMF\Sources\Lang
 	 */
 	function loadLanguage(
 		string $template_name,
@@ -4291,87 +4290,87 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $fatal = true,
 		bool $force_reload = false,
 	): string {
-		return SMF\Lang::load($template_name, $lang, $fatal, $force_reload);
+		return SMF\Sources\Lang::load($template_name, $lang, $fatal, $force_reload);
 	}
 
 	function getLanguages(bool $use_cache = true): array
 	{
-		return SMF\Lang::get($use_cache);
+		return SMF\Sources\Lang::get($use_cache);
 	}
 
 	function censorText(&$text, bool $force = false): string
 	{
-		return SMF\Lang::censorText($text, $force);
+		return SMF\Sources\Lang::censorText($text, $force);
 	}
 
 	function tokenTxtReplace(string $string = ''): string
 	{
-		return SMF\Lang::tokenTxtReplace($string);
+		return SMF\Sources\Lang::tokenTxtReplace($string);
 	}
 
 	function sentence_list(array $list): string
 	{
-		return SMF\Lang::sentenceList($list);
+		return SMF\Sources\Lang::sentenceList($list);
 	}
 
 	function comma_format(int|float $number, ?int $decimals = null): string
 	{
-		return SMF\Lang::numberFormat($number, $decimals);
+		return SMF\Sources\Lang::numberFormat($number, $decimals);
 	}
 
 	/**
 	 * End
-	 * SMF\Lang
+	 * SMF\Sources\Lang
 	 *
 	 * Begin
-	 * SMF\Logging
+	 * SMF\Sources\Logging
 	 */
 	function writeLog(bool $force = false): void
 	{
-		SMF\Logging::writeLog($force);
+		SMF\Sources\Logging::writeLog($force);
 	}
 
 	function logAction($action, array $extra = [], $log_type = 'moderate'): int
 	{
-		return SMF\Logging::logAction($action, $extra, $log_type);
+		return SMF\Sources\Logging::logAction($action, $extra, $log_type);
 	}
 
 	function logActions(array $logs): int
 	{
-		return SMF\Logging::logActions($logs);
+		return SMF\Sources\Logging::logActions($logs);
 	}
 
 	function updateStats(string $type, mixed $parameter1 = null, mixed $parameter2 = null): void
 	{
-		SMF\Logging::updateStats($type, $parameter1, $parameter2);
+		SMF\Sources\Logging::updateStats($type, $parameter1, $parameter2);
 	}
 
 	function trackStats(array $stats = []): bool
 	{
-		return SMF\Logging::trackStats($stats);
+		return SMF\Sources\Logging::trackStats($stats);
 	}
 
 	function trackStatsUsersOnline(int $total_users_online): void
 	{
-		SMF\Logging::trackStatsUsersOnline($total_users_online);
+		SMF\Sources\Logging::trackStatsUsersOnline($total_users_online);
 	}
 
 	function getMembersOnlineStats(array $membersOnlineOptions): array
 	{
-		return SMF\Logging::getMembersOnlineStats($membersOnlineOptions);
+		return SMF\Sources\Logging::getMembersOnlineStats($membersOnlineOptions);
 	}
 
 	function displayDebug(): void
 	{
-		SMF\Logging::displayDebug();
+		SMF\Sources\Logging::displayDebug();
 	}
 
 	/**
 	 * End
-	 * SMF\Logging
+	 * SMF\Sources\Logging
 	 *
 	 * Begin
-	 * SMF\Mail
+	 * SMF\Sources\Mail
 	 */
 	function sendMail(
 		array $to,
@@ -4384,7 +4383,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?bool $hotmail_fix = null,
 		bool $is_private = false,
 	): bool {
-		return SMF\Mail::send(
+		return SMF\Sources\Mail::send(
 			$to,
 			$subject,
 			$message,
@@ -4407,7 +4406,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $priority = 3,
 		bool $is_private = false,
 	): bool {
-		return SMF\Mail::addToQueue(
+		return SMF\Sources\Mail::addToQueue(
 			$flush,
 			$to_array,
 			$subject,
@@ -4421,7 +4420,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
 	{
-		return SMF\Mail::reduceQueue($number, $override_limit, $force_send);
+		return SMF\Sources\Mail::reduceQueue($number, $override_limit, $force_send);
 	}
 
 	function mimespecialchars(
@@ -4431,7 +4430,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $line_break = "\r\n",
 		?string $custom_charset = null,
 	): array {
-		return SMF\Mail::mimespecialchars(
+		return SMF\Sources\Mail::mimespecialchars(
 			$string,
 			$with_charset,
 			$hotmail_fix,
@@ -4442,22 +4441,22 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function smtp_mail(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
-		return SMF\Mail::sendSmtp($mail_to_array, $subject, $message, $headers);
+		return SMF\Sources\Mail::sendSmtp($mail_to_array, $subject, $message, $headers);
 	}
 
 	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
 	{
-		return SMF\Mail::serverParse($message, $socket, $code, $response);
+		return SMF\Sources\Mail::serverParse($message, $socket, $code, $response);
 	}
 
 	function sendNotifications(array $topics, string $type, array $exclude = [], array $members_only = [])
 	{
-		return SMF\Mail::sendNotifications($topics, $type, $exclude, $members_only);
+		return SMF\Sources\Mail::sendNotifications($topics, $type, $exclude, $members_only);
 	}
 
 	function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
-		SMF\Mail::adminNotify($type, $memberID, $member_name);
+		SMF\Sources\Mail::adminNotify($type, $memberID, $member_name);
 	}
 
 	function loadEmailTemplate(
@@ -4466,46 +4465,46 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $lang = '',
 		bool $loadLang = true,
 	): array {
-		return SMF\Mail::loadEmailTemplate($template, $replacements, $lang, $loadLang);
+		return SMF\Sources\Mail::loadEmailTemplate($template, $replacements, $lang, $loadLang);
 	}
 
 	/**
 	 * End
-	 * SMF\Mail
+	 * SMF\Sources\Mail
 	 *
 	 * Begin
-	 * SMF\Menu
+	 * SMF\Sources\Menu
 	 */
 	function createMenu(array $data, array $options = []): array|false
 	{
-		return SMF\Menu::create($data, $options);
+		return SMF\Sources\Menu::create($data, $options);
 	}
 
 	function destroyMenu(int|string $id = 'last'): void
 	{
-		SMF\Menu::destroy($id);
+		SMF\Sources\Menu::destroy($id);
 	}
 
 	/**
 	 * End
-	 * SMF\Menu
+	 * SMF\Sources\Menu
 	 *
 	 * Begin
-	 * SMF\Msg
+	 * SMF\Sources\Msg
 	 */
 	function preparsecode(string &$message, bool $previewing = false): void
 	{
-		SMF\Msg::preparsecode($message, $previewing);
+		SMF\Sources\Msg::preparsecode($message, $previewing);
 	}
 
 	function un_preparsecode(string $message): string
 	{
-		return SMF\Msg::un_preparsecode($message);
+		return SMF\Sources\Msg::un_preparsecode($message);
 	}
 
 	function fixTags(string &$message): void
 	{
-		SMF\Msg::fixTags($message);
+		SMF\Sources\Msg::fixTags($message);
 	}
 
 	function fixTag(
@@ -4516,7 +4515,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $hasEqualSign = false,
 		bool $hasExtra = false,
 	): void {
-		SMF\Msg::fixTag(
+		SMF\Sources\Msg::fixTag(
 			$message,
 			$myTag,
 			$protocols,
@@ -4528,40 +4527,40 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function createPost(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
-		return SMF\Msg::create($msgOptions, $topicOptions, $posterOptions);
+		return SMF\Sources\Msg::create($msgOptions, $topicOptions, $posterOptions);
 	}
 
 	function modifyPost(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
-		return SMF\Msg::modify($msgOptions, $topicOptions, $posterOptions);
+		return SMF\Sources\Msg::modify($msgOptions, $topicOptions, $posterOptions);
 	}
 
 	function approvePosts(array $msgs, bool $approve = true, bool $notify = true): bool
 	{
-		return SMF\Msg::approve($msgs, $approve, $notify);
+		return SMF\Sources\Msg::approve($msgs, $approve, $notify);
 	}
 
 	function clearApprovalAlerts(array $content_ids, string $content_action): void
 	{
-		SMF\Msg::clearApprovalAlerts($content_ids, $content_action);
+		SMF\Sources\Msg::clearApprovalAlerts($content_ids, $content_action);
 	}
 
 	function updateLastMessages(array $setboards, int $id_msg = 0): ?bool
 	{
-		return SMF\Msg::updateLastMessages($setboards, $id_msg);
+		return SMF\Sources\Msg::updateLastMessages($setboards, $id_msg);
 	}
 
 	function removeMessage(int $message, bool $decreasePostCount = true): bool
 	{
-		return SMF\Msg::remove($message, $decreasePostCount);
+		return SMF\Sources\Msg::remove($message, $decreasePostCount);
 	}
 
 	/**
 	 * End
-	 * SMF\Msg
+	 * SMF\Sources\Msg
 	 *
 	 * Begin
-	 * SMF\PageIndex
+	 * SMF\Sources\PageIndex
 	 */
 	function constructPageIndex(
 		string $base_url,
@@ -4570,8 +4569,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $num_per_page,
 		bool $short_format = false,
 		bool $show_prevnext = true,
-	): SMF\PageIndex {
-		return SMF\PageIndex::load(
+	): SMF\Sources\PageIndex {
+		return SMF\Sources\PageIndex::load(
 			$base_url,
 			$start,
 			$max_value,
@@ -4583,56 +4582,56 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\PageIndex
+	 * SMF\Sources\PageIndex
 	 *
 	 * Begin
-	 * SMF\Poll
+	 * SMF\Sources\Poll
 	 */
-	function checkRemovePermission(SMF\Poll $poll): bool
+	function checkRemovePermission(SMF\Sources\Poll $poll): bool
 	{
-		return SMF\Poll::checkRemovePermission($poll);
+		return SMF\Sources\Poll::checkRemovePermission($poll);
 	}
 
 	function Vote(): void
 	{
-		SMF\Poll::vote();
+		SMF\Sources\Poll::vote();
 	}
 
 	function LockVoting(): void
 	{
-		SMF\Poll::lock();
+		SMF\Sources\Poll::lock();
 	}
 
 	function EditPoll(): void
 	{
-		SMF\Poll::edit();
+		SMF\Sources\Poll::edit();
 	}
 
 	function EditPoll2(): void
 	{
-		SMF\Poll::edit2();
+		SMF\Sources\Poll::edit2();
 	}
 
 	function RemovePoll(): void
 	{
-		SMF\Poll::remove();
+		SMF\Sources\Poll::remove();
 	}
 
 	/**
 	 * End
-	 * SMF\Poll
+	 * SMF\Sources\Poll
 	 *
 	 * Begin
-	 * SMF\Profile
+	 * SMF\Sources\Profile
 	 */
 	function loadCustomFieldDefinitions(): void
 	{
-		SMF\Profile::loadCustomFieldDefinitions();
+		SMF\Sources\Profile::loadCustomFieldDefinitions();
 	}
 
 	function validateSignature(string &$value): bool|string
 	{
-		return SMF\Profile::validateSignature($value);
+		return SMF\Sources\Profile::validateSignature($value);
 	}
 
 	function profileLoadGroups(?int $id = null): bool
@@ -4711,37 +4710,37 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\Profile
+	 * SMF\Sources\Profile
 	 *
 	 * Begin
-	 * SMF\QueryString
+	 * SMF\Sources\QueryString
 	 */
 	function cleanRequest(): void
 	{
-		SMF\QueryString::cleanRequest();
+		SMF\Sources\QueryString::cleanRequest();
 	}
 
 	function is_filtered_request(array $value_list, string $var): bool
 	{
-		return SMF\QueryString::isFilteredRequest($value_list, $var);
+		return SMF\Sources\QueryString::isFilteredRequest($value_list, $var);
 	}
 
 	function ob_sessrewrite(string $buffer): string
 	{
-		return SMF\QueryString::ob_sessrewrite($buffer);
+		return SMF\Sources\QueryString::ob_sessrewrite($buffer);
 	}
 
 	function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
 	{
-		return SMF\QueryString::matchIPtoCIDR($ip_address, $cidr_address);
+		return SMF\Sources\QueryString::matchIPtoCIDR($ip_address, $cidr_address);
 	}
 
 	/**
 	 * End
-	 * SMF\QueryString
+	 * SMF\Sources\QueryString
 	 *
 	 * Begin
-	 * SMF\Sapi
+	 * SMF\Sources\Sapi
 	 */
 	function setMemoryLimit(string $needed, bool $in_use = false): bool
 	{
@@ -4753,128 +4752,128 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 	/**
 	 * End
-	 * SMF\Sapi
+	 * SMF\Sources\Sapi
 	 *
 	 * Begin
-	 * SMF\Security
+	 * SMF\Sources\Security
 	 */
 	function hash_password(string $username, string $password, ?int $cost = null): string
 	{
-		return SMF\Security::hashPassword($username, $password, $cost);
+		return SMF\Sources\Security::hashPassword($username, $password, $cost);
 	}
 
 	function hash_verify_password(string $username, string $password, string $hash): bool
 	{
-		return SMF\Security::hashVerifyPassword($username, $password, $hash);
+		return SMF\Sources\Security::hashVerifyPassword($username, $password, $hash);
 	}
 
 	function hash_benchmark(float $hashTime = 0.2): int
 	{
-		return SMF\Security::hashBenchmark($hashTime);
+		return SMF\Sources\Security::hashBenchmark($hashTime);
 	}
 
 	function checkConfirm(string $action): bool|string
 	{
-		return SMF\Security::checkConfirm($action);
+		return SMF\Sources\Security::checkConfirm($action);
 	}
 
 	function checkSubmitOnce(string $action, bool $is_fatal = true): ?bool
 	{
-		return SMF\Security::checkSubmitOnce($action, $is_fatal);
+		return SMF\Sources\Security::checkSubmitOnce($action, $is_fatal);
 	}
 
 	function spamProtection(string $error_type, bool $only_return_result = false): bool
 	{
-		return SMF\Security::spamProtection($error_type, $only_return_result);
+		return SMF\Sources\Security::spamProtection($error_type, $only_return_result);
 	}
 
 	function secureDirectory(string|array $paths, bool $attachments = false): bool|array
 	{
-		return SMF\Security::secureDirectory($paths, $attachments);
+		return SMF\Sources\Security::secureDirectory($paths, $attachments);
 	}
 
 	function frameOptionsHeader(?string $override = null)
 	{
-		return SMF\Security::frameOptionsHeader($override);
+		return SMF\Sources\Security::frameOptionsHeader($override);
 	}
 
 	function corsPolicyHeader(bool $set_header = true): void
 	{
-		SMF\Security::corsPolicyHeader($set_header);
+		SMF\Sources\Security::corsPolicyHeader($set_header);
 	}
 
 	function KickGuest(): void
 	{
-		SMF\Security::kickGuest();
+		SMF\Sources\Security::kickGuest();
 	}
 
 	/**
 	 * End
-	 * SMF\Security
+	 * SMF\Sources\Security
 	 *
 	 * Begin
-	 * SMF\SecurityToken
+	 * SMF\Sources\SecurityToken
 	 */
 	function createToken(string $action, string $type = 'post'): array
 	{
-		return SMF\SecurityToken::create($action, $type);
+		return SMF\Sources\SecurityToken::create($action, $type);
 	}
 
 	function validateToken(string $action, string $type = 'post', bool $reset = true): bool
 	{
-		return SMF\SecurityToken::validate($action, $type, $reset);
+		return SMF\Sources\SecurityToken::validate($action, $type, $reset);
 	}
 
 	function cleanTokens(bool $complete = false): void
 	{
-		SMF\SecurityToken::clean($complete);
+		SMF\Sources\SecurityToken::clean($complete);
 	}
 
 	/**
 	 * End
-	 * SMF\SecurityToken
+	 * SMF\Sources\SecurityToken
 	 *
 	 * BEgin
-	 * SMF\ServerSideIncludes
+	 * SMF\Sources\ServerSideIncludes
 	 */
 	function ssi_shutdown(): void
 	{
-		SMF\ServerSideIncludes::shutdown();
+		SMF\Sources\ServerSideIncludes::shutdown();
 	}
 
 	function ssi_version($output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::version($output_method);
+		return SMF\Sources\ServerSideIncludes::version($output_method);
 	}
 
 	function ssi_full_version($output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::fullVersion($output_method);
+		return SMF\Sources\ServerSideIncludes::fullVersion($output_method);
 	}
 
 	function ssi_software_year($output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::softwareYear($output_method = 'echo');
+		return SMF\Sources\ServerSideIncludes::softwareYear($output_method = 'echo');
 	}
 
 	function ssi_copyright($output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::copyright($output_method);
+		return SMF\Sources\ServerSideIncludes::copyright($output_method);
 	}
 
 	function ssi_welcome($output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::welcome($output_method);
+		return SMF\Sources\ServerSideIncludes::welcome($output_method);
 	}
 
 	function ssi_menubar($output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::menubar($output_method);
+		return SMF\Sources\ServerSideIncludes::menubar($output_method);
 	}
 
 	function ssi_logout($redirect_to = '', $output_method = 'echo')
 	{
-		return SMF\ServerSideIncludes::logout($redirect_to, $output_method);
+		return SMF\Sources\ServerSideIncludes::logout($redirect_to, $output_method);
 	}
 
 	function ssi_recentPosts(
@@ -4884,7 +4883,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $output_method = 'echo',
 		bool $limit_body = true,
 	): ?array {
-		return SMF\ServerSideIncludes::recentPosts(
+		return SMF\Sources\ServerSideIncludes::recentPosts(
 			$num_recent,
 			$exclude_boards,
 			$include_boards,
@@ -4898,7 +4897,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $override_permissions = false,
 		string $output_method = 'echo',
 	): ?array {
-		return SMF\ServerSideIncludes::fetchPosts($post_ids, $override_permissions, $output_method);
+		return SMF\Sources\ServerSideIncludes::fetchPosts($post_ids, $override_permissions, $output_method);
 	}
 
 	function ssi_queryPosts(
@@ -4910,7 +4909,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $limit_body = false,
 		bool $override_permissions = false,
 	): ?array {
-		return SMF\ServerSideIncludes::queryPosts(
+		return SMF\Sources\ServerSideIncludes::queryPosts(
 			$query_where,
 			$query_where_params,
 			$query_limit,
@@ -4927,52 +4926,52 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?array $include_boards = null,
 		string $output_method = 'echo',
 	): ?array {
-		return SMF\ServerSideIncludes::recentTopics($num_recent, $exclude_boards, $include_boards, $output_method);
+		return SMF\Sources\ServerSideIncludes::recentTopics($num_recent, $exclude_boards, $include_boards, $output_method);
 	}
 
 	function ssi_topPoster(int $topNumber = 1, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::topPoster($topNumber, $output_method);
+		return SMF\Sources\ServerSideIncludes::topPoster($topNumber, $output_method);
 	}
 
 	function ssi_topBoards($num_top = 10, $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::topBoards($num_top, $output_method);
+		return SMF\Sources\ServerSideIncludes::topBoards($num_top, $output_method);
 	}
 
 	function ssi_topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::topTopics($type, $num_topics, $output_method);
+		return SMF\Sources\ServerSideIncludes::topTopics($type, $num_topics, $output_method);
 	}
 
 	function ssi_topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::topTopicsReplies($num_topics, $output_method);
+		return SMF\Sources\ServerSideIncludes::topTopicsReplies($num_topics, $output_method);
 	}
 
 	function ssi_topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::topTopicsViews($num_topics, $output_method);
+		return SMF\Sources\ServerSideIncludes::topTopicsViews($num_topics, $output_method);
 	}
 
 	function ssi_latestMember(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::latestMember($output_method);
+		return SMF\Sources\ServerSideIncludes::latestMember($output_method);
 	}
 
 	function ssi_randomMember(string $random_type = '', string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::randomMember($random_type, $output_method);
+		return SMF\Sources\ServerSideIncludes::randomMember($random_type, $output_method);
 	}
 
 	function ssi_fetchMember(array $member_ids = [], string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::fetchMember($member_ids, $output_method);
+		return SMF\Sources\ServerSideIncludes::fetchMember($member_ids, $output_method);
 	}
 
 	function ssi_fetchGroupMembers(?int $group_id = null, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::fetchGroupMembers($group_id, $output_method);
+		return SMF\Sources\ServerSideIncludes::fetchGroupMembers($group_id, $output_method);
 	}
 
 	function ssi_queryMembers(
@@ -4982,7 +4981,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $query_order = 'id_member DESC',
 		string $output_method = 'echo',
 	): ?array {
-		return SMF\ServerSideIncludes::queryMembers(
+		return SMF\Sources\ServerSideIncludes::queryMembers(
 			$query_where,
 			$query_where_params,
 			$query_limit,
@@ -4993,72 +4992,72 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function ssi_boardStats(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::boardStats($output_method);
+		return SMF\Sources\ServerSideIncludes::boardStats($output_method);
 	}
 
 	function ssi_whosOnline(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::whosOnline($output_method);
+		return SMF\Sources\ServerSideIncludes::whosOnline($output_method);
 	}
 
 	function ssi_logOnline(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::logOnline($output_method);
+		return SMF\Sources\ServerSideIncludes::logOnline($output_method);
 	}
 
 	function ssi_login($redirect_to = '', $output_method = 'echo'): ?bool
 	{
-		return SMF\ServerSideIncludes::login($redirect_to, $output_method);
+		return SMF\Sources\ServerSideIncludes::login($redirect_to, $output_method);
 	}
 
 	function ssi_topPoll(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::topPoll($output_method);
+		return SMF\Sources\ServerSideIncludes::topPoll($output_method);
 	}
 
 	function ssi_recentPoll($topPollInstead = false, $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::recentPoll($topPollInstead, $output_method);
+		return SMF\Sources\ServerSideIncludes::recentPoll($topPollInstead, $output_method);
 	}
 
 	function ssi_showPoll(?int $topic = null, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::showPoll($topic, $output_method);
+		return SMF\Sources\ServerSideIncludes::showPoll($topic, $output_method);
 	}
 
 	function ssi_pollVote()
 	{
-		return SMF\ServerSideIncludes::pollVote();
+		return SMF\Sources\ServerSideIncludes::pollVote();
 	}
 
 	function ssi_quickSearch(string $output_method = 'echo'): ?string
 	{
-		return SMF\ServerSideIncludes::quickSearch($output_method);
+		return SMF\Sources\ServerSideIncludes::quickSearch($output_method);
 	}
 
 	function ssi_news(string $output_method = 'echo'): ?string
 	{
-		return SMF\ServerSideIncludes::news($output_method);
+		return SMF\Sources\ServerSideIncludes::news($output_method);
 	}
 
 	function ssi_todaysBirthdays(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::todaysBirthdays($output_method);
+		return SMF\Sources\ServerSideIncludes::todaysBirthdays($output_method);
 	}
 
 	function ssi_todaysHolidays(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::todaysHolidays($output_method);
+		return SMF\Sources\ServerSideIncludes::todaysHolidays($output_method);
 	}
 
 	function ssi_todaysEvents(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::todaysEvents($output_method);
+		return SMF\Sources\ServerSideIncludes::todaysEvents($output_method);
 	}
 
 	function ssi_todaysCalendar(string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::todaysCalendar($output_method);
+		return SMF\Sources\ServerSideIncludes::todaysCalendar($output_method);
 	}
 
 	function ssi_boardNews(
@@ -5068,7 +5067,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		?int $length = null,
 		string $output_method = 'echo',
 	): ?array {
-		return SMF\ServerSideIncludes::boardNews(
+		return SMF\Sources\ServerSideIncludes::boardNews(
 			$board,
 			$limit,
 			$start,
@@ -5079,250 +5078,245 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function ssi_recentEvents(int $max_events = 7, string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::recentEvents($max_events, $output_method);
+		return SMF\Sources\ServerSideIncludes::recentEvents($max_events, $output_method);
 	}
 
 	function ssi_checkPassword(?int $id = null, ?string $password = null, bool $is_username = false): bool
 	{
-		return SMF\ServerSideIncludes::checkPassword($id, $password, $is_username);
+		return SMF\Sources\ServerSideIncludes::checkPassword($id, $password, $is_username);
 	}
 
 	function ssi_recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): ?array
 	{
-		return SMF\ServerSideIncludes::recentAttachments($num_attachments, $attachment_ext, $output_method);
+		return SMF\Sources\ServerSideIncludes::recentAttachments($num_attachments, $attachment_ext, $output_method);
 	}
 
 	/**
 	 * End
-	 * SMF\ServerSideIncludes
+	 * SMF\Sources\ServerSideIncludes
 	 *
 	 * Begin
-	 * SMF\Session
+	 * SMF\Sources\Session
 	 */
 	function loadSession(): void
 	{
-		SMF\Session::load();
+		SMF\Sources\Session::load();
 	}
 
 	/**
 	 * End
-	 * SMF\Session
+	 * SMF\Sources\Session
 	 *
 	 * Begin
-	 * SMF\TaskRunner
+	 * SMF\Sources\TaskRunner
 	 */
 	function CalculateNextTrigger(string|array $tasks = [], bool $force_update = false): void
 	{
-		SMF\TaskRunner::calculateNextTrigger($tasks, $force_update);
+		SMF\Sources\TaskRunner::calculateNextTrigger($tasks, $force_update);
 	}
 
 	/**
 	 * End
-	 * SMF\TaskRunner
+	 * SMF\Sources\TaskRunner
 	 *
 	 * Begin
-	 * SMF\Theme
+	 * SMF\Sources\Theme
 	 */
 	function loadTheme(int $id = 0, bool $initialize = true)
 	{
-		return SMF\Theme::load($id, $initialize);
+		return SMF\Sources\Theme::load($id, $initialize);
 	}
 
 	function loadEssentialThemeData(): void
 	{
-		SMF\Theme::loadEssential();
+		SMF\Sources\Theme::loadEssential();
 	}
 
 	function loadTemplate(string $template_name, string|array $style_sheets = [], bool $fatal = true): ?bool
 	{
-		return SMF\Theme::loadTemplate($template_name, $style_sheets, $fatal);
+		return SMF\Sources\Theme::loadTemplate($template_name, $style_sheets, $fatal);
 	}
 
 	function loadSubTemplate(string $sub_template_name, bool $fatal = false)
 	{
-		SMF\Theme::loadSubTemplate($sub_template_name, $fatal);
+		SMF\Sources\Theme::loadSubTemplate($sub_template_name, $fatal);
 	}
 
 	function loadCSSFile(string $filename, array $params = [], string $id = ''): void
 	{
-		SMF\Theme::loadCSSFile($filename, $params, $id);
+		SMF\Sources\Theme::loadCSSFile($filename, $params, $id);
 	}
 
 	function addInlineCss(string $css): ?bool
 	{
-		return SMF\Theme::addInlineCss($css);
+		return SMF\Sources\Theme::addInlineCss($css);
 	}
 
 	function loadJavaScriptFile(string $fileName, array $params = [], string $id = ''): void
 	{
-		SMF\Theme::loadJavaScriptFile($fileName, $params, $id);
+		SMF\Sources\Theme::loadJavaScriptFile($fileName, $params, $id);
 	}
 
 	function addJavaScriptVar(string $key, mixed $value, bool $escape = false)
 	{
-		return SMF\Theme::addJavaScriptVar($key, $value, $escape);
+		return SMF\Sources\Theme::addJavaScriptVar($key, $value, $escape);
 	}
 
 	function addInlineJavaScript(string $javascript, bool $defer = false): ?bool
 	{
-		return SMF\Theme::addInlineJavaScript($javascript, $defer);
+		return SMF\Sources\Theme::addInlineJavaScript($javascript, $defer);
 	}
 
 	function setupThemeContext(bool $forceload = false)
 	{
-		return SMF\Theme::setupContext($forceload);
+		return SMF\Sources\Theme::setupContext($forceload);
 	}
 
 	function setupMenuContext(): void
 	{
-		SMF\Theme::setupMenuContext();
+		SMF\Sources\Theme::setupMenuContext();
 	}
 
 	function template_header(): void
 	{
-		SMF\Theme::template_header();
+		SMF\Sources\Theme::template_header();
 	}
 
 	function theme_copyright(): void
 	{
-		SMF\Theme::copyright();
+		SMF\Sources\Theme::copyright();
 	}
 
 	function template_footer(): void
 	{
-		SMF\Theme::template_footer();
+		SMF\Sources\Theme::template_footer();
 	}
 
 	function template_javascript(bool $do_deferred = false): void
 	{
-		SMF\Theme::template_javascript($do_deferred);
+		SMF\Sources\Theme::template_javascript($do_deferred);
 	}
 
 	function template_css(): void
 	{
-		SMF\Theme::template_css();
+		SMF\Sources\Theme::template_css();
 	}
 
 	function custMinify(array $data, string $type): array
 	{
-		return SMF\Theme::custMinify($data, $type);
+		return SMF\Sources\Theme::custMinify($data, $type);
 	}
 
 	function deleteAllMinified(): void
 	{
-		SMF\Theme::deleteAllMinified();
+		SMF\Sources\Theme::deleteAllMinified();
 	}
 
 	function SetJavaScript(): void
 	{
-		SMF\Theme::setJavaScript();
+		SMF\Sources\Theme::setJavaScript();
 	}
 
 	function WrapAction(): void
 	{
-		SMF\Theme::wrapAction();
+		SMF\Sources\Theme::wrapAction();
 	}
 
 	function PickTheme(): void
 	{
-		SMF\Theme::pickTheme();
+		SMF\Sources\Theme::pickTheme();
 	}
 
 	/**
 	 * End
-	 * SMF\Theme
+	 * SMF\Sources\Theme
 	 *
 	 * Begin
-	 * SMF\Time
+	 * SMF\Sources\Time
 	 */
-	function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): SMF\TIme
-	{
-		return SMF\Time::create($datetime, $timezone);
-	}
-
 	function smf_strftime(string $format, ?int $timestamp = null, ?string $tzid = null): string
 	{
-		return SMF\Time::strftime($format, $timestamp, $tzid);
+		return SMF\Sources\Time::strftime($format, $timestamp, $tzid);
 	}
 
 	function smf_gmstrftime(string $format, ?int $timestamp = null): string
 	{
-		return SMF\Time::gmstrftime($format, $timestamp);
+		return SMF\Sources\Time::gmstrftime($format, $timestamp);
 	}
 
 	function get_date_or_time_format(string $type = '', string $format = '', ?bool $strftime = null): string
 	{
-		return SMF\Time::getDateOrTimeFormat($type, $format, $strftime);
+		return SMF\Sources\Time::getDateOrTimeFormat($type, $format, $strftime);
 	}
 
 	function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
 	{
-		return SMF\Time::timeformat($log_time, $show_today, $tzid);
+		return SMF\Sources\Time::timeformat($log_time, $show_today, $tzid);
 	}
 
 	/** @deprecated since 2.1 */
 	function forum_time(bool $use_user_offset = true, ?int $timestamp = null): int
 	{
-		return SMF\Time::forumTime($use_user_offset, $timestamp);
+		return SMF\Sources\Time::forumTime($use_user_offset, $timestamp);
 	}
 
 	/**
 	 * End
-	 * SMF\Time
+	 * SMF\Sources\Time
 	 *
 	 * Begin
-	 * SMF\TimeZone
+	 * SMF\Sources\TimeZone
 	 */
 	function smf_list_timezones(int|string $when = 'now'): array
 	{
-		return SMF\TimeZone::list($when);
+		return SMF\Sources\TimeZone::list($when);
 	}
 
 	function get_tzid_metazones(int|string $when = 'now'): array
 	{
-		return SMF\TimeZone::getTzidMetazones($when);
+		return SMF\Sources\TimeZone::getTzidMetazones($when);
 	}
 
 	function get_sorted_tzids_for_country(string $country_code, int|string $when = 'now'): array
 	{
-		return SMF\TimeZone::getSortedTzidsForCountry($country_code, $when);
+		return SMF\Sources\TimeZone::getSortedTzidsForCountry($country_code, $when);
 	}
 
 	function get_tzid_fallbacks(array $tzids, int|string $when = 'now'): array
 	{
-		return SMF\TimeZone::getTzidFallbacks($tzids, $when);
+		return SMF\Sources\TimeZone::getTzidFallbacks($tzids, $when);
 	}
 
 	function validate_iso_country_codes(array|string $country_codes, bool $as_csv = false): array|string
 	{
-		return SMF\TimeZone::validateIsoCountryCodes($country_codes, $as_csv);
+		return SMF\Sources\TimeZone::validateIsoCountryCodes($country_codes, $as_csv);
 	}
 
 	/**
 	 * End
-	 * SMF\TimeZone
+	 * SMF\Sources\TimeZone
 	 *
 	 * Begin
-	 * SMF\Topic
+	 * SMF\Sources\Topic
 	 */
 	function LockTopic(): void
 	{
-		SMF\Topic::lock();
+		SMF\Sources\Topic::lock();
 	}
 
 	function Sticky(): void
 	{
-		SMF\Topic::sticky();
+		SMF\Sources\Topic::sticky();
 	}
 
 	function approveTopics(array $topics, bool $approve = true): bool
 	{
-		return SMF\Topic::approve($topics, $approve);
+		return SMF\Sources\Topic::approve($topics, $approve);
 	}
 
 	function moveTopics(array|int $topics, int $toBoard)
 	{
-		return SMF\Topic::move($topics, $toBoard);
+		return SMF\Sources\Topic::move($topics, $toBoard);
 	}
 
 	function removeTopics(
@@ -5331,24 +5325,24 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $ignoreRecycling = false,
 		bool $updateBoardCount = true,
 	) {
-		return SMF\Topic::remove($topics, $decreasePostCount, $ignoreRecycling, $updateBoardCount);
+		return SMF\Sources\Topic::remove($topics, $decreasePostCount, $ignoreRecycling, $updateBoardCount);
 	}
 
 	function prepareLikesContext(int $topic): array
 	{
-		return SMF\Topic::prepareLikesContext($topic);
+		return SMF\Sources\Topic::prepareLikesContext($topic);
 	}
 
 	/**
 	 * End
-	 * SMF\Topic
+	 * SMF\Sources\Topic
 	 *
 	 * Begin
-	 * SMF\Url
+	 * SMF\Sources\Url
 	 */
 	function set_tld_regex(bool $update = false): void
 	{
-		SMF\Url::setTldRegex($update);
+		SMF\Sources\Url::setTldRegex($update);
 	}
 
 	/**
@@ -5358,7 +5352,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function parse_iri(string $iri, int $component = -1): string|int|array|null|bool
 	{
-		return (new SMF\Url($iri))->parse($component);
+		return (new SMF\Sources\Url($iri))->parse($component);
 	}
 
 	/**
@@ -5367,85 +5361,85 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @return self|bool A reference to an object for the IRI if it is valid,
 	 *    or false if the IRI is invalid.
 	 */
-	function validate_iri(string $iri, int $flags = 0): SMF\Url|bool
+	function validate_iri(string $iri, int $flags = 0): SMF\Sources\Url|bool
 	{
-		$iri = new SMF\Url($iri);
+		$iri = new SMF\Sources\Url($iri);
 		$iri->validate($flags);
 
 		// caste this because $urlInstance->url is a protected property, but casting to string returns it
 		return (string) $iri === '' ? false : $iri;
 	}
 
-	function sanitize_iri(string $iri): SMF\Url
+	function sanitize_iri(string $iri): SMF\Sources\Url
 	{
-		return (new SMF\Url($iri))->sanitize();
+		return (new SMF\Sources\Url($iri))->sanitize();
 	}
 
-	function normalize_iri(string $iri): SMF\Url
+	function normalize_iri(string $iri): SMF\Sources\Url
 	{
-		return (new SMF\Url($iri))->normalize();
+		return (new SMF\Sources\Url($iri))->normalize();
 	}
 
-	function iri_to_url(string $iri): SMF\Url
+	function iri_to_url(string $iri): SMF\Sources\Url
 	{
-		return (new SMF\Url($iri))->toAscii();
+		return (new SMF\Sources\Url($iri))->toAscii();
 	}
 
-	function url_to_iri(string $url): SMF\Url
+	function url_to_iri(string $url): SMF\Sources\Url
 	{
-		return (new SMF\Url($url))->toUtf8();
+		return (new SMF\Sources\Url($url))->toUtf8();
 	}
 
-	function get_proxied_url(string $url): SMF\Url
+	function get_proxied_url(string $url): SMF\Sources\Url
 	{
-		return (new SMF\Url($url))->proxied();
+		return (new SMF\Sources\Url($url))->proxied();
 	}
 
 	function ssl_cert_found(string $url): bool
 	{
-		return (new SMF\Url($url))->hasSSL();
+		return (new SMF\Sources\Url($url))->hasSSL();
 	}
 
 	function httpsRedirectActive(string $url): bool
 	{
-		return (new SMF\Url($url))->redirectsToHttps();
+		return (new SMF\Sources\Url($url))->redirectsToHttps();
 	}
 
 	/**
 	 * End
-	 * SMF\Url
+	 * SMF\Sources\Url
 	 *
 	 * Begin
-	 * SMF\User
+	 * SMF\Sources\User
 	 */
 	function build_query_board(int $id): array
 	{
-		return SMF\User::buildQueryBoard($id);
+		return SMF\Sources\User::buildQueryBoard($id);
 	}
 
 	function set_avatar_data(array $data = []): array
 	{
-		return SMF\User::setAvatarData($data);
+		return SMF\Sources\User::setAvatarData($data);
 	}
 
 	function updateMemberData($members, array $data): void
 	{
-		SMF\User::updateMemberData($members, $data);
+		SMF\Sources\User::updateMemberData($members, $data);
 	}
 
 	function getUserTimezone(?int $id_member = null): string
 	{
-		return SMF\User::getTimezone($id_member);
+		return SMF\Sources\User::getTimezone($id_member);
 	}
 
 	function deleteMembers(int|array $users, bool $check_not_admin = false): void
 	{
-		SMF\User::delete($users, $check_not_admin);
+		SMF\Sources\User::delete($users, $check_not_admin);
 	}
 
 	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
 	{
-		return SMF\User::validatePassword($password, $username, $restrict_in);
+		return SMF\Sources\User::validatePassword($password, $username, $restrict_in);
 	}
 
 	function validateUsername(
@@ -5454,17 +5448,17 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $return_error = false,
 		bool $check_reserved_name = true,
 	): ?array {
-		return SMF\User::validateUsername($memID, $username, $return_error, $check_reserved_name);
+		return SMF\Sources\User::validateUsername($memID, $username, $return_error, $check_reserved_name);
 	}
 
 	function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
 	{
-		return SMF\User::isReservedName($name, $current_id_member, $is_name, $fatal);
+		return SMF\Sources\User::isReservedName($name, $current_id_member, $is_name, $fatal);
 	}
 
 	function isBannedEmail(string $email, string $restriction, string $error): void
 	{
-		SMF\User::isBannedEmail($email, $restriction, $error);
+		SMF\Sources\User::isBannedEmail($email, $restriction, $error);
 	}
 
 	function findMembers(
@@ -5473,12 +5467,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $buddies_only = false,
 		int $max = 500,
 	): array {
-		return SMF\User::find($names, $use_wildcards, $buddies_only, $max);
+		return SMF\Sources\User::find($names, $use_wildcards, $buddies_only, $max);
 	}
 
 	function membersAllowedTo(string $permission, ?int $board_id = null): array
 	{
-		return SMF\User::membersAllowedTo($permission, $board_id);
+		return SMF\Sources\User::membersAllowedTo($permission, $board_id);
 	}
 
 	function groupsAllowedTo(
@@ -5487,7 +5481,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $simple = true,
 		?int $profile_id = null,
 	): array {
-		return SMF\User::groupsAllowedTo($permissions, $board_id, $simple, $profile_id);
+		return SMF\Sources\User::groupsAllowedTo($permissions, $board_id, $simple, $profile_id);
 	}
 
 	function getGroupsWithPermissions(
@@ -5495,90 +5489,90 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array $board_permissions = [],
 		int $profile_id = 1,
 	): array {
-		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
+		return SMF\Sources\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
 	}
 
 	function generateValidationCode(): string
 	{
-		return SMF\User::generateValidationCode();
+		return SMF\Sources\User::generateValidationCode();
 	}
 
 	function logSpider(): void
 	{
-		SMF\User::logSpider();
+		SMF\Sources\User::logSpider();
 	}
 
-	function loadMemberData($users = [], int $type = SMF\User::LOAD_BY_ID, ?string $dataset = null): array
+	function loadMemberData($users = [], int $type = SMF\Sources\User::LOAD_BY_ID, ?string $dataset = null): array
 	{
-		return SMF\User::loadMemberData($users, $type, $dataset);
+		return SMF\Sources\User::loadMemberData($users, $type, $dataset);
 	}
 
 	function loadUserSettings(): void
 	{
-		SMF\User::loadUserSettings();
+		SMF\Sources\User::loadUserSettings();
 	}
 
 	function loadPermissions(): void
 	{
-		SMF\User::loadMyPermissions();
+		SMF\Sources\User::loadMyPermissions();
 	}
 
 	function loadMemberContext(int $id, bool $display_custom_fields = false): bool|array
 	{
-		return SMF\User::loadMemberContext($id, $display_custom_fields);
+		return SMF\Sources\User::loadMemberContext($id, $display_custom_fields);
 	}
 
 	function is_not_guest(string $message = ''): void
 	{
-		SMF\User::is_not_guest($message);
+		SMF\Sources\User::is_not_guest($message);
 	}
 
 	function is_not_banned(bool $force_check = false): void
 	{
-		SMF\User::is_not_banned($force_check);
+		SMF\Sources\User::is_not_banned($force_check);
 	}
 
 	function banPermissions(): void
 	{
-		SMF\User::banPermissions();
+		SMF\Sources\User::banPermissions();
 	}
 
 	function log_ban(array $ban_ids = [], ?string $email = null): void
 	{
-		SMF\User::log_ban($ban_ids, $email);
+		SMF\Sources\User::log_ban($ban_ids, $email);
 	}
 
 	function validateSession(string $type = 'admin', bool $force = false): ?string
 	{
-		return SMF\User::sessionValidate($type, $force);
+		return SMF\Sources\User::sessionValidate($type, $force);
 	}
 
 	function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
 	{
-		return SMF\User::sessionCheck($type, $from_action, $is_fatal);
+		return SMF\Sources\User::sessionCheck($type, $from_action, $is_fatal);
 	}
 
 	function allowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): bool
 	{
-		return SMF\User::hasPermission($permission, $boards, $any);
+		return SMF\Sources\User::hasPermission($permission, $boards, $any);
 	}
 
 	function isAllowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): bool
 	{
-		return SMF\User::mustHavePermission($permission, $boards, $any);
+		return SMF\Sources\User::mustHavePermission($permission, $boards, $any);
 	}
 
 	function boardsAllowedTo(string|array $permission, bool $check_access = true, bool $simple = true): array
 	{
-		return SMF\User::hasPermissionInBoards($permission, $check_access, $simple);
+		return SMF\Sources\User::hasPermissionInBoards($permission, $check_access, $simple);
 	}
 
 	/**
 	 * End
-	 * SMF\User
+	 * SMF\Sources\User
 	 *
 	 * Begin
-	 * SMF\Utils
+	 * SMF\Sources\Utils
 	 */
 	function sanitize_chars(string $string, int $level = 0, ?string $substitute = null): string
 	{
@@ -5772,14 +5766,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * End
-	 * SMF\Utils
+	 * SMF\Sources\Utils
 	 *
 	 * Begin
-	 * SMF\Verifier
+	 * SMF\Sources\Verifier
 	 */
 	function create_control_verification(array &$options, bool $do_test = false): bool|array
 	{
-		return SMF\Verifier::create($options, $do_test);
+		return SMF\Sources\Verifier::create($options, $do_test);
 	}
 
 	/*

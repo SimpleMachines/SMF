@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Represents a menu, such as the admin menu or profile menu.

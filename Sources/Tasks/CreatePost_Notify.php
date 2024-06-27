@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Actions\Notify;
-use SMF\Alert;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Mail;
-use SMF\Mentions;
-use SMF\TaskRunner;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Alert;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Mail;
+use SMF\Sources\Mentions;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class contains code used to notify people when a new post is created that
@@ -351,7 +351,7 @@ class CreatePost_Notify extends BackgroundTask
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
+						'SMF\\Sources\\Tasks\\CreatePost_Notify',
 						Utils::jsonEncode($new_details),
 						max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
 					],

@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Despite the name, which is what it is for historical reasons, this action

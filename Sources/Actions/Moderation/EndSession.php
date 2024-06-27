@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Utils;
 
 /**
  * Ends a moderator session, requiring authentication to access the moderation

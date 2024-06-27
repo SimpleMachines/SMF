@@ -10,12 +10,12 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\BrowserDetector;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Utils;
-use SMF\User;
+use SMF\Sources\BrowserDetector;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Utils;
+use SMF\Sources\User;
 
 /**
  * Minor stuff shown above the main profile - mostly used for error messages and showing that the profile update was successful.

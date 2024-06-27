@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Utils;
 
 /**
  * Removes old, unposted attachments from the attachment upload directory.

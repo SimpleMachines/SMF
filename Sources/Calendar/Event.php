@@ -13,22 +13,22 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\Actions\Calendar;
-use SMF\ArrayAccessHelper;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Time;
-use SMF\TimeInterval;
-use SMF\TimeZone;
-use SMF\User;
-use SMF\Utils;
-use SMF\Uuid;
+use SMF\Sources\Actions\Calendar;
+use SMF\Sources\ArrayAccessHelper;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\TimeInterval;
+use SMF\Sources\TimeZone;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Uuid;
 
 /**
  * Represents a (possibly recurring) calendar event.
@@ -95,14 +95,14 @@ class Event implements \ArrayAccess
 	public int $type = self::TYPE_EVENT;
 
 	/**
-	 * @var \SMF\Time
+	 * @var \SMF\Sources\Time
 	 *
 	 * A Time object representing the start of the event's first occurrence.
 	 */
 	public Time $start;
 
 	/**
-	 * @var SMF\TimeInterval
+	 * @var SMF\Sources\TimeInterval
 	 *
 	 * A TimeInterval object representing the duration of each occurrence of
 	 * the event.
@@ -1788,7 +1788,7 @@ class Event implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\EventNew_Notify',
+					'SMF\\Sources\\Tasks\\EventNew_Notify',
 					Utils::jsonEncode([
 						'event_title' => $event->title,
 						'event_id' => $event->id,

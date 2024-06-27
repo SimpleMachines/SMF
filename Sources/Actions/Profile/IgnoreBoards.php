@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Category;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Profile;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Category;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Profile;
+use SMF\Sources\Utils;
 
 /**
  * Handles the "ignored boards" section of the profile (if enabled)

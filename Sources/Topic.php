@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Moderation\ReportedContent;
-use SMF\Actions\Notify;
-use SMF\Cache\CacheApi;
-use SMF\Calendar\Event;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Search\SearchApi;
+use SMF\Sources\Actions\Moderation\ReportedContent;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Search\SearchApi;
 
 /**
  * Represents a topic.
@@ -283,7 +283,7 @@ class Topic implements \ArrayAccess
 	public static $topic_id;
 
 	/**
-	 * @var \SMF\Topic
+	 * @var \SMF\Sources\Topic
 	 *
 	 * Instance of this class for the requested topic.
 	 */

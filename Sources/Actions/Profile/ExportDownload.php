@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Utils;
 
 /**
  * Downloads exported profile data file.

@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Time;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
 
 /**
  * Represents a recurrence rule from RFC 5545.

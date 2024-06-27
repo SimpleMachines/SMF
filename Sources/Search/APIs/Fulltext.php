@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Search\APIs;
+namespace SMF\Sources\Search\APIs;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Search\SearchApi;
-use SMF\Search\SearchApiInterface;
-use SMF\SecurityToken;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\Search\SearchApiInterface;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Class Fulltext
@@ -36,7 +36,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	/**
 	 * @var array
 	 *
-	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
+	 * Sub-actions to add for SMF\Sources\Actions\Admin\Search::$subactions.
 	 */
 	public static array $admin_subactions = [
 		'build' => [
@@ -628,7 +628,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 ******************/
 
 	/**
-	 * SMF\Search\APIs\Fulltext::_getMinWordLength()
+	 * SMF\Sources\Search\APIs\Fulltext::_getMinWordLength()
 	 *
 	 * What is the minimum word length full text supports?
 	 *

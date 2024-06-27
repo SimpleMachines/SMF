@@ -13,26 +13,26 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\PackageManager\SubsPackage;
-use SMF\PackageManager\XmlArray;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\PackageManager\SubsPackage;
+use SMF\Sources\PackageManager\XmlArray;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * This class handles the administration of languages tasks.
@@ -166,7 +166,7 @@ class Languages implements ActionInterface
 	 * Uses a standard list to display information about all the files and where they'll be put.
 	 *
 	 * @uses template_download_language()
-	 * Uses a standard list for displaying languages (@see SMF\ItemList())
+	 * Uses a standard list for displaying languages (@see SMF\Sources\ItemList())
 	 */
 	public function download(): void
 	{

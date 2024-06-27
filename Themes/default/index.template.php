@@ -10,13 +10,13 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\IntegrationHook;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Utils;
-use SMF\User;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
+use SMF\Sources\User;
 
 /*	This template is, perhaps, the most important template in the theme. It
 	contains the main template layer that displays the header and footer of

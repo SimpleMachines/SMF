@@ -10,12 +10,12 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Url;
-use SMF\Utils;
-use SMF\Sapi;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Url;
+use SMF\Sources\Utils;
+use SMF\Sources\Sapi;
 
 /**
  * The main template

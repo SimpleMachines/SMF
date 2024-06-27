@@ -15,27 +15,27 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Mail;
-use SMF\Msg;
-use SMF\PageIndex;
-use SMF\Search\SearchApi;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Mail;
+use SMF\Sources\Msg;
+use SMF\Sources\PageIndex;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Handles merging of topics.
@@ -346,7 +346,7 @@ class TopicMerge implements ActionInterface
 	 *
 	 * - Shows topics to be merged and allows to set some merge options.
 	 * - Accessed via ?action=mergetopics;sa=options
-	 * - Can also be called internally by SMF\MessageIndex::QuickModeration().
+	 * - Can also be called internally by SMF\Sources\MessageIndex::QuickModeration().
 	 * - Uses 'merge_extra_options' sub template of the MoveTopic template.
 	 */
 	public function options(): void
@@ -968,7 +968,7 @@ class TopicMerge implements ActionInterface
 		Mail::sendNotifications($id_topic, 'merge');
 
 		// If there's a search index that needs updating, update it...
-		/** @var \SMF\Search\SearchApiInterface $searchAPI */
+		/** @var \SMF\Sources\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicMerge'])) {
@@ -1022,7 +1022,7 @@ class TopicMerge implements ActionInterface
 	/**
 	 * Initiates a merge of the specified topics.
 	 *
-	 * Called from SMF\MessageIndex::QuickModeration().
+	 * Called from SMF\Sources\MessageIndex::QuickModeration().
 	 *
 	 * @param array $topics The IDs of the topics to merge
 	 */

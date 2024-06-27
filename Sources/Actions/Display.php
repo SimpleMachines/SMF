@@ -13,30 +13,30 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Alert;
-use SMF\Attachment;
-use SMF\Board;
-use SMF\Cache\CacheApi;
-use SMF\Calendar\Event;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Editor;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Msg;
-use SMF\PageIndex;
-use SMF\Poll;
-use SMF\Security;
-use SMF\Theme;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
-use SMF\Verifier;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Alert;
+use SMF\Sources\Attachment;
+use SMF\Sources\Board;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Editor;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Msg;
+use SMF\Sources\PageIndex;
+use SMF\Sources\Poll;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Verifier;
 
 /**
  * This class loads the posts in a topic so they can be displayed.
@@ -158,7 +158,7 @@ class Display implements ActionInterface
 			return false;
 		}
 
-		/** @var \SMF\Msg $message */
+		/** @var \SMF\Sources\Msg $message */
 		$message = Msg::$getter->current();
 		Msg::$getter->next();
 

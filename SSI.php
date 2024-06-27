@@ -6,7 +6,7 @@
  * The standard SSI functions are declared in ./Sources/ServerSideIncludes.php.
  * All standard SSI functions can be called using either of the following forms:
  *
- *  - `SMF\ServerSideIncludes::funcname();`
+ *  - `SMF\Sources\ServerSideIncludes::funcname();`
  *  - `ssi_funcname();`
  *
  * Mods can add more SSI functions using the integrate_SSI hook.
@@ -38,7 +38,7 @@ if (!defined('SMF')) {
 // Initialize.
 require_once __DIR__ . '/index.php';
 
-$ssi = new SMF\ServerSideIncludes();
+$ssi = new SMF\Sources\ServerSideIncludes();
 $ssi->execute();
 
 ?>

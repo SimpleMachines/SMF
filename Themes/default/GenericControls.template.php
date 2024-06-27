@@ -10,12 +10,12 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Editor;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Utils;
-use SMF\Verifier;
+use SMF\Sources\Config;
+use SMF\Sources\Editor;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Utils;
+use SMF\Sources\Verifier;
 
 /**
  * This function displays all the stuff you get with a richedit box - BBC, smileys, etc.

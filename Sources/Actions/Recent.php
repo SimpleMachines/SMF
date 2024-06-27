@@ -13,24 +13,24 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Board;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Msg;
-use SMF\PageIndex;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Board;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Msg;
+use SMF\Sources\PageIndex;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Finds and retrieves information about recently posted messages.
@@ -496,7 +496,7 @@ class Recent implements ActionInterface
 
 		$counter = Utils::$context['start'] + 1;
 
-		/** @var \SMF\Msg $msg */
+		/** @var \SMF\Sources\Msg $msg */
 		foreach (Msg::get($this->messages, $query_customizations) as $msg) {
 			Utils::$context['posts'][$msg->id] = $msg->format($counter++, [
 				'do_permissions' => false,

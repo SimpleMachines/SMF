@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Db;
+namespace SMF\Sources\Db;
 
-use SMF\BackwardCompatibility;
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\Utils;
+use SMF\Sources\BackwardCompatibility;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Utils;
 
 /**
  * Class DatabaseApi

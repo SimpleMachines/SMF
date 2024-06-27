@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Db\DatabaseApi as Db;
 use Socket;
 
 /**
@@ -1028,7 +1028,7 @@ class Mail
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			$task_rows[] = [
-				'SMF\\Tasks\\CreatePost_Notify',
+				'SMF\\Sources\\Tasks\\CreatePost_Notify',
 				Utils::jsonEncode([
 					'msgOptions' => [
 						'id' => $row['id_msg'],
@@ -1107,7 +1107,7 @@ class Mail
 				'claimed_time' => 'int',
 			],
 			[
-				'SMF\\Tasks\\Register_Notify',
+				'SMF\\Sources\\Tasks\\Register_Notify',
 				Utils::jsonEncode([
 					'new_member_id' => $memberID,
 					'new_member_name' => $member_name,

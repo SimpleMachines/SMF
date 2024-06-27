@@ -13,29 +13,29 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Attachment;
-use SMF\BBCodeParser;
-use SMF\Board;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\PageIndex;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Attachment;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Board;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\PageIndex;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Handles things related to post moderation.

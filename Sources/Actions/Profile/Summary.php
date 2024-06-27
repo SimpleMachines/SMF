@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\Actions\Who;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IP;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Profile;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Who;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IP;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Profile;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Shows a summary of a member's profile.

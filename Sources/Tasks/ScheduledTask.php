@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Base class for scheduled tasks.

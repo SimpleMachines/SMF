@@ -13,23 +13,23 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\Actions\TrackIP;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IP;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Profile;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\TrackIP;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IP;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Profile;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.

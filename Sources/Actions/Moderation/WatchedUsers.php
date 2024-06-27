@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.
@@ -232,7 +232,7 @@ class WatchedUsers implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param string $approve_query Not used here
 	 * @return int The number of users on the watch list
@@ -255,7 +255,7 @@ class WatchedUsers implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page
@@ -365,7 +365,7 @@ class WatchedUsers implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param string $approve_query A query to pull only approved items
 	 * @return int The total number of posts by watched users
@@ -392,7 +392,7 @@ class WatchedUsers implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page

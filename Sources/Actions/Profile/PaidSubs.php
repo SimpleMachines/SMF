@@ -13,19 +13,19 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\Actions\Admin\Subscriptions;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Profile;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Admin\Subscriptions;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Profile;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
 
 /**
  * Class for doing all the paid subscription stuff - kinda.

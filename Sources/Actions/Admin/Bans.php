@@ -17,25 +17,25 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\IP;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\IP;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class contains all the methods used for the ban center.
@@ -580,7 +580,7 @@ class Bans implements ActionInterface
 	 * It is accessed by ?action=admin;area=ban;sa=browse
 	 * It uses sub-tabs for browsing by IP, hostname, email or username.
 	 *
-	 * Uses a standard list (@see SMF\ItemList())
+	 * Uses a standard list (@see SMF\Sources\ItemList())
 	 */
 	public function browseTriggers(): void
 	{

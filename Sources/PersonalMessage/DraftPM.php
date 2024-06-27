@@ -13,23 +13,24 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Draft;
-use SMF\Lang;
-use SMF\PageIndex;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Draft;
+use SMF\Sources\Lang;
+use SMF\Sources\PageIndex;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Represents a personal message draft.
  *
- * This class extends SMF\Draft for the special case of personal message drafts.
+ * This class extends SMF\Sources\Draft for the special case of personal message
+ * drafts.
  */
 class DraftPM extends Draft
 {

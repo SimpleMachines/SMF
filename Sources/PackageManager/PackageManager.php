@@ -11,26 +11,26 @@
  * @version 3.0 Alpha 2
  */
 
-namespace SMF\PackageManager;
+namespace SMF\Sources\PackageManager;
 
-use SMF\BBCodeParser;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\Sapi;
-use SMF\Security;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\Sapi;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * This is the main package manager.

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Contains functions that aid in debugging and are generally

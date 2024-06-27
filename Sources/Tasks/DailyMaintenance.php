@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Actions\Admin\SearchEngines;
-use SMF\Alert;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\ProxyServer;
+use SMF\Sources\Actions\Admin\SearchEngines;
+use SMF\Sources\Alert;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ProxyServer;
 
 /**
  * Does some daily cleaning up.

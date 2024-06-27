@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Db;
+namespace SMF\Sources\Db;
 
 /**
  * Interface DatabaseApiInterface

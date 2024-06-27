@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\TOTP;
+namespace SMF\Sources\TOTP;
 
 /**
  * Class Auth
@@ -98,7 +98,7 @@ class Auth
 	 * Set the "range" value
 	 *
 	 * @param int $range Range value
-	 * @return \SMF\TOTP\Auth instance
+	 * @return \SMF\Sources\TOTP\Auth instance
 	 */
 	public function setRange(int $range): self
 	{
@@ -115,7 +115,7 @@ class Auth
 	 *
 	 * @param string $key Initialization key
 	 * @throws \InvalidArgumentException If hash is not valid base32
-	 * @return \SMF\TOTP\Auth instance
+	 * @return \SMF\Sources\TOTP\Auth instance
 	 */
 	public function setInitKey(string $key): self
 	{
@@ -142,7 +142,7 @@ class Auth
 	 *
 	 * @param array $lookup Lookup data set
 	 * @throws \InvalidArgumentException If lookup given is not an array
-	 * @return \SMF\TOTP\Auth instance
+	 * @return \SMF\Sources\TOTP\Auth instance
 	 */
 	public function setLookup(array $lookup): self
 	{
@@ -179,7 +179,7 @@ class Auth
 	 *
 	 * @param int $seconds Seconds to refresh
 	 * @throws \InvalidArgumentException If seconds value is not numeric
-	 * @return \SMF\TOTP\Auth instance
+	 * @return \SMF\Sources\TOTP\Auth instance
 	 */
 	public function setRefresh(int $seconds): self
 	{
@@ -205,7 +205,7 @@ class Auth
 	 * Set the length of the generated codes
 	 *
 	 * @param int $length Code length
-	 * @return \SMF\TOTP\Auth instance
+	 * @return \SMF\Sources\TOTP\Auth instance
 	 */
 	public function setCodeLength(int $length): self
 	{

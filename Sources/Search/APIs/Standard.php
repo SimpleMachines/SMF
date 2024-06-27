@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\Search\APIs;
+namespace SMF\Sources\Search\APIs;
 
-use SMF\Search\SearchApi;
-use SMF\Search\SearchApiInterface;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\Search\SearchApiInterface;
 
 /**
  * Standard non full index, non custom index search

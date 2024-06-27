@@ -11,12 +11,12 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Calendar\Event;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Template for the event options fieldset that is used when creating an event.
@@ -595,7 +595,7 @@ function template_rrule()
 									<div id="rdate_list">';
 
 	foreach (Utils::$context['event']->recurrence_iterator->getRDates() as $key => $rdate) {
-		$rdate = new SMF\Time($rdate);
+		$rdate = new SMF\Sources\Time($rdate);
 		$rdate->setTimezone(Utils::$context['event']->start->getTimezone());
 
 		echo '
@@ -624,7 +624,7 @@ function template_rrule()
 									<div id="exdate_list">';
 
 	foreach (Utils::$context['event']->recurrence_iterator->getExDates() as $key => $exdate) {
-		$exdate = new SMF\Time($exdate);
+		$exdate = new SMF\Sources\Time($exdate);
 		$exdate->setTimezone(Utils::$context['event']->start->getTimezone());
 
 		echo '

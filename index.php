@@ -7,7 +7,7 @@
  *
  * If this file is included by another file, the initialization is all that will
  * happen. But if this file is executed directly (the typical scenario), then it
- * will also instantiate and execute an SMF\Forum object.
+ * will also instantiate and execute an SMF\Sources\Forum object.
  *
  *
  * Simple Machines Forum (SMF)
@@ -118,24 +118,24 @@ call_user_func(function () {
 		die('File not readable: (Sources)/Config.php');
 	}
 
-	// Pass all the settings to SMF\Config.
+	// Pass all the settings to SMF\Sources\Config.
 	require_once $sourcedir . '/Config.php';
-	SMF\Config::set(get_defined_vars());
+	SMF\Sources\Config::set(get_defined_vars());
 });
 
 // Devs want all error messages, but others don't.
 if (SMF === 1) {
-	error_reporting(!empty(SMF\Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+	error_reporting(!empty(SMF\Sources\Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 }
 
 /*
  * 3. Load some other essential includes.
  */
 
-require_once SMF\Config::$sourcedir . '/Autoloader.php';
+require_once SMF\Sources\Config::$sourcedir . '/Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions
-require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
+require_once SMF\Sources\Config::$sourcedir . '/Subs-Compat.php';
 
 
 /*********************************************************************
@@ -143,7 +143,7 @@ require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
  *********************************************************************/
 
 if (SMF === 1) {
-	(new SMF\Forum())->execute();
+	(new SMF\Sources\Forum())->execute();
 }
 
 ?>

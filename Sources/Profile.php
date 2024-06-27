@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Graphics\Image;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Graphics\Image;
 
 /**
  * Represents a member's profile as shown by ?action=profile.
  *
- * Note: The code for the profile action is located in the SMF\Actions\Profile\*
+ * Note: The code for the profile action is located in the SMF\Sources\Actions\Profile\*
  * classes. This class instead represents the data structure of a member profile
  * and provides methods for loading, manipulating, and saving that data.
  */

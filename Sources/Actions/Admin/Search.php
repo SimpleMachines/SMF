@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Search\SearchApi;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * The admin screen to change the search settings.
@@ -197,7 +197,7 @@ class Search implements ActionInterface
 
 		// Detect whether a fulltext index is set.
 		if (Utils::$context['supports_fulltext']) {
-			\SMF\Search\APIs\Fulltext::detectIndex();
+			\SMF\Sources\Search\APIs\Fulltext::detectIndex();
 		}
 
 		// Saving?

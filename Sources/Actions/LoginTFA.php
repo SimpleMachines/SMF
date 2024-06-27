@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\Config;
-use SMF\Cookie;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Sapi;
-use SMF\Security;
-use SMF\Theme;
-use SMF\TOTP\Auth as Tfa;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Cookie;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Sapi;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\TOTP\Auth as Tfa;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Handles Two-Factor Authentication credentials.

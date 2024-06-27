@@ -17,6 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\TOTP\\Auth', '\\TOTP\\Auth');
+class_alias('SMF\\Sources\\TOTP\\Auth', '\\TOTP\\Auth');
 
 ?>

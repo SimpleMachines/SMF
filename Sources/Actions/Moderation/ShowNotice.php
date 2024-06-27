@@ -13,17 +13,17 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Shows a notice sent to a user.

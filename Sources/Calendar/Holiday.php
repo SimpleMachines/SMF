@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Utils;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
 
 /**
  * Represents a holiday.

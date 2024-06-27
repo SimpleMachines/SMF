@@ -13,19 +13,19 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Logging;
-use SMF\Mail;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Logging;
+use SMF\Sources\Mail;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This action handles the deletion of topics.
@@ -147,7 +147,7 @@ class TopicRemove implements ActionInterface
 	/**
 	 * So long as you are sure... all old posts will be gone.
 	 *
-	 * Used by SMF\Actions\Admin\Maintenance to prune old topics.
+	 * Used by SMF\Sources\Actions\Admin\Maintenance to prune old topics.
 	 */
 	public static function old(): void
 	{

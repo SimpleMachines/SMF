@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * This class provides some methods to simplify working with time zones.

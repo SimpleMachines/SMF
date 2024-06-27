@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\Actions\Calendar;
-use SMF\ArrayAccessHelper;
-use SMF\Config;
-use SMF\Time;
-use SMF\TimeInterval;
-use SMF\TimeZone;
-use SMF\Utils;
+use SMF\Sources\Actions\Calendar;
+use SMF\Sources\ArrayAccessHelper;
+use SMF\Sources\Config;
+use SMF\Sources\Time;
+use SMF\Sources\TimeInterval;
+use SMF\Sources\TimeZone;
+use SMF\Sources\Utils;
 
 /**
  * Represents a single occurrence of a calendar event.
@@ -53,14 +53,14 @@ class EventOccurrence implements \ArrayAccess
 	public int $id_event;
 
 	/**
-	 * @var SMF\Time
+	 * @var SMF\Sources\Time
 	 *
 	 * A Time object representing the start of this occurrence of the event.
 	 */
 	public Time $start;
 
 	/**
-	 * @var SMF\Time
+	 * @var SMF\Sources\Time
 	 *
 	 * An EventAdjustment object representing changes made to this occurrence of
 	 * the event, if any.
@@ -93,7 +93,7 @@ class EventOccurrence implements \ArrayAccess
 	];
 
 	/**
-	 * @var SMF\Time
+	 * @var SMF\Sources\Time
 	 *
 	 * A Time object representing the unadjusted start of this occurrence.
 	 */

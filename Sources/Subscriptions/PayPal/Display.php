@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\Subscriptions\PayPal;
+namespace SMF\Sources\Subscriptions\PayPal;
 
-use SMF\Config;
-use SMF\Lang;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
 
 /**
  * Class for returning available form data for this gateway

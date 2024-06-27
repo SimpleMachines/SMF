@@ -10,9 +10,9 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Utils;
 
 /**
  * Template for listing all scheduled tasks.

@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Sapi;
-use SMF\Unicode\SpoofDetector;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Sapi;
+use SMF\Sources\Unicode\SpoofDetector;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Updates the values of the spoofdetector_name column in the members table.

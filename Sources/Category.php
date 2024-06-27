@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * This class loads information about categories. It also handles low-level
@@ -648,7 +648,7 @@ class Category implements \ArrayAccess
 	/**
 	 * Load a lot of useful information regarding the boards and categories.
 	 * The information retrieved is stored in static properties:
-	 *  Board::$loaded        Instances of SMF\Board for each board.
+	 *  Board::$loaded        Instances of SMF\Sources\Board for each board.
 	 *  Category::$boardList  A list of board IDs grouped by category ID.
 	 *  Category::$loaded	  Complete hierarchy of all categories and boards.
 	 */
@@ -766,9 +766,9 @@ class Category implements \ArrayAccess
 	 * Used by self::getTree().
 	 *
 	 * @param array &$list The board list
-	 * @param \SMF\Category|\SMF\Board &$tree The board tree
+	 * @param \SMF\Sources\Category|\SMF\Sources\Board &$tree The board tree
 	 */
-	public static function recursiveBoards(array &$list, \SMF\Category|\SMF\Board &$tree): void
+	public static function recursiveBoards(array &$list, \SMF\Sources\Category|\SMF\Sources\Board &$tree): void
 	{
 		if (empty($tree->children)) {
 			return;

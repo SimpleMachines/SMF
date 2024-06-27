@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\WebFetch;
+namespace SMF\Sources\WebFetch;
 
 /**
  *

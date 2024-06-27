@@ -13,24 +13,24 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class is concerned with anything in the Manage Membergroups admin screen.
@@ -71,7 +71,7 @@ class Membergroups implements ActionInterface
 		'settings' => ['settings', 'admin_forum'],
 
 		// This subaction is handled by the Groups action.
-		'members' => ['SMF\\Actions\\Groups::call', 'manage_membergroups'],
+		'members' => ['SMF\\Sources\\Actions\\Groups::call', 'manage_membergroups'],
 	];
 
 	/****************
@@ -112,7 +112,7 @@ class Membergroups implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort2']) ? ';sort2=' . urlencode($_REQUEST['sort2']) : ''),
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
+				'function' => '\\SMF\\Sources\\Actions\\Groups::list_getMembergroups',
 				'params' => [
 					'regular',
 				],
@@ -218,7 +218,7 @@ class Membergroups implements ActionInterface
 				'desc' => 'desc2',
 			],
 			'get_items' => [
-				'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
+				'function' => '\\SMF\\Sources\\Actions\\Groups::list_getMembergroups',
 				'params' => [
 					'post_count',
 				],
@@ -635,7 +635,7 @@ class Membergroups implements ActionInterface
 
 		$groups = Group::load((int) $_REQUEST['group']);
 
-		/** @var \SMF\Group $group */
+		/** @var \SMF\Sources\Group $group */
 		$group = array_shift($groups);
 
 		if (!isset($group) || !($group instanceof Group)) {

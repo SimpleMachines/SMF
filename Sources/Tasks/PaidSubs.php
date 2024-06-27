@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Actions\Admin\Subscriptions;
-use SMF\Actions\Notify;
-use SMF\Alert;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\Mail;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Utils;
+use SMF\Sources\Actions\Admin\Subscriptions;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Alert;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\Mail;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
 
 /**
  * Performs the standard checks on expiring/near expiring subscriptions.

@@ -13,25 +13,25 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\Who;
-use SMF\ActionTrait;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\IP;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\Actions\Who;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\IP;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Manages the settings related to search engines.
@@ -403,7 +403,7 @@ class SearchEngines implements ActionInterface
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
 				} else {
-					// @TODO: Indirect modification of overloaded element of SMF\ItemList has no effect in
+					// @TODO: Indirect modification of overloaded element of SMF\Sources\ItemList has no effect in
 					@Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 				}
 			}
@@ -619,7 +619,7 @@ class SearchEngines implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		// Make sure it's valid - note that regular members are given id_group = 1 which is reversed in SMF\User - no admins here!
+		// Make sure it's valid - note that regular members are given id_group = 1 which is reversed in SMF\Sources\User - no admins here!
 		if (isset($_POST['spider_group']) && !isset($config_vars['spider_group'][2][$_POST['spider_group']])) {
 			$_POST['spider_group'] = 0;
 		}
@@ -878,7 +878,7 @@ class SearchEngines implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList()
+	 * Callback function for SMF\Sources\ItemList()
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page
@@ -911,7 +911,7 @@ class SearchEngines implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList()
+	 * Callback function for SMF\Sources\ItemList()
 	 *
 	 * @return int The number of known spiders
 	 */
@@ -931,7 +931,7 @@ class SearchEngines implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList()
+	 * Callback function for SMF\Sources\ItemList()
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page How many items to show per page
@@ -965,7 +965,7 @@ class SearchEngines implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList()
+	 * Callback function for SMF\Sources\ItemList()
 	 *
 	 * @return int The number of spider log entries
 	 */
@@ -985,7 +985,7 @@ class SearchEngines implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList()
+	 * Callback function for SMF\Sources\ItemList()
 	 * Get a list of spider stats from the log_spider table
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
@@ -1020,7 +1020,7 @@ class SearchEngines implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList()
+	 * Callback function for SMF\Sources\ItemList()
 	 * Get the number of spider stat rows from the log spider stats table
 	 *
 	 * @return int The number of rows in the log_spider_stats table

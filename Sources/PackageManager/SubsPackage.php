@@ -11,19 +11,19 @@
  * @version 3.0 Alpha 2
  */
 
-namespace SMF\PackageManager;
+namespace SMF\Sources\PackageManager;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Sapi;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Url;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Sapi;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Url;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * Various utility functions for working with packages.
@@ -39,7 +39,7 @@ class SubsPackage
 	/**
 	 * @var mixed
 	 *
-	 * An instance of SMF\PackageManger\FtpConnection.
+	 * An instance of SMF\Sources\PackageManger\FtpConnection.
 	 */
 	public static $package_ftp;
 

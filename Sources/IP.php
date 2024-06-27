@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
+use SMF\Sources\Cache\CacheApi;
 
 /**
  * Represents an IP address and allows performing various operations on it.

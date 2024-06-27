@@ -13,19 +13,19 @@
 
 declare(strict_types=1);
 
-namespace SMF\Search;
+namespace SMF\Sources\Search;
 
-use SMF\Actions\Search;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\PackageManager\SubsPackage;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Actions\Search;
+use SMF\Sources\BackwardCompatibility;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\PackageManager\SubsPackage;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Class SearchApi
@@ -812,7 +812,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * Creates a search API and returns the object.
 	 *
-	 * @return \SMF\Search\SearchApiInterface An instance of the search API interface.
+	 * @return \SMF\Sources\Search\SearchApiInterface An instance of the search API interface.
 	 */
 	final public static function load(): object
 	{

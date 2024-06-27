@@ -11,10 +11,10 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Time;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
 
 // The main sub template - show the agreement and/or privacy policy
 function template_main()

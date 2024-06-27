@@ -17,11 +17,11 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\Graphics\\Gif\\ColorTable', '\\gif_color_table');
-class_alias('SMF\\Graphics\\Gif\\File', '\\gif_file');
-class_alias('SMF\\Graphics\\Gif\\FileHeader', '\\gif_file_header');
-class_alias('SMF\\Graphics\\Gif\\Image', '\\gif_image');
-class_alias('SMF\\Graphics\\Gif\\ImageHeader', '\\gif_image_header');
-class_alias('SMF\\Graphics\\Gif\\LzwCompression', '\\gif_lzw_compression');
+class_alias('SMF\\Sources\\Graphics\\Gif\\ColorTable', '\\gif_color_table');
+class_alias('SMF\\Sources\\Graphics\\Gif\\File', '\\gif_file');
+class_alias('SMF\\Sources\\Graphics\\Gif\\FileHeader', '\\gif_file_header');
+class_alias('SMF\\Sources\\Graphics\\Gif\\Image', '\\gif_image');
+class_alias('SMF\\Sources\\Graphics\\Gif\\ImageHeader', '\\gif_image_header');
+class_alias('SMF\\Sources\\Graphics\\Gif\\LzwCompression', '\\gif_lzw_compression');
 
 ?>

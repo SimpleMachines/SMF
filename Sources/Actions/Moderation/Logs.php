@@ -13,22 +13,22 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\IP;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\SecurityToken;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\IP;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * The moderation and administration logs are this class's only job.
@@ -262,7 +262,7 @@ class Logs implements ActionInterface
 
 	/**
 	 * Get the number of mod log entries.
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param string $query_string An extra string for the WHERE clause in the query to further filter results
 	 * @param array $query_params An array of parameters for the query_string
@@ -300,7 +300,7 @@ class Logs implements ActionInterface
 
 	/**
 	 * Gets the moderation log entries that match the specified parameters.
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page

@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Shows the login form.

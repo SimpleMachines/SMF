@@ -11,18 +11,18 @@
  * @version 3.0 Alpha 2
  */
 
-namespace SMF\Unicode;
+namespace SMF\Sources\Unicode;
 
-use SMF\BackwardCompatibility;
-use SMF\Config;
-use SMF\Lang;
-use SMF\User;
+use SMF\Sources\BackwardCompatibility;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\User;
 
 /**
  * A class for manipulating UTF-8 strings.
  *
  * This class is intended to be called from the string manipulation methods in
- * SMF\Utils. It is generally better (and easier) to use those methods rather
+ * SMF\Sources\Utils. It is generally better (and easier) to use those methods rather
  * than creating instances of this class directly.
  */
 class Utf8String implements \Stringable
@@ -665,16 +665,16 @@ class Utf8String implements \Stringable
 		$original_string = $this->string;
 
 		// Replace any illegal entities with spaces.
-		$this->string = \SMF\Utils::sanitizeEntities($this->string, ' ');
+		$this->string = \SMF\Sources\Utils::sanitizeEntities($this->string, ' ');
 
 		// Decode all the entities.
-		$this->string = \SMF\Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+		$this->string = \SMF\Sources\Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
 
 		// Replace unwanted invisible characters with spaces.
 		$this->sanitizeInvisibles($level, ' ');
 
 		// Normalize the whitespace.
-		$this->string = \SMF\Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
+		$this->string = \SMF\Sources\Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
 		// Preserve emoji characters, variation selectors, and join controls.
 		$placeholders = [];

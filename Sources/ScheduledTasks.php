@@ -17,8 +17,8 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Mail');
-class_exists('SMF\\TaskRunner');
-class_exists('SMF\\Theme');
+class_exists('SMF\\Sources\\Mail');
+class_exists('SMF\\Sources\\TaskRunner');
+class_exists('SMF\\Sources\\Theme');
 
 ?>

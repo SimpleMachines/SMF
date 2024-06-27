@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Cache;
+namespace SMF\Sources\Cache;
 
-use SMF\BackwardCompatibility;
-use SMF\Config;
-use SMF\IntegrationHook;
-use SMF\Utils;
+use SMF\Sources\BackwardCompatibility;
+use SMF\Sources\Config;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Utils;
 
 abstract class CacheApi
 {
@@ -388,7 +388,7 @@ abstract class CacheApi
 			}
 
 			// Connect up to the accelerator.
-			/** @var \SMF\Cache\CacheApiInterface $cache_api */
+			/** @var \SMF\Sources\Cache\CacheApiInterface $cache_api */
 			if ($cache_api && $cache_api->connect() === false) {
 				$cache_api = false;
 			}
@@ -484,7 +484,7 @@ abstract class CacheApi
 	 */
 	final public static function quickGet(string $key, string $file, string|array $function, array $params, int $level = 1): mixed
 	{
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists('SMF\\Sources\\IntegrationHook', false)) {
 			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
 		}
 
@@ -512,7 +512,7 @@ abstract class CacheApi
 			eval($cache_block['post_retri_eval']);
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists('SMF\\Sources\\IntegrationHook', false)) {
 			IntegrationHook::call('post_cache_quick_get', [&$cache_block]);
 		}
 
@@ -551,7 +551,7 @@ abstract class CacheApi
 		$value = $value === null ? null : Utils::jsonEncode($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists('SMF\\Sources\\IntegrationHook', false)) {
 			IntegrationHook::call('cache_put_data', [&$key, &$value, &$ttl]);
 		}
 
@@ -596,7 +596,7 @@ abstract class CacheApi
 			}
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false) && isset($value)) {
+		if (class_exists('SMF\\Sources\\IntegrationHook', false) && isset($value)) {
 			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
 		}
 

@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
-use SMF\Tasks\UpdateTldRegex;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Tasks\UpdateTldRegex;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * Represents a URL string and allows performing various operations on the URL.

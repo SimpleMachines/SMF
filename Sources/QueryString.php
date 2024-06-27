@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Handles the query string, request variables, and session management.

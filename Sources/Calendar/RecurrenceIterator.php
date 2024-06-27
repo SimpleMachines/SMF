@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\TimeInterval;
+use SMF\Sources\TimeInterval;
 
 /**
  * Iterator to calculate all occurrences of a recurring event.

@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Actions\Notify;
-use SMF\Alert;
-use SMF\User;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Alert;
+use SMF\Sources\User;
 
 /**
  * This class contains code used to notify members when they have been added to

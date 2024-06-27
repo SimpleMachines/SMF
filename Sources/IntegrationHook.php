@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Handles adding, removing, and calling hooked integration functions.
@@ -71,7 +71,7 @@ class IntegrationHook
 	 */
 	public function __construct(string $name, ?bool $ignore_errors = null)
 	{
-		if (!class_exists('SMF\\Config', false) || !class_exists('SMF\\Utils', false)) {
+		if (!class_exists('SMF\\Sources\\Config', false) || !class_exists('SMF\\Sources\\Utils', false)) {
 			return;
 		}
 
@@ -135,7 +135,7 @@ class IntegrationHook
 						'$sourcedir' => Config::$sourcedir,
 					]);
 
-					if (str_contains($path, '$themedir') && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+					if (str_contains($path, '$themedir') && class_exists('SMF\\Sources\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
 						$path = strtr($path, [
 							'$themedir' => Theme::$current->settings['theme_dir'],
 						]);

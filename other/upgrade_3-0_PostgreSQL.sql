@@ -205,12 +205,12 @@ $exists = Db::$db->num_rows($request) > 0;
 Db::$db->free_result($request);
 
 if ($exists) {
-	if (!isset(\SMF\User::$me)) {
-		\SMF\User::load();
+	if (!isset(\SMF\Sources\User::$me)) {
+		\SMF\Sources\User::load();
 	}
 
-	if (empty(\SMF\User::$me->id) && !empty($upcontext['user']['id'])) {
-		\SMF\User::setMe($upcontext['user']['id']);
+	if (empty(\SMF\Sources\User::$me->id) && !empty($upcontext['user']['id'])) {
+		\SMF\Sources\User::setMe($upcontext['user']['id']);
 	}
 
 	$known_holidays = [
@@ -799,30 +799,30 @@ if ($exists) {
 			$holiday['type'] = 1;
 			$holiday['title'] = $holiday['title'] ?? $row['title'];
 			$holiday['allday'] = !isset($holiday['start_time']) || !isset($holiday['timezone']) || !in_array($holiday['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
-			$holiday['start'] = new \SMF\Time($holiday['start_date'] . (!$holiday['allday'] ? ' ' . $holiday['start_time'] . ' ' . $holiday['timezone'] : ''));
+			$holiday['start'] = new \SMF\Sources\Time($holiday['start_date'] . (!$holiday['allday'] ? ' ' . $holiday['start_time'] . ' ' . $holiday['timezone'] : ''));
 			$holiday['duration'] = new \DateInterval($holiday['duration'] ?? 'P1D');
-			$holiday['recurrence_end'] = new \SMF\Time($holiday['recurrence_end']);
+			$holiday['recurrence_end'] = new \SMF\Sources\Time($holiday['recurrence_end']);
 			unset($holiday['start_date'], $holiday['start_time'], $holiday['timezone']);
 
-			$event = new \SMF\Calendar\Event(0, $known_holidays[$row['title']]);
+			$event = new \SMF\Sources\Calendar\Event(0, $known_holidays[$row['title']]);
 		} else {
 			$row['type'] = 1;
 			$row['allday'] = true;
-			$row['recurrence_end'] = new \SMF\Time('9999-12-31');
+			$row['recurrence_end'] = new \SMF\Sources\Time('9999-12-31');
 			$row['duration'] = new \DateInterval('P1D');
 			$row['rdates'] = explode(',', $row['rdates']);
 
 			$row['start'] = array_shift($row['rdates']);
 
 			if (preg_match('/^100\d-/', $row['start'])) {
-				$row['start'] = new \SMF\Time(preg_replace('/^100\d-/', '2000-', $row['start']));
+				$row['start'] = new \SMF\Sources\Time(preg_replace('/^100\d-/', '2000-', $row['start']));
 				$row['rrule'] = 'FREQ=YEARLY';
 			} else {
-				$row['start'] = new \SMF\Time($row['start']);
+				$row['start'] = new \SMF\Sources\Time($row['start']);
 				$row['rrule'] = 'FREQ=DAILY;COUNT=1';
 			}
 
-			$event = new \SMF\Calendar\Event(0, $row);
+			$event = new \SMF\Sources\Calendar\Event(0, $row);
 		}
 
 		$event->save();

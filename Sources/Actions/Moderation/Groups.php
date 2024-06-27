@@ -16,6 +16,6 @@ if (!defined('SMF')) {
 }
 
 // Just an alias to help people looking for the action in the wrong namespace.
-class_alias('SMF\\Actions\\Groups', 'SMF\\Actions\\Moderation\\Groups');
+class_alias('SMF\\Sources\\Actions\\Groups', 'SMF\\Sources\\Actions\\Moderation\\Groups');
 
 ?>

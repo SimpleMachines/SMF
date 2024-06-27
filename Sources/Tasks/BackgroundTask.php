@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\User;
+use SMF\Sources\User;
 
 /**
  * Base class for all background tasks.

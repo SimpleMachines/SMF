@@ -11,18 +11,18 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\QueryString;
-use SMF\Sapi;
-use SMF\Security;
-use SMF\SecurityToken;
-use SMF\TaskRunner;
-use SMF\User;
-use SMF\Utils;
-use SMF\Uuid;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\QueryString;
+use SMF\Sources\Sapi;
+use SMF\Sources\Security;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Uuid;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 // Version information...
 define('SMF_VERSION', '3.0 Alpha 2');
@@ -183,7 +183,7 @@ foreach ([
 	require_once $required_file;
 }
 
-// Fire up the autoloader, SMF\Config, and SMF\Utils.
+// Fire up the autoloader, SMF\Sources\Config, and SMF\Sources\Utils.
 require_once $sourcedir . '/Autoloader.php';
 Config::load();
 Utils::load();
@@ -707,7 +707,7 @@ function load_lang_file()
 		}
 	}
 
-	// Ensure SMF\Lang knows the path to the language directory.
+	// Ensure SMF\Sources\Lang knows the path to the language directory.
 	Lang::addDirs($lang_dir);
 
 	// And now load the language files.
@@ -786,7 +786,7 @@ function loadEssentialData()
 
 	require_once Config::$sourcedir . '/Autoloader.php';
 
-	if (class_exists('SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
+	if (class_exists('SMF\\Sources\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
 		// Make the connection...
 		if (empty(Db::$db_connection)) {
 			Db::load(['non_fatal' => true]);
@@ -844,7 +844,7 @@ function loadEssentialData()
 	}
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
-	if (class_exists('SMF\\QueryString') && php_version_check()) {
+	if (class_exists('SMF\\Sources\\QueryString') && php_version_check()) {
 		QueryString::cleanRequest();
 	}
 
@@ -2126,7 +2126,7 @@ function addBackgroundTasks()
 			'claimed_time' => 'int',
 		],
 		[
-			'SMF\\Tasks\\UpdateSpoofDetectorNames',
+			'SMF\\Sources\\Tasks\\UpdateSpoofDetectorNames',
 			json_encode(['last_member_id' => 0]),
 			0,
 		],
@@ -2487,7 +2487,7 @@ function parse_sql($filename)
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; use SMF\Security; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false) {
+				if (eval('use SMF\Sources\Config; use SMF\Sources\Utils; use SMF\Sources\Lang; use SMF\Sources\Db\DatabaseApi as Db; use SMF\Sources\Security; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false) {
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 
 					if ($command_line) {

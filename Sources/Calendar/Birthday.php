@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\Db\DatabaseApi as Db;
-use SMF\Time;
-use SMF\User;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Time;
+use SMF\Sources\User;
 
 /**
  * Represents a member's birthday.

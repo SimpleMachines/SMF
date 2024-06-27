@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Actions\Notify;
-use SMF\Alert;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Mail;
-use SMF\Theme;
-use SMF\Utils;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Alert;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Mail;
+use SMF\Sources\Theme;
+use SMF\Sources\Utils;
 
 /**
  * This class contains code used to notify a member when a moderator replied to

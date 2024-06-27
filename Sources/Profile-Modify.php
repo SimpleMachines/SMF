@@ -17,16 +17,16 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('\\SMF\\Alert');
-class_exists('\\SMF\\Profile');
-class_exists('\\SMF\\Actions\\Profile\\Account');
-class_exists('\\SMF\\Actions\\Profile\\BuddyIgnoreLists');
-class_exists('\\SMF\\Actions\\Profile\\ForumProfile');
-class_exists('\\SMF\\Actions\\Profile\\GroupMembership');
-class_exists('\\SMF\\Actions\\Profile\\IgnoreBoards');
-class_exists('\\SMF\\Actions\\Profile\\Notification');
-class_exists('\\SMF\\Actions\\Profile\\TFADisable');
-class_exists('\\SMF\\Actions\\Profile\\TFASetup');
-class_exists('\\SMF\\Actions\\Profile\\ThemeOptions');
+class_exists('\\SMF\\Sources\\Alert');
+class_exists('\\SMF\\Sources\\Profile');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\Account');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\BuddyIgnoreLists');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\ForumProfile');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\GroupMembership');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\IgnoreBoards');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\Notification');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\TFADisable');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\TFASetup');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\ThemeOptions');
 
 ?>

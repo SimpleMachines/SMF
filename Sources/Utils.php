@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Holds some widely used stuff, like $context and $smcFunc.
@@ -2124,7 +2124,7 @@ class Utils
 			}
 
 			// Start up the session URL fixer.
-			ob_start('SMF\\QueryString::ob_sessrewrite');
+			ob_start('SMF\\Sources\\QueryString::ob_sessrewrite');
 
 			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);
@@ -2325,7 +2325,7 @@ class Utils
 	 * You can use the following wildcards in the path:
 	 *  - $boarddir
 	 *  - $sourcedir
-	 *  - $themedir (only works if SMF\Theme has already been initialized)
+	 *  - $themedir (only works if SMF\Sources\Theme has already been initialized)
 	 *
 	 * @param string $string The string containing a valid format.
 	 * @return string|false The given string with the pipe and file info removed

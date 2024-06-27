@@ -13,23 +13,23 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Profile;
-use SMF\Sapi;
-use SMF\Security;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Profile;
+use SMF\Sources\Sapi;
+use SMF\Sources\Security;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class has the primary job of showing and editing people's profiles.
@@ -181,7 +181,7 @@ class Main implements ActionInterface
 				],
 				'showdrafts' => [
 					'label' => 'drafts_show',
-					'function' => 'SMF\\Draft::showInProfile',
+					'function' => 'SMF\\Sources\\Draft::showInProfile',
 					'icon' => 'drafts',
 					'enabled' => true,
 					'permission' => [
@@ -847,7 +847,7 @@ class Main implements ActionInterface
 	 * The menu is always available as Menu::$loaded['profile'], but for
 	 * convenience, this method also returns it.
 	 *
-	 * @return \SMF\Menu The profile menu object.
+	 * @return \SMF\Sources\Menu The profile menu object.
 	 */
 	protected function createMenu(): Menu
 	{

@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\Theme;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Theme;
 
 /**
  * Does some weekly maintenance.
@@ -243,7 +243,7 @@ class WeeklyMaintenance extends ScheduledTask
 				'claimed_time' => 'int',
 			],
 			[
-				'SMF\\Tasks\\UpdateTldRegex',
+				'SMF\\Sources\\Tasks\\UpdateTldRegex',
 				'',
 				0,
 			],
@@ -259,7 +259,7 @@ class WeeklyMaintenance extends ScheduledTask
 				'task_data' => 'string',
 				'claimed_time' => 'int'],
 			[
-				'SMF\\Tasks\\UpdateUnicode',
+				'SMF\\Sources\\Tasks\\UpdateUnicode',
 				'',
 				0,
 			],

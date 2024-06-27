@@ -10,12 +10,12 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Actions\Admin\Permissions;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Utils;
-use SMF\User;
+use SMF\Sources\Actions\Admin\Permissions;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Utils;
+use SMF\Sources\User;
 
 /**
  * This is the administration center home.

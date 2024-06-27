@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\ArrayAccessHelper;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ArrayAccessHelper;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class represents the received copy of a personal message in a member's

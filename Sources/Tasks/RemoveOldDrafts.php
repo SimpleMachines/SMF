@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Draft;
-use SMF\Theme;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Draft;
+use SMF\Sources\Theme;
 
 /**
  * Check for old drafts and remove them.

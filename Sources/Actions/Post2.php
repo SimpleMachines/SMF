@@ -13,32 +13,32 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\Attachment;
-use SMF\Autolinker;
-use SMF\BBCodeParser;
-use SMF\Board;
-use SMF\BrowserDetector;
-use SMF\Cache\CacheApi;
-use SMF\Calendar\Event;
-use SMF\Calendar\EventOccurrence;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Draft;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Msg;
-use SMF\Poll;
-use SMF\Search\SearchApi;
-use SMF\Security;
-use SMF\Theme;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
-use SMF\Verifier;
+use SMF\Sources\Attachment;
+use SMF\Sources\Autolinker;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Board;
+use SMF\Sources\BrowserDetector;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Calendar\EventOccurrence;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Draft;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Msg;
+use SMF\Sources\Poll;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Verifier;
 
 /**
  * This class handles posting and modifying replies and new topics.
@@ -85,9 +85,9 @@ class Post2 extends Post
 	 *********************/
 
 	/**
-	 * @var \SMF\Msg
+	 * @var \SMF\Sources\Msg
 	 *
-	 * An instance of SMF\Msg for the existing post.
+	 * An instance of SMF\Sources\Msg for the existing post.
 	 * Only used when editing a post.
 	 */
 	protected Msg $existing_msg;

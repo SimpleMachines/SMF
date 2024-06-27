@@ -13,30 +13,30 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\Actions\Notify;
-use SMF\Actions\PersonalMessage as PMAction;
-use SMF\ArrayAccessHelper;
-use SMF\Autolinker;
-use SMF\BBCodeParser;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Editor;
-use SMF\ErrorHandler;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Mail;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\Security;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
-use SMF\Verifier;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Actions\PersonalMessage as PMAction;
+use SMF\Sources\ArrayAccessHelper;
+use SMF\Sources\Autolinker;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Editor;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Mail;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Verifier;
 
 /**
  * Represents a single personal message.
@@ -480,7 +480,7 @@ class PM implements \ArrayAccess
 		// then return them all at once.
 		self::$keep_all = true;
 
-		/** @var \SMF\PersonalMessage\PM $pm */
+		/** @var \SMF\Sources\PersonalMessage\PM $pm */
 		foreach (self::get($ids, $query_customizations) as $pm) {
 			$loaded[$pm->id] = $pm;
 		}

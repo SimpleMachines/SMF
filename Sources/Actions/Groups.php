@@ -11,26 +11,26 @@
  * @version 3.0 Alpha 2
  */
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\Actions\Moderation\Main as ModCenter;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\PageIndex;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Moderation\Main as ModCenter;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\PageIndex;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Shows group info and allows certain privileged members to add/remove members.
@@ -237,7 +237,7 @@ class Groups implements ActionInterface
 	 * It allows sorting on several columns.
 	 * It redirects to itself.
 	 *
-	 * @todo use SMF\ItemList
+	 * @todo use SMF\Sources\ItemList
 	 */
 	public function members(): void
 	{
@@ -251,7 +251,7 @@ class Groups implements ActionInterface
 		// Load up the group details.
 		$groups = Group::load($_REQUEST['group']);
 
-		/** @var \SMF\Group $group */
+		/** @var \SMF\Sources\Group $group */
 		if ($groups == [] || !($group = $groups[$_REQUEST['group']]) || empty($group->id)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
@@ -359,7 +359,7 @@ class Groups implements ActionInterface
 			if (!empty($members)) {
 				$groups = Group::load((int) $_REQUEST['group']);
 
-			/** @var \SMF\Group $group */
+			/** @var \SMF\Sources\Group $group */
 			if ($groups != [] && ($group = $groups[(int) $_REQUEST['group']]) && $group instanceof Group) {
 					$group->addMembers($members, isset($_POST['additional']) ? 'only_additional' : 'auto', true);
 				}
@@ -512,7 +512,7 @@ class Groups implements ActionInterface
 
 						$result = false;
 
-						/** @var \SMF\Group $group */
+						/** @var \SMF\Sources\Group $group */
 						if ($groups != [] && ($group = $groups[$group_id]) && $group instanceof Group) {
 							$result = $group->addMembers($members);
 						}
@@ -542,7 +542,7 @@ class Groups implements ActionInterface
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\GroupAct_Notify',
+						'SMF\\Sources\\Tasks\\GroupAct_Notify',
 						$data,
 						0,
 					],
@@ -812,7 +812,7 @@ class Groups implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @param string $where The WHERE clause for the query
 	 * @param array $where_parameters The parameters for the WHERE clause
@@ -835,7 +835,7 @@ class Groups implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The result to start with.
 	 * @param int $items_per_page The number of items per page.

@@ -13,28 +13,28 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Attachment;
-use SMF\Autolinker;
-use SMF\BBCodeParser;
-use SMF\Board;
-use SMF\BrowserDetector;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\IP;
-use SMF\Lang;
-use SMF\Sapi;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Url;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Attachment;
+use SMF\Sources\Autolinker;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Board;
+use SMF\Sources\BrowserDetector;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\IP;
+use SMF\Sources\Lang;
+use SMF\Sources\Sapi;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Url;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class contains the code necessary to display XML feeds.
@@ -574,7 +574,7 @@ class Feed implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Sources\\Utils::cleanXml']);
 
 			// Create a GUID for each member using the tag URI scheme
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
@@ -765,7 +765,7 @@ class Feed implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Sources\\Utils::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
@@ -1205,7 +1205,7 @@ class Feed implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Sources\\Utils::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
@@ -1608,7 +1608,7 @@ class Feed implements ActionInterface
 		$profile = User::$loaded[$this->member]->format($this->format == 'smf');
 
 		// If any control characters slipped in somehow, kill the evil things
-		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Sources\\Utils::cleanXml']);
 
 		// Create a GUID for this member using the tag URI scheme
 		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
@@ -1973,7 +1973,7 @@ class Feed implements ActionInterface
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Sources\\Utils::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
@@ -2424,7 +2424,7 @@ class Feed implements ActionInterface
 			$this->start_after = $row['id_pm'];
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Sources\\Utils::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.

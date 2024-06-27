@@ -13,20 +13,20 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Security;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Security;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class contains functions to export a member's profile data to a
@@ -152,7 +152,7 @@ class Export implements ActionInterface
 					WHERE task_class = {string:class}
 						AND task_data LIKE {string:details}',
 					[
-						'class' => 'SMF\\Tasks\\ExportProfileData',
+						'class' => 'SMF\\Sources\\Tasks\\ExportProfileData',
 						'details' => substr(Utils::jsonEncode(['format' => $format, 'uid' => Utils::$context['id_member']]), 0, -1) . ',%',
 					],
 				);
@@ -315,7 +315,7 @@ class Export implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\ExportProfileData',
+					'SMF\\Sources\\Tasks\\ExportProfileData',
 					$data,
 					0,
 				],

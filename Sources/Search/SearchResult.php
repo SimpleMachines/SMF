@@ -13,23 +13,23 @@
 
 declare(strict_types=1);
 
-namespace SMF\Search;
+namespace SMF\Sources\Search;
 
-use SMF\Autolinker;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IP;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Autolinker;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IP;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  *
  */
-class SearchResult extends \SMF\Msg
+class SearchResult extends \SMF\Sources\Msg
 {
 	/*******************
 	 * Public properties

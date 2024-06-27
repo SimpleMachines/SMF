@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Unicode;
+namespace SMF\Sources\Unicode;
 
 if (!defined('SMF')) {
 	die('No direct access...');
 }
 
 /**
- * Helper function for SMF\Unicode\SpoofDetector::getSkeletonString.
+ * Helper function for SMF\Sources\Unicode\SpoofDetector::getSkeletonString.
  *
  * Returns an array of "confusables" maps that can be used for confusable string
  * detection.

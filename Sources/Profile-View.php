@@ -17,13 +17,13 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('\\SMF\\Alert');
-class_exists('\\SMF\\Actions\\Profile\\ShowAlerts');
-class_exists('\\SMF\\Actions\\Profile\\ShowPosts');
-class_exists('\\SMF\\Actions\\Profile\\StatPanel');
-class_exists('\\SMF\\Actions\\Profile\\Summary');
-class_exists('\\SMF\\Actions\\Profile\\Tracking');
-class_exists('\\SMF\\Actions\\Profile\\ViewWarning');
-class_exists('\\SMF\\Actions\\TrackIP');
+class_exists('\\SMF\\Sources\\Alert');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\ShowAlerts');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\ShowPosts');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\StatPanel');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\Summary');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\Tracking');
+class_exists('\\SMF\\Sources\\Actions\\Profile\\ViewWarning');
+class_exists('\\SMF\\Sources\\Actions\\TrackIP');
 
 ?>

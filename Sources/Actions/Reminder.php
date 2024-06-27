@@ -13,20 +13,20 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Mail;
-use SMF\Security;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Mail;
+use SMF\Sources\Security;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Handle sending out reminders, and checking the secret answer and question.
@@ -52,9 +52,9 @@ class Reminder implements ActionInterface
 	 *********************/
 
 	/**
-	 * @var \SMF\User
+	 * @var \SMF\Sources\User
 	 *
-	 * SMF\User object for the member.
+	 * SMF\Sources\User object for the member.
 	 */
 	public User $member;
 

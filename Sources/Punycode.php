@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use function SMF\Unicode\idna_maps;
-use function SMF\Unicode\idna_maps_deviation;
-use function SMF\Unicode\idna_maps_not_std3;
+use function SMF\Sources\Unicode\idna_maps;
+use function SMF\Sources\Unicode\idna_maps_deviation;
+use function SMF\Sources\Unicode\idna_maps_not_std3;
 
 /**
  * Punycode implementation as described in RFC 3492

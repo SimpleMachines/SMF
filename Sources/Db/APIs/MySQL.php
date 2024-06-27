@@ -13,17 +13,17 @@
 
 declare(strict_types=1);
 
-namespace SMF\Db\APIs;
+namespace SMF\Sources\Db\APIs;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi;
-use SMF\Db\DatabaseApiInterface;
-use SMF\ErrorHandler;
-use SMF\IP;
-use SMF\Lang;
-use SMF\User;
-use SMF\Utils;
-use SMF\Uuid;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi;
+use SMF\Sources\Db\DatabaseApiInterface;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IP;
+use SMF\Sources\Lang;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Uuid;
 
 /**
  * Interacts with MySQL databases.

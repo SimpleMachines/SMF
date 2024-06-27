@@ -17,6 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\BrowserDetector', '\\browser_detector');
+class_alias('SMF\\Sources\\BrowserDetector', '\\browser_detector');
 
 ?>

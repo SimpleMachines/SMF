@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Actions\Notify;
-use SMF\Alert;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Alert;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class contains code used to notify people that a new event has been

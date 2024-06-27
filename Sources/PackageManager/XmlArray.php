@@ -13,10 +13,10 @@
  * @version 3.0 Alpha 2
  */
 
-namespace SMF\PackageManager;
+namespace SMF\Sources\PackageManager;
 
-use SMF\Lang;
-use SMF\Sapi;
+use SMF\Sources\Lang;
+use SMF\Sources\Sapi;
 
 /**
  * Class XmlArray

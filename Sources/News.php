@@ -17,6 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Actions\\Feed');
+class_exists('SMF\\Sources\\Actions\\Feed');
 
 ?>

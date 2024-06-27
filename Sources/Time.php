@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Extends \DateTime with some extra features for SMF.
@@ -683,7 +683,7 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Sets the time zone for the SMF\Time object.
+	 * Sets the time zone for the SMF\Sources\Time object.
 	 *
 	 * @param \DateTimeZone|string $timezone The desired time zone. Can be a
 	 *    \DateTimeZone object or a valid time zone identifier string.

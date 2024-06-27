@@ -13,26 +13,26 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Agreement;
-use SMF\Actions\Notify;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Actions\Agreement;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * Represents a loaded theme. Also provides many theme-related static methods.
  *
- * The most recently loaded theme is always available as SMF\Theme::$current.
- * All loaded themes are available as SMF\Theme::$loaded[$id], where $id is the
+ * The most recently loaded theme is always available as SMF\Sources\Theme::$current.
+ * All loaded themes are available as SMF\Sources\Theme::$loaded[$id], where $id is the
  * ID number of a theme.
  *
  * The data previously available via the deprecated global $settings array is
- * now available via SMF\Theme::$current->settings.
+ * now available via SMF\Sources\Theme::$current->settings.
  *
  * The data previously available via the deprecated global $options array is
- * now available via SMF\Theme::$current->options.
+ * now available via SMF\Sources\Theme::$current->options.
  */
 class Theme
 {
@@ -252,7 +252,7 @@ class Theme
 			$GLOBALS['options']  = &self::$current->options;
 		}
 
-		// Ensure that SMF\Lang knows that it should use this theme's language files.
+		// Ensure that SMF\Sources\Lang knows that it should use this theme's language files.
 		Lang::addDirs();
 
 		// Initializing sets up a bunch more stuff.
@@ -2177,11 +2177,11 @@ class Theme
 			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
 				$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
 
-				if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
+				if (preg_match('~((?:SMF\\\\Sources\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
 					self::$current->settings['theme_variants'] = [];
 
 					// Fill settings up.
-					eval(($matches[1] === '$' ? 'global $settings; ' : 'use SMF\\Theme; ') . $matches[0]);
+					eval(($matches[1] === '$' ? 'global $settings; ' : 'use SMF\\Sources\\Theme; ') . $matches[0]);
 
 					if (!empty(self::$current->settings['theme_variants'])) {
 						foreach (self::$current->settings['theme_variants'] as $variant) {

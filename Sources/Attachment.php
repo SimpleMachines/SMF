@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Admin\ACP;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Graphics\Image;
+use SMF\Sources\Actions\Admin\ACP;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Graphics\Image;
 
 /**
  * This class represents a file attachment.
@@ -1434,7 +1434,7 @@ class Attachment implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreateAttachment_Notify',
+					'SMF\\Sources\\Tasks\\CreateAttachment_Notify',
 					Utils::jsonEncode(['id' => $attachmentOptions['id']]),
 					0,
 				],

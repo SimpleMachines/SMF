@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\ActionInterface;
-use SMF\Actions\Admin\Permissions;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\Profile;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Admin\Permissions;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\Profile;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Rename here and in the exportStatic call at the end of the file.

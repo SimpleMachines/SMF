@@ -10,11 +10,11 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Topic;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Topic;
+use SMF\Sources\Utils;
 
 /**
  * The header. Defines the look and layout of the page as well as a form for choosing print options.

@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Admin\ACP;
-use SMF\Actions\Admin\Bans;
-use SMF\Actions\Login2;
-use SMF\Actions\Logout;
-use SMF\Actions\Moderation\ReportedContent;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\PersonalMessage\PM;
+use SMF\Sources\Actions\Admin\ACP;
+use SMF\Sources\Actions\Admin\Bans;
+use SMF\Sources\Actions\Login2;
+use SMF\Sources\Actions\Logout;
+use SMF\Sources\Actions\Moderation\ReportedContent;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\PersonalMessage\PM;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -1554,7 +1554,7 @@ class User implements \ArrayAccess
 			'time' => time(),
 			// This looks a bit funny but protects against the login redirect.
 			'id' => $this->id && $this->name ? $this->id : 0,
-			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
+			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\Sources\User.
 			'gq' => $group_query,
 			'bq' => $board_query,
 			'ap' => $this->boardsAllowedTo('approve_posts'),
@@ -2037,7 +2037,7 @@ class User implements \ArrayAccess
 	 *
 	 * Is turned on and off by the securityDisable setting.
 	 *
-	 * Uses the SMF\Actions\Admin\ACP::adminLogin() method if they need to login,
+	 * Uses the SMF\Sources\Actions\Admin\ACP::adminLogin() method if they need to login,
 	 * which saves all request (post and get) data.
 	 *
 	 * @param string $type What type of session this is.
@@ -4564,7 +4564,7 @@ class User implements \ArrayAccess
 				Utils::$context['user'] = $this;
 
 				// MOD AUTHORS: If you use this hook, update your code to work
-				// with SMF\User::$me instead of the deprecated $user_info.
+				// with SMF\Sources\User::$me instead of the deprecated $user_info.
 				// Alternatively, consider the integrate_user_properties hook in
 				// the setProperties() method, which lets you work with the
 				// properties of any instance of this class.

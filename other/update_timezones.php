@@ -67,9 +67,9 @@
  *       to be changed, because only a human can know what it should really be.
  */
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 define('SMF', 'derp');
 define('SMF_VERSION', 'does not matter');

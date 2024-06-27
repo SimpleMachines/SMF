@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF\Search\APIs;
+namespace SMF\Sources\Search\APIs;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Sapi;
-use SMF\Search\SearchApi;
-use SMF\Search\SearchApiInterface;
-use SMF\SecurityToken;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Sapi;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\Search\SearchApiInterface;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Used for the "custom search index" option
@@ -40,7 +40,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	/**
 	 * @var array
 	 *
-	 * Sub-actions to add for SMF\Actions\Admin\Search::$subactions.
+	 * Sub-actions to add for SMF\Sources\Actions\Admin\Search::$subactions.
 	 */
 	public static array $admin_subactions = [
 		'build' => [

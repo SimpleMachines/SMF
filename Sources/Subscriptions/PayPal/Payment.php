@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Subscriptions\PayPal;
+namespace SMF\Sources\Subscriptions\PayPal;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
 
 /**
  * Class of functions to validate a IPN response and provide details of the payment

@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Cache\APIs;
+namespace SMF\Sources\Cache\APIs;
 
 use Memcache;
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Utils;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Cache\CacheApiInterface;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Utils;
 
 if (!defined('SMF')) {
 	die('No direct access...');

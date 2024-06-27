@@ -13,25 +13,25 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\IP;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Mail;
-use SMF\Menu;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\IP;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Mail;
+use SMF\Sources\Menu;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Shows a list of members or a selection of members.
@@ -1257,7 +1257,7 @@ class Members implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start Which item to start with (for pagination purposes)
 	 * @param int $items_per_page How many items to show per page
@@ -1304,7 +1304,7 @@ class Members implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param string $where An SQL query to filter the results
 	 * @param array $where_params An array of parameters for $where

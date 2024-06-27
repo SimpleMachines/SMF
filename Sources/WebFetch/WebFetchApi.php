@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\WebFetch;
+namespace SMF\Sources\WebFetch;
 
-use SMF\Lang;
-use SMF\Url;
+use SMF\Sources\Lang;
+use SMF\Sources\Url;
 
 /**
  * Class SearchApi
@@ -101,7 +101,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 * - If $post_data is supplied, the value and length is posted to the given
 	 *   URL as form data.
 	 *
-	 * @param \SMF\Url|string $url An HTTP or FTP URL.
+	 * @param \SMF\Sources\Url|string $url An HTTP or FTP URL.
 	 * @param string|array $post_data The data to post to the given URL.
 	 *    Not applicable to FTP requests.
 	 * @param bool $keep_alive Whether to keep the connection alive for further

@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\WebFetch\APIs;
+namespace SMF\Sources\WebFetch\APIs;
 
-use SMF\Lang;
-use SMF\Url;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Lang;
+use SMF\Sources\Url;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * Fetches data from HTTP URLs via socket connections.

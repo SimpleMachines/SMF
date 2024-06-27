@@ -10,7 +10,7 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Utils;
+use SMF\Sources\Utils;
 
 /**
  * This template handles displaying a list

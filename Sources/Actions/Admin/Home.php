@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\Credits;
-use SMF\Actions\Groups;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Credits;
+use SMF\Sources\Actions\Groups;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * The administration home page.

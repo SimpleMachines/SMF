@@ -13,19 +13,19 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\Logging;
-use SMF\Mail;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Logging;
+use SMF\Sources\Mail;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Handles moderation from the message index.
@@ -661,7 +661,7 @@ class QuickModeration implements ActionInterface
 	/**
 	 * Moves topics from one board to another.
 	 *
-	 * Performs some checks, passes the topic IDs to SMF\Topic::remove(),
+	 * Performs some checks, passes the topic IDs to SMF\Sources\Topic::remove(),
 	 * updates some stats, and then does some logging and notifying.
 	 */
 	protected function doMove(): void
@@ -802,7 +802,7 @@ class QuickModeration implements ActionInterface
 	/**
 	 * Removes topics, by moving them to the recycle board or deleting them.
 	 *
-	 * Performs some checks, passes the topic IDs to SMF\Topic::remove(), and
+	 * Performs some checks, passes the topic IDs to SMF\Sources\Topic::remove(), and
 	 * does some logging and notifying.
 	 */
 	protected function doRemove(): void
@@ -854,7 +854,7 @@ class QuickModeration implements ActionInterface
 	/**
 	 * Approves a topic.
 	 *
-	 * Performs some checks, passes the topic IDs to SMF\Topic::approve(), and
+	 * Performs some checks, passes the topic IDs to SMF\Sources\Topic::approve(), and
 	 * does some logging.
 	 */
 	protected function doApprove(): void
@@ -904,7 +904,7 @@ class QuickModeration implements ActionInterface
 	/**
 	 * Merges topics.
 	 *
-	 * Passes the topic IDs to SMF\TopicMerge::initiate().
+	 * Passes the topic IDs to SMF\Sources\TopicMerge::initiate().
 	 * Sets $this->should_redirect to false.
 	 */
 	protected function doMerge(): void

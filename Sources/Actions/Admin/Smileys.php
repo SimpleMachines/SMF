@@ -15,29 +15,29 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\MessageIndex;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\PackageManager\SubsPackage;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\Actions\MessageIndex;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\PackageManager\SubsPackage;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * This class takes care of all administration of smileys.
@@ -2077,7 +2077,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @todo to be moved to Subs-Smileys?
 	 *
@@ -2131,7 +2131,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @todo to be moved to Subs-Smileys?
 	 * @return int The total number of known smiley sets
@@ -2142,7 +2142,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (not used here)
 	 * @param int $items_per_page The number of items to show per page (not used here)
@@ -2188,7 +2188,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @return int The number of smileys
 	 */
@@ -2207,7 +2207,7 @@ class Smileys implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList().
+	 * Callback function for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (not used here)
 	 * @param int $items_per_page The number of items to display per page (not used here)

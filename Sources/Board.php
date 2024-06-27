@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * This class loads information about the current board, as well as other boards
@@ -62,7 +62,7 @@ class Board implements \ArrayAccess
 	 * @var object
 	 *
 	 * This board's category.
-	 * An instance of SMF\Category.
+	 * An instance of SMF\Sources\Category.
 	 */
 	public object $cat;
 

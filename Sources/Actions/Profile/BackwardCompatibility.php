@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Profile;
+namespace SMF\Sources\Actions\Profile;
 
-use SMF\BackwardCompatibility as BackCompat;
-use SMF\Profile;
+use SMF\Sources\BackwardCompatibility as BackCompat;
+use SMF\Sources\Profile;
 
 trait BackwardCompatibility
 {

@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF\Search;
+namespace SMF\Sources\Search;
 
-use SMF\Msg;
+use SMF\Sources\Msg;
 
 /**
  * Interface SearchApiInterface

@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Runs background tasks (a.k.a. cron jobs), including scheduled tasks.
@@ -24,17 +24,17 @@ use SMF\Db\DatabaseApi as Db;
  *
  * To add a new background task, do the following:
  *
- *  1. Create a class that extends SMF\Tasks\BackgroundTask. Put your task's
+ *  1. Create a class that extends SMF\Sources\Tasks\BackgroundTask. Put your task's
  *     code in its execute() method.
  *  2. Add your background task to the task queue on the fly wherever needed
  *     in the rest of your mod's code.
  *
  * To add a new scheduled task, do the following:
  *
- *  1. Create a class that extends SMF\Tasks\ScheduledTask. Put your task's
+ *  1. Create a class that extends SMF\Sources\Tasks\ScheduledTask. Put your task's
  *     code in its execute() method.
  *  2. Use the integrate_scheduled_tasks hook to add information about your
- *     scheduled task to SMF\TaskRunner::$scheduled_tasks.
+ *     scheduled task to SMF\Sources\TaskRunner::$scheduled_tasks.
  *  3. Add an entry for your scheduled task to the {db_prefix}scheduled_tasks
  *     table when your mod is being installed.
  */
@@ -70,42 +70,42 @@ class TaskRunner
 	 */
 	public static array $scheduled_tasks = [
 		'daily_maintenance' => [
-			'class' => 'SMF\\Tasks\\DailyMaintenance',
+			'class' => 'SMF\\Sources\\Tasks\\DailyMaintenance',
 		],
 		'weekly_maintenance' => [
-			'class' => 'SMF\\Tasks\\WeeklyMaintenance',
+			'class' => 'SMF\\Sources\\Tasks\\WeeklyMaintenance',
 		],
 		'daily_digest' => [
-			'class' => 'SMF\\Tasks\\SendDigests',
+			'class' => 'SMF\\Sources\\Tasks\\SendDigests',
 			'data' => ['is_weekly' => 0],
 		],
 		'weekly_digest' => [
-			'class' => 'SMF\\Tasks\\SendDigests',
+			'class' => 'SMF\\Sources\\Tasks\\SendDigests',
 			'data' => ['is_weekly' => 1],
 		],
 		'fetchSMfiles' => [
-			'class' => 'SMF\\Tasks\\FetchSMFiles',
+			'class' => 'SMF\\Sources\\Tasks\\FetchSMFiles',
 		],
 		'fetch_calendar_subs' => [
-			'class' => 'SMF\\Tasks\\FetchCalendarSubscriptions',
+			'class' => 'SMF\\Sources\\Tasks\\FetchCalendarSubscriptions',
 		],
 		'birthdayemails' => [
-			'class' => 'SMF\\Tasks\\Birthday_Notify',
+			'class' => 'SMF\\Sources\\Tasks\\Birthday_Notify',
 		],
 		'paid_subscriptions' => [
-			'class' => 'SMF\\Tasks\\PaidSubs',
+			'class' => 'SMF\\Sources\\Tasks\\PaidSubs',
 		],
 		'remove_temp_attachments' => [
-			'class' => 'SMF\\Tasks\\RemoveTempAttachments',
+			'class' => 'SMF\\Sources\\Tasks\\RemoveTempAttachments',
 		],
 		'remove_topic_redirect' => [
-			'class' => 'SMF\\Tasks\\RemoveTopicRedirects',
+			'class' => 'SMF\\Sources\\Tasks\\RemoveTopicRedirects',
 		],
 		'remove_old_drafts' => [
-			'class' => 'SMF\\Tasks\\RemoveOldDrafts',
+			'class' => 'SMF\\Sources\\Tasks\\RemoveOldDrafts',
 		],
 		'prune_log_topics' => [
-			'class' => 'SMF\\Tasks\\PruneLogTopics',
+			'class' => 'SMF\\Sources\\Tasks\\PruneLogTopics',
 		],
 	];
 
@@ -325,7 +325,7 @@ class TaskRunner
 			$bgtask = new $task_details['task_class']($task_details['task_data']);
 
 			// If the instance isn't actually a scheduled task, skip it.
-			if (!is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+			if (!is_subclass_of($bgtask, 'SMF\\Sources\\Tasks\\ScheduledTask')) {
 				continue;
 			}
 
@@ -537,7 +537,7 @@ class TaskRunner
 	protected function performTask(array $task_details): bool
 	{
 		// This indicates the file to load.
-		// Only needed for tasks that don't use the SMF\Tasks\ namespace.
+		// Only needed for tasks that don't use the SMF\Sources\Tasks\ namespace.
 		if (!empty($task_details['task_file'])) {
 			$include = strtr(trim($task_details['task_file']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir]);
 
@@ -557,7 +557,7 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Sources\\Tasks\\BackgroundTask')) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$bgtask = new $task_details['task_class']($details);
@@ -565,10 +565,10 @@ class TaskRunner
 			$success = $bgtask->execute();
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+		elseif (class_exists('SMF\\Sources\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Sources\\Tasks\\' . $task_details['task_class'], 'SMF\\Sources\\Tasks\\BackgroundTask')) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
-			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
+			$task_class = 'SMF\\Sources\\Tasks\\' . $task_details['task_class'];
 
 			$bgtask = new $task_class($details);
 
@@ -583,7 +583,7 @@ class TaskRunner
 		}
 
 		// For scheduled tasks, log it and update our next scheduled task time.
-		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+		if (is_subclass_of($bgtask, 'SMF\\Sources\\Tasks\\ScheduledTask')) {
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}
@@ -703,7 +703,7 @@ class TaskRunner
 		IntegrationHook::call('integrate_scheduled_tasks', [&self::$scheduled_tasks]);
 
 		if ($is_callable) {
-			$class = 'SMF\\Tasks\\GenericScheduledTask';
+			$class = 'SMF\\Sources\\Tasks\\GenericScheduledTask';
 			$data = [
 				'callable' => $task,
 				'id_scheduled_task' => $id,
@@ -718,7 +718,7 @@ class TaskRunner
 				self::$scheduled_tasks[$task]['data'] ?? [],
 			);
 		} else {
-			$class = 'SMF\\Tasks\\' . $task;
+			$class = 'SMF\\Sources\\Tasks\\' . $task;
 			$data = [
 				'task' => $task,
 				'id_scheduled_task' => $id,
@@ -848,8 +848,8 @@ class TaskRunner
 	}
 }
 
-if (!empty(\SMF\Config::$backward_compatibility)) {
-	class_alias('\\SMF\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
+if (!empty(\SMF\Sources\Config::$backward_compatibility)) {
+	class_alias('\\SMF\\Sources\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
 }
 
 ?>

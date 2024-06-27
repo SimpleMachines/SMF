@@ -16,14 +16,14 @@
 
 declare(strict_types=1);
 
-use SMF\Actions\Admin\ACP;
-use SMF\Actions\Admin\Subscriptions;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Time;
-use SMF\Utils;
+use SMF\Sources\Actions\Admin\ACP;
+use SMF\Sources\Actions\Admin\Subscriptions;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
 
 // Set this to true to always log $_POST info received from payment gateways.
 $paid_debug = false;

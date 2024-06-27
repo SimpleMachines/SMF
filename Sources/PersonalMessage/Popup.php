@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * The popup menu for unread personal messages.

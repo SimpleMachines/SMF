@@ -13,31 +13,31 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\TopicRemove;
-use SMF\ActionTrait;
-use SMF\Cache\CacheApi;
-use SMF\Category;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Draft;
-use SMF\ErrorHandler;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\Sapi;
-use SMF\SecurityToken;
-use SMF\TaskRunner;
-use SMF\Theme;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\Actions\TopicRemove;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Category;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Draft;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\Sapi;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\Theme;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Forum maintenance. Important stuff.

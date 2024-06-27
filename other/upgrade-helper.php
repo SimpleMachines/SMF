@@ -24,8 +24,8 @@ if (!defined('SMF_VERSION')) {
 function upgrade_clean_cache()
 {
 	// Initialize the cache API if it does not have an instance yet.
-	SMF\Cache\CacheApi::load();
-	SMF\Cache\CacheApi::clean();
+	SMF\Sources\Cache\CacheApi::load();
+	SMF\Sources\Cache\CacheApi::clean();
 }
 
 /**
@@ -41,7 +41,7 @@ function getMemberGroups()
 		return $member_groups;
 	}
 
-	$request = SMF\Db\DatabaseApi::$db->query(
+	$request = SMF\Sources\Db\DatabaseApi::$db->query(
 		'',
 		'SELECT groupName, id_group
 		FROM {db_prefix}membergroups
@@ -54,7 +54,7 @@ function getMemberGroups()
 	);
 
 	if ($request === false) {
-		$request = SMF\Db\DatabaseApi::$db->query(
+		$request = SMF\Sources\Db\DatabaseApi::$db->query(
 			'',
 			'SELECT membergroup, id_group
 			FROM {db_prefix}membergroups
@@ -67,10 +67,10 @@ function getMemberGroups()
 		);
 	}
 
-	while ($row = SMF\Db\DatabaseApi::$db->fetch_row($request)) {
+	while ($row = SMF\Sources\Db\DatabaseApi::$db->fetch_row($request)) {
 		$member_groups[trim($row[0])] = $row[1];
 	}
-	SMF\Db\DatabaseApi::$db->free_result($request);
+	SMF\Sources\Db\DatabaseApi::$db->free_result($request);
 
 	return $member_groups;
 }
@@ -183,10 +183,10 @@ function makeFilesWritable(&$files)
 			$upcontext['chmod']['path'] = $_POST['ftp_path'];
 		}
 
-		require_once \SMF\Config::$sourcedir . '/PackageManager/FtpConnection.php';
+		require_once \SMF\Sources\Config::$sourcedir . '/PackageManager/FtpConnection.php';
 
 		if (isset($upcontext['chmod']['username'])) {
-			$ftp = new \SMF\PackageManager\FtpConnection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
+			$ftp = new \SMF\Sources\PackageManager\FtpConnection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
 
 			if ($ftp->error === false) {
 				// Try it without /home/abc just in case they messed up.
@@ -199,7 +199,7 @@ function makeFilesWritable(&$files)
 
 		if (!isset($ftp) || $ftp->error !== false) {
 			if (!isset($ftp)) {
-				$ftp = new \SMF\PackageManager\FtpConnection(null);
+				$ftp = new \SMF\Sources\PackageManager\FtpConnection(null);
 			}
 			// Save the error so we can mess with listing...
 			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error'])) {
@@ -217,7 +217,7 @@ function makeFilesWritable(&$files)
 			}
 
 			// Don't forget the login token.
-			$upcontext += \SMF\SecurityToken::create('login');
+			$upcontext += \SMF\Sources\SecurityToken::create('login');
 
 			return false;
 		}
@@ -225,13 +225,13 @@ function makeFilesWritable(&$files)
 
 			// We want to do a relative path for FTP.
 			if (!in_array($upcontext['chmod']['path'], ['', '/'])) {
-				$ftp_root = strtr(\SMF\Config::$boarddir, [$upcontext['chmod']['path'] => '']);
+				$ftp_root = strtr(\SMF\Sources\Config::$boarddir, [$upcontext['chmod']['path'] => '']);
 
 				if (str_ends_with($ftp_root, '/') && ($upcontext['chmod']['path'] == '' || $upcontext['chmod']['path'][0] === '/')) {
 					$ftp_root = substr($ftp_root, 0, -1);
 				}
 			} else {
-				$ftp_root = \SMF\Config::$boarddir;
+				$ftp_root = \SMF\Sources\Config::$boarddir;
 			}
 
 			// Save the info for next time!
@@ -255,7 +255,7 @@ function makeFilesWritable(&$files)
 
 				// Assuming that didn't work calculate the path without the boarddir.
 				if (!is_writable($file)) {
-					if (str_starts_with($file, \SMF\Config::$boarddir)) {
+					if (str_starts_with($file, \SMF\Sources\Config::$boarddir)) {
 						$ftp_file = strtr($file, [$_SESSION['installer_temp_ftp']['root'] => '']);
 						$ftp->chmod($ftp_file, 0755);
 
@@ -416,7 +416,7 @@ function smf_mysql_free_result($rs)
  */
 function smf_mysql_insert_id($rs = null)
 {
-	return mysqli_insert_id(SMF\Db\DatabaseApi::$db_connection);
+	return mysqli_insert_id(SMF\Sources\Db\DatabaseApi::$db_connection);
 }
 
 /**
@@ -433,7 +433,7 @@ function smf_mysql_num_rows($rs)
  */
 function smf_mysql_real_escape_string($string)
 {
-	return mysqli_real_escape_string(SMF\Db\DatabaseApi::$db_connection, $string);
+	return mysqli_real_escape_string(SMF\Sources\Db\DatabaseApi::$db_connection, $string);
 }
 
 /*

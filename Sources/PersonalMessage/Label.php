@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\ArrayAccessHelper;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ArrayAccessHelper;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Lang;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Represents a personal message label.

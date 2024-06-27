@@ -13,24 +13,24 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\SecurityToken;
-use SMF\TaskRunner;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class concerns itself with scheduled tasks management.
@@ -537,7 +537,7 @@ class Tasks implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList() in $this->tasks().
+	 * Callback function for SMF\Sources\ItemList() in $this->tasks().
 	 *
 	 * @param int $start The item to start with (not used here)
 	 * @param int $items_per_page The number of items to display per page (not used here)
@@ -579,7 +579,7 @@ class Tasks implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList() in $this->log().
+	 * Callback function for SMF\Sources\ItemList() in $this->log().
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page How many items to display per page
@@ -618,7 +618,7 @@ class Tasks implements ActionInterface
 	}
 
 	/**
-	 * Callback function for SMF\ItemList() in $this->log().
+	 * Callback function for SMF\Sources\ItemList() in $this->log().
 	 *
 	 * @return int The number of log entries
 	 */

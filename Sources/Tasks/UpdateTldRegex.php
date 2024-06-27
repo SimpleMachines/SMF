@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Config;
-use SMF\Url;
+use SMF\Sources\Config;
+use SMF\Sources\Url;
 
 /**
  * This file contains code used to initiate updates of Config::$modSettings['tld_regex']

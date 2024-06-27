@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar;
+namespace SMF\Sources\Calendar;
 
-use SMF\TimeInterval;
+use SMF\Sources\TimeInterval;
 
 /**
  * Used to apply adjustments to properties of EventOccurrence objects.
@@ -41,7 +41,7 @@ class EventAdjustment
 	public bool $affects_future = false;
 
 	/**
-	 * @var SMF\TimeInterval
+	 * @var SMF\Sources\TimeInterval
 	 *
 	 * A TimeInterval object representing how much to the adjust the start of
 	 * the affected occurrences compared to their original start date.
@@ -49,7 +49,7 @@ class EventAdjustment
 	public ?TimeInterval $offset;
 
 	/**
-	 * @var SMF\TimeInterval
+	 * @var SMF\Sources\TimeInterval
 	 *
 	 * A TimeInterval object representing the duration of the affected
 	 * occurrences of the event.
@@ -80,8 +80,8 @@ class EventAdjustment
 	 * @param int $id The ID string of the first affected event occurrence.
 	 * @param bool $affects_future Whether future occurrences are also affected.
 	 *    Default: false.
-	 * @param ?array $offset Array representation of SMF\TimeInterval data.
-	 * @param ?array $duration Array representation of SMF\TimeInterval data.
+	 * @param ?array $offset Array representation of SMF\Sources\TimeInterval data.
+	 * @param ?array $duration Array representation of SMF\Sources\TimeInterval data.
 	 * @param ?string $location Location string.
 	 * @param ?string $title Title string.
 	 */

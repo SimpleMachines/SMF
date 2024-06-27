@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\BackwardCompatibility as BackCompat;
+use SMF\Sources\BackwardCompatibility as BackCompat;
 
 trait BackwardCompatibility
 {

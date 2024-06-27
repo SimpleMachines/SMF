@@ -13,24 +13,24 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Allows the moderator to view stuff related to warnings.
@@ -565,7 +565,7 @@ class Warnings implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @return int The total number of warnings that have been issued
 	 */
@@ -587,7 +587,7 @@ class Warnings implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page
@@ -633,7 +633,7 @@ class Warnings implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @return int The total number of warning templates
 	 */
@@ -658,7 +658,7 @@ class Warnings implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page

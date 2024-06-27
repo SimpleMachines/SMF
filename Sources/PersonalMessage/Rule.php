@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\ArrayAccessHelper;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Group;
-use SMF\Lang;
-use SMF\Security;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ArrayAccessHelper;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Group;
+use SMF\Sources\Lang;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Represents a sorting rule that can be applied to incoming personal messages.

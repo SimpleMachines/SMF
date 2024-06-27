@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * This is a lightweight proxy for serving images, generally meant to be used
@@ -215,10 +215,10 @@ class ProxyServer
 	/**
 	 * Returns the request's hashed filepath
 	 *
-	 * @param \SMF\Url|string $request The request to get the path for
+	 * @param \SMF\Sources\Url|string $request The request to get the path for
 	 * @return string The hashed filepath for the specified request
 	 */
-	protected function getCachedPath(\SMF\Url|string $request): string
+	protected function getCachedPath(\SMF\Sources\Url|string $request): string
 	{
 		return $this->cache . '/' . sha1($request . $this->secret);
 	}
@@ -298,9 +298,9 @@ class ProxyServer
 	/**
 	 * A helper function to redirect a request
 	 *
-	 * @param \SMF\Url|string $request
+	 * @param \SMF\Sources\Url|string $request
 	 */
-	private function redirectexit(\SMF\Url|string $request): void
+	private function redirectexit(\SMF\Sources\Url|string $request): void
 	{
 		header('Location: ' . Utils::htmlspecialcharsDecode($request), false, 301);
 

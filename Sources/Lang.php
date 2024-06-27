@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
-use SMF\Localization\MessageFormatter;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Localization\MessageFormatter;
 
 /**
  * Handles the localizable strings shown in SMF's user interface.
@@ -115,7 +115,7 @@ class Lang
 	/**
 	 * @var string
 	 *
-	 * Local copy of SMF\Config::$language
+	 * Local copy of SMF\Sources\Config::$language
 	 */
 	public static string $default;
 

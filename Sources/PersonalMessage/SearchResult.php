@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF\PersonalMessage;
+namespace SMF\Sources\PersonalMessage;
 
-use SMF\IntegrationHook;
-use SMF\Search\SearchResult as SR;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Search\SearchResult as SR;
 
 /**
  * Shows personal message search results.
@@ -32,7 +32,7 @@ class SearchResult extends PM
 	 */
 	public static function getFormatted(int|array $ids, array $query_customizations = []): \Generator
 	{
-		/** @var \SMF\PersonalMessage\PM $pm */
+		/** @var \SMF\Sources\PersonalMessage\PM $pm */
 		foreach (parent::get($ids, $query_customizations) as $pm) {
 			$output = $pm->format(0, ['no_bcc' => true]);
 

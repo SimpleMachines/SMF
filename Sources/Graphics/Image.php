@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Graphics;
+namespace SMF\Sources\Graphics;
 
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\Sapi;
-use SMF\Url;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Sapi;
+use SMF\Sources\Url;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 // IMAGETYPE_AVIF was added in PHP 8.1
 if (!defined('IMAGETYPE_AVIF')) {

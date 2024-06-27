@@ -10,12 +10,12 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Time;
-use SMF\Utils;
-use SMF\User;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\Utils;
+use SMF\Sources\User;
 
 /**
  * The top part of the outer layer of the boardindex

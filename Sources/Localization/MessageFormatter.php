@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Localization;
+namespace SMF\Sources\Localization;
 
-use SMF\Config;
-use SMF\Lang;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
-use function SMF\Unicode\currencies;
+use function SMF\Sources\Unicode\currencies;
 
 /**
  * Provides the ability to process ICU MessageFormat strings, regardless whether
@@ -463,7 +463,7 @@ class MessageFormatter
 		// Ensure we have our pluralization rules.
 		if (empty(self::$plural_rules)) {
 			require_once Config::$sourcedir . '/Unicode/Plurals.php';
-			self::$plural_rules = \SMF\Unicode\plurals();
+			self::$plural_rules = \SMF\Sources\Unicode\plurals();
 		}
 
 		// Evaluate the pluralization rules to find a match.

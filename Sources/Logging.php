@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Moderation\ReportedContent;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Actions\Moderation\ReportedContent;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * This class concerns itself with logging and tracking statistics.

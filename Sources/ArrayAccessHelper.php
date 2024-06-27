@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Simplifies and standardizes implementing \ArrayAccess.
  *
- * This trait internally uses the SMF\DynamicPropertyHelper trait, so using
+ * This trait internally uses the SMF\Sources\DynamicPropertyHelper trait, so using
  * this trait also implies using that trait.
  */
 trait ArrayAccessHelper

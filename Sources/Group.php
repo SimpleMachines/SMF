@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Admin\Permissions;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Actions\Admin\Permissions;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Represents a member group.
@@ -251,7 +251,7 @@ class Group implements \ArrayAccess
 	 *
 	 * Contains two sub-arrays, 'allowed' and 'denied'.
 	 *
-	 * This is typically only used by SMF\Actions\Admin\Permissions.
+	 * This is typically only used by SMF\Sources\Actions\Admin\Permissions.
 	 */
 	public array $num_permissions = [
 		'allowed' => 0,
@@ -1018,7 +1018,7 @@ class Group implements \ArrayAccess
 		$set_primary = [];
 		$set_additional = [];
 
-		/* @var \SMF\User $member */
+		/* @var \SMF\Sources\User $member */
 		foreach ($members as $key => $id_member) {
 
 			// Forcing primary.
@@ -1195,7 +1195,7 @@ class Group implements \ArrayAccess
 
 		// Load the user info for the members being removed.
 		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
-		$members = array_map(function (\SMF\User $mem) {
+		$members = array_map(function (\SMF\Sources\User $mem) {
 			return $mem->id;
 		}, $members);
 
@@ -2348,7 +2348,7 @@ class Group implements \ArrayAccess
 		return [
 			'data' => $groupCache,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \\SMF\\Config::$modSettings[\'settings_updated\'] > ' . time() . ';',
+			'refresh_eval' => 'return \\SMF\\Sources\\Config::$modSettings[\'settings_updated\'] > ' . time() . ';',
 		];
 	}
 

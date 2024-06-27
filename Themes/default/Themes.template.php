@@ -10,11 +10,11 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\BrowserDetector;
-use SMF\Config;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Utils;
+use SMF\Sources\BrowserDetector;
+use SMF\Sources\Config;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Utils;
 
 /**
  * The main sub template - for theme administration.

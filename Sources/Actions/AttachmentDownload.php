@@ -13,19 +13,19 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Attachment;
-use SMF\BrowserDetector;
-use SMF\Cache\CacheApi;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Attachment;
+use SMF\Sources\BrowserDetector;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Downloads an avatar or attachment based on $_GET['attach'], and increments the download count.
@@ -102,7 +102,7 @@ class AttachmentDownload implements ActionInterface
 			 *
 			 * NOTE TO MOD AUTHORS: This hook is deprecated. You should rewrite
 			 * your code to use the integrate_attachment_load hook in the
-			 * SMF\Attachment::load() method.
+			 * SMF\Sources\Attachment::load() method.
 			 */
 			$request = null;
 			IntegrationHook::call('integrate_download_request', [&$request]);

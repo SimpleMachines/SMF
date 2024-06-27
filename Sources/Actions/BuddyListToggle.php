@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This simple action adds/removes the passed user from the current user's buddy list.
@@ -81,7 +81,7 @@ class BuddyListToggle implements ActionInterface
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\Buddy_Notify',
+						'SMF\\Sources\\Tasks\\Buddy_Notify',
 						Utils::jsonEncode([
 							'receiver_id' => $this->userReceiver,
 							'id_member' => User::$me->id,

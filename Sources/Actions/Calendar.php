@@ -13,29 +13,29 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\BrowserDetector;
-use SMF\Cache\CacheApi;
-use SMF\Calendar\Birthday;
-use SMF\Calendar\Event;
-use SMF\Calendar\EventOccurrence;
-use SMF\Calendar\Holiday;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Theme;
-use SMF\Time;
-use SMF\TimeInterval;
-use SMF\TimeZone;
-use SMF\Topic;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\BrowserDetector;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Calendar\Birthday;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Calendar\EventOccurrence;
+use SMF\Sources\Calendar\Holiday;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\TimeInterval;
+use SMF\Sources\TimeZone;
+use SMF\Sources\Topic;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class has only one real task, showing the calendar.
@@ -1308,7 +1308,7 @@ class Calendar implements ActionInterface
 				'birthdays' => (!empty($eventOptions['include_birthdays']) ? self::getBirthdayRange($low_date, $high_date) : []),
 				'events' => (!empty($eventOptions['include_events']) ? self::getEventRange($low_date, $high_date, false) : []),
 			],
-			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Config::$modSettings[\'calendar_updated\']);',
+			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Sources\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Sources\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Sources\\Config::$modSettings[\'calendar_updated\']);',
 			'expires' => time() + 3600,
 		];
 	}
@@ -1324,7 +1324,7 @@ class Calendar implements ActionInterface
 	public static function cache_getRecentEvents(array $eventOptions): array
 	{
 		// With the 'static' cached data we can calculate the user-specific data.
-		$cached_data = CacheApi::quickGet('calendar_index', 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getOffsetIndependentEvents', [$eventOptions]);
+		$cached_data = CacheApi::quickGet('calendar_index', 'Actions/Calendar.php', 'SMF\\Sources\\Actions\\Calendar::cache_getOffsetIndependentEvents', [$eventOptions]);
 
 		// Get the information about today (from user perspective).
 		$today = self::getTodayInfo();
@@ -1414,21 +1414,21 @@ class Calendar implements ActionInterface
 		return [
 			'data' => $return_data,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Config::$modSettings[\'calendar_updated\']);',
+			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Sources\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Sources\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Sources\\Config::$modSettings[\'calendar_updated\']);',
 			'post_retri_eval' => '
 
 				foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
 				{
 					// Remove events that the user may not see or wants to ignore.
-					if ((count(array_intersect(\\SMF\\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !\\SMF\\User::$me->allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \\SMF\\User::$me->ignoreboards))
+					if ((count(array_intersect(\\SMF\\Sources\\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !\\SMF\\Sources\\User::$me->allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \\SMF\\Sources\\User::$me->ignoreboards))
 						unset($cache_block[\'data\'][\'calendar_events\'][$k]);
 					else
 					{
 						// Whether the event can be edited depends on the permissions.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = \\SMF\\User::$me->allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \\SMF\\User::$me->id && \\SMF\\User::$me->allowedTo(\'calendar_edit_own\'));
+						$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = \\SMF\\Sources\\User::$me->allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \\SMF\\Sources\\User::$me->id && \\SMF\\Sources\\User::$me->allowedTo(\'calendar_edit_own\'));
 
 						// The added session code makes this URL not cachable.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \\SMF\\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \\SMF\\Utils::$context[\'session_var\'] . \'=\' . \\SMF\\Utils::$context[\'session_id\'];
+						$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \\SMF\\Sources\\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \\SMF\\Sources\\Utils::$context[\'session_var\'] . \'=\' . \\SMF\\Sources\\Utils::$context[\'session_id\'];
 					}
 				}
 

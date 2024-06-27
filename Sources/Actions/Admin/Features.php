@@ -13,28 +13,28 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\Profile\Notification;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Graphics\Image;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Profile;
-use SMF\Sapi;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\TimeZone;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\Actions\Profile\Notification;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Graphics\Image;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Profile;
+use SMF\Sources\Sapi;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\TimeZone;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Class to manage various core features.
@@ -1735,7 +1735,7 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @param int $start The item to start with (used for pagination purposes)
 	 * @param int $items_per_page The number of items to display per page
@@ -1787,7 +1787,7 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Callback for SMF\ItemList().
+	 * Callback for SMF\Sources\ItemList().
 	 *
 	 * @return int The total number of custom profile fields
 	 */

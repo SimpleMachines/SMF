@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Cache;
+namespace SMF\Sources\Cache;
 
 if (!defined('SMF')) {
 	die('No direct access...');

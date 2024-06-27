@@ -17,11 +17,11 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ServerSideIncludes as SSI;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ServerSideIncludes as SSI;
 
 /**
  * SMF's error handler.
@@ -61,7 +61,7 @@ class ErrorHandler
 			$count = count($array);
 
 			for ($i = 0; $i < $count; $i++) {
-				if ($array[$i]['function'] != 'SMF\\Theme::loadSubTemplate') {
+				if ($array[$i]['function'] != 'SMF\\Sources\\Theme::loadSubTemplate') {
 					continue;
 				}
 

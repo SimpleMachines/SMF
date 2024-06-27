@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Utils;
+use SMF\Sources\Utils;
 
 /**
  * A class for running scheduled tasks with custom callable functions.

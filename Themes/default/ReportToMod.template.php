@@ -10,8 +10,8 @@
  * @version 3.0 Alpha 2
  */
 
-use SMF\Lang;
-use SMF\Utils;
+use SMF\Sources\Lang;
+use SMF\Sources\Utils;
 
 //------------------------------------------------------------------------------
 /*	This template contains two humble sub templates - main. Its job is pretty

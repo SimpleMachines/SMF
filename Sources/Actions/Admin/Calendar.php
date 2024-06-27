@@ -15,30 +15,30 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Board;
-use SMF\Calendar\Event;
-use SMF\Calendar\Holiday;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\SecurityToken;
-use SMF\TaskRunner;
-use SMF\Theme;
-use SMF\Time;
-use SMF\TimeInterval;
-use SMF\TimeZone;
-use SMF\Url;
-use SMF\User;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Board;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Calendar\Holiday;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\TaskRunner;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\TimeInterval;
+use SMF\Sources\TimeZone;
+use SMF\Sources\Url;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * This class allows you to manage the calendar.
@@ -118,10 +118,10 @@ class Calendar implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'function' => 'SMF\\Calendar\\Holiday::list',
+				'function' => 'SMF\\Sources\\Calendar\\Holiday::list',
 			],
 			'get_count' => [
-				'function' => 'SMF\\Calendar\\Holiday::count',
+				'function' => 'SMF\\Sources\\Calendar\\Holiday::count',
 			],
 			'no_items_label' => Lang::$txt['holidays_no_entries'],
 			'columns' => [

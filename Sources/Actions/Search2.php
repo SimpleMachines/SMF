@@ -13,23 +13,23 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\PageIndex;
-use SMF\Search\SearchApi;
-use SMF\Search\SearchResult;
-use SMF\Security;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
-use SMF\Verifier;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\PageIndex;
+use SMF\Sources\Search\SearchApi;
+use SMF\Sources\Search\SearchResult;
+use SMF\Sources\Security;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Verifier;
 
 /**
  * Shows the search form.

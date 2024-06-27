@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Sources\Cache\CacheApi;
+use SMF\Sources\Db\DatabaseApi as Db;
 
 /**
  * Performs all the necessary setup and security checks for SSI access, and
@@ -264,9 +264,9 @@ class ServerSideIncludes
 	 * Alias: ssi_welcome()
 	 *
 	 * @param string $output_method The output method. If 'echo', will display everything. Otherwise returns an array of user info.
-	 * @return ?\SMF\User Displays a welcome message or returns an array of user data depending on output_method.
+	 * @return ?\SMF\Sources\User Displays a welcome message or returns an array of user data depending on output_method.
 	 */
-	public static function welcome(string $output_method = 'echo'): ?\SMF\User
+	public static function welcome(string $output_method = 'echo'): ?\SMF\Sources\User
 	{
 		if (!self::$setup_done) {
 			new self();
@@ -1425,7 +1425,7 @@ class ServerSideIncludes
 
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty($return['online_groups'])) {
-			$membergroups = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Group::getCachedList', []);
+			$membergroups = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Sources\\Group::getCachedList', []);
 
 			$groups = [];
 
@@ -1901,7 +1901,7 @@ class ServerSideIncludes
 			'include_birthdays' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Sources\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
@@ -1940,7 +1940,7 @@ class ServerSideIncludes
 			'include_holidays' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Sources\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
 		$return['calendar_holidays'] = array_map(fn ($h) => $h->title, $return['calendar_holidays']);
 
@@ -1979,7 +1979,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Sources\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
@@ -2028,7 +2028,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Sources\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
 		$return['calendar_holidays'] = array_map(fn ($h) => $h->title, $return['calendar_holidays']);
 
@@ -2735,7 +2735,7 @@ class ServerSideIncludes
 		}
 
 		// Primarily, this is to fix the URLs...
-		ob_start('SMF\\QueryString::ob_sessrewrite');
+		ob_start('SMF\\Sources\\QueryString::ob_sessrewrite');
 
 		// Start the session... known to scramble SSI includes in cases...
 		if (!headers_sent()) {

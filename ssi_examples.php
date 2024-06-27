@@ -38,7 +38,7 @@ template_ssi_above();
 
 			<h2>Include Code</h2>
 			<p>To use SSI.php in your page add at the very top of your page before the &lt;html&gt; tag on line 1 of your php file:</p>
-			<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php require(&quot;<?php echo addslashes(SMF\User::$me->is_admin ? realpath(SMF\Config::$boarddir . '/SSI.php') : 'SSI.php'); ?>&quot;); ?&gt;</code>
+			<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php require(&quot;<?php echo addslashes(SMF\Sources\User::$me->is_admin ? realpath(SMF\Sources\Config::$boarddir . '/SSI.php') : 'SSI.php'); ?>&quot;); ?&gt;</code>
 
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
@@ -89,8 +89,8 @@ template_ssi_above();
 						<li><a href="#" onclick="showSSIBlock('ssi_quickSearch'); return false;">Quick Search Box</a></li>
 						<li><a href="#" onclick="showSSIBlock('ssi_recentAttachments'); return false;">Recent Attachments</a></li>
 					</ul>
-					<?php if (SMF\User::$me->is_admin) { ?>
-					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo SMF\Theme::$current->settings['images_url']; ?>/helptopics.png" alt=""></h3>
+					<?php if (SMF\Sources\User::$me->is_admin) { ?>
+					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo SMF\Sources\Theme::$current->settings['images_url']; ?>/helptopics.png" alt=""></h3>
 					<ul>
 						<li><a href="#" onclick="showSSIBlock('ssi_showPoll'); return false;">Show Single Poll</a></li>
 						<li><a href="#" onclick="showSSIBlock('ssi_fetchPosts'); return false;">Show Single Post</a></li>
@@ -118,27 +118,27 @@ template_ssi_above();
 			<div class="ssi_preview" id="ssi_recentTopics">
 				<h2>Recent Topics Function</h2>
 				<h3>Code (simple mode)</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::recentTopics(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::recentTopics(); ?&gt;</code>
 				<h3>Code (advanced mode)</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo'); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo'); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::recentTopics(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::recentTopics(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_recentPosts">
 				<h2>Recent Posts Function</h2>
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::recentPosts(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::recentPosts(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::recentPosts(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::recentPosts(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_recentPoll">
 				<h2>Recent Poll Function</h2>
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::recentPoll(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::recentPoll(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::recentPoll(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::recentPoll(); flush(); ?></div>
 			</div>
 
 <!-- TOP ITEMS -->
@@ -147,9 +147,9 @@ template_ssi_above();
 				<p>Shows top boards by the number of posts.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::topBoards(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::topBoards(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::topBoards(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::topBoards(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_topTopicsViews">
@@ -157,14 +157,14 @@ template_ssi_above();
 				<p>Shows top topics by the number of replies or views.</p>
 
 				<h3>Code (show by number of views)</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::topTopicsViews(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::topTopicsViews(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::topTopicsViews(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::topTopicsViews(); flush(); ?></div>
 
 				<h3>Code (show by number of replies)</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::topTopicsReplies(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::topTopicsReplies(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::topTopicsReplies(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::topTopicsReplies(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_topPoll">
@@ -172,9 +172,9 @@ template_ssi_above();
 				<p>Shows the most-voted-in poll.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::topPoll(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::topPoll(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::topPoll(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::topPoll(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_topPoster">
@@ -182,9 +182,9 @@ template_ssi_above();
 				Shows the top poster's name and profile link.
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::topPoster(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::topPoster(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::topPoster(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::topPoster(); flush(); ?></div>
 			</div>
 
 <!-- MEMBERS -->
@@ -193,9 +193,9 @@ template_ssi_above();
 				<p>Shows the latest member's name and profile link.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::latestMember(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::latestMember(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::latestMember(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::latestMember(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_randomMember">
@@ -203,9 +203,9 @@ template_ssi_above();
 				<p>Shows one random member of the day. This changes once a day.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::randomMember('day'); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::randomMember('day'); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::randomMember('day'); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::randomMember('day'); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_whosOnline">
@@ -213,17 +213,17 @@ template_ssi_above();
 				<p>This function shows who are online inside the forum.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::whosOnline(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::whosOnline(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::whosOnline(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::whosOnline(); flush(); ?></div>
 
 				<h2>Log Online Presence</h2>
 				<p>This function logs the SSI page's visitor, then shows the Who's Online list. In other words, this function shows who are online inside and outside the forum.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::logOnline(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::logOnline(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::logOnline(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::logOnline(); flush(); ?></div>
 			</div>
 
 <!-- WELCOME, LOGIN AND LOGOUT -->
@@ -232,61 +232,61 @@ template_ssi_above();
 				<p>Shows a login box only when user is not logged in.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::login(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::login(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::login(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::login(); flush(); ?></div>
 
 				<h2>Logout Function</h2>
 				<p>Shows a logout link only when user is logged in.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::logout(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::logout(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::logout(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::logout(); flush(); ?></div>
 
 				<h2>Welcome Function</h2>
 				<p>Greets users or guests, also shows user's messages if logged in.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::welcome(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::welcome(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::welcome(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::welcome(); flush(); ?></div>
 			</div>
 
 <!-- CALENDAR -->
 			<div class="ssi_preview" id="ssi_todaysCalendar">
 				<h2>Today's Calendar Function</h2>
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::todaysCalendar(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::todaysCalendar(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::todaysCalendar(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::todaysCalendar(); flush(); ?></div>
 
 				<h2>Today's Birthdays Function</h2>
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::todaysBirthdays(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::todaysBirthdays(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::todaysBirthdays(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::todaysBirthdays(); flush(); ?></div>
 
 				<h2>Today's Holidays Function</h2>
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::todaysHolidays(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::todaysHolidays(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::todaysHolidays(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::todaysHolidays(); flush(); ?></div>
 
 				<h2>Today's Events Function</h2>
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::todaysEvents(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::todaysEvents(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::todaysEvents(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::todaysEvents(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_recentEvents">
 				<h2>Recent Calendar Events Function</h2>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::recentEvents(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::recentEvents(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::recentEvents(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::recentEvents(); flush(); ?></div>
 			</div>
 
 <!-- MISCELLANEOUS -->
@@ -295,9 +295,9 @@ template_ssi_above();
 				<p>Shows some basic forum stats: total members, posts, topics, boards, etc.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::boardStats(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::boardStats(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::boardStats(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::boardStats(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_news">
@@ -305,9 +305,9 @@ template_ssi_above();
 				<p>Shows random forum news.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::news(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::news(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::news(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::news(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_boardNews">
@@ -315,9 +315,9 @@ template_ssi_above();
 				<p>Shows the latest posts from read only boards, or a specific board.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::boardNews(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::boardNews(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::boardNews(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::boardNews(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_menubar">
@@ -325,27 +325,27 @@ template_ssi_above();
 				<p>Displays a menu bar, like one displayed at the top of the forum.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::menubar(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::menubar(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::menubar(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::menubar(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_quickSearch">
 				<h2>Quick Search Function</h2>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::quickSearch(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::quickSearch(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::quickSearch(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::quickSearch(); flush(); ?></div>
 			</div>
 
 			<div class="ssi_preview" id="ssi_recentAttachments">
 				<h2>Recent Attachments Function</h2>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::recentAttachments(); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::recentAttachments(); ?&gt;</code>
 				<h3>Result</h3>
-				<div class="ssi_result"><?php SMF\ServerSideIncludes::recentAttachments(); flush(); ?></div>
+				<div class="ssi_result"><?php SMF\Sources\ServerSideIncludes::recentAttachments(); flush(); ?></div>
 			</div>
 
 <!-- ADVANCED FUNCTIONS -->
@@ -354,7 +354,7 @@ template_ssi_above();
 				<p>Shows a poll in the specified topic.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::showPoll($topicID); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::showPoll($topicID); ?&gt;</code>
 				<h3>Result</h3>
 				<div class="ssi_result"><i>Not shown because it needs specific topic ID that contains a poll.</i></div>
 			</div>
@@ -364,7 +364,7 @@ template_ssi_above();
 				<p>Fetches a post with a particular IDs. By default will only show if you have permission to the see the board in question. This can be overridden by passing the 2nd parameter as true.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::fetchPosts($postIDs, $isOverride); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::fetchPosts($postIDs, $isOverride); ?&gt;</code>
 				<h3>Result</h3>
 				<div class="ssi_result"><i>Not shown because it needs a specific post ID.</i></div>
 			</div>
@@ -374,7 +374,7 @@ template_ssi_above();
 				<p>Shows the specified member's name and profile link.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::fetchMember($memberIDs); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::fetchMember($memberIDs); ?&gt;</code>
 				<h3>Result</h3>
 				<div class="ssi_result"><i>Not shown because it needs a specific member ID.</i></div>
 			</div>
@@ -384,15 +384,15 @@ template_ssi_above();
 				<p>Shows all members in a specified group.</p>
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\ServerSideIncludes::fetchGroupMembers($groupIDs); ?&gt;</code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php SMF\Sources\ServerSideIncludes::fetchGroupMembers($groupIDs); ?&gt;</code>
 				<h3>Result</h3>
 				<div class="ssi_result"><i>Not shown because it needs specific membergroup IDs.</i></div>
 			</div>
 
 			<div class="ssi_preview" id="htmlhome">
 				<h2>Home Page Sample</h2>
-				This sample uses the following features: SMF\ServerSideIncludes::recentTopics(), SMF\ServerSideIncludes::logOnline(), SMF\ServerSideIncludes::welcome(), and SMF\ServerSideIncludes::boardNews().
-				SMF\ServerSideIncludes::recentTopics() is fetched using the array method, to allow further customizations on the output.
+				This sample uses the following features: SMF\Sources\ServerSideIncludes::recentTopics(), SMF\Sources\ServerSideIncludes::logOnline(), SMF\Sources\ServerSideIncludes::welcome(), and SMF\Sources\ServerSideIncludes::boardNews().
+				SMF\Sources\ServerSideIncludes::recentTopics() is fetched using the array method, to allow further customizations on the output.
 
 				<h3>Code</h3>
 				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">Select</a></div><code class="bbc_code"><?php echo htmlspecialchars(template_homepage_sample1('source')); ?></code>
@@ -415,9 +415,9 @@ function template_ssi_above()
 <html>
 	<head>
 		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
-		<link rel="stylesheet" href="', SMF\Theme::$current->settings['default_theme_url'], '/css/index.css">
-		<script src="', !empty(SMF\Utils::$context['javascript_files']['smf_jquery']['fileUrl']) ? SMF\Utils::$context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
-		<script src="', SMF\Theme::$current->settings['default_theme_url'], '/scripts/script.js"></script>
+		<link rel="stylesheet" href="', SMF\Sources\Theme::$current->settings['default_theme_url'], '/css/index.css">
+		<script src="', !empty(SMF\Sources\Utils::$context['javascript_files']['smf_jquery']['fileUrl']) ? SMF\Sources\Utils::$context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
+		<script src="', SMF\Sources\Theme::$current->settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
 			#wrapper {
 				width: 90%;
@@ -474,9 +474,9 @@ function template_ssi_above()
 			}
 		</style>
 		<script>
-			var smf_scripturl = "', SMF\Config::$scripturl, '";
-			var smf_iso_case_folding = ', SMF\Sapi::supportsIsoCaseFolding() ? 'true' : 'false', ';
-			var smf_charset = "', SMF\Utils::$context['character_set'], '";
+			var smf_scripturl = "', SMF\Sources\Config::$scripturl, '";
+			var smf_iso_case_folding = ', SMF\Sources\Sapi::supportsIsoCaseFolding() ? 'true' : 'false', ';
+			var smf_charset = "', SMF\Sources\Utils::$context['character_set'], '";
 
 			// Sets all ssi_preview class to hidden, then shows the one requested.
 			function showSSIBlock(elementID)
@@ -528,7 +528,7 @@ function template_ssi_below()
 				<a href="#header" id="bot" class="go_up"></a>
 				<ul>
 					<li class="copyright">
-						<span class="smalltext">', SMF\ServerSideIncludes::copyright(), '</span>
+						<span class="smalltext">', SMF\Sources\ServerSideIncludes::copyright(), '</span>
 					</li>
 				</ul>
 			</div>
@@ -587,7 +587,7 @@ function template_homepage_sample1($method = 'source')
 </html>';
 
 	if ($method == 'source') {
-		$header = '<?php require("' . (SMF\User::$me->is_admin ? addslashes(realpath(SMF\Config::$boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
+		$header = '<?php require("' . (SMF\Sources\User::$me->is_admin ? addslashes(realpath(SMF\Sources\Config::$boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
 
 		return $header . template_homepage_sample1_html() . $footer;
 	}
@@ -602,11 +602,11 @@ function template_homepage_sample1($method = 'source')
  */
 function template_homepage_sample1_php()
 {
-	$topics = SMF\ServerSideIncludes::recentTopics(8, null, null, 'array');
+	$topics = SMF\Sources\ServerSideIncludes::recentTopics(8, null, null, 'array');
 
 	foreach ($topics as $topic) {
 		echo '
-			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::$txt['by'], ' ', $topic['poster']['link'], '</li>';
+			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Sources\Lang::$txt['by'], ' ', $topic['poster']['link'], '</li>';
 	}
 
 	unset($topics);
@@ -616,20 +616,20 @@ function template_homepage_sample1_php()
 		</ul><br>
 
 		<h3>Online Users</h3>';
-		SMF\ServerSideIncludes::logOnline();
+		SMF\Sources\ServerSideIncludes::logOnline();
 
 	echo '
 	</div>
 
 	<div id="content">';
 
-		SMF\ServerSideIncludes::welcome();
+		SMF\Sources\ServerSideIncludes::welcome();
 	echo '
 		<br><br>
 
 		<h2>News</h2>';
 
-		SMF\ServerSideIncludes::boardNews();
+		SMF\Sources\ServerSideIncludes::boardNews();
 
 	echo '
 	</div>';
@@ -645,7 +645,7 @@ function template_homepage_sample1_html()
 	$result = '
 <?php
 // Using array method to show shorter display style.
-$topics = SMF\\ServerSideIncludes::recentTopics(8, null, null, \'array\');
+$topics = SMF\\Sources\\ServerSideIncludes::recentTopics(8, null, null, \'array\');
 
 foreach ($topics as $topic)
 {
@@ -653,19 +653,19 @@ foreach ($topics as $topic)
 	// echo \'<pre>\', print_r($topic), \'</pre>\';
 
 	echo \'
-			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
+			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Sources\\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
 }
 
 unset($topics);
 ?>
 		</ul><br>
 		<h3>Online Users</h3>
-		<?php SMF\\ServerSideIncludes::logOnline(); ?>
+		<?php SMF\\Sources\\ServerSideIncludes::logOnline(); ?>
 	</div>
 	<div id="content">
-		<?php SMF\\ServerSideIncludes::welcome(); ?><br><br>
+		<?php SMF\\Sources\\ServerSideIncludes::welcome(); ?><br><br>
 		<h2>News</h2>
-		<?php SMF\\ServerSideIncludes::boardNews(); ?>
+		<?php SMF\\Sources\\ServerSideIncludes::boardNews(); ?>
 	</div>';
 
 	return $result;

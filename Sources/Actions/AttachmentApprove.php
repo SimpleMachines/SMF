@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Attachment;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Attachment;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Allows the moderator to approve or reject attachments.

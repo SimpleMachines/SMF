@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
-use SMF\Actions\Moderation\ReportedContent;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Search\SearchApi;
+use SMF\Sources\Actions\Moderation\ReportedContent;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Search\SearchApi;
 
 /**
  * Class for a single posted message.
@@ -533,7 +533,7 @@ class Msg implements \ArrayAccess
 		self::$keep_all = true;
 		$ids = (array) $ids;
 
-		/** @var \SMF\Msg $msg */
+		/** @var \SMF\Sources\Msg $msg */
 		foreach (self::get($ids, $query_customizations) as $msg) {
 			$loaded[$msg->id] = $msg;
 		}
@@ -1490,7 +1490,7 @@ class Msg implements \ArrayAccess
 					'task_data' => 'string',
 					'claimed_time' => 'int'],
 				[
-					'SMF\\Tasks\\ApprovePost_Notify',
+					'SMF\\Sources\\Tasks\\ApprovePost_Notify',
 					Utils::jsonEncode([
 						'msgOptions' => $msgOptions,
 						'topicOptions' => $topicOptions,
@@ -1544,7 +1544,7 @@ class Msg implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\ApproveReply_Notify',
+					'SMF\\Sources\\Tasks\\ApproveReply_Notify',
 					Utils::jsonEncode([
 						'msgOptions' => $msgOptions,
 						'topicOptions' => $topicOptions,
@@ -1609,7 +1609,7 @@ class Msg implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreatePost_Notify',
+					'SMF\\Sources\\Tasks\\CreatePost_Notify',
 					Utils::jsonEncode([
 						'msgOptions' => $msgOptions,
 						'topicOptions' => $topicOptions,
@@ -1834,7 +1834,7 @@ class Msg implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreatePost_Notify',
+					'SMF\\Sources\\Tasks\\CreatePost_Notify',
 					Utils::jsonEncode([
 						'msgOptions' => $msgOptions,
 						'topicOptions' => $topicOptions,
@@ -2082,7 +2082,7 @@ class Msg implements \ArrayAccess
 
 			foreach (array_merge($notification_topics, $notification_posts) as $topic) {
 				$task_rows[] = [
-					'SMF\\Tasks\\CreatePost_Notify',
+					'SMF\\Sources\\Tasks\\CreatePost_Notify',
 					Utils::jsonEncode([
 						'msgOptions' => [
 							'id' => $topic['msg'],

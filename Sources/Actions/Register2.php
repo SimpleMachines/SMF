@@ -13,29 +13,29 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\Config;
-use SMF\Cookie;
-use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Mail;
-use SMF\Profile;
-use SMF\Sapi;
-use SMF\Security;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\TimeZone;
-use SMF\Unicode\SpoofDetector;
-use SMF\Url;
-use SMF\User;
-use SMF\Utils;
-use SMF\Verifier;
+use SMF\Sources\Config;
+use SMF\Sources\Cookie;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Mail;
+use SMF\Sources\Profile;
+use SMF\Sources\Sapi;
+use SMF\Sources\Security;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\TimeZone;
+use SMF\Sources\Unicode\SpoofDetector;
+use SMF\Sources\Url;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
+use SMF\Sources\Verifier;
 
 /**
  * Actually registers the new member.

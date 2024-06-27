@@ -13,30 +13,30 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\Actions\Notify;
-use SMF\ActionTrait;
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Editor;
-use SMF\Group;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Logging;
-use SMF\Mail;
-use SMF\Menu;
-use SMF\Msg;
-use SMF\PersonalMessage\PM;
-use SMF\SecurityToken;
-use SMF\Theme;
-use SMF\Time;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\Actions\Notify;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\BBCodeParser;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Editor;
+use SMF\Sources\Group;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Logging;
+use SMF\Sources\Mail;
+use SMF\Sources\Menu;
+use SMF\Sources\Msg;
+use SMF\Sources\PersonalMessage\PM;
+use SMF\Sources\SecurityToken;
+use SMF\Sources\Theme;
+use SMF\Sources\Time;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This class manages... the news. :P
@@ -249,7 +249,7 @@ class News implements ActionInterface
 	 * Called by ?action=admin;area=news.
 	 * Requires the edit_news permission.
 	 * Can be accessed with ?action=admin;sa=editnews.
-	 * Uses a standard list (@see SMF\ItemList())
+	 * Uses a standard list (@see SMF\Sources\ItemList())
 	 */
 	public function edit(): void
 	{

@@ -11,7 +11,7 @@
  * @version 3.0 Alpha 2
  */
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Assists in providing backward compatibility with code written for earlier

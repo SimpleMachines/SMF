@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Graphics\Gif;
+namespace SMF\Sources\Graphics\Gif;
 
 class Image
 {

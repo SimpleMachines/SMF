@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Db\DatabaseApi as Db;
-use SMF\Theme;
-use SMF\Topic;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\Theme;
+use SMF\Sources\Topic;
 
 /**
  * Deletes moved topic notices that have passed their best-by date.

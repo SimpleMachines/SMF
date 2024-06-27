@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Admin;
+namespace SMF\Sources\Actions\Admin;
 
-use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\IntegrationHook;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Sapi;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\BackwardCompatibility;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\Db\DatabaseApi as Db;
+use SMF\Sources\IntegrationHook;
+use SMF\Sources\ItemList;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Sapi;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * Handles mail configuration, as well as reviewing the mail queue.
@@ -327,7 +327,7 @@ class Mail implements ActionInterface
 		$_GET['sent'] = isset($_GET['sent']) ? (int) $_GET['sent'] : 0;
 
 		// Send 50 at a time, then go for a break...
-		while (\SMF\Mail::reduceQueue(50, true, true) === true) {
+		while (\SMF\Sources\Mail::reduceQueue(50, true, true) === true) {
 			// Sent another 50.
 			$_GET['sent'] += 50;
 			$this->pauseMailQueueClear();
@@ -354,7 +354,7 @@ class Mail implements ActionInterface
 			$subject = Utils::htmlspecialchars($_POST['subject']);
 			$message = Utils::htmlspecialchars($_POST['message']);
 
-			$result = \SMF\Mail::send($to, $subject, $message, null, null, false, 0);
+			$result = \SMF\Sources\Mail::send($to, $subject, $message, null, null, false, 0);
 			Utils::redirectexit(Utils::$context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
 		}
 

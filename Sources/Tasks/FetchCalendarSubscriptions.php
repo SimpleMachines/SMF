@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tasks;
+namespace SMF\Sources\Tasks;
 
-use SMF\Calendar\Event;
-use SMF\Calendar\Holiday;
-use SMF\Config;
-use SMF\Url;
-use SMF\Utils;
-use SMF\WebFetch\WebFetchApi;
+use SMF\Sources\Calendar\Event;
+use SMF\Sources\Calendar\Holiday;
+use SMF\Sources\Config;
+use SMF\Sources\Url;
+use SMF\Sources\Utils;
+use SMF\Sources\WebFetch\WebFetchApi;
 
 /**
  * Imports updates from subscribed calendars into SMF's calendar.

@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions;
+namespace SMF\Sources\Actions;
 
-use SMF\ActionInterface;
-use SMF\Actions\Admin\ACP;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\User;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\Actions\Admin\ACP;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\User;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.

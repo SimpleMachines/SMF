@@ -15,7 +15,7 @@
 // As such, forcing this will cause a casting error when trying to set the property that is a int or other non string.
 //declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Sources;
 
 /**
  * Simplifies and standardizes implementing dynamic properties.

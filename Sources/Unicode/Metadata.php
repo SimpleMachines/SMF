@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Unicode;
+namespace SMF\Sources\Unicode;
 
 if (!defined('SMF')) {
 	die('No direct access...');

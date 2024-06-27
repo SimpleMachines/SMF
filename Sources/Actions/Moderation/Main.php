@@ -15,17 +15,17 @@
 
 declare(strict_types=1);
 
-namespace SMF\Actions\Moderation;
+namespace SMF\Sources\Actions\Moderation;
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
-use SMF\Config;
-use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
+use SMF\Sources\ActionInterface;
+use SMF\Sources\ActionTrait;
+use SMF\Sources\Config;
+use SMF\Sources\ErrorHandler;
+use SMF\Sources\Lang;
+use SMF\Sources\Menu;
+use SMF\Sources\Theme;
+use SMF\Sources\User;
+use SMF\Sources\Utils;
 
 /**
  * This is the Moderation Center.
@@ -56,7 +56,7 @@ class Main implements ActionInterface
 	 * the forum's saved settings.
 	 *
 	 * MOD AUTHORS: You can use the integration_moderation_areas hook to add
-	 * things to this menu. The hook can be found in SMF\Menu::_construct().
+	 * things to this menu. The hook can be found in SMF\Sources\Menu::_construct().
 	 */
 	public array $moderation_areas = [
 		'main' => [
@@ -154,13 +154,13 @@ class Main implements ActionInterface
 			'areas' => [
 				'groups' => [
 					'label' => 'mc_group_requests',
-					'function' => '\\SMF\\Actions\\Groups::call',
+					'function' => '\\SMF\\Sources\\Actions\\Groups::call',
 					'icon' => 'members_request',
 					'custom_url' => '{scripturl}?action=moderate;area=groups;sa=requests',
 				],
 				'viewgroups' => [
 					'label' => 'mc_view_groups',
-					'function' => '\\SMF\\Actions\\Groups::call',
+					'function' => '\\SMF\\Sources\\Actions\\Groups::call',
 					'icon' => 'membergroups',
 				],
 			],
@@ -237,7 +237,7 @@ class Main implements ActionInterface
 	/**
 	 * Creates the moderation center menu.
 	 *
-	 * This is separated from execute() for the sake of SMF\Actions\Groups,
+	 * This is separated from execute() for the sake of SMF\Sources\Actions\Groups,
 	 * which wants to be able to create the menu without calling the methods.
 	 */
 	public function createMenu(): void

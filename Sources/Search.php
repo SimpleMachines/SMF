@@ -17,8 +17,8 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Actions\\Search');
-class_exists('SMF\\Actions\\Search2');
-class_exists('SMF\\Actions\\SearchResult');
+class_exists('SMF\\Sources\\Actions\\Search');
+class_exists('SMF\\Sources\\Actions\\Search2');
+class_exists('SMF\\Sources\\Actions\\SearchResult');
 
 ?>
