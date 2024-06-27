@@ -858,7 +858,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector_censor
 // Make sure we haven't already done this...
 $cols = Db::$db->list_columns('messages');
 // If the reactions column exists in the messages table, there's nothing to do
-if(!in_array($cols, 'reactions'))
+if(!in_array('reactions', $colsreb))
 {
     // Does the user_likes table exist?
     $table_exists = Db::$db->list_tables(false, '%user_likes');
@@ -868,7 +868,7 @@ if(!in_array($cols, 'reactions'))
         upgrade_query("ALTER TABLE {db_prefix}user_likes RENAME TO {db_prefix}user_reacts");
 
         // Add the new column
-        Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_react', 'type' => 'smallint', 'null' => false, default => '0']);
+        Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_react', 'type' => 'smallint', 'null' => false, 'default' => '0']);
 
         // Default react type is "like" for now...
         upgrade_query("UPDATE {db_prefix}user_reacts SET id_reaction=1");

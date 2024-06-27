@@ -977,7 +977,7 @@ INSERT IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector
 // Make sure we haven't already done this...
 $cols = Db::$db->list_columns('messages');
 // If the reactions column exists in the messages table, there's nothing to do
-if(!in_array($cols, 'reactions'))
+if(!in_array('reactions', $cols))
 {
     // Does the user_likes table exist?
     $table_exists = Db::$db->list_tables(false, '%user_likes');
