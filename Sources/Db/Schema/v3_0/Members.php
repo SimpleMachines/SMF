@@ -362,6 +362,13 @@ class Members extends Table
 				not_null: true,
 				default: '',
 			),
+			new Column(
+				name: 'spoofdetector_name',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
 		];
 
 		$this->indexes = [
@@ -454,6 +461,19 @@ class Members extends Table
 				columns: [
 					'is_activated',
 					'real_name',
+				],
+			),
+			new DbIndex(
+				name: 'idx_spoofdetector_name',
+				columns: [
+					'spoofdetector_name',
+				],
+			),
+			new DbIndex(
+				name: 'idx_spoofdetector_name_id',
+				columns: [
+					'spoofdetector_name',
+					'id_member',
 				],
 			),
 		];
