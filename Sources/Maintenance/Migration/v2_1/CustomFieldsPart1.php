@@ -32,27 +32,6 @@ class CustomFieldsPart1 extends MigrationBase
 
 	private array $default_fields = [
 		[
-			'cust_icq',
-			'{icq}',
-			'{icq_desc}',
-			'text',
-			12,
-			'',
-			1,
-			'regex~[1-9][0-9]{4,9}~i',
-			0,
-			1,
-			0,
-			'forumprofile',
-			0,
-			1,
-			0,
-			0,
-			'',
-			'<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>',
-			1,
-		],
-		[
 			'cust_skype',
 			'{skype}',
 			'{skype_desc}',
