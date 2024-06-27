@@ -911,7 +911,7 @@ if(!in_array('reactions', $colsreb))
 
         // Add the reactions column and related index to the messages table
         Db::$db->add_column('{db_prefix}messages', ['name' => 'reactions', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
-        Db::$db->add_index('{db_prefix}messages', ['name' => 'idx_messages_reactions', 'columns' => 'reactions']);
+        Db::$db->add_index('{db_prefix}messages', ['name' => 'idx_messages_reactions', 'columns' => ['reactions']]);
     }
 
     // Either way we want to add the new table
