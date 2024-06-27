@@ -132,6 +132,112 @@ abstract class Table
 	{
 		return Db::$db->table_structure($this->name);
 	}
+
+	/**
+	 * Adds a column to this table in the database.
+	 *
+	 * @see SMF\Db\DatabaseApi::add_column
+	 *
+	 * @param Column $col The column to add to this table.
+	 * @param string $if_exists What to do if the column exists.
+	 *    If 'update', column is updated.
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function addColumn(Column $col, string $if_exists = 'update'): bool
+	{
+		return Db::$db->add_column(
+			$this->name,
+			get_object_vars($col),
+			[],
+			$if_exists,
+		);
+	}
+
+	/**
+	 * Updates a column in the database to match the definition given by the
+	 * supplied object's properties.
+	 *
+	 * @see SMF\Db\DatabaseApi::change_column
+	 *
+	 * @param Column $col The column to alter.
+	 * @param ?string $old_name If passed, uses this as the old column name.
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function alterColumn(Column $col, ?string $old_name = null): bool
+	{
+		return Db::$db->change_column(
+			$this->name,
+			$old_name ?? $col->name,
+			get_object_vars($col),
+		);
+	}
+
+	/**
+	 * Drops a column from this table in the database.
+	 *
+	 * @see SMF\Db\DatabaseApi::remove_column
+	 *
+	 * @param Column $col The column to drop.
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function dropColumn(Column $col): bool
+	{
+		return Db::$db->remove_column(
+			$this->name,
+			$col->name,
+		);
+	}
+
+	/**
+	 * Adds an index to this table in the database.
+	 *
+	 * @see SMF\Db\DatabaseApi::add_index
+	 *
+	 * @param Indices $index The index to add to this table.
+	 * @param string $if_exists What to do if the index exists.
+	 *    If 'update', index is updated.
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function addIndex(Indices $index, string $if_exists = 'update'): bool
+	{
+		return Db::$db->add_index(
+			$this->name,
+			get_object_vars($index),
+			[],
+			$if_exists,
+		);
+	}
+
+	/**
+	 * Updates an index in the database to match the definition given by the
+	 * supplied object's properties.
+	 *
+	 * @param Indices $index The index to update.
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function alterIndex(Indices $index): bool
+	{
+		// This method is really just a convenient way to replace an existing index.
+		$this->dropIndex($index);
+
+		return $this->addIndex($index);
+	}
+
+	/**
+	 * Drops an index from this table in the database.
+	 *
+	 * @see SMF\Db\DatabaseApi::remove_column
+	 *
+	 * @param Indices $index The index to drop.
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function dropIndex(Indices $index): bool
+	{
+		return Db::$db->remove_index(
+			$this->name,
+			$index->name,
+		);
+	}
 }
 
 ?>

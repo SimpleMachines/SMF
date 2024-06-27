@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Db\Schema;
 
-use SMF\Db\DatabaseApi as Db;
-
 /**
  * Represents a column in a database table.
  */
@@ -142,61 +140,6 @@ class Column
 		if (isset($charset)) {
 			$this->charset = strtolower($charset);
 		}
-	}
-
-	/**
-	 * Adds this column to the specified table.
-	 *
-	 * @see SMF\Db\DatabaseApi::add_column
-	 *
-	 * @param string $table_name The name of the table to add the column to.
-	 * @param string $if_exists What to do if the column exists.
-	 *    If 'update', column is updated.
-	 * @return bool Whether or not the operation was successful.
-	 */
-	public function add(string $table_name, string $if_exists = 'update'): bool
-	{
-		return Db::$db->add_column(
-			$table_name,
-			get_object_vars($this),
-			[],
-			$if_exists,
-		);
-	}
-
-	/**
-	 * Updates the column in the database to match the definition given by this
-	 * object's properties.
-	 *
-	 * @see SMF\Db\DatabaseApi::change_column
-	 *
-	 * @param string $table_name Name of the table that contains this column.
-	 * @param ?string $old_name If passed, uses this as the old column name.
-	 * @return bool Whether or not the operation was successful.
-	 */
-	public function alter(string $table_name, ?string $old_name = null): bool
-	{
-		return Db::$db->change_column(
-			$table_name,
-			$old_name ?? $this->name,
-			get_object_vars($this),
-		);
-	}
-
-	/**
-	 * Drops this column from the specified table.
-	 *
-	 * @see SMF\Db\DatabaseApi::remove_column
-	 *
-	 * @param string $table_name The name of the table to drop the column from.
-	 * @return bool Whether or not the operation was successful.
-	 */
-	public function drop(string $table_name): bool
-	{
-		return Db::$db->remove_column(
-			$table_name,
-			$this->name,
-		);
 	}
 }
 
