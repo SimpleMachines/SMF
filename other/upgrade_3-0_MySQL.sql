@@ -1,48 +1,6 @@
 /* ATTENTION: You don't need to run or use this file!  The upgrade.php script does everything for you! */
 
 /******************************************************************************/
---- Adding version information to posts, polls, and personal messages
-/******************************************************************************/
-
----# Adding a new column "version" to messages table
----{
-$cols = Db::$db->list_columns('{db_prefix}messages');
-
-if (!in_array('version', $cols)) {
-	Db::$db->add_column(
-		'{db_prefix}messages',
-		[
-			'name' => 'version',
-			'type' => 'varchar',
-			'size' => 5,
-			'null' => false,
-			'default' => '',
-		],
-	);
-}
----}
----#
-
----# Adding a new column "version" to personal_messages table
----{
-$cols = Db::$db->list_columns('{db_prefix}personal_messages');
-
-if (!in_array('version', $cols)) {
-	Db::$db->add_column(
-		'{db_prefix}personal_messages',
-		[
-			'name' => 'version',
-			'type' => 'varchar',
-			'size' => 5,
-			'null' => false,
-			'default' => '',
-		],
-	);
-}
----}
----#
-
-/******************************************************************************/
 --- Adding support for recurring events...
 /******************************************************************************/
 

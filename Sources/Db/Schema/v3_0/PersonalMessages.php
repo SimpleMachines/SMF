@@ -100,6 +100,13 @@ class PersonalMessages extends Table
 				type: 'text',
 				not_null: true,
 			),
+			new Column(
+				name: 'version',
+				type: 'varchar',
+				size: 5,
+				not_null: true,
+				default: '',
+			),
 		];
 
 		$this->indexes = [

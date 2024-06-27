@@ -180,6 +180,13 @@ class Messages extends Table
 				not_null: true,
 				default: 0,
 			),
+			new Column(
+				name: 'version',
+				type: 'varchar',
+				size: 5,
+				not_null: true,
+				default: '',
+			),
 		];
 
 		$this->indexes = [

@@ -88,6 +88,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
 			Maintenance\Migration\v3_0\LanguageDirectory::class,
+			Maintenance\Migration\v3_0\MessageVersion::class,
 		],
 	];
 
