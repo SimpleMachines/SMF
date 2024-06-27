@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Indices;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -91,7 +91,7 @@ class Smileys extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_smiley',

@@ -41,9 +41,9 @@ abstract class Table
 	public array $columns;
 
 	/**
-	 * @var \SMF\Db\Schema\Indices[]
+	 * @var \SMF\Db\Schema\DbIndex[]
 	 *
-	 * An array of SMF\Db\Schema\Indices objects.
+	 * An array of SMF\Db\Schema\DbIndex objects.
 	 */
 	public array $indexes = [];
 
@@ -193,12 +193,12 @@ abstract class Table
 	 *
 	 * @see SMF\Db\DatabaseApi::add_index
 	 *
-	 * @param Indices $index The index to add to this table.
+	 * @param DbIndex $index The index to add to this table.
 	 * @param string $if_exists What to do if the index exists.
 	 *    If 'update', index is updated.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function addIndex(Indices $index, string $if_exists = 'update'): bool
+	public function addIndex(DbIndex $index, string $if_exists = 'update'): bool
 	{
 		return Db::$db->add_index(
 			$this->name,
@@ -212,10 +212,10 @@ abstract class Table
 	 * Updates an index in the database to match the definition given by the
 	 * supplied object's properties.
 	 *
-	 * @param Indices $index The index to update.
+	 * @param DbIndex $index The index to update.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function alterIndex(Indices $index): bool
+	public function alterIndex(DbIndex $index): bool
 	{
 		// This method is really just a convenient way to replace an existing index.
 		$this->dropIndex($index);
@@ -228,10 +228,10 @@ abstract class Table
 	 *
 	 * @see SMF\Db\DatabaseApi::remove_column
 	 *
-	 * @param Indices $index The index to drop.
+	 * @param DbIndex $index The index to drop.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function dropIndex(Indices $index): bool
+	public function dropIndex(DbIndex $index): bool
 	{
 		return Db::$db->remove_index(
 			$this->name,

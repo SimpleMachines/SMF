@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -116,25 +116,25 @@ class Calendar extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_event',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_start_date',
 				columns: [
 					'start_date',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_end_date',
 				columns: [
 					'end_date',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_topic',
 				columns: [
 					'id_topic',

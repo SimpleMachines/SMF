@@ -18,7 +18,7 @@ namespace SMF\Db\Schema;
 /**
  * Represents an index in a database table.
  */
-class Indices
+class DbIndex
 {
 	/*******************
 	 * Public properties

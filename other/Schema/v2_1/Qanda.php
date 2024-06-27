@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -75,13 +75,13 @@ class Qanda extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_question',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_lngfile',
 				columns: [
 					'lngfile',

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -75,7 +75,7 @@ class LogNotify extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_member',
@@ -83,7 +83,7 @@ class LogNotify extends Table
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',

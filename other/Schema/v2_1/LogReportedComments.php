@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -91,25 +91,25 @@ class LogReportedComments extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_comment',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_report',
 				columns: [
 					'id_report',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_time_sent',
 				columns: [
 					'time_sent',

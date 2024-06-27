@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Indices;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -104,19 +104,19 @@ class MailQueue extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_mail',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_time_sent',
 				columns: [
 					'time_sent',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_mail_priority',
 				columns: [
 					'priority',

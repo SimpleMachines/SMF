@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -171,13 +171,13 @@ class Topics extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_topic',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_last_message',
 				type: 'unique',
 				columns: [
@@ -185,7 +185,7 @@ class Topics extends Table
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_first_message',
 				type: 'unique',
 				columns: [
@@ -193,7 +193,7 @@ class Topics extends Table
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_poll',
 				type: 'unique',
 				columns: [
@@ -201,26 +201,26 @@ class Topics extends Table
 					'id_topic',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_is_sticky',
 				columns: [
 					'is_sticky',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_approved',
 				columns: [
 					'approved',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_member_started',
 				columns: [
 					'id_member_started',
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_last_message_sticky',
 				columns: [
 					'id_board',
@@ -228,7 +228,7 @@ class Topics extends Table
 					'id_last_msg',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_board_news',
 				columns: [
 					'id_board',

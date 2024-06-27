@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -117,37 +117,37 @@ class LogSubscribed extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_sublog',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_end_time',
 				columns: [
 					'end_time',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_reminder_sent',
 				columns: [
 					'reminder_sent',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_payments_pending',
 				columns: [
 					'payments_pending',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_status',
 				columns: [
 					'status',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Indices;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -196,13 +196,13 @@ class Boards extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_categories',
 				type: 'unique',
 				columns: [
@@ -210,19 +210,19 @@ class Boards extends Table
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_parent',
 				columns: [
 					'id_parent',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_msg_updated',
 				columns: [
 					'id_msg_updated',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_member_groups',
 				columns: [
 					'member_groups(48)',

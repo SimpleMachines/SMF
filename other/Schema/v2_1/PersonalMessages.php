@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -103,26 +103,26 @@ class PersonalMessages extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_pm',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member_from',
 					'deleted_by_sender',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_msgtime',
 				columns: [
 					'msgtime',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_pm_head',
 				columns: [
 					'id_pm_head',

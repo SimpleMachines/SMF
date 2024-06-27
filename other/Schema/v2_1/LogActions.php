@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -115,43 +115,43 @@ class LogActions extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_action',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_log',
 				columns: [
 					'id_log',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_board',
 				columns: [
 					'id_board',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
 					'id_msg',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_topic_id_log',
 				columns: [
 					'id_topic',

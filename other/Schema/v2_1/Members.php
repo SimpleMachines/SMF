@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v3_0;
 
 use SMF\Db\Schema\Column;
-use SMF\Db\Schema\Index;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**
@@ -363,91 +363,91 @@ class Members extends Table
 		];
 
 		$this->indexes = [
-			new Indices(
+			new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_member',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_member_name',
 				columns: [
 					'member_name',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_real_name',
 				columns: [
 					'real_name',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_email_address',
 				columns: [
 					'email_address',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_date_registered',
 				columns: [
 					'date_registered',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_group',
 				columns: [
 					'id_group',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_birthdate',
 				columns: [
 					'birthdate',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_posts',
 				columns: [
 					'posts',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_last_login',
 				columns: [
 					'last_login',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_lngfile',
 				columns: [
 					'lngfile(30)',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_post_group',
 				columns: [
 					'id_post_group',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_warning',
 				columns: [
 					'warning',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_total_time_logged_in',
 				columns: [
 					'total_time_logged_in',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_id_theme',
 				columns: [
 					'id_theme',
 				],
 			),
-			new Indices(
+			new DbIndex(
 				name: 'idx_active_real_name',
 				columns: [
 					'is_activated',
