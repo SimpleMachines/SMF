@@ -1036,7 +1036,7 @@ if(!in_array('reactions', $cols))
     // Either way we want to add the new table
     upgrade_query("
         CREATE TABLE " . Db::$db->prefix . "reactions (
-            id_reaction SMALLINT UNSIGNED DEFAULT '0' AUTO_INCREMENT,
+            id_reaction SMALLINT UNSIGNED AUTO_INCREMENT,
             name varchar(255) NOT NULL DEFAULT '',
     		order SMALLINT UNSIGNED NOT NULL DEFAULT '0',
         )

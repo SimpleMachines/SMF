@@ -902,7 +902,7 @@ if(!in_array('reactions', $colsreb))
                 id_reaction smallint default '0',
                 content_type char(6) default '',
                 content_id int default '0',
-                react_time int unsigned not null default '0',
+                react_time int unsigned not null default 0,
                 PRIMARY KEY (content_id, content_type, id_member),
                 INDEX idx_content (content_id, content_type),
                 INDEX idx_reactor (id_member)
@@ -918,7 +918,7 @@ if(!in_array('reactions', $colsreb))
     upgrade_query("CREATE SEQUENCE " . Db::$db->prefix ."reactions_seq");
     upgrade_query("
         CREATE TABLE " . Db::$db->prefix . "reactions (
-            id_reaction smallint default nextval('{db_prefix}reactions_seq'),
+            id_reaction smallint default nextval('" . Db::$db->prefix . "reactions_seq'),
             name varchar(255) not null default '',
             order smallint default '0',
         )
