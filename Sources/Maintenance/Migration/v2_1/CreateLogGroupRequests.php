@@ -67,7 +67,7 @@ class CreateLogGroupRequests extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}log_group_requests');
+			$logGroupRequestsTable->addColumn($column);
 		}
 
 		Db::$db->remove_index('{db_prefix}log_group_requests', 'id_member');
@@ -78,7 +78,7 @@ class CreateLogGroupRequests extends MigrationBase
 				continue;
 			}
 
-			$idx->add('{db_prefix}log_group_requests');
+			$logGroupRequestsTable->addIndex($idx);
 		}
 
 		return true;

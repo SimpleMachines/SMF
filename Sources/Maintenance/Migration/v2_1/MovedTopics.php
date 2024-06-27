@@ -64,7 +64,7 @@ class MovedTopics extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}' . $TopicsTable->name);
+			$TopicsTable->addColumn($column);
 		}
 
 		return true;

@@ -49,7 +49,7 @@ class MailQueue extends MigrationBase
 
 		foreach ($MailQueueTable->columns as $column) {
 			if ($column->name === 'body') {
-				$column->alter('{db_prefix}' . $MailQueueTable->name);
+				$MailQueueTable->addColumn($column);
 			}
 		}
 

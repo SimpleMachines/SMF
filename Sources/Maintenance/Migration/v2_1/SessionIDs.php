@@ -55,7 +55,7 @@ class SessionIDs extends MigrationBase
 				continue;
 			}
 
-			$column->alter('{db_prefix}' . $this->name);
+			$LogOnlineTable->alterColumn($column);
 		}
 
 		foreach ($LogErrorsTable->columns as $column) {
@@ -64,7 +64,7 @@ class SessionIDs extends MigrationBase
 				continue;
 			}
 
-			$column->alter('{db_prefix}' . $this->name);
+			$LogErrorsTable->alterColumn($column);
 		}
 
 		foreach ($SessionsTable->columns as $column) {
@@ -73,7 +73,7 @@ class SessionIDs extends MigrationBase
 				continue;
 			}
 
-			$column->alter('{db_prefix}' . $this->name);
+			$SessionsTable->alterColumn($column);
 		}
 
 		return true;

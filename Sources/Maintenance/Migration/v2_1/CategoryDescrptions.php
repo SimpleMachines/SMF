@@ -55,7 +55,7 @@ class CategoryDescrptions extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}' . $categories_table->name);
+			$categories_table->addColumn($column);
 		}
 
 		return true;

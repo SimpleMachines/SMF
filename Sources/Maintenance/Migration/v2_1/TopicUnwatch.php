@@ -53,13 +53,13 @@ class TopicUnwatch extends MigrationBase
 		foreach ($LogTopicsTable->columns as $column) {
 			// Add the unwatched column.
 			if ($column->name === 'unwatched' && !in_array($column->name, $existing_columns)) {
-				$column->add('{db_prefix}' . $LogTopicsTable->name);
+				$LogTopicsTable->addColumn($column);
 				continue;
 			}
 
 			// Remove the disregarded column
 			if ($column->name === 'disregarded' && in_array($column->name, $existing_columns)) {
-				$column->drop('{db_prefix}' . $LogTopicsTable->name);
+				$LogTopicsTable->dropColumn($column);
 				continue;
 			}
 		}

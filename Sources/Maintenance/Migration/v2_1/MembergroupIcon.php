@@ -56,7 +56,7 @@ class MembergroupIcon extends MigrationBase
 			foreach ($MembergroupsTable->columns as $column) {
 				// Look for the new column, but the old one exists.
 				if ($column->name === 'icons' && in_array('stars', $existing_columns)) {
-					$column->alter('{db_prefix}' . $MembergroupsTable->name, 'stars');
+					$MembergroupsTable->alterColumn($column, 'stars');
 					continue;
 				}
 			}

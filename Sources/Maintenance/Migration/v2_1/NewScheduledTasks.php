@@ -69,7 +69,7 @@ class NewScheduledTasks extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}' . $ScheduledTasksTable->name);
+			$ScheduledTasksTable->addColumn($column);
 		}
 
 		foreach ($this->newTasks as $task) {

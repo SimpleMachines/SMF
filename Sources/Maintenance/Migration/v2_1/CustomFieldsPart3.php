@@ -64,7 +64,7 @@ class CustomFieldsPart3 extends MigrationBase
 						type: 'varchar',
 					);
 
-					$col->drop('{db_prefix}' . $CustomFieldsTable->name);
+					$CustomFieldsTable->dropColumn($col);
 				}
 			}
 

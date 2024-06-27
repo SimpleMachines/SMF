@@ -99,6 +99,13 @@ class CreateAlerts extends MigrationBase
 	{
 		$members_table = new \SMF\Db\Schema\v3_0\Members();
 		$user_alert_prefs_table = new \SMF\Db\Schema\v3_0\UserAlertsPrefs();
+
+		$tables = Db::$db->list_tables();
+
+		if (!in_array(Config::$db_prefix . $members_table->name, $tables)) {
+			$members_table->create();
+		}
+
 		$existing_columns = Db::$db->list_columns('{db_prefix}' . $members_table->name);
 
 		foreach ($members_table->columns as $column) {
@@ -107,17 +114,11 @@ class CreateAlerts extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}' . $members_table->name);
+			$members_table->addColumn($column);
 		}
 
 		// We don't need to increment the start, the column will exist and it should get past this.
 		$this->handleTimeout(0);
-
-		$tables = Db::$db->list_tables();
-
-		if (!in_array(Config::$db_prefix . $members_table->name, $tables)) {
-			$members_table->create();
-		}
 
 		// We don't need to increment the start, the column will exist and it should get past this.
 		$this->handleTimeout(0);

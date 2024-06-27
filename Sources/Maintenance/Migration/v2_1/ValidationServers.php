@@ -65,7 +65,7 @@ class ValidationServers extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}' . $PackageServersTable->name);
+			$PackageServersTable->addColumn($column);
 		}
 
 		$request = $this->query(

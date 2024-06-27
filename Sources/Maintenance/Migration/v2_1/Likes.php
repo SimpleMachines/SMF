@@ -72,7 +72,7 @@ class Likes extends MigrationBase
 			foreach ($MessagesTable->columns as $column) {
 				// Add the columns.
 				if ($column->name === 'likes' && !in_array($column->name, $existing_columns)) {
-					$column->add('{db_prefix}' . $MessagesTable->name);
+					$MessagesTable->addColumn($column);
 				}
 			}
 

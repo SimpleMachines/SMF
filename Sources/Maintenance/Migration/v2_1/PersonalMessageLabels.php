@@ -87,7 +87,7 @@ class PersonalMessageLabels extends MigrationBase
 					continue;
 				}
 
-				$column->add('{db_prefix}' . $PmRecipientsTable->name);
+				$PmRecipientsTable->addColumn($column);
 			}
 
 			$this->handleTimeout(++$start);
@@ -299,7 +299,7 @@ class PersonalMessageLabels extends MigrationBase
 					type: 'varchar',
 				);
 
-				$col->drop('{db_prefix}' . $PmRecipientsTable->name);
+				$PmRecipientsTable->dropColumn($column);
 			}
 		}
 
@@ -313,7 +313,7 @@ class PersonalMessageLabels extends MigrationBase
 					type: 'varchar',
 				);
 
-				$col->drop('{db_prefix}' . $MembersTable->name);
+				$MembersTable->dropColumn($column);
 			}
 		}
 

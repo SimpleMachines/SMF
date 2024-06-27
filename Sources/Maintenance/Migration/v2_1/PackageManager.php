@@ -65,7 +65,7 @@ class PackageManager extends MigrationBase
 				continue;
 			}
 
-			$column->add('{db_prefix}' . $logPackagesTable->name);
+			$logPackagesTable->addColumn($column);
 		}
 
 		$this->query('', '

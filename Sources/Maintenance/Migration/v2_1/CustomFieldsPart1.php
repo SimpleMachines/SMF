@@ -142,8 +142,14 @@ class CustomFieldsPart1 extends MigrationBase
 
 			foreach ($CustomFieldsTable->columns as $column) {
 				// Add the columns.
-				if (($column->name === 'field_order' || $column->name === 'show_mlist') && !in_array($column->name, $existing_columns)) {
-					$column->add('{db_prefix}' . $CustomFieldsTable->name);
+				if (
+					(
+						$column->name === 'field_order'
+						|| $column->name === 'show_mlist'
+					)
+					&& !in_array($column->name, $existing_columns)
+				) {
+					$CustomFieldsTable->addColumn($column);
 					continue;
 				}
 			}
