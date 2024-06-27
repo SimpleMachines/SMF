@@ -50,40 +50,54 @@ class AdminInfoFiles extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$this->query('', '
-		DELETE FROM {$db_prefix}admin_info_files
-		WHERE filename IN ({array_string:old_files})
-			AND path = {string:old_path}',
+		$this->query(
+			'',
+			'DELETE FROM {$db_prefix}admin_info_files
+			WHERE filename IN ({array_string:old_files})
+				AND path = {string:old_path}',
 			[
 				'old_files' => [
 					'latest-packages.js',
 					'latest-smileys.js',
 					'latest-support.js',
-					'latest-themes.js'
+					'latest-themes.js',
 				],
-				'old_path' => '/smf/'
-			]
+				'old_path' => '/smf/',
+			],
 		);
 
 		$this->handleTimeout();
 
 		// Don't insert the info if it's already there...
-		$file_check = $this->query('', '
-			SELECT id_file
+		$file_check = $this->query(
+			'',
+			'SELECT id_file
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:latest-versions}',
 			[
 				'latest-versions' => 'latest-versions.txt',
-			]
+			],
 		);
 
-		if (Db::$db->num_rows($file_check) == 0)
-		{
-			Db::$db->insert('',
+		if (Db::$db->num_rows($file_check) == 0) {
+			Db::$db->insert(
+				'',
 				'{db_prefix}admin_info_files',
-				array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
-				array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
-				array('id_file')
+				[
+					'filename' => 'string',
+					'path' => 'string',
+					'parameters' => 'string',
+					'data' => 'string',
+					'filetype' => 'string',
+				],
+				[
+					'latest-versions.txt',
+					'/smf/',
+					'version=%3$s',
+					'',
+					'text/plain',
+				],
+				['id_file'],
 			);
 		}
 

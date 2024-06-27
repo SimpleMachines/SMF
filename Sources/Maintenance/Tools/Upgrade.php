@@ -83,7 +83,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\AdminInfoFiles::class,
 			Maintenance\Migration\v2_1\VerificationQuestions::class,
 			Maintenance\Migration\v2_1\Permissions::class,
-			Maintenance\Migration\v2_1\PersonalMessageLabels::class
+			Maintenance\Migration\v2_1\PersonalMessageLabels::class,
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
@@ -97,7 +97,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	public const CLEANUPS = [
 		// Cleanup steps for 2.1 -> 3.0
 		'v3_0' => [
-			Maintenance\Cleanup\CleanupOldFiles::class
+			Maintenance\Cleanup\CleanupOldFiles::class,
 		],
 	];
 

@@ -23,7 +23,7 @@ use SMF\Maintenance\Migration\MigrationBase;
 
 class CustomFieldsPart3 extends MigrationBase
 {
-  	/*******************
+	/*******************
 	 * Public properties
 	 *******************/
 
@@ -31,7 +31,7 @@ class CustomFieldsPart3 extends MigrationBase
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Upgrade Custom Fields (Cleanup)';
-  
+
 	private array $possible_columns = ['icq', 'msn', 'location', 'gender'];
 
 	/****************
@@ -53,16 +53,15 @@ class CustomFieldsPart3 extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		if ($start <= 0)
-		{
+		if ($start <= 0) {
 			$CustomFieldsTable = new \SMF\Db\Schema\v3_0\CustomFields();
 			$existing_columns = Db::$db->list_columns('{db_prefix}' . $CustomFieldsTable->name);
+
 			foreach ($existing_columns as $column) {
-				if (in_array($column, $this->possible_columns))
-				{
+				if (in_array($column, $this->possible_columns)) {
 					$col = new Column(
 						name: $column,
-						type: 'varchar'
+						type: 'varchar',
 					);
 
 					$col->drop('{db_prefix}' . $CustomFieldsTable->name);
@@ -72,39 +71,39 @@ class CustomFieldsPart3 extends MigrationBase
 			$this->handleTimeout(++$start);
 		}
 
-		if ($start <= 1 && empty(Config::$modSettings['displayFields']))
-		{
-			$request = $this->query('', '
-				SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+		if ($start <= 1 && empty(Config::$modSettings['displayFields'])) {
+			$request = $this->query(
+				'',
+				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 				FROM {db_prefix}custom_fields',
-				array()
+				[],
 			);
 
-			$fields = array();
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				$fields[] = array(
-					'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
-					'title' => strtr($row['field_name'], array('|' => '', ';' => '')),
+			$fields = [];
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$fields[] = [
+					'col_name' => strtr($row['col_name'], ['|' => '', ';' => '']),
+					'title' => strtr($row['field_name'], ['|' => '', ';' => '']),
 					'type' => $row['field_type'],
 					'order' => $row['field_order'],
 					'bbc' => $row['bbc'] ? '1' : '0',
 					'placement' => !empty($row['placement']) ? $row['placement'] : '0',
 					'enclose' => !empty($row['enclose']) ? $row['enclose'] : '',
 					'mlist' => $row['show_mlist'],
-				);
+				];
 			}
 			Db::$db->free_result($request);
 
 			Config::updateModSettings([
-				'displayFields' => json_encode($fields)
+				'displayFields' => json_encode($fields),
 			]);
 
 			$this->handleTimeout(++$start);
 		}
 
-        return true;
-    }
+		return true;
+	}
 }
 
 ?>

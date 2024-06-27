@@ -20,7 +20,7 @@ use SMF\Maintenance\Migration\MigrationBase;
 
 class TopicUnwatch extends MigrationBase
 {
-  	/*******************
+	/*******************
 	 * Public properties
 	 *******************/
 
@@ -28,7 +28,7 @@ class TopicUnwatch extends MigrationBase
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Adding support for topic unwatch';
-  
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -53,19 +53,19 @@ class TopicUnwatch extends MigrationBase
 		foreach ($LogTopicsTable->columns as $column) {
 			// Add the unwatched column.
 			if ($column->name === 'unwatched' && !in_array($column->name, $existing_columns)) {
-                $column->add('{db_prefix}' . $LogTopicsTable->name);
-                continue;
+				$column->add('{db_prefix}' . $LogTopicsTable->name);
+				continue;
 			}
 
 			// Remove the disregarded column
 			if ($column->name === 'disregarded' && in_array($column->name, $existing_columns)) {
-                $column->drop('{db_prefix}' . $LogTopicsTable->name);
-                continue;
+				$column->drop('{db_prefix}' . $LogTopicsTable->name);
+				continue;
 			}
-        }
+		}
 
-        return true;
-    }
+		return true;
+	}
 }
 
 ?>

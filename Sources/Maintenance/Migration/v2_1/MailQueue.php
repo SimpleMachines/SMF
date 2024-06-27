@@ -15,12 +15,11 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MailQueue extends MigrationBase
 {
-  	/*******************
+	/*******************
 	 * Public properties
 	 *******************/
 
@@ -28,7 +27,7 @@ class MailQueue extends MigrationBase
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Fixing mail queue for long messages';
-  
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -52,10 +51,10 @@ class MailQueue extends MigrationBase
 			if ($column->name === 'body') {
 				$column->alter('{db_prefix}' . $MailQueueTable->name);
 			}
-        }
+		}
 
-        return true;
-    }
+		return true;
+	}
 }
 
 ?>

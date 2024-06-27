@@ -21,7 +21,7 @@ use SMF\Maintenance\Migration\MigrationBase;
 
 class CustomFieldsPart2 extends MigrationBase
 {
-  	/*******************
+	/*******************
 	 * Public properties
 	 *******************/
 
@@ -29,7 +29,7 @@ class CustomFieldsPart2 extends MigrationBase
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Upgrade Custom Fields';
-  
+
 	private array $possible_columns = ['icq', 'msn', 'location', 'gender'];
 
 	private int $limit = 10000;
@@ -66,53 +66,65 @@ class CustomFieldsPart2 extends MigrationBase
 
 		$is_done = false;
 
-		while (!$is_done)
-		{
+		while (!$is_done) {
 			$this->handleTimeout($start);
-			$inserts = array();
-	
-			$request = $this->query('', '
-				SELECT id_member, '. implode(',', $select_columns) .'
+			$inserts = [];
+
+			$request = $this->query(
+				'',
+				'SELECT id_member, ' . implode(',', $select_columns) . '
 				FROM {db_prefix}members
 				ORDER BY id_member
 				LIMIT {int:start}, {int:limit}',
-				array(
+				[
 					'start' => $start,
 					'limit' => $this->limit,
-			));
-	
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (!empty($row['icq']))
-					$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
-	
-				if (!empty($row['msn']))
-					$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
-	
-				if (!empty($row['location']))
-					$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
-	
-				if (!empty($row['gender']))
-					$inserts[] = array($row['id_member'], 1, 'cust_gender', '{gender_' . intval($row['gender']) . '}');
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				if (!empty($row['icq'])) {
+					$inserts[] = [$row['id_member'], 1, 'cust_icq', $row['icq']];
+				}
+
+				if (!empty($row['msn'])) {
+					$inserts[] = [$row['id_member'], 1, 'cust_skype', $row['msn']];
+				}
+
+				if (!empty($row['location'])) {
+					$inserts[] = [$row['id_member'], 1, 'cust_loca', $row['location']];
+				}
+
+				if (!empty($row['gender'])) {
+					$inserts[] = [$row['id_member'], 1, 'cust_gender', '{gender_' . intval($row['gender']) . '}'];
+				}
 			}
 			Db::$db->free_result($request);
-	
-			if (!empty($inserts))
-				Db::$db->insert('replace',
+
+			if (!empty($inserts)) {
+				Db::$db->insert(
+					'replace',
 					'{db_prefix}themes',
-					array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+					[
+						'id_member' => 'int',
+						'id_theme' => 'int',
+						'variable' => 'string',
+						'value' => 'string',
+					],
 					$inserts,
-					array('id_theme', 'id_member', 'variable')
+					['id_theme', 'id_member', 'variable'],
 				);
-	
+			}
+
 			$start += $this->limit;
-	
-			if ($start >= $maxMembers)
+
+			if ($start >= $maxMembers) {
 				$is_done = true;
+			}
 		}
 
-        return true;
-    }
+		return true;
+	}
 }
 
 ?>

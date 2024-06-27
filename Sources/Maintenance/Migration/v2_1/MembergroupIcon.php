@@ -19,11 +19,10 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
-use SMF\Maintenance\Tools\Upgrade;
 
 class MembergroupIcon extends MigrationBase
 {
-  	/*******************
+	/*******************
 	 * Public properties
 	 *******************/
 
@@ -31,7 +30,7 @@ class MembergroupIcon extends MigrationBase
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Altering the membergroup stars to icons';
-  
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -64,74 +63,73 @@ class MembergroupIcon extends MigrationBase
 		}
 
 		// !! @@TODO Move this to the cleanup section.
-		$request= $this->query('', '
-			SELECT icons
+		$request = $this->query(
+			'',
+			'SELECT icons
 			FROM {db_prefix}membergroups
 			WHERE icons != {string:blank}',
 			[
 				'blank' => '',
-			]	
+			],
 		);
 
 		$toMove = [];
 		$toChange = [];
 
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (strpos($row['icons'], 'star.gif') !== false)
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (strpos($row['icons'], 'star.gif') !== false) {
 				$toChange[] = [
 					'old' => $row['icons'],
 					'new' => str_replace('star.gif', 'icon.png', $row['icons']),
 				];
-
-			elseif (strpos($row['icons'], 'starmod.gif') !== false)
-				$toChange[] = array(
+			} elseif (strpos($row['icons'], 'starmod.gif') !== false) {
+				$toChange[] = [
 					'old' => $row['icons'],
 					'new' => str_replace('starmod.gif', 'iconmod.png', $row['icons']),
-				);
-
-			elseif (strpos($row['icons'], 'stargmod.gif') !== false)
-				$toChange[] = array(
+				];
+			} elseif (strpos($row['icons'], 'stargmod.gif') !== false) {
+				$toChange[] = [
 					'old' => $row['icons'],
 					'new' => str_replace('stargmod.gif', 'icongmod.png', $row['icons']),
-				);
-
-			elseif (strpos($row['icons'], 'staradmin.gif') !== false)
-				$toChange[] = array(
+				];
+			} elseif (strpos($row['icons'], 'staradmin.gif') !== false) {
+				$toChange[] = [
 					'old' => $row['icons'],
 					'new' => str_replace('staradmin.gif', 'iconadmin.png', $row['icons']),
-				);
-
-			else
+				];
+			} else {
 				$toMove[] = $row['icons'];
+			}
 		}
 		Db::$db->free_result($request);
 
-		foreach ($toChange as $change)
-			$this->query('', '
-				UPDATE {db_prefix}membergroups
+		foreach ($toChange as $change) {
+			$this->query(
+				'',
+				'UPDATE {db_prefix}membergroups
 				SET icons = {string:new}
 				WHERE icons = {string:old}',
-				array(
+				[
 					'new' => $change['new'],
 					'old' => $change['old'],
-				)
+				],
 			);
+		}
 
 		// Attempt to move any custom uploaded icons.
-		foreach ($toMove as $move)
-		{
+		foreach ($toMove as $move) {
 			// Get the actual image.
 			$image = explode('#', $move);
 			$image = $image[1];
 
 			// PHP wont suppress errors when running things from shell, so make sure it exists first...
-			if (file_exists(Config::$modSettings['theme_dir'] . '/images/' . $image))
-				@rename(Config::$modSettings['theme_dir'] . '/images/' . $image, Config::$modSettings['theme_dir'] . '/images/membericons/'. $image);
+			if (file_exists(Config::$modSettings['theme_dir'] . '/images/' . $image)) {
+				@rename(Config::$modSettings['theme_dir'] . '/images/' . $image, Config::$modSettings['theme_dir'] . '/images/membericons/' . $image);
+			}
 		}
 
 		return true;
-    }
+	}
 }
 
 ?>

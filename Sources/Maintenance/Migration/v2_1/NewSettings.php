@@ -56,7 +56,7 @@ class NewSettings extends MigrationBase
 		'mark_read_delete_beyond' => 365,
 		'mark_read_max_users' => 500,
 		'enableThemes' => 1,
-		'theme_guests' => 1
+		'theme_guests' => 1,
 	];
 
 	protected array $removedSettings = [
@@ -76,7 +76,7 @@ class NewSettings extends MigrationBase
 		'enable_unwatch',
 		'cache_memcached',
 		'cache_enable',
-		'cookie_no_auth_secret'
+		'cookie_no_auth_secret',
 	];
 
 	/****************
@@ -196,16 +196,14 @@ class NewSettings extends MigrationBase
 
 			// The rest we have to deal with manually.
 			// Moderation log - modlog_enabled itself should be set but we have others now
-			if (in_array('ml', $admin_features))
-			{
-				$newSettings[] = array('adminlog_enabled', '1');
-				$newSettings[] = array('userlog_enabled', '1');
+			if (in_array('ml', $admin_features)) {
+				$newSettings[] = ['adminlog_enabled', '1'];
+				$newSettings[] = ['userlog_enabled', '1'];
 			}
 
 			// Post moderation
-			if (in_array('pm', $admin_features))
-			{
-				$newSettings[] = array('postmod_active', '1');
+			if (in_array('pm', $admin_features)) {
+				$newSettings[] = ['postmod_active', '1'];
 			}
 		}
 
@@ -219,7 +217,7 @@ class NewSettings extends MigrationBase
 			$newSettings['allow_sm_stats'] = null;
 			$newSettings['enable_sm_stats'] = 1;
 		}
-	
+
 		Config::updateModSettings($newSettings);
 
 		return true;

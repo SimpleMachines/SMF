@@ -65,7 +65,7 @@ class Likes extends MigrationBase
 
 		// Adding likes column to the messages table. (May take a while)
 		if ($start <= 1) {
-			$MessagesTable = new \SMF\Db\Schema\v3_0\Messages;
+			$MessagesTable = new \SMF\Db\Schema\v3_0\Messages();
 
 			$existing_columns = Db::$db->list_columns('{db_prefix}' . $MessagesTable->name);
 

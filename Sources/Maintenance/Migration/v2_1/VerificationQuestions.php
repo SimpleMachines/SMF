@@ -63,31 +63,46 @@ class VerificationQuestions extends MigrationBase
 			$this->handleTimeout(++$start);
 		}
 
-		$questions = array();
-		$get_questions = $this->query('', '
-			SELECT body AS question, recipient_name AS answer
+		$questions = [];
+
+		$get_questions = $this->query(
+			'',
+			'SELECT body AS question, recipient_name AS answer
 			FROM {db_prefix}log_comments
-			WHERE comment_type = {literal:ver_test');
-		
-		while ($row = Db::$db->fetch_assoc($get_questions))
-			$questions[] = array(Maintenance::getRequestedLanguage(), $row['question'], serialize(array($row['answer'])));		
-		Db::$db->free_result($get_questions);
-	
-		if (!empty($questions))
-		{
-			Db::$db->insert('',
-				'{db_prefix}qanda',
-				array('lngfile' => 'string', 'question' => 'string', 'answers' => 'string'),
-				$questions,
-				array('id_question')
-			);
-	
-			// Delete the questions from log_comments now
-			$this->query('', '
-				DELETE FROM {db_prefix}log_comments
-				WHERE comment_type = {literal:ver_test}');
+			WHERE comment_type = {literal:ver_test}',
+		);
+
+		while ($row = Db::$db->fetch_assoc($get_questions)) {
+			$questions[] = [
+				Maintenance::getRequestedLanguage(),
+				$row['question'],
+				serialize([$row['answer']]),
+			];
 		}
-		
+
+		Db::$db->free_result($get_questions);
+
+		if (!empty($questions)) {
+			Db::$db->insert(
+				'',
+				'{db_prefix}qanda',
+				[
+					'lngfile' => 'string',
+					'question' => 'string',
+					'answers' => 'string',
+				],
+				$questions,
+				['id_question'],
+			);
+
+			// Delete the questions from log_comments now
+			$this->query(
+				'',
+				'DELETE FROM {db_prefix}log_comments
+				WHERE comment_type = {literal:ver_test}',
+			);
+		}
+
 		$this->handleTimeout(++$start);
 
 		return true;

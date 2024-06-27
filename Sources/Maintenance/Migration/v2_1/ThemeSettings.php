@@ -22,7 +22,7 @@ use SMF\Maintenance\Migration\MigrationBase;
 
 class ThemeSettings extends MigrationBase
 {
-  	/*******************
+	/*******************
 	 * Public properties
 	 *******************/
 
@@ -30,7 +30,7 @@ class ThemeSettings extends MigrationBase
 	 * {@inheritDoc}
 	 */
 	public string $name = 'Updating Theme settings';
- 
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -58,7 +58,7 @@ class ThemeSettings extends MigrationBase
 		'show_gender',
 		'hide_post_group',
 		'drafts_autosave_enabled',
-		'forum_width'
+		'forum_width',
 	];
 
 	/****************
@@ -82,14 +82,15 @@ class ThemeSettings extends MigrationBase
 
 		if ($start === 0) {
 
-			$this->query('', '
-				UPDATE {db_prefix}themes
+			$this->query(
+				'',
+				'UPDATE {db_prefix}themes
 				SET value = {string:new_theme_name}
 				WHERE value LIKE {string:old_theme_name}',
 				[
 					'new_theme_name' => 'SMF Default Theme - Curve2',
-					'old_theme_name' => 'SMF Default Theme%'
-				]	
+					'old_theme_name' => 'SMF Default Theme%',
+				],
 			);
 
 			$this->handleTimeout(++$start);
@@ -97,14 +98,15 @@ class ThemeSettings extends MigrationBase
 
 		if ($start <= 1) {
 			foreach ($this->updatedThemeSettings as $key => $value) {
-				$this->query('', '
-					UPDATE {db_prefix}themes
+				$this->query(
+					'',
+					'UPDATE {db_prefix}themes
 					SET value = {string:value}
 					WHERE value = {string:key}',
 					[
 						'value' => $value,
-						'key' => $key
-					]	
+						'key' => $key,
+					],
 				);
 			}
 
@@ -112,85 +114,91 @@ class ThemeSettings extends MigrationBase
 		}
 
 		if ($start <= 2) {
-			$this->query('', '
-				UPDATE {db_prefix}boards
-				SET id_theme = 0');
+			$this->query(
+				'',
+				'UPDATE {db_prefix}boards
+				SET id_theme = 0',
+			);
 
-				$this->handleTimeout(++$start);
-			}
+			$this->handleTimeout(++$start);
+		}
 
 		if ($start <= 3) {
+			$this->query(
+				'',
+				'UPDATE {db_prefix}members
+				SET id_theme = 0',
+			);
 
-			$this->query('', '
-				UPDATE {db_prefix}members
-				SET id_theme = 0');
-
-				$this->handleTimeout(++$start);
-			}
+			$this->handleTimeout(++$start);
+		}
 
 		if ($start <= 4) {
-
 			// Fetch list of theme directories
-			$request = $this->query('', '
-				SELECT id_theme, variable, value
+			$request = $this->query(
+				'',
+				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable = {string:theme_dir}
 					AND id_theme != {int:default_theme};',
 				[
 					'default_theme' => 1,
 					'theme_dir' => 'theme_dir',
-				]
+				],
 			);
 
 			// Check which themes exist in the filesystem & save off their IDs
 			// Don't delete default theme(start with 1 in the array), & make sure to delete old core theme
-			$known_themes = array('1');
+			$known_themes = ['1'];
 			$core_dir = Config::$boarddir . '/Themes/core';
-			while ($row = Db::$db->fetch_assoc($request))	{
+
+			while ($row = Db::$db->fetch_assoc($request)) {
 				if ($row['value'] != $core_dir && is_dir($row['value'])) {
 					$known_themes[] = $row['id_theme'];
 				}
 			}
 
 			// Cleanup unused theme settings
-			$this->query('', '
-				DELETE FROM {db_prefix}themes
+			$this->query(
+				'',
+				'DELETE FROM {db_prefix}themes
 				WHERE id_theme NOT IN ({array_int:known_themes});',
-				array(
+				[
 					'known_themes' => $known_themes,
-				)
+				],
 			);
 
 			// Set knownThemes
 			$known_themes = implode(',', $known_themes);
-			$this->query('', '
-				UPDATE {db_prefix}settings
+			$this->query(
+				'',
+				'UPDATE {db_prefix}settings
 				SET value = {string:known_themes}
 				WHERE variable = {string:known_theme_str};',
-				array(
+				[
 					'known_theme_str' => 'knownThemes',
 					'known_themes' => $known_themes,
-				)
+				],
 			);
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 5) {
-			$this->query('', '
-				DELETE FROM {db_prefix}themes
+			$this->query(
+				'',
+				'DELETE FROM {db_prefix}themes
 				WHERE variable NOT IN ({array_int:removed_settings});',
-				array(
+				[
 					'removed_settings' => $this->removedThemeSettings,
-				)
+				],
 			);
 
 			$this->handleTimeout(++$start);
-
 		}
 
 		return true;
-    }
+	}
 }
 
 ?>
