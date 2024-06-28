@@ -258,7 +258,7 @@ class Reactions implements ActionInterface
 			'no_items_label' => Lang::$txt['no_reactions'],
 			'base_href' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
 			'get_items' => [
-				'function' => function (int $start, int $items_per_page, string $sort_by, array $params) use ($reactions): array {
+				'function' => function (int $start, int $items_per_page, string $sort_by) use ($reactions): array {
 					$items = [];
 					foreach ($reactions as $id => $name) {
 						$items[] = [
@@ -314,7 +314,7 @@ class Reactions implements ActionInterface
 		];
 
 		// Add a row for a blank field to add a reaction, and a link to add another blank field.
-		$listOptions['additional_rows'][] = [
+		$listOptions['additional_rows'] = [
 			[
 				'position' => 'bottom_of_list',
 				'data' => [

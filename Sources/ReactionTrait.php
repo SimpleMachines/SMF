@@ -37,7 +37,7 @@ trait ReactionTrait
 			[]);
 
 			while ($result = Db::$db->fetch_assoc($request)) {
-				$reactions[$result['id_react']] = $result['name'];
+				$reactions[$result['id_reaction']] = $result['name'];
 			}
 
 			Db::$db->free_result($request);
