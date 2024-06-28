@@ -1467,7 +1467,6 @@ CREATE SEQUENCE {$db_prefix}reactions_seq START WITH 0;
 CREATE TABLE {$db_prefix}reactions (
 	id_reaction smallint DEFAULT nextval('{$db_prefix}reactions_seq'),
 	name varchar(255) NOT NULL DEFAULT '',
-	order smallint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_reaction)
 );
 
