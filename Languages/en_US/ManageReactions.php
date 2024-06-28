@@ -13,5 +13,7 @@ $txt['reactions_manage'] = 'Manage Reactions';
 $txt['admin_manage_reactions'] = 'Manage reaction settings and reactions.';
 $txt['reaction_settings_explain'] = 'Enable/disable reactions and choose who can use them';
 $txt['manage_reactions_desc'] = 'Add, remove and update available reactions.';
-$txt['manage_reactions_settings'] = 'Reactions Settings';
+$txt['reactions_settings'] = 'Reactions Settings';
+$txt['groups_reactions_react'] = 'Membergroups allowed to react to content';
+$txt['enable_reacts'] = 'Enable reactions';
 ?>
