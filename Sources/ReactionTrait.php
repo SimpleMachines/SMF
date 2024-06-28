@@ -36,8 +36,8 @@ trait ReactionTrait
 				'SELECT * FROM {db_prefix}reactions',
 			[]);
 
-			while ($result = Db::$db->fetchAssoc($request)) {
-				$this->reactions[$result['id_react']] = $result['name'];
+			while ($result = Db::$db->fetch_assoc($request)) {
+				$reactions[$result['id_react']] = $result['name'];
 			}
 
 			Db::$db->free($request);
