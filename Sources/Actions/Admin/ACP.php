@@ -366,7 +366,7 @@ class ACP implements ActionInterface
 					'label' => 'reactions_manage',
 					'function' => __NAMESPACE__ . '\\Reactions::call',
 					'icon' => 'like',
-					'permission' => ['manage_reactions'],
+					'permission' => ['admin_forum'],
 					'subsections' => [],
 				],
 				'manageattachments' => [
