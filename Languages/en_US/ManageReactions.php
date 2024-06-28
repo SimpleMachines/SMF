@@ -4,8 +4,8 @@
 $txt['reactions'] = 'Reactions';
 $txt['no_reactions'] = 'No reactions yet.';
 $txt['reactions_name'] = 'Reaction Name';
-$txt['reacts_deleted'] = 'Delete reaction';
-$txt['reacts_added'] = 'Add row';
+$txt['reacts_delete'] = 'Delete reaction';
+$txt['reacts_add'] = 'Add row';
 $txt['reacts_save'] = 'Save reactions';
 $txt['reacts_delete'] = 'Delete selected reactions'; // This will be fixed later
 $txt['reacts_delete_confirm'] = 'Are you sure you want to delete these reactions?';
@@ -16,6 +16,4 @@ $txt['manage_reactions_desc'] = 'Add, remove and update available reactions.';
 $txt['reactions_settings'] = 'Reactions Settings';
 $txt['groups_reactions_react'] = 'Membergroups allowed to react to content';
 $txt['enable_reacts'] = 'Enable reactions';
-$txt['reactions_add'] = 'Add reaction';
-$txt['reactions_delete'] = 'Delete reaction';
 ?>
