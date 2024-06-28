@@ -80,8 +80,25 @@ class Reactions implements ActionInterface
 		// Setup the basics of the settings template.
 		Utils::$context['sub_template'] = 'show_settings';
 
+		if (isset($_REQUEST['save'])) {
+			User::$me->checkSession();
+			IntegrationHook::call('integrate_save_membergroup_settings');
+
+			// Yeppers, saving this...
+			ACP::saveDBSettings($config_vars);
+
+			$_SESSION['adm-save'] = true;
+			Utils::redirectexit('action=admin;area=membergroups;sa=settings');
+		}
+
 		// Finish up the form...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=reactions;save;sa=settings';
+		Utils::$context['settings_title'] = Lang::$txt['reactions_settings'];
+
+		// We need this for the in-line permissions
+		SecurityToken::create('admin-mr');
+
+		ACP::prepareDBSettingContext($config_vars);
 	}
 
 	/***********************

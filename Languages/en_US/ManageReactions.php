@@ -12,5 +12,6 @@ $txt['reacts_delete_confirm'] = 'Are you sure you want to delete these reactions
 $txt['reactions_manage'] = 'Manage Reactions';
 $txt['admin_manage_reactions'] = 'Manage reaction settings and reactions.';
 $txt['reaction_settings_explain'] = 'Enable/disable reactions and choose who can use them';
-$txt['manage_reactions_explain'] = 'Add, remove and update available reactions.';
+$txt['manage_reactions_desc'] = 'Add, remove and update available reactions.';
+$txt['manage_reactions_settings'] = 'Reactions Settings';
 ?>
