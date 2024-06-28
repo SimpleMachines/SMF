@@ -162,6 +162,15 @@ interface DatabaseApiInterface
 	public function unescape_string(string $string): string;
 
 	/**
+	 * Converts four-byte UTF-8 characters to entities, but only if the
+	 * database encoding doesn't accept four-byte characters natively.
+	 *
+	 * @param string $string A UTF-8 string.
+	 * @return string The string, with four-byte chars possibly encoded as entities.
+	 */
+	public function fix_mb4(string $string): string;
+
+	/**
 	 * Gets information, such as the version, about the database server.
 	 *
 	 * @param object $connection The connection to use (if null, $db_connection is used)

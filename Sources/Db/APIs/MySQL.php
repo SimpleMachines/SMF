@@ -620,6 +620,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fix_mb4(string $string): string
+	{
+		return $this->mb4 ? $string : mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function server_info(?object $connection = null): string
 	{
 		return mysqli_get_server_info($connection ?? $this->connection);
@@ -2281,7 +2289,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4((string) $replacement)));
+				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $this->fix_mb4((string) $replacement)));
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2311,7 +2319,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4($value)));
+						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $this->fix_mb4((string) $value)));
 					}
 
 					return implode(', ', $replacement);

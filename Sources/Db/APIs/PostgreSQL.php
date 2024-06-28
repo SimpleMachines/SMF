@@ -635,6 +635,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fix_mb4(string $string): string
+	{
+		return $string;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function server_info(?object $connection = null): string
 	{
 		$version = pg_version($connection ?? $this->connection);
