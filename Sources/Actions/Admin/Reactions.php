@@ -339,15 +339,13 @@ class Reactions implements ActionInterface
 		];
 
 		// And some inline JS to handle adding another row
-		$listOptions['javascript'] = [
-			'
+		$listOptions['javascript'] = '
 			function addrow() {
 				reacts_table = document.getElementById(\'reactions_list\');
 				new_row = document.getElementById(\'reactions_list\').insertRow(reacts_table.rows.length - 1);
 				new_row.insertCell(0).innerHTML = \'<input type="text" name="reacts_add[]">\';
 				new_row.insertCell(1).innerHTML = \'\';
-			}',
-		];
+			}';
 
 		// Now that we have our list options set up, have some fun...
 		$listOptions['form'] = [

@@ -40,7 +40,7 @@ trait ReactionTrait
 				$reactions[$result['id_react']] = $result['name'];
 			}
 
-			Db::$db->free($request);
+			Db::$db->free_result($request);
 
 			// Cache the results
 			CacheApi::put('reactions', $reactions, 480);
