@@ -82,13 +82,13 @@ class Reactions implements ActionInterface
 
 		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
-			IntegrationHook::call('integrate_save_membergroup_settings');
+			IntegrationHook::call('integrate_save_reactions_settings');
 
 			// Yeppers, saving this...
 			ACP::saveDBSettings($config_vars);
 
 			$_SESSION['adm-save'] = true;
-			Utils::redirectexit('action=admin;area=membergroups;sa=settings');
+			Utils::redirectexit('action=admin;area=reactions;sa=settings');
 		}
 
 		// Finish up the form...
@@ -317,24 +317,18 @@ class Reactions implements ActionInterface
 		$listOptions['additional_rows'] = [
 			[
 				'position' => 'bottom_of_list',
-				'data' => [
-					'value' => '<input type="text" name="reacts_add[]">'
-				]
+				'value' => '<input type="text" name="reacts_add[]">'
 			],
 			[
 				// Clicking this magic button adds a new row...
 				'position' => 'bottom_of_list',
-				'data' => [
-					'value' => '<button type="button" onclick="addrow()" value="' . Lang::$txt['reacts_add'] . '">'
-				]
+				'value' => '<button type="button" onclick="addrow()" value="' . Lang::$txt['reacts_add'] . '">'
 			],
 			[
 				// And last but not least our input buttons
 				'position' => 'below_table_data',
-				'data' => [
-					'value' => '<input type="submit" name="reacts_save" value="' . Lang::$txt['reacts_save'] . '" class="button">
-								<input type="submit" name="reacts_delete" value="' . Lang::$txt['reacts_delete'] . '" data-confirm="' . Lang::$txt['reacts_delete_confirm'] . '" class="button you_sure>'
-				]
+				'value' => '<input type="submit" name="reacts_save" value="' . Lang::$txt['reacts_save'] . '" class="button">
+							<input type="submit" name="reacts_delete" value="' . Lang::$txt['reacts_delete'] . '" data-confirm="' . Lang::$txt['reacts_delete_confirm'] . '" class="button you_sure>'
 			]
 		];
 
