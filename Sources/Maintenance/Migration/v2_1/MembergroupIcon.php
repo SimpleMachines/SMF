@@ -50,7 +50,7 @@ class MembergroupIcon extends MigrationBase
 	{
 		if (Maintenance::getCurrentStart() === 0) {
 			$table = new \SMF\Db\Schema\v3_0\Membergroups();
-			$existing_structure = $table->getCurrentStructure();
+			$existing_structure = $table->getStructure();
 
 			if (isset($existing_structure['columns']['stars'])) {
 				foreach ($table->columns as $column) {

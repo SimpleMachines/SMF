@@ -47,7 +47,7 @@ class TopicUnwatch extends MigrationBase
 	{
 		$table = new \SMF\Db\Schema\v3_0\LogTopics();
 
-		$existing_structure = $table->getCurrentStructure();
+		$existing_structure = $table->getStructure();
 
 		foreach ($table->columns as $column) {
 			// Add the unwatched column.

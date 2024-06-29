@@ -44,7 +44,7 @@ class PersonalMessageLabels extends MigrationBase
 	public function isCandidate(): bool
 	{
 		$table = new \SMF\Db\Schema\v3_0\Members();
-		$existing_structure = $table->getCurrentStructure();
+		$existing_structure = $table->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] === 'message_labels') {
@@ -79,7 +79,7 @@ class PersonalMessageLabels extends MigrationBase
 			}
 
 			$PmRecipientsTable = new \SMF\Db\Schema\v3_0\PmRecipients();
-			$existing_structure = $PmRecipientsTable->getCurrentStructure();
+			$existing_structure = $PmRecipientstable->getStructure();
 
 			foreach ($PmRecipientsTable->columns as $column) {
 				// Column exists, don't need to do this.
@@ -290,7 +290,7 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$PmRecipientsTable = new \SMF\Db\Schema\v3_0\PmRecipients();
-		$existing_structure = $PmRecipientsTable->getCurrentStructure();
+		$existing_structure = $PmRecipientstable->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'labels') {
@@ -304,7 +304,7 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$MembersTable = new \SMF\Db\Schema\v3_0\Members();
-		$existing_structure = $MembersTable->getCurrentStructure();
+		$existing_structure = $Memberstable->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'message_labels') {

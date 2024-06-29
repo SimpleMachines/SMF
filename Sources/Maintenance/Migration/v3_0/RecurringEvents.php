@@ -39,7 +39,7 @@ class RecurringEvents extends MigrationBase
 	public function execute(): bool
 	{
 		$table = new \SMF\Db\Schema\v3_0\Calendar();
-		$existing_structure = $table->getCurrentStructure();
+		$existing_structure = $table->getStructure();
 
 		foreach ($table->columns as $column) {
 			if (!isset($existing_structure['columns'][$column->name])) {

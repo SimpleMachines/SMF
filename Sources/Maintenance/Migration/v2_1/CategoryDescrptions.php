@@ -46,7 +46,7 @@ class CategoryDescrptions extends MigrationBase
 	public function execute(): bool
 	{
 		$table = new \SMF\Db\Schema\v3_0\Categories();
-		$existing_structure = $table->getCurrentStructure();
+		$existing_structure = $table->getStructure();
 
 		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
