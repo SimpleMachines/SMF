@@ -3199,7 +3199,15 @@ function ConvertUtf8()
 	}
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
-	if (Config::$db_type == 'postgresql' || (Config::$db_character_set === 'utf8' && !empty(Config::$modSettings['global_character_set']) && Config::$modSettings['global_character_set'] === 'UTF-8')) {
+	$current_charset = Db::$db->detect_charset('messages', 'body');
+
+	if (
+		Db::$db->title === POSTGRE_TITLE
+		|| (
+			Db::$db->title === MYSQL_TITLE
+			&& $current_charset === 'utf8mb4'
+		)
+	) {
 		Db::$db->insert(
 			'replace',
 			'{db_prefix}settings',
@@ -3254,8 +3262,7 @@ function ConvertUtf8()
 	$request = Db::$db->query(
 		'',
 		'SHOW CHARACTER SET',
-		[
-		],
+		[],
 	);
 	$db_charsets = [];
 
@@ -3269,20 +3276,7 @@ function ConvertUtf8()
 	$charsets = array_intersect($charsets, $db_charsets);
 
 	// Use the messages.body column as indicator for the database charset.
-	$request = Db::$db->query(
-		'',
-		'SHOW FULL COLUMNS
-		FROM {db_prefix}messages
-		LIKE {string:body_like}',
-		[
-			'body_like' => 'body',
-		],
-	);
-	$column_info = Db::$db->fetch_assoc($request);
-	Db::$db->free_result($request);
-
-	// A collation looks like latin1_swedish. We only need the character set.
-	list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
+	$upcontext['database_charset'] = Db::$db->detect_charset('messages', 'body');
 	$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
 
 	// Detect whether a fulltext index is set.
@@ -3694,10 +3688,6 @@ function ConvertUtf8()
 		[['global_character_set', 'UTF-8'], ['previousCharacterSet', $prev_charset]],
 		['variable'],
 	);
-
-	// Store it in Settings.php too because it's needed before db connection.
-	// Hopefully this works...
-	Config::updateSettingsFile(['db_character_set' => 'utf8']);
 
 	// The conversion might have messed up some serialized strings. Fix them!
 	$request = Db::$db->query(

@@ -855,6 +855,28 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		return (int) $this->connect_errno;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string
+	{
+		static $detected;
+
+		// PostgreSQL uses one character set per database. So sane and simple.
+		if (!isset($detected)) {
+			$request = $this->query(
+				'',
+				'SHOW SERVER_ENCODING;',
+				[],
+			);
+
+			$detected = $this->fetch_all($request);
+			$this->free_result($request);
+		}
+
+		return strtolower($detected['server_encoding']);
+	}
+
 	/****************************************
 	 * Methods that formerly lived in DbExtra
 	 ****************************************/
@@ -2180,6 +2202,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if (!is_object(self::$db_connection)) {
 			self::$db_connection = $this->connection;
 		}
+
+		$this->character_set = strtolower($this->detect_charset());
+		$this->mb4 = $this->character_set === 'utf8';
 
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(

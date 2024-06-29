@@ -291,6 +291,23 @@ interface DatabaseApiInterface
 	 */
 	public function connect_errno(): int;
 
+	/**
+	 * Detects the character set in use for a table, a column, or the database.
+	 *
+	 * If $table is null or the specified table does not exist, the database's
+	 * default character set will be returned.
+	 *
+	 * If $column is null, or if the specified column either does not exist or
+	 * does not store string values, the table's character set will be returned.
+	 *
+	 * @param ?string $table The table to check, or null to get the database's
+	 *    default character set.
+	 * @param ?string $column The column to check, or null to get the table's
+	 *    default character set. This parameter is ignored if $table is null.
+	 * @return string The character set.
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string;
+
 	/****************************************
 	 * Methods that formerly lived in DbExtra
 	 ****************************************/

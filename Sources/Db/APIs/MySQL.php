@@ -47,6 +47,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public bool $mb4 = true;
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public bool $case_sensitive = false;
 
 	/**
@@ -824,6 +829,65 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function connect_errno(): int
 	{
 		return mysqli_connect_errno();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string
+	{
+		static $detected;
+
+		// MySQL has a default character set for the database, but tables can
+		// use different character sets, and even columns within those tables
+		// can use different character sets again. So figuring out the actual
+		// character set used by any given table or column is complicated.
+		if (!isset($detected)) {
+			$request = $this->query(
+				'',
+				'SELECT
+					s.DEFAULT_CHARACTER_SET_NAME,
+					t.TABLE_NAME,
+					a.CHARACTER_SET_NAME AS TABLE_CHARSET,
+					c.COLUMN_NAME,
+					c.CHARACTER_SET_NAME AS COLUMN_CHARSET
+				FROM information_schema.TABLES AS t
+					INNER JOIN information_schema.SCHEMATA AS s ON (s.SCHEMA_NAME = t.TABLE_SCHEMA)
+					INNER JOIN information_schema.COLUMNS AS c ON (c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME)
+					INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY AS a ON (t.TABLE_COLLATION = a.COLLATION_NAME)
+				WHERE t.TABLE_SCHEMA = {string:db_name}
+					AND c.DATA_TYPE IN ({array_string:types})
+				ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME',
+				[
+					'db_name' => $this->name,
+					'types' => ['enum', 'varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext'],
+				],
+			);
+
+			$detected = $this->fetch_all($request);
+			$this->free_result($request);
+		}
+
+		$charset = $detected[0]['DEFAULT_CHARACTER_SET_NAME'];
+
+		if (isset($table)) {
+			$table = str_replace('{db_prefix}', Config::$db_prefix, $table);
+
+			foreach ($detected as $row) {
+				if (
+					$row['TABLE_NAME'] === $table
+					&& (
+						!isset($column)
+						|| $row['COLUMN_NAME'] === $column
+					)
+				) {
+					$charset = isset($column) ? $row['COLUMN_CHARSET'] : $row['TABLE_CHARSET'];
+					break;
+				}
+			}
+		}
+
+		return $charset;
 	}
 
 	/****************************************
@@ -2078,6 +2142,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->get_version();
 		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
+
+		$this->character_set = strtolower($this->detect_charset('messages', 'body'));
+		$this->mb4 = $this->character_set === 'utf8mb4';
 
 		// Ensure database has utf8mb4 as its default input/output charset.
 		// Note: This just informs MySQL that input we send it will be in UTF-8

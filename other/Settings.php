@@ -138,13 +138,6 @@ $db_persist = false;
  * Send emails on database connection error.
  */
 $db_error_send = false;
-/**
- * @var null|bool
- *
- * Override the default behavior of the database layer for mb4 handling.
- * null keep the default behavior untouched.
- */
-$db_mb4 = null;
 
 ########## Cache Info ##########
 /**
@@ -233,14 +226,6 @@ $languagesdir = __DIR__ . '/Languages';
  *    no installed modifications require them. This is usually not necessary.
  */
 $backward_compatibility = 0;
-
-######### Legacy Settings #########
-/**
- * @var string
- *
- * Database character set. Should always be utf8.
- */
-$db_character_set = 'utf8';
 
 if (file_exists(__DIR__ . '/install.php'))
 {

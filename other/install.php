@@ -1124,9 +1124,6 @@ function ForumSettings()
 			return false;
 		}
 
-		// Set the character set here.
-		installer_updateSettingsFile(['db_character_set' => 'utf8'], true);
-
 		// Good, skip on.
 		return true;
 	}
