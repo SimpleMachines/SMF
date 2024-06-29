@@ -1691,8 +1691,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$table_query .= ') ENGINE=' . $parameters['engine'];
 
-		if (!empty($this->character_set) && $this->character_set == 'utf8') {
-			$table_query .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		if (!empty($this->character_set) && str_starts_with($this->character_set, 'utf8')) {
+			if ($this->mb4) {
+				$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
+			} else {
+				$table_query .= ' DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci';
+			}
 		}
 
 		// Create the table!

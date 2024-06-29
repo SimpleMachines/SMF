@@ -2392,10 +2392,10 @@ function parse_sql($filename)
 		},
 	);
 
-	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
+	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8mb4
 	// Note it is expected to be in the format: ENGINE=InnoDB{$db_collation};
 	if (Config::$db_type == 'mysql') {
-		$db_collation = ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$db_collation = ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
 	} else {
 		$db_collation = '';
 	}
@@ -2410,7 +2410,7 @@ function parse_sql($filename)
 	$last_step = '';
 
 	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
-	$lines = preg_replace('/\) ENGINE=(InnoDB|MyISAM);/', ') ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
+	$lines = preg_replace('/\) ENGINE=(InnoDB|MyISAM);/', ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;', $lines);
 
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
@@ -3301,8 +3301,7 @@ function ConvertUtf8()
 		'',
 		'SHOW INDEX
 		FROM {db_prefix}messages',
-		[
-		],
+		[],
 	);
 
 	$upcontext['dropping_index'] = false;

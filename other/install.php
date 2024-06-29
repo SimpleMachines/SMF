@@ -935,10 +935,12 @@ function DatabaseSettings()
 		if (Db::$db->name != '' && !$needsDB) {
 			Db::$db->query(
 				'',
-				'CREATE DATABASE IF NOT EXISTS `' . Db::$db->name . '`',
+				'CREATE DATABASE IF NOT EXISTS {identifier:db_name} {raw:extra}',
 				[
 					'security_override' => true,
 					'db_error_skip' => true,
+					'db_name' => Db::$db->name,
+					'extra' => Config::$db_type === 'mysql' ? ' CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci' : '',
 				],
 				Db::$db->connection,
 			);
@@ -947,10 +949,12 @@ function DatabaseSettings()
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
 				Db::$db->query(
 					'',
-					'CREATE DATABASE IF NOT EXISTS `' . Db::$db->prefix . Db::$db->name . '`',
+					'CREATE DATABASE IF NOT EXISTS {identifier:db_name} {raw:extra}',
 					[
 						'security_override' => true,
 						'db_error_skip' => true,
+						'db_name' => Db::$db->prefix . Db::$db->name,
+						'extra' => Config::$db_type === 'mysql' ? ' CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci' : '',
 					],
 					Db::$db->connection,
 				);
@@ -1235,8 +1239,8 @@ function DatabasePopulation()
 		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// UTF-8 is required.
-		$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
+		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
 
 		// One last thing - if we don't have InnoDB, we can't do transactions...
 		if (!$has_innodb) {
