@@ -106,7 +106,7 @@ class CreateAlerts extends MigrationBase
 			$members_table->create();
 		}
 
-		$existing_structure = $members_table->getStructure();
+		$existing_structure = $members_table->getCurrentStructure();
 
 		foreach ($members_table->columns as $column) {
 			// Column exists, don't need to do this.

@@ -42,7 +42,7 @@ class MembersHideEmail extends MigrationBase
 	public function isCandidate(): bool
 	{
 		$table = new \SMF\Db\Schema\v3_0\Members();
-		$existing_structure = $table->getStructure();
+		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] === 'hide_email') {
@@ -61,7 +61,7 @@ class MembersHideEmail extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$table = new \SMF\Db\Schema\v3_0\Members();
-		$existing_structure = $table->getStructure();
+		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'hide_email') {

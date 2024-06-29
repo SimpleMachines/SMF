@@ -38,7 +38,7 @@ class MessageVersion extends MigrationBase
 	public function execute(): bool
 	{
 		$table = new \SMF\Db\Schema\v3_0\Messages();
-		$existing_structure = $table->getStructure();
+		$existing_structure = $table->getCurrentStructure();
 
 		if (!isset($existing_structure['columns']['version'])) {
 			foreach ($table->columns as $column) {
@@ -50,7 +50,7 @@ class MessageVersion extends MigrationBase
 		}
 
 		$table = new \SMF\Db\Schema\v3_0\PersonalMessages();
-		$existing_structure = $table->getStructure();
+		$existing_structure = $table->getCurrentStructure();
 
 		if (!isset($existing_structure['columns']['version'])) {
 			foreach ($table->columns as $column) {

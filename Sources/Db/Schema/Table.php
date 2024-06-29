@@ -128,7 +128,7 @@ abstract class Table
 	 *    info from SMF\Db\DatabaseApi::list_columns() and index info from
 	 *    SMF\Db\DatabaseApi::list_indexes().
 	 */
-	public function getStructure(): array
+	public function getCurrentStructure(): array
 	{
 		return Db::$db->table_structure($this->name);
 	}
