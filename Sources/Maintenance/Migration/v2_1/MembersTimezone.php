@@ -13,12 +13,15 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Migration\v3_0;
+namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema\Column;
+use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class SpoofDetector extends MigrationBase
+class MembersTimezone extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -27,7 +30,7 @@ class SpoofDetector extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Adding SpoofDetector support';
+	public string $name = 'Adding timezone support';
 
 	/****************
 	 * Public methods
@@ -36,27 +39,31 @@ class SpoofDetector extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public function execute(): bool
+	public function isCandidate(): bool
 	{
 		$table = new \SMF\Db\Schema\v3_0\Members();
 		$existing_structure = $table->getStructure();
 
-		// Add the spoofdetector_name column.
-		foreach ($table->columns as $column) {
-			if (!isset($existing_structure['columns'][$column->name])) {
-				$table->addColumn($column);
+		foreach ($existing_structure['columns'] as $column) {
+			if ($column['name'] === 'timezone') {
+				return false;
 			}
 		}
 
-		// Add indexes for the spoofdetector_name column.
-		foreach ($table->indexes as $index) {
-			if (!isset($existing_structure['indexes'][$index->name])) {
-				$table->addIndex($index);
-			}
-		}
+		return true;
+	}
 
-		// Add the new "spoofdetector_censor" setting
-		Config::updateModSettings(['spoofdetector_censor' => 1]);
+	/**
+	 * {@inheritDoc}
+	 */
+	public function execute(): bool
+	{
+		$start = Maintenance::getCurrentStart();
+
+		$table = new \SMF\Db\Schema\v3_0\Members();
+		$new_col = $table->columns['timezone'];
+
+		$table->addColumn($new_col);
 
 		return true;
 	}

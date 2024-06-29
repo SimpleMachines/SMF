@@ -79,7 +79,7 @@ class PersonalMessageLabels extends MigrationBase
 			}
 
 			$PmRecipientsTable = new \SMF\Db\Schema\v3_0\PmRecipients();
-			$existing_structure = $PmRecipientstable->getStructure();
+			$existing_structure = $PmRecipientsTable->getStructure();
 
 			foreach ($PmRecipientsTable->columns as $column) {
 				// Column exists, don't need to do this.
@@ -290,7 +290,7 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$PmRecipientsTable = new \SMF\Db\Schema\v3_0\PmRecipients();
-		$existing_structure = $PmRecipientstable->getStructure();
+		$existing_structure = $PmRecipientsTable->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'labels') {
@@ -304,7 +304,7 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$MembersTable = new \SMF\Db\Schema\v3_0\Members();
-		$existing_structure = $Memberstable->getStructure();
+		$existing_structure = $MembersTable->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'message_labels') {

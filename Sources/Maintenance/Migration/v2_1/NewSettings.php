@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use DateTimeZone;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -57,6 +58,12 @@ class NewSettings extends MigrationBase
 		'mark_read_max_users' => 500,
 		'enableThemes' => 1,
 		'theme_guests' => 1,
+		'mail_limit' => 5,
+		'mail_quantity' => 5,
+		'gravatarEnabled' => 1,
+		'gravatarOverride' => 0,
+		'gravatarAllowExtraEmail' => 1,
+		'gravatarMaxRating' => 'PG'
 	];
 
 	protected array $removedSettings = [
@@ -77,6 +84,7 @@ class NewSettings extends MigrationBase
 		'cache_memcached',
 		'cache_enable',
 		'cookie_no_auth_secret',
+		'time_offset'
 	];
 
 	/****************
@@ -207,15 +215,29 @@ class NewSettings extends MigrationBase
 			}
 		}
 
-		foreach ($this->removedSettings as $key) {
-			$newSettings[$key] = null;
-		}
-
 		// Renamed setting.
 		if (isset(Config::$modSettings['allow_sm_stats'])) {
 			$newSettings['sm_stats_key'] = Config::$modSettings['allow_sm_stats'];
 			$newSettings['allow_sm_stats'] = null;
 			$newSettings['enable_sm_stats'] = 1;
+		}
+
+		// TimeZone support.
+		if (!empty(Config::$modSettings['time_offset']))
+		{
+			Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
+	
+			$now = date_create('now', timezone_open(Config::$modSettings['default_timezone']));
+	
+			if (($new_tzid = timezone_name_from_abbr('', date_offset_get($now) + Config::$modSettings['time_offset'] * 3600, (int) date_format($now, 'I'))) !== false)
+			{
+				$newSettings['default_timezone'] = $new_tzid;
+			}
+		}
+
+		// Removed settings.
+		foreach ($this->removedSettings as $key) {
+			$newSettings[$key] = null;
 		}
 
 		Config::updateModSettings($newSettings);

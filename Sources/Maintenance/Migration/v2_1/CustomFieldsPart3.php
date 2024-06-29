@@ -57,7 +57,7 @@ class CustomFieldsPart3 extends MigrationBase
 			$table = new \SMF\Db\Schema\v3_0\CustomFields();
 			$existing_structure = $table->getStructure();
 
-			foreach ($existing_structure['columns'] as $column['name']) {
+			foreach ($existing_structure['columns'] as $column) {
 				if (in_array($column['name'], $this->possible_columns)) {
 					$col = new Column(
 						name: $column['name'],

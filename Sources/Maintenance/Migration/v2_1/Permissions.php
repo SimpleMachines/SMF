@@ -42,6 +42,7 @@ class Permissions extends MigrationBase
 		'profile_view_own',
 		'post_autosave_draft',
 		'pm_autosave_draft',
+		'send_email_to_members'
 	];
 
 	/**
@@ -59,6 +60,36 @@ class Permissions extends MigrationBase
 	 */
 	protected array $renamedPermissions = [
 		'profile_view_any' => 'profile_view',
+	];
+
+	/**
+	 *
+	 */
+	protected array $illegalGuestPermissions = [
+		'calendar_edit_any',
+		'moderate_board',
+		'moderate_forum',
+	];
+
+	/**
+	 * 
+	 */
+	protected array $illegalGuestBoardPermissions = [
+		'announce_topic',
+		'delete_any',
+		'lock_any',
+		'make_sticky',
+		'merge_any',
+		'modify_any',
+		'modify_replies',
+		'move_any',
+		'poll_add_any',
+		'poll_edit_any',
+		'poll_lock_any',
+		'poll_remove_any',
+		'remove_any',
+		'report_any',
+		'split_any'
 	];
 
 	/****************
@@ -268,6 +299,28 @@ class Permissions extends MigrationBase
 				['id_group', 'permission'],
 			);
 		}
+
+		$this->handleTimeout(++$start);
+
+		$this->query('', '
+		DELETE FROM {db_prefix}board_permissions
+		WHERE id_group = {int:guests}
+			AND permission IN ({array_string:illegal_board_perms})',
+		[
+			'guests' => -1,
+			'illegal_board_perms' => self::$illegalGuestBoardPermissions,
+		]);
+
+		$this->handleTimeout(++$start);
+
+		Db::$db->query('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE id_group = {int:guests}
+			AND permission IN ({array_string:illegal_perms})',
+		[
+			'guests' => -1,
+			'illegal_perms' => self::$illegalGuestPermissions,
+		]);
 
 		$this->handleTimeout(++$start);
 
