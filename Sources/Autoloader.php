@@ -28,10 +28,10 @@ spl_autoload_register(function ($class) {
 		'ReCaptcha\\' => '{$sourcedir}/ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => '{$sourcedir}/minify/src/',
 		'MatthiasMullie\\PathConverter\\' => '{$sourcedir}/minify/path-converter/src/',
-		'SMF\\Maintenance' => '{$boarddir}/Maintenance',
+		'SMF\\Maintenance' => '{$boarddir}/Maintenance/',
 
 		// In general, the SMF namespace maps to $sourcedir.
-		'SMF\\' => '{$sourcedir}',
+		'SMF\\' => '{$sourcedir}/',
 	];
 
 	// Ensure the directories are set to something valid.
