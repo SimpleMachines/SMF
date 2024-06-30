@@ -52,7 +52,7 @@ class Likes extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$LikesTable = new \SMF\Maintenance\Database\Schema\v3_0\UserLikes();
+		$LikesTable = new \SMF\Maintenance\Database\Schema\v2_1\UserLikes();
 
 		$tables = Db::$db->list_tables();
 
@@ -65,7 +65,7 @@ class Likes extends MigrationBase
 
 		// Adding likes column to the messages table. (May take a while)
 		if ($start <= 1) {
-			$MessagesTable = new \SMF\Maintenance\Database\Schema\v3_0\Messages();
+			$MessagesTable = new \SMF\Maintenance\Database\Schema\v2_1\Messages();
 			$existing_structure = $MessagesTable->getCurrentStructure();
 
 			foreach ($MessagesTable->columns as $column) {

@@ -60,7 +60,7 @@ class ScheduledTasks extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\ScheduledTasks();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\ScheduledTasks();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {

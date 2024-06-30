@@ -38,7 +38,7 @@ class MembersTimezone extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -57,7 +57,7 @@ class MembersTimezone extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
 		$new_col = $table->columns['timezone'];
 
 		$table->addColumn($new_col);

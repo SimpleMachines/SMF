@@ -55,7 +55,7 @@ class ValidationServers extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\PackageServers();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\PackageServers();
 
 		$existing_structure = $table->getCurrentStructure();
 

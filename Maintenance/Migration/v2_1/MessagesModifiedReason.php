@@ -38,7 +38,7 @@ class MessagesModifiedReason extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\Messages();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -57,7 +57,7 @@ class MessagesModifiedReason extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\Messages();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\Messages();
 		$new_col = $table->columns['modified_reason'];
 
 		$table->addColumn($new_col);

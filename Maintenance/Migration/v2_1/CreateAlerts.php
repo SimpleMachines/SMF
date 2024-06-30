@@ -97,8 +97,8 @@ class CreateAlerts extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$members_table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
-		$user_alert_prefs_table = new \SMF\Maintenance\Database\Schema\v3_0\UserAlertsPrefs();
+		$members_table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
+		$user_alert_prefs_table = new \SMF\Maintenance\Database\Schema\v2_1\UserAlertsPrefs();
 
 		$tables = Db::$db->list_tables();
 

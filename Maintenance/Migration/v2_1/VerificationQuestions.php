@@ -52,7 +52,7 @@ class VerificationQuestions extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$QandaTable = new \SMF\Maintenance\Database\Schema\v3_0\Qanda();
+		$QandaTable = new \SMF\Maintenance\Database\Schema\v2_1\Qanda();
 
 		$tables = Db::$db->list_tables();
 

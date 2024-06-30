@@ -99,6 +99,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\IdxMembers::class,
 			Maintenance\Migration\v2_1\PostgreSQLUnlogged::class,
 			Maintenance\Migration\v2_1\PostgreSQLIPv6Helper::class,
+			Maintenance\Migration\v2_1\Ipv6BanItem::class,
+			Maintenance\Migration\v2_1\Ipv6LogAction::class,
+			Maintenance\Migration\v2_1\Ipv6LogBanned::class,
+			Maintenance\Migration\v2_1\Ipv6LogErrors::class,
+			Maintenance\Migration\v2_1\Ipv6MembersIP::class,
+			Maintenance\Migration\v2_1\Ipv6MembersIP2::class,
+			Maintenance\Migration\v2_1\Ipv6Messages::class,
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [

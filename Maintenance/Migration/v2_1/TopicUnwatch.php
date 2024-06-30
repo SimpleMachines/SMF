@@ -45,7 +45,7 @@ class TopicUnwatch extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\LogTopics();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogTopics();
 
 		$existing_structure = $table->getCurrentStructure();
 

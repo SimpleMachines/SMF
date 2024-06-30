@@ -15,9 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Maintenance\Migration\MigrationBase;
+use SMF\Config;
 
-class MembersTfaBackup extends MigrationBase
+class Ipv6MembersIP2 extends Ipv6Base
 {
 	/*******************
 	 * Public properties
@@ -26,7 +26,7 @@ class MembersTfaBackup extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Adding support for 2FA - Adding the backup column to members table';
+	public string $name = 'Update members with ipv6 support (IP2)';
 
 	/****************
 	 * Public methods
@@ -40,13 +40,12 @@ class MembersTfaBackup extends MigrationBase
 		$table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
-		foreach ($existing_structure['columns'] as $column) {
-			if ($column['name'] === 'tfa_backup') {
-				return false;
-			}
+		if (Config::$db_type === POSTGRE_TITLE) {
+			return $existing_structure['columns']['member_ip2']['type'] !== 'inet';
 		}
 
-		return true;
+		return isset($existing_structure['columns']['member_ip2_old'])
+			|| $existing_structure['columns']['member_ip2']['type'] !== 'varbinary';
 	}
 
 	/**
@@ -55,9 +54,8 @@ class MembersTfaBackup extends MigrationBase
 	public function execute(): bool
 	{
 		$table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
-		$table->addColumn($table->columns['tfa_backup']);
 
-		return true;
+		return $this->migrateData($table, 'member_ip2');
 	}
 }
 

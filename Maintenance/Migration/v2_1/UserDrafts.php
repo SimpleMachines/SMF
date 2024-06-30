@@ -52,7 +52,7 @@ class UserDrafts extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$DraftsTable = new \SMF\Maintenance\Database\Schema\v3_0\UserDrafts();
+		$DraftsTable = new \SMF\Maintenance\Database\Schema\v2_1\UserDrafts();
 
 		$tables = Db::$db->list_tables();
 

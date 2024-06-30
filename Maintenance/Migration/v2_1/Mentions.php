@@ -52,7 +52,7 @@ class Mentions extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$MentionsTable = new \SMF\Maintenance\Database\Schema\v3_0\Mentions();
+		$MentionsTable = new \SMF\Maintenance\Database\Schema\v2_1\Mentions();
 
 		$tables = Db::$db->list_tables();
 

@@ -43,7 +43,7 @@ class PersonalMessageLabels extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -62,8 +62,8 @@ class PersonalMessageLabels extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$PmLabelsTable = new \SMF\Maintenance\Database\Schema\v3_0\PmLabels();
-		$PmLabeledMessagesTable = new \SMF\Maintenance\Database\Schema\v3_0\PmLabeledMessages();
+		$PmLabelsTable = new \SMF\Maintenance\Database\Schema\v2_1\PmLabels();
+		$PmLabeledMessagesTable = new \SMF\Maintenance\Database\Schema\v2_1\PmLabeledMessages();
 
 		$tables = Db::$db->list_tables();
 
@@ -78,7 +78,7 @@ class PersonalMessageLabels extends MigrationBase
 				$this->handleTimeout(0);
 			}
 
-			$PmRecipientsTable = new \SMF\Maintenance\Database\Schema\v3_0\PmRecipients();
+			$PmRecipientsTable = new \SMF\Maintenance\Database\Schema\v2_1\PmRecipients();
 			$existing_structure = $PmRecipientsTable->getCurrentStructure();
 
 			foreach ($PmRecipientsTable->columns as $column) {
@@ -289,7 +289,7 @@ class PersonalMessageLabels extends MigrationBase
 			}
 		}
 
-		$PmRecipientsTable = new \SMF\Maintenance\Database\Schema\v3_0\PmRecipients();
+		$PmRecipientsTable = new \SMF\Maintenance\Database\Schema\v2_1\PmRecipients();
 		$existing_structure = $PmRecipientsTable->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -303,7 +303,7 @@ class PersonalMessageLabels extends MigrationBase
 			}
 		}
 
-		$MembersTable = new \SMF\Maintenance\Database\Schema\v3_0\Members();
+		$MembersTable = new \SMF\Maintenance\Database\Schema\v2_1\Members();
 		$existing_structure = $MembersTable->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {

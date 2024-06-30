@@ -45,9 +45,9 @@ class SessionIDs extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$LogOnlineTable = new \SMF\Maintenance\Database\Schema\v3_0\LogOnline();
-		$LogErrorsTable = new \SMF\Maintenance\Database\Schema\v3_0\LogErrors();
-		$SessionsTable = new \SMF\Maintenance\Database\Schema\v3_0\Sessions();
+		$LogOnlineTable = new \SMF\Maintenance\Database\Schema\v2_1\LogOnline();
+		$LogErrorsTable = new \SMF\Maintenance\Database\Schema\v2_1\LogErrors();
+		$SessionsTable = new \SMF\Maintenance\Database\Schema\v2_1\Sessions();
 
 		foreach ($LogOnlineTable->columns as $column) {
 			if ($column->name !== 'session') {

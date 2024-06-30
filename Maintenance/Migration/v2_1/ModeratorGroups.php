@@ -52,7 +52,7 @@ class ModeratorGroups extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$ModeratorGroupsTable = new \SMF\Maintenance\Database\Schema\v3_0\ModeratorGroups();
+		$ModeratorGroupsTable = new \SMF\Maintenance\Database\Schema\v2_1\ModeratorGroups();
 
 		$tables = Db::$db->list_tables();
 

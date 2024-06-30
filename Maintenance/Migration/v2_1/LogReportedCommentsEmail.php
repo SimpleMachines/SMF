@@ -39,7 +39,7 @@ class LogReportedCommentsEmail extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\LogReportedComments();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogReportedComments();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -58,7 +58,7 @@ class LogReportedCommentsEmail extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Maintenance\Database\Schema\v3_0\LogReportedComments();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogReportedComments();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {

@@ -45,7 +45,7 @@ class MailQueue extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$MailQueueTable = new \SMF\Maintenance\Database\Schema\v3_0\MailQueue();
+		$MailQueueTable = new \SMF\Maintenance\Database\Schema\v2_1\MailQueue();
 
 		foreach ($MailQueueTable->columns as $column) {
 			if ($column->name === 'body') {
