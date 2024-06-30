@@ -32,7 +32,7 @@ class Config
 	 */
 	public static bool $backward_compatibility = true;
 
-	# ######### Maintenance ##########
+	########## Maintenance ##########
 	/**
 	 * @var int 0, 1, 2
 	 *
@@ -55,7 +55,7 @@ class Config
 	 */
 	public static $mmessage;
 
-	# ######### Forum info ##########
+	########## Forum info ##########
 	/**
 	 * @var string
 	 *
@@ -87,7 +87,7 @@ class Config
 	 */
 	public static $cookiename;
 
-	# ######### Database info ##########
+	########## Database info ##########
 	/**
 	 * @var string
 	 *
@@ -165,7 +165,7 @@ class Config
 	 */
 	public static $db_mb4;
 
-	# ######### Cache info ##########
+	########## Cache info ##########
 	/**
 	 * @var string
 	 *
@@ -201,7 +201,7 @@ class Config
 	 */
 	public static $cachedir_sqlite;
 
-	# ######### Image proxy ##########
+	########## Image proxy ##########
 	/**
 	 * @var bool
 	 *
@@ -221,7 +221,7 @@ class Config
 	 */
 	public static $image_proxy_maxsize;
 
-	# ######### Directories/Files ##########
+	########## Directories/Files ##########
 	# Note: These directories do not have to be changed unless you move things.
 	/**
 	 * @var string
@@ -254,7 +254,7 @@ class Config
 	 */
 	public static $tasksdir;
 
-	# ######## Legacy settings #########
+	######### Legacy settings #########
 	/**
 	 * @var string
 	 *
@@ -262,7 +262,7 @@ class Config
 	 */
 	public static $db_character_set;
 
-	# ######## Developer settings #########
+	######### Developer settings #########
 	/**
 	 * @var bool
 	 *
@@ -277,7 +277,7 @@ class Config
 	 */
 	public static $db_last_error;
 
-	# ######## Custom settings #########
+	######### Custom settings #########
 	/**
 	 * @var array
 	 *
@@ -285,7 +285,7 @@ class Config
 	 */
 	public static $custom = [];
 
-	# ######## Runtime configuration values #########
+	######### Runtime configuration values #########
 	/**
 	 * @var array
 	 *
@@ -777,23 +777,6 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
-		[
-			'text' => <<<'END'
-
-				# Make sure the paths are correct... at least try to fix them.
-				if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/SSI.php'))
-					$boarddir = dirname(__FILE__);
-				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
-					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
-					$packagesdir = $boarddir . '/Packages';
-				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
-					$cachedir = $boarddir . '/cache';
-				if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
-					$languagesdir = $boarddir . '/Languages';
-				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
-		],
 		'db_character_set' => [
 			'text' => <<<'END'
 
@@ -943,7 +926,6 @@ class Config
 		}
 
 		// Make sure the paths are correct... at least try to fix them.
-		// @todo Remove similar path correction code from Settings.php.
 		if (empty(self::$boarddir) || !is_dir(realpath(self::$boarddir))) {
 			self::$boarddir = !empty($_SERVER['SCRIPT_FILENAME']) ? dirname(realpath($_SERVER['SCRIPT_FILENAME'])) : dirname(__DIR__);
 		}
@@ -1576,6 +1558,11 @@ class Config
 				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 				'placeholder' => '',
 			],
+			// Remove the old path correction code. Config::set() now handles that.
+			$neg_index-- => [
+				'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
+				'placeholder' => '',
+			],
 		];
 
 		// Remove obsolete settings from earlier versions of SMF.
@@ -1613,11 +1600,6 @@ class Config
 				}
 				// The text is the whole thing (code blocks, etc.)
 				elseif (is_int($var)) {
-					// Remember the path correcting code for later.
-					if (str_contains($setting_def['text'], '# Make sure the paths are correct')) {
-						$pathcode_var = $var;
-					}
-
 					if (!empty($setting_def['search_pattern'])) {
 						$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					} else {
@@ -1797,19 +1779,6 @@ class Config
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val) . ';';
 		}
 
-		// During an upgrade, some of the path variables may not have been declared yet.
-		if (defined('SMF_INSTALLING') && empty($rebuild)) {
-			preg_match_all('~^\h*\$(\w+)\s*=\s*~m', $substitutions[$pathcode_var]['replacement'], $matches);
-
-			$missing_pathvars = array_diff($matches[1], array_keys($substitutions));
-
-			if (!empty($missing_pathvars)) {
-				foreach ($missing_pathvars as $var) {
-					$substitutions[$pathcode_var]['replacement'] = preg_replace('~\nif[^\n]+\$' . $var . '[^\n]+\n\h*\$' . $var . ' = [^\n]+~', '', $substitutions[$pathcode_var]['replacement']);
-				}
-			}
-		}
-
 		// It's important to do the numbered ones before the named ones, or messes happen.
 		uksort(
 			$substitutions,
@@ -1892,14 +1861,10 @@ class Config
 				$replace_strings[$var] = $substitution['replacement'];
 			}
 
-			if (str_contains($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ')) {
-				$force_before_pathcode[] = $var;
-			}
-
 			// Look before you leap.
 			preg_match_all($substitution['search_pattern'], $bare_settingsText, $matches);
 
-			if ((is_string($var) || $var === $pathcode_var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '') {
+			if (is_string($var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '') {
 				// More than one instance of the variable = not good.
 				if (count($matches[0]) > 1) {
 					if (is_string($var)) {
@@ -2101,10 +2066,6 @@ class Config
 					$pathcode_reached = false;
 
 					foreach ($settings_defs as $var => $setting_def) {
-						if ($var === $pathcode_var) {
-							$pathcode_reached = true;
-						}
-
 						// Already did this setting, so move on to the next.
 						if (in_array($var, $done_defs)) {
 							continue;
@@ -2128,16 +2089,8 @@ class Config
 							continue;
 						}
 
-						// Does this need to be inserted before the path correction code?
-						if (str_contains($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) && in_array($var, $force_before_pathcode)) {
-							$new_settingsText = strtr($new_settingsText, [$substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']]);
-
-							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
-							$done_defs[] = $var;
-							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
-						}
 						// If it's in this section, add it to the new text now.
-						elseif (in_array($p, $section)) {
+						if (in_array($p, $section)) {
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
@@ -2150,12 +2103,6 @@ class Config
 						}
 						// If this setting is missing entirely, fix it.
 						elseif (!str_contains($bare_settingsText, $p)) {
-							// Special case if the path code is missing. Put it near the end,
-							// and also anything else that is missing that normally follows it.
-							if (!isset($newsection_placeholders[$pathcode_var]) && $pathcode_reached === true && $sectionkey < (count($sections) - 1)) {
-								break;
-							}
-
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
@@ -2174,21 +2121,6 @@ class Config
 				}
 			}
 		}
-		// Even if not rebuilding, there are a few variables that may need to be moved around.
-		else {
-			$pathcode_pos = strpos($settingsText, $substitutions[$pathcode_var]['placeholder']);
-
-			if ($pathcode_pos !== false) {
-				foreach ($force_before_pathcode as $var) {
-					if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos) {
-						$settingsText = strtr($settingsText, [
-							$substitutions[$var]['placeholder'] => '',
-							$substitutions[$pathcode_var]['placeholder'] => $substitutions[$var]['placeholder'] . "\n" . $substitutions[$pathcode_var]['placeholder'],
-						]);
-					}
-				}
-			}
-		}
 
 		/* 3.c: Replace the placeholders with the final values */
 
@@ -2198,11 +2130,6 @@ class Config
 		// Deal with any complicated ones.
 		if (!empty($replace_patterns)) {
 			$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
-		}
-
-		// Make absolutely sure that the path correction code is included.
-		if (!str_contains($settingsText, $substitutions[$pathcode_var]['replacement'])) {
-			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
 		}
 
 		// If we did not rebuild, do just enough to make sure the thing is viable.
@@ -2226,10 +2153,6 @@ class Config
 			$pathcode_reached = false;
 
 			foreach ($settings_defs as $var => $setting_def) {
-				if ($var === $pathcode_var) {
-					$pathcode_reached = true;
-				}
-
 				if (is_int($var)) {
 					continue;
 				}
@@ -2239,12 +2162,7 @@ class Config
 					continue;
 				}
 
-				// Insert it either before or after the path correction code, whichever is appropriate.
-				if (!$pathcode_reached || in_array($var, $force_before_pathcode)) {
-					$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
-				} else {
-					$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n\n" . $substitutions[$var]['replacement'], $settingsText);
-				}
+				$settingsText .= "\n\n" . $substitutions[$var]['replacement'];
 			}
 		} else {
 			// If the comments for some variables have changed since the last
