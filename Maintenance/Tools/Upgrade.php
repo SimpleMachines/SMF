@@ -84,6 +84,21 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\VerificationQuestions::class,
 			Maintenance\Migration\v2_1\Permissions::class,
 			Maintenance\Migration\v2_1\PersonalMessageLabels::class,
+			Maintenance\Migration\v2_1\MessagesModifiedReason::class,
+			Maintenance\Migration\v2_1\MembersTimezone::class,
+			Maintenance\Migration\v2_1\MembersHideEmail::class,
+			Maintenance\Migration\v2_1\LogReportedCommentsEmail::class,
+			Maintenance\Migration\v2_1\ScheduledTasksAutoOptimize::class,
+			Maintenance\Migration\v2_1\MembersOpenID::class,
+			Maintenance\Migration\v2_1\OpenID::class,
+			Maintenance\Migration\v2_1\LogSpiderHitsURL::class,
+			Maintenance\Migration\v2_1\LogOnlineURL::class,
+			Maintenance\Migration\v2_1\MembersTfaSecret::class,
+			Maintenance\Migration\v2_1\MembersTfaBackup::class,
+			Maintenance\Migration\v2_1\IdxMessages::class,
+			Maintenance\Migration\v2_1\IdxTopics::class,
+			Maintenance\Migration\v2_1\IdxMembers::class
+			
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [

@@ -63,7 +63,8 @@ class NewSettings extends MigrationBase
 		'gravatarEnabled' => 1,
 		'gravatarOverride' => 0,
 		'gravatarAllowExtraEmail' => 1,
-		'gravatarMaxRating' => 'PG'
+		'gravatarMaxRating' => 'PG',
+		'tfa_mode' => 1
 	];
 
 	protected array $removedSettings = [
@@ -84,7 +85,10 @@ class NewSettings extends MigrationBase
 		'cache_memcached',
 		'cache_enable',
 		'cookie_no_auth_secret',
-		'time_offset'
+		'time_offset',
+		'autoOptMaxOnline',
+		'enableOpenID',
+		'dh_keys'
 	];
 
 	/****************
