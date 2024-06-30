@@ -38,7 +38,7 @@ class MembersOpenID extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\Members();
+		$table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
 		$existing_structure = $table->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -55,7 +55,7 @@ class MembersOpenID extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\Members();
+		$table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
 		$existing_structure = $table->getStructure();
 
 		foreach ($existing_structure['columns'] as $column) {

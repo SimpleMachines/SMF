@@ -45,7 +45,7 @@ class LogOnlineURL extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\LogOnline();
+		$table = new \SMF\Maintenance\Database\Schema\v3_0\LogOnline();
 		$existing_structure = $table->getStructure();
 
 		if ($existing_structure['columns']['url'] !== 'varchar' || (int) $existing_structure['columns']['url']['size'] !== 2048) {

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\DbIndex;
+use SMF\Maintenance\Database\Schema\DbIndex;
 use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -50,7 +50,7 @@ class IdxMembers extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Db\Schema\v3_0\Members();
+		$table = new \SMF\Maintenance\Database\Schema\v3_0\Members();
 
 		if ($start <= 0) {
 			$oldIdx = new DbIndex(
