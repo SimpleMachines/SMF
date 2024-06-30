@@ -66,10 +66,13 @@ class UserDrafts extends MigrationBase
 		// Adding draft permissions.
 		if ($start <= 1 && version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<')) {
 			// Anyone who can currently post unapproved topics we assume can create drafts as well ...
-			$request = $this->query('', '
-				SELECT id_group, id_board, add_deny, permission
+			$request = $this->query(
+				'',
+				'SELECT id_group, id_board, add_deny, permission
 				FROM {db_prefix}board_permissions
-				WHERE permission = {literal:post_unapproved_topics}');
+				WHERE permission = {literal:post_unapproved_topics}',
+				[],
+			);
 
 			$inserts = [];
 
@@ -104,6 +107,7 @@ class UserDrafts extends MigrationBase
 				'SELECT id_group, add_deny, permission
 				FROM {db_prefix}permissions
 				WHERE permission = {literal:pm_send}',
+				[],
 			);
 
 			$inserts = [];

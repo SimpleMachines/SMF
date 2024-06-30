@@ -132,9 +132,16 @@ class CreateAlerts extends MigrationBase
 			['id_theme', 'alert_pref'],
 		);
 
-		$request = $this->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+		$request = $this->query(
+			'',
+			'SELECT COUNT(*)
+			FROM {db_prefix}members',
+			[],
+		);
+
 		list($maxMembers) = Db::$db->fetch_row($request);
 		Maintenance::$total_items = (int) $maxMembers;
+
 		Db::$db->free_result($request);
 
 		// First see if we still have a notify_regularity column
@@ -150,8 +157,7 @@ class CreateAlerts extends MigrationBase
 				// Skip errors here so we don't croak if the columns don't exist...
 				$request = $this->query(
 					'',
-					'
-					SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
+					'SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 					FROM {db_prefix}members
 					ORDER BY id_member
 					LIMIT {int:start}, {int:limit}',
@@ -172,6 +178,7 @@ class CreateAlerts extends MigrationBase
 					$inserts[] = [$row['id_member'], 'msg_notify_type', $row['notify_types']];
 					$inserts[] = [$row['id_member'], 'announcements', !empty($row['notify_announcements']) ? 1 : 0];
 				}
+
 				Db::$db->free_result($request);
 
 				Db::$db->insert(

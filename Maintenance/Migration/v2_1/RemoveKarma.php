@@ -49,9 +49,8 @@ class RemoveKarma extends MigrationBase
 		// Delete old settings vars.
 		$this->query(
 			'',
-			'
-            DELETE FROM {db_prefix}settings
-            WHERE variable IN ({array_string:karma_vars})',
+			'DELETE FROM {db_prefix}settings
+			WHERE variable IN ({array_string:karma_vars})',
 			[
 				'karma_vars' => ['karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'],
 			],
@@ -72,9 +71,8 @@ class RemoveKarma extends MigrationBase
 		// Cleaning up old karma permissions.
 		$this->query(
 			'',
-			'
-            DELETE FROM {db_prefix}permissions
-            WHERE permission = {string:karma_vars}',
+			'DELETE FROM {db_prefix}permissions
+			WHERE permission = {string:karma_vars}',
 			[
 				'karma_vars' => 'karma_edit',
 			],

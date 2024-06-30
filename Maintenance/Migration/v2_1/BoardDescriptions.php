@@ -53,8 +53,7 @@ class BoardDescriptions extends MigrationBase
 
 		$request = $this->query(
 			'',
-			'
-			SELECT name, description, id_board
+			'SELECT name, description, id_board
 			FROM {db_prefix}boards
 			WHERE id_board > {int:start}',
 			[
@@ -65,8 +64,7 @@ class BoardDescriptions extends MigrationBase
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$this->query(
 				'',
-				'
-				UPDATE {db_prefix}boards
+				'UPDATE {db_prefix}boards
 				SET name = {string:name}, description = {string:description}
 				WHERE id = {int:id}',
 				[
@@ -79,6 +77,7 @@ class BoardDescriptions extends MigrationBase
 			Maintenance::setCurrentStart();
 			$this->handleTimeout();
 		}
+
 		Db::$db->free_result($request);
 
 		return true;

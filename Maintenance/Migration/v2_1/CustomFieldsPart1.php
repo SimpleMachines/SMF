@@ -138,7 +138,6 @@ class CustomFieldsPart1 extends MigrationBase
 
 		if ($start <= 0) {
 			$table = new \SMF\Maintenance\Database\Schema\v3_0\CustomFields();
-			// $existing_columns = Db::$db->list_columns('{db_prefix}' . $table->name);
 			$existing_structure = $table->getCurrentStructure();
 
 			foreach ($table->columns as $column) {

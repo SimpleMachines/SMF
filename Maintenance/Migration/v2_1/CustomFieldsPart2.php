@@ -56,9 +56,17 @@ class CustomFieldsPart2 extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$request = $this->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+		$request = $this->query(
+			'',
+			'SELECT COUNT(*)
+			FROM {db_prefix}members',
+			[],
+		);
+
 		list($maxMembers) = Db::$db->fetch_row($request);
+
 		Db::$db->free_result($request);
+
 		Maintenance::$total_items = (int) $maxMembers;
 
 		$results = Db::$db->list_columns('{db_prefix}members');

@@ -81,8 +81,7 @@ class LegacyAttachments extends MigrationBase
 
 			$request = $this->query(
 				'',
-				'
-				SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
+				'SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 				FROM {db_prefix}attachments
 				WHERE attachment_type != 1
 				ORDER BY id_attach
@@ -158,8 +157,7 @@ class LegacyAttachments extends MigrationBase
 					if (rename($oldFile, $custom_av_dir . '/' . $row['filename'])) {
 						$this->query(
 							'',
-							'
-							UPDATE {db_prefix}attachments
+							'UPDATE {db_prefix}attachments
 							SET file_hash = {empty}, attachment_type = 1
 							WHERE id_attach = {int:attach_id}',
 							[
@@ -178,8 +176,7 @@ class LegacyAttachments extends MigrationBase
 				if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile)) {
 					$this->query(
 						'',
-						'
-						UPDATE {db_prefix}attachments
+						'UPDATE {db_prefix}attachments
 						SET file_hash = {string:file_hash}
 						WHERE id_attach = {int:atach_id}',
 						[
@@ -196,8 +193,7 @@ class LegacyAttachments extends MigrationBase
 					if (!empty($size['mime'])) {
 						$this->query(
 							'',
-							'
-							UPDATE {db_prefix}attachments
+							'UPDATE {db_prefix}attachments
 							SET mime_type = {string:mime_type}
 							WHERE id_attach = {int:id_attach}',
 							[

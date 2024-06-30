@@ -49,15 +49,19 @@ class CollapsedCategories extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$request = $this->query('', '
-			SELECT id_member, id_cat
-			FROM {db_prefix}collapsed_categories');
+		$request = $this->query(
+			'',
+			'SELECT id_member, id_cat
+			FROM {db_prefix}collapsed_categories',
+			[],
+		);
 
 		$inserts = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$inserts[] = [$row['id_member'], 1, 'collapse_category_' . $row['id_cat'], $row['id_cat']];
 		}
+
 		Db::$db->free_result($request);
 
 		$result = false;

@@ -119,8 +119,7 @@ class NewSettings extends MigrationBase
 		if (!isset(Config::$modSettings['allow_no_censored'])) {
 			$request = $this->query(
 				'',
-				'
-				SELECT value
+				'SELECT value
 				FROM {db_prefix}themes
 				WHERE variable={string:allow_no_censored}
 				AND id_theme = 1 OR id_theme = {int:default_theme}',
@@ -153,8 +152,7 @@ class NewSettings extends MigrationBase
 
 		$request = $this->query(
 			'',
-			'
-			SELECT variable, value
+			'SELECT variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN({array_string:ripped_settings})
 				AND id_member = 0

@@ -70,6 +70,7 @@ class VerificationQuestions extends MigrationBase
 			'SELECT body AS question, recipient_name AS answer
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {literal:ver_test}',
+			[],
 		);
 
 		while ($row = Db::$db->fetch_assoc($get_questions)) {

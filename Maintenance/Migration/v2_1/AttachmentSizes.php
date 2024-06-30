@@ -57,16 +57,17 @@ class AttachmentSizes extends MigrationBase
 		*/
 
 		$attachs = [];
+
 		// If id_member = 0, then it's not an avatar
 		// If attachment_type = 0, then it's also not a thumbnail
 		// Theory says there shouldn't be *that* many of these
 		$request = $this->query(
 			'',
-			'
-			SELECT id_attach, mime_type, width, height
+			'SELECT id_attach, mime_type, width, height
 			FROM {db_prefix}attachments
 			WHERE id_member = 0
 				AND attachment_type = 0',
+			[],
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
@@ -79,8 +80,7 @@ class AttachmentSizes extends MigrationBase
 		if (!empty($attachs)) {
 			$this->query(
 				'',
-				'
-				UPDATE {db_prefix}attachments
+				'UPDATE {db_prefix}attachments
 				SET width = 0,
 					height = 0
 				WHERE id_attach IN ({array_int:attachs})',
@@ -90,7 +90,7 @@ class AttachmentSizes extends MigrationBase
 			);
 		}
 
-			return true;
+		return true;
 	}
 }
 

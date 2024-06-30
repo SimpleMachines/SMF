@@ -46,8 +46,12 @@ class AttachmentDirectory extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		if (!is_array(Config::$modSettings['attachmentUploadDir']) && is_dir(Config::$modSettings['attachmentUploadDir'])) {
+		if (
+			!is_array(Config::$modSettings['attachmentUploadDir'])
+			&& is_dir(Config::$modSettings['attachmentUploadDir'])
+		) {
 			Config::$modSettings['attachmentUploadDir'] = serialize([1 => Config::$modSettings['attachmentUploadDir']]);
+
 			Config::updateModSettings([
 				'attachmentUploadDir' => Config::$modSettings['attachmentUploadDir'],
 				'currentAttachmentUploadDir' => 1,
@@ -59,7 +63,7 @@ class AttachmentDirectory extends MigrationBase
 			// Assume currentAttachmentUploadDir is already set
 		}
 
-			return true;
+		return true;
 	}
 }
 

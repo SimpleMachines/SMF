@@ -59,65 +59,86 @@ class AlertsObsolete extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts
-		SET content_type = {literal:member}, content_id = id_member_started
-		WHERE content_type = {literal:buddy}');
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts
+			SET content_type = {literal:member}, content_id = id_member_started
+			WHERE content_type = {literal:buddy}',
+			[],
+		);
 
 		$this->handleTimeout();
 
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts
-		SET content_type = {literal:member}
-		WHERE content_type = {literal:profile}');
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts
+			SET content_type = {literal:member}
+			WHERE content_type = {literal:profile}',
+			[],
+		);
 
 		$this->handleTimeout();
 
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts
-		SET content_id = id_member_started
-		WHERE content_type = {literal:member}
-			AND content_action LIKE {string:content_action', ['content_action' => 'register_%']);
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts
+			SET content_id = id_member_started
+			WHERE content_type = {literal:member}
+				AND content_action LIKE {string:content_action',
+			['content_action' => 'register_%'],
+		);
 
 		$this->handleTimeout();
 
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts
-		SET content_id = {literal:topic},
-			content_action = {literal:unapproved_topic}
-		WHERE content_type = {literal:unapproved}
-			AND content_action = {string:content_action', ['content_action' => 'topic']);
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts
+			SET content_id = {literal:topic},
+				content_action = {literal:unapproved_topic}
+			WHERE content_type = {literal:unapproved}
+				AND content_action = {string:content_action',
+			['content_action' => 'topic'],
+		);
 
 		$this->handleTimeout();
 
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts
-		SET content_id = {literal:topic},
-			content_action = {literal:unapproved_reply}
-		WHERE content_type = {literal:unapproved}
-			AND content_action = {string:content_action', ['content_action' => 'reply']);
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts
+			SET content_id = {literal:topic},
+				content_action = {literal:unapproved_reply}
+			WHERE content_type = {literal:unapproved}
+				AND content_action = {string:content_action',
+			['content_action' => 'reply'],
+		);
 
 		$this->handleTimeout();
 
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts
-		SET content_id = {literal:topic},
-			content_action = {literal:unapproved_post}
-		WHERE content_type = {literal:unapproved}
-			AND content_action = {string:content_action', ['content_action' => 'post']);
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts
+			SET content_id = {literal:topic},
+				content_action = {literal:unapproved_post}
+			WHERE content_type = {literal:unapproved}
+				AND content_action = {string:content_action',
+			['content_action' => 'post'],
+		);
 
 		$this->handleTimeout();
 
-		$this->query('', '
-		UPDATE {$db_prefix}user_alerts AS a
+		$this->query(
+			'',
+			'UPDATE {$db_prefix}user_alerts AS a
 			JOIN {$db_prefix}attachments AS f
 				ON (f.id_attach = a.content_id)
-		SET
-			a.content_type = {literal:msg},
-			a.content_action = {literal:unapproved_attachment},
-			a.content_id = f.id_msg
-		WHERE content_type = {literal:unapproved}
-			AND content_action = {literal:attachment}');
+			SET
+				a.content_type = {literal:msg},
+				a.content_action = {literal:unapproved_attachment},
+				a.content_id = f.id_msg
+			WHERE content_type = {literal:unapproved}
+				AND content_action = {literal:attachment}',
+			[],
+		);
 
 		$this->handleTimeout();
 

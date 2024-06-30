@@ -274,10 +274,13 @@ class Permissions extends MigrationBase
 
 		$inserts = [];
 
-		$request = $this->query('', '
-			SELECT id_group, add_deny
+		$request = $this->query(
+			'',
+			'SELECT id_group, add_deny
 			FROM {db_prefix}permissions
-			WHERE permission = {literal:profile_extra_own}');
+			WHERE permission = {literal:profile_extra_own}',
+			[],
+		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$inserts[] = [$row['id_group'], 'profile_blurb_own', $row['add_deny']];
