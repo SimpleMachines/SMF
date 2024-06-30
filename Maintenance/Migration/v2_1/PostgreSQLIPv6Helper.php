@@ -16,8 +16,6 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\DbIndex;
-use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class PostgreSQLIPv6Helper extends MigrationBase

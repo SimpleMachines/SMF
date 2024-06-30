@@ -57,6 +57,7 @@ class MembersOpenID extends MigrationBase
 	{
 		$table = new \SMF\Db\Schema\v3_0\Members();
 		$existing_structure = $table->getStructure();
+
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] === 'openid_uri') {
 				$old_col = new Column('openid_uri', 'varchar');

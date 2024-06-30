@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -34,7 +33,7 @@ class PostgreSQLUnlogged extends MigrationBase
 	private array $tables = [
 		'log_online',
 		'log_floodcontrol',
-		'sessions'
+		'sessions',
 	];
 
 	/****************
@@ -57,28 +56,32 @@ class PostgreSQLUnlogged extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$result = $this->query('', 'SHOW server_version_num');
-		if ($result !== false)
-		{
-			while ($row = Db::$db->fetch_assoc($result))
+
+		if ($result !== false) {
+			while ($row = Db::$db->fetch_assoc($result)) {
 				$pg_version = $row['server_version_num'];
+			}
 			Db::$db->free_result($result);
 		}
-	
-		if (!isset($pg_version)){
+
+		if (!isset($pg_version)) {
 			return true;
 		}
 
-		foreach($this->tables as $table)
-		{
+		foreach($this->tables as $table) {
 			if($pg_version >= 90500) {
-				$this->query('', '
+				$this->query(
+					'',
+					'
 				ALTER TABLE {db_prefix}{raw:table} SET UNLOGGED;',
-				[
-					'table' => $table
-				]);
-			}
-			else {
-				$this->query('', '
+					[
+						'table' => $table,
+					],
+				);
+			} else {
+				$this->query(
+					'',
+					'
 				ALTER TABLE {db_prefix}{raw:table} rename to old_{db_prefix}{raw:table};
 	
 				do
@@ -99,18 +102,18 @@ class PostgreSQLUnlogged extends MigrationBase
 				insert into {db_prefix}{raw:table} select * from old_{db_prefix}{raw:table};
 	
 				drop table old_{db_prefix}{raw:table};',
-				[
-					'table' => $table,
-					'old_table_conrelid' => 'old_' . Db::$db->prefix . $table,
-					'old_table_name' => 'old_' . Db::$db->prefix . $table,
-					'alter_table' => 'alter table old_' . Db::$db->prefix . $table . ' rename constraint %I to %I',
-					'regex_old' => '^old_',
-					'alter_inex' => 'alter index %I rename to %I'
-				]
+					[
+						'table' => $table,
+						'old_table_conrelid' => 'old_' . Db::$db->prefix . $table,
+						'old_table_name' => 'old_' . Db::$db->prefix . $table,
+						'alter_table' => 'alter table old_' . Db::$db->prefix . $table . ' rename constraint %I to %I',
+						'regex_old' => '^old_',
+						'alter_inex' => 'alter index %I rename to %I',
+					],
 				);
 			}
 		}
-	
+
 		return true;
 	}
 }

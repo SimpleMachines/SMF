@@ -98,20 +98,26 @@ class ScheduledTasks extends MigrationBase
 		}
 
 		// Remove the old 'Auto Optimize' task.
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			DELETE FROM {db_prefix}scheduled_tasks
 			WHERE id_task = {int:AutoOptimizeTaskID}',
 			[
-				'AutoOptimizeTaskID' => 2
-			]);
+				'AutoOptimizeTaskID' => 2,
+			],
+		);
 
-		$this->query('', '
+		$this->query(
+			'',
+			'
 			DELETE FROM {db_prefix}log_scheduled_tasks
 			WHERE id_task = {int:AutoOptimizeTaskID}',
 			[
-				'AutoOptimizeTaskID' => 2
-			]);
-			
+				'AutoOptimizeTaskID' => 2,
+			],
+		);
+
 		return true;
 	}
 }

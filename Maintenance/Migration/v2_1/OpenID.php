@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Database\Schema\Column;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class OpenID extends MigrationBase
@@ -50,6 +49,7 @@ class OpenID extends MigrationBase
 	public function execute(): bool
 	{
 		Db::$db->drop_table('{db_prefix}openid_assoc');
+
 		return true;
 	}
 }
