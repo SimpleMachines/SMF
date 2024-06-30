@@ -718,7 +718,17 @@ function loadEssentialData()
 	// This is used in text2words() for old 1.0.x conversions; restoring old logic
 	$smcFunc['truncate'] = function($word, $max_chars)
 	{
-		return substr($word, 0, $max_chars);
+		$new_string = '';
+
+		foreach (preg_split('/((?>&.*?;|\X))/u', $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $char)
+		{
+			if (strlen($new_string . $char) > $max_chars)
+				break;
+
+			$new_string .= $char;
+		}
+
+		return $new_string;
 	};
 
 	// We need this for authentication and some upgrade code
