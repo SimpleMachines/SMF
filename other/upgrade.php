@@ -715,6 +715,22 @@ function loadEssentialData()
 		return random_bytes($bytes);
 	};
 
+	// This is used in text2words() for old 1.0.x conversions; restoring old logic
+	$smcFunc['truncate'] = function($word, $max_chars)
+	{
+		$new_string = '';
+
+		foreach (preg_split('/((?>&.*?;|\X))/u', $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $char)
+		{
+			if (strlen($new_string . $char) > $max_chars)
+				break;
+
+			$new_string .= $char;
+		}
+
+		return $new_string;
+	};
+
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 	require_once($sourcedir . '/Class-Package.php');
@@ -2594,7 +2610,7 @@ function protected_alter($change, $substep, $is_test = false)
 			SHOW FULL PROCESSLIST');
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (strpos($row['Info'], 'ALTER TABLE ' . $db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false)
+			if ($row['Info'] !== null && (strpos($row['Info'], 'ALTER TABLE ' . $db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false))
 				$found = true;
 		}
 
