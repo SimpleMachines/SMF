@@ -64,7 +64,7 @@ class NewSettings extends MigrationBase
 		'gravatarOverride' => 0,
 		'gravatarAllowExtraEmail' => 1,
 		'gravatarMaxRating' => 'PG',
-		'tfa_mode' => 1
+		'tfa_mode' => 1,
 	];
 
 	protected array $removedSettings = [
@@ -88,7 +88,7 @@ class NewSettings extends MigrationBase
 		'time_offset',
 		'autoOptMaxOnline',
 		'enableOpenID',
-		'dh_keys'
+		'dh_keys',
 	];
 
 	/****************
@@ -227,14 +227,12 @@ class NewSettings extends MigrationBase
 		}
 
 		// TimeZone support.
-		if (!empty(Config::$modSettings['time_offset']))
-		{
+		if (!empty(Config::$modSettings['time_offset'])) {
 			Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
-	
+
 			$now = date_create('now', timezone_open(Config::$modSettings['default_timezone']));
-	
-			if (($new_tzid = timezone_name_from_abbr('', date_offset_get($now) + Config::$modSettings['time_offset'] * 3600, (int) date_format($now, 'I'))) !== false)
-			{
+
+			if (($new_tzid = timezone_name_from_abbr('', date_offset_get($now) + Config::$modSettings['time_offset'] * 3600, (int) date_format($now, 'I'))) !== false) {
 				$newSettings['default_timezone'] = $new_tzid;
 			}
 		}

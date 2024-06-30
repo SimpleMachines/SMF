@@ -42,7 +42,7 @@ class Permissions extends MigrationBase
 		'profile_view_own',
 		'post_autosave_draft',
 		'pm_autosave_draft',
-		'send_email_to_members'
+		'send_email_to_members',
 	];
 
 	/**
@@ -72,7 +72,7 @@ class Permissions extends MigrationBase
 	];
 
 	/**
-	 * 
+	 *
 	 */
 	protected array $illegalGuestBoardPermissions = [
 		'announce_topic',
@@ -89,7 +89,7 @@ class Permissions extends MigrationBase
 		'poll_remove_any',
 		'remove_any',
 		'report_any',
-		'split_any'
+		'split_any',
 	];
 
 	/****************
@@ -151,10 +151,13 @@ class Permissions extends MigrationBase
 		$inserts = [];
 
 		// Adding "profile_password_own"
-		$request = $this->query('', '
-			SELECT id_group, add_deny
+		$request = $this->query(
+			'',
+			'SELECT id_group, add_deny
 			FROM {db_prefix}permissions
-			WHERE permission = {literal:profile_identity_own}');
+			WHERE permission = {literal:profile_identity_own}',
+			[],
+		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$inserts[] = [
@@ -302,25 +305,29 @@ class Permissions extends MigrationBase
 
 		$this->handleTimeout(++$start);
 
-		$this->query('', '
-		DELETE FROM {db_prefix}board_permissions
-		WHERE id_group = {int:guests}
-			AND permission IN ({array_string:illegal_board_perms})',
-		[
-			'guests' => -1,
-			'illegal_board_perms' => self::$illegalGuestBoardPermissions,
-		]);
+		$this->query(
+			'',
+			'DELETE FROM {db_prefix}board_permissions
+			WHERE id_group = {int:guests}
+				AND permission IN ({array_string:illegal_board_perms})',
+			[
+				'guests' => -1,
+				'illegal_board_perms' => self::$illegalGuestBoardPermissions,
+			],
+		);
 
 		$this->handleTimeout(++$start);
 
-		Db::$db->query('', '
-		DELETE FROM {db_prefix}permissions
-		WHERE id_group = {int:guests}
-			AND permission IN ({array_string:illegal_perms})',
-		[
-			'guests' => -1,
-			'illegal_perms' => self::$illegalGuestPermissions,
-		]);
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}permissions
+			WHERE id_group = {int:guests}
+				AND permission IN ({array_string:illegal_perms})',
+			[
+				'guests' => -1,
+				'illegal_perms' => self::$illegalGuestPermissions,
+			],
+		);
 
 		$this->handleTimeout(++$start);
 

@@ -15,9 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\Column;
 use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -53,14 +51,14 @@ class IdxMembers extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$table = new \SMF\Db\Schema\v3_0\Members();
-		
+
 		if ($start <= 0) {
 			$oldIdx = new DbIndex(
 				['members_member_name_low'],
 				'index',
-				'members_member_name_low'
+				'members_member_name_low',
 			);
-			
+
 			$table->dropIndex($oldIdx);
 		}
 
@@ -70,9 +68,9 @@ class IdxMembers extends MigrationBase
 			$oldIdx = new DbIndex(
 				['members_real_name_low'],
 				'index',
-				'members_real_name_low'
+				'members_real_name_low',
 			);
-			
+
 			$table->dropIndex($oldIdx);
 		}
 
@@ -82,9 +80,9 @@ class IdxMembers extends MigrationBase
 			$oldIdx = new DbIndex(
 				['members_active_real_name'],
 				'index',
-				'members_active_real_name'
+				'members_active_real_name',
 			);
-			
+
 			$table->dropIndex($oldIdx);
 		}
 

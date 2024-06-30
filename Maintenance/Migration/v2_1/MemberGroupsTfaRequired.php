@@ -15,10 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\Column;
-use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MemberGroupsTfaRequired extends MigrationBase

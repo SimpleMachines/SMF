@@ -15,9 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\Column;
 use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -58,9 +55,9 @@ class IdxMessages extends MigrationBase
 			$oldIdx = new DbIndex(
 				['id_topic'],
 				'index',
-				'idx_id_topic'
+				'idx_id_topic',
 			);
-			
+
 			$table->dropIndex($oldIdx);
 		}
 
@@ -70,9 +67,9 @@ class IdxMessages extends MigrationBase
 			$oldIdx = new DbIndex(
 				['id_topic'],
 				'index',
-				'idx_topic'
+				'idx_topic',
 			);
-			
+
 			$table->dropIndex($oldIdx);
 		}
 
