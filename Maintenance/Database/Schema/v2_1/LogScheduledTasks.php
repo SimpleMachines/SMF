@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Database\Schema\v3_0;
+namespace SMF\Maintenance\Database\Schema\v2_1;
 
 use SMF\Maintenance\Database\Schema\Column;
 use SMF\Maintenance\Database\Schema\DbIndex;
