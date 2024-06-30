@@ -18,7 +18,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class NewScheduledTasks extends MigrationBase
+class ScheduledTasks extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -97,6 +97,21 @@ class NewScheduledTasks extends MigrationBase
 			Db::$db->free_result($request);
 		}
 
+		// Remove the old 'Auto Optimize' task.
+		$this->query('', '
+			DELETE FROM {db_prefix}scheduled_tasks
+			WHERE id_task = {int:AutoOptimizeTaskID}',
+			[
+				'AutoOptimizeTaskID' => 2
+			]);
+
+		$this->query('', '
+			DELETE FROM {db_prefix}log_scheduled_tasks
+			WHERE id_task = {int:AutoOptimizeTaskID}',
+			[
+				'AutoOptimizeTaskID' => 2
+			]);
+			
 		return true;
 	}
 }

@@ -47,7 +47,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		'v2_1' => [
 			Maintenance\Migration\v2_1\PostgreSQLSequences::class,
 			Maintenance\Migration\v2_1\PostgreSQLFindInSet::class,
-			Maintenance\Migration\v2_1\NewSettings::class,
+			Maintenance\Migration\v2_1\SettingsUpdate::class,
 			Maintenance\Migration\v2_1\RemoveKarma::class,
 			Maintenance\Migration\v2_1\FixDates::class,
 			Maintenance\Migration\v2_1\CreateMemberLogins::class,
@@ -61,7 +61,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\ValidationServers::class,
 			Maintenance\Migration\v2_1\SessionIDs::class,
 			Maintenance\Migration\v2_1\MovedTopics::class,
-			Maintenance\Migration\v2_1\NewScheduledTasks::class,
+			Maintenance\Migration\v2_1\ScheduledTasks::class,
 			Maintenance\Migration\v2_1\CreateBackgroundTasks::class,
 			Maintenance\Migration\v2_1\CategoryDescrptions::class,
 			Maintenance\Migration\v2_1\CreateAlerts::class,
@@ -88,7 +88,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\MembersTimezone::class,
 			Maintenance\Migration\v2_1\MembersHideEmail::class,
 			Maintenance\Migration\v2_1\LogReportedCommentsEmail::class,
-			Maintenance\Migration\v2_1\ScheduledTasksAutoOptimize::class,
 			Maintenance\Migration\v2_1\MembersOpenID::class,
 			Maintenance\Migration\v2_1\OpenID::class,
 			Maintenance\Migration\v2_1\LogSpiderHitsURL::class,
@@ -98,6 +97,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\IdxMessages::class,
 			Maintenance\Migration\v2_1\IdxTopics::class,
 			Maintenance\Migration\v2_1\IdxMembers::class,
+			Maintenance\Migration\v2_1\PostgreSQLUnlogged::class,
+			Maintenance\Migration\v2_1\PostgreSQLIPv6Helper::class
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [

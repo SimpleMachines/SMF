@@ -114,7 +114,7 @@ class IdxMembers extends MigrationBase
 
 		if ($start <= 4) {
 			foreach ($table->indexes as $idx) {
-				if ($idx['name'] === 'idx_active_real_name') {
+				if ($idx->name === 'idx_active_real_name') {
 					$table->addIndex($idx);
 				}
 			}

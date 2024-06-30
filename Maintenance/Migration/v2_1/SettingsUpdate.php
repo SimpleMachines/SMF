@@ -21,7 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 use SMF\Security;
 
-class NewSettings extends MigrationBase
+class SettingsUpdate extends MigrationBase
 {
 	/*******************
 	 * Public properties
