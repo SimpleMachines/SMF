@@ -630,7 +630,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		elseif (!empty($preferred_format) && ($preferred_format == 15) && function_exists('imagewbmp'))
 			$success = imagewbmp($dst_img, $destName);
 		elseif (!empty($preferred_format) && ($preferred_format == 18) && function_exists('imagewebp'))
-			$success = imagewebp($dst_img, $destName);	
+			$success = imagewebp($dst_img, $destName);
 		elseif (function_exists('imagejpeg'))
 			$success = imagejpeg($dst_img, $destName, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
 

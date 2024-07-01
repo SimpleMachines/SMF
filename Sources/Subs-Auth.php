@@ -880,7 +880,7 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 			'path'		=> $path,
 			'domain' 	=> $domain,
 			'secure'	=> $secure,
-			'httponly'	=> $httponly,    
+			'httponly'	=> $httponly,
 			'samesite'	=> $samesite
 		));
 }
