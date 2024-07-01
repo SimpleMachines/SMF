@@ -819,12 +819,12 @@ class Config
 	];
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * Authentication secret.
 	 * This is protected in order to force access via Config::getAuthSecret()
 	 */
-	protected static string $auth_secret;
+	protected static ?string $auth_secret;
 
 	/**
 	 * @var string
