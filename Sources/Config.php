@@ -41,19 +41,19 @@ class Config
 	 * 1: Enable maintenance mode but allow admins to login normally.
 	 * 2: Make the forum untouchable. You'll need to make it 0 again manually!
 	 */
-	public static $maintenance;
+	public static int $maintenance;
 	/**
 	 * @var string
 	 *
 	 * Title for the maintenance mode message.
 	 */
-	public static $mtitle;
+	public static string $mtitle;
 	/**
 	 * Description of why the forum is in maintenance mode.
 	 *
 	 * @var string
 	 */
-	public static $mmessage;
+	public static string $mmessage;
 
 	########## Forum info ##########
 	/**
@@ -61,31 +61,31 @@ class Config
 	 *
 	 * The name of your forum.
 	 */
-	public static $mbname;
+	public static string $mbname;
 	/**
 	 * @var string
 	 *
 	 * The default language file set for the forum.
 	 */
-	public static $language;
+	public static string $language;
 	/**
 	 * @var string
 	 *
 	 * URL to your forum's folder. (without the trailing /!)
 	 */
-	public static $boardurl;
+	public static string $boardurl;
 	/**
 	 * @var string
 	 *
 	 * Email address to send emails from. (like noreply@yourdomain.com.)
 	 */
-	public static $webmaster_email;
+	public static string $webmaster_email;
 	/**
 	 * @var string
 	 *
 	 * Name of the cookie to set for authentication.
 	 */
-	public static $cookiename;
+	public static string $cookiename;
 
 	########## Database info ##########
 	/**
@@ -94,76 +94,76 @@ class Config
 	 * The database type.
 	 * Default options: mysql, postgresql
 	 */
-	public static $db_type;
+	public static string $db_type;
 	/**
 	 * @var int
 	 *
 	 * The database port.
 	 * 0 to use default port for the database type.
 	 */
-	public static $db_port;
+	public static int $db_port;
 	/**
 	 * @var string
 	 *
 	 * The server to connect to (or a Unix socket)
 	 */
-	public static $db_server;
+	public static string $db_server;
 	/**
 	 * @var string
 	 *
 	 * The database name.
 	 */
-	public static $db_name;
+	public static string $db_name;
 	/**
 	 * @var string
 	 *
 	 * Database username.
 	 */
-	public static $db_user;
+	public static string $db_user;
 	/**
 	 * @var string
 	 *
 	 * Database password.
 	 */
-	public static $db_passwd;
+	public static string $db_passwd;
 	/**
 	 * @var string
 	 *
 	 * Database user for when connecting with SSI.
 	 */
-	public static $ssi_db_user;
+	public static string $ssi_db_user;
 	/**
 	 * @var string
 	 *
 	 * Database password for when connecting with SSI.
 	 */
-	public static $ssi_db_passwd;
+	public static string $ssi_db_passwd;
 	/**
 	 * @var string
 	 *
 	 * A prefix to put in front of your table names.
 	 * This helps to prevent conflicts.
 	 */
-	public static $db_prefix;
+	public static string $db_prefix;
 	/**
 	 * @var bool
 	 *
 	 * Use a persistent database connection.
 	 */
-	public static $db_persist;
+	public static bool $db_persist;
 	/**
 	 * @var bool
 	 *
 	 * Send emails on database connection error.
 	 */
-	public static $db_error_send;
+	public static bool $db_error_send;
 	/**
 	 * @var null|bool
 	 *
 	 * Override the default behavior of the database layer for mb4 handling.
 	 * null keep the default behavior untouched.
 	 */
-	public static $db_mb4;
+	public static ?bool $db_mb4;
 
 	########## Cache info ##########
 	/**
@@ -172,34 +172,34 @@ class Config
 	 * Select a cache system. You should leave this up to the cache area of the
 	 * admin panel for proper detection of the available options.
 	 */
-	public static $cache_accelerator;
+	public static string $cache_accelerator;
 	/**
 	 * @var int
 	 *
 	 * The level at which you would like to cache.
 	 * Between 0 (off) through 3 (cache a lot).
 	 */
-	public static $cache_enable;
+	public static int $cache_enable;
 	/**
 	 * @var string
 	 *
 	 * This is only used for the memcache / memcached cache systems.
 	 * Should be a string of 'server:port,server:port'
 	 */
-	public static $cache_memcached;
+	public static string $cache_memcached;
 	/**
 	 * @var string
 	 *
 	 * Path to the cache directory for the file-based cache system.
 	 */
-	public static $cachedir;
+	public static string $cachedir;
 	/**
 	 * @var string
 	 *
 	 * This is only used for the SQLite3 cache system.
 	 * Path to the directory where the SQLite3 database file will be saved.
 	 */
-	public static $cachedir_sqlite;
+	public static string $cachedir_sqlite;
 
 	########## Image proxy ##########
 	/**
@@ -207,19 +207,19 @@ class Config
 	 *
 	 * Whether the proxy is enabled or not.
 	 */
-	public static $image_proxy_enabled;
+	public static bool $image_proxy_enabled;
 	/**
 	 * @var string
 	 *
 	 * Secret key to be used by the proxy.
 	 */
-	public static $image_proxy_secret;
+	public static string $image_proxy_secret;
 	/**
 	 * @var int
 	 *
 	 * Maximum file size (in KB) for individual files.
 	 */
-	public static $image_proxy_maxsize;
+	public static int $image_proxy_maxsize;
 
 	########## Directories/Files ##########
 	# Note: These directories do not have to be changed unless you move things.
@@ -228,31 +228,31 @@ class Config
 	 *
 	 * The absolute path to the forum's folder. (not just '.'!)
 	 */
-	public static $boarddir;
+	public static string $boarddir;
 	/**
 	 * @var string
 	 *
 	 * Path to the Sources directory.
 	 */
-	public static $sourcedir;
+	public static string $sourcedir;
 	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
 	 */
-	public static $packagesdir;
+	public static string $packagesdir;
 	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
 	 */
-	public static $languagesdir;
+	public static string $languagesdir;
 	/**
 	 * @var string
 	 *
 	 * Path to the tasks directory.
 	 */
-	public static $tasksdir;
+	public static string $tasksdir;
 
 	######### Legacy settings #########
 	/**
@@ -260,7 +260,7 @@ class Config
 	 *
 	 * Database character set. Should always be utf8.
 	 */
-	public static $db_character_set;
+	public static string $db_character_set;
 
 	######### Developer settings #########
 	/**
@@ -268,14 +268,14 @@ class Config
 	 *
 	 * Whether to show debug info.
 	 */
-	public static $db_show_debug;
+	public static bool $db_show_debug;
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * Last database error.
 	 */
-	public static $db_last_error;
+	public static int $db_last_error;
 
 	######### Custom settings #########
 	/**
@@ -283,7 +283,7 @@ class Config
 	 *
 	 * Holds any custom settings found in Settings.php.
 	 */
-	public static $custom = [];
+	public static array $custom = [];
 
 	######### Runtime configuration values #########
 	/**
@@ -291,14 +291,14 @@ class Config
 	 *
 	 * Holds settings loaded from the settings table in the database.
 	 */
-	public static $modSettings = [];
+	public static array $modSettings = [];
 
 	/**
 	 * @var string
 	 *
-	 * URL of SMF's main index.php. This is set in cleanRequest().
+	 * URL of SMF's main index.php.
 	 */
-	public static $scripturl = null;
+	public static string $scripturl;
 
 	/****************************
 	 * Internal static properties
@@ -352,7 +352,7 @@ class Config
 	 *   expression to decide where the replacement entry should be inserted.
 	 *   Note: 'replace_pattern' should be avoided unless ABSOLUTELY necessary.
 	 */
-	protected static $settings_defs = [
+	protected static array $settings_defs = [
 		[
 			'text' =>
 				"\n" .
@@ -824,17 +824,17 @@ class Config
 	 * Authentication secret.
 	 * This is protected in order to force access via Config::getAuthSecret()
 	 */
-	protected static $auth_secret;
+	protected static string $auth_secret;
 
 	/**
 	 * @var string
 	 *
 	 * Path to a temporary directory.
 	 */
-	protected static $temp_dir;
+	protected static string $temp_dir;
 
 	/**
-	 * @var string
+	 * @var bool
 	 *
 	 * Tracks whether static variables and functions have been exported to
 	 * global namespace.
@@ -979,7 +979,9 @@ class Config
 		Cache\CacheApi::load();
 
 		// Try to load it from the cache first; it'll never get cached if the setting is off.
-		if ((self::$modSettings = Cache\CacheApi::get('modSettings', 90)) == null) {
+		if (($temp = Cache\CacheApi::get('modSettings', 90)) !== null) {
+			self::$modSettings = $temp;
+		} else {
 			self::$modSettings = [];
 
 			$request = Db\DatabaseApi::$db->query(
@@ -2858,8 +2860,6 @@ class Config
 
 	/**
 	 * Generate a random seed and ensure it's stored in settings.
-	 *
-	 * @todo Still referenced in Forum.php and ServerSideIncludes.php
 	 *
 	 * This only exists for backward compatibility with mods that might use the
 	 * generated value.
