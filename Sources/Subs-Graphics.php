@@ -1297,7 +1297,11 @@ function showLetterImage($letter)
  */
 function getSvgSize($filepath)
 {
-	preg_match('/<svg\b[^>]*>/', file_get_contents($filepath, false, null, 0, 480), $matches);
+	if (!preg_match('/<svg\b[^>]*>/', file_get_contents($filepath, false, null, 0, 480), $matches))
+	{
+		return array('width' => 0, 'height' => 0);
+	}
+
 	$svg = $matches[0];
 
 	// If the SVG has width and height attributes, use those.
