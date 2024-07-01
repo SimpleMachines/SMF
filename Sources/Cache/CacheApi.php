@@ -543,7 +543,7 @@ abstract class CacheApi
 		self::$count_hits++;
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
-			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(Utils::jsonEncode($value))];
+			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen((string) Utils::jsonEncode($value))];
 			$st = microtime(true);
 		}
 
@@ -608,8 +608,7 @@ abstract class CacheApi
 			return Utils::jsonDecode($value, true);
 		}
 
-			return $value;
-
+		return $value;
 	}
 }
 

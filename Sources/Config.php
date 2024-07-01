@@ -979,7 +979,7 @@ class Config
 		Cache\CacheApi::load();
 
 		// Try to load it from the cache first; it'll never get cached if the setting is off.
-		if (($temp = Cache\CacheApi::get('modSettings', 90)) !== null) {
+		if (is_array($temp = Cache\CacheApi::get('modSettings', 90))) {
 			self::$modSettings = $temp;
 		} else {
 			self::$modSettings = [];
