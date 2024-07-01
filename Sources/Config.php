@@ -32,7 +32,7 @@ class Config
 	 */
 	public static bool $backward_compatibility = true;
 
-	# ######### Maintenance ##########
+	########## Maintenance ##########
 	/**
 	 * @var int 0, 1, 2
 	 *
@@ -41,264 +41,264 @@ class Config
 	 * 1: Enable maintenance mode but allow admins to login normally.
 	 * 2: Make the forum untouchable. You'll need to make it 0 again manually!
 	 */
-	public static $maintenance;
+	public static int $maintenance;
 	/**
 	 * @var string
 	 *
 	 * Title for the maintenance mode message.
 	 */
-	public static $mtitle;
+	public static string $mtitle;
 	/**
 	 * Description of why the forum is in maintenance mode.
 	 *
 	 * @var string
 	 */
-	public static $mmessage;
+	public static string $mmessage;
 
-	# ######### Forum info ##########
+	########## Forum info ##########
 	/**
 	 * @var string
 	 *
 	 * The name of your forum.
 	 */
-	public static $mbname;
+	public static string $mbname;
 	/**
 	 * @var string
 	 *
 	 * The default language file set for the forum.
 	 */
-	public static $language;
+	public static string $language;
 	/**
 	 * @var string
 	 *
 	 * URL to your forum's folder. (without the trailing /!)
 	 */
-	public static $boardurl;
+	public static string $boardurl;
 	/**
 	 * @var string
 	 *
 	 * Email address to send emails from. (like noreply@yourdomain.com.)
 	 */
-	public static $webmaster_email;
+	public static string $webmaster_email;
 	/**
 	 * @var string
 	 *
 	 * Name of the cookie to set for authentication.
 	 */
-	public static $cookiename;
+	public static string $cookiename;
 
-	# ######### Database info ##########
+	########## Database info ##########
 	/**
 	 * @var string
 	 *
 	 * The database type.
 	 * Default options: mysql, postgresql
 	 */
-	public static $db_type;
+	public static string $db_type;
 	/**
 	 * @var int
 	 *
 	 * The database port.
 	 * 0 to use default port for the database type.
 	 */
-	public static $db_port;
+	public static int $db_port;
 	/**
 	 * @var string
 	 *
 	 * The server to connect to (or a Unix socket)
 	 */
-	public static $db_server;
+	public static string $db_server;
 	/**
 	 * @var string
 	 *
 	 * The database name.
 	 */
-	public static $db_name;
+	public static string $db_name;
 	/**
 	 * @var string
 	 *
 	 * Database username.
 	 */
-	public static $db_user;
+	public static string $db_user;
 	/**
 	 * @var string
 	 *
 	 * Database password.
 	 */
-	public static $db_passwd;
+	public static string $db_passwd;
 	/**
 	 * @var string
 	 *
 	 * Database user for when connecting with SSI.
 	 */
-	public static $ssi_db_user;
+	public static string $ssi_db_user;
 	/**
 	 * @var string
 	 *
 	 * Database password for when connecting with SSI.
 	 */
-	public static $ssi_db_passwd;
+	public static string $ssi_db_passwd;
 	/**
 	 * @var string
 	 *
 	 * A prefix to put in front of your table names.
 	 * This helps to prevent conflicts.
 	 */
-	public static $db_prefix;
+	public static string $db_prefix;
 	/**
 	 * @var bool
 	 *
 	 * Use a persistent database connection.
 	 */
-	public static $db_persist;
+	public static bool $db_persist;
 	/**
 	 * @var bool
 	 *
 	 * Send emails on database connection error.
 	 */
-	public static $db_error_send;
+	public static bool $db_error_send;
 	/**
 	 * @var null|bool
 	 *
 	 * Override the default behavior of the database layer for mb4 handling.
 	 * null keep the default behavior untouched.
 	 */
-	public static $db_mb4;
+	public static ?bool $db_mb4;
 
-	# ######### Cache info ##########
+	########## Cache info ##########
 	/**
 	 * @var string
 	 *
 	 * Select a cache system. You should leave this up to the cache area of the
 	 * admin panel for proper detection of the available options.
 	 */
-	public static $cache_accelerator;
+	public static string $cache_accelerator;
 	/**
 	 * @var int
 	 *
 	 * The level at which you would like to cache.
 	 * Between 0 (off) through 3 (cache a lot).
 	 */
-	public static $cache_enable;
+	public static int $cache_enable;
 	/**
 	 * @var string
 	 *
 	 * This is only used for the memcache / memcached cache systems.
 	 * Should be a string of 'server:port,server:port'
 	 */
-	public static $cache_memcached;
+	public static string $cache_memcached;
 	/**
 	 * @var string
 	 *
 	 * Path to the cache directory for the file-based cache system.
 	 */
-	public static $cachedir;
+	public static string $cachedir;
 	/**
 	 * @var string
 	 *
 	 * This is only used for the SQLite3 cache system.
 	 * Path to the directory where the SQLite3 database file will be saved.
 	 */
-	public static $cachedir_sqlite;
+	public static string $cachedir_sqlite;
 
-	# ######### Image proxy ##########
+	########## Image proxy ##########
 	/**
 	 * @var bool
 	 *
 	 * Whether the proxy is enabled or not.
 	 */
-	public static $image_proxy_enabled;
+	public static bool $image_proxy_enabled;
 	/**
 	 * @var string
 	 *
 	 * Secret key to be used by the proxy.
 	 */
-	public static $image_proxy_secret;
+	public static string $image_proxy_secret;
 	/**
 	 * @var int
 	 *
 	 * Maximum file size (in KB) for individual files.
 	 */
-	public static $image_proxy_maxsize;
+	public static int $image_proxy_maxsize;
 
-	# ######### Directories/Files ##########
+	########## Directories/Files ##########
 	# Note: These directories do not have to be changed unless you move things.
 	/**
 	 * @var string
 	 *
 	 * The absolute path to the forum's folder. (not just '.'!)
 	 */
-	public static $boarddir;
+	public static string $boarddir;
 	/**
 	 * @var string
 	 *
 	 * Path to the Sources directory.
 	 */
-	public static $sourcedir;
+	public static string $sourcedir;
 	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
 	 */
-	public static $packagesdir;
+	public static string $packagesdir;
 	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
 	 */
-	public static $languagesdir;
+	public static string $languagesdir;
 	/**
 	 * @var string
 	 *
 	 * Path to the tasks directory.
 	 */
-	public static $tasksdir;
+	public static string $tasksdir;
 
-	# ######## Legacy settings #########
+	######### Legacy settings #########
 	/**
 	 * @var string
 	 *
 	 * Database character set. Should always be utf8.
 	 */
-	public static $db_character_set;
+	public static string $db_character_set;
 
-	# ######## Developer settings #########
+	######### Developer settings #########
 	/**
 	 * @var bool
 	 *
 	 * Whether to show debug info.
 	 */
-	public static $db_show_debug;
+	public static bool $db_show_debug;
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * Last database error.
 	 */
-	public static $db_last_error;
+	public static int $db_last_error;
 
-	# ######## Custom settings #########
+	######### Custom settings #########
 	/**
 	 * @var array
 	 *
 	 * Holds any custom settings found in Settings.php.
 	 */
-	public static $custom = [];
+	public static array $custom = [];
 
-	# ######## Runtime configuration values #########
+	######### Runtime configuration values #########
 	/**
 	 * @var array
 	 *
 	 * Holds settings loaded from the settings table in the database.
 	 */
-	public static $modSettings = [];
+	public static array $modSettings = [];
 
 	/**
 	 * @var string
 	 *
-	 * URL of SMF's main index.php. This is set in cleanRequest().
+	 * URL of SMF's main index.php.
 	 */
-	public static $scripturl = null;
+	public static string $scripturl;
 
 	/****************************
 	 * Internal static properties
@@ -352,7 +352,7 @@ class Config
 	 *   expression to decide where the replacement entry should be inserted.
 	 *   Note: 'replace_pattern' should be avoided unless ABSOLUTELY necessary.
 	 */
-	protected static $settings_defs = [
+	protected static array $settings_defs = [
 		[
 			'text' =>
 				"\n" .
@@ -777,23 +777,6 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
-		[
-			'text' => <<<'END'
-
-				# Make sure the paths are correct... at least try to fix them.
-				if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/SSI.php'))
-					$boarddir = dirname(__FILE__);
-				if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
-					$sourcedir = $boarddir . '/Sources';
-				if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
-					$packagesdir = $boarddir . '/Packages';
-				if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
-					$cachedir = $boarddir . '/cache';
-				if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
-					$languagesdir = $boarddir . '/Languages';
-				END,
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
-		],
 		'db_character_set' => [
 			'text' => <<<'END'
 
@@ -821,24 +804,6 @@ class Config
 			'auto_delete' => 2,
 			'type' => 'boolean',
 		],
-		[
-			'text' => <<<'END'
-
-				########## Error-Catching ##########
-				# Note: You shouldn't touch these settings.
-				if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
-					include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
-
-				if (!isset($db_last_error))
-				{
-					// File does not exist so lets try to create it
-					file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-					$db_last_error = 0;
-				}
-				END,
-			// Designed to match both 2.0 and 2.1 versions of this code.
-			'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
-		],
 		// Temporary variable used during the upgrade process.
 		'upgradeData' => [
 			'default' => '',
@@ -859,17 +824,17 @@ class Config
 	 * Authentication secret.
 	 * This is protected in order to force access via Config::getAuthSecret()
 	 */
-	protected static $auth_secret;
+	protected static string $auth_secret;
 
 	/**
 	 * @var string
 	 *
 	 * Path to a temporary directory.
 	 */
-	protected static $temp_dir;
+	protected static string $temp_dir;
 
 	/**
-	 * @var string
+	 * @var bool
 	 *
 	 * Tracks whether static variables and functions have been exported to
 	 * global namespace.
@@ -943,7 +908,6 @@ class Config
 		}
 
 		// Make sure the paths are correct... at least try to fix them.
-		// @todo Remove similar path correction code from Settings.php.
 		if (empty(self::$boarddir) || !is_dir(realpath(self::$boarddir))) {
 			self::$boarddir = !empty($_SERVER['SCRIPT_FILENAME']) ? dirname(realpath($_SERVER['SCRIPT_FILENAME'])) : dirname(__DIR__);
 		}
@@ -1015,7 +979,9 @@ class Config
 		Cache\CacheApi::load();
 
 		// Try to load it from the cache first; it'll never get cached if the setting is off.
-		if ((self::$modSettings = Cache\CacheApi::get('modSettings', 90)) == null) {
+		if (($temp = Cache\CacheApi::get('modSettings', 90)) !== null) {
+			self::$modSettings = $temp;
+		} else {
 			self::$modSettings = [];
 
 			$request = Db\DatabaseApi::$db->query(
@@ -1576,6 +1542,16 @@ class Config
 				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 				'placeholder' => '',
 			],
+			// Remove the old path correction code. Config::set() now handles that.
+			$neg_index-- => [
+				'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
+				'placeholder' => '',
+			],
+			// Remove the old error-catching code. Config::getDbLastError() now handles that.
+			$neg_index-- => [
+				'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
+				'placeholder' => '',
+			],
 		];
 
 		// Remove obsolete settings from earlier versions of SMF.
@@ -1604,20 +1580,8 @@ class Config
 					$substitutions[$var]['placeholder'] = '';
 					$substitutions[-1]['replacement'] .= $setting_def['text'] . "\n";
 				}
-				// Special handling for the Error-Catching block: always at the end.
-				elseif (str_contains($setting_def['text'], 'Error-Catching')) {
-					$errcatch_var = $var;
-					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
-					$substitutions[$var]['placeholder'] = '';
-					$substitutions[-2]['replacement'] = "\n" . $setting_def['text'] . $substitutions[-2]['replacement'];
-				}
 				// The text is the whole thing (code blocks, etc.)
 				elseif (is_int($var)) {
-					// Remember the path correcting code for later.
-					if (str_contains($setting_def['text'], '# Make sure the paths are correct')) {
-						$pathcode_var = $var;
-					}
-
 					if (!empty($setting_def['search_pattern'])) {
 						$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					} else {
@@ -1797,19 +1761,6 @@ class Config
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val) . ';';
 		}
 
-		// During an upgrade, some of the path variables may not have been declared yet.
-		if (defined('SMF_INSTALLING') && empty($rebuild)) {
-			preg_match_all('~^\h*\$(\w+)\s*=\s*~m', $substitutions[$pathcode_var]['replacement'], $matches);
-
-			$missing_pathvars = array_diff($matches[1], array_keys($substitutions));
-
-			if (!empty($missing_pathvars)) {
-				foreach ($missing_pathvars as $var) {
-					$substitutions[$pathcode_var]['replacement'] = preg_replace('~\nif[^\n]+\$' . $var . '[^\n]+\n\h*\$' . $var . ' = [^\n]+~', '', $substitutions[$pathcode_var]['replacement']);
-				}
-			}
-		}
-
 		// It's important to do the numbered ones before the named ones, or messes happen.
 		uksort(
 			$substitutions,
@@ -1892,14 +1843,10 @@ class Config
 				$replace_strings[$var] = $substitution['replacement'];
 			}
 
-			if (str_contains($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ')) {
-				$force_before_pathcode[] = $var;
-			}
-
 			// Look before you leap.
 			preg_match_all($substitution['search_pattern'], $bare_settingsText, $matches);
 
-			if ((is_string($var) || $var === $pathcode_var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '') {
+			if (is_string($var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '') {
 				// More than one instance of the variable = not good.
 				if (count($matches[0]) > 1) {
 					if (is_string($var)) {
@@ -2101,10 +2048,6 @@ class Config
 					$pathcode_reached = false;
 
 					foreach ($settings_defs as $var => $setting_def) {
-						if ($var === $pathcode_var) {
-							$pathcode_reached = true;
-						}
-
 						// Already did this setting, so move on to the next.
 						if (in_array($var, $done_defs)) {
 							continue;
@@ -2128,16 +2071,8 @@ class Config
 							continue;
 						}
 
-						// Does this need to be inserted before the path correction code?
-						if (str_contains($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) && in_array($var, $force_before_pathcode)) {
-							$new_settingsText = strtr($new_settingsText, [$substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']]);
-
-							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
-							$done_defs[] = $var;
-							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
-						}
 						// If it's in this section, add it to the new text now.
-						elseif (in_array($p, $section)) {
+						if (in_array($p, $section)) {
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
 							unset($section_parts[trim($substitutions[$var]['placeholder'])]);
@@ -2150,12 +2085,6 @@ class Config
 						}
 						// If this setting is missing entirely, fix it.
 						elseif (!str_contains($bare_settingsText, $p)) {
-							// Special case if the path code is missing. Put it near the end,
-							// and also anything else that is missing that normally follows it.
-							if (!isset($newsection_placeholders[$pathcode_var]) && $pathcode_reached === true && $sectionkey < (count($sections) - 1)) {
-								break;
-							}
-
 							$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 							$done_defs[] = $var;
@@ -2174,21 +2103,6 @@ class Config
 				}
 			}
 		}
-		// Even if not rebuilding, there are a few variables that may need to be moved around.
-		else {
-			$pathcode_pos = strpos($settingsText, $substitutions[$pathcode_var]['placeholder']);
-
-			if ($pathcode_pos !== false) {
-				foreach ($force_before_pathcode as $var) {
-					if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos) {
-						$settingsText = strtr($settingsText, [
-							$substitutions[$var]['placeholder'] => '',
-							$substitutions[$pathcode_var]['placeholder'] => $substitutions[$var]['placeholder'] . "\n" . $substitutions[$pathcode_var]['placeholder'],
-						]);
-					}
-				}
-			}
-		}
 
 		/* 3.c: Replace the placeholders with the final values */
 
@@ -2198,11 +2112,6 @@ class Config
 		// Deal with any complicated ones.
 		if (!empty($replace_patterns)) {
 			$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
-		}
-
-		// Make absolutely sure that the path correction code is included.
-		if (!str_contains($settingsText, $substitutions[$pathcode_var]['replacement'])) {
-			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
 		}
 
 		// If we did not rebuild, do just enough to make sure the thing is viable.
@@ -2226,10 +2135,6 @@ class Config
 			$pathcode_reached = false;
 
 			foreach ($settings_defs as $var => $setting_def) {
-				if ($var === $pathcode_var) {
-					$pathcode_reached = true;
-				}
-
 				if (is_int($var)) {
 					continue;
 				}
@@ -2239,12 +2144,7 @@ class Config
 					continue;
 				}
 
-				// Insert it either before or after the path correction code, whichever is appropriate.
-				if (!$pathcode_reached || in_array($var, $force_before_pathcode)) {
-					$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
-				} else {
-					$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n\n" . $substitutions[$var]['replacement'], $settingsText);
-				}
+				$settingsText .= "\n\n" . $substitutions[$var]['replacement'];
 			}
 		} else {
 			// If the comments for some variables have changed since the last
@@ -2813,36 +2713,53 @@ class Config
 	}
 
 	/**
-	 * Saves the time of the last db error for the error log.
+	 * Sets Config::$db_last_error to the timestamp of the last recorded
+	 * database error for the error log, and also returns that timestamp.
+	 *
+	 * @return int Timestamp of the last database error.
+	 */
+	public static function getDbLastError(): int
+	{
+		if (file_exists(self::$cachedir . '/db_last_error.php')) {
+			include self::$cachedir . '/db_last_error.php';
+		} elseif (file_exists(self::$boarddir . '/cache/db_last_error.php')) {
+			include self::$boarddir . '/cache/db_last_error.php';
+		} elseif (file_exists(self::$boarddir . '/db_last_error.php')) {
+			include self::$boarddir . '/db_last_error.php';
+		}
+
+		if (!isset($db_last_error)) {
+			self::updateDbLastError(0, true);
+		} else {
+			self::$db_last_error = (int) $db_last_error;
+		}
+
+		return self::$db_last_error;
+	}
+
+	/**
+	 * Saves the time of the last database error for the error log.
 	 *
 	 * Done separately from updateSettingsFile to avoid race conditions that can
-	 * occur during a db error.
+	 * occur during a database error.
 	 *
-	 * If it fails, Settings.php will assume 0.
-	 *
-	 * @param int $time The timestamp of the last DB error
-	 * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know an error was logged since the last check.
-	 * @return bool True If we could successfully put the file or not.
+	 * @param int $time The timestamp of the last database error.
+	 * @return bool Whether we could successfully put the file or not.
 	 */
-	public static function updateDbLastError(int $time, bool $update = true): bool
+	public static function updateDbLastError(int $time): bool
 	{
-		// Write out the db_last_error file with the error timestamp
+		// Write out the db_last_error file with the error timestamp.
 		if (!empty(self::$cachedir) && is_writable(self::$cachedir)) {
 			$errorfile = self::$cachedir . '/db_last_error.php';
-		} elseif (file_exists(dirname(__DIR__) . '/cache')) {
-			$errorfile = dirname(__DIR__) . '/cache/db_last_error.php';
+		} elseif (file_exists(self::$boarddir . '/cache')) {
+			$errorfile = self::$boarddir . '/cache/db_last_error.php';
 		} else {
-			$errorfile = dirname(__DIR__) . '/db_last_error.php';
+			$errorfile = self::$boarddir . '/db_last_error.php';
 		}
 
 		$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
 
-		@touch(SMF_SETTINGS_FILE);
-
-		// Unless requested, we should update self::$db_last_error as well.
-		if ($update) {
-			self::$db_last_error = $time;
-		}
+		self::$db_last_error = $time;
 
 		// We  do a loose match here rather than strict (!==) as 0 is also false.
 		return $result != false;
@@ -2943,8 +2860,6 @@ class Config
 
 	/**
 	 * Generate a random seed and ensure it's stored in settings.
-	 *
-	 * @todo Still referenced in Forum.php and ServerSideIncludes.php
 	 *
 	 * This only exists for backward compatibility with mods that might use the
 	 * generated value.

@@ -689,8 +689,6 @@ class ErrorHandler
 				// Copy the file back and run for your life!
 				@copy(Config::$cachedir . '/db_last_error_bak.php', Config::$cachedir . '/db_last_error.php');
 			} else {
-				@touch(SMF_SETTINGS_FILE);
-
 				return true;
 			}
 		}
