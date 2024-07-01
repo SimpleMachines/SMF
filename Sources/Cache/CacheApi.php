@@ -543,12 +543,12 @@ abstract class CacheApi
 		self::$count_hits++;
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
-			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen((string) Utils::jsonEncode($value))];
+			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(serialize($value))];
 			$st = microtime(true);
 		}
 
 		// The API will handle the rest.
-		$value = $value === null ? null : Utils::jsonEncode($value);
+		$value = $value === null ? null : serialize($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
 		if (class_exists('SMF\\IntegrationHook', false)) {
@@ -605,7 +605,11 @@ abstract class CacheApi
 		}
 
 		if (is_string($value)) {
-			return Utils::jsonDecode($value, true);
+			try {
+				$temp = @unserialize($value);
+				$value = $temp;
+			} catch (\Throwable $e) {
+			}
 		}
 
 		return $value;
