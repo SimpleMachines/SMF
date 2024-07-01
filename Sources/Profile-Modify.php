@@ -3623,7 +3623,7 @@ function profileSaveAvatarData(&$value)
 
 				$extension = 'svg';
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
-				list ($width, $height) = getSvgSize($_FILES['attachment']['tmp_name']);
+				extract(getSvgSize($_FILES['attachment']['tmp_name']));
 				$file_hash = '';
 
 				removeAttachments(array('id_member' => $memID));
