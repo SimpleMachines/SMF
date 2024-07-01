@@ -1401,7 +1401,7 @@ function MergeExecute($topics = array())
 	{
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
-			$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+			$txt['movetopic_auto_topic'] => '[iurl=&quot;' . $scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 		);
 
 		// Should be in the boardwide language.
@@ -1411,7 +1411,7 @@ function MergeExecute($topics = array())
 
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
-				$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+				$txt['movetopic_auto_topic'] => '[iurl=&quot;' . $scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 			);
 		}
 

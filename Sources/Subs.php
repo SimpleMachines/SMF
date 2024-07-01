@@ -3657,17 +3657,21 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = substr($message, $pos1, 6) == '&quot;';
+				// Anything passed through the preparser will use &quot;,
+				// but we need to handle raw quotation marks too.
+				$quot = substr($message, $pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($message, $pos1, strlen($quot)) == $quot;
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
 				if ($quoted)
-					$pos1 += 6;
+					$pos1 += strlen($quot);
 			}
 			else
 				$quoted = false;
 
-			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1);
+			$pos2 = strpos($message, $quoted == false ? ']' : $quot . ']', $pos1);
 			if ($pos2 === false)
 				continue;
 
@@ -3676,7 +3680,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				continue;
 
 			$data = array(
-				substr($message, $pos2 + ($quoted == false ? 1 : 7), $pos3 - ($pos2 + ($quoted == false ? 1 : 7))),
+				substr($message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)), $pos3 - ($pos2 + ($quoted == false ? 1 : 1 + strlen($quot)))),
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
@@ -3759,29 +3763,32 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = substr($message, $pos1, 6) == '&quot;';
+				// Will normally be '&quot;' but might be '"'.
+				$quot = substr($message, $pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($message, $pos1, strlen($quot)) == $quot;
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
 				if ($quoted)
-					$pos1 += 6;
+					$pos1 += strlen($quot);
 			}
 			else
 				$quoted = false;
 
 			if ($quoted)
 			{
-				$end_of_value = strpos($message, '&quot;]', $pos1);
-				$nested_tag = strpos($message, '=&quot;', $pos1);
+				$end_of_value = strpos($message, $quot . ']', $pos1);
+				$nested_tag = strpos($message, '=' . $quot, $pos1);
 				// Check so this is not just an quoted url ending with a =
-				if ($nested_tag && substr($message, $nested_tag, 8) == '=&quot;]')
+				if ($nested_tag && substr($message, $nested_tag, 2 + strlen($quot)) == '=' . $quot . ']')
 					$nested_tag = false;
 				if ($nested_tag && $nested_tag < $end_of_value)
 					// Nested tag with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1) + 6;
+					$nested_tag_pos = strpos($message, $quoted == false ? ']' : $quot . ']', $pos1) + strlen($quot);
 			}
 
-			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
+			$pos2 = strpos($message, $quoted == false ? ']' : $quot . ']', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
 			if ($pos2 === false)
 				continue;
 
@@ -3800,7 +3807,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$open_tags[] = $tag;
 
 			$code = strtr($tag['before'], array('$1' => $data));
-			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos2 + ($quoted == false ? 1 : 7));
+			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)));
 			$pos += strlen($code) - 1 + 2;
 		}
 

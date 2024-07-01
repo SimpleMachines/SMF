@@ -266,7 +266,7 @@ function MoveTopic2()
 	{
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
-			$txt['movetopic_auto_board'] => '[url="' . $scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+			$txt['movetopic_auto_board'] => '[url=&quot;' . $scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
 			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]',
 		);
 
@@ -277,7 +277,7 @@ function MoveTopic2()
 
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
-				$txt['movetopic_auto_board'] => '[url="' . $scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+				$txt['movetopic_auto_board'] => '[url=&quot;' . $scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
 				$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]',
 			);
 		}
