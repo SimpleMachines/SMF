@@ -1815,6 +1815,8 @@ function export_load_css_js()
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php')));
 
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Minify.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'ConverterInterface.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'NoConverter.php')));
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'Converter.php')));
 
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'CSS.php')));
