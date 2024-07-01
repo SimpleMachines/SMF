@@ -3575,20 +3575,24 @@ class BBCodeParser
 		elseif ($tag['type'] == 'unparsed_equals_content') {
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted'])) {
-				$quoted = substr($this->message, $this->pos1, 6) == '&quot;';
+				// Anything passed through the preparser will use &quot;,
+				// but we need to handle raw quotation marks too.
+				$quot = substr($this->message, $this->pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($this->message, $this->pos1, strlen($quot)) == $quot;
 
 				if ($tag['quoted'] != 'optional' && !$quoted) {
 					return;
 				}
 
 				if ($quoted) {
-					$this->pos1 += 6;
+					$this->pos1 += strlen($quot);
 				}
 			} else {
 				$quoted = false;
 			}
 
-			$pos2 = strpos($this->message, $quoted == false ? ']' : '&quot;]', $this->pos1);
+			$pos2 = strpos($this->message, $quoted == false ? ']' : $quot . ']', $this->pos1);
 
 			if ($pos2 === false) {
 				return;
@@ -3601,7 +3605,7 @@ class BBCodeParser
 			}
 
 			$data = [
-				substr($this->message, $pos2 + ($quoted == false ? 1 : 7), $pos3 - ($pos2 + ($quoted == false ? 1 : 7))),
+				substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)), $pos3 - ($pos2 + ($quoted == false ? 1 : 1 + strlen($quot)))),
 				substr($this->message, $this->pos1, $pos2 - $this->pos1),
 			];
 
@@ -3703,35 +3707,38 @@ class BBCodeParser
 		elseif ($tag['type'] == 'unparsed_equals' || $tag['type'] == 'parsed_equals') {
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted'])) {
-				$quoted = substr($this->message, $this->pos1, 6) == '&quot;';
+				// Will normally be '&quot;' but might be '"'.
+				$quot = substr($this->message, $this->pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($this->message, $this->pos1, strlen($quot)) == $quot;
 
 				if ($tag['quoted'] != 'optional' && !$quoted) {
 					return;
 				}
 
 				if ($quoted) {
-					$this->pos1 += 6;
+					$this->pos1 += strlen($quot);
 				}
 			} else {
 				$quoted = false;
 			}
 
 			if ($quoted) {
-				$end_of_value = strpos($this->message, '&quot;]', $this->pos1);
-				$nested_tag = strpos($this->message, '=&quot;', $this->pos1);
+				$end_of_value = strpos($this->message, $quot . ']', $this->pos1);
+				$nested_tag = strpos($this->message, '=' . $quot, $this->pos1);
 
 				// Check so this is not just an quoted url ending with a =
-				if ($nested_tag && substr($this->message, $nested_tag, 8) == '=&quot;]') {
+				if ($nested_tag && substr($this->message, $nested_tag, 2 + strlen($quot)) == '=' . $quot . ']') {
 					$nested_tag = false;
 				}
 
 				if ($nested_tag && $nested_tag < $end_of_value) {
 					// Nested tag with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($this->message, $quoted == false ? ']' : '&quot;]', $this->pos1) + 6;
+					$nested_tag_pos = strpos($this->message, $quoted == false ? ']' : $quot . ']', $this->pos1) + strlen($quot);
 				}
 			}
 
-			$pos2 = strpos($this->message, $quoted == false ? ']' : '&quot;]', $nested_tag_pos ?? $this->pos1);
+			$pos2 = strpos($this->message, $quoted == false ? ']' : $quot . ']', $nested_tag_pos ?? $this->pos1);
 
 			if ($pos2 === false) {
 				return;
@@ -3764,7 +3771,7 @@ class BBCodeParser
 
 			$html = strtr($tag['before'], ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 7));
+			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)));
 
 			$this->pos += strlen($html) - 1 + 2;
 		}
