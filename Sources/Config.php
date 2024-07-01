@@ -804,24 +804,6 @@ class Config
 			'auto_delete' => 2,
 			'type' => 'boolean',
 		],
-		[
-			'text' => <<<'END'
-
-				########## Error-Catching ##########
-				# Note: You shouldn't touch these settings.
-				if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
-					include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
-
-				if (!isset($db_last_error))
-				{
-					// File does not exist so lets try to create it
-					file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-					$db_last_error = 0;
-				}
-				END,
-			// Designed to match both 2.0 and 2.1 versions of this code.
-			'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
-		],
 		// Temporary variable used during the upgrade process.
 		'upgradeData' => [
 			'default' => '',
@@ -1563,6 +1545,11 @@ class Config
 				'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)|\!is_dir\(realpath\(\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)\)\))[^;]+\n\h*\$(?' . '>boarddir|sourcedir|tasksdir|packagesdir|cachedir|languagesdir)[^\n]+;)+~sm',
 				'placeholder' => '',
 			],
+			// Remove the old error-catching code. Config::getDbLastError() now handles that.
+			$neg_index-- => [
+				'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
+				'placeholder' => '',
+			],
 		];
 
 		// Remove obsolete settings from earlier versions of SMF.
@@ -1590,13 +1577,6 @@ class Config
 					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 					$substitutions[$var]['placeholder'] = '';
 					$substitutions[-1]['replacement'] .= $setting_def['text'] . "\n";
-				}
-				// Special handling for the Error-Catching block: always at the end.
-				elseif (str_contains($setting_def['text'], 'Error-Catching')) {
-					$errcatch_var = $var;
-					$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
-					$substitutions[$var]['placeholder'] = '';
-					$substitutions[-2]['replacement'] = "\n" . $setting_def['text'] . $substitutions[-2]['replacement'];
 				}
 				// The text is the whole thing (code blocks, etc.)
 				elseif (is_int($var)) {
@@ -2731,36 +2711,53 @@ class Config
 	}
 
 	/**
-	 * Saves the time of the last db error for the error log.
+	 * Sets Config::$db_last_error to the timestamp of the last recorded
+	 * database error for the error log, and also returns that timestamp.
+	 *
+	 * @return int Timestamp of the last database error.
+	 */
+	public static function getDbLastError(): int
+	{
+		if (file_exists(self::$cachedir . '/db_last_error.php')) {
+			include self::$cachedir . '/db_last_error.php';
+		} elseif (file_exists(self::$boarddir . '/cache/db_last_error.php')) {
+			include self::$boarddir . '/cache/db_last_error.php';
+		} elseif (file_exists(self::$boarddir . '/db_last_error.php')) {
+			include self::$boarddir . '/db_last_error.php';
+		}
+
+		if (!isset($db_last_error)) {
+			self::updateDbLastError(0, true);
+		} else {
+			self::$db_last_error = (int) $db_last_error;
+		}
+
+		return self::$db_last_error;
+	}
+
+	/**
+	 * Saves the time of the last database error for the error log.
 	 *
 	 * Done separately from updateSettingsFile to avoid race conditions that can
-	 * occur during a db error.
+	 * occur during a database error.
 	 *
-	 * If it fails, Settings.php will assume 0.
-	 *
-	 * @param int $time The timestamp of the last DB error
-	 * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know an error was logged since the last check.
-	 * @return bool True If we could successfully put the file or not.
+	 * @param int $time The timestamp of the last database error.
+	 * @return bool Whether we could successfully put the file or not.
 	 */
-	public static function updateDbLastError(int $time, bool $update = true): bool
+	public static function updateDbLastError(int $time): bool
 	{
-		// Write out the db_last_error file with the error timestamp
+		// Write out the db_last_error file with the error timestamp.
 		if (!empty(self::$cachedir) && is_writable(self::$cachedir)) {
 			$errorfile = self::$cachedir . '/db_last_error.php';
-		} elseif (file_exists(dirname(__DIR__) . '/cache')) {
-			$errorfile = dirname(__DIR__) . '/cache/db_last_error.php';
+		} elseif (file_exists(self::$boarddir . '/cache')) {
+			$errorfile = self::$boarddir . '/cache/db_last_error.php';
 		} else {
-			$errorfile = dirname(__DIR__) . '/db_last_error.php';
+			$errorfile = self::$boarddir . '/db_last_error.php';
 		}
 
 		$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
 
-		@touch(SMF_SETTINGS_FILE);
-
-		// Unless requested, we should update self::$db_last_error as well.
-		if ($update) {
-			self::$db_last_error = $time;
-		}
+		self::$db_last_error = $time;
 
 		// We  do a loose match here rather than strict (!==) as 0 is also false.
 		return $result != false;

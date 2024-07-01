@@ -230,18 +230,6 @@ $languagesdir = dirname(__FILE__) . '/Languages';
  */
 $db_character_set = 'utf8';
 
-########## Error-Catching ##########
-# Note: You shouldn't touch these settings.
-if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
-	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
-
-if (!isset($db_last_error))
-{
-	// File does not exist so lets try to create it
-	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	$db_last_error = 0;
-}
-
 if (file_exists(dirname(__FILE__) . '/install.php'))
 {
 	$secure = false;
