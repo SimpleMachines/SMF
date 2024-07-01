@@ -720,7 +720,7 @@ function loadEssentialData()
 	{
 		$new_string = '';
 
-		foreach (preg_split('/((?>&.*?;|\X))/u', $word, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $char)
+		foreach (preg_split('/((?>&.*?;|[\S\s]))/', $word, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $char)
 		{
 			if (strlen($new_string . $char) > $max_chars)
 				break;
