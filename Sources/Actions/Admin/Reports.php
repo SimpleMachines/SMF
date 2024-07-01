@@ -615,7 +615,7 @@ class Reports implements ActionInterface
 	 *
 	 * @return self An instance of this class.
 	 */
-	public static function load(): self
+	public static function load(): static
 	{
 		if (!isset(self::$obj)) {
 			self::$obj = new self();

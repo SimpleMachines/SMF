@@ -222,18 +222,6 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  */
 $languagesdir = dirname(__FILE__) . '/Languages';
 
-# Make sure the paths are correct... at least try to fix them.
-if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/SSI.php'))
-	$boarddir = dirname(__FILE__);
-if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
-	$sourcedir = $boarddir . '/Sources';
-if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
-	$packagesdir = $boarddir . '/Packages';
-if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
-if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
-	$languagesdir = $boarddir . '/Languages';
-
 ######### Legacy Settings #########
 /**
  * @var string
@@ -241,18 +229,6 @@ if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
  * Database character set. Should always be utf8.
  */
 $db_character_set = 'utf8';
-
-########## Error-Catching ##########
-# Note: You shouldn't touch these settings.
-if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
-	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
-
-if (!isset($db_last_error))
-{
-	// File does not exist so lets try to create it
-	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	$db_last_error = 0;
-}
 
 if (file_exists(dirname(__FILE__) . '/install.php'))
 {

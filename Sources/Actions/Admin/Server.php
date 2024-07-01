@@ -188,8 +188,6 @@ class Server implements ActionInterface
 		// This is just to keep the database password more secure.
 		User::$me->isAllowedTo('admin_forum');
 
-		User::$me->checkSession('request');
-
 		Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
 		Utils::$context['sub_template'] = 'show_settings';
 
@@ -238,6 +236,8 @@ class Server implements ActionInterface
 
 		// Saving settings?
 		if (isset($_REQUEST['save'])) {
+			User::$me->checkSession();
+
 			IntegrationHook::call('integrate_save_general_settings');
 
 			foreach ($config_vars as $config_var) {
@@ -314,6 +314,8 @@ class Server implements ActionInterface
 
 		// Saving settings?
 		if (isset($_REQUEST['save'])) {
+			User::$me->checkSession();
+
 			IntegrationHook::call('integrate_save_database_settings');
 
 			ACP::saveSettings($config_vars);
@@ -356,6 +358,8 @@ class Server implements ActionInterface
 
 		// Saving settings?
 		if (isset($_REQUEST['save'])) {
+			User::$me->checkSession();
+
 			IntegrationHook::call('integrate_save_cookie_settings');
 
 			$_POST['cookiename'] = Utils::normalize($_POST['cookiename']);
@@ -437,6 +441,8 @@ class Server implements ActionInterface
 
 		// Saving?
 		if (isset($_GET['save'])) {
+			User::$me->checkSession();
+
 			if (!empty($_POST['cors_domains'])) {
 				$cors_domains = explode(',', $_POST['cors_domains']);
 
@@ -481,6 +487,8 @@ class Server implements ActionInterface
 
 		// Saving again?
 		if (isset($_GET['save'])) {
+			User::$me->checkSession();
+
 			IntegrationHook::call('integrate_save_cache_settings');
 
 			if (is_callable([CacheApi::$loadedApi, 'cleanCache']) && ((int) $_POST['cache_enable'] < CacheApi::$enable || $_POST['cache_accelerator'] != CacheApi::$accelerator)) {
@@ -526,6 +534,8 @@ class Server implements ActionInterface
 		$config_vars = self::exportConfigVars();
 
 		if (isset($_REQUEST['save'])) {
+			User::$me->checkSession();
+
 			$prev_export_dir = is_dir(Config::$modSettings['export_dir']) ? rtrim(Config::$modSettings['export_dir'], '/\\') : '';
 
 			if (!empty($_POST['export_dir'])) {
@@ -600,6 +610,8 @@ class Server implements ActionInterface
 
 		// Saving?
 		if (isset($_GET['save'])) {
+			User::$me->checkSession();
+
 			// Stupidity is not allowed.
 			foreach ($_POST as $key => $value) {
 				if (!isset(self::LOADAVG_DEFAULT_VALUES[$key])) {
