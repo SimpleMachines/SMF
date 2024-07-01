@@ -2144,7 +2144,11 @@ class Config
 					continue;
 				}
 
-				$settingsText .= "\n\n" . $substitutions[$var]['replacement'];
+				if (str_contains($settingsText, $substitutions[-2]['replacement'])) {
+					$settingsText = preg_replace($substitutions[-2]['search_pattern'], "\n\n" . $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
+				} else {
+					$settingsText .= "\n\n" . $substitutions[$var]['replacement'];
+				}
 			}
 		} else {
 			// If the comments for some variables have changed since the last
