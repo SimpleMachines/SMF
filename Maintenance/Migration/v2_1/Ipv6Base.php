@@ -109,7 +109,7 @@ class Ipv6Base extends MigrationBase
 	}
 
 
-	public function migrateData(Table $table, string $col)
+	public function migrateData(Table $table, string $col): bool
 	{
 		$start = Maintenance::getCurrentStart();
 
@@ -225,6 +225,78 @@ class Ipv6Base extends MigrationBase
 			}
 
 			$this->handleTimeout(++$start);
+		}
+
+		return true;
+	}
+
+	public function truncateAndConvert(Table $table, string|array $columns, bool $force = false): bool
+	{
+		$start = Maintenance::getCurrentStart();
+
+		// PostgreSQL we use a migration function.
+		if (Config::$db_type !== POSTGRE_TITLE && !$force) {
+			return $this->postgreSQLmigrate($table, $columns);
+		}
+
+		if ($start <= 0) {
+			$this->query('', 'TRUNCATE TABLE {db_prefix}{raw:table}', ['table' => $table->name]);
+
+			$this->handleTimeout(++$start);
+		}
+
+		if ($start <= 1) {
+			// Modify ip size
+			foreach ($table->columns as $col) {
+				if (in_array($col->name, (array) $columns)) {
+					$table->alterColumn($col);
+				}
+			}
+
+			$this->handleTimeout(++$start);
+		}
+
+		return true;
+	}
+
+
+	public function convertWithNoDataPreservation(Table $table, string|array $columns, bool $force = false): bool
+	{
+		$start = Maintenance::getCurrentStart();
+
+		// PostgreSQL we use a migration function.
+		if (Config::$db_type !== POSTGRE_TITLE && !$force) {
+			return $this->postgreSQLmigrate($table, $columns);
+		}
+
+		$existing_structure = $table->getCurrentStructure();
+
+		foreach ($columns as $column) {
+			foreach ($table->columns as $col) {
+				if ($col->name == $column && $existing_structure['columns'][$col->name]['type'] !== (Config::$db_type === POSTGRE_TITLE ? 'inet' : 'varbinary')) {
+					$table->dropColumn($col);
+					$table->addColumn($col);
+
+					$this->handleTimeout(++$start);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private function postgreSQLmigrate(Table $table, string|array $columns)
+	{
+		foreach ($columns as $column) {
+			$this->query('', '
+			ALTER TABLE {db_prefix}{raw:table}
+				ALTER {raw:col} DROP not null,
+				ALTER {raw:col} DROP default,
+				ALTER {raw:col} TYPE inet USING migrate_inet({raw:col});
+			', [
+				'table' => $table->name,
+				'col' => $column,
+			]);
 		}
 
 		return true;

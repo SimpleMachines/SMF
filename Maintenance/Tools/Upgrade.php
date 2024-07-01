@@ -106,6 +106,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance\Migration\v2_1\Ipv6MembersIP::class,
 			Maintenance\Migration\v2_1\Ipv6MembersIP2::class,
 			Maintenance\Migration\v2_1\Ipv6Messages::class,
+			Maintenance\Migration\v2_1\Ipv6LogFloodControl::class,
+			Maintenance\Migration\v2_1\Ipv6LogOnline::class,
+			Maintenance\Migration\v2_1\Ipv6LogReportedComments::class,
+			Maintenance\Migration\v2_1\Ipv6MemberLogins::class,
+			Maintenance\Migration\v2_1\PersonalMessageNotification::class,
+			Maintenance\Migration\v2_1\CalendarEvents::class,
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [

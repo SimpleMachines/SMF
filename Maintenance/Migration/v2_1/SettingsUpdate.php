@@ -65,6 +65,12 @@ class SettingsUpdate extends MigrationBase
 		'gravatarAllowExtraEmail' => 1,
 		'gravatarMaxRating' => 'PG',
 		'tfa_mode' => 1,
+		'cal_disable_prev_next' => 0,
+		'cal_week_links' => 2,
+		'cal_prev_next_links' => 1,
+		'cal_short_days' => 0,
+		'cal_short_months' => 0,
+		'cal_week_numbers' => 0,
 	];
 
 	protected array $removedSettings = [
@@ -89,6 +95,7 @@ class SettingsUpdate extends MigrationBase
 		'autoOptMaxOnline',
 		'enableOpenID',
 		'dh_keys',
+		'cal_allowspan',
 	];
 
 	/****************
@@ -223,6 +230,18 @@ class SettingsUpdate extends MigrationBase
 			$newSettings['allow_sm_stats'] = null;
 			$newSettings['enable_sm_stats'] = 1;
 		}
+
+		// Calendar max cols data correction.
+		if (!isset(Config::$modSettings['cal_allowspan'])) {
+			$newSettings['cal_maxspan'] = 0;
+		} elseif (Config::$modSettings['cal_allowspan'] == false) {
+			$newSettings['cal_maxspan'] = 1;
+		} else {
+			$newSettings['cal_maxspan'] = (int) (Config::$modSettings['cal_maxspan'] > 1) ? Config::$modSettings['cal_maxspan'] : 0;
+		}
+
+		// Update the max year for the calendar
+		$newSettings['cal_maxyear'] = 2030;
 
 		// TimeZone support.
 		if (!empty(Config::$modSettings['time_offset'])) {

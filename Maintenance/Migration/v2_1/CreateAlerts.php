@@ -120,9 +120,6 @@ class CreateAlerts extends MigrationBase
 		// We don't need to increment the start, the column will exist and it should get past this.
 		$this->handleTimeout(0);
 
-		// We don't need to increment the start, the column will exist and it should get past this.
-		$this->handleTimeout(0);
-
 		// Add our default permissions.
 		Db::$db->insert(
 			'ignore',

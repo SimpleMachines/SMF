@@ -60,6 +60,8 @@ class Permissions extends MigrationBase
 	 */
 	protected array $renamedPermissions = [
 		'profile_view_any' => 'profile_view',
+		'profile_other_own' => 'profile_website_own',
+		'profile_other_any' => 'profile_website_any',
 	];
 
 	/**
