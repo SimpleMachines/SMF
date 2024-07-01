@@ -68,7 +68,7 @@ function loadSession()
 			@ini_set('session.serialize_handler', 'php_serialize');
 			if (ini_get('session.serialize_handler') != 'php_serialize')
 				@ini_set('session.serialize_handler', 'php');
-			
+
 			$context['session_handler'] = new SmfSessionHandler();
 			session_set_save_handler($context['session_handler'], true);
 
@@ -101,8 +101,12 @@ function loadSession()
  * Class SmfSessionHandler
  *
  * An implementation of the SessionHandler
- * Note: To support PHP 8.x ,we use the attribute ReturnTypeWillChange.  When 8.1 is the miniumn, this can be removed.
- * Note: To support PHP 7.x, we do not use type hints as SessionHandlerInterface does not have them. 
+ *
+ * Note: To support PHP 8.x, we use the attribute ReturnTypeWillChange. When
+ * 8.1 is the miniumn, this can be removed.
+ *
+ * Note: To support PHP 7.x, we do not use type hints as SessionHandlerInterface
+ * does not have them.
  */
 class SmfSessionHandler extends SessionHandler implements SessionHandlerInterface, SessionIdInterface
 {

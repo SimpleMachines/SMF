@@ -5853,7 +5853,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 			// Cleanup enabled/disabled variants before taking action.
 			$current_functions = array_diff($current_functions, array($enabled_call, $disabled_call));
-	
+
 			$permanent_functions = array_unique(array_merge($current_functions, array($integration_call)));
 		}
 		else

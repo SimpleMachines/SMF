@@ -818,7 +818,7 @@ function AdminBoardRecount()
 	validateToken(!isset($_REQUEST['step']) ? 'admin-maint' : 'admin-boardrecount');
 	$context['not_done_token'] = 'admin-boardrecount';
 	createToken($context['not_done_token']);
-	
+
 	$context['page_title'] = $txt['not_done_title'];
 	$context['continue_post_data'] = '';
 	$context['continue_countdown'] = 3;

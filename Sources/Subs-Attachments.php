@@ -1403,7 +1403,7 @@ function prepareAttachsByMsg($msgIDs)
 	if (!empty($msgIDs) || !empty($_SESSION['attachments_can_preview']))
 	{
 		// Where clause - there may or may not be msg ids, & may or may not be attachs to preview,
-		// depending on post vs edit, inserted or not, preview or not, post error or not, etc.  
+		// depending on post vs edit, inserted or not, preview or not, post error or not, etc.
 		// Either way, they may be needed in a display of a list of posts or in the dropzone 'mock' list of thumbnails.
 		$msg_or_att = '';
 		if (!empty($msgIDs))

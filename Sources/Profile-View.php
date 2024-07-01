@@ -237,7 +237,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Basic sanitation.
 	$memID = (int) $memID;
 	$unread = $to_fetch === false;
-	
+
 	if (empty($limit) || $limit > 1000)
 		$limit = min(!empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? (int) $modSettings['alerts_per_page'] : 1000, 1000);
 

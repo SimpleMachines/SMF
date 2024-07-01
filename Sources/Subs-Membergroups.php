@@ -544,7 +544,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 		if ($is_protected == 1)
 			return false;
 	}
-	
+
 	// Do the actual updates.
 	if ($type == 'only_additional')
 		$smcFunc['db_query']('', '
