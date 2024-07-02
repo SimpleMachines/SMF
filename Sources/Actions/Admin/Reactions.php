@@ -148,7 +148,7 @@ class Reactions implements ActionInterface
 		// They must have submitted a form.
 		if (isset($_POST['reacts_save']) || isset($_POST['reacts_delete'])) {
 			User::$me->checkSession();
-			SecurityToken::validate('admin-mss', 'request');
+			SecurityToken::validate('admin-mr', 'request');
 
 			// This will indicate whether we need to update the reactions cache later...
 			$do_update = false;
