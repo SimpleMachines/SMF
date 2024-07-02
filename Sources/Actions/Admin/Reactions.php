@@ -295,24 +295,6 @@ class Reactions implements ActionInterface
 				]
 		];
 
-		// The column for deleting things
-		$listOptions['columns']['remove'] = [
-			'header' => [
-				'value' => Lang::$txt['reacts_delete'],
-				'style' => 'width:3%',
-			],
-			'data' => [
-				'function' => function () use ($reactions) {
-					$checks = [];
-					foreach (array_keys($reactions) as $id) {
-						$checks[] = '<input type="check" name="delete_reacts[]" value="' . $id . '">';
-					}
-					return $checks;
-				},
-			],
-			'class' => 'centertext',
-		];
-
 		// Add a row for a blank field to add a reaction, and a link to add another blank field.
 		$listOptions['additional_rows'] = [
 			[
