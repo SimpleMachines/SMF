@@ -256,7 +256,7 @@ class Reactions implements ActionInterface
 			'id' => 'reactions_list',
 			'title' => Lang::$txt['reactions'],
 			'no_items_label' => Lang::$txt['no_reactions'],
-			'base_href' => Config::$scripturl . '?action=admin;area=reactions;sa=edit',
+			'base_href' => Config::$scripturl . '?action=admin;area=managereactions;sa=edit',
 			'get_items' => [
 				'function' => function (int $start, int $items_per_page, string $sort_by) use ($reactions): array {
 					$items = [];
@@ -330,7 +330,7 @@ class Reactions implements ActionInterface
 
 		// Now that we have our list options set up, have some fun...
 		$listOptions['form'] = [
-			'href' => Config::$scripturl . '?action=admin;area=react;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			'href' => Config::$scripturl . '?action=admin;area=managereactions;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'name' => 'list_reactions',
 		];
 
