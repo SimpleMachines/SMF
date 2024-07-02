@@ -1412,6 +1412,50 @@ class PackageManager
 
 		// Restore file permissions?
 		SubsPackage::create_chmod_control([], [], true);
+
+		// Does Config::$backward_compatibility need to be updated?
+		$this->updateBackwardCompatibility();
+	}
+
+	/**
+	 * Enables Config::$backward_compatibility if it is needed.
+	 *
+	 * Once support for backward compatibility behaviours has been discontinued
+	 * in a future version of SMF, this method can be removed.
+	 */
+	public function updateBackwardCompatibility(): void
+	{
+		// If it has been forced on, leave it alone.
+		if ((Config::$backward_compatibility ?? null) === 2) {
+			return;
+		}
+
+		$min_version = preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION);
+
+		$request = Db::$db->query(
+			'',
+			'SELECT smf_version
+			FROM {db_prefix}log_packages
+			WHERE install_state != {int:not_installed}
+			ORDER BY smf_version ASC',
+			[
+				'not_installed' => 0,
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$row['smf_version'] = strtr(strtolower($row['smf_version']), ' ', '.');
+
+			if (version_compare($row['smf_version'], $min_version, '<')) {
+				break;
+			}
+		}
+
+		Db::$db->free_result($request);
+
+		Config::updateSettingsFile([
+			'backward_compatibility' => version_compare($row['smf_version'], $min_version, '<'),
+		]);
 	}
 
 	/**

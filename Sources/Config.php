@@ -249,11 +249,15 @@ class Config
 
 	######### Modification Support #########
 	/**
-	 * @var bool
+	 * @var int
 	 *
-	 * Master switch to enable backward compatibility behaviours.
+	 * Master switch to enable backward compatibility behaviours:
+	 * 0: Off. This is the default.
+	 * 1: On. This will be set automatically if an installed modification needs it.
+	 * 2: Forced on. Use this to enable backward compatibility behaviours even when
+	 *    no installed modifications require them. This is usually not necessary.
 	 */
-	public static bool $backward_compatibility = true;
+	public static int $backward_compatibility;
 
 	######### Legacy settings #########
 	/**
@@ -783,13 +787,17 @@ class Config
 
 				######### Modification Support #########
 				/**
-				 * @var bool
+				 * @var int
 				 *
-				 * Master switch to enable backward compatibility behaviours.
+				 * Master switch to enable backward compatibility behaviours:
+				 * 0: Off. This is the default.
+				 * 1: On. This will be set automatically if an installed modification needs it.
+				 * 2: Forced on. Use this to enable backward compatibility behaviours even when
+				 *    no installed modifications require them. This is usually not necessary.
 				 */
 				END,
-			'default' => true,
-			'type' => 'boolean',
+			'default' => 0,
+			'type' => 'integer',
 		],
 		'db_character_set' => [
 			'text' => <<<'END'
@@ -956,7 +964,7 @@ class Config
 
 		// For backward compatibility, make settings available as global variables.
 		// Must do this manually because SMF\BackwardCompatibility is not loaded yet.
-		if (self::$backward_compatibility && !self::$exported) {
+		if (!empty(self::$backward_compatibility) && !self::$exported) {
 			foreach ($settings as $var => $val) {
 				if (property_exists(__CLASS__, $var)) {
 					$GLOBALS[$var] = &self::${$var};

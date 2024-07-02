@@ -224,11 +224,15 @@ $languagesdir = dirname(__FILE__) . '/Languages';
 
 ######### Modification Support #########
 /**
- * @var bool
+ * @var int
  *
- * Master switch to enable backward compatibility behaviours.
+ * Master switch to enable backward compatibility behaviours:
+ * 0: Off. This is the default.
+ * 1: On. This will be set automatically if an installed modification needs it.
+ * 2: Forced on. Use this to enable backward compatibility behaviours even when
+ *    no installed modifications require them. This is usually not necessary.
  */
-$backward_compatibility = true;
+$backward_compatibility = 0;
 
 ######### Legacy Settings #########
 /**
