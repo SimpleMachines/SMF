@@ -109,7 +109,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		if ($value === null) {
 			$query = 'DELETE FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\';';
 		} else {
-			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $ttl . ');';
+			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString(is_bool($value) ? strval(intval($value)) : $value) . '\', ' . $ttl . ');';
 		}
 		$result = $this->cacheDB->exec($query);
 

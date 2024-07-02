@@ -2060,7 +2060,7 @@ class Utils
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 		// Debugging.
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (!empty(Config::$db_show_debug)) {
 			$_SESSION['debug_redirect'] = Db::$cache;
 		}
 
@@ -2254,7 +2254,7 @@ class Utils
 					Utils::$context['instances'][$class] = new $class();
 
 					// Add another one to the list.
-					if (Config::$db_show_debug === true) {
+					if (!empty(Config::$db_show_debug)) {
 						if (!isset(Utils::$context['debug']['instances'])) {
 							Utils::$context['debug']['instances'] = [];
 						}

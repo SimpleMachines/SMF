@@ -351,7 +351,7 @@ class Theme
 		}
 
 		if ($loaded) {
-			if (Config::$db_show_debug === true) {
+			if (!empty(Config::$db_show_debug)) {
 				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
 			}
 
@@ -406,7 +406,7 @@ class Theme
 	 */
 	public static function loadSubTemplate(string $sub_template_name, bool|string $fatal = false): void
 	{
-		if (Config::$db_show_debug === true) {
+		if (!empty(Config::$db_show_debug)) {
 			Utils::$context['debug']['sub_templates'][] = $sub_template_name;
 		}
 
@@ -1637,7 +1637,7 @@ class Theme
 			}
 		}
 
-		if (Config::$db_show_debug === true) {
+		if (!empty(Config::$db_show_debug)) {
 			// Try to keep only what's useful.
 			$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
 
