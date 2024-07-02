@@ -979,7 +979,7 @@ class Config
 		Cache\CacheApi::load();
 
 		// Try to load it from the cache first; it'll never get cached if the setting is off.
-		if (($temp = Cache\CacheApi::get('modSettings', 90)) !== null) {
+		if (is_array($temp = Cache\CacheApi::get('modSettings', 90))) {
 			self::$modSettings = $temp;
 		} else {
 			self::$modSettings = [];
@@ -2144,7 +2144,11 @@ class Config
 					continue;
 				}
 
-				$settingsText .= "\n\n" . $substitutions[$var]['replacement'];
+				if (str_contains($settingsText, $substitutions[-2]['replacement'])) {
+					$settingsText = preg_replace($substitutions[-2]['search_pattern'], "\n\n" . $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
+				} else {
+					$settingsText .= "\n\n" . $substitutions[$var]['replacement'];
+				}
 			}
 		} else {
 			// If the comments for some variables have changed since the last
