@@ -969,3 +969,12 @@ Db::$db->add_index(
 ---# Adding new "spoofdetector_censor" setting
 INSERT IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector_censor', '1');
 ---#
+
+/******************************************************************************/
+--- Adding SMF version information to log_packages
+/******************************************************************************/
+
+---# Adding a new column "smf_version" to log_packages table
+ALTER TABLE {$db_prefix}log_packages
+ADD COLUMN smf_version VARCHAR(5) NOT NULL DEFAULT '';
+---#

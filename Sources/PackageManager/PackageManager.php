@@ -1229,8 +1229,12 @@ class PackageManager
 					Db::$db->query(
 						'',
 						'UPDATE {db_prefix}log_packages
-						SET install_state = {int:not_installed}, member_removed = {string:member_name},
-							id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
+						SET
+							install_state = {int:not_installed},
+							member_removed = {string:member_name},
+							id_member_removed = {int:current_member},
+							time_removed = {int:current_time},
+							sha256_hash = {string:package_hash}
 						WHERE package_id = {string:package_id}
 							AND id_install = {int:install_id}',
 						[
@@ -1253,8 +1257,12 @@ class PackageManager
 					Db::$db->query(
 						'',
 						'UPDATE {db_prefix}log_packages
-						SET install_state = {int:not_installed}, member_removed = {string:member_name},
-							id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
+						SET
+							install_state = {int:not_installed},
+							member_removed = {string:member_name},
+							id_member_removed = {int:current_member},
+							time_removed = {int:current_time},
+							sha256_hash = {string:package_hash}
 						WHERE package_id = {string:package_id}
 							AND version = {string:old_version}',
 						[
@@ -1322,21 +1330,44 @@ class PackageManager
 
 				// Credits tag?
 				$credits_tag = (empty($credits_tag)) ? '' : Utils::jsonEncode($credits_tag);
+
+				// Log that we installed it.
 				Db::$db->insert(
 					'',
 					'{db_prefix}log_packages',
 					[
-						'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
-						'id_member_installed' => 'int', 'member_installed' => 'string', 'time_installed' => 'int',
-						'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
-						'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
+						'filename' => 'string',
+						'name' => 'string',
+						'package_id' => 'string',
+						'version' => 'string',
+						'id_member_installed' => 'int',
+						'member_installed' => 'string',
+						'time_installed' => 'int',
+						'install_state' => 'int',
+						'failed_steps' => 'string',
+						'themes_installed' => 'string',
+						'member_removed' => 'int',
+						'db_changes' => 'string',
+						'credits' => 'string',
 						'sha256_hash' => 'string',
+						'smf_version' => 'string',
 					],
 					[
-						$package_filename, $package_name, $package_id, $package_version,
-						User::$me->id, User::$me->name, time(),
-						$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
-						0, $db_changes, $credits_tag, Utils::$context['package_sha256_hash'],
+						$package_filename,
+						$package_name,
+						$package_id,
+						$package_version,
+						User::$me->id,
+						User::$me->name,
+						time(),
+						$is_upgrade ? 2 : 1,
+						$failed_step_insert,
+						$themes_installed,
+						0,
+						$db_changes,
+						$credits_tag,
+						Utils::$context['package_sha256_hash'],
+						Utils::$context['smf_version'],
 					],
 					['id_install'],
 				);
