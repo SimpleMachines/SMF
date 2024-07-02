@@ -88,11 +88,11 @@ class Reactions implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 
 			$_SESSION['adm-save'] = true;
-			Utils::redirectexit('action=admin;area=reactions;sa=settings');
+			Utils::redirectexit('action=admin;area=managereactions;sa=settings');
 		}
 
 		// Finish up the form...
-		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=reactions;save;sa=settings';
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managereactions;save;sa=settings';
 		Utils::$context['settings_title'] = Lang::$txt['reactions_settings'];
 
 		// We need this for the in-line permissions
