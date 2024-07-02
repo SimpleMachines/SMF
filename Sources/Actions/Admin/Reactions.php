@@ -281,7 +281,7 @@ class Reactions implements ActionInterface
 							],
 							'data' => [
 								'function' => function ($rowData) {
-									return '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">';
+									return '<input type="text" name="reacts[' . $rowData['id'] . ']" value="' . $rowData['name']. '">';
 								}
 							],
 						],
