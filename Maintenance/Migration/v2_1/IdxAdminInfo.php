@@ -15,11 +15,11 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Config;
 use SMF\Maintenance;
-use SMF\Maintenance\Database\Schema\DbIndex;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class IdxTopics extends MigrationBase
+class IdxAdminInfo extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -28,7 +28,7 @@ class IdxTopics extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Clean up indexes (Topics)';
+	public string $name = 'Clean up indexes (Admin Info Files)';
 
 	/****************
 	 * Public methods
@@ -39,7 +39,7 @@ class IdxTopics extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		return true;
+		return Config::$db_type === POSTGRE_TITLE;
 	}
 
 	/**
@@ -49,24 +49,27 @@ class IdxTopics extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Maintenance\Database\Schema\v2_1\Topics();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\AdminInfoFiles();
+		$existing_structure = $table->getCurrentStructure();
 
+		// Change index for table scheduled_tasks
 		if ($start <= 0) {
-			$oldIdx = new DbIndex(
-				['id_topic'],
-				'index',
-				'idx_id_board',
-			);
-
-			$table->dropIndex($oldIdx);
+			foreach ($table->indexes as $idx) {
+				if ($idx->name === 'idx_filename' && isset($existing_structure['indexes']['idx_filename'])) {
+					$table->dropIndex($idx);
+				}
+			}
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating topics drop old id_board ix
-		if ($start <= 0) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
-			$table->dropIndex($oldIdx);
+		if ($start <= 1) {
+			foreach ($table->indexes as $idx) {
+				if ($idx->name === 'idx_filename' && !isset($existing_structure['indexes']['idx_filename'])) {
+					$idx->columns[0] = 'filename varchar_pattern_ops';
+					$table->addIndex($idx);
+				}
+			}
 
 			$this->handleTimeout(++$start);
 		}

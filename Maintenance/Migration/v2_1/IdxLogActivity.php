@@ -19,7 +19,7 @@ use SMF\Maintenance;
 use SMF\Maintenance\Database\Schema\DbIndex;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class IdxTopics extends MigrationBase
+class IdxLogActivity extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -28,7 +28,7 @@ class IdxTopics extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Clean up indexes (Topics)';
+	public string $name = 'Clean up indexes (Log Activity)';
 
 	/****************
 	 * Public methods
@@ -49,13 +49,14 @@ class IdxTopics extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Maintenance\Database\Schema\v2_1\Topics();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogActivity();
 
+		// Updating log_activity mostOn
 		if ($start <= 0) {
 			$oldIdx = new DbIndex(
-				['id_topic'],
+				['most_on'],
 				'index',
-				'idx_id_board',
+				'mostOn',
 			);
 
 			$table->dropIndex($oldIdx);
@@ -65,7 +66,12 @@ class IdxTopics extends MigrationBase
 
 		// Updating topics drop old id_board ix
 		if ($start <= 0) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
+			$oldIdx = new DbIndex(
+				['most_on'],
+				'index',
+				'most_on',
+			);
+
 			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);

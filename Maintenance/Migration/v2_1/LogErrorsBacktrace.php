@@ -15,11 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Maintenance;
-use SMF\Maintenance\Database\Schema\DbIndex;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class IdxTopics extends MigrationBase
+class LogErrorsBacktrace extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -28,7 +26,7 @@ class IdxTopics extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Clean up indexes (Topics)';
+	public string $name = 'Add backtrace to log_error';
 
 	/****************
 	 * Public methods
@@ -39,6 +37,15 @@ class IdxTopics extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogErrors();
+		$existing_structure = $table->getCurrentStructure();
+
+		foreach ($existing_structure['columns'] as $column) {
+			if ($column['name'] === 'backtrace') {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -47,29 +54,8 @@ class IdxTopics extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$start = Maintenance::getCurrentStart();
-
-		$table = new \SMF\Maintenance\Database\Schema\v2_1\Topics();
-
-		if ($start <= 0) {
-			$oldIdx = new DbIndex(
-				['id_topic'],
-				'index',
-				'idx_id_board',
-			);
-
-			$table->dropIndex($oldIdx);
-
-			$this->handleTimeout(++$start);
-		}
-
-		// Updating topics drop old id_board ix
-		if ($start <= 0) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
-			$table->dropIndex($oldIdx);
-
-			$this->handleTimeout(++$start);
-		}
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogErrors();
+		$table->addColumn($table->columns['backtrace']);
 
 		return true;
 	}

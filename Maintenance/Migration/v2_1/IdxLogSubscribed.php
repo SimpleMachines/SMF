@@ -16,10 +16,9 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Maintenance;
-use SMF\Maintenance\Database\Schema\DbIndex;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class IdxTopics extends MigrationBase
+class IdxLogSubscribed extends MigrationBase
 {
 	/*******************
 	 * Public properties
@@ -28,7 +27,7 @@ class IdxTopics extends MigrationBase
 	/**
 	 * {@inheritDoc}
 	 */
-	public string $name = 'Clean up indexes (Topics)';
+	public string $name = 'Clean up indexes (Log Subscribed)';
 
 	/****************
 	 * Public methods
@@ -49,24 +48,16 @@ class IdxTopics extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Maintenance\Database\Schema\v2_1\Topics();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogSubscribed();
+		$existing_structure = $table->getCurrentStructure();
 
+		// Updating log_actions
 		if ($start <= 0) {
-			$oldIdx = new DbIndex(
-				['id_topic'],
-				'index',
-				'idx_id_board',
-			);
-
-			$table->dropIndex($oldIdx);
-
-			$this->handleTimeout(++$start);
-		}
-
-		// Updating topics drop old id_board ix
-		if ($start <= 0) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
-			$table->dropIndex($oldIdx);
+			foreach ($table->indexes as $idx) {
+				if ($idx->name === 'status' && !isset($existing_structure['indexes']['status'])) {
+					$table->addIndex($idx);
+				}
+			}
 
 			$this->handleTimeout(++$start);
 		}
