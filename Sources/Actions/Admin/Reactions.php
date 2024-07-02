@@ -309,7 +309,7 @@ class Reactions implements ActionInterface
 			[
 				// Clicking this magic button adds a new row...
 				'position' => 'bottom_of_list',
-				'value' => '<button type="button" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</button>'
+				'value' => '<button type="button" class="button" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</button>'
 			],
 			[
 				// And last but not least our input buttons
