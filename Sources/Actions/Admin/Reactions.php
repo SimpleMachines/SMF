@@ -146,7 +146,7 @@ class Reactions implements ActionInterface
 		$reactions = $this->getReactions();
 
 		// They must have submitted a form.
-		if (isset($_POST['react_save']) || isset($_POST['react_delete'])) {
+		if (isset($_POST['reacts_save']) || isset($_POST['reacts_delete'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-mss', 'request');
 
@@ -154,7 +154,7 @@ class Reactions implements ActionInterface
 			$do_update = false;
 
 			// Anything to delete?
-			if (isset($_POST['react_delete']) && isset($_POST['delete_reacts'])) {
+			if (isset($_POST['reacts_delete']) && isset($_POST['delete_reacts'])) {
 				$do_update = true;
 				$deleted = [];
 
@@ -200,8 +200,8 @@ class Reactions implements ActionInterface
 			} // Updating things?
 			elseif (isset($_POST['reacts'])) {
 				// Adding things?
-				if (isset($_POST['react_add'])) {
-					foreach ($_POST['react_add'] as $new_react) {
+				if (isset($_POST['reacts_add'])) {
+					foreach ($_POST['reacts_add'] as $new_react) {
 						// No funny stuff now..
 						$new_react = trim($new_react);
 						if (!empty($new_react)) {
@@ -303,12 +303,12 @@ class Reactions implements ActionInterface
 		// Add a row for a blank field to add a reaction, and a link to add another blank field.
 		$listOptions['additional_rows'] = [
 			[
-				'position' => 'bottom_of_list',
+				'position' => 'below_table_data',
 				'value' => '<input type="text" name="reacts_add[]">'
 			],
 			[
 				// Clicking this magic button adds a new row...
-				'position' => 'bottom_of_list',
+				'position' => 'below_table_data',
 				'value' => '<button type="button" class="button" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</button>'
 			],
 			[
