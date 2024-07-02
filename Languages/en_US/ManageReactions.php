@@ -16,4 +16,5 @@ $txt['manage_reactions_desc'] = 'Add, remove and update available reactions.';
 $txt['reactions_settings'] = 'Reactions Settings';
 $txt['groups_reactions_react'] = 'Membergroups allowed to react to content';
 $txt['enable_reacts'] = 'Enable reactions';
+$txt['reacts_add'] = 'Add reaction';
 ?>

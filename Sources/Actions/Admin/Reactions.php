@@ -263,7 +263,7 @@ class Reactions implements ActionInterface
 					foreach ($reactions as $id => $name) {
 						$items[] = [
 							'id' => $id,
-							'name' => '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">',
+							'name' => $name,
 						];
 					}
 					return $items;
@@ -278,7 +278,12 @@ class Reactions implements ActionInterface
 						[
 							'header' => [
 								'value' => Lang::$txt['reactions_name'],
-							]
+							],
+							'data' => [
+								'function' => function ($rowData) {
+									return '<input type="text" name="reacts[' . $id . ']" value="' . $name . '">';
+								}
+							],
 						],
 					'check' => [
 						'header' => [
@@ -287,7 +292,7 @@ class Reactions implements ActionInterface
 						],
 						'data' => [
 							'function' => function ($rowData) {
-								return '<input type="check" name="delete_reacts[]" value="' . $rowData['id'] . '">';
+								return '<input type="checkbox" name="delete_reacts[]" value="' . $rowData['id'] . '">';
 							},
 							'class' => 'centercol',
 						]
@@ -318,7 +323,7 @@ class Reactions implements ActionInterface
 		$listOptions['javascript'] = '
 			function addrow() {
 				reacts_table = document.getElementById(\'reactions_list\');
-				new_row = document.getElementById(\'reactions_list\').insertRow(reacts_table.rows.length - 1);
+				new_row = document.getElementById(\'reactions_list\').insertRow(reacts_table.rows.length);
 				new_row.insertCell(0).innerHTML = \'<input type="text" name="reacts_add[]">\';
 				new_row.insertCell(1).innerHTML = \'\';
 			}';
