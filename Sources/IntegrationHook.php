@@ -77,7 +77,7 @@ class IntegrationHook
 
 		$this->ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (Config::$db_show_debug === true) {
+		if (!empty(Config::$db_show_debug)) {
 			Utils::$context['debug']['hooks'][] = $name;
 		}
 
