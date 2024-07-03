@@ -79,6 +79,7 @@ class Reactions implements ActionInterface
 
 		// Setup the basics of the settings template.
 		Utils::$context['sub_template'] = 'show_settings';
+		Utils::$context['page_title'] = Lang::$txt['reactions_settings'];
 
 		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
@@ -333,6 +334,7 @@ class Reactions implements ActionInterface
 		$listOptions['form'] = [
 			'href' => Config::$scripturl . '?action=admin;area=managereactions;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'name' => 'list_reactions',
+			'token' => 'admin-mre',
 		];
 
 		new ItemList($listOptions);
