@@ -251,7 +251,7 @@ class Reactions implements ActionInterface
 		// Set up the form now...
 
 		// Create our token
-		SecurityToken::create('admin-mr');
+		SecurityToken::create('admin-mre');
 
 		// Set up our list. Use a special function for the get_items so we can output things in input fields...
 		$listOptions = [
