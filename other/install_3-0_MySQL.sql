@@ -462,6 +462,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	db_changes TEXT NOT NULL,
 	credits TEXT NOT NULL,
 	sha256_hash TEXT,
+	smf_version VARCHAR(5) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_install),
 	INDEX idx_filename (filename(15))
 ) ENGINE={$engine};

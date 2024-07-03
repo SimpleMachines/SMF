@@ -851,3 +851,12 @@ CREATE INDEX {$db_prefix}idx_spoofdetector_name_id ON {$db_prefix}members (spoof
 ---# Adding new "spoofdetector_censor" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector_censor', '1') ON CONFLICT DO NOTHING;
 ---#
+
+/******************************************************************************/
+--- Adding SMF version information to log_packages
+/******************************************************************************/
+
+---# Adding a new column "smf_version" to log_packages table
+ALTER TABLE {$db_prefix}log_packages
+ADD COLUMN IF NOT EXISTS smf_version VARCHAR(5) NOT NULL DEFAULT '';
+---#
