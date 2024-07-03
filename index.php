@@ -121,6 +121,9 @@ call_user_func(function () {
 	// Pass all the settings to SMF\Config.
 	require_once $sourcedir . '/Config.php';
 	SMF\Config::set(get_defined_vars());
+
+	// Ensure $db_last_error is set, too.
+	SMF\Config::getDbLastError();
 });
 
 // Devs want all error messages, but others don't.

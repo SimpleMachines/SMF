@@ -161,7 +161,7 @@ class TaskRunner
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
-			Config::$db_show_debug = null;
+			Config::$db_show_debug = false;
 
 			Db::load();
 
