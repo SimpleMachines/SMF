@@ -82,6 +82,7 @@ class Reactions implements ActionInterface
 
 		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
+			SecurityToken::validate('admin-mr');
 			IntegrationHook::call('integrate_save_reactions_settings');
 
 			// Yeppers, saving this...
@@ -148,7 +149,7 @@ class Reactions implements ActionInterface
 		// They must have submitted a form.
 		if (isset($_POST['reacts_save']) || isset($_POST['reacts_delete'])) {
 			User::$me->checkSession();
-			SecurityToken::validate('admin-mr', 'request');
+			SecurityToken::validate('admin-mr');
 
 			// This will indicate whether we need to update the reactions cache later...
 			$do_update = false;
@@ -249,7 +250,7 @@ class Reactions implements ActionInterface
 		// Set up the form now...
 
 		// Create our token
-		SecurityToken::create('admin-mr', 'request');
+		SecurityToken::create('admin-mr');
 
 		// Set up our list. Use a special function for the get_items so we can output things in input fields...
 		$listOptions = [
