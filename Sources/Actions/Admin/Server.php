@@ -1126,9 +1126,6 @@ class Server implements ActionInterface
 			if (!is_array($config_var) || !isset($config_var[1])) {
 				Utils::$context['config_vars'][] = $config_var;
 			} else {
-				$varname = $config_var[0];
-				global $$varname;
-
 				// Set the subtext in case it's part of the label.
 				// @todo Temporary. Preventing divs inside label tags.
 				$divPos = strpos($config_var[1], '<div');
@@ -1146,7 +1143,7 @@ class Server implements ActionInterface
 					'size' => !empty($config_var[4]) && !is_array($config_var[4]) ? $config_var[4] : 0,
 					'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : [],
 					'name' => $config_var[0],
-					'value' => $config_var[2] == 'file' ? Utils::htmlspecialchars((string) $$varname) : (isset(Config::$modSettings[$config_var[0]]) ? Utils::htmlspecialchars(Config::$modSettings[$config_var[0]]) : (in_array($config_var[3], ['int', 'float']) ? 0 : '')),
+					'value' => $config_var[2] == 'file' ? Utils::htmlspecialchars((string) Config::${$config_var[0]}) : (isset(Config::$modSettings[$config_var[0]]) ? Utils::htmlspecialchars(Config::$modSettings[$config_var[0]]) : (in_array($config_var[3], ['int', 'float']) ? 0 : '')),
 					'disabled' => !empty(Utils::$context['settings_not_writable']) || !empty($config_var['disabled']),
 					'invalid' => false,
 					'subtext' => !empty($config_var['subtext']) ? $config_var['subtext'] : $subtext,
