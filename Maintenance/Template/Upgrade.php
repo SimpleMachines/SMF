@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Template;
 
 use SMF\Lang;
-use SMF\Maintenance;
+use SMF\Maintenance\Maintenance;
 use SMF\Sapi;
 
 /**
@@ -94,14 +94,6 @@ class Upgrade implements TemplateInterface
         </form>';
 		}
 
-		// Are we on a pause?
-		if (!empty(Maintenance::$context['pause'])) {
-			echo '
-		<script defer>
-			window.onload = doAutoSubmit;
-		</script>';
-		}
-
 		echo '
 		<script>
 		let countdown = 3;
@@ -122,6 +114,13 @@ class Upgrade implements TemplateInterface
 		}
 		</script>';
 
+		// Are we on a pause?
+		if (!empty(Maintenance::$context['pause'])) {
+			echo '
+		<script defer>
+			window.onload = doAutoSubmit;
+		</script>';
+		}
 	}
 
 	/**
@@ -286,7 +285,7 @@ class Upgrade implements TemplateInterface
 			smfVer = document.getElementById(\'smfVersion\');
 			yourVer = document.getElementById(\'yourVersion\');
 
-			setInnerHTML(smfVer, window.smfVersion);
+			smfVer.innerHTML = window.smfVersion;
 
 			var currentVersion = getInnerHTML(yourVer);
 			if (currentVersion < window.smfVersion)
@@ -437,8 +436,8 @@ class Upgrade implements TemplateInterface
 									iStepProgress = parseInt(json.data.substep_progres);
 
 									// Update the page.
-									setInnerHTML(document.getElementById("tab_done"), iLastTableIndex);
-									setInnerHTML(document.getElementById("current_table"), sCurrentTableName);
+									//document.getElementById("tab_done").innerHTML = iLastTableIndex;
+									document.getElementById("current_table").innerHTML = sCurrentTableName;
 
 									updateProgress(iLastTableIndex, iTotalTables, iStepWeight, iStepProgress);
 
@@ -489,6 +488,108 @@ class Upgrade implements TemplateInterface
 	 */
 	public static function migrations(): void
 	{
+		echo '
+		<h3>', Lang::$txt['upgrade_db_changes'], '</h3>
+		<h4><em>', Lang::$txt['upgrade_db_patient'], '</em></h4>';
+
+		echo '
+			<input type="hidden" name="database_done" id="database_done" value="0">
+			<div id="debug_section">
+				<span id="debuginfo"></span>
+			</div>';
+
+		echo '
+			<h3 id="current_tab">
+				', Lang::$txt['upgrade_current_step'], ' &quot;<span id="current_step"></span>&quot;
+			</h3>
+			<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', Maintenance::getCurrentSubStep(), '</span> ', Lang::$txt['upgrade_outof'], ' ', Maintenance::$total_substeps, ' ', Lang::$txt['upgrade_steps'], '</strong>
+
+			<p id="commess" class="', Maintenance::getCurrentSubStep() == Maintenance::$total_substeps ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_backup_complete'], '</p>';
+
+		echo '
+            <div class="errorbox" id="errorbox" style="display: none;">
+                <h3>', Lang::$txt['critical_error'], '</h3>
+                <span>', Lang::$txt['error_unknown'], '</span>
+            </div>';
+
+		// Continue please!
+		Maintenance::$context['continue'] = true;
+
+		// Pour me a cup of javascript.
+		echo '
+					<script>
+						const iTotalSteps = ', Maintenance::$total_substeps, ';
+						const iStepWeight = ', Maintenance::$context['step_weight'], ';
+						let iCurrentSubStep  = ', Maintenance::getCurrentSubStep(), ';
+						let iStepProgress = 0;
+						let sCurrentStepName = "";
+
+						function getNextMigration()
+						{
+							const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json".replace(/substep=\d+/, "substep=" + iCurrentSubStep);
+
+							fetch(url, {
+								method: "GET",
+								credentials: "include",
+							}).then(function(response){
+								response.json().then(function(json) {
+									if (json.success != true) {
+										document.getElementById("errorbox").style.display = "";
+										document.getElementById("contbutt").disabled = 0;
+										document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+										return;
+									}
+
+									sCurrentStepName = json.data.name;
+									iCurrentSubStep = parseInt(json.data.substep) + 1;
+									iStepProgress = iStepProgress / iTotalSteps;
+
+									// Update the page.
+									//document.getElementById("tab_done").innerHTML = iCurrentSubStep;
+									document.getElementById("current_step").innerHTML = sCurrentStepName;
+
+									updateProgress(iCurrentSubStep, iTotalSteps, iStepWeight, iStepProgress);
+
+									if (isDebug) {
+										setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::$txt['upgrade_completed_table'], ' &quot;" + sCurrentStepName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
+
+										if (document.getElementById("debug_section").scrollHeight) {
+											document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+										}
+									}
+
+									// Are we done yet?
+									if (iCurrentSubStep == iTotalSteps) {
+										document.getElementById("commess").classList.remove("hidden");
+										document.getElementById("current_tab").classList.add("hidden");
+										document.getElementById("contbutt").disabled = 0;
+										document.getElementById("database_done").value = 1;
+
+										setTimeout("doAutoSubmit();", 1000);
+									}
+									else {
+										getNextMigration();
+									}
+								});
+							}).catch(function(error) {
+								console.log("Fetch Error:", error);
+
+								document.getElementById("errorbox").style.display = "";
+								if (isDebug) {
+									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
+									document.getElementById("contbutt").disabled = 0;
+									document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+								}
+							});
+						}
+
+						// Lets try to let the browser handle this.
+						window.addEventListener("load", (event) => {
+							document.getElementById("contbutt").disabled = 1;
+							getNextMigration();
+						});
+					//# sourceURL=dynamicScript-migration.js
+					</script>';
 
 	}
 

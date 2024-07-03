@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -22,7 +22,7 @@ use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Logging;
-use SMF\Maintenance;
+use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Step;
 use SMF\Maintenance\Template\Template;
 use SMF\PackageManager\FtpConnection;

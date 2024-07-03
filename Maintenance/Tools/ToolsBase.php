@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -17,7 +17,8 @@ namespace SMF\Maintenance\Tools;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance;
+use SMF\Maintenance\Database\DatabaseInterface;
+use SMF\Maintenance\Maintenance;
 use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
 use SMF\SecurityToken;
@@ -124,7 +125,7 @@ abstract class ToolsBase
 		/** @var \SMF\Maintenance\Database\DatabaseInterface $db_class */
 		$db_class = '\\SMF\\Maintenance\\Database\\' . Db::getClass(Config::$db_type);
 
-		require_once Config::$sourcedir . '/Maintenance/Database/' . Db::getClass(Config::$db_type) . '.php';
+		require_once Config::$boarddir . '/Maintenance/Database/' . Db::getClass(Config::$db_type) . '.php';
 
 		return new $db_class();
 	}

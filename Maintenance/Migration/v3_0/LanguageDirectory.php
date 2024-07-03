@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -18,7 +18,7 @@ namespace SMF\Maintenance\Migration\v3_0;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
-use SMF\Maintenance;
+use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class LanguageDirectory extends MigrationBase
@@ -32,6 +32,8 @@ class LanguageDirectory extends MigrationBase
 	 */
 	public string $name = 'Language Upgrade';
 
+	private int $limit = 10000;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -41,7 +43,6 @@ class LanguageDirectory extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$limit = 10000;
 		$statements = [];
 		$langs = [];
 		$args = ['defaultLang' => 'en_US'];
@@ -70,7 +71,7 @@ class LanguageDirectory extends MigrationBase
                 ORDER BY id_member
                 LIMIT {int:limit}',
 				[
-					'limit' => $limit,
+					'limit' => $this->limit,
 					'possible_languages' => $langs,
 				],
 			);

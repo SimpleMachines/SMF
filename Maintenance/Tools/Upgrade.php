@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -19,7 +19,9 @@ use Exception;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
-use SMF\Maintenance;
+use SMF\Maintenance\Cleanup;
+use SMF\Maintenance\Maintenance;
+use SMF\Maintenance\Migration;
 use SMF\Maintenance\Step;
 use SMF\Maintenance\Template\Template;
 use SMF\QueryString;
@@ -40,99 +42,110 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 *****************/
 
 	/**
+	 * SMF Version to namespace
+	 */
+	public const VERSION_MAP = [
+		'2.1 RC 99' => 'v2_1',
+		'3.0 RC 99' => 'v3_0',
+	];
+
+	/**
 	 * Migration substeps to perform, listed in order.
 	 */
 	public const MIGRATIONS = [
 		// Migration steps for 2.0 -> 2.1
 		'v2_1' => [
-			Maintenance\Migration\v2_1\PostgreSQLSequences::class,
-			Maintenance\Migration\v2_1\PostgreSQLFindInSet::class,
-			Maintenance\Migration\v2_1\SettingsUpdate::class,
-			Maintenance\Migration\v2_1\RemoveKarma::class,
-			Maintenance\Migration\v2_1\FixDates::class,
-			Maintenance\Migration\v2_1\CreateMemberLogins::class,
-			Maintenance\Migration\v2_1\CollapsedCategories::class,
-			Maintenance\Migration\v2_1\BoardDescriptions::class,
-			Maintenance\Migration\v2_1\LegacyAttachments::class,
-			Maintenance\Migration\v2_1\AttachmentSizes::class,
-			Maintenance\Migration\v2_1\AttachmentDirectory::class,
-			Maintenance\Migration\v2_1\CreateLogGroupRequests::class,
-			Maintenance\Migration\v2_1\PackageManager::class,
-			Maintenance\Migration\v2_1\ValidationServers::class,
-			Maintenance\Migration\v2_1\SessionIDs::class,
-			Maintenance\Migration\v2_1\MovedTopics::class,
-			Maintenance\Migration\v2_1\ScheduledTasks::class,
-			Maintenance\Migration\v2_1\CreateBackgroundTasks::class,
-			Maintenance\Migration\v2_1\CategoryDescrptions::class,
-			Maintenance\Migration\v2_1\CreateAlerts::class,
-			Maintenance\Migration\v2_1\AutoNotify::class,
-			Maintenance\Migration\v2_1\AlertsWatchedTopics::class,
-			Maintenance\Migration\v2_1\AlertsWatchedBoards::class,
-			Maintenance\Migration\v2_1\AlertsObsolete::class,
-			Maintenance\Migration\v2_1\TopicUnwatch::class,
-			Maintenance\Migration\v2_1\MailQueue::class,
-			Maintenance\Migration\v2_1\MembergroupIcon::class,
-			Maintenance\Migration\v2_1\ThemeSettings::class,
-			Maintenance\Migration\v2_1\CustomFieldsPart1::class,
-			Maintenance\Migration\v2_1\CustomFieldsPart2::class,
-			Maintenance\Migration\v2_1\CustomFieldsPart3::class,
-			Maintenance\Migration\v2_1\UserDrafts::class,
-			Maintenance\Migration\v2_1\Likes::class,
-			Maintenance\Migration\v2_1\Mentions::class,
-			Maintenance\Migration\v2_1\ModeratorGroups::class,
-			Maintenance\Migration\v2_1\AdminInfoFiles::class,
-			Maintenance\Migration\v2_1\VerificationQuestions::class,
-			Maintenance\Migration\v2_1\Permissions::class,
-			Maintenance\Migration\v2_1\PersonalMessageLabels::class,
-			Maintenance\Migration\v2_1\MessagesModifiedReason::class,
-			Maintenance\Migration\v2_1\MembersTimezone::class,
-			Maintenance\Migration\v2_1\MembersHideEmail::class,
-			Maintenance\Migration\v2_1\LogReportedCommentsEmail::class,
-			Maintenance\Migration\v2_1\MembersOpenID::class,
-			Maintenance\Migration\v2_1\OpenID::class,
-			Maintenance\Migration\v2_1\LogSpiderHitsURL::class,
-			Maintenance\Migration\v2_1\LogOnlineURL::class,
-			Maintenance\Migration\v2_1\MembersTfaSecret::class,
-			Maintenance\Migration\v2_1\MembersTfaBackup::class,
-			Maintenance\Migration\v2_1\PostgreSQLUnlogged::class,
-			Maintenance\Migration\v2_1\PostgreSQLIPv6Helper::class,
-			Maintenance\Migration\v2_1\Ipv6BanItem::class,
-			Maintenance\Migration\v2_1\Ipv6LogAction::class,
-			Maintenance\Migration\v2_1\Ipv6LogBanned::class,
-			Maintenance\Migration\v2_1\Ipv6LogErrors::class,
-			Maintenance\Migration\v2_1\Ipv6MembersIP::class,
-			Maintenance\Migration\v2_1\Ipv6MembersIP2::class,
-			Maintenance\Migration\v2_1\Ipv6Messages::class,
-			Maintenance\Migration\v2_1\Ipv6LogFloodControl::class,
-			Maintenance\Migration\v2_1\Ipv6LogOnline::class,
-			Maintenance\Migration\v2_1\Ipv6LogReportedComments::class,
-			Maintenance\Migration\v2_1\Ipv6MemberLogins::class,
-			Maintenance\Migration\v2_1\PersonalMessageNotification::class,
-			Maintenance\Migration\v2_1\CalendarEvents::class,
-			Maintenance\Migration\v2_1\IdxMessages::class,
-			Maintenance\Migration\v2_1\IdxTopics::class,
-			Maintenance\Migration\v2_1\IdxMembers::class,
-			Maintenance\Migration\v2_1\IdxLogActivity::class,
-			Maintenance\Migration\v2_1\IdxLogActions::class,
-			Maintenance\Migration\v2_1\IdxLogSubscribed::class,
-			Maintenance\Migration\v2_1\IdxLogPackages::class,
-			Maintenance\Migration\v2_1\IdxScheduledTasks::class,
-			Maintenance\Migration\v2_1\IdxBoards::class,
-			Maintenance\Migration\v2_1\IdxLogComments::class,
-			Maintenance\Migration\v2_1\MysqlLegacyData::class,
-			Maintenance\Migration\v2_1\Smileys::class,
-			Maintenance\Migration\v2_1\LogErrorsBacktrace::class,
-			Maintenance\Migration\v2_1\SmilBoardPermissionsViews::class,
-			Maintenance\Migration\v2_1\PostgreSqlSchemaDiff::class,
-			Maintenance\Migration\v2_1\PostgreSqlTime::class,
+			Migration\v2_1\PostgreSQLSequences::class,
+			Migration\v2_1\PostgreSQLFindInSet::class,
+			Migration\v2_1\SettingsUpdate::class,
+			Migration\v2_1\RemoveKarma::class,
+			Migration\v2_1\FixDates::class,
+			Migration\v2_1\CreateMemberLogins::class,
+			Migration\v2_1\CollapsedCategories::class,
+			Migration\v2_1\BoardDescriptions::class,
+			Migration\v2_1\LegacyAttachments::class,
+			Migration\v2_1\AttachmentSizes::class,
+			Migration\v2_1\AttachmentDirectory::class,
+			Migration\v2_1\CreateLogGroupRequests::class,
+			Migration\v2_1\PackageManager::class,
+			Migration\v2_1\ValidationServers::class,
+			Migration\v2_1\SessionIDs::class,
+			Migration\v2_1\MovedTopics::class,
+			Migration\v2_1\ScheduledTasks::class,
+			Migration\v2_1\CreateBackgroundTasks::class,
+			Migration\v2_1\CategoryDescrptions::class,
+			Migration\v2_1\CreateAlerts::class,
+			Migration\v2_1\AutoNotify::class,
+			Migration\v2_1\AlertsWatchedTopics::class,
+			Migration\v2_1\AlertsWatchedBoards::class,
+			Migration\v2_1\AlertsObsolete::class,
+			Migration\v2_1\TopicUnwatch::class,
+			Migration\v2_1\MailQueue::class,
+			Migration\v2_1\MembergroupIcon::class,
+			Migration\v2_1\ThemeSettings::class,
+			Migration\v2_1\CustomFieldsPart1::class,
+			Migration\v2_1\CustomFieldsPart2::class,
+			Migration\v2_1\CustomFieldsPart3::class,
+			Migration\v2_1\UserDrafts::class,
+			Migration\v2_1\Likes::class,
+			Migration\v2_1\Mentions::class,
+			Migration\v2_1\ModeratorGroups::class,
+			Migration\v2_1\AdminInfoFiles::class,
+			Migration\v2_1\VerificationQuestions::class,
+			Migration\v2_1\Permissions::class,
+			Migration\v2_1\PersonalMessageLabels::class,
+			Migration\v2_1\MessagesModifiedReason::class,
+			Migration\v2_1\MembersTimezone::class,
+			Migration\v2_1\MembersHideEmail::class,
+			Migration\v2_1\LogReportedCommentsEmail::class,
+			Migration\v2_1\MembersOpenID::class,
+			Migration\v2_1\OpenID::class,
+			Migration\v2_1\LogSpiderHitsURL::class,
+			Migration\v2_1\LogOnlineURL::class,
+			Migration\v2_1\MembersTfaSecret::class,
+			Migration\v2_1\MembersTfaBackup::class,
+			Migration\v2_1\PostgreSQLUnlogged::class,
+			Migration\v2_1\PostgreSQLIPv6Helper::class,
+			Migration\v2_1\Ipv6BanItem::class,
+			Migration\v2_1\Ipv6LogAction::class,
+			Migration\v2_1\Ipv6LogBanned::class,
+			Migration\v2_1\Ipv6LogErrors::class,
+			Migration\v2_1\Ipv6MembersIP::class,
+			Migration\v2_1\Ipv6MembersIP2::class,
+			Migration\v2_1\Ipv6Messages::class,
+			Migration\v2_1\Ipv6LogFloodControl::class,
+			Migration\v2_1\Ipv6LogOnline::class,
+			Migration\v2_1\Ipv6LogReportedComments::class,
+			Migration\v2_1\Ipv6MemberLogins::class,
+			Migration\v2_1\PersonalMessageNotification::class,
+			Migration\v2_1\CalendarEvents::class,
+			Migration\v2_1\IdxMessages::class,
+			Migration\v2_1\IdxTopics::class,
+			Migration\v2_1\IdxMembers::class,
+			Migration\v2_1\IdxLogActivity::class,
+			Migration\v2_1\IdxLogActions::class,
+			Migration\v2_1\IdxLogSubscribed::class,
+			Migration\v2_1\IdxLogPackages::class,
+			Migration\v2_1\IdxScheduledTasks::class,
+			Migration\v2_1\IdxBoards::class,
+			Migration\v2_1\IdxLogComments::class,
+			Migration\v2_1\IdxAttachments::class,
+			Migration\v2_1\MysqlLegacyData::class,
+			Migration\v2_1\Smileys::class,
+			Migration\v2_1\LogErrorsBacktrace::class,
+			Migration\v2_1\BoardPermissionsViews::class,
+			Migration\v2_1\PostgreSqlSchemaDiff::class,
+			Migration\v2_1\PostgreSqlTime::class,
+			Migration\v2_1\CalendarUpdates::class,
+			Migration\v2_1\MysqlModFixes::class,
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
-			Maintenance\Migration\v3_0\LanguageDirectory::class,
-			Maintenance\Migration\v3_0\MessageVersion::class,
-			Maintenance\Migration\v3_0\RecurringEvents::class,
-			Maintenance\Migration\v3_0\HolidaysToEvents::class,
-			Maintenance\Migration\v3_0\SpoofDetector::class,
+			Migration\v3_0\LanguageDirectory::class,
+			Migration\v3_0\MessageVersion::class,
+			Migration\v3_0\RecurringEvents::class,
+			Migration\v3_0\HolidaysToEvents::class,
+			Migration\v3_0\SpoofDetector::class,
 		],
 	];
 
@@ -142,7 +155,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	public const CLEANUPS = [
 		// Cleanup steps for 2.1 -> 3.0
 		'v3_0' => [
-			Maintenance\Cleanup\CleanupOldFiles::class,
+			Cleanup\CleanupOldFiles::class,
 		],
 	];
 
@@ -267,6 +280,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		'xcache' => 'FileBase',
 		'zend' => 'Zend',
 	];
+
+	/**
+	 * @var string
+	 *
+	 * SMF Version we started on.
+	 */
+	protected string $start_smf_version = '';
 
 	/****************
 	 * Public methods
@@ -708,7 +728,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::$context['message_title'] = htmlspecialchars(Config::$mtitle);
 		Maintenance::$context['message_body'] = htmlspecialchars(Config::$mmessage);
 
-		Maintenance::$context['attachment_conversion'] = Config::$modSettings['attachments_21_done'];
+		Maintenance::$context['attachment_conversion'] = isset(Config::$modSettings['attachments_21_done']);
 
 		Maintenance::$context['sm_stats_configured'] = !(empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']));
 
@@ -842,6 +862,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Update Settings.php with the new settings, and rebuild if they selected that option.
 		$res = Config::updateSettingsFile($file_settings, false, !empty($_POST['migrateSettings']));
 
+		// Store our version we started from.
+		$this->start_smf_version = Config::$modSettings['smfVersion'] ?? '0.0 Alpha 0';
+
 		if (Sapi::isCLI() && $res) {
 			echo ' Successful.' . "\n";
 		} elseif (Sapi::isCLI() && !$res) {
@@ -904,46 +927,44 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::$context['table_count'] = Maintenance::$total_substeps;
 		Maintenance::$context['cur_table_num'] = Maintenance::getCurrentSubStep();
 		Maintenance::$context['cur_table_name'] = str_replace(Config::$db_prefix, '', $table_names[Maintenance::getCurrentSubStep()]);
+		Maintenance::$context['continue'] = true;
 
 		if (Sapi::isCLI()) {
 			echo 'Backing Up Tables.';
 		}
 
-		// Only run this when it is called via a json
-		if (isset($_GET['json'])) {
-			// Backup each table!
-			while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
-				$this->checkAndHandleTimeout();
-
-				$current_table = $table_names[Maintenance::getCurrentSubStep()];
-				$this->doBackupTable($current_table);
-
-				// Increase our current substep by 1.
-				Maintenance::setCurrentSubStep();
-
-				// If this is JSON to keep it nice for the user do one table at a time anyway!
-				if (isset($_GET['json'])) {
-					Maintenance::jsonResponse(
-						[
-							'current_table_name' => str_replace(Config::$db_prefix, '', $current_table),
-							'current_table_index' => Maintenance::getCurrentSubStep(),
-							'substep_progres' => Maintenance::getSubStepProgress(),
-						],
-					);
-				}
-			}
-
-			if (Sapi::isCLI()) {
-				echo "\n" . ' Successful.\'' . "\n";
-				flush();
-			}
-			Maintenance::setCurrentSubStep(Maintenance::$total_substeps);
-
-			// Make sure we move on!
-			return true;
+		// We are setup for backuping up.
+		if (!Sapi::isCLI() && !isset($_GET['json'])) {
+			return false;
 		}
 
-		return false;
+		// Backup each table!
+		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
+			$current_table = $table_names[Maintenance::getCurrentSubStep()];
+			$this->doBackupTable($current_table);
+
+			// Increase our current substep by 1.
+			Maintenance::setCurrentSubStep();
+
+			// If this is JSON to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['json'])) {
+				Maintenance::jsonResponse(
+					[
+						'current_table_name' => str_replace(Config::$db_prefix, '', $current_table),
+						'current_table_index' => Maintenance::getCurrentSubStep(),
+						'substep_progres' => Maintenance::getSubStepProgress(),
+					],
+				);
+			}
+		}
+
+		if (Sapi::isCLI()) {
+			echo "\n" . ' Successful.\'' . "\n";
+			flush();
+		}
+
+		// Make sure we move on!
+		return true;
 	}
 
 	/**
@@ -957,6 +978,105 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function migrations(): bool
 	{
+		// Have we just completed this?
+		if (!empty($_POST['database_done'])) {
+			return true;
+		}
+
+		// Fetch our current SMF version.
+		$version = $this->start_smf_version;
+
+		$files = [];
+
+		foreach (self::VERSION_MAP as $search => $ns) {
+			if (version_compare($version, $search, '<=') === false) {
+				continue;
+			}
+
+			$files = array_merge($files, self::MIGRATIONS[$ns]);
+		}
+
+		Maintenance::$total_substeps = count($files);
+
+		// We are preparing for templating.
+		if (!Sapi::isCLI() && !isset($_GET['json'])) {
+			Maintenance::$context['continue'] = true;
+
+			return false;
+		}
+
+		/*
+		 * WORK IN PROGRESS:
+		 * 		When SKIP occurs, note it in JS and continue to next step.
+		 * 		When success occurs, ensure it moves to next stesp.
+		 *      When error occurs, ensure we properly show the error.
+		 */
+		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
+			/** @var \SMF\Maintenance\Migration\MigrationBase $migration */
+			$migrationFile = $files[Maintenance::getCurrentSubStep()];
+			var_dump($migrationFile);
+			$migration = new $migrationFile();
+
+			// This is not a canidate for us to execute, skip.
+			if (!$migration->isCandidate()) {
+				Maintenance::setCurrentSubStep();
+				Maintenance::jsonResponse(
+					[
+						'name' => $migration->name,
+						'skipped' => true,
+						'substep' => Maintenance::getSubStepProgress(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_items,
+					],
+				);
+
+				continue;
+			}
+
+			if (Sapi::isCLI()) {
+				echo "\n" . ' +++ ' . $migration->name . '"...';
+				flush();
+			}
+
+			$res = false;//$res = $migration->execute();
+
+			// Not ready yet, fail.
+			if (!$res) {
+				Maintenance::jsonResponse(
+					[
+						'name' => $migration->name,
+						'completed' => false,
+						'substep' => Maintenance::getSubStepProgress(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_items,
+					],
+				);
+
+
+				return false;
+			}
+
+			if (Sapi::isCLI()) {
+				echo ' done.';
+			}
+
+			// Increase our current substep by 1.
+			Maintenance::setCurrentSubStep();
+
+			// If this is JSON to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['json'])) {
+				Maintenance::jsonResponse(
+					[
+						'name' => $migration->name,
+						'completed' => true,
+						'substep' => Maintenance::getSubStepProgress(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_items,
+					],
+				);
+			}
+		}
+
 		return false;
 	}
 
@@ -1001,8 +1121,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function doBackupTable($table): bool
 	{
-		global $command_line;
-
 		if (Sapi::isCLI()) {
 			echo "\n" . ' +++ Backing up \"' . str_replace(Config::$db_prefix, '', $table) . '"...';
 			flush();
@@ -1065,6 +1183,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->user['name'] = isset($data['user_name']) ? (int) $data['user_name'] : 0;
 		$this->user['step'] = isset($data['step']) ? (int) $data['step'] : 0;
 		$this->user['maint'] = isset($data['maint']) ? (int) $data['maint'] : Config::$maintenance;
+		$this->start_smf_version = $data['smf_version'] ?? '0.0 Alpha 0';
 	}
 
 	/**
@@ -1082,6 +1201,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			'user_id' => $this->user['id'],
 			'user_name' => $this->user['name'],
 			'maint' => $this->user['maint'],
+			'smf_version' => $this->start_smf_version,
 		])]);
 	}
 
@@ -1218,7 +1338,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 		// Don't remove stat collection unless we unchecked the box for real, not from the loop.
 		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
-			$settings[] = ['enable_sm_stats', null];
+			$settings['enable_sm_stats'] = null;
 		}
 	}
 }

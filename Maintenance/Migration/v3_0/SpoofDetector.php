@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -45,6 +45,8 @@ class SpoofDetector extends MigrationBase
 		foreach ($table->columns as $column) {
 			if (!isset($existing_structure['columns'][$column->name])) {
 				$table->addColumn($column);
+
+				$this->handleTimeout();
 			}
 		}
 
@@ -52,6 +54,8 @@ class SpoofDetector extends MigrationBase
 		foreach ($table->indexes as $index) {
 			if (!isset($existing_structure['indexes'][$index->name])) {
 				$table->addIndex($index);
+
+				$this->handleTimeout();
 			}
 		}
 

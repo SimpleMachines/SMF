@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -17,8 +17,8 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance;
 use SMF\Maintenance\Database\Schema\DbIndex;
+use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class IdxMembers extends MigrationBase
@@ -157,7 +157,7 @@ class IdxMembers extends MigrationBase
 		// Updating members drop memberName
 		if ($start <= 8) {
 			$oldIdx = new DbIndex(['member_name'], 'index', 'memberName');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}

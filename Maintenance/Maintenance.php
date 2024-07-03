@@ -8,17 +8,21 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Maintenance;
 
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Lang;
 use SMF\Maintenance\Template\Template;
 use SMF\Maintenance\Template\TemplateInterface;
-use SMF\Maintenance\ToolsInterface;
+use SMF\Maintenance\Tools\ToolsInterface;
+use SMF\Sapi;
+use SMF\Security;
 
 /**
  * Main class for all maintenance actions.
@@ -114,14 +118,14 @@ class Maintenance
 	/**
 	 * Object containing the tool we are working with.
 	 *
-	 * @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\Tools\ToolsBase
+	 * @var \SMF\Maintenance\Tools\ToolsInterface&\SMF\Maintenance\Tools\ToolsBase
 	 */
 	public static ToolsInterface $tool;
 
 	/**
 	 * Object containing the tools template we are working with.
 	 *
-	 * @var \SMF\Maintenance\TemplateInterface
+	 * @var \SMF\Maintenance\Template\TemplateInterface
 	 */
 	public static TemplateInterface $template;
 
@@ -189,6 +193,8 @@ class Maintenance
 	 */
 	public static string $item_name = '';
 
+	public static int $script_start = 0;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -205,6 +211,7 @@ class Maintenance
 
 		// This might be overwritten by the tool, but we need a default value.
 		self::$context['started'] = (int) TIME_START;
+		self::$script_start = (int) TIME_START;
 	}
 
 	/**
@@ -223,16 +230,16 @@ class Maintenance
 			self::parseCliArguments();
 		}
 
-		/** @var \SMF\Maintenance\ToolsInterface&\SMF\Maintenance\Tools\ToolsBase $tool_class */
+		/** @var \SMF\Maintenance\Tools\ToolsInterface&\SMF\Maintenance\Tools\ToolsBase $tool_class */
 		$tool_class = '\\SMF\\Maintenance\\Tools\\' . self::$valid_tools[$type];
 
-		require_once Config::$sourcedir . '/Maintenance/Tools/' . self::$valid_tools[$type] . '.php';
+		require_once Config::$boarddir . '/Maintenance/Tools/' . self::$valid_tools[$type] . '.php';
 		self::$tool = new $tool_class();
 
-		/** @var \SMF\Maintenance\TemplateInterface $template_class */
+		/** @var \SMF\Maintenance\Template\TemplateInterface $template_class */
 		$template_class = '\\SMF\\Maintenance\\Template\\' . self::$valid_tools[$type];
 
-		require_once Config::$sourcedir . '/Maintenance/Template/' . self::$valid_tools[$type] . '.php';
+		require_once Config::$boarddir . '/Maintenance/Template/' . self::$valid_tools[$type] . '.php';
 		self::$template = new $template_class();
 
 		// This is really quite simple; if ?delete is on the URL, delete the installer...
@@ -259,13 +266,14 @@ class Maintenance
 					break;
 				}
 
-				// Time to move on.
-				self::setCurrentStep();
-				self::setCurrentSubStep(0);
-				self::setCurrentStart(0);
+					// Time to move on.
+					self::setCurrentStep();
+					self::setCurrentSubStep(0);
+					self::setCurrentStart(0);
 
-				// No warnings pass on.
-				self::$context['warning'] = '';
+					// No warnings pass on.
+					self::$context['warning'] = '';
+
 			}
 
 			self::$overall_percent += (int) $step->getProgress();
@@ -679,7 +687,7 @@ class Maintenance
 		Sapi::resetTimeout();
 
 		// Still have time left.
-		return !(time() - self::$context['started'] <= 3);
+		return !(time() - self::$script_start <= 3);
 	}
 
 	/**
@@ -799,12 +807,6 @@ class Maintenance
 	 */
 	protected static function setThemeData(): void
 	{
-		$themesData = [
-			'theme_url' => 'Themes/default',
-			'theme_dir' => basename(SMF_SETTINGS_FILE) . '/Themes/default',
-			'images_url' => 'Themes/default/images',
-		];
-
 		// This only exists if we're on SMF ;)
 		if (isset(Config::$modSettings['smfVersion'])) {
 			$request = Db::$db->query(
@@ -823,7 +825,9 @@ class Maintenance
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				self::${$row['variable']} = $row['value'];
+				if (!empty($row['value'])) {
+					self::${$row['variable']} = $row['value'];
+				}
 			}
 			Db::$db->free_result($request);
 

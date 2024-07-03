@@ -8,7 +8,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -18,8 +18,8 @@ namespace SMF\Maintenance\Migration;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
-use SMF\Maintenance;
 use SMF\Maintenance\Database\DatabaseInterface;
+use SMF\Maintenance\Maintenance;
 use SMF\Sapi;
 
 /**
@@ -96,7 +96,7 @@ class MigrationBase
 	 *
 	 * Ensures the query runs without handling errors, as we do not have that luxury.
 	 */
-	protected function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null)
+	protected function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
 		if (!Config::$modSettings['disableQueryCheck']) {
 			Config::$modSettings['disableQueryCheck'] = true;
@@ -154,6 +154,8 @@ class MigrationBase
 
 		Maintenance::$tool->preExit();
 		Maintenance::exit();
+
+		return false;
 	}
 }
 
