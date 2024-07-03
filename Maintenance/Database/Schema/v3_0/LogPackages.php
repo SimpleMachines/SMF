@@ -157,6 +157,13 @@ class LogPackages extends Table
 				not_null: false,
 				default: null,
 			),
+			new Column(
+				name: 'smf_version',
+				type: 'varchar',
+				size: 5,
+				not_null: true,
+				default: '',
+			),
 		];
 
 		$this->indexes = [

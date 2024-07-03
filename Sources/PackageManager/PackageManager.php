@@ -1229,8 +1229,12 @@ class PackageManager
 					Db::$db->query(
 						'',
 						'UPDATE {db_prefix}log_packages
-						SET install_state = {int:not_installed}, member_removed = {string:member_name},
-							id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
+						SET
+							install_state = {int:not_installed},
+							member_removed = {string:member_name},
+							id_member_removed = {int:current_member},
+							time_removed = {int:current_time},
+							sha256_hash = {string:package_hash}
 						WHERE package_id = {string:package_id}
 							AND id_install = {int:install_id}',
 						[
@@ -1253,8 +1257,12 @@ class PackageManager
 					Db::$db->query(
 						'',
 						'UPDATE {db_prefix}log_packages
-						SET install_state = {int:not_installed}, member_removed = {string:member_name},
-							id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
+						SET
+							install_state = {int:not_installed},
+							member_removed = {string:member_name},
+							id_member_removed = {int:current_member},
+							time_removed = {int:current_time},
+							sha256_hash = {string:package_hash}
 						WHERE package_id = {string:package_id}
 							AND version = {string:old_version}',
 						[
@@ -1322,21 +1330,44 @@ class PackageManager
 
 				// Credits tag?
 				$credits_tag = (empty($credits_tag)) ? '' : Utils::jsonEncode($credits_tag);
+
+				// Log that we installed it.
 				Db::$db->insert(
 					'',
 					'{db_prefix}log_packages',
 					[
-						'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
-						'id_member_installed' => 'int', 'member_installed' => 'string', 'time_installed' => 'int',
-						'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
-						'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
+						'filename' => 'string',
+						'name' => 'string',
+						'package_id' => 'string',
+						'version' => 'string',
+						'id_member_installed' => 'int',
+						'member_installed' => 'string',
+						'time_installed' => 'int',
+						'install_state' => 'int',
+						'failed_steps' => 'string',
+						'themes_installed' => 'string',
+						'member_removed' => 'int',
+						'db_changes' => 'string',
+						'credits' => 'string',
 						'sha256_hash' => 'string',
+						'smf_version' => 'string',
 					],
 					[
-						$package_filename, $package_name, $package_id, $package_version,
-						User::$me->id, User::$me->name, time(),
-						$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
-						0, $db_changes, $credits_tag, Utils::$context['package_sha256_hash'],
+						$package_filename,
+						$package_name,
+						$package_id,
+						$package_version,
+						User::$me->id,
+						User::$me->name,
+						time(),
+						$is_upgrade ? 2 : 1,
+						$failed_step_insert,
+						$themes_installed,
+						0,
+						$db_changes,
+						$credits_tag,
+						Utils::$context['package_sha256_hash'],
+						Utils::$context['smf_version'],
 					],
 					['id_install'],
 				);
@@ -1381,6 +1412,50 @@ class PackageManager
 
 		// Restore file permissions?
 		SubsPackage::create_chmod_control([], [], true);
+
+		// Does Config::$backward_compatibility need to be updated?
+		$this->updateBackwardCompatibility();
+	}
+
+	/**
+	 * Enables Config::$backward_compatibility if it is needed.
+	 *
+	 * Once support for backward compatibility behaviours has been discontinued
+	 * in a future version of SMF, this method can be removed.
+	 */
+	public function updateBackwardCompatibility(): void
+	{
+		// If it has been forced on, leave it alone.
+		if ((Config::$backward_compatibility ?? null) === 2) {
+			return;
+		}
+
+		$min_version = preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION);
+
+		$request = Db::$db->query(
+			'',
+			'SELECT smf_version
+			FROM {db_prefix}log_packages
+			WHERE install_state != {int:not_installed}
+			ORDER BY smf_version ASC',
+			[
+				'not_installed' => 0,
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$row['smf_version'] = strtr(strtolower($row['smf_version']), ' ', '.');
+
+			if (version_compare($row['smf_version'], $min_version, '<')) {
+				break;
+			}
+		}
+
+		Db::$db->free_result($request);
+
+		Config::updateSettingsFile([
+			'backward_compatibility' => version_compare($row['smf_version'], $min_version, '<'),
+		]);
 	}
 
 	/**

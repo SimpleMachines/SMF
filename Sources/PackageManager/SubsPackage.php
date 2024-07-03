@@ -1144,6 +1144,9 @@ class SubsPackage
 			return [];
 		}
 
+		// Keep track of what version of SMF we are emulating (if any).
+		Utils::$context['smf_version'] = preg_replace('/^(\d+\.\d+).*/', '$1', $the_version);
+
 		// Find all the actions in this method - in theory, these should only be allowed actions. (* means all.)
 		$actions = $script->set('*');
 		$return = [];
