@@ -1950,7 +1950,7 @@ class ExportProfileData extends BackgroundTask
 		static $dltokens;
 
 		if (empty($dltokens[Utils::$context['xmlnews_uid']])) {
-			$idhash = hash_hmac('sha1', Utils::$context['xmlnews_uid'], Config::getAuthSecret());
+			$idhash = hash_hmac('sha1', (string) Utils::$context['xmlnews_uid'], Config::getAuthSecret());
 
 			$dltokens[Utils::$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 		}
@@ -1963,7 +1963,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts the format of the HTML produced by the attach BBCode.
 	 */
-	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array $data, array $disabled, array $params): void
+	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
 	{
 		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
 

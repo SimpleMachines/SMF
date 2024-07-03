@@ -577,7 +577,7 @@ class Feed implements ActionInterface
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// Create a GUID for each member using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['date_registered']) . ':member=' . $row['id_member'];
 
 			// Make the data look rss-ish.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -599,7 +599,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['date_registered']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['date_registered']),
 						],
 						[
 							'tag' => 'guid',
@@ -649,11 +649,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['date_registered']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['last_login']),
 						],
 						[
 							'tag' => 'id',
@@ -676,7 +676,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $row['date_registered'])],
+							'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['date_registered'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -807,7 +807,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this topic using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':topic=' . $row['id_topic'];
 
 			// Being news, this actually makes sense in rss format.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -856,7 +856,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'guid',
@@ -958,11 +958,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? (int) $row['poster_time'] : (int) $row['modified_time']),
 						],
 						[
 							'tag' => 'id',
@@ -1029,7 +1029,7 @@ class Feed implements ActionInterface
 					'content' => [
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -1247,7 +1247,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			// Doesn't work as well as news, but it kinda does..
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -1296,7 +1296,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'guid',
@@ -1398,11 +1398,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? (int) $row['poster_time'] : (int) $row['modified_time']),
 						],
 						[
 							'tag' => 'id',
@@ -1469,7 +1469,7 @@ class Feed implements ActionInterface
 					'content' => [
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -1611,7 +1611,7 @@ class Feed implements ActionInterface
 		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 		// Create a GUID for this member using the tag URI scheme
-		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
+		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
 		if ($this->format == 'rss' || $this->format == 'rss2') {
 			$data[] = [
@@ -1637,7 +1637,7 @@ class Feed implements ActionInterface
 					],
 					[
 						'tag' => 'pubDate',
-						'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $profile['registered_timestamp']),
+						'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $profile['registered_timestamp']),
 					],
 					[
 						'tag' => 'guid',
@@ -1718,11 +1718,11 @@ class Feed implements ActionInterface
 					],
 					[
 						'tag' => 'published',
-						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
+						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $profile['registered_timestamp']),
 					],
 					[
 						'tag' => 'updated',
-						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
+						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $profile['last_login_timestamp']),
 					],
 					[
 						'tag' => 'id',
@@ -1770,12 +1770,12 @@ class Feed implements ActionInterface
 				],
 				[
 					'tag' => 'last-login',
-					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])],
+					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
 					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'registered',
-					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])],
+					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['registered_timestamp'])],
 					'content' => Time::create('@' . $profile['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
@@ -1978,7 +1978,7 @@ class Feed implements ActionInterface
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
 			if (version_compare($row['version'], '3.0', '<')) {
-				$row['body'] = Autolinker::load(true)->makeLinks($row[$this->format === 'smf' ? 'body_html' : 'body']);
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
 			}
 
 			// If using our own format, we want both the raw and the parsed content.
@@ -2008,7 +2008,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
@@ -2056,7 +2056,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'guid',
@@ -2153,11 +2153,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? (int) $row['poster_time'] : (int) $row['modified_time']),
 						],
 						[
 							'tag' => 'id',
@@ -2323,12 +2323,12 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
 							'tag' => 'modified_time',
-							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', $row['modified_time'])] : null,
+							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['modified_time'])] : null,
 							'content' => !empty($row['modified_time']) ? Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['modified_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))) : null,
 						],
 						[
@@ -2421,7 +2421,7 @@ class Feed implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$this->start_after = $row['id_pm'];
+			$this->start_after = (int) $row['id_pm'];
 
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
@@ -2429,7 +2429,7 @@ class Feed implements ActionInterface
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
 			if (version_compare($row['version'], '3.0', '<')) {
-				$row['body'] = Autolinker::load(true)->makeLinks($row[$this->format === 'smf' ? 'body_html' : 'body']);
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
 			}
 
 			// If using our own format, we want both the raw and the parsed content.
@@ -2438,7 +2438,7 @@ class Feed implements ActionInterface
 			$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['msgtime']) . ':pm=' . $row['id_pm'];
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				$item = [
@@ -2453,7 +2453,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['msgtime']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['msgtime']),
 						],
 						[
 							'tag' => 'title',
@@ -2518,7 +2518,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['msgtime']),
 						],
 						[
 							'tag' => 'title',
@@ -2575,7 +2575,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'sent_date',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['msgtime'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['msgtime'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['msgtime'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -2717,7 +2717,7 @@ class Feed implements ActionInterface
 
 		// Sanitize feed metadata values.
 		foreach ($metadata as $mkey => $mvalue) {
-			$metadata[$mkey] = self::cdataParse(self::fixPossibleUrl($mvalue));
+			$metadata[$mkey] = self::cdataParse(self::fixPossibleUrl((string) $mvalue));
 		}
 
 		$ns_string = '';
@@ -3086,7 +3086,7 @@ class Feed implements ActionInterface
 
 			if (!empty($attrs)) {
 				foreach ($attrs as $attr_key => $attr_value) {
-					Utils::$context['feed']['items'] .= ' ' . $attr_key . '="' . self::fixPossibleUrl($attr_value) . '"';
+					Utils::$context['feed']['items'] .= ' ' . $attr_key . '="' . self::fixPossibleUrl((string) $attr_value) . '"';
 				}
 			}
 
@@ -3103,12 +3103,12 @@ class Feed implements ActionInterface
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 				}
 				// A string with returns in it.... show this as a multiline element.
-				elseif (str_contains($val, "\n")) {
-					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val)) . "\n" . str_repeat("\t", $i);
+				elseif (is_string($val) && str_contains($val, "\n")) {
+					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl((string) $val), $ns, $forceCdata) : self::fixPossibleUrl((string) $val)) . "\n" . str_repeat("\t", $i);
 				}
 				// A simple string.
 				else {
-					Utils::$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val);
+					Utils::$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl((string) $val), $ns, $forceCdata) : self::fixPossibleUrl((string) $val);
 				}
 
 				// Ending tag.
