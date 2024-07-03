@@ -130,6 +130,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		'v3_0' => [
 			Maintenance\Migration\v3_0\LanguageDirectory::class,
 			Maintenance\Migration\v3_0\MessageVersion::class,
+			Maintenance\Migration\v3_0\PackageVersion::class,
 			Maintenance\Migration\v3_0\RecurringEvents::class,
 			Maintenance\Migration\v3_0\HolidaysToEvents::class,
 			Maintenance\Migration\v3_0\SpoofDetector::class,
