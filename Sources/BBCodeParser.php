@@ -2082,9 +2082,12 @@ class BBCodeParser
 		error_reporting($oldlevel);
 
 		// Yes, I know this is kludging it, but this is the best way to preserve tabs from PHP :P.
-		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
+		$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<span style="white-space: pre-wrap;">' . "\t" . '</span>', $buffer);
 
-		return strtr($buffer, ['\'' => '&#039;', '<code>' => '', '</code>' => '']);
+		// PHP 8.3 changed the returned HTML.
+		$buffer = preg_replace('/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/', '', $buffer);
+
+		return strtr($buffer, ['\'' => '&#039;']);
 	}
 
 	/**
@@ -2343,6 +2346,18 @@ class BBCodeParser
 		if (!isset($disabled['code'])) {
 			$code = is_array($data) ? $data[0] : $data;
 
+			$add_begin = (
+				is_array($data)
+				&& isset($data[1])
+				&& strtoupper($data[1]) === 'PHP'
+				&& !str_contains($code, '&lt;?php')
+			);
+
+			if ($add_begin) {
+				$code = '&lt;?php ' . $code . '?&gt;';
+				$data[1] = 'PHP';
+			}
+
 			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++) {
@@ -2359,12 +2374,20 @@ class BBCodeParser
 				}
 
 				$php_parts[$php_i] = self::highlightPhpCode($php_string . $php_parts[$php_i]);
+
+				if (is_array($data) && empty($data[1])) {
+					$data[1] = 'PHP';
+				}
 			}
 
 			// Fix the PHP code stuff...
 			$code = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
 
-			$code = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $code);
+			$code = str_replace("\t", "<span style=\"white-space: pre-wrap;\">\t</span>", $code);
+
+			if ($add_begin) {
+				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
+			}
 
 			if (is_array($data)) {
 				$data[0] = $code;
@@ -2536,7 +2559,7 @@ class BBCodeParser
 			$data = self::highlightPhpCode($add_begin ? '&lt;?php ' . $data . '?&gt;' : $data);
 
 			if ($add_begin) {
-				$data = preg_replace(['~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~', '~\?&gt;((?:</(font|span)>)*)$~'], '$1', $data, 2);
+				$data = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $data, 2);
 			}
 		}
 	}
@@ -3552,20 +3575,24 @@ class BBCodeParser
 		elseif ($tag['type'] == 'unparsed_equals_content') {
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted'])) {
-				$quoted = substr($this->message, $this->pos1, 6) == '&quot;';
+				// Anything passed through the preparser will use &quot;,
+				// but we need to handle raw quotation marks too.
+				$quot = substr($this->message, $this->pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($this->message, $this->pos1, strlen($quot)) == $quot;
 
 				if ($tag['quoted'] != 'optional' && !$quoted) {
 					return;
 				}
 
 				if ($quoted) {
-					$this->pos1 += 6;
+					$this->pos1 += strlen($quot);
 				}
 			} else {
 				$quoted = false;
 			}
 
-			$pos2 = strpos($this->message, $quoted == false ? ']' : '&quot;]', $this->pos1);
+			$pos2 = strpos($this->message, $quoted == false ? ']' : $quot . ']', $this->pos1);
 
 			if ($pos2 === false) {
 				return;
@@ -3578,7 +3605,7 @@ class BBCodeParser
 			}
 
 			$data = [
-				substr($this->message, $pos2 + ($quoted == false ? 1 : 7), $pos3 - ($pos2 + ($quoted == false ? 1 : 7))),
+				substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)), $pos3 - ($pos2 + ($quoted == false ? 1 : 1 + strlen($quot)))),
 				substr($this->message, $this->pos1, $pos2 - $this->pos1),
 			];
 
@@ -3680,35 +3707,38 @@ class BBCodeParser
 		elseif ($tag['type'] == 'unparsed_equals' || $tag['type'] == 'parsed_equals') {
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted'])) {
-				$quoted = substr($this->message, $this->pos1, 6) == '&quot;';
+				// Will normally be '&quot;' but might be '"'.
+				$quot = substr($this->message, $this->pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($this->message, $this->pos1, strlen($quot)) == $quot;
 
 				if ($tag['quoted'] != 'optional' && !$quoted) {
 					return;
 				}
 
 				if ($quoted) {
-					$this->pos1 += 6;
+					$this->pos1 += strlen($quot);
 				}
 			} else {
 				$quoted = false;
 			}
 
 			if ($quoted) {
-				$end_of_value = strpos($this->message, '&quot;]', $this->pos1);
-				$nested_tag = strpos($this->message, '=&quot;', $this->pos1);
+				$end_of_value = strpos($this->message, $quot . ']', $this->pos1);
+				$nested_tag = strpos($this->message, '=' . $quot, $this->pos1);
 
 				// Check so this is not just an quoted url ending with a =
-				if ($nested_tag && substr($this->message, $nested_tag, 8) == '=&quot;]') {
+				if ($nested_tag && substr($this->message, $nested_tag, 2 + strlen($quot)) == '=' . $quot . ']') {
 					$nested_tag = false;
 				}
 
 				if ($nested_tag && $nested_tag < $end_of_value) {
 					// Nested tag with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($this->message, $quoted == false ? ']' : '&quot;]', $this->pos1) + 6;
+					$nested_tag_pos = strpos($this->message, $quoted == false ? ']' : $quot . ']', $this->pos1) + strlen($quot);
 				}
 			}
 
-			$pos2 = strpos($this->message, $quoted == false ? ']' : '&quot;]', $nested_tag_pos ?? $this->pos1);
+			$pos2 = strpos($this->message, $quoted == false ? ']' : $quot . ']', $nested_tag_pos ?? $this->pos1);
 
 			if ($pos2 === false) {
 				return;
@@ -3741,7 +3771,7 @@ class BBCodeParser
 
 			$html = strtr($tag['before'], ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 7));
+			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)));
 
 			$this->pos += strlen($html) - 1 + 2;
 		}
