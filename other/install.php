@@ -82,12 +82,12 @@ $databases = [
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
 		'utf8_support' => function () {
-			return true;
+			$request = Db::$db->query('', 'SHOW CHARACTER SET');
+			$db_charsets = array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request));
+			Db::$db->free_result($request);
+			return in_array('utf8mb4', $db_charsets);
 		},
-		'utf8_version' => '5.0.22',
-		'utf8_version_check' => function () {
-			return mysqli_get_server_info(Db::$db->connection);
-		},
+		'utf8_version' => '5.5.3',
 		'alter_support' => true,
 		'validate_prefix' => function (&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
@@ -115,13 +115,6 @@ $databases = [
 			return (bool) ($charcode == 'UTF8');
 		},
 		'utf8_version' => '8.0',
-		'utf8_version_check' => function () {
-			$request = pg_query(Db::$db->connection, 'SELECT version()');
-			list($version) = pg_fetch_row($request);
-			list($pgl, $version) = explode(' ', $version);
-
-			return $version;
-		},
 		'validate_prefix' => function (&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
@@ -1121,7 +1114,7 @@ function ForumSettings()
 			return false;
 		}
 
-		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>')) {
+		if (version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['version_check']()), '>')) {
 			$incontext['error'] = Lang::getTxt('error_utf8_version', $databases[Config::$db_type]);
 
 			return false;
