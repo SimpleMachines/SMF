@@ -1044,3 +1044,12 @@ if(!in_array('reactions', $cols))
 	upgrade_query("INSERT INTO " . Db::$db->prefix . "reactions (id_reaction, name) VALUES (1, 'like')");
 }
 ---}
+
+/******************************************************************************/
+--- Adding SMF version information to log_packages
+/******************************************************************************/
+
+---# Adding a new column "smf_version" to log_packages table
+ALTER TABLE {$db_prefix}log_packages
+ADD COLUMN smf_version VARCHAR(5) NOT NULL DEFAULT '';
+---#

@@ -722,6 +722,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	db_changes text NOT NULL,
 	credits text NOT NULL,
 	sha256_hash TEXT,
+	smf_version varchar(5) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_install)
 );
 
