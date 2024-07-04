@@ -209,13 +209,6 @@ abstract class Parser
 	/**
 	 * @var string
 	 *
-	 * The character encoding of the strings to be parsed.
-	 */
-	public static string $encoding;
-
-	/**
-	 * @var string
-	 *
 	 * Language locale to use.
 	 */
 	public static string $locale;
@@ -540,7 +533,6 @@ abstract class Parser
 		self::$time_format = self::$time_format ?? User::$me->time_format ?? Time::getTimeFormat();
 
 		self::$locale = self::$locale ?? Lang::$txt['lang_locale'] ?? '';
-		self::$encoding = self::$encoding ?? (!empty(Utils::$context['utf8']) ? 'UTF-8' : (!empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8')));
 
 		// Smiley settings.
 		self::$custom_smileys_enabled = self::$custom_smileys_enabled ?? !empty(Config::$modSettings['smiley_enable']);
@@ -699,7 +691,6 @@ abstract class Parser
 			$output_type,
 			$options,
 			// Localization settings.
-			self::$encoding,
 			self::$locale,
 			self::$time_offset,
 			self::$time_format,

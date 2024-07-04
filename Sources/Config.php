@@ -1130,9 +1130,7 @@ class Config
 			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
-		// Here to justify the name of this function. :P
-		// It should be added to the install and upgrade scripts.
-		// But since the converters need to be updated also. This is easier.
+		// Ensure the attachment upload directory settings are valid.
 		if (empty(self::$modSettings['currentAttachmentUploadDir'])) {
 			self::updateModSettings([
 				'attachmentUploadDir' => Utils::jsonEncode([1 => self::$modSettings['attachmentUploadDir']]),
@@ -1146,6 +1144,11 @@ class Config
 		self::$modSettings['attachmentPostLimit'] = empty(self::$modSettings['attachmentPostLimit']) ? $post_max_kb : min(self::$modSettings['attachmentPostLimit'], $post_max_kb);
 		self::$modSettings['attachmentSizeLimit'] = empty(self::$modSettings['attachmentSizeLimit']) ? $file_max_kb : min(self::$modSettings['attachmentSizeLimit'], $file_max_kb);
 		self::$modSettings['attachmentNumPerPostLimit'] = !isset(self::$modSettings['attachmentNumPerPostLimit']) ? 4 : self::$modSettings['attachmentNumPerPostLimit'];
+
+		// Deprecated, but some old mods might use it.
+		if (!empty(self::$backward_compatibility)) {
+			self::$modSettings['global_character_set'] = 'UTF-8';
+		}
 
 		// Integration is cool.
 		if (defined('SMF_INTEGRATION_SETTINGS')) {

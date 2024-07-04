@@ -450,7 +450,7 @@ function installExit($fallThrough = false)
 	global $incontext, $installurl;
 
 	// Send character set.
-	header('content-type: text/html; charset=' . (Lang::$txt['lang_character_set'] ?? 'UTF-8'));
+	header('content-type: text/html; charset=UTF-8');
 
 	// We usually dump our templates out.
 	if (!$fallThrough) {
@@ -1079,9 +1079,7 @@ function ForumSettings()
 		}
 
 		// Make sure international domain names are normalized correctly.
-		if (Lang::$txt['lang_character_set'] == 'UTF-8') {
-			$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
-		}
+		$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
 
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
@@ -1319,9 +1317,6 @@ function DatabasePopulation()
 			$incontext['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number]);
 		}
 	}
-
-	// Make sure UTF will be used globally.
-	$newSettings[] = ['global_character_set', 'UTF-8'];
 
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
@@ -1852,7 +1847,6 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		],
 	);
-	Utils::$context['utf8'] = true;
 
 	if (Db::$db->num_rows($request) > 0) {
 		Logging::updateStats('subject', 1, htmlspecialchars(Lang::$txt['default_topic_subject']));
@@ -1965,7 +1959,7 @@ function template_install_above()
 	echo '<!DOCTYPE html>
 <html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
+	<meta charset="UTF-8">
 	<meta name="robots" content="noindex">
 	<title>', Lang::$txt['smf_installer'], '</title>
 	<link rel="stylesheet" href="Themes/default/css/index.css">

@@ -23,7 +23,7 @@ function template_main()
 	// Display the table header and linktree.
 	echo '
 	<div class="main_section" id="whos_online">
-		<form action="', Config::$scripturl, '?action=who" method="post" id="whoFilter" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=who" method="post" id="whoFilter" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['who_title'], '</h3>
 			</div>

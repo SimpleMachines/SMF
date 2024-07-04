@@ -801,9 +801,9 @@ class Draft
 	{
 		Lang::load('Drafts');
 
-		header('content-type: text/xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+		header('content-type: text/xml; charset=UTF-8');
 
-		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
+		echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>
 		<drafts>
 			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
 		</drafts>';

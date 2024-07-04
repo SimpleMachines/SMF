@@ -28,7 +28,7 @@ function template_reported_posts()
 	</div>';
 
 	echo '
-	<form id="reported_posts" action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="reported_posts" action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', Utils::$context['view_closed'] ? Lang::$txt['mc_reportedp_closed'] : Lang::$txt['mc_reportedp_active'], '
@@ -182,7 +182,7 @@ function template_viewmodreport()
 
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['message_link'], 'author_link' => Utils::$context['report']['author']['link']]), '
@@ -297,7 +297,7 @@ function template_edit_comment()
 {
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=reported', Utils::$context['report_type'], ';sa=editcomment;mid=', Utils::$context['comment_id'], ';rid=', Utils::$context['report_id'], ';save" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=reported', Utils::$context['report_type'], ';sa=editcomment;mid=', Utils::$context['comment_id'], ';rid=', Utils::$context['report_id'], ';save" method="post" accept-charset="UTF-8">
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['mc_modreport_edit_mod_comment'], '</h3>
@@ -395,7 +395,7 @@ function template_reported_members()
 	</div>';
 
 	echo '
-	<form id="reported_members" action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="reported_members" action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
 				', Utils::$context['view_closed'] ? Lang::$txt['mc_reportedp_closed'] : Lang::$txt['mc_reportedp_active'], '
@@ -470,7 +470,7 @@ function template_viewmemberreport()
 
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['link']]), '

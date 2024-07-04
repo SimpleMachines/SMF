@@ -20,7 +20,7 @@ use SMF\Utils;
 function template_main()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '" name="searchform" id="searchform">';
+	<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8" name="searchform" id="searchform">';
 
 	if (!empty(Utils::$context['search_errors']))
 		echo '
@@ -283,7 +283,7 @@ function template_results()
 			</p>';
 
 		echo '
-			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<strong>', Lang::$txt['search_for'], '</strong>
 				<input type="text" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">
 				<input type="submit" name="edit_search" value="', Lang::$txt['search_adjust_submit'], '" class="button">';
@@ -301,7 +301,7 @@ function template_results()
 	if (Utils::$context['compact'])
 	{
 		echo '
-	<form id="new_search" name="new_search" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="new_search" name="new_search" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 		<input type="hidden" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
 
 		foreach (Utils::$context['hidden_inputs'] as $input) {

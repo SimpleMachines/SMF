@@ -45,7 +45,7 @@ function template_download_language()
 
 	// Provide something of an introduction...
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=downloadlang;did=', Utils::$context['download_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=downloadlang;did=', Utils::$context['download_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::$txt['languages_download'], '
@@ -135,7 +135,7 @@ function template_download_language()
 function template_modify_language_entries()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=editlang;lid=', Utils::$context['lang_id'], '" id="primary_settings" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=editlang;lid=', Utils::$context['lang_id'], '" id="primary_settings" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::$txt['edit_languages'], '
@@ -189,7 +189,7 @@ function template_modify_language_entries()
 			</div><!-- .windowbg -->
 		</form>
 
-		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=editlang;lid=', Utils::$context['lang_id'], ';entries" id="entry_form" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=editlang;lid=', Utils::$context['lang_id'], ';entries" id="entry_form" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::$txt['edit_language_entries'], '
@@ -320,7 +320,7 @@ function template_modify_language_entries()
 function template_add_language()
 {
 	echo '
-		<form id="admin_form_wrapper"action="', Config::$scripturl, '?action=admin;area=languages;sa=add;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form id="admin_form_wrapper"action="', Config::$scripturl, '?action=admin;area=languages;sa=add;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::$txt['add_language'], '

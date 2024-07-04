@@ -244,7 +244,7 @@ class Utils
 	 * SMF's venerable $context variable, now available as Utils::$context.
 	 */
 	public static $context = [
-		// Assume UTF-8 until proven otherwise.
+		// We always use UTF-8, but some old mods might want to check.
 		'utf8' => true,
 		'character_set' => 'UTF-8',
 		// Define a list of icons used across multiple places.
@@ -341,45 +341,25 @@ class Utils
 			self::$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . Config::$modSettings['browser_cache'];
 		}
 
-		// UTF-8?
-		if (isset(Config::$modSettings['global_character_set'])) {
-			self::$context['character_set'] = Config::$modSettings['global_character_set'];
-			self::$context['utf8'] = self::$context['character_set'] === 'UTF-8';
-		}
-
 		// Load up our $context['server'] data for backwards compatibility
 		Sapi::load();
 	}
 
 	/**
-	 * Decodes and sanitizes HTML entities.
-	 *
-	 * If database does not support 4-byte UTF-8 characters, entities for 4-byte
-	 * characters are left in place, unless the $mb4 argument is set to true.
+	 * Decodes and sanitizes named and numerical character entities.
 	 *
 	 * @param string $string The string in which to decode entities.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @param int $flags Flags to pass to html_entity_decode.
 	 * 		Default: ENT_QUOTES | ENT_HTML5.
 	 * @param bool $nbsp_to_space If true, decode '&nbsp;' to space character.
 	 * 		Default: false.
 	 * @return string The string with the entities decoded.
 	 */
-	public static function entityDecode(string $string, bool $mb4 = false, int $flags = ENT_QUOTES | ENT_HTML5, bool $nbsp_to_space = false): string
+	public static function entityDecode(string $string, int $flags = ENT_QUOTES | ENT_HTML5, bool $nbsp_to_space = false): string
 	{
 		// Don't waste time on empty strings.
 		if (trim($string) === '') {
 			return $string;
-		}
-
-		// In theory this is always UTF-8, but...
-		if (empty(self::$context['character_set'])) {
-			$charset = is_callable('mb_detect_encoding') ? mb_detect_encoding($string) : 'UTF-8';
-		} elseif (str_contains(self::$context['character_set'], 'ISO-8859-') && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
-			$charset = 'ISO-8859-1';
-		} else {
-			$charset = self::$context['character_set'];
 		}
 
 		// Enables consistency with the behaviour of un_htmlspecialchars.
@@ -388,15 +368,10 @@ class Utils
 		}
 
 		// Do the deed.
-		$string = html_entity_decode($string, $flags, $charset);
+		$string = html_entity_decode($string, $flags, 'UTF-8');
 
 		// Remove any illegal character entities.
 		$string = self::sanitizeEntities($string);
-
-		// Finally, make sure we don't break the database.
-		if (!$mb4) {
-			$string = self::fixUtf8mb4($string);
-		}
 
 		return $string;
 	}
@@ -479,52 +454,30 @@ class Utils
 	 *      2: Disallow all formatting characters. Use for internal comparisons
 	 *         only, such as in the word censor, search contexts, etc.
 	 *      Default: 0.
-	 * @param string|null $substitute Replacement string for the invalid characters.
-	 *      If not set, the Unicode replacement character (U+FFFD) will be used
-	 *      (or a fallback like "?" if necessary).
+	 * @param string $substitute Replacement string for the invalid characters.
+	 *      Default: the Unicode replacement character (U+FFFD).
 	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|false
+	public static function sanitizeChars(string $string, int $level = 0, string $substitute = "\u{FFFD}"): string|false
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
 
-		// What substitute character should we use?
-		if (isset($substitute)) {
-			$substitute = strval($substitute);
-		} elseif (!empty(Utils::$context['utf8'])) {
-			// Raw UTF-8 bytes for U+FFFD.
-			$substitute = "\xEF\xBF\xBD";
-		} elseif (!empty(Utils::$context['character_set']) && is_callable('mb_decode_numericentity')) {
-			// Get whatever the default replacement character is for this encoding.
-			$substitute = mb_decode_numericentity('&#xFFFD;', [0xFFFD, 0xFFFD, 0, 0xFFFF], Utils::$context['character_set']);
-		} else {
-			$substitute = '?';
-		}
-
 		// Fix any invalid byte sequences.
-		if (!empty(Utils::$context['character_set'])) {
-			// For UTF-8, this preg_match test is much faster than mb_check_encoding.
-			$malformed = !empty(Utils::$context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!is_callable('mb_check_encoding') || !mb_check_encoding($string, Utils::$context['character_set']));
+		// For UTF-8, this preg_match test is much faster than mb_check_encoding.
+		if (@preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR) {
+			// mb_convert_encoding will replace invalid byte sequences with our substitute.
+			if (is_callable('mb_convert_encoding')) {
+				$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, 'UTF-8');
 
-			if ($malformed) {
-				// mb_convert_encoding will replace invalid byte sequences with our substitute.
-				if (is_callable('mb_convert_encoding')) {
-					if (!is_callable('mb_ord')) {
-						require_once Config::$sourcedir . '/Subs-Compat.php';
-					}
+				$mb_substitute_character = mb_substitute_character();
+				mb_substitute_character($substitute_ord);
 
-					$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, Utils::$context['character_set']);
+				$string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
 
-					$mb_substitute_character = mb_substitute_character();
-					mb_substitute_character($substitute_ord);
-
-					$string = mb_convert_encoding($string, Utils::$context['character_set'], Utils::$context['character_set']);
-
-					mb_substitute_character($mb_substitute_character);
-				} else {
-					return false;
-				}
+				mb_substitute_character($mb_substitute_character);
+			} else {
+				return false;
 			}
 		}
 
@@ -532,11 +485,7 @@ class Utils
 		$string = Utils::normalizeSpaces($string, true);
 
 		// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
-		if (!empty(Utils::$context['utf8'])) {
-			$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
-		} else {
-			$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
-		}
+		$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
 
 		return $string;
 	}
@@ -575,13 +524,13 @@ class Utils
 
 		if ($vspace) {
 			// \R is like \v, except it handles "\r\n" as a single unit.
-			$patterns[] = '/\R/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/\R/u';
 			$replacements[] = $options['no_breaks'] ? ' ' : "\n";
 		}
 
 		if ($hspace) {
 			// Interesting fact: Unicode properties like \p{Zs} work even when not in UTF-8 mode.
-			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/u';
 			$replacements[] = ' ';
 		}
 
@@ -589,8 +538,8 @@ class Utils
 	}
 
 	/**
-	 * Wrapper for standard htmlspecialchars() that ensures the output respects
-	 * the database's support (or lack thereof) for four-byte UTF-8 characters.
+	 * Wrapper for standard htmlspecialchars() that additionally normalizes and
+	 * sanitizes the string.
 	 *
 	 * @param string $string The string being converted.
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
@@ -602,7 +551,7 @@ class Utils
 	{
 		$string = self::normalize($string);
 
-		return self::fixUtf8mb4(self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding)));
+		return self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding));
 	}
 
 	/**
@@ -929,7 +878,7 @@ class Utils
 			$string = (string) Unicode\Utf8String::create($string)->convertCase($case, $simple)->normalize($form);
 		}
 
-		return self::fixUtf8mb4($string);
+		return $string;
 	}
 
 	/**
@@ -1265,7 +1214,7 @@ class Utils
 			"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
 			"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
 			"\x1E", "\x1F",
-			// Remove \xFFFE and \xFFFF
+			// Remove U-FFFE and U-FFFF
 			"\xEF\xBF\xBE", "\xEF\xBF\xBF",
 		];
 
@@ -1273,8 +1222,8 @@ class Utils
 
 		// The Unicode surrogate pair code points should never be present in our
 		// strings to begin with, but if any snuck in, they need to be removed.
-		if (!empty(Utils::$context['utf8']) && str_contains($string, "\xED")) {
-			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
+		if (str_contains($string, "\xED")) {
+			$string = preg_replace('/[\x{D800}-\x{DFFF}]/u', '', $string);
 		}
 
 		return $string;
@@ -2037,11 +1986,8 @@ class Utils
 			$file['filename'] = hash_hmac('md5', var_export($file, true), Config::$image_proxy_secret) . '.' . ltrim($file['fileext'] ?? 'dat', '.');
 		}
 
-		// Convert the filename to UTF-8, cuz most browsers dig that.
-		$file['filename'] = !self::$context['utf8'] ? mb_convert_encoding($file['filename'], 'UTF-8', self::$context['character_set']) : $file['filename'];
-
-		// Also provide a plain ASCII name for the sake of old browsers.
-		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename'], true));
+		// Provide a plain ASCII name for the sake of old browsers.
+		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename']));
 
 		// Replace ASCII names like ??????.jpg with something more unique.
 		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {

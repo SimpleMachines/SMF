@@ -33,7 +33,7 @@ function template_main()
 function template_new_group()
 {
 	echo '
-		<form id="new_group" action="', Config::$scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form id="new_group" action="', Config::$scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['membergroups_new_group'], '</h3>
 			</div>
@@ -165,7 +165,7 @@ function template_new_group()
 function template_edit_group()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=membergroups;sa=edit;group=', Utils::$context['group']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="groupForm" id="groupForm">
+		<form action="', Config::$scripturl, '?action=admin;area=membergroups;sa=edit;group=', Utils::$context['group']['id'], '" method="post" accept-charset="UTF-8" name="groupForm" id="groupForm">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::getTxt('membergroups_edit_group', ['name' => Utils::$context['group']['name']]), '
 				</h3>
@@ -541,7 +541,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 function template_group_members()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;group=', Utils::$context['group']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" id="view_group">
+		<form action="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;group=', Utils::$context['group']['id'], '" method="post" accept-charset="UTF-8" id="view_group">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
@@ -721,7 +721,7 @@ function template_group_request_reason()
 	// Show a welcome message to the user.
 	echo '
 	<div id="moderationcenter">
-		<form action="', Config::$scripturl, '?action=groups;sa=requests" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=groups;sa=requests" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['mc_groups_reason_title'], '</h3>
 			</div>

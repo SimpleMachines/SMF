@@ -44,7 +44,7 @@ Lang::load('ManagePaid');
 
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST)) {
-	header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+	header('content-type: text/html; charset=UTF-8');
 
 	die(Lang::$txt['paid_no_data']);
 }

@@ -20,7 +20,7 @@ use SMF\Utils;
 function template_search_members()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', Utils::$context['character_set'], '" id="admin_form_wrapper">
+		<form action="', Config::$scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="UTF-8" id="admin_form_wrapper">
 			<input type="hidden" name="sa" value="query">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -226,7 +226,7 @@ function template_admin_browse()
 		Utils::$context['browse_type'] = 'activate';
 		echo '
 		<br>
-		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', Utils::$context['character_set'], '" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
+		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="UTF-8" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['admin_browse_outstanding'], '</h3>
 			</div>

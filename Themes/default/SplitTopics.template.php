@@ -22,7 +22,7 @@ function template_ask()
 {
 	echo '
 	<div id="split_topics">
-		<form action="', Config::$scripturl, '?action=splittopics;sa=split;topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=splittopics;sa=split;topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="at" value="', Utils::$context['message']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['split'], '</h3>
@@ -87,7 +87,7 @@ function template_select()
 {
 	echo '
 	<div id="split_topics">
-		<form action="', Config::$scripturl, '?action=splittopics;sa=splitSelection;board=', Utils::$context['current_board'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=splittopics;sa=splitSelection;board=', Utils::$context['current_board'], '.0" method="post" accept-charset="UTF-8">
 			<div id="not_selected" class="floatleft">
 				<div class="cat_bar">
 					<h3 class="catbg">', Lang::$txt['select_split_posts'], '</h3>

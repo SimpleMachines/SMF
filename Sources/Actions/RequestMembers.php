@@ -60,9 +60,7 @@ class RequestMembers implements ActionInterface
 	{
 		User::$me->checkSession('get');
 
-		if (Utils::$context['utf8'] || function_exists('mb_convert_encoding')) {
-			header('content-type: text/plain; charset=UTF-8');
-		}
+		header('content-type: text/plain; charset=UTF-8');
 
 		$request = Db::$db->query(
 			'',
@@ -81,15 +79,9 @@ class RequestMembers implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!Utils::$context['utf8']) {
-				if (($temp = @mb_convert_encoding($row['real_name'], 'UTF-8', Utils::$context['character_set'])) !== false) {
-					$row['real_name'] = $temp;
-				}
-			}
-
 			$row['real_name'] = strtr($row['real_name'], ['&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;']);
 
-			$row['real_name'] = Utils::entityDecode($row['real_name'], true);
+			$row['real_name'] = Utils::entityDecode($row['real_name']);
 
 			echo $row['real_name'], "\n";
 		}

@@ -5243,7 +5243,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function replaceEntities__callback(array $matches): string
 	{
 		return strtr(
-			htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
+			htmlspecialchars(Utils::entityDecode($matches[1]), ENT_QUOTES),
 			[
 				'&amp;' => '&#038;',
 				'&quot;' => '&#034;',
@@ -5255,7 +5255,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function fixchar__callback(array $matches): string
 	{
-		return Utils::entityDecode($matches[0], true);
+		return Utils::entityDecode($matches[0]);
 	}
 
 	function entity_fix__callback(array $matches): string
@@ -5304,17 +5304,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			"\xe2\x80\x9d",	// right double curly quote, U+201D
 		];
 
-		// windows 1252 / iso equivalents
-		$findchars_iso = [
-			chr(130),
-			chr(132),
-			chr(133),
-			chr(145),
-			chr(146),
-			chr(147),
-			chr(148),
-		];
-
 		// safe replacements
 		$replacechars = [
 			',',	// &sbquo;
@@ -5326,9 +5315,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			'"',	// &rdquo;
 		];
 
-		$encoding = (!empty(Utils::$context['utf8']) ? 'UTF-8' : (!empty(SMF\Config::$modSettings['global_character_set']) ? SMF\Config::$modSettings['global_character_set'] : (!empty(SMF\Lang::$txt['lang_character_set']) ? SMF\Lang::$txt['lang_character_set'] : 'UTF-8')));
-
-		$string = str_replace($encoding === 'UTF-8' ? $findchars_utf8 : $findchars_iso, $replacechars, $string);
+		$string = str_replace($findchars_utf8, $replacechars, $string);
 
 		return $string;
 	}

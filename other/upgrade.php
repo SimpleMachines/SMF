@@ -744,8 +744,6 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $utf8;
-
 	// Report all errors if admin wants them or this is a pre-release version.
 	if (!empty(Config::$db_show_debug) || strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 		error_reporting(E_ALL);
@@ -772,8 +770,6 @@ function loadEssentialData()
 
 	// Initialize everything...
 	initialize_inputs();
-
-	$utf8 = (empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set']) === 'UTF-8';
 
 	// Get the database going!
 	if (empty(Config::$db_type) || Config::$db_type == 'mysqli') {
@@ -4502,7 +4498,7 @@ function template_upgrade_above()
 	echo '<!DOCTYPE html>
 <html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
+	<meta charset="UTF-8">
 	<meta name="robots" content="noindex">
 	<title>', Lang::$txt['upgrade_upgrade_utility'], '</title>
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
@@ -4512,7 +4508,7 @@ function template_upgrade_above()
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
 		var smf_scripturl = \'', $upgradeurl, '\';
-		var smf_charset = \'', (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'UTF-8' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']), '\';
+		var smf_charset = \'UTF-8\';
 		var startPercent = ', $upcontext['overall_percent'], ';
 		var allow_xhjr_credentials = false;
 

@@ -24,7 +24,7 @@ function template_popup()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<meta name="robots" content="noindex">
 		<title>', Utils::$context['page_title'], '</title>
 		', Theme::template_css(), '

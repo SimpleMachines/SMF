@@ -463,7 +463,7 @@ class Msg implements \ArrayAccess
 			$this->formatted['preview'] = strip_tags(strtr($this->formatted['body'], ['<br>' => '&#10;']));
 
 			if (Utils::entityStrlen($this->formatted['preview']) > 128) {
-				$this->formatted['preview'] = Utils::entitySubstr($this->formatted['preview'], 0, 128) . (!empty(Utils::$context['utf8']) ? '…' : '...');
+				$this->formatted['preview'] = Utils::entitySubstr($this->formatted['preview'], 0, 128) . '…';
 			}
 		}
 
@@ -627,14 +627,8 @@ class Msg implements \ArrayAccess
 		];
 		$message = strtr($message, $control_replacements);
 
-		// This line makes all languages *theoretically* work even with the wrong charset ;).
-		if (empty(Utils::$context['utf8'])) {
-			$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
-		}
 		// Normalize Unicode characters for storage efficiency, better searching, etc.
-		else {
-			$message = Utils::normalize($message);
-		}
+		$message = Utils::normalize($message);
 
 		// Clean out any other funky stuff.
 		$message = Utils::sanitizeChars($message, 0);
@@ -718,9 +712,6 @@ class Msg implements \ArrayAccess
 		}
 
 		$message = implode('', $parts);
-
-		// The regular expression non breaking space has many versions.
-		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
 		// Autolink any plain-text URLs.
 		if (!empty($autolink)) {
@@ -833,25 +824,25 @@ class Msg implements \ArrayAccess
 
 		$mistake_fixes = [
 			// Find [table]s not followed by [tr].
-			'~\[table\](?![\s' . $non_breaking_space . ']*\[tr\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[table][tr]',
+			'~\[table\](?![\s\x{A0}]*\[tr\])~su' => '[table][tr]',
 			// Find [tr]s not followed by [td].
-			'~\[tr\](?![\s' . $non_breaking_space . ']*\[td\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[tr][td]',
+			'~\[tr\](?![\s\x{A0}]*\[td\])~su' => '[tr][td]',
 			// Find [/td]s not followed by something valid.
-			'~\[/td\](?![\s' . $non_breaking_space . ']*(?:\[td\]|\[/tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr]',
+			'~\[/td\](?![\s\x{A0}]*(?:\[td\]|\[/tr\]|\[/table\]))~su' => '[/td][/tr]',
 			// Find [/tr]s not followed by something valid.
-			'~\[/tr\](?![\s' . $non_breaking_space . ']*(?:\[tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/tr][/table]',
+			'~\[/tr\](?![\s\x{A0}]*(?:\[tr\]|\[/table\]))~su' => '[/tr][/table]',
 			// Find [/td]s incorrectly followed by [/table].
-			'~\[/td\][\s' . $non_breaking_space . ']*\[/table\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr][/table]',
+			'~\[/td\][\s\x{A0}]*\[/table\]~su' => '[/td][/tr][/table]',
 			// Find [table]s, [tr]s, and [/td]s (possibly correctly) followed by [td].
-			'~\[(table|tr|/td)\]([\s' . $non_breaking_space . ']*)\[td\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_td_]',
+			'~\[(table|tr|/td)\]([\s\x{A0}]*)\[td\]~su' => '[$1]$2[_td_]',
 			// Now, any [td]s left should have a [tr] before them.
 			'~\[td\]~s' => '[tr][td]',
 			// Look for [tr]s which are correctly placed.
-			'~\[(table|/tr)\]([\s' . $non_breaking_space . ']*)\[tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_tr_]',
+			'~\[(table|/tr)\]([\s\x{A0}]*)\[tr\]~su' => '[$1]$2[_tr_]',
 			// Any remaining [tr]s should have a [table] before them.
 			'~\[tr\]~s' => '[table][tr]',
 			// Look for [/td]s followed by [/tr].
-			'~\[/td\]([\s' . $non_breaking_space . ']*)\[/tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td]$1[_/tr_]',
+			'~\[/td\]([\s\x{A0}]*)\[/tr\]~su' => '[/td]$1[_/tr_]',
 			// Any remaining [/tr]s should have a [/td].
 			'~\[/tr\]~s' => '[/td][/tr]',
 			// Look for properly opened [li]s which aren't closed.
@@ -859,14 +850,14 @@ class Msg implements \ArrayAccess
 			'~\[li\]([^\[\]]+?)\[/list\]~s' => '[_li_]$1[_/li_][/list]',
 			'~\[li\]([^\[\]]+?)$~s' => '[li]$1[/li]',
 			// Lists - find correctly closed items/lists.
-			'~\[/li\]([\s' . $non_breaking_space . ']*)\[/list\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[/list]',
+			'~\[/li\]([\s\x{A0}]*)\[/list\]~su' => '[_/li_]$1[/list]',
 			// Find list items closed and then opened.
-			'~\[/li\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[_li_]',
+			'~\[/li\]([\s\x{A0}]*)\[li\]~su' => '[_/li_]$1[_li_]',
 			// Now, find any [list]s or [/li]s followed by [li].
-			'~\[(list(?: [^\]]*?)?|/li)\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_li_]',
+			'~\[(list(?: [^\]]*?)?|/li)\]([\s\x{A0}]*)\[li\]~su' => '[$1]$2[_li_]',
 			// Allow for sub lists.
-			'~\[/li\]([\s' . $non_breaking_space . ']*)\[list\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[list]',
-			'~\[/list\]([\s' . $non_breaking_space . ']*)\[li\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[/list]$1[_li_]',
+			'~\[/li\]([\s\x{A0}]*)\[list\]~u' => '[_/li_]$1[list]',
+			'~\[/list\]([\s\x{A0}]*)\[li\]~u' => '[/list]$1[_li_]',
 			// Any remaining [li]s weren't inside a [list].
 			'~\[li\]~' => '[list][li]',
 			// Any remaining [/li]s weren't before a [/list].
@@ -908,9 +899,9 @@ class Msg implements \ArrayAccess
 
 		// Restore white space entities
 		if (!$previewing) {
-			$message = strtr($message, ['  ' => '&nbsp; ', "\n" => '<br>', Utils::$context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;']);
+			$message = strtr($message, ['  ' => '&nbsp; ', "\n" => '<br>', "\u{A0}" => '&nbsp;']);
 		} else {
-			$message = strtr($message, ['  ' => '&nbsp; ', Utils::$context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;']);
+			$message = strtr($message, ['  ' => '&nbsp; ', "\u{A0}" => '&nbsp;']);
 		}
 
 		// Now let's quickly clean up things that will slow our parser (which are common in posted code.)

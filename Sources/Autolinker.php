@@ -155,13 +155,6 @@ class Autolinker
 	 *********************/
 
 	/**
-	 * @var string
-	 *
-	 * The character encoding being used.
-	 */
-	protected string $encoding = 'UTF-8';
-
-	/**
 	 * @var bool
 	 *
 	 * If true, will only link URLs with basic TLDs.
@@ -257,20 +250,6 @@ class Autolinker
 	public function __construct(bool $only_basic = false)
 	{
 		$this->only_basic = $only_basic;
-
-		if (!empty(Utils::$context['utf8'])) {
-			$this->encoding = 'UTF-8';
-		} else {
-			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : $this->encoding);
-
-			if (in_array($this->encoding, mb_encoding_aliases('UTF-8'))) {
-				$this->encoding = 'UTF-8';
-			}
-		}
-
-		if ($this->encoding !== 'UTF-8') {
-			self::$domain_label_chars = '0-9A-Za-z\-';
-		}
 
 		// In case a mod wants to control behaviour for a special URI scheme.
 		if (!self::$integrate_autolinker_schemes_done) {
@@ -409,14 +388,14 @@ class Autolinker
 					'((?' . '>' . '[^\[]|\[/?(?!' . $no_autolink_regex . ')' . '|(?1))*)' .
 					// 4 = Closing BBC markup element.
 					'(\[/\2\])' .
-				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~iu',
 				fn($matches) => $matches[1] . str_repeat('x', strlen($matches[3])) . $matches[4],
 				$string,
 			);
 
 			// Overwrite all BBC markup elements.
 			$string = preg_replace_callback(
-				'~\[/?' . Parser::getBBCodeTagsRegex() . '[^\]]*\]~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~\[/?' . Parser::getBBCodeTagsRegex() . '[^\]]*\]~iu',
 				fn($matches) => str_repeat(' ', strlen($matches[0])),
 				$string,
 			);
@@ -430,21 +409,21 @@ class Autolinker
 					'((?' . '>' . '[^<]|</?(?!a)' . '|(?1))*)' .
 					// 3 = Closing 'a' markup element.
 					'(</a>)' .
-				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~iu',
 				fn($matches) => $matches[1] . str_repeat('x', strlen($matches[2])) . $matches[3],
 				$string,
 			);
 
 			// Overwrite all HTML elements.
 			$string = preg_replace_callback(
-				'~</?(\w+)\b([^>]*)>~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~</?(\w+)\b([^>]*)>~iu',
 				fn($matches) => str_repeat(' ', strlen($matches[0])),
 				$string,
 			);
 		}
 
 		preg_match_all(
-			'~' . $this->url_regex . '~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+			'~' . $this->url_regex . '~iu',
 			$string,
 			$matches,
 			PREG_OFFSET_CAPTURE,
@@ -482,7 +461,7 @@ class Autolinker
 		$this->setEmailRegex();
 
 		preg_match_all(
-			'~' . ($plaintext_only ? '(?:^|\s|<br>)\K' : '') . $this->email_regex . '~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+			'~' . ($plaintext_only ? '(?:^|\s|<br>)\K' : '') . $this->email_regex . '~iu',
 			$string,
 			$matches,
 			PREG_OFFSET_CAPTURE,
@@ -834,7 +813,7 @@ class Autolinker
 			return;
 		}
 
-		if (!$this->only_basic && $this->encoding === 'UTF-8') {
+		if (!$this->only_basic) {
 			Url::setTldRegex();
 			$this->tld_regex = Config::$modSettings['tld_regex'];
 		} else {

@@ -535,11 +535,11 @@ class Feed implements ActionInterface
 
 		$filename[] = $this->format;
 
-		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
+		$filename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/u', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
 
 		$file = [
 			'filename' => $filename . '.xml',
-			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=' . (empty(Utils::$context['character_set']) ? 'UTF-8' : Utils::$context['character_set']),
+			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=UTF-8',
 			'content' => implode('', $this->xml),
 			'disposition' => isset($_GET['download']) ? 'attachment' : 'inline',
 		];
@@ -2765,7 +2765,7 @@ class Feed implements ActionInterface
 		Utils::$context['feed'] = [];
 
 		// First, output the xml header.
-		Utils::$context['feed']['header'] = '<?xml version="1.0" encoding="' . Utils::$context['character_set'] . '"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
+		Utils::$context['feed']['header'] = '<' . '?xml version="1.0" encoding="UTF-8"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
 
 		// Are we outputting an rss feed or one with more information?
 		if ($format == 'rss' || $format == 'rss2') {

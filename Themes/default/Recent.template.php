@@ -91,7 +91,7 @@ function template_unread()
 
 	if (Utils::$context['showCheckboxes'])
 		echo '
-		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="', Utils::$context['character_set'], '" name="quickModForm" id="quickModForm">
+		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="qaction" value="markread">
 			<input type="hidden" name="redirect_url" value="action=unread', (!empty(Utils::$context['showing_all_topics']) ? ';all' : ''), Utils::$context['querystring_board_limits'], '">';
@@ -270,7 +270,7 @@ function template_replies()
 
 	if (Utils::$context['showCheckboxes'])
 		echo '
-		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="', Utils::$context['character_set'], '" name="quickModForm" id="quickModForm">
+		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="qaction" value="markread">
 			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty(Utils::$context['showing_all_topics']) ? ';all' : ''), Utils::$context['querystring_board_limits'], '">';

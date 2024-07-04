@@ -21,7 +21,7 @@ function template_edit_holiday()
 {
 	// Show a form for all the holiday information.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
@@ -53,7 +53,7 @@ function template_import()
 {
 	// Show a form for all the holiday information.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>

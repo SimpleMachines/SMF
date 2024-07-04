@@ -187,7 +187,7 @@ class SendDigests extends ScheduledTask
 
 			$langtxt[$lang] = [
 				'subject' => Lang::$txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
-				'char_set' => Lang::$txt['lang_character_set'],
+				'char_set' => 'UTF-8',
 				'intro' => Lang::getTxt('digest_intro_' . ($is_weekly ? 'weekly' : 'daily'), ['forum_name' => Config::$mbname]),
 				'new_topics' => Lang::$txt['digest_new_topics'],
 				'topic_lines' => Lang::$txt['digest_new_topics_line'],
@@ -222,9 +222,6 @@ class SendDigests extends ScheduledTask
 			if ($frequency < 3 || $frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4) {
 				continue;
 			}
-
-			// Right character set!
-			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : Config::$modSettings['global_character_set'];
 
 			// Do the start stuff!
 			$email = [

@@ -88,7 +88,7 @@ function template_html_above()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', '>
 <head>
-	<meta charset="', Utils::$context['character_set'], '">';
+	<meta charset="UTF-8">';
 
 	/*
 		You don't need to manually load index.css, this will be set up for you.
@@ -334,7 +334,7 @@ function template_body_above()
 	if (Utils::$context['allow_search'])
 	{
 		echo '
-			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?

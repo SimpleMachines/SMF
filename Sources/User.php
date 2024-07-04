@@ -3742,7 +3742,7 @@ class User implements \ArrayAccess
 	 */
 	public static function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
 	{
-		$name = Utils::entityDecode($name, true);
+		$name = Utils::entityDecode($name);
 		$checkName = Utils::strtolower($name);
 
 		// Administrators are never restricted ;).
