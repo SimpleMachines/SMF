@@ -208,6 +208,15 @@ interface DatabaseApiInterface
 	public function select(string $database, ?object $connection = null): bool;
 
 	/**
+	 * Gets a list of engines that MySQL supports.
+	 *
+	 * Returns an empty array for PostgreSQL.
+	 *
+	 * @return array Supported engines.
+	 */
+	public function get_engines(): array;
+
+	/**
 	 * Escape the LIKE wildcards so that they match the character and not the wildcard.
 	 *
 	 * @param string $string The string to escape

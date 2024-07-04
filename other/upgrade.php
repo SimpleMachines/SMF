@@ -1946,6 +1946,10 @@ function DatabaseChanges()
 		);
 	}
 
+	if (Config::$db_type == 'mysql') {
+		convertToInnoDb();
+	}
+
 	// So the template knows we're done.
 	if (!$support_js) {
 		$upcontext['changes_complete'] = true;
@@ -1970,8 +1974,50 @@ function setSqlMode($strict = true)
 	}
 
 	mysqli_query(Db::$db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
+}
 
+/**
+ * Converts all MySQL tables to the InnoDB engine and dynamic rows.
+ */
+function convertToInnoDb()
+{
+	if (Config::$db_type != 'mysql') {
+		return;
+	}
 
+	$tables = Db::$db->list_tables(false, Db::$db->prefix . '%');
+
+	foreach ($tables as $table) {
+		$structure = Db::$db->table_structure($table);
+
+		if ($structure['engine'] !== 'InnoDB') {
+			Db::$db->query(
+				'',
+				'ALTER TABLE {identifier:table}
+				ENGINE {literal:InnoDB}
+				ROW_FORMAT=DYNAMIC',
+				[
+					'table' => $table,
+				],
+			);
+		} elseif ($structure['row_format'] !== 'Dynamic') {
+			Db::$db->query(
+				'',
+				'ALTER TABLE {identifier:table}
+				ROW_FORMAT=DYNAMIC',
+				[
+					'table' => $table,
+				],
+			);
+		}
+	}
+
+	// Ensure all future tables use dynamic row format.
+	Db::$db->query(
+		'',
+		'SET GLOBAL innodb_default_row_format=DYNAMIC',
+		[],
+	);
 }
 
 // Delete the damn thing!
@@ -2347,7 +2393,7 @@ function parse_sql($filename)
 	);
 
 	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
-	// Note it is expected to be in the format: ENGINE=MyISAM{$db_collation};
+	// Note it is expected to be in the format: ENGINE=InnoDB{$db_collation};
 	if (Config::$db_type == 'mysql') {
 		$db_collation = ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 	} else {
@@ -2364,7 +2410,7 @@ function parse_sql($filename)
 	$last_step = '';
 
 	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
-	$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
+	$lines = preg_replace('/\) ENGINE=(InnoDB|MyISAM);/', ') ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
 
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');

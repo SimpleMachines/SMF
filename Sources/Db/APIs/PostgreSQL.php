@@ -708,6 +708,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function get_engines(): array
+	{
+		return [];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function escape_wildcard_string(string $string, bool $translate_human_wildcards = false): string
 	{
 		$replacements = [

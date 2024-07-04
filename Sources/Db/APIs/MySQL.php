@@ -665,6 +665,26 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function get_engines(): array
+	{
+		if (empty($this->engines)) {
+			$request = $this->query('', 'SHOW ENGINES', []);
+
+			while ($row = $this->fetch_assoc($request)) {
+				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
+					$this->engines[] = $row['Engine'];
+				}
+			}
+
+			$this->free_result($request);
+		}
+
+		return $this->engines;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function escape_wildcard_string(string $string, bool $translate_human_wildcards = false): string
 	{
 		$replacements = [
@@ -870,7 +890,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$auto_inc = '';
 		// Default engine type.
-		$engine = 'MyISAM';
+		$engine = 'InnoDB';
 		$charset = '';
 		$collate = '';
 
@@ -1090,7 +1110,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode(', ', $columns) . ')';
 		}
 
-		// Now just get the comment and engine... (MyISAM, etc.)
+		// Now just get the comment and engine... (InnoDB, etc.)
 		$result = $this->query(
 			'',
 			'SHOW TABLE STATUS
@@ -1102,7 +1122,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$row = $this->fetch_assoc($result);
 		$this->free_result($result);
 
-		// Probably MyISAM.... and it might have a comment.
+		// Probably InnoDB.... and it might have a comment.
 		$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
 
 		return $schema_create;
@@ -1661,18 +1681,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Which engine do we want here?
-		if (empty($this->engines)) {
-			// Figure out which engines we have
-			$get_engines = $this->query('', 'SHOW ENGINES', []);
-
-			while ($row = $this->fetch_assoc($get_engines)) {
-				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
-					$this->engines[] = $row['Engine'];
-				}
-			}
-
-			$this->free_result($get_engines);
-		}
+		$this->get_engines();
 
 		// If we don't have this engine, or didn't specify one, default to InnoDB or MyISAM
 		// depending on which one is available
@@ -1804,6 +1813,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			'columns' => $this->list_columns($table_name, true),
 			'indexes' => $this->list_indexes($table_name, true),
 			'engine' => $row['Engine'],
+			'row_format' => $row['Row_format'],
 		];
 	}
 
