@@ -177,8 +177,8 @@ class Reactions implements ActionInterface
 				$get_reacted_posts = Db::$db->query('', '
 					SELECT id_msg, COUNT (id_react) AS num_reacts
 					FROM {db_prefix}reactions
-					GROUP BY id_msg
-					WHERE id_reaction IN ({array_int:deleted})',
+					WHERE id_reaction IN ({array_int:deleted})
+					GROUP BY id_msg',
 					[
 						'deleted' => $deleted,
 					]
