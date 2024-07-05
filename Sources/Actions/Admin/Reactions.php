@@ -227,7 +227,7 @@ class Reactions implements ActionInterface
 
 					// Did they update this one? Ignore empty ones for now
 					if ($reactions[$id] != $name && !empty($name)) {
-						$updates[$id] = $name;
+						$updates[] = [$id, $name];
 					}
 				}
 
