@@ -215,7 +215,7 @@ class Reactions implements ActionInterface
 						$do_update = true;
 
 						// Insert the new reactions
-						Db::$db->insert('', '{db_prefix}reactions', ['name'], $add, []);
+						Db::$db->insert('', '{db_prefix}reactions', ['name' => 'string'], $add, []);
 					}
 				}
 
