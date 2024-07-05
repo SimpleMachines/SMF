@@ -165,7 +165,7 @@ class Reactions implements ActionInterface
 				}
 
 				// Now to do the actual deleting
-				Db::$db->query('
+				Db::$db->query('', '
 					DELETE FROM {db_pref}reactions
 					WHERE id_react IN ({array_int:deleted})',
 					[
@@ -174,7 +174,7 @@ class Reactions implements ActionInterface
 				);
 
 				// Are there any posts that used these reactions?
-				$get_reacted_posts = Db::$db->query('
+				$get_reacted_posts = Db::$db->query('', '
 					SELECT id_msg, COUNT (id_react) AS num_reacts
 					FROM {db_pref}reactions
 					GROUP BY id_msg
@@ -188,7 +188,7 @@ class Reactions implements ActionInterface
 				// Did we find anything?
 				if (Db::$db->num_rows($get_reacted_posts) > 0) {
 					while ($reacted_post = $get_reacted_posts->fetchAssoc()) {
-						Db::$db->query('
+						Db::$db->query('', '
 						UPDATE {db_prefix}messages
 						SET reactions = reactions-{int:deleted}
 						WHERE id_msg = {int:msg}',
@@ -207,7 +207,7 @@ class Reactions implements ActionInterface
 						// No funny stuff now..
 						$new_react = trim($new_react);
 						if (!empty($new_react)) {
-							$add[] = $new_react;
+							$add[] = [0 => $new_react];
 						}
 					}
 
@@ -215,7 +215,7 @@ class Reactions implements ActionInterface
 						$do_update = true;
 
 						// Insert the new reactions
-						Db::$db->insert('', '{db_prefix}reactions', ['name'], $add, ['id_reaction']);
+						Db::$db->insert('', '{db_prefix}reactions', ['name'], $add, []);
 					}
 				}
 
