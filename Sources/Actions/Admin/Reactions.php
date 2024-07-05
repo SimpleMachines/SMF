@@ -235,7 +235,7 @@ class Reactions implements ActionInterface
 				if (!empty($updates)) {
 					$do_update = true;
 					// Do the update
-					Db::$db->insert('replace', '{db_prefix}reactions', ['id_react, name'], $updates, 'id_react');
+					Db::$db->insert('replace', '{db_prefix}reactions', ['id_react, name'], $updates, ['id_reaction']);
 				}
 			}
 
