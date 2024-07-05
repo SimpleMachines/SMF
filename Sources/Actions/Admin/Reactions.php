@@ -166,7 +166,7 @@ class Reactions implements ActionInterface
 
 				// Now to do the actual deleting
 				Db::$db->query('', '
-					DELETE FROM {db_pref}reactions
+					DELETE FROM {db_prefix}reactions
 					WHERE id_reaction IN ({array_int:deleted})',
 					[
 						'deleted' => $deleted,
@@ -176,7 +176,7 @@ class Reactions implements ActionInterface
 				// Are there any posts that used these reactions?
 				$get_reacted_posts = Db::$db->query('', '
 					SELECT id_msg, COUNT (id_react) AS num_reacts
-					FROM {db_pref}reactions
+					FROM {db_prefix}reactions
 					GROUP BY id_msg
 					WHERE id_reaction IN ({array_int:deleted})',
 					[
