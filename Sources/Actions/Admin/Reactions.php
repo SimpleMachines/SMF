@@ -161,13 +161,13 @@ class Reactions implements ActionInterface
 				$deleted = [];
 
 				foreach ($_POST['delete_reacts'] as $to_delete) {
-					$deleted[] = (int)$to_delete;
+					$deleted[] = (int)  $to_delete;
 				}
 
 				// Now to do the actual deleting
 				Db::$db->query('', '
 					DELETE FROM {db_pref}reactions
-					WHERE id_react IN ({array_int:deleted})',
+					WHERE id_reaction IN ({array_int:deleted})',
 					[
 						'deleted' => $deleted,
 					]
@@ -178,7 +178,7 @@ class Reactions implements ActionInterface
 					SELECT id_msg, COUNT (id_react) AS num_reacts
 					FROM {db_pref}reactions
 					GROUP BY id_msg
-					WHERE id_react IN ({array_int:deleted})',
+					WHERE id_reaction IN ({array_int:deleted})',
 					[
 						'deleted' => $deleted,
 					]
