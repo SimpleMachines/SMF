@@ -802,8 +802,8 @@ class Config
 			'type' => 'string',
 		],
 		'db_character_set' => [
-			'default' => 'utf8',
-			'auto_delete' => 1,
+			'default' => '',
+			'auto_delete' => 3,
 			'type' => 'string',
 		],
 		'db_mb4' => [
@@ -1552,7 +1552,8 @@ class Config
 			$placeholder = md5($prefix . $var);
 			$replacement = '';
 
-			if (($setting_def['auto_delete'] ?? null) === 3) {
+			// Auto-delete, unless installing.
+			if (!defined('SMF_INSTALLING') && ($setting_def['auto_delete'] ?? null) === 3) {
 				$new_settings_vars[$var] = $setting_def['default'];
 			}
 
