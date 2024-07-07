@@ -486,7 +486,7 @@ class ServerSideIncludes
 		$request = Db::$db->query(
 			'substring',
 			'SELECT
-				m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
+				m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, m.version, b.name AS board_name,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
 				COALESCE(lt.id_msg, lmr.id_msg, 0) >= m.id_msg_modified AS is_read,
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from') . ', ' . ($limit_body ? 'SUBSTRING(m.body, 1, 384) AS body' : 'm.body') . ', m.smileys_enabled
@@ -518,7 +518,7 @@ class ServerSideIncludes
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
-			if (empty($row['version']) || version_compare($row['version'], '3.0', '<')) {
+			if (version_compare($row['version'], '3.0', '<')) {
 				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
 			}
 
@@ -2188,7 +2188,8 @@ class ServerSideIncludes
 			'',
 			'SELECT
 				m.icon, m.subject, m.body, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
-				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
+				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board,
+				m.version
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
