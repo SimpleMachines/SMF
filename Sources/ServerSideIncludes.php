@@ -518,7 +518,7 @@ class ServerSideIncludes
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
-			if (version_compare($row['version'], '3.0', '<')) {
+			if (empty($row['version']) || version_compare($row['version'], '3.0', '<')) {
 				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
 			}
 
