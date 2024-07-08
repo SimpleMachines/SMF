@@ -813,17 +813,6 @@ function loadEssentialData()
 			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
 		}
 
-		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1) {
-			Db::$db->query(
-				'',
-				'SET NAMES {string:db_character_set}',
-				[
-					'db_error_skip' => true,
-					'db_character_set' => Config::$db_character_set,
-				],
-			);
-		}
-
 		// Load the modSettings data...
 		$request = Db::$db->query(
 			'',

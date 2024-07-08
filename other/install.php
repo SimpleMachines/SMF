@@ -1179,16 +1179,6 @@ function DatabasePopulation()
 	}
 	Config::$modSettings['disableQueryCheck'] = true;
 
-	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
-	Db::$db->query(
-		'',
-		'SET NAMES {string:utf8}',
-		[
-			'db_error_skip' => true,
-			'utf8' => 'utf8',
-		],
-	);
-
 	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
 	if (str_ends_with(__DIR__, '\\')) {
 		$attachdir = __DIR__ . 'attachments';
@@ -1783,15 +1773,6 @@ function DeleteInstall()
 	if (!empty($incontext['account_existed'])) {
 		$incontext['warning'] = $incontext['account_existed'];
 	}
-
-	Db::$db->query(
-		'',
-		'SET NAMES {string:db_character_set}',
-		[
-			'db_character_set' => Config::$db_character_set,
-			'db_error_skip' => true,
-		],
-	);
 
 	// As track stats is by default enabled let's add some activity.
 	Db::$db->insert(

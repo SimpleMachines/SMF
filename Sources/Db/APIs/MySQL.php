@@ -2079,12 +2079,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$this->get_version();
 		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
 
-		// Ensure database has UTF-8 as its default input charset.
+		// Ensure database has utf8mb4 as its default input/output charset.
+		// Note: This just informs MySQL that input we send it will be in UTF-8
+		// and that it should reply in UTF-8. This is an independent matter from
+		// whatever charset MySQL uses to store the data.
 		$this->query(
 			'',
 			'SET NAMES {string:db_character_set}',
 			[
-				'db_character_set' => $this->character_set,
+				'db_character_set' => 'utf8mb4',
 			],
 		);
 	}
