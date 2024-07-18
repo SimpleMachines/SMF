@@ -1433,6 +1433,10 @@ function InstallDir()
 	elseif (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
 		fatal_lang_error('theme_install_error', false);
 
+	// Make sure theme dir doesn't end with slash.
+	else if (substr($_REQUEST['theme_dir'], -1) == '/')
+		$_REQUEST['theme_dir'] = substr($_REQUEST['theme_dir'], 0, -1);
+
 	$name = basename($_REQUEST['theme_dir']);
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
