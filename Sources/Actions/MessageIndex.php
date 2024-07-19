@@ -247,7 +247,7 @@ class MessageIndex implements ActionInterface
 			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], (bool) $row['first_smileys'], (int) $row['id_first_msg']), ['<br>' => '&#10;']));
 
 			if (Utils::entityStrlen($row['first_body']) > Config::$modSettings['preview_characters']) {
-				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
+				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, (int) Config::$modSettings['preview_characters']) . '...';
 			}
 
 			// Censor the subject and message preview.
@@ -262,7 +262,7 @@ class MessageIndex implements ActionInterface
 				$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], (bool) $row['last_smileys'], (int) $row['id_last_msg']), ['<br>' => '&#10;']));
 
 				if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters']) {
-					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';
+					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, (int) Config::$modSettings['preview_characters']) . '...';
 				}
 
 				Lang::censorText($row['last_subject']);
