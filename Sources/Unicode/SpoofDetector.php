@@ -158,6 +158,14 @@ class SpoofDetector
 		$vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 		$proper = explode("\n", Config::$modSettings['censor_proper']);
 
+		if (!empty(Config::$modSettings['censorIgnoreCase'])) {
+			$text = Utils::convertCase($text, 'fold');
+
+			foreach ($vulgar as $i => $v) {
+				$vulgar[$i] = Utils::convertCase($v, 'fold');
+			}
+		}
+
 		$text_chars = preg_split('/(.)/su', $text, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		foreach ($text_chars as $text_char) {

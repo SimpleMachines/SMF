@@ -635,7 +635,35 @@ class Lang
 		}
 
 		// Censoring isn't so very complicated :P.
-		$text = preg_replace($censor_vulgar, $censor_proper, $text);
+		foreach ($censor_vulgar as $i => $pattern) {
+			$text = preg_replace_callback(
+				$pattern,
+				function ($matches) use ($censor_proper, $i) {
+					// Special case to return the original word unchanged.
+					if ($censor_proper[$i] === '$0') {
+						return $matches[0];
+					}
+
+					// If the replacement contains any letters, try to match case.
+					if (preg_match('/\p{L}/u', $censor_proper[$i])) {
+						// If original was all uppercase, return uppercase.
+						if (Utils::strtoupper($matches[0]) === $matches[0]) {
+							return Utils::strtoupper($censor_proper[$i]);
+						}
+
+						// If original started with a capital letter, return with a capital letter.
+						$first_vulgar_char = Utils::entitySubstr($matches[0], 0, 1);
+
+						if (Utils::ucfirst($first_vulgar_char) === $first_vulgar_char) {
+							return Utils::ucfirst($censor_proper[$i]);
+						}
+					}
+
+					return $censor_proper[$i];
+				},
+				$text,
+			);
+		}
 
 		return $text;
 	}
