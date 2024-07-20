@@ -327,8 +327,6 @@ class SpoofDetector
 	 */
 	public static function checkSimilarMemberName(string $name, int $id_member = 0, bool $fatal = false): bool
 	{
-		$name_script_set = self::resolveScriptSet($name);
-
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
@@ -371,8 +369,6 @@ class SpoofDetector
 	{
 		$skeleton = self::getSkeletonString(html_entity_decode($name, ENT_QUOTES));
 
-		$name_script_set = self::resolveScriptSet($name);
-
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
@@ -414,6 +410,8 @@ class SpoofDetector
 	 */
 	protected static function checkHomographNames(string $name, array $homograph_names, bool $fatal = false): bool
 	{
+		$name_script_set = self::resolveScriptSet($name);
+
 		foreach ($homograph_names as $homograph_name) {
 			$homograph_name_script_set = self::resolveScriptSet($homograph_name);
 
