@@ -1434,7 +1434,7 @@ function InstallDir()
 		fatal_lang_error('theme_install_error', false);
 
 	// Make sure theme dir doesn't end with slash.
-	else if (substr($_REQUEST['theme_dir'], -1) == '/')
+	elseif (substr($_REQUEST['theme_dir'], -1) == DIRECTORY_SEPARATOR)
 		$_REQUEST['theme_dir'] = substr($_REQUEST['theme_dir'], 0, -1);
 
 	$name = basename($_REQUEST['theme_dir']);
