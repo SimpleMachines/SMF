@@ -682,7 +682,7 @@ class Config
 				 * Path to the cache directory for the file-based cache system.
 				 */
 				END,
-			'default' => 'dirname(__FILE__) . \'/cache\'',
+			'default' => '__DIR__ . \'/cache\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -745,7 +745,7 @@ class Config
 				 * The absolute path to the forum's folder. (not just '.'!)
 				 */
 				END,
-			'default' => 'dirname(__FILE__)',
+			'default' => '__DIR__',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -757,7 +757,7 @@ class Config
 				 * Path to the Sources directory.
 				 */
 				END,
-			'default' => 'dirname(__FILE__) . \'/Sources\'',
+			'default' => '__DIR__ . \'/Sources\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -769,7 +769,7 @@ class Config
 				 * Path to the Packages directory.
 				 */
 				END,
-			'default' => 'dirname(__FILE__) . \'/Packages\'',
+			'default' => '__DIR__ . \'/Packages\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -920,7 +920,7 @@ class Config
 						'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
 					]);
 
-					self::${$var} = eval($default . ';');
+					self::${$var} = eval('return ' . $default . ';');
 				} else {
 					self::${$var} = $def['default'];
 				}
@@ -1697,14 +1697,6 @@ class Config
 
 					if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '') {
 						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
-
-						if (str_contains($setting_def['default'], 'dirname(__FILE__)')) {
-							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
-						}
-
-						if (str_contains($setting_def['default'], '__DIR__')) {
-							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
-						}
 					}
 
 					$var_pattern = array_unique($var_pattern);
