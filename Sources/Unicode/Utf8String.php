@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * A class for manipulating UTF-8 strings.
@@ -653,9 +654,6 @@ class Utf8String implements \Stringable
 	 *
 	 * Emoji characters count as words. Punctuation and other symbols do not.
 	 *
-	 * @todo Improve the fallback code we use when the IntlBreakIterator class
-	 * is unavailable.
-	 *
 	 * @param int $level See documentation for Utf8String::sanitizeInvisibles().
 	 * @return array The words in this string.
 	 */
@@ -676,24 +674,23 @@ class Utf8String implements \Stringable
 		// Normalize the whitespace.
 		$this->string = \SMF\Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
-		// Preserve emoji characters, variation selectors, and join controls.
+		// Sanitize variation selectors and join controls.
 		$placeholders = [];
-		$this->preserveEmoji($placeholders);
 		$this->sanitizeVariationSelectors($placeholders, ' ');
 		$this->sanitizeJoinControls($placeholders, $level, ' ');
 
-		// Remove the private use characters that delimit the placeholders
-		// so that they don't interfere with the word splitting.
-		foreach ($placeholders as $key => $placeholder) {
-			$simple_placeholder = sha1($placeholder);
-			$this->string = str_replace($placeholder, $simple_placeholder, $this->string);
-			$placeholders[$key] = $simple_placeholder;
+		if (!empty($placeholders)) {
+			$this->string = strtr($this->string, array_flip($placeholders));
 		}
+
+		// We'll need these one way or another.
+		require_once __DIR__ . '/RegularExpressions.php';
+		$prop_classes = utf8_regex_properties();
 
 		// Split into words, with Unicode awareness.
 		// Prefer IntlBreakIterator if it is available.
 		if (class_exists('IntlBreakIterator')) {
-			$break_iterator = \IntlBreakIterator::createWordInstance();
+			$break_iterator = \IntlBreakIterator::createWordInstance(Lang::getLocaleFromLanguageName(Config::$language));
 			$break_iterator->setText($this->string);
 			$parts_interator = $break_iterator->getPartsIterator();
 
@@ -704,30 +701,276 @@ class Utf8String implements \Stringable
 			}
 		} else {
 			/*
-			 * This is a sad, weak substitute for the IntlBreakIterator.
-			 * It works well enough for European languages, but it fails badly
-			 * for many Asian languages. To improve it will require adding more
-			 * data to our Unicode data files and then writing code to implement
-			 * the Unicode word break algorithm.
+			 * This implements the default Unicode word break algorithm.
+			 * It does not adapt to different locales.
 			 * See https://www.unicode.org/reports/tr29/#Word_Boundaries
 			 */
-			$words = preg_split('/(?<![\p{L}\p{M}\p{N}_])(?=[\p{L}\p{M}\p{N}_])|(?<=[\p{L}\p{M}\p{N}_])(?![\p{L}\p{M}\p{N}_])/su', $this->string);
+			$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+			foreach ($chars as $i => $char) {
+				$chars[$i] = [
+					'char' => $char,
+					'break_after' => false,
+				];
+			}
+
+			for ($i = 0; $i < count($chars); $i++) {
+				$substring_before = implode('', array_slice(array_map(fn ($char) => $char['char'], $chars), 0, $i));
+				$substring_after = implode('', array_slice(array_map(fn ($char) => $char['char'], $chars), $i));
+
+				// Do not break within CRLF.
+				if ($chars[$i]['char'] === "\r" && isset($chars[$i + 1]) && $chars[$i + 1]['char'] === "\n") {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Otherwise break before and after line breaks.
+				if (preg_match('/\v/u', $char)) {
+					$chars[$i]['break_after'] = true;
+					continue;
+				}
+
+				// Do not break within emoji zwj sequences.
+				if (preg_match('/^\x{200D}[' . $prop_classes['Emoji'] . ']/u', $substring_after)) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Keep horizontal whitespace together.
+				if (preg_match('/^[' . $prop_classes['WSegSpace'] . ']{2}/u', $substring_after)) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Ignore Format and Extend characters, except after start of text and line breaks.
+				if (
+					preg_match(
+						'/^\V([' . $prop_classes['Extend'] . $prop_classes['Format'] . '\x{200D}]+)/u',
+						$substring_after,
+						$matches,
+					)
+				) {
+					// Don't break before the extending character.
+					$chars[$i]['break_after'] = false;
+
+					// Don't break after the extending characters (except perhaps the last one).
+					for ($j = 1; $j <= mb_strlen($matches[1]); $j++) {
+						$chars[$i + $j]['break_after'] = false;
+					}
+
+					// Test consists of the characters before and after the extending characters.
+					if (isset($chars[$i + $j + 1])) {
+						$test_string .= $chars[$i]['char'] . $chars[$i + $j + 1]['char'];
+
+						$current_string = $this->string;
+						$this->string = $test_string;
+
+						// Set the break_after of the last extender to whether there
+						// would be a break if the extenders were not present.
+						$chars[$i + $j]['break_after'] = count($this->extractWords($level)) > 1;
+
+						$this->string = $current_string;
+					}
+
+					$i += $j;
+
+					continue;
+				}
+
+				// Do not break between most letters.
+				if (preg_match('/^[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']{2}/u', $substring_after)) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break letters across certain punctuation, such as within "e.g." or "example.com".
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']' .
+						'[' . $prop_classes['MidLetter'] . $prop_classes['MidNumLet'] . '\']' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					$chars[++$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Hebrew_Letter'] . ']\'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['Hebrew_Letter'] . ']' .
+						'"' .
+						'[' . $prop_classes['Hebrew_Letter'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					$chars[++$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break within sequences of digits, or digits adjacent to letters (“3a”, or “A3”).
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Numeric'] . ']{2}/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^[' . $prop_classes['ALetter'] . '][' . $prop_classes['Numeric'] . ']/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'[' . $prop_classes['ALetter'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break within sequences, such as “3.2” or “3,456.789”.
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/[' . $prop_classes['Numeric'] . ']$/u',
+						$substring_before,
+					)
+					&& preg_match(
+						'/^' .
+						'[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break between Katakana.
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Katakana'] . '][' . $prop_classes['Katakana'] . ']/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break from extenders.
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']' .
+						'[' . $prop_classes['ExtendNumLet'] . ']' .
+						'/u',
+						$substring_after,
+						$matches,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['ExtendNumLet'] . ']' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']' .
+						'/u',
+						$substring_after,
+						$matches,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break within emoji flag sequences.
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Regional_Indicator'] . ']/u',
+						$substring_after,
+					)
+					&& preg_match(
+						'/[' . $prop_classes['Regional_Indicator'] . ']*$/u',
+						$substring_before,
+						$matches,
+					)
+				) {
+					$chars[$i]['break_after'] = mb_strlen($matches[0]) % 2 === 1;
+					continue;
+				}
+
+				// Otherwise, break everywhere (including around ideographs).
+				$chars[$i]['break_after'] = true;
+			}
+
+			// Build the list of words.
+			$words = [];
+			$word = '';
+
+			foreach ($chars as $char) {
+				$word .= $char['char'];
+
+				if ($char['break_after']) {
+					$words[] = $word;
+					$word = '';
+				}
+			}
 		}
 
 		foreach ($words as $key => $word) {
-			$word = trim($word);
+			$word = Utils::htmlTrim($word);
 
-			if (preg_replace('/\W/u', '', $word) === '') {
+			// Filter out punctuation marks, etc.
+			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
 				unset($words[$key]);
-
-				continue;
 			}
-
-			if (!empty($placeholders)) {
-				$word = strtr($word, array_flip($placeholders));
-			}
-
-			$words[$key] = $word;
 		}
 
 		// Restore the original version of the string.
