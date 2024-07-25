@@ -23,7 +23,7 @@ if (!defined('SMF')) {
  * Helper function for utf8_is_normalized.
  *
  * Character class lists compiled from:
- * https://unicode.org/Public/UNIDATA/extracted/DerivedNormalizationProps.txt
+ * https://www.unicode.org/Public/UCD/latest/ucd/extracted/DerivedNormalizationProps.txt
  *
  * Developers: Do not update the data in this function manually. Instead,
  * run "php -f other/update_unicode_data.php" on the command line.

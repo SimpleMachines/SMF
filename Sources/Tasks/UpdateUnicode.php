@@ -246,27 +246,40 @@ class UpdateUnicode extends BackgroundTask
 				'PropList.txt',
 				'emoji/emoji-data.txt',
 				'extracted/DerivedGeneralCategory.txt',
+				'auxiliary/WordBreakProperty.txt',
 			],
 			'props' => [
+				'ALetter',
 				'Bidi_Control',
 				'Case_Ignorable',
 				'Cn',
 				'Default_Ignorable_Code_Point',
 				'Emoji',
 				'Emoji_Modifier',
+				'Extend',
+				'ExtendNumLet',
+				'Format',
+				'Hebrew_Letter',
 				'Ideographic',
 				'Join_Control',
+				'Katakana',
+				'MidLetter',
+				'MidNum',
+				'MidNumLet',
+				'Numeric',
 				'Regional_Indicator',
 				'Variation_Selector',
+				'WSegSpace',
 			],
 			'desc' => [
 				'Helper function for utf8_sanitize_invisibles and utf8_convert_case.',
 				'',
 				'Character class lists compiled from:',
-				'https://unicode.org/Public/UNIDATA/DerivedCoreProperties.txt',
-				'https://unicode.org/Public/UNIDATA/PropList.txt',
-				'https://unicode.org/Public/UNIDATA/emoji/emoji-data.txt',
-				'https://unicode.org/Public/UNIDATA/extracted/DerivedGeneralCategory.txt',
+				self::DATA_URL_UCD . '/DerivedCoreProperties.txt',
+				self::DATA_URL_UCD . '/PropList.txt',
+				self::DATA_URL_UCD . '/emoji/emoji-data.txt',
+				self::DATA_URL_UCD . '/extracted/DerivedGeneralCategory.txt',
+				self::DATA_URL_UCD . '/auxiliary/WordBreakProperty.txt',
 			],
 			'return' => [
 				'type' => 'array',
@@ -282,8 +295,8 @@ class UpdateUnicode extends BackgroundTask
 				'Helper function for utf8_sanitize_invisibles.',
 				'',
 				'Character class lists compiled from:',
-				'https://unicode.org/Public/UNIDATA/StandardizedVariants.txt',
-				'https://unicode.org/Public/UNIDATA/emoji/emoji-variation-sequences.txt',
+				self::DATA_URL_UCD . '/StandardizedVariants.txt',
+				self::DATA_URL_UCD . '/emoji/emoji-variation-sequences.txt',
 			],
 			'return' => [
 				'type' => 'array',
@@ -299,7 +312,7 @@ class UpdateUnicode extends BackgroundTask
 				'Helper function for utf8_sanitize_invisibles.',
 				'',
 				'Character class lists compiled from:',
-				'https://unicode.org/Public/UNIDATA/extracted/DerivedJoiningType.txt',
+				self::DATA_URL_UCD . '/extracted/DerivedJoiningType.txt',
 			],
 			'return' => [
 				'type' => 'array',
@@ -315,8 +328,8 @@ class UpdateUnicode extends BackgroundTask
 				'Helper function for utf8_sanitize_invisibles.',
 				'',
 				'Character class lists compiled from:',
-				'https://unicode.org/Public/UNIDATA/extracted/DerivedCombiningClass.txt',
-				'https://unicode.org/Public/UNIDATA/IndicSyllabicCategory.txt',
+				self::DATA_URL_UCD . '/extracted/DerivedCombiningClass.txt',
+				self::DATA_URL_UCD . '/IndicSyllabicCategory.txt',
 			],
 			'return' => [
 				'type' => 'array',
@@ -332,7 +345,7 @@ class UpdateUnicode extends BackgroundTask
 				'Helper function for utf8_is_normalized.',
 				'',
 				'Character class lists compiled from:',
-				'https://unicode.org/Public/UNIDATA/extracted/DerivedNormalizationProps.txt',
+				self::DATA_URL_UCD . '/extracted/DerivedNormalizationProps.txt',
 			],
 			'return' => [
 				'type' => 'array',
@@ -517,6 +530,7 @@ class UpdateUnicode extends BackgroundTask
 			'emoji/emoji-variation-sequences.txt',
 			'extracted/DerivedGeneralCategory.txt',
 			'extracted/DerivedJoiningType.txt',
+			'auxiliary/WordBreakProperty.txt',
 		],
 		self::DATA_URL_IDNA => [
 			'IdnaMappingTable.txt',
@@ -1479,25 +1493,25 @@ class UpdateUnicode extends BackgroundTask
 					}
 
 					$this->funcs['utf8_regex_properties']['data'][$fields[1]][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+
+					$this->funcs['utf8_regex_properties']['data'][$fields[1]] = array_unique($this->funcs['utf8_regex_properties']['data'][$fields[1]]);
 				}
 
 				// We also track 'Default_Ignorable_Code_Point' property in a separate array.
-				if ($fields[1] !== 'Default_Ignorable_Code_Point') {
-					continue;
-				}
+				if ($fields[1] === 'Default_Ignorable_Code_Point') {
+					if (!str_contains($fields[0], '..')) {
+						$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
+					} else {
+						list($start, $end) = explode('..', $fields[0]);
 
-				if (!str_contains($fields[0], '..')) {
-					$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
-				} else {
-					list($start, $end) = explode('..', $fields[0]);
+						$ord_s = hexdec($start);
+						$ord_e = hexdec($end);
 
-					$ord_s = hexdec($start);
-					$ord_e = hexdec($end);
+						$ord = $ord_s;
 
-					$ord = $ord_s;
-
-					while ($ord <= $ord_e) {
-						$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+						while ($ord <= $ord_e) {
+							$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+						}
 					}
 				}
 			}
