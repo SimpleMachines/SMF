@@ -4216,6 +4216,7 @@ class BBCodeParser
 		// Reset these properties.
 		$to_reset = [
 			'message',
+			'bbc_codes',
 			'smileys',
 			'parse_tags',
 			'open_tags',

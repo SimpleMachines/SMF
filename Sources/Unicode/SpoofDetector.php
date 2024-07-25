@@ -158,6 +158,14 @@ class SpoofDetector
 		$vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 		$proper = explode("\n", Config::$modSettings['censor_proper']);
 
+		if (!empty(Config::$modSettings['censorIgnoreCase'])) {
+			$text = Utils::convertCase($text, 'fold');
+
+			foreach ($vulgar as $i => $v) {
+				$vulgar[$i] = Utils::convertCase($v, 'fold');
+			}
+		}
+
 		$text_chars = preg_split('/(.)/su', $text, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		foreach ($text_chars as $text_char) {
@@ -319,8 +327,6 @@ class SpoofDetector
 	 */
 	public static function checkSimilarMemberName(string $name, int $id_member = 0, bool $fatal = false): bool
 	{
-		$name_script_set = self::resolveScriptSet($name);
-
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
@@ -363,8 +369,6 @@ class SpoofDetector
 	{
 		$skeleton = self::getSkeletonString(html_entity_decode($name, ENT_QUOTES));
 
-		$name_script_set = self::resolveScriptSet($name);
-
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
@@ -406,6 +410,8 @@ class SpoofDetector
 	 */
 	protected static function checkHomographNames(string $name, array $homograph_names, bool $fatal = false): bool
 	{
+		$name_script_set = self::resolveScriptSet($name);
+
 		foreach ($homograph_names as $homograph_name) {
 			$homograph_name_script_set = self::resolveScriptSet($homograph_name);
 
