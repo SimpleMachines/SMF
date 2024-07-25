@@ -770,6 +770,8 @@ class Utf8String implements \Stringable
 						$chars[$i + $j]['break_after'] = count($this->extractWords($level)) > 1;
 
 						$this->string = $current_string;
+					} else {
+						$chars[$i + $j]['break_after'] = true;
 					}
 
 					$i += $j;
