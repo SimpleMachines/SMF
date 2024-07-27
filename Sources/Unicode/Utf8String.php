@@ -663,25 +663,16 @@ class Utf8String implements \Stringable
 		$original_string = $this->string;
 
 		// Replace any illegal entities with spaces.
-		$this->string = \SMF\Utils::sanitizeEntities($this->string, ' ');
+		$this->string = Utils::sanitizeEntities($this->string, ' ');
 
 		// Decode all the entities.
-		$this->string = \SMF\Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+		$this->string = Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
 
 		// Replace unwanted invisible characters with spaces.
 		$this->sanitizeInvisibles($level, ' ');
 
 		// Normalize the whitespace.
-		$this->string = \SMF\Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
-
-		// Sanitize variation selectors and join controls.
-		$placeholders = [];
-		$this->sanitizeVariationSelectors($placeholders, ' ');
-		$this->sanitizeJoinControls($placeholders, $level, ' ');
-
-		if (!empty($placeholders)) {
-			$this->string = strtr($this->string, array_flip($placeholders));
-		}
+		$this->string = Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
 		// We'll need these one way or another.
 		require_once __DIR__ . '/RegularExpressions.php';
