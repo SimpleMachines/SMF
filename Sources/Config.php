@@ -338,12 +338,15 @@ class Config
 	 *   the update will be aborted. (The only exception is during the SMF
 	 *   installation process.)
 	 *
-	 * - If 'auto_delete' is 1 or true and the variable is empty, the variable
-	 *   will be deleted from Settings.php. If 'auto_delete' is 0/false/null,
-	 *   the variable will never be deleted. If 'auto_delete' is 2, behaviour
-	 *   depends on $rebuild: if $rebuild is true, 'auto_delete' == 2 behaves
-	 *   like 'auto_delete' == 1; if $rebuild is false, 'auto_delete' == 2
-	 *   behaves like 'auto_delete' == 0.
+	 * - The 'auto_delete' property can have one of the following values:
+	 *
+	 *   - 0: The variable will never be deleted.
+	 *   - 1: If the variable is empty, it will be deleted.
+	 *   - 2: Behaviour depends on $rebuild: if $rebuild is true, 'auto_delete'
+	 *        == 2 behaves like 'auto_delete' == 1; if $rebuild is false,
+	 *        'auto_delete' == 2 behaves like 'auto_delete' == 0.
+	 *   - 3: The variable will always be deleted, even if it is not empty.
+	 *        This is used to remove obsolete variables.
 	 *
 	 * - The 'is_password' element indicates that a value is a password. This
 	 *   is used primarily to tell SMF how to interpret input when the value
@@ -832,10 +835,15 @@ class Config
 			'auto_delete' => 1,
 			'type' => 'string',
 		],
-		// This should be removed if found.
+		// These should be removed if found.
+		'tasksdir' => [
+			'default' => '',
+			'auto_delete' => 3,
+			'type' => 'string',
+		],
 		'db_last_error' => [
 			'default' => 0,
-			'auto_delete' => 1,
+			'auto_delete' => 3,
 			'type' => 'integer',
 		],
 	];
@@ -1392,11 +1400,6 @@ class Config
 	{
 		static $mtime;
 
-		// A list of settings from earlier versions of SMF that should be deleted if found.
-		$obsolete_settings = [
-			'tasksdir' => 'string',
-		];
-
 		// Should we try to unescape the strings?
 		if (empty($keep_quotes)) {
 			foreach ($config_vars as $var => $val) {
@@ -1499,11 +1502,6 @@ class Config
 			}
 		}
 
-		// Remove obsolete settings from earlier versions of SMF.
-		foreach ($obsolete_settings as $obs => $type) {
-			unset($new_settings_vars[$obs], $settings_vars[$obs], $config_vars[$obs]);
-		}
-
 		/*******************************
 		 * PART 2: Build substitutions *
 		 *******************************/
@@ -1576,14 +1574,6 @@ class Config
 			],
 		];
 
-		// Remove obsolete settings from earlier versions of SMF.
-		foreach ($obsolete_settings as $obs => $type) {
-			$substitutions[$neg_index--] = [
-				'search_pattern' => '~(/\*\*\h*\n(\h*\*[^\n]*\n)*\h*\*/|(//[^\n]*\n)*)\s*\$' . preg_quote($obs) . '\s*=\s*(' . $type_regex[$type] . ');\n?~',
-				'placeholder' => '',
-			];
-		}
-
 		if (defined('SMF_INSTALLING')) {
 			$substitutions[$neg_index--] = [
 				'search_pattern' => '~/\*.*?SMF\s+1\.\d.*?\*/~s',
@@ -1594,6 +1584,10 @@ class Config
 		foreach ($settings_defs as $var => $setting_def) {
 			$placeholder = md5($prefix . $var);
 			$replacement = '';
+
+			if (($setting_def['auto_delete'] ?? null) === 3) {
+				$new_settings_vars[$var] = $setting_def['default'];
+			}
 
 			if (!empty($setting_def['text'])) {
 				// Special handling for the license block: always at the beginning.

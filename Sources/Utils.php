@@ -260,7 +260,7 @@ class Utils
 				if (
 					// Control characters (except \t, \n, and \r).
 					($num < 0x20 && $num !== 0x9 && $num !== 0xA && $num !== 0xD)
-					|| ($num >= 0x74 && $num < 0xA0)
+					|| ($num >= 0x7F && $num < 0xA0)
 
 					// UTF-16 surrogate pairs.
 					|| ($num >= 0xD800 && $num <= 0xDFFF)

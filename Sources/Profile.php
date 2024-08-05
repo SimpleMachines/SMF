@@ -1597,11 +1597,11 @@ class Profile extends User implements \ArrayAccess
 					AND (
 						(
 							id_theme = {int:id_theme}
-							AND variable IN ({array_string:cf}
+							AND variable IN ({array_string:cf})
 						)
 						OR (
 							id_theme != {int:id_theme}
-							AND variable IN ({array_string:opt}
+							AND variable IN ({array_string:opt})
 						)
 					)',
 				[

@@ -792,7 +792,7 @@ class Autolinker
 
 			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . self::$excluded_trailing_chars . '])') . ', "giu"));';
 
-			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . self::$excluded_trailing_chars . preg_quote(implode(array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . self::$excluded_trailing_chars . preg_quote(implode('', array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
 		}
 
 		$js[] = 'const autolinker_balanced_pairs = new Map();';
