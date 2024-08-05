@@ -2527,8 +2527,10 @@ function alert_count($memID, $unread = false)
 	{
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}user_alerts
-			WHERE id_alert IN ({array_int:alerts})',
+			WHERE id_alert IN ({array_int:alerts})
+				AND id_member = {int:member}',
 			array(
+				'member' => $memID,
 				'alerts' => $deletes,
 			)
 		);
