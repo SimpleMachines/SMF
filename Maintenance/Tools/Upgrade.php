@@ -1024,9 +1024,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					[
 						'name' => $migration->name,
 						'skipped' => true,
-						'substep' => Maintenance::getSubStepProgress(),
+						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
-						'total' => Maintenance::$total_items,
+						'total' => Maintenance::$total_substeps,
 					],
 				);
 
@@ -1038,7 +1038,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				flush();
 			}
 
-			$res = false;//$res = $migration->execute();
+			$res = $migration->execute();
 
 			// Not ready yet, fail.
 			if (!$res) {
@@ -1196,7 +1196,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		return Config::updateSettingsFile(['upgradeData' => json_encode([
 			'started' => $this->time_started,
 			'updated' => $this->time_updated,
-			'debug' => $this->debug,
+			'debug' => $this->debug == true ? 1 : 0,
 			'skipped' => $this->skipped_migrations,
 			'user_id' => $this->user['id'],
 			'user_name' => $this->user['name'],

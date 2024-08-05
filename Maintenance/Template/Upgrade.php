@@ -500,9 +500,9 @@ class Upgrade implements TemplateInterface
 
 		echo '
 			<h3 id="current_tab">
-				', Lang::$txt['upgrade_current_step'], ' &quot;<span id="current_step"></span>&quot;
+				', Lang::$txt['upgrade_current_substep'], ' &quot;<span id="current_substep"></span>&quot;
 			</h3>
-			<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', Maintenance::getCurrentSubStep(), '</span> ', Lang::$txt['upgrade_outof'], ' ', Maintenance::$total_substeps, ' ', Lang::$txt['upgrade_steps'], '</strong>
+			<strong>', Lang::$txt['upgrade_completed'], ' <span id="substep_done">', Maintenance::getCurrentSubStep(), '</span> ', Lang::$txt['upgrade_outof'], ' ', Maintenance::$total_substeps, ' ', Lang::$txt['upgrade_substeps'], '</strong>
 
 			<p id="commess" class="', Maintenance::getCurrentSubStep() == Maintenance::$total_substeps ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_backup_complete'], '</p>';
 
@@ -518,11 +518,11 @@ class Upgrade implements TemplateInterface
 		// Pour me a cup of javascript.
 		echo '
 					<script>
-						const iTotalSteps = ', Maintenance::$total_substeps, ';
+						const iTotalSubSteps = ', Maintenance::$total_substeps, ';
 						const iStepWeight = ', Maintenance::$context['step_weight'], ';
 						let iCurrentSubStep  = ', Maintenance::getCurrentSubStep(), ';
-						let iStepProgress = 0;
-						let sCurrentStepName = "";
+						let iSubStepProgress = 0;
+						let sCurrentSubStepName = "";
 
 						function getNextMigration()
 						{
@@ -532,51 +532,74 @@ class Upgrade implements TemplateInterface
 								method: "GET",
 								credentials: "include",
 							}).then(function(response){
-								response.json().then(function(json) {
-									if (json.success != true) {
-										document.getElementById("errorbox").style.display = "";
-										document.getElementById("contbutt").disabled = 0;
-										document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
-										return;
-									}
-
-									sCurrentStepName = json.data.name;
-									iCurrentSubStep = parseInt(json.data.substep) + 1;
-									iStepProgress = iStepProgress / iTotalSteps;
-
-									// Update the page.
-									//document.getElementById("tab_done").innerHTML = iCurrentSubStep;
-									document.getElementById("current_step").innerHTML = sCurrentStepName;
-
-									updateProgress(iCurrentSubStep, iTotalSteps, iStepWeight, iStepProgress);
-
-									if (isDebug) {
-										setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::$txt['upgrade_completed_table'], ' &quot;" + sCurrentStepName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
-
-										if (document.getElementById("debug_section").scrollHeight) {
-											document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+								if (response.headers.get("content-type").includes("json")) {
+									response.json().then(function(json) {
+										if (json.success != true) {
+											document.getElementById("errorbox").style.display = "";
+											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+											return;
 										}
-									}
 
-									// Are we done yet?
-									if (iCurrentSubStep == iTotalSteps) {
-										document.getElementById("commess").classList.remove("hidden");
-										document.getElementById("current_tab").classList.add("hidden");
-										document.getElementById("contbutt").disabled = 0;
-										document.getElementById("database_done").value = 1;
+										sCurrentSubStepName = json.data.name;
+										iCurrentSubStep = parseInt(json.data.substep) + 1;
+										iSubStepProgress = iCurrentSubStep / iTotalSubSteps;
 
-										setTimeout("doAutoSubmit();", 1000);
-									}
-									else {
-										getNextMigration();
-									}
-								});
+										// Update the page.
+										document.getElementById("substep_done").innerHTML = iCurrentSubStep;
+										document.getElementById("current_substep").innerHTML = sCurrentSubStepName;
+
+										updateProgress(iCurrentSubStep, iTotalSubSteps, iStepWeight, iSubStepProgress);
+
+										if (isDebug) {
+											setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::$txt['upgrade_completed_table'], ' &quot;" + sCurrentSubStepName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
+
+											if (document.getElementById("debug_section").scrollHeight) {
+												document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+											}
+										}
+
+										// Are we done yet?
+										if (iCurrentSubStep == iTotalSubSteps) {
+											document.getElementById("commess").classList.remove("hidden");
+											document.getElementById("current_substep").classList.add("hidden");
+											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("database_done").value = 1;
+
+											setTimeout("doAutoSubmit();", 1000);
+										}
+										else {
+											getNextMigration();
+										}
+									}).catch(function(error) {
+										console.error("Parse Error:", error);
+
+										document.getElementById("errorbox").style.display = "";
+										if (isDebug) {
+											document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
+											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+										}
+									})
+								}
+								else {
+									response.text().then(function(msg) {
+										console.error("Response Error");
+
+										document.getElementById("errorbox").style.display = "";
+										if (isDebug) {
+											document.getElementById("errorbox").getElementsByTagName("span")[0].outerHTML = msg;
+											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+										}
+									});
+								}
 							}).catch(function(error) {
-								console.log("Fetch Error:", error);
+								console.error("Fetch Error:", error);
 
 								document.getElementById("errorbox").style.display = "";
 								if (isDebug) {
-									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
+									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText =  error;
 									document.getElementById("contbutt").disabled = 0;
 									document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
 								}
