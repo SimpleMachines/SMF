@@ -68,7 +68,7 @@ class BoardDescriptions extends MigrationBase
 				SET name = {string:name}, description = {string:description}
 				WHERE id = {int:id}',
 				[
-					'id' => $row['id'],
+					'id' => $row['id_board'],
 					'name' => Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($row['name']))),
 					'description' => Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($row['description']))),
 				],

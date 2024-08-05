@@ -1069,7 +1069,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 			// If this is JSON to keep it nice for the user do one table at a time anyway!
 			if (isset($_GET['json'])) {
-				Maintenance::setCurrentSubStep();
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,

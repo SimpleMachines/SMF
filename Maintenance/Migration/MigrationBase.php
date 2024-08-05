@@ -82,7 +82,7 @@ class MigrationBase
 	 *
 	 * If a timeout needs to occur, it is handled, ensure that prior to this call, all variables are updated..
 	 */
-	protected function handleTimeout(?int $start = 0): void
+	protected function handleTimeout(?int $start = null): void
 	{
 		if ($start !== null) {
 			Maintenance::setCurrentStart($start);
