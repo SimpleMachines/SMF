@@ -751,9 +751,17 @@ class Maintenance
 		ob_end_clean();
 		header('content-type: text/json; charset=UTF-8');
 
+		// TODO: Improve this, move debug to the root.
+		$debug_data = [];
+		if (Maintenance::$tool->isDebug()) {
+			$debug_data = $data['debug'];
+		}
+		unset($data['debug']);
+
 		echo json_encode([
 			'success' => $success,
 			'data' => $data,
+			'debug' => $debug_data
 		]);
 
 		die;

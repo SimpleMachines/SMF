@@ -542,7 +542,7 @@ class Upgrade implements TemplateInterface
 										}
 
 										sCurrentSubStepName = json.data.name;
-										iCurrentSubStep = parseInt(json.data.substep) + 1;
+										iCurrentSubStep = parseInt(json.data.substep);
 										iSubStepProgress = iCurrentSubStep / iTotalSubSteps;
 
 										// Update the page.

@@ -663,7 +663,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			if (!SecurityToken::validate('login', 'post', false)) {
 				Maintenance::$errors[] = Lang::$txt['token_verify_fail'];
 				Maintenance::$context += SecurityToken::create('login');
-				var_dump($_SESSION['token']);
 
 				return false;
 			}
@@ -1014,7 +1013,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
 			/** @var \SMF\Maintenance\Migration\MigrationBase $migration */
 			$migrationFile = $files[Maintenance::getCurrentSubStep()];
-			var_dump($migrationFile);
 			$migration = new $migrationFile();
 
 			// This is not a canidate for us to execute, skip.
@@ -1027,6 +1025,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'file' => basename($migrationFile)
+						]
 					],
 				);
 
@@ -1046,9 +1047,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					[
 						'name' => $migration->name,
 						'completed' => false,
-						'substep' => Maintenance::getSubStepProgress(),
+						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
-						'total' => Maintenance::$total_items,
+						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'file' => basename($migrationFile)
+						]
 					],
 				);
 
@@ -1065,13 +1069,17 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 			// If this is JSON to keep it nice for the user do one table at a time anyway!
 			if (isset($_GET['json'])) {
+				Maintenance::setCurrentSubStep();
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,
 						'completed' => true,
-						'substep' => Maintenance::getSubStepProgress(),
+						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
-						'total' => Maintenance::$total_items,
+						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'file' => basename($migrationFile)
+						]
 					],
 				);
 			}
@@ -1173,7 +1181,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	{
 		$defined_vars = Config::getCurrentSettings();
 
-		$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode($defined_vars['upgradeData'], true) : [];
+		$data = [];
+		try {
+			$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode(base64_decode($defined_vars['upgradeData']), true) : [];
+		}
+		catch (Exception) {}
 
 		$this->time_started = isset($data['started']) ? (int) $data['started'] : time();
 		$this->time_updated = isset($data['updated']) ? (int) $data['updated'] : time();
@@ -1193,16 +1205,23 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	private function saveUpgradeData(): bool
 	{
-		return Config::updateSettingsFile(['upgradeData' => json_encode([
+
+		$data = base64_encode(json_encode([
 			'started' => $this->time_started,
 			'updated' => $this->time_updated,
-			'debug' => $this->debug == true ? 1 : 0,
+			'debug' => $this->debug,
 			'skipped' => $this->skipped_migrations,
 			'user_id' => $this->user['id'],
 			'user_name' => $this->user['name'],
 			'maint' => $this->user['maint'],
 			'smf_version' => $this->start_smf_version,
-		])]);
+		]));
+
+		$res = Config::updateSettingsFile(['upgradeData' => $data]);
+
+		// TODO:  $res = false, failed to save settings.
+
+		return $res;
 	}
 
 	/**

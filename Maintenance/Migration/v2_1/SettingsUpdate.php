@@ -190,8 +190,8 @@ class SettingsUpdate extends MigrationBase
 
 		// Deleting integration hooks.
 		foreach (Config::$modSettings as $key => $val) {
-			if (substr($key, 0, strlen('integrate_'))  == 'integrate_') {
-				$newSettings[$key] = null;
+			if (substr((string) $key, 0, strlen('integrate_'))  == 'integrate_') {
+				$newSettings[(string) $key] = null;
 			}
 		}
 

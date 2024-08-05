@@ -47,7 +47,7 @@ class MigrationBase
 	 *
 	 * The database type we are working with.
 	 */
-	protected ?DatabaseInterface $db;
+	protected ?DatabaseInterface $db = null;
 
 	/****************
 	 * Public methods
@@ -98,7 +98,7 @@ class MigrationBase
 	 */
 	protected function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
-		if (!Config::$modSettings['disableQueryCheck']) {
+		if (!empty(Config::$modSettings['disableQueryCheck'])) {
 			Config::$modSettings['disableQueryCheck'] = true;
 		}
 
@@ -107,7 +107,6 @@ class MigrationBase
 		}
 
 		$db_values += [
-			'security_override' => true,
 			'db_error_skip' => true,
 		];
 
@@ -138,6 +137,7 @@ class MigrationBase
 			die;
 		}
 
+		// TODO: This does not send query errors to json output, only HTML.
 		Maintenance::$context['try_again'] = true;
 		Maintenance::$fatal_error = '
 		<strong>' . Lang::$txt['upgrade_unsuccessful'] . '</strong><br>
