@@ -206,6 +206,13 @@ class Msg implements \ArrayAccess
 	 */
 	public static $getter;
 
+	/**
+	 * @var array
+	 *
+	 * Variable to hold info about how many of each reaction we have
+	 */
+	public static $reacts_count = [];
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -309,6 +316,7 @@ class Msg implements \ArrayAccess
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
 			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($this->id_member, User::$me->ignoreusers),
+			'num_reactions' => (int) $this->reactions,
 		];
 
 		// Are we showing the icon?
@@ -473,7 +481,30 @@ class Msg implements \ArrayAccess
 			$this->formatted['reacts'] = [
 				'count' => $this->reactions,
 				'you' => in_array($this->id, Utils::$context['my_reactions'] ?? []),
-			];
+			];;
+
+			if ($this->reactions != 0) {
+				// Load up the number of each type of reactions
+				$query = Db::$db->query(
+					'',
+					'SELECT id_react, COUNT(*) AS num_reacts
+					FROM {db_prefix}user_reacts
+					WHERE content_type = {string:content_type}
+						AND content_id = {int:content_id}
+					GROUP BY id_react
+					ORDER BY num_reacts DESC',
+					[
+						'content_type' => 'msg',
+						'content_id' => $this->id,
+					]
+				);
+
+				// Loop through the results
+				while ($row = Db::$db->fetchAssoc($query)) {
+					$this->reactions[$row['id_react']] = $row['num_reacts'];
+				}
+				Db::$db->freeResult($query);
+			}
 
 			if ($format_options['do_permissions']) {
 				$this->formatted['reactions']['can_react'] = !User::$me->is_guest && $this->id_member != User::$me->id && !empty($topic->permissions['can_react']);
@@ -2759,6 +2790,17 @@ class Msg implements \ArrayAccess
 				'DELETE FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}',
 				[
+					'id_msg' => $message,
+				],
+			);
+
+			// Drop any reactions related to this post. We can recalculate stats later
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}user_reacts
+				WHERE content_type = {string:msg} AND content_id = {int:id_msg}',
+				[
+					'msg' => 'msg',
 					'id_msg' => $message,
 				],
 			);
