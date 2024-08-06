@@ -74,6 +74,8 @@ class DbIndex
 
 		if (($this->type ?? null) !== 'primary') {
 			$this->name = $name ?? 'idx_' . trim(implode('_', preg_replace(['/\s*/', '/\(\d+\)/'], ['', ''], $this->columns)));
+		} else {
+			$this->name = $name ?? 'primary';
 		}
 	}
 }

@@ -99,7 +99,7 @@ abstract class Table
 		}
 
 		return Db::$db->create_table(
-			$this->name,
+			'{db_prefix}' . $this->name,
 			array_map('get_object_vars', $this->columns),
 			array_map('get_object_vars', $this->indexes),
 			$parameters,
@@ -116,7 +116,7 @@ abstract class Table
 	 */
 	public function drop(): bool
 	{
-		return Db::$db->drop_table($this->name);
+		return Db::$db->drop_table('{db_prefix}' . $this->name);
 	}
 
 	/**
@@ -130,7 +130,7 @@ abstract class Table
 	 */
 	public function getCurrentStructure(): array
 	{
-		return Db::$db->table_structure($this->name);
+		return Db::$db->table_structure('{db_prefix}' . $this->name);
 	}
 
 	/**
@@ -146,7 +146,7 @@ abstract class Table
 	public function addColumn(Column $col, string $if_exists = 'update'): bool
 	{
 		return Db::$db->add_column(
-			$this->name,
+			'{db_prefix}' . $this->name,
 			get_object_vars($col),
 			[],
 			$if_exists,
@@ -166,7 +166,7 @@ abstract class Table
 	public function alterColumn(Column $col, ?string $old_name = null): bool
 	{
 		return Db::$db->change_column(
-			$this->name,
+			'{db_prefix}' . $this->name,
 			$old_name ?? $col->name,
 			get_object_vars($col),
 		);
@@ -183,7 +183,7 @@ abstract class Table
 	public function dropColumn(Column $col): bool
 	{
 		return Db::$db->remove_column(
-			$this->name,
+			'{db_prefix}' . $this->name,
 			$col->name,
 		);
 	}
@@ -201,7 +201,7 @@ abstract class Table
 	public function addIndex(DbIndex $index, string $if_exists = 'update'): bool
 	{
 		return Db::$db->add_index(
-			$this->name,
+			'{db_prefix}' . $this->name,
 			get_object_vars($index),
 			[],
 			$if_exists,
@@ -234,7 +234,7 @@ abstract class Table
 	public function dropIndex(DbIndex $index): bool
 	{
 		return Db::$db->remove_index(
-			$this->name,
+			'{db_prefix}' . $this->name,
 			$index->name,
 		);
 	}
