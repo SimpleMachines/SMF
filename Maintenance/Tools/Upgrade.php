@@ -1034,14 +1034,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 							'total' => Maintenance::$total_substeps,
 							'debug' => [
 								'call' => basename($migrationFile),
-							]
+							],
 						],
 					);
 
 					continue;
 				}
-			}
-			catch (Exception $ex) {
+			} catch (Exception $ex) {
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,
@@ -1054,7 +1053,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 							'msg' => $ex->getMessage(),
 							'file' => $ex->getFile(),
 							'line' => $ex->getLine(),
-						]
+						],
 					],
 				);
 
@@ -1067,10 +1066,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 
 			$res = false;
+
 			try {
 				$res = $migration->execute();
-			}
-			catch (Exception $ex) {
+			} catch (Exception $ex) {
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,
@@ -1083,7 +1082,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 							'msg' => $ex->getMessage(),
 							'file' => $ex->getFile(),
 							'line' => $ex->getLine(),
-						]
+						],
 					],
 				);
 
@@ -1100,8 +1099,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
 						'debug' => [
-							'call' => basename($migrationFile)
-						]
+							'call' => basename($migrationFile),
+						],
 					],
 				);
 
@@ -1127,8 +1126,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
 						'debug' => [
-							'call' => basename($migrationFile)
-						]
+							'call' => basename($migrationFile),
+						],
 					],
 				);
 			}
@@ -1231,10 +1230,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$defined_vars = Config::getCurrentSettings();
 
 		$data = [];
+
 		try {
 			$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode(base64_decode($defined_vars['upgradeData']), true) : [];
+		} catch (Exception) {
 		}
-		catch (Exception) {}
 
 		$this->time_started = isset($data['started']) ? (int) $data['started'] : time();
 		$this->time_updated = isset($data['updated']) ? (int) $data['updated'] : time();
@@ -1412,7 +1412,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Get the name of the next migration, if any.
-	 * 
+	 *
 	 * @param int $substep Substep we are looking for
 	 * @param array $files All files that we are running.
 	 */
@@ -1425,9 +1425,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 			$migrationFile = $files[$substep];
 			$migration = new $migrationFile();
+
 			return $migration->name;
-		}
-		catch (Exception) {
+		} catch (Exception) {
 			return '';
 		}
 	}

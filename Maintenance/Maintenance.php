@@ -766,6 +766,7 @@ class Maintenance
 
 		// TODO: Improve this, move debug to the root.
 		$debug_data = [];
+
 		if (Maintenance::$tool->isDebug()) {
 			$debug_data = $data['debug'];
 		}
@@ -774,7 +775,7 @@ class Maintenance
 		echo json_encode([
 			'success' => $success,
 			'data' => $data,
-			'debug' => $debug_data
+			'debug' => $debug_data,
 		]);
 
 		die;
@@ -862,7 +863,7 @@ class Maintenance
 			Config::$modSettings['theme_dir'] = empty(self::$theme_dir) ? Config::$boarddir . '/Themes/default' : self::$theme_dir;
 			Config::$modSettings['theme_url'] = empty(self::$theme_url) ? 'Themes/default' : self::$theme_url;
 			Config::$modSettings['images_url'] = empty(self::$images_url) ? 'Themes/default/images' : self::$images_url;
-		}	
+		}
 	}
 }
 
