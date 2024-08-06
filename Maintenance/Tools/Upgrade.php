@@ -904,7 +904,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// If we're not backing up then jump one.
-		if (!isset($_GET['json']) && empty($_POST['backup'])) {
+		if (!Maintenance::isJson() && empty($_POST['backup'])) {
 			return true;
 		}
 
@@ -933,7 +933,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// We are setup for backuping up.
-		if (!Sapi::isCLI() && !isset($_GET['json'])) {
+		if (!Sapi::isCLI() && !Maintenance::isJson()) {
 			return false;
 		}
 
@@ -946,7 +946,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance::setCurrentSubStep();
 
 			// If this is JSON to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['json'])) {
+			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse(
 					[
 						'current_table_name' => str_replace(Config::$db_prefix, '', $current_table),
@@ -998,8 +998,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::$total_substeps = count($files);
 
 		// We are preparing for templating.
-		if (!Sapi::isCLI() && !isset($_GET['json'])) {
+		if (!Sapi::isCLI() && !Maintenance::isJson()) {
 			Maintenance::$context['continue'] = true;
+			Maintenance::$context['current_migration'] = $this->getNextMigrationName(Maintenance::getCurrentSubStep(), $files);
 
 			return false;
 		}
@@ -1116,7 +1117,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance::setCurrentSubStep();
 
 			// If this is JSON to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['json'])) {
+			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,

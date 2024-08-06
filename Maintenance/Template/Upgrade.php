@@ -500,7 +500,7 @@ class Upgrade implements TemplateInterface
 
 		echo '
 			<h3 id="current_tab">
-				', Lang::$txt['upgrade_current_substep'], ' &quot;<span id="current_substep"></span>&quot;
+				', Lang::$txt['upgrade_current_substep'], ' &quot;<span id="current_substep">', Maintenance::$context['current_migration'] ?? '', '</span>&quot;
 			</h3>
 			<strong>', Lang::$txt['upgrade_completed'], ' <span id="substep_done">', Maintenance::getCurrentSubStep(), '</span> ', Lang::$txt['upgrade_outof'], ' ', Maintenance::$total_substeps, ' ', Lang::$txt['upgrade_substeps'], '</strong>
 
@@ -541,7 +541,9 @@ class Upgrade implements TemplateInterface
 										if (json.success != true) {
 											document.getElementById("errorbox").style.display = "";
 											document.getElementById("contbutt").disabled = 0;
-											document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+											document.getElementById("upform").action = document.getElementById("upform").action
+												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+												.replace(/start=\d+/, "start=" + iCurrentStart);
 											return;
 										}
 
@@ -554,6 +556,21 @@ class Upgrade implements TemplateInterface
 										// Update the page.
 										document.getElementById("substep_done").innerHTML = iCurrentSubStep;
 										document.getElementById("current_substep").innerHTML = sCurrentSubStepName;
+
+										// Hold up, we caught a error.
+										if (true == json.data.failed) {
+											document.getElementById("errorbox").style.display = "";
+											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("upform").action = document.getElementById("upform").action
+												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+												.replace(/start=\d+/, "start=" + iCurrentStart);
+
+											if (isDebug) {
+												document.getElementById("errorbox").getElementsByTagName("span")[0].innerHTML = json.debug.msg + "<br>" + json.debug.file + ":" + json.debug.line;
+											}
+
+											return;
+										}
 
 										updateProgress(iCurrentSubStep, iTotalSubSteps, iStepWeight, iSubStepProgress);
 
@@ -582,10 +599,12 @@ class Upgrade implements TemplateInterface
 
 										document.getElementById("errorbox").style.display = "";
 										if (isDebug) {
-											document.getElementById("current_substep").innerHTML = sNextSubStepName;
+											if (sNextSubStepName.length > 0) {
+												document.getElementById("current_substep").innerHTML = sNextSubStepName;
+											}
 											document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
 											document.getElementById("contbutt").disabled = 0;
-											document.getElementById("upform").src = document.getElementById("upform").src
+											document.getElementById("upform").action = document.getElementById("upform").action
 												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 												.replace(/start=\d+/, "start=" + iCurrentStart);
 										}
@@ -597,10 +616,12 @@ class Upgrade implements TemplateInterface
 
 										document.getElementById("errorbox").style.display = "";
 										if (isDebug) {
-											document.getElementById("current_substep").innerHTML = sNextSubStepName;
+											if (sNextSubStepName.length > 0) {
+												document.getElementById("current_substep").innerHTML = sNextSubStepName;
+											}
 											document.getElementById("errorbox").getElementsByTagName("span")[0].outerHTML = msg;
 											document.getElementById("contbutt").disabled = 0;
-											document.getElementById("upform").src = document.getElementById("upform").src
+											document.getElementById("upform").action = document.getElementById("upform").action
 												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 												.replace(/start=\d+/, "start=" + iCurrentStart);
 										}
@@ -611,10 +632,12 @@ class Upgrade implements TemplateInterface
 
 								document.getElementById("errorbox").style.display = "";
 								if (isDebug) {
-									document.getElementById("current_substep").innerHTML = sNextSubStepName;
+									if (sNextSubStepName.length > 0) {
+										document.getElementById("current_substep").innerHTML = sNextSubStepName;
+									}
 									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText =  error;
 									document.getElementById("contbutt").disabled = 0;
-									document.getElementById("upform").src = document.getElementById("upform").src
+									document.getElementById("upform").action = document.getElementById("upform").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 								}

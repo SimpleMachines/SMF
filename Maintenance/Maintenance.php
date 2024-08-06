@@ -316,6 +316,16 @@ class Maintenance
 	}
 
 	/**
+	 * Is this a json request?
+	 *
+	 * @return bool Whether we believe we are working with a json response.
+	 */
+	public static function isJson(): bool
+	{
+		return isset($_GET['json']);
+	}
+
+	/**
 	 * The URL to the script.
 	 *
 	 * @return string The URL to the script.

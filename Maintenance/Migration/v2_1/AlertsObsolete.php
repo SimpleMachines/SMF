@@ -61,7 +61,7 @@ class AlertsObsolete extends MigrationBase
 	{
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET content_type = {literal:member}, content_id = id_member_started
 			WHERE content_type = {literal:buddy}',
 			[],
@@ -71,7 +71,7 @@ class AlertsObsolete extends MigrationBase
 
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET content_type = {literal:member}
 			WHERE content_type = {literal:profile}',
 			[],
@@ -81,7 +81,7 @@ class AlertsObsolete extends MigrationBase
 
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET content_id = id_member_started
 			WHERE content_type = {literal:member}
 				AND content_action LIKE {string:content_action',
@@ -92,7 +92,7 @@ class AlertsObsolete extends MigrationBase
 
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET content_id = {literal:topic},
 				content_action = {literal:unapproved_topic}
 			WHERE content_type = {literal:unapproved}
@@ -104,7 +104,7 @@ class AlertsObsolete extends MigrationBase
 
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET content_id = {literal:topic},
 				content_action = {literal:unapproved_reply}
 			WHERE content_type = {literal:unapproved}
@@ -116,7 +116,7 @@ class AlertsObsolete extends MigrationBase
 
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts
+			'UPDATE {db_prefix}user_alerts
 			SET content_id = {literal:topic},
 				content_action = {literal:unapproved_post}
 			WHERE content_type = {literal:unapproved}
@@ -128,7 +128,7 @@ class AlertsObsolete extends MigrationBase
 
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}user_alerts AS a
+			'UPDATE {db_prefix}user_alerts AS a
 			JOIN {$db_prefix}attachments AS f
 				ON (f.id_attach = a.content_id)
 			SET

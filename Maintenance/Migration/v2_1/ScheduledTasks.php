@@ -90,7 +90,7 @@ class ScheduledTasks extends MigrationBase
 					'{db_prefix}scheduled_tasks',
 					['next_time' => 'int', 'time_offset' => 'int', 'time_regularity' => 'int', 'time_unit' => 'string', 'disabled' => 'int', 'task' => 'string', 'callable' => 'string'],
 					[$task],
-					['id_task'],
+					['next_time', 'time_offset', 'time_regularity', 'time_unit', 'disabled', 'task', 'callable'],
 				);
 			}
 

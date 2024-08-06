@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration;
 
+use Exception;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
@@ -125,9 +126,9 @@ class MigrationBase
 		}
 
 		// Checks if we can fix this.
-		$result = $this->db->processError($db_error_message, Db::$db->quote($db_string, $db_values, $connection));
+		$halt = $this->db->processError($db_error_message, Db::$db->quote($db_string, $db_values, $connection));
 
-		if ($result !== false) {
+		if ($halt === false) {
 			return $result;
 		}
 
@@ -137,7 +138,19 @@ class MigrationBase
 			die;
 		}
 
-		// TODO: This does not send query errors to json output, only HTML.
+		// If this is JSON, we can throw it, modern code will catch this.
+		else if (Maintenance::isJson()) {
+			$file = null;
+			$line = null;
+			foreach (debug_backtrace() as $step) {
+				$file = $step['file'];
+				$line = $step['line'];
+				break;
+			}
+	
+			throw new \ErrorException($db_error_message, 0, E_USER_ERROR, $file, $line);
+		}
+
 		Maintenance::$context['try_again'] = true;
 		Maintenance::$fatal_error = '
 		<strong>' . Lang::$txt['upgrade_unsuccessful'] . '</strong><br>

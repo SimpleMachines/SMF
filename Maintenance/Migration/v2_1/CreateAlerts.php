@@ -98,12 +98,17 @@ class CreateAlerts extends MigrationBase
 	public function execute(): bool
 	{
 		$members_table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
+		$user_alert_table = new \SMF\Maintenance\Database\Schema\v2_1\UserAlerts();
 		$user_alert_prefs_table = new \SMF\Maintenance\Database\Schema\v2_1\UserAlertsPrefs();
 
 		$tables = Db::$db->list_tables();
 
-		if (!in_array(Config::$db_prefix . $members_table->name, $tables)) {
-			$members_table->create();
+		if (!in_array($user_alert_table->name, $tables)) {
+			$user_alert_table->create();
+		}
+
+		if (!in_array($user_alert_prefs_table->name, $tables)) {
+			$user_alert_prefs_table->create();
 		}
 
 		$existing_structure = $members_table->getCurrentStructure();

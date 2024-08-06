@@ -474,7 +474,7 @@ abstract class ToolsBase
 		}
 
 		// If this is not json, we need to do a few things.
-		if (!isset($_GET['json'])) {
+		if (!Maintenance::isJson()) {
 			// We're going to pause after this!
 			Maintenance::$context['pause'] = true;
 

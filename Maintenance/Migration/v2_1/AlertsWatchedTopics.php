@@ -84,7 +84,7 @@ class AlertsWatchedTopics extends MigrationBase
 			// This setting is stored over in the themes table in 2.0...
 			$request = $this->query(
 				'',
-				'SELECT SELECT id_member, ({literal:topic_notify_} || id_topic) as alert_pref, 1 as alert_value
+				'SELECT id_member, ({literal:topic_notify_} || id_topic) as alert_pref, 1 as alert_value
 				FROM {db_prefix}log_notify
 				WHERE id_member <> 0 AND id_topic <> 0
 				LIMIT {int:start}, {int:limit}',
