@@ -1801,9 +1801,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		return [
 			'name' => $parsed_table_name,
-			'columns' => $this->list_columns($table_name, true),
-			'indexes' => $this->list_indexes($table_name, true),
-			'engine' => $row['Engine'],
+			'columns' => is_null($row) ? [] : $this->list_columns($table_name, true),
+			'indexes' => is_null($row) ? [] : $this->list_indexes($table_name, true),
+			'engine' => is_null($row) ? '' : $row['Engine'],
 		];
 	}
 
