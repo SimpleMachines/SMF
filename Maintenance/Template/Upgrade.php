@@ -504,7 +504,7 @@ class Upgrade implements TemplateInterface
 			</h3>
 			<strong>', Lang::$txt['upgrade_completed'], ' <span id="substep_done">', Maintenance::getCurrentSubStep(), '</span> ', Lang::$txt['upgrade_outof'], ' ', Maintenance::$total_substeps, ' ', Lang::$txt['upgrade_substeps'], '</strong>
 
-			<p id="commess" class="', Maintenance::getCurrentSubStep() == Maintenance::$total_substeps ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_backup_complete'], '</p>';
+			<p id="commess" class="', Maintenance::getCurrentSubStep() == Maintenance::$total_substeps ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_db_complete'], '</p>';
 
 		echo '
             <div class="errorbox" id="errorbox" style="display: none;">
@@ -521,12 +521,16 @@ class Upgrade implements TemplateInterface
 						const iTotalSubSteps = ', Maintenance::$total_substeps, ';
 						const iStepWeight = ', Maintenance::$context['step_weight'], ';
 						let iCurrentSubStep  = ', Maintenance::getCurrentSubStep(), ';
+						let iCurrentStart  = ', Maintenance::getCurrentStart(), ';
 						let iSubStepProgress = 0;
 						let sCurrentSubStepName = "";
+						let sNextSubStepName = "";
 
 						function getNextMigration()
 						{
-							const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json".replace(/substep=\d+/, "substep=" + iCurrentSubStep);
+							const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json"
+								.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+								.replace(/start=\d+/, "start=" + iCurrentStart);
 
 							fetch(url, {
 								method: "GET",
@@ -542,7 +546,9 @@ class Upgrade implements TemplateInterface
 										}
 
 										sCurrentSubStepName = json.data.name;
+										sNextSubStepName = json.data.next ?? "";
 										iCurrentSubStep = parseInt(json.data.substep);
+										iCurrentStart = parseInt(json.data.start);
 										iSubStepProgress = iCurrentSubStep / iTotalSubSteps;
 
 										// Update the page.
@@ -552,7 +558,7 @@ class Upgrade implements TemplateInterface
 										updateProgress(iCurrentSubStep, iTotalSubSteps, iStepWeight, iSubStepProgress);
 
 										if (isDebug) {
-											setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::$txt['upgrade_completed_table'], ' &quot;" + sCurrentSubStepName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
+											setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::$txt['upgrade_completed_migration'], ' &quot;" + sCurrentSubStepName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
 
 											if (document.getElementById("debug_section").scrollHeight) {
 												document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
@@ -576,9 +582,12 @@ class Upgrade implements TemplateInterface
 
 										document.getElementById("errorbox").style.display = "";
 										if (isDebug) {
+											document.getElementById("current_substep").innerHTML = sNextSubStepName;
 											document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
 											document.getElementById("contbutt").disabled = 0;
-											document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+											document.getElementById("upform").src = document.getElementById("upform").src
+												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+												.replace(/start=\d+/, "start=" + iCurrentStart);
 										}
 									})
 								}
@@ -588,9 +597,12 @@ class Upgrade implements TemplateInterface
 
 										document.getElementById("errorbox").style.display = "";
 										if (isDebug) {
+											document.getElementById("current_substep").innerHTML = sNextSubStepName;
 											document.getElementById("errorbox").getElementsByTagName("span")[0].outerHTML = msg;
 											document.getElementById("contbutt").disabled = 0;
-											document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+											document.getElementById("upform").src = document.getElementById("upform").src
+												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+												.replace(/start=\d+/, "start=" + iCurrentStart);
 										}
 									});
 								}
@@ -599,9 +611,12 @@ class Upgrade implements TemplateInterface
 
 								document.getElementById("errorbox").style.display = "";
 								if (isDebug) {
+									document.getElementById("current_substep").innerHTML = sNextSubStepName;
 									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText =  error;
 									document.getElementById("contbutt").disabled = 0;
-									document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iCurrentSubStep);				
+									document.getElementById("upform").src = document.getElementById("upform").src
+										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+										.replace(/start=\d+/, "start=" + iCurrentStart);
 								}
 							});
 						}

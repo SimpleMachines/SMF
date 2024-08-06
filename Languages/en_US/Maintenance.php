@@ -292,6 +292,26 @@ $txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">{cur_tabl
 	other {out of # tables}
 }.';
 
+// Upgrade - Migrations
+$txt['upgrade_steps'] = 'Steps';
+$txt['upgrade_substeps'] = 'Migrations';
+$txt['upgrade_db_changes'] = 'Executing database changes';
+$txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
+$txt['upgrade_current_step'] = 'Current Step:';
+$txt['upgrade_current_substep'] = 'Current Migration:';
+$txt['upgrade_completed'] = 'Completed';
+$txt['upgrade_outof'] = 'out of';
+$txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
+$txt['upgrade_completed_migration'] = ' Completed Migration:';
+
+
+
+
+
+
+
+
+
 // Unused Installer strings.
 $txt['install_all_lovely'] = 'We have completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
 $txt['user_refresh_install'] = 'Forum Refreshed';
@@ -300,7 +320,6 @@ $txt['db_populate_inserts'] = 'Inserted {0, number, integer} rows.';
 $txt['db_populate_tables'] = 'Created {0, number, integer} tables.';
 $txt['db_populate_insert_dups'] = 'Ignored {0, number, integer} duplicated inserts.';
 $txt['db_populate_table_dups'] = 'Ignored {0, number, integer} duplicated tables.';
-$txt['upgrade_steps'] = 'Steps';
 $txt['congratulations'] = 'Congratulations, the installation process is complete!';
 $txt['error_message_try_again'] = 'to try this step again.';
 $txt['error_message_bad_try_again'] = 'to try installing anyway, but note that this is <em>strongly</em> discouraged.';
@@ -411,15 +430,10 @@ $txt['upgrade_reprocess_attachments'] = 'Rerun attachment conversion';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="{url}" target="_blank" rel="noopener">info page</a>.';
 $txt['upgrade_migrate_settings_file'] = 'Migrate to a new Settings file.';
-$txt['upgrade_db_changes'] = 'Executing database changes';
-$txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
-$txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
 $txt['upgrade_db_complete2'] = 'Database Updates Complete! Click Continue to Proceed.';
 $txt['upgrade_script'] = 'Executing upgrade script';
 $txt['upgrade_error'] = 'Error!';
 /* Same sentence, 3 different strings */
-$txt['upgrade_completed'] = 'Completed';
-$txt['upgrade_outof'] = 'out of';
 $txt['upgrade_tables'] = 'tables.';
 
 $txt['upgrade_run_script'] = 'We recommend that you do not run this script unless you are sure that';
@@ -428,6 +442,7 @@ $txt['upgrade_run'] = 'You can choose to either run the upgrade again from the b
 
 $txt['upgrade_completed_table'] = 'Completed Table:';
 $txt['upgrade_current_table'] = 'Current Table:';
+
 $txt['upgrade_fulltext'] = 'Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated in the admin area after the upgrade is complete.';
 $txt['upgrade_conversion_proceed'] = 'Conversion Complete! Click Continue to Proceed.';
 $txt['upgrade_convert_datajson'] = 'Converting data from serialize to JSON...';

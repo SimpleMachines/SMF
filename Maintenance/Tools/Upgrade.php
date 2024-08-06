@@ -482,7 +482,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$check = @file_exists(Maintenance::$theme_dir . '/index.template.php')
 			&& @file_exists(Config::$sourcedir . '/QueryString.php')
 			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
-			&& @file_exists(Config::$sourcedir . '/Maintenance/Migration/v3_0/Migration0001.php');
+			&& @file_exists(Config::$boarddir . '/Maintenance/Migration/v3_0/MessageVersion.php');
 
 		// Need legacy scripts?
 		if (
@@ -493,7 +493,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				'<',
 			)
 		) {
-			$check &= @file_exists(Config::$sourcedir . '/Maintenance/Migration/v2_1/Migration0001.php');
+			$check &= @file_exists(Config::$boarddir . '/Maintenance/Migration/v2_1/SettingsUpdate.php');
 		}
 
 		if (!$check) {
@@ -1004,6 +1004,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		// Load up the current user safely.
+		$p = User::load(0);
+		User::$me = $p[0];
+
 		/*
 		 * WORK IN PROGRESS:
 		 * 		When SKIP occurs, note it in JS and continue to next step.
@@ -1016,22 +1020,44 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			$migration = new $migrationFile();
 
 			// This is not a canidate for us to execute, skip.
-			if (!$migration->isCandidate()) {
-				Maintenance::setCurrentSubStep();
+			try {
+				if (!$migration->isCandidate()) {
+					Maintenance::setCurrentSubStep();
+					Maintenance::jsonResponse(
+						[
+							'name' => $migration->name,
+							'next' => $this->getNextMigrationName(Maintenance::getCurrentSubStep(), $files),
+							'skipped' => true,
+							'substep' => Maintenance::getCurrentSubStep(),
+							'start' => Maintenance::getCurrentStart(),
+							'total' => Maintenance::$total_substeps,
+							'debug' => [
+								'call' => basename($migrationFile),
+							]
+						],
+					);
+
+					continue;
+				}
+			}
+			catch (Exception $ex) {
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,
-						'skipped' => true,
+						'failed' => true,
 						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
 						'debug' => [
-							'file' => basename($migrationFile)
+							'call' => basename($migrationFile),
+							'msg' => $ex->getMessage(),
+							'file' => $ex->getFile(),
+							'line' => $ex->getLine(),
 						]
 					],
 				);
 
-				continue;
+				return false;
 			}
 
 			if (Sapi::isCLI()) {
@@ -1039,7 +1065,29 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				flush();
 			}
 
-			$res = $migration->execute();
+			$res = false;
+			try {
+				$res = $migration->execute();
+			}
+			catch (Exception $ex) {
+				Maintenance::jsonResponse(
+					[
+						'name' => $migration->name,
+						'failed' => true,
+						'substep' => Maintenance::getCurrentSubStep(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'call' => basename($migrationFile),
+							'msg' => $ex->getMessage(),
+							'file' => $ex->getFile(),
+							'line' => $ex->getLine(),
+						]
+					],
+				);
+
+				return false;
+			}
 
 			// Not ready yet, fail.
 			if (!$res) {
@@ -1051,7 +1099,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
 						'debug' => [
-							'file' => basename($migrationFile)
+							'call' => basename($migrationFile)
 						]
 					],
 				);
@@ -1072,12 +1120,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				Maintenance::jsonResponse(
 					[
 						'name' => $migration->name,
+						'next' => $this->getNextMigrationName(Maintenance::getCurrentSubStep(), $files),
 						'completed' => true,
 						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
 						'debug' => [
-							'file' => basename($migrationFile)
+							'call' => basename($migrationFile)
 						]
 					],
 				);
@@ -1212,7 +1261,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			'skipped' => $this->skipped_migrations,
 			'user_id' => $this->user['id'],
 			'user_name' => $this->user['name'],
-			'maint' => $this->user['maint'],
+			'maint' => $this->user['maint'] ?? 0,
 			'smf_version' => $this->start_smf_version,
 		]));
 
@@ -1357,6 +1406,28 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Don't remove stat collection unless we unchecked the box for real, not from the loop.
 		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
 			$settings['enable_sm_stats'] = null;
+		}
+	}
+
+	/**
+	 * Get the name of the next migration, if any.
+	 * 
+	 * @param int $substep Substep we are looking for
+	 * @param array $files All files that we are running.
+	 */
+	private function getNextMigrationName(int $substep, array $files): string
+	{
+		try {
+			if (!isset($files[$substep])) {
+				return '';
+			}
+
+			$migrationFile = $files[$substep];
+			$migration = new $migrationFile();
+			return $migration->name;
+		}
+		catch (Exception) {
+			return '';
 		}
 	}
 }

@@ -251,30 +251,33 @@ class Maintenance
 
 		/** @var \SMF\Maintenance\Step $step */
 		foreach (self::$tool->getSteps() as $num => $step) {
-			if ($num >= self::getCurrentStep()) {
-				// The current weight of this step in terms of overall progress.
-				self::$context['step_weight'] = $step->getProgress();
-
-				// Make sure we reset the skip button.
-				self::$context['skip'] = false;
-
-				// Call the step and if it returns false that means pause!
-				if (
-					method_exists(self::$tool, $step->getFunction())
-					&& self::$tool->{$step->getFunction()}() === false
-				) {
-					break;
-				}
-
-					// Time to move on.
-					self::setCurrentStep();
-					self::setCurrentSubStep(0);
-					self::setCurrentStart(0);
-
-					// No warnings pass on.
-					self::$context['warning'] = '';
-
+			// Skip steps we have done, but count their progress.
+			if ($num < self::getCurrentStep()) {
+				self::$overall_percent += (int) $step->getProgress();
+				continue;
 			}
+
+			// The current weight of this step in terms of overall progress.
+			self::$context['step_weight'] = $step->getProgress();
+
+			// Make sure we reset the skip button.
+			self::$context['skip'] = false;
+
+			// Call the step and if it returns false that means pause!
+			if (
+				method_exists(self::$tool, $step->getFunction())
+				&& self::$tool->{$step->getFunction()}() === false
+			) {
+				break;
+			}
+
+			// Time to move on.
+			self::setCurrentStep();
+			self::setCurrentSubStep(0);
+			self::setCurrentStart(0);
+
+			// No warnings pass on.
+			self::$context['warning'] = '';
 
 			self::$overall_percent += (int) $step->getProgress();
 		}
@@ -844,6 +847,12 @@ class Maintenance
 				self::$images_url = strtr(self::$images_url, ['http://' => 'https://']);
 			}
 		}
+
+		if (!isset(Config::$modSettings['theme_url'])) {
+			Config::$modSettings['theme_dir'] = empty(self::$theme_dir) ? Config::$boarddir . '/Themes/default' : self::$theme_dir;
+			Config::$modSettings['theme_url'] = empty(self::$theme_url) ? 'Themes/default' : self::$theme_url;
+			Config::$modSettings['images_url'] = empty(self::$images_url) ? 'Themes/default/images' : self::$images_url;
+		}	
 	}
 }
 
