@@ -1357,6 +1357,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if (!empty($parameters['varchar_pattern_ops']) && $parameters['varchar_pattern_ops'] == $c) {
 				$c .= ' varchar_pattern_ops';
 			}
+		}
 
 		$columns = implode(',', $index_info['columns']);
 
