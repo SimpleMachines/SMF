@@ -1438,6 +1438,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$type_size = null;
 		}
 
+		// We can't have a zero size, remove it.
+		if ($type_size === 0) {
+			$type_size = null;
+		}
+
 		return [$type_name, $type_size];
 	}
 
